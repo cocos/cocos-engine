@@ -22,12 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, editable, serializable } from 'cc.decorator';
-import {
-    _applyDecoratedDescriptor,
-    _assertThisInitialized,
-    _initializerDefineProperty,
-} from '../data/utils/decorator-jsb-utils';
+import { ccclass, serializable } from 'cc.decorator';
+
 import { legacyCC } from '../global-exports';
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { applyMixins } from '../event/event-target-factory';
@@ -35,6 +31,7 @@ import { createMap } from '../utils/js-typed';
 import { property } from '../data/class-decorator';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { extname } from '../utils/path';
+import { ExtraEventMethods } from '../utils/jsb-utils'
 import '../data/object';
 
 declare const jsb: any;
@@ -45,7 +42,7 @@ declare const jsb: any;
  */
 export type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
-applyMixins(jsb.Asset, [CallbacksInvoker]);
+applyMixins(jsb.Asset, [CallbacksInvoker, ExtraEventMethods]);
 
 const assetProto: any = jsb.Asset.prototype;
 
@@ -118,46 +115,21 @@ assetProto.decRef = function (autoRelease = true): Asset {
     return this;
 };
 
+assetProto.toString = function () {
+    return this.nativeUrl;   
+};
+
 assetProto.createNode = null!;
 
 // @ts-ignore
 export type Asset = jsb.Asset;
 export const Asset = jsb.Asset;
 
-const clsDecorator = ccclass('cc.Asset');
-
-const _class2$1 = Asset;
-const _descriptor$1 = _applyDecoratedDescriptor(_class2$1.prototype, '_native', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return '';
-    },
-});
-
-//cjh FIXME: replace object.ts with object.jsb.ts
-_applyDecoratedDescriptor(jsb.CCObject.prototype, '_name', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return '';
-    },
-});
-
-_applyDecoratedDescriptor(jsb.CCObject.prototype, '_objFlags', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
-//
-
-_applyDecoratedDescriptor(_class2$1.prototype, '_nativeAsset', [property], Object.getOwnPropertyDescriptor(_class2$1.prototype, '_nativeAsset'), _class2$1.prototype);
-
-clsDecorator(Asset);
-
 legacyCC.Asset = jsb.Asset;
+
+// handle meta data, it is generated automatically
+const AssetProto = Asset.prototype;
+serializable(AssetProto, '_native');
+const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(AssetProto, '_nativeAsset');
+property(AssetProto, '_nativeAsset', _nativeAssetDescriptor);
+ccclass('cc.Asset')(Asset);

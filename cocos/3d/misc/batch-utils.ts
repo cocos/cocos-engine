@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import { MeshRenderer } from '../framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
 import { Mat4 } from '../../core/math/mat4';
@@ -52,12 +47,19 @@ function checkMaterialisSame (comp1: MeshRenderer, comp2: MeshRenderer): boolean
  */
 export class BatchingUtility {
     /**
+     * @en
      * Collect the Models under `staticModelRoot`,
      * merge all the meshes statically into one (while disabling each component),
      * and attach it to a new Model on `batchedRoot`.
      * The world transform of each model is guaranteed to be preserved.
      *
      * For a more fine-grained control over the process, use `Mesh.merge` directly.
+     * @zh
+     * 在`staticModelRoot`下收集模型。
+     * 将所有的网格静态地合并成一个（同时禁用每个组件）。
+     * 并将其附加到 `batchedRoot` 上的一个新模型。
+     * 每个模型的世界变换都被保证保留下来。
+     * 如果要对这个过程进行更精细的控制，可以直接使用 `Mesh.merge`。
      * @param staticModelRoot root of all the static models to be batched
      * @param batchedRoot the target output node
      */
@@ -96,7 +98,10 @@ export class BatchingUtility {
     }
 
     /**
+     * @en
      * Undoes everything `batchStaticModel` did.
+     * @zh
+     * 回退 `batchStaticModel` 做的工作
      *
      * @param staticModelRoot root of all the static models to be batched
      * @param batchedRoot the target output node

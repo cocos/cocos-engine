@@ -12,20 +12,30 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+#if CC_DEBUG
+static bool js_extension_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_extension_getter_return_true)
+#endif
 se::Object* __jsb_cc_extension_EventAssetsManagerEx_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_extension_EventAssetsManagerEx_class = nullptr;  // NOLINT
 
 static bool js_extension_EventAssetsManagerEx_getAssetId(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getAssetId : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         std::string result = cobj->getAssetId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getAssetId : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -37,14 +47,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getAssetId)
 static bool js_extension_EventAssetsManagerEx_getAssetsManagerEx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getAssetsManagerEx : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::extension::AssetsManagerEx* result = cobj->getAssetsManagerEx();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getAssetsManagerEx : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -56,14 +67,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getAssetsManagerEx)
 static bool js_extension_EventAssetsManagerEx_getCURLECode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getCURLECode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getCURLECode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getCURLECode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -75,14 +87,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getCURLECode)
 static bool js_extension_EventAssetsManagerEx_getCURLMCode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getCURLMCode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getCURLMCode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getCURLMCode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -94,14 +107,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getCURLMCode)
 static bool js_extension_EventAssetsManagerEx_getDownloadedBytes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getDownloadedBytes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         double result = cobj->getDownloadedBytes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getDownloadedBytes : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -113,14 +127,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getDownloadedBytes)
 static bool js_extension_EventAssetsManagerEx_getDownloadedFiles(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getDownloadedFiles : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getDownloadedFiles();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getDownloadedFiles : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -132,14 +147,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getDownloadedFiles)
 static bool js_extension_EventAssetsManagerEx_getEventCode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getEventCode : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getEventCode());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getEventCode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -151,14 +167,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getEventCode)
 static bool js_extension_EventAssetsManagerEx_getMessage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getMessage : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         std::string result = cobj->getMessage();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getMessage : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -170,14 +187,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getMessage)
 static bool js_extension_EventAssetsManagerEx_getPercent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getPercent : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getPercent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getPercent : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -189,14 +207,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getPercent)
 static bool js_extension_EventAssetsManagerEx_getPercentByFile(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getPercentByFile : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         float result = cobj->getPercentByFile();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getPercentByFile : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -208,14 +227,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getPercentByFile)
 static bool js_extension_EventAssetsManagerEx_getTotalBytes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getTotalBytes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         double result = cobj->getTotalBytes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getTotalBytes : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -227,14 +247,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getTotalBytes)
 static bool js_extension_EventAssetsManagerEx_getTotalFiles(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getTotalFiles : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getTotalFiles();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getTotalFiles : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -246,14 +267,15 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getTotalFiles)
 static bool js_extension_EventAssetsManagerEx_isResuming(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_isResuming : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isResuming();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_isResuming : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -274,7 +296,7 @@ static bool js_extension_EventAssetsManagerEx_constructor(se::State& s) // NOLIN
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
     ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_constructor : Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::extension::EventAssetsManagerEx, arg0, arg1, arg2);
     s.thisObject()->setPrivateObject(ptr);
     return true;
@@ -291,6 +313,9 @@ bool js_register_extension_EventAssetsManagerEx(se::Object* obj) // NOLINT(reada
 {
     auto* cls = se::Class::create("EventAssetsManager", obj, nullptr, _SE(js_extension_EventAssetsManagerEx_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_extension_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getAssetId", _SE(js_extension_EventAssetsManagerEx_getAssetId));
     cls->defineFunction("getAssetsManagerEx", _SE(js_extension_EventAssetsManagerEx_getAssetsManagerEx));
     cls->defineFunction("getCURLECode", _SE(js_extension_EventAssetsManagerEx_getCURLECode));
@@ -321,14 +346,15 @@ se::Class* __jsb_cc_extension_Manifest_class = nullptr;  // NOLINT
 static bool js_extension_Manifest_getManifestFileUrl(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getManifestFileUrl : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getManifestFileUrl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_getManifestFileUrl : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -340,14 +366,15 @@ SE_BIND_FUNC(js_extension_Manifest_getManifestFileUrl)
 static bool js_extension_Manifest_getManifestRoot(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getManifestRoot : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getManifestRoot();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_getManifestRoot : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -359,14 +386,15 @@ SE_BIND_FUNC(js_extension_Manifest_getManifestRoot)
 static bool js_extension_Manifest_getPackageUrl(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getPackageUrl : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getPackageUrl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_getPackageUrl : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -378,14 +406,15 @@ SE_BIND_FUNC(js_extension_Manifest_getPackageUrl)
 static bool js_extension_Manifest_getSearchPaths(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getSearchPaths : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         std::vector<std::string> result = cobj->getSearchPaths();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_getSearchPaths : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -397,14 +426,15 @@ SE_BIND_FUNC(js_extension_Manifest_getSearchPaths)
 static bool js_extension_Manifest_getVersion(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getVersion : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getVersion();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_getVersion : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -416,14 +446,15 @@ SE_BIND_FUNC(js_extension_Manifest_getVersion)
 static bool js_extension_Manifest_getVersionFileUrl(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getVersionFileUrl : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getVersionFileUrl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_getVersionFileUrl : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -435,14 +466,15 @@ SE_BIND_FUNC(js_extension_Manifest_getVersionFileUrl)
 static bool js_extension_Manifest_isLoaded(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_isLoaded : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isLoaded();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_isLoaded : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -454,14 +486,15 @@ SE_BIND_FUNC(js_extension_Manifest_isLoaded)
 static bool js_extension_Manifest_isUpdating(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_isUpdating : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isUpdating();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_isUpdating : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -473,14 +506,15 @@ SE_BIND_FUNC(js_extension_Manifest_isUpdating)
 static bool js_extension_Manifest_isVersionLoaded(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_isVersionLoaded : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isVersionLoaded();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_isVersionLoaded : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -492,14 +526,15 @@ SE_BIND_FUNC(js_extension_Manifest_isVersionLoaded)
 static bool js_extension_Manifest_parseFile(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_parseFile : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_parseFile : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->parseFile(arg0.value());
         return true;
     }
@@ -511,7 +546,8 @@ SE_BIND_FUNC(js_extension_Manifest_parseFile)
 static bool js_extension_Manifest_parseJSONString(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_parseJSONString : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -520,7 +556,7 @@ static bool js_extension_Manifest_parseJSONString(se::State& s) // NOLINT(readab
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_parseJSONString : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->parseJSONString(arg0.value(), arg1.value());
         return true;
     }
@@ -532,14 +568,15 @@ SE_BIND_FUNC(js_extension_Manifest_parseJSONString)
 static bool js_extension_Manifest_setUpdating(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_Manifest_setUpdating : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<bool, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_extension_Manifest_setUpdating : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setUpdating(arg0.value());
         return true;
     }
@@ -600,6 +637,9 @@ bool js_register_extension_Manifest(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("Manifest", obj, nullptr, _SE(js_extension_Manifest_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_extension_getter_return_true), nullptr);
+#endif
     cls->defineFunction("getManifestFileUrl", _SE(js_extension_Manifest_getManifestFileUrl));
     cls->defineFunction("getManifestRoot", _SE(js_extension_Manifest_getManifestRoot));
     cls->defineFunction("getPackageUrl", _SE(js_extension_Manifest_getPackageUrl));
@@ -629,7 +669,8 @@ se::Class* __jsb_cc_extension_AssetsManagerEx_class = nullptr;  // NOLINT
 static bool js_extension_AssetsManagerEx_checkUpdate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_checkUpdate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -644,7 +685,8 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_checkUpdate)
 static bool js_extension_AssetsManagerEx_downloadFailedAssets(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_downloadFailedAssets : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -659,14 +701,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_downloadFailedAssets)
 static bool js_extension_AssetsManagerEx_getDownloadedBytes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getDownloadedBytes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         double result = cobj->getDownloadedBytes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getDownloadedBytes : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -678,14 +721,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getDownloadedBytes)
 static bool js_extension_AssetsManagerEx_getDownloadedFiles(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getDownloadedFiles : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getDownloadedFiles();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getDownloadedFiles : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -697,14 +741,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getDownloadedFiles)
 static bool js_extension_AssetsManagerEx_getLocalManifest(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getLocalManifest : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::extension::Manifest* result = cobj->getLocalManifest();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getLocalManifest : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -716,14 +761,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getLocalManifest)
 static bool js_extension_AssetsManagerEx_getMaxConcurrentTask(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getMaxConcurrentTask : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getMaxConcurrentTask();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getMaxConcurrentTask : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -735,14 +781,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getMaxConcurrentTask)
 static bool js_extension_AssetsManagerEx_getRemoteManifest(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getRemoteManifest : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cc::extension::Manifest* result = cobj->getRemoteManifest();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getRemoteManifest : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -754,14 +801,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getRemoteManifest)
 static bool js_extension_AssetsManagerEx_getState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getState : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         auto result = static_cast<int>(cobj->getState());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -773,14 +821,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getState)
 static bool js_extension_AssetsManagerEx_getStoragePath(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getStoragePath : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::string& result = cobj->getStoragePath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getStoragePath : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -792,14 +841,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getStoragePath)
 static bool js_extension_AssetsManagerEx_getTotalBytes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getTotalBytes : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         double result = cobj->getTotalBytes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getTotalBytes : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -811,14 +861,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getTotalBytes)
 static bool js_extension_AssetsManagerEx_getTotalFiles(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getTotalFiles : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getTotalFiles();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getTotalFiles : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -830,14 +881,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_getTotalFiles)
 static bool js_extension_AssetsManagerEx_isResuming(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_isResuming : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cobj->isResuming();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_isResuming : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -850,7 +902,8 @@ static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s) // NOLI
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2( cobj, false, "js_extension_AssetsManagerEx_loadLocalManifest : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -861,7 +914,7 @@ static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s) // NOLI
             if (!ok) { ok = true; break; }
             bool result = cobj->loadLocalManifest(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_loadLocalManifest : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -878,7 +931,7 @@ static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s) // NOLI
             if (!ok) { ok = true; break; }
             bool result = cobj->loadLocalManifest(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_loadLocalManifest : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
@@ -892,17 +945,18 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_loadLocalManifest)
 static bool js_extension_AssetsManagerEx_loadRemoteManifest(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_loadRemoteManifest : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::extension::Manifest*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_loadRemoteManifest : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         bool result = cobj->loadRemoteManifest(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_loadRemoteManifest : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -914,7 +968,8 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_loadRemoteManifest)
 static bool js_extension_AssetsManagerEx_prepareUpdate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_prepareUpdate : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -929,7 +984,8 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_prepareUpdate)
 static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setEventCallback : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -965,7 +1021,7 @@ static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s) // NOLIN
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_setEventCallback : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setEventCallback(arg0.value());
         return true;
     }
@@ -977,14 +1033,15 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_setEventCallback)
 static bool js_extension_AssetsManagerEx_setMaxConcurrentTask(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setMaxConcurrentTask : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_setMaxConcurrentTask : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setMaxConcurrentTask(arg0.value());
         return true;
     }
@@ -996,7 +1053,8 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_setMaxConcurrentTask)
 static bool js_extension_AssetsManagerEx_setVerifyCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setVerifyCallback : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1037,7 +1095,7 @@ static bool js_extension_AssetsManagerEx_setVerifyCallback(se::State& s) // NOLI
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_setVerifyCallback : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setVerifyCallback(arg0.value());
         return true;
     }
@@ -1049,7 +1107,8 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_setVerifyCallback)
 static bool js_extension_AssetsManagerEx_setVersionCompareHandle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setVersionCompareHandle : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1090,7 +1149,7 @@ static bool js_extension_AssetsManagerEx_setVersionCompareHandle(se::State& s) /
             }
         } while(false)
         ;
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_setVersionCompareHandle : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setVersionCompareHandle(arg0.value());
         return true;
     }
@@ -1102,7 +1161,8 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_setVersionCompareHandle)
 static bool js_extension_AssetsManagerEx_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
-    SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_update : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1124,10 +1184,10 @@ static bool js_extension_AssetsManagerEx_create_static(se::State& s) // NOLINT(r
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_create_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cc::extension::AssetsManagerEx* result = cc::extension::AssetsManagerEx::create(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_create_static : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
@@ -1221,6 +1281,9 @@ bool js_register_extension_AssetsManagerEx(se::Object* obj) // NOLINT(readabilit
 {
     auto* cls = se::Class::create("AssetsManager", obj, nullptr, _SE(js_extension_AssetsManagerEx_constructor));
 
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_extension_getter_return_true), nullptr);
+#endif
     cls->defineFunction("checkUpdate", _SE(js_extension_AssetsManagerEx_checkUpdate));
     cls->defineFunction("downloadFailedAssets", _SE(js_extension_AssetsManagerEx_downloadFailedAssets));
     cls->defineFunction("getDownloadedBytes", _SE(js_extension_AssetsManagerEx_getDownloadedBytes));

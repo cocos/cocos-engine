@@ -23,10 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ccclass, editable, serializable } from 'cc.decorator';
-import { property } from '../data/decorators/property';
+import { ccclass } from '../data/decorators';
 import { legacyCC } from '../global-exports';
-import { _applyDecoratedDescriptor } from '../data/utils/decorator-jsb-utils';
 import { baseNodePolyfill } from './base-node-dev';
 const baseNodeProto: any = jsb.BaseNode.prototype;
 
@@ -35,66 +33,6 @@ baseNodeProto.createNode = null!;
 export type BaseNode = jsb.BaseNode;
 export const BaseNode = jsb.BaseNode;
 
-const clsDecorator = ccclass('cc.BaseNode');
-
-// const _class2$u = BaseNode;
-//
-// _applyDecoratedDescriptor(_class2$u.prototype, '_persistNode', [property], Object.getOwnPropertyDescriptor(_class2$u.prototype, '_persistNode'), _class2$u.prototype);
-// _applyDecoratedDescriptor(_class2$u.prototype, 'name', [editable], Object.getOwnPropertyDescriptor(_class2$u.prototype, 'name'), _class2$u.prototype);
-// _applyDecoratedDescriptor(_class2$u.prototype, 'children', [editable], Object.getOwnPropertyDescriptor(_class2$u.prototype, 'children'), _class2$u.prototype);
-// _applyDecoratedDescriptor(_class2$u.prototype, 'active', [editable], Object.getOwnPropertyDescriptor(_class2$u.prototype, 'active'), _class2$u.prototype);
-// _applyDecoratedDescriptor(_class2$u.prototype, 'activeInHierarchy', [editable], Object.getOwnPropertyDescriptor(_class2$u.prototype, 'activeInHierarchy'), _class2$u.prototype);
-// _applyDecoratedDescriptor(_class2$u.prototype, 'parent', [editable], Object.getOwnPropertyDescriptor(_class2$u.prototype, 'parent'), _class2$u.prototype);
-//
-// const _descriptor$o = _applyDecoratedDescriptor(_class2$u.prototype, '_parent', [serializable], {
-//     configurable: true,
-//     enumerable: true,
-//     writable: true,
-//     initializer: function initializer () {
-//         return null;
-//     },
-// });
-// const _descriptor2$h = _applyDecoratedDescriptor(_class2$u.prototype, '_children', [serializable], {
-//     configurable: true,
-//     enumerable: true,
-//     writable: true,
-//     initializer: function initializer () {
-//         return [];
-//     },
-// });
-// const _descriptor3$b = _applyDecoratedDescriptor(_class2$u.prototype, '_active', [serializable], {
-//     configurable: true,
-//     enumerable: true,
-//     writable: true,
-//     initializer: function initializer () {
-//         return true;
-//     },
-// });
-// const _descriptor4$9 = _applyDecoratedDescriptor(_class2$u.prototype, '_components', [serializable], {
-//     configurable: true,
-//     enumerable: true,
-//     writable: true,
-//     initializer: function initializer () {
-//         return [];
-//     },
-// });
-// const _descriptor5$6 = _applyDecoratedDescriptor(_class2$u.prototype, '_prefab', [serializable], {
-//     configurable: true,
-//     enumerable: true,
-//     writable: true,
-//     initializer: function initializer () {
-//         return null;
-//     },
-// });
-//
-baseNodeProto._ctor = function () {
-//     // _initializerDefineProperty(_this, "_parent", _descriptor$o, _assertThisInitialized(_this));
-//     // _initializerDefineProperty(_this, "_children", _descriptor2$h, _assertThisInitialized(_this));
-//     // _initializerDefineProperty(_this, "_active", _descriptor3$b, _assertThisInitialized(_this));
-//     // _initializerDefineProperty(_this, "_components", _descriptor4$9, _assertThisInitialized(_this));
-//     // _initializerDefineProperty(_this, "_prefab", _descriptor5$6, _assertThisInitialized(_this));
-};
-
-clsDecorator(BaseNode);
 baseNodePolyfill(BaseNode);
-legacyCC._BaseNode = jsb.BaseNode;
+legacyCC._BaseNode = BaseNode;
+ccclass('cc.BaseNode')(BaseNode);

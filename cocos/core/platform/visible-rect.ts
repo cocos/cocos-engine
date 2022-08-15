@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import { Rect } from '../math';
 import { legacyCC } from '../global-exports';
 

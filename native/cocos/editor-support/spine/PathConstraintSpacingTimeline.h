@@ -33,19 +33,19 @@
 #include <spine/PathConstraintPositionTimeline.h>
 
 namespace spine {
-	class SP_API PathConstraintSpacingTimeline : public PathConstraintPositionTimeline {
-		friend class SkeletonBinary;
-		friend class SkeletonJson;
+class SP_API PathConstraintSpacingTimeline : public PathConstraintPositionTimeline {
+    friend class SkeletonBinary;
+    friend class SkeletonJson;
 
-		RTTI_DECL
+    RTTI_DECL
 
-	public:
-		explicit PathConstraintSpacingTimeline(int frameCount);
+public:
+    explicit PathConstraintSpacingTimeline(int frameCount);
 
-		virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
+    virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
 
-		virtual int getPropertyId();
-	};
-}
+    virtual int getPropertyId();
+};
+} // namespace spine
 
 #endif /* Spine_PathConstraintSpacingTimeline_h */

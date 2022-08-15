@@ -7,11 +7,18 @@ import { CLASS_NAME_PREFIX_ANIM } from '../define';
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationMask`)
 export class AnimationMask extends Asset {
     @serializable
-    @editable
     private _jointMasks: JointMask[] = [];
 
+    @editable
     get joints (): Iterable<JointMaskInfo> {
         return this._jointMasks;
+    }
+
+    set joints (value) {
+        this.clear();
+        for (const joint of value) {
+            this.addJoint(joint.path, joint.enabled);
+        }
     }
 
     /**

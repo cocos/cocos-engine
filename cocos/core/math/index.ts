@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 import * as bits from './bits';
 
 import './deprecated';

@@ -98,6 +98,34 @@ exports.listeners = {
 
         panel.snapshotLock = false;
     },
+    'create-dump'(event) {
+        const panel = this;
+
+        const target = event.target;
+        if (!target) {
+            return;
+        }
+
+        Editor.Message.send('scene', 'snapshot');
+
+        const dump = event.target.dump;
+
+        try {
+            for (let i = 0; i < panel.uuidList.length; i++) {
+                const uuid = panel.uuidList[i];
+                if (i > 0) {
+                    dump.values[i] = dump.value;
+                }
+
+                Editor.Message.send('scene', 'update-property-from-null', {
+                    uuid,
+                    path: dump.path,
+                });
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    },
     'reset-dump'(event) {
         const panel = this;
 
@@ -126,8 +154,86 @@ exports.listeners = {
             console.error(error);
         }
     },
+    'preview-dump'(event) {
+        const panel = this;
+
+        const target = event.target;
+        if (!target) {
+            return;
+        }
+
+        const dump = event.target.dump;
+        if (!dump || panel.isDialoging) {
+            return;
+        }
+
+        /**
+         * Hack：stop preview
+         * For the reason: preview-set-property and cancel-preview-set-property is command machining.
+         * Changes between component properties are not controlled to be strictly reversible.
+         * So stop preview some properties.
+         */
+        const stopPreviewOnTheseTooltips = [
+            'i18n:animation.default_clip',
+        ];
+        if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
+            return;
+        }
+
+        const { method, value: assetUuid } = event.detail;
+        if (method === 'confirm') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                panel.previewTimeId = setTimeout(() => {
+                    for (let i = 0; i < panel.uuidList.length; i++) {
+                        const uuid = panel.uuidList[i];
+                        const { path, type } = dump;
+                        let value = dump.value;
+
+                        if (dump.values) {
+                            value = dump.values[i];
+                        }
+
+
+
+                        // 预览新的值
+                        value.uuid = assetUuid;
+
+                        Editor.Message.send('scene', 'preview-set-property', {
+                            uuid,
+                            path,
+                            dump: {
+                                type,
+                                value,
+                            },
+                        });
+                    }
+                }, 500);
+            } catch (error) {
+                console.error(error);
+            }
+        } else if (method === 'cancel') {
+            clearTimeout(panel.previewTimeId);
+
+            try {
+                for (let i = 0; i < panel.uuidList.length; i++) {
+                    const uuid = panel.uuidList[i];
+                    const { path } = dump;
+
+                    Editor.Message.send('scene', 'cancel-preview-set-property', {
+                        uuid,
+                        path,
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    },
 };
-exports.template = `
+
+exports.template = /* html*/`
 <ui-drag-area class="container">
     <section class="prefab" hidden missing>
         <ui-label value="Prefab"></ui-label>
@@ -156,7 +262,24 @@ exports.template = `
     <section class="component scene">
         <ui-prop class="release" type="dump"></ui-prop>
         <ui-prop class="ambient" type="dump"></ui-prop>
-        <ui-prop class="skybox" type="dump"></ui-prop>
+        <ui-section class="skybox" expand>
+            <div slot="header" style="display: flex;width: 100%;justify-content: space-between;">
+                <span>Skybox</span>
+                <ui-link tooltip="i18n:scene.menu.help_url">
+                    <ui-icon value="help"></ui-icon>
+                </ui-link>
+            </div>
+            <div class="before"></div>
+            <ui-prop class="reflection">
+                <ui-label slot="label">Reflection Convolution</ui-label>
+                <div slot="content">
+                    <ui-loading style="display:none; position: relative;top: 4px;"></ui-loading>
+                    <ui-button class="blue bake" style="display:none;">Bake</ui-button>
+                    <ui-button class="red remove" style="display:none;">Remove</ui-button>
+                </div>
+            </ui-prop>
+            <div class="after"></div>
+        </ui-section>
         <ui-prop class="postProcess" type="dump"></ui-prop>
         <ui-prop class="fog" type="dump"></ui-prop>
         <ui-prop class="shadows" type="dump"></ui-prop>
@@ -166,10 +289,10 @@ exports.template = `
     <ui-section class="component node" expand>
         <header class="component-header" slot="header">
             <span class="name">Node</span>
-            <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
             <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                 <ui-icon value="help"></ui-icon>
             </ui-link>
+            <ui-icon class="menu" value="menu" tooltip="i18n:ENGINE.menu.component"></ui-icon>
         </header>
 
         <ui-prop class="position" type="dump"></ui-prop>
@@ -191,7 +314,7 @@ exports.template = `
     <section class="section-missing"></section>
 
     <footer class="footer">
-        <ui-button>
+        <ui-button class="add-component">
             <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
         </ui-button>
     </footer>
@@ -200,6 +323,7 @@ exports.template = `
 </ui-drag-area>
 `;
 exports.style = fs.readFileSync(path.join(__dirname, './node.css'), 'utf8');
+
 exports.$ = {
     container: '.container',
 
@@ -220,6 +344,12 @@ exports.$ = {
     sceneFog: '.scene > .fog',
     sceneShadows: '.scene > .shadows',
     sceneSkybox: '.scene > .skybox',
+    sceneSkyboxBefore: '.scene > .skybox > .before',
+    sceneSkyboxReflection: '.scene > .skybox > .reflection',
+    sceneSkyboxReflectionLoading: '.scene > .skybox > .reflection ui-loading',
+    sceneSkyboxReflectionBake: '.scene > .skybox > .reflection .bake',
+    sceneSkyboxReflectionRemove: '.scene > .skybox > .reflection .remove',
+    sceneSkyboxAfter: '.scene > .skybox > .after',
     postProcess: '.scene > .postProcess',
     sceneOctree: '.scene > .octree',
 
@@ -243,8 +373,9 @@ exports.$ = {
     sectionAsset: '.section-asset',
 
     footer: '.footer',
-    componentAdd: '.footer > ui-button',
+    componentAdd: '.footer .add-component',
 };
+
 const Elements = {
     panel: {
         ready() {
@@ -536,49 +667,83 @@ const Elements = {
         },
     },
     scene: {
-        ready() {},
-        update() {
+        ready() {
+            const panel = this;
+
+            const $help = panel.$.sceneSkybox.querySelector('ui-link');
+            $help.value = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
+            $help.addEventListener('click', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            });
+
+            panel.$.sceneSkyboxReflectionBake.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionBake.bind(panel));
+            panel.$.sceneSkyboxReflectionRemove.addEventListener('confirm', Elements.scene.skyboxReflectionConvolutionRemove.bind(panel));
+        },
+        async update() {
             const panel = this;
 
             if (!panel.dump || !panel.dump.isScene) {
+                if (!panel.isAnimationMode()) {
+                    panel.toggleShowAddComponentBtn(true);
+                }
                 return;
             }
+            // 场景模式要隐藏按钮
+            panel.toggleShowAddComponentBtn(false);
 
             panel.$this.setAttribute('sub-type', 'scene');
             panel.$.container.removeAttribute('droppable');
 
             panel.$.sceneRelease.render(panel.dump.autoReleaseAssets);
 
-            panel.dump._globals.ambient.displayName = panel.dump._globals.ambient.displayName || 'Ambient';
-            panel.dump._globals.ambient.help =
-                panel.dump._globals.ambient.help || Editor.Utils.Url.getDocUrl('concepts/scene/ambient.html');
+            // 由于场景属性对象不是继承于 Component 所以没有修饰器，displayName, help 数据在这里配置
+            panel.dump._globals.ambient.displayName = 'Ambient';
+            panel.dump._globals.ambient.help = panel.getHelpUrl({ help: 'i18n:cc.Ambient' });
             panel.$.sceneAmbient.render(panel.dump._globals.ambient);
 
-            panel.dump._globals.fog.displayName = panel.dump._globals.fog.displayName || 'Fog';
-            panel.dump._globals.fog.help = panel.dump._globals.fog.help || Editor.Utils.Url.getDocUrl('concepts/scene/skybox.html');
+            panel.dump._globals.fog.displayName = 'Fog';
+            panel.dump._globals.fog.help = panel.getHelpUrl({ help: 'i18n:cc.Fog' });
             panel.$.sceneFog.render(panel.dump._globals.fog);
 
-            panel.dump._globals.shadows.displayName = panel.dump._globals.shadows.displayName || 'Shadows';
-            panel.dump._globals.shadows.help =
-                panel.dump._globals.shadows.help || Editor.Utils.Url.getDocUrl('concepts/scene/light/shadow.html');
+            panel.dump._globals.shadows.displayName = 'Shadows';
+            panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
-            panel.dump._globals.skybox.displayName = panel.dump._globals.skybox.displayName || 'Skybox';
-            panel.dump._globals.skybox.help = panel.dump._globals.skybox.help || Editor.Utils.Url.getDocUrl('concepts/scene/skybox.html');
-            panel.$.sceneSkybox.render(panel.dump._globals.skybox);
+            // skyBox 逻辑 start
+            panel.$.sceneSkyboxBefore.innerHTML = '';
+            panel.$.sceneSkyboxAfter.innerHTML = '';
+            let $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
+            for (const key in panel.dump._globals.skybox.value) {
+                const dump = panel.dump._globals.skybox.value[key];
+                if (!dump.visible) {
+                    continue;
+                }
+                const $prop = document.createElement('ui-prop');
+                $prop.setAttribute('type', 'dump');
+                $prop.render(dump);
+                $sceneSkyboxContainer.appendChild($prop);
 
-            panel.dump._globals.octree.help =
-                panel.dump._globals.octree.help || Editor.Utils.Url.getDocUrl('advanced-topics/native-scene-culling.html');
-            panel.dump._globals.octree.displayName = panel.dump._globals.octree.displayName || 'Octree Scene Culling';
+                if (dump.name === 'envmap') {
+                    // envmap 之后的属性放在后面的容器
+                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
+                }
+            }
+
+            Elements.scene.skyboxReflectionConvolution.call(panel);
+            // skyBox 逻辑 end
+
+            panel.dump._globals.octree.displayName = 'Octree Scene Culling';
+            panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
             // TODO：这个 if 暂时配合引擎调整使用，测试调通后可以去掉
             if (panel.dump._globals.postProcess) {
-                panel.dump._globals.postProcess.displayName = panel.dump._globals.postProcess.displayName || 'Post Process';
+                panel.dump._globals.postProcess.displayName = 'Post Process';
                 panel.$.postProcess.render(panel.dump._globals.postProcess);
             }
 
-            const $skyProps = panel.$.sceneSkybox.querySelectorAll('section > ui-prop');
+            const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
                 if ($prop.dump.name === 'envLightingType' || $prop.dump.name === 'envmap') {
                     if (!$prop.regenerate) {
@@ -615,6 +780,59 @@ const Elements = {
                     name: 'inspector',
                     method: 'generateVector',
                     args: [envMapUuid],
+                });
+            }
+        },
+        async skyboxReflectionConvolution() {
+            const panel = this;
+
+            panel.$.sceneSkyboxReflectionLoading.style.display = 'none';
+
+            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
+            if (reflectionMap.value && reflectionMap.value.uuid) {
+                panel.$.sceneSkyboxReflectionBake.style.display = 'none';
+                panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-block';
+            } else {
+                panel.$.sceneSkyboxReflectionBake.style.display = 'inline-block';
+                panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
+
+                // 在 bake 按钮显示的状态下，如果 envmap 都没有配置，那 bake 也不需要显示
+                const envMapData = panel.dump._globals.skybox.value['envmap'];
+                if (envMapData.value && envMapData.value.uuid) {
+                    panel.$.sceneSkyboxReflection.removeAttribute('hidden');
+                } else {
+                    panel.$.sceneSkyboxReflection.setAttribute('hidden', '');
+                }
+            }
+        },
+        async skyboxReflectionConvolutionBake() {
+            const panel = this;
+
+            const envMapData = panel.dump._globals.skybox.value['envmap'];
+            if (!envMapData.value || !envMapData.value.uuid) {
+                return;
+            }
+
+            panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-block';
+            panel.$.sceneSkyboxReflectionBake.style.display = 'none';
+
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'bakeReflectionConvolution',
+                args: [envMapData.value.uuid],
+            });
+        },
+        skyboxReflectionConvolutionRemove() {
+            const panel = this;
+
+            const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
+            if (reflectionMap.value && reflectionMap.value.uuid) {
+                const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
+                $skyProps.forEach(($prop) => {
+                    if ($prop.dump.name === 'reflectionMap') {
+                        $prop.dump.value.uuid = '';
+                        $prop.dispatch('change');
+                    }
                 });
             }
         },
@@ -708,7 +926,12 @@ const Elements = {
 
                 sectionBody.__sections__ = [];
 
-                componentList.forEach((component, i) => {
+                componentList.forEach(async (component, i) => {
+                    const additional = JSON.stringify([{
+                        type: component.type,
+                        value: component.value.uuid.value,
+                    }]);
+
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
                     $section.setAttribute('class', 'component');
@@ -716,11 +939,13 @@ const Elements = {
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
-                        <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
-                        <ui-icon class="menu" value="setting" tooltip="i18n:ENGINE.menu.component"></ui-icon>
+                        <ui-drag-item additional='${additional}'>
+                            <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
+                        </ui-drag-item>
                         <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
                             <ui-icon value="help"></ui-icon>
                         </ui-link>
+                         <ui-icon class="menu" value="menu" tooltip="i18n:ENGINE.menu.component"></ui-icon>
                     </header>
                     `;
 
@@ -804,11 +1029,30 @@ const Elements = {
                             exports.listeners['reset-dump'].call(panel, event);
                         });
 
+                        $panel.shadowRoot.addEventListener('create-dump', (event) => {
+                            exports.listeners['create-dump'].call(panel, event);
+                        });
+
+                        $panel.shadowRoot.addEventListener('preview-dump', (event) => {
+                            exports.listeners['preview-dump'].call(panel, event);
+                        });
+
                         $section.appendChild($panel);
                         $section.__panels__.push($panel);
                         $panel.dump = component;
                         $panel.update(component);
                     });
+
+                    // 组件丢失的提示
+                    if (component.type === "cc.MissingScript") {
+                        const $missTip = document.createElement('div');
+                        $missTip.style.cssText = "border: 1px solid var(--color-normal-border); padding: 15px; border-radius: 4px;margin-top: 15px;";
+
+                        const assetData = await Editor.Message.request('asset-db', 'query-asset-data', component.value.__scriptAsset.value.uuid);
+
+                        $missTip.innerHTML = `${assetData ? assetData.url : ''} ${Editor.I18n.t('ENGINE.components.missScriptTip')}`;
+                        $section.appendChild($missTip);
+                    }
                 });
             }
 
@@ -897,7 +1141,7 @@ const Elements = {
                     sectionMissing.appendChild($section);
                 }
                 $section.innerHTML = `
-                <span class="name">${panel.dump.removedComponents[i].name}</span>
+                <span class="name"><span>${panel.dump.removedComponents[i].name}</span> [removed]</span>
                 <ui-icon value="reset" index="${i}" tooltip="i18n:ENGINE.prefab.reset"></ui-icon>
                 <ui-icon value="save-o" index="${i}" tooltip="i18n:ENGINE.prefab.save"></ui-icon>
                 `;
@@ -957,12 +1201,12 @@ const Elements = {
                     timestamp: rawTimestamp,
                     type: 'add-component',
                     events: {
-                        confirm(id, data) {
+                        confirm(name, data) {
                             Editor.Message.send('scene', 'snapshot');
                             panel.uuidList.forEach((uuid) => {
                                 Editor.Message.send('scene', 'create-component', {
                                     uuid,
-                                    component: data.name,
+                                    component: data.cid,
                                 });
                             });
                         },
@@ -1003,6 +1247,26 @@ const Elements = {
                     } else {
                         panel.$.sectionAsset.prepend(materialPanel);
                     }
+
+                    materialPanel.focusEventInNode = () => {
+                        const children = Array.from(materialPanel.parentElement.children);
+                        children.forEach((child) => {
+                            if (child === materialPanel) {
+                                child.setAttribute('focused', '');
+                            } else {
+                                child.removeAttribute('focused');
+                            }
+                        });
+                    };
+                    materialPanel.blurEventInNode = () => {
+                        if (panel.blurSleep) {
+                            return;
+                        }
+
+                        materialPanel.removeAttribute('focused');
+                    };
+                    materialPanel.addEventListener('focus', materialPanel.focusEventInNode);
+                    materialPanel.addEventListener('blur', materialPanel.blurEventInNode);
                 }
                 materialPanels.push(materialPanel);
                 materialPrevPanel = materialPanel;
@@ -1012,6 +1276,10 @@ const Elements = {
             for (const oldChild of oldChildren) {
                 if (oldChild && materialPanels.indexOf(oldChild) === -1) {
                     await oldChild.panel.beforeClose.call(oldChild.panelObject);
+                    oldChild.removeEventListener('focus', oldChild.focusEventInNode);
+                    oldChild.removeEventListener('blur', oldChild.blurEventInNode);
+                    oldChild.focusEventInNode = undefined;
+                    oldChild.blurEventInNode = undefined;
                     oldChild.remove();
                 }
             }
@@ -1027,6 +1295,10 @@ const Elements = {
                 if (next === false) {
                     return false;
                 } else {
+                    materialPanel.removeEventListener('focus', materialPanel.focusEventInNode);
+                    materialPanel.removeEventListener('blur', materialPanel.blurEventInNode);
+                    materialPanel.focusEventInNode = undefined;
+                    materialPanel.blurEventInNode = undefined;
                     materialPanel.remove();
                 }
             }
@@ -1037,6 +1309,37 @@ const Elements = {
 };
 
 exports.methods = {
+    undo() {
+        this.restore('undo');
+    },
+    redo() {
+        this.restore('redo');
+    },
+    restore(cmd) {
+        if (!cmd) {
+            return;
+        }
+
+        const panel = this;
+
+        panel.blurSleep = true;
+
+        clearTimeout(panel.blurSleepTimeId);
+        panel.blurSleepTimeId = setTimeout(() => {
+            panel.blurSleep = false;
+        }, 1000);
+
+        const children = Array.from(panel.$.sectionAsset.children);
+        for (const materialPanel of children) {
+            if (materialPanel.hasAttribute('focused')) {
+                materialPanel.panelObject[cmd]();
+                return;
+            }
+        }
+
+        Editor.Message.send('scene', cmd);
+    },
+
     /**
      * 获取组件帮助菜单的 url
      * @param editor
@@ -1145,15 +1448,17 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.copy_component'),
                     enabled: !isMultiple,
                     async click() {
+                        const info = JSON.parse(JSON.stringify(dump));
+                        delete info.value.__prefab;
                         Editor.Clipboard.write('_dump_component_', {
-                            type: dump.type,
-                            dump: JSON.parse(JSON.stringify(dump)),
+                            cid: dump.cid,
+                            dump: info,
                         });
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.paste_component_values'),
-                    enabled: !!(clipboardComponentInfo && clipboardComponentInfo.type === dump.type),
+                    enabled: !!(clipboardComponentInfo && clipboardComponentInfo.cid === dump.cid),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1184,7 +1489,7 @@ exports.methods = {
                             const uuid = uuidList[index];
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
-                                component: clipboardComponentInfo.type,
+                                component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值
@@ -1194,7 +1499,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
@@ -1307,7 +1612,7 @@ exports.methods = {
                         uuidList.forEach(async (uuid) => {
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
-                                component: clipboardComponentInfo.type,
+                                component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值
@@ -1317,7 +1622,7 @@ exports.methods = {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
-                                if (lastComp && lastComp.type === clipboardComponentInfo.type) {
+                                if (lastComp?.cid === clipboardComponentInfo.cid) {
                                     await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
@@ -1378,6 +1683,10 @@ exports.methods = {
         const panel = this;
 
         const materialUuids = panel.assets['cc.Material'];
+        if (!materialUuids) {
+            return;
+        }
+
         try {
             for (const dumpPath in materialUuids[assetUuid]) {
                 const dumpData = materialUuids[assetUuid][dumpPath];
@@ -1397,10 +1706,28 @@ exports.methods = {
             console.error(error);
         }
     },
+    toggleShowAddComponentBtn(show) {
+        this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
+    },
+    isAnimationMode() {
+        return Editor.EditMode.getMode() === 'animation';
+    },
+    handlerSceneChangeMode() {
+        this.toggleShowAddComponentBtn(!this.isAnimationMode()); // 动画编辑模式下，要隐藏按钮
+    },
 };
 
 exports.update = async function update(uuidList, renderMap, dropConfig, typeManager, renderManager) {
     const panel = this;
+
+    const enginePath = path.join('editor', 'inspector', 'components');
+    Object.values(renderMap).forEach((config) => {
+        Object.values(config).forEach((renders) => {
+            renders.sort((a, b) => {
+                return b.indexOf(enginePath) - a.indexOf(enginePath);
+            });
+        });
+    });
 
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
@@ -1430,7 +1757,9 @@ exports.ready = async function ready() {
     }
 
     this.replaceAssetUuidInNodesBind = this.replaceAssetUuidInNodes.bind(this);
+    this.handlerSceneChangeModeBind = this.handlerSceneChangeMode.bind(this);
     Editor.Message.addBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
+    Editor.Message.addBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.close = async function close() {
@@ -1444,6 +1773,7 @@ exports.close = async function close() {
     }
 
     Editor.Message.removeBroadcastListener('inspector:replace-asset-uuid-in-nodes', this.replaceAssetUuidInNodesBind);
+    Editor.Message.removeBroadcastListener('scene:change-mode', this.handlerSceneChangeModeBind);
 };
 
 exports.beforeClose = async function beforeClose() {

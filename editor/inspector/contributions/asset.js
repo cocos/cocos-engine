@@ -1,9 +1,9 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const History = require('./asset-history/index');
 
-const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
-
+const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
 exports.listeners = {};
 
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
@@ -23,7 +23,9 @@ exports.template = `
         <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-icon class="copy" value="copy" tooltip="i18n:ENGINE.inspector.cloneToEdit"></ui-icon>
+        <ui-button type="icon" class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
+            <ui-icon value="copy"></ui-icon>
+        </ui-button>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -32,6 +34,7 @@ exports.template = `
     </section>
 </ui-section>
 `;
+
 exports.$ = {
     container: '.container',
     header: '.header',
@@ -48,6 +51,7 @@ exports.$ = {
     contentSection: '.content-section',
     contentFooter: '.content-footer',
 };
+
 const Elements = {
     panel: {
         ready() {
@@ -64,6 +68,8 @@ const Elements = {
             };
 
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            panel.history = new History();
         },
         async update() {
             const panel = this;
@@ -145,6 +151,8 @@ const Elements = {
             const panel = this;
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            delete panel.history;
         },
     },
     header: {
@@ -221,14 +229,19 @@ const Elements = {
             if (panel.asset.readonly) {
                 panel.$.name.setAttribute('tooltip', 'i18n:inspector.asset.prohibitEditInternalAsset');
                 panel.$.name.setAttribute('readonly', '');
-                panel.$.copy.style.display = 'inline-block';
+
+                if (panel.asset.source) {
+                    panel.$.copy.style.display = 'inline-block';
+                } else {
+                    panel.$.copy.style.display = 'none';
+                }
             } else {
                 panel.$.name.removeAttribute('tooltip');
                 panel.$.name.removeAttribute('readonly');
                 panel.$.copy.style.display = 'none';
             }
 
-            const isImage = showImage.includes(panel.asset.type);
+            const isImage = showImage.includes(panel.asset.importer);
 
             if (isImage) {
                 panel.$.image.value = panel.asset.uuid;
@@ -292,8 +305,15 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
-                        contentRender.__panels__[i].addEventListener('change', () => {
+                        contentRender.__panels__[i].addEventListener('change', (event) => {
                             Elements.header.isDirty.call(panel);
+
+                            if (!event || !event.args || !event.args[0] || event.args[0].snapshot !== false) {
+                                panel.history && panel.history.snapshot(panel);
+                            }
+                        });
+                        contentRender.__panels__[i].addEventListener('snapshot', () => {
+                            panel.history && panel.history.snapshot(panel);
                         });
                         contentRender.appendChild(contentRender.__panels__[i]);
                     }
@@ -314,7 +334,104 @@ const Elements = {
         },
     },
 };
+
 exports.methods = {
+    undo() {
+        const panel = this;
+        panel.history && panel.history.undo();
+    },
+    redo() {
+        const panel = this;
+        panel.history && panel.history.redo();
+    },
+    async record() {
+        const panel = this;
+
+        const renderData = {};
+        for (const renderName in panel.contentRenders) {
+            const { contentRender } = panel.contentRenders[renderName];
+
+            if (!Array.isArray(contentRender.__panels__)) {
+                continue;
+            }
+
+            renderData[renderName] = [];
+
+            for (let i = 0; i < contentRender.__panels__.length; i++) {
+                if (contentRender.__panels__[i].panelObject.record) {
+                    const data = await contentRender.__panels__[i].callMethod('record');
+                    renderData[renderName].push(data);
+                } else {
+                    renderData[renderName].push(null);
+                }
+            }
+        }
+
+        return {
+            uuidListStr:JSON.stringify(panel.uuidList),
+            metaListStr:JSON.stringify(panel.metaList),
+            renderDataStr:JSON.stringify(renderData),
+        };
+    },
+    restore(record) {
+        const panel = this;
+
+        try {
+            const { uuidListStr, metaListStr, renderDataStr } = record;
+
+            // uuid 数据不匹配表明不是同一个编辑对象了
+            if (JSON.stringify(panel.uuidList) !== uuidListStr) {
+                return false;
+            }
+
+            // metaList 数据不一样的对 metaList 进行更新
+            if (JSON.stringify(panel.metaList) !== metaListStr) {
+                panel.metaList = JSON.parse(metaListStr);
+
+                for (const renderName in panel.contentRenders) {
+                    const { contentRender } = panel.contentRenders[renderName];
+
+                    if (!Array.isArray(contentRender.__panels__)) {
+                        continue;
+                    }
+
+                    for (let i = 0; i < contentRender.__panels__.length; i++) {
+                        contentRender.__panels__[i].update(panel.assetList, panel.metaList);
+                    }
+                }
+            }
+
+            const renderData = JSON.parse(renderDataStr);
+            for (const renderName in panel.contentRenders) {
+                const { contentRender } = panel.contentRenders[renderName];
+
+                if (!Array.isArray(contentRender.__panels__)) {
+                    continue;
+                }
+
+                if (!Array.isArray(renderData[renderName])) {
+                    continue;
+                }
+
+                if (!renderData[renderName].length) {
+                    continue;
+                }
+
+                for (let i = 0; i < contentRender.__panels__.length; i++) {
+                    if (renderData[renderName][i] && contentRender.__panels__[i].panelObject.restore) {
+                        contentRender.__panels__[i].callMethod('restore', renderData[renderName][i]);
+                    }
+                }
+            }
+
+            Elements.header.isDirty.call(panel);
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    },
+
     async isDirty() {
         const panel = this;
 
@@ -437,8 +554,18 @@ exports.methods = {
         }
     },
 };
+
 exports.update = async function update(uuidList, renderMap, dropConfig) {
     const panel = this;
+
+    const enginePath = path.join('editor', 'inspector', 'assets');
+    Object.values(renderMap).forEach(config => {
+        Object.values(config).forEach(renders => {
+            renders.sort((a, b) => {
+                return b.indexOf(enginePath) - a.indexOf(enginePath);
+            });
+        });
+    });
 
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
@@ -450,7 +577,10 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
             await element.update.call(panel);
         }
     }
+
+    panel.history && panel.history.snapshot(panel);
 };
+
 exports.ready = function ready() {
     const panel = this;
 

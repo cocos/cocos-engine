@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/TypeDef.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include "core/assets/Material.h"
 

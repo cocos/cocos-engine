@@ -57,6 +57,8 @@ namespace se {
 
 class ObjectWrap {
 public:
+    static constexpr uint16_t MAGIC_CLASS_ID_JSB = 0x1234;
+
     ObjectWrap();
     ~ObjectWrap();
 
@@ -64,11 +66,11 @@ public:
     using FinalizeFunc = void (*)(Object *seObj);
     void setFinalizeCallback(FinalizeFunc finalizeCb);
 
-    v8::Local<v8::Object>       handle();
-    v8::Local<v8::Object>       handle(v8::Isolate *isolate);
+    v8::Local<v8::Object> handle();
+    v8::Local<v8::Object> handle(v8::Isolate *isolate);
     v8::Persistent<v8::Object> &persistent();
 
-    void         wrap(void *nativeObj, uint32_t fieldIndex);
+    void wrap(void *nativeObj, uint32_t fieldIndex);
     static void *unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex);
     /* Ref() marks the object as being attached to an event loop.
          * Refed objects will not be garbage collected, even if
@@ -92,12 +94,12 @@ private:
 
     void makeWeak();
 
-    int                        _refs{0}; // ro
+    int _refs{0}; // ro
     v8::Persistent<v8::Object> _handle;
-    FinalizeFunc               _finalizeCb{nullptr};
-    Object *                   _parent{nullptr};
+    FinalizeFunc _finalizeCb{nullptr};
+    Object *_parent{nullptr};
 
-    bool _registerWeak{false};
+    bool _registerWeakCallback{false};
 };
 
 } // namespace se

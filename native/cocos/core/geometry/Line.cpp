@@ -1,4 +1,5 @@
 #include "core/geometry/Line.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace geometry {
@@ -9,11 +10,11 @@ Line *Line::create(float sx,
                    float ex,
                    float ey,
                    float ez) {
-    return new Line(sx, sy, sz, ex, ey, ez);
+    return ccnew Line(sx, sy, sz, ex, ey, ez);
 }
 
 Line *Line::clone(const Line &a) {
-    return new Line(
+    return ccnew Line(
         a.s.x, a.s.y, a.s.z,
         a.e.x, a.e.y, a.e.z);
 }

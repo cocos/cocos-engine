@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable new-cap */
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';

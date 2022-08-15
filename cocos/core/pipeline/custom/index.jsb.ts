@@ -23,19 +23,23 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module custom-pipeline
- */
-
 declare const render: any;
 
-import { DescriptorHierarchy, Pipeline } from './pipeline';
+import { legacyCC } from '../../global-exports';
+import { Pipeline, PipelineBuilder } from './pipeline';
+import { buildDeferredLayout, buildForwardLayout } from './effect';
 
 export function createCustomPipeline (): Pipeline {
-    return render.Factory.createPipeline();
+    const root = legacyCC.director.root;
+    const ppl = render.Factory.createPipeline();
+    if (root.useDeferredPipeline) {
+        buildDeferredLayout(ppl);
+    } else {
+        buildForwardLayout(ppl);
+    }
+    return ppl;
 }
 
-export function createDescriptorHierarchy (): DescriptorHierarchy {
-    return render.Factory.createDescriptorHierarchy();
+export function setCustomPipelineBuilder (builder: PipelineBuilder) {
+    // not implemented yet
 }

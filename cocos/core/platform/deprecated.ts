@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
-import { screenAdapter } from 'pal/screen-adapter';
 import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { sys } from './sys';
 import { View } from './view';
 import { legacyCC } from '../global-exports';
 import { screen } from './screen';
-import { Size } from '../math';
 
 // #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
@@ -81,6 +79,9 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'isRetinaEnabled',
+    },
+    {
+        name: 'setRealPixelResolution',
     },
 ]);
 markAsWarning(legacyCC, 'cc', [

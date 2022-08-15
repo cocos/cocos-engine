@@ -8,23 +8,32 @@
 
 bool register_all_network(se::Object *obj);                   // NOLINT
 
+JSB_REGISTER_OBJECT_TYPE(cc::network::DownloadTask);
 JSB_REGISTER_OBJECT_TYPE(cc::network::DownloaderHints);
 JSB_REGISTER_OBJECT_TYPE(cc::network::Downloader);
 
 
-extern se::Object *__jsb_cc_network_DownloaderHints_proto; // NOLINT
-extern se::Class * __jsb_cc_network_DownloaderHints_class; // NOLINT
+extern se::Object *__jsb_cc_network_DownloadTask_proto;   // NOLINT
+extern se::Class *__jsb_cc_network_DownloadTask_class;    // NOLINT
+
+bool js_register_cc_network_DownloadTask(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_network_DownloadTask_DownloadTask);
+
+extern se::Object *__jsb_cc_network_DownloaderHints_proto;   // NOLINT
+extern se::Class *__jsb_cc_network_DownloaderHints_class;    // NOLINT
 
 bool js_register_cc_network_DownloaderHints(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::network::DownloaderHints *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_network_Downloader_proto; // NOLINT
-extern se::Class * __jsb_cc_network_Downloader_class; // NOLINT
+extern se::Object *__jsb_cc_network_Downloader_proto;   // NOLINT
+extern se::Class *__jsb_cc_network_Downloader_class;    // NOLINT
 
 bool js_register_cc_network_Downloader(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_network_Downloader_abort);
 SE_DECLARE_FUNC(js_network_Downloader_setOnTaskProgress);
 SE_DECLARE_FUNC(js_network_Downloader_Downloader);
 // clang-format on

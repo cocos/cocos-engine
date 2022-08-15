@@ -4,6 +4,7 @@ export type { Transition, AnimationTransition, Layer, State, VariableDescription
 export { BinaryCondition, UnaryCondition, TriggerCondition } from './condition';
 export type { Condition } from './condition';
 export type { Value } from './variable';
+export { TriggerResetMode } from './variable';
 export { MotionState } from './motion-state';
 export { ClipMotion } from './clip-motion';
 export type { AnimationBlend } from './animation-blend';

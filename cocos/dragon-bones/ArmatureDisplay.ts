@@ -1,16 +1,36 @@
-/**
- * @packageDocumentation
- * @module dragonBones
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
-import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -22,6 +42,9 @@ import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 import { ArmatureSystem } from './ArmatureSystem';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
+import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
+import { director } from '../core/director';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -134,7 +157,7 @@ interface BoneIndex extends Number {
 @help('i18n:dragonBones.ArmatureDisplay')
 @menu('DragonBones/ArmatureDisplay')
 @executeInEditMode
-export class ArmatureDisplay extends Renderable2D {
+export class ArmatureDisplay extends UIRenderer {
     static AnimationCacheMode = AnimationCacheMode;
 
     /**
@@ -158,7 +181,7 @@ export class ArmatureDisplay extends Renderable2D {
         this._dragonAsset = value;
         this.destroyRenderData();
         this._refresh();
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._defaultArmatureIndex = 0;
             this._animationIndex = 0;
         }
@@ -193,7 +216,7 @@ export class ArmatureDisplay extends Renderable2D {
         const animNames = this.getAnimationNames(this._armatureName);
 
         if (!this.animationName || animNames.indexOf(this.animationName) < 0) {
-            if (EDITOR) {
+            if (EDITOR && !legacyCC.GAME_VIEW) {
                 this.animationName = animNames[0];
             } else {
                 // Not use default animation name at runtime
@@ -367,19 +390,6 @@ export class ArmatureDisplay extends Renderable2D {
         this._debugBones = value;
         this._updateDebugDraw();
     }
-    /**
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-     * @property {Boolean} enableBatch
-     * @default false
-     */
-    // @editable
-    // @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
-    // get enableBatch () { return this._enableBatch; }
-    // set enableBatch (value) {
-    //     this._enableBatch = value;
-    //     this._updateBatch();
-    // }
 
     /**
      * @en
@@ -436,12 +446,6 @@ export class ArmatureDisplay extends Renderable2D {
     @serializable
     protected _debugBones = false;
     /* protected */ _debugDraw: Graphics | null = null;
-
-    /**
-     * @legacyPublic
-     */
-    @serializable
-    public _enableBatch = false;
 
     // DragonBones data store key.
     /**
@@ -509,6 +513,13 @@ export class ArmatureDisplay extends Renderable2D {
     protected _sockets: DragonBoneSocket[] = [];
 
     private _inited;
+    private _drawInfoList : RenderDrawInfo[] = [];
+    private requestDrawInfo (idx: number) {
+        if (!this._drawInfoList[idx]) {
+            this._drawInfoList[idx] = new RenderDrawInfo();
+        }
+        return this._drawInfoList[idx];
+    }
 
     constructor () {
         super();
@@ -531,6 +542,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     onLoad () {
+        super.onLoad();
         // Adapt to old code,remove unuse child which is created by old code.
         // This logic can be remove after 2.2 or later.
         const children = this.node.children;
@@ -585,9 +597,23 @@ export class ArmatureDisplay extends Renderable2D {
         return inst;
     }
 
+    @override
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
+    get customMaterial () {
+        return this._customMaterial;
+    }
+    set customMaterial (val) {
+        this._customMaterial = val;
+        this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.markForUpdateRenderData();
+    }
+
     protected _render (batcher: Batcher2D) {
-        if (this._renderData && this._drawList) {
-            const rd = this._renderData;
+        if (this.renderData && this._drawList) {
+            const rd = this.renderData;
             const chunk = rd.chunk;
             const accessor = chunk.vertexAccessor;
             const meshBuffer = rd.getMeshBuffer()!;
@@ -610,44 +636,13 @@ export class ArmatureDisplay extends Renderable2D {
         }
     }
 
-    // if change use batch mode, just clear material cache
-    _updateBatch () {
-        // const baseMaterial = this.getMaterial(0);
-        // if (baseMaterial) {
-        //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        // }
-        this._materialCache = {};
-        this.markForUpdateRenderData();
-    }
-
-    // override base class _updateMaterial to set define value and clear material cache
-    _updateMaterial () {
-        // const baseMaterial = this.getMaterial(0);
-        // if (baseMaterial) {
-        //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        //     baseMaterial.define('USE_TEXTURE', true);
-
-        //     const srcBlendFactor = this.premultipliedAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
-        //     const dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
-
-        //     baseMaterial.setBlend(
-        //         true,
-        //         ccBLEND_FUNC_ADD,
-        //         srcBlendFactor, srcBlendFactor,
-        //         cc.gfx.BLEND_FUNC_ADD,
-        //         dstBlendFactor, dstBlendFactor
-        //     );
-        // }
-        this.markForUpdateRenderData();
-    }
-
     __preload () {
         super.__preload();
         this._init();
     }
 
     _init () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             const Flags = CCObject.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
@@ -724,7 +719,7 @@ export class ArmatureDisplay extends Renderable2D {
      * @return {Boolean}
      */
     isAnimationCached () {
-        if (EDITOR) return false;
+        if (EDITOR && !legacyCC.GAME_VIEW) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
@@ -774,14 +769,14 @@ export class ArmatureDisplay extends Renderable2D {
                 frameCache.updateToFrame();
                 this._curFrame = frames[frames.length - 1];
                 // Update render data size if needed
-                if (this._renderData
-                    && (this._renderData.vertexCount < frameCache.maxVertexCount
-                    || this._renderData.indexCount < frameCache.maxIndexCount)) {
+                if (this.renderData
+                    && (this.renderData.vertexCount < frameCache.maxVertexCount
+                    || this.renderData.indexCount < frameCache.maxIndexCount)) {
                     this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
                     this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
-                    this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
-                    if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
-                        this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                    this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                    if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
+                        this.renderData.indices = new Uint16Array(this.maxIndexCount);
                     }
                 }
             }
@@ -802,14 +797,14 @@ export class ArmatureDisplay extends Renderable2D {
         if (!frameCache.isCompleted) {
             frameCache.updateToFrame(frameIdx);
             // Update render data size if needed
-            if (this._renderData
-                && (this._renderData.vertexCount < frameCache.maxVertexCount
-                || this._renderData.indexCount < frameCache.maxIndexCount)) {
+            if (this.renderData
+                && (this.renderData.vertexCount < frameCache.maxVertexCount
+                || this.renderData.indexCount < frameCache.maxIndexCount)) {
                 this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
                 this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
-                this._renderData.resize(this.maxVertexCount, this.maxIndexCount);
-                if (!this._renderData.indices || this.maxIndexCount > this._renderData.indices.length) {
-                    this._renderData.indices = new Uint16Array(this.maxIndexCount);
+                this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
+                    this.renderData.indices = new Uint16Array(this.maxIndexCount);
                 }
             }
         }
@@ -839,7 +834,7 @@ export class ArmatureDisplay extends Renderable2D {
         this._materialInstances = this._materialInstances.filter((instance) => !!instance);
         this._inited = false;
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._armatureCache!.dispose();
                 this._armatureCache = null;
@@ -884,7 +879,7 @@ export class ArmatureDisplay extends Renderable2D {
         // Switch Asset or Atlas or cacheMode will rebuild armature.
         if (this._armature) {
             // dispose pre build armature
-            if (!EDITOR) {
+            if (!EDITOR || legacyCC.GAME_VIEW) {
                 if (this._preCacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                     this._armatureCache!.dispose();
                 } else if (this._preCacheMode === AnimationCacheMode.REALTIME) {
@@ -903,7 +898,7 @@ export class ArmatureDisplay extends Renderable2D {
             this._preCacheMode = -1;
         }
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -924,7 +919,7 @@ export class ArmatureDisplay extends Renderable2D {
         }
 
         this._preCacheMode = this._cacheMode;
-        if (EDITOR || this._cacheMode === AnimationCacheMode.REALTIME) {
+        if (EDITOR && !legacyCC.GAME_VIEW || this._cacheMode === AnimationCacheMode.REALTIME) {
             this._displayProxy = this._factory!.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
@@ -945,8 +940,6 @@ export class ArmatureDisplay extends Renderable2D {
             const aabb = armatureData.aabb;
             this.node._uiProps.uiTransformComp!.setContentSize(aabb.width, aabb.height);
         }
-
-        this._updateBatch();
         this.attachUtil.init(this);
 
         if (this.animationName) {
@@ -963,10 +956,6 @@ export class ArmatureDisplay extends Renderable2D {
             this._indexBoneSockets();
         }
         return Array.from(this._cachedSockets.keys()).sort();
-    }
-
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
     }
 
     /**
@@ -993,7 +982,7 @@ export class ArmatureDisplay extends Renderable2D {
     _refresh () {
         this._buildArmature();
         this._indexBoneSockets();
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             // update inspector
             this._updateArmatureEnum();
             this._updateAnimEnum();
@@ -1304,9 +1293,9 @@ export class ArmatureDisplay extends Renderable2D {
         }
         if (this._armature && this._assembler) {
             this._renderData = this._assembler.createData(this);
-            if (this._renderData) {
-                this.maxVertexCount = this._renderData.vertexCount;
-                this.maxIndexCount = this._renderData.indexCount;
+            if (this.renderData) {
+                this.maxVertexCount = this.renderData.vertexCount;
+                this.maxIndexCount = this.renderData.indexCount;
             }
             this.markForUpdateRenderData();
             this._updateColor();
@@ -1339,6 +1328,26 @@ export class ArmatureDisplay extends Renderable2D {
                     continue;
                 }
             }
+        }
+    }
+
+    private _cleanMaterialCache () {
+        for (const val in this._materialCache) {
+            this._materialCache[val].destroy();
+        }
+        this._materialCache = {};
+    }
+
+    protected createRenderEntity () {
+        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        renderEntity.setUseLocal(true);
+        return renderEntity;
+    }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugDraw) {
+            this._debugDraw.markForUpdateRenderData(enable);
         }
     }
 }

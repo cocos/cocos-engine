@@ -35,8 +35,8 @@ public:
     virtual ~GFXObject() = default;
 
     inline ObjectType getObjectType() const { return _objectType; }
-    inline uint32_t   getObjectID() const { return _objectID; }
-    inline uint32_t   getTypedID() const { return _typedID; }
+    inline uint32_t getObjectID() const { return _objectID; }
+    inline uint32_t getTypedID() const { return _typedID; }
 
 protected:
     template <typename T>
@@ -46,7 +46,7 @@ protected:
     }
 
     ObjectType _objectType = ObjectType::UNKNOWN;
-    uint32_t   _objectID   = 0U;
+    uint32_t _objectID = 0U;
 
     uint32_t _typedID = 0U; // inited by sub-classes
 };

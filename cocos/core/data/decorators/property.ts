@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
-import { DEV, EDITOR, TEST } from 'internal:constants';
+import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache, BabelPropertyDecoratorDescriptor } from './utils';
@@ -37,6 +32,7 @@ import { js } from '../../utils/js';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
 
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
@@ -58,7 +54,7 @@ export function property (options?: IPropertyOptions): LegacyPropertyDecorator;
  * @en Declare as a CCClass property with the property type
  * @zh 标注属性为 cc 属性。<br/>
  * 等价于`@property({type})`。
- * @param type A {{ccclass}} type or a {{ValueType}}
+ * @param type A [[ccclass]] type or a [[ValueType]]
  */
 export function property (type: PropertyType): LegacyPropertyDecorator;
 
@@ -203,6 +199,7 @@ function mergePropertyOptions (
     if (options) {
         fullOptions = getFullFormOfProperty(options, isGetset);
     }
+    // @ts-expect-error enum PropertyStashInternalFlag is used as number
     const propertyRecord: PropertyStash = js.mixin(propertyStash, fullOptions || options || {});
 
     if (isGetset) {
@@ -236,6 +233,7 @@ function mergePropertyOptions (
         );
 
         if ((EDITOR && !window.Build) || TEST) {
+            // eslint-disable-next-line no-prototype-builtins
             if (!fullOptions && options && options.hasOwnProperty('default')) {
                 warnID(3653, propertyKey, js.getClassName(ctor));
             }
@@ -250,6 +248,12 @@ function setDefaultValue<T> (
     propertyKey: PropertyKey,
     descriptor: BabelPropertyDecoratorDescriptor | undefined,
 ) {
+    // Default values are needed by editor, and now editor run with web version, so don't
+    // have to provide default values.
+    if (JSB) {
+        return;
+    }
+
     if (descriptor) {
         // In case of Babel, if an initializer is given for class field.
         // That initializer is passed to `descriptor.initializer`.

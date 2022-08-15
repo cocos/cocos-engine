@@ -1,7 +1,7 @@
 const sMetadataTag = Symbol('cc:SerializationMetadata');
 
 /**
- * For internal usage only. DO NOT USE IT IN YOUR CODES.
+ * @internal DO NOT USE IT IN YOUR CODES.
  * @param constructor
  * @returns
  */
@@ -10,13 +10,16 @@ export function getSerializationMetadata (constructor: Function): SerializationM
     return (constructor as MayBeInjected)[sMetadataTag];
 }
 
+/**
+ * @internal
+ */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function getOrCreateSerializationMetadata (constructor: Function): SerializationMetadata {
     return (constructor as MayBeInjected)[sMetadataTag] ??= {};
 }
 
 /**
- * For internal usage only. DO NOT USE IT IN YOUR CODES.
+ * @internal For internal usage only. DO NOT USE IT IN YOUR CODES.
  */
 export interface SerializationMetadata {
     uniquelyReferenced?: boolean;

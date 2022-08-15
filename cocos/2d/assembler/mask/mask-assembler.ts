@@ -23,16 +23,11 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { IBatcher } from '../../renderer/i-batcher';
 import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { StencilManager } from '../../renderer/stencil-manager';
-import { simple } from '../sprite';
+import { RenderDrawInfoType } from '../../renderer/render-draw-info';
 
 const _stencilManager = StencilManager.sharedManager!;
 
@@ -44,27 +39,18 @@ function applyClearMask (mask: Mask, renderer: IBatcher) {
 function applyAreaMask (mask: Mask, renderer: IBatcher) {
     _stencilManager.enterLevel(mask);
     if (mask.type === MaskType.IMAGE_STENCIL) {
-        simple.fillBuffers(mask, renderer);
-        const mat = mask.graphics!.getMaterialInstance(0)!;
-        renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
-    } else {
-        mask.graphics!.updateAssembler(renderer);
+        // Apply stencil stage
+        _stencilManager.stage = mask.subComp!.stencilStage;
     }
 }
 
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
-        const renderData = mask.requestRenderData();
-        renderData.dataLength = 2;
-        renderData.resize(4, 6);
+        const renderData = mask.requestRenderData(RenderDrawInfoType.MODEL);
         return renderData;
     },
 
     updateRenderData (mask: Mask) {
-        if (mask.type === MaskType.IMAGE_STENCIL) {
-            simple.updateRenderData(mask);
-            simple.updateColor(mask);
-        }
     },
 
     fillBuffers (mask: Mask, renderer: IBatcher) {
@@ -74,8 +60,6 @@ export const maskAssembler: IAssembler = {
             renderer.finishMergeBatches();
             applyClearMask(mask, renderer);
             applyAreaMask(mask, renderer);
-
-            _stencilManager.enableMask();
         }
     },
 };
@@ -98,5 +82,18 @@ const PostAssembler: IAssemblerManager = {
     },
 };
 
+const childPostAssembler: IAssemblerManager = {
+    getAssembler () {
+        return childEndAssembler;
+    },
+};
+
+export const childEndAssembler: IAssembler = {
+    fillBuffers (subComp: any, ui: IBatcher) {
+        _stencilManager.enableMask();
+    },
+};
+
 Mask.Assembler = StartAssembler;
 Mask.PostAssembler = PostAssembler;
+Mask.ChildPostAssembler = childPostAssembler;

@@ -24,11 +24,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Eventify } from '../../../../core/event';
@@ -149,7 +144,7 @@ export class Collider extends Eventify(Component) {
      * @en
      * Gets or sets the collider is trigger, this will be always trigger if using builtin.
      * @zh
-     * 获取或设置碰撞器是否为触发器。(builtin中无论真假都为触发器)
+     * 获取或设置碰撞器是否为触发器。(builtin 中无论真假都为触发器)
      */
     @displayOrder(0)
     @tooltip('i18n:physics3d.collider.isTrigger')
@@ -312,7 +307,7 @@ export class Collider extends Eventify(Component) {
      * Gets the group value.
      * @zh
      * 获取分组值。
-     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @returns @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public getGroup (): number {
         if (this._isInitialized) {
@@ -326,7 +321,7 @@ export class Collider extends Eventify(Component) {
      * Sets the group value.
      * @zh
      * 设置分组值。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public setGroup (v: number): void {
         if (this._isInitialized) {
@@ -339,7 +334,7 @@ export class Collider extends Eventify(Component) {
      * Add a grouping value to fill in the group you want to join.
      * @zh
      * 添加分组值，可填要加入的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public addGroup (v: number) {
         if (this._isInitialized) {
@@ -352,7 +347,7 @@ export class Collider extends Eventify(Component) {
      * Subtract the grouping value to fill in the group to be removed.
      * @zh
      * 减去分组值，可填要移除的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public removeGroup (v: number) {
         if (this._isInitialized) {
@@ -365,7 +360,7 @@ export class Collider extends Eventify(Component) {
      * Gets the mask value.
      * @zh
      * 获取掩码值。
-     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @returns @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public getMask (): number {
         if (this._isInitialized) {
@@ -379,7 +374,7 @@ export class Collider extends Eventify(Component) {
      * Sets the mask value.
      * @zh
      * 设置掩码值。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public setMask (v: number) {
         if (this._isInitialized) {
@@ -392,7 +387,7 @@ export class Collider extends Eventify(Component) {
      * Add mask values to fill in groups that need to be checked.
      * @zh
      * 添加掩码值，可填入需要检查的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public addMask (v: number) {
         if (this._isInitialized) {
@@ -405,7 +400,7 @@ export class Collider extends Eventify(Component) {
      * Subtract the mask value to fill in the group that does not need to be checked.
      * @zh
      * 减去掩码值，可填入不需要检查的 group。
-     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
     public removeMask (v: number) {
         if (this._isInitialized) {

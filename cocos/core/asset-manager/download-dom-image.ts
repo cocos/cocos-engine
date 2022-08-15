@@ -24,7 +24,6 @@
  THE SOFTWARE.
  */
 
-
 import { getError } from '../platform/debug';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
 

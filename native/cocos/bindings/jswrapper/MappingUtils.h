@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <type_traits>
 #include "base/std/container/unordered_map.h"
 
 namespace se {
@@ -40,20 +41,32 @@ public:
     static bool init();
     static void destroy();
 
+    static bool isValid();
+
     static Map::iterator find(void *nativeObj);
     static Map::iterator erase(Map::iterator iter);
-    static void          erase(void *nativeObj);
-    static void          clear();
-    static size_t        size();
+    static void erase(void *nativeObj);
+    static void clear();
+    static size_t size();
 
     static const Map &instance();
 
     static Map::iterator begin();
     static Map::iterator end();
 
+    template <typename T>
+    static std::enable_if_t<!std::is_void_v<T>, Map::iterator> find(T *v) {
+        if constexpr (std::is_const_v<T>) {
+            return find(reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(v)));
+        } else {
+            return find(reinterpret_cast<void *>(v));
+        }
+    }
+
 private:
     static void emplace(void *nativeObj, Object *seObj);
-    static Map *__nativePtrToObjectMap;
+    static Map *__nativePtrToObjectMap; // NOLINT
+    static bool __isValid;              // NOLINT
 
     friend class Object;
 };

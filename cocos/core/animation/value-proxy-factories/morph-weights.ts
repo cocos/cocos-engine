@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, serializable } from 'cc.decorator';
 import { MeshRenderer } from '../../../3d/framework/mesh-renderer';
 import { IValueProxyFactory } from '../value-proxy';

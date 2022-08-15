@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
-
 import { Vec3 } from '../core/math';
 import { IGeometry, IGeometryOptions } from './define';
 
@@ -93,7 +88,7 @@ interface IBoxOptions extends RecursivePartial<IGeometryOptions> {
  * but may be repositioned through the `center` option.
  * @zh
  * 生成一个立方体，其大小是定义的范围且中心在原点。
- * @param options 参数选项。
+ * @param options @zh 参数选项。@en The optional creation parameters of the box
  */
 export default function box (options?: IBoxOptions): IGeometry {
     options = options || {};

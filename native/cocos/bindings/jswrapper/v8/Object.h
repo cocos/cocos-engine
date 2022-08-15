@@ -50,10 +50,6 @@ namespace se {
 class Class;
 class ScriptEngine;
 
-namespace internal {
-struct PrivateData;
-}
-
 /**
      * se::Object represents JavaScript Object.
      */
@@ -296,7 +292,7 @@ public:
          */
     bool getAllKeys(ccstd::vector<ccstd::string> *allKeys) const;
 
-    void               setPrivateObject(PrivateObjectBase *data);
+    void setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;
 
     /**
@@ -304,7 +300,7 @@ public:
      *  @return A void* that is the object's private data, if the object has private data, otherwise nullptr.
      */
     inline void *getPrivateData() const {
-        return _privateObject ? _privateObject->getRaw() : nullptr;
+        return _privateData;
     }
 
     /**
@@ -430,10 +426,10 @@ public:
     ccstd::string toStringExt() const;
 
     // Private API used in wrapper
-    static Object *       _createJSObject(Class *cls, v8::Local<v8::Object> obj); // NOLINT(readability-identifier-naming)
-    v8::Local<v8::Object> _getJSObject() const;                                   // NOLINT(readability-identifier-naming)
-    ObjectWrap &          _getWrap();                                             // NOLINT(readability-identifier-naming)
-    Class *               _getClass() const;                                      // NOLINT(readability-identifier-naming)
+    static Object *_createJSObject(Class *cls, v8::Local<v8::Object> obj); // NOLINT(readability-identifier-naming)
+    v8::Local<v8::Object> _getJSObject() const;                            // NOLINT(readability-identifier-naming)
+    ObjectWrap &_getWrap();                                                // NOLINT(readability-identifier-naming)
+    Class *_getClass() const;                                              // NOLINT(readability-identifier-naming)
 
     void _setFinalizeCallback(V8FinalizeFunc finalizeCb); // NOLINT(readability-identifier-naming)
     bool _isNativeFunction() const;                       // NOLINT(readability-identifier-naming)
@@ -454,14 +450,15 @@ private:
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
 
-    Class *    _cls{nullptr};
+    Class *_cls{nullptr};
     ObjectWrap _obj;
-    uint32_t   _rootCount{0};
+    uint32_t _rootCount{0};
 
-    PrivateObjectBase *    _privateObject{nullptr};
-    V8FinalizeFunc         _finalizeCb{nullptr};
-    internal::PrivateData *_internalData{nullptr};
-    bool                   _clearMappingInFinalizer{true};
+    PrivateObjectBase *_privateObject{nullptr};
+    void *_privateData{nullptr};
+    V8FinalizeFunc _finalizeCb{nullptr};
+
+    bool _clearMappingInFinalizer{true};
 
     #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
     uint32_t _objectId = 0;
@@ -469,7 +466,9 @@ private:
     #if JSB_TRACK_OBJECT_CREATION
     ccstd::string _objectCreationStackFrame;
     #endif
+
     friend class ScriptEngine;
+    friend class JSBPersistentHandleVisitor;
 };
 // NOLINTNEXTLINE
 extern std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr

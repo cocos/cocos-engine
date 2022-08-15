@@ -23,15 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { ccclass, serializable } from 'cc.decorator';
 import { Quat, Vec2, Vec3, Vec4 } from '../math';
 import { ILerpable } from './types';
-import { legacyCC } from '../global-exports';
 
 interface ICubicSplineValue<T> extends ILerpable {
     dataPoint: T;
@@ -109,30 +103,52 @@ function makeCubicSplineValueConstructor<T> (
     return CubicSplineValueClass;
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd,
 );
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export type CubicSplineVec2Value = ICubicSplineValue<Vec2>;
-legacyCC.CubicSplineVec2Value = CubicSplineVec2Value;
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd,
 );
-export type CubicSplineVec3Value = ICubicSplineValue<Vec3>;
-legacyCC.CubicSplineVec3Value = CubicSplineVec3Value;
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
+export type CubicSplineVec3Value = ICubicSplineValue<Vec3>;
+
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
     'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd,
 );
-export type CubicSplineVec4Value = ICubicSplineValue<Vec4>;
-legacyCC.CubicSplineVec4Value = CubicSplineVec4Value;
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
+export type CubicSplineVec4Value = ICubicSplineValue<Vec4>;
+
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
     'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd,
 );
-legacyCC.CubicSplineQuatValue = CubicSplineQuatValue;
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 @ccclass('cc.CubicSplineNumberValue')
 export class CubicSplineNumberValue implements ICubicSplineValue<number> {
     @serializable
@@ -169,4 +185,3 @@ export class CubicSplineNumberValue implements ICubicSplineValue<number> {
         return this.dataPoint;
     }
 }
-legacyCC.CubicSplineNumberValue = CubicSplineNumberValue;

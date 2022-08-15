@@ -121,7 +121,7 @@ SpriteFrame *SpriteFrame::createWithTexture(Texture2D *texture, const cc::Rect &
 }
 
 bool SpriteFrame::initWithTexture(Texture2D *texture, const cc::Rect &rect) {
-    return initWithTexture(texture, rect, false, cc::Vec2::ZERO, rect.size);
+    return initWithTexture(texture, rect, false, cc::Vec2::ZERO, cc::Size{rect.width, rect.height});
 }
 
 bool SpriteFrame::initWithTexture(Texture2D *texture, const cc::Rect &rect, bool rotated, const cc::Vec2 &offset, const cc::Size &originalSize) {
@@ -131,11 +131,11 @@ bool SpriteFrame::initWithTexture(Texture2D *texture, const cc::Rect &rect, bool
         texture->addRef();
     }
 
-    _rectInPixels         = rect;
-    _offsetInPixels       = offset;
+    _rectInPixels = rect;
+    _offsetInPixels = offset;
     _originalSizeInPixels = originalSize;
-    _rotated              = rotated;
-    _anchorPoint          = cc::Vec2(NAN, NAN);
+    _rotated = rotated;
+    _anchorPoint = cc::Vec2(NAN, NAN);
 
     return true;
 }

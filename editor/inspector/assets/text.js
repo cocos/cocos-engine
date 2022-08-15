@@ -1,5 +1,6 @@
 const { createReadStream } = require('fs');
 const ReadLine = require('readline');
+const { extname } = require('path');
 
 const MAX_LINES = 400;
 const MAX_LENGTH = 20000;
@@ -7,11 +8,13 @@ const MAX_LENGTH = 20000;
 exports.template = `
 <section class="asset-text">
     <ui-code language="xml"></ui-code>
+    <ui-markdown></ui-markdown>
 </section>`;
 
 exports.$ = {
     container: '.asset-text',
     code: 'ui-code',
+    markdown: 'ui-markdown',
 };
 
 exports.style = `
@@ -25,6 +28,29 @@ exports.style = `
     flex: 1;
 }
 `;
+
+exports.methods = {
+    renderContent(content, type = '.txt') {
+        const panel = this;
+        const domMap = {
+            '.txt': panel.$.code,
+            '.md': panel.$.markdown,
+            '.markdown': panel.$.markdown,
+        };
+
+        Object.values(domMap).forEach(dom => {
+            if (dom) {
+                dom.style.display = 'none';
+                dom.textContent = '';
+            }
+        });
+
+        if (domMap[type]) {
+            domMap[type].textContent = content;
+            domMap[type].style.display = 'block';
+        }
+    },
+};
 
 exports.update = function(assetList, metaList) {
     this.assetList = assetList;
@@ -80,8 +106,6 @@ exports.update = function(assetList, metaList) {
             throw err;
         }
 
-        if (this.$.code) {
-            this.$.code.textContent = text;
-        }
+        this.renderContent(text, extname(this.asset.name));
     });
 };

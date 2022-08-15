@@ -19,14 +19,14 @@ float pointPlane(const Vec3 &point, const Plane &plane) {
 
 Vec3 *ptPointPlane(Vec3 *out, const Vec3 &point, const Plane &plane) {
     auto t = pointPlane(point, plane);
-    *out   = point - t * plane.n;
+    *out = point - t * plane.n;
     return out;
 }
 
 Vec3 *ptPointAabb(Vec3 *out, const Vec3 &point, const AABB &aabb) {
     auto min = aabb.getCenter() - aabb.getHalfExtents();
     auto max = aabb.getCenter() + aabb.getHalfExtents();
-    *out     = {cc::mathutils::clamp(point.x, min.x, max.x),
+    *out = {cc::mathutils::clamp(point.x, min.x, max.x),
             cc::mathutils::clamp(point.y, min.y, max.y),
             cc::mathutils::clamp(point.z, min.z, max.z)};
     return out;
@@ -40,7 +40,7 @@ Vec3 *ptPointObb(Vec3 *out, const Vec3 &point, const OBB &obb) {
     };
     ccstd::array<float, 3> e = {obb.halfExtents.x, obb.halfExtents.y, obb.halfExtents.z};
 
-    auto  d    = point - obb.center;
+    auto d = point - obb.center;
     float dist = 0.0F;
 
     // Start result at center of obb; make steps from there
@@ -61,7 +61,7 @@ Vec3 *ptPointObb(Vec3 *out, const Vec3 &point, const OBB &obb) {
 }
 
 Vec3 *ptPointLine(Vec3 *out, const Vec3 &point, const Vec3 &linePointA, const Vec3 &linePointB) {
-    auto dir        = linePointA - linePointB;
+    auto dir = linePointA - linePointB;
     auto dirSquared = dir.lengthSquared();
 
     if (dirSquared == 0.0F) {
@@ -70,8 +70,8 @@ Vec3 *ptPointLine(Vec3 *out, const Vec3 &point, const Vec3 &linePointA, const Ve
     } else {
         // Calculate the projection of the point onto the line extending through the segment.
         auto ap = point - linePointA;
-        auto t  = Vec3::dot(ap, dir) / dirSquared;
-        *out    = linePointA + cc::mathutils::clamp(t, 0.0F, 1.0F) * dir;
+        auto t = Vec3::dot(ap, dir) / dirSquared;
+        *out = linePointA + cc::mathutils::clamp(t, 0.0F, 1.0F) * dir;
     }
     return out;
 }

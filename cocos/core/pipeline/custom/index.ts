@@ -23,19 +23,28 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module custom-pipeline
- */
-
-import { DescriptorHierarchy, Pipeline } from './pipeline';
+import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
-import { WebDescriptorHierarchy } from './web-descriptor-hierarchy';
+import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { macro } from '../../platform/macro';
 
-export function createDescriptorHierarchy (): DescriptorHierarchy {
-    return new WebDescriptorHierarchy();
-}
+let _pipeline: WebPipeline | null = null;
 
 export function createCustomPipeline (): Pipeline {
-    return new WebPipeline();
+    const ppl = new WebPipeline();
+    const pplName = macro.CUSTOM_PIPELINE_NAME;
+    ppl.setCustomPipelineName(pplName);
+    if (ppl.usesDeferredPipeline) {
+        buildDeferredLayout(ppl);
+    } else {
+        buildForwardLayout(ppl);
+    }
+    _pipeline = ppl;
+    return ppl;
+}
+
+export function setCustomPipelineBuilder (builder: PipelineBuilder) {
+    if (_pipeline) {
+        _pipeline.builder = builder;
+    }
 }

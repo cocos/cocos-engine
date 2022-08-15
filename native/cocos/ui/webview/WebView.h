@@ -27,10 +27,10 @@
 #pragma once
 
 #include <functional>
-
 #include "base/Data.h"
 #include "base/Macros.h"
 #include "base/RefCounted.h"
+#include "base/std/container/string.h"
 
 /**
  * @addtogroup ui
@@ -48,12 +48,17 @@ class WebViewImpl;
  * It's mean WebView displays web pages above all graphical elements of cocos2d-x.
  * @js NA
  */
-class WebView : public RefCounted {
+class WebView final {
 public:
     /**
          * Allocates and initializes a WebView.
          */
     static WebView *create();
+
+    /**
+     * Destroy webview, remove it from its parent
+     */
+    void destroy();
 
     /**
          * Set javascript interface scheme.
@@ -70,7 +75,7 @@ public:
          * @param encoding The encoding of the data.
          * @param baseURL The base URL for the content.
          */
-    void loadData(const cc::Data &     data,
+    void loadData(const cc::Data &data,
                   const ccstd::string &mimeType,
                   const ccstd::string &encoding,
                   const ccstd::string &baseURL);
@@ -232,7 +237,7 @@ protected:
     /**
          * Default destructor.
          */
-    ~WebView() override;
+    ~WebView();
 
 private:
     WebViewImpl *_impl;

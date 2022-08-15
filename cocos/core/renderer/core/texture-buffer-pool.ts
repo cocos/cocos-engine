@@ -23,10 +23,8 @@
  THE SOFTWARE.
  */
 
-
-
 import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit,
-    TextureFlagBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
+    Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
 import { debug } from '../../platform/debug';
 
 export function nearestPOT (num: number): number {

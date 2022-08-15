@@ -12,6 +12,7 @@
 #include "cocos/renderer/pipeline/forward/ForwardStage.h"
 #include "cocos/renderer/pipeline/shadow/ShadowFlow.h"
 #include "cocos/renderer/pipeline/shadow/ShadowStage.h"
+#include "cocos/renderer/pipeline/shadow/CSMLayers.h"
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/renderer/pipeline/RenderFlow.h"
 #include "cocos/renderer/pipeline/RenderStage.h"
@@ -43,6 +44,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowFlow);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowStage);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::CSMLayers);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GlobalDSManager);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);
@@ -57,32 +59,32 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BatchedBuffer);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GeometryRenderer);
 
 
-extern se::Object *__jsb_cc_pipeline_RenderObject_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderObject_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderObject_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderObject_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderObject(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderObject *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_pipeline_RenderQueueDesc_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderQueueDesc_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderQueueDesc_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderQueueDesc_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderQueueDesc(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderQueueDesc *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_pipeline_RenderPipelineInfo_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderPipelineInfo_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderPipelineInfo_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderPipelineInfo_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderPipelineInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderPipelineInfo *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_pipeline_RenderPipeline_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderPipeline_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderPipeline_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderPipeline_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderPipeline(se::Object *obj); // NOLINT
 
@@ -113,23 +115,23 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_updateQuadVertexData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
 
-extern se::Object *__jsb_cc_pipeline_ForwardPipeline_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_ForwardPipeline_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_ForwardPipeline_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_ForwardPipeline_class;    // NOLINT
 
 bool js_register_cc_pipeline_ForwardPipeline(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
 
-extern se::Object *__jsb_cc_pipeline_RenderFlowInfo_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderFlowInfo_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderFlowInfo_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderFlowInfo_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderFlowInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderFlowInfo *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_pipeline_RenderFlow_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderFlow_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderFlow_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderFlow_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderFlow(se::Object *obj); // NOLINT
 
@@ -138,24 +140,24 @@ SE_DECLARE_FUNC(js_pipeline_RenderFlow_getRenderstageByName);
 SE_DECLARE_FUNC(js_pipeline_RenderFlow_getTag);
 SE_DECLARE_FUNC(js_pipeline_RenderFlow_initialize);
 
-extern se::Object *__jsb_cc_pipeline_ForwardFlow_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_ForwardFlow_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_ForwardFlow_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_ForwardFlow_class;    // NOLINT
 
 bool js_register_cc_pipeline_ForwardFlow(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_ForwardFlow_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ForwardFlow_ForwardFlow);
 
-extern se::Object *__jsb_cc_pipeline_RenderStageInfo_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderStageInfo_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderStageInfo_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderStageInfo_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderStageInfo(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderStageInfo *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_pipeline_RenderStage_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_RenderStage_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_RenderStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderStage_class;    // NOLINT
 
 bool js_register_cc_pipeline_RenderStage(se::Object *obj); // NOLINT
 
@@ -164,24 +166,24 @@ SE_DECLARE_FUNC(js_pipeline_RenderStage_getFlow);
 SE_DECLARE_FUNC(js_pipeline_RenderStage_getTag);
 SE_DECLARE_FUNC(js_pipeline_RenderStage_initialize);
 
-extern se::Object *__jsb_cc_pipeline_ForwardStage_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_ForwardStage_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_ForwardStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_ForwardStage_class;    // NOLINT
 
 bool js_register_cc_pipeline_ForwardStage(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_ForwardStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ForwardStage_ForwardStage);
 
-extern se::Object *__jsb_cc_pipeline_ShadowFlow_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_ShadowFlow_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_ShadowFlow_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_ShadowFlow_class;    // NOLINT
 
 bool js_register_cc_pipeline_ShadowFlow(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_ShadowFlow_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ShadowFlow_ShadowFlow);
 
-extern se::Object *__jsb_cc_pipeline_ShadowStage_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_ShadowStage_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_ShadowStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_ShadowStage_class;    // NOLINT
 
 bool js_register_cc_pipeline_ShadowStage(se::Object *obj); // NOLINT
 
@@ -190,8 +192,15 @@ SE_DECLARE_FUNC(js_pipeline_ShadowStage_setUsage);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_ShadowStage);
 
-extern se::Object *__jsb_cc_pipeline_GlobalDSManager_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_GlobalDSManager_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_CSMLayers_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_CSMLayers_class;    // NOLINT
+
+bool js_register_cc_pipeline_CSMLayers(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_pipeline_CSMLayers_CSMLayers);
+
+extern se::Object *__jsb_cc_pipeline_GlobalDSManager_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_GlobalDSManager_class;    // NOLINT
 
 bool js_register_cc_pipeline_GlobalDSManager(se::Object *obj); // NOLINT
 
@@ -199,7 +208,6 @@ SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindBuffer);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindSampler);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindTexture);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout);
-SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getGlobalDescriptorSet);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getLinearSampler);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet);
@@ -208,50 +216,48 @@ SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_update);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_setDescriptorSetLayout);
 SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_GlobalDSManager);
 
-extern se::Object *__jsb_cc_pipeline_InstancedBuffer_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_InstancedBuffer_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_InstancedBuffer_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_InstancedBuffer_class;    // NOLINT
 
 bool js_register_cc_pipeline_InstancedBuffer(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroy);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset);
-SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
-SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_get);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_InstancedBuffer);
 
-extern se::Object *__jsb_cc_pipeline_DeferredPipeline_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_DeferredPipeline_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_DeferredPipeline_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_DeferredPipeline_class;    // NOLINT
 
 bool js_register_cc_pipeline_DeferredPipeline(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_DeferredPipeline);
 
-extern se::Object *__jsb_cc_pipeline_MainFlow_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_MainFlow_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_MainFlow_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_MainFlow_class;    // NOLINT
 
 bool js_register_cc_pipeline_MainFlow(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_MainFlow_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_MainFlow_MainFlow);
 
-extern se::Object *__jsb_cc_pipeline_GbufferStage_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_GbufferStage_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_GbufferStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_GbufferStage_class;    // NOLINT
 
 bool js_register_cc_pipeline_GbufferStage(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_GbufferStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_GbufferStage_GbufferStage);
 
-extern se::Object *__jsb_cc_pipeline_LightingStage_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_LightingStage_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_LightingStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_LightingStage_class;    // NOLINT
 
 bool js_register_cc_pipeline_LightingStage(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_LightingStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_LightingStage_LightingStage);
 
-extern se::Object *__jsb_cc_pipeline_BloomStage_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_BloomStage_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_BloomStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_BloomStage_class;    // NOLINT
 
 bool js_register_cc_pipeline_BloomStage(se::Object *obj); // NOLINT
 
@@ -263,16 +269,16 @@ SE_DECLARE_FUNC(js_pipeline_BloomStage_getUpsampleUBO);
 SE_DECLARE_FUNC(js_pipeline_BloomStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_BloomStage_BloomStage);
 
-extern se::Object *__jsb_cc_pipeline_PostProcessStage_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_PostProcessStage_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_PostProcessStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_PostProcessStage_class;    // NOLINT
 
 bool js_register_cc_pipeline_PostProcessStage(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_PostProcessStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_PostProcessStage_PostProcessStage);
 
-extern se::Object *__jsb_cc_pipeline_PipelineSceneData_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_PipelineSceneData_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_PipelineSceneData_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_PipelineSceneData_class;    // NOLINT
 
 bool js_register_cc_pipeline_PipelineSceneData(se::Object *obj); // NOLINT
 
@@ -284,7 +290,6 @@ SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_clearValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_destroy);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDebugRendererPass);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDebugRendererShader);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getDirShadowObjects);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererMaterials);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererPasses);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getGeometryRendererShaders);
@@ -293,24 +298,20 @@ SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryPass);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOcclusionQueryShader);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getOctree);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_getValidPunctualLights);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_isCastShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setCastShadowObjects);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setDirShadowObjects);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setShadowFramebuffer);
-SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_setValidPunctualLights);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_updatePipelineSceneData);
 SE_DECLARE_FUNC(js_pipeline_PipelineSceneData_PipelineSceneData);
 
-extern se::Object *__jsb_cc_pipeline_BatchedItem_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_BatchedItem_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_BatchedItem_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_BatchedItem_class;    // NOLINT
 
 bool js_register_cc_pipeline_BatchedItem(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::BatchedItem *, se::Object *ctx); //NOLINT
 
-extern se::Object *__jsb_cc_pipeline_BatchedBuffer_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_BatchedBuffer_class; // NOLINT
+extern se::Object *__jsb_cc_pipeline_BatchedBuffer_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_BatchedBuffer_class;    // NOLINT
 
 bool js_register_cc_pipeline_BatchedBuffer(se::Object *obj); // NOLINT
 
@@ -321,12 +322,11 @@ SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_getDynamicOffset);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_getPass);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_merge);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_setDynamicOffset);
-SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_destroyBatchedBuffer);
-SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_get);
 SE_DECLARE_FUNC(js_pipeline_BatchedBuffer_BatchedBuffer);
 
-extern se::Object *__jsb_cc_pipeline_GeometryRenderer_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
+#if CC_USE_GEOMETRY_RENDERER
+extern se::Object *__jsb_cc_pipeline_GeometryRenderer_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_GeometryRenderer_class;    // NOLINT
 
 bool js_register_cc_pipeline_GeometryRenderer(se::Object *obj); // NOLINT
 
@@ -349,7 +349,11 @@ SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addPolygon);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addQuad);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSector);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSphere);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addSpline);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTorus);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_addTriangle);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_empty);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_update);
 SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
+#endif //CC_USE_GEOMETRY_RENDERER
 // clang-format on

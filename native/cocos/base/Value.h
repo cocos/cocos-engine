@@ -35,12 +35,12 @@ namespace cc {
 
 class Value;
 
-using ValueVector    = ccstd::vector<Value>;
-using ValueMap       = ccstd::unordered_map<ccstd::string, Value>;
+using ValueVector = ccstd::vector<Value>;
+using ValueMap = ccstd::unordered_map<ccstd::string, Value>;
 using ValueMapIntKey = ccstd::unordered_map<int, Value>;
 
-CC_DLL extern const ValueVector    VALUE_VECTOR_NULL;
-CC_DLL extern const ValueMap       VALUE_MAP_NULL;
+CC_DLL extern const ValueVector VALUE_VECTOR_NULL;
+CC_DLL extern const ValueMap VALUE_MAP_NULL;
 CC_DLL extern const ValueMapIntKey VALUE_MAP_INT_KEY_NULL;
 
 /*
@@ -221,15 +221,15 @@ private:
 
     union {
         unsigned char byteVal;
-        int           intVal;
-        unsigned int  unsignedVal;
-        float         floatVal;
-        double        doubleVal;
-        bool          boolVal;
+        int intVal;
+        unsigned int unsignedVal;
+        float floatVal;
+        double doubleVal;
+        bool boolVal;
 
-        ccstd::string * strVal;
-        ValueVector *   vectorVal;
-        ValueMap *      mapVal;
+        ccstd::string *strVal;
+        ValueVector *vectorVal;
+        ValueMap *mapVal;
         ValueMapIntKey *intKeyMapVal;
     } _field;
 

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { CCString } from '../data/utils/attribute';
 import { AccessFlagBit, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } from '../gfx';
@@ -40,6 +35,7 @@ ccenum(TextureUsageBit);
 ccenum(StoreOp);
 ccenum(LoadOp);
 ccenum(AccessFlagBit);
+ccenum(Format);
 
 /**
  * @en The tag of the render flow, including SCENE, POSTPROCESS and UI.

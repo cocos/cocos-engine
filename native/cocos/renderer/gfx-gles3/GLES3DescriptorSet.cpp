@@ -46,10 +46,10 @@ GLES3DescriptorSet::~GLES3DescriptorSet() {
 
 void GLES3DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES3DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
-    const size_t                       descriptorCount        = gpuDescriptorSetLayout->descriptorCount;
-    const size_t                       bindingCount           = gpuDescriptorSetLayout->bindings.size();
+    const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
+    const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
 
-    _gpuDescriptorSet = CC_NEW(GLES3GPUDescriptorSet);
+    _gpuDescriptorSet = ccnew GLES3GPUDescriptorSet;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (size_t i = 0U, k = 0U; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
@@ -62,10 +62,7 @@ void GLES3DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
 }
 
 void GLES3DescriptorSet::doDestroy() {
-    if (_gpuDescriptorSet) {
-        CC_DELETE(_gpuDescriptorSet);
-        _gpuDescriptorSet = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuDescriptorSet);
 }
 
 void GLES3DescriptorSet::update() {
@@ -87,6 +84,11 @@ void GLES3DescriptorSet::update() {
         }
         _isDirty = false;
     }
+}
+
+void GLES3DescriptorSet::forceUpdate() {
+    _isDirty = true;
+    update();
 }
 
 } // namespace gfx

@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
@@ -221,7 +216,14 @@ export class AnimationState extends Playable {
      * @zh 播放速率。
      * @default: 1.0
      */
-    public speed = 1.0;
+    get speed () {
+        return this._speed;
+    }
+
+    set speed (value) {
+        this._speed = value;
+        this._clipEmbeddedPlayerEval?.notifyHostSpeedChanged(value);
+    }
 
     /**
      * @en The current accumulated time of this animation in seconds.
@@ -243,11 +245,14 @@ export class AnimationState extends Playable {
      * @zh 获取动画播放的比例时间。
      */
     get ratio () {
-        return this.current / this.duration;
+        return this.duration === 0.0 ? 0.0 : this.current / this.duration;
     }
 
     /**
-     * The weight.
+     * @en
+     * The weight of this animation state.
+     * @zh
+     * 此动画状态的权重。
      */
     get weight () {
         return this._weight;
@@ -263,16 +268,17 @@ export class AnimationState extends Playable {
     public frameRate = 0;
 
     /**
-     * This field is only visible from within internal.
+     * @internal This field is only visible from within internal.
      */
     protected _targetNode: Node | null = null;
 
     /**
-     * This field is only visible from within internal.
+     * @internal This field is only visible from within internal.
      */
     protected _curveLoaded = false;
 
     private _clip: AnimationClip;
+    private _speed = 1.0;
     private _useSimpleProcess = false;
     private _target: Node | null = null;
     private _wrapMode = WrapMode.Normal;
@@ -299,15 +305,9 @@ export class AnimationState extends Playable {
     private _weight = 1.0;
     private _clipEval: ReturnType<AnimationClip['createEvaluator']> | undefined;
     private _clipEventEval: ReturnType<AnimationClip['createEventEvaluator']> | undefined;
+    private _clipEmbeddedPlayerEval: ReturnType<AnimationClip['createEmbeddedPlayerEvaluator']> | undefined;
     /**
-     * Sets if this animation state is passive.
-     * If a state is passive,
-     * the state's `update()` should be called somewhere to drive the effect of `play()`.
-     * Otherwise, the `update()` is called uniformly by main loop.
-     */
-    private _passive = false;
-    /**
-     * For internal usage. Really hack...
+     * @internal For internal usage. Really hack...
      */
     protected _doNotCreateEval = false;
 
@@ -332,7 +332,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask, passive?: boolean) {
+    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: AnimationMask) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         if (this._poseOutput) {
@@ -343,12 +343,19 @@ export class AnimationState extends Playable {
             // TODO: destroy?
             this._clipEval = undefined;
         }
+        if (this._clipEventEval) {
+            this._clipEventEval = undefined;
+        }
+        if (this._clipEmbeddedPlayerEval) {
+            this._clipEmbeddedPlayerEval.destroy();
+            this._clipEmbeddedPlayerEval = undefined;
+        }
         this._targetNode = root;
         const clip = this._clip;
 
         this.duration = clip.duration;
         this._invDuration = 1.0 / this.duration;
-        this.speed = clip.speed;
+        this._speed = clip.speed;
         this.wrapMode = clip.wrapMode;
         this.frameRate = clip.sample;
         this._playbackRange.min = 0.0;
@@ -374,16 +381,20 @@ export class AnimationState extends Playable {
         }
 
         if (!(EDITOR && !legacyCC.GAME_VIEW)) {
-            this._clipEventEval = clip.createEventEvaluator(this._targetNode);
+            if (clip.containsAnyEvent()) {
+                this._clipEventEval = clip.createEventEvaluator(this._targetNode);
+            }
         }
-        this._passive = passive ?? false;
+
+        if (clip.containsAnyEmbeddedPlayer()) {
+            this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(this._targetNode);
+            this._clipEmbeddedPlayerEval.notifyHostSpeedChanged(this._speed);
+        }
     }
 
     public destroy () {
-        if (!this._passive) {
-            if (!this.isMotionless) {
-                getGlobalAnimationManager().removeAnimation(this);
-            }
+        if (!this.isMotionless) {
+            getGlobalAnimationManager().removeAnimation(this);
         }
         if (this._poseOutput) {
             this._poseOutput.destroy();
@@ -453,7 +464,7 @@ export class AnimationState extends Playable {
 
     /**
      * This method is used for internal purpose only.
-     * @legacyPublic
+     * @internal
      */
     public _setEventTarget (target) {
         this._target = target;
@@ -484,7 +495,7 @@ export class AnimationState extends Playable {
 
         // var playPerfectFirstFrame = (this.time === 0);
         if (this._currentFramePlayed) {
-            this.time += (delta * this.speed);
+            this.time += (delta * this._speed);
         } else {
             this._currentFramePlayed = true;
         }
@@ -498,6 +509,7 @@ export class AnimationState extends Playable {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._sampleEvents(info);
         }
+        this._sampleEmbeddedPlayers(info);
         return info;
     }
 
@@ -506,6 +518,7 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
         this._onReplayOrResume();
         this.emit(EventType.PLAY, this);
+        this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
     protected onStop () {
@@ -513,18 +526,24 @@ export class AnimationState extends Playable {
             this._onPauseOrStop();
         }
         this.emit(EventType.STOP, this);
+        this._clipEmbeddedPlayerEval?.notifyHostStop();
     }
 
     protected onResume () {
         this._onReplayOrResume();
         this.emit(EventType.RESUME, this);
+        this._clipEmbeddedPlayerEval?.notifyHostPlay(this.current);
     }
 
     protected onPause () {
         this._onPauseOrStop();
         this.emit(EventType.PAUSE, this);
+        this._clipEmbeddedPlayerEval?.notifyHostPause(this.current);
     }
 
+    /**
+     * @internal
+     */
     protected _sampleCurves (time: number) {
         const { _poseOutput: poseOutput, _clipEval: clipEval } = this;
         if (poseOutput) {
@@ -572,14 +591,25 @@ export class AnimationState extends Playable {
         const playbackStart = this._playbackRange.min;
         const playbackDuration = this._playbackDuration;
 
-        let time = this.time % playbackDuration;
-        if (time < 0.0) { time += playbackDuration; }
-        const realTime = playbackStart + time;
-        const ratio = realTime * this._invDuration;
+        let time = 0.0;
+        let ratio = 0.0;
+        if (playbackDuration !== 0.0) {
+            time = this.time % playbackDuration;
+            if (time < 0.0) {
+                time += playbackDuration;
+            }
+            const realTime = playbackStart + time;
+            ratio = realTime * this._invDuration;
+        }
         this._sampleCurves(playbackStart + time);
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
+        if (this._clipEventEval || this._clipEmbeddedPlayerEval) {
+            const wrapInfo = this.getWrappedInfo(this.time, this._wrappedInfo);
+            if (!EDITOR || legacyCC.GAME_VIEW) {
+                this._sampleEvents(wrapInfo);
+            }
+
+            this._sampleEmbeddedPlayers(wrapInfo);
         }
 
         if (this._allowLastFrame) {
@@ -619,12 +649,25 @@ export class AnimationState extends Playable {
     private getWrappedInfo (time: number, info?: WrappedInfo) {
         info = info || new WrappedInfo();
 
-        const playbackStart = this._getPlaybackStart();
-        const playbackEnd = this._getPlaybackEnd();
-        const playbackDuration = playbackEnd - playbackStart;
+        const {
+            _playbackRange: {
+                min: playbackStart,
+            },
+            _playbackDuration: playbackDuration,
+        } = this;
+
+        const repeatCount = this.repeatCount;
+
+        if (playbackDuration === 0.0) {
+            info.time = 0.0;
+            info.ratio = 0.0;
+            info.direction = 1.0;
+            info.stopped = !!Number.isFinite(repeatCount);
+            info.iterations = 0.0;
+            return info;
+        }
 
         let stopped = false;
-        const repeatCount = this.repeatCount;
 
         time -= playbackStart;
 
@@ -677,15 +720,18 @@ export class AnimationState extends Playable {
         return this._playbackRange.min;
     }
 
-    private _getPlaybackEnd () {
-        return this._playbackRange.max;
-    }
-
     private _sampleEvents (wrapInfo: WrappedInfo) {
         this._clipEventEval?.sample(
             wrapInfo.ratio,
             wrapInfo.direction,
             wrapInfo.iterations,
+        );
+    }
+
+    private _sampleEmbeddedPlayers (wrapInfo: WrappedInfo) {
+        this._clipEmbeddedPlayerEval?.evaluate(
+            wrapInfo.time,
+            Math.trunc(wrapInfo.iterations),
         );
     }
 
@@ -696,15 +742,11 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        if (!this._passive) {
-            getGlobalAnimationManager().addAnimation(this);
-        }
+        getGlobalAnimationManager().addAnimation(this);
     }
 
     private _onPauseOrStop () {
-        if (!this._passive) {
-            getGlobalAnimationManager().removeAnimation(this);
-        }
+        getGlobalAnimationManager().removeAnimation(this);
     }
 }
 

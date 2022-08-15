@@ -37,8 +37,8 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
+#include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/GFXTexture.h"
@@ -193,10 +193,10 @@ struct ResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
-    using VertexValue       = boost::variant2::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
-    using VertexConstValue = boost::variant2::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
+    using VertexValue       = ccstd::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
+    using VertexConstValue = ccstd::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<ManagedTag, vertex_descriptor>,
         impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
         impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
@@ -251,76 +251,6 @@ struct ResourceGraph {
     ccstd::pmr::vector<RenderSwapchain>                swapchains;
     // UuidGraph
     PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
-};
-
-enum class AttachmentType {
-    RENDER_TARGET,
-    DEPTH_STENCIL,
-};
-
-enum class AccessType {
-    READ,
-    READ_WRITE,
-    WRITE,
-};
-
-struct RasterView {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {slotName.get_allocator().resource()};
-    }
-
-    RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
-    RasterView(RasterView&& rhs, const allocator_type& alloc);
-    RasterView(RasterView const& rhs, const allocator_type& alloc);
-
-    RasterView(RasterView&& rhs) noexcept = default;
-    RasterView(RasterView const& rhs)     = delete;
-    RasterView& operator=(RasterView&& rhs) = default;
-    RasterView& operator=(RasterView const& rhs) = default;
-
-    ccstd::pmr::string slotName;
-    AccessType         accessType{AccessType::WRITE};
-    AttachmentType     attachmentType{AttachmentType::RENDER_TARGET};
-    gfx::LoadOp        loadOp{gfx::LoadOp::LOAD};
-    gfx::StoreOp       storeOp{gfx::StoreOp::STORE};
-    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
-    gfx::Color         clearColor;
-};
-
-enum class ClearValueType {
-    FLOAT_TYPE,
-    INT_TYPE,
-};
-
-struct ComputeView {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {name.get_allocator().resource()};
-    }
-
-    ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    ComputeView(ComputeView&& rhs, const allocator_type& alloc);
-    ComputeView(ComputeView const& rhs, const allocator_type& alloc);
-
-    ComputeView(ComputeView&& rhs) noexcept = default;
-    ComputeView(ComputeView const& rhs)     = delete;
-    ComputeView& operator=(ComputeView&& rhs) = default;
-    ComputeView& operator=(ComputeView const& rhs) = default;
-
-    bool isRead() const {
-        return accessType != AccessType::WRITE;
-    }
-    bool isWrite() const {
-        return accessType != AccessType::READ;
-    }
-
-    ccstd::pmr::string name;
-    AccessType         accessType{AccessType::READ};
-    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::NONE};
-    gfx::Color         clearColor;
-    ClearValueType     clearValueType{ClearValueType::FLOAT_TYPE};
 };
 
 struct RasterSubpass {
@@ -483,6 +413,9 @@ struct RasterPass {
     PmrTransparentMap<ccstd::pmr::string, RasterView>                      rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
     SubpassGraph                                                           subpassGraph;
+    uint32_t                                                               width{0};
+    uint32_t                                                               height{0};
+    gfx::Viewport                                                          viewport;
 };
 
 struct ComputePass {
@@ -615,6 +548,29 @@ struct SceneTag {};
 struct DispatchTag {};
 struct BlitTag {};
 struct PresentTag {};
+struct ClearTag {};
+struct ViewportTag {};
+
+struct ClearView {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {slotName.get_allocator().resource()};
+    }
+
+    ClearView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ClearView(ClearView&& rhs, const allocator_type& alloc);
+    ClearView(ClearView const& rhs, const allocator_type& alloc);
+
+    ClearView(ClearView&& rhs) noexcept = default;
+    ClearView(ClearView const& rhs)     = delete;
+    ClearView& operator=(ClearView&& rhs) = default;
+    ClearView& operator=(ClearView const& rhs) = default;
+
+    ccstd::pmr::string slotName;
+    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color         clearColor;
+};
 
 struct RenderQueue {
     RenderQueue() = default;
@@ -631,7 +587,7 @@ struct SceneData {
     }
 
     SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(ccstd::pmr::string nameIn, const allocator_type& alloc) noexcept;
+    SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, LightInfo lightIn, const allocator_type& alloc) noexcept;
     SceneData(SceneData&& rhs, const allocator_type& alloc);
     SceneData(SceneData const& rhs, const allocator_type& alloc);
 
@@ -642,6 +598,8 @@ struct SceneData {
 
     ccstd::pmr::string                     name;
     scene::Camera*                         camera{nullptr};
+    LightInfo                              light;
+    SceneFlags                             flags{SceneFlags::NONE};
     ccstd::pmr::vector<ccstd::pmr::string> scenes;
 };
 
@@ -668,22 +626,15 @@ struct Dispatch {
 };
 
 struct Blit {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {shader.get_allocator().resource()};
-    }
+    Blit() = default;
+    Blit(IntrusivePtr<Material> materialIn, SceneFlags sceneFlagsIn, scene::Camera* cameraIn) noexcept
+    : material(std::move(materialIn)),
+      sceneFlags(sceneFlagsIn),
+      camera(cameraIn) {}
 
-    Blit(const allocator_type& alloc) noexcept; // NOLINT
-    Blit(ccstd::pmr::string shaderIn, const allocator_type& alloc) noexcept;
-    Blit(Blit&& rhs, const allocator_type& alloc);
-    Blit(Blit const& rhs, const allocator_type& alloc);
-
-    Blit(Blit&& rhs) noexcept = default;
-    Blit(Blit const& rhs)     = delete;
-    Blit& operator=(Blit&& rhs) = default;
-    Blit& operator=(Blit const& rhs) = default;
-
-    ccstd::pmr::string shader;
+    IntrusivePtr<Material> material;
+    SceneFlags             sceneFlags{SceneFlags::NONE};
+    scene::Camera*         camera{nullptr};
 };
 
 struct Present {
@@ -728,10 +679,10 @@ struct RenderData {
     RenderData& operator=(RenderData&& rhs) = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
-    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<uint8_t>>   constants;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Buffer>>  buffers;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Texture>> textures;
-    PmrUnorderedMap<uint32_t, std::unique_ptr<gfx::Sampler>> samplers;
+    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<uint8_t>> constants;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>>   buffers;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>>  textures;
+    PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>>   samplers;
 };
 
 struct RenderGraph {
@@ -853,10 +804,10 @@ struct RenderGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = boost::variant2::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag>;
-    using VertexValue       = boost::variant2::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*>;
-    using VertexConstValue = boost::variant2::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*>;
-    using VertexHandle      = boost::variant2::variant<
+    using VertexTag         = ccstd::variant<RasterTag, ComputeTag, CopyTag, MoveTag, PresentTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
+    using VertexValue       = ccstd::variant<RasterPass*, ComputePass*, CopyPass*, MovePass*, PresentPass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const ComputePass*, const CopyPass*, const MovePass*, const PresentPass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
+    using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
         impl::ValueHandle<CopyTag, vertex_descriptor>,
@@ -866,7 +817,9 @@ struct RenderGraph {
         impl::ValueHandle<QueueTag, vertex_descriptor>,
         impl::ValueHandle<SceneTag, vertex_descriptor>,
         impl::ValueHandle<BlitTag, vertex_descriptor>,
-        impl::ValueHandle<DispatchTag, vertex_descriptor>>;
+        impl::ValueHandle<DispatchTag, vertex_descriptor>,
+        impl::ValueHandle<ClearTag, vertex_descriptor>,
+        impl::ValueHandle<ViewportTag, vertex_descriptor>>;
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -930,16 +883,18 @@ struct RenderGraph {
     ccstd::pmr::vector<RenderData>         data;
     ccstd::pmr::vector<bool>               valid;
     // PolymorphicGraph
-    ccstd::pmr::vector<RasterPass>   rasterPasses;
-    ccstd::pmr::vector<ComputePass>  computePasses;
-    ccstd::pmr::vector<CopyPass>     copyPasses;
-    ccstd::pmr::vector<MovePass>     movePasses;
-    ccstd::pmr::vector<PresentPass>  presentPasses;
-    ccstd::pmr::vector<RaytracePass> raytracePasses;
-    ccstd::pmr::vector<RenderQueue>  renderQueues;
-    ccstd::pmr::vector<SceneData>    scenes;
-    ccstd::pmr::vector<Blit>         blits;
-    ccstd::pmr::vector<Dispatch>     dispatches;
+    ccstd::pmr::vector<RasterPass>                    rasterPasses;
+    ccstd::pmr::vector<ComputePass>                   computePasses;
+    ccstd::pmr::vector<CopyPass>                      copyPasses;
+    ccstd::pmr::vector<MovePass>                      movePasses;
+    ccstd::pmr::vector<PresentPass>                   presentPasses;
+    ccstd::pmr::vector<RaytracePass>                  raytracePasses;
+    ccstd::pmr::vector<RenderQueue>                   renderQueues;
+    ccstd::pmr::vector<SceneData>                     scenes;
+    ccstd::pmr::vector<Blit>                          blits;
+    ccstd::pmr::vector<Dispatch>                      dispatches;
+    ccstd::pmr::vector<ccstd::pmr::vector<ClearView>> clearViews;
+    ccstd::pmr::vector<gfx::Viewport>                 viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
 };

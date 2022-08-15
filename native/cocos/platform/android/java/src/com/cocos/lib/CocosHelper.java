@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.LocaleList;
 import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
 import android.util.Log;
@@ -210,11 +211,19 @@ public class CocosHelper {
     }
 
     public static String getCurrentLanguage() {
-        return Locale.getDefault().getLanguage();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return LocaleList.getDefault().get(0).getLanguage();
+        } else {
+            return Locale.getDefault().getLanguage();
+        }
     }
 
     public static String getCurrentLanguageCode() {
-        return Locale.getDefault().toString();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return LocaleList.getDefault().get(0).toString();
+        } else {
+            return Locale.getDefault().toString();
+        }
     }
 
     public static String getDeviceModel() {
@@ -385,7 +394,14 @@ public class CocosHelper {
         }
         return new float[]{0, 0, 0, 0};
     }
-
+    public static void finishActivity() {
+        sActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                sActivity.finish();
+            }
+        });
+    }
     public static void setKeepScreenOn(boolean keepScreenOn) {
         if (keepScreenOn) {
             sActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

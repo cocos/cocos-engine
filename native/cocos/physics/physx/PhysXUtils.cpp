@@ -39,7 +39,7 @@ void pxSetFromTwoVectors(physx::PxQuat &out, const physx::PxVec3 &a, const physx
         out = physx::PxQuat{physx::PxIdentity};
     } else {
         physx::PxVec3 c = a.cross(b);
-        out             = physx::PxQuat{c.x, c.y, c.z, 1 + dot};
+        out = physx::PxQuat{c.x, c.y, c.z, 1 + dot};
         out.normalize();
     }
 }

@@ -28,19 +28,23 @@ import { TEST } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
 /**
- *
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 const eventRegx = /^(click)(\s)*=|(param)(\s)*=/;
 const imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*align(\s)*=|(\s)*offset(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
+
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-
 export interface IHtmlTextParserResultObj{
     text?: string;
     style?: IHtmlTextParserStack;
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export interface IHtmlTextParserStack{
     color?: string;
     size?: number;
@@ -58,6 +62,9 @@ export interface IHtmlTextParserStack{
     outline?: { color: string, width: number };
 }
 
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
 export class HtmlTextParser {
     private _specialSymbolArray: Array<[RegExp, string]> = [];
     private _stack: IHtmlTextParserStack[] = [];
@@ -165,6 +172,7 @@ export class HtmlTextParser {
 
         header = /^(img(\s)*src(\s)*=[^>]+\/)/.exec(attribute);
         let remainingArgument = '';
+        let rightQuot = -1;
         if (header && header[0].length > 0) {
             tagName = header[0].trim();
             if (tagName.startsWith('img') && tagName[tagName.length - 1] === '/') {
@@ -175,16 +183,24 @@ export class HtmlTextParser {
                     // skip the invalid tags at first
                     attribute = attribute.substring(attribute.indexOf(header[0]));
                     tagName = attribute.substr(0, header[0].length);
-                    // remove space and = character
-                    remainingArgument = attribute.substring(tagName.length).trim();
-                    nextSpace = remainingArgument.indexOf(' ');
-
-                    tagValue = (nextSpace > -1) ? remainingArgument.substr(0, nextSpace) : remainingArgument;
+                    const originTagNameLength = tagName.length;
                     tagName = tagName.replace(/[^a-zA-Z]/g, '').trim();
                     tagName = tagName.toLowerCase();
 
+                    // remove space and = character
+                    remainingArgument = attribute.substring(originTagNameLength).trim();
+                    if (tagName === 'src') {
+                        rightQuot = this.getRightQuotationIndex(remainingArgument);
+                    } else {
+                        rightQuot = -1;
+                    }
+                    nextSpace = remainingArgument.indexOf(' ', rightQuot + 1 >= remainingArgument.length ? -1 : rightQuot + 1);
+                    tagValue = (nextSpace > -1) ? remainingArgument.substr(0, nextSpace) : remainingArgument;
                     attribute = remainingArgument.substring(nextSpace).trim();
-                    if (tagValue.endsWith('/')) tagValue = tagValue.slice(0, -1);
+
+                    if (tagValue.endsWith('/')) {
+                        tagValue = tagValue.slice(0, -1);
+                    }
                     if (tagName === 'src') {
                         switch (tagValue.charCodeAt(0)) {
                         case 34: // "
@@ -299,6 +315,27 @@ export class HtmlTextParser {
         }
 
         return obj;
+    }
+
+    // find the right part of the first pair of following quotations.
+    private getRightQuotationIndex (remainingArgument: string) {
+        let leftQuot = -1;
+        let rightQuot = -1;
+        // Skip a pair of quotations for avoiding spaces in image name are detected.
+        const leftSingleQuot = remainingArgument.indexOf('\'');
+        const leftDoubleQuot = remainingArgument.indexOf('"');
+
+        const useSingleQuot = leftSingleQuot  > -1 && (leftSingleQuot < leftDoubleQuot || leftDoubleQuot === -1);
+        const useDoubleQuot = leftDoubleQuot > -1 && (leftDoubleQuot < leftSingleQuot || leftSingleQuot === -1);
+        if (useSingleQuot) {
+            leftQuot = leftSingleQuot;
+            rightQuot = remainingArgument.indexOf('\'', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
+        } else if (useDoubleQuot) {
+            leftQuot = leftDoubleQuot;
+            rightQuot = remainingArgument.indexOf('"', leftQuot + 1 >= remainingArgument.length ? -1 : leftQuot + 1);
+        }
+
+        return rightQuot;
     }
 
     private _processEventHandler (eventString: string) {

@@ -35,7 +35,9 @@ PhysXTrimesh::PhysXTrimesh() : _mMeshHandle(0),
                                _mConvex(false),
                                _mIsTrigger(false){};
 
-void PhysXTrimesh::setMesh(uintptr_t handle) {
+void PhysXTrimesh::setMesh(uint32_t objectID) {
+    uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
+    if (handle == 0) return;
     if (_mShape) return;
     if (_mMeshHandle == handle) return;
     _mMeshHandle = handle;
@@ -78,7 +80,7 @@ void PhysXTrimesh::updateScale() {
 void PhysXTrimesh::updateGeometry() {
     static physx::PxMeshScale scale;
     scale.rotation = physx::PxQuat{physx::PxIdentity};
-    auto *node     = getSharedBody().getNode();
+    auto *node = getSharedBody().getNode();
     node->updateWorldTransform();
     pxSetVec3Ext(scale.scale, node->getWorldScale());
     const auto &type = _mShape->getGeometryType();

@@ -101,7 +101,7 @@ CCEffect %{
 
 CCProgram line-vs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in highp vec3 a_position;
   in vec4 a_color;
@@ -120,7 +120,7 @@ CCProgram line-vs %{
 
 CCProgram line-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec4 v_color;
 
@@ -143,7 +143,7 @@ CCProgram line-fs %{
 
 CCProgram dashed-line-vs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in highp vec3 a_position;
   in vec4 a_color;
@@ -164,7 +164,7 @@ CCProgram dashed-line-vs %{
 
 CCProgram dashed-line-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec4 v_color;
   in float v_distance;
@@ -196,7 +196,7 @@ CCProgram dashed-line-fs %{
 
 CCProgram triangle-vs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in highp vec3 a_position;
   in vec4 a_normal;
@@ -219,7 +219,7 @@ CCProgram triangle-vs %{
 
 CCProgram triangle-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec4 v_color;
 

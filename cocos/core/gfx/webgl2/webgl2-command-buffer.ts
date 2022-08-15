@@ -58,6 +58,7 @@ import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
+import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGL2DeviceManager } from './webgl2-define';
 
 export class WebGL2CommandBuffer extends CommandBuffer {
@@ -407,7 +408,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier> | null, textureBarriers?: Readonly<TextureBarrier[]>,
+    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, bufferBarriers?: Readonly<BufferBarrier[]>,
+        buffers?: Readonly<Buffer[]>,
+        textureBarriers?: Readonly<TextureBarrier[]>,
         textures?: Readonly<Texture[]>) {}
 
     protected bindStates () {

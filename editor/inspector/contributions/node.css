@@ -8,8 +8,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: scroll;
-    padding-left: 10px;
+    overflow-y: scroll;
+    overflow-x: auto;
+    padding-left: 6px;
     padding-right: 2px;
 }
 
@@ -44,9 +45,11 @@
 .header {
     display: none;
     margin-top: 7px;
+    padding-left: 4px;
 }
 
-.header > .name {
+.header > .name,
+.component-header .name {
     flex: 1;
 }
 
@@ -58,7 +61,7 @@
     margin: 10px 0;
 }
 
-:host([sub-type='scene']) > .container > .scene {
+:host([type="node"][sub-type='scene']) > .container > .scene {
     display: block;
 }
 
@@ -88,6 +91,11 @@
 
 .section-missing .name {
     flex: 1;
+    color: var(--color-normal-contrast-emphasis);
+}
+
+.section-missing .name span {
+    text-decoration: line-through;
 }
 
 .section-missing > section > ui-icon {
@@ -117,7 +125,7 @@
 }
 
 .node .layer-content > .layer-edit {
-    margin-left: 6px;
+    margin-left: 4px;
 }
 
 .node .node-section {
@@ -134,13 +142,18 @@
 
 .component .component-header {
     flex: 1;
+    display: flex;
+}
+
+.component .component-header ui-drag-item {
+    flex: 1;
 }
 
 .component .component-header > .menu,
 .component .component-header > .link {
     padding: 0 5px;
-    float: right;
     transition: color 0.15s;
+    color: var(--color-default-contrast-emphasis);
 }
 
 .component .component-header > .menu:hover {
@@ -172,4 +185,13 @@
 
 .section-asset:empty {
     display: none;
+}
+
+.section-asset > ui-panel[type="asset"] {
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.section-asset > ui-panel[type="asset"][focused] {
+    box-shadow: var(--color-normal-fill-emphasis) 0 0 4px;
 }

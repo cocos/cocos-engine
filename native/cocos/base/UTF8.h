@@ -189,7 +189,7 @@ class CC_DLL StringUTF8 {
 public:
     struct CharUTF8 {
         ccstd::string _char;
-        bool          isAnsi() { return _char.size() == 1; }
+        bool isAnsi() { return _char.size() == 1; }
     };
     using CharUTF8Store = ccstd::vector<CharUTF8>;
 
@@ -198,7 +198,7 @@ public:
     ~StringUTF8() = default;
 
     std::size_t length() const;
-    void        replace(const ccstd::string &newStr);
+    void replace(const ccstd::string &newStr);
 
     ccstd::string getAsCharSequence() const;
 

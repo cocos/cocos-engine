@@ -50,22 +50,22 @@ namespace {
 } // namespace
 
 ForwardPipeline::ForwardPipeline() {
-    _pipelineSceneData = new PipelineSceneData();
+    _pipelineSceneData = ccnew PipelineSceneData();
 }
 
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardColorTexture = framegraph::FrameGraph::stringToHandle("forwardColorTexture");
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardDepthTexture = framegraph::FrameGraph::stringToHandle("forwardDepthTexture");
-framegraph::StringHandle ForwardPipeline::fgStrHandleForwardPass         = framegraph::FrameGraph::stringToHandle("forwardPass");
+framegraph::StringHandle ForwardPipeline::fgStrHandleForwardPass = framegraph::FrameGraph::stringToHandle("forwardPass");
 
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.empty()) {
-        auto *shadowFlow = CC_NEW(ShadowFlow);
+        _isResourceOwner = true;
+
+        auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
 
-        auto *forwardFlow = CC_NEW(ForwardFlow);
+        auto *forwardFlow = ccnew ForwardFlow;
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());
         _flows.emplace_back(forwardFlow);
     }
@@ -91,7 +91,11 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 
 void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     CC_PROFILE(ForwardPipelineRender);
-    auto *     device               = gfx::Device::getInstance();
+#if CC_USE_GEOMETRY_RENDERER
+    updateGeometryRenderer(cameras); // for capability
+#endif
+
+    auto *device = gfx::Device::getInstance();
     const bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
         device->getQueryPoolResults(_queryPools[0]);
@@ -139,16 +143,17 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
 
     // Main light sampler binding
     _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
-    _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
+    _descriptorSet->bindSampler(SPOTSHADOWMAP::BINDING, sampler);
     _descriptorSet->update();
 
     // update global defines when all states initialized.
-    _macros["CC_USE_HDR"]               = static_cast<bool>(_pipelineSceneData->isHDR());
+    _macros["CC_USE_HDR"] = static_cast<bool>(_pipelineSceneData->isHDR());
     _macros["CC_SUPPORT_FLOAT_TEXTURE"] = hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
+    _macros["CC_USE_DEBUG_VIEW"] = static_cast<int32_t>(0);
 
     // step 2 create index buffer
-    uint ibStride = 4;
-    uint ibSize   = ibStride * 6;
+    uint32_t ibStride = 4;
+    uint32_t ibSize = ibStride * 6;
     if (_quadIB == nullptr) {
         _quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
                                          gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
@@ -158,10 +163,10 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
         return false;
     }
 
-    uint ibData[] = {0, 1, 2, 1, 3, 2};
+    uint32_t ibData[] = {0, 1, 2, 1, 3, 2};
     _quadIB->update(ibData, sizeof(ibData));
 
-    _width  = swapchain->getWidth();
+    _width = swapchain->getWidth();
     _height = swapchain->getHeight();
     return true;
 }

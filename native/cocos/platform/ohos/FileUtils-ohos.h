@@ -37,14 +37,14 @@ namespace cc {
 
 class CC_DLL FileUtilsOHOS : public FileUtils {
 public:
-    //        FileUtilsOHOS();
-    //        virtual ~FileUtilsOHOS();
-
     static bool initResourceManager(ResourceManager *mgr, const ccstd::string &assetPath, const ccstd::string &moduleName);
 
     static void setRawfilePrefix(const ccstd::string &prefix);
 
     static ResourceManager *getResourceManager();
+
+    FileUtilsOHOS();
+    ~FileUtilsOHOS() override = default;
 
     bool init() override;
 
@@ -65,7 +65,7 @@ private:
 
     /* weak ref, do not need release */
     static ResourceManager *ohosResourceMgr;
-    static ccstd::string    ohosAssetPath;
+    static ccstd::string ohosAssetPath;
 
     friend class FileUtils;
 };

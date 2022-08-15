@@ -70,7 +70,7 @@ CCEffect %{
 
 CCProgram vert %{
   precision mediump float;
-  #include <particle-common>
+  #include <builtin/internal/particle-common>
   #pragma define CC_RENDER_MODE RENDER_MODE_BILLBOARD
   in vec3 a_position; // center position
   in vec2 a_texCoord;  // texcoord
@@ -96,7 +96,7 @@ CCProgram vert %{
 
 CCProgram tinted-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec2 uv;
   in vec4 color;
@@ -122,7 +122,7 @@ CCProgram tinted-fs %{
 
 CCProgram no-tint-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec2 uv;
   in vec4 color;

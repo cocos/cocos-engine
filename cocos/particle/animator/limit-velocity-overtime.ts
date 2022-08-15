@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
-import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -67,6 +62,9 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:limitVelocityOvertimeModule.limitX')
+    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+        return this.separateAxes;
+    })
     public limitX = new CurveRange();
 
     /**
@@ -77,6 +75,9 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:limitVelocityOvertimeModule.limitY')
+    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+        return this.separateAxes;
+    })
     public limitY = new CurveRange();
 
     /**
@@ -87,6 +88,9 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @range([-1, 1])
     @displayOrder(6)
     @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
+    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+        return this.separateAxes;
+    })
     public limitZ = new CurveRange();
 
     /**
@@ -97,6 +101,9 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @range([-1, 1])
     @displayOrder(3)
     @tooltip('i18n:limitVelocityOvertimeModule.limit')
+    @visible(function (this: LimitVelocityOvertimeModule): boolean {
+        return !this.separateAxes;
+    })
     public limit = new CurveRange();
 
     /**

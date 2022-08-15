@@ -1,9 +1,10 @@
 import { Pool } from './memop';
-import { warnID } from './platform';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { warnID } from './platform/debug';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
-import { Device } from './gfx';
+import { Device, deviceManager } from './gfx';
+import { DebugView } from './pipeline/debug-view';
+import { buildDeferredLayout, buildForwardLayout } from './pipeline/custom/effect';
 
 declare const nr: any;
 declare const jsb: any;
@@ -27,10 +28,22 @@ export interface IRootInfo {
 
 const rootProto: any = Root.prototype;
 
+rootProto._createBatcher2D = function () {
+    if (!this._batcher && legacyCC.internal.Batcher2D) {
+        this._batcher = new legacyCC.internal.Batcher2D(this);
+        if (!this._batcher!.initialize()) {
+            this._batcher = null;
+            this.destroy();
+            return;
+        }
+        this._batcher._nativeObj = this.getBatcher2D();
+    }
+}
+
 Object.defineProperty(rootProto, 'batcher2D', {
     configurable: true,
     enumerable: true,
-    get(): Batcher2D {
+    get() {
         return this._batcher;
     },
 });
@@ -51,6 +64,14 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
     }
 });
 
+Object.defineProperty(rootProto, 'debugView', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._debugView;
+    }
+});
+
 class DummyPipelineEvent {
     on (type: any, callback: any, target?: any, once?: boolean) {}
     once (type: any, callback: any, target?: any) {}
@@ -68,12 +89,14 @@ rootProto._ctor = function (device: Device) {
     this._lightPools = new Map();
     this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
+    this._debugView = new DebugView();
+    this.setDebugViewConfig(this._debugView._nativeConfig);
     this._registerListeners();
 };
 
 rootProto.initialize = function (info: IRootInfo) {
     // TODO:
-    this._initialize(legacyCC.game._swapchain);
+    this._initialize(deviceManager.swapchain);
 };
 
 rootProto.createModel = function (ModelCtor) {
@@ -112,45 +135,44 @@ rootProto.createLight = function (LightCtor) {
 };
 
 rootProto.destroyLight = function (l) {
-    const p = this._lightPools.get(l.constructor);
+    if (l.scene) {
+        switch (l.type) {
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l);
+                break;
+            default:
+                break;
+        }
+    }
     l.destroy();
+};
+
+rootProto.recycleLight = function (l) {
+    const p = this._lightPools.get(l.constructor);
     if (p) {
         p.free(l);
         if (l.scene) {
             switch (l.type) {
-                case LightType.SPHERE:
-                    l.scene.removeSphereLight(l);
-                    break;
-                case LightType.SPOT:
-                    l.scene.removeSpotLight(l);
-                    break;
-                default:
-                    break;
+            case LightType.DIRECTIONAL:
+                l.scene.removeDirectionalLight(l);
+                break;
+            case LightType.SPHERE:
+                l.scene.removeSphereLight(l);
+                break;
+            case LightType.SPOT:
+                l.scene.removeSpotLight(l);
+                break;
+            default:
+                break;
             }
         }
     }
-};
-
-rootProto._onBatch2DInit = function () {
-    if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this);
-        if (!this._batcher!.initialize()) {
-            this.destroy();
-            return false;
-        }
-    }
-};
-
-rootProto._onBatch2DUpdate = function () {
-    if (this._batcher) this._batcher.update();
-};
-
-rootProto._onBatch2DUploadBuffers = function () {
-    if (this._batcher) this._batcher.uploadBuffers();
-};
-
-rootProto._onBatch2DReset = function () {
-    if (this._batcher) this._batcher.reset();
 };
 
 rootProto._onDirectorBeforeCommit = function () {
@@ -164,14 +186,38 @@ rootProto.frameMove = function (deltaTime: number) {
 
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
-    if (this.usesCustomPipeline()) {
-        return oldSetPipeline.call(this, null);
+    let ppl;
+    if (this.usesCustomPipeline) {
+        const result = oldSetPipeline.call(this, null);
+        const ppl = this.customPipeline;
+        if (this.useDeferredPipeline) {
+            buildDeferredLayout(ppl);
+        } else {
+            buildForwardLayout(ppl);
+        }
+        ppl.layoutGraphBuilder.compile();
+        return result;
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered
             pipeline = new nr.ForwardPipeline();
             pipeline.init();
         }
-        return oldSetPipeline.call(this, pipeline);
+        ppl =  oldSetPipeline.call(this, pipeline);
     }
+
+    this._createBatcher2D();
+    return ppl;
+}
+
+rootProto.addBatch = function (batch) {
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
+}
+
+rootProto.removeBatch = function (batch) {
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
+}
+
+rootProto.removeBatches = function () {
+    console.error('The Draw Batch class is implemented differently in the native platform and does not support this interface.');
 }

@@ -950,7 +950,7 @@ clang_flags = -nostdinc -x c++ -std=c++11 -fsigned-char -U__SSE__
 cocos_headers = -I%(cocosdir)s/cocos -I%(cocosdir)s/cocos/platform/android -I%(cocosdir)s/external/sources
 
 # 配置引擎编译参数
-cocos_flags = -DANDROID -DCC_PLATFORM=3 -DCC_PLATFORM_MAC_IOS=1 -DCC_PLATFORM_MAC_OSX=4 -DCC_PLATFORM_WINDOWS=2 -DCC_PLATFORM_ANDROID=3
+cocos_flags = -DANDROID -DCC_PLATFORM=3 -DCC_PLATFORM_IOS=1 -DCC_PLATFORM_MACOS=4 -DCC_PLATFORM_WINDOWS=2 -DCC_PLATFORM_ANDROID=3
 
 
 # 配置额外的编译参数

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../gfx';
@@ -76,7 +71,7 @@ export class SimpleTexture extends TextureBase {
     private _textureHeight = 0;
 
     protected _baseLevel = 0;
-    protected _maxLevel = 0;
+    protected _maxLevel = 1000;
 
     /**
      * @en The mipmap level of the texture
@@ -196,8 +191,11 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
+     * @en
      * Set mipmap level of this texture.
      * The value is passes as presumed info to `this._getGfxTextureCreateInfo()`.
+     * @zh
+     * 设置此贴图的 mipmap 层级
      * @param value The mipmap level.
      */
     protected _setMipmapLevel (value: number) {
@@ -205,15 +203,13 @@ export class SimpleTexture extends TextureBase {
     }
 
     protected _setMipRange (baseLevel: number, maxLevel: number) {
-        this._baseLevel = baseLevel < 0 ? 0 : baseLevel;
-        this._baseLevel = this._baseLevel < this._mipmapLevel ? this._baseLevel : this._mipmapLevel - 1;
-
-        this._maxLevel = maxLevel < this._baseLevel ? this._baseLevel : maxLevel;
-        this._maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
+        this._baseLevel = baseLevel < 1 ? 0 : baseLevel;
+        this._maxLevel = maxLevel < 1 ? 0 : maxLevel;
     }
 
     /**
-     * Set mipmap level range for this texture.
+     * @en Set mipmap level range for this texture.
+     * @zh 设置当前贴图的 mipmap 范围。
      * @param baseLevel The base mipmap level.
      * @param maxLevel The maximum mipmap level.
      */
@@ -226,12 +222,15 @@ export class SimpleTexture extends TextureBase {
         if (!device) {
             return;
         }
+        // create a new texture view before the destruction of the previous one to bypass the bug that
+        // vulkan destroys textureview in use. This is a temporary solution, should be fixed later.
+        const textureView = this._createTextureView(device);
         this._tryDestroyTextureView();
-        this._createTextureView(device);
+        this._gfxTextureView = textureView;
     }
 
     /**
-     * @en This method is overrided by derived classes to provide GFX texture info.
+     * @en This method is override by derived classes to provide GFX texture info.
      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
      * @param presumed The presumed GFX texture info.
      */
@@ -259,7 +258,15 @@ export class SimpleTexture extends TextureBase {
             return;
         }
         this._createTexture(device);
-        this._createTextureView(device);
+        this._gfxTextureView = this._createTextureView(device);
+    }
+
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
+    public isUsingOfflineMipmaps (): boolean {
+        return false;
     }
 
     protected _createTexture (device: Device) {
@@ -267,9 +274,10 @@ export class SimpleTexture extends TextureBase {
         let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
-            flags = TextureFlagBit.GEN_MIPMAP;
+            if (!this.isUsingOfflineMipmaps()) {
+                flags = TextureFlagBit.GEN_MIPMAP;
+            }
         }
-
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
@@ -287,22 +295,22 @@ export class SimpleTexture extends TextureBase {
         this._gfxTexture = texture;
     }
 
-    protected _createTextureView (device: Device) {
+    protected _createTextureView (device: Device): Texture | null {
         if (!this._gfxTexture) {
-            return;
+            return null;
         }
+        const maxLevel = this._maxLevel < this._mipmapLevel ? this._maxLevel : this._mipmapLevel - 1;
         const textureViewCreateInfo = this._getGfxTextureViewCreateInfo({
             texture: this._gfxTexture,
             format: this._getGFXFormat(),
             baseLevel: this._baseLevel,
-            levelCount: this._maxLevel - this._baseLevel + 1,
+            levelCount: maxLevel - this._baseLevel + 1,
         });
         if (!textureViewCreateInfo) {
-            return;
+            return null;
         }
 
-        const textureView = device.createTexture(textureViewCreateInfo);
-        this._gfxTextureView = textureView;
+        return device.createTexture(textureViewCreateInfo);
     }
 
     protected _tryDestroyTexture () {

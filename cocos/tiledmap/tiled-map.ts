@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
-
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
 import { EDITOR, JSB } from 'internal:constants';
 import { Component } from '../core/components';
@@ -79,8 +74,6 @@ export class TiledMap extends Component {
     _mapSize: Size = new Size(0, 0);
     _tileSize: Size = new Size(0, 0);
 
-    _preloaded = false;
-
     _mapOrientation = Orientation.ORTHO;
 
     static Orientation = Orientation;
@@ -90,6 +83,8 @@ export class TiledMap extends Component {
     static StaggerIndex = StaggerIndex;
     static TMXObjectType = TMXObjectType;
     static RenderOrder = RenderOrder;
+
+    private _isApplied = false;
 
     @serializable
     _tmxFile: TiledMapAsset | null = null;
@@ -109,9 +104,8 @@ export class TiledMap extends Component {
     set tmxAsset (value: TiledMapAsset) {
         if (this._tmxFile !== value || EDITOR) {
             this._tmxFile = value;
-            if (this._preloaded || EDITOR) {
-                this._applyFile();
-            }
+            this._applyFile();
+            this._isApplied = true;
         }
     }
 
@@ -306,13 +300,13 @@ export class TiledMap extends Component {
     }
 
     __preload () {
-        this._preloaded = true;
-
         if (!this._tmxFile) {
             return;
         }
-
-        this._applyFile();
+        if (this._isApplied === false) {
+            this._applyFile();
+            this._isApplied = true;
+        }
     }
 
     onEnable () {

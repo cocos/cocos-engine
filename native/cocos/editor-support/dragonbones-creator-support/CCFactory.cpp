@@ -32,13 +32,13 @@ using namespace cc;
 DRAGONBONES_NAMESPACE_BEGIN
 
 DragonBones *CCFactory::_dragonBonesInstance = nullptr;
-CCFactory *  CCFactory::_factory             = nullptr;
+CCFactory *CCFactory::_factory = nullptr;
 
 TextureAtlasData *CCFactory::_buildTextureAtlasData(TextureAtlasData *textureAtlasData, void *textureAtlas) const {
     if (textureAtlasData != nullptr) {
         const auto pos = _prevPath.find_last_of("/");
         if (pos != std::string::npos) {
-            const auto basePath         = _prevPath.substr(0, pos + 1);
+            const auto basePath = _prevPath.substr(0, pos + 1);
             textureAtlasData->imagePath = basePath + textureAtlasData->imagePath;
         }
 
@@ -53,7 +53,7 @@ TextureAtlasData *CCFactory::_buildTextureAtlasData(TextureAtlasData *textureAtl
 }
 
 Armature *CCFactory::_buildArmature(const BuildArmaturePackage &dataPackage) const {
-    const auto armature        = BaseObject::borrowObject<Armature>();
+    const auto armature = BaseObject::borrowObject<Armature>();
     const auto armatureDisplay = CCArmatureDisplay::create();
 
     // will release when armature destructor
@@ -95,11 +95,9 @@ DragonBonesData *CCFactory::loadDragonBonesData(const std::string &filePath, con
         } else {
             cc::Data cocos2dData;
             cc::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
-            const auto binary = (unsigned char *)malloc(sizeof(unsigned char) * cocos2dData.getSize());
-            memcpy(binary, cocos2dData.getBytes(), cocos2dData.getSize());
-            const auto data = parseDragonBonesData((char *)binary, name, scale);
-
-            return data;
+            uint8_t *binary = cocos2dData.takeBuffer();
+            // NOTE: binary is freed in DragonBonesData::_onClear
+            return parseDragonBonesData(reinterpret_cast<char *>(binary), name, scale);
         }
     }
 
@@ -120,10 +118,9 @@ DragonBonesData *CCFactory::parseDragonBonesDataByPath(const std::string &filePa
         if (cc::FileUtils::getInstance()->isFileExist(filePath)) {
             cc::Data cocos2dData;
             cc::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
-            const auto binary = (unsigned char *)malloc(sizeof(unsigned char) * cocos2dData.getSize());
-            memcpy(binary, cocos2dData.getBytes(), cocos2dData.getSize());
-
-            return parseDragonBonesData((char *)binary, name, scale);
+            uint8_t *binary = cocos2dData.takeBuffer();
+            // NOTE: binary is freed in DragonBonesData::_onClear
+            return parseDragonBonesData(reinterpret_cast<char *>(binary), name, scale);
         }
     } else {
         return parseDragonBonesData(filePath.c_str(), name, scale);
@@ -146,7 +143,7 @@ void CCFactory::removeDragonBonesDataByUUID(const std::string &uuid, bool dispos
 }
 
 TextureAtlasData *CCFactory::loadTextureAtlasData(const std::string &filePath, const std::string &name, float scale) {
-    _prevPath       = cc::FileUtils::getInstance()->fullPathForFilename(filePath);
+    _prevPath = cc::FileUtils::getInstance()->fullPathForFilename(filePath);
     const auto data = cc::FileUtils::getInstance()->getStringFromFile(_prevPath);
     if (data.empty()) {
         return nullptr;

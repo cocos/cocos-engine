@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../../core/math';
 import { getWrap, setWrap } from '../../utils/util';

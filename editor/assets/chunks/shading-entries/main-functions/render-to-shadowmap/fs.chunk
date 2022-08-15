@@ -1,0 +1,24 @@
+in highp vec2 v_clip_depth;
+
+layout(location = 0) out vec4 fragColorX;
+
+void main () {
+  // better performance than SurfacesFragmentModifyBaseColorAndTransparency
+  SurfacesFragmentAlphaClipOnly();
+  
+
+  highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
+  // spot use linear
+  if(cc_shadowLPNNInfo.x > EPSILON && cc_shadowLPNNInfo.x < 1.999999) {
+    // enabled linear depth
+    #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+      clipDepth = CCGetLinearDepth(FSInput_worldPos.xyz);
+    #endif
+  }
+
+  #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+    fragColorX = packDepthToRGBA(clipDepth);
+  #else
+    fragColorX = vec4(clipDepth, 1.0, 1.0, 1.0);
+  #endif
+}

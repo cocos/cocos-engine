@@ -23,10 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module core
- */
+
 import { legacyCC, VERSION } from './global-exports';
 
 import * as geometry from './geometry';
@@ -51,6 +48,7 @@ export * from './event';
 export * from './assets';
 export * from './platform';
 export * from './game';
+export { Root } from './root';
 export * from './scheduler';
 export * from './director';
 
@@ -61,3 +59,6 @@ export * from './scene-graph';
 export * from './components';
 export * from './builtin';
 export * from './curves';
+export * from './settings';
+
+export * from './pipeline/custom/builtin-pipelines';

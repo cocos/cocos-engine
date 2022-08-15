@@ -34,7 +34,6 @@ void AudioResamplerCubic::init() {
 
 size_t AudioResamplerCubic::resample(int32_t *out, size_t outFrameCount,
                                      AudioBufferProvider *provider) {
-
     // should never happen, but we overflow if it does
     // ALOG_ASSERT(outFrameCount < 32767);
 
@@ -52,7 +51,6 @@ size_t AudioResamplerCubic::resample(int32_t *out, size_t outFrameCount,
 
 size_t AudioResamplerCubic::resampleStereo16(int32_t *out, size_t outFrameCount,
                                              AudioBufferProvider *provider) {
-
     int32_t vl = mVolume[0];
     int32_t vr = mVolume[1];
 
@@ -91,7 +89,6 @@ size_t AudioResamplerCubic::resampleStereo16(int32_t *out, size_t outFrameCount,
 
         // time to fetch another sample
         while (indexIncrement--) {
-
             inputIndex++;
             if (inputIndex == mBuffer.frameCount) {
                 inputIndex = 0;
@@ -121,7 +118,6 @@ save_state:
 
 size_t AudioResamplerCubic::resampleMono16(int32_t *out, size_t outFrameCount,
                                            AudioBufferProvider *provider) {
-
     int32_t vl = mVolume[0];
     int32_t vr = mVolume[1];
 
@@ -160,7 +156,6 @@ size_t AudioResamplerCubic::resampleMono16(int32_t *out, size_t outFrameCount,
 
         // time to fetch another sample
         while (indexIncrement--) {
-
             inputIndex++;
             if (inputIndex == mBuffer.frameCount) {
                 inputIndex = 0;

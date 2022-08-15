@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { lerp } from '../../core/math';
@@ -165,7 +163,7 @@ export default class CurveRange  {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -318,7 +316,7 @@ export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange,
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
@@ -344,7 +342,7 @@ export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
@@ -370,7 +368,7 @@ export function packCurveRangeXYZW (samples: number, x: CurveRange, y: CurveRang
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }

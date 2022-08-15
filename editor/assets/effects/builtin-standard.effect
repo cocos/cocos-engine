@@ -14,10 +14,10 @@ CCEffect %{
         occlusion:            { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughness:            { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:             { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        SpecularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        specularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:        { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
-        normalStrenth:        { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        normalStrength:       { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:            { value: normal }
         pbrMap:               { value: grey }
@@ -86,38 +86,40 @@ CCProgram shared-ubos %{
 
 CCProgram standard-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-fog-vs>
-  #include <cc-shadow-map-vs>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
-    out vec4 v_color;
+    out lowp vec4 v_color;
   #endif
 
   out vec3 v_position;
-  out vec3 v_normal;
+  out mediump vec3 v_normal;
   out vec2 v_uv;
-  out vec2 v_uv1;
+  #if HAS_SECOND_UV
+    out mediump vec2 v_uv1;
+  #endif
 
   #if CC_RECEIVE_SHADOW
-    out vec2 v_shadowBias;
+    out mediump vec2 v_shadowBias;
   #endif
 
   #if USE_NORMAL_MAP
-    out vec3 v_tangent;
-    out vec3 v_bitangent;
+    out mediump vec4 v_tangent;
   #endif
 
-  #if HAS_SECOND_UV || USE_LIGHTMAP
+  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
   #endif
 
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-vs>
+  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-vs>
   #endif
 
   void main () {
@@ -142,8 +144,8 @@ CCProgram standard-vs %{
     #endif
 
     #if USE_NORMAL_MAP
-      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+      v_tangent.xyz = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_tangent.w = In.tangent.w;
     #endif
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
@@ -164,7 +166,7 @@ CCProgram standard-vs %{
     CC_TRANSFER_FOG(pos);
     CC_TRANSFER_SHADOW(pos);
 
-    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 
@@ -174,25 +176,27 @@ CCProgram standard-vs %{
 
 CCProgram standard-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <shared-ubos>
-  #include <cc-fog-fs>
-  #include <standard-surface-entry>
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-fs>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
+  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-fs>
   #endif
 
   in vec3 v_position;
   in vec2 v_uv;
-  in vec2 v_uv1;
-  in vec3 v_normal;
+  #if HAS_SECOND_UV
+    in mediump vec2 v_uv1;
+  #endif
+  in mediump vec3 v_normal;
 
   #if CC_RECEIVE_SHADOW
-    in vec2 v_shadowBias;
+    in mediump vec2 v_shadowBias;
   #endif
 
   #if USE_VERTEX_COLOR
-    in vec4 v_color;
+    in lowp vec4 v_color;
   #endif
 
   #if USE_ALBEDO_MAP
@@ -200,8 +204,7 @@ CCProgram standard-fs %{
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
   #if USE_NORMAL_MAP
-    in vec3 v_tangent;
-    in vec3 v_bitangent;
+    in mediump vec4 v_tangent;
     uniform sampler2D normalMap;
     #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
@@ -247,7 +250,7 @@ CCProgram standard-fs %{
       if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
       s.lightmap = lightColor.xyz * v_luv.z;
       s.lightmap_test = v_luv.z; /*lum*/
@@ -261,9 +264,10 @@ CCProgram standard-fs %{
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
       s.normal =
-        (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent) +
-        (nmmp.y * emissiveScaleParam.w) * normalize(v_bitangent) +
+        (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent.xyz) +
+        (nmmp.y * emissiveScaleParam.w) * normalize(bitangent) +
         nmmp.z * normalize(s.normal);
     #endif
 
@@ -287,6 +291,7 @@ CCProgram standard-fs %{
     #endif
     s.occlusion = pbr.x;
     s.roughness = pbr.y;
+    s.specularIntensity = 0.5;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
@@ -300,20 +305,22 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-shadow>
+  #include <builtin/uniforms/cc-shadow>
 
-  #if HAS_SECOND_UV || USE_LIGHTMAP
+  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
   #endif
 
   out vec2 v_uv;
-  out vec2 v_uv1;
+  #if HAS_SECOND_UV
+    out vec2 v_uv1;
+  #endif
   out vec4 v_worldPos;
-
-  out float v_clip_depth;
+  out highp vec2 v_clip_depth;
 
   vec4 vert () {
     StandardVertInput In;
@@ -330,7 +337,7 @@ CCProgram shadow-caster-vs %{
       v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
     #endif
 
-    v_clip_depth = clipPos.z / clipPos.w * 0.5 + 0.5;
+    v_clip_depth = clipPos.zw;
 
     return clipPos;
   }
@@ -339,13 +346,15 @@ CCProgram shadow-caster-vs %{
 CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
-  #include <packing>
-  #include <cc-shadow-map-base>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
 
   in vec2 v_uv;
-  in vec2 v_uv1;
+  #if HAS_SECOND_UV
+    in vec2 v_uv1;
+  #endif
   in vec4 v_worldPos;
-  in float v_clip_depth;
+  in highp vec2 v_clip_depth;
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
@@ -359,26 +368,26 @@ CCProgram shadow-caster-fs %{
   vec4 frag () {
     vec4 baseColor = albedo;
 
-    #if USE_ALBEDO_MAP
-      baseColor *= texture(albedoMap, ALBEDO_UV);
-    #endif
-
     #if USE_ALPHA_TEST
+      #if USE_ALBEDO_MAP
+        baseColor *= texture(albedoMap, ALBEDO_UV);
+      #endif
       if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
     // spot use linear
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
-      if (cc_shadowNFLSInfo.z > 0.000001) {
-        return vec4(CCGetLinearDepth(v_worldPos.xyz), 1.0, 1.0, 1.0);
-      }
+      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
+      #endif
     }
 
-    if (cc_shadowLPNNInfo.y > 0.000001) {
-      return packDepthToRGBA(v_clip_depth);
-    }
-
-    return vec4(v_clip_depth, 1.0, 1.0, 1.0);
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+      return packDepthToRGBA(clipDepth);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
   }
 }%

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
 import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
 
@@ -40,6 +35,16 @@ import { ParticleSystem } from '../particle-system';
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr: number[] = [];
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
+function getShapeTypeEnumName(enumValue: number): keyof typeof ShapeType {
+    let enumName = '';
+    for (const key in ShapeType) {
+        if (ShapeType[key] === enumValue) {
+            enumName = key;
+            break;
+        }
+    }
+    return enumName as keyof typeof ShapeType;
+}
 
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
@@ -87,7 +92,12 @@ export default class ShapeModule {
      */
     @displayOrder(6)
     @tooltip('i18n:shapeModule.arc')
-    get arc () {
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
+    get arc() {
         return toDegree(this._arc);
     }
 
@@ -101,7 +111,12 @@ export default class ShapeModule {
      */
     @displayOrder(5)
     @tooltip('i18n:shapeModule.angle')
-    get angle () {
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Cone'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
+    get angle() {
         return Math.round(toDegree(this._angle) * 100) / 100;
     }
 
@@ -126,7 +141,7 @@ export default class ShapeModule {
     /**
      * @zh 粒子发射器类型 [[ShapeType]]。
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @type(ShapeType)
     @formerlySerializedAs('shapeType')
@@ -170,6 +185,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(2)
     @tooltip('i18n:shapeModule.emitFrom')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Box', 'Cone', 'Sphere', 'Hemisphere'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public emitFrom = EmitLocation.Volume;
 
     /**
@@ -210,6 +230,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(3)
     @tooltip('i18n:shapeModule.radius')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Circle', 'Cone', 'Sphere', 'Hemisphere'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public radius = 1;
 
     /**
@@ -221,6 +246,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(4)
     @tooltip('i18n:shapeModule.radiusThickness')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Circle', 'Cone', 'Sphere', 'Hemisphere'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public radiusThickness = 1;
 
     /**
@@ -230,6 +260,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(7)
     @tooltip('i18n:shapeModule.arcMode')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public arcMode = ArcMode.Random;
 
     /**
@@ -239,6 +274,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(9)
     @tooltip('i18n:shapeModule.arcSpread')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public arcSpread = 0;
 
     /**
@@ -250,6 +290,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(10)
     @tooltip('i18n:shapeModule.arcSpeed')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Cone', 'Circle'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public arcSpeed = new CurveRange();
 
     /**
@@ -259,6 +304,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(11)
     @tooltip('i18n:shapeModule.length')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Cone'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public length = 5;
 
     /**
@@ -267,6 +317,11 @@ export default class ShapeModule {
     @serializable
     @displayOrder(12)
     @tooltip('i18n:shapeModule.boxThickness')
+    @visible(function (this: ShapeModule) {
+        const subset: Array<keyof typeof ShapeType> = ['Box'];
+        const enumName = getShapeTypeEnumName(this.shapeType);
+        return subset.includes(enumName);
+    })
     public boxThickness = new Vec3(0, 0, 0);
 
     @serializable

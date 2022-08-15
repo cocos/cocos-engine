@@ -119,6 +119,11 @@ class ReleaseManager {
     private _persistNodeDeps = new Cache<string[]>();
     private _toDelete = new Cache<Asset>();
     private _eventListener = false;
+    private _dontDestroyAssets: string[] = [];
+
+    public addIgnoredAsset (asset: Asset) {
+        this._dontDestroyAssets.push(asset._uuid);
+    }
 
     public init (): void {
         this._persistNodeDeps.clear();
@@ -126,7 +131,7 @@ class ReleaseManager {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _addPersistNodeRef (node: Node) {
         const deps = [];
@@ -141,7 +146,7 @@ class ReleaseManager {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _removePersistNodeRef (node: Node) {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
@@ -158,7 +163,7 @@ class ReleaseManager {
 
     // do auto release
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
         if (oldScene) {
@@ -230,7 +235,7 @@ class ReleaseManager {
         const uuid = asset._uuid;
         this._toDelete.remove(uuid);
 
-        if (!isValid(asset, true)) { return; }
+        if (!isValid(asset, true) || this._dontDestroyAssets.indexOf(uuid) !== -1) { return; }
 
         if (!force) {
             if (asset.refCount > 0) {

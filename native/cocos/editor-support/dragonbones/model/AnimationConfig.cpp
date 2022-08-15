@@ -4,8 +4,7 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-void AnimationConfig::_onClear()
-{
+void AnimationConfig::_onClear() {
     pauseFadeOut = true;
     fadeOutMode = AnimationFadeOutMode::All;
     fadeOutTweenType = TweenType::Line;
@@ -31,13 +30,11 @@ void AnimationConfig::_onClear()
     boneMask.clear();
 }
 
-void AnimationConfig::clear()
-{
+void AnimationConfig::clear() {
     _onClear();
 }
 
-void AnimationConfig::copyFrom(AnimationConfig* value)
-{
+void AnimationConfig::copyFrom(AnimationConfig* value) {
     pauseFadeOut = value->pauseFadeOut;
     fadeOutMode = value->fadeOutMode;
     autoFadeOutTime = value->autoFadeOutTime;
@@ -63,19 +60,16 @@ void AnimationConfig::copyFrom(AnimationConfig* value)
     boneMask = value->boneMask;
 }
 
-bool AnimationConfig::containsBoneMask(const std::string& boneName) const
-{
+bool AnimationConfig::containsBoneMask(const std::string& boneName) const {
     return boneMask.empty() || std::find(boneMask.cbegin(), boneMask.cend(), boneName) != boneMask.cend();
 }
 
-void AnimationConfig::addBoneMask(Armature* armature, const std::string& boneName, bool recursive)
-{
+void AnimationConfig::addBoneMask(Armature* armature, const std::string& boneName, bool recursive) {
     const auto currentBone = armature->getBone(boneName);
-    if (currentBone == nullptr)
-    {
+    if (currentBone == nullptr) {
         return;
     }
-    
+
     if (std::find(boneMask.cbegin(), boneMask.cend(), boneName) == boneMask.cend()) // Add mixing
     {
         boneMask.push_back(boneName);
@@ -83,18 +77,15 @@ void AnimationConfig::addBoneMask(Armature* armature, const std::string& boneNam
 
     if (recursive) // Add recursive mixing.
     {
-        for (const auto bone : armature->getBones()) 
-        {
-            if (std::find(boneMask.cbegin(), boneMask.cend(), bone->getName()) == boneMask.cend() && currentBone->contains(bone))
-            {
+        for (const auto bone : armature->getBones()) {
+            if (std::find(boneMask.cbegin(), boneMask.cend(), bone->getName()) == boneMask.cend() && currentBone->contains(bone)) {
                 boneMask.push_back(bone->getName());
             }
         }
     }
 }
 
-void AnimationConfig::removeBoneMask(Armature* armature, const std::string& boneName, bool recursive)
-{
+void AnimationConfig::removeBoneMask(Armature* armature, const std::string& boneName, bool recursive) {
     {
         auto iterator = std::find(boneMask.begin(), boneMask.end(), boneName);
         if (iterator != boneMask.end()) // Remove mixing.
@@ -103,33 +94,25 @@ void AnimationConfig::removeBoneMask(Armature* armature, const std::string& bone
         }
     }
 
-    if (recursive) 
-    {
+    if (recursive) {
         const auto currentBone = armature->getBone(boneName);
-        if (currentBone != nullptr)
-        {
+        if (currentBone != nullptr) {
             if (!boneMask.empty()) // Remove recursive mixing.
             {
-                for (const auto bone : armature->getBones())
-                {
+                for (const auto bone : armature->getBones()) {
                     auto iterator = std::find(boneMask.begin(), boneMask.end(), bone->getName());
-                    if (iterator != boneMask.end() && currentBone->contains(bone)) 
-                    {
+                    if (iterator != boneMask.end() && currentBone->contains(bone)) {
                         boneMask.erase(iterator);
                     }
                 }
-            }
-            else // Add unrecursive mixing.
+            } else // Add unrecursive mixing.
             {
-                for (const auto bone : armature->getBones())
-                {
-                    if (bone == currentBone) 
-                    {
+                for (const auto bone : armature->getBones()) {
+                    if (bone == currentBone) {
                         continue;
                     }
 
-                    if (!currentBone->contains(bone)) 
-                    {
+                    if (!currentBone->contains(bone)) {
                         boneMask.push_back(bone->getName());
                     }
                 }

@@ -47,9 +47,9 @@ DescriptorSetValidator::~DescriptorSetValidator() {
 }
 
 void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
-    CCASSERT(info.layout && static_cast<DescriptorSetLayoutValidator *>(info.layout)->isInited(), "already destroyed?");
+    CC_ASSERT(info.layout && static_cast<DescriptorSetLayoutValidator *>(info.layout)->isInited());
 
     /////////// execute ///////////
 
@@ -60,7 +60,8 @@ void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {
 }
 
 void DescriptorSetValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    // Destroy twice.
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////
@@ -69,13 +70,13 @@ void DescriptorSetValidator::doDestroy() {
 }
 
 void DescriptorSetValidator::update() {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     const auto descriptorCount = _textures.size();
 
     Texture *texture = nullptr;
     Sampler *sampler = nullptr;
-    Format   format  = {};
+    Format format = {};
 
     for (size_t i = 0; i < descriptorCount; ++i) {
         texture = _textures[i];
@@ -92,8 +93,8 @@ void DescriptorSetValidator::update() {
         }
     }
 
-    CCASSERT(_referenceStamp < DeviceValidator::getInstance()->currentFrame(),
-             "DescriptorSet can not be updated after bound to CommandBuffer");
+    // DescriptorSet can not be updated after bound to CommandBuffer.
+    CC_ASSERT(_referenceStamp < DeviceValidator::getInstance()->currentFrame());
 
     /////////// execute ///////////
 
@@ -103,29 +104,36 @@ void DescriptorSetValidator::update() {
     _isDirty = false;
 }
 
+void DescriptorSetValidator::forceUpdate() {
+    _isDirty = true;
+    _actor->forceUpdate();
+    _isDirty = false;
+}
+
 void DescriptorSetValidator::updateReferenceStamp() {
     _referenceStamp = DeviceValidator::getInstance()->currentFrame();
 }
 
 void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
-    CCASSERT(isInited(), "alread destroyed?");
-    CCASSERT(buffer && static_cast<BufferValidator *>(buffer)->isInited(), "already destroyed?");
+    CC_ASSERT(isInited());
+    CC_ASSERT(buffer && static_cast<BufferValidator *>(buffer)->isInited());
 
-    const ccstd::vector<uint32_t> &       bindingIndices = _layout->getBindingIndices();
-    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
-    CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
+    CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    CCASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_BUFFER_TYPE), "Setting binding is not DESCRIPTOR_BUFFER_TYPE");
+    CC_ASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_BUFFER_TYPE));
 
     if (hasAnyFlags(info.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
-        CCASSERT(buffer->isBufferView(), "Should bind buffer views for dynamic descriptors");
+        // Should bind buffer views for dynamic descriptors.
+        CC_ASSERT(buffer->isBufferView());
     }
 
     if (hasAnyFlags(info.descriptorType, DescriptorType::UNIFORM_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER)) {
-        CCASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::UNIFORM), "Input is not a uniform buffer");
+        CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::UNIFORM));
     } else if (hasAnyFlags(info.descriptorType, DescriptorType::STORAGE_BUFFER | DescriptorType::DYNAMIC_STORAGE_BUFFER)) {
-        CCASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::STORAGE), "Input is not a storage buffer");
+        CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::STORAGE));
     }
 
     /////////// execute ///////////
@@ -136,22 +144,22 @@ void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32
 }
 
 void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {
-    CCASSERT(isInited(), "alread destroyed?");
-    CCASSERT(texture && static_cast<TextureValidator *>(texture)->isInited(), "already destroyed?");
+    CC_ASSERT(isInited());
+    CC_ASSERT(texture && static_cast<TextureValidator *>(texture)->isInited());
 
-    const ccstd::vector<uint32_t> &       bindingIndices = _layout->getBindingIndices();
-    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
-    CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
+    CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    CCASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE), "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
+    CC_ASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE));
 
     if (hasFlag(info.descriptorType, DescriptorType::INPUT_ATTACHMENT)) {
-        CCASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::INPUT_ATTACHMENT), "Input is not an input attachment");
+        CC_ASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::INPUT_ATTACHMENT));
     } else if (hasFlag(info.descriptorType, DescriptorType::STORAGE_IMAGE)) {
-        CCASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::STORAGE), "Input is not a storage image");
+        CC_ASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::STORAGE));
     } else {
-        CCASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::SAMPLED), "Input is not a sampled texture");
+        CC_ASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::SAMPLED));
     }
 
     /////////// execute ///////////
@@ -162,14 +170,14 @@ void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uin
 }
 
 void DescriptorSetValidator::bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
-    const ccstd::vector<uint32_t> &       bindingIndices = _layout->getBindingIndices();
-    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
-    CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
+    CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    CCASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE), "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
+    CC_ASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE));
 
     /////////// execute ///////////
 

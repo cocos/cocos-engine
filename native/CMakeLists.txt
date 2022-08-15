@@ -10,13 +10,14 @@ set(ENGINE_NAME cocos_engine)
 
 ################################# options ############################################
 # default fallback options
+cc_set_if_undefined(CC_DEBUG_FORCE           OFF)
 cc_set_if_undefined(USE_SE_V8                ON)
 cc_set_if_undefined(USE_SE_SM                OFF)
 cc_set_if_undefined(USE_V8_DEBUGGER          ON)
+cc_set_if_undefined(USE_V8_DEBUGGER_FORCE    OFF)
 cc_set_if_undefined(USE_SOCKET               ON)
 cc_set_if_undefined(USE_AUDIO                ON)
 cc_set_if_undefined(USE_EDIT_BOX             ON)
-cc_set_if_undefined(USE_SE_JSC               OFF)
 cc_set_if_undefined(USE_VIDEO                ON)
 cc_set_if_undefined(USE_WEBVIEW              ON)
 cc_set_if_undefined(USE_MIDDLEWARE           ON)
@@ -28,8 +29,23 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
+cc_set_if_undefined(USE_PLUGINS              ON)
+cc_set_if_undefined(USE_OCCLUSION_QUERY      ON)
+cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
+cc_set_if_undefined(USE_GEOMETRY_RENDERER    ON)
+cc_set_if_undefined(USE_WEBP                 ON)
+cc_set_if_undefined(NET_MODE                  0) # 0 is client
+cc_set_if_undefined(USE_REMOTE_LOG           OFF)
 
-add_definitions()
+
+if(ANDROID AND NOT DEFINED USE_CCACHE)
+    if("$ENV{COCOS_USE_CCACHE}" STREQUAL "1")
+        message(STATUS "Enable ccache by env CC_USE_CACHE=1")
+        set(USE_CCACHE ON)
+    else()
+        set(USE_CCACHE OFF)
+    endif()
+endif()
 
 if(NX)
     cc_set_if_undefined(CC_USE_VULKAN ON)
@@ -53,9 +69,20 @@ set(CC_USE_METAL ${CC_USE_METAL}  CACHE INTERNAL "")
 
 if(USE_SERVER_MODE)
     set(CC_USE_VULKAN OFF)
+    set(CC_USE_METAL OFF)
     set(CC_USE_GLES3 OFF)
     set(CC_USE_GLES2 OFF)
     add_definitions(-DCC_SERVER_MODE)
+endif()
+
+
+add_definitions(-DCC_NETMODE_CLIENT=0)
+add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
+add_definitions(-DCC_NETMODE_HOST_SERVER=2)
+if(${NET_MODE} EQUAL "0" OR ${NET_MODE} EQUAL "1" OR ${NET_MODE} EQUAL "2")
+    add_definitions(-DCC_NETMODE=${NET_MODE})
+else()
+    message(FATAL_ERROR "NET_MODE only support setting to 1 2 or 3.")
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -63,11 +90,6 @@ if(USE_PHYSICS_PHYSX)
         set(USE_PHYSICS_PHYSX OFF)
         message(AUTHOR_WARNING "Native PhysX does not support Google Android X86")
     endif()
-endif()
-
-if(USE_SE_JSC)
-    set(USE_SE_V8 OFF)
-    set(USE_V8_DEBUGGER OFF)
 endif()
 
 if(NOT USE_SOCKET)
@@ -98,6 +120,11 @@ if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
     set(USE_JOB_SYSTEM_TBB      OFF)
 endif()
 
+if(OHOS AND USE_JOB_SYSTEM_TBB)
+    message(WARNING "JobSystem tbb is not supported by HarmonyOS")
+    set(USE_JOB_SYSTEM_TBB      OFF)
+endif()
+
 if(USE_JOB_SYSTEM_TASKFLOW)
     set(CMAKE_CXX_STANDARD 17)
     if(IOS AND "${TARGET_IOS_VERSION}" VERSION_LESS "12.0")
@@ -105,6 +132,37 @@ if(USE_JOB_SYSTEM_TASKFLOW)
     endif()
 endif()
 
+if(ANDROID)
+    if(USE_CCACHE AND NOT CCACHE_EXECUTABLE)
+       message(AUTHOR_WARNING "ccache executable not found!")
+    endif()
+    if(CCACHE_EXECUTABLE AND USE_CCACHE)
+        set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_EXECUTABLE}")
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_EXECUTABLE}")
+    endif()
+endif()
+
+if(CI_FORCE_MINIMAL_FEATURES)
+    set(USE_V8_DEBUGGER_FORCE OFF)
+    set(USE_V8_DEBUGGER OFF)
+    set(USE_AUDIO OFF)
+    set(USE_EDIT_BOX OFF)
+    set(USE_VIDEO OFF)
+    set(USE_WEBVIEW OFF)
+    set(USE_MIDDLEWARE OFF)
+    set(USE_DRAGONBONES OFF)
+    set(USE_SPINE OFF)
+    set(USE_SOCKET OFF)
+    set(USE_WEBSOCKET_SERVER OFF)
+    set(USE_PHYSICS_PHYSX OFF)
+    set(USE_JOB_SYSTEM_TBB OFF)
+    set(USE_JOB_SYSTEM_TASKFLOW OFF)
+    set(USE_PLUGINS OFF)
+    set(USE_OCCLUSION_QUERY OFF)
+    set(USE_DEBUG_RENDERER OFF)
+    set(USE_GEOMETRY_RENDERER OFF)
+    set(USE_WEBP OFF)
+endif()
 ################################# list all option values ##############################
 
 cc_inspect_values(
@@ -113,13 +171,14 @@ cc_inspect_values(
     CC_USE_GLES3
     CC_USE_GLES2
     CC_USE_VULKAN
+    CC_DEBUG_FORCE
     USE_SE_V8
     USE_V8_DEBUGGER
+    USE_V8_DEBUGGER_FORCE
     USE_SE_SM
     USE_SOCKET
     USE_AUDIO
     USE_EDIT_BOX
-    USE_SE_JSC
     USE_VIDEO
     USE_WEBVIEW
     USE_MIDDLEWARE
@@ -130,6 +189,11 @@ cc_inspect_values(
     USE_JOB_SYSTEM_TBB
     USE_JOB_SYSTEM_TASKFLOW
     USE_SERVER_MODE
+    USE_CCACHE
+    CCACHE_EXECUTABLE
+    NODE_EXECUTABLE
+    NET_MODE
+    USE_REMOTE_LOG
 )
 
 ################################# external source code ################################
@@ -139,15 +203,12 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 
-if(ANDROID AND SWAPPY_ENABLED)
-    add_definitions(-DCC_SWAPPY_ENABLED)
-endif()
-
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
                      cocos/audio/AudioEngine.cpp
                      cocos/audio/include/AudioEngine.h
+                     cocos/audio/include/AudioDef.h
                      cocos/audio/include/Export.h
     )
     if(WINDOWS)
@@ -297,15 +358,22 @@ if(USE_AUDIO)
 
 endif()
 
+##### plugins
+cocos_source_files(
+    cocos/plugins/Plugins.h
+    cocos/plugins/Plugins.cpp
+    cocos/plugins/bus/BusTypes.h
+    cocos/plugins/bus/EventBus.h
+    cocos/plugins/bus/EventBus.cpp
+)
+
 ##### base
 cocos_source_files(
     cocos/base/Agent.h
-    cocos/base/Any.h
     cocos/base/astc.cpp
     cocos/base/astc.h
     cocos/base/base64.cpp
     cocos/base/base64.h
-    cocos/base/CachedArray.h
     cocos/base/Config.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.h
@@ -319,7 +387,6 @@ cocos_source_files(
     cocos/base/Locked.h
     cocos/base/Macros.h
     cocos/base/Object.h
-    cocos/base/Optional.h
     cocos/base/Ptr.h
     cocos/base/Random.h
     cocos/base/RefCounted.cpp
@@ -336,7 +403,9 @@ cocos_source_files(
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
-    cocos/base/Variant.h
+    cocos/base/std/any.h
+    cocos/base/std/optional.h
+    cocos/base/std/variant.h
     cocos/base/std/container/array.h
     cocos/base/std/container/deque.h
     cocos/base/std/container/list.h
@@ -347,6 +416,12 @@ cocos_source_files(
     cocos/base/std/container/unordered_map.h
     cocos/base/std/container/unordered_set.h
     cocos/base/std/container/vector.h
+    cocos/base/std/hash/detail/float_functions.hpp
+    cocos/base/std/hash/detail/hash_float.hpp
+    cocos/base/std/hash/detail/limits.hpp
+    cocos/base/std/hash/extensions.hpp
+    cocos/base/std/hash/hash_fwd.hpp
+    cocos/base/std/hash/hash.h
 )
 
 ############ application
@@ -357,6 +432,7 @@ cocos_source_files(
     cocos/application/ApplicationManager.h
     cocos/application/ApplicationManager.cpp
     cocos/application/BaseGame.h
+    cocos/application/BaseGame.cpp
 )
 
 ############ engine
@@ -368,12 +444,6 @@ cocos_source_files(
 )
 
 ############ main
-if(USE_SERVER_MODE)
-    cocos_source_files(
-        cocos/main/EmptyMain.cpp
-    )
-endif()
-
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
     cocos/platform/SDLHelper.h
@@ -389,12 +459,7 @@ cocos_source_files(
     cocos/platform/UniversalPlatform.cpp
     cocos/platform/UniversalPlatform.h
 )
-if(USE_SERVER_MODE)
-    cocos_source_files(
-        cocos/platform/empty/EmptyPlatform.cpp
-        cocos/platform/empty/EmptyPlatform.h
-    )
-elseif(WINDOWS)
+if(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/WindowsPlatform.cpp
         cocos/platform/win32/WindowsPlatform.h
@@ -403,11 +468,6 @@ elseif(LINUX)
     cocos_source_files(
         cocos/platform/linux/LinuxPlatform.cpp
         cocos/platform/linux/LinuxPlatform.h
-    )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/QnxPlatform.cpp
-        cocos/platform/qnx/QnxPlatform.h
     )
 elseif(ANDROID)
     cocos_source_files(
@@ -441,8 +501,6 @@ endif()
 cocos_source_files(
     cocos/platform/interfaces/OSInterface.cpp
     cocos/platform/interfaces/OSInterface.h
-    cocos/platform/interfaces/OSInterfaceManager.cpp
-    cocos/platform/interfaces/OSInterfaceManager.h
 )
 
 ############ platform : Interface definition
@@ -485,11 +543,6 @@ elseif(MACOSX OR IOS)
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.mm
         cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.h
     )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.cpp
-        cocos/platform/qnx/modules/CanvasRenderingContext2DDelegate.h
-    )
 elseif(LINUX)
     cocos_source_files(
         cocos/platform/linux/modules/CanvasRenderingContext2DDelegate.cpp
@@ -499,40 +552,34 @@ endif()
 
 ############ platform : Interface implementation of windows
 
-if(USE_SERVER_MODE)
-    cocos_source_files(
-        cocos/platform/empty/modules/Accelerometer.cpp
-        cocos/platform/empty/modules/Accelerometer.h
-        cocos/platform/empty/modules/Battery.cpp
-        cocos/platform/empty/modules/Battery.h
-        cocos/platform/empty/modules/Screen.cpp
-        cocos/platform/empty/modules/Screen.h
-        cocos/platform/empty/modules/Network.cpp
-        cocos/platform/empty/modules/Network.h
-        cocos/platform/empty/modules/Vibrator.cpp
-        cocos/platform/empty/modules/Vibrator.h
-        cocos/platform/empty/modules/System.cpp
-        cocos/platform/empty/modules/System.h
-        cocos/platform/empty/modules/SystemWindow.cpp
-        cocos/platform/empty/modules/SystemWindow.h
-    )
-elseif(WINDOWS)
+if(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/Accelerometer.cpp
         cocos/platform/win32/modules/Accelerometer.h
         cocos/platform/win32/modules/Battery.cpp
         cocos/platform/win32/modules/Battery.h
-        cocos/platform/win32/modules/Screen.cpp
-        cocos/platform/win32/modules/Screen.h
         cocos/platform/win32/modules/Network.cpp
         cocos/platform/win32/modules/Network.h
         cocos/platform/win32/modules/Vibrator.cpp
         cocos/platform/win32/modules/Vibrator.h
         cocos/platform/win32/modules/System.cpp
         cocos/platform/win32/modules/System.h
-        cocos/platform/win32/modules/SystemWindow.cpp
-        cocos/platform/win32/modules/SystemWindow.h
     )
+    if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+            cocos/platform/win32/modules/Screen.cpp
+            cocos/platform/win32/modules/Screen.h
+            cocos/platform/win32/modules/SystemWindow.cpp
+            cocos/platform/win32/modules/SystemWindow.h
+        )
+    endif()
 elseif(ANDROID OR OHOS)
     cocos_source_files(
         cocos/platform/java/modules/Accelerometer.cpp
@@ -551,9 +598,8 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/SystemWindow.h
     )
 endif()
-if (USE_SERVER_MODE)
-#nothing
-elseif(ANDROID)
+
+if(ANDROID)
     cocos_source_files(
         cocos/platform/android/modules/Screen.cpp
         cocos/platform/android/modules/Screen.h
@@ -573,17 +619,28 @@ elseif(MACOSX)
                             cocos/platform/mac/modules/Accelerometer.h
                             cocos/platform/mac/modules/Battery.mm
                             cocos/platform/mac/modules/Battery.h
-    NO_WERROR   NO_UBUILD   cocos/platform/mac/modules/Screen.mm
-                            cocos/platform/mac/modules/Screen.h
                             cocos/platform/mac/modules/Network.mm
                             cocos/platform/mac/modules/Network.h
                             cocos/platform/mac/modules/Vibrator.mm
                             cocos/platform/mac/modules/Vibrator.h
                             cocos/platform/mac/modules/System.mm
                             cocos/platform/mac/modules/System.h
-                            cocos/platform/mac/modules/SystemWindow.mm
-                            cocos/platform/mac/modules/SystemWindow.h
    )
+   if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+    NO_WERROR   NO_UBUILD        cocos/platform/mac/modules/Screen.mm
+                                 cocos/platform/mac/modules/Screen.h
+                                 cocos/platform/mac/modules/SystemWindow.mm
+                                 cocos/platform/mac/modules/SystemWindow.h
+        )
+    endif()
 elseif(IOS)
    cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/platform/ios/modules/Accelerometer.mm
@@ -607,40 +664,38 @@ elseif(LINUX)
         cocos/platform/linux/modules/Accelerometer.h
         cocos/platform/linux/modules/Battery.cpp
         cocos/platform/linux/modules/Battery.h
-        cocos/platform/linux/modules/Screen.cpp
-        cocos/platform/linux/modules/Screen.h
         cocos/platform/linux/modules/Network.cpp
         cocos/platform/linux/modules/Network.h
         cocos/platform/linux/modules/Vibrator.cpp
         cocos/platform/linux/modules/Vibrator.h
         cocos/platform/linux/modules/System.cpp
         cocos/platform/linux/modules/System.h
-        cocos/platform/linux/modules/SystemWindow.cpp
-        cocos/platform/linux/modules/SystemWindow.h
     )
-elseif(QNX)
-    cocos_source_files(
-        cocos/platform/qnx/modules/Accelerometer.cpp
-        cocos/platform/qnx/modules/Accelerometer.h
-        cocos/platform/qnx/modules/Battery.cpp
-        cocos/platform/qnx/modules/Battery.h
-        cocos/platform/qnx/modules/Screen.cpp
-        cocos/platform/qnx/modules/Screen.h
-        cocos/platform/qnx/modules/Network.cpp
-        cocos/platform/qnx/modules/Network.h
-        cocos/platform/qnx/modules/Vibrator.cpp
-        cocos/platform/qnx/modules/Vibrator.h
-        cocos/platform/qnx/modules/System.cpp
-        cocos/platform/qnx/modules/System.h
-        cocos/platform/qnx/modules/SystemWindow.cpp
-        cocos/platform/qnx/modules/SystemWindow.h
-    )
+    if(USE_SERVER_MODE)
+        cocos_source_files(
+            cocos/platform/empty/modules/Screen.cpp
+            cocos/platform/empty/modules/Screen.h
+            cocos/platform/empty/modules/SystemWindow.cpp
+            cocos/platform/empty/modules/SystemWindow.h
+        )
+    else()
+        cocos_source_files(
+            cocos/platform/linux/modules/Screen.cpp
+            cocos/platform/linux/modules/Screen.h
+            cocos/platform/linux/modules/SystemWindow.cpp
+            cocos/platform/linux/modules/SystemWindow.h
+        )
+    endif()
 endif()
 
 ############ module log
 cocos_source_files(MODULE cclog
     cocos/base/Log.cpp
     cocos/base/Log.h
+)
+
+cocos_source_files(MODULE cclog
+    cocos/base/LogRemote.cpp
 )
 
 ############ module log
@@ -651,10 +706,7 @@ cocos_source_files(MODULE ccunzip
 
 ##### memory
 cocos_source_files(
-                 cocos/base/memory/MemDef.h
-                 cocos/base/memory/Memory.cpp
                  cocos/base/memory/Memory.h
-                 cocos/base/memory/StdAlloc.h
                  cocos/base/memory/MemoryHook.cpp
                  cocos/base/memory/MemoryHook.h
                  cocos/base/memory/CallStack.cpp
@@ -771,7 +823,7 @@ cocos_source_files(
 if(USE_SOCKET)
     cocos_source_files(
                      cocos/network/WebSocket.h
-        NO_WERROR    cocos/network/SocketIO.cpp
+                     cocos/network/SocketIO.cpp
                      cocos/network/SocketIO.h
     )
 endif()
@@ -779,7 +831,7 @@ endif()
 if(NOT IOS AND USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/network/WebSocketServer.h
-        NO_WERROR    cocos/network/WebSocketServer.cpp
+                     cocos/network/WebSocketServer.cpp
     )
 endif()
 
@@ -875,8 +927,6 @@ if(WINDOWS)
     cocos_source_files(
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
-                     cocos/platform/win32/inet_pton_mingw.cpp
-                     cocos/platform/win32/inet_pton_mingw.h
     )
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/win32/FileUtils-win32.cpp
@@ -884,18 +934,12 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
-        ${CWD}/cocos/platform/android/jni/JniCocosActivity.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosActivity.h
-        ${CWD}/cocos/platform/java/jni/JniCocosTouchHandler.cpp
-        ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
+        ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.h
         ${CWD}/cocos/platform/java/jni/JniImp.cpp
         ${CWD}/cocos/platform/java/jni/JniImp.h
-        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.cpp
-        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.h
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.cpp
         ${CWD}/cocos/platform/java/jni/glue/MessagePipe.h
     )
@@ -952,11 +996,6 @@ elseif(LINUX)
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/linux/FileUtils-linux.cpp
         cocos/platform/linux/FileUtils-linux.h
-    )
-elseif(QNX)
-    cocos_source_files(MODULE ccfilesystem
-        cocos/platform/qnx/FileUtils-qnx.cpp
-        cocos/platform/qnx/FileUtils-qnx.h
     )
 endif()
 
@@ -1018,6 +1057,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/states/GFXSampler.h
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.h
+                 cocos/renderer/gfx-base/states/GFXBufferBarrier.cpp
 
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
@@ -1172,6 +1213,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowFlow.h
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp
                  cocos/renderer/pipeline/shadow/ShadowStage.h
+                 cocos/renderer/pipeline/shadow/CSMLayers.cpp
+                 cocos/renderer/pipeline/shadow/CSMLayers.h
                  cocos/renderer/pipeline/Enum.h
                  cocos/renderer/pipeline/deferred/BloomStage.cpp
                  cocos/renderer/pipeline/deferred/BloomStage.h
@@ -1179,11 +1222,10 @@ cocos_source_files(
                  cocos/renderer/pipeline/deferred/PostProcessStage.h
                  cocos/renderer/pipeline/UIPhase.cpp
                  cocos/renderer/pipeline/UIPhase.h
-                 cocos/renderer/pipeline/GeometryRenderer.h
-                 cocos/renderer/pipeline/GeometryRenderer.cpp
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
+                 cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1196,14 +1238,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
+                 cocos/renderer/pipeline/custom/NativeLayoutGraphImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
                  cocos/renderer/pipeline/custom/NativePipelineImpl.cpp
-                 cocos/renderer/pipeline/custom/NativePipelineNames.h
-                 cocos/renderer/pipeline/custom/NativePipelineReflection.cpp
-                 cocos/renderer/pipeline/custom/NativePipelineReflection.h
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
+                 cocos/renderer/pipeline/custom/NativeRenderGraphSetup.cpp
                  cocos/renderer/pipeline/custom/RenderCommonFwd.h
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h
@@ -1212,22 +1253,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonReflection.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
-                 cocos/renderer/pipeline/custom/RenderCompilerFwd.h
-                 cocos/renderer/pipeline/custom/RenderCompilerGraphs.h
-                 cocos/renderer/pipeline/custom/RenderCompilerImpl.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerNames.h
-                 cocos/renderer/pipeline/custom/RenderCompilerReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerReflection.h
-                 cocos/renderer/pipeline/custom/RenderCompilerTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderCompilerTypes.h
-                 cocos/renderer/pipeline/custom/RenderExampleFwd.h
-                 cocos/renderer/pipeline/custom/RenderExampleGraphs.h
-                 cocos/renderer/pipeline/custom/RenderExampleImpl.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleNames.h
-                 cocos/renderer/pipeline/custom/RenderExampleReflection.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleReflection.h
-                 cocos/renderer/pipeline/custom/RenderExampleTypes.cpp
-                 cocos/renderer/pipeline/custom/RenderExampleTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
                  cocos/renderer/pipeline/custom/RenderGraphGraphs.h
                  cocos/renderer/pipeline/custom/RenderGraphJsb.cpp
@@ -1242,6 +1267,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
 )
+
+if (USE_GEOMETRY_RENDERER)
+    cocos_source_files(
+        cocos/renderer/pipeline/GeometryRenderer.h
+        cocos/renderer/pipeline/GeometryRenderer.cpp
+    )
+endif()
 
 ##### terrain
 #
@@ -1268,6 +1300,7 @@ cocos_source_files(
                  cocos/scene/DirectionalLight.h
                  cocos/scene/DirectionalLight.cpp
                  cocos/scene/DrawBatch2D.h
+                 cocos/scene/DrawBatch2D.cpp
                  cocos/scene/Fog.h
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h
@@ -1324,9 +1357,14 @@ cocos_source_files(
 )
 
 ##### profiler
+if (USE_DEBUG_RENDERER)
 cocos_source_files(
     cocos/profiler/DebugRenderer.h
     cocos/profiler/DebugRenderer.cpp
+)
+endif()
+
+cocos_source_files(
     cocos/profiler/Profiler.h
     cocos/profiler/Profiler.cpp
     cocos/profiler/GameStats.h
@@ -1572,6 +1610,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/states/VKSampler.h
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKTextureBarrier.h
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.cpp
+                     cocos/renderer/gfx-vulkan/states/VKBufferBarrier.h
     )
 
     if(ANDROID)
@@ -1611,6 +1651,8 @@ cocos_source_files(
                  cocos/renderer/frame-graph/ResourceNode.h
                  cocos/renderer/frame-graph/VirtualResource.cpp
                  cocos/renderer/frame-graph/VirtualResource.h
+                 cocos/renderer/frame-graph/ImmutableState.h
+                 cocos/renderer/frame-graph/ImmutableState.cpp
 )
 
 ##### physics
@@ -1678,10 +1720,20 @@ if(USE_PHYSICS_PHYSX)
 endif()
 
 ##### 2d
-# cocos_source_files(
-#     cocos/2d/framework/UITransform.h
-#     cocos/2d/framework/UITransform.cpp
-# )
+cocos_source_files(
+    cocos/2d/renderer/Batcher2d.h
+    cocos/2d/renderer/Batcher2d.cpp
+    cocos/2d/renderer/UIModelProxy.h
+    cocos/2d/renderer/UIModelProxy.cpp
+    cocos/2d/renderer/RenderDrawInfo.h
+    cocos/2d/renderer/RenderDrawInfo.cpp
+    cocos/2d/renderer/UIMeshBuffer.h
+    cocos/2d/renderer/UIMeshBuffer.cpp
+    cocos/2d/renderer/RenderEntity.h
+    cocos/2d/renderer/RenderEntity.cpp
+    cocos/2d/renderer/StencilManager.h
+    cocos/2d/renderer/StencilManager.cpp
+)
 
 ##### 3d
 cocos_source_files(
@@ -1738,7 +1790,6 @@ cocos_source_files(
 
     # memop
     cocos/core/memop/CachedArray.h
-    cocos/core/memop/CachedArray.cpp
     cocos/core/memop/Pool.h
     cocos/core/memop/Pool.cpp
     cocos/core/memop/RecyclePool.h
@@ -1840,28 +1891,27 @@ cocos_source_files(
     cocos/core/assets/BitmapFont.cpp
     cocos/core/assets/Font.h
     cocos/core/assets/Font.cpp
-    cocos/core/assets/FreeTypeFont.h
-    cocos/core/assets/FreeTypeFont.cpp
 
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp
     cocos/core/builtin/BuiltinResMgr.h
-    cocos/core/builtin/ShaderSourceAssembly.cpp
-    cocos/core/builtin/ShaderSourceAssembly.h
+    # cocos/core/builtin/ShaderSourceAssembly.cpp
+    # cocos/core/builtin/ShaderSourceAssembly.h
     # cocos/core/builtin/Effects.cpp # generated
-    cocos/core/builtin/Effects.h
+    # cocos/core/builtin/Effects.h
     # cocos/core/builtin/shader-sources/glsl1.cpp # generated
-    cocos/core/builtin/shader-sources/glsl1.h
+    # cocos/core/builtin/shader-sources/glsl1.h
     # cocos/core/builtin/shader-sources/glsl3.cpp # generated
-    cocos/core/builtin/shader-sources/glsl3.h
+    # cocos/core/builtin/shader-sources/glsl3.h
     # cocos/core/builtin/shader-sources/glsl4.cpp # generated
-    cocos/core/builtin/shader-sources/glsl4.h
+    # cocos/core/builtin/shader-sources/glsl4.h
     #
 
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
-    cocos/core/data/deserializer/EffectAssetDeserializer.cpp
-    cocos/core/data/deserializer/EffectAssetDeserializer.h
+    cocos/core/data/JSBNativeDataHolder.h
+    # cocos/core/data/deserializer/EffectAssetDeserializer.cpp
+    # cocos/core/data/deserializer/EffectAssetDeserializer.h
     # cocos/core/data/deserializer/MeshDeserializer.cpp
     # cocos/core/data/deserializer/MeshDeserializer.h
     # cocos/core/data/deserializer/MaterialDeserializer.cpp
@@ -1874,9 +1924,9 @@ cocos_source_files(
     # cocos/core/data/deserializer/Texture2DDeserializer.h
     # cocos/core/data/deserializer/TerrainAssetDeserializer.cpp
     # cocos/core/data/deserializer/TerrainAssetDeserializer.h
-    cocos/core/data/deserializer/IAssetDeserializer.h
-    cocos/core/data/deserializer/AssetDeserializerFactory.cpp
-    cocos/core/data/deserializer/AssetDeserializerFactory.h
+    # cocos/core/data/deserializer/IAssetDeserializer.h
+    # cocos/core/data/deserializer/AssetDeserializerFactory.cpp
+    # cocos/core/data/deserializer/AssetDeserializerFactory.h
 
     cocos/core/event/CallbacksInvoker.cpp
     cocos/core/event/CallbacksInvoker.h
@@ -1939,6 +1989,14 @@ cocos_source_files(
 
 )
 
+# FreeTypeFont is used in DebugRenderer currently
+if (USE_DEBUG_RENDERER)
+cocos_source_files(
+    cocos/core/assets/FreeTypeFont.h
+    cocos/core/assets/FreeTypeFont.cpp
+)
+endif()
+
 cocos_source_files(MODULE ccgeometry
     cocos/core/geometry/AABB.cpp
     cocos/core/geometry/AABB.h
@@ -1965,20 +2023,29 @@ cocos_source_files(MODULE ccgeometry
     cocos/core/geometry/Spec.h
     cocos/core/geometry/Sphere.cpp
     cocos/core/geometry/Sphere.h
+    cocos/core/geometry/Spline.cpp
+    cocos/core/geometry/Spline.h
     cocos/core/geometry/Triangle.cpp
     cocos/core/geometry/Triangle.h
 )
 
 ##### script bindings
+
+######## utils
+cocos_source_files(
+    cocos/bindings/utils/BindingUtils.cpp
+    cocos/bindings/utils/BindingUtils.h
+)
+
 ######## dop
 cocos_source_files(
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
+                NO_UBUILD   cocos/bindings/dop/BufferPool.cpp
                             cocos/bindings/dop/BufferPool.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/jsb_dop.cpp
+                NO_UBUILD   cocos/bindings/dop/jsb_dop.cpp
                             cocos/bindings/dop/jsb_dop.h
                             cocos/bindings/dop/PoolType.h
                             cocos/bindings/dop/BufferAllocator.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/dop/BufferAllocator.cpp
+                NO_UBUILD   cocos/bindings/dop/BufferAllocator.cpp
 )
 
 ######## auto
@@ -2001,6 +2068,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_geometry_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
                             cocos/bindings/auto/jsb_render_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
+                            cocos/bindings/auto/jsb_2d_auto.h
 )
 
 if(USE_AUDIO)
@@ -2321,48 +2390,51 @@ endif()
 
 ######## manual
 cocos_source_files(
-    NO_WERROR    cocos/bindings/manual/jsb_classtype.cpp
-                 cocos/bindings/manual/jsb_classtype.h
-    #NO_WERROR   cocos/bindings/manual/jsb_extension_manual.cpp
-                 #cocos/bindings/manual/jsb_extension_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_cocos_manual.cpp
-                 cocos/bindings/manual/jsb_cocos_manual.h
-                 cocos/bindings/manual/jsb_conversions.h
-    NO_WERROR    cocos/bindings/manual/jsb_conversions_spec.cpp
-                 cocos/bindings/manual/jsb_conversions_spec.h
-    NO_WERROR    cocos/bindings/manual/jsb_gfx_manual.cpp
-                 cocos/bindings/manual/jsb_gfx_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_global.cpp
-                 cocos/bindings/manual/jsb_global.h
-    NO_WERROR    cocos/bindings/manual/jsb_helper.cpp
-                 cocos/bindings/manual/jsb_helper.h
-                 cocos/bindings/manual/jsb_module_register.h
-    NO_WERROR    cocos/bindings/manual/jsb_module_register.cpp
-                 cocos/bindings/manual/jsb_platform.h
-    NO_WERROR    cocos/bindings/manual/jsb_scene_manual.cpp
-                 cocos/bindings/manual/jsb_scene_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_assets_manual.cpp
-                 cocos/bindings/manual/jsb_assets_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
-                 cocos/bindings/manual/jsb_network_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp
-                 cocos/bindings/manual/jsb_xmlhttprequest.h
-                 cocos/bindings/manual/jsb_pipeline_manual.h
-    NO_WERROR    cocos/bindings/manual/jsb_pipeline_manual.cpp
+            cocos/bindings/manual/jsb_classtype.cpp
+            cocos/bindings/manual/jsb_classtype.h
+            cocos/bindings/manual/jsb_cocos_manual.cpp
+            cocos/bindings/manual/jsb_cocos_manual.h
+            cocos/bindings/manual/jsb_conversions.h
+            cocos/bindings/manual/jsb_conversions_spec.cpp
+            cocos/bindings/manual/jsb_conversions_spec.h
+            cocos/bindings/manual/jsb_gfx_manual.cpp
+            cocos/bindings/manual/jsb_gfx_manual.h
+            cocos/bindings/manual/jsb_global.cpp
+            cocos/bindings/manual/jsb_global.h
+            cocos/bindings/manual/jsb_helper.cpp
+            cocos/bindings/manual/jsb_helper.h
+            cocos/bindings/manual/jsb_module_register.h
+            cocos/bindings/manual/jsb_module_register.cpp
+            cocos/bindings/manual/jsb_platform.h
+            cocos/bindings/manual/jsb_scene_manual.cpp
+            cocos/bindings/manual/jsb_scene_manual.h
+            cocos/bindings/manual/jsb_assets_manual.cpp
+            cocos/bindings/manual/jsb_assets_manual.h
+            cocos/bindings/manual/jsb_network_manual.cpp
+            cocos/bindings/manual/jsb_network_manual.h
+            cocos/bindings/manual/jsb_xmlhttprequest.cpp
+            cocos/bindings/manual/jsb_xmlhttprequest.h
+            cocos/bindings/manual/jsb_pipeline_manual.h
+            cocos/bindings/manual/jsb_pipeline_manual.cpp
 )
-
+if(USE_AUDIO)
+    cocos_source_files(
+            cocos/bindings/manual/jsb_audio_manual.cpp
+            cocos/bindings/manual/jsb_audio_manual.h
+    )
+endif()
 if(USE_SOCKET)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_socketio.cpp
+                     cocos/bindings/manual/jsb_socketio.cpp
                      cocos/bindings/manual/jsb_socketio.h
-        NO_WERROR    cocos/bindings/manual/jsb_websocket.cpp
+                     cocos/bindings/manual/jsb_websocket.cpp
                      cocos/bindings/manual/jsb_websocket.h
     )
 endif()
 
 if(NOT IOS AND USE_WEBSOCKET_SERVER)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_websocket_server.cpp
+                     cocos/bindings/manual/jsb_websocket_server.cpp
                      cocos/bindings/manual/jsb_websocket_server.h
     )
 endif()
@@ -2381,7 +2453,7 @@ elseif(OHOS)
     )
 elseif(APPLE)
     cocos_source_files(
-                    cocos/bindings/manual/jsb_platfrom_apple.mm
+                    cocos/bindings/manual/jsb_platform_apple.mm
                     cocos/bindings/manual/JavaScriptObjCBridge.h
                     cocos/bindings/manual/JavaScriptObjCBridge.mm
                     cocos/platform/apple/JsbBridge.h
@@ -2391,21 +2463,26 @@ elseif(APPLE)
     )
 elseif(WIN32)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_win32.cpp
+        NO_WERROR    cocos/bindings/manual/jsb_platform_win32.cpp
     )
 elseif(LINUX)
     cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_linux.cpp
-    )
-elseif(QNX)
-    cocos_source_files(
-        NO_WERROR    cocos/bindings/manual/jsb_platfrom_qnx.cpp
+        NO_WERROR    cocos/bindings/manual/jsb_platform_linux.cpp
     )
 endif()
 
 ############# module bindings
+cocos_source_files(MODULE ccbindings
+    cocos/bindings/sebind/intl/common.h
+    cocos/bindings/sebind/intl/common.cpp
+    cocos/bindings/sebind/class.inl
+    cocos/bindings/sebind/sebind.h
+)
+
 if(USE_SE_V8)
     cocos_source_files(MODULE ccbindings
+                     cocos/bindings/sebind/class_v8.h
+                     cocos/bindings/sebind/class_v8.cpp
                      cocos/bindings/jswrapper/v8/Base.h
                      cocos/bindings/jswrapper/v8/Class.cpp
                      cocos/bindings/jswrapper/v8/Class.h
@@ -2415,10 +2492,10 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/Object.h
                      cocos/bindings/jswrapper/v8/ObjectWrap.cpp
                      cocos/bindings/jswrapper/v8/ObjectWrap.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/ScriptEngine.cpp
+                     cocos/bindings/jswrapper/v8/ScriptEngine.cpp
                      cocos/bindings/jswrapper/v8/ScriptEngine.h
                      cocos/bindings/jswrapper/v8/SeApi.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/Utils.cpp
+                     cocos/bindings/jswrapper/v8/Utils.cpp
                      cocos/bindings/jswrapper/v8/Utils.h
                      cocos/bindings/jswrapper/v8/MissingSymbols.cpp
                      cocos/bindings/jswrapper/v8/MissingSymbols.h
@@ -2453,28 +2530,6 @@ if(USE_SE_V8)
     endif()
 endif()
 
-if(USE_SE_JSC)
-    cocos_source_files(MODULE ccbindings
-                     cocos/bindings/jswrapper/jsc/Class.h
-                     cocos/bindings/jswrapper/jsc/EJConvert.h
-                     cocos/bindings/jswrapper/jsc/HelperMacros.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Utils.cpp
-                     cocos/bindings/jswrapper/jsc/EJConvertTypedArray.h
-                     cocos/bindings/jswrapper/jsc/PlatformUtils.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/EJConvertTypedArray.m
-        NO_WERROR    cocos/bindings/jswrapper/jsc/EJConvert.m
-                     cocos/bindings/jswrapper/jsc/Object.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Object.mm
-                     cocos/bindings/jswrapper/jsc/ScriptEngine.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/ScriptEngine.mm
-        NO_WERROR    cocos/bindings/jswrapper/jsc/PlatformUtils.mm
-                     cocos/bindings/jswrapper/jsc/SeApi.h
-        NO_WERROR    cocos/bindings/jswrapper/jsc/Class.cpp
-                     cocos/bindings/jswrapper/jsc/Utils.h
-                     cocos/bindings/jswrapper/jsc/Base.h
-    )
-endif()
-
 if(USE_SE_SM)
     cocos_source_files(MODULE ccbindings
                     cocos/bindings/jswrapper/sm/Base.h
@@ -2493,8 +2548,8 @@ if(USE_SE_SM)
 endif()
 
 cocos_source_files(MODULE ccbindings
-                 cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/config.h
+                 cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/HandleObject.cpp
                  cocos/bindings/jswrapper/HandleObject.h
                  cocos/bindings/jswrapper/MappingUtils.cpp
@@ -2513,7 +2568,7 @@ cocos_source_files(MODULE ccbindings
 )
 
 cocos_source_files(
-    NO_WERROR    cocos/bindings/manual/jsb_global_init.cpp
+                 cocos/bindings/manual/jsb_global_init.cpp
                  cocos/bindings/manual/jsb_global_init.h
 )
 
@@ -2524,12 +2579,12 @@ cocos_source_files(
 )
 
 #### storage
-cocos_source_files(
-                 cocos/storage/local-storage/LocalStorage.cpp
-                 cocos/storage/local-storage/LocalStorage.h
-)
-
-if(ANDROID)
+if(NOT ANDROID)
+    cocos_source_files(
+                     cocos/storage/local-storage/LocalStorage.cpp
+                     cocos/storage/local-storage/LocalStorage.h
+    )
+else()
     cocos_source_files(
                      cocos/storage/local-storage/LocalStorage-android.cpp
     )
@@ -2620,13 +2675,7 @@ elseif(WIN32)
             NO_WERROR    cocos/ui/edit-box/EditBox-win32.cpp
         )
     endif()
-elseif(LINUX)
-    if(USE_EDIT_BOX)
-        cocos_source_files(
-            NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
-        )
-    endif()
-elseif(QNX)
+elseif(LINUX OR QNX)
     if(USE_EDIT_BOX)
         cocos_source_files(
             NO_WERROR    cocos/ui/edit-box/EditBox-linux.cpp
@@ -2637,13 +2686,13 @@ endif()
 ##### extensions
 
 cocos_source_files(
-    NO_WERROR    extensions/assets-manager/AssetsManagerEx.cpp
+                 extensions/assets-manager/AssetsManagerEx.cpp
                  extensions/assets-manager/AssetsManagerEx.h
-    NO_WERROR    extensions/assets-manager/AsyncTaskPool.cpp
+                 extensions/assets-manager/AsyncTaskPool.cpp
                  extensions/assets-manager/AsyncTaskPool.h
-    NO_WERROR    extensions/assets-manager/EventAssetsManagerEx.cpp
+                 extensions/assets-manager/EventAssetsManagerEx.cpp
                  extensions/assets-manager/EventAssetsManagerEx.h
-    NO_WERROR    extensions/assets-manager/Manifest.cpp
+                 extensions/assets-manager/Manifest.cpp
                  extensions/assets-manager/Manifest.h
                  extensions/cocos-ext.h
                  extensions/ExtensionExport.h
@@ -2652,73 +2701,20 @@ cocos_source_files(
 
 list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
-
 ### generate source files
 
-
-function(compile_ts input_file_ts output_file)
-    get_filename_component(outdir ${output_file} DIRECTORY)
-    get_filename_component(from_ts ${input_file_ts} NAME)
-    add_custom_command(
-        OUTPUT ${output_file}
-        COMMAND ${CMAKE_COMMAND} -E echo " transform ${from_ts} file ${output_file}"
-        COMMAND ${TSC_EXECUTABLE} --module commonjs ${input_file_ts} --outDir ${outdir}
-        DEPENDS ${input_file_ts}
-        VERBATIM USES_TERMINAL
-    )
-endfunction()
-
-compile_ts(${CWD}/../cocos/core/builtin/effects.ts ${CWD}/cocos/core/builtin/effects.js)
-compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl1.ts ${CWD}/cocos/core/builtin/shader-sources/glsl1.js)
-compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl3.ts ${CWD}/cocos/core/builtin/shader-sources/glsl3.js)
-compile_ts(${CWD}/../cocos/core/builtin/shader-sources/glsl4.ts ${CWD}/cocos/core/builtin/shader-sources/glsl4.js)
-
 set(CC_GENERATED_FILES
-    ${CWD}/cocos/core/builtin/Effects.cpp
     ${CWD}/cocos/core/builtin/DebugInfos.cpp
-    ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
-    ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
-    ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
 )
 
 add_custom_target(builtin-res
     COMMAND ${CMAKE_COMMAND} -E echo "Generate builtin resources ..."
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
-            glsl1
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
-            glsl3
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
-            glsl4
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp
-    COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/effects_gzip.js
-            ${CWD}/cocos/core/builtin/effects.js
-            effects
-            ${CWD}/cocos/core/builtin/Effects.cpp.in
-            ${CWD}/cocos/core/builtin/Effects.cpp
     COMMAND ${NODE_EXECUTABLE} ${CWD}/cmake/scripts/gen_debugInfos.js
             ${CWD}/../EngineErrorMap.md
             ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
             ${CWD}/cocos/core/builtin/DebugInfos.cpp
     DEPENDS
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.js
-            ${CWD}/cocos/core/builtin/shader-sources/glsl1.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl3.cpp.in
-            ${CWD}/cocos/core/builtin/shader-sources/glsl4.cpp.in
-            ${CWD}/cocos/core/builtin/effects.js
-            ${CWD}/cocos/core/builtin/Effects.cpp.in
             ${CWD}/cocos/core/builtin/DebugInfos.cpp.in
-            ${CWD}/cmake/scripts/glsl_gzip.js
-            ${CWD}/cmake/scripts/effects_gzip.js
     VERBATIM USES_TERMINAL
 )
 set_target_properties(builtin-res PROPERTIES FOLDER Utils)
@@ -2820,6 +2816,15 @@ else()
     )
 endif()
 
+source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+
+if(QNX)
+    include(${QNX_PATH}/source.cmake)
+    qnx_source_list(ccqnx_SOURCE_LIST ${QNX_PATH})
+    source_group(TREE ${QNX_PATH} PREFIX "Source Files" FILES ${ccqnx_SOURCE_LIST}})
+    list(APPEND COCOS_SOURCE_LIST ${ccqnx_SOURCE_LIST})
+endif()
+
 add_library(${ENGINE_NAME} ${COCOS_SOURCE_LIST})
 
 if(USE_MODULES)
@@ -2848,6 +2853,10 @@ if(ANDROID OR OHOS)
             android
             log
         )
+        # Export GameActivity_onCreate(),
+        # Refer to: https://github.com/android-ndk/ndk/issues/381.
+        set(CMAKE_SHARED_LINKER_FLAGS
+                "${CMAKE_SHARED_LINKER_FLAGS} -u GameActivity_onCreate")
     endif()
 endif()
 
@@ -2860,17 +2869,22 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_SOCKET}>,CC_USE_SOCKET=1,CC_USE_SOCKET=0>
         $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
-        $<IF:$<BOOL:${USE_V8_DEBUGGER}>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
+        # USE_V8_DEBUGGER = USE_V8_DEBUGGER && (in_debug_mode OR USE_V8_DEBUGGER_FORCEON)
+        $<IF:$<AND:$<OR:$<CONFIG:Debug>,$<BOOL:${USE_V8_DEBUGGER_FORCE}>>,$<BOOL:${USE_V8_DEBUGGER}>>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
         $<IF:$<BOOL:${USE_MIDDLEWARE}>,CC_USE_MIDDLEWARE=1,CC_USE_MIDDLEWARE=0>
         $<IF:$<BOOL:${USE_SPINE}>,CC_USE_SPINE=1,CC_USE_SPINE=0>
         $<IF:$<BOOL:${USE_DRAGONBONES}>,CC_USE_DRAGONBONES=1,CC_USE_DRAGONBONES=0>
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,CC_USE_JOB_SYSTEM_TBB=1,CC_USE_JOB_SYSTEM_TBB=0>
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,CC_USE_JOB_SYSTEM_TASKFLOW=1,CC_USE_JOB_SYSTEM_TASKFLOW=0>
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
+        $<IF:$<BOOL:${USE_OCCLUSION_QUERY}>,CC_USE_OCCLUSION_QUERY=1,CC_USE_OCCLUSION_QUERY=0>
+        $<IF:$<BOOL:${USE_DEBUG_RENDERER}>,CC_USE_DEBUG_RENDERER=1,CC_USE_DEBUG_RENDERER=0>
+        $<IF:$<BOOL:${USE_GEOMETRY_RENDERER}>,CC_USE_GEOMETRY_RENDERER=1,CC_USE_GEOMETRY_RENDERER=0>
+        $<IF:$<BOOL:${USE_WEBP}>,CC_USE_WEBP=1,CC_USE_WEBP=0>
         $<IF:$<BOOL:${CC_EDITOR}>,CC_EDITOR=1,CC_EDITOR=0>
-        $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
+        $<$<BOOL:${USE_REMOTE_LOG}>:CC_REMOTE_LOG=1>
         $<$<BOOL:${USE_SE_SM}>:SCRIPT_ENGINE_TYPE=1>
-        $<$<CONFIG:Debug>:CC_DEBUG=1>
+        $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
     )
 endfunction()
 
@@ -2888,11 +2902,18 @@ endif()
 
 
 if(MSVC)
+    set(V8_DIR
+        ${CWD}/external/win64/libs/v8
+    )
+    file(GLOB V8_DLLS
+        ${CWD}/external/win64/libs/v8/Release/*.dll
+    )
+    
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll
     )
-    target_compile_options(${ENGINE_NAME} PUBLIC /MP 
+    target_compile_options(${ENGINE_NAME} PUBLIC /MP
         /bigobj
         /wd4018 # signed/unsigned mismatch
         /wd4244 # type conversion data lost
@@ -2945,7 +2966,7 @@ target_include_directories(${ENGINE_NAME}
         ${CWD}/cocos/platform
         ${CWD}/cocos/renderer/core
         ${CWD}/cocos/editor-support
-        $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/bindings/jswrapper>
+        $<$<BOOL:USE_SE_V8>:${CWD}/cocos/bindings/jswrapper>
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
 )
@@ -2997,13 +3018,11 @@ if(ANDROID)
     )
 
     find_library(LIB_EGL NAMES EGL)
-    find_library(LIB_GLESv2 NAMES GLESv2)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         android
+        paddleboat_static
         OpenSLES
         ${LIB_EGL}
-        ${LIB_GLESv2}
-        GLESv2
         jnigraphics
         ${CC_EXTERNAL_LIBS}
     )
@@ -3086,12 +3105,7 @@ if(APPLE)
 endif()
 
 if(QNX)
-    target_link_libraries(${ENGINE_NAME} PUBLIC
-        socket
-        ssl
-        screen
-        ${CC_EXTERNAL_LIBS}
-    )
+    include(${QNX_PATH}/setup.cmake)
 elseif(LINUX)
     set(LINUX_GRAPHIC_LIBS "")
     if(NOT USE_SERVER_MODE)
@@ -3102,5 +3116,4 @@ elseif(LINUX)
         ${CC_EXTERNAL_LIBS}
     )
 endif()
-
 source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})

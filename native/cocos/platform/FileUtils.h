@@ -35,16 +35,11 @@
 
 namespace cc {
 
-/**
- * @addtogroup platform
- * @{
- */
-
 class ResizableBuffer {
 public:
-    ~ResizableBuffer()                = default;
-    virtual void  resize(size_t size) = 0;
-    virtual void *buffer() const      = 0;
+    ~ResizableBuffer() = default;
+    virtual void resize(size_t size) = 0;
+    virtual void *buffer() const = 0;
 };
 
 template <typename T>
@@ -90,13 +85,13 @@ class ResizableBufferAdapter<Data> : public ResizableBuffer {
 public:
     explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
     void resize(size_t size) override {
-        auto oldSize = static_cast<size_t>(_buffer->getSize());
+        size_t oldSize = _buffer->getSize();
         if (oldSize != size) {
             // need to take buffer ownership for outer memory control
-            auto *old    = _buffer->takeBuffer();
+            auto *old = _buffer->takeBuffer();
             void *buffer = realloc(old, size);
             if (buffer) {
-                _buffer->fastSet(static_cast<unsigned char *>(buffer), size);
+                _buffer->fastSet(static_cast<unsigned char *>(buffer), static_cast<uint32_t>(size));
             }
         }
     }
@@ -116,6 +111,7 @@ public:
     /**
      *  Destroys the instance of FileUtils.
      */
+    CC_DEPRECATED(3.6.0)
     static void destroyInstance();
 
     /**
@@ -129,14 +125,16 @@ public:
      * to this function.
      *
      * @warning It will delete previous delegate
-     * @lua NA
      */
     static void setDelegate(FileUtils *delegate);
 
     /**
+     *  The default constructor.
+     */
+    FileUtils();
+
+    /**
      *  The destructor of FileUtils.
-     * @js NA
-     * @lua NA
      */
     virtual ~FileUtils();
 
@@ -157,13 +155,13 @@ public:
     virtual Data getDataFromFile(const ccstd::string &filename);
 
     enum class Status {
-        OK                 = 0,
-        NOT_EXISTS         = 1, // File not exists
-        OPEN_FAILED        = 2, // Open file failed.
-        READ_FAILED        = 3, // Read failed
-        NOT_INITIALIZED    = 4, // FileUtils is not initializes
-        TOO_LARGE          = 5, // The file is too large (great than 2^32-1)
-        OBTAIN_SIZE_FAILED = 6  // Failed to obtain the file size.
+        OK = 0,
+        NOT_EXISTS = 1,        // File not exists
+        OPEN_FAILED = 2,       // Open file failed.
+        READ_FAILED = 3,       // Read failed
+        NOT_INITIALIZED = 4,   // FileUtils is not initializes
+        TOO_LARGE = 5,         // The file is too large (great than 2^32-1)
+        OBTAIN_SIZE_FAILED = 6 // Failed to obtain the file size.
     };
 
     /**
@@ -239,7 +237,7 @@ public:
      *  @return Upon success, a pointer to the data is returned, otherwise nullptr.
      *  @warning Recall: you are responsible for calling free() on any Non-nullptr pointer returned.
      */
-    virtual unsigned char *getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, ssize_t *size);
+    virtual unsigned char *getFileDataFromZip(const ccstd::string &zipFilePath, const ccstd::string &filename, uint32_t *size);
 
     /** Returns the fullpath for a given filename.
 
@@ -315,8 +313,6 @@ public:
      *  @param searchPaths The array contains search paths.
      *  @see fullPathForFilename(const char*)
      *  @since v2.1
-     *  In js:var setSearchPaths(var jsval);
-     *  @lua NA
      */
     virtual void setSearchPaths(const ccstd::vector<ccstd::string> &searchPaths);
 
@@ -345,7 +341,6 @@ public:
      *        But since we should not break the compatibility, we keep using the old logic.
      *        Therefore, If you want to get the original search paths, please call 'getOriginalSearchPaths()' instead.
      *  @see fullPathForFilename(const char*).
-     *  @lua NA
      */
     virtual const ccstd::vector<ccstd::string> &getSearchPaths() const;
 
@@ -544,15 +539,10 @@ public:
     /** Returns the full path cache. */
     const ccstd::unordered_map<ccstd::string, ccstd::string> &getFullPathCache() const { return _fullPathCache; }
 
-    static ccstd::string normalizePath(const ccstd::string &path);
-    static ccstd::string getFileDir(const ccstd::string &path);
+    virtual ccstd::string normalizePath(const ccstd::string &path) const;
+    virtual ccstd::string getFileDir(const ccstd::string &path) const;
 
 protected:
-    /**
-     *  The default constructor.
-     */
-    FileUtils();
-
     /**
      *  Initializes the instance of FileUtils. It will set _searchPathArray and _searchResolutionsOrderArray to default values.
      *
@@ -641,7 +631,7 @@ protected:
     virtual void valueVectorCompact(ValueVector &valueVector);
 };
 
-// end of support group
-/** @} */
+// Can remove this function when refactoring file system.
+FileUtils *createFileUtils();
 
 } // namespace cc

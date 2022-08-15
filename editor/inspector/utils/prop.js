@@ -221,7 +221,8 @@ exports.updatePropByDump = function(panel, dump) {
                 $prop.setAttribute('type', 'dump');
             }
 
-            $prop.displayOrder = info.displayOrder === undefined ? index : Number(info.displayOrder);
+            const _displayOrder = info.group?.displayOrder || info.displayOrder;
+            $prop.displayOrder = _displayOrder === undefined ? index : Number(_displayOrder);
 
             if (element && element.displayOrder !== undefined) {
                 $prop.displayOrder = element.displayOrder;
@@ -229,8 +230,7 @@ exports.updatePropByDump = function(panel, dump) {
 
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
                 if (info.group && dump.groups) {
-                    const id = info.group.id || 'default';
-                    const name = info.group.name;
+                    const { id = 'default', name } = info.group;
 
                     if (!panel.$groups[id] && dump.groups[id]) {
                         if (dump.groups[id].style === 'tab') {
@@ -255,7 +255,12 @@ exports.updatePropByDump = function(panel, dump) {
             }
         } else if (!$prop.isConnected || !$prop.parentElement) {
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
-                exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                if (info.group && dump.groups) {
+                    const { id = 'default', name } = info.group;
+                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                } else {
+                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                }
             }
         }
         $prop.render(info);

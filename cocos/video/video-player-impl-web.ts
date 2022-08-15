@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/video
- */
-
 import { screenAdapter } from 'pal/screen-adapter';
 import { mat4 } from '../core/math';
 import { sys, screen, warn } from '../core/platform';

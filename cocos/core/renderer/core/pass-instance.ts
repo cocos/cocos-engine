@@ -23,19 +23,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
-
 import { EffectAsset } from '../../assets/effect-asset';
 import { MaterialInstance } from './material-instance';
 import { BatchingSchemes, Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
 
 /**
- * @en A pass instance defines an variant version of the [[Pass]]
- * @zh 表示 [[Pass]] 的一种特殊实例
+ * @en A pass instance defines an variant version of the [[renderer.Pass]]
+ * @zh 表示 [[renderer.Pass]] 的一种特殊实例
  */
 export class PassInstance extends Pass {
     /**

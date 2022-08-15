@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { Light } from './light-component';
 import { SpotLight } from './spot-light-component';
 import { SphereLight } from './sphere-light-component';

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ * Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
  *
  * http://www.cocos.com
  *
@@ -25,82 +25,65 @@
 package com.cocos.lib;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.media.AudioManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceHolder;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import java.io.File;
+import com.google.androidgamesdk.GameActivity;
+
 import java.lang.reflect.Field;
 
-public class CocosActivity extends Activity implements SurfaceHolder.Callback {
-    private boolean mDestroyed;
-    private SurfaceHolder mSurfaceHolder;
-    private FrameLayout mFrameLayout;
-    private CocosSurfaceView mSurfaceView;
+public class CocosActivity extends GameActivity {
+    private static final String _TAG = "CocosActivity";
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
     private CocosOrientationHelper mOrientationHelper = null;
 
-    private boolean engineInit = false;
-
-    private CocosKeyCodeHandler mKeyCodeHandler;
     private CocosSensorHandler mSensorHandler;
 
 
-    private native void onCreateNative(Activity activity, AssetManager resourceManager, String obbPath, int sdkVersion);
-
-    private native void onSurfaceCreatedNative(Surface surface);
-
-    private native void onSurfaceChangedNative(int width, int height);
-
-    private native void onSurfaceDestroyNative();
-
-    private native void onPauseNative();
-
-    private native void onResumeNative();
-
-    private native void onStopNative();
-
-    private native void onStartNative();
-
-    private native void onLowMemoryNative();
-
-    private native void onWindowFocusChangedNative(boolean hasFocus);
+    private native void onCreateNative(Context activity);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        onLoadNativeLibraries();
+        onCreateNative(this.getApplicationContext());
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        setTheme( R.style.Theme_AppCompat_Light_NoActionBar);
         super.onCreate(savedInstanceState);
+
         GlobalObject.setActivity(this);
         CocosHelper.registerBatteryLevelReceiver(this);
         CocosHelper.init(this);
         CocosAudioFocusManager.registerAudioFocusListener(this);
         CanvasRenderingContext2DImpl.init(this);
-        onLoadNativeLibraries();
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         initView();
-        onCreateNative(this, getAssets(), getAbsolutePath(getObbDir()), Build.VERSION.SDK_INT);
 
-        mKeyCodeHandler = new CocosKeyCodeHandler(this);
+
         mSensorHandler = new CocosSensorHandler(this);
 
         setImmersiveMode();
 
         Utils.hideVirtualButton();
 
-        mOrientationHelper = new CocosOrientationHelper(this);
+        int orientation = getRequestedOrientation();
+        if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
+            mOrientationHelper = new CocosOrientationHelper(this);
+        }
     }
 
     private void setImmersiveMode() {
@@ -122,49 +105,28 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
             View view = getWindow().getDecorView();
             view.setSystemUiVisibility(flag);
 
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-
-    private static String getAbsolutePath(File file) {
-        return (file != null) ? file.getAbsolutePath() : null;
     }
 
     protected void initView() {
-        ViewGroup.LayoutParams frameLayoutParams = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        mFrameLayout = new FrameLayout(this);
-        mFrameLayout.setLayoutParams(frameLayoutParams);
-        setContentView(mFrameLayout);
-
-        mSurfaceView = new CocosSurfaceView(this);
-        mSurfaceView.getHolder().addCallback(this);
-        mFrameLayout.addView(mSurfaceView);
-
+        FrameLayout frameLayout = findViewById(contentViewId);
         if (mWebViewHelper == null) {
-            mWebViewHelper = new CocosWebViewHelper(mFrameLayout);
+            mWebViewHelper = new CocosWebViewHelper(frameLayout);
         }
 
         if (mVideoHelper == null) {
-            mVideoHelper = new CocosVideoHelper(this, mFrameLayout);
+            mVideoHelper = new CocosVideoHelper(this, frameLayout);
         }
     }
 
-    public CocosSurfaceView getSurfaceView() {
+    public SurfaceView getSurfaceView() {
         return this.mSurfaceView;
     }
 
     @Override
     protected void onDestroy() {
-        mDestroyed = true;
-        if (mSurfaceHolder != null) {
-            onSurfaceDestroyNative();
-            mSurfaceHolder = null;
-        }
         super.onDestroy();
         CocosHelper.unregisterBatteryLevelReceiver(this);
         CocosAudioFocusManager.unregisterAudioFocusListener(this);
@@ -175,17 +137,18 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     protected void onPause() {
         super.onPause();
         mSensorHandler.onPause();
-        mOrientationHelper.onPause();
-        onPauseNative();
+        if (null != mOrientationHelper) {
+            mOrientationHelper.onPause();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorHandler.onResume();
-        mOrientationHelper.onResume();
-        Utils.hideVirtualButton();
-        onResumeNative();
+        if (null != mOrientationHelper) {
+            mOrientationHelper.onResume();
+        }
         Utils.hideVirtualButton();
         if (CocosAudioFocusManager.isAudioFocusLoss()) {
             CocosAudioFocusManager.registerAudioFocusListener(this);
@@ -195,81 +158,37 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     protected void onStop() {
         super.onStop();
-        onStopNative();
         mSurfaceView.setVisibility(View.INVISIBLE);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        onStartNative();
         mSurfaceView.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        if (!mDestroyed) {
-            onLowMemoryNative();
-        }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (!mDestroyed) {
-            onWindowFocusChangedNative(hasFocus);
-        }
         if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
             CocosAudioFocusManager.registerAudioFocusListener(this);
-        }
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        if (!mDestroyed) {
-            mSurfaceHolder = holder;
-            onSurfaceCreatedNative(holder.getSurface());
-
-            engineInit = true;
-        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (!mDestroyed) {
-            mSurfaceHolder = holder;
-            onSurfaceChangedNative(width, height);
-        }
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        mSurfaceHolder = null;
-        if (!mDestroyed) {
-            onSurfaceDestroyNative();
-            engineInit = false;
         }
     }
 
     private void onLoadNativeLibraries() {
         try {
             ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+
             Bundle bundle = ai.metaData;
             String libName = bundle.getString("android.app.lib_name");
+            if (TextUtils.isEmpty(libName)) {
+                Log.e(_TAG, "can not find library, please config android.app.lib_name at AndroidManifest.xml");
+            }
+            assert libName != null;
             System.loadLibrary(libName);
+            getIntent().putExtra(GameActivity.META_DATA_LIB_NAME, libName);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return mKeyCodeHandler.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return mKeyCodeHandler.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
     }
 }

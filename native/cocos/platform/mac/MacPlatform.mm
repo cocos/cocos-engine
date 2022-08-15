@@ -30,23 +30,28 @@
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
 #include "modules/Network.h"
-#include "modules/Screen.h"
 #include "modules/System.h"
-#include "modules/SystemWindow.h"
 #include "modules/Vibrator.h"
+
+#if defined(CC_SERVER_MODE)
+    #include "platform/empty/modules/Screen.h"
+    #include "platform/empty/modules/SystemWindow.h"
+#else
+    #include "modules/Screen.h"
+    #include "modules/SystemWindow.h"
+#endif
 
 #import <AppKit/AppKit.h>
 
-extern int cocos_main(int argc, const char** argv);
+extern int cocos_main(int argc, const char **argv);
 
 @interface MyTimer : NSObject {
     cc::MacPlatform *_platform;
-    NSTimer *        _timer;
-    int              _fps;
+    NSTimer *_timer;
 }
 - (instancetype)initWithApp:(cc::MacPlatform *)platform fps:(int)fps;
 - (void)start;
-- (void)changeFPS:(int)fps;
+- (void)changeFPS;
 - (void)pause;
 - (void)resume;
 @end
@@ -55,14 +60,14 @@ extern int cocos_main(int argc, const char** argv);
 
 - (instancetype)initWithApp:(cc::MacPlatform *)platform fps:(int)fps {
     if (self = [super init]) {
-        _fps = fps;
         _platform = platform;
     }
     return self;
 }
 
 - (void)start {
-    _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f / _fps
+    int32_t fps = _platform->getFps();
+    _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f / fps
                                               target:self
                                             selector:@selector(renderScene)
                                             userInfo:nil
@@ -77,16 +82,9 @@ extern int cocos_main(int argc, const char** argv);
     [self start];
 }
 
-- (void)changeFPS:(int)fps {
-    if (fps == _fps)
-        return;
-
+- (void)changeFPS {
     [self pause];
     [self resume];
-}
-
-- (int)getFps {
-    return _fps;
 }
 
 - (void)renderScene {
@@ -112,7 +110,7 @@ int32_t MacPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<SystemWindow>(this));
     registerInterface(std::make_shared<Vibrator>());
     return 0;
 }
@@ -122,23 +120,30 @@ int32_t MacPlatform::loop(void) {
     return cocos_main(0, nullptr);
 }
 
-int32_t MacPlatform::run(int argc, const char** argv) {
+int32_t MacPlatform::run(int argc, const char **argv) {
+#if defined(CC_SERVER_MODE)
+    cocos_main(argc, argv);
+    while (true) {
+        runTask();
+    }
+    return 0;
+#else
     id delegate = [[AppDelegate alloc] init];
     NSApplication.sharedApplication.delegate = delegate;
     return NSApplicationMain(argc, argv);
+#endif
 }
 
 void MacPlatform::setFps(int32_t fps) {
-    [_timer changeFPS:fps];
-}
-
-int32_t MacPlatform::getFps() const {
-    return [_timer getFps];
+    if(fps != getFps()) {
+        UniversalPlatform::setFps(fps);
+        [_timer changeFPS];
+    }
 }
 
 void MacPlatform::onPause() {
     [_timer pause];
-    
+
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
     dispatchEvent(ev);
@@ -146,7 +151,7 @@ void MacPlatform::onPause() {
 
 void MacPlatform::onResume() {
     [_timer resume];
-    
+
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
     dispatchEvent(ev);

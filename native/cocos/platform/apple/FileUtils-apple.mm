@@ -31,13 +31,12 @@
 #include "platform/apple/FileUtils-apple.h"
 
 #include <ftw.h>
-
-#include "base/std/container/string.h"
 #include <stack>
-
+#include "base/Log.h"
+#include "base/memory/Memory.h"
+#include "base/std/container/string.h"
 #include "platform/FileUtils.h"
 #include "platform/SAXParser.h"
-#include "base/Log.h"
 
 namespace cc {
 
@@ -169,7 +168,7 @@ static void addCCValueToNSArray(const Value &value, NSMutableArray *array) {
 
 static void addNSObjectToCCMap(id nsKey, id nsValue, ValueMap &dict) {
     // the key must be a string
-    CCASSERT([nsKey isKindOfClass:[NSString class]], "The key should be a string!");
+    CC_ASSERT([nsKey isKindOfClass:[NSString class]]);
     ccstd::string key = [nsKey UTF8String];
     dict[key] = convertNSObjectToCCValue(nsValue);
 }
@@ -179,10 +178,13 @@ static void addCCValueToNSDictionary(const ccstd::string &key, const Value &valu
     [dict setObject:convertCCValueToNSObject(value) forKey:NSkey];
 }
 
-FileUtilsApple::FileUtilsApple() : pimpl_(new IMPL([NSBundle mainBundle])) {
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsApple();
 }
 
-FileUtilsApple::~FileUtilsApple() = default;
+FileUtilsApple::FileUtilsApple() : pimpl_(ccnew IMPL([NSBundle mainBundle])) {
+    init();
+}
 
 #if CC_FILEUTILS_APPLE_ENABLE_OBJC
 void FileUtilsApple::setBundle(NSBundle *bundle) {
@@ -193,18 +195,6 @@ void FileUtilsApple::setBundle(NSBundle *bundle) {
 #pragma mark - FileUtils
 
 static NSFileManager *s_fileManager = [NSFileManager defaultManager];
-
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new (std::nothrow) FileUtilsApple();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsApple");
-        }
-    }
-    return FileUtils::sharedFileUtils;
-}
 
 ccstd::string FileUtilsApple::getWritablePath() const {
     if (_writablePath.length()) {
@@ -423,7 +413,7 @@ ValueVector FileUtilsApple::getValueVectorFromFile(const ccstd::string &filename
 }
 
 bool FileUtilsApple::createDirectory(const ccstd::string &path) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
 
     if (isDirectoryExist(path))
         return true;

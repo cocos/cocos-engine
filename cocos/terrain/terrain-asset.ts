@@ -23,13 +23,8 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module terrain
- */
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset, Texture2D } from '../core/assets';
-import { legacyCC } from '../core/global-exports';
 
 export const TERRAIN_MAX_LEVELS = 4;
 export const TERRAIN_MAX_BLEND_LAYERS = 4;
@@ -251,7 +246,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _nativeAsset (): ArrayBuffer {
         return this._data!.buffer;
@@ -408,14 +403,14 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setNativeData (_nativeData: Uint8Array) {
         this._data = _nativeData;
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _loadNativeData (_nativeData: Uint8Array) {
         if (!_nativeData || _nativeData.length === 0) {
@@ -489,7 +484,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _exportNativeData (): Uint8Array {
         const stream = new TerrainBuffer();
@@ -551,7 +546,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _exportDefaultNativeData (): Uint8Array {
         const stream = new TerrainBuffer();

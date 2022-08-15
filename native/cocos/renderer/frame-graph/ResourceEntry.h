@@ -35,15 +35,15 @@ class ResourceEntry final : public VirtualResource {
 public:
     explicit ResourceEntry(StringHandle name, ID id, const typename ResourceType::Descriptor &desc) noexcept;
     ResourceEntry(StringHandle name, ID id, const ResourceType &resource) noexcept;
-    ResourceEntry()                          = delete;
-    ~ResourceEntry() override                = default;
-    ResourceEntry(const ResourceEntry &)     = delete;
+    ResourceEntry() = delete;
+    ~ResourceEntry() override = default;
+    ResourceEntry(const ResourceEntry &) = delete;
     ResourceEntry(ResourceEntry &&) noexcept = delete;
     ResourceEntry &operator=(const ResourceEntry &) = delete;
     ResourceEntry &operator=(ResourceEntry &&) noexcept = delete;
 
-    void                                   request() noexcept override;
-    void                                   release() noexcept override;
+    void request() noexcept override;
+    void release() noexcept override;
     typename ResourceType::DeviceResource *getDeviceResource() const noexcept override;
 
     inline const ResourceType &get() const noexcept { return _resource; }

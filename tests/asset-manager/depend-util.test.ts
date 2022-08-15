@@ -13,7 +13,7 @@ describe('dependUtils', () => {
 
     test('parse audio deps', function () {
         const depend = dependUtil.parse('BBB', {
-            "__type__": js._getClassId(AudioClip),
+            "__type__": js.getClassId(AudioClip),
             "_native": ".mp3",
             "loadMode": 0
         }); 

@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module event
- */
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
@@ -34,7 +30,7 @@ import { NodeEventType } from '../../core/scene-graph/node-event';
  * @en The event type supported by SystemEvent and Node events
  * @zh SystemEvent 支持的事件类型以及节点事件类型
  *
- * @deprecated since v3.3, please use SystemEvent.EventType instead
+ * @deprecated since v3.3.0, please use Input.EventType instead
  */
 export enum SystemEventType {
     /**
@@ -104,7 +100,7 @@ export enum SystemEventType {
      * @en
      * The event type for mouse wheel events
      *
-     * @zh 手指开始触摸事件
+     * @zh 当滚动鼠标滚轮或操作其它类似输入设备时会触发滚轮事件。
      */
     MOUSE_WHEEL = 'mouse-wheel',
 

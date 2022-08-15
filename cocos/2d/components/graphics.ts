@@ -24,14 +24,10 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
-import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { scene } from '../../core/renderer';
@@ -40,10 +36,12 @@ import { IBatcher } from '../renderer/i-batcher';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
-import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
+import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit, deviceManager } from '../../core/gfx';
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
+import { NativeUIModelProxy } from '../renderer/native-2d';
+import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 
 const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
@@ -64,7 +62,7 @@ const stride = getAttributeStride(attributes);
 @help('i18n:cc.Graphics')
 @executionOrder(110)
 @menu('2D/Graphics')
-export class Graphics extends Renderable2D {
+export class Graphics extends UIRenderer {
     /**
      * @en
      * Current line width.
@@ -222,6 +220,9 @@ export class Graphics extends Renderable2D {
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
+    /**
+     * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+     */
     public model: scene.Model | null = null;
     @serializable
     protected _lineWidth = 1;
@@ -241,10 +242,19 @@ export class Graphics extends Renderable2D {
 
     private _graphicsUseSubMeshes: RenderingSubMesh[] = [];
 
+    //nativeObj
+    protected declare _graphicsNativeProxy:NativeUIModelProxy;
+    get graphicsNativeProxy () {
+        return this._graphicsNativeProxy;
+    }
+
     constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
-        this.impl = new Impl();
+        this.impl = new Impl(this);
+        if (JSB) {
+            this._graphicsNativeProxy = new NativeUIModelProxy();
+        }
     }
 
     public onRestore () {
@@ -254,9 +264,24 @@ export class Graphics extends Renderable2D {
     }
 
     public onLoad () {
-        this.model = director.root!.createModel(scene.Model);
-        this.model.node = this.model.transform = this.node;
+        super.onLoad();
+        if (JSB) {
+            this._graphicsNativeProxy.initModel(this.node);
+            this.model = this._graphicsNativeProxy.getModel();
+        } else {
+            this.model = director.root!.createModel(scene.Model);
+            this.model.node = this.model.transform = this.node;
+        }
         this._flushAssembler();
+    }
+
+    // hack for mask
+    protected _postRender (render: IBatcher) {
+        if (!this._postAssembler) {
+            return;
+        }
+
+        render.commitComp(this, null, null, this._postAssembler, null);
     }
 
     public onEnable () {
@@ -264,23 +289,24 @@ export class Graphics extends Renderable2D {
         this._updateMtlForGraphics();
     }
 
-    public onDisable () {
-        super.onDisable();
-    }
-
     public onDestroy () {
         this._sceneGetter = null;
-        if (this.model) {
-            director.root!.destroyModel(this.model);
+        if (JSB) {
+            this.graphicsNativeProxy.destroy();
             this.model = null;
-        }
-
-        const subMeshLength = this._graphicsUseSubMeshes.length;
-        if (subMeshLength > 0) {
-            for (let i = 0; i < subMeshLength; ++i) {
-                this._graphicsUseSubMeshes[i].destroy();
+        } else {
+            if (this.model) {
+                director.root!.destroyModel(this.model);
+                this.model = null;
             }
-            this._graphicsUseSubMeshes.length = 0;
+
+            const subMeshLength = this._graphicsUseSubMeshes.length;
+            if (subMeshLength > 0) {
+                for (let i = 0; i < subMeshLength; ++i) {
+                    this._graphicsUseSubMeshes[i].destroy();
+                }
+                this._graphicsUseSubMeshes.length = 0;
+            }
         }
 
         if (this.impl) {
@@ -299,8 +325,10 @@ export class Graphics extends Renderable2D {
      * @zh
      * 移动路径起点到坐标(x, y)。
      *
-     * @param x - 移动坐标 x 轴。
-     * @param y - 移动坐标 y 轴。
+     * @param x @en The x-axis coordinate of the target position.
+     *          @zh 目标位置的 X 轴坐标。
+     * @param y @en The y-axis coordinate of the target position.
+     *          @zh 目标位置的 y 轴坐标。
      */
     public moveTo (x: number, y: number) {
         if (!this.impl) {
@@ -317,8 +345,10 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制直线路径。
      *
-     * @param x - 绘制路径坐标 x 轴。
-     * @param y - 绘制路径坐标 y 轴。
+     * @param x @en The x-axis coordinate of the target position.
+     *          @zh 目标位置的 x 轴坐标。
+     * @param y @en The x-axis coordinate of the target position.
+     *          @zh 目标位置的 y 轴坐标。
      */
     public lineTo (x: number, y: number) {
         if (!this.impl) {
@@ -335,12 +365,18 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制三次贝赛尔曲线路径。
      *
-     * @param c1x - 第一个控制点的坐标 x 轴。
-     * @param c1y - 第一个控制点的坐标 y 轴。
-     * @param c2x - 第二个控制点的坐标 x 轴。
-     * @param c2y - 第二个控制点的坐标 y 轴。
-     * @param x - 最后一个控制点的坐标 x 轴。
-     * @param y - 最后一个控制点的坐标 y 轴。
+     * @param c1x @en The x-axis coordinate of the first control point.
+     *            @zh 第一个控制点的 x 轴坐标。
+     * @param c1y @en The y-axis coordinate of the first control point.
+     *            @zh 第一个控制点的 y 轴坐标。
+     * @param c2x @en The x-axis coordinate of the second control point.
+     *            @zh 第二个控制点的 x 轴坐标。
+     * @param c2y @en The y-axis coordinate of the second control point.
+     *            @zh 第二个控制点的 y 轴坐标。
+     * @param x @en The x-axis coordinate of the last control point.
+     *          @zh 最后一个控制点的 x 轴坐标。
+     * @param y @en The y-axis coordinate of the last control point.
+     *          @zh 最后一个控制点的 y 轴坐标。
      */
     public bezierCurveTo (c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number) {
         if (!this.impl) {
@@ -357,10 +393,14 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制二次贝赛尔曲线路径。
      *
-     * @param cx - 起始控制点的坐标 x 轴。
-     * @param cy - 起始控制点的坐标 y 轴。
-     * @param x - 终点控制点的坐标 x 轴。
-     * @param y - 终点控制点的坐标 x 轴。
+     * @param cx @en The x-axis coordinate of the starting control point.
+     *           @zh 起始控制点的 x 轴坐标。
+     * @param cy @en The y-axis coordinate of the starting control point.
+     *           @zh 起始控制点的 y 轴坐标。
+     * @param x @en The x-axis coordinates of the endpoint control point.
+     *          @zh 终点控制点的 x 轴坐标。
+     * @param y @en The y-axis coordinates of the endpoint control point.
+     *          @zh 终点控制点的 x 轴坐标。
      */
     public quadraticCurveTo (cx: number, cy: number, x: number, y: number) {
         if (!this.impl) {
@@ -378,12 +418,18 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制圆弧路径。圆弧路径的圆心在 (cx, cy) 位置，半径为 r ，根据 counterclockwise （默认为false）指定的方向从 startAngle 开始绘制，到 endAngle 结束。
      *
-     * @param cx - 中心控制点的坐标 x 轴。
-     * @param cy - 中心控制点的坐标 y 轴。
-     * @param r - 圆弧弧度。
-     * @param startAngle - 开始弧度，从正 x 轴顺时针方向测量。
-     * @param endAngle - 结束弧度，从正 x 轴顺时针方向测量。
-     * @param counterclockwise 如果为真，在两个角度之间逆时针绘制。默认顺时针。
+     * @param cx @en The coordinate x-axis of the central control point.
+     *           @zh 中心控制点的坐标 x 轴。
+     * @param cy @en The coordinate y-axis of the central control point.
+     *           @zh 中心控制点的坐标 y 轴。
+     * @param r @en Angle in Radian.
+     *          @zh 圆弧弧度。
+     * @param startAngle @en The starting angle in radian, measured clockwise from the positive x-axis.
+     *                   @zh 弧度起点，从正 x 轴顺时针方向测量。
+     * @param endAngle @en The ending angle in radian, measured clockwise from the positive x-axis.
+     *                 @zh 弧度终点，从正 x 轴顺时针方向测量。
+     * @param counterclockwise @en If true, draws counterclockwise between the two angles. Default is clockwise.
+     *                         @zh 如果为真，在两个角度之间逆时针绘制。默认顺时针。
      */
     public arc (cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
         if (!this.impl) {
@@ -400,10 +446,14 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制椭圆路径。
      *
-     * @param cx - 中心点的坐标 x 轴。
-     * @param cy - 中心点的坐标 y 轴。
-     * @param rx - 椭圆 x 轴半径。
-     * @param ry - 椭圆 y 轴半径。
+     * @param cx @en The x-axis coordinates of the center point.
+     *           @zh 中心点的 x 轴坐标。
+     * @param cy @en The y-axis coordinates of the center point.
+     *           @zh 中心点的 y 轴坐标。
+     * @param rx @en The radius of the x-axis of the ellipse.
+     *           @zh 椭圆 x 轴半径。
+     * @param ry @en The radius of the y-axis of the ellipse.
+     *           @zh 椭圆 y 轴半径。
      */
     public ellipse (cx: number, cy: number, rx: number, ry: number) {
         if (!this.impl) {
@@ -420,9 +470,12 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制圆形路径。
      *
-     * @param cx - 中心点的坐标 x 轴。
-     * @param cy - 中心点的坐标 y 轴。
-     * @param r - 圆半径。
+     * @param cx @en The x-axis coordinates of the center point.
+     *           @zh 中心点的 x 轴坐标。
+     * @param cy @en The y-axis coordinates of the center point.
+     *           @zh 中心点的 y 轴坐标。
+     * @param r @en Radius.
+     *          @zh 圆半径。
      */
     public circle (cx: number, cy: number, r: number) {
         if (!this.impl) {
@@ -439,10 +492,14 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制矩形路径。
      *
-     * @param x - 矩形起始坐标 x 轴。
-     * @param y - 矩形起始坐标 y 轴。
-     * @param w - 矩形宽度。
-     * @param h - 矩形高度。
+     * @param x @en The x-axis coordinate of the top left point of the rectangle.
+     *          @zh 矩形起始 x 轴坐标。
+     * @param y @en The y-axis coordinate of the top left point of the rectangle.
+     *          @zh 矩形起始 y 轴坐标。
+     * @param w @en The width of the rectangle.
+     *          @zh 矩形宽度。
+     * @param h @en The height of the rectangle.
+     *          @zh 矩形高度。
      */
     public rect (x: number, y: number, w: number, h: number) {
         if (!this.impl) {
@@ -459,11 +516,16 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制圆角矩形路径。
      *
-     * @param x - 矩形起始坐标 x 轴。
-     * @param y - 矩形起始坐标 y 轴。
-     * @param w - 矩形宽度。
-     * @param h - 矩形高度。
-     * @param r - 矩形圆角半径。
+     * @param x @en The x-axis coordinate of the top left point of the rectangle.
+     *          @zh 矩形起始 x 轴坐标。
+     * @param y @en The y-axis coordinate of the top left point of the rectangle.
+     *          @zh 矩形起始 y 轴坐标。
+     * @param w @en The width of the rectangle.
+     *          @zh 矩形宽度。
+     * @param h @en The height of the rectangle.
+     *          @zh 矩形高度。
+     * @param r @en Radius of rectangular rounded corners.
+     *          @zh 矩形圆角半径。
      */
     public roundRect (x: number, y: number, w: number, h: number, r: number) {
         if (!this.impl) {
@@ -480,10 +542,14 @@ export class Graphics extends Renderable2D {
      * @zh
      * 绘制填充矩形。
      *
-     * @param x - 矩形起始坐标 x 轴。
-     * @param y - 矩形起始坐标 y 轴。
-     * @param w - 矩形宽度。
-     * @param h - 矩形高度。
+     * @param x @en The x-axis coordinate of the top left point of the rectangle.
+     *          @zh 矩形起始 x 轴坐标。
+     * @param y @en The y-axis coordinate of the top left point of the rectangle.
+     *          @zh 矩形起始 y 轴坐标。
+     * @param w @en The width of the rectangle.
+     *          @zh 矩形宽度。
+     * @param h @en The height of the rectangle.
+     *          @zh 矩形高度。
      */
     public fillRect (x, y, w, h) {
         this.rect(x, y, w, h);
@@ -504,7 +570,9 @@ export class Graphics extends Renderable2D {
 
         this.impl.clear();
         this._isDrawing = false;
-        if (this.model) {
+        if (JSB) {
+            this._graphicsNativeProxy.clear();// need native
+        } else if (this.model) {
             for (let i = 0; i < this.model.subModels.length; i++) {
                 const subModel = this.model.subModels[i];
                 subModel.inputAssembler.indexCount = 0;
@@ -583,7 +651,7 @@ export class Graphics extends Renderable2D {
         }
 
         if (this.model.subModels.length <= idx) {
-            const gfxDevice: Device = legacyCC.director.root.device;
+            const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
@@ -667,7 +735,32 @@ export class Graphics extends Renderable2D {
             return false;
         }
 
-        return !!this.model && this._isDrawing;
+        if (JSB) {
+            return this._isDrawing;
+        } else {
+            return !!this.model && this._isDrawing;
+        }
+    }
+
+    public updateRenderer () {
+        super.updateRenderer();
+        if (JSB) {
+            if (this._isNeedUploadData) {
+                if (this.impl) {
+                    const renderDataList = this.impl.getRenderDataList();
+                    for (let i = 0; i < renderDataList.length; i++) {
+                        renderDataList[i].setRenderDrawInfoAttributes();
+                    }
+                    this._graphicsNativeProxy.activeSubModels();
+                }
+                this._graphicsNativeProxy.uploadData();
+                this._isNeedUploadData = false;
+            }
+        }
+    }
+
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }
 

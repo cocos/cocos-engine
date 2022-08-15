@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
-
 import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';
@@ -36,7 +31,7 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
 } from '../../gfx';
 import { EffectAsset } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
@@ -147,8 +142,8 @@ export class Pass {
     }
 
     /**
-     * @en Get pass hash value by [[Pass]] hash information.
-     * @zh 根据 [[Pass]] 的哈希信息获取哈希值。
+     * @en Get pass hash value by [[renderer.Pass]] hash information.
+     * @zh 根据 [[renderer.Pass]] 的哈希信息获取哈希值。
      *
      * @param hPass Handle of the pass info used to compute hash value.
      */
@@ -200,7 +195,7 @@ export class Pass {
 
     constructor (root: Root) {
         this._root = root;
-        this._device = root.device;
+        this._device = deviceManager.gfxDevice;
     }
 
     /**
@@ -302,8 +297,8 @@ export class Pass {
     }
 
     /**
-     * @en Bind a GFX [[Texture]] the the given uniform binding
-     * @zh 绑定实际 GFX [[Texture]] 到指定 binding。
+     * @en Bind a GFX [[gfx.Texture]] the the given uniform binding
+     * @zh 绑定实际 GFX [[gfx.Texture]] 到指定 binding。
      * @param binding The binding for target uniform of texture type
      * @param value Target texture
      */
@@ -312,8 +307,8 @@ export class Pass {
     }
 
     /**
-     * @en Bind a GFX [[Sampler]] the the given uniform binding
-     * @zh 绑定实际 GFX [[Sampler]] 到指定 binding。
+     * @en Bind a GFX [[gfx.Sampler]] the the given uniform binding
+     * @zh 绑定实际 GFX [[gfx.Sampler]] 到指定 binding。
      * @param binding The binding for target uniform of sampler type
      * @param value Target sampler
      */
@@ -440,8 +435,8 @@ export class Pass {
         const samplerInfo = info && info.samplerHash !== undefined
             ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
         const sampler = this._device.getSampler(samplerInfo);
-        this._descriptorSet.bindSampler(binding, sampler, index);
-        this._descriptorSet.bindTexture(binding, texture, index);
+        this._descriptorSet.bindSampler(binding, sampler, index || 0);
+        this._descriptorSet.bindTexture(binding, texture, index || 0);
     }
 
     /**
@@ -633,14 +628,14 @@ export class Pass {
     }
 
     // Only for UI
-    private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState, hashFactor: number) {
+    private _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
         this._batchingScheme = target.batchingScheme;
         this._primitive = target.primitive;
         this._dynamicStates = target.dynamicStates;
-        this._bs = bs;
+        this._bs = target.blendState;
         this._dss = dss;
         this._descriptorSet = target.descriptorSet;
         this._rs = target.rasterizerState;
@@ -659,6 +654,11 @@ export class Pass {
 
         this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
         this._hash = target._hash ^ hashFactor;
+    }
+
+    // Only for UI
+    private _updatePassHash () {
+        this._hash = Pass.getPassHash(this);
     }
 
     // infos

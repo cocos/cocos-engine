@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
-
 import { GFXObject, ObjectType, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo } from './define';
 
 /**

@@ -23,14 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { RenderPass, Device, CommandBuffer } from '../gfx';
+import { RenderPass, Device, CommandBuffer, DescriptorSet } from '../gfx';
 import { SetIndex } from './define';
 
 /**
@@ -78,7 +73,8 @@ export class RenderBatchedQueue {
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer,
+        descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
@@ -92,7 +88,12 @@ export class RenderBatchedQueue {
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
                     boundPSO = true;
                 }
-                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
+                if (descriptorSet) cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
+                if (dynamicOffsets) {
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, dynamicOffsets);
+                } else {
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
+                }
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

@@ -40,7 +40,7 @@ public:
     CCWGPUBuffer();
     ~CCWGPUBuffer() = default;
 
-    void update(const void *buffer, uint size) override;
+    void update(const void *buffer, uint32_t size) override;
 
     inline CCWGPUBufferObject *gpuBufferObject() const { return _gpuBufferObject; }
 
@@ -48,9 +48,9 @@ public:
 
     static CCWGPUBuffer *defaultStorageBuffer();
 
-    inline uint getOffset() const { return _offset; }
+    inline uint32_t getOffset() const { return _offset; }
 
-    void update(const emscripten::val &v, uint size) {
+    void update(const emscripten::val &v, uint32_t size) {
         ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
         update(reinterpret_cast<const void *>(buffer.data()), size);
     }
@@ -70,7 +70,7 @@ protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
 
     CCWGPUBufferObject *_gpuBufferObject = nullptr;
 

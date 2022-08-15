@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
 import { BatchingSchemes, Pass } from '../renderer/core/pass';
-import { RenderPipeline } from './render-pipeline';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
@@ -44,16 +39,17 @@ import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
 import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, supportsR32FloatTexture } from './define';
-import { updatePlanarNormalAndDistance, updatePlanarPROJ } from './scene-culling';
+    UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture } from './define';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { PipelineUBO } from './pipeline-ubo';
+import { PipelineRuntime } from './custom/pipeline';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
     passIdx: number;
     dynamicOffsets: number[];
-    lights: number[];
+    lights: Light[];
 }
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
@@ -93,13 +89,33 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
     return hasValidLightPass;
 }
 
+function isInstancedOrBatched (model: Model) {
+    const subModels = model.subModels;
+    for (let m = 0; m < subModels.length; ++m) {
+        const passes = subModels[m].passes;
+        for (let p = 0; p < passes.length; ++p) {
+            const pass = passes[p];
+            const batchingScheme = pass.batchingScheme;
+            if (batchingScheme === BatchingSchemes.INSTANCING) {
+                return true;
+            }
+            if (batchingScheme === BatchingSchemes.VB_MERGING) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
-    private _pipeline: RenderPipeline;
+    private _pipeline: PipelineRuntime;
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
+    private _instancedLightPassPool = _lightPassPool.alloc();
+    private _batchedLightPassPool = _lightPassPool.alloc();
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -111,7 +127,7 @@ export class RenderAdditiveLightQueue {
     private _batchedQueue: RenderBatchedQueue;
     private _lightMeterScale = 10000.0;
 
-    constructor (pipeline: RenderPipeline) {
+    constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
         this._device = pipeline.device;
         this._instancedQueue = new RenderInstancedQueue();
@@ -144,6 +160,11 @@ export class RenderAdditiveLightQueue {
         }
         _lightPassPool.freeArray(this._lightPasses);
         this._lightPasses.length = 0;
+
+        this._instancedLightPassPool.dynamicOffsets.length = 0;
+        this._instancedLightPassPool.lights.length = 0;
+        this._batchedLightPassPool.dynamicOffsets.length = 0;
+        this._batchedLightPassPool.lights.length = 0;
     }
 
     public destroy () {
@@ -156,7 +177,7 @@ export class RenderAdditiveLightQueue {
             if (descriptorSet) {
                 descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
-                descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+                descriptorSet.getTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.destroy();
             }
             descriptorSetMap.delete(key);
@@ -200,15 +221,35 @@ export class RenderAdditiveLightQueue {
                 this._addRenderQueue(pass, subModel, model, lightPassIdx);
             }
         }
+
+        // only for instanced and batched, no light culling applied
+        for (let l = 0; l < validPunctualLights.length; l++) {
+            const light = validPunctualLights[l];
+            this._instancedLightPassPool.lights.push(light);
+            this._instancedLightPassPool.dynamicOffsets.push(this._lightBufferStride * l);
+            this._batchedLightPassPool.lights.push(light);
+            this._batchedLightPassPool.dynamicOffsets.push(this._lightBufferStride * l);
+        }
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
-        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
+        for (let j = 0; j < this._instancedLightPassPool.lights.length; ++j) {
+            const light = this._instancedLightPassPool.lights[j];
+            _dynamicOffsets[0] = this._instancedLightPassPool.dynamicOffsets[j];
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
+            this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
+        }
+
+        for (let j = 0; j < this._batchedLightPassPool.lights.length; ++j) {
+            const light = this._batchedLightPassPool.lights[j];
+            _dynamicOffsets[0] = this._batchedLightPassPool.dynamicOffsets[j];
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
+            this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
+        }
+
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
             const pass = subModel.passes[passIdx];
@@ -235,15 +276,16 @@ export class RenderAdditiveLightQueue {
 
     // light culling
     protected _lightCulling (model:Model, validPunctualLights: Light[]) {
+        let isCulled = false;
+        const isNeedCulling = !isInstancedOrBatched(model);
         for (let l = 0; l < validPunctualLights.length; l++) {
             const light = validPunctualLights[l];
-            let isCulled = false;
             switch (light.type) {
             case LightType.SPHERE:
-                isCulled = cullSphereLight(light as SphereLight, model);
+                if (isNeedCulling) { isCulled = cullSphereLight(light as SphereLight, model); }
                 break;
             case LightType.SPOT:
-                isCulled = cullSpotLight(light as SpotLight, model);
+                if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
                 break;
             default:
             }
@@ -255,33 +297,28 @@ export class RenderAdditiveLightQueue {
 
     // add renderQueue
     protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number) {
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
         const { batchingScheme } = pass;
         if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-            for (let l = 0; l < _lightIndices.length; l++) {
-                const idx = _lightIndices[l];
-                const buffer = pass.getInstancedBuffer(idx);
-                buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
-                buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
-                this._instancedQueue.queue.add(buffer);
-            }
+            const buffer = pass.getInstancedBuffer();
+            buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
+            buffer.dynamicOffsets[0] = this._lightBufferStride;
+            this._instancedQueue.queue.add(buffer);
         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
-            for (let l = 0; l < _lightIndices.length; l++) {
-                const idx = _lightIndices[l];
-                const buffer = pass.getBatchedBuffer(idx);
-                buffer.merge(subModel, lightPassIdx, model);
-                buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
-                this._batchedQueue.queue.add(buffer);
-            }
+            const buffer = pass.getBatchedBuffer();
+            buffer.merge(subModel, lightPassIdx, model);
+            buffer.dynamicOffsets[0] = this._lightBufferStride;
+            this._batchedQueue.queue.add(buffer);
         } else {                                                         // standard draw
             const lp = _lightPassPool.alloc();
             lp.subModel = subModel;
             lp.passIdx = lightPassIdx;
             for (let l = 0; l < _lightIndices.length; l++) {
-                const idx = _lightIndices[l];
-                lp.lights.push(idx);
-                lp.dynamicOffsets.push(this._lightBufferStride * idx);
+                const lightIdx = _lightIndices[l];
+                const light = validPunctualLights[lightIdx];
+                lp.lights.push(light);
+                lp.dynamicOffsets.push(this._lightBufferStride * lightIdx);
             }
-
             this._lightPasses.push(lp);
         }
     }
@@ -293,14 +330,14 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        const linear = 0.0;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         const validPunctualLights = sceneData.validPunctualLights;
+        const cap = this._pipeline.device.capabilities;
 
         for (let i = 0; i < validPunctualLights.length; i++) {
             const light = validPunctualLights[i];
-            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(i);
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
             if (!descriptorSet) { continue; }
             let matShadowProj : Mat4;
             let matShadowInvProj : Mat4;
@@ -308,8 +345,7 @@ export class RenderAdditiveLightQueue {
             case LightType.SPHERE: {
                 // planar PROJ
                 if (mainLight) {
-                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                    PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
@@ -331,15 +367,15 @@ export class RenderAdditiveLightQueue {
 
                 // planar PROJ
                 if (mainLight) {
-                    updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
-                    updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
+                    PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, this._shadowUBO);
                 }
 
                 // light view
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
+                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, 1.0, 0.001, (light as SpotLight).range,
+                    true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0);
                 matShadowProj = _matShadowViewProj.clone();
                 matShadowInvProj = _matShadowViewProj.clone().invert();
 
@@ -351,7 +387,7 @@ export class RenderAdditiveLightQueue {
 
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = 0.01;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = (light as SpotLight).range;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = 0.0;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 0.0;
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
@@ -385,7 +421,7 @@ export class RenderAdditiveLightQueue {
                 if (shadowFrameBufferMap.has(light)) {
                     const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
                     if (texture) {
-                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture);
+                        descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, texture);
                     }
                 }
                 break;
@@ -454,7 +490,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SpotLight).size;
                 _vec4Array[1] = (light as SpotLight).range;
                 _vec4Array[2] = (light as SpotLight).spotAngle;
-                _vec4Array[3] = ((light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
+                _vec4Array[3] = (shadowInfo.enabled && (light as SpotLight).shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);

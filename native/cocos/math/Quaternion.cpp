@@ -75,9 +75,9 @@ void Quaternion::createFromRotationMatrix(const Mat4 &m, Quaternion *dst) {
 }
 
 void Quaternion::createFromAxisAngle(const Vec3 &axis, float angle, Quaternion *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
-    float halfAngle    = angle * 0.5F;
+    float halfAngle = angle * 0.5F;
     float sinHalfAngle = sinf(halfAngle);
 
     Vec3 normal(axis);
@@ -89,12 +89,12 @@ void Quaternion::createFromAxisAngle(const Vec3 &axis, float angle, Quaternion *
 }
 
 void Quaternion::createFromAngleZ(float z, Quaternion *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     z *= mathutils::HALF_TO_RAD;
     dst->x = dst->y = 0.F;
-    dst->z          = sinf(z);
-    dst->w          = cosf(z);
+    dst->z = sinf(z);
+    dst->w = cosf(z);
 }
 
 void Quaternion::conjugate() {
@@ -146,7 +146,7 @@ void Quaternion::multiply(const Quaternion &q) {
 }
 
 void Quaternion::multiply(const Quaternion &q1, const Quaternion &q2, Quaternion *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     float x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
     float y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
@@ -194,7 +194,7 @@ void Quaternion::set(float xx, float yy, float zz, float ww) {
 }
 
 void Quaternion::set(const float *array) {
-    GP_ASSERT(array);
+    CC_ASSERT(array);
     x = array[0];
     y = array[1];
     z = array[2];
@@ -224,7 +224,7 @@ void Quaternion::setIdentity() {
 }
 
 float Quaternion::toAxisAngle(Vec3 *axis) const {
-    GP_ASSERT(axis);
+    CC_ASSERT(axis);
 
     Quaternion q(x, y, z, w);
     q.normalize();
@@ -237,8 +237,8 @@ float Quaternion::toAxisAngle(Vec3 *axis) const {
 }
 
 void Quaternion::lerp(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst) {
-    GP_ASSERT(dst);
-    GP_ASSERT(!(t < 0.F || t > 1.F));
+    CC_ASSERT(dst);
+    CC_ASSERT(!(t < 0.F || t > 1.F));
 
     if (t == 0.F) {
         memcpy(dst, &q1, sizeof(float) * 4);
@@ -258,12 +258,12 @@ void Quaternion::lerp(const Quaternion &q1, const Quaternion &q2, float t, Quate
 }
 
 void Quaternion::slerp(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
     slerp(q1.x, q1.y, q1.z, q1.w, q2.x, q2.y, q2.z, q2.w, t, &dst->x, &dst->y, &dst->z, &dst->w);
 }
 
 void Quaternion::squad(const Quaternion &q1, const Quaternion &q2, const Quaternion &s1, const Quaternion &s2, float t, Quaternion *dst) {
-    GP_ASSERT(!(t < 0.F || t > 1.F));
+    CC_ASSERT(!(t < 0.F || t > 1.F));
 
     Quaternion dstQ(0.F, 0.F, 0.F, 1.F);
     Quaternion dstS(0.F, 0.F, 0.F, 1.F);
@@ -274,11 +274,11 @@ void Quaternion::squad(const Quaternion &q1, const Quaternion &q2, const Quatern
 }
 
 void Quaternion::fromViewUp(const Vec3 &view, Quaternion *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     fromViewUp(view, Vec3(0, 1, 0), out);
 }
 void Quaternion::fromViewUp(const Vec3 &view, const Vec3 &up, Quaternion *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     Mat3 mTemp{Mat3::IDENTITY};
     Mat3::fromViewUp(view, up, &mTemp);
     Quaternion::fromMat3(mTemp, out);
@@ -286,7 +286,7 @@ void Quaternion::fromViewUp(const Vec3 &view, const Vec3 &up, Quaternion *out) {
 }
 
 void Quaternion::fromEuler(float x, float y, float z, Quaternion *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
     float halfToRad = 0.5F * cc::math::PI / 180.F;
     x *= halfToRad;
     y *= halfToRad;
@@ -305,7 +305,7 @@ void Quaternion::fromEuler(float x, float y, float z, Quaternion *dst) {
 }
 
 void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     float x{q.x};
     float y{q.y};
     float z{q.z};
@@ -314,26 +314,26 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
     float heading{0};
     float attitude{0};
     float test = x * y + z * w;
-    float r2d  = 180.F / math::PI;
+    float r2d = 180.F / math::PI;
     if (test > 0.499999) {
-        bank     = 0;
-        heading  = -2 * atan2(x, w) * r2d;
+        bank = 0;
+        heading = -2 * atan2(x, w) * r2d;
         attitude = 90;
     } else if (test < -0.499999) {
-        bank     = 0;
-        heading  = -2 * atan2(x, w) * r2d;
+        bank = 0;
+        heading = -2 * atan2(x, w) * r2d;
         attitude = -90;
     } else {
         float sqx = x * x;
         float sqy = y * y;
         float sqz = z * z;
-        bank      = atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz) * r2d;
-        heading   = atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz) * r2d;
-        attitude  = asin(2 * test) * r2d;
+        bank = atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz) * r2d;
+        heading = atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz) * r2d;
+        attitude = asin(2 * test) * r2d;
         if (outerZ) {
-            bank     = static_cast<float>(-180.F * math::Sgn(bank + 1e-6) + bank);
-            heading  = static_cast<float>(-180.F * math::Sgn(heading + 1e-6) + heading);
-            attitude = static_cast<float>(180.F * math::Sgn(attitude + 1e-6) - attitude);
+            bank = static_cast<float>(-180.F * math::sgn(bank + 1e-6) + bank);
+            heading = static_cast<float>(-180.F * math::sgn(heading + 1e-6) + heading);
+            attitude = static_cast<float>(180.F * math::sgn(attitude + 1e-6) - attitude);
         }
     }
     out->x = bank;
@@ -342,23 +342,23 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
 }
 
 void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
-    GP_ASSERT(out);
-    float m00   = m.m[0];
-    float m03   = m.m[1];
-    float m06   = m.m[2];
-    float m01   = m.m[3];
-    float m04   = m.m[4];
-    float m07   = m.m[5];
-    float m02   = m.m[6];
-    float m05   = m.m[7];
-    float m08   = m.m[8];
+    CC_ASSERT(out);
+    float m00 = m.m[0];
+    float m03 = m.m[1];
+    float m06 = m.m[2];
+    float m01 = m.m[3];
+    float m04 = m.m[4];
+    float m07 = m.m[5];
+    float m02 = m.m[6];
+    float m05 = m.m[7];
+    float m08 = m.m[8];
     float trace = m00 + m04 + m08;
     if (trace > 0) {
         const float s = 0.5F / sqrtf(trace + 1.F);
-        out->w        = 0.25F / s;
-        out->x        = (m05 - m07) * s;
-        out->y        = (m06 - m02) * s;
-        out->z        = (m01 - m03) * s;
+        out->w = 0.25F / s;
+        out->x = (m05 - m07) * s;
+        out->y = (m06 - m02) * s;
+        out->z = (m01 - m03) * s;
     } else if ((m00 > m04) && (m00 > m08)) {
         const float s = 2.F * sqrtf(1.F + m04 - m00 - m08);
 
@@ -388,8 +388,8 @@ void Quaternion::slerp(float q1x, float q1y, float q1z, float q1w, float q2x, fl
     // It contains no division operations, no trig, no inverse trig
     // and no sqrt. Not only does this code tolerate small constraint
     // errors in the input quaternions, it actually corrects for them.
-    GP_ASSERT(dstx && dsty && dstz && dstw);
-    GP_ASSERT(!(t < 0.F || t > 1.F));
+    CC_ASSERT(dstx && dsty && dstz && dstw);
+    CC_ASSERT(!(t < 0.F || t > 1.F));
 
     if (t == 0.F) {
         *dstx = q1x;
@@ -441,7 +441,7 @@ void Quaternion::slerp(float q1x, float q1y, float q1z, float q1w, float q2x, fl
 
     // Here we bisect the interval, so we need to fold t as well.
     f2b = t - 0.5F;
-    u   = f2b >= 0 ? f2b : -f2b;
+    u = f2b >= 0 ? f2b : -f2b;
     f2a = u - f2b;
     f2b += u;
     u += u;
@@ -460,7 +460,7 @@ void Quaternion::slerp(float q1x, float q1y, float q1z, float q1w, float q2x, fl
     ratio1 = -0.333333333F + ratio1 * (sqNotU - 4.F) * versHalfTheta;
     ratio1 = 1.F + ratio1 * (sqNotU - 1.F) * versHalfTheta;
 
-    sqU    = u * u;
+    sqU = u * u;
     ratio2 = -0.00158730159F + (sqU - 16.F) * ratio2;
     ratio2 = 0.0333333333F + ratio2 * (sqU - 9.F) * versHalfTheta;
     ratio2 = -0.333333333F + ratio2 * (sqU - 4.F) * versHalfTheta;
@@ -484,7 +484,7 @@ void Quaternion::slerp(float q1x, float q1y, float q1z, float q1w, float q2x, fl
     // can see, it comes at the cost of 9 additional multiplication
     // operations. If this error-correcting feature is not required,
     // the following code may be removed.
-    f1    = 1.5F - 0.5F * (w * w + x * x + y * y + z * z);
+    f1 = 1.5F - 0.5F * (w * w + x * x + y * y + z * z);
     *dstw = w * f1;
     *dstx = x * f1;
     *dsty = y * f1;
@@ -492,7 +492,7 @@ void Quaternion::slerp(float q1x, float q1y, float q1z, float q1w, float q2x, fl
 }
 
 void Quaternion::slerpForSquad(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     // cos(omega) = q1 * q2;
     // slerp(q1, q2, t) = (q1*sin((1-t)*omega) + q2*sin(t*omega))/sin(omega);
@@ -509,7 +509,7 @@ void Quaternion::slerpForSquad(const Quaternion &q1, const Quaternion &q2, float
     }
 
     float omega = std::acos(c);
-    float s     = std::sqrt(1.F - c * c);
+    float s = std::sqrt(1.F - c * c);
     if (std::abs(s) <= 0.00001F) {
         dst->x = q1.x;
         dst->y = q1.y;
@@ -520,10 +520,10 @@ void Quaternion::slerpForSquad(const Quaternion &q1, const Quaternion &q2, float
 
     float r1 = std::sin((1 - t) * omega) / s;
     float r2 = std::sin(t * omega) / s;
-    dst->x   = (q1.x * r1 + q2.x * r2);
-    dst->y   = (q1.y * r1 + q2.y * r2);
-    dst->z   = (q1.z * r1 + q2.z * r2);
-    dst->w   = (q1.w * r1 + q2.w * r2);
+    dst->x = (q1.x * r1 + q2.x * r2);
+    dst->y = (q1.y * r1 + q2.y * r2);
+    dst->z = (q1.z * r1 + q2.z * r2);
+    dst->w = (q1.w * r1 + q2.w * r2);
 }
 
 NS_CC_MATH_END

@@ -23,14 +23,9 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
-
 import { EffectAsset } from '../../assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
-import { PipelineRuntime } from '../../pipeline/custom/pipeline';
+import { Pipeline, PipelineRuntime } from '../../pipeline/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
@@ -39,6 +34,7 @@ import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
 import { debug } from '../../platform/debug';
+import { UpdateFrequency } from '../../pipeline/custom/types';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 

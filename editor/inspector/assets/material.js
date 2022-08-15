@@ -3,13 +3,21 @@
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
-const cacheDot = '._';
 
 exports.style = `
-ui-button.location { flex: none; margin-left: 6px; }
+.invalid { display: none; }
+.invalid[active] { display: block; }
+.invalid[active] ~ * { display: none; }
+
+.custom[src] + .default { display: none; }
+
+ui-button.location { flex: none; margin-left: 4px; }
 `;
 
 exports.template = /* html */ `
+<div class="invalid">
+    <ui-label value="i18n:ENGINE.assets.multipleWarning"></ui-label>
+</div>
 <header class="header">
     <ui-prop>
         <ui-label slot="label">Effect</ui-label>
@@ -23,126 +31,163 @@ exports.template = /* html */ `
         <ui-select class="technique" slot="content"></ui-select>
     </ui-prop>
 </header>
-<section class="customSection">
-    <ui-panel class="customPanel"></ui-panel>
-</section>
-<section class="section">
-    <ui-prop class="useInstancing" type="dump"></ui-prop>
-    <ui-prop class="useBatching" type="dump"></ui-prop>
-</section>
-<section class="material-dump"></section>
+<ui-panel class="custom"></ui-panel>
+<div class="default">
+    <section class="section">
+        <ui-prop class="useInstancing" type="dump"></ui-prop>
+        <ui-prop class="useBatching" type="dump"></ui-prop>
+    </section>
+    <section class="material-dump"></section>
+</div>
 `;
 
 exports.$ = {
-    pass: '.pass',
+    invalid: '.invalid',
+
     header: '.header',
-    section: '.section',
     effect: '.effect',
     location: '.location',
     technique: '.technique',
-    materialDump: '.material-dump',
     useInstancing: '.useInstancing',
     useBatching: '.useBatching',
-    customSection: '.customSection',
-    customPanel: '.customPanel',
+    materialDump: '.material-dump',
+
+    custom: '.custom',
 };
 
 exports.methods = {
-    async getCustomInspector() {
-        const currentEffectInfo = this._effects.find((effect) => {
-            return effect.name === this.material.effect;
+    record() {
+        return JSON.stringify({
+            material: this.material,
+            cacheData: this.cacheData,
         });
-        if (currentEffectInfo && currentEffectInfo.uuid) {
-            const meta = await Editor.Message.request('asset-db', 'query-asset-meta', currentEffectInfo.uuid);
-            return meta && meta.userData && meta.userData.editor && meta.userData.editor.inspector;
-        }
-        return '';
     },
-    /**
-     * Custom Save
-     */
+    async restore(record) {
+        record = JSON.parse(record);
+        if (!record || typeof record !== 'object' || !record.material) {
+            return false;
+        }
+
+        this.material = record.material;
+        this.cacheData = record.cacheData;
+
+        await this.updateEffect();
+
+        await this.updateInterface();
+
+        await this.change({ snapshot: false });
+
+        return true;
+    },
+
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
     },
 
     reset() {
-        this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
         this.cacheData = {};
     },
-    /**
-     *
-     * @param {string} inspector
-     */
-    async updateCustomInspector(inspector) {
-        this.$.customPanel.hidden = false;
-        this.$.section.hidden = true;
-        this.$.materialDump.hidden = true;
-        try {
-            if (inspector.startsWith('packages://')) {
-                const relatePath = normalize(inspector.replace('packages://', ''));
-                const name = relatePath.split(sep)[0];
-                const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
-                const path = join(packagePath, relatePath.split(name)[1]);
-                if (this.$.customPanel.getAttribute('src') !== path) {
-                    this.$.customPanel.setAttribute('src', path);
-                }
-                this.$.customPanel.update(this.material, this.assetList, this.metaList);
-            } else {
-                throw Editor.I18n.t('ENGINE.assets.material.illegal-inspector-url');
+
+    async change(state) {
+        this.canUpdatePreview = true;
+        await this.setDirtyData();
+        this.dispatch('change', state);
+    },
+
+    async updateEffect() {
+        const effectMap = await Editor.Message.request('scene', 'query-all-effects');
+        this.effects = Object.keys(effectMap).sort().filter((name) => {
+            const effect = effectMap[name];
+            return !effect.hideInEditor;
+        }).map((name) => {
+            const effect = effectMap[name];
+            return {
+                name,
+                uuid: effect.uuid,
+            };
+        });
+
+        let effectOption = '';
+        for (let effect of this.effects) {
+            effectOption += `<option>${effect.name}</option>`;
+        }
+        this.$.effect.innerHTML = effectOption;
+
+        this.$.effect.value = this.material.effect;
+        setDisabled(this.asset.readonly, this.$.effect);
+    },
+
+    async updateInterface() {
+        this.updateTechnique();
+
+        const currentEffectInfo = this.effects.find((effect) => {
+            return effect.name === this.material.effect;
+        });
+
+        this.customInterface = '';
+        if (currentEffectInfo && currentEffectInfo.uuid) {
+            const meta = await Editor.Message.request('asset-db', 'query-asset-meta', currentEffectInfo.uuid);
+            if (meta && meta.userData && meta.userData.editor) {
+                this.customInterface = meta.userData.editor.inspector;
             }
-        } catch (error) {
-            console.error(error);
-            console.error(Editor.I18n.t('ENGINE.assets.material.fail-to-load-custom-inspector', { effect: this.material.effect }));
+        }
+
+        if (this.customInterface && this.customInterface.startsWith('packages://')) {
+            try {
+                const relatePath = normalize(this.customInterface.replace('packages://', ''));
+                const name = relatePath.split(sep)[0];
+
+                const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
+
+                const filePath = join(packagePath, relatePath.split(name)[1]);
+                if (this.$.custom.getAttribute('src') !== filePath) {
+                    this.$.custom.setAttribute('src', filePath);
+                }
+
+                this.$.custom.update(this.material, this.assetList, this.metaList);
+
+            } catch (err) {
+                console.error(err);
+                console.error(Editor.I18n.t('ENGINE.assets.material.illegal-inspector-url'));
+            }
+        } else {
+            this.$.custom.removeAttribute('src');
             this.updatePasses();
         }
     },
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
-    setDirtyData() {
-        this.dirtyData.realtime = JSON.stringify({
-            effect: this.material.effect,
-            technique: this.material.technique,
-            techniqueData: this.material.data[this.material.technique],
+
+    updateTechnique() {
+        let techniqueOption = '';
+        this.material.data.forEach((technique, index) => {
+            const name = technique.name ? `${index} - ${technique.name}` : index;
+            techniqueOption += `<option value="${index}">${name}</option>`;
         });
+        this.$.technique.innerHTML = techniqueOption;
+        this.$.technique.value = this.material.technique;
 
-        if (!this.dirtyData.origin) {
-            this.dirtyData.origin = this.dirtyData.realtime;
-        }
-
-        this.canUpdatePreview = true;
+        setDisabled(this.asset.readonly, this.$.technique);
     },
 
-    isDirty() {
-        const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
-        return isDirty;
-    },
-
-    /**
-     * Update the pass data that is finally displayed in the panel
-     */
-    updatePasses() {
-        if (this.$.customPanel.hasAttribute('src')) {
-            this.$.customPanel.removeAttribute('src');
-        }
-        this.$.customPanel.hidden = true;
-        this.$.section.hidden = false;
-        this.$.materialDump.hidden = false;
-        // Automatic rendering of content
-        // The data in passes is not all the values that need to be rendered
-        // So it's sorted here, but that doesn't make sense
-        // The logical way to do it would be to return a normal dump when querying for material
-
+    async updatePasses() {
         const technique = materialTechniquePolyfill(this.material.data[this.material.technique]);
-        this.technique = technique;
 
+        this.technique = technique;
         if (!technique || !technique.passes) {
             return;
         }
 
-        this.useCache();
+        if (this.requestInitCache) {
+            this.initCache();
+
+            if (!this.canUpdatePreview) {
+                await this.updatePreview(false);
+            }
+        } else {
+            this.useCache();
+            await this.updatePreview(true);
+        }
 
         if (technique.passes) {
             // The interface is not a regular data loop, which needs to be completely cleared and placed, but the UI-prop element is still reusable
@@ -155,10 +200,6 @@ exports.methods = {
 
             for (let i = 0; i < technique.passes.length; i++) {
                 const pass = technique.passes[i];
-                // If the propertyIndex is not equal to the current pass index, then do not render
-                if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
-                    continue;
-                }
 
                 // if asset is readonly
                 if (this.asset.readonly) {
@@ -169,7 +210,6 @@ exports.methods = {
 
                 $container.$children[i] = document.createElement('ui-prop');
                 $container.$children[i].setAttribute('type', 'dump');
-                $container.$children[i].setAttribute('fold', 'false');
                 $container.appendChild($container.$children[i]);
                 $container.$children[i].render(pass);
 
@@ -219,6 +259,14 @@ exports.methods = {
                             if (Array.from($prop.$children.children).length) {
                                 $prop.after($prop.$children);
                             }
+
+                            $prop.addEventListener('change-dump', (e) => {
+                                if (e.target.dump.value) {
+                                    $prop.$children.removeAttribute('hidden');
+                                } else {
+                                    $prop.$children.setAttribute('hidden', '');
+                                }
+                            });
                         }
 
                         if (dump.value) {
@@ -230,6 +278,8 @@ exports.methods = {
                 });
             }
         }
+
+        this.updateInstancing();
     },
 
     updateInstancing() {
@@ -260,6 +310,12 @@ exports.methods = {
         }
     },
 
+    async updatePreview(emit) {
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material, { emit });
+
+        Editor.Message.broadcast('material-inspector:change-dump');
+    },
+
     changeInstancing(checked) {
         this.technique.passes.forEach((pass) => {
             if (pass.childMap.USE_INSTANCING) {
@@ -274,6 +330,7 @@ exports.methods = {
             this.$.useBatching.render(this.technique.useBatching);
         }
     },
+
     changeBatching(checked) {
         this.technique.passes.forEach((pass) => {
             if (pass.childMap.USE_BATCHING) {
@@ -281,26 +338,55 @@ exports.methods = {
             }
         });
     },
-    /**
-     * Update the options data in technique
-     */
-    updateTechniqueOptions() {
-        let techniqueOption = '';
-        this.material.data.forEach((technique, index) => {
-            const name = technique.name ? `${index} - ${technique.name}` : index;
-            techniqueOption += `<option value="${index}">${name}</option>`;
-        });
-        this.$.technique.innerHTML = techniqueOption;
-    },
-    hideAllContent(hide) {
-        this.$.header.style = hide ? 'display:none' : '';
-        this.$.section.style = hide ? 'display:none' : '';
-        this.$.materialDump.style = hide ? 'display:none' : '';
-    },
 
-    async updatePreview() {
-        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
-        Editor.Message.broadcast('material-inspector:change-dump');
+    initCache() {
+        const excludeNames = [
+            'children',
+            'defines',
+            'extends',
+            'pipelineStates',
+        ];
+
+        const cacheData = this.cacheData;
+        this.technique.passes.forEach((pass, i) => {
+            if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
+                return;
+            }
+
+            cacheProperty(pass.value);
+        });
+
+        function cacheProperty(prop) {
+            for (const name in prop) {
+                // 这些字段是基础类型或配置性的数据，不需要变动
+                if (excludeNames.includes(name)) {
+                    continue;
+                }
+
+                if (prop[name] && typeof prop[name] === 'object') {
+                    if (!(name in cacheData)) {
+                        const { type, value } = prop[name];
+                        if (type) {
+                            if (value !== undefined) {
+                                cacheData[name] = { type };
+                                if (value && typeof value === 'object') {
+                                    cacheData[name].value = JSON.parse(JSON.stringify(value));
+                                } else {
+                                    cacheData[name].value = value;
+                                }
+                            }
+                        }
+                    }
+
+                    if (prop[name].childMap && typeof prop[name].childMap === 'object') {
+                        cacheProperty(prop[name].childMap);
+                    }
+                }
+            }
+        }
+
+        this.requestInitCache = false;
+        this.updateInstancing();
     },
 
     storeCache(dump) {
@@ -343,10 +429,29 @@ exports.methods = {
                 }
             }
         }
+    },
 
-        // Update the extracted useInstancing and useBatching
-        this.updateInstancing();
-        this.updatePreview();
+    async setDirtyData() {
+        if (this.canUpdatePreview) {
+            await this.updatePreview(true);
+        }
+
+        this.dirtyData.realtime = JSON.stringify({
+            effect: this.material.effect,
+            technique: this.material.technique,
+            techniqueData: this.material.data[this.material.technique],
+        });
+
+        if (!this.dirtyData.origin) {
+            this.dirtyData.origin = this.dirtyData.realtime;
+
+            this.dispatch('snapshot');
+        }
+    },
+
+    isDirty() {
+        const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
+        return isDirty;
     },
 };
 
@@ -360,49 +465,39 @@ exports.update = async function(assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
-    const notOnlyOne = assetList.length !== 1;
-    this.hideAllContent(notOnlyOne);
-    if (notOnlyOne) {
+
+    // 增加容错
+    if (!this.$this.isConnected) {
         return;
     }
-    if (!this.dirtyData) {
+
+    if (assetList.length !== 1) {
+        this.$.invalid.setAttribute('active', '');
         return;
+    } else {
+        this.$.invalid.removeAttribute('active');
     }
+
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
+        this.dirtyData.realtime = '';
         this.cacheData = {};
+        this.requestInitCache = true;
     }
-    // set this.material.technique
+
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
-    if (this.canUpdatePreview) {
-        await this.updatePreview();
-    }
 
-    // effect <select> tag
-    this.$.effect.value = this.material.effect;
-    setDisabled(this.asset.readonly, this.$.effect);
-    // technique <select> tag
-    this.$.technique.value = this.material.technique;
-    setDisabled(this.asset.readonly, this.$.technique);
+    await this.updateEffect();
 
-    this.updateTechniqueOptions();
-    this.setDirtyData();
-    const inspector = await this.getCustomInspector();
-    if (inspector) {
-        this.updateCustomInspector(inspector);
-    } else {
-        // optimize calculate speed when edit multiple materials in node mode
-        requestIdleCallback(() => {
-            this.updatePasses();
-        });
-    }
+    await this.updateInterface();
+    await this.setDirtyData();
 };
 
 /**
  * Method of initializing the panel
  */
-exports.ready = async function() {
+exports.ready = function() {
     this.canUpdatePreview = false;
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
@@ -414,49 +509,20 @@ exports.ready = async function() {
     // Retain the previously modified data when switching pass
     this.cacheData = {};
 
-    // The event triggered when the content of material is modified
-    this.$.materialDump.addEventListener('change-dump', async (event) => {
-        const dump = event.target.dump;
-
-        // show its children
-        if (dump && dump.childMap && dump.children.length && event.target.$children) {
-            if (dump.value) {
-                event.target.$children.removeAttribute('hidden');
-            } else {
-                event.target.$children.setAttribute('hidden', '');
-            }
-        }
-
-        this.setDirtyData();
-        this.storeCache(dump);
-        this.dispatch('change');
-
-        await this.updatePreview();
-    });
-
     // The event that is triggered when the effect used is modified
     this.$.effect.addEventListener('change', async (event) => {
         this.material.effect = event.target.value;
         this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
-        this.updateTechniqueOptions();
-        if (!this.material.data[this.material.technique]) {
-            this.$.technique.value = this.material.technique = 0;
-        } else {
-            this.$.technique.value = this.material.technique;
-        }
 
-        const inspector = await this.getCustomInspector();
-        if (inspector) {
-            this.updateCustomInspector(inspector);
-        } else {
-            this.updatePasses();
-        }
-        this.setDirtyData();
-        this.dispatch('change');
+        this.$.technique.value = this.material.technique = 0;
+
+        await this.updateInterface();
+
+        this.change();
     });
 
     this.$.location.addEventListener('change', () => {
-        const effect = this._effects.find((_effect) => _effect.name === this.material.effect);
+        const effect = this.effects.find((_effect) => _effect.name === this.material.effect);
         if (effect) {
             Editor.Message.send('assets', 'twinkle', effect.uuid);
         }
@@ -465,60 +531,43 @@ exports.ready = async function() {
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = event.target.value;
-
-        const inspector = await this.getCustomInspector();
-        if (inspector) {
-            this.updateCustomInspector(inspector);
-        } else {
-            this.updatePasses();
-        }
-        this.setDirtyData();
-        this.dispatch('change');
-        this.updatePreview();
+        await this.updateInterface();
+        this.change();
     });
 
     // The event is triggered when the useInstancing is modified
     this.$.useInstancing.addEventListener('change-dump', (event) => {
         this.changeInstancing(event.target.dump.value);
         this.storeCache(event.target.dump);
-        this.setDirtyData();
-        this.dispatch('change');
-        this.updatePreview();
+        this.change();
     });
 
     //  The event is triggered when the useBatching is modified
     this.$.useBatching.addEventListener('change-dump', (event) => {
         this.changeBatching(event.target.dump.value);
         this.storeCache(event.target.dump);
-        this.setDirtyData();
-        this.dispatch('change');
-        this.updatePreview();
+        this.change();
     });
 
-    // When the page is initialized, all effect lists are queried and then not updated again
-    const effectMap = await Editor.Message.request('scene', 'query-all-effects');
-    this._effects = Object.keys(effectMap)
-        .sort()
-        .filter((name) => {
-            const effect = effectMap[name];
-            return !effect.hideInEditor;
-        })
-        .map((name) => {
-            const effect = effectMap[name];
-            return {
-                name,
-                uuid: effect.uuid,
-            };
-        });
-    let effectOption = '';
-    for (let effect of this._effects) {
-        effectOption += `<option>${effect.name}</option>`;
-    }
-    this.$.effect.innerHTML = effectOption;
-    this.$.customPanel.addEventListener('change', () => {
-        this.setDirtyData();
-        this.dispatch('change');
-        this.updatePreview();
+    // The event triggered when the content of material is modified
+    this.$.materialDump.addEventListener('change-dump', async (event) => {
+        const dump = event.target.dump;
+
+        // // show its children
+        // if (dump && dump.childMap && dump.children.length && event.target.$children) {
+        //     if (dump.value) {
+        //         event.target.$children.removeAttribute('hidden');
+        //     } else {
+        //         event.target.$children.setAttribute('hidden', '');
+        //     }
+        // }
+
+        this.storeCache(dump);
+        this.change();
+    });
+
+    this.$.custom.addEventListener('change', () => {
+        this.change();
     });
 };
 

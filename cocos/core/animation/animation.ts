@@ -23,7 +23,10 @@
  THE SOFTWARE.
  */
 
-
+import './embedded-player/embedded-player';
+import './embedded-player/embedded-animation-clip-player';
+import './embedded-player/embedded-particle-system-player';
+import './tracks/array-track';
 
 export * from './target-path';
 export * from './value-proxy';

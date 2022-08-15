@@ -1,14 +1,12 @@
-/**
- * @packageDocumentation
- */
-
 import { EDITOR } from 'internal:constants';
+import { director, System } from '../../../core';
 import { Filter } from '../../../core/assets/asset-enum';
 import { legacyCC } from '../../../core/global-exports';
+import { macro } from '../../../core/platform';
 import { js } from '../../../core/utils/js';
 import { Atlas } from './atlas';
 
-export class DynamicAtlasManager {
+export class DynamicAtlasManager extends System {
     public static instance: DynamicAtlasManager;
 
     private _atlases: Atlas[] = [];
@@ -126,6 +124,13 @@ export class DynamicAtlasManager {
     }
 
     /**
+     * @internal
+     */
+    public init () {
+        this.enabled = !macro.CLEANUP_IMAGE_CACHE;
+    }
+
+    /**
      * @en
      * Append a sprite frame into the dynamic atlas.
      *
@@ -136,7 +141,7 @@ export class DynamicAtlasManager {
      * @param spriteFrame  the sprite frame that will be inserted in the atlas.
      */
     public insertSpriteFrame (spriteFrame) {
-        if (EDITOR) return null;
+        if (EDITOR && !legacyCC.GAME_VIEW) return null;
         if (!this._enabled || this._atlasIndex === this._maxAtlasCount
             || !spriteFrame || spriteFrame._original) return null;
 
@@ -235,7 +240,7 @@ export class DynamicAtlasManager {
      * @param frame  the sprite frame that will be packed in the dynamic atlas.
      */
     public packToDynamicAtlas (comp, frame) {
-        if (EDITOR) return;
+        if ((EDITOR && !legacyCC.GAME_VIEW) || !this._enabled) return;
 
         if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);
@@ -247,5 +252,7 @@ export class DynamicAtlasManager {
 }
 
 export const dynamicAtlasManager: DynamicAtlasManager = DynamicAtlasManager.instance = new DynamicAtlasManager();
+
+director.registerSystem('dynamicAtlasManager', dynamicAtlasManager, 0);
 
 legacyCC.internal.dynamicAtlasManager = dynamicAtlasManager;

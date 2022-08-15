@@ -1,0 +1,4 @@
+// Lighting-model includes
+#include <lighting-models/data-structures/lighting-intermediate-data>
+#include <lighting-models/data-structures/lighting-result>
+#include <lighting-models/model-functions/toon>

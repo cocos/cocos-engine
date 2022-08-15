@@ -61,7 +61,7 @@ GLES3Device *GLES3Device::getInstance() {
 }
 
 GLES3Device::GLES3Device() {
-    _api        = API::GLES3;
+    _api = API::GLES3;
     _deviceName = "GLES3";
 
     GLES3Device::instance = this;
@@ -72,11 +72,11 @@ GLES3Device::~GLES3Device() {
 }
 
 bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
-    _gpuContext             = CC_NEW(GLES3GPUContext);
-    _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
-    _gpuFramebufferHub      = CC_NEW(GLES3GPUFramebufferHub);
-    _gpuConstantRegistry    = CC_NEW(GLES3GPUConstantRegistry);
-    _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
+    _gpuContext = ccnew GLES3GPUContext;
+    _gpuStateCache = ccnew GLES3GPUStateCache;
+    _gpuFramebufferHub = ccnew GLES3GPUFramebufferHub;
+    _gpuConstantRegistry = ccnew GLES3GPUConstantRegistry;
+    _gpuFramebufferCacheMap = ccnew GLES3GPUFramebufferCacheMap(_gpuStateCache);
 
     if (!_gpuContext->initialize(_gpuStateCache, _gpuConstantRegistry)) {
         destroy();
@@ -89,7 +89,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         uint32_t curSet{_bindingMappingInfo.setIndices[i]};
         uint32_t prevSet{i ? _bindingMappingInfo.setIndices[i - 1] : curSet};
         // accumulate the per set offset according to the specified capacity
-        _bindingMappings.blockOffsets[curSet]          = i ? static_cast<int32_t>(_bindingMappingInfo.maxBlockCounts[prevSet]) + _bindingMappings.blockOffsets[prevSet] : 0;
+        _bindingMappings.blockOffsets[curSet] = i ? static_cast<int32_t>(_bindingMappingInfo.maxBlockCounts[prevSet]) + _bindingMappings.blockOffsets[prevSet] : 0;
         _bindingMappings.samplerTextureOffsets[curSet] = i ? static_cast<int32_t>(_bindingMappingInfo.maxSamplerTextureCounts[prevSet]) + _bindingMappings.samplerTextureOffsets[prevSet] : 0;
     }
     for (uint32_t curSet : _bindingMappingInfo.setIndices) {
@@ -99,16 +99,16 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     _bindingMappings.flexibleSet = _bindingMappingInfo.setIndices.back();
 
     ccstd::string extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-    _extensions          = StringUtil::split(extStr, " ");
+    _extensions = StringUtil::split(extStr, " ");
 
     initFormatFeature();
 
     _multithreadedCommandRecording = false;
 
-    _features[toNumber(Feature::INSTANCED_ARRAYS)]        = true;
+    _features[toNumber(Feature::INSTANCED_ARRAYS)] = true;
     _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
-    _features[toNumber(Feature::BLEND_MINMAX)]            = true;
-    _features[toNumber(Feature::ELEMENT_INDEX_UINT)]      = true;
+    _features[toNumber(Feature::BLEND_MINMAX)] = true;
+    _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
 
     if (_gpuConstantRegistry->glMinorVersion) {
         _features[toNumber(Feature::COMPUTE_SHADER)] = true;
@@ -116,7 +116,8 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#if 0 // CC_PLATFORM != CC_PLATFORM_WINDOWS
+    // TODO: enable fbf in the future, it is not implemented yet in gles3 backend
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -169,8 +170,8 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     }
 
     _renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-    _vendor   = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
-    _version  = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    _vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+    _version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));
@@ -204,15 +205,15 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
+    _queue = createQueue(queueInfo);
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+    _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 
@@ -232,8 +233,8 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuStateCache)
 
-    CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
-    CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
+    CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked
+    CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
 
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
@@ -252,7 +253,7 @@ void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void GLES3Device::present() {
     CC_PROFILE(GLES3DevicePresent);
-    auto *queue   = static_cast<GLES3Queue *>(_queue);
+    auto *queue = static_cast<GLES3Queue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
@@ -279,132 +280,135 @@ void GLES3Device::initFormatFeature() {
     // builtin
     tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
 
-    _formatFeatures[toNumber(Format::R8)]    = tempFeature;
-    _formatFeatures[toNumber(Format::RG8)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB8)]  = tempFeature;
+    _formatFeatures[toNumber(Format::R8)] = tempFeature;
+    _formatFeatures[toNumber(Format::RG8)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB8)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA8)] = tempFeature;
 
     tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
 
-    _formatFeatures[toNumber(Format::R8SN)]    = tempFeature;
-    _formatFeatures[toNumber(Format::RG8SN)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB8SN)]  = tempFeature;
+    _formatFeatures[toNumber(Format::R8SN)] = tempFeature;
+    _formatFeatures[toNumber(Format::RG8SN)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB8SN)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA8SN)] = tempFeature;
-    _formatFeatures[toNumber(Format::R5G6B5)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA4)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB5A1)]  = tempFeature;
+    _formatFeatures[toNumber(Format::R5G6B5)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGBA4)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB5A1)] = tempFeature;
     _formatFeatures[toNumber(Format::RGB10A2)] = tempFeature;
 
-    _formatFeatures[toNumber(Format::SRGB8)]    = tempFeature;
+    _formatFeatures[toNumber(Format::SRGB8)] = tempFeature;
     _formatFeatures[toNumber(Format::SRGB8_A8)] = tempFeature;
 
     _formatFeatures[toNumber(Format::R11G11B10F)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGB9E5)]     = tempFeature;
+    _formatFeatures[toNumber(Format::RGB9E5)] = tempFeature;
 
-    _formatFeatures[toNumber(Format::DEPTH)]         = tempFeature;
+    _formatFeatures[toNumber(Format::DEPTH)] = tempFeature;
     _formatFeatures[toNumber(Format::DEPTH_STENCIL)] = tempFeature;
 
     tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
 
-    _formatFeatures[toNumber(Format::R16F)]    = tempFeature;
-    _formatFeatures[toNumber(Format::RG16F)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB16F)]  = tempFeature;
+    _formatFeatures[toNumber(Format::R16F)] = tempFeature;
+    _formatFeatures[toNumber(Format::RG16F)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB16F)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA16F)] = tempFeature;
 
-    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
+    tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
 
-    _formatFeatures[toNumber(Format::R32F)]    = tempFeature;
-    _formatFeatures[toNumber(Format::RG32F)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB32F)]  = tempFeature;
+    _formatFeatures[toNumber(Format::R32F)] = tempFeature;
+    _formatFeatures[toNumber(Format::RG32F)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB32F)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA32F)] = tempFeature;
 
     _formatFeatures[toNumber(Format::RGB10A2UI)] = FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
 
     tempFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::RENDER_TARGET | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE | FormatFeature::VERTEX_ATTRIBUTE;
 
-    _formatFeatures[toNumber(Format::R8I)]   = tempFeature;
-    _formatFeatures[toNumber(Format::R8UI)]  = tempFeature;
-    _formatFeatures[toNumber(Format::R16I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::R8I)] = tempFeature;
+    _formatFeatures[toNumber(Format::R8UI)] = tempFeature;
+    _formatFeatures[toNumber(Format::R16I)] = tempFeature;
     _formatFeatures[toNumber(Format::R16UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::R32I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::R32I)] = tempFeature;
     _formatFeatures[toNumber(Format::R32UI)] = tempFeature;
 
-    _formatFeatures[toNumber(Format::RG8I)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RG8UI)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RG16I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RG8I)] = tempFeature;
+    _formatFeatures[toNumber(Format::RG8UI)] = tempFeature;
+    _formatFeatures[toNumber(Format::RG16I)] = tempFeature;
     _formatFeatures[toNumber(Format::RG16UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RG32I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RG32I)] = tempFeature;
     _formatFeatures[toNumber(Format::RG32UI)] = tempFeature;
 
-    _formatFeatures[toNumber(Format::RGB8I)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGB8UI)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGB16I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RGB8I)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB8UI)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB16I)] = tempFeature;
     _formatFeatures[toNumber(Format::RGB16UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGB32I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RGB32I)] = tempFeature;
     _formatFeatures[toNumber(Format::RGB32UI)] = tempFeature;
 
-    _formatFeatures[toNumber(Format::RGBA8I)]   = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA8UI)]  = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA16I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RGBA8I)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGBA8UI)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGBA16I)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA16UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA32I)]  = tempFeature;
+    _formatFeatures[toNumber(Format::RGBA32I)] = tempFeature;
     _formatFeatures[toNumber(Format::RGBA32UI)] = tempFeature;
 
-    _textureExclusive[toNumber(Format::R8)]     = false;
-    _textureExclusive[toNumber(Format::RG8)]    = false;
-    _textureExclusive[toNumber(Format::RGB8)]   = false;
+    _textureExclusive[toNumber(Format::R8)] = false;
+    _textureExclusive[toNumber(Format::RG8)] = false;
+    _textureExclusive[toNumber(Format::RGB8)] = false;
     _textureExclusive[toNumber(Format::R5G6B5)] = false;
-    _textureExclusive[toNumber(Format::RGBA4)]  = false;
+    _textureExclusive[toNumber(Format::RGBA4)] = false;
 
-    _textureExclusive[toNumber(Format::RGB5A1)]    = false;
-    _textureExclusive[toNumber(Format::RGBA8)]     = false;
-    _textureExclusive[toNumber(Format::RGB10A2)]   = false;
+    _textureExclusive[toNumber(Format::RGB5A1)] = false;
+    _textureExclusive[toNumber(Format::RGBA8)] = false;
+    _textureExclusive[toNumber(Format::RGB10A2)] = false;
     _textureExclusive[toNumber(Format::RGB10A2UI)] = false;
-    _textureExclusive[toNumber(Format::SRGB8_A8)]  = false;
+    _textureExclusive[toNumber(Format::SRGB8_A8)] = false;
 
-    _textureExclusive[toNumber(Format::R8I)]   = false;
-    _textureExclusive[toNumber(Format::R8UI)]  = false;
-    _textureExclusive[toNumber(Format::R16I)]  = false;
+    _textureExclusive[toNumber(Format::R8I)] = false;
+    _textureExclusive[toNumber(Format::R8UI)] = false;
+    _textureExclusive[toNumber(Format::R16I)] = false;
     _textureExclusive[toNumber(Format::R16UI)] = false;
-    _textureExclusive[toNumber(Format::R32I)]  = false;
+    _textureExclusive[toNumber(Format::R32I)] = false;
     _textureExclusive[toNumber(Format::R32UI)] = false;
 
-    _textureExclusive[toNumber(Format::RG8I)]   = false;
-    _textureExclusive[toNumber(Format::RG8UI)]  = false;
-    _textureExclusive[toNumber(Format::RG16I)]  = false;
+    _textureExclusive[toNumber(Format::RG8I)] = false;
+    _textureExclusive[toNumber(Format::RG8UI)] = false;
+    _textureExclusive[toNumber(Format::RG16I)] = false;
     _textureExclusive[toNumber(Format::RG16UI)] = false;
-    _textureExclusive[toNumber(Format::RG32I)]  = false;
+    _textureExclusive[toNumber(Format::RG32I)] = false;
     _textureExclusive[toNumber(Format::RG32UI)] = false;
 
-    _textureExclusive[toNumber(Format::RGBA8I)]   = false;
-    _textureExclusive[toNumber(Format::RGBA8UI)]  = false;
-    _textureExclusive[toNumber(Format::RGBA16I)]  = false;
+    _textureExclusive[toNumber(Format::RGBA8I)] = false;
+    _textureExclusive[toNumber(Format::RGBA8UI)] = false;
+    _textureExclusive[toNumber(Format::RGBA16I)] = false;
     _textureExclusive[toNumber(Format::RGBA16UI)] = false;
-    _textureExclusive[toNumber(Format::RGBA32I)]  = false;
+    _textureExclusive[toNumber(Format::RGBA32I)] = false;
     _textureExclusive[toNumber(Format::RGBA32UI)] = false;
 
-    _textureExclusive[toNumber(Format::DEPTH)]         = false;
+    _textureExclusive[toNumber(Format::DEPTH)] = false;
     _textureExclusive[toNumber(Format::DEPTH_STENCIL)] = false;
 
     if (checkExtension("render_snorm")) {
         // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_render_snorm.txt
         // For 16, see https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_norm16.txt
-        _textureExclusive[toNumber(Format::R8SN)]    = false;
-        _textureExclusive[toNumber(Format::RG8SN)]   = false;
-        _textureExclusive[toNumber(Format::RGB8SN)]  = false;
+        _textureExclusive[toNumber(Format::R8SN)] = false;
+        _textureExclusive[toNumber(Format::RG8SN)] = false;
+        _textureExclusive[toNumber(Format::RGB8SN)] = false;
         _textureExclusive[toNumber(Format::RGBA8SN)] = false;
     }
 
     if (checkExtension("color_buffer_float")) {
-        _textureExclusive[toNumber(Format::R32F)]    = false;
-        _textureExclusive[toNumber(Format::RG32F)]   = false;
-        _textureExclusive[toNumber(Format::RGB32F)]  = false;
+        _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::RENDER_TARGET;
+        _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::RENDER_TARGET;
+
+        _textureExclusive[toNumber(Format::R32F)] = false;
+        _textureExclusive[toNumber(Format::RG32F)] = false;
         _textureExclusive[toNumber(Format::RGBA32F)] = false;
     }
     if (checkExtension("color_buffer_half_float")) {
-        _textureExclusive[toNumber(Format::R16F)]    = false;
-        _textureExclusive[toNumber(Format::RG16F)]   = false;
-        _textureExclusive[toNumber(Format::RGB16F)]  = false;
+        _textureExclusive[toNumber(Format::R16F)] = false;
+        _textureExclusive[toNumber(Format::RG16F)] = false;
+        _textureExclusive[toNumber(Format::RGB16F)] = false;
         _textureExclusive[toNumber(Format::RGBA16F)] = false;
     }
 
@@ -428,11 +432,11 @@ void GLES3Device::initFormatFeature() {
         _formatFeatures[toNumber(Format::ETC_RGB8)] = compressedFeature;
     }
 
-    _formatFeatures[toNumber(Format::ETC2_RGB8)]     = compressedFeature;
-    _formatFeatures[toNumber(Format::ETC2_RGBA8)]    = compressedFeature;
-    _formatFeatures[toNumber(Format::ETC2_SRGB8)]    = compressedFeature;
+    _formatFeatures[toNumber(Format::ETC2_RGB8)] = compressedFeature;
+    _formatFeatures[toNumber(Format::ETC2_RGBA8)] = compressedFeature;
+    _formatFeatures[toNumber(Format::ETC2_SRGB8)] = compressedFeature;
     _formatFeatures[toNumber(Format::ETC2_SRGB8_A8)] = compressedFeature;
-    _formatFeatures[toNumber(Format::ETC2_RGB8_A1)]  = compressedFeature;
+    _formatFeatures[toNumber(Format::ETC2_RGB8_A1)] = compressedFeature;
     _formatFeatures[toNumber(Format::ETC2_SRGB8_A1)] = compressedFeature;
 
     if (checkExtension("texture_compression_pvrtc")) {
@@ -476,68 +480,68 @@ void GLES3Device::initFormatFeature() {
 }
 
 CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer);
-    return CC_NEW(GLES3CommandBuffer);
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return ccnew GLES3PrimaryCommandBuffer;
+    return ccnew GLES3CommandBuffer;
 }
 
 Queue *GLES3Device::createQueue() {
-    return CC_NEW(GLES3Queue);
+    return ccnew GLES3Queue;
 }
 
 QueryPool *GLES3Device::createQueryPool() {
-    return CC_NEW(GLES3QueryPool);
+    return ccnew GLES3QueryPool;
 }
 
 Swapchain *GLES3Device::createSwapchain() {
-    return CC_NEW(GLES3Swapchain);
+    return ccnew GLES3Swapchain;
 }
 
 Buffer *GLES3Device::createBuffer() {
-    return CC_NEW(GLES3Buffer);
+    return ccnew GLES3Buffer;
 }
 
 Texture *GLES3Device::createTexture() {
-    return CC_NEW(GLES3Texture);
+    return ccnew GLES3Texture;
 }
 
 Shader *GLES3Device::createShader() {
-    return CC_NEW(GLES3Shader);
+    return ccnew GLES3Shader;
 }
 
 InputAssembler *GLES3Device::createInputAssembler() {
-    return CC_NEW(GLES3InputAssembler);
+    return ccnew GLES3InputAssembler;
 }
 
 RenderPass *GLES3Device::createRenderPass() {
-    return CC_NEW(GLES3RenderPass);
+    return ccnew GLES3RenderPass;
 }
 
 Framebuffer *GLES3Device::createFramebuffer() {
-    return CC_NEW(GLES3Framebuffer);
+    return ccnew GLES3Framebuffer;
 }
 
 DescriptorSet *GLES3Device::createDescriptorSet() {
-    return CC_NEW(GLES3DescriptorSet);
+    return ccnew GLES3DescriptorSet;
 }
 
 DescriptorSetLayout *GLES3Device::createDescriptorSetLayout() {
-    return CC_NEW(GLES3DescriptorSetLayout);
+    return ccnew GLES3DescriptorSetLayout;
 }
 
 PipelineLayout *GLES3Device::createPipelineLayout() {
-    return CC_NEW(GLES3PipelineLayout);
+    return ccnew GLES3PipelineLayout;
 }
 
 PipelineState *GLES3Device::createPipelineState() {
-    return CC_NEW(GLES3PipelineState);
+    return ccnew GLES3PipelineState;
 }
 
 Sampler *GLES3Device::createSampler(const SamplerInfo &info) {
-    return CC_NEW(GLES3Sampler(info));
+    return ccnew GLES3Sampler(info);
 }
 
 GeneralBarrier *GLES3Device::createGeneralBarrier(const GeneralBarrierInfo &info) {
-    return CC_NEW(GLES3GeneralBarrier(info));
+    return ccnew GLES3GeneralBarrier(info);
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

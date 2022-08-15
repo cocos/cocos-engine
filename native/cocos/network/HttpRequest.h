@@ -89,19 +89,6 @@ public:
     /** Destructor. */
     ~HttpRequest() override = default;
 
-    /**
-     * Override autorelease method to avoid developers to call it.
-     * If this function was called, it would trigger assert in debug mode
-     *
-     * @return Ref* always return nullptr.
-     */
-    RefCounted *autorelease() { // NOLINT(readability-convert-member-functions-to-static)
-        CCASSERT(false,
-                 "HttpResponse is used between network thread and ui thread \
-                 therefore, autorelease is forbidden here");
-        return nullptr;
-    }
-
     // setter/getters for properties
 
     /**
@@ -167,10 +154,10 @@ public:
     /**
      * Get the size of request data
      *
-     * @return ssize_t the size of request data
+     * @return uint32_t the size of request data
      */
-    inline ssize_t getRequestDataSize() const {
-        return static_cast<ssize_t>(_requestData.size());
+    inline uint32_t getRequestDataSize() const {
+        return static_cast<uint32_t>(_requestData.size());
     }
 
     /**
@@ -261,14 +248,14 @@ public:
 
 protected:
     // properties
-    Type                         _requestType{Type::UNKNOWN}; /// kHttpRequestGet, kHttpRequestPost or other enums
-    ccstd::string                _url;                        /// target url that this request is sent to
-    ccstd::vector<char>          _requestData;                /// used for POST
-    ccstd::string                _tag;                        /// user defined tag, to identify different requests in response callback
-    ccHttpRequestCallback        _callback;                   /// C++11 style callbacks
-    void *                       _userData{nullptr};          /// You can add your customed data here
-    ccstd::vector<ccstd::string> _headers;                    /// custom http headers
-    float                        _timeoutInSeconds{10.F};
+    Type _requestType{Type::UNKNOWN};      /// kHttpRequestGet, kHttpRequestPost or other enums
+    ccstd::string _url;                    /// target url that this request is sent to
+    ccstd::vector<char> _requestData;      /// used for POST
+    ccstd::string _tag;                    /// user defined tag, to identify different requests in response callback
+    ccHttpRequestCallback _callback;       /// C++11 style callbacks
+    void *_userData{nullptr};              /// You can add your customed data here
+    ccstd::vector<ccstd::string> _headers; /// custom http headers
+    float _timeoutInSeconds{10.F};
 };
 
 } // namespace network

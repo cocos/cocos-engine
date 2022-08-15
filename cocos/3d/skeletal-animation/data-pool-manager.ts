@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import type { AnimationClip } from '../../core/animation/animation-clip';
 import type { Skeleton } from '../assets';
 import { Device } from '../../core/gfx';

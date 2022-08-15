@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BulletShape } from './bullet-shape';
 import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';

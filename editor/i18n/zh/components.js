@@ -24,5 +24,7 @@ module.exports = {
             change_children: '连同修改子节点',
             change_self: '只修改节点自身',
         },
+
+        missScriptTip: "脚本编译失败，请检查报错信息并进行修正，该组件将在修正后自动还原。",
     },
 };

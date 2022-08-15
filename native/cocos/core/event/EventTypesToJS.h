@@ -32,11 +32,6 @@ namespace cc {
 
 class EventTypesToJS final {
 public:
-    static const CallbacksInvoker::KeyType ROOT_BATCH2D_INIT;
-    static const CallbacksInvoker::KeyType ROOT_BATCH2D_UPDATE;
-    static const CallbacksInvoker::KeyType ROOT_BATCH2D_UPLOAD_BUFFERS;
-    static const CallbacksInvoker::KeyType ROOT_BATCH2D_RESET;
-
     static const CallbacksInvoker::KeyType NODE_REATTACH;
     static const CallbacksInvoker::KeyType NODE_REMOVE_PERSIST_ROOT_NODE;
     static const CallbacksInvoker::KeyType NODE_DESTROY_COMPONENTS;

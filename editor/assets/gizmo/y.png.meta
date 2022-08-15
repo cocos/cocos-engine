@@ -1,11 +1,11 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "7b5313d0-f1aa-4b1b-a3c8-59d523c35301",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
@@ -22,7 +22,8 @@
         "magfilter": "linear",
         "mipfilter": "none",
         "anisotropy": 0,
-        "isUuid": true
+        "isUuid": true,
+        "visible": false
       },
       "ver": "1.0.22",
       "imported": true,
@@ -56,9 +57,67 @@
         "packable": true,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "7b5313d0-f1aa-4b1b-a3c8-59d523c35301@6c48a",
-        "atlasUuid": ""
+        "atlasUuid": "",
+        "vertices": {
+          "rawPosition": [
+            -21.5,
+            -24.5,
+            0,
+            21.5,
+            -24.5,
+            0,
+            -21.5,
+            24.5,
+            0,
+            21.5,
+            24.5,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            11,
+            57,
+            54,
+            57,
+            11,
+            8,
+            54,
+            8
+          ],
+          "nuv": [
+            0.171875,
+            0.125,
+            0.84375,
+            0.125,
+            0.171875,
+            0.890625,
+            0.84375,
+            0.890625
+          ],
+          "minPos": [
+            -21.5,
+            -24.5,
+            0
+          ],
+          "maxPos": [
+            21.5,
+            24.5,
+            0
+          ]
+        },
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0
       },
-      "ver": "1.0.10",
+      "ver": "1.0.11",
       "imported": true,
       "files": [
         ".json"
@@ -70,6 +129,7 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "redirect": "7b5313d0-f1aa-4b1b-a3c8-59d523c35301@f9941",
-    "flipVertical": true
+    "flipVertical": true,
+    "fixAlphaTransparencyArtifacts": false
   }
 }

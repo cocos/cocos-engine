@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /**
  * hack for jsb, shoule be refactor in futrue
  */

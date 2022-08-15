@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Color, Mat4, Vec3 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';

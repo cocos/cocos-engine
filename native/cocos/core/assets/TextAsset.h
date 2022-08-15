@@ -35,7 +35,7 @@ namespace cc {
  */
 class TextAsset final : public Asset {
 public:
-    explicit TextAsset()  = default;
+    explicit TextAsset() = default;
     ~TextAsset() override = default;
     /**
      * @en The text content.

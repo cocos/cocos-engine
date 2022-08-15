@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
     InputAssemblerInfo, Attribute, Buffer, BufferInfo, Shader } from '../gfx';
 import { Mat4 } from '../math';

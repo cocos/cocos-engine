@@ -23,10 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module material
- */
 import { EffectAsset } from './effect-asset';
 import { Texture } from '../gfx';
 import { TextureBase } from './texture-base';
@@ -34,9 +30,8 @@ import { legacyCC } from '../global-exports';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../renderer';
 
 import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../math';
-import { setClassName } from '../utils/js-typed';
-import { _applyDecoratedDescriptor, _assertThisInitialized, _initializerDefineProperty } from '../data/utils/decorator-jsb-utils';
 import { ccclass, serializable, type } from '../data/decorators';
+import './asset';
 
 /**
  * @en The basic infos for material initialization.
@@ -87,13 +82,24 @@ const matProto: any = jsb.Material.prototype;
 
 type setProperyCB = (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) => void;
 function wrapSetProperty (cb: setProperyCB, target: Material, name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
-    if (passIdx) {
+    if (passIdx != undefined) {
         cb.call(target, name, val, passIdx);
     } else {
         cb.call(target, name, val);
     }
 }
-
+// Note: The MathType should be synchronized with MathType in jsb_conversion_spec.cpp
+enum MathType {
+    VEC2 = 0,
+    VEC3,
+    VEC4,
+    QUATERNION,
+    MAT3,
+    MAT4,
+    SIZE,
+    RECT,
+    COLOR,
+};
 matProto.setProperty = function (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
     if (Array.isArray(val)) {
         const first = val[0];
@@ -148,37 +154,49 @@ matProto.setProperty = function (name: string, val: MaterialPropertyFull | Mater
         wrapSetProperty(this.setPropertyTextureBase, this, name, val, passIdx);
     } else if (val instanceof Texture) {
         wrapSetProperty(this.setPropertyGFXTexture, this, name, val, passIdx);
-    } else {
+    } else if (val === null) {
+        if (passIdx) {
+            this.setPropertyNull(name, passIdx);
+        } else {
+            this.setPropertyNull(name);
+        }
+    }
+     else {
         legacyCC.error(`Material.setProperty Unknown type: ${val}`);
     }
 };
 
 matProto.getProperty = function (name: string, passIdx?: number) {
-    const val = this._getProperty(name, passIdx);
+    let val: any;
+    if (passIdx !== undefined) {
+        val = this._getProperty(name, passIdx);
+    } else {
+        val = this._getProperty(name);
+    }
     if (Array.isArray(val)) {
         const first = val[0];
         const arr: any[] = []; // cjh TODO: optimize temporary gc objects being created
-        if (first instanceof Vec2) {
+        if (first instanceof jsb.Vec2 || first.type === MathType.VEC2) { // The type of first is uncertain, might be jsb.Color or plainObject.
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Vec2(e.x, e.y));
             }
-        } else if (first instanceof Vec3) {
+        } else if (first.type === MathType.VEC3) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Vec3(e.x, e.y, e.z));
             }
-        } else if (first instanceof Vec4) {
+        } else if (first.type === MathType.VEC4) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Vec4(e.x, e.y, e.z, e.w));
             }
-        } else if (first instanceof Color) {
+        } else if (first instanceof jsb.Color) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Color(e.r, e.g, e.b, e.a));
             }
-        } else if (first instanceof Mat3) {
+        } else if (first.type === MathType.MAT3) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Mat3(
@@ -187,7 +205,7 @@ matProto.getProperty = function (name: string, passIdx?: number) {
                     e[6], e[7], e[8],
                 ));
             }
-        } else if (first instanceof Mat4) {
+        } else if (first.type === MathType.MAT4) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Mat4(
@@ -197,7 +215,7 @@ matProto.getProperty = function (name: string, passIdx?: number) {
                     e[12], e[13], e[14], e[15],
                 ));
             }
-        } else if (first instanceof Quat) {
+        } else if (first.type === MathType.QUATERNION) {
             for (let i = 0, len = val.length; i < len; ++i) {
                 const e = val[i];
                 arr.push(new Quat(e.x, e.y, e.z, e.w));
@@ -209,28 +227,28 @@ matProto.getProperty = function (name: string, passIdx?: number) {
 
     let ret;
     const e = val;
-    if (val instanceof Vec2) {
+    if (val instanceof jsb.Vec2 || val.type === MathType.VEC2) {
         ret = new Vec3(e.x, e.y);
-    } else if (val instanceof Vec3) {
+    } else if (val.type === MathType.VEC3) {
         ret = new Vec3(e.x, e.y, e.z);
-    } else if (val instanceof Vec4) {
+    } else if (val.type === MathType.VEC4) {
         ret = new Vec4(e.x, e.y, e.z, e.w);
-    } else if (val instanceof Color) {
+    } else if (val instanceof jsb.Color) {
         ret = new Color(e.r, e.g, e.b, e.a);
-    } else if (val instanceof Mat3) {
+    } else if (val.type === MathType.MAT3) {
         ret = new Mat3(
             e[0], e[1], e[2],
             e[3], e[4], e[5],
             e[6], e[7], e[8],
         );
-    } else if (val instanceof Mat4) {
+    } else if (val.type === MathType.MAT4) {
         ret = new Mat4(
             e[0], e[1], e[2], e[3],
             e[4], e[5], e[6], e[7],
             e[8], e[9], e[10], e[11],
             e[12], e[13], e[14], e[15],
         );
-    } else if (val instanceof Quat) {
+    } else if (val.type === MathType.QUATERNION) {
         ret = new Quat(e.x, e.y, e.z, e.w);
     }
 
@@ -243,54 +261,6 @@ export const Material = jsb.Material;
 legacyCC.Material = Material;
 
 const materialProto: any = Material.prototype;
-
-const clsDecorator = ccclass('cc.Material');
-
-// Deserialization
-const _class2$f = Material;
-const _dec2$7 = type(EffectAsset);
-const _descriptor$d = _applyDecoratedDescriptor(_class2$f.prototype, '_effectAsset', [_dec2$7], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return null;
-    },
-});
-
-const _descriptor2$9 = _applyDecoratedDescriptor(_class2$f.prototype, '_techIdx', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
-
-const _descriptor3$7 = _applyDecoratedDescriptor(_class2$f.prototype, '_defines', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-const _descriptor4$6 = _applyDecoratedDescriptor(_class2$f.prototype, '_states', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-const _descriptor5$4 = _applyDecoratedDescriptor(_class2$f.prototype, '_props', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
 
 materialProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
@@ -331,4 +301,11 @@ Object.defineProperty(materialProto, 'passes', {
     },
 });
 
-clsDecorator(Material);
+// handle meta data, it is generated automatically
+const MaterialProto = Material.prototype;
+type(EffectAsset)(MaterialProto, '_effectAsset');
+serializable(MaterialProto, '_techIdx');
+serializable(MaterialProto, '_defines');
+serializable(MaterialProto, '_states');
+serializable(MaterialProto, '_props');
+ccclass('cc.Material')(Material);

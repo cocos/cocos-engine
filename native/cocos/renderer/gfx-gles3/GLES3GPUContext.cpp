@@ -76,7 +76,7 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
         CC_LOG_ERROR(msg.c_str());
-        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        CC_ASSERT(DISABLE_VALIDATION_ASSERTIONS);
     } else if (severity == GL_DEBUG_SEVERITY_MEDIUM_KHR) {
         CC_LOG_WARNING(msg.c_str());
     } else {
@@ -86,7 +86,7 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
 #endif
 
 bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstantRegistry *constantRegistry) {
-    _stateCache       = stateCache;
+    _stateCache = stateCache;
     _constantRegistry = constantRegistry;
 
     if (!gles3wInit()) {
@@ -135,14 +135,14 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         EGL_SAMPLES, sampleSize,
         EGL_NONE};
 
-    int               numConfig{0};
+    int numConfig{0};
     ccstd::vector<EGLConfig> eglConfigs;
 
-    EGL_CHECK(success = eglChooseConfig(eglDisplay, defaultAttribs, nullptr, 0, &numConfig));
+    success = eglChooseConfig(eglDisplay, defaultAttribs, nullptr, 0, &numConfig);
     if (success) {
         eglConfigs.resize(numConfig);
     } else {
-        CC_LOG_ERROR("Query configuration failed.");
+        CC_LOG_ERROR("Query GLES3 configuration failed.");
         return false;
     }
 
@@ -153,11 +153,11 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         return false;
     }
 
-    EGLint   depth{0};
-    EGLint   stencil{0};
-    EGLint   sampleBuffers{0};
-    EGLint   sampleCount{0};
-    EGLint   params[8]{0};
+    EGLint depth{0};
+    EGLint stencil{0};
+    EGLint sampleBuffers{0};
+    EGLint sampleCount{0};
+    EGLint params[8]{0};
     uint64_t lastScore = qualityPreferred ? std::numeric_limits<uint64_t>::min() : std::numeric_limits<uint64_t>::max();
 
     for (int i = 0; i < numConfig; i++) {
@@ -177,7 +177,7 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         /*------------------------------------------ANGLE's priority-----------------------------------------------*/
         // Favor EGLConfigLists by RGB, then Depth, then Non-linear Depth, then Stencil, then Alpha
         uint64_t currScore{0};
-        EGLint   colorScore = std::abs(params[0] - redSize) + std::abs(params[1] - greenSize) + std::abs(params[2] - blueSize);
+        EGLint colorScore = std::abs(params[0] - redSize) + std::abs(params[1] - greenSize) + std::abs(params[2] - blueSize);
         currScore |= static_cast<uint64_t>(std::min(std::max(params[6], 0), 15)) << 29;
         currScore |= static_cast<uint64_t>(std::min(std::max(params[7], 0), 31)) << 24;
         currScore |= static_cast<uint64_t>(std::min(colorScore, 127)) << 17;
@@ -192,12 +192,12 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         // performancePreferred ? [>=] : [<] , egl configurations store in "ascending order"
         bool filter = (currScore < lastScore) ^ qualityPreferred;
         if ((filter && msaaLimit) || (!eglConfig && i == numConfig - 1)) {
-            eglConfig     = eglConfigs[i];
-            depth         = params[4];
-            stencil       = params[5];
+            eglConfig = eglConfigs[i];
+            depth = params[4];
+            stencil = params[5];
             sampleBuffers = params[6];
-            sampleCount   = params[7];
-            lastScore     = currScore;
+            sampleCount = params[7];
+            lastScore = currScore;
         }
     }
 
@@ -218,9 +218,9 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         eglAttributes.push_back(EGL_NONE);
 
         for (int m = 2; m >= 0; --m) {
-            eglAttributes[3]  = m;
+            eglAttributes[3] = m;
             eglDefaultContext = eglCreateContext(eglDisplay, eglConfig, nullptr, eglAttributes.data());
-            EGLint err        = eglGetError(); // QNX throws egl errors on mismatch
+            EGLint err = eglGetError(); // QNX throws egl errors on mismatch
             if (eglDefaultContext && err == EGL_SUCCESS) {
                 _constantRegistry->glMinorVersion = m;
                 break;
@@ -279,6 +279,8 @@ void GLES3GPUContext::destroy() {
         EGL_CHECK(eglTerminate(eglDisplay));
         eglDisplay = EGL_NO_DISPLAY;
     }
+
+    gles3wExit();
 }
 
 void GLES3GPUContext::bindContext(bool bound) {
@@ -341,7 +343,7 @@ bool GLES3GPUContext::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface
     if (succeeded && updateCache) {
         _eglCurrentDrawSurface = drawSurface;
         _eglCurrentReadSurface = readSurface;
-        _eglCurrentContext     = context;
+        _eglCurrentContext = context;
     }
     return succeeded;
 }

@@ -29,15 +29,17 @@
 
 #import <OpenAL/alc.h>
 #import <AVFoundation/AVFoundation.h>
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     #import <UIKit/UIApplication.h>
 #endif
 
 #include "audio/include/AudioEngine.h"
-#include "platform/FileUtils.h"
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
 #include "base/Utils.h"
+#include "base/memory/Memory.h"
+#include "platform/FileUtils.h"
+#include "AudioDecoder.h"
 
 using namespace cc;
 
@@ -60,7 +62,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
     return AL_INVALID_VALUE;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
 @interface AudioEngineSessionHandler : NSObject {
 }
 
@@ -71,8 +73,6 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
 
 @implementation AudioEngineSessionHandler
 
-    // only enable it on iOS. Disable it on tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
 void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruption_state) {
     if (kAudioSessionBeginInterruption == interruption_state) {
         alcMakeContextCurrent(nullptr);
@@ -83,7 +83,6 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         alcMakeContextCurrent(s_ALContext);
     }
 }
-    #endif
 
 - (id)init {
     if (self = [super init]) {
@@ -92,16 +91,12 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillResignActiveNotification object:nil];
         }
-        // only enable it on iOS. Disable it on tvOS
-        // AudioSessionInitialize removed from tvOS
-    #if !defined(CC_TARGET_OS_TVOS)
         else {
             AudioSessionInitialize(NULL, NULL, AudioEngineInterruptionListenerCallback, self);
         }
-    #endif
 
         BOOL success = [[AVAudioSession sharedInstance]
-            setCategory:AVAudioSessionCategoryAmbient
+            setCategory:AVAudioSessionCategoryPlayback
                   error:nil];
         if (!success)
             ALOGE("Fail to set audio session.");
@@ -151,15 +146,14 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             resumeOnBecomingActive = false;
             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
             NSError *error = nil;
-            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
             if (!success) {
                 ALOGE("Fail to set audio session.");
                 return;
             }
             [[AVAudioSession sharedInstance] setActive:YES error:&error];
             alcMakeContextCurrent(s_ALContext);
-        }
-        else if (isAudioSessionInterrupted) {
+        } else if (isAudioSessionInterrupted) {
             isAudioSessionInterrupted = false;
             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
             NSError *error = nil;
@@ -227,7 +221,7 @@ AudioEngineImpl::~AudioEngineImpl() {
         alcCloseDevice(s_ALDevice);
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     [s_AudioEngineSessionHandler release];
 #endif
     s_instance = nullptr;
@@ -236,7 +230,7 @@ AudioEngineImpl::~AudioEngineImpl() {
 bool AudioEngineImpl::init() {
     bool ret = false;
     do {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
         s_AudioEngineSessionHandler = [[AudioEngineSessionHandler alloc] init];
 #endif
 
@@ -270,14 +264,14 @@ bool AudioEngineImpl::init() {
             {
                 if (gOALBufferMap == NULL) // Position 1
                 {
-                    gOALBufferMap = new OALBufferMap ();  // Position 2
+                    gOALBufferMap = ccnew OALBufferMap ();  // Position 2
 
                     // Position Gap
 
-                    gBufferMapLock = new CAGuard("OAL:BufferMapLock"); // Position 3
-                    gDeadOALBufferMap = new OALBufferMap ();
+                    gBufferMapLock = ccnew CAGuard("OAL:BufferMapLock"); // Position 3
+                    gDeadOALBufferMap = ccnew OALBufferMap ();
 
-                    OALBuffer   *newBuffer = new OALBuffer (AL_NONE);
+                    OALBuffer   *newBuffer = ccnew OALBuffer (AL_NONE);
                     gOALBufferMap->Add(AL_NONE, &newBuffer);
                 }
             }
@@ -365,7 +359,7 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
-    auto player = new (std::nothrow) AudioPlayer;
+    auto *player = ccnew AudioPlayer;
     if (player == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }
@@ -402,14 +396,10 @@ void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
     if (!*cache->_isDestroyed && cache->_state == AudioCache::State::READY) {
         _threadMutex.lock();
         auto playerIt = _audioPlayers.find(audioID);
-        if (playerIt != _audioPlayers.end() && playerIt->second->play2d()) {
-            if (auto sche = _scheduler.lock()) {
-                sche->performFunctionInCocosThread([audioID]() {
-                    if (AudioEngine::sAudioIDInfoMap.find(audioID) != AudioEngine::sAudioIDInfoMap.end()) {
-                        AudioEngine::sAudioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
-                    }
-                });
-            }
+        if (playerIt != _audioPlayers.end()) {
+            // Trust it, or assert it out.
+            bool res = playerIt->second->play2d();
+            CC_ASSERT(res);
         }
         _threadMutex.unlock();
     } else {
@@ -634,7 +624,6 @@ void AudioEngineImpl::update(float dt) {
             delete player;
             _unusedSourcesPool.push_back(alSource);
         } else if (player->_ready && sourceState == AL_STOPPED) {
-
             ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
@@ -680,4 +669,93 @@ void AudioEngineImpl::uncacheAll() {
 
 bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
+}
+
+PCMHeader AudioEngineImpl::getPCMHeader(const char *url){
+    PCMHeader header {};
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+        if (fileFullPath == "") {
+            CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+            return header;
+        }
+    AudioDecoder decoder;
+    do {
+        if (!decoder.open(fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        header.bytesPerFrame = decoder.getBytesPerFrame();
+        header.channelCount = decoder.getChannelCount();
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = decoder.getSampleRate();
+        header.totalFrames = decoder.getTotalFrames();
+    } while (false);
+
+    decoder.close();
+    
+    return header;
+}
+
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return pcmData;
+    }
+    AudioDecoder decoder;
+
+    do {
+        if (!decoder.open(fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        const uint32_t bytesPerFrame = decoder.getBytesPerFrame();
+        const uint32_t channelCount = decoder.getChannelCount();
+        if (channelID >= channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);
+            break;
+        }
+        uint32_t totalFrames = decoder.getTotalFrames();
+        uint32_t remainingFrames = totalFrames;
+        uint32_t framesRead = 0;
+        uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(decoder.getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
+        const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
+                
+        pcmData.resize(bytesPerChannelInFrame * totalFrames);
+        uint8_t *p = pcmData.data();
+        
+        auto tmpBuf = static_cast<char *>(malloc(framesToReadOnce * bytesPerFrame));
+        
+        while (remainingFrames > 0) {
+            framesToReadOnce = std::min(framesToReadOnce, remainingFrames);
+            framesRead = decoder.read(framesToReadOnce, tmpBuf);
+            for (int itr = 0; itr < framesToReadOnce; itr++) {
+                memcpy(p, tmpBuf + itr * bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+                p += bytesPerChannelInFrame;
+            }
+            remainingFrames -= framesToReadOnce;
+            
+        };
+        free(tmpBuf);
+        // Adjust total frames by setting position to the end of frames and try to read more data.
+        // This is a workaround for https://github.com/cocos2d/cocos2d-x/issues/16938
+        if (decoder.seek(totalFrames)) {
+            tmpBuf = static_cast<char *>(malloc(bytesPerFrame * framesToReadOnce));
+            do {
+                framesRead = decoder.read(framesToReadOnce, tmpBuf); //read one by one to easy divide
+                if (framesRead > 0) { // Adjust frames exist
+                    // transfer char data to float data
+                    for (int itr = 0; itr < framesRead; itr++) {
+                        memcpy(p, tmpBuf + itr * bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+                        p += bytesPerChannelInFrame;
+                    }
+                }
+            } while (framesRead > 0);
+            free(tmpBuf);
+        }
+        BREAK_IF_ERR_LOG(!decoder.seek(0), "AudioDecoder::seek(0) failed!");
+    } while (false);
+    decoder.close();
+    return pcmData;
 }

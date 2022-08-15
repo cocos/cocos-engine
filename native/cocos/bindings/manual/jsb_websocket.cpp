@@ -89,7 +89,7 @@ void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool      ok = _JSDelegate.toObject()->getProperty("onopen", &func);
+    bool ok = _JSDelegate.toObject()->getProperty("onopen", &func);
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -112,7 +112,7 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
         return;
     }
 
-    se::Object *     wsObj = iter->second;
+    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("message"));
     se::Value target;
@@ -120,7 +120,7 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool      ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
+    bool ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -165,7 +165,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
             break;
         }
 
-        se::Object *     wsObj = iter->second;
+        se::Object *wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("close"));
         se::Value target;
@@ -173,7 +173,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
         jsObj->setProperty("target", target);
 
         se::Value func;
-        bool      ok = _JSDelegate.toObject()->getProperty("onclose", &func);
+        bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
         if (ok && func.isObject() && func.toObject()->isFunction()) {
             se::ValueArray args;
             args.push_back(se::Value(jsObj));
@@ -184,6 +184,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
 
         //JS Websocket object now can be GC, since the connection is closed.
         wsObj->unroot();
+        _JSDelegate.toObject()->unroot();
 
         // Websocket instance is attached to global object in 'WebSocket_close'
         // It's safe to detach it here since JS 'onclose' method has been already invoked.
@@ -208,7 +209,7 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
         return;
     }
 
-    se::Object *     wsObj = iter->second;
+    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("error"));
     se::Value target;
@@ -216,7 +217,7 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool      ok = _JSDelegate.toObject()->getProperty("onerror", &func);
+    bool ok = _JSDelegate.toObject()->getProperty("onerror", &func);
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -224,12 +225,10 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
     } else {
         SE_REPORT_ERROR("Can't get onerror function!");
     }
-
-    wsObj->unroot();
 }
 
 void JsbWebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
-    assert(jsDelegate.isObject());
+    CC_ASSERT(jsDelegate.isObject());
     _JSDelegate = jsDelegate;
 }
 
@@ -250,7 +249,7 @@ SE_BIND_FINALIZE_FUNC(webSocketFinalize)
 
 static bool webSocketConstructor(se::State &s) {
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
 
     if (argc == 1 || argc == 2 || argc == 3) {
         ccstd::string url;
@@ -258,10 +257,10 @@ static bool webSocketConstructor(se::State &s) {
         bool ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing url argument");
 
-        se::Object *            obj  = s.thisObject();
+        se::Object *obj = s.thisObject();
         cc::network::WebSocket *cobj = nullptr;
         if (argc >= 2) {
-            ccstd::string                caFilePath;
+            ccstd::string caFilePath;
             ccstd::vector<ccstd::string> protocols;
 
             if (args[1].isString()) {
@@ -271,8 +270,8 @@ static bool webSocketConstructor(se::State &s) {
                 protocols.push_back(protocol);
             } else if (args[1].isObject() && args[1].toObject()->isArray()) {
                 se::Object *protocolArr = args[1].toObject();
-                uint32_t    len         = 0;
-                ok                      = protocolArr->getArrayLength(&len);
+                uint32_t len = 0;
+                ok = protocolArr->getArrayLength(&len);
                 SE_PRECONDITION2(ok, false, "getArrayLength failed!");
 
                 se::Value tmp;
@@ -293,8 +292,8 @@ static bool webSocketConstructor(se::State &s) {
                 SE_PRECONDITION2(ok, false, "Error processing caFilePath");
             }
 
-            cobj           = new (std::nothrow) cc::network::WebSocket();
-            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            cobj = ccnew cc::network::WebSocket();
+            auto *delegate = ccnew JsbWebSocketDelegate();
             delegate->addRef();
             if (cobj->init(*delegate, url, &protocols, caFilePath)) {
                 delegate->setJSDelegate(se::Value(obj, true));
@@ -307,8 +306,8 @@ static bool webSocketConstructor(se::State &s) {
                 return false;
             }
         } else {
-            cobj           = new (std::nothrow) cc::network::WebSocket();
-            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
+            cobj = ccnew cc::network::WebSocket();
+            auto *delegate = ccnew JsbWebSocketDelegate();
             delegate->addRef();
             if (cobj->init(*delegate, url)) {
                 delegate->setJSDelegate(se::Value(obj, true));
@@ -344,11 +343,11 @@ SE_BIND_CTOR(webSocketConstructor, jsbWebSocketClass, webSocketFinalize)
 
 static bool webSocketSend(const se::State &s) {
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
 
     if (argc == 1) {
         auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
-        bool  ok   = false;
+        bool ok = false;
         if (args[0].isString()) {
             ccstd::string data;
             ok = sevalue_to_native(args[0], &data);
@@ -365,8 +364,8 @@ static bool webSocketSend(const se::State &s) {
             cobj->send(data);
         } else if (args[0].isObject()) {
             se::Object *dataObj = args[0].toObject();
-            uint8_t *   ptr     = nullptr;
-            size_t      length  = 0;
+            uint8_t *ptr = nullptr;
+            size_t length = 0;
             if (dataObj->isArrayBuffer()) {
                 ok = dataObj->getArrayBufferData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
@@ -374,12 +373,12 @@ static bool webSocketSend(const se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                assert(false);
+                CC_ASSERT(false);
             }
 
             cobj->send(ptr, static_cast<unsigned int>(length));
         } else {
-            assert(false);
+            CC_ASSERT(false);
         }
 
         return true;
@@ -391,33 +390,53 @@ SE_BIND_FUNC(webSocketSend)
 
 static bool webSocketClose(se::State &s) {
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
 
     auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
     if (argc == 0) {
         cobj->closeAsync();
     } else if (argc == 1) {
         if (args[0].isNumber()) {
-            int reason{0};
-            sevalue_to_native(args[0], &reason);
-            cobj->closeAsync(reason, "no_reason");
+            int reasonCode{0};
+            sevalue_to_native(args[0], &reasonCode);
+            cobj->closeAsync(reasonCode, "no_reason");
         } else if (args[0].isString()) {
-            ccstd::string reason;
-            sevalue_to_native(args[0], &reason);
-            cobj->closeAsync(1005, reason);
+            ccstd::string reasonString;
+            sevalue_to_native(args[0], &reasonString);
+            cobj->closeAsync(1005, reasonString);
         } else {
-            assert(false);
+            CC_ASSERT(false);
         }
     } else if (argc == 2) {
-        assert(args[0].isNumber());
-        assert(args[1].isString());
-        int           reasonCode{0};
-        ccstd::string reasonString;
-        sevalue_to_native(args[0], &reasonCode);
-        sevalue_to_native(args[1], &reasonString);
-        cobj->closeAsync(reasonCode, reasonString);
+        if (args[0].isNumber()) {
+            int reasonCode{0};
+            if (args[1].isString()) {
+                ccstd::string reasonString;
+                sevalue_to_native(args[0], &reasonCode);
+                sevalue_to_native(args[1], &reasonString);
+                cobj->closeAsync(reasonCode, reasonString);
+            } else if (args[1].isNullOrUndefined()) {
+                sevalue_to_native(args[0], &reasonCode);
+                cobj->closeAsync(reasonCode, "no_reason");
+            } else {
+                CC_ASSERT(false);
+            }
+        } else if (args[0].isNullOrUndefined()) {
+            if (args[1].isString()) {
+                ccstd::string reasonString;
+                sevalue_to_native(args[1], &reasonString);
+                cobj->closeAsync(1005, reasonString);
+            } else if (args[1].isNullOrUndefined()) {
+                cobj->closeAsync();
+            } else {
+                CC_ASSERT(false);
+            }
+        } else {
+            CC_ASSERT(false);
+        }
     } else {
-        assert(false);
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting <=2", argc);
+        CC_ASSERT(false);
     }
     // Attach current WebSocket instance to global object to prevent WebSocket instance
     // being garbage collected after "ws.close(); ws = null;"
@@ -434,7 +453,7 @@ SE_BIND_FUNC(webSocketClose)
 
 static bool webSocketGetReadyState(se::State &s) {
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
         auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
@@ -448,7 +467,7 @@ SE_BIND_PROP_GET(webSocketGetReadyState)
 
 static bool webSocketGetBufferedAmount(se::State &s) {
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
         auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
@@ -462,7 +481,7 @@ SE_BIND_PROP_GET(webSocketGetBufferedAmount)
 
 static bool webSocketGetExtensions(se::State &s) {
     const auto &args = s.args();
-    int         argc = static_cast<int>(args.size());
+    int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
         auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
@@ -477,7 +496,7 @@ SE_BIND_PROP_GET(webSocketGetExtensions)
 #define WEBSOCKET_DEFINE_READONLY_INT_FIELD(full_name, value)                    \
     static bool full_name(se::State &s) {                                        \
         const auto &args = s.args();                                             \
-        int         argc = (int)args.size();                                     \
+        int argc = (int)args.size();                                             \
         if (argc == 0) {                                                         \
             s.rval().setInt32(value);                                            \
             return true;                                                         \

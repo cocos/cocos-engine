@@ -43,20 +43,20 @@ GLES2Texture::~GLES2Texture() {
 }
 
 void GLES2Texture::doInit(const TextureInfo & /*info*/) {
-    _gpuTexture             = CC_NEW(GLES2GPUTexture);
-    _gpuTexture->type       = _info.type;
-    _gpuTexture->format     = _info.format;
-    _gpuTexture->usage      = _info.usage;
-    _gpuTexture->width      = _info.width;
-    _gpuTexture->height     = _info.height;
-    _gpuTexture->depth      = _info.depth;
+    _gpuTexture = ccnew GLES2GPUTexture;
+    _gpuTexture->type = _info.type;
+    _gpuTexture->format = _info.format;
+    _gpuTexture->usage = _info.usage;
+    _gpuTexture->width = _info.width;
+    _gpuTexture->height = _info.height;
+    _gpuTexture->depth = _info.depth;
     _gpuTexture->arrayLayer = _info.layerCount;
-    _gpuTexture->mipLevel   = _info.levelCount;
-    _gpuTexture->samples    = _info.samples;
-    _gpuTexture->flags      = _info.flags;
-    _gpuTexture->size       = _size;
-    _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_info.width) && math::IsPowerOfTwo(_info.height);
-    _gpuTexture->glTexture  = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
+    _gpuTexture->mipLevel = _info.levelCount;
+    _gpuTexture->samples = _info.samples;
+    _gpuTexture->flags = _info.flags;
+    _gpuTexture->size = _size;
+    _gpuTexture->isPowerOf2 = math::isPowerOfTwo(_info.width) && math::isPowerOfTwo(_info.height);
+    _gpuTexture->glTexture = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
 
     cmdFuncGLES2CreateTexture(GLES2Device::getInstance(), _gpuTexture);
 
@@ -79,7 +79,7 @@ void GLES2Texture::doDestroy() {
             }
             cmdFuncGLES2DestroyTexture(GLES2Device::getInstance(), _gpuTexture);
             GLES2Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
-            CC_DELETE(_gpuTexture);
+            delete _gpuTexture;
         }
         _gpuTexture = nullptr;
     }
@@ -90,9 +90,9 @@ void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
         GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
         CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
-    _gpuTexture->width    = width;
-    _gpuTexture->height   = height;
-    _gpuTexture->size     = size;
+    _gpuTexture->width = width;
+    _gpuTexture->height = height;
+    _gpuTexture->size = size;
     _gpuTexture->mipLevel = _info.levelCount;
     cmdFuncGLES2ResizeTexture(GLES2Device::getInstance(), _gpuTexture);
 
@@ -107,20 +107,20 @@ void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
 void GLES2Texture::doInit(const SwapchainTextureInfo & /*info*/) {
-    _gpuTexture             = CC_NEW(GLES2GPUTexture);
-    _gpuTexture->type       = _info.type;
-    _gpuTexture->format     = _info.format;
-    _gpuTexture->usage      = _info.usage;
-    _gpuTexture->width      = _info.width;
-    _gpuTexture->height     = _info.height;
-    _gpuTexture->depth      = _info.depth;
+    _gpuTexture = ccnew GLES2GPUTexture;
+    _gpuTexture->type = _info.type;
+    _gpuTexture->format = _info.format;
+    _gpuTexture->usage = _info.usage;
+    _gpuTexture->width = _info.width;
+    _gpuTexture->height = _info.height;
+    _gpuTexture->depth = _info.depth;
     _gpuTexture->arrayLayer = _info.layerCount;
-    _gpuTexture->mipLevel   = _info.levelCount;
-    _gpuTexture->samples    = _info.samples;
-    _gpuTexture->flags      = _info.flags;
-    _gpuTexture->size       = _size;
+    _gpuTexture->mipLevel = _info.levelCount;
+    _gpuTexture->samples = _info.samples;
+    _gpuTexture->flags = _info.flags;
+    _gpuTexture->size = _size;
     _gpuTexture->memoryless = true;
-    _gpuTexture->swapchain  = static_cast<GLES2Swapchain *>(_swapchain)->gpuSwapchain();
+    _gpuTexture->swapchain = static_cast<GLES2Swapchain *>(_swapchain)->gpuSwapchain();
 }
 
 } // namespace gfx

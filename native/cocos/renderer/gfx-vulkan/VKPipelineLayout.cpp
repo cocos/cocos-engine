@@ -40,12 +40,12 @@ CCVKPipelineLayout::~CCVKPipelineLayout() {
 }
 
 void CCVKPipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
-    _gpuPipelineLayout = CC_NEW(CCVKGPUPipelineLayout);
+    _gpuPipelineLayout = ccnew CCVKGPUPipelineLayout;
 
     uint32_t offset = 0U;
     for (auto *setLayout : _setLayouts) {
         CCVKGPUDescriptorSetLayout *gpuSetLayout = static_cast<CCVKDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
-        uint32_t                    dynamicCount = utils::toUint(gpuSetLayout->dynamicBindings.size());
+        uint32_t dynamicCount = utils::toUint(gpuSetLayout->dynamicBindings.size());
         _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
         _gpuPipelineLayout->setLayouts.push_back(gpuSetLayout);
         offset += dynamicCount;

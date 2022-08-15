@@ -65,7 +65,7 @@ ccstd::string extname(const ccstd::string &path) {
     }
 
     ccstd::string newPath = path;
-    size_t        index   = path.find_first_of('?');
+    size_t index = path.find_first_of('?');
     if (index != ccstd::string::npos && index > 0) {
         newPath = newPath.substr(0, index);
     }
@@ -91,7 +91,7 @@ ccstd::string mainFileName(const ccstd::string &fileName) {
 
 ccstd::string basename(const ccstd::string &path, const ccstd::string &extName /* = ""*/) {
     ccstd::string newPath = path;
-    size_t        index   = path.find_first_of('?');
+    size_t index = path.find_first_of('?');
     if (index != ccstd::string::npos && index > 0) {
         newPath = newPath.substr(0, index);
     }
@@ -106,7 +106,7 @@ ccstd::string basename(const ccstd::string &path, const ccstd::string &extName /
     ccstd::string baseName = newPath.substr(index + 1);
 
     if (!extName.empty() && extName.length() < newPath.length()) {
-        ccstd::string extInPath       = newPath.substr(newPath.length() - extName.length());
+        ccstd::string extInPath = newPath.substr(newPath.length() - extName.length());
         ccstd::string expectedExtName = extName;
         if (StringUtil::tolower(extInPath) == StringUtil::tolower(expectedExtName)) {
             baseName = baseName.substr(0, baseName.length() - extName.length());
@@ -128,7 +128,7 @@ ccstd::string dirname(const ccstd::string &path) {
 }
 
 ccstd::string changeExtname(const ccstd::string &path, const ccstd::string &extName /* = ""*/) {
-    size_t        index   = path.find_first_of('?');
+    size_t index = path.find_first_of('?');
     ccstd::string newPath = path;
     ccstd::string tempStr;
     if (index != ccstd::string::npos && index > 0) {
@@ -149,10 +149,10 @@ ccstd::string changeBasename(const ccstd::string &path, const ccstd::string &bas
         return changeExtname(path, baseName);
     }
 
-    size_t              index = path.find_last_of('?');
-    ccstd::string       tempStr;
-    ccstd::string       newPath = path;
-    const ccstd::string ext     = isSameExt ? extname(path) : "";
+    size_t index = path.find_last_of('?');
+    ccstd::string tempStr;
+    ccstd::string newPath = path;
+    const ccstd::string ext = isSameExt ? extname(path) : "";
     if (index != ccstd::string::npos && index > 0) {
         tempStr = path.substr(index);
         newPath = path.substr(0, index);
@@ -174,12 +174,12 @@ ccstd::string normalize(const ccstd::string &url) {
 
     // remove all ../
     do {
-        oldUrl       = newUrl;
+        oldUrl = newUrl;
         size_t index = newUrl.find("../");
         if (index == ccstd::string::npos) {
             index = newUrl.find("..\\");
         }
-        size_t previousSlashIndex      = ccstd::string::npos;
+        size_t previousSlashIndex = ccstd::string::npos;
         size_t previousTwiceSlashIndex = ccstd::string::npos;
         if (index != ccstd::string::npos && index > 0) {
             previousSlashIndex = newUrl.find_last_of("/\\", index - 1);

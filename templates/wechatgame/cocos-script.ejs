@@ -1,0 +1,6 @@
+<% if(polyfillsBundleFile) { %>
+// Polyfills bundle.
+require("<%= polyfillsBundleFile %>");
+<% } %>
+// SystemJS support.
+require("<%= systemJsBundleFile %>");

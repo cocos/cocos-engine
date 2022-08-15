@@ -48,6 +48,6 @@ struct ISphereOptions : public IGeometryOptions {
  * @param options 参数选项。
  */
 
-IGeometry sphere(float radius = 0.5, const cc::optional<ISphereOptions> &opts = cc::nullopt);
+IGeometry sphere(float radius = 0.5, const ccstd::optional<ISphereOptions> &opts = ccstd::nullopt);
 
 } // namespace cc

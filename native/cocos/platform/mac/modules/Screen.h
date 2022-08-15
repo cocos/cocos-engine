@@ -31,11 +31,11 @@ namespace cc {
 
 class Screen : public IScreen {
 public:
-    int         getDPI() const override;
-    float       getDevicePixelRatio() const override;
-    void        setKeepScreenOn(bool value) override;
+    int getDPI() const override;
+    float getDevicePixelRatio() const override;
+    void setKeepScreenOn(bool value) override;
     Orientation getDeviceOrientation() const override;
-    Vec4        getSafeAreaEdge() const override;
+    Vec4 getSafeAreaEdge() const override;
     /**
      @brief Get current display stats.
      @return bool, is displaying stats or not.

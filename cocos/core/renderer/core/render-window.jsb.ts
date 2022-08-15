@@ -22,8 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass } from 'cc.decorator';
-
 export interface IRenderWindowInfo {
     title?: string;
     width: number;
@@ -36,10 +34,3 @@ declare const jsb: any;
 export const RenderWindow = jsb.RenderWindow;
 // @ts-ignore
 export type RenderWindow = jsb.RenderWindow;
-
-const clsDecorator = ccclass('cc.RenderWindow');
-
-//TODO:
-// _applyDecoratedDescriptor
-
-clsDecorator(RenderWindow);
