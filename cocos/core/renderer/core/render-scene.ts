@@ -56,11 +56,11 @@ export interface IRaycastResult {
  * It manages:
  * 1. [[Camera]]s
  * 2. [[Light]]s
- * 3. Renderable objects: [[Model]]s and `DrawBatchs`
+ * 3. Renderable objects: [[renderer.Model]]s and `DrawBatchs`
  * @zh 渲染场景，由 [[Root]] 创建，并提供用于渲染流程的所有场景基础元素。它管理：
  * 1. [[Camera]]s：相机
  * 2. [[Light]]s：光源
- * 3. 渲染元素：[[Model]]s 和 `DrawBatchs`
+ * 3. 渲染元素：[[renderer.Model]]s 和 `DrawBatchs`
  */
 export class RenderScene {
     /**
