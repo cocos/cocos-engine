@@ -9,11 +9,11 @@ module.exports = function systemReady () {
         }
         display.getDefaultDisplay((err, data) => {
             window.oh.display = data;
-            let device = jsb.device;
+            //let device = jsb.device;
             
             //https://developer.harmonyos.com/cn/docs/documentation/doc-references/js-apis-display-0000001281001106
-            device.getDevicePixelRatio = function () { return data.densityPixels; }
-            device.getDeviceOrientation = function () { return data.rotation; }
+            //device.getDevicePixelRatio = function () { return data.densityPixels; }
+            //device.getDeviceOrientation = function () { return data.rotation; }
         });
         resolve();
     })
