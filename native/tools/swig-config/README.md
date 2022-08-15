@@ -345,7 +345,7 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
   17:25:10 [DEBUG]: D/ JS: getModuleSpecificClass: undefined
   ```
 
-  **Note: We configure `getChild` should be controlled by module macro ``ENABLE_GET_CHILD` and it's disabled by default. So invoking `getChild` in JS will return `undefined` value.**
+  **NOTE:** We configure `getChild` should be controlled by module macro ``ENABLE_GET_CHILD` and it's disabled by default. So invoking `getChild` in JS will return `undefined` value.
 
 - Test c++ module configuration
 
