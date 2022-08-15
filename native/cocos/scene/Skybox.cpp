@@ -191,6 +191,7 @@ void SkyboxInfo::activate(Skybox *resource) {
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
         _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
         _resource->setSkyboxMaterial(_editableMaterial);
+        _resource->setRotationAngle(_rotationAngle);
         _resource->activate(); // update global DS first
     }
 }
@@ -285,6 +286,10 @@ void Skybox::setSkyboxMaterial(Material *skyboxMat) {
     _editableMaterial = skyboxMat;
 }
 
+void Skybox::setRotationAngle(uint32_t angle) {
+    _rotationAngle = angle;
+}
+
 void Skybox::activate() {
     auto *pipeline = Root::getInstance()->getPipeline();
     _globalDSManager = pipeline->getGlobalDSManager();
@@ -354,6 +359,7 @@ void Skybox::updatePipeline() const {
             envmap = _default.get();
         }
         _material->setProperty("environmentMap", envmap);
+        _material->setProperty("rotationAngle", static_cast<float>(_rotationAngle));
         _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
 
         if (_model != nullptr) {
@@ -475,6 +481,13 @@ void Skybox::updateSubModes() const {
         const auto &subModels = _model->getSubModels();
         for (const auto &subModel : subModels) {
             subModel->update();
+        }
+    }
+}
+void Skybox::updateRotationAngle() const {
+    if (isEnabled()) {
+        if (_material) {
+            _material->setProperty("rotationAngle", static_cast<float>(_rotationAngle));
         }
     }
 }

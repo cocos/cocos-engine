@@ -190,6 +190,7 @@ public:
     bool _useHDR{true};
     EnvironmentLightingType _envLightingType{EnvironmentLightingType::HEMISPHERE_DIFFUSE};
     IntrusivePtr<Material> _editableMaterial;
+    uint32_t _rotationAngle{0};
     Skybox *_resource{nullptr};
 };
 
@@ -277,6 +278,8 @@ public:
     TextureCube *getDiffuseMap() const;
     void setDiffuseMap(TextureCube *val);
     void setSkyboxMaterial(Material *skyboxMat);
+    uint32_t getRotationAngle() const { return _rotationAngle; };
+    void setRotationAngle(uint32_t angle);
 
     TextureCube *getReflectionMap() const;
 
@@ -284,6 +287,7 @@ private:
     void updatePipeline() const;
     void updateGlobalBinding();
     void updateSubModes() const;
+    void updateRotationAngle() const;
 
     IntrusivePtr<TextureCube> _envmapLDR;
     IntrusivePtr<TextureCube> _envmapHDR;
@@ -302,7 +306,7 @@ private:
     bool _useDiffuseMap{false};
     bool _activated{false};
     IntrusivePtr<Material> _editableMaterial;
-
+    uint32_t _rotationAngle{0};
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);
 };
 

@@ -226,6 +226,7 @@ export class Skybox {
     protected _activated = false;
     protected _reflectionHDR: TextureCube | null = null;
     protected _reflectionLDR: TextureCube | null = null;
+    protected _rotationAngle = 0;
 
     public initialize (skyboxInfo: SkyboxInfo) {
         this._activated = false;
@@ -288,6 +289,16 @@ export class Skybox {
         this._reflectionLDR = reflectionLDR;
         this._updateGlobalBinding();
         this._updatePipeline();
+    }
+
+    /**
+     * @en Set custom skybox material
+     * @zh 设置自定义的天空盒材质
+     * @param skyboxMat  @en Skybox material @zh 天空盒材质
+     */
+    public setRotationAngle (rotationAngle:number) {
+        this._rotationAngle = rotationAngle;
+        this._updateRotationAngle();
     }
 
     public updateMaterialRenderInfo () {
@@ -369,19 +380,14 @@ export class Skybox {
 
         if (this.enabled) {
             const envmap = this.envmap ? this.envmap : this._default;
-            if (this._editableMaterial) {
-                this._editableMaterial.setProperty('environmentMap', envmap);
-                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-            } else if (skybox_material) {
-                skybox_material.setProperty('environmentMap', envmap);
-                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+            const skyboxMat = this._editableMaterial ? this._editableMaterial : skybox_material;
+            if (skyboxMat) {
+                skyboxMat.setProperty('environmentMap', envmap);
+                skyboxMat.setProperty('rotationAngle', this._rotationAngle);
+                skyboxMat.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             }
             if (this._model) {
-                if (this._editableMaterial) {
-                    this._model.setSubModelMaterial(0, this._editableMaterial);
-                } else {
-                    this._model.setSubModelMaterial(0, skybox_material!);
-                }
+                this._model.setSubModelMaterial(0, skyboxMat!);
                 this._updateSubModes();
             }
         }
@@ -422,6 +428,18 @@ export class Skybox {
             const subModels = this._model.subModels;
             for (let i = 0; i < subModels.length; i++) {
                 subModels[i].update();
+            }
+        }
+    }
+
+    protected _updateRotationAngle () {
+        if (this.enabled) {
+            const skyboxMat = this._editableMaterial ? this._editableMaterial : skybox_material;
+            if (skyboxMat) {
+                skyboxMat.setProperty('rotationAngle', this._rotationAngle);
+                skyboxMat.passes.forEach((pass) => {
+                    pass.update();
+                });
             }
         }
     }
