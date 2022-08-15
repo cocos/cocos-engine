@@ -39,7 +39,7 @@ PlayerWin::~PlayerWin() {
 }
 
 PlayerWin *PlayerWin::createWithHwnd(HWND hWnd) {
-    auto instance   = new PlayerWin();
+    auto instance = new PlayerWin();
     instance->_hwnd = hWnd;
     instance->initServices();
     return instance;
@@ -68,11 +68,11 @@ PlayerTaskServiceProtocol *PlayerWin::getTaskService() {
 // services
 void PlayerWin::initServices() {
     CC_ASSERT(_menuService == nullptr); // Can't initialize services again.
-    _menuService       = new PlayerMenuServiceWin(_hwnd);
+    _menuService = new PlayerMenuServiceWin(_hwnd);
     _messageBoxService = new PlayerMessageBoxServiceWin(_hwnd);
     _fileDialogService = new PlayerFileDialogServiceWin(_hwnd);
-    _editboxService    = new PlayerEditBoxServiceWin(_hwnd);
-    _taskService       = new PlayerTaskServiceWin(_hwnd);
+    _editboxService = new PlayerEditBoxServiceWin(_hwnd);
+    _taskService = new PlayerTaskServiceWin(_hwnd);
 }
 
 PLAYER_NS_END

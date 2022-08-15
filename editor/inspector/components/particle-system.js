@@ -363,6 +363,13 @@ const uiElements = {
                 if (autoflag) {
                     const oldChildren = Array.from(element.children);
                     const children = [];
+
+                    const oldCheckbox = element.querySelector('[slot="header"] > ui-checkbox');
+                    if (oldCheckbox) {
+                        oldCheckbox.removeEventListener('change', oldCheckbox.changeEvent);
+                        oldCheckbox.changeEvent = undefined;
+                    }
+
                     const header = document.createElement('ui-prop');
                     header.setAttribute('slot', 'header');
                     header.setAttribute('type', 'dump');
@@ -370,10 +377,11 @@ const uiElements = {
                     header.className = 'header';
                     header.dump = this.getObjectByKey(this.dump.value, key);
                     const checkbox = document.createElement('ui-checkbox');
-                    checkbox.addEventListener('change', (event) => {
+                    checkbox.changeEvent = (event) => {
                         this.getObjectByKey(this.dump.value, key).value.enable.value = event.target.value;
                         header.dispatch('change-dump');
-                    });
+                    };
+                    checkbox.addEventListener('change', checkbox.changeEvent);
                     checkbox.setAttribute('value', this.getObjectByKey(this.dump.value, key).value.enable.value);
                     const label = document.createElement('ui-label');
                     label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, key)));
@@ -669,7 +677,7 @@ exports.$ = {
     noisePreview: '#noisePreview',
 
 };
-exports.ready = function () {
+exports.ready = function() {
     for (const key in uiElements) {
         const element = uiElements[key];
         if (typeof element.ready === 'function') {
@@ -677,7 +685,7 @@ exports.ready = function () {
         }
     }
 };
-exports.update = function (dump) {
+exports.update = function(dump) {
     this.dump = dump;
     for (const key in uiElements) {
         const element = uiElements[key];

@@ -431,7 +431,7 @@
         "SUPPORT_JIT": {
             "comment": "Support JIT.",
             "type": "boolean",
-            "value": "!($MINIGAME || $RUNTIME_BASED)",
+            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED)",
             "ccGlobal": true,
             "internal": false
         },

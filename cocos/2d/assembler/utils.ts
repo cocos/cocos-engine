@@ -23,15 +23,14 @@
  THE SOFTWARE.
  */
 
-import { Color, Mat4, Vec3 } from '../../core/math';
+import { Color, Mat4 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph/node';
 import { FormatInfos } from '../../core/gfx';
 import { clamp } from '../../core';
 
-const vec3_temp = new Vec3();
-const _worldMatrix = new Mat4();
+const m = new Mat4();
 
 export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const chunk = renderData.chunk;
@@ -39,18 +38,20 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
     const vData = chunk.vb;
     const vertexCount = renderData.vertexCount;
 
-    node.getWorldMatrix(_worldMatrix);
+    node.getWorldMatrix(m);
 
     let vertexOffset = 0;
     for (let i = 0; i < vertexCount; i++) {
         const vert = dataList[i];
-        Vec3.set(vec3_temp, vert.x, vert.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
-        vData[vertexOffset++] = vec3_temp.x;
-        vData[vertexOffset++] = vec3_temp.y;
-        vData[vertexOffset++] = vec3_temp.z;
-        Color.toArray(vData, color, vertexOffset + 2);
-        vertexOffset += 6;
+        const x = vert.x;
+        const y = vert.y;
+        let rhw = m.m03 * x + m.m07 * y + m.m15;
+        rhw = rhw ? Math.abs(1 / rhw) : 1;
+        vData[vertexOffset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+        vData[vertexOffset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+        vData[vertexOffset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
+        Color.toArray(vData, color, vertexOffset + 5);
+        vertexOffset += 9;
     }
 
     // fill index data

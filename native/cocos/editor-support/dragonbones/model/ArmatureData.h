@@ -24,10 +24,10 @@
 #define DRAGONBONES_ARMATURE_DATA_H
 
 #include "../core/BaseObject.h"
-#include "../geom/Matrix.h"
-#include "../geom/Transform.h"
 #include "../geom/ColorTransform.h"
+#include "../geom/Matrix.h"
 #include "../geom/Rectangle.h"
+#include "../geom/Transform.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 /**

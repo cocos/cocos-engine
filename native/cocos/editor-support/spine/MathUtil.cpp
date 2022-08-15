@@ -31,8 +31,8 @@
     #include "SpinePluginPrivatePCH.h"
 #endif
 
-#include <spine/MathUtil.h>
 #include <math.h>
+#include <spine/MathUtil.h>
 #include <stdlib.h>
 
 // Required for division by 0 in _isNaN on MSVC
@@ -52,7 +52,8 @@ float MathUtil::abs(float v) {
 }
 
 float MathUtil::sign(float v) {
-    return ((v) < 0 ? -1.0f : (v) > 0 ? 1.0f : 0.0f);
+    return ((v) < 0 ? -1.0f : (v) > 0 ? 1.0f
+                                      : 0.0f);
 }
 
 float MathUtil::clamp(float x, float min, float max) {

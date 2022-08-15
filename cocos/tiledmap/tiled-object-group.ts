@@ -343,9 +343,15 @@ export class TiledObjectGroup extends Component {
                 sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
                 // HACK: we should support _premultiplyAlpha when group had material
-                // sprite._srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
-                // sprite._dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
-                // sprite._updateBlendFunc();
+                const srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
+                // @ts-expect-error remove when ui-render remove blend
+                if (sprite._srcBlendFactor !== srcBlendFactor) {
+                    // @ts-expect-error remove when ui-render remove blend
+                    sprite._srcBlendFactor = srcBlendFactor;
+                    if (sprite.material) {
+                        sprite._updateBlendFunc();
+                    }
+                }
 
                 let spf = grid.spriteFrame;
                 if (!spf) {

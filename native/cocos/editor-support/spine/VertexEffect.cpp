@@ -31,9 +31,9 @@
     #include "SpinePluginPrivatePCH.h"
 #endif
 
-#include <spine/VertexEffect.h>
 #include <spine/MathUtil.h>
 #include <spine/Skeleton.h>
+#include <spine/VertexEffect.h>
 
 using namespace spine;
 

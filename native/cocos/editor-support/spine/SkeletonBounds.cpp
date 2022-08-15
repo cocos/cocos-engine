@@ -33,9 +33,9 @@
 
 #include <spine/SkeletonBounds.h>
 
-#include <spine/Skeleton.h>
 #include <spine/Bone.h>
 #include <spine/BoundingBoxAttachment.h>
+#include <spine/Skeleton.h>
 
 #include <spine/Slot.h>
 

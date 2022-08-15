@@ -325,6 +325,26 @@ static bool js_scene_Node_getParent(se::State& s) // NOLINT(readability-identifi
 }
 SE_BIND_FUNC(js_scene_Node_getParent)
 
+static bool js_scene_Node_getPathInHierarchy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::string result = cobj->getPathInHierarchy();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_getPathInHierarchy)
+
 static bool js_scene_Node_getScene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Node>(s);
@@ -1724,6 +1744,7 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getDirtyFlag", _SE(js_scene_Node_getDirtyFlag));
     cls->defineFunction("getLayer", _SE(js_scene_Node_getLayer));
     cls->defineFunction("getParent", _SE(js_scene_Node_getParent));
+    cls->defineFunction("getPathInHierarchy", _SE(js_scene_Node_getPathInHierarchy));
     cls->defineFunction("getScene", _SE(js_scene_Node_getScene));
     cls->defineFunction("getSiblingIndex", _SE(js_scene_Node_getSiblingIndex));
     cls->defineFunction("insertChild", _SE(js_scene_Node_insertChild));
@@ -15405,6 +15426,22 @@ static bool js_scene_Pass_update(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_FUNC(js_scene_Pass_update)
 
+static bool js_scene_Pass_updatePassHash(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->updatePassHash();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Pass_updatePassHash)
+
 static bool js_scene_Pass_fillPipelineInfo_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -15614,6 +15651,7 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("setUniformArray", _SE(js_scene_Pass_setUniformArray));
     cls->defineFunction("tryCompile", _SE(js_scene_Pass_tryCompile));
     cls->defineFunction("update", _SE(js_scene_Pass_update));
+    cls->defineFunction("_updatePassHash", _SE(js_scene_Pass_updatePassHash));
     cls->defineStaticFunction("fillPipelineInfo", _SE(js_scene_Pass_fillPipelineInfo_static));
     cls->defineStaticFunction("getBindingFromHandle", _SE(js_scene_Pass_getBindingFromHandle_static));
     cls->defineStaticFunction("getCountFromHandle", _SE(js_scene_Pass_getCountFromHandle_static));

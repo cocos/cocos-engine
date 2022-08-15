@@ -67,13 +67,13 @@ static bool reloadScript(const string &file) {
 }
 
 static bool runtime_FileUtils_addSearchPath(se::State &s) {
-    const auto &   args = s.args();
-    int            argc = (int)args.size();
-    bool           ok   = true;
+    const auto &args = s.args();
+    int argc = (int)args.size();
+    bool ok = true;
     cc::FileUtils *cobj = (cc::FileUtils *)s.nativeThisObject();
     if (argc == 1 || argc == 2) {
         std::string arg0;
-        bool        arg1 = false;
+        bool arg1 = false;
 
         ok &= sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -104,9 +104,9 @@ static bool runtime_FileUtils_addSearchPath(se::State &s) {
 SE_BIND_FUNC(runtime_FileUtils_addSearchPath)
 
 static bool runtime_FileUtils_setSearchPaths(se::State &s) {
-    const auto &   args = s.args();
-    int            argc = (int)args.size();
-    bool           ok   = true;
+    const auto &args = s.args();
+    int argc = (int)args.size();
+    bool ok = true;
     cc::FileUtils *cobj = (cc::FileUtils *)s.nativeThisObject();
     if (argc == 1) {
         std::vector<std::string> vecPaths, writePaths;
@@ -204,8 +204,8 @@ void RuntimeJsImpl::onPrecompile(const rapidjson::Document &dArgParse, rapidjson
 
 void RuntimeJsImpl::onReload(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
     if (dArgParse.HasMember("modulefiles")) {
-        auto &                  allocator = dReplyParse.GetAllocator();
-        rapidjson::Value        bodyvalue(rapidjson::kObjectType);
+        auto &allocator = dReplyParse.GetAllocator();
+        rapidjson::Value bodyvalue(rapidjson::kObjectType);
         const rapidjson::Value &objectfiles = dArgParse["modulefiles"];
         for (rapidjson::SizeType i = 0; i < objectfiles.Size(); i++) {
             if (!reloadScript(objectfiles[i].GetString())) {

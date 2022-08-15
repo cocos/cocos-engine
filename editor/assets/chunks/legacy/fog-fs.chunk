@@ -3,7 +3,7 @@
 #include <legacy/fog-base>
 
 #if !CC_USE_ACCURATE_FOG
-in float v_fog_factor;
+in mediump float v_fog_factor;
 #endif
 
 #pragma define CC_FOG_FACTOR v_fog_factor

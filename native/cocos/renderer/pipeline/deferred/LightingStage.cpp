@@ -535,7 +535,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 #endif
     };
 
-    if (!_isTransparentQueueEmpty 
+    if (!_isTransparentQueueEmpty
 #if CC_USE_GEOMETRY_RENDERER
         || (camera->getGeometryRenderer() && !camera->getGeometryRenderer()->empty())) {
 #else

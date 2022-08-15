@@ -48,7 +48,7 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         _subpasses.back().barrierID = index++;
     }
 
-    auto* device = gfx::Device::getInstance();
+    auto *device = gfx::Device::getInstance();
     // _enableAutoBarrier: auto barrier in framegraph
     // barrierDeduce: deduce barrier gfx internally
     // to avoid redundant instructions, either inside or outside
@@ -140,7 +140,7 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
         uint32_t lastBufferIndex{0};
         uint32_t lastTextureIndex{0};
 
-        auto mergeToDependency = [&](uint32_t barrierID, uint32_t subpassIndex){
+        auto mergeToDependency = [&](uint32_t barrierID, uint32_t subpassIndex) {
             for (const auto &frontBarrier : _barriers[barrierID].get().frontBarriers) {
                 const auto &res = getBarrier(frontBarrier, &_resourceTable);
                 if (frontBarrier.resourceType == ResourceType::BUFFER) {
@@ -180,13 +180,12 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                     CC_ASSERT(false);
                 }
             }
-
         };
 
-        if(!_subpasses.empty()) {
+        if (!_subpasses.empty()) {
             for (const auto &subpass : _subpasses) {
                 mergeToDependency(subpass.barrierID, index);
-                ++index;   
+                ++index;
             }
         } else {
             mergeToDependency(0, 0);

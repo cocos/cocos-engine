@@ -15,13 +15,14 @@
 ** limitations under the License.
 */
 
+// clang-format off
 #define LOG_TAG    "AudioMixer"
 #define LOG_NDEBUG 1
 
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <sys/types.h>
 
 #include "audio/android/audio.h"
@@ -30,6 +31,7 @@
 #include "audio/android/AudioMixer.h"
 #include "base/memory/Memory.h"
 
+// clang-format on
 // The FCC_2 macro refers to the Fixed Channel Count of 2 for the legacy integer mixer.
 #ifndef FCC_2
     #define FCC_2 2
@@ -1660,7 +1662,8 @@ int64_t AudioMixer::calculateOutputPTS(const track_t &t, int64_t basePTS,
 
 // Needs to derive a compile time constant (constexpr).  Could be targeted to go
 // to a MONOVOL mixtype based on MAX_NUM_VOLUMES, but that's an unnecessary complication.
-#define MIXTYPE_MONOVOL(mixtype) (mixtype == MIXTYPE_MULTI ? MIXTYPE_MULTI_MONOVOL : mixtype == MIXTYPE_MULTI_SAVEONLY ? MIXTYPE_MULTI_SAVEONLY_MONOVOL : mixtype)
+#define MIXTYPE_MONOVOL(mixtype) (mixtype == MIXTYPE_MULTI ? MIXTYPE_MULTI_MONOVOL : mixtype == MIXTYPE_MULTI_SAVEONLY ? MIXTYPE_MULTI_SAVEONLY_MONOVOL \
+                                                                                                                       : mixtype)
 
 /* MIXTYPE     (see AudioMixerOps.h MIXTYPE_* enumeration)
  * TO: int32_t (Q4.27) or float

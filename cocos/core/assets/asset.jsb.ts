@@ -115,6 +115,10 @@ assetProto.decRef = function (autoRelease = true): Asset {
     return this;
 };
 
+assetProto.toString = function () {
+    return this.nativeUrl;   
+};
+
 assetProto.createNode = null!;
 
 // @ts-ignore

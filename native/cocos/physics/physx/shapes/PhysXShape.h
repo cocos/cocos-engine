@@ -69,7 +69,7 @@ public:
         return getShape().getFlags().isSet(physx::PxShapeFlag::eTRIGGER_SHAPE);
     }
     void updateFilterData(const physx::PxFilterData &data);
-    uint32_t getObjectID() const override {return _mObjectID;};
+    uint32_t getObjectID() const override { return _mObjectID; };
 
 protected:
     PhysXSharedBody *_mSharedBody{nullptr};
