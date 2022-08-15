@@ -104,7 +104,7 @@ void main()  {
   // Shading
   vec4 color = CCSurfacesShading(surfaceData, lightingResult);
 
-  #if !CC_FORWARD_ADD
+  #if !CC_FORWARD_ADD && CC_USE_FOG != CC_FOG_NONE
     CC_APPLY_FOG_BASE(color, fogFactor);
   #endif
 

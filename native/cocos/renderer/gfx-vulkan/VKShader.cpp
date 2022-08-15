@@ -40,6 +40,29 @@ CCVKShader::~CCVKShader() {
     destroy();
 }
 
+namespace {
+
+void initGpuShader(CCVKGPUShader* gpuShader) {
+    cmdFuncCCVKCreateShader(CCVKDevice::getInstance(), gpuShader);
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : gpuShader->gpuStages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
+
+    gpuShader->initialized = true;
+}
+
+} // namespace
+
+CCVKGPUShader *CCVKShader::gpuShader() const {
+    if (!_gpuShader->initialized) {
+        initGpuShader(_gpuShader);
+    }
+    return _gpuShader;
+}
+
 void CCVKShader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader = ccnew CCVKGPUShader;
     _gpuShader->name = _name;
@@ -47,15 +70,6 @@ void CCVKShader::doInit(const ShaderInfo & /*info*/) {
     for (ShaderStage &stage : _stages) {
         _gpuShader->gpuStages.emplace_back(CCVKGPUShaderStage{stage.stage, stage.source});
     }
-
-    cmdFuncCCVKCreateShader(CCVKDevice::getInstance(), _gpuShader);
-
-    // Clear shader source after they're uploaded to GPU
-    for (auto &stage : _gpuShader->gpuStages) {
-        stage.source.clear();
-        stage.source.shrink_to_fit();
-    }
-
     for (auto &stage : _stages) {
         stage.source.clear();
         stage.source.shrink_to_fit();

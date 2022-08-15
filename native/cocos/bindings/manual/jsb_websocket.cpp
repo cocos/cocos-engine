@@ -150,7 +150,7 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
     }
 }
 
-void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
+void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) {
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
@@ -167,10 +167,15 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
 
         se::Object *wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
-        jsObj->setProperty("type", se::Value("close"));
+        jsObj->setProperty("type", se::Value("close")); // deprecated since v3.6
         se::Value target;
         native_ptr_to_seval<cc::network::WebSocket>(ws, &target);
-        jsObj->setProperty("target", target);
+        jsObj->setProperty("target", target); // deprecated since v3.6
+
+        // CloseEvent attributes
+        jsObj->setProperty("code", se::Value(code));
+        jsObj->setProperty("reason", se::Value(reason));
+        jsObj->setProperty("wasClean", se::Value(wasClean));
 
         se::Value func;
         bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
