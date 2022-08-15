@@ -26,7 +26,6 @@
 #pragma once
 
 #include "math/Vec3.h"
-#include "pipeline/RenderPipeline.h"
 #include "scene/Ambient.h"
 #include "scene/Light.h"
 #include "scene/Shadow.h"
