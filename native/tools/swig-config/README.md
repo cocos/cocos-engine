@@ -138,7 +138,7 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
   }
   ```
 
-- Add a new swig interface file in `engine/native/cocos/tools/swig-config` directory, e.g. `my_new_module.i` which its content:
+- Add a new swig interface file in `engine/native/cocos/tools/swig-config` directory, e.g. `my_new_module.i` with its content:
 
   ```c++
   // Define module
