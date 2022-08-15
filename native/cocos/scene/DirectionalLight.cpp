@@ -76,7 +76,7 @@ void DirectionalLight::activate() const {
             if (_shadowFixedArea) {
                 pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 1);
             } else {
-                pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", static_cast<int32_t>(_shadowPcf) > 1 ? 2 : 1);
+                pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", static_cast<int32_t>(_csmLevel) > 1 ? 2 : 1);
             }
             pipeline->setValue("CC_DIR_SHADOW_PCF_TYPE", static_cast<int32_t>(_shadowPcf));
         } else {

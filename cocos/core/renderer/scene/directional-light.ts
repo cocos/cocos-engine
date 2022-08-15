@@ -316,7 +316,7 @@ export class DirectionalLight extends Light {
             if (this._shadowFixedArea) {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
             } else {
-                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = this._shadowPcf > 1 ? 2 : 1;
+                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = this.csmLevel > 1 ? 2 : 1;
             }
             pipeline.macros.CC_DIR_SHADOW_PCF_TYPE = this._shadowPcf;
         } else {
