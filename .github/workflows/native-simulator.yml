@@ -26,15 +26,11 @@ jobs:
       - name: npm install
         run: |
           npm install
-      # - name: download external libraries
-      #   run: |
-      #     node ./utils/download-deps.js
-
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external external
+          EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
 
       - name: install vulkan-sdk
         run: |
@@ -65,14 +61,10 @@ jobs:
         run: |
           npm install
           npm install gulp -g
-      # - name: Download external libraries
-      #   run: |
-      #     node ./utils/download-deps.js
-
       - name: Download external libraries
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external external
+          EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
 
       - name: Generate bindings
         run: |

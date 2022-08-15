@@ -19,16 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # - name: Download external libraries
-      #   shell: bash
-      #   run: |
-      #     EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-      #     git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config

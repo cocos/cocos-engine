@@ -19,16 +19,11 @@ jobs:
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
-      # - name: Download external libraries
-      #   shell: bash
-      #   run: |
-      #     EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-      #     git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Install deps
         run: |
           choco install --forcex86 vulkan-sdk
@@ -70,16 +65,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # - name: Download external libraries
-      #   shell: bash
-      #   run: |
-      #     EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-      #     git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
@@ -135,16 +125,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # - name: Download external libraries
-      #   shell: bash
-      #   run: |
-      #     EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-      #     git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
@@ -205,13 +190,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-          # EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          # git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-
       - name: Download external libraries
         shell: bash
         run: |
-          git clone --branch test-swig --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
 
       - name: Generate bindings
         run: |
@@ -260,16 +243,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      # - name: Download external libraries
-      #   shell: bash
-      #   run: |
-      #     EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-      #     git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
@@ -318,16 +296,11 @@ jobs:
         with:
           xcode-version: latest-stable
       - uses: actions/checkout@v2
-      # - name: Download external libraries
-      #   shell: bash
-      #   run: |
-      #     EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-      #     git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Download external libraries
         shell: bash
         run: |
-          EXT_VERSION=test-swig
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external native/external
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
@@ -386,7 +359,7 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - name: Setup Emscripten
         run: |
           git clone https://github.com/emscripten-core/emsdk.git ../emsdk
