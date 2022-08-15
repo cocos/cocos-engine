@@ -9,7 +9,7 @@
 #pragma define SHADOWMAP_FORMAT_RGBA8 1
 #pragma define SHADOWMAP_FORMAT_FLOAT 0
 
-#pragma define CC_DIR_LIGHT_SHADOW_PLANAR 0
+#pragma define CC_DIR_LIGHT_SHADOW_NONE 0
 #pragma define CC_DIR_LIGHT_SHADOW_UNIFORM 1
 #pragma define CC_DIR_LIGHT_SHADOW_CASCADED 2
 #pragma define CC_DIR_LIGHT_SHADOW_VARIANCE 3
