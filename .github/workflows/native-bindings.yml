@@ -23,10 +23,10 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-      - name: Run genbindings.sh
+      - name: Generate Bindings
         run: |
           cd ./native/tools/swig-config
-          ./genbindings.sh
+          node genbindings.js
           git status
       - name: Update builtin-res 
         env:

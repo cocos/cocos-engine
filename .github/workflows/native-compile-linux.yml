@@ -32,7 +32,7 @@ jobs:
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
-          ./genbindings.sh
+          node genbindings.js
           git status
       - name: Install dependencies
         run: |

@@ -43,7 +43,7 @@ jobs:
         run: |
           cd ./tools/swig-config
           echo "Create auto-generated jsbinding glue codes."
-          cmd.exe  /c '.\genbindings.bat'
+          node genbindings.js
           git status
       - name: gen simulator
         run: |
@@ -77,7 +77,7 @@ jobs:
       - name: Generate bindings
         run: |
           cd ./tools/swig-config
-          ./genbindings.sh
+          node genbindings.js
           git status
       - name: gen simulator
         run: |

@@ -42,7 +42,7 @@ jobs:
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
-          ./genbindings.sh
+          node genbindings.js
           git status
       - name: Get changed files
         uses: PatriceJiang/paths-filter@master
