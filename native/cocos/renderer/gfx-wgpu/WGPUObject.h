@@ -256,8 +256,8 @@ public:
     RecycleBin(const RecycleBin &) = delete;
     RecycleBin &operator=(const RecycleBin &) = delete;
 
-    void collect(T &t) {
-        _recycleBin.emplace_back(t);
+    void collect(T t) {
+        _recycleBin.emplace(t);
     }
 
     void purge() {
@@ -268,25 +268,25 @@ public:
     }
 
 private:
-    void purge(T &t);
+    void purge(T t);
 
-    ccstd::vector<T> _recycleBin;
+    ccstd::set<T> _recycleBin;
 };
 
 template <>
-inline void RecycleBin<WGPUBuffer>::purge(WGPUBuffer &buffer) {
+inline void RecycleBin<WGPUBuffer>::purge(WGPUBuffer buffer) {
     wgpuBufferDestroy(buffer);
     wgpuBufferRelease(buffer);
 }
 
 template <>
-inline void RecycleBin<WGPUQuerySet>::purge(WGPUQuerySet &querySet) {
+inline void RecycleBin<WGPUQuerySet>::purge(WGPUQuerySet querySet) {
     wgpuQuerySetDestroy(querySet);
     wgpuQuerySetRelease(querySet);
 }
 
 template <>
-inline void RecycleBin<WGPUTexture>::purge(WGPUTexture &texture) {
+inline void RecycleBin<WGPUTexture>::purge(WGPUTexture texture) {
     wgpuTextureDestroy(texture);
     wgpuTextureRelease(texture);
 }
