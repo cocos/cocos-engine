@@ -1056,7 +1056,7 @@ export class PresentPass {
 }
 
 export class RenderData {
-    readonly constants: Map<number, Uint8Array> = new Map<number, Uint8Array>();
+    readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
     readonly samplers: Map<number, Sampler | null> = new Map<number, Sampler | null>();

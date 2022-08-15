@@ -679,10 +679,10 @@ struct RenderData {
     RenderData& operator=(RenderData&& rhs) = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
-    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<uint8_t>> constants;
-    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>>   buffers;
-    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>>  textures;
-    PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>>   samplers;
+    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<char>>   constants;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>>  buffers;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
+    PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>>  samplers;
 };
 
 struct RenderGraph {
