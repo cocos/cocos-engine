@@ -127,6 +127,7 @@ export class DirectionalLight extends Light {
     }
     set shadowEnabled (val) {
         this._shadowEnabled = val;
+        this._activate();
     }
 
     /**
@@ -138,13 +139,7 @@ export class DirectionalLight extends Light {
     }
     set shadowPcf (val) {
         this._shadowPcf = val;
-        const isPlanar = (legacyCC.director.root).pipeline.pipelineSceneData.shadows.type === ShadowType.Planar;
-        if (!isPlanar) {
-            const root = legacyCC.director.root;
-            const pipeline = root.pipeline;
-            pipeline.macros.CC_DIR_SHADOW_PCF_TYPE = val;
-            root.onGlobalPipelineStateChanged();
-        }
+        this._activate();
     }
 
     /**
@@ -211,17 +206,7 @@ export class DirectionalLight extends Light {
     }
     set csmLevel (val) {
         this._csmLevel = val;
-        const isPlanar = (legacyCC.director.root).pipeline.pipelineSceneData.shadows.type === ShadowType.Planar;
-        if (!isPlanar) {
-            const root = legacyCC.director.root;
-            const pipeline = root.pipeline;
-            if (this._shadowFixedArea) {
-                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
-            } else {
-                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = val > 1 ? 2 : 1;
-            }
-            root.onGlobalPipelineStateChanged();
-        }
+        this._activate();
     }
 
     /**
@@ -266,6 +251,7 @@ export class DirectionalLight extends Light {
     }
     set shadowFixedArea (val) {
         this._shadowFixedArea = val;
+        this._activate();
     }
 
     /**
@@ -321,5 +307,21 @@ export class DirectionalLight extends Light {
         if (this._node && this._node.hasChangedFlags) {
             this.direction = Vec3.transformQuat(_v3, _forward, this._node.worldRotation);
         }
+    }
+
+    private _activate () {
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        if (this._shadowEnabled) {
+            if (this._shadowFixedArea) {
+                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
+            } else {
+                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = this._shadowPcf > 1 ? 2 : 1;
+            }
+            pipeline.macros.CC_DIR_SHADOW_PCF_TYPE = this._shadowPcf;
+        } else {
+            pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 0;
+        }
+        root.onGlobalPipelineStateChanged();
     }
 }

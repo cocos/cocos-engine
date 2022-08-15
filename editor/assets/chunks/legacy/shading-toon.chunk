@@ -100,7 +100,7 @@ struct ToonSurface {
     vec3 dirlightContrib = diffuse + specular;
 
     float shadow = 1.0;
-    #if CC_RECEIVE_SHADOW
+    #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if(s.shadowCover < NL && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
         #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED

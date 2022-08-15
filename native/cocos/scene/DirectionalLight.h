@@ -42,12 +42,13 @@ public:
     void initialize() override;
     void update() override;
 
-    inline void setShadowEnabled(bool enabled) { _shadowEnabled = enabled; }
+    inline void setShadowEnabled(bool enabled) {
+        _shadowEnabled = enabled;
+        activate();
+    }
     inline void setShadowPcf(PCFType pcf) {
         _shadowPcf = pcf;
-        if (pipeline::RenderPipeline::getInstance()) {
-            pipeline::RenderPipeline::getInstance()->setValue("CC_DIR_SHADOW_PCF_TYPE", static_cast<int32_t>(pcf));
-        }
+        activate();
     }
     inline void setShadowBias(float bias) { _shadowBias = bias; }
     inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
@@ -56,14 +57,15 @@ public:
     inline void setShadowInvisibleOcclusionRange(float invisibleOcclusionRange) { _shadowInvisibleOcclusionRange = invisibleOcclusionRange; }
     inline void setCSMLevel(CSMLevel csmLevel) {
         _csmLevel = csmLevel;
-        if (pipeline::RenderPipeline::getInstance()) {
-            pipeline::RenderPipeline::getInstance()->setValue("CC_DIR_LIGHT_SHADOW_TYPE", csmLevel == CSMLevel::LEVEL_1 ? 0 : 1);
-        }
+        activate();
     }
     inline void setCSMLayerLambda(float lambda) { _csmLayerLambda = lambda; }
     inline void setCSMNeedUpdate(bool isCSMNeedUpdate) { _isCSMNeedUpdate = isCSMNeedUpdate; }
     inline void setCSMOptimizationMode(CSMOptimizationMode csmOptimizationMode) { _csmOptimizationMode = csmOptimizationMode; }
-    inline void setShadowFixedArea(bool fixedArea) { _shadowFixedArea = fixedArea; }
+    inline void setShadowFixedArea(bool fixedArea) {
+        _shadowFixedArea = fixedArea;
+        activate();
+    }
     inline void setShadowNear(float nearValue) { _shadowNear = nearValue; }
     inline void setShadowFar(float farValue) { _shadowFar = farValue; }
     inline void setShadowOrthoSize(float orthoSize) { _shadowOrthoSize = orthoSize; }
@@ -94,6 +96,8 @@ public:
     void setIlluminance(float value);
 
 private:
+    void activate() const;
+
     float _illuminanceHDR{Ambient::SUN_ILLUM};
     float _illuminanceLDR{1.F};
     Vec3 _dir{1.0F, -1.0F, -1.0F};

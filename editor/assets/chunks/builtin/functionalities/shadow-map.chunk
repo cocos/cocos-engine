@@ -14,6 +14,10 @@
 #pragma define CC_DIR_LIGHT_SHADOW_CASCADED 2
 #pragma define CC_DIR_LIGHT_SHADOW_VARIANCE 3
 
+#pragma define CC_SHADOW_NONE 0
+#pragma define CC_SHADOW_PLANAR 1
+#pragma define CC_SHADOW_MAP 2
+
 float CCGetLinearDepth(vec3 worldPos, float viewSpaceBias) {
 	vec4 viewPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
   viewPos.z += viewSpaceBias;
