@@ -5,7 +5,7 @@ const util = require('util');
 
 const assert = require('assert');
 
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
 const nodeMainVersion = parseInt(process.version.match(/^v(\d+)\.\d+/)[1]);
 console.log('node main version: ' + nodeMainVersion + ', version: ' + process.version);
@@ -37,7 +37,7 @@ const SWIG_LIB_ARRAY=[
     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0'),
 ];
 
-// Debug
+// // Debug
 // // linux
 // // const SWIG_ROOT=`/home/james/projects/swig`;
 // // mac
@@ -69,7 +69,10 @@ includes.push(path.join(COCOS_NATIVE_ROOT, 'cocos'));
 for (const includePath of includes) {
     assert(exists(includePath), `${includePath} doesn't exist`);
 }
-const includeStr = '-I' + includes.join(' -I');
+
+for (let i = 0, len = includes.length; i < len; ++i) {
+    includes[i] = '-I' + includes[i];
+}
 
 const swigConfigMap = [
     [ '2d.i', 'jsb_2d_auto.cpp' ],
@@ -91,18 +94,32 @@ const swigConfigMap = [
     [ 'renderer.i', 'jsb_render_auto.cpp' ],
 ];
 
+function generateBindings(interfaceFile, generatedCppFile) {
+    console.log(`==> generateBindings: interface: ${interfaceFile}, cpp: ${generatedCppFile}`);
+    let args = [
+        '-c++', '-cocos', '-fvirtual', '-noexcept', '-cpperraswarn',
+        '-D__clang__', '-Dfinal= ', '-DCC_PLATFORM=3', '-Dconstexpr=const', '-DCC_PLATFORM_ANDROID=3',
+    ];
+    args = args.concat(includes, [
+        '-o', path.join(COCOS_NATIVE_ROOT, 'cocos', 'bindings', 'auto', generatedCppFile),
+        path.join(COCOS_NATIVE_ROOT, 'tools', 'swig-config', interfaceFile)
+    ]);
+    console.log(`==> args:${args.join(' ')}`);
+    console.log(`exe: ${SWIG_EXE}`);
+    try {
+        const ret = spawnSync(SWIG_EXE, args, {
+            stdio: ['ignore', process.stdout, process.stderr],
+        });
+        if (ret.status !== 0) {
+            process.exit(-1);
+        }
+    } catch (error) {
+        console.error('ERROR:', error);
+        process.exit(-2);
+    }
+}
 
 for (const config of swigConfigMap) {
-    console.log(`interface: ${config[0]}, cpp: ${config[1]}`);
-    const command = util.format('%s %s %s %s %s %s', 
-        SWIG_EXE,
-        '-c++ -cocos -fvirtual -noexcept -cpperraswarn',
-        '-D__clang__ -Dfinal= -DCC_PLATFORM=3 -Dconstexpr=const -DCC_PLATFORM_ANDROID=3',
-        includeStr,
-        '-o ' + path.join(COCOS_NATIVE_ROOT, 'cocos', 'bindings', 'auto', config[1]),
-        path.join(COCOS_NATIVE_ROOT, 'tools', 'swig-config', config[0])
-    );
-    console.log('command: ' + command);
-    execSync(command);
+    generateBindings(config[0], config[1]);
 }
 
