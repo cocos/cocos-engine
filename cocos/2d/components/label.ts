@@ -751,7 +751,7 @@ export class Label extends UIRenderer {
 
     public setEntityColor (color: Color) {
         if (JSB) {
-            if (this._font instanceof BitmapFont || this.cacheMode === CacheMode.CHAR) {
+            if (this._font instanceof BitmapFont) {
                 this._renderEntity.color = color;
             } else {
                 tempColor.set(255, 255, 255, color.a);

@@ -30,9 +30,9 @@
 #ifndef Spine_SkeletonJson_h
 #define Spine_SkeletonJson_h
 
-#include <spine/Vector.h>
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
+#include <spine/Vector.h>
 
 namespace spine {
 class CurveTimeline;

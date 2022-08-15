@@ -27,29 +27,28 @@ THE SOFTWARE.
 #include "utils.h"
 
 TEST(barrierTest, test10) {
-
     // simple graph
     TEST_CASE_1;
-    
+
     boost::container::pmr::memory_resource* resource = boost::container::pmr::get_default_resource();
     RenderGraph renderGraph(resource);
     ResourceGraph rescGraph(resource);
     LayoutGraphData layoutGraphData(resource);
-    
+
     fillTestGraph(rasterData, resources, layoutInfo, renderGraph, rescGraph, layoutGraphData);
-    
+
     FrameGraphDispatcher fgDispatcher(rescGraph, renderGraph, layoutGraphData, resource, resource);
     fgDispatcher.run();
-    
+
     const auto& barrierMap = fgDispatcher.getBarriers();
     const auto& rag = fgDispatcher.resourceAccessGraph;
     ExpectEq(rag.vertices.size() == 4, true);
-    
+
     // head
     const auto& head = barrierMap.at(0);
     ExpectEq(head.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(head.blockBarrier.rearBarriers.empty(), true);
-    
+
     // 1st node
     const auto& node1 = barrierMap.at(1);
     ExpectEq(node1.blockBarrier.frontBarriers.empty(), true);
@@ -66,13 +65,12 @@ TEST(barrierTest, test10) {
     ExpectEq(barrier.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
     //resID 3
     ExpectEq(barrier.beginStatus.visibility == std::get<2>(layoutInfo[0][3]), true);
-    
-    
+
     //// 2nd node
     const auto& node2 = barrierMap.at(2);
     ExpectEq(node2.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
-    
+
     const auto& node2RearBarrier0 = node2.blockBarrier.rearBarriers.back();
     ExpectEq(node2RearBarrier0.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
     ExpectEq(node2RearBarrier0.beginStatus.visibility == ShaderStageFlagBit::VERTEX, true);

@@ -32,7 +32,7 @@
 namespace cc {
 namespace physics {
 
-PhysXShape::PhysXShape() : _mCenter(physx::PxIdentity), _mRotation(physx::PxIdentity){
+PhysXShape::PhysXShape() : _mCenter(physx::PxIdentity), _mRotation(physx::PxIdentity) {
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
 };
 

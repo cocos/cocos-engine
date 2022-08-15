@@ -100,7 +100,7 @@ public:
                      gfx::PrimitiveMode primitiveMode,
                      gfx::Buffer *indexBuffer,
                      gfx::Buffer *indirectBuffer);
-    
+
     RenderingSubMesh(const gfx::BufferList &vertexBuffers,
                      const gfx::AttributeList &attributes,
                      gfx::PrimitiveMode primitiveMode,
@@ -192,7 +192,7 @@ public:
 
 private:
     gfx::Buffer *allocVertexIdBuffer(gfx::Device *device);
-    
+
     bool _isOwnerOfIndexBuffer{true};
 
     // Mesh will includes RenderingSubMesh, so use Mesh* here.

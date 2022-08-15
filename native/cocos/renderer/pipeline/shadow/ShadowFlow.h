@@ -56,7 +56,7 @@ private:
 
     void resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *ds);
 
-    void initShadowFrameBuffer(const RenderPipeline* pipeline, const scene::Light* light);
+    void initShadowFrameBuffer(const RenderPipeline *pipeline, const scene::Light *light);
 
     static RenderFlowInfo initInfo;
 

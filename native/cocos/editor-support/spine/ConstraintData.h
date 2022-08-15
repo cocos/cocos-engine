@@ -30,8 +30,8 @@
 #ifndef Spine_Constraint_h
 #define Spine_Constraint_h
 
-#include <spine/Updatable.h>
 #include <spine/SpineString.h>
+#include <spine/Updatable.h>
 
 namespace spine {
 /// The interface for all constraints.

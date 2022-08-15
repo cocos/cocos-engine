@@ -113,7 +113,6 @@ public:
      */
     virtual uint32_t getChannelCount() const;
 
-
     virtual AudioDataFormat getDataFormat() const;
 
     virtual PCMHeader getPCMHeader() const;

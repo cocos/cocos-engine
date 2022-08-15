@@ -27,9 +27,9 @@ public:
     std::string callJSFunction(const std::string &name);
 
     static std::vector<int> OneTwoThree() {
-        return {1,2,3};
+        return {1, 2, 3};
     }
-    static void IgnoreInput(int ) {}
+    static void IgnoreInput(int) {}
     static void StaticDoNothing() {}
 
 private:

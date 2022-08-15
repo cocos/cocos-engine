@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
-#include "cocos/math/Vec3.h"
+#include <math.h>
 #include "cocos/math/Mat3.h"
 #include "cocos/math/Mat4.h"
 #include "cocos/math/Quaternion.h"
+#include "cocos/math/Vec3.h"
+#include "gtest/gtest.h"
 #include "utils.h"
-#include <math.h>
 
 TEST(mathVec3Test, test2) {
     cc::Vec3 vec3(1, 2, 3);

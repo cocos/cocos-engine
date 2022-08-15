@@ -345,7 +345,7 @@ void NativeRasterPassBuilder::addCameraQuad(
 }
 
 void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
-    auto& pass = get(RasterTag{}, passID, *renderGraph);
+    auto &pass = get(RasterTag{}, passID, *renderGraph);
     pass.viewport = viewport;
 }
 

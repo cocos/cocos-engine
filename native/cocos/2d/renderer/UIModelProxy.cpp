@@ -120,7 +120,7 @@ void UIModelProxy::destroy() {
         _model = nullptr;
     }
 
-    for (auto& subMesh: _graphicsUseSubMeshes) {
+    for (auto& subMesh : _graphicsUseSubMeshes) {
         subMesh->destroy();
         subMesh = nullptr;
     }

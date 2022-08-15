@@ -73,10 +73,10 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Rend
             if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
             if (dynamicOffsets) {
                 cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, *dynamicOffsets);
-            }else {
+            } else {
                 cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, batchedBuffer->getDynamicOffset());
             }
-            
+
             cmdBuffer->bindInputAssembler(batch.ia);
             cmdBuffer->draw(batch.ia);
         }

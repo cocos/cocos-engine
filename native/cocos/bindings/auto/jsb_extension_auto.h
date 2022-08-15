@@ -13,8 +13,8 @@ JSB_REGISTER_OBJECT_TYPE(cc::extension::Manifest);
 JSB_REGISTER_OBJECT_TYPE(cc::extension::AssetsManagerEx);
 
 
-extern se::Object *__jsb_cc_extension_EventAssetsManagerEx_proto; // NOLINT
-extern se::Class * __jsb_cc_extension_EventAssetsManagerEx_class; // NOLINT
+extern se::Object *__jsb_cc_extension_EventAssetsManagerEx_proto;   // NOLINT
+extern se::Class *__jsb_cc_extension_EventAssetsManagerEx_class;    // NOLINT
 
 bool js_register_cc_extension_EventAssetsManagerEx(se::Object *obj); // NOLINT
 
@@ -33,8 +33,8 @@ SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_getTotalFiles);
 SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_isResuming);
 SE_DECLARE_FUNC(js_extension_EventAssetsManagerEx_EventAssetsManagerEx);
 
-extern se::Object *__jsb_cc_extension_Manifest_proto; // NOLINT
-extern se::Class * __jsb_cc_extension_Manifest_class; // NOLINT
+extern se::Object *__jsb_cc_extension_Manifest_proto;   // NOLINT
+extern se::Class *__jsb_cc_extension_Manifest_class;    // NOLINT
 
 bool js_register_cc_extension_Manifest(se::Object *obj); // NOLINT
 
@@ -52,8 +52,8 @@ SE_DECLARE_FUNC(js_extension_Manifest_parseJSONString);
 SE_DECLARE_FUNC(js_extension_Manifest_setUpdating);
 SE_DECLARE_FUNC(js_extension_Manifest_Manifest);
 
-extern se::Object *__jsb_cc_extension_AssetsManagerEx_proto; // NOLINT
-extern se::Class * __jsb_cc_extension_AssetsManagerEx_class; // NOLINT
+extern se::Object *__jsb_cc_extension_AssetsManagerEx_proto;   // NOLINT
+extern se::Class *__jsb_cc_extension_AssetsManagerEx_class;    // NOLINT
 
 bool js_register_cc_extension_AssetsManagerEx(se::Object *obj); // NOLINT
 

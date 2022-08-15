@@ -49,7 +49,7 @@ uintptr_t SystemWindow::getWindowHandle() const {
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
+void SystemWindow::copyTextToClipboard(const ccstd::string& text) {
     //TODO
 }
 

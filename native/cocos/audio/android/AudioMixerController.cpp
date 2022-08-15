@@ -25,8 +25,8 @@ THE SOFTWARE.
 
 #define LOG_TAG "AudioMixerController"
 
-#include <algorithm>
 #include "audio/android/AudioMixerController.h"
+#include <algorithm>
 #include "audio/android/AudioMixer.h"
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/Track.h"

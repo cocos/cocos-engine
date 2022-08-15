@@ -97,7 +97,7 @@ DragonBonesData *CCFactory::loadDragonBonesData(const std::string &filePath, con
             cc::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
             uint8_t *binary = cocos2dData.takeBuffer();
             // NOTE: binary is freed in DragonBonesData::_onClear
-            return parseDragonBonesData(reinterpret_cast<char*>(binary), name, scale);
+            return parseDragonBonesData(reinterpret_cast<char *>(binary), name, scale);
         }
     }
 
@@ -120,7 +120,7 @@ DragonBonesData *CCFactory::parseDragonBonesDataByPath(const std::string &filePa
             cc::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
             uint8_t *binary = cocos2dData.takeBuffer();
             // NOTE: binary is freed in DragonBonesData::_onClear
-            return parseDragonBonesData(reinterpret_cast<char*>(binary), name, scale);
+            return parseDragonBonesData(reinterpret_cast<char *>(binary), name, scale);
         }
     } else {
         return parseDragonBonesData(filePath.c_str(), name, scale);

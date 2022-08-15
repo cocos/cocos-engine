@@ -75,8 +75,8 @@ bool PlayerTaskWin::run() {
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
     SECURITY_ATTRIBUTES sa = {0};
-    sa.nLength             = sizeof(sa);
-    sa.bInheritHandle      = TRUE;
+    sa.nLength = sizeof(sa);
+    sa.bInheritHandle = TRUE;
 
     // Create a pipe for the child process's STDOUT.
     if (!CreatePipe(&_childStdOutRead, &_childStdOutWrite, &sa, 0) || !SetHandleInformation(_childStdOutRead, HANDLE_FLAG_INHERIT, 0)) {
@@ -95,16 +95,16 @@ bool PlayerTaskWin::run() {
     ZeroMemory(&_pi, sizeof(_pi));
     STARTUPINFO si = {0};
 
-    si.cb          = sizeof(STARTUPINFO);
-    si.hStdError   = _childStdOutWrite;
-    si.hStdOutput  = _childStdOutWrite;
-    si.hStdInput   = _childStdInRead;
-    si.dwFlags     = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    si.cb = sizeof(STARTUPINFO);
+    si.hStdError = _childStdOutWrite;
+    si.hStdOutput = _childStdOutWrite;
+    si.hStdInput = _childStdInRead;
+    si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     si.wShowWindow = SW_HIDE;
 
 #define MAX_COMMAND 4096 //MAX_PATH
     const std::u16string u16command = makeCommandLine();
-    WCHAR                command[MAX_COMMAND];
+    WCHAR command[MAX_COMMAND];
     wcscpy_s(command, MAX_COMMAND, (WCHAR *)u16command.c_str());
 
     BOOL success = CreateProcess(NULL,
@@ -124,9 +124,9 @@ bool PlayerTaskWin::run() {
         return false;
     }
 
-    _outputBuff     = new CHAR[BUFF_SIZE + 1];
+    _outputBuff = new CHAR[BUFF_SIZE + 1];
     _outputBuffWide = new WCHAR[BUFF_SIZE];
-    _state          = STATE_RUNNING;
+    _state = STATE_RUNNING;
 
     // cc::Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
     return true;
@@ -206,10 +206,10 @@ void PlayerTaskWin::cleanup() {
     if (_childStdInRead) CloseHandle(_childStdInRead);
     if (_childStdInWrite) CloseHandle(_childStdInWrite);
 
-    _childStdOutRead  = NULL;
+    _childStdOutRead = NULL;
     _childStdOutWrite = NULL;
-    _childStdInRead   = NULL;
-    _childStdInWrite  = NULL;
+    _childStdInRead = NULL;
+    _childStdInWrite = NULL;
 
     _state = STATE_COMPLETED;
 

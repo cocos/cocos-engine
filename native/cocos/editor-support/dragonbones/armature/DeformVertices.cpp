@@ -1,8 +1,8 @@
 #include "DeformVertices.h"
-#include "../model/DragonBonesData.h"
-#include "../model/DisplayData.h"
 #include "../armature/Armature.h"
 #include "../armature/Bone.h"
+#include "../model/DisplayData.h"
+#include "../model/DragonBonesData.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 

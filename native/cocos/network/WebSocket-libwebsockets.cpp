@@ -234,7 +234,7 @@ private:
     int onClientReceivedData(void *in, ssize_t len);
     int onConnectionOpened();
     int onConnectionError();
-    int onConnectionClosed();
+    int onConnectionClosed(uint16_t code, const ccstd::string& reason);
 
     struct lws_vhost *createVhost(struct lws_protocols *protocols, int *sslConnection);
 
@@ -798,7 +798,7 @@ void WebSocketImpl::close() {
             // but the callback of performInCocosThread has not been triggered. We need to invoke
             // onClose to release the websocket instance.
             _readyStateMutex.unlock();
-            _delegate->onClose(_ws);
+            _delegate->onClose(_ws, 1000, "close_normal", true);
             return;
         }
 
@@ -814,7 +814,7 @@ void WebSocketImpl::close() {
 
     // Wait 5 milliseconds for onConnectionClosed to exit!
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    _delegate->onClose(_ws);
+    _delegate->onClose(_ws, 1000, "close_normal", true);
 }
 
 void WebSocketImpl::closeAsync(int code, const ccstd::string &reason) {
@@ -1239,12 +1239,12 @@ int WebSocketImpl::onConnectionError() {
         }
     });
 
-    onConnectionClosed();
+    onConnectionClosed(static_cast<uint16_t>(cc::network::WebSocket::ErrorCode::CONNECTION_FAILURE), "connection error");
 
     return 0;
 }
 
-int WebSocketImpl::onConnectionClosed() {
+int WebSocketImpl::onConnectionClosed(uint16_t code, const ccstd::string& reason) {
     {
         std::lock_guard<std::mutex> lk(_readyStateMutex);
         LOGD("WebSocket (%p) onConnectionClosed, state: %d ...\n", this, (int)_readyState);
@@ -1280,11 +1280,11 @@ int WebSocketImpl::onConnectionClosed() {
     }
 
     std::shared_ptr<std::atomic<bool>> isDestroyed = _isDestroyed;
-    wsHelper->sendMessageToCocosThread([this, isDestroyed]() {
+    wsHelper->sendMessageToCocosThread([this, isDestroyed, code, reason]() {
         if (*isDestroyed) {
             LOGD("WebSocket instance (%p) was destroyed!\n", this);
         } else {
-            _delegate->onClose(_ws);
+            _delegate->onClose(_ws, code, reason, true);
         }
     });
 
@@ -1306,7 +1306,7 @@ int WebSocketImpl::onSocketCallback(struct lws * /*wsi*/, enum lws_callback_reas
             break;
 
         case LWS_CALLBACK_WSI_DESTROY:
-            ret = onConnectionClosed();
+            ret = onConnectionClosed(static_cast<uint16_t>(LWS_CALLBACK_WSI_DESTROY), "lws_callback_wsi_destroy");
             break;
 
         case LWS_CALLBACK_CLIENT_RECEIVE:

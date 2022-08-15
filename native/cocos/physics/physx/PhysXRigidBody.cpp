@@ -37,7 +37,7 @@ using physx::PxVec3;
 namespace cc {
 namespace physics {
 
-PhysXRigidBody::PhysXRigidBody(){
+PhysXRigidBody::PhysXRigidBody() {
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
 }
 

@@ -33,9 +33,9 @@
 
 #include <spine/TransformConstraint.h>
 
-#include <spine/TransformConstraintData.h>
-#include <spine/Skeleton.h>
 #include <spine/Bone.h>
+#include <spine/Skeleton.h>
+#include <spine/TransformConstraintData.h>
 
 #include <spine/BoneData.h>
 

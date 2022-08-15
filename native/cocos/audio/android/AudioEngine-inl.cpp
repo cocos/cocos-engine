@@ -45,13 +45,13 @@
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
 
+#include "audio/android/AudioDecoder.h"
+#include "audio/android/AudioDecoderProvider.h"
 #include "audio/android/AudioPlayerProvider.h"
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/cutils/log.h"
-#include "audio/android/AudioDecoder.h"
-#include "audio/android/AudioDecoderProvider.h"
 #include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
 
@@ -398,7 +398,7 @@ void AudioEngineImpl::onResume() {
     }
 }
 
-PCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
+PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
     PCMHeader header{};
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     if (fileFullPath.empty()) {
@@ -411,7 +411,7 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
         return header;
     }
-    if (!decoder->start()){
+    if (!decoder->start()) {
         CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
         return header;
     }
@@ -429,9 +429,6 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
     return header;
 }
 
-
-
-
 ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     ccstd::vector<uint8_t> pcmData;
@@ -444,7 +441,7 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
         return pcmData;
     }
-    if (!decoder->start()){
+    if (!decoder->start()) {
         CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
         return pcmData;
     }

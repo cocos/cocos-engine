@@ -32,8 +32,8 @@
 #endif
 
 #include <spine/Atlas.h>
-#include <spine/TextureLoader.h>
 #include <spine/ContainerUtil.h>
+#include <spine/TextureLoader.h>
 
 #include <ctype.h>
 

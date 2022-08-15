@@ -1,6 +1,6 @@
 #include "sebind_fruits.h"
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include "bindings/sebind/intl/common.h"
 #include "bindings/sebind/sebind.h"
 #include "tests/sebind-tests/common/Classes/demo/Coconut.h"
@@ -12,7 +12,8 @@ struct Utils {};
 void doAssert(bool value, const std::string &message) {
     if (!value) {
         CC_LOG_ERROR("Assert Fail: %s", message.c_str());
-        std::cerr << "Assert Failed: " <<  message << std::endl;;
+        std::cerr << "Assert Failed: " << message << std::endl;
+        ;
         std::exit(-1);
     }
 }
@@ -41,7 +42,7 @@ float Coconut_area(demo::Coconut *d) {
     return d->getRadius() * d->getRadius() * 3.14F;
 }
 
-bool  Coconut_weight(se::State &s) {
+bool Coconut_weight(se::State &s) {
     s.rval().setFloat(88.8);
     return true;
 }
@@ -110,7 +111,7 @@ bool jsb_register_fruits(se::Object *globalThis) {
             .function("getArea", &Coconut_area)
             .property("weight", &Coconut_weight, &Coconut_weight)
             .function("getWeight", &Coconut_weight)
-            .finalizer([](demo::Coconut*){
+            .finalizer([](demo::Coconut *) {
 
             })
             .install(ns);

@@ -27,7 +27,6 @@
 #include <cstring>
 #include <unordered_map>
 
-
 namespace cc {
 namespace plugin {
 using ListenerEntry = ListEntry<Listener>;

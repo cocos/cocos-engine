@@ -52,7 +52,7 @@ void DevicePassResourceTable::extract(const FrameGraph &graph,
                                       ccstd::vector<Handle> const &from,
                                       ResourceDictionary &to,
                                       bool /*ignoreRenderTarget*/,
-                                      ccstd::vector<const gfx::Texture *> const &/*renderTargets*/) noexcept {
+                                      ccstd::vector<const gfx::Texture *> const & /*renderTargets*/) noexcept {
     std::for_each(from.cbegin(), from.cend(), [&](const Handle handle) {
         if (to.find(handle) != to.cend()) {
             return;

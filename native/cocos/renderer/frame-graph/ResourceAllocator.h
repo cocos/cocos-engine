@@ -26,8 +26,8 @@
 #pragma once
 
 #include <algorithm>
-#include "base/memory/Memory.h"
 #include "base/RefVector.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef.h"
 
@@ -259,7 +259,7 @@ void ResourceAllocator<DeviceResourceType, gfx::FramebufferInfo, DeviceResourceC
 
         while (++destroyBegin < count) {
             auto *resource = pool.back();
-//            delete resource;
+            //            delete resource;
             _ages.erase(resource);
             pool.popBack();
         }

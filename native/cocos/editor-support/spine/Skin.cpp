@@ -37,8 +37,8 @@
 #include <spine/MeshAttachment.h>
 #include <spine/Skeleton.h>
 
-#include <spine/Slot.h>
 #include <spine/ConstraintData.h>
+#include <spine/Slot.h>
 
 #include <assert.h>
 

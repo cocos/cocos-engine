@@ -36,9 +36,9 @@
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 #if CC_SWAPPY_ENABLED
+    #include "platform/android/AndroidPlatform.h"
     #include "swappy/swappyVk.h"
     #include "swappy/swappy_common.h"
-    #include "platform/android/AndroidPlatform.h"
 #endif
 
 namespace cc {

@@ -27,30 +27,29 @@ THE SOFTWARE.
 #include "utils.h"
 
 TEST(simpleClosedBarrierTest, test11) {
-
     // simple graph
     TEST_CASE_2;
-    
+
     boost::container::pmr::memory_resource* resource = boost::container::pmr::get_default_resource();
     RenderGraph renderGraph(resource);
     ResourceGraph rescGraph(resource);
     LayoutGraphData layoutGraphData(resource);
-    
+
     fillTestGraph(rasterData, resources, layoutInfo, renderGraph, rescGraph, layoutGraphData);
-    
+
     FrameGraphDispatcher fgDispatcher(rescGraph, renderGraph, layoutGraphData, resource, resource);
     fgDispatcher.run();
-    
+
     const auto& barrierMap = fgDispatcher.getBarriers();
     const auto& rag = fgDispatcher.resourceAccessGraph;
     ExpectEq(rag.vertices.size() == 10, true);
-    
+
     // head
     const auto& head = barrierMap.at(0);
     ExpectEq(head.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(head.blockBarrier.rearBarriers.empty(), true);
     ExpectEq(head.subpassBarriers.empty(), true);
-    
+
     // 1st node
     const auto& node1 = barrierMap.at(1);
     ExpectEq(node1.blockBarrier.frontBarriers.empty(), true);
@@ -61,7 +60,7 @@ TEST(simpleClosedBarrierTest, test11) {
     ExpectEq(node1.blockBarrier.rearBarriers[0].endStatus.vertID == 1, true);
     ExpectEq(node1.blockBarrier.rearBarriers[1].type == cc::gfx::BarrierType::SPLIT_BEGIN, true);
     ExpectEq(node1.blockBarrier.rearBarriers[1].endStatus.vertID == 3, true);
-    
+
     const auto& node2 = barrierMap.at(2);
     ExpectEq(node2.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(node2.blockBarrier.rearBarriers.size() == 3, true);
@@ -131,7 +130,7 @@ TEST(simpleClosedBarrierTest, test11) {
     ExpectEq(node6.blockBarrier.frontBarriers.empty(), true);
     ExpectEq(node6.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node6.subpassBarriers.empty(), true);
-    
+
     ExpectEq(node6.blockBarrier.rearBarriers[0].resourceID == 8, true);
     ExpectEq(node6.blockBarrier.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
     ExpectEq(node6.blockBarrier.rearBarriers[0].beginStatus.vertID == 6, true);

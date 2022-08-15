@@ -15,8 +15,8 @@ JSB_REGISTER_OBJECT_TYPE(cc::middleware::SharedBufferManager);
 JSB_REGISTER_OBJECT_TYPE(cc::middleware::MiddlewareManager);
 
 
-extern se::Object *__jsb_cc_middleware_Texture2D_proto; // NOLINT
-extern se::Class * __jsb_cc_middleware_Texture2D_class; // NOLINT
+extern se::Object *__jsb_cc_middleware_Texture2D_proto;   // NOLINT
+extern se::Class *__jsb_cc_middleware_Texture2D_class;    // NOLINT
 
 bool js_register_cc_middleware_Texture2D(se::Object *obj); // NOLINT
 
@@ -29,8 +29,8 @@ SE_DECLARE_FUNC(js_editor_support_Texture2D_setRealTextureIndex);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setTexParamCallback);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_Texture2D);
 
-extern se::Object *__jsb_cc_middleware_SharedBufferManager_proto; // NOLINT
-extern se::Class * __jsb_cc_middleware_SharedBufferManager_class; // NOLINT
+extern se::Object *__jsb_cc_middleware_SharedBufferManager_proto;   // NOLINT
+extern se::Class *__jsb_cc_middleware_SharedBufferManager_class;    // NOLINT
 
 bool js_register_cc_middleware_SharedBufferManager(se::Object *obj); // NOLINT
 
@@ -38,8 +38,8 @@ SE_DECLARE_FUNC(js_editor_support_SharedBufferManager_getSharedBuffer);
 SE_DECLARE_FUNC(js_editor_support_SharedBufferManager_setResizeCallback);
 SE_DECLARE_FUNC(js_editor_support_SharedBufferManager_SharedBufferManager);
 
-extern se::Object *__jsb_cc_middleware_MiddlewareManager_proto; // NOLINT
-extern se::Class * __jsb_cc_middleware_MiddlewareManager_class; // NOLINT
+extern se::Object *__jsb_cc_middleware_MiddlewareManager_proto;   // NOLINT
+extern se::Class *__jsb_cc_middleware_MiddlewareManager_class;    // NOLINT
 
 bool js_register_cc_middleware_MiddlewareManager(se::Object *obj); // NOLINT
 

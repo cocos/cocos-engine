@@ -33,9 +33,9 @@
 
 #include <spine/IkConstraint.h>
 
+#include <spine/Bone.h>
 #include <spine/IkConstraintData.h>
 #include <spine/Skeleton.h>
-#include <spine/Bone.h>
 
 #include <spine/BoneData.h>
 

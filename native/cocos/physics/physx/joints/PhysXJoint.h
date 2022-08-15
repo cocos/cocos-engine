@@ -50,7 +50,7 @@ public:
     virtual void updateScale1() = 0;
     static physx::PxRigidActor &getTempRigidActor();
     static void releaseTempRigidActor();
-    uint32_t getObjectID() const override {return _mObjectID;};
+    uint32_t getObjectID() const override { return _mObjectID; };
 
 protected:
     physx::PxJoint *_mJoint{nullptr};
@@ -59,7 +59,7 @@ protected:
     bool _mEnableCollision{false};
     virtual void onComponentSet() = 0;
     uint32_t _mObjectID{0};
-    
+
 private:
     static physx::PxRigidActor *tempRigidActor;
 };

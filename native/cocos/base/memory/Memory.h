@@ -65,7 +65,7 @@ public:
 } // namespace cc
 
 #define ccnew                new (std::nothrow) //NOLINT(readability-identifier-naming)
-#define ccnew_placement(...) new (__VA_ARGS__) //NOLINT(readability-identifier-naming)
+#define ccnew_placement(...) new (__VA_ARGS__)  //NOLINT(readability-identifier-naming)
 
 #define CC_SAFE_DELETE(ptr) \
     if (ptr) {              \

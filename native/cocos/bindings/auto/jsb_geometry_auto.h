@@ -21,14 +21,14 @@ JSB_REGISTER_OBJECT_TYPE(cc::geometry::Spline);
 JSB_REGISTER_OBJECT_TYPE(cc::geometry::Triangle);
 
 
-extern se::Object *__jsb_cc_geometry_ShapeBase_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_ShapeBase_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_ShapeBase_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_ShapeBase_class;    // NOLINT
 
 bool js_register_cc_geometry_ShapeBase(se::Object *obj); // NOLINT
 
 
-extern se::Object *__jsb_cc_geometry_AABB_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_AABB_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_AABB_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_AABB_class;    // NOLINT
 
 bool js_register_cc_geometry_AABB(se::Object *obj); // NOLINT
 
@@ -37,16 +37,16 @@ SE_DECLARE_FUNC(js_geometry_AABB_create);
 SE_DECLARE_FUNC(js_geometry_AABB_toBoundingSphere);
 SE_DECLARE_FUNC(js_geometry_AABB_AABB);
 
-extern se::Object *__jsb_cc_geometry_Capsule_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Capsule_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Capsule_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Capsule_class;    // NOLINT
 
 bool js_register_cc_geometry_Capsule(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_geometry_Capsule_transform);
 SE_DECLARE_FUNC(js_geometry_Capsule_Capsule);
 
-extern se::Object *__jsb_cc_geometry_Plane_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Plane_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Plane_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Plane_class;    // NOLINT
 
 bool js_register_cc_geometry_Plane(se::Object *obj); // NOLINT
 
@@ -71,8 +71,8 @@ SE_DECLARE_FUNC(js_geometry_Plane_normalize);
 SE_DECLARE_FUNC(js_geometry_Plane_set);
 SE_DECLARE_FUNC(js_geometry_Plane_Plane);
 
-extern se::Object *__jsb_cc_geometry_Frustum_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Frustum_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Frustum_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Frustum_class;    // NOLINT
 
 bool js_register_cc_geometry_Frustum(se::Object *obj); // NOLINT
 
@@ -86,8 +86,8 @@ SE_DECLARE_FUNC(js_geometry_Frustum_createFromAABB);
 SE_DECLARE_FUNC(js_geometry_Frustum_createOrtho);
 SE_DECLARE_FUNC(js_geometry_Frustum_Frustum);
 
-extern se::Object *__jsb_cc_geometry_Line_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Line_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Line_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Line_class;    // NOLINT
 
 bool js_register_cc_geometry_Line(se::Object *obj); // NOLINT
 
@@ -100,8 +100,8 @@ SE_DECLARE_FUNC(js_geometry_Line_len);
 SE_DECLARE_FUNC(js_geometry_Line_set);
 SE_DECLARE_FUNC(js_geometry_Line_Line);
 
-extern se::Object *__jsb_cc_geometry_Ray_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Ray_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Ray_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Ray_class;    // NOLINT
 
 bool js_register_cc_geometry_Ray(se::Object *obj); // NOLINT
 
@@ -112,8 +112,8 @@ SE_DECLARE_FUNC(js_geometry_Ray_fromPoints);
 SE_DECLARE_FUNC(js_geometry_Ray_set);
 SE_DECLARE_FUNC(js_geometry_Ray_Ray);
 
-extern se::Object *__jsb_cc_geometry_Sphere_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Sphere_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Sphere_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Sphere_class;    // NOLINT
 
 bool js_register_cc_geometry_Sphere(se::Object *obj); // NOLINT
 
@@ -143,8 +143,8 @@ SE_DECLARE_FUNC(js_geometry_Sphere_mergePoint);
 SE_DECLARE_FUNC(js_geometry_Sphere_set);
 SE_DECLARE_FUNC(js_geometry_Sphere_Sphere);
 
-extern se::Object *__jsb_cc_geometry_Spline_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Spline_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Spline_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Spline_class;    // NOLINT
 
 bool js_register_cc_geometry_Spline(se::Object *obj); // NOLINT
 
@@ -163,8 +163,8 @@ SE_DECLARE_FUNC(js_geometry_Spline_copy);
 SE_DECLARE_FUNC(js_geometry_Spline_create);
 SE_DECLARE_FUNC(js_geometry_Spline_Spline);
 
-extern se::Object *__jsb_cc_geometry_Triangle_proto; // NOLINT
-extern se::Class * __jsb_cc_geometry_Triangle_class; // NOLINT
+extern se::Object *__jsb_cc_geometry_Triangle_proto;   // NOLINT
+extern se::Class *__jsb_cc_geometry_Triangle_class;    // NOLINT
 
 bool js_register_cc_geometry_Triangle(se::Object *obj); // NOLINT
 

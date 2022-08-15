@@ -21,12 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
-#include "cocos/math/Vec2.h"
-#include "cocos/math/Math.h"
-#include "cocos/math/Geometry.h"
-#include "utils.h"
 #include <math.h>
+#include "cocos/math/Geometry.h"
+#include "cocos/math/Math.h"
+#include "cocos/math/Vec2.h"
+#include "gtest/gtest.h"
+#include "utils.h"
 
 TEST(mathGeometryTest, test7) {
     // setSize
