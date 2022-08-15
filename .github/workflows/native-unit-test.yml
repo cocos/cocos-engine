@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/dumganhar/cocos-engine-external external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
 
       - name: Generate bindings
         run: |
