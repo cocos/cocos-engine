@@ -123,3 +123,6 @@ for (const config of swigConfigMap) {
     generateBindings(config[0], config[1]);
 }
 
+console.info(`======================================================================`)
+console.info(`    Congratulations, JS binding code was generated successfully!`);
+console.info(`======================================================================`)
