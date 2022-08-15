@@ -71,7 +71,6 @@ CCProgram sky-fs %{
     float angle = rotationAngle * PI / 180.0;
     float cosTheta = cos(angle), sinTheta = sin(angle);
     vec3 rotationDir = RotationVecFromAxisY(viewDir.xyz,cosTheta,sinTheta);
-    rotationDir.y = viewDir.y;
 
     #if USE_RGBE_CUBEMAP
       vec3 c = unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));

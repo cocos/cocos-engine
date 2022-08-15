@@ -47,7 +47,7 @@ vec3 RotationVecFromAxisY(vec3 v, float cosTheta, float sinTheta)
 {
     vec3 result;
     result.x = dot(v, vec3(cosTheta, 0.0, -sinTheta));
-    result.y = 0.0;
+    result.y = v.y;
     result.z = dot(v, vec3(sinTheta, 0.0,  cosTheta));
     return result;
 }
