@@ -174,7 +174,7 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
   //  2. namespace is needed
   //
   
-  %ignore cc::ClassToBeIngored;
+  %ignore cc::ClassToBeIgnored;
   // We don't wanna MyGrandFather to be the parent of MyNewBaseClass, so ignore it.
   %ignore cc::my_sub_ns::MyGrandFather;
   
@@ -305,8 +305,6 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
       return true;   
   }
   ```
-
-  
 
 - Add test code in your project's script
 
