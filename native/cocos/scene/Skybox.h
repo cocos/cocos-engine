@@ -287,7 +287,6 @@ private:
     void updatePipeline() const;
     void updateGlobalBinding();
     void updateSubModes() const;
-    void updateRotationAngle() const;
 
     IntrusivePtr<TextureCube> _envmapLDR;
     IntrusivePtr<TextureCube> _envmapHDR;

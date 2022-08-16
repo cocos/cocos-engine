@@ -484,13 +484,6 @@ void Skybox::updateSubModes() const {
         }
     }
 }
-void Skybox::updateRotationAngle() const {
-    if (isEnabled()) {
-        if (_material) {
-            _material->setProperty("rotationAngle", static_cast<float>(_rotationAngle));
-        }
-    }
-}
 
 } // namespace scene
 } // namespace cc
