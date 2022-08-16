@@ -55,7 +55,7 @@ void World::setGravity(float x, float y, float z) {
 }
 
 bool World::createMaterial(uint16_t id, float f, float df, float r,
-                                uint8_t m0, uint8_t m1) {
+                           uint8_t m0, uint8_t m1) {
     return _impl->createMaterial(id, f, df, r, m0, m1);
 }
 

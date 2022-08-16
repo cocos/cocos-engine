@@ -24,12 +24,12 @@
  ****************************************************************************/
 
 #pragma once
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <mutex>
 #include <sstream>
 #include <utility>
-#include <algorithm>
 #include "base/StringUtil.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"

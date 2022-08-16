@@ -303,7 +303,7 @@ gfx::UniformBlock UBOSkinning::layout = {
     },
     1,
 };
-void UBOSkinning::initLayout (uint32_t capacity) {
+void UBOSkinning::initLayout(uint32_t capacity) {
     UBOSkinning::count = capacity * 12;
     UBOSkinning::size = UBOSkinning::count * sizeof(float);
     UBOSkinning::layout.members[0].count = capacity * 3;
@@ -579,7 +579,7 @@ bool supportsR32FloatTexture(const gfx::Device* device) {
 static ccstd::unordered_map<ccstd::string, uint32_t> phases; //cjh how to clear this global variable when exiting game?
 static uint32_t phaseNum = 0;
 
-uint32_t getPhaseID(const ccstd::string &phaseName) {
+uint32_t getPhaseID(const ccstd::string& phaseName) {
     const auto iter = phases.find(phaseName);
     if (iter == phases.end()) {
         phases.emplace(phaseName, 1 << phaseNum);

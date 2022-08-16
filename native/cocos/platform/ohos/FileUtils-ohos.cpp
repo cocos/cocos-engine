@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #include "platform/ohos/FileUtils-ohos.h"
-#include <cstdio>
 #include <hilog/log.h>
-#include <regex>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <unistd.h>
-#include "base/std/container/string.h"
-#include "base/memory/Memory.h"
+#include <cstdio>
+#include <regex>
 #include "base/Log.h"
+#include "base/memory/Memory.h"
+#include "base/std/container/string.h"
 #include "platform/java/jni/JniHelper.h"
 
 #define ASSETS_FOLDER_NAME "@assets/"

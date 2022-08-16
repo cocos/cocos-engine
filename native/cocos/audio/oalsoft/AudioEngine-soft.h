@@ -27,8 +27,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "audio/oalsoft/AudioCache.h"
 #include "audio/include/AudioDef.h"
+#include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioPlayer.h"
 #include "base/std/container/unordered_map.h"
 #include "cocos/base/RefCounted.h"
@@ -63,7 +63,7 @@ public:
     void uncacheAll();
     AudioCache *preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
     void update(float dt);
-    PCMHeader getPCMHeader(const char* url);
+    PCMHeader getPCMHeader(const char *url);
     ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
 
 private:

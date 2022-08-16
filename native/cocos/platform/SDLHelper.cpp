@@ -398,7 +398,7 @@ uintptr_t SDLHelper::getWindowHandle() const {
     return 0;
 }
 
-SDL_Window* SDLHelper::getSDLWindowHandle() const {
+SDL_Window *SDLHelper::getSDLWindowHandle() const {
     return _handle;
 }
 

@@ -31,9 +31,9 @@
     #include "SpinePluginPrivatePCH.h"
 #endif
 
+#include <spine/Animation.h>
 #include <spine/AnimationStateData.h>
 #include <spine/SkeletonData.h>
-#include <spine/Animation.h>
 
 using namespace spine;
 

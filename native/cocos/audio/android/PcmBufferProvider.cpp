@@ -25,8 +25,8 @@ THE SOFTWARE.
 
 #define LOG_TAG "PcmBufferProvider"
 
-#include "audio/android/cutils/log.h"
 #include "audio/android/PcmBufferProvider.h"
+#include "audio/android/cutils/log.h"
 
 //#define VERY_VERY_VERBOSE_LOGGING
 #ifdef VERY_VERY_VERBOSE_LOGGING

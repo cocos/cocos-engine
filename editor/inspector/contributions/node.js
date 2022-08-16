@@ -990,20 +990,25 @@ const Elements = {
                     sectionBody.__sections__[i] = $section;
                     sectionBody.appendChild($section);
 
-                    // 再处理内部
-                    let renderList = panel.renderMap.section[$section.__type__];
+                    // 排序
+                    const renderListHeader = panel.renderMap.header[$section.__type__] ?? [];
+                    let renderListSection = panel.renderMap.section[$section.__type__] ?? [];
+                    const renderListFooter = panel.renderMap.footer[$section.__type__] ?? [];
+
 
                     // 如果都没有渲染模板，使用默认 cc.Class 模板
-                    if (!renderList || !renderList.length) {
+                    if (!renderListSection.length) {
                         // 判断继承
                         if (Array.isArray(component.extends)) {
                             const parentClass = component.extends[0];
-                            renderList = panel.renderMap.section[parentClass];
+                            renderListSection = panel.renderMap.section[parentClass];
                         }
-                        if (!renderList) {
-                            renderList = panel.renderMap.section['cc.Class'];
+                        if (!renderListSection) {
+                            renderListSection = panel.renderMap.section['cc.Class'];
                         }
                     }
+
+                    let renderList = [...renderListHeader, ...renderListSection, ...renderListFooter];
 
                     renderList.forEach((file) => {
                         const $panel = document.createElement('ui-panel');
@@ -1248,7 +1253,7 @@ const Elements = {
                         panel.$.sectionAsset.prepend(materialPanel);
                     }
 
-                    materialPanel.addEventListener('focus', () => {
+                    materialPanel.focusEventInNode = () => {
                         const children = Array.from(materialPanel.parentElement.children);
                         children.forEach((child) => {
                             if (child === materialPanel) {
@@ -1257,14 +1262,16 @@ const Elements = {
                                 child.removeAttribute('focused');
                             }
                         });
-                    });
-                    materialPanel.addEventListener('blur', () => {
+                    };
+                    materialPanel.blurEventInNode = () => {
                         if (panel.blurSleep) {
                             return;
                         }
 
                         materialPanel.removeAttribute('focused');
-                    });
+                    };
+                    materialPanel.addEventListener('focus', materialPanel.focusEventInNode);
+                    materialPanel.addEventListener('blur', materialPanel.blurEventInNode);
                 }
                 materialPanels.push(materialPanel);
                 materialPrevPanel = materialPanel;
@@ -1274,6 +1281,10 @@ const Elements = {
             for (const oldChild of oldChildren) {
                 if (oldChild && materialPanels.indexOf(oldChild) === -1) {
                     await oldChild.panel.beforeClose.call(oldChild.panelObject);
+                    oldChild.removeEventListener('focus', oldChild.focusEventInNode);
+                    oldChild.removeEventListener('blur', oldChild.blurEventInNode);
+                    oldChild.focusEventInNode = undefined;
+                    oldChild.blurEventInNode = undefined;
                     oldChild.remove();
                 }
             }
@@ -1289,6 +1300,10 @@ const Elements = {
                 if (next === false) {
                     return false;
                 } else {
+                    materialPanel.removeEventListener('focus', materialPanel.focusEventInNode);
+                    materialPanel.removeEventListener('blur', materialPanel.blurEventInNode);
+                    materialPanel.focusEventInNode = undefined;
+                    materialPanel.blurEventInNode = undefined;
                     materialPanel.remove();
                 }
             }

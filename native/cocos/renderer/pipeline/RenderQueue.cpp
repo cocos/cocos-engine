@@ -33,8 +33,8 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXShader.h"
 #include "scene/Model.h"
-#include "scene/SubModel.h"
 #include "scene/Pass.h"
+#include "scene/SubModel.h"
 
 namespace cc {
 namespace pipeline {

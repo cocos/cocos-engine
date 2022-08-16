@@ -45,7 +45,7 @@ struct Render2dLayout {
     Vec4 color;
 };
 
-enum class RenderDrawInfoType: uint8_t {
+enum class RenderDrawInfoType : uint8_t {
     COMP,
     MODEL,
     IA,
@@ -187,8 +187,8 @@ public:
     }
 
     inline Node* getSubNode() const {
-        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE); 
-        return _subNode; 
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
+        return _subNode;
     }
     inline void setSubNode(Node* node) {
         CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
@@ -217,6 +217,32 @@ public:
 
     inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
     void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
+
+    inline void resetDrawInfo() {
+        destroy();
+
+        _drawInfoAttrs._bufferId = 0;
+        _drawInfoAttrs._accId = 0;
+        _drawInfoAttrs._vertexOffset = 0;
+        _drawInfoAttrs._indexOffset = 0;
+        _drawInfoAttrs._vbCount = 0;
+        _drawInfoAttrs._ibCount = 0;
+        _drawInfoAttrs._stride = 0;
+        _drawInfoAttrs._dataHash = 0;
+        _drawInfoAttrs._vertDirty = false;
+        _drawInfoAttrs._isMeshBuffer = false;
+
+        _vbBuffer = nullptr;
+        _ibBuffer = nullptr;
+        _vDataBuffer = nullptr;
+        _iDataBuffer = nullptr;
+        _material = nullptr;
+        _texture = nullptr;
+        _sampler = nullptr;
+        _subNode = nullptr;
+        _model = nullptr;
+        _sharedBuffer = nullptr;
+    }
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);

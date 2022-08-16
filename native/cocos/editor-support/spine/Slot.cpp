@@ -33,10 +33,10 @@
 
 #include <spine/Slot.h>
 
-#include <spine/SlotData.h>
+#include <spine/Attachment.h>
 #include <spine/Bone.h>
 #include <spine/Skeleton.h>
-#include <spine/Attachment.h>
+#include <spine/SlotData.h>
 
 using namespace spine;
 

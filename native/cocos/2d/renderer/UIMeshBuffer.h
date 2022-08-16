@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #pragma once
+#include "base/Macros.h"
 #include "base/TypeDef.h"
 #include "renderer/gfx-base/GFXDef-common.h"
-#include "base/Macros.h"
 
 namespace cc {
 struct MeshBufferLayout {
@@ -71,8 +71,8 @@ public:
     inline uint32_t getFloatsPerVertex() const { return _meshBufferLayout->floatsPerVertex; }
     void setFloatsPerVertex(uint32_t floatsPerVertex);
     inline bool getUseLinkData() const { return _useLinkData; }
-    inline void setUseLinkData(bool val) { _useLinkData = val;}
-    inline const ccstd::vector<gfx::Attribute> &getAttributes() const {
+    inline void setUseLinkData(bool val) { _useLinkData = val; }
+    inline const ccstd::vector<gfx::Attribute>& getAttributes() const {
         return _attributes;
     }
 

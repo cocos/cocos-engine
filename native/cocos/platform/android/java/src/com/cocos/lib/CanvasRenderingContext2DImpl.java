@@ -36,8 +36,6 @@ import android.text.TextPaint;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.HashMap;
 
 public class CanvasRenderingContext2DImpl {
@@ -74,6 +72,14 @@ public class CanvasRenderingContext2DImpl {
     private String mFontName = "Arial";
     private float mFontSize = 40.0f;
     private float mLineWidth = 0.0f;
+    private float mShadowBlur = 0.0f;
+    private float mShadowOffsetX = 0.0f;
+    private float mShadowOffsetY = 0.0f;
+    private int mShadowColorA = 0;
+    private int mShadowColorB = 0;
+    private int mShadowColorG = 0;
+    private int mShadowColorR = 0;
+
     private static float _sApproximatingOblique = -0.25f;//please check paint api documentation
     private boolean mIsBoldFont = false;
     private boolean mIsItalicFont = false;
@@ -311,6 +317,25 @@ public class CanvasRenderingContext2DImpl {
         mLineJoin = lineJoin;
     }
 
+    private void setShadowBlur(float blur) {
+        mShadowBlur = blur * 0.5f;
+    }
+
+    private void setShadowColor(int r, int g, int b, int a) {
+        mShadowColorR = r;
+        mShadowColorG = g;
+        mShadowColorB = b;
+        mShadowColorA = a;
+    }
+
+    private void setShadowOffsetX(float offsetX) {
+        mShadowOffsetX = offsetX;
+    }
+
+    private void setShadowOffsetY(float offsetY) {
+        mShadowOffsetY = offsetY;
+    }
+
     private void saveContext() {
         mCanvas.save();
     }
@@ -370,6 +395,7 @@ public class CanvasRenderingContext2DImpl {
     private void fillText(String text, float x, float y, float maxWidth) {
 //        Log.d(TAG, "this: " + this + ", fillText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
         createTextPaintIfNeeded();
+        configShadow(mTextPaint);
         mTextPaint.setARGB(mFillStyleA, mFillStyleR, mFillStyleG, mFillStyleB);
         mTextPaint.setStyle(Paint.Style.FILL);
         scaleX(mTextPaint, text, maxWidth);
@@ -380,12 +406,22 @@ public class CanvasRenderingContext2DImpl {
     private void strokeText(String text, float x, float y, float maxWidth) {
         // Log.d(TAG, "strokeText: " + text + ", " + x + ", " + y + ", " + ", " + maxWidth);
         createTextPaintIfNeeded();
+        configShadow(mTextPaint);
         mTextPaint.setARGB(mStrokeStyleA, mStrokeStyleR, mStrokeStyleG, mStrokeStyleB);
         mTextPaint.setStyle(Paint.Style.STROKE);
         mTextPaint.setStrokeWidth(mLineWidth);
         scaleX(mTextPaint, text, maxWidth);
         Point pt = convertDrawPoint(new Point(x, y), text);
         mCanvas.drawText(text, pt.x, pt.y, mTextPaint);
+    }
+
+    private void configShadow(Paint paint) {
+        if (mShadowColorA > 0 && (Math.abs(mShadowOffsetX) > Float.MIN_VALUE ||
+                                  Math.abs(mShadowOffsetY) > Float.MIN_VALUE ||
+                                  mShadowBlur > Float.MIN_VALUE)) {
+            paint.setShadowLayer(mShadowBlur, mShadowOffsetX, mShadowOffsetY,
+                Color.argb(mShadowColorA, mShadowColorR, mShadowColorG, mShadowColorB));
+        }
     }
 
     private float measureText(String text) {
@@ -416,20 +452,20 @@ public class CanvasRenderingContext2DImpl {
         mTextBaseline = baseline;
     }
 
-    private void setFillStyle(float r, float g, float b, float a) {
+    private void setFillStyle(int r, int g, int b, int a) {
         // Log.d(TAG, "setFillStyle: " + r + ", " + g + ", " + b + ", " + a);
-        mFillStyleR = (int)(r * 255.0f);
-        mFillStyleG = (int)(g * 255.0f);
-        mFillStyleB = (int)(b * 255.0f);
-        mFillStyleA = (int)(a * 255.0f);
+        mFillStyleR = r;
+        mFillStyleG = g;
+        mFillStyleB = b;
+        mFillStyleA = a;
     }
 
-    private void setStrokeStyle(float r, float g, float b, float a) {
+    private void setStrokeStyle(int r, int g, int b, int a) {
         // Log.d(TAG, "setStrokeStyle: " + r + ", " + g + ", " + b + ", " + a);
-        mStrokeStyleR = (int)(r * 255.0f);
-        mStrokeStyleG = (int)(g * 255.0f);
-        mStrokeStyleB = (int)(b * 255.0f);
-        mStrokeStyleA = (int)(a * 255.0f);
+        mStrokeStyleR = r;
+        mStrokeStyleG = g;
+        mStrokeStyleB = b;
+        mStrokeStyleA = a;
     }
 
     private void setLineWidth(float lineWidth) {

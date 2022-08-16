@@ -10,9 +10,17 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.worldNormal = SurfacesFragmentModifyWorldNormal();
   SurfacesFragmentModifyWorldTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal);
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
-  vec4 anisotropyParams = SurfacesFragmentModifyAnisotropyParams();
-  surfaceData.anisotropyShape = anisotropyParams.y;
-  RotateTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal, anisotropyParams.x);
+  float isRotation;
+  vec4 anisotropyParams = SurfacesFragmentModifyAnisotropyParams(isRotation);
+  surfaceData.anisotropyShape = anisotropyParams.x;
+  if (isRotation > 0.0) {
+    RotateTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal, anisotropyParams.y);
+  } else {
+    vec3 anisoDirTS = anisotropyParams.yzw;
+    vec3 tangentWS = anisoDirTS.x * surfaceData.worldTangent + anisoDirTS.y * surfaceData.worldBinormal + anisoDirTS.z * surfaceData.worldNormal;
+    surfaceData.worldTangent = normalize(tangentWS);
+    surfaceData.worldBinormal = cross(surfaceData.worldNormal, tangentWS);
+  }
 #endif
 
   surfaceData.emissive = SurfacesFragmentModifyEmissive();
@@ -133,7 +141,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 // Debug view
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-void CCSurfacesDebugViewSurfaceData(out vec4 color, in SurfacesMaterialData surfaceData)
+void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
 {
     vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
     float scalar;

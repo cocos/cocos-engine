@@ -232,7 +232,7 @@ CC_FORCE_INLINE HalfRaw floatToHalf(float ff) {
     const float32_bits f32infty = {255 << 23};
     const float32_bits f16max = {(127 + 16) << 23};
     const float32_bits denorm_magic = {((127 - 15) + (23 - 10) + 1) << 23}; // NOLINT(readability-identifier-naming)
-    unsigned int sign_mask = 0x80000000U; // NOLINT
+    unsigned int sign_mask = 0x80000000U;                                   // NOLINT
     HalfRaw o;
     o.x = static_cast<uint16_t>(0x0U);
 
@@ -256,7 +256,7 @@ CC_FORCE_INLINE HalfRaw floatToHalf(float ff) {
             // and one integer subtract of the bias later, we have our final float!
             o.x = static_cast<uint16_t>(f.u - denorm_magic.u);
         } else {
-            unsigned int mant_odd = (f.u >> 13) & 1; // NOLINT(readability-identifier-naming) // resulting mantissa is odd 
+            unsigned int mant_odd = (f.u >> 13) & 1; // NOLINT(readability-identifier-naming) // resulting mantissa is odd
 
             // update exponent, rounding bias part 1
             // Equivalent to `f.u += ((unsigned int)(15 - 127) << 23) + 0xfff`, but

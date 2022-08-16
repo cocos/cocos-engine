@@ -26,9 +26,9 @@
 #include "core/assets/EffectAsset.h"
 #include "cocos.h"
 #include "core/Root.h"
+#include "core/platform/Debug.h"
 #include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
-#include "core/platform/Debug.h"
 
 namespace cc {
 
@@ -154,14 +154,13 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
         "spine",
         "occlusion-query",
         "geometry-renderer",
-        "debug-renderer"
-    };
+        "debug-renderer"};
     for (auto &legacyName : legacyBuiltinEffectNames) {
         if (name == legacyName) {
             debug::warnID(16101, name);
         }
     }
-    
+
     return nullptr;
 }
 
