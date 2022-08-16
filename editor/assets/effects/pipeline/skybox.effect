@@ -59,21 +59,12 @@ CCProgram sky-fs %{
 
   in mediump vec4 viewDir;
 
-  vec3 getEnvironment(samplerCube cubeMap)
-  {
-    #if USE_RGBE_CUBEMAP
-      vec3 c = unpackRGBE(fragTextureLod(cubeMap, viewDir.xyz, 0.0));
-    #else
-      vec3 c = SRGBToLinear(fragTextureLod(cubeMap, viewDir.xyz, 0.0).rgb);
-    #endif
-    return c;
-  }
   uniform samplerCube environmentMap;
   vec4 frag () {
-    #if USE_REFLECTION_CUBEMAP
-      vec3 c = getEnvironment(environmentMap);
+    #if USE_RGBE_CUBEMAP
+      vec3 c = unpackRGBE(fragTextureLod(environmentMap, viewDir.xyz, 0.0));
     #else
-      vec3 c = getEnvironment(cc_environment);
+      vec3 c = SRGBToLinear(fragTextureLod(environmentMap, viewDir.xyz, 0.0).rgb);
     #endif
     return CCFragOutput(vec4(c * cc_ambientSky.w, 1.0));
   }

@@ -1340,6 +1340,7 @@ struct ALIGNAS(8) GeneralBarrierInfo {
     AccessFlags nextAccesses{AccessFlagBit::NONE};
 
     BarrierType type{BarrierType::FULL};
+    uint32_t _padding{0};
 
     EXPOSE_COPY_FN(GeneralBarrierInfo)
 };

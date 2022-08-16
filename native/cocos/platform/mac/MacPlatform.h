@@ -50,7 +50,6 @@ public:
      */
     int32_t loop() override;
     void setFps(int32_t fps) override;
-    int32_t getFps() const override;
 
     void onPause() override;
     void onResume() override;

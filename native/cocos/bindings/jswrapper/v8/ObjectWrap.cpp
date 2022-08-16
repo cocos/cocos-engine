@@ -85,6 +85,11 @@ void ObjectWrap::wrap(void *nativeObj, uint32_t fieldIndex) {
     CC_ASSERT(handle()->InternalFieldCount() > 0);
     CC_ASSERT(fieldIndex >= 0 && fieldIndex < 1);
     handle()->SetAlignedPointerInInternalField(static_cast<int>(fieldIndex), nativeObj);
+    if (nativeObj) {
+        persistent().SetWrapperClassId(MAGIC_CLASS_ID_JSB);
+    } else {
+        persistent().SetWrapperClassId(0);
+    }
 }
 
 v8::Local<v8::Object> ObjectWrap::handle() {

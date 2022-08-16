@@ -37,6 +37,7 @@
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 
 #if CC_SWAPPY_ENABLED
+    #include "platform/android/AndroidPlatform.h"
     #include "swappy/swappyVk.h"
     #include "swappy/swappy_common.h"
 #endif
@@ -224,6 +225,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     int32_t fps = cc::BasePlatform::getPlatform()->getFps();
 
     uint64_t frameRefreshIntervalNS;
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
     SwappyVk_initAndGetRefreshCycleDuration(static_cast<JNIEnv *>(platform->getEnv()),
                                             static_cast<jobject>(platform->getActivity()),
                                             gpuContext->physicalDevice,
@@ -310,8 +312,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
     destroySwapchain(gpuDevice);
 
-    gpuDevice->curBackBufferIndex = 0;
-    _gpuSwapchain->curImageIndex = 0;
     _gpuSwapchain->vkSwapchain = vkSwapchain;
 
     uint32_t imageCount;
@@ -371,7 +371,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     return true;
 }
 
-void CCVKSwapchain::destroySwapchain(const CCVKGPUDevice *gpuDevice) {
+void CCVKSwapchain::destroySwapchain(CCVKGPUDevice *gpuDevice) {
     if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
         for (auto &it : _gpuSwapchain->vkSwapchainFramebufferListMap) {
             FramebufferList &list = it.second;
@@ -389,12 +389,15 @@ void CCVKSwapchain::destroySwapchain(const CCVKGPUDevice *gpuDevice) {
 
         vkDestroySwapchainKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, nullptr);
         _gpuSwapchain->vkSwapchain = VK_NULL_HANDLE;
+        // reset index only after device not ready
+        _gpuSwapchain->curImageIndex = 0;
+        gpuDevice->curBackBufferIndex = 0;
     }
 }
 
 void CCVKSwapchain::doDestroySurface() {
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface == VK_NULL_HANDLE) return;
-    const auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 
     CCVKDevice::getInstance()->waitAllFences();

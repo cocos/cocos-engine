@@ -113,13 +113,14 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
   color.xyz += lightingResult.directSpecular * lightingResult.specularColorWithLighting;
 #else
-  color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting
-    + (lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
+  color.xyz +=
+    ( lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting
+    + lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.directSpecular * lightingResult.specularColorWithLighting)
     * lightingResult.shadow;
 
-  color.xyz += (
-    lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
+  color.xyz +=
+    ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting)
     * lightingResult.ao;
 
@@ -132,7 +133,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 // Debug view
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-void CCSurfacesDebugViewSurfaceData(out vec4 color, in SurfacesMaterialData surfaceData)
+void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
 {
     vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
     float scalar;

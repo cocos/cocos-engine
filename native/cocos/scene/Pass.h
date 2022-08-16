@@ -298,6 +298,7 @@ public:
 
     // Only for UI
     void initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, ccstd::hash_t hashFactor);
+    void updatePassHash();
 
     //  internal use
     /**

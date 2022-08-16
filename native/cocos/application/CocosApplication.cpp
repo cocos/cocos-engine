@@ -47,15 +47,27 @@ CocosApplication::CocosApplication() {
 }
 
 CocosApplication::~CocosApplication() {
-    _engine->off(BaseEngine::ON_RESUME);
-    _engine->off(BaseEngine::ON_PAUSE);
-    _engine->off(BaseEngine::ON_CLOSE);
+    unregisterAllEngineEvents();
+}
+
+void CocosApplication::unregisterAllEngineEvents() {
+    if (_engine != nullptr) {
+        _engine->offAll(BaseEngine::ON_START);
+        _engine->offAll(BaseEngine::ON_RESUME);
+        _engine->offAll(BaseEngine::ON_PAUSE);
+        _engine->offAll(BaseEngine::ON_CLOSE);
+    }
 }
 
 int CocosApplication::init() {
     if (_engine->init()) {
         return -1;
     }
+    unregisterAllEngineEvents();
+
+    _engine->on(BaseEngine::ON_START, [this]() {
+        this->onStart();
+    });
 
     _systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
 
@@ -114,6 +126,10 @@ void CocosApplication::close() {
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
+}
+
+void CocosApplication::onStart() {
+    // TODO(cc): Handling engine start events
 }
 
 void CocosApplication::onPause() {

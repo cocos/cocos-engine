@@ -15,6 +15,9 @@ test('Evaluate embedded players in animation state', () => {
         expect(targetNode).toBe(node);
         return embeddedPlayerEvaluation as unknown as ReturnType<AnimationClip['createEmbeddedPlayerEvaluator']>;
     });
+    jest.spyOn(clip, 'containsAnyEmbeddedPlayer').mockImplementation(() => {
+        return true;
+    });
 
     const animationState = new AnimationState(clip);
     animationState.initialize(node);

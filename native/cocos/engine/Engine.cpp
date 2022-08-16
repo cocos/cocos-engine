@@ -98,10 +98,15 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
 namespace cc {
 
-Engine::Engine() = default;
+Engine::Engine() {
+    _scriptEngine = ccnew se::ScriptEngine();
+}
 
 Engine::~Engine() {
     destroy();
+
+    delete _scriptEngine;
+    _scriptEngine = nullptr;
 }
 
 int32_t Engine::init() {
@@ -120,7 +125,6 @@ int32_t Engine::init() {
     _profiler = ccnew Profiler();
 #endif
 
-    _scriptEngine = ccnew se::ScriptEngine();
     EventDispatcher::init();
 
     BasePlatform *platform = BasePlatform::getPlatform();
@@ -138,6 +142,7 @@ int32_t Engine::init() {
 
 void Engine::destroy() {
     cc::DeferredReleasePool::clear();
+    cc::network::HttpClient::destroyInstance();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
     CCObject::deferredDestroy();
@@ -150,7 +155,9 @@ void Engine::destroy() {
 
     // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
     // and ScriptEngine will hold gfx objects.
-    delete _scriptEngine;
+    // Because the user registration interface needs to be added during initialization.
+    // ScriptEngine cannot be released here.
+    _scriptEngine->cleanup();
 
 #if CC_USE_PROFILER
     delete _profiler;
@@ -273,7 +280,7 @@ void Engine::tick() {
         ++_totalFrames;
 
         // iOS/macOS use its own fps limitation algorithm.
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
         if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(

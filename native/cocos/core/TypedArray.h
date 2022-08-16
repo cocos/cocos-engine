@@ -136,6 +136,11 @@ public:
             _byteOffset = o._byteOffset;
             _byteLength = o._byteLength;
             _byteEndPos = o._byteEndPos;
+
+            if (_jsTypedArray != nullptr) {
+                _jsTypedArray->unroot();
+                _jsTypedArray->decRef();
+            }
             _jsTypedArray = o._jsTypedArray;
 
             o._buffer = nullptr;
