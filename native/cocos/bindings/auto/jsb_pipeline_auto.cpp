@@ -6828,7 +6828,7 @@ static bool js_cc_pipeline_RenderPipelineInfo_flows_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->flows, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipelineInfo_flows_set,2,SWIGTYPE_ccstd__vectorT_cc__pipeline__RenderFlow_p_t"); 
+    SE_PRECONDITION2(ok, false, "RenderPipelineInfo_flows_set,2,SWIGTYPE_ccstd__vectorT_cc__IntrusivePtrT_cc__pipeline__RenderFlow_t_t"); 
     
     
     
@@ -8403,7 +8403,7 @@ static bool js_cc_pipeline_RenderFlowInfo_stages_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->stages, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderFlowInfo_stages_set,2,SWIGTYPE_ccstd__vectorT_cc__pipeline__RenderStage_p_t"); 
+    SE_PRECONDITION2(ok, false, "RenderFlowInfo_stages_set,2,SWIGTYPE_ccstd__vectorT_cc__IntrusivePtrT_cc__pipeline__RenderStage_t_t"); 
     
     
     
