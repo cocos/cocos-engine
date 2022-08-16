@@ -33,14 +33,14 @@ bool register_all_pipeline(se::Object *obj);                   // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderObject);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderQueueDesc);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStageInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStage);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderFlowInfo);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderFlow);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipelineInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipeline);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderFlowInfo);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderFlow);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardFlow);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStageInfo);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardStage);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowFlow);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowStage);
@@ -74,6 +74,42 @@ bool js_register_cc_pipeline_RenderQueueDesc(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderQueueDesc *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_pipeline_RenderStageInfo_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderStageInfo_class;    // NOLINT
+
+bool js_register_cc_pipeline_RenderStageInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::pipeline::RenderStageInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_pipeline_RenderStage_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderStage_class;    // NOLINT
+
+bool js_register_cc_pipeline_RenderStage(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_pipeline_RenderStage_activate);
+SE_DECLARE_FUNC(js_pipeline_RenderStage_getFlow);
+SE_DECLARE_FUNC(js_pipeline_RenderStage_getTag);
+SE_DECLARE_FUNC(js_pipeline_RenderStage_initialize);
+
+extern se::Object *__jsb_cc_pipeline_RenderFlowInfo_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderFlowInfo_class;    // NOLINT
+
+bool js_register_cc_pipeline_RenderFlowInfo(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::pipeline::RenderFlowInfo *, se::Object *ctx); //NOLINT
+
+extern se::Object *__jsb_cc_pipeline_RenderFlow_proto;   // NOLINT
+extern se::Class *__jsb_cc_pipeline_RenderFlow_class;    // NOLINT
+
+bool js_register_cc_pipeline_RenderFlow(se::Object *obj); // NOLINT
+
+SE_DECLARE_FUNC(js_pipeline_RenderFlow_activate);
+SE_DECLARE_FUNC(js_pipeline_RenderFlow_getRenderstageByName);
+SE_DECLARE_FUNC(js_pipeline_RenderFlow_getTag);
+SE_DECLARE_FUNC(js_pipeline_RenderFlow_initialize);
 
 extern se::Object *__jsb_cc_pipeline_RenderPipelineInfo_proto;   // NOLINT
 extern se::Class *__jsb_cc_pipeline_RenderPipelineInfo_class;    // NOLINT
@@ -122,24 +158,6 @@ bool js_register_cc_pipeline_ForwardPipeline(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
 
-extern se::Object *__jsb_cc_pipeline_RenderFlowInfo_proto;   // NOLINT
-extern se::Class *__jsb_cc_pipeline_RenderFlowInfo_class;    // NOLINT
-
-bool js_register_cc_pipeline_RenderFlowInfo(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::pipeline::RenderFlowInfo *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_pipeline_RenderFlow_proto;   // NOLINT
-extern se::Class *__jsb_cc_pipeline_RenderFlow_class;    // NOLINT
-
-bool js_register_cc_pipeline_RenderFlow(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_pipeline_RenderFlow_activate);
-SE_DECLARE_FUNC(js_pipeline_RenderFlow_getRenderstageByName);
-SE_DECLARE_FUNC(js_pipeline_RenderFlow_getTag);
-SE_DECLARE_FUNC(js_pipeline_RenderFlow_initialize);
-
 extern se::Object *__jsb_cc_pipeline_ForwardFlow_proto;   // NOLINT
 extern se::Class *__jsb_cc_pipeline_ForwardFlow_class;    // NOLINT
 
@@ -147,24 +165,6 @@ bool js_register_cc_pipeline_ForwardFlow(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_pipeline_ForwardFlow_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ForwardFlow_ForwardFlow);
-
-extern se::Object *__jsb_cc_pipeline_RenderStageInfo_proto;   // NOLINT
-extern se::Class *__jsb_cc_pipeline_RenderStageInfo_class;    // NOLINT
-
-bool js_register_cc_pipeline_RenderStageInfo(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::pipeline::RenderStageInfo *, se::Object *ctx); //NOLINT
-
-extern se::Object *__jsb_cc_pipeline_RenderStage_proto;   // NOLINT
-extern se::Class *__jsb_cc_pipeline_RenderStage_class;    // NOLINT
-
-bool js_register_cc_pipeline_RenderStage(se::Object *obj); // NOLINT
-
-SE_DECLARE_FUNC(js_pipeline_RenderStage_activate);
-SE_DECLARE_FUNC(js_pipeline_RenderStage_getFlow);
-SE_DECLARE_FUNC(js_pipeline_RenderStage_getTag);
-SE_DECLARE_FUNC(js_pipeline_RenderStage_initialize);
 
 extern se::Object *__jsb_cc_pipeline_ForwardStage_proto;   // NOLINT
 extern se::Class *__jsb_cc_pipeline_ForwardStage_class;    // NOLINT
