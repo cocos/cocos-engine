@@ -38,28 +38,24 @@
 #include "platform/SDLHelper.h"
 
 namespace cc {
-SystemWindow::SystemWindow(IEventDispatch *delegate)
-: _sdl(std::make_unique<SDLHelper>(delegate)) {
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
+    : _windowId(windowId)
+    , _externalHandle(externalHandle) {
 }
 
 SystemWindow::~SystemWindow() {
 }
 
-int SystemWindow::init() {
-    return _sdl->init();
-}
-
-void SystemWindow::pollEvent(bool *quit) {
-    return _sdl->pollEvent(quit);
-}
-
 void SystemWindow::swapWindow() {
-    _sdl->swapWindow();
+    SDLHelper::swapWindow(_window);
 }
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    _sdl->createWindow(title, w, h, flags);
+    if (!createWindow(title, 0, 0, w, h, flags)) {
+        return false;
+    }
+
     _width = w;
     _height = h;
     return true;
@@ -68,8 +64,11 @@ bool SystemWindow::createWindow(const char *title,
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    // Create window
-    _sdl->createWindow(title, x, y, w, h, flags);
+    _window = SDLHelper::createWindow(title, x, y, w, h, flags);
+    if (!_window) {
+        return false;
+    }
+
     _width = w;
     _height = h;
     return true;
@@ -77,8 +76,6 @@ bool SystemWindow::createWindow(const char *title,
 
 void SystemWindow::closeWindow() {
 #ifndef CC_SERVER_MODE
-    auto windowHandle = getSDLWindowHandle();
-
     SDL_Event et;
     et.type = SDL_QUIT;
     auto posted = SDL_PushEvent(&et);
@@ -86,19 +83,15 @@ void SystemWindow::closeWindow() {
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {
-    return _sdl->getWindowHandle();
-}
-
-SDL_Window *SystemWindow::getSDLWindowHandle() const {
-    return _sdl->getSDLWindowHandle();
+    return SDLHelper::getWindowHandle(_window);
 }
 
 uintptr_t SystemWindow::getDisplay() const {
-    return _sdl->getDisplay();
+    return SDLHelper::getDisplay(_window);
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
-    _sdl->setCursorEnabled(value);
+    SDLHelper::setCursorEnabled(value);
 }
 
 void SystemWindow::copyTextToClipboard(const ccstd::string &text) {

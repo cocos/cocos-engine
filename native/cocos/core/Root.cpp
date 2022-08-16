@@ -449,7 +449,7 @@ uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
         gfx::SwapchainInfo info;
         info.width  = static_cast<uint32_t>(size.x);
         info.height = static_cast<uint32_t>(size.y);
-        info.windowHandle = (void *)handle;
+        info.windowHandle = reinterpret_cast<void *>(handle);
         info.windowId = windowId;
 
         gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);

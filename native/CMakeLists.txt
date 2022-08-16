@@ -689,6 +689,8 @@ elseif(LINUX)
             cocos/platform/linux/modules/Screen.h
             cocos/platform/linux/modules/SystemWindow.cpp
             cocos/platform/linux/modules/SystemWindow.h
+            cocos/platform/linux/modules/SystemWindowManager.cpp
+            cocos/platform/linux/modules/SystemWindowManager.h
         )
     endif()
 endif()

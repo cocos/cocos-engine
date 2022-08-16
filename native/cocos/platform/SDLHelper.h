@@ -56,7 +56,7 @@ public:
 
     static uintptr_t getWindowHandle(SDL_Window* window);
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
-    uintptr_t getDisplay() const;
+    static uintptr_t getDisplay(SDL_Window* window);
 #endif
     static void setCursorEnabled(bool value);
 

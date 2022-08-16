@@ -382,10 +382,10 @@ void SDLHelper::swapWindow(SDL_Window *window) {
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
-uintptr_t SDLHelper::getDisplay() const {
+uintptr_t SDLHelper::getDisplay(SDL_Window* window) {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(_handle, &wmInfo);
+    SDL_GetWindowWMInfo(window, &wmInfo);
     return reinterpret_cast<uintptr_t>(wmInfo.info.x11.display);
 }
 #endif
