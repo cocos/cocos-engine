@@ -1316,4 +1316,10 @@ export declare namespace native {
           */
         export function removeAllListeners();
     }
+    /**
+     * @en Save the image to the path indicated.
+     * @zh 保存图片到指定路径。
+     */
+    export function saveImageData(data: Uint8Array, width: number, height: number, filePath: string,
+        callback: (ret: boolean, error: string) => void): void;
 }
