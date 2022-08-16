@@ -319,7 +319,7 @@ public:
 
     void onOpen(WebSocket *ws) override;
     void onMessage(WebSocket *ws, const WebSocket::Data &data) override;
-    void onClose(WebSocket *ws) override;
+    void onClose(WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) override;
     void onError(WebSocket *ws, const WebSocket::ErrorCode &error) override;
 
     void connect();
@@ -406,7 +406,7 @@ void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *res
             client.second->getDelegate()->onError(client.second, response->getErrorBuffer());
         }
 
-        onClose(nullptr);
+        onClose(nullptr, 1015, "handshake_failure", false);
         return;
     }
 
@@ -873,7 +873,7 @@ void SIOClientImpl::onMessage(WebSocket * /*ws*/, const WebSocket::Data &data) {
     }
 }
 
-void SIOClientImpl::onClose(WebSocket * /*ws*/) {
+void SIOClientImpl::onClose(WebSocket * /*ws*/, uint16_t /*code*/, const ccstd::string & /*reason*/, bool /*wasClean*/) {
     if (!_clients.empty()) {
         for (auto &client : _clients) {
             client.second->socketClosed();

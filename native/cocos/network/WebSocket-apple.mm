@@ -81,7 +81,7 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
 - (void)close {
     _isDestroyed = true;
     _ccws->addRef();
-    _delegate->onClose(_ccws);
+    _delegate->onClose(_ccws, 1000, "close_normal", true);
     [_ws close];
     _ccws->release();
 }
@@ -177,8 +177,12 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
-    if (!_isDestroyed)
-        _delegate->onClose(_ccws);
+    if (!_isDestroyed) {
+        auto codeArg = static_cast<uint16_t>(code);
+        ccstd::string reasonArg = reason == nil ? "no_resaon" : ccstd::string([reason UTF8String]);
+        bool wasCleanArg = static_cast<bool>(wasClean);
+        _delegate->onClose(_ccws, codeArg, reasonArg, wasCleanArg);
+    }
     else
         NSLog(@"WebSocketImpl didCloseWithCode was destroyed!");
 }
