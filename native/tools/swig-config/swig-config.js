@@ -2,6 +2,7 @@
 
 const path = require('path');
 
+// Engine Module Configuration
 const configList = [
     [ '2d.i', 'jsb_2d_auto.cpp' ],
     [ 'assets.i', 'jsb_assets_auto.cpp' ],
@@ -26,7 +27,7 @@ const cocosNativeRoot = path.resolve(path.join(__dirname, '..', '..'));
 const interfacesDir = path.join(cocosNativeRoot, 'tools', 'swig-config');
 const bindingsOutDir = path.join(cocosNativeRoot, 'cocos', 'bindings', 'auto');
 
-module.exports = { 
+module.exports = {
     interfacesDir,
     bindingsOutDir, 
     configList
