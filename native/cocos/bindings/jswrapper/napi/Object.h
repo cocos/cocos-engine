@@ -58,7 +58,7 @@ public:
         if (_refCounts > 0) {
             _refCounts--;
             if (_refCounts == 0) {
-               napi_reference_unref(env, _ref, &result);
+               //napi_reference_unref(env, _ref, &result);
             }
         }
     }
@@ -67,7 +67,7 @@ public:
         if (!_ref) {
             return;
         }
-        napi_delete_reference(_env, _ref);
+        //napi_delete_reference(_env, _ref);
         _ref = nullptr;
     }
 };
