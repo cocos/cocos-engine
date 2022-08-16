@@ -72,13 +72,14 @@ Root::~Root() {
     instance = nullptr;
 }
 
-void Root::initialize(gfx::Swapchain *swapchain) {
-    ISystemWindowManager *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
+void Root::initialize(gfx::Swapchain * /*swapchain*/) {
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     const auto &windows = windowMgr->getWindows();
     for (const auto &pair : windows) {
         auto *window = pair.second.get();
-        if (!_mainRenderWindow)
+        if (!_mainRenderWindow) {
             _mainRenderWindow = createRenderWindowFromSystemWindow(window);
+        }
     }
     _curRenderWindow = _mainRenderWindow;
 
@@ -91,8 +92,9 @@ render::Pipeline *Root::getCustomPipeline() const {
 }
 
 scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *window) {
-    if (!window)
+    if (!window) {
         return nullptr;
+    }
 
     uint32_t windowId = window->getWindowId();
     auto handle = window->getWindowHandle();
@@ -433,7 +435,7 @@ void Root::destroyWindows() {
 }
 
 uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
-    ISystemWindowManager *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     ISystemWindow *window = windowMgr->createWindow(info);
     if (window) {
         auto handle = window->getWindowHandle();
@@ -443,7 +445,7 @@ uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
         gfx::SwapchainInfo info;
         info.width = size.x;
         info.height = size.y;
-        info.windowHandle = (void *)handle;
+        info.windowHandle = reinterpret_cast<void *>(handle);
         info.windowId = windowId;
 
         gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);

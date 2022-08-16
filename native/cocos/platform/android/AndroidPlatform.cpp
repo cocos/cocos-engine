@@ -100,7 +100,8 @@ extern void gameControllerStatusCallback(int32_t controllerIndex,
                                          Paddleboat_ControllerStatus status,
                                          void *userData);
 
-extern "C" JNIEXPORT void JNICALL Java_com_cocos_game_AppActivity_nativeAddSurface(JNIEnv* env, jobject thiz, jobject surface) {
+// linwei: test code
+/*extern "C" JNIEXPORT void JNICALL Java_com_cocos_game_AppActivity_nativeAddSurface(JNIEnv* env, jobject thiz, jobject surface) {
     ISystemWindowManager *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
     if (windowMgr) {
         ANativeWindow *windowHandle = ANativeWindow_fromSurface(env, surface);
@@ -114,7 +115,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_cocos_game_AppActivity_nativeAddSurfa
         info.externalHandle = windowHandle;
         ISystemWindow *window = windowMgr->createWindow(info);
     }
-}
+}*/
 
 class GameInputProxy {
 public:

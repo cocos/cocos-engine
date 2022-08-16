@@ -31,8 +31,7 @@ namespace cc {
 
 uint32_t SystemWindowManager::_nextWindowId = 1;
 
-SystemWindowManager::SystemWindowManager() {
-}
+SystemWindowManager::SystemWindowManager() = default;
 
 int SystemWindowManager::init() {
     return 0;
@@ -55,12 +54,14 @@ ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) 
 }
 
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
-    if (windowId <= 0)
+    if (windowId <= 0) {
         return nullptr;
+    }
 
     auto iter = _windows.find(windowId);
-    if (iter != _windows.end())
+    if (iter != _windows.end()) {
         return iter->second.get();
+    }
     return nullptr;
 }
 } // namespace cc
