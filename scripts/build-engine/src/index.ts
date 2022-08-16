@@ -161,6 +161,11 @@ namespace build {
         };
 
         buildTimeConstants: IBuildTimeConstants;
+
+        /**
+         * Whether force SUPPORT_JIT to the specified value.
+         */
+        forceJitValue?: boolean,
     }
 
     export interface Result {
@@ -261,6 +266,9 @@ async function doBuild ({
         ...intrinsicFlags,
         ...options.buildTimeConstants,
     };
+    if (typeof options.forceJitValue !== undefined) {
+        buildTimeConstants['SUPPORT_JIT'] = options.forceJitValue as boolean;
+    }
 
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
