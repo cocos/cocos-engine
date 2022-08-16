@@ -643,9 +643,11 @@ __BEGIN_DECLS
         static const float limneg = -16.;
 
         if (f <= limneg) {
-            return -0x80000000; /* or 0x80000000 */
+            //return -0x80000000; /* or 0x80000000 */
+            return INT32_MIN;
         } else if (f >= limpos) {
-            return 0x7fffffff;
+            //return 0x7fffffff;
+            return INT32_MAX;
         }
         f *= scale;
         /* integer conversion is through truncation (though int to float is not).

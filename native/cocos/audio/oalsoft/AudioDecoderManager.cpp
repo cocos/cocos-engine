@@ -57,10 +57,11 @@ AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
     if (suffix == ".mp3") {
         return ccnew AudioDecoderMp3();
     }
-
+#if CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_WINDOWS
     if (suffix == ".wav") {
         return ccnew AudioDecoderWav();
     }
+#endif
 
     return nullptr;
 }
