@@ -25,8 +25,12 @@
 
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
+#include "application/ApplicationManager.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
@@ -72,7 +76,7 @@ Root::~Root() {
     instance = nullptr;
 }
 
-void Root::initialize(gfx::Swapchain * /*swapchain*/) {
+void Root::initialize(gfx::Swapchain *  /*swapchain*/) {
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     const auto &windows = windowMgr->getWindows();
     for (const auto &pair : windows) {
@@ -101,8 +105,8 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     const auto &size = window->getViewSize();
 
     gfx::SwapchainInfo info;
-    info.width  = size.x;
-    info.height = size.y;
+    info.width  = static_cast<uint32_t>(size.x);
+    info.height = static_cast<uint32_t>(size.y);
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
 
@@ -443,9 +447,9 @@ uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
         uint32_t windowId = window->getWindowId();
 
         gfx::SwapchainInfo info;
-        info.width = size.x;
-        info.height = size.y;
-        info.windowHandle = reinterpret_cast<void *>(handle);
+        info.width  = static_cast<uint32_t>(size.x);
+        info.height = static_cast<uint32_t>(size.y);
+        info.windowHandle = (void *)handle;
         info.windowId = windowId;
 
         gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);

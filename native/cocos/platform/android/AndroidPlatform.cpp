@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include <thread>
-
+#include <android/native_window_jni.h>
 #include "base/Log.h"
 #include "base/memory/Memory.h"
 #include "bindings/event/CustomEventTypes.h"
@@ -43,11 +43,8 @@
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/SystemWindowManager.h"
 #include "platform/java/modules/Vibrator.h"
-
 #include "bindings/event/EventDispatcher.h"
-
 #include "paddleboat.h"
-#include <android/native_window_jni.h>
 #include "base/StringUtil.h"
 
 #define ABORT_GAME                          \
@@ -100,7 +97,7 @@ extern void gameControllerStatusCallback(int32_t controllerIndex,
                                          Paddleboat_ControllerStatus status,
                                          void *userData);
 
-// linwei: test code
+// TODO(linwei): test code
 /*extern "C" JNIEXPORT void JNICALL Java_com_cocos_game_AppActivity_nativeAddSurface(JNIEnv* env, jobject thiz, jobject surface) {
     ISystemWindowManager *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
     if (windowMgr) {

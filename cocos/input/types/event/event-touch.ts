@@ -56,6 +56,10 @@ export class EventTouch extends Event {
      */
     public simulate = false;
 
+    /**
+     * @en The unique ID of SystemWindow, which triggerd the event
+     * @zh 触发此事件的系统窗口 ID
+     */
     public windowId = 0;
 
     /**

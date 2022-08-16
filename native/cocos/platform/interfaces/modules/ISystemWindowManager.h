@@ -31,7 +31,7 @@ class ISystemWindow;
 class OSEvent;
 
 struct ISystemWindowInfo {
-    ccstd::string title{""};
+    ccstd::string title;
     int32_t x{-1};
     int32_t y{-1};
     int32_t width{-1};
@@ -40,7 +40,7 @@ struct ISystemWindowInfo {
     void *externalHandle{nullptr};
 };
 
-typedef ccstd::unordered_map<uint32_t, std::shared_ptr<ISystemWindow>> SystemWindowMap;
+using SystemWindowMap = ccstd::unordered_map<uint32_t, std::shared_ptr<ISystemWindow>>;
 
 /**
  * 负责创建、查找 ISystemWindow 及消息处理
@@ -65,8 +65,7 @@ public:
 
     /**
      * 创建一个ISystemWindow对象
-     * @param name 窗口名
-     * @param externalWindowHandle 外部窗口句柄，为nullptr时表示引擎内部创建窗口
+     * @param info 窗口描述
      * @return 创建的ISystemWindow对象，如失败返回nullptr
      */
     virtual ISystemWindow *createWindow(const ISystemWindowInfo &info) = 0;

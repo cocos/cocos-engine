@@ -79,8 +79,9 @@ ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) 
 }
 
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
-    if (windowId == 0)
+    if (windowId == 0) {
         return nullptr;
+    }
 
     auto iter = _windows.find(windowId);
     if (iter != _windows.end())

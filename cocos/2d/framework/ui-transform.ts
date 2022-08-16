@@ -451,7 +451,7 @@ export class UITransform extends Component {
      *
      * @param screenPoint point in Screen Space.
      */
-    public hitTest (screenPoint: Vec2, windowId?: number) {
+    public hitTest (screenPoint: Vec2, windowId: number = 0) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const v3WorldPt = _vec3a;
@@ -463,8 +463,7 @@ export class UITransform extends Component {
             const camera = cameras[i];
             if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) 
                 continue;
-            //console.log('SystemWindowId:' + systemWindowId);
-            if (camera.systemWindowId != windowId) {
+            if (camera.systemWindowId !== windowId) {
                 continue;
             }
 

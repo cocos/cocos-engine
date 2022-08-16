@@ -38,7 +38,7 @@ class ISystemWindow;
 
 class SystemWindowManager : public ISystemWindowManager {
 public:
-    SystemWindowManager(IEventDispatch *delegate);
+    explicit SystemWindowManager(IEventDispatch *delegate);
 
     int init() override;
     void processEvent(bool *quit) override;
@@ -56,4 +56,4 @@ private:
     SystemWindowMap _windows;
     IEventDispatch *_eventDispatcher = nullptr;
 };
-}
+} // namespace cc

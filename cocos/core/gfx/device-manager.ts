@@ -142,16 +142,12 @@ export class DeviceManager {
                     this._gfxDevice = new deviceCtors[i]();
                     if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
-
-                const swapchainInfo = new SwapchainInfo(this._canvas!);
-                const windowSize = screen.windowSize;
-                swapchainInfo.width = windowSize.width;
-                swapchainInfo.height = windowSize.height;
-                this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
+                this._initSwapchain();
             }
         } else if (this._renderType === RenderType.HEADLESS && legacyCC.EmptyDevice) {
             this._gfxDevice = new legacyCC.EmptyDevice();
             this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
+            this._initSwapchain();
         }
 
         if (!this._gfxDevice) {
@@ -162,6 +158,14 @@ export class DeviceManager {
         }
 
         if (this._canvas) { this._canvas.oncontextmenu = () => false; }
+    }
+
+    private _initSwapchain () {
+        const swapchainInfo = new SwapchainInfo(this._canvas!);
+        const windowSize = screen.windowSize;
+        swapchainInfo.width = windowSize.width;
+        swapchainInfo.height = windowSize.height;
+        this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
     }
 
     private _determineRenderType (renderMode: LegacyRenderMode): RenderType {

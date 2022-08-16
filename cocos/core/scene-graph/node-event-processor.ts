@@ -504,8 +504,6 @@ export class NodeEventProcessor {
             return false;
         }
 
-        //console.log('windowId: ' + event.windowId);
-
         event.getLocation(pos);
 
         const hit = node._uiProps.uiTransformComp.hitTest(pos, event.windowId);
