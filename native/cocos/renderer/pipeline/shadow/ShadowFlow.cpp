@@ -58,7 +58,6 @@ ShadowFlow::~ShadowFlow() = default;
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
     if (_stages.empty()) {
-        _isResourceOwner = true;
 
         auto *shadowStage = ccnew ShadowStage;
         shadowStage->initialize(ShadowStage::getInitializeInfo());
@@ -151,8 +150,8 @@ void ShadowFlow::render(scene::Camera *camera) {
 }
 
 void ShadowFlow::renderStage(gfx::DescriptorSet *globalDS, scene::Camera *camera, const scene::Light *light, gfx::Framebuffer *framebuffer, uint32_t level) {
-    for (auto *stage : _stages) {
-        auto *shadowStage = static_cast<ShadowStage *>(stage);
+    for (auto &stage : _stages) {
+        auto *shadowStage = static_cast<ShadowStage *>(stage.get());
         shadowStage->setUsage(globalDS, light, framebuffer, level);
         shadowStage->render(camera);
     }
@@ -184,8 +183,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(mainLight).get();
-        for (auto *stage : _stages) {
-            auto *shadowStage = static_cast<ShadowStage *>(stage);
+        for (auto &stage : _stages) {
+            auto *shadowStage = static_cast<ShadowStage *>(stage.get());
             shadowStage->setUsage(globalDS, mainLight, shadowFrameBuffer);
             shadowStage->render(camera);
         }
@@ -198,8 +197,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light).get();
-        for (auto *stage : _stages) {
-            auto *shadowStage = static_cast<ShadowStage *>(stage);
+        for (auto &stage : _stages) {
+            auto *shadowStage = static_cast<ShadowStage *>(stage.get());
             shadowStage->setUsage(ds, light, shadowFrameBuffer);
             shadowStage->clearFramebuffer(camera);
         }
