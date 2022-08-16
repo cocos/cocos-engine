@@ -298,7 +298,7 @@ void CCWGPUDescriptorSet::prepare() {
                     });
 
                 _bindGroupMap.insert(std::make_pair(_hash, _gpuBindGroupObj->bindgroup));
-                CCWGPUDevice::getInstance()->destroyLater(_gpuBindGroupObj->bindgroup);
+                // CCWGPUDevice::getInstance()->destroyLater(_gpuBindGroupObj->bindgroup);
             } else {
                 _gpuBindGroupObj->bindgroup = static_cast<WGPUBindGroup>(iter->second);
                 // printf("reuse bg\n");

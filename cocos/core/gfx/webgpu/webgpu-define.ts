@@ -847,7 +847,7 @@ Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
         const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
             : shaderInfo.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
         const sourceCode = `#version 450\n${shaderInfo.stages[i].source}`;
-        const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
+        const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.3');
         shaderInfo.stages[i].spvData = code;
     }
 

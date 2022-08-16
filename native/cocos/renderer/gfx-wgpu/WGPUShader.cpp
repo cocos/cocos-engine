@@ -75,7 +75,7 @@ void CCWGPUShader::initialize(const ShaderInfo &info, const std::vector<std::vec
         spv.code = spvData;
         WGPUShaderModuleDescriptor desc = {};
         desc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&spv);
-        desc.label = nullptr;
+        desc.label = _name.c_str();
         if (stage.stage == ShaderStageFlagBit::VERTEX) {
             _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
         } else if (stage.stage == ShaderStageFlagBit::FRAGMENT) {

@@ -395,7 +395,7 @@ void CCWGPUCommandBuffer::bindStates() {
                                                  vertexBuffer->getOffset(),
                                                  vertexBuffer->getSize());
         }
-#if 0
+#if 1
         {
             // redundantVertexBufferMap
             const uint32_t maxAttrLen = pipelineState->gpuPipelineStateObject()->maxAttrLength;
