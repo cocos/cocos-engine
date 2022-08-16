@@ -1714,8 +1714,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXDistance.cpp
     )
     cocos_source_files(
-        cocos/bindings/auto/jsb_physics_auto.cpp
-        cocos/bindings/auto/jsb_physics_auto.h
+        NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp
+                            cocos/bindings/auto/jsb_physics_auto.h
     )
 endif()
 
