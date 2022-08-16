@@ -13,6 +13,7 @@
 #include "core/data/JSBNativeDataHolder.h"
 #include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 #include "platform/interfaces/modules/Device.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/FileUtils.h"
 #include "platform/SAXParser.h"
 #include "math/Vec2.h"
@@ -41,6 +42,8 @@
 //
 
 namespace cc {
+%ignore ISystemWindowManager;
+
 %ignore ICanvasRenderingContext2D::Delegate;
 %ignore ICanvasRenderingContext2D::setCanvasBufferUpdatedCallback;
 %ignore ICanvasRenderingContext2D::fillText;
@@ -177,6 +180,7 @@ namespace cc {
 %include "platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
 %include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 %include "platform/interfaces/modules/Device.h"
+%include "platform/interfaces/modules/ISystemWindowManager.h"
 %include "platform/FileUtils.h"
 %include "platform/SAXParser.h"
 %include "math/Vec2.h"
