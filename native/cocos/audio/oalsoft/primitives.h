@@ -669,9 +669,9 @@ __BEGIN_DECLS
         static const float limneg = -1.;
 
         if (f <= limneg) {
-            return -0x80000000; /* or 0x80000000 */
+            return INT32_MIN; /* or 0x80000000 */
         } else if (f >= limpos) {
-            return 0x7fffffff;
+            return INT32_MAX;
         }
         f *= scale;
         /* integer conversion is through truncation (though int to float is not).
@@ -741,7 +741,8 @@ __BEGIN_DECLS
         if (f <= 0.) {
             return 0;
         } else if (f >= limpos) {
-            return 0xffffffff;
+            //return 0xffffffff;
+            return UINT32_MAX;
         }
         /* integer conversion is through truncation (though int to float is not).
      * ensure that we round to nearest, ties away from 0.
@@ -763,7 +764,7 @@ __BEGIN_DECLS
         if (f <= 0.) {
             return 0;
         } else if (f >= limpos) {
-            return 0xffff;
+            return UINT16_MAX/*0xffff*/;
         }
         /* integer conversion is through truncation (though int to float is not).
      * ensure that we round to nearest, ties away from 0.
@@ -902,7 +903,7 @@ __BEGIN_DECLS
         return out;
 #else
         if (left) {
-            return a + (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
+            return a + (int16_t)(inRL & UINT16_MAX /*0xFFFF*/) * (int16_t)(vRL & UINT16_MAX /*0xFFFF*/);
         } else {
             return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
         }
@@ -929,7 +930,7 @@ __BEGIN_DECLS
         return out;
 #else
         if (left) {
-            return (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
+            return (int16_t)(inRL & UINT16_MAX /*0xFFFF*/) * (int16_t)(vRL & UINT16_MAX/*0xFFFF*/);
         } else {
             return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
         }
