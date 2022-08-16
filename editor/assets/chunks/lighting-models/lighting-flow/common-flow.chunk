@@ -23,7 +23,7 @@
         CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);
         
         float shadow = 1.0;
-      #if CC_RECEIVE_SHADOW
+      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
@@ -64,14 +64,18 @@
 
       // CCSurfacesLightingCalculateShadow:
       lightingResult.shadow = 1.0;
-      #if CC_RECEIVE_SHADOW
+      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_mainLitDir.w > 0.0) {
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             if (cc_shadowLPNNInfo.w > 0.0) {
-              lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
+              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+                lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
+              #endif
             } else {
-              vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-              lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+              #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+                vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+                lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+              #endif
             }
           }
         }
