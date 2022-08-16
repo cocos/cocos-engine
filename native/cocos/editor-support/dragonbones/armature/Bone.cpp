@@ -1,10 +1,10 @@
 #include "Bone.h"
+#include "../animation/AnimationState.h"
 #include "../geom/Matrix.h"
 #include "../geom/Transform.h"
 #include "Armature.h"
-#include "Slot.h"
 #include "Constraint.h"
-#include "../animation/AnimationState.h"
+#include "Slot.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 

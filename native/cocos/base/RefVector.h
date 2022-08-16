@@ -228,7 +228,7 @@ public:
     // It is hard to use, so delete it.
     T &operator[](uint32_t idx) = delete;
     // As non const version is disabled, disable const version too.
-    const T&operator[](uint32_t idx) const = delete;
+    const T &operator[](uint32_t idx) const = delete;
 
     /**
      * Requests that the vector capacity be at least enough to contain n elements.

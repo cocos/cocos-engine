@@ -44,7 +44,7 @@ BufferAgent::~BufferAgent() {
         actor, _actor,
         stagingBuffers, _stagingBuffers,
         {
-            for (auto* buffer : stagingBuffers) {
+            for (auto *buffer : stagingBuffers) {
                 free(buffer);
             }
 

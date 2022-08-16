@@ -22,8 +22,8 @@
 #pragma once
 
 #include "base/TypeDef.h"
-#include "math/Mat4.h"
 #include "core/geometry/Frustum.h"
+#include "math/Mat4.h"
 #include "pipeline/Define.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"

@@ -1,10 +1,9 @@
 #pragma once
-
+// clang-format off
 #include "../../config.h"
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
     #include "inspector_agent.h"
-
     #include "v8.h"
     #include "uv.h"
     #include "util.h"
@@ -615,3 +614,5 @@ inline bool Environment::AsyncCallbackScope::in_makecallback() {
 } // namespace node
 
 #endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
+
+// clang-format on

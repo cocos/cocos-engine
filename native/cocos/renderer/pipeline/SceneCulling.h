@@ -46,8 +46,8 @@ class RenderPipeline;
 class ShadowTransformInfo;
 
 RenderObject genRenderObject(const scene::Model *, const scene::Camera *);
-void validPunctualLightsCulling(const RenderPipeline* pipeline, const scene::Camera* camera);
-void shadowCulling(const RenderPipeline*, const scene::Camera*, ShadowTransformInfo*);
-void sceneCulling(const RenderPipeline*, scene::Camera*);
+void validPunctualLightsCulling(const RenderPipeline *pipeline, const scene::Camera *camera);
+void shadowCulling(const RenderPipeline *, const scene::Camera *, ShadowTransformInfo *);
+void sceneCulling(const RenderPipeline *, scene::Camera *);
 } // namespace pipeline
 } // namespace cc

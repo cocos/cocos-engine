@@ -557,7 +557,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     dependencyManager.clear();
 
     bool manuallyDeduce = true;
-    if constexpr(ENABLE_GRAPH_AUTO_BARRIER) {
+    if constexpr (ENABLE_GRAPH_AUTO_BARRIER) {
         // single pass front and rear cost 2 slot.
         manuallyDeduce = dependencyCount <= 2;
     } else {

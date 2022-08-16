@@ -171,9 +171,9 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #endif
 
 #if defined(__arm64__) || defined(__aarch64__)
-#define CC_ARCH_ARM64 1
+    #define CC_ARCH_ARM64 1
 #else
-#define CC_ARCH_ARM64 0
+    #define CC_ARCH_ARM64 0
 #endif
 
 // CC_HAS_ARM64_FP16 set to 1 if the architecture provides an IEEE compliant ARM fp16 type

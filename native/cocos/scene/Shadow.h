@@ -271,7 +271,7 @@ public:
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
      * @param node The node for setting up the plane
      */
-    void setPlaneFromNode(const Node* node);
+    void setPlaneFromNode(const Node *node);
 
     void activate(Shadows *resource);
 

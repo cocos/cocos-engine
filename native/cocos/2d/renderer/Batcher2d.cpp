@@ -27,9 +27,9 @@
 #include "application/ApplicationManager.h"
 #include "base/TypeDef.h"
 #include "core/Root.h"
+#include "editor-support/MiddlewareManager.h"
 #include "renderer/pipeline/Define.h"
 #include "scene/Pass.h"
-#include "editor-support/MiddlewareManager.h"
 
 namespace cc {
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
@@ -468,11 +468,11 @@ void Batcher2d::uploadBuffers() {
                     index = ii;
                     ii++;
                 }
-                auto *middleWare = middleware::MiddlewareManager::getInstance();
-                auto *middleBuffer = middleWare->getMeshBuffer(nativeFormat);
-                auto *srcIBuf = middleBuffer->getIBFromBufferArray(index);
-                auto *srcVBuf = middleBuffer->getVBFromBufferArray(index);
-                buffer->setVData(reinterpret_cast<float *>(srcVBuf));
+                auto* middleWare = middleware::MiddlewareManager::getInstance();
+                auto* middleBuffer = middleWare->getMeshBuffer(nativeFormat);
+                auto* srcIBuf = middleBuffer->getIBFromBufferArray(index);
+                auto* srcVBuf = middleBuffer->getVBFromBufferArray(index);
+                buffer->setVData(reinterpret_cast<float*>(srcVBuf));
                 buffer->setIData(reinterpret_cast<uint16_t*>(srcIBuf));
             }
 #endif

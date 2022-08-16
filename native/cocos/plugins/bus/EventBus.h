@@ -24,13 +24,13 @@
 ****************************************************************************/
 #pragma once
 
+#include <cassert>
 #include <functional>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <typeinfo>
 #include <utility>
-#include <cassert>
-#include <string>
 
 #include <unordered_map>
 #include <vector>
@@ -126,13 +126,12 @@ constexpr void validateParameterTypes(const std::tuple<ARGS...> * /*unused*/) {
         validateParameterType<ARGS>()...};
 }
 
-
 template <typename T>
 struct ListEntry {
     ListEntry<T> *prevEntry{nullptr};
     ListEntry<T> *nextEntry{nullptr};
-    T * prev() { return static_cast<T*>(prevEntry); }
-    T * next() { return static_cast<T*>(nextEntry); }
+    T *prev() { return static_cast<T *>(prevEntry); }
+    T *next() { return static_cast<T *>(nextEntry); }
 };
 
 class EventBus;
@@ -169,7 +168,7 @@ public:
     EventBus();
 
     template <typename... ARGS>
-    void send(ARGS&&... args);
+    void send(ARGS &&...args);
 
 private:
     void dispatch(EventBase *event);
@@ -188,7 +187,7 @@ private:
 };
 
 template <typename... ARGS>
-void EventBus::send(ARGS &&... args) {
+void EventBus::send(ARGS &&...args) {
     using arg_type = std::tuple<typename std::remove_cv<typename EventParam<ARGS>::type>::type...>;
     constexpr static arg_type TMP;
     validateParameterTypes(&TMP);
@@ -305,5 +304,5 @@ void send(cc::plugin::BusType bus, ARGS &&...args) {
     cc::plugin::EventBus::acquire(bus)->send(std::forward<ARGS>(args)...);
 }
 
-}  // namespace plugin
+} // namespace plugin
 } // namespace cc

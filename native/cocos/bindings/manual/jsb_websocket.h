@@ -42,7 +42,7 @@ public:
     void onMessage(cc::network::WebSocket *ws,
                    const cc::network::WebSocket::Data &data) override;
 
-    void onClose(cc::network::WebSocket *ws) override;
+    void onClose(cc::network::WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) override;
 
     void onError(cc::network::WebSocket *ws,
                  const cc::network::WebSocket::ErrorCode &error) override;

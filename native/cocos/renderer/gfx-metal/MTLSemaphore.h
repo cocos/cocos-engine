@@ -35,10 +35,10 @@ public:
     explicit CCMTLSemaphore(uint32_t initialValue) : _semaphoreCount(initialValue) {
         _semaphore = dispatch_semaphore_create(initialValue);
     }
-    
+
     ~CCMTLSemaphore() {
-        if(_semaphore) {
-            for(size_t i = 0; i < _semaphoreCount; ++i) {
+        if (_semaphore) {
+            for (size_t i = 0; i < _semaphoreCount; ++i) {
                 dispatch_semaphore_signal(_semaphore);
             }
             dispatch_release(_semaphore);

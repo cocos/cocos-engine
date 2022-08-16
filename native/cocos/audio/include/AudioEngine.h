@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 #include <functional>
-#include "audio/include/Export.h"
 #include "audio/include/AudioDef.h"
+#include "audio/include/Export.h"
 #include "base/Macros.h"
 #include "base/std/container/list.h"
 #include "base/std/container/string.h"
@@ -333,7 +333,6 @@ public:
      * @return PCM datas behave as a ccstd::vector<char>. You can check byte length in PCMHeader.
      */
     static ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
-
 
 protected:
     static void addTask(const std::function<void()> &task);

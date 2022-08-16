@@ -59,8 +59,8 @@ public:
     uint32_t createConvex(ConvexDesc &desc) override;
     uint32_t createTrimesh(TrimeshDesc &desc) override;
     uint32_t createHeightField(HeightFieldDesc &desc) override;
-    bool  createMaterial(uint16_t id, float f, float df, float r,
-                             uint8_t m0, uint8_t m1) override;
+    bool createMaterial(uint16_t id, float f, float df, float r,
+                        uint8_t m0, uint8_t m1) override;
     inline ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override {
         return _mEventMgr->getTriggerPairs();
     }

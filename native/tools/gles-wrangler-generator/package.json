@@ -9,7 +9,7 @@
   "author": "YunHsiao",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "fast-xml-parser": "^3.17.6"
   }
 }

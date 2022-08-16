@@ -1,6 +1,6 @@
 #include "DragonBonesData.h"
-#include "UserData.h"
 #include "ArmatureData.h"
+#include "UserData.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 

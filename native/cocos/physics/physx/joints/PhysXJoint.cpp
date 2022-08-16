@@ -33,7 +33,7 @@ namespace physics {
 
 physx::PxRigidActor *PhysXJoint::tempRigidActor = nullptr;
 
-PhysXJoint::PhysXJoint(){
+PhysXJoint::PhysXJoint() {
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
 };
 
@@ -68,8 +68,8 @@ void PhysXJoint::onDestroy() {
     _mSharedBody->reference(false);
 }
 
-void PhysXJoint::setConnectedBody(uint32_t rigidBodyID){
-    PhysXRigidBody* pxRigidBody = reinterpret_cast<PhysXRigidBody *>(PhysXWorld::getInstance().getWrapperPtrWithObjectID(rigidBodyID));
+void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
+    PhysXRigidBody *pxRigidBody = reinterpret_cast<PhysXRigidBody *>(PhysXWorld::getInstance().getWrapperPtrWithObjectID(rigidBodyID));
     if (pxRigidBody == nullptr)
         return;
 

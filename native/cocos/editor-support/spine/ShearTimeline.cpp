@@ -33,13 +33,13 @@
 
 #include <spine/ShearTimeline.h>
 
-#include <spine/Skeleton.h>
 #include <spine/Event.h>
+#include <spine/Skeleton.h>
 
-#include <spine/Slot.h>
-#include <spine/SlotData.h>
 #include <spine/Bone.h>
 #include <spine/BoneData.h>
+#include <spine/Slot.h>
+#include <spine/SlotData.h>
 
 using namespace spine;
 
