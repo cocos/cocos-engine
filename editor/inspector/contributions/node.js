@@ -791,7 +791,7 @@ const Elements = {
         async setReflectionConvolutionMap() {
             const panel = this;
             const envMapData = panel.dump._globals.skybox.value['envmap'];
-            if (envMapData.value || envMapData.value.uuid) {
+            if (envMapData.value && envMapData.value.uuid) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
                     method: 'setReflectionConvolutionMap',
