@@ -14,32 +14,39 @@ const SCRIPT_DIR = __dirname;
 const COCOS_NATIVE_ROOT = path.resolve(path.join(SCRIPT_DIR, '../..'));
 const WORK_DIR = process.cwd();
 console.log(`==> WORK_DIR: ${WORK_DIR}`);
-
-//------------------------------------------------------------------------
-// User module configuration
-const PROJECT_ROOT = WORK_DIR; // You could also override the setting of PROJECT_ROOT by an absolute path
-
-const swigConfigUser = [
-    // Add your .i and output cpp file paths, we use relative path here for configuring many module easiler.
-    // [ 'my_new_module_user.i', 'jsb_my_new_module_user_auto.cpp' ], 
-];
-
-// Convert relative path to absolute path, don't need them if you have already used absolute path in `swigConfigUser` variable.
-if (swigConfigUser.length > 0) {
-    const interfacesDirUser = path.join(PROJECT_ROOT, 'tools', 'swig-config');
-    const bindingsOutDirUser = path.join(PROJECT_ROOT, 'native', 'engine', 'common', 'Classes', 'bindings', 'auto');
-    for (let config of swigConfigUser) {
-        if (!path.isAbsolute(config[0])) {
-            config[0] = path.join(interfacesDirUser, config[0]);
-        }
-        if (!path.isAbsolute(config[1])) {
-            config[1] = path.join(bindingsOutDirUser, config[1]);
-        }
-    }
-}
-//------------------------------------------------------------------------
 console.log(`==> SCRIPT_DIR: ${SCRIPT_DIR}`);
 console.log('==> COCOS_NATIVE_ROOT:' + COCOS_NATIVE_ROOT);
+
+function exists(filePath) {
+    try {
+        if (fs.existsSync(filePath)) {
+            return true;
+        }
+    } catch(err) {
+        console.error(err)
+    }
+    return false;
+}
+
+let swigConfigObj;
+const SWIG_CONFIG_FILE_NAME = 'swig-config.js'
+let swigConfigPathPriority = [
+    path.join(WORK_DIR, SWIG_CONFIG_FILE_NAME),
+    path.join(SCRIPT_DIR, SWIG_CONFIG_FILE_NAME)
+];
+
+for (const swigConfigPath of swigConfigPathPriority) {
+    if (exists(swigConfigPath)) {
+        swigConfigObj = require(swigConfigPath);
+        break;
+    }
+}
+
+console.log(`==> swigConfigObj: ${swigConfigObj}`);
+for (const key in swigConfigObj) {
+    console.log(`${key}: ${swigConfigObj[key]}`);
+}
+
 //------------------------------------------------------------------------
 // Engine Module Configuration
 const swigConfigEngine = [
@@ -75,6 +82,7 @@ for (let config of swigConfigEngine) {
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_SPAWN_ERROR = -1;
 const EXIT_CODE_WRONG_ARGUMENT_COUNT = -2;
+const EXIT_CODE_WRONG_ARGUMENT = -3;
 
 console.log('platform: ' + os.platform());
 let hostName = os.platform();
@@ -109,15 +117,12 @@ const SWIG_LIB_ARRAY=[
 //     path.join(SWIG_ROOT, 'Lib'),
 // ];
 
-function exists(path) {
-    try {
-        if (fs.existsSync(path)) {
-            return true;
-        }
-    } catch(err) {
-        console.error(err)
+function ensureAbsolutePath(rootDir, filePath) {
+    if (path.isAbsolute(filePath)) {
+        return filePath;
     }
-    return false;
+
+    return path.join(rootDir, filePath);
 }
 
 assert(exists(SWIG_EXE), `${SWIG_EXE} doesn't exist`);
@@ -137,7 +142,7 @@ let swigConfigArray;
 
 const commandLineArgs = process.argv.slice(2);
 if (commandLineArgs.length === 0) {
-    swigConfigArray = swigConfigUser.length > 0 ? swigConfigUser : swigConfigEngine;
+    swigConfigArray = swigConfigEngine;
 } else {
     swigConfigArray = [];
 
@@ -145,10 +150,19 @@ if (commandLineArgs.length === 0) {
         console.log(`
 Usage: node genbindings.js [arguments]
        
-       node genbindings.js   : Without arguments will generate binding code for modules
-            listed in 'swigConfigUser' or 'swigConfigEngine' at the beginning of genbindings.js,
-            if 'swigConfigUser' is not empty, generate bindings for modules defined in 'swigConfigUser' only,
-            otherwise, generate bindings for internal modules in engine.
+       node genbindings.js   : Without arguments will generate binding code for cocos internal modules
+
+       node genbindings.js -c your_config_path.json  : Generate binding code for user modules by a config file, its format is: 
+
+            {
+                "rootDir": "/home/abc/my-cocos-project",
+                "configList": [
+                    ["tools/swig-config/my_new_module_user.i", "native/engine/common/Classes/bindings/auto/jsb_my_new_module_user_auto.cpp"],
+                    ["tools/swig-config/my_new_module_user_2.i", "native/engine/common/Classes/bindings/auto/jsb_my_new_module_user_2_auto.cpp"]
+                ]
+            }
+
+        'rootDir' is optional, it doesn't need to be set if paths in configList are absolute.
 
        node genbindings.js your_dot_i_path1 your_output_path1 your_dot_i_path2 your_output_path2 ...  : Generate binding code for user modules passed in by command line arguments
 
@@ -163,16 +177,60 @@ Note: 1. If your have many modules, you could pass multiple interface file and o
 
     console.log(`==> commandLineArgs: ${commandLineArgs}`);
 
-    if (commandLineArgs.includes('--all')) {
-        swigConfigArray = swigConfigEngine.concat(swigConfigUser);
+    const configIndex = commandLineArgs.indexOf('-c');
+    if (configIndex !== -1) {
+        let configJson = commandLineArgs[configIndex+1];
+        if (!path.isAbsolute(configJson)) {
+            const absoluteConfigJson = path.join(WORK_DIR, configJson);
+            console.log(`==> ${configJson} isn't an absolute path, convert to ${absoluteConfigJson}`);
+            configJson = absolutePath;
+        }
+
+        assert(exists(configJson));
+        console.log(`==> Read config file: ${configJson}`);
+        const configObj = JSON.parse(fs.readFileSync(configJson));
+        let rootDir = configObj.rootDir;
+        let isRootDirExist = false;
+        if (rootDir && rootDir.length > 0) {
+            rootDir = path.normalize(rootDir);
+            isRootDirExist = exists(rootDir);
+            assert(isRootDirExist, `${rootDir} doesn't exist`);
+        }
+
+        for (let oneConfig of configObj.configList) {
+            let interfaceFile = path.normalize(oneConfig[0]);
+            let outputFile = path.normalize(oneConfig[1]);
+            if (!path.isAbsolute(interfaceFile) && isRootDirExist) {
+                interfaceFile = path.join(rootDir, interfaceFile);
+            }
+            assert(exists(interfaceFile), `(${interfaceFile}) doesn't exist`);
+
+            if (!path.isAbsolute(outputFile) && isRootDirExist) {
+                outputFile = path.join(rootDir, outputFile);
+            }
+            const outputDir = path.dirname(outputFile);
+            assert(exists(outputDir), `${outputDir} doesn't exist`);
+
+            swigConfigArray.push([ interfaceFile, outputFile ]);
+        }
+
+        if (commandLineArgs.includes('--all')) {
+            swigConfigArray = swigConfigEngine.concat(swigConfigArray);
+        }
+
     } else {
+        if (commandLineArgs.includes('--all')) {
+            console.error(`==> ERROR: --all arguments should not be used`);
+            process.exit(EXIT_CODE_WRONG_ARGUMENT);
+        }
+
         if (commandLineArgs.length % 2 !== 0) {
             console.error(`==> ERROR: Wrong arugment count (${commandLineArgs.length}) , interface file and output file should in pair`);
             process.exit(EXIT_CODE_WRONG_ARGUMENT_COUNT);
         }
 
         for (let i = 0; i < commandLineArgs.length; i += 2) {
-            swigConfigArray.push([commandLineArgs[i], commandLineArgs[i+1]]);
+            swigConfigArray.push([ ensureAbsolutePath(WORK_DIR, commandLineArgs[i]), ensureAbsolutePath(WORK_DIR, commandLineArgs[i+1]) ]);
         }
     }
 }
@@ -205,7 +263,7 @@ function generateBindings(interfaceFile, generatedCppFile) {
 }
 
 for (const config of swigConfigArray) {
-    generateBindings(config[0], config[1]);
+    // generateBindings(config[0], config[1]);
 }
 
 if (swigConfigArray.length > 0) {
