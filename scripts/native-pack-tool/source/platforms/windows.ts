@@ -49,8 +49,9 @@ export class WindowsPackTool extends NativePackTool {
             } else {
                 generateArgs = generateArgs.concat(await this.windowsSelectCmakeGeneratorArgs());
             }
-            this.appendCmakeResDirArgs(generateArgs);
+            
         }
+        this.appendCmakeResDirArgs(generateArgs);
         await toolHelper.runCmake([`-S"${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}"`, `-B"${cchelper.fixPath(this.paths.nativePrjDir)}"`].concat(generateArgs));
         return true;
     }
