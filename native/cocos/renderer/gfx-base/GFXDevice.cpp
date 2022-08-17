@@ -149,9 +149,9 @@ Swapchain *Device::createXRSwapchain(const SwapchainInfo &info) {
     Swapchain *res = createSwapchain();
     _xr->updateXRSwapchainTypedID(res->getTypedID());
     SwapchainInfo swapchainInfo;
-    swapchain_info.copy(info);
-    swapchain_info.width = swapChainWidth;
-    swapchain_info.height = swapChainHeight;
+    swapchainInfo.copy(info);
+    swapchainInfo.width = swapChainWidth;
+    swapchainInfo.height = swapChainHeight;
     res->initialize(swapchainInfo);
     _swapchains.push_back(res);
     return res;
