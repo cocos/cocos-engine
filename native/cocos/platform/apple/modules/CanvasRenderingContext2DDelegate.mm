@@ -222,10 +222,6 @@
 
     self.fontName = fontName;
     self.font = [self _createSystemFont];
-    float obliqueValue = 0.f;
-    if (_italic) {
-        obliqueValue = 0.25f;
-    }
 
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -238,11 +234,19 @@
                                                alpha:1.0f];
 
     // attribute
-    self.tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+    if (_italic) {
+        self.tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                         foregroundColor, NSForegroundColorAttributeName,
                                                         _font, NSFontAttributeName,
-                                                        @(obliqueValue), NSObliquenessAttributeName,
+                                                        @(0.25f), NSObliquenessAttributeName,
                                                         paragraphStyle, NSParagraphStyleAttributeName, nil];
+    } else {
+        self.tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                        foregroundColor, NSForegroundColorAttributeName,
+                                                        _font, NSFontAttributeName,
+                                                        paragraphStyle, NSParagraphStyleAttributeName, nil];
+    }
+    
 }
 
 - (void)recreateBufferWithWidth:(NSInteger)width height:(NSInteger)height {
