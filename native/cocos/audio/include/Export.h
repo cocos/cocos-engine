@@ -25,8 +25,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __EXPORT_COMMON__
-#define __EXPORT_COMMON__
+#pragma once
 
 #if defined(SHP)
     #include <FBaseConfig.h>
@@ -51,4 +50,3 @@
     #endif
 #endif
 
-#endif // end of __EXPORT_COMMON__
