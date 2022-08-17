@@ -40,7 +40,7 @@ class SLPcmAudioPlayerCallbackProxy {
 public:
     static void samplePlayerCallback(SLOHBufferQueueItf bq, void *context, SLuint32 size) {
         PcmAudioService *thiz = reinterpret_cast<PcmAudioService *>(context);
-        thiz->bqFetchBufferCallback(bq, size);
+        thiz->bqFetchBufferCallback(bq);
     }
 };
 
@@ -76,7 +76,7 @@ bool PcmAudioService::enqueue() {
     return true;
 }
 
-void PcmAudioService::bqFetchBufferCallback(SLOHBufferQueueItf bq,SLuint32 size) {
+void PcmAudioService::bqFetchBufferCallback(SLOHBufferQueueItf bq) {
     // IDEA: PcmAudioService instance may be destroyed, we need to find a way to wait...
     // It's in sub thread
     enqueue();

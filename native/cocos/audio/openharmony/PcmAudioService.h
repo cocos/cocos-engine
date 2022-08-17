@@ -55,7 +55,7 @@ private:
 
     bool enqueue();
 
-    void bqFetchBufferCallback(SLOHBufferQueueItf bq,SLuint32 size);
+    void bqFetchBufferCallback(SLOHBufferQueueItf bq);
 
     void pause();
     void resume();
