@@ -51,7 +51,7 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     using context_type = typename class_<T>::Context;
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope handleScope(isolate);
-    bool ret = false;
+    std::optional<bool> ret;
     se::ValueArray &args = se::gValueArrayPool.get(v8args.Length());
     se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};
     se::internal::jsToSeArgs(v8args, args);
@@ -70,7 +70,11 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
             if (ret) break;
         }
     }
-    if (!ret) {
+
+    if (!ret.has_value()) {
+        SE_LOGE("[ERROR] Failed match constructor for class %s, %d args, location: %s:%d\n", self->className.c_str(),
+                static_cast<int>(args.size()), __FILE__, __LINE__);
+    } else if (!ret.value()) {
         SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", "constructor", __FILE__, __LINE__);
     }
     assert(ret); // construction failure is not allowed.
@@ -189,6 +193,8 @@ bool class_<T>::install(se::Object *nsObject) {
         _ctx->kls->defineStaticProperty(std::get<0>(prop).c_str(), fieldGetter, fieldSetter, std::get<1>(prop).get());
     }
     _ctx->kls->install();
+    JSBClassType::registerClass<T>(_ctx->kls);
+
     return true;
 }
 } // namespace sebind

@@ -750,6 +750,11 @@ const Elements = {
                         $prop.regenerate = Elements.scene.regenerate.bind(panel);
                         $prop.addEventListener('change-dump', $prop.regenerate);
                     }
+
+                    if (!$prop.setReflectionConvolutionMap && $prop.dump.name === 'envmap') {
+                        $prop.setReflectionConvolutionMap = Elements.scene.setReflectionConvolutionMap.bind(panel);
+                        $prop.addEventListener('change-dump', $prop.setReflectionConvolutionMap);
+                    }
                 }
             });
         },
@@ -780,6 +785,17 @@ const Elements = {
                     name: 'inspector',
                     method: 'generateVector',
                     args: [envMapUuid],
+                });
+            }
+        },
+        async setReflectionConvolutionMap() {
+            const panel = this;
+            const envMapData = panel.dump._globals.skybox.value['envmap'];
+            if (envMapData.value && envMapData.value.uuid) {
+                await Editor.Message.request('scene', 'execute-scene-script', {
+                    name: 'inspector',
+                    method: 'setReflectionConvolutionMap',
+                    args: [envMapData.value.uuid],
                 });
             }
         },
