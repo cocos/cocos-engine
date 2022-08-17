@@ -17,17 +17,6 @@ console.log(`==> WORK_DIR: ${WORK_DIR}`);
 console.log(`==> SCRIPT_DIR: ${SCRIPT_DIR}`);
 console.log('==> COCOS_NATIVE_ROOT:' + COCOS_NATIVE_ROOT);
 
-function exists(filePath) {
-    try {
-        if (fs.existsSync(filePath)) {
-            return true;
-        }
-    } catch(err) {
-        console.error(err)
-    }
-    return false;
-}
-
 //------------------------------------------------------------------------
 
 const EXIT_CODE_SUCCESS = 0;
@@ -76,13 +65,13 @@ function ensureAbsolutePath(rootDir, filePath) {
     return path.join(rootDir, filePath);
 }
 
-assert(exists(SWIG_EXE), `${SWIG_EXE} doesn't exist`);
+assert(fs.existsSync(SWIG_EXE), `${SWIG_EXE} doesn't exist`);
 
 const includes = [...SWIG_LIB_ARRAY];
 includes.push(COCOS_NATIVE_ROOT);
 includes.push(path.join(COCOS_NATIVE_ROOT, 'cocos'));
 for (const includePath of includes) {
-    assert(exists(includePath), `${includePath} doesn't exist`);
+    assert(fs.existsSync(includePath), `${includePath} doesn't exist`);
 }
 
 for (let i = 0, len = includes.length; i < len; ++i) {
@@ -92,14 +81,16 @@ for (let i = 0, len = includes.length; i < len; ++i) {
 let swigConfigArray = [];
 
 function makeSwigConfigArray(configJSPath) {
-    let configObj = require(configJSPath); 
+    const configObj = require(configJSPath); 
+    const configJSDir = path.dirname(configJSPath);
+
     function resolveDir(dir) {
         if (dir && dir.length > 0) {
             dir = path.normalize(dir);
             if (!path.isAbsolute(dir)) {
-                dir = path.join(WORK_DIR, dir);
+                dir = path.join(configJSDir, dir);
             }
-            assert(exists(dir), `${dir} doesn't exist`);
+            assert(fs.existsSync(dir), `${dir} doesn't exist`);
             return dir;
         }
         
@@ -109,8 +100,7 @@ function makeSwigConfigArray(configJSPath) {
     const interfacesDir = resolveDir(configObj.interfacesDir);
     const bindingsOutDir = resolveDir(configObj.bindingsOutDir);
     const configArray = [];
-    const configJSDir = path.dirname(configJSPath);
-
+    
     for (let oneConfig of configObj.configList) {
         let interfaceFile = path.normalize(oneConfig[0]);
         let outputFile = path.normalize(oneConfig[1]);
@@ -121,7 +111,7 @@ function makeSwigConfigArray(configJSPath) {
                 interfaceFile = path.join(configJSDir, interfaceFile);
             }
         }
-        assert(exists(interfaceFile), `(${interfaceFile}) doesn't exist`);
+        assert(fs.existsSync(interfaceFile), `(${interfaceFile}) doesn't exist`);
 
         if (!path.isAbsolute(outputFile)) {
             if (bindingsOutDir) {
@@ -132,7 +122,7 @@ function makeSwigConfigArray(configJSPath) {
 
         }
         const outputDir = path.dirname(outputFile);
-        assert(exists(outputDir), `${outputDir} doesn't exist`);
+        assert(fs.existsSync(outputDir), `${outputDir} doesn't exist`);
 
         configArray.push([ interfaceFile, outputFile ]);
     }
@@ -149,7 +139,7 @@ if (commandLineArgs.length === 0) {
     ];
 
     for (const swigConfigPath of swigConfigPathPriority) {
-        if (exists(swigConfigPath)) {
+        if (fs.existsSync(swigConfigPath)) {
             swigConfigArray = makeSwigConfigArray(swigConfigPath);
             break;
         }
