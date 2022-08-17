@@ -522,19 +522,19 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             for (const auto &window : _windows) {
                 if (window->getSwapchain()) {
                     // not rt
-                    _xr->bindXREyeWithRenderWindow(window, (xr::XREye)xrEye);
+                    _xr->bindXREyeWithRenderWindow(window, static_cast<xr::XREye>(xrEye));
                 }
                 xrWindows.emplace_back(window);
             }
 
-            bool isNeedUpdateScene = xrEye == (uint32_t)xr::XREye::LEFT || (xrEye == (uint32_t)xr::XREye::RIGHT && !isSceneUpdated);
+            bool isNeedUpdateScene = xrEye == static_cast<uint32_t>(xr::XREye::LEFT) || (xrEye == static_cast<uint32_t>(xr::XREye::RIGHT) && !isSceneUpdated);
             frameMoveProcess(isNeedUpdateScene, totalFrames, xrWindows);
             auto camIter = _cameraList.begin();
             while (camIter != _cameraList.end()) {
                 scene::Camera *cam = *camIter;
                 bool isMismatchedCam =
-                    ((xr::XREye)xrEye == xr::XREye::LEFT && cam->getCameraType() == scene::CameraType::RIGHT_EYE) ||
-                    ((xr::XREye)xrEye == xr::XREye::RIGHT && cam->getCameraType() == scene::CameraType::LEFT_EYE);
+                    (static_cast<xr::XREye>(xrEye) == xr::XREye::LEFT && cam->getCameraType() == scene::CameraType::RIGHT_EYE) ||
+                    (static_cast<xr::XREye>(xrEye) == xr::XREye::RIGHT && cam->getCameraType() == scene::CameraType::LEFT_EYE);
                 if (isMismatchedCam) {
                     // currently is left eye loop, so right camera do not need active
                     camIter = _cameraList.erase(camIter);
@@ -564,8 +564,9 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             _xr->endRenderEyeFrame(xrEye);
         }
         // recovery to normal status (condition: xr scene jump to normal scene)
-        if (_pipelineRuntime)
+        if (_pipelineRuntime) {
             _pipelineRuntime->resetRenderQueue(true);
+        }
 
         for (scene::Camera *cam : _cameraList) {
             cam->setCullingEnable(true);
