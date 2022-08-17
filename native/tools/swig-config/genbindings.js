@@ -187,10 +187,17 @@ Usage: node genbindings.js [arguments]
                 '< Your custom c++ include directory 1 >',
             ];
 
+            // optional
+            const flags = [
+                '-DUSE_AAA=1',
+                '-DUSE_BBB=0',
+            ];
+
             module.exports = {
                 interfacesDir, // Delete this line if you want to use relative path related to 'your_config_path.js'
                 bindingsOutDir, // Delete this line if you want to use relative path related to 'your_config_path.js'
                 includeDirs, // optional 
+                flags, // optional
                 configList // Required
             };
 
