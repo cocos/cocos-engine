@@ -40,7 +40,7 @@ namespace {
 WGPUBindGroup dftBindGroup = wgpuDefaultHandle;
 } // namespace
 
-thread_local ccstd::unordered_map<ccstd::hash_t, void *> CCWGPUDescriptorSet::_bindGroupMap;
+thread_local ccstd::unordered_map<ccstd::hash_t, std::pair<ccstd::hash_t, void *>> CCWGPUDescriptorSet::_bindGroupMap;
 
 CCWGPUDescriptorSet::CCWGPUDescriptorSet() : DescriptorSet() {
 }
@@ -263,6 +263,7 @@ void CCWGPUDescriptorSet::prepare() {
         //                        bindGroupEntries.end());
         if (entries.empty()) {
             _gpuBindGroupObj->bindgroup = dftBindGroup;
+            _bornHash = 0;
         } else {
             _hash = hash();
             auto iter = _bindGroupMap.find(_hash);
@@ -273,10 +274,10 @@ void CCWGPUDescriptorSet::prepare() {
                 // if (_gpuBindGroupObj->bindgroup && _gpuBindGroupObj->bindgroup != dftBindGroup) {
                 //     wgpuBindGroupRelease(_gpuBindGroupObj->bindgroup);
                 // }
-
+                label = std::to_string(_bornHash);
                 WGPUBindGroupDescriptor bindGroupDesc = {
                     .nextInChain = nullptr,
-                    .label = nullptr,
+                    .label = label.c_str(),
                     .layout = dsLayout->gpuLayoutEntryObject()->bindGroupLayout,
                     .entryCount = entries.size(),
                     .entries = entries.data(),
@@ -297,10 +298,11 @@ void CCWGPUDescriptorSet::prepare() {
                             static_cast<CCWGPUTexture *>(texture)->stamp();
                     });
 
-                _bindGroupMap.insert(std::make_pair(_hash, _gpuBindGroupObj->bindgroup));
+                _bindGroupMap.insert(std::make_pair(_hash, std::make_pair(_bornHash, _gpuBindGroupObj->bindgroup)));
                 // CCWGPUDevice::getInstance()->destroyLater(_gpuBindGroupObj->bindgroup);
             } else {
-                _gpuBindGroupObj->bindgroup = static_cast<WGPUBindGroup>(iter->second);
+                _gpuBindGroupObj->bindgroup = static_cast<WGPUBindGroup>(iter->second.second);
+                _bornHash = iter->second.first;
                 // printf("reuse bg\n");
             }
         }

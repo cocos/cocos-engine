@@ -54,6 +54,7 @@ public:
     inline uint8_t dynamicOffsetCount() { return _dynamicOffsetCount; }
 
     static void *defaultBindGroupLayout();
+    static void *getBindGroupLayoutByHash(ccstd::hash_t hash);
 
     void print() const;
 

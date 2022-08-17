@@ -832,10 +832,55 @@ export function seperateCombinedSamplerTexture (shaderSource: string) {
 
     // some function appears before it's defined so forward declaration is needed
     forwardDecls += '\nvec3 SRGBToLinear (vec3 gamma);\nfloat getDisplacementWeight(int index);\n';
-    let idx = code.indexOf('precision');
-    idx = code.indexOf(';', idx);
-    idx += 1;
-    code = `${code.slice(0, idx)}\n${forwardDecls}\n${code.slice(idx)}`;
+
+    const highpIdx = code.indexOf('precision highp');
+    const mediumpIdx = code.indexOf('precision mediump');
+    const lowpIdx = code.indexOf('precision lowp');
+
+    ///////////////////////////////////////////////////////////
+    // isNan, isInf has been removed in dawn:tint
+
+    let functionDefs = '';
+    const precisionKeyWord = 'highp';
+
+    // const getPrecision = (idx: number) => {
+    //     if (highpIdx !== -1 && highpIdx < idx) {
+    //         precisionKeyWord = 'highp';
+    //     } else if (mediumpIdx !== -1 && mediumpIdx < idx && highpIdx < mediumpIdx) {
+    //         precisionKeyWord = 'mediump';
+    //     } else if (lowpIdx !== -1 && lowpIdx < idx && mediumpIdx < lowpIdx && highpIdx < lowpIdx) {
+    //         precisionKeyWord = 'lowp';
+    //     }
+    // };
+
+    const isNanIndex = code.indexOf('isnan');
+    if (isNanIndex !== -1) {
+        // getPrecision(isNanIndex);
+        functionDefs += `\n
+        bool isNan(${precisionKeyWord} float val) {
+            return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
+        }
+        \n`;
+        code = code.replace(/isnan\(/gi, 'isNan(');
+    }
+
+    const isInfIndex = code.indexOf('isinf');
+    if (isInfIndex !== -1) {
+        // getPrecision(isInfIndex);
+        functionDefs += `\n
+        bool isInf(${precisionKeyWord} float x) {
+            return x == x * 2.0 && x != 0.0;
+        }
+        \n`;
+        code = code.replace(/isinf\(/gi, 'isInf(');
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    let firstPrecisionIdx = code.indexOf('precision');
+    firstPrecisionIdx = code.indexOf(';', firstPrecisionIdx);
+    firstPrecisionIdx += 1;
+    code = `${code.slice(0, firstPrecisionIdx)}\n${forwardDecls}\n${functionDefs}\n${code.slice(firstPrecisionIdx)}`;
 
     return code;
 }

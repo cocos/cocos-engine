@@ -304,7 +304,7 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     } else {
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
-            .label = nullptr,
+            .label = std::to_string(_hash).c_str(),
             .entryCount = entries.size(),
             .entries = entries.data(),
         };
@@ -312,6 +312,15 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
         printf("create new bglayout\n");
     }
     layoutPool.insert({_hash, _gpuLayoutEntryObj->bindGroupLayout});
+}
+
+void *CCWGPUDescriptorSetLayout::getBindGroupLayoutByHash(ccstd::hash_t hash) {
+    void *ret = nullptr;
+    auto iter = layoutPool.find(hash);
+    if (iter != layoutPool.end()) {
+        ret = iter->second;
+    }
+    return ret;
 }
 
 void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {

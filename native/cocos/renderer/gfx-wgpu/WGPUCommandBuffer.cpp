@@ -79,6 +79,8 @@ void CCWGPUCommandBuffer::doDestroy() {
 void CCWGPUCommandBuffer::begin(RenderPass * /*renderPass*/, uint32_t /*subpass*/, Framebuffer * /*frameBuffer*/) {
     // TODO_Zeqiang: subpass support
     //    printf("begin\n");
+    reset();
+
     _numTriangles = 0;
     _numDrawCalls = 0;
     _numInstances = 0;

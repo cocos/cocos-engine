@@ -54,6 +54,8 @@ public:
     static void *defaultBindGroup();
     static void clearCache();
 
+    std::string label;
+
 protected:
     void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;
@@ -70,7 +72,7 @@ protected:
     ccstd::hash_t _hash{0};
     ccstd::hash_t _bornHash{0}; // hash when created, this relate to reuse bindgroup layout
 
-    thread_local static ccstd::unordered_map<ccstd::hash_t, void *> _bindGroupMap;
+    thread_local static ccstd::unordered_map<ccstd::hash_t, std::pair<ccstd::hash_t, void *>> _bindGroupMap;
 };
 
 } // namespace gfx
