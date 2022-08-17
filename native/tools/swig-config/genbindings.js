@@ -67,20 +67,20 @@ function ensureAbsolutePath(rootDir, filePath) {
 
 assert(fs.existsSync(SWIG_EXE), `${SWIG_EXE} doesn't exist`);
 
-const includes = [...SWIG_LIB_ARRAY];
+let includes = [...SWIG_LIB_ARRAY];
 includes.push(COCOS_NATIVE_ROOT);
 includes.push(path.join(COCOS_NATIVE_ROOT, 'cocos'));
 for (const includePath of includes) {
     assert(fs.existsSync(includePath), `${includePath} doesn't exist`);
 }
 
-for (let i = 0, len = includes.length; i < len; ++i) {
-    includes[i] = '-I' + includes[i];
-}
+let swigConfig = {
+    flags: [],
+    includeDirs: [],
+    configList: [],
+};
 
-let swigConfigArray = [];
-
-function makeSwigConfigArray(configJSPath) {
+function makeSwigConfig(configJSPath) {
     const configObj = require(configJSPath); 
     const configJSDir = path.dirname(configJSPath);
 
@@ -97,9 +97,20 @@ function makeSwigConfigArray(configJSPath) {
         return null;
     }
 
+    const flags = configObj.flags;
+    const includeDirs = [];
+
+    if (configObj.includeDirs instanceof Array) {
+        for (let includeDir of configObj.includeDirs) {
+            includeDir = resolveDir(includeDir);
+            if (includeDir) {
+                includeDirs.push(includeDir);
+            }
+        }
+    }
     const interfacesDir = resolveDir(configObj.interfacesDir);
     const bindingsOutDir = resolveDir(configObj.bindingsOutDir);
-    const configArray = [];
+    const configList = [];
     
     for (let oneConfig of configObj.configList) {
         let interfaceFile = path.normalize(oneConfig[0]);
@@ -124,10 +135,14 @@ function makeSwigConfigArray(configJSPath) {
         const outputDir = path.dirname(outputFile);
         assert(fs.existsSync(outputDir), `${outputDir} doesn't exist`);
 
-        configArray.push([ interfaceFile, outputFile ]);
+        configList.push([ interfaceFile, outputFile ]);
     }
 
-    return configArray;
+    return {
+        flags,
+        includeDirs,
+        configList
+    };
 }
 
 const commandLineArgs = process.argv.slice(2);
@@ -140,7 +155,7 @@ if (commandLineArgs.length === 0) {
 
     for (const swigConfigPath of swigConfigPathPriority) {
         if (fs.existsSync(swigConfigPath)) {
-            swigConfigArray = makeSwigConfigArray(swigConfigPath);
+            swigConfig = makeSwigConfig(swigConfigPath);
             break;
         }
     }
@@ -166,17 +181,19 @@ Usage: node genbindings.js [arguments]
             // optional
             const bindingsOutDir = '< The directory of generated files > ';
 
+            // optional
+            const includeDirs = [
+                '< Your custom c++ include directory 0 >',
+                '< Your custom c++ include directory 1 >',
+            ];
+
             module.exports = {
                 interfacesDir, // Delete this line if you want to use relative path related to 'your_config_path.js'
                 bindingsOutDir, // Delete this line if you want to use relative path related to 'your_config_path.js'
+                includeDirs, // optional 
                 configList // Required
             };
 
-       node genbindings.js your_dot_i_path1 your_output_path1 your_dot_i_path2 your_output_path2 ...  : Generate binding code for user modules passed in by command line arguments
-
-Note: 1. If you have many modules, you could pass multiple interface files and output files in sequence
-      2. Interface file and output file should be in pair
-      3. If you don't want to pass interface files and output files in command line each time, use 'node genbindings.js -c your_config_path.js' instead
         `);
         process.exit(EXIT_CODE_SUCCESS);
     }
@@ -185,28 +202,18 @@ Note: 1. If you have many modules, you could pass multiple interface files and o
 
     const configIndex = commandLineArgs.indexOf('-c');
     if (configIndex !== -1) {
-        swigConfigArray = makeSwigConfigArray(ensureAbsolutePath(WORK_DIR, commandLineArgs[configIndex+1]));
+        swigConfig = makeSwigConfig(ensureAbsolutePath(WORK_DIR, commandLineArgs[configIndex+1]));
     } else {
-        if (commandLineArgs.length % 2 !== 0) {
-            console.error(`==> ERROR: Wrong argument count (${commandLineArgs.length}) , interface file and output file should in pair`);
-            process.exit(EXIT_CODE_WRONG_ARGUMENT_COUNT);
-        }
-
-        swigConfigArray = [];
-        for (let i = 0; i < commandLineArgs.length; i += 2) {
-            swigConfigArray.push([ ensureAbsolutePath(WORK_DIR, commandLineArgs[i]), ensureAbsolutePath(WORK_DIR, commandLineArgs[i+1]) ]);
-        }
+        console.error(`==> ERROR: Could not find -c argument`);
+        process.exit(EXIT_CODE_WRONG_ARGUMENT);
     }
 }
 
-function generateBindings(interfaceFile, generatedCppFile) {
+function generateBindings(swigArgs, interfaceFile, generatedCppFile) {
     console.info(`======================================================================`)
     console.info(`==> Generate Bindings: interface: ${interfaceFile}, output cpp: ${generatedCppFile}`);
-    let swigArgs = [
-        '-c++', '-cocos', '-fvirtual', '-noexcept', '-cpperraswarn',
-        '-D__clang__', '-Dfinal= ', '-DCC_PLATFORM=3', '-Dconstexpr=const', '-DCC_PLATFORM_ANDROID=3',
-    ];
-    swigArgs = swigArgs.concat(includes, [
+
+    swigArgs = swigArgs.concat([
         '-o', generatedCppFile,
         interfaceFile
     ]);
@@ -227,11 +234,30 @@ function generateBindings(interfaceFile, generatedCppFile) {
     }
 }
 
-for (const config of swigConfigArray) {
-    generateBindings(config[0], config[1]);
+let swigArgs = [
+    '-c++', '-cocos', '-fvirtual', '-noexcept', '-cpperraswarn',
+    '-D__clang__', '-Dfinal= ', '-DCC_PLATFORM=3', '-Dconstexpr=const', '-DCC_PLATFORM_ANDROID=3',
+];
+
+if (swigConfig.flags instanceof Array) {
+    swigArgs = swigArgs.concat(swigConfig.flags);
 }
 
-if (swigConfigArray.length > 0) {
+if (swigConfig.includeDirs instanceof Array) {
+    includes = includes.concat(swigConfig.includeDirs);
+}
+
+for (let i = 0, len = includes.length; i < len; ++i) {
+    includes[i] = '-I' + includes[i];
+}
+
+swigArgs = swigArgs.concat(includes);
+
+for (const config of swigConfig.configList) {
+    generateBindings(swigArgs, config[0], config[1]);
+}
+
+if (swigConfig.configList.length > 0) {
     console.info(`======================================================================`);
     console.info(`    Congratulations, JS binding code was generated successfully!`);
     console.info(`======================================================================`);

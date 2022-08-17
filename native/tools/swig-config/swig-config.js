@@ -29,6 +29,6 @@ const bindingsOutDir = path.join(cocosNativeRoot, 'cocos', 'bindings', 'auto');
 
 module.exports = {
     interfacesDir,
-    bindingsOutDir, 
+    bindingsOutDir,
     configList
 };
