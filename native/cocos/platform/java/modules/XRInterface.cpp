@@ -630,7 +630,7 @@ void XRInterface::getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_
     xr::XrEntry::getInstance()->getSwapchainImages(vkImages, eye);
 #else
     CC_UNUSED_PARAM(vkImages);
-    CC_UNUSED_PARAM(ccSwapchainTypedID);
+    CC_UNUSED_PARAM(eye);
 #endif
 }
 #endif
