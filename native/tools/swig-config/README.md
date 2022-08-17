@@ -28,7 +28,7 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
 
 - Create a directory for generated code, e.g. `/Users/abc/my-project/native/engine/common/Classes/bindings/auto`
 
-- **Usage 1**: Write a JS configuration file
+- Write a JS configuration file
   
   - Create the JS configruation file, e.g.  `/Users/abc/my-project/tools/swig-config/swig-config.js` with the following content
     
@@ -70,19 +70,13 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
     $ node < Engine Root Path >/native/tools/swig-config/genbindings.js
     ```
 
-- **Usage 2**: Passing interface and output file paths in sequence
-  
-  ```bash
-  $ node < Engine Root Path >/native/tools/swig-config/genbindings.js < Absolute directory of interface file >/your_module_interface_0.i < Absolute directory of genereated file >/jsb_your_module_interface_0_auto.cpp < Absolute directory of interface file >/your_module_interface_1.i < Absolute directory of genereated file >/jsb_your_module_interface_1_auto.cpp
-  ```
-
 ## Swig Interface File
 
 - There is a [swig-interface-template.i](swig-interface-template.i) in `engine/native/tools/swig-config` directory, just copy and rename it to some place in your project.
 
 - To learn how to write a Swig interface file, you could reference engine internal `.i` files in `engine/native/tools/swig-config`, for instance, `scene.i` or `assets.i`
 
-- If you're using `Visual Studio Code`, you could install `SWIG Language` extension which developed by `Hong-She Liang` for highlight syntax support.
+- If you're using `Visual Studio Code`, you could install `SWIG Language` extension which was developed by `Hong-She Liang` for highlight syntax support.
 
 ## Tutorial
 
