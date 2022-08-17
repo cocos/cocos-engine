@@ -29,6 +29,10 @@ THE SOFTWARE.
 #include "audio/openharmony/OpenSLHelper.h"
 #include "audio/openharmony/PcmData.h"
 
+#include "SLES/OpenSLES.h"
+#include "SLES/OpenSLES_OpenHarmony.h"
+#include "SLES/OpenSLES_Platform.h"
+
 #include <mutex>
 #include <condition_variable>
 
@@ -51,7 +55,7 @@ private:
 
     bool enqueue();
 
-    void bqFetchBufferCallback(SLBufferQueueItf bq);
+    void bqFetchBufferCallback(SLOHBufferQueueItf bq,SLuint32 size);
 
     void pause();
     void resume();
@@ -63,7 +67,7 @@ private:
     SLObjectItf _playObj;
     SLPlayItf _playItf;
     SLVolumeItf _volumeItf;
-    SLBufferQueueItf _bufferQueueItf;
+    SLOHBufferQueueItf _bufferQueueItf;
 
     int _numChannels;
     int _sampleRate;

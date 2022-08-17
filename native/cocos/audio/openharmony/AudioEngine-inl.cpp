@@ -56,7 +56,9 @@ using namespace cc; //NOLINT
 namespace {
 AudioEngineImpl *gAudioImpl         = nullptr;
 int              outputSampleRate   = 44100;
-int              bufferSizeInFrames = 192;
+// TODO(hack) : There is currently a bug in the opensles module, 
+// so openharmony must configure a fixed size, otherwise the callback will be suspended
+int              bufferSizeInFrames = 2048;
 
 void getAudioInfo() {
     // JNIEnv *  env         = JniHelper::getEnv();
