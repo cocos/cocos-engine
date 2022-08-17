@@ -1,5 +1,10 @@
 // NDC shadowPos applied with normal bias and depth bias
 
+#pragma define CC_SHADOW_PCF_HARD 0
+#pragma define CC_SHADOW_PCF_SOFT 1
+#pragma define CC_SHADOW_PCF_SOFT_3X 2
+#pragma define CC_SHADOW_PCF_SOFT_5X 3
+
 float NativePCFShadowFactorHard (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)
 {
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
