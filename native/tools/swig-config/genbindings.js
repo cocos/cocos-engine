@@ -184,9 +184,9 @@ Usage: node genbindings.js [arguments]
 
        node genbindings.js your_dot_i_path1 your_output_path1 your_dot_i_path2 your_output_path2 ...  : Generate binding code for user modules passed in by command line arguments
 
-Note: 1. If your have many modules, you could pass multiple interface file and output file in sequencely
+Note: 1. If you have many modules, you could pass multiple interface files and output files in sequence
       2. Interface file and output file should be in pair
-      3. If you don't want to pass interface files and output files in command line every time, use 'node genbindings.js -c your_config_path.js' instead
+      3. If you don't want to pass interface files and output files in command line each time, use 'node genbindings.js -c your_config_path.js' instead
         `);
         process.exit(EXIT_CODE_SUCCESS);
     }
@@ -198,7 +198,7 @@ Note: 1. If your have many modules, you could pass multiple interface file and o
         swigConfigArray = makeSwigConfigArray(ensureAbsolutePath(WORK_DIR, commandLineArgs[configIndex+1]));
     } else {
         if (commandLineArgs.length % 2 !== 0) {
-            console.error(`==> ERROR: Wrong arugment count (${commandLineArgs.length}) , interface file and output file should in pair`);
+            console.error(`==> ERROR: Wrong argument count (${commandLineArgs.length}) , interface file and output file should in pair`);
             process.exit(EXIT_CODE_WRONG_ARGUMENT_COUNT);
         }
 
@@ -211,7 +211,7 @@ Note: 1. If your have many modules, you could pass multiple interface file and o
 
 function generateBindings(interfaceFile, generatedCppFile) {
     console.info(`======================================================================`)
-    console.info(`==> generateBindings: interface: ${interfaceFile}, cpp: ${generatedCppFile}`);
+    console.info(`==> Generate Bindings: interface: ${interfaceFile}, output cpp: ${generatedCppFile}`);
     let swigArgs = [
         '-c++', '-cocos', '-fvirtual', '-noexcept', '-cpperraswarn',
         '-D__clang__', '-Dfinal= ', '-DCC_PLATFORM=3', '-Dconstexpr=const', '-DCC_PLATFORM_ANDROID=3',
