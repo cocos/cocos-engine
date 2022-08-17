@@ -186,7 +186,7 @@ Usage: node genbindings.js [arguments]
 
 Note: 1. If your have many modules, you could pass multiple interface file and output file in sequencely
       2. Interface file and output file should be in pair
-      3. If you don't want to pass interface files and output files in command line every time, you could add a ''
+      3. If you don't want to pass interface files and output files in command line every time, use 'node genbindings.js -c your_config_path.js' instead
         `);
         process.exit(EXIT_CODE_SUCCESS);
     }
