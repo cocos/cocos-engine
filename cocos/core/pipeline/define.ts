@@ -252,7 +252,7 @@ export class UBOCamera {
         new Uniform('cc_fogAdd', Type.FLOAT4, 1),
         new Uniform('cc_nearFar', Type.FLOAT4, 1),
         new Uniform('cc_viewPort', Type.FLOAT4, 1),
-        new Uniform('cc_skyboxAngle', Type.FLOAT, 4),
+        new Uniform('cc_skyboxAngle', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
