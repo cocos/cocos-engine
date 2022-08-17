@@ -108,8 +108,8 @@ inline void copyString(std::ostream& os, boost::string_view str) {
 }
 
 inline void copyCppString(std::ostream& os,
-    boost::string_view space, boost::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
-    bool append = false) {
+                          boost::string_view space, boost::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
+                          bool append = false) {
     std::istringstream iss{ccstd::string(str)};
     ccstd::string line;
     int count = 0;

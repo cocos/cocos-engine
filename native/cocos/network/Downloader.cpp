@@ -25,9 +25,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "network/Downloader.h"
 #include <memory>
 #include "base/memory/Memory.h"
-#include "network/Downloader.h"
 
 // include platform specific implement class
 #if (CC_PLATFORM == CC_PLATFORM_MACOS || CC_PLATFORM == CC_PLATFORM_IOS)
@@ -128,9 +128,9 @@ std::shared_ptr<const DownloadTask> Downloader::createDataTask(const ccstd::stri
 }
 
 std::shared_ptr<const DownloadTask> Downloader::createDownloadTask(const ccstd::string &srcUrl,
-                                                                       const ccstd::string &storagePath,
-                                                                       const ccstd::unordered_map<ccstd::string, ccstd::string> &header,
-                                                                       const ccstd::string &identifier /* = ""*/) {
+                                                                   const ccstd::string &storagePath,
+                                                                   const ccstd::unordered_map<ccstd::string, ccstd::string> &header,
+                                                                   const ccstd::string &identifier /* = ""*/) {
     auto *iTask = ccnew DownloadTask();
     std::shared_ptr<const DownloadTask> task(iTask);
     do {
@@ -151,8 +151,8 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadTask(const ccstd::
     return task;
 }
 std::shared_ptr<const DownloadTask> Downloader::createDownloadTask(const ccstd::string &srcUrl,
-                                                                       const ccstd::string &storagePath,
-                                                                       const ccstd::string &identifier /* = ""*/) {
+                                                                   const ccstd::string &storagePath,
+                                                                   const ccstd::string &identifier /* = ""*/) {
     const ccstd::unordered_map<ccstd::string, ccstd::string> emptyHeader;
     return createDownloadTask(srcUrl, storagePath, emptyHeader, identifier);
 }

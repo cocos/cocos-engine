@@ -439,7 +439,6 @@ public:
     }
 
 private:
-
     static void addTouchEvent(int index, GameActivityMotionEvent *motionEvent) {
         if (index < 0 || index >= motionEvent->pointerCount) {
             ABORT_IF(false);

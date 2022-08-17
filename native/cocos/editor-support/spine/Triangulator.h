@@ -30,8 +30,8 @@
 #ifndef Spine_Triangulator_h
 #define Spine_Triangulator_h
 
-#include <spine/Vector.h>
 #include <spine/Pool.h>
+#include <spine/Vector.h>
 
 namespace spine {
 class SP_API Triangulator : public SpineObject {

@@ -25,6 +25,7 @@
 
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/base/DeferredReleasePool.h"
+#include "cocos/bindings/auto/jsb_2d_auto.h"
 #include "cocos/bindings/auto/jsb_assets_auto.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 #include "cocos/bindings/auto/jsb_extension_auto.h"
@@ -34,7 +35,6 @@
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_render_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
-#include "cocos/bindings/auto/jsb_2d_auto.h"
 #include "cocos/bindings/dop/jsb_dop.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_assets_manual.h"

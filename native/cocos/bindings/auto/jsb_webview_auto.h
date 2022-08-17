@@ -11,8 +11,8 @@ bool register_all_webview(se::Object *obj);                   // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::WebView);
 
 
-extern se::Object *__jsb_cc_WebView_proto; // NOLINT
-extern se::Class * __jsb_cc_WebView_class; // NOLINT
+extern se::Object *__jsb_cc_WebView_proto;   // NOLINT
+extern se::Class *__jsb_cc_WebView_class;    // NOLINT
 
 bool js_register_cc_WebView(se::Object *obj); // NOLINT
 

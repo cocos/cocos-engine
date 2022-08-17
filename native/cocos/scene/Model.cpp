@@ -398,7 +398,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     if (subModel->getWorldBoundDescriptorSet()) {
         updateWorldBoundDescriptors(subModelIndex, subModel->getWorldBoundDescriptorSet());
     }
-    
+
     gfx::Shader *shader = subModel->getPasses()[0]->getShaderVariant(subModel->getPatches());
     updateInstancedAttributes(shader->getAttributes(), subModel->getPasses()[0]);
 }

@@ -17,7 +17,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
 
 
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE && !CC_FORWARD_ADD
-  void CCSurfacesDebugViewMeshData(out vec4 color)
+  void CCSurfacesDebugViewMeshData(inout vec4 color)
   {
     vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
     vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
@@ -98,7 +98,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
 
   // Lighting related
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
-  bool CCSurfacesDebugViewLightingResult(out vec4 color, in LightingResult lightingResult)
+  bool CCSurfacesDebugViewLightingResult(inout vec4 color, in LightingResult lightingResult)
   {
       bool isDebugMatched = false;
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE))

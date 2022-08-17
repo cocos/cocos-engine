@@ -30,8 +30,8 @@
 #ifndef Spine_SkeletonClipping_h
 #define Spine_SkeletonClipping_h
 
-#include <spine/Vector.h>
 #include <spine/Triangulator.h>
+#include <spine/Vector.h>
 
 namespace spine {
 class Slot;

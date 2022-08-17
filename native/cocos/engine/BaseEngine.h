@@ -29,8 +29,8 @@
 
 #include "base/Scheduler.h"
 #include "base/TypeDef.h"
-#include "platform/BasePlatform.h"
 #include "core/event/CallbacksInvoker.h"
+#include "platform/BasePlatform.h"
 
 namespace cc {
 

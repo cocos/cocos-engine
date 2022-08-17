@@ -1,6 +1,6 @@
 #include "sebind_fruits.h"
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include "bindings/sebind/intl/common.h"
 #include "bindings/sebind/sebind.h"
 #include "tests/sebind-tests/common/Classes/demo/Coconut.h"
@@ -12,7 +12,8 @@ struct Utils {};
 void doAssert(bool value, const std::string &message) {
     if (!value) {
         CC_LOG_ERROR("Assert Fail: %s", message.c_str());
-        std::cerr << "Assert Failed: " <<  message << std::endl;;
+        std::cerr << "Assert Failed: " << message << std::endl;
+        ;
         std::exit(-1);
     }
 }
@@ -41,10 +42,20 @@ float Coconut_area(demo::Coconut *d) {
     return d->getRadius() * d->getRadius() * 3.14F;
 }
 
-bool  Coconut_weight(se::State &s) {
+bool Coconut_weight(se::State &s) {
     s.rval().setFloat(88.8);
     return true;
 }
+
+
+demo::Coconut *Coconut_create(int, int, int, int) {
+    return new demo::Coconut();
+}
+
+class CoconutExt : public demo::Coconut {
+public:
+    using Coconut::Coconut;
+};
 
 } // namespace
 
@@ -77,9 +88,13 @@ bool jsb_register_fruits(se::Object *globalThis) {
     {
         coconutClass.constructor<sebind::ThisObject>()
             .constructor<sebind::ThisObject, const std::string &, float>()
+            .constructor(&Coconut_create)
             .property("radius", &demo::Coconut::getRadius, nullptr)
             .property("radius2", nullptr, &demo::Coconut::setRadius)
             .function("combine", &demo::Coconut::combine)
+            .function("combine1", &demo::Coconut::combine1)
+            .function("combine2", &demo::Coconut::combine2)
+            .function("combine3", &demo::Coconut::combine3)
             .function("setRadius", &demo::Coconut::setRadius)
             .function("getRadius", &demo::Coconut::getRadius)
             .function("doNothing", &demo::Coconut::doNothing)
@@ -101,16 +116,17 @@ bool jsb_register_fruits(se::Object *globalThis) {
             .install(globalThis);
     }
 
-    sebind::class_<demo::Coconut> coconutExtClass("CoconutExt", fruitClass.prototype());
+    sebind::class_<CoconutExt> coconutExtClass("CoconutExt", fruitClass.prototype());
     {
         coconutExtClass.constructor<sebind::ThisObject>()
             .staticProperty("time", &Coconut_time, nullptr)
             .staticFunction("getTime", &Coconut_time)
+            .staticFunction("staticGetWeight", &Coconut_weight)
             .property("area", &Coconut_area, nullptr)
             .function("getArea", &Coconut_area)
             .property("weight", &Coconut_weight, &Coconut_weight)
             .function("getWeight", &Coconut_weight)
-            .finalizer([](demo::Coconut*){
+            .finalizer([](CoconutExt *) {
 
             })
             .install(ns);

@@ -142,7 +142,7 @@ public:
     void render(const ccstd::vector<scene::Camera *> &cameras) override {
         pipeline->render(cameras);
     }
-    gfx::Device* getDevice() const override {
+    gfx::Device *getDevice() const override {
         return pipeline->getDevice();
     }
     const MacroRecord &getMacros() const override {
@@ -157,7 +157,7 @@ public:
     gfx::DescriptorSet *getDescriptorSet() const override {
         return pipeline->getDescriptorSet();
     }
-    ccstd::vector<gfx::CommandBuffer*> getCommandBuffers() const override {
+    ccstd::vector<gfx::CommandBuffer *> getCommandBuffers() const override {
         return pipeline->getCommandBuffers();
     }
     pipeline::PipelineSceneData *getPipelineSceneData() const override {
@@ -181,9 +181,9 @@ public:
     void setShadingScale(float scale) override {
         pipeline->setShadingScale(scale);
     }
-    const ccstd::string& getMacroString(const ccstd::string& name) const override {
+    const ccstd::string &getMacroString(const ccstd::string &name) const override {
         static const ccstd::string EMPTY_STRING;
-        const auto& macros = pipeline->getMacros();
+        const auto &macros = pipeline->getMacros();
         auto iter = macros.find(name);
         if (iter == macros.end()) {
             return EMPTY_STRING;
@@ -191,7 +191,7 @@ public:
         return ccstd::get<ccstd::string>(iter->second);
     }
     int32_t getMacroInt(const ccstd::string &name) const override {
-        const auto& macros = pipeline->getMacros();
+        const auto &macros = pipeline->getMacros();
         auto iter = macros.find(name);
         if (iter == macros.end()) {
             return 0;
@@ -199,7 +199,7 @@ public:
         return ccstd::get<int32_t>(iter->second);
     }
     bool getMacroBool(const ccstd::string &name) const override {
-        const auto& macros = pipeline->getMacros();
+        const auto &macros = pipeline->getMacros();
         auto iter = macros.find(name);
         if (iter == macros.end()) {
             return false;

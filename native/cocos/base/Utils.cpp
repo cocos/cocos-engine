@@ -28,7 +28,7 @@
 #include "base/Utils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
-#include <sys/time.h>
+    #include <sys/time.h>
 #endif
 
 #include <cmath>

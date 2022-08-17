@@ -34,7 +34,7 @@ import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo, deviceManager } from '../core/gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { Pass, scene } from '../core/renderer';
@@ -94,7 +94,6 @@ export class TerrainInfo {
         const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
         sz.height = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
-
         return sz;
     }
 
@@ -106,7 +105,6 @@ export class TerrainInfo {
         const _tileCount = [0, 0];
         _tileCount[0] = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
         _tileCount[1] = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY;
-
         return _tileCount;
     }
 
@@ -118,7 +116,6 @@ export class TerrainInfo {
         const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
         _vertexCount[1] += 1;
-
         return _vertexCount;
     }
 }
@@ -408,11 +405,12 @@ export class TerrainBlock {
         // reset material
         this._updateMaterial(true);
 
-        // update lod
-        this._updateLodBuffer(vertexData);
-
-        // update index buffer
-        this._updateIndexBuffer();
+        if (this._terrain.lodEnable) {
+            // update lod
+            this._updateLodBuffer(vertexData);
+            // update index buffer
+            this._updateIndexBuffer();
+        }
     }
 
     public rebuild () {
@@ -1162,12 +1160,13 @@ export class Terrain extends Component {
     protected _lightMapSize = 128;
     protected _heights: Uint16Array = new Uint16Array();
     protected _weights: Uint8Array = new Uint8Array();
-    protected _normals: number[] = [];
+    protected _normals: Float32Array = new Float32Array();
     protected _layerList: (TerrainLayer|null)[] = [];
     protected _layerBuffer: number[] = [];
     protected _blocks: TerrainBlock[] = [];
-    protected _lod: TerrainLod = new TerrainLod();
+    protected _lod: TerrainLod|null = null;
     protected _sharedIndexBuffer: Buffer|null = null;
+    protected _sharedLodIndexBuffer: Buffer|null = null;
 
     constructor () {
         super();
@@ -1205,7 +1204,7 @@ export class Terrain extends Component {
                 this._lightMapSize = 128;
                 this._heights = new Uint16Array();
                 this._weights = new Uint8Array();
-                this._normals = [];
+                this._normals = new Float32Array();
                 this._layerBuffer = [];
                 this._blocks = [];
 
@@ -1311,6 +1310,11 @@ export class Terrain extends Component {
 
     set lodEnable (val) {
         this._lodEnable = val;
+
+        if (this._lodEnable && this._lod === null) {
+            this._lod = new TerrainLod();
+        }
+
         if (!this._lodEnable) {
             for (let i = 0; i < this._blocks.length; i++) {
                 this._blocks[i]._resetLod();
@@ -1629,7 +1633,7 @@ export class Terrain extends Component {
     }
 
     public onUpdateFromCamera (cam: Camera): void {
-        if (!this.lodEnable) {
+        if (!this.lodEnable || this._sharedLodIndexBuffer == null) {
             return;
         }
         if (cam.scene !== this._getRenderScene()) {
@@ -2095,33 +2099,79 @@ export class Terrain extends Component {
     public _createSharedIndexBuffer () {
         // initialize shared index buffer
         const gfxDevice = deviceManager.gfxDevice;
-        const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-        gfxBuffer.update(this._lod._indexBuffer);
 
-        return gfxBuffer;
+        if (this._lod !== null) {
+            const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            gfxBuffer.update(this._lod._indexBuffer);
+            return gfxBuffer;
+        } else {
+            const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
+
+            let index = 0;
+            for (let j = 0; j < TERRAIN_BLOCK_TILE_COMPLEXITY; ++j) {
+                for (let i = 0; i < TERRAIN_BLOCK_TILE_COMPLEXITY; ++i) {
+                    const a = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
+                    const b = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
+                    const c = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
+                    const d = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
+
+                    // face 1
+                    indexData[index++] = a;
+                    indexData[index++] = c;
+                    indexData[index++] = b;
+                    // face 2
+                    indexData[index++] = b;
+                    indexData[index++] = c;
+                    indexData[index++] = d;
+                }
+            }
+
+            const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                Uint16Array.BYTES_PER_ELEMENT * indexData.length,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            gfxBuffer.update(indexData);
+            return gfxBuffer;
+        }
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getSharedIndexBuffer () {
-        if (this._sharedIndexBuffer == null) {
-            this._sharedIndexBuffer = this._createSharedIndexBuffer();
+        if (this._sharedIndexBuffer !== null) {
+            return this._sharedIndexBuffer;
         }
 
-        return this._sharedIndexBuffer;
+        if (this._sharedLodIndexBuffer !== null) {
+            return this._sharedLodIndexBuffer;
+        }
+
+        if (this._lod !== null) {
+            this._sharedLodIndexBuffer = this._createSharedIndexBuffer();
+            return this._sharedLodIndexBuffer;
+        } else {
+            this._sharedIndexBuffer = this._createSharedIndexBuffer();
+            return this._sharedIndexBuffer;
+        }
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getIndexData (key: TerrainLodKey) {
-        return this._lod.getIndexData(key);
+        if (this._sharedLodIndexBuffer !== null && this._lod !== null) {
+            return this._lod.getIndexData(key);
+        }
+
+        return null;
     }
 
     /**
@@ -2224,6 +2274,7 @@ export class Terrain extends Component {
             this._weightMapSize = terrainAsset.weightMapSize;
             this._lightMapSize = terrainAsset.lightMapSize;
             this._heights = terrainAsset.heights;
+            this._normals = terrainAsset.normals;
             this._weights = terrainAsset.weights;
             this._layerBuffer = terrainAsset.layerBuffer;
 
@@ -2275,16 +2326,17 @@ export class Terrain extends Component {
         const vertexCount = this.vertexCount[0] * this.vertexCount[1];
         if (this._heights === null || this._heights.length !== vertexCount) {
             this._heights = new Uint16Array(vertexCount);
-            this._normals = new Array<number>(vertexCount * 3);
-
+            this._normals = new Float32Array(vertexCount * 3);
             for (let i = 0; i < vertexCount; ++i) {
                 this._heights[i] = TERRAIN_HEIGHT_BASE;
                 this._normals[i * 3 + 0] = 0;
                 this._normals[i * 3 + 1] = 1;
                 this._normals[i * 3 + 2] = 0;
             }
-        } else {
-            this._normals = new Array<number>(vertexCount * 3);
+        }
+
+        if (this._normals === null || this._normals.length !== vertexCount * 3) {
+            this._normals = new Float32Array(vertexCount * 3);
             this._buildNormals();
         }
 

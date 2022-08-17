@@ -24,12 +24,23 @@ public:
         return std::make_shared<Coconut>(other->_radius + _radius);
     }
 
+    std::shared_ptr<Coconut> combine1(Coconut &other) const {
+        return std::make_shared<Coconut>(other._radius + _radius);
+    }
+    std::shared_ptr<Coconut> combine2(std::shared_ptr<Coconut> &other) const {
+        return std::make_shared<Coconut>(other->_radius + _radius);
+    }
+
+    std::shared_ptr<Coconut> combine3(const std::shared_ptr<Coconut> &other) const {
+        return std::make_shared<Coconut>(other->_radius + _radius);
+    }
+
     std::string callJSFunction(const std::string &name);
 
     static std::vector<int> OneTwoThree() {
-        return {1,2,3};
+        return {1, 2, 3};
     }
-    static void IgnoreInput(int ) {}
+    static void IgnoreInput(int) {}
     static void StaticDoNothing() {}
 
 private:

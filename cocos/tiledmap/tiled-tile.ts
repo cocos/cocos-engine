@@ -39,6 +39,7 @@ import { Component } from '../core/components';
 import { TiledLayer } from './tiled-layer';
 import { CCInteger, warn } from '../core';
 import { UITransform } from '../2d/framework';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 @ccclass('cc.TiledTile')
 @help('i18n:cc.TiledTile')
@@ -121,12 +122,16 @@ export class TiledTile extends Component {
     onEnable () {
         const parent = this.node.parent!;
         this._layer = parent.getComponent('cc.TiledLayer') as TiledLayer;
+        this.node.on(NodeEventType.TRANSFORM_CHANGED, this._updatePosition, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._updatePosition, this);
         this._resetTile();
         this.updateInfo();
     }
 
     onDisable () {
         this._resetTile();
+        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._updatePosition, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._updatePosition, this);
     }
 
     private _resetTile () {
@@ -147,5 +152,10 @@ export class TiledTile extends Component {
         const p = this._layer.getPositionAt(x, y);
         this.node.setPosition(p!.x, p!.y);
         this._layer.setTiledTileAt(x, y, this);
+        this._layer.markForUpdateRenderData();
+    }
+
+    private _updatePosition () {
+        this._layer!.markForUpdateRenderData();
     }
 }

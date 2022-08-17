@@ -51,7 +51,7 @@ public:
         _level = level;
     }
 
-    void clearFramebuffer(const scene::Camera* camera);
+    void clearFramebuffer(const scene::Camera *camera);
 
 private:
     static RenderStageInfo initInfo;

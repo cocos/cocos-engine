@@ -60,8 +60,6 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.empty()) {
-        _isResourceOwner = true;
-
         auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
@@ -119,7 +117,7 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
             validPunctualLightsCulling(this, camera);
             sceneCulling(this, camera);
         }
-        for (auto *const flow : _flows) {
+        for (auto const &flow : _flows) {
             flow->render(camera);
         }
         _fg.compile();

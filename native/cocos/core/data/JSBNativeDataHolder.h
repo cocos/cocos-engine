@@ -32,7 +32,7 @@ namespace cc {
 class JSBNativeDataHolder final {
 public:
     JSBNativeDataHolder() = default;
-    explicit JSBNativeDataHolder(uint8_t* data) : _data(data) {};
+    explicit JSBNativeDataHolder(uint8_t* data) : _data(data){};
 
     ~JSBNativeDataHolder() {
         if (_data != nullptr) {

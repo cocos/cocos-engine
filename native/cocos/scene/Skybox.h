@@ -276,7 +276,7 @@ public:
      */
     TextureCube *getDiffuseMap() const;
     void setDiffuseMap(TextureCube *val);
-    void setSkyboxMaterial(Material* skyboxMat);
+    void setSkyboxMaterial(Material *skyboxMat);
 
     TextureCube *getReflectionMap() const;
 

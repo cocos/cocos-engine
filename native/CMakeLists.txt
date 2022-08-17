@@ -164,9 +164,24 @@ if(CI_FORCE_MINIMAL_FEATURES)
     set(USE_GEOMETRY_RENDERER OFF)
     set(USE_WEBP OFF)
 endif()
+
+################################# external source code ################################
+set(EXTERNAL_ROOT ${CMAKE_CURRENT_LIST_DIR}/external)
+set(USE_BUILTIN_EXTERNAL OFF)
+if(NOT EXISTS ${EXTERNAL_ROOT}/CMakeLists.txt)
+    if(DEFINED BUILTIN_COCOS_X_PATH)
+        set(EXTERNAL_ROOT ${BUILTIN_COCOS_X_PATH}/external)
+        set(USE_BUILTIN_EXTERNAL ON)
+        message(AUTHOR_WARNING "Directory 'external' not found in '${CMAKE_CURRENT_LIST_DIR}', use builtin directory '${BUILTIN_COCOS_X_PATH}' instead!")
+    else()
+        message(FATAL_ERROR "Please download external libraries! File ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt not exist!")
+    endif()
+endif()
 ################################# list all option values ##############################
 
 cc_inspect_values(
+    BUILTIN_COCOS_X_PATH
+    USE_BUILTIN_EXTERNAL
     USE_MODULES
     CC_USE_METAL
     CC_USE_GLES3
@@ -198,12 +213,8 @@ cc_inspect_values(
     USE_REMOTE_LOG
 )
 
-################################# external source code ################################
-if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
-    message(FATAL_ERROR "Please download external libraries! File ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt not exists!")
-endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
+include(${EXTERNAL_ROOT}/CMakeLists.txt)
 
 ##### audio
 if(USE_AUDIO)
@@ -2829,7 +2840,6 @@ else()
     )
 endif()
 
-source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
 
 if(QNX)
     include(${QNX_PATH}/source.cmake)
@@ -3141,4 +3151,14 @@ elseif(LINUX)
         ${CC_EXTERNAL_LIBS}
     )
 endif()
-source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+
+if(USE_BUILTIN_EXTERNAL)
+    set(EXCLUDE_EXTERANL_LIST ${COCOS_SOURCE_LIST})
+    foreach(x IN LISTS CC_EXTERNAL_SOURCES)
+        list(REMOVE_ITEM EXCLUDE_EXTERANL_LIST ${x})
+    endforeach()
+    source_group(TREE ${CWD} PREFIX "Source Files" FILES ${EXCLUDE_EXTERANL_LIST})
+    source_group(TREE ${EXTERNAL_ROOT} PREFIX "Source Files/external" FILES ${CC_EXTERNAL_SOURCES})
+else()
+    source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+endif()

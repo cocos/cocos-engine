@@ -28,22 +28,12 @@
  * @module ui-assembler
  */
 
-import { JSB } from 'internal:constants';
-import { Vec3, Vec2, Color } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
-import { RenderDrawInfo } from '../../renderer/render-draw-info';
-import { Batcher2D } from '../../renderer/batcher-2d';
-import { director } from '../../../core';
-
-const vec3_temps: Vec3[] = [];
-for (let i = 0; i < 4; i++) {
-    vec3_temps.push(new Vec3());
-}
 
 const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
@@ -84,20 +74,22 @@ export const simple: IAssembler = {
 
         const dataList: IRenderData[] = renderData.data;
         const node = sprite.node;
-        const matrix = node.worldMatrix;
+        const m = node.worldMatrix;
 
         const stride = renderData.floatStride;
-
-        const vec3_temp = vec3_temps[0];
         let offset = 0;
-        for (let i = 0; i < dataList.length; i++) {
+        const length = dataList.length;
+        for (let i = 0; i < length; i++) {
             const curData = dataList[i];
-            Vec3.set(vec3_temp, curData.x, curData.y, 0);
-            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+            const x = curData.x;
+            const y = curData.y;
+            let rhw = m.m03 * x + m.m07 * y + m.m15;
+            rhw = rhw ? Math.abs(1 / rhw) : 1;
+
             offset = i * stride;
-            vData[offset++] = vec3_temp.x;
-            vData[offset++] = vec3_temp.y;
-            vData[offset++] = vec3_temp.z;
+            vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+            vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+            vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
         }
     },
 

@@ -30,8 +30,8 @@
 #ifndef Spine_SkeletonBounds_h
 #define Spine_SkeletonBounds_h
 
-#include <spine/Vector.h>
 #include <spine/SpineObject.h>
+#include <spine/Vector.h>
 
 namespace spine {
 class Skeleton;

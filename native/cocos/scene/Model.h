@@ -63,8 +63,6 @@ struct InstancedAttributeBlock {
 
 class Model : public RefCounted {
 public:
-    friend class Skybox;
-
     enum class Type {
         DEFAULT,
         SKINNING,

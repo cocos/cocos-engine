@@ -1082,7 +1082,7 @@ bool sevalue_to_native(const se::Value &from, std::shared_ptr<T> *out, se::Objec
     }
     auto *privateObject = from.toObject()->getPrivateObject();
     CC_ASSERT(privateObject->isSharedPtr());
-    *out = static_cast<se::TypedPrivateObject<T>>(privateObject).share();
+    *out = static_cast<se::TypedPrivateObject<T>*>(privateObject)->share();
     return true;
 }
 
