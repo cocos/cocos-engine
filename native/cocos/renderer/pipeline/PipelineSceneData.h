@@ -73,7 +73,7 @@ public:
     inline scene::Skybox *getSkybox() const { return _skybox; }
     inline scene::Fog *getFog() const { return _fog; }
     inline scene::Octree *getOctree() const { return _octree; }
-    inline gi::LightProbes *getLightProbe() const { return _lightProbe; }
+    inline gi::LightProbes *getLightProbes() const { return _lightProbes; }
     inline gfx::InputAssembler *getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
     inline scene::Pass *getOcclusionQueryPass() const { return _occlusionQueryPass; }
     inline gfx::Shader *getOcclusionQueryShader() const { return _occlusionQueryShader; }
@@ -121,7 +121,8 @@ protected:
     // manage memory manually
     scene::Octree *_octree{nullptr};
     // manage memory manually
-    gi::LightProbes *_lightProbe{nullptr};
+    gi::LightProbes *_lightProbes{nullptr};
+
     CSMLayers *_csmLayers{nullptr};
 
     bool _isHDR{true};

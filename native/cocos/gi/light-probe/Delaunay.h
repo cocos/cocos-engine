@@ -119,6 +119,14 @@ struct Tetrahedron {
         return (vertex0 == vertexIndex || vertex1 == vertexIndex ||
                 vertex2 == vertexIndex || vertex3 == vertexIndex);
     }
+
+    inline bool isInnerTetrahedron() const {
+        return this.vertex3 != -1;
+    }
+
+    inline bool isOuterCell() const {
+        return this.vertex3 == -1;
+    }
 };
 
 class Delaunay {

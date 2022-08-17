@@ -69,7 +69,7 @@ export class PipelineSceneData {
     public shadows: Shadows = new Shadows();
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
-    public lightProbe: LightProbes = new LightProbes();
+    public lightProbes: LightProbes = new LightProbes();
 
     /**
       * @en The list for valid punctual Lights, only available after the scene culling of the current frame.

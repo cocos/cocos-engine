@@ -24,6 +24,7 @@
  */
 
 import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, menu, range, serializable, tooltip, type } from 'cc.decorator';
+import { NodeEventType } from '../../core';
 import { Component } from '../../core/components/component';
 import { CCInteger } from '../../core/data/utils/attribute';
 import { Vec3 } from '../../core/math';
@@ -142,7 +143,6 @@ export class LightProbeGroup extends Component {
     }
 
     public onLoad () {
-        this.generateLightProbes();
     }
 
     public onEnable () {
@@ -151,11 +151,10 @@ export class LightProbeGroup extends Component {
     public onDisable () {
     }
 
-    public update (deltaTime: number) {
-    }
-
     public generateLightProbes () {
-        console.log('execute-component-method');
+        if (!this.node) {
+            return;
+        }
 
         this._probes = AutoPlacement.generate({
             method: this._method,
@@ -165,5 +164,12 @@ export class LightProbeGroup extends Component {
             minPos: this._minPos,
             maxPos: this._maxPos,
         });
+
+        this.onProbeChanged();
+    }
+
+    public onProbeChanged () {
+        this.node.scene.globals.lightProbeInfo.update(this);
+        this.node.emit(NodeEventType.LIGHT_PROBE_CHANGED);
     }
 }

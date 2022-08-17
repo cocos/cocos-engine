@@ -153,6 +153,14 @@ export class Tetrahedron {
         return (this.vertex0 === vertexIndex || this.vertex1 === vertexIndex
             || this.vertex2 === vertexIndex || this.vertex3 === vertexIndex);
     }
+
+    public isInnerTetrahedron () {
+        return this.vertex3 !== -1;
+    }
+
+    public isOuterCell () {
+        return this.vertex3 === -1;
+    }
 }
 
 export class Delaunay {

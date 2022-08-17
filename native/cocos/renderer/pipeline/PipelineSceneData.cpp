@@ -48,7 +48,7 @@ PipelineSceneData::PipelineSceneData() {
     _shadow = ccnew scene::Shadows();
     _csmLayers = ccnew CSMLayers();
     _octree = ccnew scene::Octree();
-    _lightProbe = ccnew gi::LightProbes();
+    _lightProbes = ccnew gi::LightProbes();
 }
 
 PipelineSceneData::~PipelineSceneData() {
@@ -58,7 +58,7 @@ PipelineSceneData::~PipelineSceneData() {
     CC_SAFE_DELETE(_shadow);
     CC_SAFE_DELETE(_octree);
     CC_SAFE_DELETE(_csmLayers);
-    CC_SAFE_DELETE(_lightProbe);
+    CC_SAFE_DELETE(_lightProbes);
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {

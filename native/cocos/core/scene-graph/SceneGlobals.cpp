@@ -68,7 +68,7 @@ void SceneGlobals::activate() {
     }
 
     if (_lightProbeInfo != nullptr) {
-        _lightProbeInfo->activate(sceneData->getLightProbe());
+        _lightProbeInfo->activate(sceneData->getLightProbes());
     }
 
     Root::getInstance()->onGlobalPipelineStateChanged();

@@ -152,6 +152,29 @@ class ModelLightmapSettings {
 }
 
 /**
+ * @en Model's probe settings.
+ * @zh 模型探针设置
+ */
+@ccclass('cc.ModelProbeSettings')
+class ModelProbeSettings {
+    @serializable
+    protected _useLightProbe = false;
+
+    /**
+     * @en Whether to use light probe which provides indirect light to dynamic objects.
+     * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
+     */
+    @editable
+    get useLightProbe (): boolean {
+        return this._useLightProbe;
+    }
+
+    set useLightProbe (val: boolean) {
+        this._useLightProbe = val;
+    }
+}
+
+/**
  * @en Mesh renderer component for general 3d model rendering, it generates and link to a Model in the render scene.
  * It supports real time lighting and shadow, baked light map, and morph rendering.
  * @zh 用于通用模型渲染的网格渲染器组件，会创建并关联一个渲染场景中的模型对象。
@@ -182,6 +205,14 @@ export class MeshRenderer extends ModelRenderer {
     @editable
     @disallowAnimation
     public lightmapSettings = new ModelLightmapSettings();
+
+    /**
+     * @en The settings for probe
+     * @zh 探针配置
+     */
+    @serializable
+    @editable
+    public probeSettings = new ModelProbeSettings();
 
     @serializable
     protected _mesh: Mesh | null = null;

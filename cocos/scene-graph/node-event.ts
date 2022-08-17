@@ -267,4 +267,12 @@ export enum NodeEventType {
      * 当节点上移除组件时触发的事件
      */
     COMPONENT_REMOVED = 'component-removed',
+
+    /**
+     * @en
+     * The event occur when light probe changed in light probe group.
+     * @zh
+     * 当光照探针组组件的探针改变时触发的事件
+     */
+    LIGHT_PROBE_CHANGED = 'light-probe-changed',
 }
