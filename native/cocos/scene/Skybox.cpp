@@ -359,7 +359,6 @@ void Skybox::updatePipeline() const {
             envmap = _default.get();
         }
         _material->setProperty("environmentMap", envmap);
-        _material->setProperty("rotationAngle", static_cast<float>(_rotationAngle));
         _material->recompileShaders({{"USE_RGBE_CUBEMAP", isRGBE()}});
 
         if (_model != nullptr) {

@@ -183,6 +183,8 @@ export class PipelineUBO {
         cv[UBOCamera.VIEW_PORT_OFFSET + 1] = sceneData.shadingScale * camera.window.height * camera.viewport.y;
         cv[UBOCamera.VIEW_PORT_OFFSET + 2] = sceneData.shadingScale * camera.window.width * camera.viewport.z;
         cv[UBOCamera.VIEW_PORT_OFFSET + 3] = sceneData.shadingScale * camera.window.height * camera.viewport.w;
+
+        cv[UBOCamera.SKYBOX_ANGLE_OFFSET] = sceneData.skybox.getRotationAngle();
     }
 
     public static getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number {

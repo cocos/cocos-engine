@@ -59,18 +59,13 @@ CCProgram sky-fs %{
   #include <common/common-define>
   #include <common/math/coordinates>
 
-  uniform Constant {
-    float rotationAngle;
-  };
-
   in mediump vec4 viewDir;
 
   uniform samplerCube environmentMap;
   vec4 frag () {
 
-    float angle = rotationAngle * PI / 180.0;
-    float cosTheta = cos(angle), sinTheta = sin(angle);
-    vec3 rotationDir = RotationVecFromAxisY(viewDir.xyz,cosTheta,sinTheta);
+    float angle = radians(cc_skyboxAngle.x);
+    vec3 rotationDir = RotationVecFromAxisY(viewDir.xyz, cos(angle), sin(angle));
 
     #if USE_RGBE_CUBEMAP
       vec3 c = unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));

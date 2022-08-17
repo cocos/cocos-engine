@@ -130,6 +130,7 @@ const gfx::UniformBlock UBOCamera::LAYOUT = {
         {"cc_fogAdd", gfx::Type::FLOAT4, 1},
         {"cc_nearFar", gfx::Type::FLOAT4, 1},
         {"cc_viewPort", gfx::Type::FLOAT4, 1},
+        {"cc_skyboxAngle", gfx::Type::FLOAT, 4},
     },
     1,
 };

@@ -27,10 +27,6 @@ CCProgram surface-vertex %{
 }%
 
 CCProgram surface-fragment %{
-
-  uniform Constant {
-    float rotationAngle;
-  };
   uniform samplerCube environmentMap;
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
@@ -39,9 +35,8 @@ CCProgram surface-fragment %{
     #if CC_USE_IBL
       vec3 normal = normalize(FSInput_worldNormal);
 
-      float angle = rotationAngle * PI / 180.0;
-      float cosTheta = cos(angle), sinTheta = sin(angle);
-      vec3 rotationDir = RotationVecFromAxisY(normal.xyz,cosTheta,sinTheta);
+      float angle = radians(cc_skyboxAngle.x);
+      vec3 rotationDir = RotationVecFromAxisY(normal.xyz, cos(angle), sin(angle));
 
       #if USE_RGBE_CUBEMAP
         c *= unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));
