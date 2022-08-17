@@ -36,7 +36,7 @@ const _v3 = new Vec3();
  * each scene is allowed to have multiple fill light sources without shadows.
  * @zh 渲染场景中的光的抽象，这是场景中的补充光源。非主光源，每个场景允许有多个补充光源，不包含阴影。
  */
-export class FillLight extends Light {
+export class RangedDirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
     protected _illuminanceLDR = 1.0;
@@ -97,7 +97,7 @@ export class FillLight extends Light {
 
     constructor () {
         super();
-        this._type = LightType.FILL;
+        this._type = LightType.RANGEDIR;
     }
 
     public initialize () {

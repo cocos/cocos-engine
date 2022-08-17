@@ -35,7 +35,7 @@ import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
-import { FillLight } from '../renderer/scene/fill-light';
+import { RangedDirectionalLight } from '../renderer/scene/ranged-directional-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
@@ -516,7 +516,7 @@ export class RenderAdditiveLightQueue {
                 break;
             case LightType.FILL:
                 // UBOForwardLight
-                Vec3.toArray(_vec4Array, (light as FillLight).node!.getWorldPosition());
+                Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).node!.getWorldPosition());
                 _vec4Array[3] = 2;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
@@ -526,7 +526,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[3] = 0.0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
-                Vec3.toArray(_vec4Array, (light as FillLight).direction);
+                Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).direction);
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
 
                 Vec3.toArray(_vec4Array, light.color);
@@ -537,9 +537,9 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (isHDR) {
-                    _vec4Array[3] = (light as FillLight).illuminance * exposure;
+                    _vec4Array[3] = (light as RangedDirectionalLight).illuminance * exposure;
                 } else {
-                    _vec4Array[3] = (light as FillLight).illuminance;
+                    _vec4Array[3] = (light as RangedDirectionalLight).illuminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;

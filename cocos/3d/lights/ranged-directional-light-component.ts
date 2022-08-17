@@ -36,11 +36,11 @@ import { property } from '../../core/data/class-decorator';
  * @en The fill light component, Multiple fill light sources are allowed in a scene.
  * @zh 补充光源组件，一个场景允许存在多个补充光源。
  */
-@ccclass('cc.FillLight')
-@help('i18n:cc.FillLight')
-@menu('Light/FillLight')
+@ccclass('cc.RangedDirectionalLight')
+@help('i18n:cc.RangedDirectionalLight')
+@menu('Light/RangedDirectionalLight')
 @executeInEditMode
-export class FillLight extends Light {
+export class RangedDirectionalLight extends Light {
     @property
     @formerlySerializedAs('_illuminance')
     protected _illuminanceHDR = 65000;
@@ -48,8 +48,8 @@ export class FillLight extends Light {
     @serializable
     protected _illuminanceLDR = 65000 * Camera.standardExposureValue;
 
-    protected _type = scene.LightType.FILL;
-    protected _light: scene.FillLight | null = null;
+    protected _type = scene.LightType.RANGEDIR;
+    protected _light: scene.RangedDirectionalLight | null = null;
 
     /**
      * @en The light source intensity.
@@ -77,7 +77,7 @@ export class FillLight extends Light {
 
     constructor () {
         super();
-        this._lightType = scene.FillLight;
+        this._lightType = scene.RangedDirectionalLight;
     }
 
     protected _createLight () {

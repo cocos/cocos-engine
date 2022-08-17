@@ -31,7 +31,7 @@ import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
-import { FillLight } from '../scene';
+import { RangedDirectionalLight } from '../scene';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -116,8 +116,8 @@ export class RenderScene {
      * @en All fill light sources of the render scene
      * @zh 渲染场景管理的所有补充光源
      */
-    get fillLights (): FillLight[] {
-        return this._fillLights;
+    get fillLights (): RangedDirectionalLight[] {
+        return this._rangedDirLights;
     }
 
     /**
@@ -144,7 +144,7 @@ export class RenderScene {
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
-    private _fillLights: FillLight[] = [];
+    private _rangedDirLights: RangedDirectionalLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
 
@@ -382,9 +382,9 @@ export class RenderScene {
      * @zh 增加一个补充光源。
      * @param sl The fill light.
      */
-    public addFillLight (sl: FillLight) {
+    public addRangedDirLight (sl: RangedDirectionalLight) {
         sl.attachToScene(this);
-        this._fillLights.push(sl);
+        this._rangedDirLights.push(sl);
     }
 
     /**
@@ -392,11 +392,11 @@ export class RenderScene {
      * @zh 删除一个补充光源。
      * @param sl The fill light.
      */
-    public removeFillLight (sl: FillLight) {
-        for (let i = 0; i < this._fillLights.length; ++i) {
-            if (this._fillLights[i] === sl) {
+    public removeRangedDirLight (sl: RangedDirectionalLight) {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            if (this._rangedDirLights[i] === sl) {
                 sl.detachFromScene();
-                this._fillLights.splice(i, 1);
+                this._rangedDirLights.splice(i, 1);
 
                 return;
             }
@@ -407,11 +407,11 @@ export class RenderScene {
      * @en Remove all fill light sources.
      * @zh 删除所有补充光源。
      */
-    public removeFillLights () {
-        for (let i = 0; i < this._fillLights.length; ++i) {
-            this._fillLights[i].detachFromScene();
+    public removeRangedDirLights () {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            this._rangedDirLights[i].detachFromScene();
         }
-        this._fillLights = [];
+        this._rangedDirLights = [];
     }
 
     /**

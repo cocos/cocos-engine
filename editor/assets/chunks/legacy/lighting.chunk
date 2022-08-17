@@ -5,5 +5,11 @@
 #pragma define-meta CC_PIPELINE_TYPE range([0, 1])
 #pragma define-meta CC_FORCE_FORWARD_SHADING
 
+#pragma define LIGHT_TYPE_SPHERE 0.0
+#pragma define LIGHT_TYPE_SPOT 1.0
+#pragma define LIGHT_TYPE_RANGED_DIR 2.0
+#pragma define LIGHT_TYPE_POINT 3.0
+#pragma define IS_LIGHT_TYPE(light_type) equalf(cc_lightPos[i].w, light_type)
+
 #include <builtin/uniforms/cc-forward-light>
 #include <common/lighting/attenuation>

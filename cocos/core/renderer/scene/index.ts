@@ -35,4 +35,4 @@ export * from './light';
 export * from './directional-light';
 export * from './sphere-light';
 export * from './spot-light';
-export * from './fill-light';
+export * from './ranged-directional-light';
