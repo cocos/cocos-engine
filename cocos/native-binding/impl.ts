@@ -140,5 +140,5 @@ export const native = {
     AssetsManager: globalJsb.AssetsManager,
     EventAssetsManager: globalJsb.EventAssetsManager,
     Manifest: globalJsb.Manifest,
-    saveImageData: globalJsb.saveImageData;
+    saveImageData: globalJsb.saveImageData,
 };

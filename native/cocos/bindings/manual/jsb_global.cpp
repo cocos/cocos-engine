@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "jsb_global.h"
+#include <cstddef>
 #include "Value.h"
 #include "application/ApplicationManager.h"
 #include "base/Data.h"
@@ -692,33 +693,30 @@ static bool js_saveImageData(se::State& s) // NOLINT
             auto* img = ccnew Image();
             img->initWithRawData(uint8ArrayData, length, width, height, 8);
             // isToRGB = false, to keep alpha channel
+            
             bool isSuccess = img->saveToFile(filePath, false/*isToRGB*/);
-            //s.rval().setBoolean(saveRes);
 
             img->release();
 
-   
-            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
-                se::AutoHandleScope hs;
-                se::ValueArray seArgs;
-                
-                se::Value visSuccess;
-                nativevalue_to_se(isSuccess, visSuccess);
-                se::HandleObject retObj(visSuccess.toObject());
-                seArgs.push_back(se::Value(retObj));
+            if (!callbackPtr->isNull()) {
+                CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
+                    se::AutoHandleScope hs;
+                    se::ValueArray seArgs;
+                    
+                    se::Value visSuccess;
+                    nativevalue_to_se(isSuccess, visSuccess);
+                    se::HandleObject retObj(visSuccess.toObject());
 
-                se::Value error;
-                nativevalue_to_se(error, verror);
-                se::HandleObject retObj(isSuccess.toObject());
-                seArgs.push_back(se::Value(retObj));
-                
-                callbackPtr->toObject()->call(seArgs, nullptr);
-                delete img;
-            });
+                    seArgs.push_back(se::Value(retObj));
+                    callbackPtr->toObject()->call(seArgs, nullptr);
+                    delete img;
+                });
+            }
+            
         });
-        
+        return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d or %d", (int)argc, 4, 5);
     return false;
 }
 SE_BIND_FUNC(js_saveImageData)

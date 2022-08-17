@@ -978,8 +978,8 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
         FILE *fp;
         png_structp png_ptr;
         png_infop info_ptr;
-        png_colorp palette;
-        png_bytep *row_pointers;
+        png_colorp palette{nullptr};
+        png_bytep *row_pointers{nullptr};
 
         fp = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb");
         CC_BREAK_IF(nullptr == fp);
@@ -996,16 +996,22 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
         info_ptr = png_create_info_struct(png_ptr);
         if (nullptr == info_ptr)
         {
-            fclose(fp);
             png_destroy_write_struct(&png_ptr, nullptr);
-            break;
-        }
-        if (setjmp(png_jmpbuf(png_ptr)))
-        {
             fclose(fp);
-            png_destroy_write_struct(&png_ptr, &info_ptr);
             break;
         }
+        //if (setjmp(png_jmpbuf(png_ptr)))
+        //{
+        //    /*png_destroy_write_struct(&png_ptr, &info_ptr);
+        //    fclose(fp);
+        //    if (palette) {
+        //        free(palette);
+        //    }
+        //    if (row_pointers) {
+        //        free(row_pointers);
+        //    }*/
+        //    break;
+        //}
         png_init_io(png_ptr, fp);
         if (!isToRGB && hasAlpha)
         {
@@ -1025,7 +1031,7 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
 
         png_set_packing(png_ptr);
 
-        row_pointers = (png_bytep *)malloc(_height * sizeof(png_bytep));
+        row_pointers = (png_bytep *)png_malloc(png_ptr, _height * sizeof(png_bytep));
         if(row_pointers == nullptr)
         {
             fclose(fp);
@@ -1089,11 +1095,16 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
             {
                 for (int i = 0; i < (int)_height; i++)
                 {
-                    row_pointers[i] = (png_bytep)_data + i * _width * 4;
+                   // row_pointers[i] = (png_bytep)(_data + i * _width) /*Bytes per pixel*/;
+                    row_pointers[i] = (png_bytep)_data + i * _width * 4 /*Bytes per pixel*/;
                 }
-
-                png_write_image(png_ptr, row_pointers);
-
+                try {
+                    png_write_image(png_ptr, row_pointers);
+                    //png_ptr->writ
+                } catch (std::exception& e){
+                    CC_LOG_DEBUG("exception, %s", e.what());
+                }
+                
                 free(row_pointers);
                 row_pointers = nullptr;
             }
