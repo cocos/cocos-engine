@@ -278,8 +278,13 @@ public:
     TextureCube *getDiffuseMap() const;
     void setDiffuseMap(TextureCube *val);
     void setSkyboxMaterial(Material *skyboxMat);
-    uint32_t getRotationAngle() const { return _rotationAngle; };
+    /**
+     * @en Set skybox rotation angle
+     * @zh 设置天空盒旋转角度
+     * @param angle  @en rotation angle @zh 旋转角度
+     */
     void setRotationAngle(uint32_t angle);
+    uint32_t getRotationAngle() const { return _rotationAngle; };
 
     TextureCube *getReflectionMap() const;
 

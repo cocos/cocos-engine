@@ -294,10 +294,10 @@ export class Skybox {
     /**
      * @en Set skybox rotation angle
      * @zh 设置天空盒旋转角度
-     * @param rotationAngle  @en Skybox rotation angle @zh 天空盒旋转角度
+     * @param angle  @en rotation angle @zh 旋转角度
      */
-    public setRotationAngle (rotationAngle:number) {
-        this._rotationAngle = rotationAngle;
+    public setRotationAngle (angle: number) {
+        this._rotationAngle = angle;
     }
 
     public getRotationAngle () {
