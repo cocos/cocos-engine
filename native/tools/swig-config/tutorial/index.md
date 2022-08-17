@@ -264,7 +264,7 @@ int Game::init() {
 
 - Modify `/Users/james/NewProject/temp/tsconfig.cocos.json` file
 
-  ```json
+  ```js
   {
     "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
