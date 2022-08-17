@@ -46,6 +46,7 @@ export const TERRAIN_DATA_VERSION2 = 0x01010002;
 export const TERRAIN_DATA_VERSION3 = 0x01010003;
 export const TERRAIN_DATA_VERSION4 = 0x01010004;
 export const TERRAIN_DATA_VERSION5 = 0x01010005;
+export const TERRAIN_DATA_VERSION6 = 0x01010006;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
 
 class TerrainBuffer {
@@ -235,6 +236,7 @@ export class TerrainAsset extends Asset {
     protected _weightMapSize = 128;
     protected _lightMapSize = 128;
     protected _heights: Uint16Array = new Uint16Array();
+    protected _normals: Float32Array = new Float32Array();
     protected _weights: Uint8Array = new Uint8Array();
     protected _layerBuffer: number[] = [-1, -1, -1, -1];
     protected _layerBinaryInfos: TerrainLayerBinaryInfo[] = [];
@@ -327,6 +329,18 @@ export class TerrainAsset extends Asset {
 
     get heights () {
         return this._heights;
+    }
+
+    /**
+     * @en normal buffer
+     * @zh 法线缓存
+     */
+    set normals (value: Float32Array) {
+        this._normals = value;
+    }
+
+    get normals () {
+        return this._normals;
     }
 
     /**
@@ -429,7 +443,8 @@ export class TerrainAsset extends Asset {
             && this._version !== TERRAIN_DATA_VERSION2
             && this._version !== TERRAIN_DATA_VERSION3
             && this._version !== TERRAIN_DATA_VERSION4
-            && this._version !== TERRAIN_DATA_VERSION5) {
+            && this._version !== TERRAIN_DATA_VERSION5
+            && this._version !== TERRAIN_DATA_VERSION6) {
             return false;
         }
 
@@ -444,6 +459,15 @@ export class TerrainAsset extends Asset {
         this.heights = new Uint16Array(heightBufferSize);
         for (let i = 0; i < this.heights.length; ++i) {
             this.heights[i] = stream.readInt16();
+        }
+
+        // normals
+        if (this._version >= TERRAIN_DATA_VERSION6) {
+            const normalBufferSize = stream.readInt();
+            this.normals = new Float32Array(normalBufferSize);
+            for (let i = 0; i < this.normals.length; ++i) {
+                this.normals[i] = stream.readFloat();
+            }
         }
 
         // weights
@@ -490,7 +514,7 @@ export class TerrainAsset extends Asset {
         const stream = new TerrainBuffer();
 
         // version
-        stream.writeInt32(TERRAIN_DATA_VERSION5);
+        stream.writeInt32(TERRAIN_DATA_VERSION6);
 
         // geometry info
         stream.writeFloat(this.tileSize);
@@ -502,6 +526,12 @@ export class TerrainAsset extends Asset {
         stream.writeInt32(this.heights.length);
         for (let i = 0; i < this.heights.length; ++i) {
             stream.writeInt16(this.heights[i]);
+        }
+
+        // normals
+        stream.writeInt32(this.normals.length);
+        for (let i = 0; i < this.normals.length; ++i) {
+            stream.writeFloat(this.normals[i]);
         }
 
         // weights

@@ -32,7 +32,9 @@
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);     \
-    CC_APPLY_FOG(color, s.position.xyz);                           \
+    #if CC_USE_FOG != CC_FOG_NONE                                  \
+      CC_APPLY_FOG(color, s.position.xyz);                         \
+    #endif                                                         \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \
