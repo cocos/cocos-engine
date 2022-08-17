@@ -678,10 +678,16 @@ export class Label extends UIRenderer {
 
     protected _contentWidth = 0;
 
+    /**
+     * @engineInternal
+     */
     get contentWidth () {
         return this._contentWidth;
     }
 
+    /**
+     * @engineInternal
+     */
     set contentWidth (val) {
         this._contentWidth = val;
     }

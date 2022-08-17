@@ -369,9 +369,10 @@ void XRInterface::setXRConfig(xr::XRConfigKey key, xr::XRConfigValue value) {
 #if CC_USE_XR
     CC_LOG_INFO("[XR] setConfigParameterI %d", key);
     xr::XrEntry::getInstance()->setXRConfig(key, value);
-#endif
+#else
     CC_UNUSED_PARAM(key);
     CC_UNUSED_PARAM(value);
+#endif
 }
 
 uint32_t XRInterface::getRuntimeVersion() {
@@ -389,6 +390,15 @@ void XRInterface::initialize(void *javaVM, void *activity) {
     xr::XrEntry::getInstance()->setHandleCallback(&dispatchHandleEventInternal);
     xr::XrEntry::getInstance()->setHMDCallback(&dispatchHMDEventInternal);
     xr::XrEntry::getInstance()->setXRConfig(xr::XRConfigKey::LOGIC_THREAD_ID, (int)gettid());
+    xr::XrEntry::getInstance()->setXRConfigCallback([this](xr::XRConfigKey key, xr::XRConfigValue value) {
+        if (IS_ENABLE_XR_LOG) CC_LOG_INFO("XRConfigCallback.%d", key);
+        if (key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT || key == xr::XRConfigKey::RENDER_EYE_FRAME_RIGHT) {
+            if (value.getInt() == 0)
+                this->beginRenderEyeFrame(key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT ? 0 : 1);
+            if (value.getInt() == 1)
+                this->endRenderEyeFrame(key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT ? 0 : 1);
+        }
+    });
     #if XR_OEM_PICO
     std::string graphicsApiName = GraphicsApiOpenglES;
 #if CC_USE_VULKAN
@@ -396,9 +406,10 @@ void XRInterface::initialize(void *javaVM, void *activity) {
 #endif
     xr::XrEntry::getInstance()->createXrInstance(graphicsApiName.c_str());
     #endif
-#endif
+#else
     CC_UNUSED_PARAM(javaVM);
     CC_UNUSED_PARAM(activity);
+#endif
 }
 
 // render thread lifecycle
@@ -451,8 +462,9 @@ void XRInterface::preGFXDeviceInitialize(gfx::API gfxApi) {
         xr::XrEntry::getInstance()->createXrInstance(graphicsApiName.c_str());
     #endif
     }
-#endif
+#else
     CC_UNUSED_PARAM(gfxApi);
+#endif
 }
 
 void XRInterface::postGFXDeviceInitialize(gfx::API gfxApi) {
@@ -471,8 +483,9 @@ void XRInterface::postGFXDeviceInitialize(gfx::API gfxApi) {
         cc::xr::XrEntry::getInstance()->initXrSession(_vkInstance, _vkPhysicalDevice, _vkDevice, vkQueueFamilyIndex);
     #endif
     }
-#endif
+#else
     CC_UNUSED_PARAM(gfxApi);
+#endif
 }
 
 const xr::XRSwapchain &XRInterface::doGFXDeviceAcquire(gfx::API gfxApi) {
@@ -481,19 +494,20 @@ const xr::XRSwapchain &XRInterface::doGFXDeviceAcquire(gfx::API gfxApi) {
     if (gfxApi == gfx::API::GLES3 || gfxApi == gfx::API::VULKAN) {
         return xr::XrEntry::getInstance()->acquireXrSwapchain((uint32_t)gfxApi);
     }
-#endif
+#else
     CC_UNUSED_PARAM(gfxApi);
+#endif
     return _acquireSwapchain;
 }
 
 bool XRInterface::isGFXDeviceNeedsPresent(gfx::API gfxApi) {
+    CC_UNUSED_PARAM(gfxApi);
 #if CC_USE_XR
     // CC_LOG_INFO("[XR] isGFXDeviceNeedsPresent.api.%d", gfxApi);
     // if (gfxApi == gfx::API::GLES3 || gfxApi == gfx::API::VULKAN) {
     // }
     return xr::XrEntry::getInstance()->getXRConfig(cc::xr::XRConfigKey::PRESENT_ENABLE).getBool();
 #endif
-    CC_UNUSED_PARAM(gfxApi);
     return true;
 }
 
@@ -502,8 +516,9 @@ void XRInterface::postGFXDevicePresent(gfx::API gfxApi) {
     // CC_LOG_INFO("[XR] postGFXDevicePresent.api.%d", gfxApi);
     if (gfxApi == gfx::API::GLES3 || gfxApi == gfx::API::VULKAN) {
     }
-#endif
+#else
     CC_UNUSED_PARAM(gfxApi);
+#endif
 }
 
 void XRInterface::createXRSwapchains() {
@@ -559,25 +574,16 @@ gfx::Format XRInterface::getXRSwapchainFormat() {
     return gfx::Format::BGRA8;
 }
 
-void XRInterface::updateXRSwapchainTypedID(uint32_t index, uint32_t typedID) {
+void XRInterface::updateXRSwapchainTypedID(uint32_t typedID) {
 #if CC_USE_XR
-    if (gfx::DeviceAgent::getInstance()) {
-        ENQUEUE_MESSAGE_2(gfx::DeviceAgent::getInstance()->getMessageQueue(),
-                          UpdateXRSwapchainTypedID, index, index, typedID, typedID,
-                          {
-                              xr::XrEntry::getInstance()->updateXrSwapchainInfo(index, typedID);
-                          });
-    } else {
-        xr::XrEntry::getInstance()->updateXrSwapchainInfo(index, typedID);
-    }
     #if XR_OEM_HUAWEIVR
-    _eglSurfaceTypeMap[typedID] = index == 0 ? EGLSurfaceType::WINDOW : EGLSurfaceType::NONE;
+    _eglSurfaceTypeMap[typedID] = EGLSurfaceType::WINDOW;
     #else
     _eglSurfaceTypeMap[typedID] = EGLSurfaceType::PBUFFER;
     #endif
-#endif
-    CC_UNUSED_PARAM(index);
+#else
     CC_UNUSED_PARAM(typedID);
+#endif
 }
 // gfx
 
@@ -609,8 +615,9 @@ VkInstance XRInterface::createXRVulkanInstance(const VkInstanceCreateInfo &instI
 VkDevice XRInterface::createXRVulkanDevice(const VkDeviceCreateInfo *deviceInfo) {
 #if CC_USE_XR
     VK_CHECK(xr::XrEntry::getInstance()->xrVkCreateDevice(deviceInfo, _vkGetInstanceProcAddr, _vkPhysicalDevice, &_vkDevice));
-#endif
+#else
     CC_UNUSED_PARAM(deviceInfo);
+#endif
     return _vkDevice;
 }
 
@@ -618,12 +625,13 @@ VkPhysicalDevice XRInterface::getXRVulkanGraphicsDevice() {
     return _vkPhysicalDevice;
 }
 
-void XRInterface::getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t ccSwapchainTypedID) {
+void XRInterface::getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t eye) {
 #if CC_USE_XR
-    xr::XrEntry::getInstance()->getSwapchainImages(vkImages, ccSwapchainTypedID);
-#endif
+    xr::XrEntry::getInstance()->getSwapchainImages(vkImages, eye);
+#else
     CC_UNUSED_PARAM(vkImages);
     CC_UNUSED_PARAM(ccSwapchainTypedID);
+#endif
 }
 #endif
 // vulkan
@@ -638,9 +646,10 @@ void XRInterface::initializeGLESData(PFNGLES3WLOADPROC gles3wLoadFuncProc, gfx::
     void *eglConfig = gpuContext->eglConfig;
     void *eglDefaultContext = gpuContext->eglDefaultContext;
     CC_LOG_INFO("[XR] initializeGLESData.egl.%p/%p/%p", eglDisplay, eglConfig, eglDefaultContext);
-#endif
+#else
     CC_UNUSED_PARAM(gles3wLoadFuncProc);
     CC_UNUSED_PARAM(gpuContext);
+#endif
 }
 
 void XRInterface::attachGLESFramebufferTexture2D() {
@@ -654,8 +663,9 @@ EGLSurfaceType XRInterface::acquireEGLSurfaceType(uint32_t typedID) {
     if (_eglSurfaceTypeMap.count(typedID) > 0) {
         return _eglSurfaceTypeMap[typedID];
     }
-#endif
+#else
     CC_UNUSED_PARAM(typedID);
+#endif
     return EGLSurfaceType::WINDOW;
 }
 #endif
@@ -719,8 +729,9 @@ bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
     } else {
         xr::XrEntry::getInstance()->renderLoopStart(eye);
     }
-#endif
+#else
     CC_UNUSED_PARAM(eye);
+#endif
     return true;
 }
 
@@ -737,8 +748,9 @@ bool XRInterface::endRenderEyeFrame(uint32_t eye) {
     } else {
         xr::XrEntry::getInstance()->renderLoopEnd(eye);
     }
-#endif
+#else
     CC_UNUSED_PARAM(eye);
+#endif
     return true;
 }
 

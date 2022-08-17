@@ -156,10 +156,9 @@ public:
     /**
      * @en bind engine's swapchain with xr swapchain
      * @zh 绑定引擎交换链与XR交换链对应关系
-     * @param index xr eye
      * @param typedID engine swapchain's type id
      */
-    virtual void updateXRSwapchainTypedID(uint32_t index, uint32_t typedID) = 0;
+    virtual void updateXRSwapchainTypedID(uint32_t typedID) = 0;
     // gfx
 
     // vulkan
@@ -200,9 +199,9 @@ public:
      * @en get vkImage list from xrswapchain
      * @zh 获取xr交换链中vkimage列表
      * @param vkImages
-     * @param ccSwapchainTypedID
+     * @param eye
      */
-    virtual void getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t ccSwapchainTypedID) = 0;
+    virtual void getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t eye) = 0;
 #endif
     // vulkan
 

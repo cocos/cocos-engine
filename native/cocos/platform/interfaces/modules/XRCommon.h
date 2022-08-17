@@ -66,7 +66,9 @@ enum class XRConfigKey {
     RENDER_THREAD_ID,
     DEVICE_VENDOR,
     RUNTIME_VERSION,
-    PRESENT_ENABLE
+    PRESENT_ENABLE,
+    RENDER_EYE_FRAME_LEFT,
+    RENDER_EYE_FRAME_RIGHT
 };
 
 enum class XRConfigValueType {
@@ -296,13 +298,15 @@ struct XRControllerEvent {
 typedef std::function<void(const XRControllerEvent &xrControllerEvent)> XRControllerCallback;
 using PFNGLES3WLOADPROC = void *(*)(const char *);
 
+typedef std::function<void(XRConfigKey, XRConfigValue)> XRConfigChangeCallback;
+
 struct XRSwapchain {
     void *xrSwapchainHandle = nullptr;
-    uint32_t ccSwapchainTypedID = 0;
     uint32_t width = 0;
     uint32_t height = 0;
     uint32_t glDrawFramebuffer = 0;
     uint32_t swapchainImageIndex = 0;
+    uint32_t eye = 0;
 };
 
 #define GraphicsApiOpenglES   "OpenGLES"

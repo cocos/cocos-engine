@@ -52,7 +52,7 @@ public:
     void createXRSwapchains() override;
     const std::vector<cc::xr::XRSwapchain> &getXRSwapchains() override;
     gfx::Format getXRSwapchainFormat() override;
-    void updateXRSwapchainTypedID(uint32_t index, uint32_t typedID) override;
+    void updateXRSwapchainTypedID(uint32_t typedID) override;
     // gfx
 
     // vulkan
@@ -62,7 +62,7 @@ public:
     VkInstance createXRVulkanInstance(const VkInstanceCreateInfo &instInfo) override;
     VkDevice createXRVulkanDevice(const VkDeviceCreateInfo *deviceInfo) override;
     VkPhysicalDevice getXRVulkanGraphicsDevice() override;
-    void getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t ccSwapchainTypedID) override;
+    void getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t eye) override;
 #endif
     // vulkan
 

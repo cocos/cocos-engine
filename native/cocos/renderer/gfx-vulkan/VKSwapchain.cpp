@@ -281,7 +281,17 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     if (_xr) {
         newWidth = static_cast<CCVKTexture *>(_colorTexture.get())->_info.width;
         newHeight = static_cast<CCVKTexture *>(_colorTexture.get())->_info.height;
-        _xr->getXRSwapchainVkImages(_gpuSwapchain->swapchainImages, _typedID);
+        // xr double eyes need six images
+        std::vector<VkImage> vkImagesLeft, vkImagesRight;
+        _xr->getXRSwapchainVkImages(vkImagesLeft, (uint32_t)cc::xr::XREye::LEFT);
+        _xr->getXRSwapchainVkImages(vkImagesRight, (uint32_t)cc::xr::XREye::RIGHT);
+        _gpuSwapchain->swapchainImages.resize(vkImagesLeft.size() + vkImagesRight.size());
+        _gpuSwapchain->swapchainImages.clear();
+        // 0-1-2
+        _gpuSwapchain->swapchainImages.insert(_gpuSwapchain->swapchainImages.end(), vkImagesLeft.begin(), vkImagesLeft.end());
+        // 3-4-5
+        _gpuSwapchain->swapchainImages.insert(_gpuSwapchain->swapchainImages.end(), vkImagesRight.begin(), vkImagesRight.end());
+
         imageCount = _gpuSwapchain->swapchainImages.size();
         _gpuSwapchain->createInfo.imageExtent.width = newWidth;
         _gpuSwapchain->createInfo.imageExtent.height = newHeight;
@@ -451,6 +461,7 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
 
 void CCVKSwapchain::createVkSurface() {
     if (_xr) {
+	    // xr do not need VkSurface
         _gpuSwapchain->vkSurface = VK_NULL_HANDLE;
         return;
     }

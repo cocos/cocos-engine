@@ -72,23 +72,29 @@ Root::~Root() {
 
 void Root::initialize(gfx::Swapchain *swapchain) {
     _swapchain = swapchain;
-    _allCameraList.clear();
-
     _xr = CC_GET_XR_INTERFACE();
-    if (_xr) {
-        // Xr: _mainWindow, _curWindow, _swapchain invalid.
-        // Xr: splash screen use _mainWindow->_swapchain width, height, surfaceTransform. The left and right eyes must be the same.
-        const ccstd::vector<gfx::Swapchain *> &swapchainArray = gfx::Device::getInstance()->getSwapchains();
-        for (size_t i = 0, size = swapchainArray.size(); i < size; i++) {
-            gfx::Swapchain *swapchainItem = swapchainArray[i];
-            _mainWindow = createMainWindow(swapchainItem);
-            _curWindow = _mainWindow;
-            _xr->bindXREyeWithRenderWindow(_mainWindow, static_cast<xr::XREye>(i));
-        }
-    } else {
-        _mainWindow = createMainWindow(swapchain);
-        _curWindow = _mainWindow;
-    }
+
+    gfx::RenderPassInfo renderPassInfo;
+
+    gfx::ColorAttachment colorAttachment;
+    colorAttachment.format = swapchain->getColorTexture()->getFormat();
+    renderPassInfo.colorAttachments.emplace_back(colorAttachment);
+
+    auto &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
+    depthStencilAttachment.format = swapchain->getDepthStencilTexture()->getFormat();
+    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
+    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
+
+    scene::IRenderWindowInfo info;
+    info.title = ccstd::string{"rootMainWindow"};
+    info.width = swapchain->getWidth();
+    info.height = swapchain->getHeight();
+    info.renderPassInfo = renderPassInfo;
+    info.swapchain = swapchain;
+    _mainWindow = createWindow(info);
+
+    _curWindow = _mainWindow;
+
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 }
@@ -117,7 +123,7 @@ void Root::resize(uint32_t width, uint32_t height) {
     for (const auto &window : _windows) {
         if (window->getSwapchain()) {
             if (_xr) {
-                // xr, window's width and height should not change
+                // xr, window's width and height should not change by device
                 width = window->getWidth();
                 height = window->getHeight();
             }
@@ -472,10 +478,8 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
     light->destroy();
 }
 
-scene::Camera *Root::createCamera() {
-    auto *camera = ccnew scene::Camera(_device);
-    _allCameraList.emplace_back(camera);
-    return camera;
+scene::Camera *Root::createCamera() const {
+    return ccnew scene::Camera(_device);
 }
 
 void Root::destroyScenes() {
@@ -485,63 +489,59 @@ void Root::destroyScenes() {
     _scenes.clear();
 }
 
-scene::RenderWindow *Root::createMainWindow(gfx::Swapchain *swapchain) {
-    gfx::RenderPassInfo renderPassInfo;
-
-    gfx::ColorAttachment colorAttachment;
-    colorAttachment.format = swapchain->getColorTexture()->getFormat();
-    renderPassInfo.colorAttachments.emplace_back(colorAttachment);
-
-    auto &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
-    depthStencilAttachment.format = swapchain->getDepthStencilTexture()->getFormat();
-    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
-    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
-
-    scene::IRenderWindowInfo info;
-    info.title = ccstd::string{"rootMainWindow"};
-    info.width = swapchain->getWidth();
-    info.height = swapchain->getHeight();
-    info.renderPassInfo = renderPassInfo;
-    info.swapchain = swapchain;
-    return createWindow(info);
-}
-
 void Root::doXRFrameMove(int32_t totalFrames) {
     if (_xr->isRenderAllowable()) {
-        auto swapchains = gfx::Device::getInstance()->getSwapchains();
         bool isSceneUpdated = false;
         int viewCount = _xr->getXRConfig(xr::XRConfigKey::VIEW_COUNT).getInt();
         for (int xrEye = 0; xrEye < viewCount; xrEye++) {
             _xr->beginRenderEyeFrame(xrEye);
 
-            for (auto *camera : _allCameraList) {
-                if (camera->getTrackingType() != cc::scene::TrackingType::NO_TRACKING) {
-                    const auto &viewPosition = _xr->getHMDViewPosition(xrEye, static_cast<uint32_t>(camera->getTrackingType()));
-                    camera->setNodePosition({viewPosition[0], viewPosition[1], viewPosition[2]});
-                }
+            ccstd::vector<IntrusivePtr<scene::Camera>> allCameras;
+            for (const auto &window : _windows) {
+                const ccstd::vector<IntrusivePtr<scene::Camera>> &wndCams = window->getCameras();
+                allCameras.insert(allCameras.end(), wndCams.begin(), wndCams.end());
             }
 
-            frameMoveBegin();
-
-            ccstd::vector<IntrusivePtr<scene::RenderWindow>> xrWindows;
-            for (const auto &window : _windows) {
-                xr::XREye wndXREye = _xr->getXREyeByRenderWindow(window);
-                if (wndXREye == static_cast<xr::XREye>(xrEye) || wndXREye == xr::XREye::NONE) {
-                    xrWindows.emplace_back(window);
-                    // one camera add to left/right render window, so we need update camera's cur window
-                    if(wndXREye == static_cast<xr::XREye>(xrEye)) {
-                        const ccstd::vector<IntrusivePtr<scene::Camera>> &cams = window->getCameras();
-                        for (const auto &cam : cams) {
-                            if (cam->getCameraType() == scene::CameraType::MAIN || cam->getCameraType() == scene::CameraType::DEFAULT) {
-                                cam->setWindow(window);
-                            }
-                        }
+            // when choose PreEyeCamera, only hmd has PoseTracker
+            // draw left eye change hmd node's position to -ipd/2 | draw right eye  change hmd node's position to ipd/2
+            for (const auto &camera : allCameras) {
+                if (camera->getTrackingType() != cc::scene::TrackingType::NO_TRACKING) {
+                    Node *camNode = camera->getNode();
+                    if (camNode) {
+                        const auto &viewPosition = _xr->getHMDViewPosition(xrEye, static_cast<int>(camera->getTrackingType()));
+                        camNode->setPosition({viewPosition[0], viewPosition[1], viewPosition[2]});
                     }
                 }
             }
 
-            bool isNeedUpdateScene = xrEye == 0 || (xrEye == 1 && !isSceneUpdated);
+            frameMoveBegin();
+            //condition1: mainwindow has left camera && right camera,
+            //but we only need left/right camera when in left/right eye loop
+            //condition2: main camera draw twice
+            ccstd::vector<IntrusivePtr<scene::RenderWindow>> xrWindows;
+            for (const auto &window : _windows) {
+                if (window->getSwapchain()) {
+                    // not rt
+                    _xr->bindXREyeWithRenderWindow(window, (xr::XREye)xrEye);
+                }
+                xrWindows.emplace_back(window);
+            }
+
+            bool isNeedUpdateScene = xrEye == (uint32_t)xr::XREye::LEFT || (xrEye == (uint32_t)xr::XREye::RIGHT && !isSceneUpdated);
             frameMoveProcess(isNeedUpdateScene, totalFrames, xrWindows);
+            auto camIter = _cameraList.begin();
+            while (camIter != _cameraList.end()) {
+                scene::Camera *cam = *camIter;
+                bool isMismatchedCam =
+                    ((xr::XREye)xrEye == xr::XREye::LEFT && cam->getCameraType() == scene::CameraType::RIGHT_EYE) ||
+                    ((xr::XREye)xrEye == xr::XREye::RIGHT && cam->getCameraType() == scene::CameraType::LEFT_EYE);
+                if (isMismatchedCam) {
+                    // currently is left eye loop, so right camera do not need active
+                    camIter = _cameraList.erase(camIter);
+                } else {
+                    camIter++;
+                }
+            }
 
             if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
                 if (isNeedUpdateScene) {
@@ -562,6 +562,13 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 
             frameMoveEnd();
             _xr->endRenderEyeFrame(xrEye);
+        }
+        // recovery to normal status (condition: xr scene jump to normal scene)
+        if (_pipelineRuntime)
+            _pipelineRuntime->resetRenderQueue(true);
+
+        for (scene::Camera *cam : _cameraList) {
+            cam->setCullingEnable(true);
         }
     } else {
         CC_LOG_WARNING("[XR] isRenderAllowable is false !!!");

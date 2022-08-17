@@ -221,43 +221,7 @@ void Camera::changeTargetWindow(RenderWindow *window) {
     if (_window) {
         _window->detachCamera(this);
     }
-
-    if(!_xr) {
-        _xr= BasePlatform::getPlatform()->getInterface<class IXRInterface>();
-    }
-    if (_xr) {
-        if (_cameraType == CameraType::MAIN || _cameraType == CameraType::DEFAULT) {
-            const auto &windows = Root::getInstance()->getWindows();
-            if (window) {
-                // detach camera from other window
-                for (const auto &win : windows) {
-                    win->detachCamera(this);
-                }
-                // add camera to rt window
-                bindTargetWindow(window);
-            } else {
-                // add ui camera(without rt) or hmd camera or other camera(without rt) to xr window
-                for (size_t i = 0, size = windows.size(); i < size; i++) {
-                    // 0,1 is left+right eye xr window
-                    if (i <= 1) {
-                        bindTargetWindow(windows[i]);
-                    }
-                }
-            }
-        } else {
-            // hmd/left/right camera to xr window
-            if (static_cast<uint32_t>(_cameraType) < Root::getInstance()->getWindows().size()) {
-                const auto &win = Root::getInstance()->getWindows().at(static_cast<uint32_t>(_cameraType));
-                bindTargetWindow(win);
-            }
-        }
-    } else {
-        RenderWindow *win = window ? window : Root::getInstance()->getMainWindow();
-        bindTargetWindow(win);
-    }
-}
-
-void Camera::bindTargetWindow(RenderWindow *win) {
+    RenderWindow *win = window ? window : Root::getInstance()->getMainWindow();
     if (win) {
         win->attachCamera(this);
         _window = win;
@@ -271,14 +235,6 @@ void Camera::bindTargetWindow(RenderWindow *win) {
             resize(win->getWidth(), win->getHeight());
         }
     }
-}
-
-void Camera::setNodePosition(const Vec3 &position) {
-    if (!_node) {
-        return;
-    }
-
-    _node->setPosition(position);
 }
 
 void Camera::initGeometryRenderer() {

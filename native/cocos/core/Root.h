@@ -160,7 +160,7 @@ public:
 
     void destroyLight(scene::Light *light);
 
-    scene::Camera *createCamera();
+    scene::Camera *createCamera() const;
     /**
      * @zh
      * GFX 设备
@@ -273,7 +273,6 @@ public:
     inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
 
 private:
-    scene::RenderWindow *createMainWindow(gfx::Swapchain *swapchain);
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
     void frameMoveEnd();
@@ -304,7 +303,6 @@ private:
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;
-    ccstd::vector<scene::Camera *>  _allCameraList;
     ccstd::vector<gfx::Swapchain *> _swapchains;
     //
 };

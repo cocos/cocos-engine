@@ -64,63 +64,63 @@ declare module 'pal/input' {
         public static all: GamepadInputDevice[];
         /**
          * @en The gamepad device id
-         * @zh ÊÖ±úÉè±¸ id
+         * @zh æ‰‹æŸ„è®¾å¤‡ id
          */
         public get deviceId (): number;
         /**
          * @en whether the gamepad is connected
-         * @zh ÊÖ±úÊÇ·ñ´¦ÓÚÁ¬½Ó×´Ì¬
+         * @zh æ‰‹æŸ„æ˜¯å¦å¤„äºè¿æ¥çŠ¶æ€
          */
         public get connected (): boolean;
         /**
          * @en  The control button in the north direction which is generally the button Y
-         * @zh ´¦ÓÚ±±ÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü Y
+         * @zh å¤„äºåŒ—å‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® Y
          */
         public get buttonNorth (): InputSourceButton;
         /**
          * @en  The control button in the east direction which is generally the button B
-         * @zh ´¦ÓÚ¶«ÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü B
+         * @zh å¤„äºä¸œå‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® B
          */
         public get buttonEast (): InputSourceButton;
         /**
          * @en  The control button in the west direction which is generally the button X
-         * @zh ´¦ÓÚÎ÷ÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü X
+         * @zh å¤„äºè¥¿å‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® X
          */
         public get buttonWest (): InputSourceButton;
         /**
          * @en  The control button in the south direction which is generally the button A
-         * @zh ´¦ÓÚÄÏÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü A
+         * @zh å¤„äºå—å‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® A
          */
         public get buttonSouth (): InputSourceButton;
 
         /**
          * @en The button L1
-         * @zh °´¼ü L1
+         * @zh æŒ‰é”® L1
          */
         public get buttonL1 (): InputSourceButton;
         /**
          * @en The button L2
-         * @zh °´¼ü L2
+         * @zh æŒ‰é”® L2
          */
         public get buttonL2 (): InputSourceButton;
         /**
          * @en The button L3
-         * @zh °´¼ü L3
+         * @zh æŒ‰é”® L3
          */
         public get buttonL3 (): InputSourceButton;
         /**
          * @en The button R1
-         * @zh °´¼ü R1
+         * @zh æŒ‰é”® R1
          */
         public get buttonR1 (): InputSourceButton;
         /**
          * @en The button R2
-         * @zh °´¼ü R2
+         * @zh æŒ‰é”® R2
          */
         public get buttonR2 (): InputSourceButton;
         /**
          * @en The button R3
-         * @zh °´¼ü R3
+         * @zh æŒ‰é”® R3
          */
         public get buttonR3 (): InputSourceButton;
 
@@ -129,49 +129,49 @@ declare module 'pal/input' {
 
         /**
          * @en The button Share
-         * @zh ·ÖÏí°´¼ü
+         * @zh åˆ†äº«æŒ‰é”®
          */
         public get buttonShare (): InputSourceButton;
         /**
          * @en The button Options
-         * @zh Ñ¡Ïî°´¼ü
+         * @zh é€‰é¡¹æŒ‰é”®
          */
         public get buttonOptions (): InputSourceButton;
 
         /**
          * @en The dpad buttons
-         * @zh ·½Ïò°´¼ü
+         * @zh æ–¹å‘æŒ‰é”®
          */
         public get dpad (): InputSourceDpad;
         /**
          * @en The left stick
-         * @zh ×óÒ¡¸Ë
+         * @zh å·¦æ‘‡æ†
          */
         public get leftStick (): InputSourceStick;
         /**
          * @en The right stick
-         * @zh ÓÒÒ¡¸Ë
+         * @zh å³æ‘‡æ†
          */
         public get rightStick (): InputSourceStick;
 
         /**
          * @en The button Menu
-         * @zh ²Ëµ¥°´¼ü
+         * @zh èœå•æŒ‰é”®
          */
         public get buttonMenu (): InputSourceButton;
         /**
          * @en The button Start
-         * @zh ¿ªÊ¼°´¼ü
+         * @zh å¼€å§‹æŒ‰é”®
          */
         public get buttonStart (): InputSourceButton;
         /**
          * @en The button LeftStick
-         * @zh ×óÒ¡¸Ë°´¼ü
+         * @zh å·¦æ‘‡æ†æŒ‰é”®
          */
         public get buttonLeftStick (): InputSourceButton;
         /**
          * @en The button RightStick
-         * @zh ÓÒÒ¡¸Ë°´¼ü
+         * @zh å³æ‘‡æ†æŒ‰é”®
          */
         public get buttonRightStick (): InputSourceButton;
     }
@@ -215,124 +215,124 @@ declare module 'pal/input' {
 
         /**
          * @en  The control button in the north direction which is generally the button Y
-         * @zh ´¦ÓÚ±±ÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü Y
+         * @zh å¤„äºåŒ—å‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® Y
          */
         public get buttonNorth (): InputSourceButton;
         /**
          * @en  The control button in the east direction which is generally the button B
-         * @zh ´¦ÓÚ¶«ÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü B
+         * @zh å¤„äºä¸œå‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® B
          */
         public get buttonEast (): InputSourceButton;
         /**
          * @en  The control button in the west direction which is generally the button X
-         * @zh ´¦ÓÚÎ÷ÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü X
+         * @zh å¤„äºè¥¿å‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® X
          */
         public get buttonWest (): InputSourceButton;
         /**
          * @en  The control button in the south direction which is generally the button A
-         * @zh ´¦ÓÚÄÏÏòµÄ¿ØÖÆ°´¼ü£¬Ò»°ãÊÇ°´¼ü A
+         * @zh å¤„äºå—å‘çš„æ§åˆ¶æŒ‰é”®ï¼Œä¸€èˆ¬æ˜¯æŒ‰é”® A
          */
         public get buttonSouth (): InputSourceButton;
 
         /**
          * @en The button Left Trigger
-         * @zh ×ó°â»ú°´¼ü
+         * @zh å·¦æ‰³æœºæŒ‰é”®
          */
         public get buttonTriggerLeft (): InputSourceButton;
         /**
          * @en The button Right Trigger
-         * @zh ÓÒ°â»ú°´¼ü
+         * @zh å³æ‰³æœºæŒ‰é”®
          */
         public get buttonTriggerRight (): InputSourceButton;
         /**
          * @en The grab Left Trigger
-         * @zh ×ó°â»ú¿Û¶¯
+         * @zh å·¦æ‰³æœºæ‰£åŠ¨
          */
         public get triggerLeft (): InputSourceButton;
         /**
          * @en The grab Right Trigger
-         * @zh ÓÒ°â»ú¿Û¶¯
+         * @zh å³æ‰³æœºæ‰£åŠ¨
          */
         public get triggerRight (): InputSourceButton;
         /**
          * @en The grab Left Grip
-         * @zh ×óÊÖ±úÎÕ×¡
+         * @zh å·¦æ‰‹æŸ„æ¡ä½
          */
         public get gripLeft (): InputSourceButton;
         /**
          * @en The grab Right Grip
-         * @zh ÓÒÊÖ±úÎÕ×¡
+         * @zh å³æ‰‹æŸ„æ¡ä½
          */
         public get gripRight (): InputSourceButton;
 
         /**
          * @en The left stick
-         * @zh ×óÒ¡¸Ë
+         * @zh å·¦æ‘‡æ†
          */
         public get leftStick (): InputSourceStick;
         /**
          * @en The right stick
-         * @zh ÓÒÒ¡¸Ë
+         * @zh å³æ‘‡æ†
          */
         public get rightStick (): InputSourceStick;
 
         /**
          * @en The button Left Stick
-         * @zh ×óÒ¡¸Ë°´¼ü
+         * @zh å·¦æ‘‡æ†æŒ‰é”®
          */
         public get buttonLeftStick (): InputSourceButton;
         /**
          * @en The button Right Stick
-         * @zh ÓÒÒ¡¸Ë°´¼ü
+         * @zh å³æ‘‡æ†æŒ‰é”®
          */
         public get buttonRightStick (): InputSourceButton;
 
         /**
          * @en The position Left hand
-         * @zh ×óÊÖÎ»ÖÃ
+         * @zh å·¦æ‰‹ä½ç½®
          */
         public get handLeftPosition (): InputSourcePosition;
         /**
          * @en The orientation Left hand
-         * @zh ×óÊÖ·½Ïò
+         * @zh å·¦æ‰‹æ–¹å‘
          */
         public get handLeftOrientation (): InputSourceOrientation;
         /**
          * @en The position Right hand
-         * @zh ÓÒÊÖÎ»ÖÃ
+         * @zh å³æ‰‹ä½ç½®
          */
         public get handRightPosition (): InputSourcePosition;
         /**
          * @en The orientation Right hand
-         * @zh ÓÒÊÖ·½Ïò
+         * @zh å³æ‰‹æ–¹å‘
          */
         public get handRightOrientation (): InputSourceOrientation;
 
         /**
          * @en The position Left aim
-         * @zh ×óÉäÏßÎ»ÖÃ
+         * @zh å·¦å°„çº¿ä½ç½®
          */
         public get aimLeftPosition (): InputSourcePosition;
         /**
          * @en The orientation Left aim
-         * @zh ×óÉäÏß·½Ïò
+         * @zh å·¦å°„çº¿æ–¹å‘
          */
         public get aimLeftOrientation (): InputSourceOrientation;
         /**
          * @en The position Right aim
-         * @zh ÓÒÉäÏßÎ»ÖÃ
+         * @zh å³å°„çº¿ä½ç½®
          */
         public get aimRightPosition (): InputSourcePosition;
         /**
          * @en The orientation Right aim
-         * @zh ÓÒÉäÏß·½Ïò
+         * @zh å³å°„çº¿æ–¹å‘
          */
         public get aimRightOrientation (): InputSourceOrientation;
     }
 
     type HMDCallback = (res: import('cocos/input/types').EventHMD) => void;
     /**
-     * Class designed for handle input.
+     * Class designed for HMD input.
      */
     export class HMDInputDevice {
         /**
@@ -342,32 +342,32 @@ declare module 'pal/input' {
 
         /**
          * @en The position Left view
-         * @zh ×ó´°¿ÚÎ»ÖÃ
+         * @zh å·¦çª—å£ä½ç½®
          */
         public get viewLeftPosition (): InputSourcePosition;
         /**
          * @en The orientation Left view
-         * @zh ×ó´°¿Ú·½Ïò
+         * @zh å·¦çª—å£æ–¹å‘
          */
         public get viewLeftOrientation (): InputSourceOrientation;
         /**
          * @en The position Right view
-         * @zh ÓÒ´°¿ÚÎ»ÖÃ
+         * @zh å³çª—å£ä½ç½®
          */
         public get viewRightPosition (): InputSourcePosition;
         /**
          * @en The orientation Right view
-         * @zh ÓÒ´°¿Ú·½Ïò
+         * @zh å³çª—å£æ–¹å‘
          */
         public get viewRightOrientation (): InputSourceOrientation;
         /**
          * @en The position Middle head
-         * @zh Í·²¿ÖĞ¼äÎ»ÖÃ
+         * @zh å¤´éƒ¨ä¸­é—´ä½ç½®
          */
         public get headMiddlePosition (): InputSourcePosition;
         /**
          * @en The orientation Middle head
-         * @zh Í·²¿ÖĞ¼ä·½Ïò
+         * @zh å¤´éƒ¨ä¸­é—´æ–¹å‘
          */
         public get headMiddleOrientation (): InputSourceOrientation;
     }

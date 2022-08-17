@@ -118,8 +118,8 @@ enum class CameraShutter {
 
 enum class CameraType {
     DEFAULT = -1,
-    LEFT_CAMERA = 0,
-    RIGHT_CAMERA = 1,
+    LEFT_EYE = 0,
+    RIGHT_EYE = 1,
     MAIN = 2,
 };
 
@@ -138,8 +138,8 @@ struct ICameraInfo {
     RenderWindow *window{nullptr};
     uint32_t priority{0};
     ccstd::optional<ccstd::string> pipeline;
-    CameraType cameraType;
-    TrackingType trackingType;
+    CameraType cameraType{CameraType::DEFAULT};
+    TrackingType trackingType{TrackingType::NO_TRACKING};
 };
 
 class Camera : public RefCounted {
@@ -172,7 +172,6 @@ public:
     void syncCameraEditor(const Camera &camera);
     void update(bool forceUpdate = false); // for lazy eval situations like the in-editor preview
     void changeTargetWindow(RenderWindow *window);
-    void setNodePosition(const Vec3 &position);
 
     /**
      * transform a screen position (in oriented space) to a world space ray
@@ -342,17 +341,16 @@ public:
 
     void detachCamera();
 
-    inline const CameraType &getCameraType() const { return _cameraType; }
-    inline void setCameraType(const CameraType &type) { _cameraType = type; }
+    inline CameraType getCameraType() const { return _cameraType; }
+    inline void setCameraType(CameraType type) { _cameraType = type; }
 
-    inline const TrackingType &getTrackingType() const { return _trackingType; }
-    inline void setTrackingType(const TrackingType &type) { _trackingType = type; }
+    inline TrackingType getTrackingType() const { return _trackingType; }
+    inline void setTrackingType(TrackingType type) { _trackingType = type; }
 
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
 protected:
     void setExposure(float ev100);
-    void bindTargetWindow(RenderWindow *window);
 
 private:
     void updateExposure();

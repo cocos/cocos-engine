@@ -151,13 +151,13 @@ enum class StickAxisCode {
 
 struct ControllerInfo {
     struct AxisInfo {
-        StickAxisCode axis = StickAxisCode::UNDEFINE;
-        float         value = 0.0F;
+        StickAxisCode axis{StickAxisCode::UNDEFINE};
+        float         value{0.F};
         AxisInfo(StickAxisCode axis, float value) : axis(axis), value(value) {}
     };
     struct ButtonInfo {
-        StickKeyCode key;
-        bool         isPress;
+        StickKeyCode key{StickKeyCode::UNDEFINE};
+        bool         isPress{false};
         ButtonInfo(StickKeyCode key, bool isPress) : key(key), isPress(isPress) {}
     };
 
