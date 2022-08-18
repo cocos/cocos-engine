@@ -839,7 +839,7 @@ if(USE_SOCKET)
     )
 endif()
 
-if(NOT IOS AND USE_WEBSOCKET_SERVER)
+if(USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/network/WebSocketServer.h
                      cocos/network/WebSocketServer.cpp
@@ -2436,7 +2436,7 @@ if(USE_SOCKET)
     )
 endif()
 
-if(NOT IOS AND USE_WEBSOCKET_SERVER)
+if(USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/bindings/manual/jsb_websocket_server.cpp
                      cocos/bindings/manual/jsb_websocket_server.h
