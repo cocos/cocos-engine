@@ -24,6 +24,7 @@
 */
 
 import './component-event-handler.schema';
+
 export { default as System } from './system';
 export { default as MissingScript } from './missing-script';
 export { EventHandler } from './component-event-handler';
@@ -31,5 +32,6 @@ export { Component } from './component';
 export { Camera } from './camera-component';
 export { ModelRenderer } from './model-renderer';
 export { Renderer } from './renderer';
+export { Sorting } from './sorting';
 /** deprecated */
 export * from './deprecated';

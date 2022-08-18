@@ -37,3 +37,4 @@ export * from './node-event';
 export * from './scene-globals';
 export * from './deprecated';
 export { default as NodeActivator } from './node-activator';
+export { SortingManager } from './sorting-manager';
