@@ -55,6 +55,9 @@ export interface IRaycastResult {
 const EditorLayers = Layers.BitMask.GIZMOS | Layers.BitMask.EDITOR | Layers.BitMask.SCENE_GIZMO;
 
 export function isEditorModel (model: Model): boolean {
+    if (model.node === null) {
+        return false;
+    }
     return ((model.visFlags & EditorLayers) || (model.node.layer & EditorLayers)) !== 0;
 }
 
