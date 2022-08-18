@@ -641,6 +641,9 @@ private:
     void onHierarchyChanged(Node *);
     void onHierarchyChangedBase(Node *oldParent);
 
+    void inverseTransformPointRecursive(Vec3 &out) const;
+    void updateWorldTransformRecursive(uint32_t &superDirtyBits);
+
     inline void notifyLocalPositionUpdated() {
         emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
     }
