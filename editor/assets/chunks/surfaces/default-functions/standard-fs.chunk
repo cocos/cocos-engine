@@ -38,10 +38,13 @@ void SurfacesFragmentModifyWorldTangentAndBinormal(inout vec3 worldTangent, inou
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
-// rotation, shape, xx, xx
-vec4 SurfacesFragmentModifyAnisotropyParams()
+// isRotation=1.0: shape(0~1), rotation(0~2PI), 0.0, 0.0
+// or
+// isRotation=0.0: shape(0~1), anisoDir.xyz(-1~1)
+vec4 SurfacesFragmentModifyAnisotropyParams(out float isRotation)
 {
-    return vec4(0.0, 1.0, 0.0, 0.0);
+    isRotation = 1.0;
+    return vec4(1.0, 0.0, 0.0, 0.0);
 }
 #endif
 

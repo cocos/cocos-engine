@@ -27,11 +27,11 @@ THE SOFTWARE.
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <functional>
+#include "audio/include/AudioDef.h"
 #include "base/RefCounted.h"
 #include "base/Utils.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
-#include "audio/include/AudioDef.h"
 #define MAX_AUDIOINSTANCES 13
 
 #define ERRORLOG(msg) log("fun:%s,line:%d,msg:%s", __func__, __LINE__, #msg)
@@ -73,8 +73,8 @@ public:
 
     void setAudioFocusForAllPlayers(bool isFocus);
 
-    PCMHeader getPCMHeader(const char* url);
-    std::vector<uint8_t> getOriginalPCMBuffer(const char* url, uint32_t channelID);
+    PCMHeader getPCMHeader(const char *url);
+    std::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
 
 private:
     // engine interfaces

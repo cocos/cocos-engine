@@ -12,15 +12,15 @@ JSB_REGISTER_OBJECT_TYPE(cc::AudioProfile);
 JSB_REGISTER_OBJECT_TYPE(cc::AudioEngine);
 
 
-extern se::Object *__jsb_cc_AudioProfile_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioProfile_class; // NOLINT
+extern se::Object *__jsb_cc_AudioProfile_proto;   // NOLINT
+extern se::Class *__jsb_cc_AudioProfile_class;    // NOLINT
 
 bool js_register_cc_AudioProfile(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_audio_AudioProfile_AudioProfile);
 
-extern se::Object *__jsb_cc_AudioEngine_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioEngine_class; // NOLINT
+extern se::Object *__jsb_cc_AudioEngine_proto;   // NOLINT
+extern se::Class *__jsb_cc_AudioEngine_class;    // NOLINT
 
 bool js_register_cc_AudioEngine(se::Object *obj); // NOLINT
 

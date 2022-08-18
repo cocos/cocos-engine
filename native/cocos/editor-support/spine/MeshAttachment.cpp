@@ -31,8 +31,8 @@
     #include "SpinePluginPrivatePCH.h"
 #endif
 
-#include <spine/MeshAttachment.h>
 #include <spine/HasRendererObject.h>
+#include <spine/MeshAttachment.h>
 
 using namespace spine;
 

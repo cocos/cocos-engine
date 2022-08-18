@@ -656,6 +656,11 @@ export class Pass {
         this._hash = target._hash ^ hashFactor;
     }
 
+    // Only for UI
+    private _updatePassHash () {
+        this._hash = Pass.getPassHash(this);
+    }
+
     // infos
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }

@@ -32,7 +32,7 @@ RenderEntity::RenderEntity(RenderEntityType type) : _renderEntityType(type) {
     if (type == RenderEntityType::STATIC) {
         ccnew_placement(&_staticDrawInfos) std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>();
     } else {
-        ccnew_placement (&_dynamicDrawInfos) ccstd::vector<RenderDrawInfo*>();
+        ccnew_placement(&_dynamicDrawInfos) ccstd::vector<RenderDrawInfo*>();
     }
     _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
@@ -64,6 +64,16 @@ void RenderEntity::removeDynamicRenderDrawInfo() {
 void RenderEntity::clearDynamicRenderDrawInfos() {
     CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     _dynamicDrawInfos.clear();
+}
+
+void RenderEntity::clearStaticRenderDrawInfos() {
+    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
+
+    for (uint32_t i = 0; i < _staticDrawInfoSize; i++) {
+        RenderDrawInfo& drawInfo = _staticDrawInfos[i];
+        drawInfo.resetDrawInfo();
+    }
+    _staticDrawInfoSize = 0;
 }
 
 void RenderEntity::setNode(Node* node) {

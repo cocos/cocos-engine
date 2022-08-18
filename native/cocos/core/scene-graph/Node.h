@@ -284,6 +284,7 @@ public:
     void pauseSystemEvents(bool recursive) {}  // cjh TODO:
     void resumeSystemEvents(bool recursive) {} // cjh TODO:
 
+    ccstd::string getPathInHierarchy() const;
     // ===============================
     // transform
     // ===============================

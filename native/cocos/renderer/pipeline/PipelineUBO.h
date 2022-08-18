@@ -34,7 +34,7 @@ namespace scene {
 class Camera;
 class Shadows;
 class DirectionalLight;
-}
+} // namespace scene
 namespace pipeline {
 class RenderPipeline;
 class CC_DLL PipelineUBO final {
@@ -44,7 +44,7 @@ public:
     static void updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
                                     ccstd::array<float, UBOCSM::COUNT> *csmBufferView, const scene::Camera *camera);
     static void updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,
-        const scene::Light *light, uint32_t level);
+                                         const scene::Light *light, uint32_t level);
     static uint8_t getCombineSignY();
     static void updatePlanarNormalAndDistance(const ::cc::scene::Shadows *shadowInfo, ccstd::array<float, UBOShadow::COUNT> *shadowUBO);
 

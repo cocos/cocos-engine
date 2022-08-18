@@ -24,10 +24,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <cstdint>
-#include <cstring>
-#include <cstdlib>
 #include <algorithm>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include "audio/oalsoft/AudioDecoder.h"
 #include "base/Log.h"
 #include "base/Utils.h"
@@ -566,7 +566,6 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
     return header;
 }
 
-
 ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     ccstd::vector<uint8_t> pcmData;
@@ -607,7 +606,6 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
                 p += bytesPerChannelInFrame;
             }
             remainingFrames -= framesToReadOnce;
-            
         };
         free(tmpBuf);
     } while (false);

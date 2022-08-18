@@ -25,26 +25,23 @@ THE SOFTWARE.
 ****************************************************************************/
 
 //#include "ConnectWaitLayer.h"
-#include "Runtime.h"
-#include "FileServer.h"
 #include "ConfigParser.h"
-#include "VisibleRect.h"
+#include "FileServer.h"
 #include "ResData.h"
+#include "Runtime.h"
+#include "VisibleRect.h"
 
 using namespace cocos2d;
 
-ConnectWaitLayer::ConnectWaitLayer()
-{
+ConnectWaitLayer::ConnectWaitLayer() {
     int designWidth = 1280;
     int designHeight = 800;
     _imagebg = new Image();
-    
-    if (ConfigParser::getInstance()->isLanscape())
-    {
+
+    if (ConfigParser::getInstance()->isLanscape()) {
         _imagebg->initWithImageData(__landscapePngData, sizeof(__landscapePngData));
         Director::getInstance()->getOpenGLView()->setDesignResolutionSize(designWidth, designHeight, ResolutionPolicy::EXACT_FIT);
-    } else
-    {
+    } else {
         _imagebg->initWithImageData(__portraitPngData, sizeof(__portraitPngData));
         Director::getInstance()->getOpenGLView()->setDesignResolutionSize(designHeight, designWidth, ResolutionPolicy::FIXED_HEIGHT);
     }
@@ -81,10 +78,9 @@ ConnectWaitLayer::ConnectWaitLayer()
     addChild(shineSprite, 9998);
 
     std::string strip = getIPAddress();
-	if (strip.empty())
-	{
-		strip = "0.0.0.0";
-	}
+    if (strip.empty()) {
+        strip = "0.0.0.0";
+    }
 
     char szIPAddress[64] = {0};
     sprintf(szIPAddress, "IP: %s", strip.c_str());
@@ -96,8 +92,7 @@ ConnectWaitLayer::ConnectWaitLayer()
     addChild(IPlabel, 9001);
 
     std::string transferTip = "waiting for file transfer ...";
-    if (CC_PLATFORM_WINDOWS == CC_PLATFORM || CC_PLATFORM_MACOS == CC_PLATFORM)
-    {
+    if (CC_PLATFORM_WINDOWS == CC_PLATFORM || CC_PLATFORM_MACOS == CC_PLATFORM) {
         transferTip = "waiting for debugger to connect ...";
     }
 
@@ -111,23 +106,20 @@ ConnectWaitLayer::ConnectWaitLayer()
     addChild(verLable, 9002);
     _labelUploadFile = Label::createWithSystemFont(transferTip, "", 36);
     _labelUploadFile->setAnchorPoint(Vec2(0, 0));
-    _labelUploadFile->setPosition(Point(VisibleRect::leftTop().x + spaceSizex, IPlabel->getPositionY()- spaceSizex));
+    _labelUploadFile->setPosition(Point(VisibleRect::leftTop().x + spaceSizex, IPlabel->getPositionY() - spaceSizex));
     _labelUploadFile->setAlignment(TextHAlignment::LEFT);
     addChild(_labelUploadFile, 9003);
 
-    if (ConfigParser::getInstance()->isLanscape())
-    {
+    if (ConfigParser::getInstance()->isLanscape()) {
         playSprite->setPosition(lanscaptX, lanscaptY);
         shineSprite->setPosition(lanscaptX, lanscaptY);
-    }
-    else
-    {
+    } else {
         playSprite->setPosition(portraitX, portraitY);
         shineSprite->setPosition(portraitX, portraitY);
     }
 
     auto listener = EventListenerTouchOneByOne::create();
-    listener->onTouchBegan = [](Touch* touch, Event  *event)->bool{
+    listener->onTouchBegan = [](Touch* touch, Event* event) -> bool {
         auto target = static_cast<Sprite*>(event->getCurrentTarget());
         Vec2 point = target->convertToNodeSpace(Director::getInstance()->convertToGL(touch->getLocationInView()));
         auto rect = Rect(0, 0, target->getContentSize().width, target->getContentSize().height);
@@ -136,12 +128,12 @@ ConnectWaitLayer::ConnectWaitLayer()
         target->runAction(Sequence::createWithTwoActions(ScaleBy::create(0.05f, 0.9f), ScaleTo::create(0.125f, 1)));
         return true;
     };
-    listener->onTouchEnded = [](Touch* touch, Event  *event){
+    listener->onTouchEnded = [](Touch* touch, Event* event) {
         auto target = static_cast<Sprite*>(event->getCurrentTarget());
         Vec2 point = target->convertToNodeSpace(Director::getInstance()->convertToGL(touch->getLocationInView()));
         auto rect = Rect(0, 0, target->getContentSize().width, target->getContentSize().height);
         if (!rect.containsPoint(point)) return;
-        
+
         RuntimeEngine::getInstance()->setupRuntime();
         RuntimeEngine::getInstance()->startScript("");
     };
@@ -150,18 +142,16 @@ ConnectWaitLayer::ConnectWaitLayer()
     this->scheduleUpdate();
 }
 
-ConnectWaitLayer::~ConnectWaitLayer()
-{
-	CC_SAFE_RELEASE(_imagebg);
-	CC_SAFE_RELEASE(_imageplay);
-	CC_SAFE_RELEASE(_imageShine);
+ConnectWaitLayer::~ConnectWaitLayer() {
+    CC_SAFE_RELEASE(_imagebg);
+    CC_SAFE_RELEASE(_imageplay);
+    CC_SAFE_RELEASE(_imageShine);
 }
 
 // clean up: ignore stdin, stdout and stderr
-void ConnectWaitLayer::update(float fDelta)
-{
+void ConnectWaitLayer::update(float fDelta) {
     std::string transferTip = FileServer::getShareInstance()->getTransingFileName();
-    if (transferTip.empty()){
+    if (transferTip.empty()) {
         return;
     }
     _labelUploadFile->setString(transferTip);

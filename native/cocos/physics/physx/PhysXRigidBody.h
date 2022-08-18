@@ -78,7 +78,7 @@ public:
     void setGroup(uint32_t g) override;
     void setMask(uint32_t m) override;
     inline uint32_t getInitialGroup() const { return _mGroup; }
-    uint32_t getObjectID() const override {return _mObjectID;};
+    uint32_t getObjectID() const override { return _mObjectID; };
 
 protected:
     // physx::PhysXWorld* mWrappedWorld;

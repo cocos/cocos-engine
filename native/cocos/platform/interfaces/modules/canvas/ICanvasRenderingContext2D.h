@@ -80,9 +80,13 @@ public:
         virtual void updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) = 0;
         virtual void setTextAlign(TextAlign align) = 0;
         virtual void setTextBaseline(TextBaseline baseline) = 0;
-        virtual void setFillStyle(float r, float g, float b, float a) = 0;
-        virtual void setStrokeStyle(float r, float g, float b, float a) = 0;
+        virtual void setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) = 0;
+        virtual void setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) = 0;
         virtual void setLineWidth(float lineWidth) = 0;
+        virtual void setShadowBlur(float blur) = 0;
+        virtual void setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) = 0;
+        virtual void setShadowOffsetX(float offsetX) = 0;
+        virtual void setShadowOffsetY(float offsetY) = 0;
         virtual const cc::Data &getDataRef() const = 0;
         virtual void updateData() = 0;
     };
@@ -122,6 +126,10 @@ public:
     virtual void setFillStyle(const ccstd::string &fillStyle) = 0;
     virtual void setStrokeStyle(const ccstd::string &strokeStyle) = 0;
     virtual void setGlobalCompositeOperation(const ccstd::string &globalCompositeOperation) = 0;
+    virtual void setShadowBlur(float blur) = 0;
+    virtual void setShadowColor(const ccstd::string &shadowColor) = 0;
+    virtual void setShadowOffsetX(float offsetX) = 0;
+    virtual void setShadowOffsetY(float offsetY) = 0;
 
     // fill image data into Context2D
     virtual void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) = 0;

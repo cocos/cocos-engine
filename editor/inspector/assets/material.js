@@ -466,6 +466,11 @@ exports.update = async function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
+    // 增加容错
+    if (!this.$this.isConnected) {
+        return;
+    }
+
     if (assetList.length !== 1) {
         this.$.invalid.setAttribute('active', '');
         return;
@@ -492,7 +497,7 @@ exports.update = async function(assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = async function() {
+exports.ready = function() {
     this.canUpdatePreview = false;
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {

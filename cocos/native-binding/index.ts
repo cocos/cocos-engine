@@ -1201,7 +1201,7 @@ export declare namespace native {
          * @param methodSignature : @en the method signature of the Objective-C/Java class @zh Objective-C/Java 方法签名
          * @param parameters : @en the parameters of the Objective-C/Java class to translate @zh 传递至该 Objective-C/Java 方法的参数
          */
-        export function callStaticMethod(methodName: string, methodSignature: string, ...parameters: any): any;
+        export function callStaticMethod(className: string, methodName: string, methodSignature: string, ...parameters: any): any;
     }
 
     /**

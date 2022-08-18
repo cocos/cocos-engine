@@ -34,10 +34,10 @@ namespace ccstd {
 using std::get;
 using std::get_if;
 using std::holds_alternative;
+using std::in_place_index;
 using std::monostate;
 using std::variant;
 using std::visit;
-using std::in_place_index;
 
 }; // namespace ccstd
 
@@ -50,10 +50,10 @@ namespace ccstd {
 using boost::variant2::get;
 using boost::variant2::get_if;
 using boost::variant2::holds_alternative;
+using boost::variant2::in_place_index;
 using boost::variant2::monostate;
 using boost::variant2::variant;
 using boost::variant2::visit;
-using boost::variant2::in_place_index;
 
 }; // namespace ccstd
 #endif

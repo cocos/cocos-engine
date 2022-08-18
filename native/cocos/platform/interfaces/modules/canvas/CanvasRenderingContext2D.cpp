@@ -323,6 +323,7 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         ccstd::string boldStr;
         ccstd::string fontName = "Arial";
         ccstd::string fontSizeStr = "30";
+        bool isItalic = font.find("italic", 0) != ccstd::string::npos;
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
         std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
@@ -334,7 +335,7 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         }
         float fontSize = atof(fontSizeStr.c_str());
         bool isBold = !boldStr.empty();
-        _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, false, false, false);
+        _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, isItalic, false, false);
     }
 #endif
 }
@@ -370,19 +371,30 @@ void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline
 
 void CanvasRenderingContext2D::setFillStyle(const ccstd::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
-    _delegate->setFillStyle(static_cast<float>(color.r) / 255.0F,
-                            static_cast<float>(color.g) / 255.0F,
-                            static_cast<float>(color.b) / 255.0F,
-                            color.a);
+    _delegate->setFillStyle(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
     //SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
 void CanvasRenderingContext2D::setStrokeStyle(const ccstd::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
-    _delegate->setStrokeStyle(static_cast<float>(color.r) / 255.0F,
-                              static_cast<float>(color.g) / 255.0F,
-                              static_cast<float>(color.b) / 255.0F,
-                              color.a);
+    _delegate->setStrokeStyle(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
+}
+
+void CanvasRenderingContext2D::setShadowBlur(float blur) {
+    _delegate->setShadowBlur(blur);
+}
+
+void CanvasRenderingContext2D::setShadowColor(const ccstd::string &shadowColor) {
+    CSSColorParser::Color color = CSSColorParser::parse(shadowColor);
+    _delegate->setShadowColor(color.r, color.g, color.b, static_cast<uint8_t>(color.a * 255));
+}
+
+void CanvasRenderingContext2D::setShadowOffsetX(float offsetX) {
+    _delegate->setShadowOffsetX(offsetX);
+}
+
+void CanvasRenderingContext2D::setShadowOffsetY(float offsetY) {
+    _delegate->setShadowOffsetY(offsetY);
 }
 
 void CanvasRenderingContext2D::setGlobalCompositeOperation(const ccstd::string &globalCompositeOperation) {

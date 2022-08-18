@@ -1,15 +1,15 @@
 #include "Slot.h"
-#include "../model/DragonBonesData.h"
-#include "../model/UserData.h"
-#include "../model/SkinData.h"
-#include "../model/DisplayData.h"
+#include "../animation/Animation.h"
+#include "../event/EventObject.h"
 #include "../model/BoundingBoxData.h"
+#include "../model/DisplayData.h"
+#include "../model/DragonBonesData.h"
+#include "../model/SkinData.h"
 #include "../model/TextureAtlasData.h"
+#include "../model/UserData.h"
 #include "Armature.h"
 #include "Bone.h"
 #include "DeformVertices.h"
-#include "../animation/Animation.h"
-#include "../event/EventObject.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 

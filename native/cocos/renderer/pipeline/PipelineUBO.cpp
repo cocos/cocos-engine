@@ -249,9 +249,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                         const float csmAtlasOffsets[4] = {csmAtlas.x, csmAtlas.y, csmAtlas.z, csmAtlas.w};
                         memcpy(cv.data() + UBOCSM::CSM_ATLAS_OFFSET + i * 4, &csmAtlasOffsets, sizeof(csmAtlasOffsets));
 
-
                         cv[UBOCSM::CSM_SPLITS_INFO_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
-
 
                         const Mat4 &matShadowViewProj = csmLayers->getLayers()[i]->getMatShadowViewProj();
                         memcpy(cv.data() + UBOCSM::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + i * 16, matShadowViewProj.m, sizeof(matShadowViewProj));

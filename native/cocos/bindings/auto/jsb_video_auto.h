@@ -11,8 +11,8 @@ bool register_all_video(se::Object *obj);                   // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::VideoPlayer);
 
 
-extern se::Object *__jsb_cc_VideoPlayer_proto; // NOLINT
-extern se::Class * __jsb_cc_VideoPlayer_class; // NOLINT
+extern se::Object *__jsb_cc_VideoPlayer_proto;   // NOLINT
+extern se::Class *__jsb_cc_VideoPlayer_class;    // NOLINT
 
 bool js_register_cc_VideoPlayer(se::Object *obj); // NOLINT
 

@@ -52,7 +52,7 @@ public:
     uint32_t createTrimesh(TrimeshDesc &desc) override;
     uint32_t createHeightField(HeightFieldDesc &desc) override;
     bool createMaterial(uint16_t id, float f, float df, float r,
-                             uint8_t m0, uint8_t m1) override;
+                        uint8_t m0, uint8_t m1) override;
     void destroy() override;
 
 private:
