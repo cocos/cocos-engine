@@ -284,8 +284,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         // xr double eyes need six images
         std::vector<VkImage> vkImagesLeft;
         std::vector<VkImage> vkImagesRight;
-        _xr->getXRSwapchainVkImages(vkImagesLeft, static_cast<uint_32>(cc::xr::XREye::LEFT));
-        _xr->getXRSwapchainVkImages(vkImagesRight, static_cast<uint_32>(cc::xr::XREye::RIGHT));
+        _xr->getXRSwapchainVkImages(vkImagesLeft, static_cast<uint32_t>(cc::xr::XREye::LEFT));
+        _xr->getXRSwapchainVkImages(vkImagesRight, static_cast<uint32_t>(cc::xr::XREye::RIGHT));
         _gpuSwapchain->swapchainImages.resize(vkImagesLeft.size() + vkImagesRight.size());
         _gpuSwapchain->swapchainImages.clear();
         // 0-1-2
@@ -301,7 +301,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         _gpuSwapchain->curImageIndex = 0;
         CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
         CCVKDevice::getInstance()->waitAllFences();
-        CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, static_cast<uint_32>(_transform * 90));
+        CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, static_cast<uint32_t>(_transform * 90));
     } else {
         if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will be set to VK_NULL_HANDLE after call doDestroySurface
             return false;
