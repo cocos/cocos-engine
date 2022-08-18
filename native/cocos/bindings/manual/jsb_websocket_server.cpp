@@ -60,15 +60,15 @@ static bool WebSocketServer_constructor(se::State &s) { // NOLINT(readability-id
     int argc = static_cast<int>(args.size());
     if (argc == 0) {
         se::Object *obj = s.thisObject();
-        auto *cobj = ccnew std::shared_ptr<cc::network::WebSocketServer>(ccnew cc::network::WebSocketServer());
+        auto *cobj = static_cast<cc::network::WebSocketServer *>(s.nativeThisObject());
         obj->setPrivateData(cobj);
-        (*cobj)->setData(obj);
+        cobj->setData(obj);
 
-        (*cobj)->setOnBegin([obj]() {
+        cobj->setOnBegin([obj]() {
             obj->root();
         });
 
-        (*cobj)->setOnEnd([obj]() {
+        cobj->setOnEnd([obj]() {
             obj->unroot();
         });
 
@@ -179,13 +179,13 @@ static bool WebSocketServer_onconnection(se::State &s) { // NOLINT(readability-i
         }
 
         se::Object *obj = se::Object::createObjectWithClass(__jsb_WebSocketServer_Connection_class);
-        auto *prv = ccnew std::shared_ptr<cc::network::WebSocketServerConnection>(conn);
+        cc::network::WebSocketServerConnection *prv = conn.get();
         // a connection is dead only if no reference & closed!
         obj->root();
         obj->setPrivateData(prv);
         conn->setData(obj);
         std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = conn;
-        prv->get()->setOnEnd([connWeak, obj]() {
+        prv->setOnEnd([connWeak, obj]() {
             // release we connection is gone!
             auto ptr = connWeak.lock();
             if (ptr) {
