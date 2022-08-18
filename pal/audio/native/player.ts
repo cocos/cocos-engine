@@ -265,6 +265,7 @@ export class AudioPlayer implements OperationQueueable {
                         audioEngine.setCurrentTime(this._id, this._cachedState.currentTime);
                         this._cachedState.currentTime = 0;
                     }
+                    //TODO(timlyeee): id is not sync with native player
                     audioEngine.setFinishCallback(this._id, () => {
                         console.log(`Finish callback is called, id : ${this._id}`);
                         this._cachedState.currentTime = 0;

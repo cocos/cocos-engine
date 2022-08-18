@@ -134,7 +134,7 @@ declare namespace jsb {
         export function uncache (url: string);
         export function uncacheAll ();
         export function setErrorCallback (id: number, cb: (err: any) => void);
-        export function setFinishCallback (id: number, cb: () => void);
+        export function setFinishCallback (id: number, cb: (id: number, path: string) => void);
 
         /**
          * Get PCM header without pcm data. if you want to get pcm data, use getOriginalPCMBuffer instead

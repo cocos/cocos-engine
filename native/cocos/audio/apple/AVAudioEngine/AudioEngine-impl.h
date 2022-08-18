@@ -32,6 +32,8 @@
 #include "audio/apple/AVAudioEngine/AudioPlayer.h"
 #include "base/RefCounted.h"
 #include "base/std/container/unordered_map.h"
+#include "stack"
+#include <queue>
 
 namespace cc {
 class Scheduler;
@@ -94,11 +96,13 @@ public:
 private:
     bool checkAudioIdValid(int32_t audioID);
     std::unordered_map<int32_t, AudioPlayer *> _players;
+    std::stack<AudioPlayer *> _syncStack;
     std::unordered_map<std::string, AudioCache *> _caches;
     std::unordered_map<int32_t, AudioPlayer *> _unusedPlayers;
     std::weak_ptr<Scheduler> _scheduler;
     std::mutex _threadMutex;
     bool _lazyInitLoop{false};
+    bool _isMixerAttached{false};
     int32_t _currentID;
 };
 } // namespace cc

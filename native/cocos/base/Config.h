@@ -66,5 +66,5 @@
 #endif
 
 #ifndef CC_USE_PROFILER
-    #define CC_USE_PROFILER 0
+    #define CC_USE_PROFILER 1
 #endif

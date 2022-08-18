@@ -30,8 +30,8 @@
 #include "application/ApplicationManager.h"
 #include "audio/include/AudioDef.h"
 #include "base/std/container/vector.h"
-#include "platform/FileUtils.h"
 #include "cocos/profiler/Profiler.h"
+#include "platform/FileUtils.h"
 namespace {
 AudioDataFormat formatConverter(AVAudioCommonFormat originalAppleFormat) {
     switch (originalAppleFormat) {
@@ -117,7 +117,7 @@ bool AudioCache::load() {
         _readDataMutex.unlock();
         // Reset for next time read.
         _descriptor.audioFile.framePosition = 0;
-        
+
     } while (false);
     if (ret) {
         invokingLoadCallbacks();
@@ -136,7 +136,7 @@ bool AudioCache::unload() {
     _readDataMutex.unlock();
     return ret;
 }
-bool AudioCache::resample(PCMHeader  /*header*/) {
+bool AudioCache::resample(PCMHeader /*header*/) {
     // TODO(timlyeee): resample
     return true;
 }
@@ -170,7 +170,7 @@ ccstd::vector<uint8_t> AudioCache::getPCMBuffer(uint32_t channelID) {
             tmpBuffer = _descriptor.buffer;
         } else {
             tmpBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_descriptor.audioFile.processingFormat
-                                                                        frameCapacity:_descriptor.audioFile.length];
+                                                      frameCapacity:_descriptor.audioFile.length];
             // Read entire buffer into _descriptor buffer.
             const uint32_t frameCount = _pcmHeader.totalFrames;
             AVAudioFramePosition startPos = 0;

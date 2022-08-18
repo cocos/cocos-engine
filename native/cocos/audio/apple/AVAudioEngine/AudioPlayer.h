@@ -42,12 +42,14 @@ using AudioPlayerDescriptor = struct AudioPlayerDescriptor {
 #else
     // void* node;
 #endif
-} ;
-
+};
+static std::mutex FrameSyncMtx;
+static std::condition_variable FrameSyncBarrier;
 namespace cc {
 using FinishCallback = std::function<void(uint32_t, const ccstd::string&)>;
 class AudioPlayer {
 public:
+    friend class AudioEngineImpl;
     enum State {
         UNLOADED,
         LOADING,
@@ -77,7 +79,7 @@ public:
      */
     bool unload();
 
-    bool ready();
+    void prepare();
     /**
      * Play the audio, if it's playing, nothing will happen.
      */
@@ -115,13 +117,14 @@ public:
      * Get a copy of audio player descriptor.
      */
     AudioPlayerDescriptor getDescriptor() const;
-    void rotateBuffer();
+    void shortBufferPlay();
+    void streamingPlay();
     State getState() const;
     std::function<void(int, const std::string&)> finishCallback{nullptr};
 
-    bool isAttached{false};
+    
     bool isFinished() const;
-
+    void externalSync(int64_t gLastRenderTime);
 private:
     void setState(State state);
     /**
@@ -134,16 +137,16 @@ private:
     float _duration{0};
     bool _isStreaming{false};
     float _volume{0};
-
+    bool _needExternalSync{false};
     /**
      * Finish play in a formal way
      */
     bool _isFinished{false};
-
+    bool _isAttached{false};
     /**
      * Rotate thread
      */
-    std::thread* _rotateBufferThread{nullptr};
+    std::thread* _playerThread{nullptr};
 
     AudioCache* _cache{nullptr};
     AudioPlayerDescriptor _descriptor;
@@ -151,16 +154,15 @@ private:
     /** _state is the only way to check if the player is stopped, to make frame rate stable.*/
     mutable std::shared_mutex _stateMtx;
     State _state{State::UNLOADED};
-
+    int64_t lastRenderTime{0};
     float _startTime{0};
     /** Cache a pausing time to return value when the player is at pause state */
     float _pauseTime{0};
-
     /**
-     * _rotateBufferThreadBarrier and _rotateBufferThreadMtx are mean to manage thread sleep and wake.
+     * _playerThreadBarrier and _playerThreadMtx are mean to manage thread sleep and wake.
      */
-    std::condition_variable _rotateBufferThreadBarrier;
-    std::mutex _rotateBufferThreadMtx;
+    std::condition_variable _playerThreadBarrier;
+    std::mutex _playerThreadMtx;
     bool _shouldReschedule{false};
 };
 } // namespace cc

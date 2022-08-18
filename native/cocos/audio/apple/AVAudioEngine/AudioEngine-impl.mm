@@ -34,8 +34,7 @@
 #include "platform/FileUtils.h"
 
 #include "cocos/profiler/Profiler.h"
-static AVAudioEngine* gAvaudioEngine = nullptr;
-static AVAudioFormat* gAvaudioFormat = nullptr;
+AVAudioEngine* gAvaudioEngine = nullptr;
 namespace cc {
 class Scheduler;
 
@@ -141,6 +140,9 @@ int32_t AudioEngineImpl::play2d(const ccstd::string& filePath, bool loop, float 
     CC_PROFILE(AUDIOENGINE_PLAY2D);
     int32_t audioID = createAudioPlayer();
     AudioPlayer* player = _players[audioID];
+    player->_needExternalSync = true;
+    
+    
     AUDIO_CHECK(player->setLoop(loop));
     AUDIO_CHECK(player->setVolume(volume));
     AudioCache* cache = preload(filePath, nullptr);
@@ -153,34 +155,30 @@ int32_t AudioEngineImpl::play2d(const ccstd::string& filePath, bool loop, float 
 #endif
         return AudioEngine::INVALID_AUDIO_ID;
     }
-    if (!player->isAttached) {
-        CC_PROFILE(ATTACH_PLAYERNODE);
-        [gAvaudioEngine attachNode:player->getDescriptor().node];
-        [gAvaudioEngine connect:player->getDescriptor().node
-                             to:(AVAudioNode*)gAvaudioEngine.mainMixerNode
-                         format:cache->getDescriptor().audioFile.processingFormat]; // TODO(timlyeee): err: -10878 format
-        player->isAttached = true;
-    }
+    _syncStack.push(player);
+    
     {
         CC_PROFILE(CACHE_ADD);
-    cache->addLoadCallback([&player, &cache](bool) {
-        AUDIO_CHECK(player->load(cache));
-        AUDIO_CHECK(player->ready());
-    });
+        cache->addLoadCallback([&player, &cache](bool) {
+            AUDIO_CHECK(player->load(cache));
+            player->prepare();
+        });
+        
     
     cache->addPlayCallback([&player, &audioID, this]() {
+        CC_LOG_DEBUG("start to play");
+        AUDIO_CHECK(player->play());
+        CC_LOG_DEBUG("[AudioEngine impl] audio player played, with audio id %d", audioID);
         if (_lazyInitLoop) {
             CC_PROFILE(START_AND_SETLAZYINIT);
             _lazyInitLoop = false;
-            
+            if (auto sche = _scheduler.lock()) {
+                sche->schedule([this](auto &&  /*pH1*/) {
+                    update();
+                }, this, 0.05F, false, "AudioEngine");
+            }
         }
-        AUDIO_CHECK(player->play());
-        CC_LOG_DEBUG("[AudioEngine impl] audio player played, with audio id %d", audioID);
-        if (auto sche = _scheduler.lock()) {
-            sche->schedule([this](auto &&  /*pH1*/) { 
-                update(); 
-            }, this, 0.05F, false, "AudioEngine");
-        }
+        
     });
     }
     return audioID;
@@ -287,7 +285,23 @@ void AudioEngineImpl::update() {
     CC_PROFILE(AUDIO_UPDATE);
     int32_t audioID;
     AudioPlayer* player;
-
+    if(!_syncStack.empty()) {
+        while (_syncStack.top()->_needExternalSync) {
+            // Waiting
+        }
+        AVAudioFramePosition gLastRenderTime = _syncStack.top()->_descriptor.node.lastRenderTime.sampleTime;
+        
+        {
+            CC_PROFILE(ExternalSync);
+            while (!_syncStack.empty()) {
+                _syncStack.top()->externalSync(gLastRenderTime);
+                _syncStack.pop();
+            }
+        }
+    }
+    
+    
+    
     // release all players with state STOPPED.
     for (auto itr = _players.begin(); itr != _players.end();) {
         audioID = itr->first;
@@ -310,12 +324,12 @@ void AudioEngineImpl::update() {
             }
             player->unload();
 
-            if (player->isAttached) {
-                // NSLog(@"player node detached");
-                [gAvaudioEngine disconnectNodeOutput:player->getDescriptor().node];
-                [gAvaudioEngine detachNode:player->getDescriptor().node];
-                player->isAttached = false;
-            }
+//            if (player->isAttached) {
+//                // NSLog(@"player node detached");
+//                [gAvaudioEngine disconnectNodeOutput:player->getDescriptor().node];
+//                [gAvaudioEngine detachNode:player->getDescriptor().node];
+//                player->isAttached = false;
+//            }
             AudioEngine::remove(audioID);
             itr = _players.erase(itr);
             _unusedPlayers[audioID] = player;
