@@ -700,7 +700,7 @@ export class Layout extends Component {
         for (let i = 0; i < children.length; ++i) {
             const child = children[i];
             const uiTrans = child._uiProps.uiTransformComp;
-            if (child.activeInHierarchy && uiTrans) {
+            if (child.activeInHierarchy && uiTrans && child.name !== 'MASK_CHILD') {
                 this._usefulLayoutObj.push(uiTrans);
             }
         }
