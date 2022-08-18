@@ -38,9 +38,15 @@ namespace gfx {
 
 namespace {
 WGPUBindGroup dftBindGroup = wgpuDefaultHandle;
-} // namespace
 
-thread_local ccstd::unordered_map<ccstd::hash_t, std::pair<ccstd::hash_t, void *>> CCWGPUDescriptorSet::_bindGroupMap;
+struct BindGroupCache {
+    CCWGPUDescriptorSet *descriptorSet{nullptr};
+    WGPUBindGroup bindGroup{wgpuDefaultHandle};
+    ccstd::hash_t bornHash{0};
+};
+
+thread_local ccstd::unordered_map<ccstd::hash_t, BindGroupCache> bindGroupMap;
+} // namespace
 
 CCWGPUDescriptorSet::CCWGPUDescriptorSet() : DescriptorSet() {
 }
@@ -50,8 +56,12 @@ CCWGPUDescriptorSet::~CCWGPUDescriptorSet() {
 }
 
 void CCWGPUDescriptorSet::clearCache() {
-    if (!_bindGroupMap.empty()) {
-        _bindGroupMap.clear();
+    if (!bindGroupMap.empty()) {
+        for (auto &it : bindGroupMap) {
+            wgpuBindGroupRelease(static_cast<WGPUBindGroup>(it.second.bindGroup));
+            it.second.descriptorSet->_isDirty = true;
+        }
+        bindGroupMap.clear();
     }
 }
 
@@ -266,8 +276,8 @@ void CCWGPUDescriptorSet::prepare() {
             _bornHash = 0;
         } else {
             _hash = hash();
-            auto iter = _bindGroupMap.find(_hash);
-            if (iter == _bindGroupMap.end()) {
+            auto iter = bindGroupMap.find(_hash);
+            if (iter == bindGroupMap.end()) {
                 // layout might be changed later.
                 _bornHash = dsLayout->getHash();
                 CCWGPUDeviceObject *deviceObj = CCWGPUDevice::getInstance()->gpuDeviceObject();
@@ -298,11 +308,11 @@ void CCWGPUDescriptorSet::prepare() {
                             static_cast<CCWGPUTexture *>(texture)->stamp();
                     });
 
-                _bindGroupMap.insert(std::make_pair(_hash, std::make_pair(_bornHash, _gpuBindGroupObj->bindgroup)));
+                bindGroupMap.insert(std::make_pair(_hash, BindGroupCache{this, _gpuBindGroupObj->bindgroup, _bornHash}));
                 // CCWGPUDevice::getInstance()->destroyLater(_gpuBindGroupObj->bindgroup);
             } else {
-                _gpuBindGroupObj->bindgroup = static_cast<WGPUBindGroup>(iter->second.second);
-                _bornHash = iter->second.first;
+                _gpuBindGroupObj->bindgroup = static_cast<WGPUBindGroup>(iter->second.bindGroup);
+                _bornHash = iter->second.bornHash;
                 // printf("reuse bg\n");
             }
         }

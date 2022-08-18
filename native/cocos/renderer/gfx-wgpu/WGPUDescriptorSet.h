@@ -71,8 +71,6 @@ protected:
     Pairs _dynamicOffsets;
     ccstd::hash_t _hash{0};
     ccstd::hash_t _bornHash{0}; // hash when created, this relate to reuse bindgroup layout
-
-    thread_local static ccstd::unordered_map<ccstd::hash_t, std::pair<ccstd::hash_t, void *>> _bindGroupMap;
 };
 
 } // namespace gfx
