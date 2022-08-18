@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, disallowMultiple, range, serializable } from 'cc.decorator';
+import { ccclass, disallowMultiple, menu, range, serializable } from 'cc.decorator';
 import { clamp } from '../math';
 import { SortingManager } from '../scene-graph/sorting-manager';
 import { Component } from './component';
@@ -33,6 +33,7 @@ const MAX_INT16 = (1 << 15) - 1;
 const MIN_INT16 = -1 << 15;
 
 @ccclass('cc.Sorting')
+@menu('2D/Sorting')
 @disallowMultiple
 export class Sorting extends Component {
     /**
@@ -73,7 +74,7 @@ export class Sorting extends Component {
     protected onEnable () {
         this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelRenderer) {
-            console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
+            console.warn(`node '${this.node && this.node.name}' doesn't have any ModelRenderer component`);
             return;
         }
         this._updateSortingPriority();
