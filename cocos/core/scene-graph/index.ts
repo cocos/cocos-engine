@@ -26,7 +26,7 @@
 import './node-event-processor';
 import './deprecated';
 import './deprecated-3.7.0';
-
+// @deprecated since v3.7, please use Node instead.
 export { Node as BaseNode } from './node'; //reserve BaseNode for compatibility
 export { Node } from './node';
 export { Scene } from './scene';
