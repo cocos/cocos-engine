@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "audio/openharmony/PcmAudioService.h"
 #include "audio/openharmony/AudioMixerController.h"
 #include "bindings/jswrapper/napi/HelperMacros.h"
-//#include "SLES/OpenSLES_OpenHarmony.h"
 #include "SLES/OpenSLES_Platform.h"
 
 namespace cc {
@@ -39,7 +38,7 @@ static std::vector<char> __silenceData;
 
 class SLPcmAudioPlayerCallbackProxy {
 public:
-    static void samplePlayerCallback(SLBufferQueueItf bq, void *context) {
+    static void samplePlayerCallback(SLOHBufferQueueItf bq, void *context, SLuint32 size) {
         PcmAudioService *thiz = reinterpret_cast<PcmAudioService *>(context);
         thiz->bqFetchBufferCallback(bq);
     }
@@ -61,6 +60,7 @@ bool PcmAudioService::enqueue() {
             SLresult r = (*_bufferQueueItf)->Enqueue(_bufferQueueItf, __silenceData.data(), __silenceData.size());
             SL_RETURN_VAL_IF_FAILED(r, false, "enqueue silent data failed!");
         } else {
+            
             _controller->mixOneFrame();
 
             auto current = _controller->current();
@@ -76,7 +76,7 @@ bool PcmAudioService::enqueue() {
     return true;
 }
 
-void PcmAudioService::bqFetchBufferCallback(SLBufferQueueItf bq) {
+void PcmAudioService::bqFetchBufferCallback(SLOHBufferQueueItf bq) {
     // IDEA: PcmAudioService instance may be destroyed, we need to find a way to wait...
     // It's in sub thread
     enqueue();
@@ -96,7 +96,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
 
     SLDataFormat_PCM formatPcm = {
         SL_DATAFORMAT_PCM,
-        (SLuint32)numChannels,
+        (SLuint32)1,  // TODO(hack): 1 channel must be set, there is a problem with dual channels
         (SLuint32)sampleRate * 1000,
         SL_PCMSAMPLEFORMAT_FIXED_16,
         SL_PCMSAMPLEFORMAT_FIXED_16,
@@ -117,7 +117,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     const SLInterfaceID ids[] = {
         SL_IID_PLAY,
         SL_IID_VOLUME,
-        SL_IID_BUFFERQUEUE,
+        SL_IID_OH_BUFFERQUEUE,
     };
 
     const SLboolean req[] = {
@@ -140,8 +140,8 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     r = (*_playObj)->GetInterface(_playObj, SL_IID_VOLUME, &_volumeItf);
     SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_VOLUME failed");
 
-    r = (*_playObj)->GetInterface(_playObj, SL_IID_BUFFERQUEUE, &_bufferQueueItf);
-    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_BUFFERQUEUE failed");
+    r = (*_playObj)->GetInterface(_playObj, SL_IID_OH_BUFFERQUEUE, &_bufferQueueItf);
+    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_OH_BUFFERQUEUE failed");
 
     r = (*_bufferQueueItf)->RegisterCallback(_bufferQueueItf, SLPcmAudioPlayerCallbackProxy::samplePlayerCallback, this);
     SL_RETURN_VAL_IF_FAILED(r, false, "_bufferQueueItf RegisterCallback failed");
