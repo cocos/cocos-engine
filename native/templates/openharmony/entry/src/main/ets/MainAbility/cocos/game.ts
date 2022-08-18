@@ -24,7 +24,7 @@ const commonJSModuleMap: Record<string, Function> = {
     '/src/cocos-js/<%=ccUrls[i]%>' () { require('./src/cocos-js/<%=ccUrls[i]%>'); },
 <% } %> 
 <% for (var j = 0; j < bundleJsList.length; j++) {%> 
-    'workers/assets/<%=bundleJsList[j]%>' () { require('./assets/<%=bundleJsList[j]%>'); },
+    'assets/<%=bundleJsList[j]%>' () { require('./assets/<%=bundleJsList[j]%>'); },
 <% } %>
 }
 export function loadModule (name: string) {
@@ -62,6 +62,8 @@ export function launchEngine (): Promise<void> {
         window.global = window;
         const systemReady = require('./jsb-adapter/sys-ability-polyfill.js');
         systemReady().then(() => {
+            // @ts-ignore
+            window.oh.loadModule = loadModule;
             try {
                 require("./jsb-adapter/jsb-builtin.js");
             } catch (e) {
