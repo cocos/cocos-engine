@@ -27,14 +27,14 @@
 
 namespace cc {
     
-void WorkerMessageQueue::enQueue(const WorkerMessageData& data) {
+void WorkerMessageQueue::enqueue(const WorkerMessageData& data) {
     std::lock_guard<std::mutex> lck(_mutex);
     _queue.push(data);
 }
 
-bool WorkerMessageQueue::deQueue(WorkerMessageData *data) {
+bool WorkerMessageQueue::dequeue(WorkerMessageData *data) {
     std::lock_guard<std::mutex> lck(_mutex);
-    if (isEmpty()) {
+    if (empty()) {
         return false;
     }
     *data = _queue.front();
@@ -42,7 +42,7 @@ bool WorkerMessageQueue::deQueue(WorkerMessageData *data) {
     return true;
 }
 
-bool WorkerMessageQueue::isEmpty() const {
+bool WorkerMessageQueue::empty() const {
     return _queue.empty();
 }
 

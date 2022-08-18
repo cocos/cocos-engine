@@ -35,7 +35,6 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 
 #define SE_BIND_PROP_GET(funcName)                                                                    \
     napi_value funcName##Registry(napi_env env, napi_callback_info info) {                            \
-        LOGD("SE_BIND_PROP_GET get %s", #funcName);                                                   \
         napi_value  _this;                                                                            \
         napi_status status;                                                                           \
         NODE_API_CALL(status, env,                                                                    \
@@ -43,7 +42,6 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         void *obj;                                                                                    \
         napi_unwrap(env, _this, reinterpret_cast<void **>(&obj));                                     \
         se::State state(obj);                                                                         \
-        LOGD("unwrap ptr :%p", obj);                                                                  \
         bool ret = funcName(state);                                                                   \
         if (!ret) {                                                                                   \
             SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \
@@ -56,7 +54,6 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 
 #define SE_BIND_PROP_SET(funcName)                                                                    \
     napi_value funcName##Registry(napi_env env, napi_callback_info info) {                            \
-        LOGD("SE_BIND_PROP_SET set %s", #funcName);                                                   \
         napi_status status;                                                                           \
         size_t      argc = 1;                                                                         \
         napi_value  args[1];                                                                          \
@@ -83,7 +80,6 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 #define SE_BIND_FUNC(funcName)                                                                          \
     napi_value funcName##Registry(                                                                      \
         napi_env env, napi_callback_info info) {                                                        \
-        LOGD("%s", #funcName);                                                                          \
         napi_status    status;                                                                          \
         bool           ret = false;                                                                     \
         napi_value     _this;                                                                           \
@@ -145,7 +141,6 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 #define SE_BIND_FINALIZE_FUNC(funcName)                                                               \
     void funcName##Registry(                                                                          \
         napi_env env, void *nativeObject, void *hint /*finalize_hint*/) {                             \
-        LOGD("%s %p hint:%p", #funcName, nativeObject, hint);                                         \
         if (nativeObject == nullptr) {                                                                \
             return;                                                                                   \
         }                                                                                             \

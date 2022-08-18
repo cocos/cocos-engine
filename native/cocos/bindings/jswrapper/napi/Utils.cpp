@@ -154,7 +154,6 @@ void seToJsArgs(napi_env env, const ValueArray& args, std::vector<target_value>*
 }
 
 bool setReturnValue(const Value& data, target_value& argv) {
-    LOGI("setReturnValue");
     if (data.getType() == Value::Type::BigInt) {
         // TODO: fix 'TypeError: Cannot mix BigInt and other types, use explicit conversions' for spine & dragonbones
         napi_status status;

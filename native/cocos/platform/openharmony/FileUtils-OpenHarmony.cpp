@@ -1,62 +1,54 @@
+/****************************************************************************
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
 #include "cocos/platform/openharmony/FileUtils-OpenHarmony.h"
 #include <hilog/log.h>
 #include <sys/stat.h>
 #include <cstdio>
 #include <regex>
-#include <string>
 
+#include <string>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <dirent.h>
+#include <unistd.h>
 
 #include "cocos/base/Log.h"
 
-#include <sys/syscall.h>
-#include <unistd.h>
 #include "bindings/jswrapper/napi/HelperMacros.h"
-
 #define ASSETS_FOLDER_WRITEABLE_PATH "/data/accounts/account_0/applications/ohos.example.xcomponent1/ohos.example.xcomponent1/writeable_path"
-
-#ifndef JCLS_HELPER
-    #define JCLS_HELPER "com/cocos/lib/CocosHelper"
-#endif
 #include "rawfile/raw_file_manager.h"
 
 namespace cc {
-
-namespace {
-
-std::string rawfilePrefix = "entry/resources/rawfile/";
-
-void printRawfiles(NativeResourceManager *mgr, const std::string &path) {
-//    auto *file = OpenRawFile(mgr, path.c_str());
-//    if (file) {
-//        HILOG_DEBUG(LOG_APP, "PrintRawfile %{public}s", path.c_str());
-//        return;
-//    }
-//
-//    RawDir *dir = OpenRawDir(mgr, path.c_str());
-//    if (dir) {
-//        auto fileCnt = GetRawFileCount(dir);
-//        for (auto i = 0; i < fileCnt; i++) {
-//            std::string subFile  = GetRawFileName(dir, i);
-//            auto        newPath  = path + "/" + subFile; // NOLINT
-//            auto        debugPtr = newPath.c_str();
-//            HILOG_ERROR(LOG_APP, " find path %{public}s", newPath.c_str());
-//            printRawfiles(mgr, newPath);
-//        }
-//    } else {
-//        HILOG_ERROR(LOG_APP, "Invalidate path %{public}s", path.c_str());
-//    }
-}
-} // namespace
 
 NativeResourceManager* FileUtilsOpenHarmony::_nativeResourceManager = nullptr;
 
 bool FileUtilsOpenHarmony::initResourceManager(napi_env env, napi_value param) {
     _nativeResourceManager = OH_ResourceManager_InitNativeResourceManager(env, param);
-    LOGE("cocos qgh  initResourceManager %{public}p", _nativeResourceManager);
     return true;
 }
 
@@ -71,7 +63,7 @@ FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &
     }
 
     if (nullptr == _nativeResourceManager) {
-        LOGE("cocos qgh getContents _nativeResourceManager = nullptr");
+        CC_LOG_ERROR("nativeResourceManager is nullptr");
         return FileUtils::Status::NOT_INITIALIZED;
     }
 
@@ -105,11 +97,10 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
     }
 
     if (nullptr == _nativeResourceManager) {
-        LOGE("cocos qgh getContents _nativeResourceManager = nullptr");
+        CC_LOG_ERROR("nativeResourceManager is nullptr");
         return FileUtils::Status::NOT_INITIALIZED;
     }
 
-    LOGE("cocos qgh getContents %{public}s", fullPath.c_str());
     RawFile *rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, fullPath.c_str());
     if (nullptr == rawFile) {
         return FileUtils::Status::OPEN_FAILED;
@@ -132,11 +123,6 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
     OH_ResourceManager_CloseRawFile(rawFile);
     return FileUtils::Status::OK;
 }
-
-void FileUtilsOpenHarmony::setRawfilePrefix(const std::string &prefix) {
-    //rawfilePrefix = prefix;
-}
-
 
 FileUtils *FileUtils::getInstance() {
     if (FileUtils::sharedFileUtils == nullptr) {
@@ -179,9 +165,8 @@ long FileUtilsOpenHarmony::getFileSize(const std::string &filepath) {
     if (fullPath.empty()) {
         return 0;
     }
-    LOGE("cocos qgh getFileSize %{public}s", fullPath.c_str());
     if (nullptr == _nativeResourceManager) {
-        LOGE("cocos qgh getContents _nativeResourceManager = nullptr");
+        CC_LOG_ERROR("nativeResourceManager is nullptr");
         return 0;
     }
 
@@ -191,16 +176,14 @@ long FileUtilsOpenHarmony::getFileSize(const std::string &filepath) {
         filesize = OH_ResourceManager_GetRawFileSize(rawFile);
         OH_ResourceManager_CloseRawFile(rawFile);
     }
-    LOGE("cocos qgh getFileSize %{public}s  size=%{public}d", fullPath.c_str(), (int)filesize);
     return filesize;
 }
 
 std::string FileUtilsOpenHarmony::getWritablePath() const {
-    return ASSETS_FOLDER_WRITEABLE_PATH;
+    return _writablePath;
 }
 
 bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) const {
-    LOGE("cocos qgh getFileSize %{public}s", strFilePath.c_str());
     if (strFilePath.empty()) {
         return false;
     }
@@ -210,18 +193,15 @@ bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) c
     }
 
     if (nullptr == _nativeResourceManager) {
-        LOGE("cocos qgh getContents _nativeResourceManager = nullptr");
+        CC_LOG_ERROR("nativeResourceManager is nullptr");
         return false;
     }
 
-    LOGE("cocos qgh getFileSize %{public}s", strPath.c_str());
     RawFile* rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, strPath.c_str());
     if(rawFile) {
-        LOGE("cocos qgh getFileSize %{public}s exist", strPath.c_str());
         OH_ResourceManager_CloseRawFile(rawFile);
         return true;
-    } 
-    LOGE("cocos qgh getFileSize %{public}s not exist", strPath.c_str());
+    }
     return false;
 }
 
@@ -239,7 +219,7 @@ bool FileUtilsOpenHarmony::isDirectoryExistInternal(const std::string &dirPath) 
     }
     
     if (nullptr == _nativeResourceManager) {
-        LOGE("cocos qgh getContents _nativeResourceManager = nullptr");
+        CC_LOG_ERROR("nativeResourceManager is nullptr");
         return false;
     }
 
@@ -251,22 +231,56 @@ bool FileUtilsOpenHarmony::isDirectoryExistInternal(const std::string &dirPath) 
     return false;
 }
 
-std::string FileUtilsOpenHarmony::expandPath(const std::string &input, bool *isRawFile) const {
-//    if (!input.empty() && input[0] == '/') {
-//        if (isRawFile) *isRawFile = false;
-//        return input;
-//    }
-//    const auto fullpath = fullPathForFilename(input);
-//
-//    if (fullpath.find(_defaultResRootPath) == 0) {
-//        if (isRawFile) *isRawFile = true;
-//        return rawfilePrefix + fullpath.substr(_defaultResRootPath.length(), fullpath.length());
-//    }
-//
-//    if (isRawFile) *isRawFile = false;
-//
-//    return fullpath;
-    return "";
+bool FileUtilsOpenHarmony::renameFile(const std::string &oldfullpath, const std::string &newfullpath) {
+    if (access(oldfullpath.c_str(), F_OK) != 0) {
+        return false;
+    }
+    if (rename(oldfullpath.c_str(), newfullpath.c_str()) != 0) {
+        if (access(newfullpath.c_str(), F_OK) == 0) {
+            remove(newfullpath.c_str());
+        }
+        return false;
+    }
+    return true;
+}
+
+bool FileUtilsOpenHarmony::removeFile(const std::string &filepath) {
+    return remove(filepath.c_str()) == 0;
+}
+
+bool FileUtilsOpenHarmony::removeDirectory(const std::string &dirPath) {
+    DIR *directory = opendir(dirPath.c_str());
+    if (!directory) {
+        return false;
+    }
+    struct dirent *dir{nullptr};
+    struct stat    st;
+    while ((dir = readdir(directory)) != NULL) {
+        if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
+            continue;
+        }
+        std::string subPath = dirPath + '/' + dir->d_name;
+        if (lstat(subPath.c_str(), &st) == -1) {
+            continue;
+        }
+        if (S_ISDIR(st.st_mode)) {
+            if (!removeDirectory(subPath)) {
+                closedir(directory);
+                return false;
+            }
+            rmdir(subPath.c_str());
+        } else if (S_ISREG(st.st_mode)) {
+            unlink(subPath.c_str());
+        } else {
+            continue;
+        }
+    }
+    if (rmdir(dirPath.c_str()) == -1) {
+        closedir(directory);
+        return false;
+    }
+    closedir(directory);
+    return true;
 }
 
 } // namespace cc
