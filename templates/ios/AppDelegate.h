@@ -26,6 +26,8 @@ you.
  THE SOFTWARE.
 ****************************************************************************/
 
+#pragma once
+
 #import "platform/ios/AppDelegateBridge.h"
 #import <UIKit/UIKit.h>
 

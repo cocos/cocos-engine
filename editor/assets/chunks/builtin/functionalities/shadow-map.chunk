@@ -9,6 +9,15 @@
 #pragma define SHADOWMAP_FORMAT_RGBA8 1
 #pragma define SHADOWMAP_FORMAT_FLOAT 0
 
+#pragma define CC_DIR_LIGHT_SHADOW_NONE 0
+#pragma define CC_DIR_LIGHT_SHADOW_UNIFORM 1
+#pragma define CC_DIR_LIGHT_SHADOW_CASCADED 2
+#pragma define CC_DIR_LIGHT_SHADOW_VARIANCE 3
+
+#pragma define CC_SHADOW_NONE 0
+#pragma define CC_SHADOW_PLANAR 1
+#pragma define CC_SHADOW_MAP 2
+
 float CCGetLinearDepth(vec3 worldPos, float viewSpaceBias) {
 	vec4 viewPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
   viewPos.z += viewSpaceBias;
@@ -196,11 +205,9 @@ float CCGetLinearDepth(vec3 worldPos) {
       pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
     #endif
 
-      /*todo: use CC_SHADOWMAP_PCF_TYPE for better performance
-      if (pcf > 2.9) {
-        return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
-      } else */
-    if (pcf > 1.9) {
+    if (pcf > 2.9) {
+      return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
+    }else if (pcf > 1.9) {
       return CCGetSpotLightShadowFactorSoft3X(pos, worldPos);
     }else if (pcf > 0.9) { 
       return CCGetSpotLightShadowFactorSoft(pos, worldPos);
@@ -211,22 +218,23 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
   {
-    float realtimeShadow = 1.0;
     vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y, cc_matLightView, cc_shadowProjInfo.xy);
     pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
   
-    float pcf = cc_shadowWHPBInfo.z;
-      /*todo: use CC_SHADOWMAP_PCF_TYPE for better performance
-      if (pcf > 2.9) {
-        realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
-      } else */
-    if (pcf > 1.9) {
+    float realtimeShadow = 1.0;
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
+      realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
+    #endif
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_3X
       realtimeShadow =  CCGetDirLightShadowFactorSoft3X(pos);
-    }else if (pcf > 0.9) {
+    #endif
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT
       realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
-    }else { 
+    #endif
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_HARD
       realtimeShadow = CCGetDirLightShadowFactorHard(pos); 
-    }
+    #endif
+
     return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
   }
   
@@ -260,23 +268,24 @@ float CCGetLinearDepth(vec3 worldPos) {
       vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
       int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
       if (level < 0) { return 1.0; }
-      float realtimeShadow = 1.0;
 
       vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
       pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
 
-      float pcf = cc_shadowWHPBInfo.z;
-      /*todo: use CC_SHADOWMAP_PCF_TYPE for better performance
-      if (pcf > 2.9) {
+      float realtimeShadow = 1.0;
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
         realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
-      } else */
-      if (pcf > 1.9) {
+      #endif
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_3X
         realtimeShadow = CCGetDirLightShadowFactorSoft3X(pos);
-      } else if (pcf > 0.9) {
+      #endif
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT
         realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
-      }else { 
+      #endif
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_HARD
         realtimeShadow = CCGetDirLightShadowFactorHard(pos);
-      }
+      #endif
+
       return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
     }
   #else
