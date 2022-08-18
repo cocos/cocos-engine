@@ -93,6 +93,25 @@ public:
      */
     Mat3(const Mat3 &copy);
 
+   /**
+     * 
+     * @brief Construct a new Mat 3 object with a Mat4.
+     * Copies the upper-left 3x3 values of a 4x4 matrix into a 3x3 matrix.
+     * @param m4 
+     */
+    explicit Mat3(const Mat4 &m4) {
+        fromMat4(m4, this);
+    }
+
+    /**
+    * @brief Construct a new Mat 3 object with a Quaternion
+    * Calculates a 3x3 matrix from the given quaternion.
+    * @param quat 
+    */
+    explicit Mat3(const Quaternion &quat) {
+        fromQuat(quat, this);
+    }
+
     /**
      * Destructor.
      */

@@ -600,11 +600,11 @@ static bool register_device(se::Object * /*obj*/) { // NOLINT(readability-identi
 }
 
 static bool register_canvas_context2d(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("fillText", _SE(js_engine_CanvasRenderingContext2D_fillText));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("strokeText", _SE(js_engine_CanvasRenderingContext2D_strokeText));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("fillRect", _SE(js_engine_CanvasRenderingContext2D_fillRect));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("measureText", _SE(js_engine_CanvasRenderingContext2D_measureText));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("fillText", _SE(js_engine_CanvasRenderingContext2D_fillText));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("strokeText", _SE(js_engine_CanvasRenderingContext2D_strokeText));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("fillRect", _SE(js_engine_CanvasRenderingContext2D_fillRect));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("measureText", _SE(js_engine_CanvasRenderingContext2D_measureText));
 
     se::ScriptEngine::getInstance()->clearException();
 

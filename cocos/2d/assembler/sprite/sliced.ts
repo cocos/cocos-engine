@@ -31,8 +31,7 @@ import { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
-const vec3_temp = new Vec3();
-const matrix = new Mat4();
+const m = new Mat4();
 const tempRenderData: IRenderData[] = [];
 for (let i = 0; i < 4; i++) {
     tempRenderData.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
@@ -184,7 +183,7 @@ export const sliced: IAssembler = {
 
     updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
         const node = sprite.node;
-        node.getWorldMatrix(matrix);
+        node.getWorldMatrix(m);
 
         const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
@@ -196,13 +195,15 @@ export const sliced: IAssembler = {
             const rowD = dataList[row * 4];
             for (let col = 0; col < 4; ++col) {
                 const colD = dataList[col];
+                const x = colD.x;
+                const y = rowD.y;
+                let rhw = m.m03 * x + m.m07 * y + m.m15;
+                rhw = rhw ? Math.abs(1 / rhw) : 1;
 
-                Vec3.set(vec3_temp, colD.x, rowD.y, 0);
-                Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
                 offset = (row * 4 + col) * stride;
-                vData[offset++] = vec3_temp.x;
-                vData[offset++] = vec3_temp.y;
-                vData[offset++] = vec3_temp.z;
+                vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+                vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+                vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
             }
         }
     },

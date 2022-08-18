@@ -73,10 +73,10 @@ public:
     const cc::Data &getDataRef() const override;
     void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
     void updateData() override {}
-    void setShadowBlur(float blur) override {}
-    void setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override {}
-    void setShadowOffsetX(float offsetX) override {}
-    void setShadowOffsetY(float offsetY) override {}
+    void setShadowBlur(float blur) override;
+    void setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
+    void setShadowOffsetX(float offsetX) override;
+    void setShadowOffsetY(float offsetY) override;
 
 private:
     void fillData();

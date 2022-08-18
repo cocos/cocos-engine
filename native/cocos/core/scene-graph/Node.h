@@ -110,6 +110,10 @@ public:
     void walk(const WalkCallback &preFunc);
     void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
+    //NOTE: swig could not parse template function in a class.
+    // It will trigger an error: cocos/core/scene-graph/Node.h:115: Error: Syntax error in input(3).
+    // Therefore, hide them in swig environment.
+#ifndef SWIGCOCOS
     template <typename Target, typename... Args>
     void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
 
@@ -194,6 +198,8 @@ public:
     bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;
 
     void targetOff(const CallbacksInvoker::KeyType &type);
+
+#endif // SWIGCOCOS
 
     bool destroy() override {
         if (CCObject::destroy()) {
@@ -635,6 +641,9 @@ private:
     void onHierarchyChanged(Node *);
     void onHierarchyChangedBase(Node *oldParent);
 
+    void inverseTransformPointRecursive(Vec3 &out) const;
+    void updateWorldTransformRecursive(uint32_t &superDirtyBits);
+
     inline void notifyLocalPositionUpdated() {
         emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
     }
@@ -712,6 +721,8 @@ template <typename T>
 bool Node::isNode(T *obj) {
     return dynamic_cast<Node *>(obj) != nullptr && dynamic_cast<Scene *>(obj) == nullptr;
 }
+
+#ifndef SWIGCOCOS
 
 template <typename... Args>
 void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
@@ -852,5 +863,7 @@ template <typename Target, typename... Args>
 bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const {
     return _eventProcessor->hasEventListener(type, memberFn, target);
 }
+
+#endif // SWIGCOCOS
 
 } // namespace cc

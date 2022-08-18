@@ -323,6 +323,7 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         ccstd::string boldStr;
         ccstd::string fontName = "Arial";
         ccstd::string fontSizeStr = "30";
+        bool isItalic = font.find("italic", 0) != ccstd::string::npos;
 
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
         std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
@@ -334,7 +335,7 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         }
         float fontSize = atof(fontSizeStr.c_str());
         bool isBold = !boldStr.empty();
-        _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, false, false, false);
+        _delegate->updateFont(fontName, static_cast<float>(fontSize), isBold, isItalic, false, false);
     }
 #endif
 }
