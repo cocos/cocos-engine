@@ -130,14 +130,7 @@ public:
     // As reference count is 1 after creating a RefCounted object, so do not have to
     // invoke p->addRef();
     IntrusivePtr<T> &operator=(T *p) {
-        // AddRef first so that self assignment should work
-        if (p) {
-            p->addRef();
-        }
-        if (_ptr) {
-            _ptr->release();
-        }
-        _ptr = p;
+        reset(p);
         return *this;
     }
 
@@ -175,6 +168,24 @@ public:
 
     bool operator!=(T *r) {
         return _ptr != r;
+    }
+
+    void reset() noexcept {
+        if (_ptr) {
+            _ptr->release();
+        }
+        _ptr = nullptr;
+    }
+
+    void reset(T *p) {
+        // AddRef first so that self assignment should work
+        if (p) {
+            p->addRef();
+        }
+        if (_ptr) {
+            _ptr->release();
+        }
+        _ptr = p;
     }
 
     void swap(T **pp) noexcept {

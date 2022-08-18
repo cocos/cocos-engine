@@ -35,7 +35,7 @@ import { RenderPass, LoadOp, StoreOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
-import { ShadowType } from '../../renderer/scene/shadows';
+import { PCFType, ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
 import { Camera } from '../../renderer/scene';
 import { SpotLight } from '../../renderer/scene/spot-light';
@@ -87,6 +87,15 @@ export class ShadowFlow extends RenderFlow {
         pipeline.pipelineSceneData.csmSupported = pipeline.device.capabilities.maxFragmentUniformVectors
             >= (UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOCSM.COUNT) / 4;
         pipeline.macros.CC_SUPPORT_CASCADED_SHADOW_MAP = pipeline.pipelineSceneData.csmSupported;
+
+        // 0: CC_SHADOW_NONE, 1: CC_SHADOW_PLANAR, 2: CC_SHADOW_MAP
+        pipeline.macros.CC_SHADOW_TYPE = 0;
+
+        // 0: PCFType.HARD, 1: PCFType.SOFT, 2: PCFType.SOFT_2X, 3: PCFType.SOFT_4X
+        pipeline.macros.CC_DIR_SHADOW_PCF_TYPE = PCFType.HARD;
+
+        // 0: CC_DIR_LIGHT_SHADOW_NONE, 1: CC_DIR_LIGHT_SHADOW_UNIFORM, 2: CC_DIR_LIGHT_SHADOW_CASCADED, 3: CC_DIR_LIGHT_SHADOW_VARIANCE
+        pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 0;
 
         pipeline.onGlobalPipelineStateChanged();
     }
@@ -165,7 +174,7 @@ export class ShadowFlow extends RenderFlow {
                 if (!frameBuffer) { continue; }
                 const renderTargets = frameBuffer.colorTextures;
                 for (let j = 0; j < renderTargets.length; j++) {
-                    const renderTarget = renderTargets[i];
+                    const renderTarget = renderTargets[j];
                     if (renderTarget) { renderTarget.destroy(); }
                 }
                 renderTargets.length = 0;
