@@ -103,6 +103,7 @@ public:
         InputAssembler * createInputAssembler(const emscripten::val &info);
         PipelineState * createPipelineState(const emscripten::val &info);
         RenderPass * createRenderPass(const emscripten::val &info);
+        void copyTextureToBuffers(Texture *src, const emscripten::val &buffers, const emscripten::val &regions);
         emscripten::val copyTextureToBuffers(Texture * src, const BufferTextureCopyList &regions);
         WGPUGeneralBarrier * getGeneralBarrier(const emscripten::val &info);
         Shader * createShader(const emscripten::val &info);
