@@ -354,7 +354,7 @@ exports.methods = {
             meta.userData[prop] = event.target.value;
         });
 
-        this.dispatch('change');
+        this.dispatch('change', { tab: 'material', prop, value: event.target.value });
     },
     /**
      * Update whether a data is editable in multi-select state

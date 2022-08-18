@@ -699,3 +699,59 @@ exports.style = /* css */`
         margin-left: 10px;
     }
 `;
+
+exports.listeners = {
+    async 'change-dump'(event) {
+
+        const target = event.target;
+        if (!target) {
+            return;
+        }
+
+        const dump = event.target.dump;
+        if (!dump) {
+            return;
+        }
+
+        // renderMode选择mesh次数
+        if (dump.path.endsWith('renderer.renderMode') && dump.value === 4) {
+            Editor.Metrics._trackEventWithTimer({
+                category: 'particleSystem',
+                id: 'A100011',
+                value: 1,
+            });
+        }
+
+        // 粒子系统其他模块埋点
+        const trackMap = {
+            'noiseModule.enable': 'A100000',
+            'shapeModule.enable': 'A100001',
+            velocityOvertimeModule: 'A100002',
+            forceOvertimeModule: 'A100003',
+            'sizeOvertimeModule.enable': 'A100004',
+            'rotationOvertimeModule.enable': 'A100005',
+            colorOverLifetimeModule: 'A100006',
+            textureAnimationModule: 'A100007',
+            'limitVelocityOvertimeModule.enable':'A100008',
+            'trailModule.enable': 'A100009',
+            'renderer.useGPU': 'A1000010',
+        };
+
+        if (Object.keys(trackMap).some(key => dump.path.endsWith(key))) {
+
+            const value = dump.type === 'Boolean' ? dump.value : dump.value.enable.value;
+            if (!value) { return; }
+
+            for (const [key, val] of Object.entries(trackMap)) {
+                if (dump.path.endsWith(key)) {
+                    Editor.Metrics._trackEventWithTimer({
+                        category: 'particleSystem',
+                        id: val,
+                        value: 1,
+                    });
+                    return;
+                }
+            }
+        }
+    },
+};
