@@ -200,7 +200,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             }
         }
 
-        printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
+        // printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
         // wgpuAttrsVec[0] ∪ wgpuAttrsVec[1] ∪ ... ∪ wgpuAttrsVec[n] == shader.attrs
         for (size_t i = 0; i < attrs.size(); i++) {
             ccstd::string attrName = attrs[i].name;
@@ -318,15 +318,17 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
 
         for (size_t i = 0, targetIndex = 0; i < colors.size(); i++) {
             colorTargetStates[i].format = toWGPUTextureFormat(colors[i].format);
+            auto colorBO = _blendState.targets[targetIndex].blendEq;
             blendState[i].color = {
-                .operation = toWGPUBlendOperation(_blendState.targets[targetIndex].blendEq),
-                .srcFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendSrc),
-                .dstFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendDst),
+                .operation = toWGPUBlendOperation(colorBO),
+                .srcFactor = toWGPUBlendFactor(colorBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendSrc),
+                .dstFactor = toWGPUBlendFactor(colorBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendDst),
             };
+            auto alphaBO = _blendState.targets[targetIndex].blendAlphaEq;
             blendState[i].alpha = {
-                .operation = toWGPUBlendOperation(_blendState.targets[targetIndex].blendAlphaEq),
-                .srcFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendSrcAlpha),
-                .dstFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendDstAlpha),
+                .operation = toWGPUBlendOperation(alphaBO),
+                .srcFactor = toWGPUBlendFactor(alphaBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendSrcAlpha),
+                .dstFactor = toWGPUBlendFactor(alphaBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendDstAlpha),
             };
             // only textureSampleType with float can be blended.
             colorTargetStates[i].blend = textureSampleTypeTrait(colors[i].format) == WGPUTextureSampleType_Float ? &blendState[i] : nullptr;

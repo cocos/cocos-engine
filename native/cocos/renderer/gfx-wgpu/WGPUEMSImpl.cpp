@@ -837,6 +837,10 @@ void CCWGPUFramebuffer::initialize(const val& info) {
     return this->initialize(fromEmsFramebufferInfo(info));
 }
 
+void CCWGPUDevice::copyTextureToBuffers(Texture* src, const emscripten::val& buffers, const emscripten::val& regions) {
+    // @hana-alice
+}
+
 WGPUGeneralBarrier::WGPUGeneralBarrier(const val& info) : GeneralBarrier(GeneralBarrierInfo{}) {
     CHECK_VOID(info);
     // TODO
