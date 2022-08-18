@@ -158,7 +158,7 @@ public class CocosDownloader {
 
                         File parent = tempFile.getParentFile();
                         if (parent == null) {
-                            String errStr = "Invalid path " + path + " : The current path is inaccessible, plz get writable path first";
+                            String errStr = "Invalid path " + path + " : The current path is inaccessible.";
                             Log.e("CocosDownloader", errStr);
                             CocosHelper.runOnGameThread(new Runnable() {
                                 @Override
