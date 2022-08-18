@@ -135,22 +135,20 @@ IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const std::string &audioFilePa
                 if (!*isReturnFromCache && !*isPreloadFinished) {
                     std::unique_lock<std::mutex> lk(_preloadWaitMutex);
                     // Wait for 2 seconds for the decoding in sub thread finishes.
-                    LOGE("qgh cocos FileInfo1 (%{public}p), Waiting preload (%{public}s) to finish ...",  &info, audioFilePath.c_str());
                     _preloadWaitCond.wait_for(lk, std::chrono::seconds(2));
-                    LOGE("qgh cocos FileInfo2 (%{public}p), Waiting preload (%{public}s) to finish ...",  &info, audioFilePath.c_str());
                 }
 
                 if (*isSucceed) {
                     if (pcmData->isValid()) {
                         player = obtainPcmAudioPlayer(info.url, *pcmData);
                         if(!player) {
-                            LOGE("player is nullptr, path: %{public}s",  audioFilePath.c_str());    
+                            LOGE("player is nullptr, path: %{public}s",  audioFilePath.c_str());
                         }
                     } else {
-                        LOGE("pcm data is invalid, path: %{public}s",  audioFilePath.c_str());  
+                        LOGE("pcm data is invalid, path: %{public}s",  audioFilePath.c_str());
                     }
                 } else {
-                    LOGE("FileInfo (%{public}p), preloadEffect (%{public}s) failed",  &info, audioFilePath.c_str());  
+                    LOGE("FileInfo (%{public}p), preloadEffect (%{public}s) failed",  &info, audioFilePath.c_str());
                 }
             } else {
                 player = createUrlAudioPlayer(info);
