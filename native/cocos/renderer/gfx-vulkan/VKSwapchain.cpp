@@ -301,7 +301,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         _gpuSwapchain->curImageIndex = 0;
         CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
         CCVKDevice::getInstance()->waitAllFences();
-        CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, static_cast<uint32_t>(_transform * 90));
+        CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, static_cast<int>(_transform * 90));
     } else {
         if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will be set to VK_NULL_HANDLE after call doDestroySurface
             return false;
