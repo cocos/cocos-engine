@@ -109,20 +109,25 @@ Create a header file in `/Users/james/NewProject/native/engine/Classes/MyObject.
 // MyObject.h
 #pragma once
 #include "cocos/cocos.h"
+
+namespace my_ns {
+
 class MyObject {
 public:
-  MyObject() = default;
-  MyObject(int a, bool b) {}
-  ~MyObject() = default;
-  void print() {
-    CC_LOG_DEBUG("==> a: %d, b: %d\n", _a, (int)_b);
-  }
-  
-  float publicFloatProperty{1.23F};
+    MyObject() = default;
+    MyObject(int a, bool b) {}
+    virtual ~MyObject() = default;
+    void print() {
+        CC_LOG_DEBUG("==> a: %d, b: %d\n", _a, (int)_b);
+    }
+
+    float publicFloatProperty{1.23F};
 private:
-  int _a{100};
-  bool _b{true};
+    int _a{100};
+    bool _b{true};
 };
+
+} // namespace my_ns {
 ```
 
 #### Write an interface file
@@ -220,7 +225,6 @@ If succeed, the files ( jsb_my_module_auto.cpp/.h ) contain JS binding code will
   cc_mac_after_target(${EXECUTABLE_NAME})
   ```
 
-  
 
 #### Open project 
 
@@ -311,8 +315,679 @@ int Game::init() {
 
 In this section, we have learned how to use `Swig` tool to bind a simple class, export its public methods and properties to JS. This section also cover the entire flow of binding native classes. Start from next section, we will focus on using more `Swig` features to satisfy more needs of JS bindings, for example:
 
-- How to import depended header files and don't generate binding code for imported file
-
-- How to ignore or rename classes, methods, properties, attributes
+- How to import depended header files
+- How to ignore classes, methods, properties
+- How to rename classes, methods, properties
 - How to define attributes which bind c++ getter and setter as a JS property
-- How to make a module configuration
+- How to configure C++ modules in .i file
+
+### Import depended header files
+
+Suppose we let MyObject class be inheried from MyRef class. But we don't want to bind MyRef class.
+
+```c++
+// MyRef.h
+#pragma once
+namespace my_ns {
+class MyRef  {
+public:
+    MyRef() = default;
+    virtual ~MyRef() = default;
+    void addRef() { _ref++; }
+    void release() { --_ref; }
+private:
+    unsigned int _ref{0};
+};
+} // namespace my_ns {
+```
+
+```c++
+// MyObject.h
+#pragma once
+#include "cocos/cocos.h"
+#include "MyRef.h"
+namespace my_ns {
+// MyObject inherits from MyRef
+class MyObject : public MyRef {
+public:
+    MyObject() = default;
+    MyObject(int a, bool b) {}
+    virtual ~MyObject() = default;
+    void print() {
+        CC_LOG_DEBUG("==> a: %d, b: %d\n", _a, (int)_b);
+    }
+
+    float publicFloatProperty{1.23F};
+private:
+    int _a{100};
+    bool _b{true};
+};
+} // namespace my_ns {
+```
+
+When Swig parses MyObject.h,  it will not known what `MyRef` is, it will output a warning in console.
+
+```bash
+.../Classes/MyObject.h:7: Warning 401: Nothing known about base class 'MyRef'. Ignored.
+```
+
+It's simple to fix this issue, we need to let Swig know that MyRef exists by using `%import` directive.
+
+```c++
+// ......
+// Insert code at the beginning of generated source file (.cpp)
+%{
+#include "bindings/auto/jsb_my_module_auto.h"
+%}
+
+%import "MyRef.h" // Add this line to fix the warning
+%include "MyObject.h"
+```
+
+Although Swig doesn't report error now, the binding code will not be compiled, the error is:
+
+![](MyRefCompileError.jpg)
+
+We fix this in the next section by `%ignore` directive.
+
+### Ignore classes, methods, properties
+
+#### Ignore classes
+
+In last section, we got a compile error in `js_register_my_ns_MyObject`. Since MyRef should not be bound, we could use`%ignore` directive to ignore it.
+
+```c++
+// my-module.i
+// ......
+%ignore my_ns::MyRef; // Add this line
+%import "MyRef.h"
+%include "MyObject.h"
+```
+
+Generate binding again, it compiles ok.
+
+```c++
+// jsb_my_module_auto.cpp
+bool js_register_my_ns_MyObject(se::Object* obj) {
+    auto* cls = se::Class::create("MyObject", obj, nullptr, _SE(js_new_MyObject)); // parentProto will be set to nullptr
+    cls->defineProperty("publicFloatProperty", _SE(js_my_ns_MyObject_publicFloatProperty_get), _SE(js_my_ns_MyObject_publicFloatProperty_set)); 
+    cls->defineFunction("print", _SE(js_my_ns_MyObject_print)); 
+  // ......
+}
+```
+
+#### Ignore methods and properties
+
+We add a new method `methodToBeIgnored` and a new property `propertyToBeIgnored` to `MyObject` class.
+
+```c++
+// MyObject.h
+#pragma once
+#include "cocos/cocos.h"
+#include "MyRef.h"
+namespace my_ns {
+// MyObject inherits from MyRef
+class MyObject : public MyRef {
+public:
+// .....
+    void methodToBeIgnored() {} // Add this line
+    float propertyToBeIgnored{345.123F}; // Add this line
+// ......
+    float publicFloatProperty{1.23F};
+private:
+    int _a{100};
+    bool _b{true};
+};
+} // namespace my_ns {
+
+```
+
+Re-generate bindings, we'll get `methodToBeIgnored` and `propertyToBeIgnored` bound.
+
+```c++
+// jsb_my_module_auto.cpp
+bool js_register_my_ns_MyObject(se::Object* obj) {
+    auto* cls = se::Class::create("MyObject", obj, nullptr, _SE(js_new_MyObject)); 
+    cls->defineProperty("propertyToBeIgnored", _SE(js_my_ns_MyObject_propertyToBeIgnored_get), _SE(js_my_ns_MyObject_propertyToBeIgnored_set)); // this property should not be bound
+    cls->defineProperty("publicFloatProperty", _SE(js_my_ns_MyObject_publicFloatProperty_get), _SE(js_my_ns_MyObject_publicFloatProperty_set)); 
+    cls->defineFunction("print", _SE(js_my_ns_MyObject_print)); 
+    cls->defineFunction("methodToBeIgnored", _SE(js_my_ns_MyObject_methodToBeIgnored)); // this method should not be bound
+    // ......
+}
+```
+
+Modify `my-module.i`to fix it
+
+```c++
+// my-module.i
+// ......
+
+%ignore my_ns::MyRef;
+%ignore my_ns::MyObject::methodToBeIgnored; // Add this line
+%ignore my_ns::MyObject::propertyToBeIgnored; // Add this line
+
+%import "MyRef.h"
+%include "MyObject.h"
+```
+
+Re-generate bindings, they're ignored now.
+
+```c++
+// jsb_my_module_auto.cpp
+bool js_register_my_ns_MyObject(se::Object* obj) {
+    auto* cls = se::Class::create("MyObject", obj, nullptr, _SE(js_new_MyObject)); 
+    cls->defineProperty("publicFloatProperty", _SE(js_my_ns_MyObject_publicFloatProperty_get), _SE(js_my_ns_MyObject_publicFloatProperty_set)); 
+    cls->defineFunction("print", _SE(js_my_ns_MyObject_print)); 
+// ......
+}
+```
+
+### Rename classes, methods, properties
+
+Swig has defined a directive called `%rename` to rename classes, methods or properties. To demonstrate, we modify MyObject again.
+
+```c++
+// MyObject.h
+#pragma once
+#include "cocos/cocos.h"
+#include "MyRef.h"
+namespace my_ns {
+// MyObject inherits from MyRef
+class MyObject : public MyRef {
+public:
+// ......
+    void methodToBeRenamed() { // Add this method
+        CC_LOG_DEBUG("==> hello MyObject::methodToBeRenamed");
+    }
+    int propertyToBeRenamed{1234}; // Add this property
+
+    float publicFloatProperty{1.23F};
+private:
+    int _a{100};
+    bool _b{true};
+};
+} // namespace my_ns {
+```
+
+Generate bindings, we get:
+
+```c++
+// jsb_my_module_auto.cpp
+bool js_register_my_ns_MyObject(se::Object* obj) {
+    auto* cls = se::Class::create("MyObject", obj, nullptr, _SE(js_new_MyObject)); 
+    cls->defineProperty("propertyToBeRenamed", _SE(js_my_ns_MyObject_propertyToBeRenamed_get), _SE(js_my_ns_MyObject_propertyToBeRenamed_set)); 
+    cls->defineProperty("publicFloatProperty", _SE(js_my_ns_MyObject_publicFloatProperty_get), _SE(js_my_ns_MyObject_publicFloatProperty_set)); 
+    
+    cls->defineFunction("print", _SE(js_my_ns_MyObject_print)); 
+    cls->defineFunction("methodToBeRenamed", _SE(js_my_ns_MyObject_methodToBeRenamed)); 
+```
+
+If we want to rename `propertyToBeRenamed` to `coolProperty` and rename `methodToBeRenamed` to `coolMethod`, modify my-module.i as follows:
+
+```c++
+// my-module.i
+// ......
+%ignore my_ns::MyRef;
+%ignore my_ns::MyObject::methodToBeIgnored;
+%ignore my_ns::MyObject::propertyToBeIgnored;
+%rename(coolProperty) my_ns::MyObject::propertyToBeRenamed; // Add this line
+%rename(coolMethod) my_ns::MyObject::methodToBeRenamed; // Add this line
+
+%import "MyRef.h"
+%include "MyObject.h"
+```
+
+If we wanna rename `MyObject` class to `MyCoolObject`, I guess you have already know how to do.  Yes, add this line:
+
+```c++
+%rename(MyCoolObject) my_ns::MyObject;
+```
+
+Re-generate bindings, get the correct name exported to JS.
+
+```c++
+// jsb_my_module_auto.cpp
+// MyCoolObject, coolProperty, coolMethod are all what we want now.
+bool js_register_my_ns_MyObject(se::Object* obj) {
+    auto* cls = se::Class::create("MyCoolObject", obj, nullptr, _SE(js_new_MyCoolObject));
+    cls->defineProperty("coolProperty", _SE(js_my_ns_MyCoolObject_coolProperty_get), _SE(js_my_ns_MyCoolObject_coolProperty_set)); 
+    cls->defineProperty("publicFloatProperty", _SE(js_my_ns_MyCoolObject_publicFloatProperty_get), _SE(js_my_ns_MyCoolObject_publicFloatProperty_set)); 
+    cls->defineFunction("print", _SE(js_my_ns_MyCoolObject_print)); 
+    cls->defineFunction("coolMethod", _SE(js_my_ns_MyCoolObject_coolMethod)); 
+    // ......
+}
+```
+
+Test it, update `my-module.d.ts` and `MyComponent.ts`
+
+```c++
+// my-module.d.ts
+declare namespace my_ns {
+class MyCoolObject {
+    constructor();
+    constructor(a: number, b: number);
+
+    publicFloatProperty : number;
+    print() : void;
+    coolProperty: number;
+    coolMethod() : void;
+}
+}
+```
+
+```ts
+// MyComponent.ts
+import { _decorator, Component } from 'cc';
+const { ccclass } = _decorator;
+
+@ccclass('MyComponent')
+export class MyComponent extends Component {
+    start() {
+        const myObj = new my_ns.MyCoolObject(); // Renamed to MyCoolObject
+        myObj.print();
+        console.log(`==> myObj.publicFloatProperty: ${myObj.publicFloatProperty}`);
+        // Add the follow lines
+        console.log(`==> old: myObj.coolProperty: ${myObj.coolProperty}`); 
+        myObj.coolProperty = 666;
+        console.log(`==> new: myObj.coolProperty: ${myObj.coolProperty}`);
+        myObj.coolMethod();
+    }
+}
+```
+
+Build and run project, get log:
+
+```
+17:53:28 [DEBUG]: ==> a: 100, b: 1
+17:53:28 [DEBUG]: D/ JS: ==> myObj.publicFloatProperty: 1.2300000190734863
+17:53:28 [DEBUG]: D/ JS: ==> old: myObj.coolProperty: 1234
+17:53:28 [DEBUG]: D/ JS: ==> new: myObj.coolProperty: 666
+17:53:28 [DEBUG]: ==> hello MyObject::methodToBeRenamed
+```
+
+### Define attributes which bind C++ getter and setter as a JS property
+
+To demonstrate, we add two new methods for MyObject class.
+
+```c++
+// MyObject.h
+#pragma once
+#include "cocos/cocos.h"
+#include "MyRef.h"
+namespace my_ns {
+// MyObject inherits from MyRef
+class MyObject : public MyRef {
+public:
+// ......
+    void setType(int v) { _type = v; CC_LOG_DEBUG("==> setType: v: %d", v); } // Add this line
+    int getType() const { return _type; } // Add this line
+
+    float publicFloatProperty{1.23F};
+private:
+    int _a{100};
+    bool _b{true};
+    int _type{333};
+};
+} // namespace my_ns {
+```
+
+```c++
+// my-module.i
+// ......
+%attribute(my_ns::MyObject, int, type, getType, setType); // Add this line
+
+%import "MyRef.h"
+%include "MyObject.h"
+```
+
+```c++
+// jsb_my_module_auto.cpp
+bool js_register_my_ns_MyObject(se::Object* obj) {
+// ......
+    cls->defineProperty("type", _SE(js_my_ns_MyCoolObject_type_get), _SE(js_my_ns_MyCoolObject_type_set)); 
+// ......
+}
+```
+
+```ts
+// MyComponent.ts
+import { _decorator, Component } from 'cc';
+const { ccclass } = _decorator;
+
+@ccclass('MyComponent')
+export class MyComponent extends Component {
+    start() {
+        const myObj = new my_ns.MyCoolObject();
+        myObj.print();
+        console.log(`==> myObj.publicFloatProperty: ${myObj.publicFloatProperty}`);
+        console.log(`==> old: myObj.coolProperty: ${myObj.coolProperty}`);
+        myObj.coolProperty = 666;
+        console.log(`==> new: myObj.coolProperty: ${myObj.coolProperty}`);
+        myObj.coolMethod();
+        console.log(`==> old: myObj.type: ${myObj.type}`);
+        myObj.type = 888;
+        console.log(`==> new: myObj.type: ${myObj.type}`);
+    }
+}
+```
+
+Build and run project
+
+```
+18:09:53 [DEBUG]: ==> a: 100, b: 1
+18:09:53 [DEBUG]: D/ JS: ==> myObj.publicFloatProperty: 1.2300000190734863
+18:09:53 [DEBUG]: D/ JS: ==> old: myObj.coolProperty: 1234
+18:09:53 [DEBUG]: D/ JS: ==> new: myObj.coolProperty: 666
+18:09:53 [DEBUG]: ==> hello MyObject::methodToBeRenamed
+18:09:53 [DEBUG]: D/ JS: ==> old: myObj.type: 333
+18:09:53 [DEBUG]: ==> setType: v: 888 // Cool, C++ setType is invoked
+18:09:53 [DEBUG]: D/ JS: ==> new: myObj.type: 888 // Cool, C++ getType is invoked, 888 is return from C++
+```
+
+### Configure C++ modules in .i file
+
+Sometimes, whether to compile a class depends on whether a macro is enabled. For example, we add a `MyFeatureObject` class in `MyObject.h`
+
+```c++
+// MyObject.h
+#pragma once
+#include "cocos/cocos.h"
+#include "MyRef.h"
+
+#ifndef USE_MY_FEATURE
+#define USE_MY_FEATURE 1 // Enable USE_MY_FEATURE
+#endif
+
+namespace my_ns {
+
+#if USE_MY_FEATURE
+class MyFeatureObject {
+public:
+    void foo() {
+        CC_LOG_DEBUG("==> MyFeatureObject::foo");
+    }
+};
+#else
+class MyFeatureObject;
+#endif
+
+// MyObject inherits from MyRef
+class MyObject : public MyRef {
+public:
+//......
+    MyFeatureObject* getFeatureObject() {
+#if USE_MY_FEATURE // getFeatureObject only returns valid value when USE_MY_FEATURE is enabled
+        if (_featureObject == nullptr) {
+            _featureObject = new MyFeatureObject();
+        }
+#endif
+        return _featureObject;
+    }
+private:
+    int _a{100};
+    bool _b{true};
+    int _type{333};
+    MyFeatureObject* _featureObject{nullptr}; // Add this line
+};
+} // namespace my_ns {
+```
+
+```c++
+// my-module.i
+// ......
+%rename(MyCoolObject) my_ns::MyObject;
+
+%attribute(my_ns::MyObject, int, type, getType, setType);
+
+%module_macro(USE_MY_FEATURE) my_ns::MyFeatureObject; // Add this line to let Swig know the generated code for MyFeatureObject needs to be wrapped by USE_MY_FEATURE macro
+%module_macro(USE_MY_FEATURE) my_ns::MyObject::getFeatureObject; // Add this line to let Swig know the generated code for MyObject::getFeatureObject should be wrapped by USE_MY_FEATURE macro
+
+#define USE_MY_FEATURE 1 // Must be 1 to trick Swig that we need to generate binding code
+// even this macro is disabled in C++. NOTE: this line should be after %module_macro
+
+%import "MyRef.h"
+%include "MyObject.h"
+```
+
+```c++
+// my-module.d.ts
+declare namespace my_ns {
+class MyFeatureObject {
+    foo() : void;
+}
+
+class MyCoolObject {
+    constructor();
+    constructor(a: number, b: number);
+
+    publicFloatProperty : number;
+    print() : void;
+    coolProperty: number;
+    coolMethod() : void;
+    type: number;
+    getFeatureObject() : MyFeatureObject;
+}
+}
+```
+
+```ts
+// MyComponent.ts
+import { _decorator, Component } from 'cc';
+const { ccclass } = _decorator;
+
+@ccclass('MyComponent')
+export class MyComponent extends Component {
+    start() {
+        const myObj = new my_ns.MyCoolObject();
+        myObj.print();
+        console.log(`==> myObj.publicFloatProperty: ${myObj.publicFloatProperty}`);
+        console.log(`==> old: myObj.coolProperty: ${myObj.coolProperty}`);
+        myObj.coolProperty = 666;
+        console.log(`==> new: myObj.coolProperty: ${myObj.coolProperty}`);
+        myObj.coolMethod();
+        console.log(`==> old: myObj.type: ${myObj.type}`);
+        myObj.type = 888;
+        console.log(`==> new: myObj.type: ${myObj.type}`);
+        const featureObj = myObj.getFeatureObject();
+        console.log(`==> featureObj: ${featureObj}`);
+        if (featureObj) {
+            featureObj.foo();
+        }
+    }
+}
+```
+
+Generate bindings, build and run the project, get output as following:
+
+```
+18:32:20 [DEBUG]: D/ JS: ==> featureObj: [object Object] // featureObj is valid if USE_MY_FEATURE macro is enabled
+18:32:20 [DEBUG]: ==> MyFeatureObject::foo // Invoke C++ foo method 
+```
+
+When we don't need MyFeatureObject, set the macro to 0.
+
+```c++
+// MyObject.h
+#pragma once
+#include "cocos/cocos.h"
+#include "MyRef.h"
+
+#ifndef USE_MY_FEATURE
+#define USE_MY_FEATURE 0 // Disable USE_MY_FEATURE
+#endif
+```
+
+Build and run the project
+
+```
+18:54:00 [DEBUG]: D/ JS: ==> featureObj: undefined // getFeatureObject returns undefined if USE_MY_FEATURE is disabled.
+```
+
+### Multiple swig modules configuration
+
+Let's create another header file
+
+```c++
+// MyAnotherObject.h
+#pragma once
+namespace my_another_ns {
+struct MyAnotherObject {
+    float a{135.246};
+    int b{999};
+};
+} // namespace my_another_ns {
+```
+
+Create `/Users/james/NewProject/tools/swig-config/another-module.i`
+
+```c++
+// another-module.i
+%module(target_namespace="another_ns") another_module
+
+// Insert code at the beginning of generated header file (.h)
+%insert(header_file) %{
+#pragma once
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+
+#include "MyAnotherObject.h" // Add this line
+%}
+
+// Insert code at the beginning of generated source file (.cpp)
+%{
+#include "bindings/auto/jsb_another_module_auto.h"
+%}
+
+%include "MyAnotherObject.h"
+```
+
+Modify `/Users/james/NewProject/tools/swig-config/swig-config.js`
+
+```c++
+'use strict';
+
+const path = require('path');
+
+const configList = [
+    [ 'my-module.i', 'jsb_my_module_auto.cpp' ],
+    [ 'another-module.i', 'jsb_another_module_auto.cpp' ], // Add this line
+];
+
+const projectRoot = path.resolve(path.join(__dirname, '..', '..'));
+const interfacesDir = path.join(projectRoot, 'tools', 'swig-config');
+const bindingsOutDir = path.join(projectRoot, 'native', 'engine', 'common', 'bindings', 'auto');
+const includeDirs = [
+    path.join(projectRoot, 'native', 'engine', 'common', 'Classes'),
+];
+
+module.exports = {
+    interfacesDir,
+    bindingsOutDir,
+    includeDirs,
+    configList
+};
+```
+
+Modify `/Users/james/NewProject/native/engine/common/CMakeLists.txt`
+
+```cmake
+# /Users/james/NewProject/native/engine/common/CMakeLists.txt
+list(APPEND CC_COMMON_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/Classes/Game.h
+    ${CMAKE_CURRENT_LIST_DIR}/Classes/Game.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Classes/MyObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/Classes/MyAnotherObject.h # Add this line
+    ${CMAKE_CURRENT_LIST_DIR}/bindings/auto/jsb_my_module_auto.h
+    ${CMAKE_CURRENT_LIST_DIR}/bindings/auto/jsb_my_module_auto.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/bindings/auto/jsb_another_module_auto.h # Add this line
+    ${CMAKE_CURRENT_LIST_DIR}/bindings/auto/jsb_another_module_auto.cpp # Add this line
+)
+```
+
+Build and compile, but get an error
+
+![](another-module-compile-error.jpg)
+
+Since MyObject class depends on MyAnotherObject which is defined on another module. We need to update `my-module.i` and add `#include "bindings/auto/jsb_another_module_auto.h"`.
+
+```c++
+// my-module.i
+%module(target_namespace="my_ns") my_module
+
+// Insert code at the beginning of generated header file (.h)
+%insert(header_file) %{
+#pragma once
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+
+#include "MyObject.h"
+%}
+
+// Insert code at the beginning of generated source file (.cpp)
+%{
+#include "bindings/auto/jsb_my_module_auto.h"
+#include "bindings/auto/jsb_another_module_auto.h" // Add this line
+%}
+
+// ......
+```
+
+Compile project. It should compile ok now. 
+
+Next, we update .d.ts
+
+```ts
+// my-module.d.ts
+declare namespace my_ns {
+class MyFeatureObject {
+    foo() : void;
+}
+
+class MyCoolObject {
+    constructor();
+    constructor(a: number, b: number);
+
+    publicFloatProperty : number;
+    print() : void;
+    coolProperty: number;
+    coolMethod() : void;
+    type: number;
+    getFeatureObject() : MyFeatureObject;
+    anotherObject: another_ns.MyAnotherObject; // Add this line
+}
+}
+
+// Add the following lines
+declare namespace another_ns {
+class MyAnotherObject {
+    a: number;
+    b: number;
+}
+}
+```
+
+We add some more test code of reading the properties of  `MyAnotherObject.`
+
+```ts
+// MyComponent.ts
+import { _decorator, Component } from 'cc';
+const { ccclass } = _decorator;
+
+@ccclass('MyComponent')
+export class MyComponent extends Component {
+    start() {
+        const myObj = new my_ns.MyCoolObject();
+        // ......
+        console.log(`==> myObj.anotherObject.a: ${myObj.anotherObject.a}`);
+        console.log(`==> myObj.anotherObject.b: ${myObj.anotherObject.b}`);
+    }
+}
+```
+
+Build and run project, should get output:
+
+```
+```
+
+
+
