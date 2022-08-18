@@ -25,38 +25,34 @@
 
 #pragma once
 
-#include "platform/UniversalPlatform.h"
+#include <string>
+#include <memory>
+#include "base/std/container/unordered_map.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include <AppKit/AppKit.h>
+
+struct SDL_Window;
 
 namespace cc {
 
-class MacPlatform : public UniversalPlatform {
+class ISystemWindow;
+
+class SystemWindowManager : public ISystemWindowManager {
 public:
-    MacPlatform() = default;
-    /**
-     * Destructor of WindowPlatform.
-     */
-    ~MacPlatform() override;
-    /**
-     * Implementation of Windows platform initialization.
-     */
-    int32_t init() override;
+    explicit SystemWindowManager() = default;
 
-    /**
-     * @brief Start base platform initialization.
-     */
-    int32_t run(int argc, const char **argv) override;
-    
-    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
-    
-    /**
-     * @brief Implement the main logic of the base platform.
-     */
-    int32_t loop() override;
-    void setFps(int32_t fps) override;
+    int init() override { return 0; }
+    void processEvent(bool *quit) override {}
+    void swapWindows() override {}
 
-    void onPause() override;
-    void onResume() override;
-    void onClose() override;
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
+    
+    ISystemWindow *getWindowFromNSWindow(NSWindow *window) const;
+
+private:
+    static uint32_t nextWindowId; // start from 1, 0 means an invalid ID
+    SystemWindowMap _windows;
 };
-
 } // namespace cc

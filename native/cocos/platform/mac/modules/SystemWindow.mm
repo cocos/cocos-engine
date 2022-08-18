@@ -27,22 +27,17 @@
 #import <AppKit/AppKit.h>
 #include "platform/mac/AppDelegate.h"
 
-namespace {
-
-}
-
 namespace cc {
 
-SystemWindow::SystemWindow(IEventDispatch *delegate) {}
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
+    : _windowId(windowId)
+    , _externalHandle(externalHandle) {
+}
 
 SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    if (_isWindowCreated) {
-        return true;
-    }
-    _isWindowCreated = true;
     _width = w;
     _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
@@ -54,23 +49,22 @@ bool SystemWindow::createWindow(const char *title,
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    if (_isWindowCreated) {
-        return true;
-    }
-    _isWindowCreated = true;
     _width = w;
     _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
-    [delegate createWindow:aString xPos:x yPos:y width:w height:h];
+    _window = [delegate createWindow:aString xPos:x yPos:y width:w height:h];
     return true;
 }
+
 void SystemWindow::closeWindow() {
-    id window = [[[NSApplication sharedApplication] delegate] getWindow];
-    if (window) {
-        [window close];
+    //id window = [[[NSApplication sharedApplication] delegate] getWindow];
+    if (_window) {
+        [_window close];
+        _window = nullptr;
     }
 }
+
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
@@ -82,12 +76,17 @@ void SystemWindow::copyTextToClipboard(const std::string &text) {
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {
-    NSView *view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
+    //NSView *view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
+    NSView *view = [_window contentView];
     return reinterpret_cast<uintptr_t>(view);
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(_width), static_cast<float>(_height)};
+}
+
+uint32_t SystemWindow::getWindowId() const { 
+    return _windowId;
 }
 
 } // namespace cc

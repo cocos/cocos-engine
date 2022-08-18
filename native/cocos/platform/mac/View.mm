@@ -31,6 +31,9 @@
 #import "KeyCodeHelper.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "platform/mac/AppDelegate.h"
+#import "platform/mac/modules/SystemWindow.h"
+#import "platform/mac/modules/SystemWindowManager.h"
+#import "application/ApplicationManager.h"
 
 @implementation View {
     cc::MouseEvent _mouseEvent;
@@ -262,6 +265,10 @@
     const NSRect contentRect = [self frame];
     const NSPoint pos = [event locationInWindow];
 
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+    auto *window = windowMgr->getWindowFromNSWindow(event.window);
+    
+    _mouseEvent.windowId = window->getWindowId();
     _mouseEvent.type = type;
     _mouseEvent.button = button;
     _mouseEvent.x = pos.x;

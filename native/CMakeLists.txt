@@ -644,6 +644,8 @@ elseif(MACOSX)
                                  cocos/platform/mac/modules/Screen.h
                                  cocos/platform/mac/modules/SystemWindow.mm
                                  cocos/platform/mac/modules/SystemWindow.h
+                                 cocos/platform/mac/modules/SystemWindowManager.mm
+                                 cocos/platform/mac/modules/SystemWindowManager.h
         )
     endif()
 elseif(IOS)
@@ -662,6 +664,8 @@ elseif(IOS)
                             cocos/platform/ios/modules/System.h
                             cocos/platform/ios/modules/SystemWindow.mm
                             cocos/platform/ios/modules/SystemWindow.h
+                            cocos/platform/ios/modules/SystemWindowManager.mm
+                            cocos/platform/ios/modules/SystemWindowManager.h
    )
 elseif(LINUX)
     cocos_source_files(
