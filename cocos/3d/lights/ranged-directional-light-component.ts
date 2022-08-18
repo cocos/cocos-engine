@@ -48,7 +48,7 @@ export class RangedDirectionalLight extends Light {
     @serializable
     protected _illuminanceLDR = 65000 * Camera.standardExposureValue;
 
-    protected _type = scene.LightType.RANGEDIR;
+    protected _type = scene.LightType.RANGEDDIR;
     protected _light: scene.RangedDirectionalLight | null = null;
 
     /**

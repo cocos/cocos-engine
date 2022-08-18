@@ -97,7 +97,7 @@ export class RangedDirectionalLight extends Light {
 
     constructor () {
         super();
-        this._type = LightType.RANGEDIR;
+        this._type = LightType.RANGEDDIR;
     }
 
     public initialize () {

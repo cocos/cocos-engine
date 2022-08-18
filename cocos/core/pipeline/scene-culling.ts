@@ -82,9 +82,9 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
         }
     }
 
-    const { fillLights } = camera.scene!;
-    for (let i = 0; i < fillLights.length; i++) {
-        const light = fillLights[i];
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
         validPunctualLights.push(light);
     }
 }

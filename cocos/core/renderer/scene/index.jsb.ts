@@ -86,9 +86,9 @@ export const SphereLight = jsb.SphereLight;
 export type SphereLight = jsb.SphereLight;
 legacyCC.SphereLight = jsb.SphereLight;
 
-export const FillLight = jsb.FillLight;
-export type FillLight = jsb.FillLight;
-legacyCC.FillLight = jsb.FillLight;
+export const RangedDirirectionalLight = jsb.RangedDirirectionalLight;
+export type RangedDirirectionalLight = jsb.RangedDirirectionalLight;
+legacyCC.RangedDirirectionalLight = jsb.RangedDirirectionalLight;
 
 /**
  * Fog related.

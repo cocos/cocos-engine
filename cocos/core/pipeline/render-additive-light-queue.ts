@@ -288,7 +288,7 @@ export class RenderAdditiveLightQueue {
             case LightType.SPOT:
                 if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
                 break;
-            case LightType.FILL:
+            case LightType.RANGEDDIR:
                 isCulled = false;
                 break;
             default:
@@ -514,7 +514,7 @@ export class RenderAdditiveLightQueue {
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
-            case LightType.FILL:
+            case LightType.RANGEDDIR:
                 // UBOForwardLight
                 Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).node!.getWorldPosition());
                 _vec4Array[3] = 2;

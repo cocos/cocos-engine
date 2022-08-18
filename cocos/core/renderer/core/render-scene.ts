@@ -116,7 +116,7 @@ export class RenderScene {
      * @en All fill light sources of the render scene
      * @zh 渲染场景管理的所有补充光源
      */
-    get fillLights (): RangedDirectionalLight[] {
+    get rangedDirLights (): RangedDirectionalLight[] {
         return this._rangedDirLights;
     }
 
