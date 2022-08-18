@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "Camera.h"
+#include "scene/Camera.h"
 #include "core/Root.h"
 #include "core/platform/Debug.h"
 #include "core/scene-graph/Node.h"
