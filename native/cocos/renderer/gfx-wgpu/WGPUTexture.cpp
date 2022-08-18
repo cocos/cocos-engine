@@ -193,7 +193,7 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
         .label = nullptr,
         .usage = toWGPUTextureUsage(_info.usage),
         .dimension = toWGPUTextureDimension(_info.type),
-        .size = {_info.width, _info.height, depthOrArrayLayers},
+        .size = {width, height, depthOrArrayLayers},
         .format = toWGPUTextureFormat(_info.format),
         .mipLevelCount = _info.levelCount,
         .sampleCount = toWGPUSampleCount(_info.samples),

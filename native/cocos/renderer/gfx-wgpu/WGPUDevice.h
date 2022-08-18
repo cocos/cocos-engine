@@ -151,7 +151,6 @@ protected:
     ccstd::vector<CCWGPUSwapchain *> _swapchains;
 
     CCWGPURecycleBin _recycleBin[CC_WGPU_MAX_FRAME_COUNT];
-    // CCWGPUStagingBuffer *_stagingBuffers[CC_WGPU_MAX_FRAME_COUNT];
 };
 
 template <>
