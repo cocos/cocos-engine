@@ -177,9 +177,30 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         uint64_t offset[256] = {0};
         // ccstd::vector<WGPUVertexAttribute> wgpuAttrs;
         bool isInstance = attrs.empty() ? false : attrs[0].isInstanced;
-        uint8_t index = 0;
 
-        // printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
+        for (size_t i = 0; i < _inputState.attributes.size(); ++i) {
+            const auto &attr = _inputState.attributes[i];
+            const auto &attrName = attr.name;
+            auto iter = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute &attr) {
+                return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
+            });
+            if (iter != attrs.end()) {
+                Format format = attr.format;
+                WGPUVertexAttribute attrInfo = {
+                    .format = toWGPUVertexFormat(format),
+                    .offset = offset[attr.stream],
+                    .shaderLocation = (*iter).location,
+                };
+                wgpuAttrsVec[attr.stream].push_back(attrInfo);
+                offset[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
+            } else {
+                // all none-input attr are put in 1st buffer layout with offset = 0;
+                Format format = attrs[i].format;
+                offset[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
+            }
+        }
+
+        printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
         // wgpuAttrsVec[0] ∪ wgpuAttrsVec[1] ∪ ... ∪ wgpuAttrsVec[n] == shader.attrs
         for (size_t i = 0; i < attrs.size(); i++) {
             ccstd::string attrName = attrs[i].name;
@@ -187,16 +208,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
             });
 
-            if (iter != _inputState.attributes.end()) {
-                Format format = (*iter).format;
-                WGPUVertexAttribute attr = {
-                    .format = toWGPUVertexFormat(format),
-                    .offset = offset[(*iter).stream],
-                    .shaderLocation = attrs[i].location,
-                };
-                wgpuAttrsVec[(*iter).stream].push_back(attr);
-                offset[(*iter).stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
-            } else {
+            if (iter == _inputState.attributes.end()) {
                 // all none-input attr are put in 1st buffer layout with offset = 0;
                 Format format = attrs[i].format;
                 WGPUVertexAttribute attr = {
@@ -220,25 +232,11 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             // printf("sl %s, %d, %d\n", attrName.c_str(), attrs[i].location, attrs[i].stream);
         }
 
-        // input state has attr which shader hasnt.
-        for (size_t i = 0; i < _inputState.attributes.size(); ++i) {
-            ccstd::string attrName = _inputState.attributes[i].name;
-            const auto &attribute = _inputState.attributes[i];
-            auto iter = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute &attr) {
-                return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
-            });
-            if (iter == attrs.end()) {
-                Format format = attribute.format;
-                offset[attribute.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
-            }
-            // printf("is %s, %d, %d\n", attrName.c_str(), attribute.location, attribute.stream);
-        }
-
         if (_gpuPipelineStateObj->maxAttrLength > 0) {
             wgpuAttrsVec.push_back(_gpuPipelineStateObj->redundantAttr);
             vbLayouts.resize(vbLayouts.size() + 1);
         }
-        _gpuPipelineStateObj->slotCount = vbLayouts.size();
+        // _gpuPipelineStateObj->slotCount = vbLayouts.size();
 
         // std::set<uint32_t> locSet;
         for (size_t i = 0; i < wgpuAttrsVec.size(); ++i) {
@@ -249,14 +247,14 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 .attributes = wgpuAttrsVec[i].data(),
             };
             // for (size_t j = 0; j < wgpuAttrsVec[i].size(); ++j) {
-            //     // printf("wg %d, %d, %d\n", wgpuAttrsVec[i][j].shaderLocation, wgpuAttrsVec[i][j].offset, wgpuAttrsVec[i][j].format);
+            //     printf("wg %d, %llu, %d\n", wgpuAttrsVec[i][j].shaderLocation, wgpuAttrsVec[i][j].offset, wgpuAttrsVec[i][j].format);
 
-            //     if (locSet.find(wgpuAttrsVec[i][j].shaderLocation) != locSet.end() && wgpuAttrsVec[i][j].shaderLocation != 0) {
-            //         printf("duplicate location %d\n", wgpuAttrsVec[i][j].shaderLocation);
-            //         while (1) {
-            //         }
-            //     }
-            //     locSet.insert(wgpuAttrsVec[i][j].shaderLocation);
+            //     // if (locSet.find(wgpuAttrsVec[i][j].shaderLocation) != locSet.end() && wgpuAttrsVec[i][j].shaderLocation != 0) {
+            //     //     printf("duplicate location %d\n", wgpuAttrsVec[i][j].shaderLocation);
+            //     //     while (1) {
+            //     //     }
+            //     // }
+            //     // locSet.insert(wgpuAttrsVec[i][j].shaderLocation);
             // }
         }
 
