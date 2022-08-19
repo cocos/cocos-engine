@@ -221,8 +221,7 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         }
     }
 
-    private createDscriptorInfo (layoutData: DescriptorSetLayoutData) {
-        const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+    private createDscriptorInfo (layoutData: DescriptorSetLayoutData, info: DescriptorSetLayoutInfo) {
         for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
             const block = layoutData.descriptorBlocks[i];
             let slot = block.offset;
@@ -240,11 +239,11 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                 slot += d.count;
             }
         }
-        return info;
     }
 
     private createDescriptorSetLayout (layoutData: DescriptorSetLayoutData) {
-        const info: DescriptorSetLayoutInfo = this.createDscriptorInfo(layoutData);
+        const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+        this.createDscriptorInfo(layoutData, info);
 
         if (this._device) {
             return this._device.createDescriptorSetLayout(info);
@@ -369,8 +368,7 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                         level.descriptorSet = (this._device.createDescriptorSet(new DescriptorSetInfo(layout)));
                     }
                 } else {
-                    const layout: DescriptorSetLayoutInfo = this.createDscriptorInfo(layoutData);
-                    level.descriptorSetLayoutInfo = layout;
+                    this.createDscriptorInfo(layoutData, level.descriptorSetLayoutInfo);
                 }
             });
         }
