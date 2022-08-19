@@ -670,6 +670,7 @@ static bool js_saveImageData(se::State& s) // NOLINT
     CC_UNUSED bool ok = true;
     if (argc == 4 || argc == 5) {
         auto *uint8ArrayObj = args[0].toObject();
+        uint8ArrayObj->root();
         uint8_t *uint8ArrayData = nullptr;
         size_t length = 0;
         bool ok = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
@@ -684,35 +685,38 @@ static bool js_saveImageData(se::State& s) // NOLINT
         SE_PRECONDITION2(ok, false, "js_saveImageData : Error processing arguments");
         
         se::Value callbackVal = argc == 5 ? args[4] : se::Value::Null;
+        se::Object *callbackObj;
         if (!callbackVal.isNull()) {
             CC_ASSERT(callbackVal.isObject());
             CC_ASSERT(callbackVal.toObject()->isFunction());
+            callbackObj = callbackVal.toObject();
+            s.thisObject()->attachObject(callbackObj);
+            callbackObj->root();
+            callbackObj->incRef();
         }
-        std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
+        //std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
+
         gThreadPool->pushTask([=](int /*tid*/) {
-            auto* img = ccnew Image();
-            img->initWithRawData(uint8ArrayData, length, width, height, 8);
             // isToRGB = false, to keep alpha channel
-            
+            auto *img = ccnew Image();
+            img->initWithRawData(uint8ArrayData, length, width, height, 32 /*Unused*/);
             bool isSuccess = img->saveToFile(filePath, false/*isToRGB*/);
+            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
+                se::AutoHandleScope hs;
+                se::ValueArray seArgs;
+                
+                se::Value visSuccess;
+                nativevalue_to_se(isSuccess, visSuccess);
 
-            img->release();
-
-            if (!callbackPtr->isNull()) {
-                CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
-                    se::AutoHandleScope hs;
-                    se::ValueArray seArgs;
-                    
-                    se::Value visSuccess;
-                    nativevalue_to_se(isSuccess, visSuccess);
-                    se::HandleObject retObj(visSuccess.toObject());
-
-                    seArgs.push_back(se::Value(retObj));
-                    callbackPtr->toObject()->call(seArgs, nullptr);
-                    delete img;
-                });
-            }
-            
+                seArgs.push_back(visSuccess);
+                if (callbackObj) {
+                    callbackObj->call(seArgs, nullptr);
+                    callbackObj->unroot();
+                    callbackObj->decRef();
+                }
+                delete img;
+                uint8ArrayObj->unroot();
+            });
         });
         return true;
     }

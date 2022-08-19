@@ -937,6 +937,10 @@ bool Image::initWithRawData(const unsigned char *data, uint32_t /*dataLen*/, int
         _dataLen = height * width * bytesPerComponent;
         _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         CC_BREAK_IF(!_data);
+        // for (int i = 0; i < _dataLen; i+=4) {
+        //     //memset(_data+i, 0xFF008080, 4);
+        //     *reinterpret_cast<int32_t *>(_data + i) = 0xFFff00FF;
+        // }
         memcpy(_data, data, _dataLen);
 
         ret = true;
@@ -973,71 +977,42 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
 bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
 {
     bool ret = false;
-    do
-    {
-        FILE *fp;
-        png_structp png_ptr;
-        png_infop info_ptr;
-        png_colorp palette{nullptr};
-        png_bytep *row_pointers{nullptr};
-
-        fp = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb");
-        CC_BREAK_IF(nullptr == fp);
-
+    
+    FILE *fp{nullptr};
+    png_structp png_ptr{nullptr};
+    png_infop info_ptr{nullptr};
+    png_colorp palette{nullptr};
+    png_bytep *row_pointers{nullptr};
+    bool hasAlpha = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].hasAlpha;
+    do {
+        // Init png structure and png ptr
         png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-        bool hasAlpha = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].hasAlpha;
-        
-        if (nullptr == png_ptr)
+        CC_BREAK_IF(!png_ptr);
+        if (setjmp(png_jmpbuf(png_ptr)))
         {
-            fclose(fp);
             break;
         }
-
         info_ptr = png_create_info_struct(png_ptr);
-        if (nullptr == info_ptr)
-        {
-            png_destroy_write_struct(&png_ptr, nullptr);
-            fclose(fp);
-            break;
-        }
-        //if (setjmp(png_jmpbuf(png_ptr)))
-        //{
-        //    /*png_destroy_write_struct(&png_ptr, &info_ptr);
-        //    fclose(fp);
-        //    if (palette) {
-        //        free(palette);
-        //    }
-        //    if (row_pointers) {
-        //        free(row_pointers);
-        //    }*/
-        //    break;
-        //}
+        CC_BREAK_IF(!info_ptr);
+        // Start open file
+        fp = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb");
+        CC_BREAK_IF(!fp);
         png_init_io(png_ptr, fp);
-        if (!isToRGB && hasAlpha)
-        {
-            png_set_IHDR(png_ptr, info_ptr, _width, _height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
-                PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-        }
-        else
-        {
-            png_set_IHDR(png_ptr, info_ptr, _width, _height, 8, PNG_COLOR_TYPE_RGB,
-                PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-        }
-
+        auto mask = (!isToRGB && hasAlpha) ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
+        png_set_IHDR(png_ptr, info_ptr, _width, _height, 8, mask,
+        PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+    
         palette = (png_colorp)png_malloc(png_ptr, PNG_MAX_PALETTE_LENGTH * sizeof (png_color));
+        CC_BREAK_IF(!palette);         
         png_set_PLTE(png_ptr, info_ptr, palette, PNG_MAX_PALETTE_LENGTH);
 
         png_write_info(png_ptr, info_ptr);
 
         png_set_packing(png_ptr);
 
-        row_pointers = (png_bytep *)png_malloc(png_ptr, _height * sizeof(png_bytep));
-        if(row_pointers == nullptr)
-        {
-            fclose(fp);
-            png_destroy_write_struct(&png_ptr, &info_ptr);
-            break;
-        }
+        //row_pointers = (png_bytep *)png_malloc(png_ptr, _height * sizeof(png_bytep));
+        row_pointers = (png_bytep *)malloc(_height * sizeof(png_bytep));
+        CC_BREAK_IF(!row_pointers);
 
         if (!hasAlpha)
         {
@@ -1045,11 +1020,7 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
             {
                 row_pointers[i] = (png_bytep)_data + i * _width * 3;
             }
-
             png_write_image(png_ptr, row_pointers);
-
-            free(row_pointers);
-            row_pointers = nullptr;
         }
         else
         {
@@ -1058,11 +1029,6 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
                 unsigned char *tempData = static_cast<unsigned char*>(malloc(_width * _height * 3 * sizeof(unsigned char)));
                 if (nullptr == tempData)
                 {
-                    fclose(fp);
-                    png_destroy_write_struct(&png_ptr, &info_ptr);
-
-                    free(row_pointers);
-                    row_pointers = nullptr;
                     break;
                 }
 
@@ -1080,16 +1046,10 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
                 {
                     row_pointers[i] = (png_bytep)tempData + i * _width * 3;
                 }
-
-                png_write_image(png_ptr, row_pointers);
-
-                free(row_pointers);
-                row_pointers = nullptr;
-
-                if (tempData != nullptr)
-                {
+                if (tempData != nullptr) {
                     free(tempData);
                 }
+                png_write_image(png_ptr, row_pointers);
             }
             else
             {
@@ -1098,29 +1058,31 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
                    // row_pointers[i] = (png_bytep)(_data + i * _width) /*Bytes per pixel*/;
                     row_pointers[i] = (png_bytep)_data + i * _width * 4 /*Bytes per pixel*/;
                 }
-                try {
-                    png_write_image(png_ptr, row_pointers);
-                    //png_ptr->writ
-                } catch (std::exception& e){
-                    CC_LOG_DEBUG("exception, %s", e.what());
-                }
-                
-                free(row_pointers);
-                row_pointers = nullptr;
+                png_write_image(png_ptr, row_pointers);
             }
         }
 
         png_write_end(png_ptr, info_ptr);
-
-        png_free(png_ptr, palette);
-        palette = nullptr;
-
-        png_destroy_write_struct(&png_ptr, &info_ptr);
-
-        fclose(fp);
-
         ret = true;
     } while (0);
+
+    /*Later free for all functions*/
+    if (row_pointers) {
+        free(row_pointers);
+        row_pointers = nullptr;
+    }
+    if (palette) {
+        png_free(png_ptr, palette);
+    }
+    if (info_ptr) {
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+    }
+    if (fp) {
+        fclose(fp);
+    }
+    if (png_ptr) {
+        png_destroy_write_struct(&png_ptr, nullptr);
+    }
     return ret;
 }
 
