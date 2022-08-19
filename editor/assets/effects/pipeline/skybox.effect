@@ -64,7 +64,6 @@ CCProgram sky-fs %{
   uniform samplerCube environmentMap;
   vec4 frag () {
     vec3 rotationDir = RotationVecFromAxisY(viewDir.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
-
     #if USE_RGBE_CUBEMAP
       vec3 c = unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));
     #else

@@ -156,7 +156,6 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     vec3 R = normalize(reflect(-V, N));
 
     vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
-
     #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
       vec3 env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6);
     #else

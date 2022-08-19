@@ -279,7 +279,7 @@ public:
     void setDiffuseMap(TextureCube *val);
     void setSkyboxMaterial(Material *skyboxMat);
     /**
-     * @en Set skybox rotation angle
+     * @en Set skybox rotate angle
      * @zh 设置天空盒旋转角度
      * @param angle  @en rotation angle @zh 旋转角度
      */

@@ -410,7 +410,7 @@ export class SkyboxInfo {
     }
 
     /**
-     * @en Rotating Sky Box.
+     * @en Rotate the skybox
      * @zh 旋转天空盒
      */
     @type(CCFloat)

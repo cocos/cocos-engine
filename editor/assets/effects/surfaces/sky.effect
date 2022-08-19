@@ -27,6 +27,7 @@ CCProgram surface-vertex %{
 }%
 
 CCProgram surface-fragment %{
+
   uniform samplerCube environmentMap;
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
@@ -34,9 +35,7 @@ CCProgram surface-fragment %{
     vec3 c = vec3(1.0);
     #if CC_USE_IBL
       vec3 normal = normalize(FSInput_worldNormal);
-
       vec3 rotationDir = RotationVecFromAxisY(normal.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
-
       #if USE_RGBE_CUBEMAP
         c *= unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));
       #else
