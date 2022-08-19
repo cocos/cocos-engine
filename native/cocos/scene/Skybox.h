@@ -190,7 +190,7 @@ public:
     bool _useHDR{true};
     EnvironmentLightingType _envLightingType{EnvironmentLightingType::HEMISPHERE_DIFFUSE};
     IntrusivePtr<Material> _editableMaterial;
-    float _rotationAngle{0.F};
+    float _rotationAngle{0.0F};
     Skybox *_resource{nullptr};
 };
 
@@ -310,7 +310,7 @@ private:
     bool _useDiffuseMap{false};
     bool _activated{false};
     IntrusivePtr<Material> _editableMaterial;
-    float _rotationAngle{0.F};
+    float _rotationAngle{0.0F};
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);
 };
 
