@@ -31,7 +31,8 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
       // Cook-Torrance Microfacet Specular BRDF
       vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
       vec3 dirlightContrib = (diffuseContrib + specularContrib);
-      finalColor += NL * cc_lightColor[i].rgb * cc_lightColor[i].w * dirlightContrib;
+      float isOutOfRange = GetOutOfRange(position, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+      finalColor += NL * cc_lightColor[i].rgb * cc_lightColor[i].w * dirlightContrib * isOutOfRange;
     } else {
       vec3 SLU = cc_lightPos[i].xyz - position;
       vec3 SL = normalize(SLU);

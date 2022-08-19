@@ -24,3 +24,20 @@ float GetAngleAtt (vec3 L, vec3 litDir, float litAngleScale, float litAngleOffse
   float attenuation = clamp(cd * litAngleScale + litAngleOffset, 0.0, 1.0);
   return (attenuation * attenuation);
 }
+
+float GetOutOfRange (vec3 worldPos, vec3 lightPos, vec3 lookAt, vec3 right, vec3 BoundingSizeVS) {
+  vec3 v = vec3(0.0);
+  vec3 up = cross(right, lookAt);
+  v.x = dot(lightPos, right);
+  v.y = dot(lightPos, up);
+  v.z = dot(lightPos, lookAt);
+  v -= worldPos;
+
+  if ((v.x < BoundingSizeVS.x && v.x > 0.0) ||
+  		(v.y < BoundingSizeVS.y && v.y > 0.0) ||
+  		(v.z < BoundingSizeVS.z && v.z > 0.0)) {
+  	return 1.0;
+  }
+
+  return 0.0;
+}

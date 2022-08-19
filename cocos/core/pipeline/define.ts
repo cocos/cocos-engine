@@ -439,7 +439,8 @@ export class UBOForwardLight {
     public static readonly LIGHT_COLOR_OFFSET = UBOForwardLight.LIGHT_POS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight.LIGHT_COLOR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly LIGHT_DIR_OFFSET = UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly COUNT = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly COUNT = UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly SIZE = UBOForwardLight.COUNT * 4;
 
     public static readonly NAME = 'CCForwardLight';
@@ -450,6 +451,7 @@ export class UBOForwardLight {
         new Uniform('cc_lightColor', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
         new Uniform('cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
         new Uniform('cc_lightDir', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+        new Uniform('cc_lightBoundingSizeVS', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;

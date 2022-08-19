@@ -17,12 +17,17 @@
         if (i >= numLights) break;
 
         vec3 lightDirWithLength = cc_lightPos[i].xyz - worldPos;
-        if(IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR))
-          lightDirWithLength = -normalize(cc_lightdir[i].xyz);
+        if(IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR)) {
+          lightDirWithLength = -normalize(cc_lightDir[i].xyz);
+        }
+          
         CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, lightDirWithLength);
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
-        if(IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR)) // todo outof range
-          lightingResult.diffuseColorWithLighting = lightingResult.specularColorWithLighting = vec3(0.0);
+        if(IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR)) {
+          float isOutOfRange = GetOutOfRange(worldPos, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+          lightingResult.diffuseColorWithLighting *= isOutOfRange;
+          lightingResult.specularColorWithLighting *= isOutOfRange;
+        }
 
         vec3 diffuseLighting, specularLighting;
         CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);
@@ -44,7 +49,7 @@
         #endif
 
       float distAtt = 1.0;
-      if(IS_LIGHT_TYPE(SPOTLIGHT))
+      if(IS_LIGHT_TYPE(LIGHT_TYPE_SPOT))
         distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
 
         float angleAtt = 1.0;

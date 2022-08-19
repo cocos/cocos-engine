@@ -1,5 +1,11 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
+#pragma define LIGHT_TYPE_SPHERE 0.0
+#pragma define LIGHT_TYPE_SPOT 1.0
+#pragma define LIGHT_TYPE_RANGED_DIR 2.0
+#pragma define LIGHT_TYPE_POINT 3.0
+#pragma define IS_LIGHT_TYPE(light_type) equalf(cc_lightPos[i].w, light_type)
+
 #if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD
   #define LIGHTS_PER_PASS 1
 #else
@@ -9,9 +15,10 @@
 #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
 #pragma builtin(local)
 layout(set = 2, binding = 1) uniform CCForwardLight {
-  highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: valid light type[0: sphere light, 1: spot light, 2: fill light]
+  highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: valid light type[0: sphere light, 1: spot light, 2: ranged dir light]
   vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
-  vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: cos(half outterAngle), w: enable shadow
-  vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir, w: valid light count
-};
+  vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: cos(half outterAngle), w: enable shadow; ranged dir light: xyz is right
+  vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir, w: unused
+  vec4 cc_lightBoundingSizeVS[LIGHTS_PER_PASS];
+}; 
 #endif

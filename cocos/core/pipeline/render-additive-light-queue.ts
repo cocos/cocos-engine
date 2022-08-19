@@ -55,6 +55,7 @@ interface IAdditiveLightPass {
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
+const _v3 = new Vec3();
 const _vec4Array = new Float32Array(4);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
@@ -520,14 +521,18 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[3] = 2;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                _vec4Array[0] = 0.0;
-                _vec4Array[1] = 0.0;
-                _vec4Array[2] = 0.0;
+                Vec3.transformQuat(_v3, Vec3.RIGHT, (light as RangedDirectionalLight).node!.worldRotation);
+                _vec4Array[0] = _v3.x;
+                _vec4Array[1] = _v3.y;
+                _vec4Array[2] = _v3.z;
                 _vec4Array[3] = 0.0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).direction);
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
+
+                Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).node!.getWorldScale());
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET);
 
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
