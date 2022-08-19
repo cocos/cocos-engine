@@ -220,8 +220,12 @@ function(cc_redirect_property target from_property to_property)
     endif()
 endfunction()
 
-
-find_program(NODE_EXECUTABLE NAMES node)
+if(NOT DEFINED NODE_EXECUTABLE)
+    find_program(NODE_EXECUTABLE NAMES node)
+    if(NOT NODE_EXECUTABLE AND DEFINED EDITOR_NODEJS)
+        set(NODE_EXECUTABLE ${EDITOR_NODEJS})
+    endif()
+endif()
 find_program(TSC_EXECUTABLE NAMES tsc)
 find_program(CCACHE_EXECUTABLE NAMES ccache)
 
