@@ -69,17 +69,23 @@ struct CCWGPUResource {
     CCWGPUSampler *unfilterableSampler = nullptr;
 };
 
+struct CCWGPUInstanceObject {
+    WGPUInstance wgpuInstance = wgpuDefaultHandle;
+    WGPUSurface wgpuSurface = wgpuDefaultHandle;
+    WGPUAdapter wgpuAdapter = wgpuDefaultHandle;
+};
+
 struct CCWGPUDeviceObject {
     WGPUDevice wgpuDevice = wgpuDefaultHandle;
     WGPUQueue wgpuQueue = wgpuDefaultHandle;
 
+    CCWGPUInstanceObject instance;
     CCWGPUResource defaultResources;
 };
 
 struct CCWGPUSwapchainObject {
     WGPUSwapChain wgpuSwapChain = wgpuDefaultHandle;
     WGPUSurface wgpuSurface = wgpuDefaultHandle;
-    WGPUInstance wgpuInstance = wgpuDefaultHandle;
 
     CCWGPUTexture *swapchainColor = nullptr;
     CCWGPUTexture *swapchainDepthStencil = nullptr;

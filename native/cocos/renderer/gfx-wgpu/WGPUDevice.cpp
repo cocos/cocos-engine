@@ -49,6 +49,7 @@ namespace cc {
 
 namespace gfx {
 
+namespace {
 struct BufferMapData {
     Semaphore *semaphore = nullptr;
     WGPUBuffer buffer = wgpuDefaultHandle;
@@ -56,6 +57,23 @@ struct BufferMapData {
     uint64_t size = 0;
     bool finished = false;
 };
+
+} // namespace
+
+void onAdapterGot(WGPURequestAdapterStatus status, WGPUAdapter adapter, char const *message, void *userdata) {
+    if (message) {
+        printf("onAdapterGot: %s\n", message);
+    }
+    if (status == WGPURequestAdapterStatus_Success) {
+        auto *device = static_cast<CCWGPUDevice *>(userdata);
+        device->gpuDeviceObject()->instance.wgpuAdapter = adapter;
+        device->initConfigs();
+        device->initLimits();
+        device->initFormatFeatures();
+    } else {
+        printf("onAdapterGot: failed to get adapter\n");
+    }
+}
 
 CCWGPUDevice *CCWGPUDevice::instance = nullptr;
 
@@ -106,8 +124,30 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
     };
     _cmdBuff = this->Device::createCommandBuffer(cmdInfo);
 
-    _caps.maxFragmentUniformVectors = 256;
-    _caps.maxVertexUniformVectors = 256;
+    _gpuDeviceObj->instance.wgpuInstance = wgpuCreateInstance({});
+
+#ifdef CC_WGPU_WASM
+    WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
+    canvDesc.chain.sType = WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
+    canvDesc.selector = "canvas";
+
+    WGPUSurfaceDescriptor surfDesc = {};
+    surfDesc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&canvDesc);
+    _gpuDeviceObj->instance.wgpuSurface = wgpuInstanceCreateSurface(nullptr, &surfDesc);
+
+#elif defined(CC_WGPU_DAWN)
+    WGPUSurfaceDescriptor sufaceDesc = {
+        .label = "DAWNSurface",
+    };
+    _gpuDeviceObj->instance.wgpuSurface = wgpuInstanceCreateSurface(_gpuDeviceObj->instance.wgpuInstance, &sufaceDesc);
+
+#endif
+    WGPURequestAdapterOptions options = {
+        .compatibleSurface = _gpuDeviceObj->instance.wgpuSurface,
+        .powerPreference = WGPUPowerPreference_LowPower,
+    };
+
+    wgpuInstanceRequestAdapter(_gpuDeviceObj->instance.wgpuInstance, &options, onAdapterGot, this);
 
     // auto bufferRecycleFunc = [this](WGPUBuffer buffer) {
     //     _recycleBin[getCurrentFrameIndex()].bufferBin.collect(buffer);
@@ -116,7 +156,6 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
     //     _stagingBuffers[i] = new CCWGPUStagingBuffer(_gpuDeviceObj->wgpuDevice, bufferRecycleFunc);
     // }
 
-    initFormatFeatures();
     return true;
 }
 
@@ -365,122 +404,211 @@ void CCWGPUDevice::debug() {
     wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
 }
 
+void CCWGPUDevice::initConfigs() {
+    WGPUAdapterProperties props;
+    wgpuAdapterGetProperties(_gpuDeviceObj->instance.wgpuAdapter, &props);
+    _deviceName = props.name;
+    _vendor = props.driverDescription;
+
+    const auto &adapterName = getAdapterTypeName(props.adapterType);
+    const auto &backendName = getBackendTypeName(props.backendType);
+
+    printf("WebGPU:%s enabled with: %s , adapter:%s, backend: %s, vendorID: %u, deviceID:%u\n",
+           _deviceName.c_str(), _vendor.c_str(), adapterName.c_str(), backendName.c_str(), props.vendorID, props.deviceID);
+}
+
+void CCWGPUDevice::initLimits() {
+    WGPUSupportedLimits supportLimits;
+
+    // Aug-19th 2022: getlimits not impled.
+
+#if 0
+    wgpuAdapterGetLimits(_gpuDeviceObj->instance.wgpuAdapter, &supportLimits);
+
+    const auto &limits = supportLimits.limits;
+    _caps.maxVertexAttributes = limits.maxVertexAttributes;
+    _caps.maxVertexUniformVectors = 256;
+    _caps.maxFragmentUniformVectors = 256;
+    _caps.maxTextureUnits = limits.maxSamplersPerShaderStage;
+    _caps.maxImageUnits = limits.maxSampledTexturesPerShaderStage;
+    _caps.maxVertexTextureUnits = limits.maxSampledTexturesPerShaderStage;
+    _caps.maxShaderStorageBufferBindings = limits.maxStorageBuffersPerShaderStage;
+    _caps.maxUniformBlockSize = limits.maxUniformBufferBindingSize;
+    _caps.maxShaderStorageBlockSize = limits.maxStorageBufferBindingSize;
+    _caps.maxShaderStorageBufferBindings = limits.maxStorageBuffersPerShaderStage;
+    _caps.maxTextureSize = limits.maxTextureDimension2D;
+    _caps.uboOffsetAlignment = limits.minUniformBufferOffsetAlignment;
+
+    _caps.maxComputeSharedMemorySize = limits.maxComputeWorkgroupStorageSize;
+    _caps.maxComputeWorkGroupInvocations = limits.maxComputeInvocationsPerWorkgroup;
+    _caps.maxComputeWorkGroupSize = {limits.maxComputeWorkgroupsPerDimension, limits.maxComputeWorkgroupsPerDimension, limits.maxComputeWorkgroupsPerDimension};
+    _caps.maxComputeWorkGroupCount = {limits.maxComputeWorkgroupSizeX, limits.maxComputeWorkgroupSizeY, limits.maxComputeWorkgroupSizeZ};
+#else
+    _caps.uboOffsetAlignment = 256;
+
+    _caps.maxComputeSharedMemorySize = 32768;
+    _caps.maxComputeWorkGroupInvocations = 256;
+    _caps.maxComputeWorkGroupSize = {65535, 65535, 65535};
+    _caps.maxComputeWorkGroupCount = {256, 256, 64};
+#endif
+}
+
 void CCWGPUDevice::initFormatFeatures() {
     const FormatFeature completeFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
 
     FormatFeature tempFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE;
 
-    _formatFeatures[toNumber(Format::R8UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RG8UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA8UI)] = tempFeature;
+    // render target
+    _formatFeatures[toNumber(Format::R8)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R8UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R8I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RG8)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RG8UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RG8I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA8)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::SRGB8_A8)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA8UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA8I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::BGRA8)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R16UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R16I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RG16UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RG16I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA16UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA16I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R32UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R32I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R32UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::R32I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA32UI)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA32I)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::RGB10A2)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::DEPTH)] |= FormatFeature::RENDER_TARGET;
+    _formatFeatures[toNumber(Format::DEPTH_STENCIL)] |= FormatFeature::RENDER_TARGET;
 
-    _formatFeatures[toNumber(Format::R16UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RG16UI)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA16UI)] = tempFeature;
+    // storage
+    _formatFeatures[toNumber(Format::RGBA8)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA8SN)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA8UI)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA8I)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA16UI)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA16I)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::R32UI)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::R32I)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::R32UI)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::R32I)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA32UI)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA32I)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::STORAGE_TEXTURE;
+    _formatFeatures[toNumber(Format::RGB10A2)] |= FormatFeature::STORAGE_TEXTURE;
 
-    _formatFeatures[toNumber(Format::R32F)] = tempFeature;
-    _formatFeatures[toNumber(Format::RG32F)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA32F)] = tempFeature;
+    // sampled
+    _formatFeatures[toNumber(Format::R8)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R8SN)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R8UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R8I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG8)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG8SN)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG8UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG8I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA8)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::SRGB8_A8)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA8SN)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA8UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA8I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::BGRA8)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R16UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R16I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R16F)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG16UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG16I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG16F)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA16UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA16I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA16F)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R32UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R32I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R32F)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R32UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R32I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA32UI)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA32I)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::RGB10A2)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::R11G11B10F)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::DEPTH)] |= FormatFeature::SAMPLED_TEXTURE;
+    _formatFeatures[toNumber(Format::DEPTH_STENCIL)] |= FormatFeature::SAMPLED_TEXTURE;
 
-    if (1) {
-        tempFeature = FormatFeature::RENDER_TARGET | FormatFeature::STORAGE_TEXTURE;
-        _formatFeatures[toNumber(Format::R32UI)] = tempFeature;
-        _formatFeatures[toNumber(Format::RG32UI)] = tempFeature;
-        _formatFeatures[toNumber(Format::RGBA32UI)] = tempFeature;
-    } else {
-        tempFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE;
-        _formatFeatures[toNumber(Format::R32UI)] = tempFeature;
-        _formatFeatures[toNumber(Format::RG32UI)] = tempFeature;
-        _formatFeatures[toNumber(Format::RGBA32UI)] = tempFeature;
+    _formatFeatures[toNumber(Format::RGB9E5)] |= FormatFeature::SAMPLED_TEXTURE;
+
+    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionBC)) {
+        _formatFeatures[toNumber(Format::BC1_ALPHA)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC1_SRGB_ALPHA)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC2)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC2_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC3)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC3_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC4_SNORM)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC5_SNORM)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC6H_SF16)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC6H_UF16)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC7)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC7_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
     }
 
-    if (1) {
-        _formatFeatures[toNumber(Format::RGB10A2UI)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-    } else {
-        _formatFeatures[toNumber(Format::RGB10A2UI)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::STORAGE_TEXTURE;
+    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionETC2)) {
+        _formatFeatures[toNumber(Format::ETC2_RGBA8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_SRGB8_A8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_RGB8_A1)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_SRGB8_A1)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_RGB8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_SRGB8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_R11)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_R11SN)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_RG11)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_RG11SN)] = FormatFeature::SAMPLED_TEXTURE;
     }
 
-    tempFeature = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER | FormatFeature::STORAGE_TEXTURE;
-
-    _formatFeatures[toNumber(Format::R8SN)] = tempFeature;
-    _formatFeatures[toNumber(Format::RG8SN)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA8SN)] = tempFeature;
-
-    _formatFeatures[toNumber(Format::R8)] = tempFeature;
-    _formatFeatures[toNumber(Format::RG8)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA8)] = tempFeature;
-
-    _formatFeatures[toNumber(Format::R16F)] = tempFeature;
-    _formatFeatures[toNumber(Format::RG16F)] = tempFeature;
-    _formatFeatures[toNumber(Format::RGBA16F)] = tempFeature;
-
-    _formatFeatures[toNumber(Format::R11G11B10F)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-    _formatFeatures[toNumber(Format::RGB9E5)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-
-    if (1) {
-        _formatFeatures[toNumber(Format::DEPTH)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::DEPTH_STENCIL)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE;
-    } else {
-        _formatFeatures[toNumber(Format::DEPTH)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
-        _formatFeatures[toNumber(Format::DEPTH_STENCIL)] = FormatFeature::RENDER_TARGET | FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
-    }
-
-    const FormatFeature compressedFeature = FormatFeature::SAMPLED_TEXTURE | FormatFeature::LINEAR_FILTER;
-    if (1) {
-        _formatFeatures[toNumber(Format::PVRTC_RGB2)] = compressedFeature;
-        _formatFeatures[toNumber(Format::PVRTC_RGBA2)] = compressedFeature;
-        _formatFeatures[toNumber(Format::PVRTC_RGB4)] = compressedFeature;
-        _formatFeatures[toNumber(Format::PVRTC_RGBA4)] = compressedFeature;
-    }
-    if (1) {
-        _formatFeatures[toNumber(Format::ETC2_RGB8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ETC2_RGBA8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ETC2_SRGB8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ETC2_SRGB8_A8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ETC2_RGB8_A1)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ETC2_SRGB8_A1)] = compressedFeature;
-    }
-    if (1) {
-        _formatFeatures[toNumber(Format::ASTC_RGBA_4X4)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_5X4)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_5X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_6X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_6X6)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_8X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_8X6)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_8X8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X6)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X10)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_12X10)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_12X12)] = compressedFeature;
-
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_4X4)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X4)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X6)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X6)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X5)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X6)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X8)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X10)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_12X10)] = compressedFeature;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_12X12)] = compressedFeature;
-    }
-
-    if (1) {
-        _formatFeatures[toNumber(Format::BC1)] = compressedFeature;
-        _formatFeatures[toNumber(Format::BC1_ALPHA)] = compressedFeature;
-        _formatFeatures[toNumber(Format::BC1_SRGB)] = compressedFeature;
-        _formatFeatures[toNumber(Format::BC1_SRGB_ALPHA)] = compressedFeature;
-        _formatFeatures[toNumber(Format::BC2)] = compressedFeature;
-        _formatFeatures[toNumber(Format::BC2_SRGB)] = compressedFeature;
-        _formatFeatures[toNumber(Format::BC3)] = compressedFeature;
-        _formatFeatures[toNumber(Format::BC3_SRGB)] = compressedFeature;
+    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionASTC)) {
+        _formatFeatures[toNumber(Format::ASTC_RGBA_4X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_4X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_5X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_5X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_6X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_6X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_8X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_8X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_8X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_12X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_12X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_12X12)] = FormatFeature::SAMPLED_TEXTURE;
     }
 
     _formatFeatures[toNumber(Format::R8)] |= FormatFeature::VERTEX_ATTRIBUTE;
@@ -532,8 +660,6 @@ void CCWGPUDevice::initFormatFeatures() {
     _formatFeatures[toNumber(Format::RG32F)] |= FormatFeature::VERTEX_ATTRIBUTE;
     _formatFeatures[toNumber(Format::RGB32F)] |= FormatFeature::VERTEX_ATTRIBUTE;
     _formatFeatures[toNumber(Format::RGBA32F)] |= FormatFeature::VERTEX_ATTRIBUTE;
-
-    _formatFeatures[toNumber(Format::RGB10A2)] |= FormatFeature::VERTEX_ATTRIBUTE;
 }
 
 } // namespace gfx

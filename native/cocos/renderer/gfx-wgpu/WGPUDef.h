@@ -37,6 +37,18 @@ function("PipelineLayoutInfo", &GenInstance<PipelineLayoutInfo>::instance);
     #define EXPORT_EMS(expr)
 #endif
 
+#ifdef CC_WGPU_DAWN
+    #define CC_WGPU_DAWN(expr) expr
+#else
+    #define CC_WGPU_DAWN(expr)
+#endif
+
+#ifdef CC_WGPU_RS
+    #define CC_WGPU_RS(expr) expr
+#else
+    #define CC_WGPU_RS(expr)
+#endif
+
 namespace cc::gfx {
 
 using ::emscripten::allow_raw_pointers;

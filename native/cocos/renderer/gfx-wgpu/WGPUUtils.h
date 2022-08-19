@@ -588,6 +588,44 @@ static WGPUFlags toWGPUColorWriteMask(ColorMask mask) {
     return result;
 }
 
+static ccstd::string getAdapterTypeName(WGPUAdapterType type) {
+    switch(type) {
+        case WGPUAdapterType_DiscreteGPU:
+            return "WGPUAdapterType_DiscreteGPU";
+        case WGPUAdapterType_IntegratedGPU:
+            return "WGPUAdapterType_IntegratedGPU";
+        case WGPUAdapterType_CPU:
+            return "WGPUAdapterType_CPU";
+        case WGPUAdapterType_Unknown:
+            return "WGPUAdapterType_Unknown"; 
+        default:
+            return "unknown adapter by cc.gfx!";
+    }
+}
+
+static ccstd::string getBackendTypeName(WGPUBackendType type) {
+    switch(type) {
+        case WGPUBackendType_Null:
+            return "WGPUBackendType_Null";
+        case WGPUBackendType_WebGPU:
+            return "WGPUBackendType_WebGPU";
+        case WGPUBackendType_D3D11:
+            return "WGPUBackendType_D3D11";
+        case WGPUBackendType_D3D12:
+            return "WGPUBackendType_D3D12";
+        case WGPUBackendType_Metal:
+            return "WGPUBackendType_Metal";
+        case WGPUBackendType_Vulkan:
+            return "WGPUBackendType_Vulkan";
+        case WGPUBackendType_OpenGL:
+            return "WGPUBackendType_OpenGL";
+        case WGPUBackendType_OpenGLES:
+            return "WGPUBackendType_OpenGLES";
+        default:
+            return "unknown backend by cc.gfx!";
+    }
+}
+
 class DescriptorSet;
 class PipelineLayout;
 // descriptor set layout in descriptor set not consistent with the binding in pipeline layout.

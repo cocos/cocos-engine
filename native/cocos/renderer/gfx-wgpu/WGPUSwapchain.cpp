@@ -42,14 +42,17 @@ CCWGPUSwapchain::~CCWGPUSwapchain() {
 
 void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
     printf("swapchain init %d, %d\n", info.width, info.height);
-    WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
-    canvDesc.chain.sType = WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
-    canvDesc.selector = "canvas";
+    // WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
+    // canvDesc.chain.sType = WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
+    // canvDesc.selector = "canvas";
 
-    WGPUSurfaceDescriptor surfDesc = {};
-    surfDesc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&canvDesc);
-    WGPUSurface surface = wgpuInstanceCreateSurface(nullptr, &surfDesc);
+    // WGPUSurfaceDescriptor surfDesc = {};
+    // surfDesc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&canvDesc);
+    // WGPUSurface surface = wgpuInstanceCreateSurface(nullptr, &surfDesc);
 
+    auto *device = CCWGPUDevice::getInstance();
+    CCWGPUDeviceObject *gpuDeviceObj = device->gpuDeviceObject();
+    auto surface = gpuDeviceObj->instance.wgpuSurface;
     WGPUPresentMode presentMode;
     switch (info.vsyncMode) {
         case VsyncMode::OFF:
@@ -71,7 +74,6 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
             presentMode = WGPUPresentMode_Fifo;
     }
 
-    auto *device = CCWGPUDevice::getInstance();
     WGPUSwapChainDescriptor swapChainDesc;
     swapChainDesc.nextInChain = nullptr;
     swapChainDesc.label = "defaultSwapChain";
@@ -81,7 +83,6 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
     swapChainDesc.height = info.height;
     swapChainDesc.presentMode = presentMode;
 
-    CCWGPUDeviceObject *gpuDeviceObj = device->gpuDeviceObject();
     WGPUSwapChain swapChain = wgpuDeviceCreateSwapChain(gpuDeviceObj->wgpuDevice, surface, &swapChainDesc);
     _gpuSwapchainObj = ccnew CCWGPUSwapchainObject;
     _gpuSwapchainObj->wgpuSwapChain = swapChain;
