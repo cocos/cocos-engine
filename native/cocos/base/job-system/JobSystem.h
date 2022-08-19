@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#pragma once
+
 #if CC_USE_JOB_SYSTEM_TASKFLOW
     #include "job-system-taskflow/TFJobGraph.h"
     #include "job-system-taskflow/TFJobSystem.h"
