@@ -168,8 +168,8 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
 
     output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 0] = static_cast<float>(camera->getSurfaceTransform());
     const float angle = sceneData->getSkybox()->getRotationAngle();
-    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 2] = cos(mathutils::toRadian(angle));
-    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 3] = sin(mathutils::toRadian(angle));
+    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 2] = static_cast<float>(cos(mathutils::toRadian(angle)));
+    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 3] = static_cast<float>(sin(mathutils::toRadian(angle)));
 
     if (fog != nullptr) {
         const auto &colorTempRGB = fog->getColorArray();
