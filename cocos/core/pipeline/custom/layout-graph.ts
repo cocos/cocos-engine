@@ -680,12 +680,11 @@ export class DescriptorSetData {
         this.descriptorSetLayoutData = descriptorSetLayoutData;
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
-        this.descriptorSetLayoutInfo = null;
     }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
+    readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
     /*object*/ descriptorSetLayout: DescriptorSetLayout | null;
     /*object*/ descriptorSet: DescriptorSet | null;
-    /*object*/ descriptorSetLayoutInfo: DescriptorSetLayoutInfo | null;
 }
 
 export class PipelineLayoutData {

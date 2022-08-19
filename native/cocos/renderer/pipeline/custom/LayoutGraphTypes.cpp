@@ -158,6 +158,7 @@ DescriptorSetData::DescriptorSetData(DescriptorSetLayoutData descriptorSetLayout
 
 DescriptorSetData::DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc)
 : descriptorSetLayoutData(std::move(rhs.descriptorSetLayoutData), alloc),
+  descriptorSetLayoutInfo(std::move(rhs.descriptorSetLayoutInfo)),
   descriptorSetLayout(std::move(rhs.descriptorSetLayout)),
   descriptorSet(std::move(rhs.descriptorSet)) {}
 

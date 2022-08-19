@@ -43,7 +43,6 @@ import { CopyPair, MovePair } from './render-graph';
 import { RenderScene } from '../../renderer/core/render-scene';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { Model } from '../../renderer/scene';
-import { ccclass } from '../../data/decorators';
 
 export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;

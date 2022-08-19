@@ -431,6 +431,7 @@ struct DescriptorSetData {
     DescriptorSetData& operator=(DescriptorSetData const& rhs) = delete;
 
     DescriptorSetLayoutData                descriptorSetLayoutData;
+    gfx::DescriptorSetLayoutInfo           descriptorSetLayoutInfo;
     IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayout;
     IntrusivePtr<gfx::DescriptorSet>       descriptorSet;
 };
