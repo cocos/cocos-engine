@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents** 
 
 - [The Tutorial of Swig Workflow in Cocos Creator](#the-tutorial-of-swig-workflow-in-cocos-creator)
   - [How to Bind a New Module in Engine](#how-to-bind-a-new-module-in-engine)
@@ -20,6 +20,14 @@
       - [Register the new module to Script Engine](#register-the-new-module-to-script-engine-1)
       - [Test binding](#test-binding)
       - [Section Conclusion](#section-conclusion)
+    - [Import depended header files](#import-depended-header-files)
+    - [Ignore classes, methods, properties](#ignore-classes-methods-properties)
+      - [Ignore classes](#ignore-classes)
+      - [Ignore methods and properties](#ignore-methods-and-properties)
+    - [Rename classes, methods, properties](#rename-classes-methods-properties)
+    - [Define attributes which bind C++ getter and setter as a JS property](#define-attributes-which-bind-c-getter-and-setter-as-a-js-property)
+    - [Configure C++ modules in .i file](#configure-c-modules-in-i-file)
+    - [Multiple swig modules configuration](#multiple-swig-modules-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -62,8 +70,8 @@ node genbindings.js
 ```cmake
 ######## auto
 cocos_source_files(
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_new_engine_module_auto.cpp # Added
-                            cocos/bindings/auto/jsb_new_engine_module_auto.h # Added
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_new_engine_module_auto.cpp # Add this line
+                            cocos/bindings/auto/jsb_new_engine_module_auto.h # Add this line
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
                             cocos/bindings/auto/jsb_cocos_auto.h
     ......
@@ -71,7 +79,7 @@ cocos_source_files(
 
 ### Register the new module to Script Engine
 
-Open jsb_module_register.cpp and do the following modifications
+Open `jsb_module_register.cpp` and do the following modifications
 
 ```c++
 ......
@@ -97,7 +105,7 @@ bool jsb_register_all_modules() {
 
 Suppose we have a Cocos Creator project located at `/Users/james/NewProject` directory.
 
-Built a native project in Cocos Creator's build panel, we get `/Users/james/NewProject/native` directory.
+Build a native project in Cocos Creator's build panel, we get `/Users/james/NewProject/native` directory.
 
 ### Bind a simple class
 
@@ -109,9 +117,7 @@ Create a header file in `/Users/james/NewProject/native/engine/Classes/MyObject.
 // MyObject.h
 #pragma once
 #include "cocos/cocos.h"
-
 namespace my_ns {
-
 class MyObject {
 public:
     MyObject() = default;
@@ -126,7 +132,6 @@ private:
     int _a{100};
     bool _b{true};
 };
-
 } // namespace my_ns {
 ```
 
@@ -190,7 +195,7 @@ $ cd /Users/james/NewProject/tools/swig-config
 $ node < Engine Root >/native/tools/swig-config/genbindings.js
 ```
 
-If succeed, the files ( jsb_my_module_auto.cpp/.h ) contain JS binding code will be generated at `/Users/james/NewProject/native/engine/bindings/auto` directory
+If succeed, the files ( `jsb_my_module_auto.cpp/.h` ) contain JS binding code will be generated at `/Users/james/NewProject/native/engine/bindings/auto` directory
 
 #### Modify project's CMakeLists.txt
 
@@ -825,7 +830,7 @@ Build and run the project
 
 ### Multiple swig modules configuration
 
-Let's create another header file
+Let's create another header file `MyAnotherObject.h`.
 
 ```c++
 // MyAnotherObject.h
@@ -836,6 +841,22 @@ struct MyAnotherObject {
     int b{999};
 };
 } // namespace my_another_ns {
+```
+
+Update MyObject.h
+
+```c++
+// MyObject.h
+//......
+class MyObject : public MyRef {
+public:
+// ......
+    void helloWithAnotherObject(const my_another_ns::MyAnotherObject &obj) {
+        CC_LOG_DEBUG("==> helloWithAnotherObject, a: %f, b: %d", obj.a, obj.b);
+    }
+// ......
+};
+} // namespace my_ns {
 ```
 
 Create `/Users/james/NewProject/tools/swig-config/another-module.i`
@@ -904,6 +925,26 @@ list(APPEND CC_COMMON_SOURCES
 )
 ```
 
+Generate bindings again.
+
+Update Game.cpp
+
+```c++
+#include "Game.h"
+#include "bindings/auto/jsb_my_module_auto.h"
+#include "bindings/auto/jsb_another_module_auto.h" // Add this line
+//......
+
+int Game::init() {
+//......
+    se::ScriptEngine::getInstance()->addRegisterCallback(register_all_my_module);
+    se::ScriptEngine::getInstance()->addRegisterCallback(register_all_another_module); // Add this line
+//
+  BaseGame::init();
+  return 0;
+}
+```
+
 Build and compile, but get an error
 
 ![](another-module-compile-error.jpg)
@@ -953,7 +994,7 @@ class MyCoolObject {
     coolMethod() : void;
     type: number;
     getFeatureObject() : MyFeatureObject;
-    anotherObject: another_ns.MyAnotherObject; // Add this line
+    helloWithAnotherObject(obj: another_ns.MyAnotherObject) : void; // Add this line
 }
 }
 
@@ -978,8 +1019,8 @@ export class MyComponent extends Component {
     start() {
         const myObj = new my_ns.MyCoolObject();
         // ......
-        console.log(`==> myObj.anotherObject.a: ${myObj.anotherObject.a}`);
-        console.log(`==> myObj.anotherObject.b: ${myObj.anotherObject.b}`);
+        const anotherObj = new another_ns.MyAnotherObject(); // Add this line 
+        myObj.helloWithAnotherObject(anotherObj); // Add this line
     }
 }
 ```
@@ -987,7 +1028,5 @@ export class MyComponent extends Component {
 Build and run project, should get output:
 
 ```
+15:05:36 [DEBUG]: ==> helloWithAnotherObject, a: 135.246002, b: 999
 ```
-
-
-
