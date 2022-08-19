@@ -409,7 +409,7 @@ In last section, we got a compile error in `js_register_my_ns_MyObject`. Since M
 %include "MyObject.h"
 ```
 
-[Generate binding](###Generate bindings for project) again, it compiles ok.
+[Generate binding](#Generate bindings for project) again, it compiles ok.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -447,7 +447,7 @@ private:
 
 ```
 
-[Re-generate bindings](###Generate bindings for project), we'll get `methodToBeIgnored` and `propertyToBeIgnored` bound.
+[Re-generate bindings](#Generate bindings for project), we'll get `methodToBeIgnored` and `propertyToBeIgnored` bound.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -475,7 +475,7 @@ Modify `my-module.i`to skip binding them.
 %include "MyObject.h"
 ```
 
-[Re-generate bindings](###Generate bindings for project), they're ignored now.
+[Re-generate bindings](#Generate bindings for project), they're ignored now.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -514,7 +514,7 @@ private:
 } // namespace my_ns {
 ```
 
-[Generate bindings](###Generate bindings for project), we get:
+[Generate bindings](#Generate bindings for project), we get:
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -548,7 +548,7 @@ If we want to rename `MyObject` class to `MyCoolObject`, I guess you have alread
 %rename(MyCoolObject) my_ns::MyObject;
 ```
 
-[Re-generate bindings](###Generate bindings for project), get the correct name exported to JS.
+[Re-generate bindings](#Generate bindings for project), get the correct name exported to JS.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -802,7 +802,7 @@ export class MyComponent extends Component {
 }
 ```
 
-[Generate bindings](###Generate bindings for project), look at the binding code
+[Generate bindings](#Generate bindings for project), look at the binding code
 
 ```c++
 #if USE_MY_FEATURE // NOTE THAT, all binding code of MyFeatureObject is wrapped by USE_MY_FEATURE macro
@@ -979,7 +979,7 @@ list(APPEND CC_COMMON_SOURCES
 )
 ```
 
-[Generate bindings again](###Generate bindings for project).
+[Generate bindings again](#Generate bindings for project).
 
 Update Game.cpp
 
