@@ -195,7 +195,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 offset[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
             } else {
                 // all none-input attr are put in 1st buffer layout with offset = 0;
-                Format format = attrs[i].format;
+                Format format = attr.format;
                 offset[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
             }
         }
