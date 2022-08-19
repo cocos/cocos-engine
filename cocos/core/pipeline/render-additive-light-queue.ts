@@ -27,7 +27,7 @@ import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
-import { intersect } from '../geometry';
+import { AABB, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
 import { Pool } from '../memop';
@@ -61,6 +61,8 @@ const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
 const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 function cullSphereLight (light: SphereLight, model: Model) {
     return !!(model.worldBounds && !intersect.aabbWithAABB(model.worldBounds, light.aabb));
@@ -69,6 +71,12 @@ function cullSphereLight (light: SphereLight, model: Model) {
 function cullSpotLight (light: SpotLight, model: Model) {
     return !!(model.worldBounds
         && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
+}
+
+function cullRangedDirLight (light: RangedDirectionalLight, model: Model) {
+    AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+    return !!(model.worldBounds
+        && (!intersect.aabbWithAABB(model.worldBounds, _tmpBoundingBox)));
 }
 
 const _phaseID = getPhaseID('forward-add');
@@ -290,7 +298,7 @@ export class RenderAdditiveLightQueue {
                 if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
                 break;
             case LightType.RANGEDDIR:
-                isCulled = false;
+                if (isNeedCulling) { isCulled = cullRangedDirLight(light as RangedDirectionalLight, model); }
                 break;
             default:
             }
