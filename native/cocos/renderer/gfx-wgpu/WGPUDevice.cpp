@@ -69,7 +69,6 @@ void onAdapterGot(WGPURequestAdapterStatus status, WGPUAdapter adapter, char con
         device->gpuDeviceObject()->instance.wgpuAdapter = adapter;
         device->initConfigs();
         device->initLimits();
-        device->initFormatFeatures();
     } else {
         printf("onAdapterGot: failed to get adapter\n");
     }
@@ -156,6 +155,7 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
     //     _stagingBuffers[i] = new CCWGPUStagingBuffer(_gpuDeviceObj->wgpuDevice, bufferRecycleFunc);
     // }
 
+    initFormatFeatures();
     return true;
 }
 
@@ -415,6 +415,66 @@ void CCWGPUDevice::initConfigs() {
 
     printf("WebGPU:%s enabled with: %s , adapter:%s, backend: %s, vendorID: %u, deviceID:%u\n",
            _deviceName.c_str(), _vendor.c_str(), adapterName.c_str(), backendName.c_str(), props.vendorID, props.deviceID);
+
+    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionBC)) {
+        _formatFeatures[toNumber(Format::BC1_ALPHA)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC1_SRGB_ALPHA)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC2)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC2_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC3)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC3_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC4_SNORM)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC5_SNORM)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC6H_SF16)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC6H_UF16)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC7)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::BC7_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
+    }
+
+    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionETC2)) {
+        _formatFeatures[toNumber(Format::ETC2_RGBA8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_SRGB8_A8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_RGB8_A1)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_SRGB8_A1)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_RGB8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ETC2_SRGB8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_R11)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_R11SN)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_RG11)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::EAC_RG11SN)] = FormatFeature::SAMPLED_TEXTURE;
+    }
+
+    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionASTC)) {
+        _formatFeatures[toNumber(Format::ASTC_RGBA_4X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_4X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_5X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X4)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_5X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_6X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_6X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_8X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_8X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_8X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X5)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X6)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X8)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_10X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_12X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_SRGBA_12X10)] = FormatFeature::SAMPLED_TEXTURE;
+        _formatFeatures[toNumber(Format::ASTC_RGBA_12X12)] = FormatFeature::SAMPLED_TEXTURE;
+    }
 }
 
 void CCWGPUDevice::initLimits() {
@@ -550,66 +610,6 @@ void CCWGPUDevice::initFormatFeatures() {
     _formatFeatures[toNumber(Format::DEPTH_STENCIL)] |= FormatFeature::SAMPLED_TEXTURE;
 
     _formatFeatures[toNumber(Format::RGB9E5)] |= FormatFeature::SAMPLED_TEXTURE;
-
-    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionBC)) {
-        _formatFeatures[toNumber(Format::BC1_ALPHA)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC1_SRGB_ALPHA)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC2)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC2_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC3)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC3_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC4)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC4_SNORM)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC5_SNORM)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC6H_SF16)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC6H_UF16)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC7)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::BC7_SRGB)] = FormatFeature::SAMPLED_TEXTURE;
-    }
-
-    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionETC2)) {
-        _formatFeatures[toNumber(Format::ETC2_RGBA8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ETC2_SRGB8_A8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ETC2_RGB8_A1)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ETC2_SRGB8_A1)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ETC2_RGB8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ETC2_SRGB8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::EAC_R11)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::EAC_R11SN)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::EAC_RG11)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::EAC_RG11SN)] = FormatFeature::SAMPLED_TEXTURE;
-    }
-
-    if (wgpuAdapterHasFeature(_gpuDeviceObj->instance.wgpuAdapter, WGPUFeatureName_TextureCompressionASTC)) {
-        _formatFeatures[toNumber(Format::ASTC_RGBA_4X4)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_4X4)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_5X4)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X4)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_5X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_5X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_6X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_6X6)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_6X6)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_8X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_8X6)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X6)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_8X8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_8X8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X5)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X6)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X6)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X8)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_10X10)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_10X10)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_12X10)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_SRGBA_12X10)] = FormatFeature::SAMPLED_TEXTURE;
-        _formatFeatures[toNumber(Format::ASTC_RGBA_12X12)] = FormatFeature::SAMPLED_TEXTURE;
-    }
 
     _formatFeatures[toNumber(Format::R8)] |= FormatFeature::VERTEX_ATTRIBUTE;
     _formatFeatures[toNumber(Format::RG8)] |= FormatFeature::VERTEX_ATTRIBUTE;
