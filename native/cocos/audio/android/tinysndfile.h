@@ -21,8 +21,14 @@
 // much smaller and has an Apache 2.0 license.
 // The API should be familiar to clients of similar libraries, but there is
 // no guarantee that it will stay exactly source-code compatible with other libraries.
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <sys/cdefs.h>
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+#include <iostream>
+#include <stdio.h>
+#endif
+#include "audio/android/utils/Compat.h"
+
 #include <cstdio>
 
 __BEGIN_DECLS

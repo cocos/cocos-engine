@@ -28,7 +28,6 @@ THE SOFTWARE.
 // ----------------------------------------------------------------------------
 
 #include <stdint.h>
-#include <android/log.h>
 #include "audio/android/cutils/bitops.h"
 
 #define PROPERTY_VALUE_MAX 256

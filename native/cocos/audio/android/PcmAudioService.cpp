@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "audio/android/PcmAudioService.h"
 #include "audio/android/AudioMixerController.h"
+#include "audio/android/utils/Compat.h"
 
 namespace cc {
 
@@ -36,7 +37,11 @@ static std::vector<char> __silenceData;
 
 class SLPcmAudioPlayerCallbackProxy {
 public:
-    static void samplePlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    static void samplePlayerCallback(BufferQueueItf bq, void *context) {
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    static void samplePlayerCallback(BufferQueueItf bq, void *context, SLuint32 size) {
+#endif
         PcmAudioService *thiz = reinterpret_cast<PcmAudioService *>(context);
         thiz->bqFetchBufferCallback(bq);
     }
@@ -73,7 +78,7 @@ bool PcmAudioService::enqueue() {
     return true;
 }
 
-void PcmAudioService::bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq) {
+void PcmAudioService::bqFetchBufferCallback(BufferQueueItf bq) {
     // IDEA: PcmAudioService instance may be destroyed, we need to find a way to wait...
     // It's in sub thread
     enqueue();
@@ -90,7 +95,10 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     if (numChannels > 1) {
         channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
     }
-
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    // TODO(hack): 1 channel must be set, there is a problem with dual channels
+    numChannels = 1;
+#endif
     SLDataFormat_PCM formatPcm = {
         SL_DATAFORMAT_PCM,
         (SLuint32)numChannels,
@@ -100,9 +108,13 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
         channelMask,
         SL_BYTEORDER_LITTLEENDIAN};
 
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     SLDataLocator_AndroidSimpleBufferQueue locBufQueue = {
         SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
         AUDIO_PLAYER_BUFFER_COUNT};
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+	SLDataLocator_BufferQueue locBufQueue = {SL_DATALOCATOR_BUFFERQUEUE, AUDIO_PLAYER_BUFFER_COUNT};
+#endif
     SLDataSource source = {&locBufQueue, &formatPcm};
 
     SLDataLocator_OutputMix locOutmix = {
@@ -113,7 +125,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     const SLInterfaceID ids[] = {
         SL_IID_PLAY,
         SL_IID_VOLUME,
-        SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
+        IDD_BUFFER_QUEUE,
     };
 
     const SLboolean req[] = {
@@ -136,8 +148,8 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     r = (*_playObj)->GetInterface(_playObj, SL_IID_VOLUME, &_volumeItf);
     SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_VOLUME failed");
 
-    r = (*_playObj)->GetInterface(_playObj, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &_bufferQueueItf);
-    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_ANDROIDSIMPLEBUFFERQUEUE failed");
+    r = (*_playObj)->GetInterface(_playObj, IDD_BUFFER_QUEUE, &_bufferQueueItf);
+    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface IDD_BUFFER_QUEUE failed");
 
     r = (*_bufferQueueItf)->RegisterCallback(_bufferQueueItf, SLPcmAudioPlayerCallbackProxy::samplePlayerCallback, this);
     SL_RETURN_VAL_IF_FAILED(r, false, "_bufferQueueItf RegisterCallback failed");

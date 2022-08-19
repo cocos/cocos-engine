@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include <mutex>
 #include <condition_variable>
+#include "audio/android/utils/Compat.h"
 
 namespace cc {
 
@@ -51,7 +52,7 @@ private:
 
     bool enqueue();
 
-    void bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq);
+    void bqFetchBufferCallback(BufferQueueItf bq);
 
     void pause();
     void resume();
@@ -63,7 +64,7 @@ private:
     SLObjectItf _playObj;
     SLPlayItf _playItf;
     SLVolumeItf _volumeItf;
-    SLAndroidSimpleBufferQueueItf _bufferQueueItf;
+    BufferQueueItf _bufferQueueItf;
 
     int _numChannels;
     int _sampleRate;

@@ -26,6 +26,7 @@
 
 #include "audio/android/AudioResampler.h"
 #include "audio/android/audio.h"
+#include "audio/android/utils/Compat.h"
 
 // IDEA: This is actually unity gain, which might not be max in future, expressed in U.12
 #define MAX_GAIN_INT AudioMixer::UNITY_GAIN_INT

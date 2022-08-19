@@ -193,7 +193,7 @@ if(USE_AUDIO)
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
         )
-    elseif(ANDROID)
+    elseif(ANDROID OR OPENHARMONY)
         cocos_source_files(
                          cocos/audio/android/AssetFd.cpp
                          cocos/audio/android/AssetFd.h
@@ -258,73 +258,6 @@ if(USE_AUDIO)
                          cocos/audio/android/utils/Errors.h
                          cocos/audio/android/utils/Utils.cpp
                          cocos/audio/android/utils/Utils.h
-        )
-     elseif(OPENHARMONY) # TODO:May be removed later
-        # Because there will be a definition of OHOS in harmonyos, it is necessary to define the macro of OPENHARMONY.
-        cocos_source_files(
-            cocos/audio/openharmony/AssetFd.cpp
-            cocos/audio/openharmony/AssetFd.h
-            cocos/audio/openharmony/audio.h
-            cocos/audio/openharmony/AudioBufferProvider.h
-            cocos/audio/openharmony/AudioDecoder.cpp
-            cocos/audio/openharmony/AudioDecoder.h
-            cocos/audio/openharmony/AudioDecoderMp3.cpp
-            cocos/audio/openharmony/AudioDecoderMp3.h
-            cocos/audio/openharmony/AudioDecoderOgg.cpp
-            cocos/audio/openharmony/AudioDecoderOgg.h
-            cocos/audio/openharmony/AudioDecoderProvider.cpp
-            cocos/audio/openharmony/AudioDecoderProvider.h
-            cocos/audio/openharmony/AudioDecoderSLES.cpp
-            cocos/audio/openharmony/AudioDecoderSLES.h
-            cocos/audio/openharmony/AudioDecoderWav.cpp
-            cocos/audio/openharmony/AudioDecoderWav.h
-            cocos/audio/openharmony/AudioEngine-inl.cpp
-            cocos/audio/openharmony/AudioEngine-inl.h
-            cocos/audio/openharmony/AudioMixer.cpp
-            cocos/audio/openharmony/AudioMixer.h
-            cocos/audio/openharmony/AudioMixerController.cpp
-            cocos/audio/openharmony/AudioMixerController.h
-            cocos/audio/openharmony/AudioMixerOps.h
-            cocos/audio/openharmony/AudioPlayerProvider.cpp
-            cocos/audio/openharmony/AudioPlayerProvider.h
-            cocos/audio/openharmony/AudioResampler.cpp
-            cocos/audio/openharmony/AudioResampler.h
-            cocos/audio/openharmony/AudioResamplerCubic.cpp
-            cocos/audio/openharmony/AudioResamplerCubic.h
-            cocos/audio/openharmony/AudioResamplerPublic.h
-            cocos/audio/openharmony/audio_utils/format.c
-            cocos/audio/openharmony/audio_utils/include/audio_utils/format.h
-            cocos/audio/openharmony/audio_utils/include/audio_utils/minifloat.h
-            cocos/audio/openharmony/audio_utils/include/audio_utils/primitives.h
-            cocos/audio/openharmony/audio_utils/minifloat.cpp
-            cocos/audio/openharmony/audio_utils/primitives.c
-            cocos/audio/openharmony/audio_utils/private/private.h
-            cocos/audio/openharmony/cutils/bitops.h
-            cocos/audio/openharmony/cutils/log.h
-            cocos/audio/openharmony/IAudioPlayer.h
-            cocos/audio/openharmony/ICallerThreadUtils.h
-            cocos/audio/openharmony/IVolumeProvider.h
-            cocos/audio/openharmony/mp3reader.cpp
-            cocos/audio/openharmony/mp3reader.h
-            cocos/audio/openharmony/OpenSLHelper.h
-            cocos/audio/openharmony/PcmAudioPlayer.cpp
-            cocos/audio/openharmony/PcmAudioPlayer.h
-            cocos/audio/openharmony/PcmAudioService.cpp
-            cocos/audio/openharmony/PcmAudioService.h
-            cocos/audio/openharmony/PcmBufferProvider.cpp
-            cocos/audio/openharmony/PcmBufferProvider.h
-            cocos/audio/openharmony/PcmData.cpp
-            cocos/audio/openharmony/PcmData.h
-            cocos/audio/openharmony/tinysndfile.cpp
-            cocos/audio/openharmony/tinysndfile.h
-            cocos/audio/openharmony/Track.cpp
-            cocos/audio/openharmony/Track.h
-            cocos/audio/openharmony/UrlAudioPlayer.cpp
-            cocos/audio/openharmony/UrlAudioPlayer.h
-            cocos/audio/openharmony/utils/Compat.h
-            cocos/audio/openharmony/utils/Errors.h
-            cocos/audio/openharmony/utils/Utils.cpp
-            cocos/audio/openharmony/utils/Utils.h
         )
      elseif(OHOS)
         cocos_source_files(

@@ -35,8 +35,12 @@ THE SOFTWARE.
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/utils/Utils.h"
 #include "base/ThreadPool.h"
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <sys/system_properties.h>
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+#include "cocos/platform/FileUtils.h"
+#include "cocos/platform/openharmony/FileUtils-OpenHarmony.h"
+#endif
 #include <algorithm> // for std::find_if
 #include <cstdlib>
 #include <utility>
@@ -45,6 +49,7 @@ namespace cc {
 
 static int getSystemAPILevel() {
     static int sSystemApiLevel = -1;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     if (sSystemApiLevel > 0) {
         return sSystemApiLevel;
     }
@@ -57,6 +62,9 @@ static int getSystemAPILevel() {
     }
     sSystemApiLevel = apiLevel;
     return apiLevel;
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    return INT32_MAX;
+#endif
 }
 
 struct AudioFileIndicator {
@@ -307,7 +315,7 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
     off_t         start    = 0;
     off_t         length   = 0;
     int           assetFd  = -1;
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     if (audioFilePath[0] != '/') {
         std::string relativePath;
         size_t      position = audioFilePath.find("@assets/");
@@ -337,11 +345,23 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
             return info;
         }
     }
-
     info.url     = audioFilePath;
     info.assetFd = std::make_shared<AssetFd>(assetFd);
     info.start   = start;
     info.length  = fileSize;
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    FileUtilsOpenHarmony* fileUtils = dynamic_cast<FileUtilsOpenHarmony*>(FileUtils::getInstance());
+    if(!fileUtils) {
+        return info;
+    }
+
+    RawFileDescriptor descriptor;
+    fileUtils->getRawFileDescriptor(audioFilePath, descriptor);
+    info.url     = audioFilePath;
+    info.assetFd = std::make_shared<AssetFd>(descriptor.fd);
+    info.start   = descriptor.start;
+    info.length  = descriptor.length;
+#endif
 
     ALOGV("(%s) file size: %ld", audioFilePath.c_str(), fileSize);
 
@@ -349,6 +369,10 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
 }
 
 bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info) { //NOLINT(readability-convert-member-functions-to-static)
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    // todo
+    return true;
+#endif
     //REFINE: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
     auto &      audioFileInfo = const_cast<AudioFileInfo &>(info);
     size_t      judgeCount    = sizeof(gAudioFileIndicator) / sizeof(gAudioFileIndicator[0]);
@@ -416,8 +440,12 @@ UrlAudioPlayer *AudioPlayerProvider::createUrlAudioPlayer(
         ALOGE("createUrlAudioPlayer failed, url is empty!");
         return nullptr;
     }
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     SLuint32 locatorType = info.assetFd->getFd() > 0 ? SL_DATALOCATOR_ANDROIDFD : SL_DATALOCATOR_URI;
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    SLuint32 locatorType = SL_DATALOCATOR_URI;
+#endif
+    
     auto     urlPlayer   = new (std::nothrow) UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
     bool     ret         = urlPlayer->prepare(info.url, locatorType, info.assetFd, info.start, info.length);
     if (!ret) {

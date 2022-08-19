@@ -18,7 +18,11 @@
 #define COCOS_AUDIO_MINIFLOAT_H
 
 #include <stdint.h>
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <sys/cdefs.h>
+#endif
+#include "audio/android/utils/Compat.h"
 
 __BEGIN_DECLS
 
