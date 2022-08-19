@@ -225,8 +225,7 @@ export class UBOCamera {
     public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
     public static readonly NEAR_FAR_OFFSET = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
     public static readonly VIEW_PORT_OFFSET = UBOCamera.NEAR_FAR_OFFSET + 4;
-    public static readonly SKYBOX_ANGLE_OFFSET = UBOCamera.VIEW_PORT_OFFSET + 4;
-    public static readonly COUNT = UBOCamera.SKYBOX_ANGLE_OFFSET + 4;
+    public static readonly COUNT = UBOCamera.VIEW_PORT_OFFSET + 4;
     public static readonly SIZE = UBOCamera.COUNT * 4;
 
     public static readonly NAME = 'CCCamera';
@@ -252,7 +251,6 @@ export class UBOCamera {
         new Uniform('cc_fogAdd', Type.FLOAT4, 1),
         new Uniform('cc_nearFar', Type.FLOAT4, 1),
         new Uniform('cc_viewPort', Type.FLOAT4, 1),
-        new Uniform('cc_skyboxAngle', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;

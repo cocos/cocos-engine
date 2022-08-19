@@ -413,7 +413,7 @@ export class SkyboxInfo {
      * @en Rotating Sky Box.
      * @zh 旋转天空盒
      */
-    @type(CCInteger)
+    @type(CCFloat)
     @range([0, 360])
     @rangeStep(1)
     @slide

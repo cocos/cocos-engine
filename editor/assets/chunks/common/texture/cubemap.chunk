@@ -11,9 +11,7 @@
     	float delta = (dot(dFdx(R), dFdy(R))) * 1000.0;
     	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
 
-
-      float angle = radians(cc_skyboxAngle.x);
-      vec3 rotationDir = RotationVecFromAxisY(R.xyz, cos(angle), sin(angle));
+      vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
 
     	vec4 biased = fragTextureLod(cc_environment, rotationDir, mip + mipBias);
      	vec4 filtered = texture(cc_environment, rotationDir);
@@ -39,8 +37,7 @@
         roughness = pow(roughness, 0.5);
       #endif
 
-      float angle = radians(cc_skyboxAngle.x);
-      vec3 rotationDir = RotationVecFromAxisY(R.xyz, cos(angle), sin(angle));
+      vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
       
       vec4 envmap = fragTextureLod(cc_environment, rotationDir, roughness * (mipCount - 1.0));
     

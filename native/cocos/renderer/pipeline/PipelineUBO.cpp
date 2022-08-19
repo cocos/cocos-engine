@@ -167,6 +167,9 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::CAMERA_POS_OFFSET + 3] = getCombineSignY();
 
     output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 0] = static_cast<float>(camera->getSurfaceTransform());
+    const float angle = sceneData->getSkybox()->getRotationAngle();
+    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 2] = cos(mathutils::toRadian(angle));
+    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 3] = sin(mathutils::toRadian(angle));
 
     if (fog != nullptr) {
         const auto &colorTempRGB = fog->getColorArray();
@@ -191,8 +194,6 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 1] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getHeight()) * camera->getViewport().y;
     output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 2] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getWidth()) * camera->getViewport().z;
     output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 3] = sceneData->getShadingScale() * static_cast<float>(camera->getWindow()->getHeight()) * camera->getViewport().w;
-
-    output[UBOCamera::SKYBOX_ANGLE_OFFSET] = static_cast<float>(sceneData->getSkybox()->getRotationAngle());
 }
 
 void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::array<float, UBOShadow::COUNT> *shadowBufferView,

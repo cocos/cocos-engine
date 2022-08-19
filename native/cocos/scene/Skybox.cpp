@@ -286,7 +286,7 @@ void Skybox::setSkyboxMaterial(Material *skyboxMat) {
     _editableMaterial = skyboxMat;
 }
 
-void Skybox::setRotationAngle(uint32_t angle) {
+void Skybox::setRotationAngle(float angle) {
     _rotationAngle = angle;
 }
 

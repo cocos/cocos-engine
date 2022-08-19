@@ -451,8 +451,7 @@ struct CC_DLL UBOCamera {
     static constexpr uint32_t GLOBAL_FOG_ADD_OFFSET = UBOCamera::GLOBAL_FOG_BASE_OFFSET + 4;
     static constexpr uint32_t GLOBAL_NEAR_FAR_OFFSET = UBOCamera::GLOBAL_FOG_ADD_OFFSET + 4;
     static constexpr uint32_t GLOBAL_VIEW_PORT_OFFSET = UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 4;
-    static constexpr uint32_t SKYBOX_ANGLE_OFFSET = UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 4;
-    static constexpr uint32_t COUNT = UBOCamera::SKYBOX_ANGLE_OFFSET + 4;
+    static constexpr uint32_t COUNT = UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 4;
     static constexpr uint32_t SIZE = UBOCamera::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::UBO_CAMERA);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
