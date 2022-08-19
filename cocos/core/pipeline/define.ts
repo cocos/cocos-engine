@@ -519,9 +519,7 @@ export class UBOSkinning {
         UBOSkinning._jointUniformCapacity = capacity;
         UBOSkinning._count = capacity * 12;
         UBOSkinning._size = UBOSkinning._count * 4;
-        const members = UBOSkinning.LAYOUT.members;
-        members[0].count = capacity * 3;
-        UBOSkinning.LAYOUT.members = members;
+        UBOSkinning.LAYOUT.members[0].count = capacity * 3;
     }
 }
 
