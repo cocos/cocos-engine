@@ -56,7 +56,6 @@ CCProgram sky-fs %{
   #include <common/data/unpack>
   #include <common/color/gamma>
   #include <legacy/output-standard>
-  #include <common/common-define>
   #include <common/math/coordinates>
 
   in mediump vec4 viewDir;
