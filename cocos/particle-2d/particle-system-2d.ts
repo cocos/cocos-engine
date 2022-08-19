@@ -1191,6 +1191,10 @@ export class ParticleSystem2D extends UIRenderer {
     }
 
     protected _render (render: IBatcher) {
+        if (!this._renderSpriteFrame) {
+            console.log('no texture');
+            return;
+        }
         if (this._positionType === PositionType.RELATIVE) {
             render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node.parent);
         } else if (this.positionType === PositionType.GROUPED) {
