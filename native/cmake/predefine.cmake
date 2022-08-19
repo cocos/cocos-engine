@@ -225,6 +225,24 @@ find_program(NODE_EXECUTABLE NAMES node)
 find_program(TSC_EXECUTABLE NAMES tsc)
 find_program(CCACHE_EXECUTABLE NAMES ccache)
 
+if("${NODE_EXECUTABLE}" STREQUAL "NODE_EXECUTABLE-NOTFOUND")
+    if(CMAKE_HOST_APPLE)
+        find_program(NODE_EXECUTABLE NAMES node PATHS "/usr/local/bin" "/opt/homebrew/bin")
+    endif()
+endif()
+
+if("${TSC_EXECUTABLE}" STREQUAL "TSC_EXECUTABLE-NOTFOUND")
+    if(CMAKE_HOST_APPLE)
+        find_program(TSC_EXECUTABLE NAMES tsc PATHS "/usr/local/bin" "/opt/homebrew/bin")
+    endif()
+endif()
+
+if("${CCACHE_EXECUTABLE}" STREQUAL "CCACHE_EXECUTABLE-NOTFOUND")
+    if(CMAKE_HOST_APPLE)
+        find_program(CCACHE_EXECUTABLE NAMES ccache PATHS "/usr/local/bin" "/opt/homebrew/bin")
+    endif()
+endif()
+
 ## predefined configurations for game applications
 include(${CMAKE_CURRENT_LIST_DIR}/../../templates/cmake/common.cmake)
 if(APPLE)
