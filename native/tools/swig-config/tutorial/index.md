@@ -328,7 +328,7 @@ In this section, we have learned how to use `Swig` tool to bind a simple class, 
 
 ### Import depended header files
 
-Suppose we let MyObject class be inheried from MyRef class. But we don't want to bind MyRef class.
+Suppose we let MyObject class be inherited from MyRef class. But we don't want to bind MyRef class.
 
 ```c++
 // MyRef.h
@@ -370,7 +370,7 @@ private:
 } // namespace my_ns {
 ```
 
-When Swig parses MyObject.h,  it will not known what `MyRef` is, it will output a warning in console.
+When Swig parses MyObject.h,  it will not know what `MyRef` is,  it will output a warning in console.
 
 ```bash
 .../Classes/MyObject.h:7: Warning 401: Nothing known about base class 'MyRef'. Ignored.
@@ -389,7 +389,7 @@ It's simple to fix this issue, we need to let Swig know that MyRef exists by usi
 %include "MyObject.h"
 ```
 
-Although Swig doesn't report error now, the binding code will not be compiled, the error is:
+Although Swig doesn't report the error now, the binding code will not be compiled, the error is:
 
 ![](MyRefCompileError.jpg)
 
@@ -409,7 +409,7 @@ In last section, we got a compile error in `js_register_my_ns_MyObject`. Since M
 %include "MyObject.h"
 ```
 
-Generate binding again, it compiles ok.
+[Generate binding](###Generate bindings) again, it compiles ok.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -447,7 +447,7 @@ private:
 
 ```
 
-Re-generate bindings, we'll get `methodToBeIgnored` and `propertyToBeIgnored` bound.
+[Re-generate bindings](###Generate bindings), we'll get `methodToBeIgnored` and `propertyToBeIgnored` bound.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -461,7 +461,7 @@ bool js_register_my_ns_MyObject(se::Object* obj) {
 }
 ```
 
-Modify `my-module.i`to fix it
+Modify `my-module.i`to skip binding them.
 
 ```c++
 // my-module.i
@@ -475,7 +475,7 @@ Modify `my-module.i`to fix it
 %include "MyObject.h"
 ```
 
-Re-generate bindings, they're ignored now.
+[Re-generate bindings](###Generate bindings), they're ignored now.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -514,7 +514,7 @@ private:
 } // namespace my_ns {
 ```
 
-Generate bindings, we get:
+[Generate bindings](###Generate bindings), we get:
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -527,7 +527,7 @@ bool js_register_my_ns_MyObject(se::Object* obj) {
     cls->defineFunction("methodToBeRenamed", _SE(js_my_ns_MyObject_methodToBeRenamed)); 
 ```
 
-If we want to rename `propertyToBeRenamed` to `coolProperty` and rename `methodToBeRenamed` to `coolMethod`, modify my-module.i as follows:
+If we want to rename `propertyToBeRenamed` to `coolProperty` and rename `methodToBeRenamed` to `coolMethod`, modify `my-module.i` as follows:
 
 ```c++
 // my-module.i
@@ -542,13 +542,13 @@ If we want to rename `propertyToBeRenamed` to `coolProperty` and rename `methodT
 %include "MyObject.h"
 ```
 
-If we wanna rename `MyObject` class to `MyCoolObject`, I guess you have already know how to do.  Yes, add this line:
+If we want to rename `MyObject` class to `MyCoolObject`, I guess you have already known how to do.  Yes, add this line:
 
 ```c++
 %rename(MyCoolObject) my_ns::MyObject;
 ```
 
-Re-generate bindings, get the correct name exported to JS.
+[Re-generate bindings](###Generate bindings), get the correct name exported to JS.
 
 ```c++
 // jsb_my_module_auto.cpp
@@ -802,7 +802,61 @@ export class MyComponent extends Component {
 }
 ```
 
-Generate bindings, build and run the project, get output as following:
+[Generate bindings](###Generate bindings), look at the binding code
+
+```c++
+#if USE_MY_FEATURE // NOTE THAT, all binding code of MyFeatureObject is wrapped by USE_MY_FEATURE macro
+
+se::Class* __jsb_my_ns_MyFeatureObject_class = nullptr;
+se::Object* __jsb_my_ns_MyFeatureObject_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_my_ns_MyFeatureObject) 
+
+static bool js_my_ns_MyFeatureObject_foo(se::State& s)
+{
+// ......
+}
+// ......
+bool js_register_my_ns_MyFeatureObject(se::Object* obj) {
+    auto* cls = se::Class::create("MyFeatureObject", obj, nullptr, _SE(js_new_my_ns_MyFeatureObject)); 
+// ......
+}
+
+#endif // USE_MY_FEATURE
+
+// ......
+static bool js_my_ns_MyCoolObject_getFeatureObject(se::State& s)
+{
+#if USE_MY_FEATURE // getFeatureObject function is also wrapped by USE_MY_FEATURE
+// ......
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "MyCoolObject_getFeatureObject, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+#endif // USE_MY_FEATURE
+    return true;
+}
+SE_BIND_FUNC(js_my_ns_MyCoolObject_getFeatureObject) 
+
+// ......
+bool register_all_my_module(se::Object* obj) {
+    // Get the ns
+    se::Value nsVal;
+    if (!obj->getProperty("my_ns", &nsVal, true))
+    {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        obj->setProperty("my_ns", nsVal);
+    }
+    se::Object* ns = nsVal.toObject();
+    /* Register classes */
+#if USE_MY_FEATURE
+    js_register_my_ns_MyFeatureObject(ns); // js_register_my_ns_MyFeatureObject is wrapped by USE_MY_FEATURE
+#endif // USE_MY_FEATURE
+    js_register_my_ns_MyObject(ns); 
+    return true;
+}
+```
+
+Build and run the project, get output as following:
 
 ```
 18:32:20 [DEBUG]: D/ JS: ==> featureObj: [object Object] // featureObj is valid if USE_MY_FEATURE macro is enabled
@@ -925,7 +979,7 @@ list(APPEND CC_COMMON_SOURCES
 )
 ```
 
-Generate bindings again.
+[Generate bindings again](###Generate bindings).
 
 Update Game.cpp
 
