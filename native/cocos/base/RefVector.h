@@ -28,9 +28,7 @@
 
 #pragma once
 
-#ifndef CC_WGPU_WASM // type alias redefinition
-    #include <sys/types.h>
-#endif
+#include <sys/types.h>
 #include <algorithm> // for std::find
 #include <cstdint>
 #include <functional>
