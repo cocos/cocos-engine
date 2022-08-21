@@ -11392,6 +11392,34 @@ static bool js_scene_SkyboxInfo_set__editableMaterial(se::State& s) // NOLINT(re
 }
 SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__editableMaterial)
 
+static bool js_scene_SkyboxInfo_get__rotationAngle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->_rotationAngle, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_rotationAngle, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_SkyboxInfo_get__rotationAngle)
+
+static bool js_scene_SkyboxInfo_set__rotationAngle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->_rotationAngle, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_SkyboxInfo_set__rotationAngle)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_SkyboxInfo_finalize)
 
 static bool js_scene_SkyboxInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -11425,6 +11453,7 @@ bool js_register_scene_SkyboxInfo(se::Object* obj) // NOLINT(readability-identif
     cls->defineProperty("_useHDR", _SE(js_scene_SkyboxInfo_get__useHDR), _SE(js_scene_SkyboxInfo_set__useHDR));
     cls->defineProperty("_envLightingType", _SE(js_scene_SkyboxInfo_get__envLightingType), _SE(js_scene_SkyboxInfo_set__envLightingType));
     cls->defineProperty("_editableMaterial", _SE(js_scene_SkyboxInfo_get__editableMaterial), _SE(js_scene_SkyboxInfo_set__editableMaterial));
+    cls->defineProperty("_rotationAngle", _SE(js_scene_SkyboxInfo_get__rotationAngle), _SE(js_scene_SkyboxInfo_set__rotationAngle));
     cls->defineProperty("_envmap", _SE(js_scene_SkyboxInfo_getEnvmapForJS_asGetter), _SE(js_scene_SkyboxInfo_setEnvmapForJS_asSetter));
     cls->defineProperty("applyDiffuseMap", _SE(js_scene_SkyboxInfo_isApplyDiffuseMap_asGetter), _SE(js_scene_SkyboxInfo_setApplyDiffuseMap_asSetter));
     cls->defineProperty("enabled", _SE(js_scene_SkyboxInfo_isEnabled_asGetter), _SE(js_scene_SkyboxInfo_setEnabled_asSetter));
@@ -11544,6 +11573,26 @@ static bool js_scene_Skybox_getReflectionMap(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_scene_Skybox_getReflectionMap)
+
+static bool js_scene_Skybox_getRotationAngle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getRotationAngle();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Skybox_getRotationAngle)
 
 static bool js_scene_Skybox_initialize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -11811,6 +11860,26 @@ static bool js_scene_Skybox_setReflectionMaps(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_Skybox_setReflectionMaps)
 
+static bool js_scene_Skybox_setRotationAngle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setRotationAngle(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Skybox_setRotationAngle)
+
 static bool js_scene_Skybox_setSkyboxMaterial(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
@@ -11924,11 +11993,13 @@ bool js_register_scene_Skybox(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("diffuseMap", _SE(js_scene_Skybox_getDiffuseMap_asGetter), _SE(js_scene_Skybox_setDiffuseMap_asSetter));
     cls->defineFunction("activate", _SE(js_scene_Skybox_activate));
     cls->defineFunction("getReflectionMap", _SE(js_scene_Skybox_getReflectionMap));
+    cls->defineFunction("getRotationAngle", _SE(js_scene_Skybox_getRotationAngle));
     cls->defineFunction("initialize", _SE(js_scene_Skybox_initialize));
     cls->defineFunction("isUsingConvolutionMap", _SE(js_scene_Skybox_isUsingConvolutionMap));
     cls->defineFunction("setDiffuseMaps", _SE(js_scene_Skybox_setDiffuseMaps));
     cls->defineFunction("setEnvMaps", _SE(js_scene_Skybox_setEnvMaps));
     cls->defineFunction("setReflectionMaps", _SE(js_scene_Skybox_setReflectionMaps));
+    cls->defineFunction("setRotationAngle", _SE(js_scene_Skybox_setRotationAngle));
     cls->defineFunction("setSkyboxMaterial", _SE(js_scene_Skybox_setSkyboxMaterial));
     cls->defineFinalizeFunction(_SE(js_cc_scene_Skybox_finalize));
     cls->install();
