@@ -14,6 +14,7 @@ android {
         java.srcDirs "src"
         res.srcDirs 'res'
         jniLibs.srcDirs 'libs'
+        jniLibs.srcDirs "${COCOS_ENGINE_PATH}/external/sources/xr/huaweivr/android/java/libs"
         manifest.srcFile "AndroidManifest.xml"
     }
 
@@ -31,5 +32,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+    implementation fileTree(dir: "${COCOS_ENGINE_PATH}/external/sources/xr/huaweivr/android/java/libs", include: ['*.jar','*.aar'])
     implementation project(':libcocos')
 }

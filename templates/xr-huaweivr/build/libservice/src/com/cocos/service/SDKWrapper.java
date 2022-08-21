@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -98,6 +98,14 @@ public final class SDKWrapper {
     public Activity getActivity() { return this.mActivity.get(); }
 
     public void init(Activity activity) {
+        try {
+            Class<?> libUpdateClient = Class.forName("com.huawei.hvr.LibUpdateClient");
+            Object libUpdateClientObj = libUpdateClient.getConstructor(android.content.Context.class).newInstance(activity);
+            libUpdateClient.getMethod("runUpdate").invoke(libUpdateClientObj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         this.mActivity = new WeakReference<>(activity);
         this.loadSDKInterface();
         for (SDKInterface sdk : this.serviceInstances) {

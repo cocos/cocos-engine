@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2015-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -36,7 +36,6 @@ public class AppActivity extends CocosActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSurfaceView().setZOrderOnTop(true);
         // DO OTHER INITIALIZATION BELOW
         SDKWrapper.shared().init(this);
 
