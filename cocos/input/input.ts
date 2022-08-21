@@ -341,13 +341,13 @@ export class Input {
 
         if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
             const eventHandleList = this._eventHandleList;
-            this._handleInput.on(InputEventType.HANDLE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandleList); });
-            this._handleInput.on(InputEventType.HANDLE_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandleList); });
+            this._handleInput._on(InputEventType.HANDLE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandleList); });
+            this._handleInput._on(InputEventType.HANDLE_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandleList); });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_HMD)) {
             const eventHMDList = this._eventHMDList;
-            this._hmdInput.on(InputEventType.HMD_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHMDList); });
+            this._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHMDList); });
         }
     }
 

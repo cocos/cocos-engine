@@ -131,8 +131,8 @@ enum class StickKeyCode {
     R3,
     MENU,
     START,
-    LEFT_STICK,
-    RIGHT_STICK,
+    TRIGGER_LEFT,
+    TRIGGER_RIGHT,
 };
 
 enum class StickAxisCode {

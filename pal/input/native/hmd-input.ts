@@ -56,7 +56,10 @@ export class HMDInputDevice {
         };
     }
 
-    public on (eventType: InputEventType, callback: HMDCallback, target?: any) {
+    /**
+     * @engineInternal
+     */
+    public _on (eventType: InputEventType, callback: HMDCallback, target?: any) {
         this._eventTarget.on(eventType, callback, target);
     }
 

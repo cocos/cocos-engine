@@ -50,6 +50,3 @@ export class EventHMD extends Event {
         this.hmdInputDevice = hmdInputDevice;
     }
 }
-
-// @ts-expect-error TODO
-Event.EventHMD = EventHMD;

@@ -260,7 +260,7 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
 
     for (const auto &controller : controllerEvent.controllerInfos) {
         se::HandleObject jsController{se::Object::createPlainObject()};
-        jsController->setProperty("number", se::Value(controller->napdId));
+        jsController->setProperty("id", se::Value(controller->napdId));
 
         se::HandleObject jsButtonInfoList{se::Object::createArrayObject(static_cast<uint32_t>(controller->buttonInfos.size()))};
 

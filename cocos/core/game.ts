@@ -688,10 +688,13 @@ export class Game extends EventTarget {
                 }
 
                 if (sys.isXR) {
+                    // XrEntry must not be destroyed
+                    xr.entry = xr.XrEntry.getInstance();
+
                     const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
                     const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
-                    xr.XrEntry.getInstance().setMultisamplesRTT(xrMSAA);
-                    xr.XrEntry.getInstance().setRenderingScale(xrRenderingScale);
+                    xr.entry.setMultisamplesRTT(xrMSAA);
+                    xr.entry.setRenderingScale(xrRenderingScale);
                 }
 
                 this.emit(Game.EVENT_POST_BASE_INIT);

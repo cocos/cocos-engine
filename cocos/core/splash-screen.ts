@@ -283,11 +283,11 @@ export class SplashScreen {
     private frame () {
         const { device, swapchain } = this;
 
-        if (!sys.isXR || xr.XrEntry.getInstance().isRenderAllowable()) {
+        if (!sys.isXR || xr.entry.isRenderAllowable()) {
             const renderSize = sys.isXR ? 2 : 1;
             for (let xrEye = 0; xrEye < renderSize; xrEye++) {
                 if (sys.isXR) {
-                    xr.XrEntry.getInstance().renderLoopStart(xrEye);
+                    xr.entry.renderLoopStart(xrEye);
                 }
 
                 device.acquire([swapchain]);
@@ -327,7 +327,7 @@ export class SplashScreen {
                 device.present();
 
                 if (sys.isXR) {
-                    xr.XrEntry.getInstance().renderLoopEnd(xrEye);
+                    xr.entry.renderLoopEnd(xrEye);
                 }
             }
         }

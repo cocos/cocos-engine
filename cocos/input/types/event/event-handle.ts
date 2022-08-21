@@ -50,6 +50,3 @@ export class EventHandle extends Event {
         this.handleInputDevice = handleInputDevice;
     }
 }
-
-// @ts-expect-error TODO
-Event.EventHandle = EventHandle;

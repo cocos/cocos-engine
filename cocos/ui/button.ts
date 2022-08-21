@@ -991,12 +991,12 @@ export class Button extends Component {
         }
     }
 
-    protected _xrHoverEnter() {
+    private _xrHoverEnter() {
         this._onMouseMoveIn();
         this._updateState();
     }
 
-    protected _xrHoverExit() {
+    private _xrHoverExit() {
         this._onMouseMoveOut();
         if (this._pressed) {
             this._pressed = false;
@@ -1004,13 +1004,13 @@ export class Button extends Component {
         }
     }
 
-    protected _xrClick() {
+    private _xrClick() {
         if (!this._interactable || !this.enabledInHierarchy) { return; }
         this._pressed = true;
         this._updateState();
     }
 
-    protected _xrUnClick() {
+    private _xrUnClick() {
         if (!this._interactable || !this.enabledInHierarchy) {
             return;
         }

@@ -46,7 +46,7 @@ declare module 'pal/input' {
         public dispatchKeyboardUpEvent? (nativeKeyboardEvent: any);
     }
 
-    export type GamepadCallback = (res: import('cocos/input/types/event').EventGamepad) => void;
+    type GamepadCallback = (res: import('cocos/input/types/event').EventGamepad) => void;
 
     /**
      * Class designed for gamepad input
@@ -155,25 +155,10 @@ declare module 'pal/input' {
         public get rightStick (): InputSourceStick;
 
         /**
-         * @en The button Menu
-         * @zh 菜单按键
-         */
-        public get buttonMenu (): InputSourceButton;
-        /**
          * @en The button Start
          * @zh 开始按键
          */
         public get buttonStart (): InputSourceButton;
-        /**
-         * @en The button LeftStick
-         * @zh 左摇杆按键
-         */
-        public get buttonLeftStick (): InputSourceButton;
-        /**
-         * @en The button RightStick
-         * @zh 右摇杆按键
-         */
-        public get buttonRightStick (): InputSourceButton;
     }
 
     type AccelerometerCallback = (res: import('cocos/input/types').EventAcceleration) => void;
@@ -210,8 +195,9 @@ declare module 'pal/input' {
     export class HandleInputDevice {
         /**
          * Register the handle event callback.
+         * @engineInternal
          */
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HandleCallback, target?: any);
+        public _on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HandleCallback, target?: any);
 
         /**
          * @en  The control button in the north direction which is generally the button Y
@@ -337,8 +323,9 @@ declare module 'pal/input' {
     export class HMDInputDevice {
         /**
          * Register the hmd event callback.
+         * @engineInternal
          */
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HMDCallback, target?: any);
+        public _on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HMDCallback, target?: any);
 
         /**
          * @en The position Left view

@@ -48,10 +48,10 @@ const _nativeButtonMap = {
     2: Button.BUTTON_SOUTH,
     3: Button.BUTTON_NORTH,
     4: Button.BUTTON_WEST,
-    9: Button.BUTTON_TRIGGER_LEFT,
-    10: Button.BUTTON_TRIGGER_RIGHT,
-    13: Button.BUTTON_LEFT_STICK,
-    14: Button.BUTTON_RIGHT_STICK,
+    9: Button.BUTTON_LEFT_STICK,
+    10: Button.BUTTON_RIGHT_STICK,
+    13: Button.BUTTON_TRIGGER_LEFT,
+    14: Button.BUTTON_TRIGGER_RIGHT,
 };
 
 interface IAxisValue {
@@ -161,7 +161,10 @@ export class HandleInputDevice {
         };
     }
 
-    public on (eventType: InputEventType, callback: HandleCallback, target?: any) {
+    /**
+     * @engineInternal
+     */
+    public _on (eventType: InputEventType, callback: HandleCallback, target?: any) {
         this._eventTarget.on(eventType, callback, target);
     }
 
