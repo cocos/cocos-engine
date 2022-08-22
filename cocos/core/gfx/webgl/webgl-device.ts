@@ -235,6 +235,8 @@ export class WebGLDevice extends Device {
             this._cmdBuff.destroy();
             this._cmdBuff = null;
         }
+
+        this._swapchain = null;
     }
 
     public flushCommands (cmdBuffs: CommandBuffer[]) {}
@@ -497,6 +499,10 @@ export class WebGLDevice extends Device {
             this._samplers.set(hash, new WebGLSampler(info, hash));
         }
         return this._samplers.get(hash)!;
+    }
+
+    public getSwapchains (): Readonly<Swapchain[]> {
+        return [this._swapchain as Swapchain];
     }
 
     public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {

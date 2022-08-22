@@ -96,10 +96,23 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     #endif
 #endif
 
-    EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
-    if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
-        CC_LOG_ERROR("Create window surface failed.");
-        return;
+    IXRInterface *xr = CC_GET_XR_INTERFACE();
+    EGLSurfaceType surfaceType = xr ? xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
+    if (surfaceType == EGLSurfaceType::PBUFFER) {
+        EGLint pbufferAttribs[]{
+            EGL_WIDTH, 1,
+            EGL_HEIGHT, 1,
+            EGL_NONE};
+        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreatePbufferSurface(context->eglDisplay, context->eglConfig, pbufferAttribs));
+    } else if (surfaceType == EGLSurfaceType::WINDOW) {
+        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
+        if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+            CC_LOG_ERROR("Create window surface failed.");
+            return;
+        }
+    }
+    if (xr) {
+        GLES3Device::getInstance()->context()->makeCurrent(_gpuSwapchain, _gpuSwapchain);
     }
 
     switch (_vsyncMode) {
@@ -195,10 +208,21 @@ void GLES3Swapchain::doCreateSurface(void *windowHandle) {
 #endif
 
     if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
-        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
-        if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
-            CC_LOG_ERROR("Recreate window surface failed.");
-            return;
+        IXRInterface *xr = CC_GET_XR_INTERFACE();
+        EGLSurfaceType surfaceType = xr ? xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
+        if (surfaceType == EGLSurfaceType::PBUFFER) {
+            EGLint pbufferAttribs[]{
+                EGL_WIDTH, 1,
+                EGL_HEIGHT, 1,
+                EGL_NONE};
+            EGL_CHECK(_gpuSwapchain->eglSurface = eglCreatePbufferSurface(context->eglDisplay, context->eglConfig, pbufferAttribs));
+        } else if (surfaceType == EGLSurfaceType::WINDOW) {
+            EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
+
+            if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+                CC_LOG_ERROR("Recreate window surface failed.");
+                return;
+            }
         }
     }
 

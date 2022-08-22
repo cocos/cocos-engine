@@ -282,6 +282,12 @@ export abstract class Device {
     public abstract getSampler (info: Readonly<SamplerInfo>): Sampler;
 
     /**
+     * @en Get swapchains.
+     * @zh 获取交换链列表。
+     */
+    public abstract getSwapchains (): Readonly<Swapchain[]>;
+
+    /**
      * @en Create global barrier.
      * @zh 创建全局内存屏障。
      * @param info GFX global barrier description info.

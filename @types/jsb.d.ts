@@ -71,6 +71,40 @@ declare namespace jsb {
     export let onTouchEnd: TouchEventCallback | undefined;
     export let onTouchCancel: TouchEventCallback | undefined;
 
+    export interface ControllerInfo {
+        id: number;
+        axisInfoList: AxisInfo[],
+        buttonInfoList: ButtonInfo[],
+    }
+
+    export interface AxisInfo {
+        code: number,
+        value: number,
+    }
+
+    export interface ButtonInfo {
+        code: number,
+        isPressed: boolean,
+    }
+
+    export let onControllerInput: (infoList: ControllerInfo[]) => void | undefined;
+    export let onHandleInput: (infoList: ControllerInfo[]) => void | undefined;
+    export let onControllerChange: (controllerIds: number[]) => void | undefined;
+
+    export interface PoseInfo {
+        code: number,
+        x: number,
+        y: number,
+        z: number,
+        quaternionX: number,
+        quaternionY: number,
+        quaternionZ: number,
+        quaternionW: number,
+    }
+
+    export let onHandlePoseInput: (infoList: PoseInfo[]) => void | undefined;
+    export let onHMDPoseInput: (infoList: PoseInfo[]) => void | undefined;
+
     export interface KeyboardEvent {
         altKey: boolean;
         ctrlKey: boolean;
