@@ -25,36 +25,33 @@
 
 #pragma once
 
-#include <iostream>
-#include "platform/interfaces/modules/ISystemWindow.h"
+#include <string>
+#include <memory>
+#include "base/std/container/unordered_map.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 @class UIWindow;
 
 namespace cc {
-class SystemWindow : public ISystemWindow {
-public:
-    SystemWindow(uint32_t windowId, void *externalHandle);
-    ~SystemWindow() override;
-    
-    void closeWindow() override;
-    uintptr_t getWindowHandle() const override;
 
-    Size getViewSize() const override;
-    /*
-     @brief enable/disable(lock) the cursor, default is enabled
-     */
-    void setCursorEnabled(bool value) override;
-    void copyTextToClipboard(const std::string& text) override;
+class ISystemWindow;
+
+class SystemWindowManager : public ISystemWindowManager {
+public:
+    explicit SystemWindowManager() = default;
+
+    int init() override { return 0; }
+    void processEvent(bool *quit) override {}
+    void swapWindows() override {}
+
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
     
-    uint32_t getWindowId() const override { return _windowId; }
-    UIWindow *getUIWindow() const { return _window; }
+    ISystemWindow *getWindowFromUIWindow(UIWindow *window) const;
 
 private:
-    int32_t _width{0};
-    int32_t _height{0};
-    
-    uint32_t _windowId{0};
-    void* _externalHandle{nullptr};
-    UIWindow* _window{nullptr};
+    static uint32_t nextWindowId; // start from 1, 0 means an invalid ID
+    SystemWindowMap _windows;
 };
 } // namespace cc

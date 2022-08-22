@@ -103,7 +103,11 @@
     [self viewDidChangeBackingProperties];
 
     if (cc::EventDispatcher::initialized()) {
+        auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+        auto *window = windowMgr->getWindowFromNSWindow([self window]);
+        
         cc::WindowEvent ev;
+        ev.windowId = window->getWindowId();
         ev.type = cc::WindowEvent::Type::RESIZED;
         ev.width = static_cast<int>(nativeSize.width);
         ev.height = static_cast<int>(nativeSize.height);
@@ -266,7 +270,7 @@
     const NSPoint pos = [event locationInWindow];
 
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
-    auto *window = windowMgr->getWindowFromNSWindow(event.window);
+    auto *window = windowMgr->getWindowFromNSWindow([self window]);
     
     _mouseEvent.windowId = window->getWindowId();
     _mouseEvent.type = type;

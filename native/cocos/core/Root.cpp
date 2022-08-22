@@ -46,6 +46,7 @@
 #include "scene/SpotLight.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/IScreen.h"
 #include "platform/BasePlatform.h"
 #include "application/ApplicationManager.h"
 
@@ -99,14 +100,17 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     if (!window) {
         return nullptr;
     }
+    
+    IScreen *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
+    float pixelRatio = screen->getDevicePixelRatio();
 
     uint32_t windowId = window->getWindowId();
     auto handle = window->getWindowHandle();
     const auto &size = window->getViewSize();
 
     gfx::SwapchainInfo info;
-    info.width  = static_cast<uint32_t>(size.x);
-    info.height = static_cast<uint32_t>(size.y);
+    info.width  = static_cast<uint32_t>(size.x) * pixelRatio;
+    info.height = static_cast<uint32_t>(size.y) * pixelRatio;
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
 
@@ -442,13 +446,16 @@ uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     ISystemWindow *window = windowMgr->createWindow(info);
     if (window) {
+        IScreen *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
+        float pixelRatio = screen->getDevicePixelRatio();
+        
         auto handle = window->getWindowHandle();
         const auto &size = window->getViewSize();
         uint32_t windowId = window->getWindowId();
 
         gfx::SwapchainInfo info;
-        info.width  = static_cast<uint32_t>(size.x);
-        info.height = static_cast<uint32_t>(size.y);
+        info.width  = static_cast<uint32_t>(size.x) * pixelRatio;
+        info.height = static_cast<uint32_t>(size.y) * pixelRatio;
         info.windowHandle = reinterpret_cast<void *>(handle);
         info.windowId = windowId;
 

@@ -221,7 +221,7 @@ public:
 
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
-            touchEvent.windowId = 1;
+            touchEvent.windowId = 1; // Assuming main window
 
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
