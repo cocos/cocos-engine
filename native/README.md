@@ -20,6 +20,7 @@ System Requirements
 --------------------------------
 - macOS 10.14+
 - iOS 11.0+
+- iOS Simulator 13.0+
 - 64-bit Windows 7+ 
   - with vulkan 1.0 to 1.2 if want to run with vulkan
 - Android 4.4+
