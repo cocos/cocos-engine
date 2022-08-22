@@ -34,11 +34,8 @@
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/network/WebSocketServer.h"
 
-se::Class *__jsb_WebSocketServer_class = nullptr; // NOLINT
+se::Class *__jsb_WebSocketServer_class = nullptr;            // NOLINT
 se::Class *__jsb_WebSocketServer_Connection_class = nullptr; // NOLINT
-
-using WSSPTR = std::shared_ptr<cc::network::WebSocketServer> *;
-using WSCONNPTR = std::shared_ptr<cc::network::WebSocketServerConnection> *;
 
 static int sendIndex = 1;
 
@@ -49,7 +46,7 @@ static ccstd::string genSendIndex() {
 }
 
 static bool WebSocketServer_finalize(se::State &s) { // NOLINT(readability-identifier-naming)
-    auto *cobj = static_cast<WSSPTR>(s.nativeThisObject());
+    auto *cobj = static_cast<cc::network::WebSocketServer *>(s.nativeThisObject());
     CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocketServer)", cobj);
     return true;
 }
@@ -88,7 +85,9 @@ static bool WebSocketServer_listen(se::State &s) { // NOLINT(readability-identif
         return false;
     }
 
-    auto *cobj = static_cast<WSSPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServer> *>(privateObj)->getData();
     int argPort = 0;
     ccstd::string argHost;
     std::function<void(const ccstd::string &)> argCallback;
@@ -114,7 +113,7 @@ static bool WebSocketServer_listen(se::State &s) { // NOLINT(readability-identif
         }
         if (funObj) {
             s.thisObject()->setProperty("__onlisten", se::Value(funObj));
-            std::weak_ptr<cc::network::WebSocketServer> serverWeak = *cobj;
+            std::weak_ptr<cc::network::WebSocketServer> serverWeak = cobj;
             argCallback = [serverWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
 
@@ -144,7 +143,7 @@ static bool WebSocketServer_listen(se::State &s) { // NOLINT(readability-identif
         }
     }
 
-    cc::network::WebSocketServer::listenAsync(*cobj, argPort, argHost, argCallback);
+    cc::network::WebSocketServer::listenAsync(cobj, argPort, argHost, argCallback);
     return true;
 }
 SE_BIND_FUNC(WebSocketServer_listen)
@@ -157,11 +156,14 @@ static bool WebSocketServer_onconnection(se::State &s) { // NOLINT(readability-i
         return false;
     }
 
-    auto *cobj = static_cast<WSSPTR>(s.nativeThisObject());
     s.thisObject()->setProperty("__onconnection", args[0]);
-    std::weak_ptr<cc::network::WebSocketServer> serverWeak = *cobj;
 
-    cobj->get()->setOnConnection([serverWeak](const std::shared_ptr<cc::network::WebSocketServerConnection>& conn) {
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServer> *>(privateObj)->getData();
+    std::weak_ptr<cc::network::WebSocketServer> serverWeak = cobj;
+
+    cobj->setOnConnection([serverWeak](const std::shared_ptr<cc::network::WebSocketServerConnection> &conn) {
         se::AutoHandleScope hs;
 
         auto server = serverWeak.lock();
@@ -217,9 +219,11 @@ static bool WebSocketServer_onclose(se::State &s) { // NOLINT(readability-identi
         SE_REPORT_ERROR("argument type error, function expected!");
     }
 
-    auto *cobj = static_cast<WSSPTR>(s.nativeThisObject());
     std::function<void(const ccstd::string &)> callback;
-    std::weak_ptr<cc::network::WebSocketServer> serverWeak = *cobj;
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServer> *>(privateObj)->getData();
+    std::weak_ptr<cc::network::WebSocketServer> serverWeak = cobj;
     s.thisObject()->setProperty("__onclose", args[0]);
 
     callback = [serverWeak](const ccstd::string &err) {
@@ -248,7 +252,7 @@ static bool WebSocketServer_onclose(se::State &s) { // NOLINT(readability-identi
             se::ScriptEngine::getInstance()->clearException();
         }
     };
-    (*cobj)->setOnClose(callback);
+    cobj->setOnClose(callback);
 
     return true;
 }
@@ -262,13 +266,15 @@ static bool WebSocketServer_close(se::State &s) { // NOLINT(readability-identifi
         return false;
     }
 
-    auto *cobj = static_cast<WSSPTR>(s.nativeThisObject());
     std::function<void(const ccstd::string &)> callback;
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServer> *>(privateObj)->getData();
 
     if (argc == 1) {
         if (args[0].isObject() && args[0].toObject()->isFunction()) {
             s.thisObject()->setProperty("__close", args[0]);
-            std::weak_ptr<cc::network::WebSocketServer> serverWeak = *cobj;
+            std::weak_ptr<cc::network::WebSocketServer> serverWeak = cobj;
 
             callback = [serverWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
@@ -296,13 +302,13 @@ static bool WebSocketServer_close(se::State &s) { // NOLINT(readability-identifi
                     se::ScriptEngine::getInstance()->clearException();
                 }
             };
-            (*cobj)->closeAsync(callback);
+            cobj->closeAsync(callback);
         } else {
             SE_REPORT_ERROR("wrong argument type, function expected");
             return false;
         }
     } else {
-        (*cobj)->closeAsync();
+        cobj->closeAsync();
     }
 
     return true;
@@ -314,8 +320,10 @@ static bool WebSocketServer_connections(se::State &s) { // NOLINT(readability-id
     int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        auto *cobj = static_cast<WSSPTR>(s.nativeThisObject());
-        auto conns = cobj->get()->getConnections();
+        auto *privateObj = s.thisObject()->getPrivateObject();
+        assert(privateObj->isSharedPtr());
+        auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServer> *>(privateObj)->getData();
+        auto conns = cobj->getConnections();
         se::Object *ret = se::Object::createArrayObject(conns.size());
         for (uint32_t i = 0; i < conns.size(); i++) {
             std::shared_ptr<cc::network::WebSocketServerConnection> &con = conns[i];
@@ -331,7 +339,7 @@ static bool WebSocketServer_connections(se::State &s) { // NOLINT(readability-id
 SE_BIND_PROP_GET(WebSocketServer_connections)
 
 static bool WebSocketServer_Connection_finalize(se::State &s) { // NOLINT(readability-identifier-naming)
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *cobj = static_cast<cc::network::WebSocketServerConnection *>(s.nativeThisObject());
     CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocketServer_Connection)", cobj);
     return true;
 }
@@ -355,7 +363,9 @@ static bool WebSocketServer_Connection_send(se::State &s) { // NOLINT(readabilit
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
 
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -367,7 +377,7 @@ static bool WebSocketServer_Connection_send(se::State &s) { // NOLINT(readabilit
         if (args[argc - 1].isObject() && args[argc - 1].toObject()->isFunction()) {
             ccstd::string callbackId = genSendIndex();
             s.thisObject()->setProperty(callbackId.c_str(), args[argc - 1]);
-            std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = *cobj;
+            std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
             callback = [callbackId, connWeak](const ccstd::string &err) {
                 se::AutoHandleScope hs;
@@ -401,7 +411,7 @@ static bool WebSocketServer_Connection_send(se::State &s) { // NOLINT(readabilit
             ccstd::string data;
             ok = sevalue_to_native(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
-            (*cobj)->sendTextAsync(data, callback);
+            cobj->sendTextAsync(data, callback);
         } else if (args[0].isObject()) {
             se::Object *dataObj = args[0].toObject();
             uint8_t *ptr = nullptr;
@@ -416,7 +426,7 @@ static bool WebSocketServer_Connection_send(se::State &s) { // NOLINT(readabilit
                 CC_ASSERT(false);
             }
 
-            (*cobj)->sendBinaryAsync(ptr, static_cast<unsigned int>(length), callback);
+            cobj->sendBinaryAsync(ptr, static_cast<unsigned int>(length), callback);
         } else {
             CC_ASSERT(false);
         }
@@ -436,7 +446,7 @@ static bool WebSocketServer_Connection_close(se::State &s) { // NOLINT(readabili
         return false;
     }
 
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *cobj = static_cast<cc::network::WebSocketServerConnection *>(s.nativeThisObject());
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -459,11 +469,11 @@ static bool WebSocketServer_Connection_close(se::State &s) { // NOLINT(readabili
     }
 
     if (argCode > 0 && !argReason.empty()) {
-        (*cobj)->closeAsync(argCode, argReason);
+        cobj->closeAsync(argCode, argReason);
     } else if (argCode > 0) {
-        (*cobj)->closeAsync(argCode, "unknown reason");
+        cobj->closeAsync(argCode, "unknown reason");
     } else {
-        (*cobj)->closeAsync(1000, "default close reason");
+        cobj->closeAsync(1000, "default close reason");
     }
     return true;
 }
@@ -477,7 +487,10 @@ static bool WebSocketServer_Connection_onconnect(se::State &s) { // NOLINT(reada
         return false;
     }
 
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
+
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
         return false;
@@ -485,9 +498,9 @@ static bool WebSocketServer_Connection_onconnect(se::State &s) { // NOLINT(reada
 
     s.thisObject()->setProperty("__onconnect", args[0]);
 
-    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = *cobj;
+    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
-    cobj->get()->setOnConnect([connWeak]() {
+    cobj->setOnConnect([connWeak]() {
         se::AutoHandleScope hs;
         auto conn = connWeak.lock();
         if (!conn) {
@@ -520,7 +533,9 @@ static bool WebSocketServer_Connection_onerror(se::State &s) { // NOLINT(readabi
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -528,9 +543,9 @@ static bool WebSocketServer_Connection_onerror(se::State &s) { // NOLINT(readabi
     }
 
     s.thisObject()->setProperty("__onerror", args[0]);
-    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = *cobj;
+    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
-    cobj->get()->setOnError([connWeak](const ccstd::string &err) {
+    cobj->setOnError([connWeak](const ccstd::string &err) {
         se::AutoHandleScope hs;
         auto conn = connWeak.lock();
         if (!conn) {
@@ -566,7 +581,9 @@ static bool WebSocketServer_Connection_onclose(se::State &s) { // NOLINT(readabi
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -574,9 +591,9 @@ static bool WebSocketServer_Connection_onclose(se::State &s) { // NOLINT(readabi
     }
 
     s.thisObject()->setProperty("__onclose", args[0]);
-    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = *cobj;
+    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
-    cobj->get()->setOnClose([connWeak](int code, const ccstd::string &err) {
+    cobj->setOnClose([connWeak](int code, const ccstd::string &err) {
         se::AutoHandleScope hs;
 
         auto conn = connWeak.lock();
@@ -615,7 +632,9 @@ static bool WebSocketServer_Connection_ontext(se::State &s) { // NOLINT(readabil
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -623,9 +642,9 @@ static bool WebSocketServer_Connection_ontext(se::State &s) { // NOLINT(readabil
     }
 
     s.thisObject()->setProperty("__ontext", args[0]);
-    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = *cobj;
+    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
-    cobj->get()->setOnText([connWeak](const std::shared_ptr<cc::network::DataFrame>& text) {
+    cobj->setOnText([connWeak](const std::shared_ptr<cc::network::DataFrame> &text) {
         se::AutoHandleScope hs;
 
         auto conn = connWeak.lock();
@@ -661,7 +680,9 @@ static bool WebSocketServer_Connection_onbinary(se::State &s) { // NOLINT(readab
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -669,9 +690,9 @@ static bool WebSocketServer_Connection_onbinary(se::State &s) { // NOLINT(readab
     }
 
     s.thisObject()->setProperty("__onbinary", args[0]);
-    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = *cobj;
+    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
-    cobj->get()->setOnBinary([connWeak](const std::shared_ptr<cc::network::DataFrame>& text) {
+    cobj->setOnBinary([connWeak](const std::shared_ptr<cc::network::DataFrame> &text) {
         se::AutoHandleScope hs;
         auto conn = connWeak.lock();
         if (!conn) {
@@ -707,7 +728,9 @@ static bool WebSocketServer_Connection_ondata(se::State &s) { // NOLINT(readabil
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -715,9 +738,9 @@ static bool WebSocketServer_Connection_ondata(se::State &s) { // NOLINT(readabil
     }
 
     s.thisObject()->setProperty("__ondata", args[0]);
-    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = *cobj;
+    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
-    cobj->get()->setOnData([connWeak](const std::shared_ptr<cc::network::DataFrame>& text) {
+    cobj->setOnData([connWeak](const std::shared_ptr<cc::network::DataFrame> &text) {
         se::AutoHandleScope hs;
 
         auto connPtr = connWeak.lock();
@@ -756,8 +779,8 @@ static bool WebSocketServer_Connection_headers(se::State &s) { // NOLINT(readabi
     int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
-        auto headers = cobj->get()->getHeaders();
+        auto *cobj = static_cast<cc::network::WebSocketServerConnection *>(s.nativeThisObject());
+        auto headers = cobj->getHeaders();
         se::Object *ret = se::Object::createPlainObject();
         for (auto &itr : headers) {
             ret->setProperty(itr.first.c_str(), se::Value(itr.second));
@@ -775,8 +798,8 @@ static bool WebSocketServer_Connection_protocols(se::State &s) { // NOLINT(reada
     int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
-        auto protocols = cobj->get()->getProtocols();
+        auto *cobj = static_cast<cc::network::WebSocketServerConnection *>(s.nativeThisObject());
+        auto protocols = cobj->getProtocols();
         se::Object *ret = se::Object::createArrayObject(protocols.size());
         for (uint32_t i = 0; i < protocols.size(); i++) {
             ret->setArrayElement(i, se::Value(protocols[i]));
@@ -794,8 +817,8 @@ static bool WebSocketServer_Connection_protocol(se::State &s) { // NOLINT(readab
     int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
-        auto protocols = cobj->get()->getProtocols();
+        auto *cobj = static_cast<cc::network::WebSocketServerConnection *>(s.nativeThisObject());
+        auto protocols = cobj->getProtocols();
         if (!protocols.empty()) {
             s.rval().setString(protocols[0]);
         } else {
@@ -813,8 +836,8 @@ static bool WebSocketServer_Connection_readyState(se::State &s) { // NOLINT(read
     int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        auto *cobj = static_cast<WSCONNPTR>(s.nativeThisObject());
-        auto state = cobj->get()->getReadyState();
+        auto *cobj = static_cast<cc::network::WebSocketServerConnection *>(s.nativeThisObject());
+        auto state = cobj->getReadyState();
         s.rval().setInt32(state);
         return true;
     }
