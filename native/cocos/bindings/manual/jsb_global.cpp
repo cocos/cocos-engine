@@ -672,7 +672,6 @@ static bool js_saveImageData(se::State& s) // NOLINT
         auto *uint8ArrayObj = args[0].toObject();
         uint8ArrayObj->root();
         uint8ArrayObj->incRef();
-        CC_LOG_DEBUG("address %p rooted with ref count %d and root count %d", uint8ArrayObj, uint8ArrayObj->getRefCount(), uint8ArrayObj->_rootCount);
         uint8_t *uint8ArrayData = nullptr;
         size_t length = 0;
         
@@ -716,7 +715,6 @@ static bool js_saveImageData(se::State& s) // NOLINT
                     callbackObj->decRef();
                 }
                 delete img;
-                CC_LOG_DEBUG("address %p in unrooting with ref count %d and root count %d", uint8ArrayObj, uint8ArrayObj->getRefCount(), uint8ArrayObj->_rootCount);
                 uint8ArrayObj->unroot();
                 uint8ArrayObj->decRef();
             });
