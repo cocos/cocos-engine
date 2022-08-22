@@ -23,14 +23,20 @@
  THE SOFTWARE.
  */
 
-import { ccclass, disallowMultiple, menu, range, serializable } from 'cc.decorator';
+import { ccclass, disallowMultiple, editable, menu, range, serializable, type } from 'cc.decorator';
 import { clamp } from '../math';
 import { SortingManager } from '../scene-graph/sorting-manager';
+import { ccenum } from '../value-types/enum';
 import { Component } from './component';
 import { ModelRenderer } from './model-renderer';
 
 const MAX_INT16 = (1 << 15) - 1;
 const MIN_INT16 = -1 << 15;
+
+enum SortingLayer {
+    DEFAULT = 0,
+}
+ccenum(SortingLayer);
 
 @ccclass('cc.Sorting')
 @menu('2D/Sorting')
@@ -41,6 +47,8 @@ export class Sorting extends Component {
      * @en The sorting layer id of the component, which affects the rendering order of the component.
      */
     // Todo,how to show on inspector
+    @editable
+    @type(SortingLayer)
     get sortingLayer () {
         return this._sortingLayer;
     }
@@ -65,7 +73,7 @@ export class Sorting extends Component {
     }
 
     @serializable
-    protected _sortingLayer = 0; // Actually saved id
+    protected _sortingLayer = SortingLayer.DEFAULT; // Actually saved id
     @serializable
     protected _sortingOrder = 0;
 
