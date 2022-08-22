@@ -101,7 +101,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
         return nullptr;
     }
     
-    IScreen *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
+    auto *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
     float pixelRatio = screen->getDevicePixelRatio();
 
     uint32_t windowId = window->getWindowId();
@@ -446,7 +446,7 @@ uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     ISystemWindow *window = windowMgr->createWindow(info);
     if (window) {
-        IScreen *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
+        auto *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
         float pixelRatio = screen->getDevicePixelRatio();
         
         auto handle = window->getWindowHandle();
