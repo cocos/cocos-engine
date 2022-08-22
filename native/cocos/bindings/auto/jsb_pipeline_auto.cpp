@@ -1813,6 +1813,26 @@ static bool js_pipeline_RenderPipeline_isOcclusionQueryEnabled(se::State& s) // 
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_isOcclusionQueryEnabled)
 
+static bool js_pipeline_RenderPipeline_isRenderQueueReset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isRenderQueueReset();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_isRenderQueueReset)
+
 static bool js_pipeline_RenderPipeline_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1848,6 +1868,26 @@ static bool js_pipeline_RenderPipeline_render(se::State& s) // NOLINT(readabilit
     return false;
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_render)
+
+static bool js_pipeline_RenderPipeline_resetRenderQueue(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->resetRenderQueue(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_resetRenderQueue)
 
 static bool js_pipeline_RenderPipeline_setBloomEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2098,8 +2138,10 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("isEnvmapEnabled", _SE(js_pipeline_RenderPipeline_isEnvmapEnabled));
     cls->defineFunction("isOccluded", _SE(js_pipeline_RenderPipeline_isOccluded));
     cls->defineFunction("isOcclusionQueryEnabled", _SE(js_pipeline_RenderPipeline_isOcclusionQueryEnabled));
+    cls->defineFunction("isRenderQueueReset", _SE(js_pipeline_RenderPipeline_isRenderQueueReset));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_RenderPipeline_onGlobalPipelineStateChanged));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));
+    cls->defineFunction("resetRenderQueue", _SE(js_pipeline_RenderPipeline_resetRenderQueue));
     cls->defineFunction("setOcclusionQueryEnabled", _SE(js_pipeline_RenderPipeline_setOcclusionQueryEnabled));
     cls->defineFunction("setValue", _SE(js_pipeline_RenderPipeline_setValue));
     cls->defineFunction("updateQuadVertexData", _SE(js_pipeline_RenderPipeline_updateQuadVertexData));
