@@ -15,7 +15,7 @@ include (${ENGINE_ROOT_DIR}/external/CMakeLists.txt)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -Wextra -Wno-nonportable-include-path -fno-exceptions -v")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g3 -D_DEBUG=1 -Wno-unused -O0 -std=c++17")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -w -g3 -DNDEBUG=1 -O3 -std=c++17")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -w -DNDEBUG=1 -O3 -std=c++17")
 
 AUX_SOURCE_DIRECTORY(
     ./states
@@ -119,7 +119,7 @@ target_link_libraries(
 )
 
 set(EMS_LINK_FLAGS
-"-g -flto --bind --no-entry -O3 -s USE_ES6_IMPORT_META=0 -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='wasmDevice' -s ENVIRONMENT=web -s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s LLD_REPORT_UNDEFINED -s ALLOW_MEMORY_GROWTH=1"
+"-flto --bind --no-entry -O3 -s USE_ES6_IMPORT_META=0 -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='wasmDevice' -s ENVIRONMENT=web -s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s LLD_REPORT_UNDEFINED -s ALLOW_MEMORY_GROWTH=1"
 )
 
 set_target_properties(${APP_NAME}_wasm PROPERTIES CXX_STANDARD 17 LINK_FLAGS ${EMS_LINK_FLAGS})

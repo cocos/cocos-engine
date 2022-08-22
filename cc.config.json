@@ -1,33 +1,19 @@
 {
     "$schema": "./cc.config.schema.json",
+
     "features": {
-        "base": {
-            "modules": [
-                "base"
-            ],
-            "dependentAssets": [
-                "ff9be190-20a4-4e48-b68c-76e3c7cff085",
-                "970b0598-bcb0-4714-91fb-2e81440dccd8",
-                "bcd64cc6-2dd9-43f6-abbe-66318d332032",
-                "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
-                "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
-                "9361fd90-ba52-4f84-aa93-6e878fd576ca"
-            ]
-        },
-        "gfx-webgl": {
-            "modules": [
-                "gfx-webgl"
-            ]
-        },
-        "gfx-webgl2": {
-            "modules": [
-                "gfx-webgl2"
-            ]
-        },
-        "3d": {
-            "modules": [
-                "3d"
-            ],
+        "base": { "modules": [ "base" ], "dependentAssets": [
+            "ff9be190-20a4-4e48-b68c-76e3c7cff085",
+            "970b0598-bcb0-4714-91fb-2e81440dccd8",
+            "bcd64cc6-2dd9-43f6-abbe-66318d332032",
+            "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
+            "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
+            "9361fd90-ba52-4f84-aa93-6e878fd576ca"
+        ]},
+        "gfx-webgl": { "modules": [ "gfx-webgl" ] },
+        "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
+        "3d": { 
+            "modules": [ "3d" ], 
             "dependentAssets": [
                 "1baf0fc9-befa-459c-8bdd-af1a450a0319",
                 "511d2633-09a7-4bdd-ac42-f778032124b3",
@@ -35,23 +21,12 @@
                 "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
                 "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
                 "620b6bf3-0369-4560-837f-2a2c00b73c26"
-            ]
+            ] 
         },
-        "animation": {
-            "modules": [
-                "animation"
-            ]
-        },
-        "skeletal-animation": {
-            "modules": [
-                "animation",
-                "skeletal-animation"
-            ]
-        },
-        "2d": {
-            "modules": [
-                "2d"
-            ],
+        "animation": { "modules": ["animation"] },
+        "skeletal-animation": { "modules": ["animation", "skeletal-animation"] },
+        "2d": { 
+            "modules": [ "2d" ], 
             "dependentAssets": [
                 "60f7195c-ec2a-45eb-ba94-8955f60e81d0",
                 "1c02ae6f-4492-4915-b8f8-7492a3b1e4cd",
@@ -64,206 +39,82 @@
                 "f92806d7-1768-443f-afe8-12bcde84d0f0",
                 "dd3a144d-ab7f-41f0-82b8-2e43a090d496",
                 "f0416e68-0200-4b77-a926-4f9d16e494da"
-            ]
+            ] 
         },
-        "ui": {
-            "modules": [
-                "ui",
-                "2d"
-            ]
-        },
-        "particle": {
-            "modules": [
-                "particle"
-            ],
-            "dependentAssets": [
-                "d1346436-ac96-4271-b863-1f4fdead95b0",
-                "971bdb23-3ff6-43eb-b422-1c30165a3663",
-                "17debcc3-0a6b-4b8a-b00b-dc58b885581e",
+        "ui": { "modules": [ "ui", "2d" ] },
+        "particle": { 
+            "modules": [ "particle" ], 
+            "dependentAssets": [ 
+                "d1346436-ac96-4271-b863-1f4fdead95b0", 
+                "971bdb23-3ff6-43eb-b422-1c30165a3663", 
+                "17debcc3-0a6b-4b8a-b00b-dc58b885581e", 
                 "711ebe11-f673-4cd9-9a83-63c60ba54c5b",
                 "c0143906-9aed-447e-9436-2ae8512d1b6e",
                 "14da1725-c4c2-42b4-ab08-ee0aeb6898b3",
                 "081cab31-dccd-428e-8652-f2404cc81c47",
-                "78e0584a-4343-4727-8f37-e14e65c2a2db"
-            ]
+                "78e0584a-4343-4727-8f37-e14e65c2a2db" 
+            ] 
         },
-        "particle-2d": {
-            "modules": [
-                "particle-2d"
-            ]
+        "particle-2d": { "modules": [ "particle-2d" ] },
+        "physics-framework": { "modules": [ "physics-framework" ] },
+        "physics-cannon": { "modules": [ "physics-cannon", "physics-framework" ] ,
+            "dependentAssets": [ "ba21476f-2866-4f81-9c4d-6e359316e448" ]},
+        "physics-physx": { "modules": [ "physics-physx", "physics-framework" ] ,
+            "dependentAssets": [ "ba21476f-2866-4f81-9c4d-6e359316e448" ]},
+        "physics-ammo": { "modules": [ "physics-ammo", "physics-framework", "wait-for-ammo-instantiation" ] ,
+            "dependentAssets": [ "ba21476f-2866-4f81-9c4d-6e359316e448" ]},
+        "physics-builtin": { "modules": [ "physics-builtin", "physics-framework" ] ,
+            "dependentAssets": [ "ba21476f-2866-4f81-9c4d-6e359316e448" ]},
+        "physics-2d-framework": { "modules": [ "physics-2d-framework" ] },
+        "physics-2d-box2d": { "modules": [ "physics-2d-box2d", "physics-2d-framework" ] },
+        "physics-2d-builtin": { "modules": [ "physics-2d-builtin", "physics-2d-framework" ] },
+        "intersection-2d": { "modules": [ "intersection-2d" ] },
+        "primitive": { "modules": [ "primitive" ] },
+        "profiler": { 
+            "modules": [ "profiler" ],
+            "dependentAssets": [ "871c3b6c-7379-419d-bda3-794b239ab90d" ] 
         },
-        "physics-framework": {
-            "modules": [
-                "physics-framework"
-            ]
+        "occlusion-query": { 
+            "modules": [], 
+	        "dependentAssets": [ "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0" ]
         },
-        "physics-cannon": {
-            "modules": [
-                "physics-cannon",
-                "physics-framework"
-            ],
+        "geometry-renderer": { 
+            "modules": [ "geometry-renderer" ], 
+	        "dependentAssets": [ "4bb480dd-8384-4bc9-987f-de67cc53052a" ]
+        },
+	    "debug-renderer": { 
+            "modules": [], 
             "dependentAssets": [
-                "ba21476f-2866-4f81-9c4d-6e359316e448"
-            ]
-        },
-        "physics-physx": {
-            "modules": [
-                "physics-physx",
-                "physics-framework"
-            ],
-            "dependentAssets": [
-                "ba21476f-2866-4f81-9c4d-6e359316e448"
-            ]
-        },
-        "physics-ammo": {
-            "modules": [
-                "physics-ammo",
-                "physics-framework",
-                "wait-for-ammo-instantiation"
-            ],
-            "dependentAssets": [
-                "ba21476f-2866-4f81-9c4d-6e359316e448"
-            ]
-        },
-        "physics-builtin": {
-            "modules": [
-                "physics-builtin",
-                "physics-framework"
-            ],
-            "dependentAssets": [
-                "ba21476f-2866-4f81-9c4d-6e359316e448"
-            ]
-        },
-        "physics-2d-framework": {
-            "modules": [
-                "physics-2d-framework"
-            ]
-        },
-        "physics-2d-box2d": {
-            "modules": [
-                "physics-2d-box2d",
-                "physics-2d-framework"
-            ]
-        },
-        "physics-2d-builtin": {
-            "modules": [
-                "physics-2d-builtin",
-                "physics-2d-framework"
-            ]
-        },
-        "intersection-2d": {
-            "modules": [
-                "intersection-2d"
-            ]
-        },
-        "primitive": {
-            "modules": [
-                "primitive"
-            ]
-        },
-        "profiler": {
-            "modules": [
-                "profiler"
-            ],
-            "dependentAssets": [
-                "871c3b6c-7379-419d-bda3-794b239ab90d"
-            ]
-        },
-        "occlusion-query": {
-            "modules": [],
-            "dependentAssets": [
-                "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0"
-            ]
-        },
-        "geometry-renderer": {
-            "modules": [
-                "geometry-renderer"
-            ],
-            "dependentAssets": [
-                "4bb480dd-8384-4bc9-987f-de67cc53052a"
-            ]
-        },
-        "debug-renderer": {
-            "modules": [],
-            "dependentAssets": [
-                "d9937e59-61fe-4ec6-92ab-7ac5a19c89b0"
-            ]
-        },
-        "geometry-renderer": {
-            "modules": [
-                "geometry-renderer"
-            ],
-            "dependentAssets": [
-                "4bb480dd-8384-4bc9-987f-de67cc53052a"
-            ]
-        },
-        "debug-renderer": {
-            "modules": [],
-            "dependentAssets": [
-                "0835f102-5471-47a3-9a76-01c07ac9cdb2",
-                "b5475517-23b9-4873-bc1a-968d96616081",
-                "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed",
+                "0835f102-5471-47a3-9a76-01c07ac9cdb2", 
+                "b5475517-23b9-4873-bc1a-968d96616081", 
+                "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", 
                 "b23391b6-52eb-46a6-8da1-6244d9d315fb"
-            ]
+            ] 
         },
-        "audio": {
-            "modules": [
-                "audio"
-            ]
+        "audio": { "modules": [ "audio" ] },
+        "video": { "modules": [ "video" ] },
+        "terrain": { 
+            "modules": [ "terrain" ], 
+            "dependentAssets": [ "1d08ef62-a503-4ce2-8b9a-46c90873f7d3" ] 
         },
-        "video": {
-            "modules": [
-                "video"
-            ]
-        },
-        "terrain": {
-            "modules": [
-                "terrain"
-            ],
-            "dependentAssets": [
-                "1d08ef62-a503-4ce2-8b9a-46c90873f7d3"
-            ]
-        },
-        "webview": {
-            "modules": [
-                "webview"
-            ]
-        },
-        "tween": {
-            "modules": [
-                "tween"
-            ]
-        },
-        "tiled-map": {
-            "modules": [
-                "tiled-map"
-            ]
-        },
-        "spine": {
-            "modules": [
-                "spine"
-            ],
-            "dependentAssets": [
+        "webview": { "modules": [ "webview" ] },
+        "tween": { "modules": [ "tween" ] },
+        "tiled-map": { "modules": [ "tiled-map" ] },
+        "spine": { 
+            "modules": [ "spine" ], 
+            "dependentAssets":[ 
                 "c27215d8-6835-4b68-bfbb-bdeac6100c04",
                 "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
-            ]
+            ] 
         },
-        "dragon-bones": {
-            "modules": [
-                "dragon-bones"
-            ]
-        },
+        "dragon-bones": { "modules": [ "dragon-bones" ] },
         "marionette": {
             "modules": [],
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
         },
-        "custom-pipeline": {
-            "modules": [
-                "custom-pipeline"
-            ]
-        }
+        "custom-pipeline": { "modules": ["custom-pipeline"] }
     },
     "moduleOverrides": [
         {
@@ -276,7 +127,8 @@
         {
             "test": "context.mode === 'BUILD'",
             "isVirtualModule": false,
-            "overrides": {}
+            "overrides": {
+            }
         },
         {
             "test": "context.platform !== 'NATIVE'",
@@ -331,19 +183,12 @@
                 "cocos/core/assets/texture-cube.ts": "cocos/core/assets/texture-cube.jsb.ts",
                 "cocos/core/assets/material.ts": "cocos/core/assets/material.jsb.ts",
                 "cocos/core/assets/rendering-sub-mesh.ts": "cocos/core/assets/rendering-sub-mesh.jsb.ts",
-                "cocos/3d/assets/mesh.ts": "cocos/3d/assets/mesh.jsb.ts",
-                "cocos/3d/assets/skeleton.ts": "cocos/3d/assets/skeleton.jsb.ts",
-                "cocos/3d/models/morph-model.ts": "cocos/3d/models/morph-model.jsb.ts",
-                "cocos/3d/models/skinning-model.ts": "cocos/3d/models/skinning-model.jsb.ts",
-                "cocos/3d/models/baked-skinning-model.ts": "cocos/3d/models/baked-skinning-model.jsb.ts",
-                "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts"
-            }
-        },
-        {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
-            "isVirtualModule": false,
-            "overrides": {
-                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.ems.ts"
+                "cocos/3d/assets/mesh.ts":"cocos/3d/assets/mesh.jsb.ts",
+                "cocos/3d/assets/skeleton.ts":"cocos/3d/assets/skeleton.jsb.ts",
+                "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts",
+                "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
+                "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
+                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts"
             }
         },
         {
@@ -419,6 +264,7 @@
         "./cocos/**/*.{ts,js,json}",
         "./pal/**/*.{ts,js,json}"
     ],
+
     "constants": {
         "HTML5": {
             "comment": "Running in Web platform",
@@ -511,6 +357,7 @@
             "ccGlobal": true,
             "internal": false
         },
+
         "EDITOR": {
             "comment": "Running in the editor.",
             "type": "boolean",
@@ -542,6 +389,8 @@
             "internal": false,
             "dynamic": true
         },
+
+
         "DEBUG": {
             "comment": "Running debug mode.",
             "type": "boolean",
@@ -555,6 +404,8 @@
             "value": false,
             "internal": true
         },
+
+
         "DEV": {
             "comment": "Running in the editor or preview.",
             "type": "boolean",

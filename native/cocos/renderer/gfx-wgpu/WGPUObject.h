@@ -320,7 +320,7 @@ class CCWGPUStagingBuffer {
     ~CCWGPUStagingBuffer() = default;
 
 public:
-    explicit CCWGPUStagingBuffer(WGPUDevice device, std::function<void(WGPUBuffer)> recycleFunc)
+    explicit CCWGPUStagingBuffer(WGPUDevice device, const std::function<void(WGPUBuffer)> &recycleFunc)
     : _device(device), _size(INIT_BUFFER_SIZE), _recycleFunc(recycleFunc) {
         WGPUBufferDescriptor desc = {
             .label = "staging buffer",

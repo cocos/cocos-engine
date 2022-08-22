@@ -51,9 +51,7 @@ public:
 
     static ccstd::map<ccstd::hash_t, void *> pipelineMap;
 
-    ccstd::hash_t getHash() {
-        return _hash;
-    }
+    inline ccstd::hash_t getHash() const { return _hash; }
 
 protected:
     void doInit(const PipelineStateInfo &info) override;
