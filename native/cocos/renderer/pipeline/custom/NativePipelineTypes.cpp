@@ -31,4 +31,21 @@
 // clang-format off
 #include "NativePipelineTypes.h"
 
+namespace cc {
+
+namespace render {
+
+NativePassData::NativePassData(const allocator_type& alloc) noexcept
+: outputViews(alloc) {}
+
+NativePassData::NativePassData(NativePassData&& rhs, const allocator_type& alloc)
+: outputViews(std::move(rhs.outputViews), alloc) {}
+
+NativePassData::NativePassData(NativePassData const& rhs, const allocator_type& alloc)
+: outputViews(rhs.outputViews, alloc) {}
+
+} // namespace render
+
+} // namespace cc
+
 // clang-format on

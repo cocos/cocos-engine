@@ -46,6 +46,8 @@ class NativeComputePassBuilder;
 class NativeMovePassBuilder;
 class NativeCopyPassBuilder;
 class NativeSceneTransversal;
+struct NativeRenderViewHandle;
+struct NativePassData;
 class NativePipeline;
 
 } // namespace render

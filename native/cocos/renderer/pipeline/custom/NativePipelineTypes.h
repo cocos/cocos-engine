@@ -241,6 +241,34 @@ public:
     const scene::RenderScene* scene{nullptr};
 };
 
+struct NativeRenderViewHandle {
+    NativeRenderViewHandle() = default;
+    NativeRenderViewHandle(AccessType accessTypeIn, framegraph::TextureHandle handleIn) noexcept
+    : accessType(accessTypeIn),
+      handle(std::move(handleIn)) {}
+
+    AccessType accessType{AccessType::READ};
+    framegraph::TextureHandle handle;
+};
+
+struct NativePassData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {outputViews.get_allocator().resource()};
+    }
+
+    NativePassData(const allocator_type& alloc) noexcept; // NOLINT
+    NativePassData(NativePassData&& rhs, const allocator_type& alloc);
+    NativePassData(NativePassData const& rhs, const allocator_type& alloc);
+
+    NativePassData(NativePassData&& rhs) noexcept = default;
+    NativePassData(NativePassData const& rhs) = delete;
+    NativePassData& operator=(NativePassData&& rhs) = default;
+    NativePassData& operator=(NativePassData const& rhs) = default;
+
+    ccstd::pmr::vector<NativeRenderViewHandle> outputViews;
+};
+
 class NativePipeline final : public Pipeline {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
