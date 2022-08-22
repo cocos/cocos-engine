@@ -937,10 +937,6 @@ bool Image::initWithRawData(const unsigned char *data, uint32_t /*dataLen*/, int
         _dataLen = height * width * bytesPerComponent;
         _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         CC_BREAK_IF(!_data);
-        // for (int i = 0; i < _dataLen; i+=4) {
-        //     //memset(_data+i, 0xFF008080, 4);
-        //     *reinterpret_cast<int32_t *>(_data + i) = 0xFFff00FF;
-        // }
         memcpy(_data, data, _dataLen);
 
         ret = true;
