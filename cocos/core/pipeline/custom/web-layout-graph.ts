@@ -1,4 +1,5 @@
 import { DEBUG } from 'internal:constants';
+import { ccclass } from '../../data/decorators';
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { VectorGraphColorMap } from './effect';
@@ -183,11 +184,12 @@ class PrintVisitor extends DefaultVisitor {
     oss = '';
 }
 
+@ccclass('cc.WebLayoutGraphBuilder')
 export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
     private _data: LayoutGraphData;
-    private _device: Device;
+    private _device: Device | null;
 
-    constructor (deviceIn: Device, dataIn: LayoutGraphData) {
+    constructor (deviceIn: Device | null, dataIn: LayoutGraphData) {
         super();
         this._device = deviceIn;
         this._data = dataIn;
@@ -219,8 +221,7 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
         }
     }
 
-    private createDescriptorSetLayout (layoutData: DescriptorSetLayoutData) {
-        const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+    private createDscriptorInfo (layoutData: DescriptorSetLayoutData, info: DescriptorSetLayoutInfo) {
         for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
             const block = layoutData.descriptorBlocks[i];
             let slot = block.offset;
@@ -238,8 +239,17 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
                 slot += d.count;
             }
         }
+    }
 
-        return this._device.createDescriptorSetLayout(info);
+    private createDescriptorSetLayout (layoutData: DescriptorSetLayoutData) {
+        const info: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+        this.createDscriptorInfo(layoutData, info);
+
+        if (this._device) {
+            return this._device.createDescriptorSetLayout(info);
+        } else {
+            return null;
+        }
     }
 
     public clear (): void {
@@ -351,9 +361,15 @@ export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
             ppl.descriptorSets.forEach((value, key) => {
                 const level = value;
                 const layoutData = level.descriptorSetLayoutData;
-                const layout: DescriptorSetLayout = this.createDescriptorSetLayout(layoutData);
-                level.descriptorSetLayout = (layout);
-                level.descriptorSet = (this._device.createDescriptorSet(new DescriptorSetInfo(layout)));
+                if (this._device) {
+                    const layout: DescriptorSetLayout | null = this.createDescriptorSetLayout(layoutData);
+                    if (layout) {
+                        level.descriptorSetLayout = (layout);
+                        level.descriptorSet = (this._device.createDescriptorSet(new DescriptorSetInfo(layout)));
+                    }
+                } else {
+                    this.createDscriptorInfo(layoutData, level.descriptorSetLayoutInfo);
+                }
             });
         }
         if (DEBUG) {

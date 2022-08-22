@@ -59,7 +59,7 @@ public:
 
     ccstd::string print() const override;
 
-    gfx::Device*     device{nullptr};
+    gfx::Device* device{nullptr};
     LayoutGraphData* data{nullptr};
 };
 
@@ -94,9 +94,9 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
-    RenderGraph*           renderGraph{nullptr};
+    RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t               queueID{RenderGraph::null_vertex()};
+    uint32_t queueID{RenderGraph::null_vertex()};
 };
 
 class NativeRasterPassBuilder final : public RasterPassBuilder {
@@ -131,10 +131,10 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
-    RenderGraph*           renderGraph{nullptr};
+    RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t               passID{RenderGraph::null_vertex()};
-    uint32_t               layoutID{LayoutGraphData::null_vertex()};
+    uint32_t passID{RenderGraph::null_vertex()};
+    uint32_t layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeComputeQueueBuilder final : public ComputeQueueBuilder {
@@ -161,9 +161,9 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
-    RenderGraph*           renderGraph{nullptr};
+    RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t               queueID{RenderGraph::null_vertex()};
+    uint32_t queueID{RenderGraph::null_vertex()};
 };
 
 class NativeComputePassBuilder final : public ComputePassBuilder {
@@ -196,10 +196,10 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
-    RenderGraph*           renderGraph{nullptr};
+    RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
-    uint32_t               passID{RenderGraph::null_vertex()};
-    uint32_t               layoutID{LayoutGraphData::null_vertex()};
+    uint32_t passID{RenderGraph::null_vertex()};
+    uint32_t layoutID{LayoutGraphData::null_vertex()};
 };
 
 class NativeMovePassBuilder final : public MovePassBuilder {
@@ -212,7 +212,7 @@ public:
     void addPair(const MovePair& pair) override;
 
     RenderGraph* renderGraph{nullptr};
-    uint32_t     passID{RenderGraph::null_vertex()};
+    uint32_t passID{RenderGraph::null_vertex()};
 };
 
 class NativeCopyPassBuilder final : public CopyPassBuilder {
@@ -225,7 +225,7 @@ public:
     void addPair(const CopyPair& pair) override;
 
     RenderGraph* renderGraph{nullptr};
-    uint32_t     passID{RenderGraph::null_vertex()};
+    uint32_t passID{RenderGraph::null_vertex()};
 };
 
 class NativeSceneTransversal final : public SceneTransversal {
@@ -237,7 +237,7 @@ public:
 
     SceneTask* transverse(SceneVisitor *visitor) const override;
 
-    const scene::Camera*      camera{nullptr};
+    const scene::Camera* camera{nullptr};
     const scene::RenderScene* scene{nullptr};
 };
 
@@ -303,18 +303,18 @@ public:
 
     bool isOcclusionQueryEnabled() const override;
 
-    gfx::Device*                               device{nullptr};
-    gfx::Swapchain*                            swapchain{nullptr};
-    MacroRecord                                macros;
-    ccstd::string                              constantMacros;
+    gfx::Device* device{nullptr};
+    gfx::Swapchain* swapchain{nullptr};
+    MacroRecord macros;
+    ccstd::string constantMacros;
     std::unique_ptr<pipeline::GlobalDSManager> globalDSManager;
-    scene::Model*                              profiler{nullptr};
-    LightingMode                               lightingMode{LightingMode::DEFAULT};
-    IntrusivePtr<pipeline::PipelineSceneData>  pipelineSceneData;
-    LayoutGraphData                            layoutGraph;
-    framegraph::FrameGraph                     frameGraph;
-    ResourceGraph                              resourceGraph;
-    RenderGraph                                renderGraph;
+    scene::Model* profiler{nullptr};
+    LightingMode lightingMode{LightingMode::DEFAULT};
+    IntrusivePtr<pipeline::PipelineSceneData> pipelineSceneData;
+    LayoutGraphData layoutGraph;
+    framegraph::FrameGraph frameGraph;
+    ResourceGraph resourceGraph;
+    RenderGraph renderGraph;
 };
 
 } // namespace render
