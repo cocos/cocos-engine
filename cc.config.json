@@ -12,6 +12,7 @@
         ]},
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
+        "gfx-webgpu": { "modules": [ "gfx-webgpu" ] },
         "3d": { 
             "modules": [ "3d" ], 
             "dependentAssets": [

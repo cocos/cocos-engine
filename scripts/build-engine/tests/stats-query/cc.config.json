@@ -1,176 +1,38 @@
 {
     "$schema": "./cc.config.schema.json",
+    
     "features": {
-        "base": {
-            "modules": [
-                "base"
-            ],
-            "dependentAssets": [
-                "0835f102-5471-47a3-9a76-01c07ac9cdb2",
-                "b5475517-23b9-4873-bc1a-968d96616081",
-                "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed",
-                "b23391b6-52eb-46a6-8da1-6244d9d315fb"
-            ]
-        },
-        "gfx-webgl": {
-            "modules": [
-                "gfx-webgl"
-            ]
-        },
-        "gfx-webgl2": {
-            "modules": [
-                "gfx-webgl2"
-            ]
-        },
-        "gfx-webgpu": {
-            "modules": [
-                "gfx-webgpu"
-            ]
-        },
-        "3d": {
-            "modules": [
-                "3d"
-            ]
-        },
-        "animation": {
-            "modules": [
-                "animation"
-            ]
-        },
-        "skeletal-animation": {
-            "modules": [
-                "animation",
-                "skeletal-animation"
-            ]
-        },
-        "2d": {
-            "modules": [
-                "2d"
-            ]
-        },
-        "ui": {
-            "modules": [
-                "ui",
-                "2d"
-            ]
-        },
-        "particle": {
-            "modules": [
-                "particle"
-            ]
-        },
-        "particle-2d": {
-            "modules": [
-                "particle-2d"
-            ]
-        },
-        "physics-framework": {
-            "modules": [
-                "physics-framework"
-            ]
-        },
-        "physics-cannon": {
-            "modules": [
-                "physics-cannon",
-                "physics-framework"
-            ]
-        },
-        "physics-physx": {
-            "modules": [
-                "physics-physx",
-                "physics-framework"
-            ]
-        },
-        "physics-ammo": {
-            "modules": [
-                "physics-ammo",
-                "physics-framework",
-                "wait-for-ammo-instantiation"
-            ]
-        },
-        "physics-builtin": {
-            "modules": [
-                "physics-builtin",
-                "physics-framework"
-            ]
-        },
-        "physics-2d-framework": {
-            "modules": [
-                "physics-2d-framework"
-            ]
-        },
-        "physics-2d-box2d": {
-            "modules": [
-                "physics-2d-box2d",
-                "physics-2d-framework"
-            ]
-        },
-        "physics-2d-builtin": {
-            "modules": [
-                "physics-2d-builtin",
-                "physics-2d-framework"
-            ]
-        },
-        "intersection-2d": {
-            "modules": [
-                "intersection-2d"
-            ]
-        },
-        "primitive": {
-            "modules": [
-                "primitive"
-            ]
-        },
-        "profiler": {
-            "modules": [
-                "profiler"
-            ]
-        },
-        "geometry-renderer": {
-            "modules": [
-                "geometry-renderer"
-            ]
-        },
-        "audio": {
-            "modules": [
-                "audio"
-            ]
-        },
-        "video": {
-            "modules": [
-                "video"
-            ]
-        },
-        "terrain": {
-            "modules": [
-                "terrain"
-            ]
-        },
-        "webview": {
-            "modules": [
-                "webview"
-            ]
-        },
-        "tween": {
-            "modules": [
-                "tween"
-            ]
-        },
-        "tiled-map": {
-            "modules": [
-                "tiled-map"
-            ]
-        },
-        "spine": {
-            "modules": [
-                "spine"
-            ]
-        },
-        "dragon-bones": {
-            "modules": [
-                "dragon-bones"
-            ]
-        },
+        "base": { "modules": [ "base" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
+        "gfx-webgl": { "modules": [ "gfx-webgl" ] },
+        "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
+        "gfx-webgpu": { "modules": [ "gfx-webgpu" ] },
+        "3d": { "modules": [ "3d" ] },
+        "animation": { "modules": ["animation"] },
+        "skeletal-animation": { "modules": ["animation", "skeletal-animation"] },
+        "2d": { "modules": [ "2d" ] },
+        "ui": { "modules": [ "ui", "2d" ] },
+        "particle": { "modules": [ "particle" ] },
+        "particle-2d": { "modules": [ "particle-2d" ] },
+        "physics-framework": { "modules": [ "physics-framework" ] },
+        "physics-cannon": { "modules": [ "physics-cannon", "physics-framework" ] },
+        "physics-physx": { "modules": [ "physics-physx", "physics-framework" ] },
+        "physics-ammo": { "modules": [ "physics-ammo", "physics-framework", "wait-for-ammo-instantiation" ] },
+        "physics-builtin": { "modules": [ "physics-builtin", "physics-framework" ] },
+        "physics-2d-framework": { "modules": [ "physics-2d-framework" ] },
+        "physics-2d-box2d": { "modules": [ "physics-2d-box2d", "physics-2d-framework" ] },
+        "physics-2d-builtin": { "modules": [ "physics-2d-builtin", "physics-2d-framework" ] },
+        "intersection-2d": { "modules": [ "intersection-2d" ] },
+        "primitive": { "modules": [ "primitive" ] },
+        "profiler": { "modules": [ "profiler" ] },
+        "geometry-renderer": { "modules": [ "geometry-renderer" ] },
+        "audio": { "modules": [ "audio" ] },
+        "video": { "modules": [ "video" ] },
+        "terrain": { "modules": [ "terrain" ] },
+        "webview": { "modules": [ "webview" ] },
+        "tween": { "modules": [ "tween" ] },
+        "tiled-map": { "modules": [ "tiled-map" ] },
+        "spine": { "modules": [ "spine" ] },
+        "dragon-bones": { "modules": [ "dragon-bones" ] },
         "marionette": {
             "modules": [],
             "intrinsicFlags": {
@@ -182,7 +44,8 @@
         {
             "test": "context.mode === 'BUILD'",
             "isVirtualModule": false,
-            "overrides": {}
+            "overrides": {
+            }
         },
         {
             "test": "context.platform === 'NATIVE'",
@@ -229,12 +92,12 @@
                 "cocos/core/assets/texture-cube.ts": "cocos/core/assets/texture-cube.jsb.ts",
                 "cocos/core/assets/material.ts": "cocos/core/assets/material.jsb.ts",
                 "cocos/core/assets/rendering-sub-mesh.ts": "cocos/core/assets/rendering-sub-mesh.jsb.ts",
-                "cocos/3d/assets/mesh.ts": "cocos/3d/assets/mesh.jsb.ts",
-                "cocos/3d/assets/skeleton.ts": "cocos/3d/assets/skeleton.jsb.ts",
-                "cocos/3d/models/morph-model.ts": "cocos/3d/models/morph-model.jsb.ts",
-                "cocos/3d/models/skinning-model.ts": "cocos/3d/models/skinning-model.jsb.ts",
-                "cocos/3d/models/baked-skinning-model.ts": "cocos/3d/models/baked-skinning-model.jsb.ts",
-                "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts"
+                "cocos/3d/assets/mesh.ts":"cocos/3d/assets/mesh.jsb.ts",
+                "cocos/3d/assets/skeleton.ts":"cocos/3d/assets/skeleton.jsb.ts",
+                "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts",
+                "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
+                "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
+                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts"
             }
         },
         {
@@ -302,6 +165,7 @@
         "./cocos/**/*.{ts,js,json}",
         "./pal/**/*.{ts,js,json}"
     ],
+
     "constants": {
         "HTML5": {
             "comment": "Running in Web platform",
@@ -394,6 +258,7 @@
             "ccGlobal": true,
             "internal": false
         },
+
         "EDITOR": {
             "comment": "Running in the editor.",
             "type": "boolean",
@@ -425,6 +290,8 @@
             "internal": false,
             "dynamic": true
         },
+
+
         "DEBUG": {
             "comment": "Running debug mode.",
             "type": "boolean",
@@ -438,6 +305,8 @@
             "value": false,
             "internal": true
         },
+
+
         "DEV": {
             "comment": "Running in the editor or preview.",
             "type": "boolean",
