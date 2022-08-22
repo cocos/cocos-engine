@@ -111,8 +111,8 @@ export interface ICameraInfo {
     window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
-    cameraType: CameraType;
-    trackingType: TrackingType;
+    cameraType?: CameraType;
+    trackingType?: TrackingType;
 }
 
 export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
