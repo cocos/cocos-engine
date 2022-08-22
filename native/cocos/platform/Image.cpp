@@ -949,7 +949,6 @@ bool Image::initWithRawData(const unsigned char *data, uint32_t /*dataLen*/, int
     return ret;
 }
 
-#if (CC_PLATFORM != CC_PLATFORM_IOS)
 bool Image::saveToFile(const std::string& filename, bool isToRGB)
 {
     //only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data
@@ -972,7 +971,7 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
     CC_LOG_DEBUG("saveToFile: Image: saveToFile no support file extension(only .png or .jpg) for file: %s", filename.c_str());
     return false;
 }
-#endif // (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
+
 
 bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
 {
