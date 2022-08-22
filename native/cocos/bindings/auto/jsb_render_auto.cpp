@@ -347,6 +347,26 @@ static bool js_render_PipelineRuntime_getShadingScale(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC_AS_PROP_GET(js_render_PipelineRuntime_getShadingScale)
 
+static bool js_render_PipelineRuntime_isRenderQueueReset(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isRenderQueueReset();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_isRenderQueueReset)
+
 static bool js_render_PipelineRuntime_onGlobalPipelineStateChanged(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
@@ -382,6 +402,26 @@ static bool js_render_PipelineRuntime_render(se::State& s) // NOLINT(readability
     return false;
 }
 SE_BIND_FUNC(js_render_PipelineRuntime_render)
+
+static bool js_render_PipelineRuntime_resetRenderQueue(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->resetRenderQueue(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_render_PipelineRuntime_resetRenderQueue)
 
 static bool js_render_PipelineRuntime_setMacroBool(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -511,8 +551,10 @@ bool js_register_render_PipelineRuntime(se::Object* obj) // NOLINT(readability-i
     cls->defineFunction("getMacroBool", _SE(js_render_PipelineRuntime_getMacroBool));
     cls->defineFunction("getMacroInt", _SE(js_render_PipelineRuntime_getMacroInt));
     cls->defineFunction("getMacroString", _SE(js_render_PipelineRuntime_getMacroString));
+    cls->defineFunction("isRenderQueueReset", _SE(js_render_PipelineRuntime_isRenderQueueReset));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_render_PipelineRuntime_onGlobalPipelineStateChanged));
     cls->defineFunction("render", _SE(js_render_PipelineRuntime_render));
+    cls->defineFunction("resetRenderQueue", _SE(js_render_PipelineRuntime_resetRenderQueue));
     cls->defineFunction("setMacroBool", _SE(js_render_PipelineRuntime_setMacroBool));
     cls->defineFunction("setMacroInt", _SE(js_render_PipelineRuntime_setMacroInt));
     cls->defineFunction("setMacroString", _SE(js_render_PipelineRuntime_setMacroString));
