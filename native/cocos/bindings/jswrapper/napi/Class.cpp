@@ -97,8 +97,7 @@ napi_status Class::inherit(napi_env env, napi_value subclass, napi_value superPr
     napi_value global, objectClass, setProto;
     napi_value argv[2];
     napi_value callbackResult = nullptr;
-
-    LOGI("napi_inherit begin");
+	
     napi_get_global(env, &global);
     napi_status status = napi_get_named_property(env, global, "Object", &objectClass);
     if (status != napi_ok) {
@@ -122,7 +121,6 @@ napi_status Class::inherit(napi_env env, napi_value subclass, napi_value superPr
         LOGE("ace zbclog napi_call_function setProto 1 %{public}d", status);
         return napi_ok;
     }
-    LOGI("napi_inherit end");
 
     return napi_ok;
 }

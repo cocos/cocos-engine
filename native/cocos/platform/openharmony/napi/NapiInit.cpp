@@ -14,20 +14,19 @@
  */
 #include <ace/xcomponent/native_interface_xcomponent.h>
 #include "bindings/jswrapper/SeApi.h"
-#include "platform/openharmony/OpenHarmonyPlatform.h"
+#include "platform/openharmony/napi/NapiHelper.h"
 
+const char kLibname[] = "cocos2d";
 /*
  * function for module exports
  */
-static napi_value Init(napi_env env, napi_value exports) {
+static napi_value init(napi_env env, napi_value exports) {
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getContext", cc::OpenHarmonyPlatform::GetContext),
+        DECLARE_NAPI_FUNCTION("getContext", cc::NapiHelper::getContext),
     };
+    
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-
-    cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
-    CCASSERT(platform != nullptr, "Only supports openharmony platform");
-    bool ret = platform->Export(env, exports);
+    bool ret = cc::NapiHelper::exportFunctions(env, exports);
     if (!ret) {
         LOGE("Init failed");
     }
@@ -41,8 +40,8 @@ static napi_module cocos2dModule = {
     .nm_version       = 1,
     .nm_flags         = 0,
     .nm_filename      = nullptr,
-    .nm_register_func = Init, // called by ACE XComponent
-    .nm_modname       = "cocos2d",
+    .nm_register_func = init, // called by ACE XComponent
+    .nm_modname       = kLibname,
     .nm_priv          = ((void*)0),
     .reserved         = {0},
 };

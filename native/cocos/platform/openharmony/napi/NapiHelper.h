@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,36 +25,34 @@
 
 #pragma once
 
-#include <iostream>
-
-#include "platform/interfaces/modules/ISystemWindow.h"
-#include <ace/xcomponent/native_interface_xcomponent.h>
+#include <napi/native_api.h>
 
 namespace cc {
 
-class SystemWindow : public ISystemWindow {
+class NapiHelper {
 public:
-    SystemWindow();
-    bool createWindow(const char* title,
-                      int x, int y, int w,
-                      int h, int flags) override;
-    void setNativeXComponent(OH_NativeXComponent* component);
-    /**
-     @brief enable/disable(lock) the cursor, default is enabled
-     */
-    void               setCursorEnabled(bool value) override;
-    void               copyTextToClipboard(const std::string& text) override;
 
-    void setWindowHandler(void* window);
-    uintptr_t          getWindowHandler() const override;
-    Size getViewSize() const override;
+    static napi_value getContext(napi_env env, napi_callback_info info);
 
-private:
+    // APP Lifecycle
+    static napi_value napiOnCreate(napi_env env, napi_callback_info info);
+    static napi_value napiOnShow(napi_env env, napi_callback_info info);
+    static napi_value napiOnHide(napi_env env, napi_callback_info info);
+    static napi_value napiOnDestroy(napi_env env, napi_callback_info info);
 
-    void* windowHandler_{nullptr};
-    std::string id_{""};
-    uint64_t width_{0};
-    uint64_t height_{0};
+    // JS Page : Lifecycle
+    static napi_value napiOnPageShow(napi_env env, napi_callback_info info);
+    static napi_value napiOnPageHide(napi_env env, napi_callback_info info);
+    
+    // Worker Func
+    static napi_value napiWorkerInit(napi_env env, napi_callback_info info);
+    static napi_value napiASend(napi_env env, napi_callback_info info);
+    static napi_value napiNativeEngineInit(napi_env env, napi_callback_info info);
+
+    static napi_value napiWritablePathInit(napi_env env, napi_callback_info info);
+    static napi_value napiResourceManagerInit(napi_env env, napi_callback_info info);
+    // Napi export
+    static bool exportFunctions(napi_env env, napi_value exports);
 };
 
-} // namespace cc
+}

@@ -152,7 +152,6 @@ IAudioPlayer *AudioPlayerProvider::getAudioPlayer(const std::string &audioFilePa
                 }
             } else {
                 player = createUrlAudioPlayer(info);
-                LOGE("qgh cocos getAudioPlayer 3 %{public}s", audioFilePath.c_str());
             }
         } else {
             ALOGE("File info is invalid, path: %s", audioFilePath.c_str());
@@ -307,9 +306,6 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
     info.assetFd = std::make_shared<AssetFd>(descriptor.fd);
     info.start   = descriptor.start;
     info.length  = descriptor.length;
-
-    LOGE("qgh cocos getFileInfo(%{public}s) fd=%{public}d start=%{public}lld file size: %{public}ld", audioFilePath.c_str(), (int)descriptor.fd, info.start, fileSize);
-
     return info;
 }
 
