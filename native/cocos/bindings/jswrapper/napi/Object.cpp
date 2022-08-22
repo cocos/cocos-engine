@@ -241,7 +241,6 @@ bool Object::defineFunction(const char* funcName, napi_callback func) {
 bool Object::defineProperty(const char* name, napi_callback getter, napi_callback setter) {
     napi_status              status;
     napi_property_descriptor properties[] = {{name, nullptr, nullptr, getter, setter, 0, napi_default, 0}};
-    LOGI("get this :%p", this);
     status = napi_define_properties(_env, _objRef.getValue(_env), sizeof(properties) / sizeof(napi_property_descriptor), properties);
     if (status == napi_ok) {
         return true;
@@ -327,7 +326,6 @@ bool Object::init(napi_env env, napi_value js_object, Class* cls) {
     }
 
     napi_status status;
-    LOGI("init this :%p", this);
     return true;
 }
 
@@ -341,14 +339,11 @@ bool Object::call(const ValueArray& args, Object* thisObject, Value* rval) {
     napi_status status;
     assert(isFunction());
     napi_value thisObj = thisObject ? thisObject->_getJSObject() : nullptr;
-    LOGE("qgh object::call start %{public}p", thisObj);
     status =
         napi_call_function(_env, thisObj, _getJSObject(), argc, argv.data(), &return_val);
-    LOGE("qgh object::call end thisObj %{public}p _getJSObject  %{public}p", thisObj, _getJSObject());
     if (rval) {
         internal::jsToSeValue(return_val, rval);
     }
-    LOGE("qgh object::call finish %{public}p", return_val);
     return true;
 }
 
@@ -374,7 +369,6 @@ void Object::setPrivateData(void* data) {
 
     napi_valuetype valType;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_typeof(ScriptEngine::getEnv(), _objRef.getValue(_env), &valType));
-    LOGI("this type is %d, native this:%p", valType, data);
 
     //issue https://github.com/nodejs/node/issues/23999
     auto tmpThis = _objRef.getValue(_env);

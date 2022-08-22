@@ -3,6 +3,7 @@ import nativerender from "libcocos2d.so";
 import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
 import {log} from '../cocos/log_utils'
+import featureAbility from '@ohos.ability.featureAbility'
 
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
 
@@ -40,6 +41,15 @@ struct Index {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
       XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos2d'})
         .onLoad((context) => {
+          // Set the cache directory in the ts layer.
+          var cacheContext = featureAbility.getContext();
+          cacheContext.getCacheDir((err, data) => {
+            if (err.code != 0) {
+              return;
+            }
+            engineUtils.writablePathInit(data);
+          });
+
           // HACK: delay to post massage to wait for worker launching.
           setTimeout(() => {
             log('post msg when XCLoad');

@@ -28,13 +28,13 @@
 #include "platform/UniversalPlatform.h"
 
 #include <ace/xcomponent/native_interface_xcomponent.h>
-#include <napi/native_api.h>
+
 #include <uv.h>
 #include <string>
 #include <unordered_map>
-#include "platform/openharmony/WorkerMessageQueue.h"
+#include <napi/native_api.h>
 
-#define _ARKUI_DECLARATIVE_ 1
+#include "platform/openharmony/WorkerMessageQueue.h"
 
 namespace cc {
 class OpenHarmonyPlatform : public UniversalPlatform {
@@ -43,87 +43,36 @@ public:
     int32_t init() override;
     static OpenHarmonyPlatform* getInstance();
 
-    static napi_value GetContext(napi_env env, napi_callback_info info);
+    void onCreateNative(napi_env env, uv_loop_t* loop);
+    void onShowNative();
+    void onHideNative();
+    void onDestroyNative();
 
-    /******************************APP Lifecycle******************************/
-    static napi_value NapiOnCreate(napi_env env, napi_callback_info info);
-    static napi_value NapiOnShow(napi_env env, napi_callback_info info);
-    static napi_value NapiOnHide(napi_env env, napi_callback_info info);
-    static napi_value NapiOnDestroy(napi_env env, napi_callback_info info);
+    void workerInit(napi_env env, uv_loop_t* loop);
 
-    void OnCreateNative(napi_env env, uv_loop_t* loop);
-    void OnShowNative();
-    void OnHideNative();
-    void OnDestroyNative();
-    /*********************************************************************/
-#ifdef _ARKUI_DECLARATIVE_
-    /******************************声明式范式******************************/
-    /**                      JS Page : Lifecycle                        **/
-    static napi_value NapiOnPageShow(napi_env env, napi_callback_info info);
-    static napi_value NapiOnPageHide(napi_env env, napi_callback_info info);
-    void              OnPageShowNative();
-    void              OnPageHideNative();
-    /*************************************************************************/
-
-#else
-    /******************************类 Web范式******************************/
-    /**                      JS Page : Lifecycle                        **/
-    static napi_value NapiOnInit(napi_env env, napi_callback_info info);
-    static napi_value NapiOnReady(napi_env env, napi_callback_info info);
-    static napi_value NapiOnShow(napi_env env, napi_callback_info info);
-    static napi_value NapiOnHide(napi_env env, napi_callback_info info);
-    static napi_value NapiOnDestroy(napi_env env, napi_callback_info info);
-    static napi_value NapiOnActive(napi_env env, napi_callback_info info);
-    static napi_value NapiOnInactive(napi_env env, napi_callback_info info);
-
-    void OnInitNative();
-    void OnReadyNative();
-    void OnShowNative();
-    void OnHideNative();
-    void OnDestroyNative();
-    void OnActiveNative();
-    void OnInactiveNative();
-    /*************************************************************************/
-#endif
-    /*************************Worker Func*************************************/
-    static napi_value NapiWorkerInit(napi_env env, napi_callback_info info);
-    static napi_value NapiASend(napi_env env, napi_callback_info info);
-    static napi_value NapiNativeEngineInit(napi_env env, napi_callback_info info);
-
-    static napi_value NativeResourceManagerInit(napi_env env, napi_callback_info info);
-
-    void WorkerInit(napi_env env, uv_loop_t* loop);
-    int EnginInit(int argc, const char **argv);
-    /*************************************************************************/
-
-    // Napi export
-    bool Export(napi_env env, napi_value exports);
-    void SetNativeXComponent(OH_NativeXComponent* component);
+    void setNativeXComponent(OH_NativeXComponent* component);
 
     int32_t run(int argc, const char** argv) override;
-    int     getSdkVersion() const override;
     int32_t loop() override;
-    void onDestory() override;
-private:
-    int StartApplication(int argc, const char** argv);
-    static void TimerCb(uv_timer_t* handle);
-    static void MainOnMessage(const uv_async_t* req);
-    static void WorkerOnMessage(const uv_async_t* req);
-    bool        isRunning{false};
-    void        waitWindowInitialized();
-    std::string id_;
+    void enqueue(const WorkerMessageData& data);
+    bool dequeue(WorkerMessageData* data);
 
+    void triggerMessageSignal();
 public:
-    uv_timer_t timerHandle_;
-    napi_env   mainEnv_{nullptr};
-    uv_loop_t* mainLoop_{nullptr};
-    uv_async_t mainOnMessageSignal_{};
+    // Callback, called by ACE XComponent
+    void onSurfaceCreated(OH_NativeXComponent* component, void* window);
+    void onSurfaceChanged(OH_NativeXComponent* component, void* window);
+    void onSurfaceDestroyed(OH_NativeXComponent* component, void* window);
+    void dispatchTouchEvent(OH_NativeXComponent* component, void* window);
+    
+    static void onMessageCallback(const uv_async_t* req);
+    static void timerCb(uv_timer_t* handle);
 
-    napi_env   workerEnv_{nullptr};
-    uv_loop_t* workerLoop_{nullptr};
-    uv_async_t workerOnMessageSignal_{};
-    uv_async_t workerChangeColorSignal_{};
-
-    WorkerMessageQueue workerMessageQ_;
+    OH_NativeXComponent* _component{nullptr};
+    OH_NativeXComponent_Callback _callback;
+    uv_timer_t _timerHandle;
+    uv_loop_t* _workerLoop{nullptr};
+    uv_async_t _messageSignal{};
+    WorkerMessageQueue _messageQueue;
 };
 } // namespace cc
