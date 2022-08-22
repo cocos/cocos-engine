@@ -318,7 +318,7 @@ export class GamepadInputDevice {
         this._buttonShare = new InputSourceButton();
         this._buttonShare.getValue = () => this._nativeButtonState[Button.NS_MINUS];  // TODO: NX only for now
         this._buttonOptions = new InputSourceButton();
-        this._buttonOptions.getValue = () => this._nativeButtonState[Button.NS_PLUS] || this._nativeButtonState[Button.ROKID_MENU];  // TODO: NX, Rokid only for now
+        this._buttonOptions.getValue = () => this._nativeButtonState[Button.NS_PLUS] || this._nativeButtonState[Button.ROKID_MENU];
 
         const dpadUp = new InputSourceButton();
         dpadUp.getValue = () => this._nativeButtonState[Button.DPAD_UP];
