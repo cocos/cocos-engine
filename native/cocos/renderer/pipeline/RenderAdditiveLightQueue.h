@@ -36,6 +36,7 @@ class Pass;
 class Light;
 class SpotLight;
 class SphereLight;
+class RangedDirectionalLight;
 } // namespace scene
 namespace pipeline {
 struct RenderObject;
@@ -63,6 +64,7 @@ public:
 private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
+    static bool cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model);
     static bool isInstancedOrBatched(const scene::Model *model);
 
     void clear();

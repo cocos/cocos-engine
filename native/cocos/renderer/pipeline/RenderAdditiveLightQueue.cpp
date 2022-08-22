@@ -40,6 +40,7 @@
 #include "scene/DirectionalLight.h"
 #include "scene/Light.h"
 #include "scene/Pass.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/SphereLight.h"
@@ -196,6 +197,14 @@ bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, cons
     return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(light->getAABB()) || !model->getWorldBounds()->aabbFrustum(light->getFrustum()));
 }
 
+bool RenderAdditiveLightQueue::cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model) {
+    geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+    light->getNode()->updateWorldTransform();
+    rangedDirLightBoundingBox.transform(light->getNode()->getWorldMatrix(), &rangedDirLightBoundingBox);
+    return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(rangedDirLightBoundingBox));
+}
+
+
 bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model *model) {
     const auto &subModels = model->getSubModels();
     const auto subModelCount = subModels.size();
@@ -265,7 +274,10 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
         const auto *light = _validPunctualLights[l];
         const bool isSpotLight = scene::LightType::SPOT == light->getType();
         const auto *spotLight = isSpotLight ? static_cast<const scene::SpotLight *>(light) : nullptr;
-        const auto *sphereLight = isSpotLight ? nullptr : static_cast<const scene::SphereLight *>(light);
+        const bool isSphereLight = scene::LightType::SPHERE == light->getType();
+        const auto *sphereLight = isSphereLight ? static_cast<const scene::SphereLight *>(light) : nullptr;
+        const bool isRangedDirLight = scene::LightType::RANGEDDIR == light->getType();
+        const auto *rangeDirLight = isRangedDirLight ? static_cast<const scene::RangedDirectionalLight *>(light) : nullptr;
 
         auto index = offset + UBOForwardLight::LIGHT_POS_OFFSET;
         const auto &position = isSpotLight ? spotLight->getPosition() : sphereLight->getPosition();
@@ -319,6 +331,26 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
                 _lightBufferData[index++] = direction.y;
                 _lightBufferData[index] = direction.z;
             } break;
+            case scene::LightType::RANGEDDIR:
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 2;
+                Vec3 right(1.0F, 0.0F, 0.0F);
+                light->getNode()->updateWorldTransform();
+                right.transformQuat(light->getNode()->getWorldRotation());
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+                const auto &direction = rangeDirLight->getDirection();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 0] = direction.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 1] = direction.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 2] = direction.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0;
+                const auto &scale = light->getNode()->getWorldScale();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
+
             default:
                 break;
         }
@@ -455,6 +487,11 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
             case scene::LightType::SPOT:
                 if (isNeedCulling) {
                     isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
+                }
+                break;
+            case scene::LightType::RANGEDDIR:
+                if (isNeedCulling) {
+                    isCulled = cullRangedDirLight(static_cast<const scene::RangedDirectionalLight *>(light), model);
                 }
                 break;
             default:

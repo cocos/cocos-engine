@@ -27,6 +27,8 @@
 #include "scene/Camera.h"
 
 #include <utility>
+
+#include "RangedDirectionalLight.h"
 #include "3d/models/BakedSkinningModel.h"
 #include "3d/models/SkinningModel.h"
 #include "base/Log.h"
@@ -137,7 +139,7 @@ void RenderScene::addDirectionalLight(DirectionalLight *dl) {
 }
 
 void RenderScene::removeDirectionalLight(DirectionalLight *dl) {
-    auto iter = std::find(_directionalLights.begin(), _directionalLights.end(), dl);
+    const auto iter = std::find(_directionalLights.begin(), _directionalLights.end(), dl);
     if (iter != _directionalLights.end()) {
         (*iter)->detachFromScene();
         _directionalLights.erase(iter);
@@ -150,7 +152,7 @@ void RenderScene::addSphereLight(SphereLight *light) {
 }
 
 void RenderScene::removeSphereLight(SphereLight *sphereLight) {
-    auto iter = std::find(_sphereLights.begin(), _sphereLights.end(), sphereLight);
+    const auto iter = std::find(_sphereLights.begin(), _sphereLights.end(), sphereLight);
     if (iter != _sphereLights.end()) {
         _sphereLights.erase(iter);
     } else {
@@ -163,7 +165,7 @@ void RenderScene::addSpotLight(SpotLight *spotLight) {
 }
 
 void RenderScene::removeSpotLight(SpotLight *spotLight) {
-    auto iter = std::find(_spotLights.begin(), _spotLights.end(), spotLight);
+    const auto iter = std::find(_spotLights.begin(), _spotLights.end(), spotLight);
     if (iter != _spotLights.end()) {
         _spotLights.erase(iter);
     } else {
@@ -183,6 +185,26 @@ void RenderScene::removeSpotLights() {
         spotLight->detachFromScene();
     }
     _spotLights.clear();
+}
+
+void RenderScene::addRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    _rangedDirLights.emplace_back(rangedDirLight);
+}
+
+void RenderScene::removeRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    const auto iter = std::find(_rangedDirLights.begin(), _rangedDirLights.end(), rangedDirLight);
+    if (iter != _rangedDirLights.end()) {
+        _rangedDirLights.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid spot light.");
+    }
+}
+
+void RenderScene::removeRangedDirLights() {
+    for (const auto &rangedDirLight : _rangedDirLights) {
+        rangedDirLight->detachFromScene();
+    }
+    _rangedDirLights.clear();
 }
 
 void RenderScene::addModel(Model *model) {

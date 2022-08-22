@@ -48,13 +48,14 @@
           }
         #endif
 
-      float distAtt = 1.0;
-      if(IS_LIGHT_TYPE(LIGHT_TYPE_SPOT))
-        distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
-
+        float distAtt = 1.0;
+        if(IS_LIGHT_TYPE(LIGHT_TYPE_SPOT)) {
+          distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
+        }
         float angleAtt = 1.0;
-        if (!IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR))
+        if (!IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR)) {
           angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
+        }
 
         float multiplier = distAtt * angleAtt * shadow;
 

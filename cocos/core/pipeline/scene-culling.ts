@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { intersect, Sphere } from '../geometry';
+import { AABB, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Vec3 } from '../math';
@@ -36,6 +36,8 @@ import { ShadowLayerVolume } from './shadow/csm-layers';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
@@ -85,7 +87,10 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     const { rangedDirLights } = camera.scene!;
     for (let i = 0; i < rangedDirLights.length; i++) {
         const light = rangedDirLights[i];
-        validPunctualLights.push(light);
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
     }
 }
 
