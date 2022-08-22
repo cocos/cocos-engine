@@ -108,7 +108,7 @@ export class RenderEntity {
         }
     }
 
-    protected _enabled = true;
+    protected _enabled = false;
     get enabled () {
         return this._enabled;
     }
