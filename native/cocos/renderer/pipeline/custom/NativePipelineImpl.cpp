@@ -570,6 +570,14 @@ bool NativePipeline::isOcclusionQueryEnabled() const {
     return false;
 }
 
+void NativePipeline::resetRenderQueue(bool reset) {
+    // noop
+}
+
+bool NativePipeline::isRenderQueueReset() const {
+    return true;    
+}
+
 } // namespace render
 
 } // namespace cc
