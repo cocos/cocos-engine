@@ -67,7 +67,7 @@ public:
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
-    void onPresentCompleted();
+    void onPresentCompleted(uint32_t index);
 
     inline void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     inline void *getMTLDevice() const { return _mtlDevice; }
@@ -129,7 +129,7 @@ protected:
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};
     uint32_t _currentBufferPoolId = 0;
     uint32_t _currentFrameIndex = 0;
-    CCMTLSemaphore *_inFlightSemaphore = nullptr;
+    CCMTLSemaphore *_inFlightSemaphores[MAX_FRAMES_IN_FLIGHT];
     CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
 
     ccstd::vector<CCMTLSwapchain *> _swapchains;

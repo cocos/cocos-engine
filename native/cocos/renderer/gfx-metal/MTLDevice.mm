@@ -75,7 +75,9 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
-    _inFlightSemaphore = ccnew CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT);
+    for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+        _inFlightSemaphores[i] = ccnew CCMTLSemaphore(1);
+    }
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -164,13 +166,12 @@ void CCMTLDevice::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
-
-    if (_inFlightSemaphore) {
-        // has present ? syncSuccess : no need to wait;
-        _inFlightSemaphore->trySyncAll(1000);
+    
+    for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+        _inFlightSemaphores[i]->trySyncAll(1000);
+        CC_SAFE_DELETE(_inFlightSemaphores[i]);
+        _inFlightSemaphores[i] = nullptr;
     }
-
-    CC_SAFE_DELETE(_inFlightSemaphore);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
@@ -189,7 +190,7 @@ void CCMTLDevice::doDestroy() {
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 
-    _inFlightSemaphore->wait();
+    _inFlightSemaphores[_currentFrameIndex]->wait();
 
     for (CCMTLSwapchain *swapchain : _swapchains) {
         swapchain->acquire();
@@ -210,6 +211,7 @@ void CCMTLDevice::present() {
     _numTriangles = queue->gpuQueueObj()->numTriangles;
 
     //hold this pointer before update _currentFrameIndex
+    auto tempIndex = _currentFrameIndex;
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
@@ -232,21 +234,21 @@ void CCMTLDevice::present() {
             [drawable release];
         }
         [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-            onPresentCompleted();
+            onPresentCompleted(tempIndex);
         }];
         [cmdBuffer commit];
     }
 }
 
-void CCMTLDevice::onPresentCompleted() {
-    if (_currentBufferPoolId >= 0 && _currentBufferPoolId < MAX_FRAMES_IN_FLIGHT) {
-        CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentBufferPoolId];
+void CCMTLDevice::onPresentCompleted(uint32_t index) {
+    if (index >= 0 && index < MAX_FRAMES_IN_FLIGHT) {
+        CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[index];
         if (bufferPool) {
             bufferPool->reset();
-            CCMTLGPUGarbageCollectionPool::getInstance()->clear(_currentBufferPoolId);
+            CCMTLGPUGarbageCollectionPool::getInstance()->clear(index);
         }
     }
-    _inFlightSemaphore->signal();
+    _inFlightSemaphores[index]->signal();
 }
 
 Queue *CCMTLDevice::createQueue() {
