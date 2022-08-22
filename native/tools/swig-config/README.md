@@ -72,11 +72,9 @@ From Cocos Creator  3.7.0，we switch the approch of generating JS binding code 
 
 ## Swig Interface File
 
-- There is a [swig-interface-template.i](swig-interface-template.i) in `engine/native/tools/swig-config` directory, just copy and rename it to some place in your project.
-
-- To learn how to write a Swig interface file, you could reference engine internal `.i` files in `engine/native/tools/swig-config`, for instance, `scene.i` or `assets.i`
-
+- There is a [swig-interface-template.i](swig-interface-template.i) in `engine/native/tools/swig-config` directory, just copy and rename it to some place in your project. There some comments demonstrate how to configure your module in `.i` file.  You could also reference engine internal `.i` files in `engine/native/tools/swig-config`, for instance, `scene.i` or `assets.i` for a quick start.
 - If you're using `Visual Studio Code`, you could install `SWIG Language` extension which was developed by `Hong-She Liang` for highlight syntax support.
+- For more details of writing `.i` file, please visit [tutorial](#Tutorial) section.
 
 ## Tutorial
 
