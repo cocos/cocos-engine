@@ -1330,6 +1330,8 @@ cocos_source_files(
                  cocos/scene/SphereLight.cpp
                  cocos/scene/SpotLight.h
                  cocos/scene/SpotLight.cpp
+                 cocos/scene/RangedDirectionalLight.h
+                 cocos/scene/RangedDirectionalLight.cpp
                  cocos/scene/SubModel.h
                  cocos/scene/SubModel.cpp
                  cocos/scene/Octree.h
