@@ -266,7 +266,7 @@ static bool WebSocketServer_onclose(se::State &s) { // NOLINT(readability-identi
         }
     };
     cobj->setOnClose(callback);
-
+    s.thisObject()->unroot();
     return true;
 }
 SE_BIND_PROP_SET(WebSocketServer_onclose)
