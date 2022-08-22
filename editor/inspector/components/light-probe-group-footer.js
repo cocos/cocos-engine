@@ -56,6 +56,6 @@ exports.ready = function() {
 
     panel.$.edit.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
-        exports.update();
+        panel.$this.update();
     });
 };
