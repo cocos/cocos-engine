@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <string>
-#include <memory>
 #include "base/std/container/unordered_map.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include <AppKit/AppKit.h>
@@ -52,7 +50,7 @@ public:
     ISystemWindow *getWindowFromNSWindow(NSWindow *window) const;
 
 private:
-    static uint32_t nextWindowId; // start from 1, 0 means an invalid ID
+    uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
     SystemWindowMap _windows;
 };
 } // namespace cc

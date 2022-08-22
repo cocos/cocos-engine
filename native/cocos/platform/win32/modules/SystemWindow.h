@@ -49,7 +49,7 @@ public:
                       int h, int flags) override;
     void closeWindow() override;
 
-    virtual uint32_t getWindowId() const override;
+    uint32_t getWindowId() const override;
     uintptr_t getWindowHandle() const override;
 
     Size getViewSize() const override;
@@ -64,7 +64,7 @@ public:
     void copyTextToClipboard(const std::string& text) override;
 
 private:
-    SDL_Window* _getSDLWindow() const { return _window; }
+    SDL_Window* getSDLWindow() const { return _window; }
 
     int _width{0};
     int _height{0};

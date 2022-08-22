@@ -48,7 +48,7 @@ public:
                       int h, int flags) override;
     void closeWindow() override;
 
-    virtual uint32_t getWindowId() const override { return _windowId; }
+    uint32_t getWindowId() const override { return _windowId; }
     uintptr_t getWindowHandle() const override;
 
     uintptr_t getDisplay() const;

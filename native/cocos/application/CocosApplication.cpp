@@ -42,8 +42,6 @@ namespace cc {
 
 CocosApplication::CocosApplication() {
     _engine = BaseEngine::createEngine();
-    //_systemWindow = _engine->getInterface<ISystemWindow>();
-    //CC_ASSERT(_systemWindow != nullptr);
 }
 
 CocosApplication::~CocosApplication() {

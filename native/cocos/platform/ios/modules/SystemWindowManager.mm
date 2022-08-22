@@ -31,8 +31,6 @@
 
 namespace cc {
 
-uint32_t SystemWindowManager::nextWindowId = 1;
-
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
     if (windowId == 0) {
         return nullptr;
@@ -46,11 +44,11 @@ ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
 }
 
 ISystemWindow *SystemWindowManager::createWindow(const cc::ISystemWindowInfo &info) {
-    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(nextWindowId, info.externalHandle);
+    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
     if (window) {
         window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
-        _windows[nextWindowId] = std::shared_ptr<ISystemWindow>(window);
-        nextWindowId++;
+        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+        _nextWindowId++;
     }
     return window;
 }

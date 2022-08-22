@@ -45,7 +45,7 @@ public:
     const SystemWindowMap &getWindows() const override { return _windows; }
 
 private:
-    static uint32_t nextWindowId; // start from 1, 0 means an invalid ID
+    uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
     SystemWindowMap _windows;
 };
 } // namespace cc

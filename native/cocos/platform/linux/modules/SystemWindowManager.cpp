@@ -32,8 +32,6 @@
 
 namespace cc {
 
-uint32_t SystemWindowManager::_nextWindowId = 1;
-
 SystemWindowManager::SystemWindowManager(IEventDispatch *delegate)
     : _eventDispatcher(delegate) {
 }
@@ -44,8 +42,7 @@ int SystemWindowManager::init() {
 
 void SystemWindowManager::processEvent(bool *quit) {
     SDL_Event sdlEvent;
-    int cnt = 0;
-    while ((cnt = SDL_PollEvent(&sdlEvent)) != 0) {
+    while (SDL_PollEvent(&sdlEvent) != 0) {
         SDL_Window *sdlWindow = SDL_GetWindowFromID(sdlEvent.window.windowID);
         ISystemWindow *window = getWindowFromSDLWindow(sdlWindow);
         uint32_t windowId = 0;

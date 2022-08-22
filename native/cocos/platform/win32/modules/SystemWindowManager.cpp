@@ -32,8 +32,6 @@
 
 namespace cc {
 
-uint32_t SystemWindowManager::nextWindowId = 1;
-
 SystemWindowManager::SystemWindowManager(IEventDispatch *delegate)
     : _eventDispatcher(delegate) {
 }
@@ -44,8 +42,7 @@ int SystemWindowManager::init() {
 
 void SystemWindowManager::processEvent(bool *quit) {
     SDL_Event sdlEvent;
-    int cnt = 0;
-    while ((cnt = SDL_PollEvent(&sdlEvent)) != 0) {
+    while (SDL_PollEvent(&sdlEvent) != 0) {
         SDL_Window *sdlWindow = SDL_GetWindowFromID(sdlEvent.window.windowID);
         ISystemWindow *window = getWindowFromSDLWindow(sdlWindow);
         uint32_t windowId = 0;
@@ -69,11 +66,11 @@ void SystemWindowManager::swapWindows() {
 }
 
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
-    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(nextWindowId, info.externalHandle);
+    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
     if (window) {
         window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
-        _windows[nextWindowId] = std::shared_ptr<ISystemWindow>(window);
-        nextWindowId++;
+        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+        _nextWindowId++;
     }
     return window;
 }
@@ -92,7 +89,7 @@ ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
 cc::ISystemWindow *SystemWindowManager::getWindowFromSDLWindow(SDL_Window *window) const {
     for (const auto &iter : _windows) {
         SystemWindow *sysWindow = static_cast<SystemWindow *>(iter.second.get());
-        SDL_Window *sdlWindow = sysWindow->_getSDLWindow();
+        SDL_Window *sdlWindow = sysWindow->getSDLWindow();
         if (sdlWindow == window) {
             return sysWindow;
         }
