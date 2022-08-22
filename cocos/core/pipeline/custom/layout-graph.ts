@@ -30,8 +30,9 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { DescriptorSet, DescriptorSetLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
+import { ccclass } from '../../data/decorators';
 
 export const enum DescriptorTypeOrder {
     UNIFORM_BUFFER,
@@ -85,6 +86,7 @@ export class DescriptorBlock {
     count = 0;
 }
 
+@ccclass('cc.DescriptorBlockFlattened')
 export class DescriptorBlockFlattened {
     readonly descriptorNames: string[] = [];
     readonly uniformBlockNames: string[] = [];
@@ -680,6 +682,7 @@ export class DescriptorSetData {
         this.descriptorSet = descriptorSet;
     }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
+    readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
     /*object*/ descriptorSetLayout: DescriptorSetLayout | null;
     /*object*/ descriptorSet: DescriptorSet | null;
 }
@@ -801,6 +804,7 @@ interface LayoutGraphDataComponentPropertyMap {
 
 //-----------------------------------------------------------------
 // LayoutGraphData Implementation
+@ccclass('cc.LayoutGraphData')
 export class LayoutGraphData implements impl.BidirectionalGraph
 , impl.AdjacencyGraph
 , impl.VertexListGraph
