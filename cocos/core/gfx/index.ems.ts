@@ -29,7 +29,7 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { waitForWebGPUInstantiation, gfx, webgpuAdapter } from '../../webgpu/instantiated';
+import '../../webgpu/instantiated';
 
 import './deprecated-3.0.0';
 
@@ -38,26 +38,8 @@ export * from './base/define';
 export * from './device-manager';
 
 
-const polyfillCC: Record<string, unknown> = { ...gfx };
-polyfillCC.Device = gfx.CCWGPUDevice;
-polyfillCC.Swapchain = gfx.CCWGPUSwapchain;
-polyfillCC.Buffer = gfx.CCWGPUBuffer;
-polyfillCC.Texture = gfx.CCWGPUTexture;
-polyfillCC.Sampler = gfx.CCWGPUSampler;
-polyfillCC.Shader = gfx.CCWGPUShader;
-polyfillCC.InputAssembler = gfx.CCWGPUInputAssembler;
-polyfillCC.RenderPass = gfx.CCWGPURenderPass;
-polyfillCC.Framebuffer = gfx.CCWGPUFramebuffer;
-polyfillCC.DescriptorSet = gfx.CCWGPUDescriptorSet;
-polyfillCC.DescriptorSetLayout = gfx.CCWGPUDescriptorSetLayout;
-polyfillCC.PipelineLayout = gfx.CCWGPUPipelineLayout;
-polyfillCC.PipelineState = gfx.CCWGPUPipelineState;
-polyfillCC.CommandBuffer = gfx.CCWGPUCommandBuffer;
-polyfillCC.Queue = gfx.CCWGPUQueue;
-legacyCC.gfx = polyfillCC;
-
-export * from './override';
-export * from './webgpu/webgpu-define'
+const gfx: Record<string, unknown> = {};
+legacyCC.gfx = gfx;
 
 export const WGPU_WASM = true;
 

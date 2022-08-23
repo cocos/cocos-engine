@@ -33,6 +33,7 @@ import { legacyCC } from '../core/global-exports';
 // import glslangLoader from '@cocos/webgpu/glslang';
 import wasmDevice from './webgpu_wasm';
 import glslangLoader from './glslang';
+import { polyfillGfx } from '../core/gfx/webgpu/webgpu-define';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -48,7 +49,7 @@ export const webgpuAdapter: any = {
     device: null,
 };
 
-export function waitForWebGPUInstantiation () {
+function waitForWebGPUInstantiation () {
     return Promise.all([
         glslangLoader('./glslang.wasm').then((res) => {
             glslalgWasmModule.glslang = res;
@@ -60,6 +61,22 @@ export function waitForWebGPUInstantiation () {
                     gfx.wasmBinary = buffer;
                     wasmDevice(gfx).then(() => {
                         legacyCC.WebGPUDevice = gfx.CCWGPUDevice;
+                        legacyCC.gfx.Device = gfx.CCWGPUDevice;
+                        legacyCC.gfx.Swapchain = gfx.CCWGPUSwapchain;
+                        legacyCC.gfx.Buffer = gfx.CCWGPUBuffer;
+                        legacyCC.gfx.Texture = gfx.CCWGPUTexture;
+                        legacyCC.gfx.Sampler = gfx.CCWGPUSampler;
+                        legacyCC.gfx.Shader = gfx.CCWGPUShader;
+                        legacyCC.gfx.InputAssembler = gfx.CCWGPUInputAssembler;
+                        legacyCC.gfx.RenderPass = gfx.CCWGPURenderPass;
+                        legacyCC.gfx.Framebuffer = gfx.CCWGPUFramebuffer;
+                        legacyCC.gfx.DescriptorSet = gfx.CCWGPUDescriptorSet;
+                        legacyCC.gfx.DescriptorSetLayout = gfx.CCWGPUDescriptorSetLayout;
+                        legacyCC.gfx.PipelineLayout = gfx.CCWGPUPipelineLayout;
+                        legacyCC.gfx.PipelineState = gfx.CCWGPUPipelineState;
+                        legacyCC.gfx.CommandBuffer = gfx.CCWGPUCommandBuffer;
+                        legacyCC.gfx.Queue = gfx.CCWGPUQueue;
+                        polyfillGfx();
                         resolve();
                     });
                 });
@@ -77,3 +94,5 @@ export function waitForWebGPUInstantiation () {
         }),
     ]).then(() => Promise.resolve());
 }
+
+game.onPreInfrastructureInitDelegate.add(waitForWebGPUInstantiation);
