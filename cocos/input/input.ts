@@ -25,11 +25,11 @@
 */
 
 import { EDITOR, NATIVE } from 'internal:constants';
-import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource } from 'pal/input';
+import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
 import { sys } from '../core/platform/sys';
 import { EventTarget } from '../core/event/event-target';
-import { Event, EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
+import { Event, EventAcceleration, EventGamepad, EventHandle, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 import { legacyCC } from '../core/global-exports';
 
@@ -87,15 +87,20 @@ interface InputEventMap {
     [Input.EventType.KEY_PRESSING]: (event: EventKeyboard) => void,
     [Input.EventType.KEY_UP]: (event: EventKeyboard) => void,
     [Input.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
+    [Input.EventType.GAMEPAD_CHANGE]: (event: EventGamepad) => void,
+    [Input.EventType.GAMEPAD_INPUT]: (event: EventGamepad) => void,
+    [Input.EventType.HANDLE_INPUT]: (event: EventHandle) => void,
+    [Input.EventType.HANDLE_POSE_INPUT]: (event: EventHandle) => void,
+    [Input.EventType.HMD_POSE_INPUT]: (event: EventHMD) => void,
 }
 
 /**
  * @en
- * This Input class manages all events of input. include: touch, mouse, accelerometer and keyboard.
+ * This Input class manages all events of input. include: touch, mouse, accelerometer, gamepad, handle, hmd and keyboard.
  * You can get the `Input` instance with `input`.
  *
  * @zh
- * 该输入类管理所有的输入事件，包括：触摸、鼠标、加速计 和 键盘。
+ * 该输入类管理所有的输入事件，包括：触摸、鼠标、加速计、游戏手柄、6DOF手柄、头戴显示器 和 键盘。
  * 你可以通过 `input` 获取到 `Input` 的实例。
  *
  * @example
@@ -128,11 +133,16 @@ export class Input {
     private _mouseInput = new MouseInputSource();
     private _keyboardInput = new KeyboardInputSource();
     private _accelerometerInput = new AccelerometerInputSource();
+    private _handleInput = new HandleInputDevice();
+    private _hmdInput = new HMDInputDevice();
 
     private _eventTouchList: EventTouch[] = [];
     private _eventMouseList: EventMouse[] = [];
     private _eventKeyboardList: EventKeyboard[] = [];
     private _eventAccelerationList: EventAcceleration[] = [];
+    private _eventGamepadList: EventGamepad[] = [];
+    private _eventHandleList: EventHandle[] = [];
+    private _eventHMDList: EventHMD[] = [];
 
     private _needSimulateTouchMoveEvent = false;
 
@@ -143,6 +153,7 @@ export class Input {
         this._registerEvent();
         this._inputEventDispatcher = new InputEventDispatcher(this._eventTarget);
         this._registerEventDispatcher(this._inputEventDispatcher);
+        GamepadInputDevice._init();
     }
 
     /**
@@ -321,6 +332,23 @@ export class Input {
             const eventAccelerationList = this._eventAccelerationList;
             this._accelerometerInput.on(InputEventType.DEVICEMOTION, (event) => { this._dispatchOrPushEvent(event, eventAccelerationList); });
         }
+
+        if (sys.hasFeature(sys.Feature.EVENT_GAMEPAD)) {
+            const eventGamepadList = this._eventGamepadList;
+            GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
+            GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
+        }
+
+        if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
+            const eventHandleList = this._eventHandleList;
+            this._handleInput._on(InputEventType.HANDLE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandleList); });
+            this._handleInput._on(InputEventType.HANDLE_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandleList); });
+        }
+
+        if (sys.hasFeature(sys.Feature.EVENT_HMD)) {
+            const eventHMDList = this._eventHMDList;
+            this._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHMDList); });
+        }
     }
 
     private _clearEvents () {
@@ -328,6 +356,9 @@ export class Input {
         this._eventTouchList.length = 0;
         this._eventKeyboardList.length = 0;
         this._eventAccelerationList.length = 0;
+        this._eventGamepadList.length = 0;
+        this._eventHandleList.length = 0;
+        this._eventHMDList.length = 0;
     }
 
     private _dispatchOrPushEvent (event: Event, eventList: Event[]) {
@@ -387,16 +418,37 @@ export class Input {
             this._emitEvent(eventAcceleration);
         }
 
+        const eventGamepadList = this._eventGamepadList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventGamepadList.length; i < length; ++i) {
+            const eventGamepad = eventGamepadList[i];
+            this._emitEvent(eventGamepad);
+        }
+
+        const eventHandleList = this._eventHandleList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventHandleList.length; i < length; ++i) {
+            const eventHandle = eventHandleList[i];
+            this._emitEvent(eventHandle);
+        }
+
+        const eventHMDList = this._eventHMDList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventHMDList.length; i < length; ++i) {
+            const eventHMD = eventHMDList[i];
+            this._emitEvent(eventHMD);
+        }
+
         this._clearEvents();
     }
 }
 
 /**
  * @en
- * The singleton of the Input class, this singleton manages all events of input. include: touch, mouse, accelerometer and keyboard.
+ * The singleton of the Input class, this singleton manages all events of input. include: touch, mouse, accelerometer, gamepad, handle, hmd and keyboard.
  *
  * @zh
- * 输入类单例，该单例管理所有的输入事件，包括：触摸、鼠标、加速计 和 键盘。
+ * 输入类单例，该单例管理所有的输入事件，包括：触摸、鼠标、加速计、游戏手柄、6DOF手柄、头戴显示器 和 键盘。
  *
  * @example
  * ```
