@@ -10140,6 +10140,40 @@ static bool js_cc_scene_SkyboxInfo__editableMaterial_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo__editableMaterial_get) 
 
+static bool js_cc_scene_SkyboxInfo__rotationAngle_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1->_rotationAngle, nullptr);
+    SE_PRECONDITION2(ok, false, "SkyboxInfo__rotationAngle_set,2,SWIGTYPE_float"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__rotationAngle_set) 
+
+static bool js_cc_scene_SkyboxInfo__rotationAngle_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // out 1
+    ok &= nativevalue_to_se(arg1->_rotationAngle, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo__rotationAngle_get) 
+
 static bool js_cc_scene_SkyboxInfo__resource_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -10493,6 +10527,7 @@ bool js_register_cc_scene_SkyboxInfo(se::Object* obj) {
     cls->defineProperty("_useHDR", _SE(js_cc_scene_SkyboxInfo__useHDR_get), _SE(js_cc_scene_SkyboxInfo__useHDR_set)); 
     cls->defineProperty("_envLightingType", _SE(js_cc_scene_SkyboxInfo__envLightingType_get), _SE(js_cc_scene_SkyboxInfo__envLightingType_set)); 
     cls->defineProperty("_editableMaterial", _SE(js_cc_scene_SkyboxInfo__editableMaterial_get), _SE(js_cc_scene_SkyboxInfo__editableMaterial_set)); 
+    cls->defineProperty("_rotationAngle", _SE(js_cc_scene_SkyboxInfo__rotationAngle_get), _SE(js_cc_scene_SkyboxInfo__rotationAngle_set)); 
     cls->defineProperty("_resource", _SE(js_cc_scene_SkyboxInfo__resource_get), _SE(js_cc_scene_SkyboxInfo__resource_set)); 
     cls->defineProperty("_envmap", _SE(js_cc_scene_SkyboxInfo__envmap_get), _SE(js_cc_scene_SkyboxInfo__envmap_set)); 
     cls->defineProperty("applyDiffuseMap", _SE(js_cc_scene_SkyboxInfo_applyDiffuseMap_get), _SE(js_cc_scene_SkyboxInfo_applyDiffuseMap_set)); 
@@ -10741,6 +10776,58 @@ static bool js_cc_scene_Skybox_setSkyboxMaterial(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_Skybox_setSkyboxMaterial) 
+
+static bool js_cc_scene_Skybox_setRotationAngle(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Skybox *arg1 = (cc::scene::Skybox *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Skybox>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "Skybox_setRotationAngle,2,SWIGTYPE_float"); 
+    (arg1)->setRotationAngle(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Skybox_setRotationAngle) 
+
+static bool js_cc_scene_Skybox_getRotationAngle(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Skybox *arg1 = (cc::scene::Skybox *) NULL ;
+    float result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Skybox>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (float)((cc::scene::Skybox const *)arg1)->getRotationAngle();
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Skybox_getRotationAngle) 
 
 static bool js_cc_scene_Skybox_getReflectionMap(se::State& s)
 {
@@ -11050,6 +11137,8 @@ bool js_register_cc_scene_Skybox(se::Object* obj) {
     cls->defineFunction("activate", _SE(js_cc_scene_Skybox_activate)); 
     cls->defineFunction("isUsingConvolutionMap", _SE(js_cc_scene_Skybox_isUsingConvolutionMap)); 
     cls->defineFunction("setSkyboxMaterial", _SE(js_cc_scene_Skybox_setSkyboxMaterial)); 
+    cls->defineFunction("setRotationAngle", _SE(js_cc_scene_Skybox_setRotationAngle)); 
+    cls->defineFunction("getRotationAngle", _SE(js_cc_scene_Skybox_getRotationAngle)); 
     cls->defineFunction("getReflectionMap", _SE(js_cc_scene_Skybox_getReflectionMap)); 
     
     
@@ -20080,6 +20169,78 @@ static bool js_cc_scene_ICameraInfo_pipeline_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_ICameraInfo_pipeline_get) 
 
+static bool js_cc_scene_ICameraInfo_cameraType_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ICameraInfo *arg1 = (cc::scene::ICameraInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ICameraInfo_cameraType_set,2,SWIGTYPE_cc__scene__CameraType");
+    arg1->cameraType = (cc::scene::CameraType)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_ICameraInfo_cameraType_set) 
+
+static bool js_cc_scene_ICameraInfo_cameraType_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ICameraInfo *arg1 = (cc::scene::ICameraInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->cameraType));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ICameraInfo_cameraType_get) 
+
+static bool js_cc_scene_ICameraInfo_trackingType_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ICameraInfo *arg1 = (cc::scene::ICameraInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ICameraInfo_trackingType_set,2,SWIGTYPE_cc__scene__TrackingType");
+    arg1->trackingType = (cc::scene::TrackingType)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_ICameraInfo_trackingType_set) 
+
+static bool js_cc_scene_ICameraInfo_trackingType_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ICameraInfo *arg1 = (cc::scene::ICameraInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ICameraInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->trackingType));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ICameraInfo_trackingType_get) 
+
 // js_ctor
 static bool js_new_cc_scene_ICameraInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20159,6 +20320,18 @@ bool sevalue_to_native(const se::Value &from, cc::scene::ICameraInfo * to, se::O
     }
     
     
+    json->getProperty("cameraType", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->cameraType), ctx);
+    }
+    
+    
+    json->getProperty("trackingType", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->trackingType), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -20173,6 +20346,8 @@ bool js_register_cc_scene_ICameraInfo(se::Object* obj) {
     cls->defineProperty("window", _SE(js_cc_scene_ICameraInfo_window_get), _SE(js_cc_scene_ICameraInfo_window_set)); 
     cls->defineProperty("priority", _SE(js_cc_scene_ICameraInfo_priority_get), _SE(js_cc_scene_ICameraInfo_priority_set)); 
     cls->defineProperty("pipeline", _SE(js_cc_scene_ICameraInfo_pipeline_get), _SE(js_cc_scene_ICameraInfo_pipeline_set)); 
+    cls->defineProperty("cameraType", _SE(js_cc_scene_ICameraInfo_cameraType_get), _SE(js_cc_scene_ICameraInfo_cameraType_set)); 
+    cls->defineProperty("trackingType", _SE(js_cc_scene_ICameraInfo_trackingType_get), _SE(js_cc_scene_ICameraInfo_trackingType_set)); 
     
     
     
@@ -20620,6 +20795,165 @@ static bool js_cc_scene_Camera_detachCamera(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_Camera_detachCamera) 
+
+static bool js_cc_scene_Camera_getCameraType(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::scene::CameraType result;
+    int32_t temp ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::scene::CameraType)((cc::scene::Camera const *)arg1)->getCameraType();
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(result));
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_getCameraType) 
+
+static bool js_cc_scene_Camera_setCameraType(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::scene::CameraType arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "Camera_setCameraType,2,SWIGTYPE_cc__scene__CameraType");
+    arg2 = (cc::scene::CameraType)temp2;
+    (arg1)->setCameraType(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_setCameraType) 
+
+static bool js_cc_scene_Camera_getTrackingType(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::scene::TrackingType result;
+    int32_t temp ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::scene::TrackingType)((cc::scene::Camera const *)arg1)->getTrackingType();
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(result));
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_getTrackingType) 
+
+static bool js_cc_scene_Camera_setTrackingType(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::scene::TrackingType arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "Camera_setTrackingType,2,SWIGTYPE_cc__scene__TrackingType");
+    arg2 = (cc::scene::TrackingType)temp2;
+    (arg1)->setTrackingType(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_setTrackingType) 
+
+static bool js_cc_scene_Camera_isCullingEnabled(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)((cc::scene::Camera const *)arg1)->isCullingEnabled();
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_isCullingEnabled) 
+
+static bool js_cc_scene_Camera_setCullingEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Camera_setCullingEnable,2,SWIGTYPE_bool"); 
+    (arg1)->setCullingEnable(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_setCullingEnable) 
 
 static bool js_cc_scene_Camera_iso_set(se::State& s)
 {
@@ -21874,6 +22208,12 @@ bool js_register_cc_scene_Camera(se::Object* obj) {
     cls->defineFunction("setViewportInOrientedSpace", _SE(js_cc_scene_Camera_setViewportInOrientedSpace)); 
     cls->defineFunction("initGeometryRenderer", _SE(js_cc_scene_Camera_initGeometryRenderer)); 
     cls->defineFunction("detachCamera", _SE(js_cc_scene_Camera_detachCamera)); 
+    cls->defineFunction("getCameraType", _SE(js_cc_scene_Camera_getCameraType)); 
+    cls->defineFunction("setCameraType", _SE(js_cc_scene_Camera_setCameraType)); 
+    cls->defineFunction("getTrackingType", _SE(js_cc_scene_Camera_getTrackingType)); 
+    cls->defineFunction("setTrackingType", _SE(js_cc_scene_Camera_setTrackingType)); 
+    cls->defineFunction("isCullingEnabled", _SE(js_cc_scene_Camera_isCullingEnabled)); 
+    cls->defineFunction("setCullingEnable", _SE(js_cc_scene_Camera_setCullingEnable)); 
     
     cls->defineStaticProperty("SKYBOX_FLAG", _SE(js_cc_scene_Camera_SKYBOX_FLAG_get), nullptr); 
     
