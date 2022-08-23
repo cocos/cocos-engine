@@ -737,21 +737,16 @@ exports.listeners = {
             'renderer.useGPU': 'A1000010',
         };
 
-        if (Object.keys(trackMap).some(key => dump.path.endsWith(key))) {
+        const dumpKey = Object.keys(trackMap).find(key => dump.path.endsWith(key));
+        if (!dumpKey) { return; }
 
-            const value = dump.type === 'Boolean' ? dump.value : dump.value.enable.value;
-            if (!value) { return; }
+        const value = dump.type === 'Boolean' ? dump.value : dump.value.enable.value;
+        if (!value) { return; }
 
-            for (const [key, val] of Object.entries(trackMap)) {
-                if (dump.path.endsWith(key)) {
-                    Editor.Metrics._trackEventWithTimer({
-                        category: 'particleSystem',
-                        id: val,
-                        value: 1,
-                    });
-                    return;
-                }
-            }
-        }
+        Editor.Metrics._trackEventWithTimer({
+            category: 'particleSystem',
+            id: trackMap[dumpKey],
+            value: 1,
+        });
     },
 };
