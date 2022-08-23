@@ -1084,8 +1084,8 @@ bool Image::saveImageToJPG(const std::string& filePath)
         struct jpeg_compress_struct cinfo;
         struct jpeg_error_mgr jerr;
         FILE * outfile;                 /* target file */
-        JSAMPROW row_pointer[1];        /* pointer to JSAMPLE row[s] */
-        int     row_stride;          /* physical row width in image buffer */
+        JSAMPROW rowPointer[1];        /* pointer to JSAMPLE row[s] */
+        int     rowStride;          /* physical row width in image buffer */
 
         cinfo.err = jpeg_std_error(&jerr);
         /* Now we can initialize the JPEG compression object. */
@@ -1105,12 +1105,12 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
         jpeg_start_compress(&cinfo, TRUE);
 
-        row_stride = _width * 3; /* JSAMPLEs per row in image_buffer */
+        rowStride = _width * 3; /* JSAMPLEs per row in image_buffer */
         bool hasAlpha = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].hasAlpha;
 
         if (hasAlpha)
         {
-            unsigned char *tempData = static_cast<unsigned char*>(CC_MALLOC(_width * _height * 3 * sizeof(unsigned char)));
+            auto *tempData = static_cast<unsigned char*>(CC_MALLOC(_width * _height * 3 * sizeof(unsigned char)));
             if (nullptr == tempData)
             {
                 jpeg_finish_compress(&cinfo);
@@ -1130,8 +1130,8 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
             while (cinfo.next_scanline < cinfo.image_height)
             {
-                row_pointer[0] = & tempData[cinfo.next_scanline * row_stride];
-                (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+                rowPointer[0] = & tempData[cinfo.next_scanline * rowStride];
+                (void) jpeg_write_scanlines(&cinfo, rowPointer, 1);
             }
 
             if (tempData != nullptr)
@@ -1142,8 +1142,8 @@ bool Image::saveImageToJPG(const std::string& filePath)
         else
         {
             while (cinfo.next_scanline < cinfo.image_height) {
-                row_pointer[0] = & _data[cinfo.next_scanline * row_stride];
-                (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+                rowPointer[0] = & _data[cinfo.next_scanline * rowStride];
+                (void) jpeg_write_scanlines(&cinfo, rowPointer, 1);
             }
         }
 
