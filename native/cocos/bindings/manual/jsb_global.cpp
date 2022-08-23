@@ -667,14 +667,13 @@ static bool js_saveImageData(se::State& s) // NOLINT
 {
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    bool ok = true;
     if (argc == 4 || argc == 5) {
         auto *uint8ArrayObj = args[0].toObject();
+        uint8_t *uint8ArrayData {nullptr};
+        size_t length = 0;
         uint8ArrayObj->root();
         uint8ArrayObj->incRef();
-        uint8_t *uint8ArrayData = nullptr;
-        size_t length = 0;
-        
         uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
         uint32_t width;
         uint32_t height;
@@ -684,14 +683,13 @@ static bool js_saveImageData(se::State& s) // NOLINT
         std::string filePath;
         ok &= sevalue_to_native(args[3], &filePath);
         SE_PRECONDITION2(ok, false, "js_saveImageData : Error processing arguments");
-        
+
         se::Value callbackVal = argc == 5 ? args[4] : se::Value::Null;
-        se::Object *callbackObj;
+        se::Object *callbackObj {nullptr};
         if (!callbackVal.isNull()) {
             CC_ASSERT(callbackVal.isObject());
             CC_ASSERT(callbackVal.toObject()->isFunction());
             callbackObj = callbackVal.toObject();
-            s.thisObject()->attachObject(callbackObj);
             callbackObj->root();
             callbackObj->incRef();
         }
@@ -704,7 +702,7 @@ static bool js_saveImageData(se::State& s) // NOLINT
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
-                
+
                 se::Value visSuccess;
                 nativevalue_to_se(isSuccess, visSuccess);
 
@@ -714,9 +712,9 @@ static bool js_saveImageData(se::State& s) // NOLINT
                     callbackObj->unroot();
                     callbackObj->decRef();
                 }
-                delete img;
                 uint8ArrayObj->unroot();
                 uint8ArrayObj->decRef();
+                delete img;
             });
         });
         return true;

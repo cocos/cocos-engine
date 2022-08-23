@@ -972,56 +972,56 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
 bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
 {
     bool ret = false;
-    
+
     FILE *fp{nullptr};
-    png_structp png_ptr{nullptr};
-    png_infop info_ptr{nullptr};
+    png_structp pngPtr{nullptr};
+    png_infop infoPtr{nullptr};
     png_colorp palette{nullptr};
-    png_bytep *row_pointers{nullptr};
+    png_bytep *rowPointers{nullptr};
     bool hasAlpha = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].hasAlpha;
     do {
         // Init png structure and png ptr
-        png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-        CC_BREAK_IF(!png_ptr);
-        if (setjmp(png_jmpbuf(png_ptr)))
+        pngPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+        CC_BREAK_IF(!pngPtr);
+        if (setjmp(png_jmpbuf(pngPtr)))
         {
             break;
         }
-        info_ptr = png_create_info_struct(png_ptr);
-        CC_BREAK_IF(!info_ptr);
+        infoPtr = png_create_info_struct(pngPtr);
+        CC_BREAK_IF(!infoPtr);
         // Start open file
         fp = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb");
         CC_BREAK_IF(!fp);
-        png_init_io(png_ptr, fp);
+        png_init_io(pngPtr, fp);
         auto mask = (!isToRGB && hasAlpha) ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
-        png_set_IHDR(png_ptr, info_ptr, _width, _height, 8, mask,
+        png_set_IHDR(pngPtr, infoPtr, _width, _height, 8, mask,
         PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-    
-        palette = (png_colorp)png_malloc(png_ptr, PNG_MAX_PALETTE_LENGTH * sizeof (png_color));
-        CC_BREAK_IF(!palette);         
-        png_set_PLTE(png_ptr, info_ptr, palette, PNG_MAX_PALETTE_LENGTH);
 
-        png_write_info(png_ptr, info_ptr);
+        palette = static_cast<png_colorp>(png_malloc(pngPtr, PNG_MAX_PALETTE_LENGTH * sizeof (png_color)));
+        CC_BREAK_IF(!palette);
+        png_set_PLTE(pngPtr, infoPtr, palette, PNG_MAX_PALETTE_LENGTH);
 
-        png_set_packing(png_ptr);
+        png_write_info(pngPtr, infoPtr);
+
+        png_set_packing(pngPtr);
 
         //row_pointers = (png_bytep *)png_malloc(png_ptr, _height * sizeof(png_bytep));
-        row_pointers = (png_bytep *)malloc(_height * sizeof(png_bytep));
-        CC_BREAK_IF(!row_pointers);
+        rowPointers = static_cast<png_bytep *>(CC_MALLOC(_height * sizeof(png_bytep)));
+        CC_BREAK_IF(!rowPointers);
 
         if (!hasAlpha)
         {
-            for (int i = 0; i < (int)_height; i++)
+            for (int i = 0; i < _height; i++)
             {
-                row_pointers[i] = (png_bytep)_data + i * _width * 3;
+                rowPointers[i] = static_cast<png_bytep>(_data) + i * _width * 3;
             }
-            png_write_image(png_ptr, row_pointers);
+            png_write_image(pngPtr, rowPointers);
         }
         else
         {
             if (isToRGB)
             {
-                unsigned char *tempData = static_cast<unsigned char*>(malloc(_width * _height * 3 * sizeof(unsigned char)));
+                auto *tempData = static_cast<unsigned char*>(CC_MALLOC(_width * _height * 3 * sizeof(unsigned char)));
                 if (nullptr == tempData)
                 {
                     break;
@@ -1037,46 +1037,45 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
                     }
                 }
 
-                for (int i = 0; i < (int)_height; i++)
+                for (int i = 0; i < _height; i++)
                 {
-                    row_pointers[i] = (png_bytep)tempData + i * _width * 3;
+                    rowPointers[i] = static_cast<png_bytep>(tempData) + i * _width * 3;
                 }
                 if (tempData != nullptr) {
                     free(tempData);
                 }
-                png_write_image(png_ptr, row_pointers);
+                png_write_image(pngPtr, rowPointers);
             }
             else
             {
-                for (int i = 0; i < (int)_height; i++)
+                for (int i = 0; i < _height; i++)
                 {
-                   // row_pointers[i] = (png_bytep)(_data + i * _width) /*Bytes per pixel*/;
-                    row_pointers[i] = (png_bytep)_data + i * _width * 4 /*Bytes per pixel*/;
+                    rowPointers[i] = static_cast<png_bytep>(_data) + i * _width * 4 /*Bytes per pixel*/;
                 }
-                png_write_image(png_ptr, row_pointers);
+                png_write_image(pngPtr, rowPointers);
             }
         }
 
-        png_write_end(png_ptr, info_ptr);
+        png_write_end(pngPtr, infoPtr);
         ret = true;
-    } while (0);
+    } while (false);
 
     /*Later free for all functions*/
-    if (row_pointers) {
-        free(row_pointers);
-        row_pointers = nullptr;
+    if (rowPointers) {
+        free(rowPointers);
+        rowPointers = nullptr;
     }
     if (palette) {
-        png_free(png_ptr, palette);
+        png_free(pngPtr, palette);
     }
-    if (info_ptr) {
-        png_destroy_write_struct(&png_ptr, &info_ptr);
+    if (infoPtr) {
+        png_destroy_write_struct(&pngPtr, &infoPtr);
     }
     if (fp) {
         fclose(fp);
     }
-    if (png_ptr) {
-        png_destroy_write_struct(&png_ptr, nullptr);
+    if (pngPtr) {
+        png_destroy_write_struct(&pngPtr, nullptr);
     }
     return ret;
 }
@@ -1112,7 +1111,7 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
         row_stride = _width * 3; /* JSAMPLEs per row in image_buffer */
         bool hasAlpha = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].hasAlpha;
-        
+
         if (hasAlpha)
         {
             unsigned char *tempData = static_cast<unsigned char*>(malloc(_width * _height * 3 * sizeof(unsigned char)));
