@@ -410,7 +410,8 @@ exports.methods = {
 
             meta.userData[prop] = value;
         });
-        this.dispatch('change', { tab: 'model', prop, value: event.target.value });
+        this.dispatch('change');
+        this.dispatch('track', { tab: 'model', prop, value: event.target.value });
     },
     setMeshOptimizerOptions(prop, event) {
         this.metaList.forEach((meta) => {

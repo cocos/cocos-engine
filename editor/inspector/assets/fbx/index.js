@@ -152,11 +152,11 @@ exports.methods = {
 
 
 exports.listeners = {
-    async 'change'(event) {
+    async 'track'(event) {
 
         if (event.args?.length) {
             const { prop, value } = event.args[0];
-            if (!value) { return; }
+            if (!value) { return; } // 只有被勾选的时候上报埋点
 
             const trackMap = {
                 meshOptimizer: 'A100000',

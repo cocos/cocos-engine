@@ -241,7 +241,8 @@ exports.methods = {
             target[lastPropName] = value;
         });
 
-        this.dispatch('change', { tab: 'fbx', prop, value: event.target.value });
+        this.dispatch('change');
+        this.dispatch('track', { tab: 'fbx', prop, value: event.target.value });
     },
     /**
      * Update whether a data is editable in multi-select state
