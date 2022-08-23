@@ -27,7 +27,7 @@
 #pragma once
 
 #include "../config.h"
-#include "PrivateObject.h"
+#include "bindings/jswrapper/PrivateObject.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
