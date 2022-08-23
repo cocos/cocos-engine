@@ -1026,15 +1026,12 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
                 {
                     break;
                 }
-
-                for (int i = 0; i < _height; ++i)
-                {
-                    for (int j = 0; j < _width; ++j)
-                    {
-                        tempData[(i * _width + j) * 3] = _data[(i * _width + j) * 4];
-                        tempData[(i * _width + j) * 3 + 1] = _data[(i * _width + j) * 4 + 1];
-                        tempData[(i * _width + j) * 3 + 2] = _data[(i * _width + j) * 4 + 2];
-                    }
+                auto *dst = tempData;
+                auto *src = _data;
+                for (int t = 0; t < _width * _height; t++) {
+                    memcpy(dst, src, 3);
+                    dst += 3;
+                    src += 4;
                 }
 
                 for (int i = 0; i < _height; i++)
@@ -1042,7 +1039,7 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
                     rowPointers[i] = static_cast<png_bytep>(tempData) + i * _width * 3;
                 }
                 if (tempData != nullptr) {
-                    free(tempData);
+                    CC_FREE(tempData);
                 }
                 png_write_image(pngPtr, rowPointers);
             }
@@ -1050,7 +1047,7 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
             {
                 for (int i = 0; i < _height; i++)
                 {
-                    rowPointers[i] = static_cast<png_bytep>(_data) + i * _width * 4 /*Bytes per pixel*/;
+                    rowPointers[i] = static_cast<png_bytep>(_data) + i *    _width * 4 /*Bytes per pixel*/;
                 }
                 png_write_image(pngPtr, rowPointers);
             }
@@ -1113,7 +1110,7 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
         if (hasAlpha)
         {
-            unsigned char *tempData = static_cast<unsigned char*>(malloc(_width * _height * 3 * sizeof(unsigned char)));
+            unsigned char *tempData = static_cast<unsigned char*>(CC_MALLOC(_width * _height * 3 * sizeof(unsigned char)));
             if (nullptr == tempData)
             {
                 jpeg_finish_compress(&cinfo);
@@ -1122,16 +1119,14 @@ bool Image::saveImageToJPG(const std::string& filePath)
                 break;
             }
 
-            for (int i = 0; i < _height; ++i)
-            {
-                for (int j = 0; j < _width; ++j)
-
-                {
-                    tempData[(i * _width + j) * 3] = _data[(i * _width + j) * 4];
-                    tempData[(i * _width + j) * 3 + 1] = _data[(i * _width + j) * 4 + 1];
-                    tempData[(i * _width + j) * 3 + 2] = _data[(i * _width + j) * 4 + 2];
-                }
+            auto *dst = tempData;
+            auto *src = _data;
+            for (int t = 0; t < _width * _height; t++) {
+                memcpy(dst, src, 3);
+                dst += 3;
+                src += 4;
             }
+
 
             while (cinfo.next_scanline < cinfo.image_height)
             {
@@ -1141,7 +1136,7 @@ bool Image::saveImageToJPG(const std::string& filePath)
 
             if (tempData != nullptr)
             {
-                free(tempData);
+                CC_FREE(tempData);
             }
         }
         else

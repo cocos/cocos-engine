@@ -129,7 +129,6 @@ if( NATIVE ){
         callback: (isSuccess: boolean) => void) => {
             return new Promise<void>((resolve, reject) => {
                 originSaveImageData(data, width, height, filePath, (isSuccess) => {
-                    callback(isSuccess);
                     if (isSuccess) {
                         resolve();
                     } else {
