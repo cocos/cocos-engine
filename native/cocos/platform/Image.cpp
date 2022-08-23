@@ -1152,7 +1152,7 @@ bool Image::saveImageToJPG(const std::string& filePath)
         jpeg_destroy_compress(&cinfo);
 
         ret = true;
-    } while (0);
+    } while (false);
     return ret;
 }
 

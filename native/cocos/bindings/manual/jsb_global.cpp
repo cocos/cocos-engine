@@ -24,8 +24,6 @@
 ****************************************************************************/
 
 #include "jsb_global.h"
-#include <cstddef>
-#include "Value.h"
 #include "application/ApplicationManager.h"
 #include "base/Data.h"
 #include "base/DeferredReleasePool.h"
