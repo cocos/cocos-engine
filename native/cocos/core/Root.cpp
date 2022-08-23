@@ -151,7 +151,7 @@ void Root::destroy() {
 
     CC_SAFE_DELETE(_batcher);
 
-    for (auto swapchain : _swapchains) {
+    for (auto *swapchain : _swapchains) {
         CC_SAFE_DELETE(swapchain);
     }
     _swapchains.clear();
