@@ -106,7 +106,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     public onLoad () {
         super.onLoad();
         if (EDITOR) {
-            this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsRotationLocked | legacyCC.Object.Flags.IsScaleLocked;
+            this.node._objFlags |= legacyCC.Object.Flags.IsPositionLocked
+                | legacyCC.Object.Flags.IsRotationLocked | legacyCC.Object.Flags.IsScaleLocked;
         }
         this._tryBindAnimation();
     }
