@@ -152,7 +152,7 @@ exports.methods = {
 
 
 exports.listeners = {
-    async 'track'(event) {
+    'track'(event) {
 
         if (event.args?.length) {
             const { prop, value } = event.args[0];
