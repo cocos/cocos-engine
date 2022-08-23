@@ -121,8 +121,8 @@ export interface ICameraInfo {
     window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
-    cameraType: CameraType;
-    trackingType: TrackingType;
+    cameraType?: CameraType;
+    trackingType?: TrackingType;
 }
 
 const v_a = new Vec3();
@@ -616,8 +616,12 @@ export class Camera {
      * @zh 初始化相机，开发者通常不应该使用这个方法，初始化流程是自动管理的。
      */
     public initialize (info: ICameraInfo) {
-        this._trackingType = info.trackingType;
-        this._cameraType = info.cameraType;
+        if (info.trackingType !== undefined) {
+            this._trackingType = info.trackingType;
+        }
+        if (info.cameraType !== undefined) {
+            this._cameraType = info.cameraType;
+        }
         this.node = info.node;
         this._width = 1;
         this._height = 1;
@@ -815,7 +819,7 @@ export class Camera {
      * @en create geometry renderer for this camera
      * @zh 创建这个摄像机的几何体渲染器
      */
-    public initGeometryRenderer() {
+    public initGeometryRenderer () {
         if (!this._geometryRenderer) {
             this._geometryRenderer = legacyCC.internal.GeometryRenderer ? new legacyCC.internal.GeometryRenderer() : null;
             this._geometryRenderer?.activate(this._device);
