@@ -1,4 +1,4 @@
-import nativerender from "libcocos2d.so";
+import nativerender from "libcocos.so";
 
 import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
@@ -6,6 +6,7 @@ import {log} from '../cocos/log_utils'
 import featureAbility from '@ohos.ability.featureAbility'
 
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
+const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 
 @Entry
 @Component
@@ -39,7 +40,7 @@ struct Index {
 
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
-      XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos2d'})
+      XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos'})
         .onLoad((context) => {
           // Set the cache directory in the ts layer.
           var cacheContext = featureAbility.getContext();

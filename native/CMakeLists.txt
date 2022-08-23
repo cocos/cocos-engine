@@ -473,7 +473,6 @@ elseif(ANDROID)
     )
 elseif(OPENHARMONY)
     cocos_source_files(
-        cocos/platform/openharmony/napi/NapiInit.cpp
         cocos/platform/openharmony/napi/NapiHelper.cpp
         cocos/platform/openharmony/napi/NapiHelper.h
 
@@ -2392,11 +2391,7 @@ if(QNX)
     list(APPEND COCOS2D_SOURCE_LIST ${ccqnx_SOURCE_LIST})
 endif()
 
-if(NOT OPENHARMONY)
-    add_library(cocos2d ${COCOS2D_SOURCE_LIST})
-elseif(OPENHARMONY)
-    add_library(cocos2d SHARED ${COCOS2D_SOURCE_LIST})
-endif()
+add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
 if(USE_MODULES)
     target_link_libraries(cocos2d PUBLIC
