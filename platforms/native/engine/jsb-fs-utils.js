@@ -200,7 +200,10 @@ var fsUtils = {
             return JSON.parse(str);
         }
         catch (e) {
-            cc.warn(`Read json failed: path: ${path} message: ${e.message}`);
+            //TODO : resolve warn exception.
+            if (!window.oh) {
+                cc.warn(`Read json failed: path: ${path} message: ${e.message}`);
+            }
             return new Error(e.message);
         }
     },
