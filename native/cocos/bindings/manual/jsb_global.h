@@ -43,9 +43,9 @@ void jsb_override_delete(T *arg) { // NOLINT(readability-identifier-naming)
 template <typename T, typename... ARGS>
 se::PrivateObjectBase *jsb_make_private_object(ARGS &&...args) { // NOLINT(readability-identifier-naming)
     if constexpr (std::is_base_of<cc::RefCounted, T>::value) {
-        return se::ccshared_private_object(ccnew T(std::forward<ARGS>(args)...));
+        return se::ccshared_ptr_private_object(ccnew T(std::forward<ARGS>(args)...));
     } else {
-        return se::shared_private_object(std::make_shared<T>(std::forward<ARGS>(args)...));
+        return se::shared_ptr_private_object(std::make_shared<T>(std::forward<ARGS>(args)...));
     }
 }
 

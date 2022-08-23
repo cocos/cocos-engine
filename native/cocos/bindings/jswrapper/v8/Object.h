@@ -331,7 +331,7 @@ public:
      */
     template <typename T>
     inline void setPrivateData(const cc::IntrusivePtr<T> &data) {
-        setPrivateObject(se::ccshared_private_object(data));
+        setPrivateObject(se::ccshared_ptr_private_object(data));
     }
 
     /**
@@ -342,7 +342,7 @@ public:
      */
     template <typename T>
     inline void setPrivateData(const std::shared_ptr<T> &data) {
-        setPrivateObject(se::shared_private_object(data));
+        setPrivateObject(se::shared_ptr_private_object(data));
     }
 
     /**
@@ -371,7 +371,7 @@ public:
     template <typename T>
     inline std::shared_ptr<T> getPrivateSharedPtr() const {
         assert(_privateObject->isSharedPtr());
-        return static_cast<se::SharedPrivateObject<T> *>(_privateObject)->getData();
+        return static_cast<se::SharedPtrPrivateObject<T> *>(_privateObject)->getData();
     }
 
     /**
@@ -382,8 +382,8 @@ public:
      */
     template <typename T>
     inline cc::IntrusivePtr<T> getPrivateInstrusivePtr() const {
-        assert(_privateObject->isCCShared());
-        return static_cast<se::CCSharedPtrPrivateObject<T> *>(_privateObject)->getData();
+        assert(_privateObject->isCCIntrusivePtr());
+        return static_cast<se::CCIntrusivePtrPtrPrivateObject<T> *>(_privateObject)->getData();
     }
 
     template <typename T>
