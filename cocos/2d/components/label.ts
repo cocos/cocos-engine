@@ -676,6 +676,22 @@ export class Label extends UIRenderer {
     protected _fontAtlas: FontAtlas | null = null;
     protected _letterTexture: LetterRenderTexture | null = null;
 
+    protected _contentWidth = 0;
+
+    /**
+     * @engineInternal
+     */
+    get contentWidth () {
+        return this._contentWidth;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set contentWidth (val) {
+        this._contentWidth = val;
+    }
+
     constructor () {
         super();
         if (EDITOR) {
@@ -751,7 +767,7 @@ export class Label extends UIRenderer {
 
     public setEntityColor (color: Color) {
         if (JSB) {
-            if (this._font instanceof BitmapFont || this.cacheMode === CacheMode.CHAR) {
+            if (this._font instanceof BitmapFont) {
                 this._renderEntity.color = color;
             } else {
                 tempColor.set(255, 255, 255, color.a);

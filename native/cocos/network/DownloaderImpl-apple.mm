@@ -453,7 +453,7 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
               if (error.code == NSURLErrorCancelled) {
                   //cancel
                   errorCode = cc::network::DownloadTask::ERROR_ABORT;
-                  errorMsg = @"downloadFile:fail abort";
+                  errorMsg = @"downloadFile:abort";
               }
               ccstd::vector<unsigned char> buf; // just a placeholder
                 _outer->onTaskFinish(*[wrapper get],

@@ -55,8 +55,8 @@ const _windowInfo: IRenderWindowInfo = {
 
 /**
  * @en Render texture is a render target for [[Camera]] or [[Canvas]] component,
- * the render pipeline will use its [[RenderWindow]] as the target of the rendering process.
- * @zh 渲染贴图是 [[Camera]] 或 [[Canvas]] 组件的渲染目标对象，渲染管线会使用它的 [[RenderWindow]] 作为渲染的目标窗口。
+ * the render pipeline will use its `RenderWindow` as the target of the rendering process.
+ * @zh 渲染贴图是 [[Camera]] 或 [[Canvas]] 组件的渲染目标对象，渲染管线会使用它的 `RenderWindow` 作为渲染的目标窗口。
  */
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {

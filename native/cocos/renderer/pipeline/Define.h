@@ -26,6 +26,7 @@
 #pragma once
 
 #include <functional>
+#include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -114,8 +115,8 @@ enum class RenderFlowType : uint8_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(RenderFlowType)
 
-using RenderStageList = ccstd::vector<RenderStage *>;
-using RenderFlowList = ccstd::vector<RenderFlow *>;
+using RenderStageList = ccstd::vector<IntrusivePtr<RenderStage>>;
+using RenderFlowList = ccstd::vector<IntrusivePtr<RenderFlow>>;
 using LightList = ccstd::vector<scene::Light *>;
 using UintList = ccstd::vector<uint32_t>;
 

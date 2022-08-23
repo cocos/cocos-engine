@@ -2,7 +2,7 @@
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -140,6 +140,7 @@ public:
      */
     void destroyScenes();
 
+#ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
         //cjh TODO: need use model pool?
@@ -147,9 +148,11 @@ public:
         model->initialize();
         return model;
     }
+#endif
 
     void destroyModel(scene::Model *model);
 
+#ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
         //TODO(xwx): need use model pool?
@@ -157,6 +160,7 @@ public:
         light->initialize();
         return light;
     }
+#endif
 
     void destroyLight(scene::Light *light);
 
@@ -273,6 +277,11 @@ public:
     inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
 
 private:
+    void frameMoveBegin();
+    void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
+    void frameMoveEnd();
+    void doXRFrameMove(int32_t totalFrames);
+
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
     Batcher2d *_batcher{nullptr};
@@ -294,6 +303,7 @@ private:
     bool _useDeferredPipeline{false};
     bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
+    IXRInterface *_xr{nullptr};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;

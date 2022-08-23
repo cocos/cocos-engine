@@ -61,6 +61,10 @@
     #include "cocos/bindings/manual/jsb_audio_manual.h"
 #endif
 
+#if CC_USE_XR
+    #include "cocos/bindings/auto/jsb_xr_auto.h"
+#endif
+
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 #endif
@@ -136,7 +140,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_scene);
     se->addRegisterCallback(register_all_scene_manual);
     se->addRegisterCallback(register_all_render);
-    se->addRegisterCallback(register_all_2d);
+    se->addRegisterCallback(register_all_native2d);
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     se->addRegisterCallback(register_javascript_objc_bridge);
@@ -151,6 +155,10 @@ bool jsb_register_all_modules() {
 #if CC_USE_AUDIO
     se->addRegisterCallback(register_all_audio);
     se->addRegisterCallback(register_all_audio_manual);
+#endif
+
+#if CC_USE_XR
+    se->addRegisterCallback(register_all_xr);
 #endif
 
 #if CC_USE_SOCKET

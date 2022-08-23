@@ -121,12 +121,12 @@ export const PCFType = Enum({
      */
     SOFT_2X: 2,
 
-    // /**
-    //  * @zh x16 次采样
-    //  * @en x16 times
-    //  * @readonly
-    //  */
-    // SOFT_4X: 3,
+    /**
+     * @zh x16 次采样
+     * @en x16 times
+     * @readonly
+     */
+    SOFT_4X: 3,
 });
 
 /**
@@ -389,10 +389,20 @@ export class Shadows {
     }
 
     public activate () {
-        if (this.enabled) {
+        if (this._enabled) {
             if (this.type === ShadowType.Planar) {
                 this._updatePlanarInfo();
+            } else {
+                const root = legacyCC.director.root;
+                const pipeline = root.pipeline;
+                pipeline.macros.CC_SHADOW_TYPE = 2;
+                root.onGlobalPipelineStateChanged();
             }
+        } else {
+            const root = legacyCC.director.root;
+            const pipeline = root.pipeline;
+            pipeline.macros.CC_SHADOW_TYPE = 0;
+            root.onGlobalPipelineStateChanged();
         }
     }
 
@@ -405,6 +415,10 @@ export class Shadows {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
         }
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        pipeline.macros.CC_SHADOW_TYPE = 1;
+        root.onGlobalPipelineStateChanged();
     }
 
     public destroy () {

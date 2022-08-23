@@ -74,11 +74,11 @@ inline bool operator<(const TextureRange& lhs, const TextureRange& rhs) noexcept
 using Range = ccstd::variant<BufferRange, TextureRange>;
 
 struct AccessStatus {
-    uint32_t                vertID{0xFFFFFFFF};
+    uint32_t vertID{0xFFFFFFFF};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
-    gfx::PassType           passType{gfx::PassType::RASTER};
-    Range                   range;
+    gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
+    gfx::PassType passType{gfx::PassType::RASTER};
+    Range range;
 };
 
 struct ResourceTransition {
@@ -87,7 +87,7 @@ struct ResourceTransition {
 };
 
 struct ResourceAccessNode {
-    std::vector<AccessStatus>  attachemntStatus;
+    std::vector<AccessStatus> attachemntStatus;
     struct ResourceAccessNode* nextSubpass{nullptr};
 };
 
@@ -102,7 +102,7 @@ struct ResourceAccessGraph {
     }
 
     ResourceAccessGraph(const allocator_type& alloc) noexcept; // NOLINT
-    ResourceAccessGraph(ResourceAccessGraph&& rhs)      = delete;
+    ResourceAccessGraph(ResourceAccessGraph&& rhs) = delete;
     ResourceAccessGraph(ResourceAccessGraph const& rhs) = delete;
     ResourceAccessGraph& operator=(ResourceAccessGraph&& rhs) = delete;
     ResourceAccessGraph& operator=(ResourceAccessGraph const& rhs) = delete;
@@ -204,12 +204,12 @@ struct ResourceAccessGraph {
         Vertex(Vertex const& rhs, const allocator_type& alloc);
 
         Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs)     = delete;
+        Vertex(Vertex const& rhs) = delete;
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge>  inEdges;
+        ccstd::pmr::vector<InEdge> inEdges;
     };
 
     struct PassIDTag {
@@ -221,20 +221,20 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<Vertex> vertices;
     // Components
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
-    ccstd::pmr::vector<ResourceAccessNode>             access;
+    ccstd::pmr::vector<ResourceAccessNode> access;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
+    ccstd::pmr::vector<ccstd::pmr::string> resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
-    RenderGraph::vertex_descriptor                      presentPassID{0xFFFFFFFF};
-    ccstd::pmr::vector<RenderGraph::vertex_descriptor>  externalPasses;
-    PmrFlatMap<uint32_t, ResourceTransition>            accessRecord;
+    RenderGraph::vertex_descriptor presentPassID{0xFFFFFFFF};
+    ccstd::pmr::vector<RenderGraph::vertex_descriptor> externalPasses;
+    PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
 };
 
 struct EmptyGraph {
     EmptyGraph() = default;
-    EmptyGraph(EmptyGraph&& rhs)      = delete;
+    EmptyGraph(EmptyGraph&& rhs) = delete;
     EmptyGraph(EmptyGraph const& rhs) = delete;
     EmptyGraph& operator=(EmptyGraph&& rhs) = delete;
     EmptyGraph& operator=(EmptyGraph const& rhs) = delete;
@@ -313,7 +313,7 @@ struct EmptyGraph {
     // Members
     struct Vertex {
         std::vector<OutEdge> outEdges;
-        std::vector<InEdge>  inEdges;
+        std::vector<InEdge> inEdges;
     };
     // Vertices
     std::vector<Vertex> vertices;
@@ -321,9 +321,9 @@ struct EmptyGraph {
 
 struct Barrier {
     RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
-    gfx::BarrierType               type{gfx::BarrierType::FULL};
-    AccessStatus                   beginStatus;
-    AccessStatus                   endStatus;
+    gfx::BarrierType type{gfx::BarrierType::FULL};
+    AccessStatus beginStatus;
+    AccessStatus endStatus;
 };
 
 struct BarrierPair {
@@ -332,7 +332,7 @@ struct BarrierPair {
 };
 
 struct BarrierNode {
-    BarrierPair              blockBarrier;
+    BarrierPair blockBarrier;
     std::vector<BarrierPair> subpassBarriers;
 };
 
@@ -343,7 +343,7 @@ struct FrameGraphDispatcher {
     }
 
     FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
-    FrameGraphDispatcher(FrameGraphDispatcher&& rhs)      = delete;
+    FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
@@ -365,18 +365,18 @@ struct FrameGraphDispatcher {
 
     BarrierMap barrierMap;
 
-    ResourceAccessGraph                                resourceAccessGraph;
-    ResourceGraph&                                     resourceGraph;
-    RenderGraph&                                       graph;
-    LayoutGraphData&                                   layoutGraph;
-    boost::container::pmr::memory_resource*            scratch{nullptr};
+    ResourceAccessGraph resourceAccessGraph;
+    ResourceGraph& resourceGraph;
+    RenderGraph& graph;
+    LayoutGraphData& layoutGraph;
+    boost::container::pmr::memory_resource* scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
-    EmptyGraph                                         relationGraph;
-    bool                                               _enablePassReorder{false};
-    bool                                               _enableAutoBarrier{true};
-    bool                                               _enableMemoryAliasing{false};
-    bool                                               _accessGraphBuilt{false};
-    float                                              _paralellExecWeight{0.0F};
+    EmptyGraph relationGraph;
+    bool _enablePassReorder{false};
+    bool _enableAutoBarrier{true};
+    bool _enableMemoryAliasing{false};
+    bool _accessGraphBuilt{false};
+    float _paralellExecWeight{0.0F};
 };
 
 } // namespace render

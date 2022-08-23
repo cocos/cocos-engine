@@ -1063,11 +1063,11 @@ Object.defineProperty(nodeProto, '_parent', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._parentInternal;
+        this._parentRef = this._parentInternal;
+        return this._parentRef;
     },
     set (v) {
-        // jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
-        this._parentInternal = v;
+        this._parentRef = this._parentInternal = v;
     },
 });
 
@@ -1075,10 +1075,11 @@ Object.defineProperty(nodeProto, 'parent', {
     configurable: true,
     enumerable: true,
     get () {
-        return this.getParent();
+        this._parentRef = this.getParent();
+        return this._parentRef;
     },
     set (v) {
-        // jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
+        this._parentRef = v;
         this.setParent(v);
     },
 });
@@ -1263,6 +1264,7 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
 //
 nodeProto._ctor = function (name?: string) {
     this.__nativeRefs = {};
+    this._parentRef = null;
     this.__jsb_ref_id = undefined;
     this._iN$t = null;
     this.__editorExtras__ = { editorOnly: true };

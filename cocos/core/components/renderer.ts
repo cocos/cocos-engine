@@ -40,14 +40,14 @@ const _matInsInfo: IMaterialInstanceInfo = {
 
 /**
  * @en Base class for all components which can submit contents for the rendering process.
- * It manages a series of [[Model]]s and the visibility, the materials and the material instances of the models.
+ * It manages a series of [[renderer.Model]]s and the visibility, the materials and the material instances of the models.
  * There are several different material properties that must be distinguished clearly and used with caution:
  * - [[sharedMaterials]] are shared for all component instances that are using the same material asset, modification will be applied universally.
  * - [[materials]] are instances created independently for the component instance, modification will only be applied for the component instance.
  * - Render Materials retrieved by [[getRenderMaterial]] are materials used for the actual rendering process, material instances are used if exist.
  * By default, shared materials are used for rendering.
  * Material instances are created only when user try to retrieve a material instance with [[material]], [[materials]] and [[getMaterialInstance]].
- * @zh 所有可以提交内容到渲染流程的可渲染类的基类，它管理着一组 [[Model]]，以及它们的可见性、材质和材质实例。
+ * @zh 所有可以提交内容到渲染流程的可渲染类的基类，它管理着一组 [[renderer.Model]]，以及它们的可见性、材质和材质实例。
  * 下面是这个组件所管理的各种材质属性的解释，需要正确区分并小心使用：
  * - [[sharedMaterials]] 是共享材质，所有使用此材质资源的组件实例都默认使用材质的共享实例对象，所有修改都会影响所有使用它的组件实例。
  * - [[materials]] 是专为组件对象创建的独立材质实例，所有修改仅会影响当前组件对象。
