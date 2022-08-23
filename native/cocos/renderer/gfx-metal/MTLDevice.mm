@@ -75,9 +75,7 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
-    for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        _inFlightSemaphores[i] = ccnew CCMTLSemaphore(1);
-    }
+    _inFlightSemaphore = ccnew CCMTLSemaphore(3);
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -168,9 +166,9 @@ void CCMTLDevice::doDestroy() {
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
     
     for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        _inFlightSemaphores[i]->trySyncAll(1000);
-        CC_SAFE_DELETE(_inFlightSemaphores[i]);
-        _inFlightSemaphores[i] = nullptr;
+        _inFlightSemaphore->trySyncAll(1000);
+        CC_SAFE_DELETE(_inFlightSemaphore);
+        _inFlightSemaphore = nullptr;
     }
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
@@ -190,7 +188,7 @@ void CCMTLDevice::doDestroy() {
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 
-    _inFlightSemaphores[_currentFrameIndex]->wait();
+    _inFlightSemaphore->wait();
 
     for (CCMTLSwapchain *swapchain : _swapchains) {
         swapchain->acquire();
@@ -248,7 +246,7 @@ void CCMTLDevice::onPresentCompleted(uint32_t index) {
             CCMTLGPUGarbageCollectionPool::getInstance()->clear(index);
         }
     }
-    _inFlightSemaphores[index]->signal();
+    _inFlightSemaphore->signal();
 }
 
 Queue *CCMTLDevice::createQueue() {

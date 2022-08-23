@@ -208,9 +208,6 @@ public:
         
     }
 
-    void updateInflightBuffer() {
-    }
-
     void reset() {
         for (auto &buffer : _pool) {
             buffer.curOffset = 0;
