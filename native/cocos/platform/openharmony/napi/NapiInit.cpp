@@ -16,7 +16,7 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "platform/openharmony/napi/NapiHelper.h"
 
-const char kLibname[] = "cocos2d";
+const char kLibname[] = "cocos";
 /*
  * function for module exports
  */
