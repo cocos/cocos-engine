@@ -48,7 +48,7 @@ public:
                       int h, int flags) override;
     void closeWindow() override;
 
-    uint32_t getWindowId() const override { return _windowId; }
+    virtual uint32_t getWindowId() const override { return _windowId; }
     uintptr_t getWindowHandle() const override;
 
     uintptr_t getDisplay() const;
@@ -64,13 +64,13 @@ public:
     void copyTextToClipboard(const std::string& text) override;
 
 private:
-    SDL_Window* _getSDLWindow() const { return _window; }
+    SDL_Window* getSDLWindow() const { return _window; }
 
     int _width{0};
     int _height{0};
 
     uint32_t _windowId{0};
-    void* _externalHandle{nullptr};
+    uintptr_t _windowHandle{0};
     SDL_Window* _window{nullptr};
 };
 

@@ -49,9 +49,9 @@ int BaseGame::init() {
                                                 : _windowInfo.flags;
     std::call_once(_windowCreateFlag, [&]() {
         ISystemWindowInfo info;
-        info.title = _windowInfo.title;
-        info.x = _windowInfo.x == -1 ? 50 : _windowInfo.x; // move window a little for now 
-        info.y = _windowInfo.y == -1 ? 50 : _windowInfo.y;
+        info.title  = _windowInfo.title;
+        info.x      = _windowInfo.x;
+        info.y      = _windowInfo.y;
         info.width  = _windowInfo.width;
         info.height = _windowInfo.height;
         info.flags  = _windowInfo.flags;

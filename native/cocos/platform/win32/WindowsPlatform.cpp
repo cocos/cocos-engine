@@ -98,8 +98,6 @@ int32_t WindowsPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    //_window = std::make_shared<SystemWindow>(this, 0, nullptr);
-    //registerInterface(_window);
     _windowManager = std::make_shared<SystemWindowManager>(this);
     registerInterface(_windowManager);
     registerInterface(std::make_shared<Vibrator>());
@@ -113,7 +111,6 @@ int32_t WindowsPlatform::init() {
 
     PVRFrameEnableControlWindow(false);
 
-    //return _window->init();
     return _windowManager->init();
 }
 

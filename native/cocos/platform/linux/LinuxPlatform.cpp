@@ -64,12 +64,9 @@ int32_t LinuxPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    //_window = std::make_shared<SystemWindow>(this);
-    //registerInterface(_window);
     _windowManager = std::make_shared<SystemWindowManager>(this);
     registerInterface(_windowManager);
     registerInterface(std::make_shared<Vibrator>());
-    //return _window->init();
     return _windowManager->init();
 }
 

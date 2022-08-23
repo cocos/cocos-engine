@@ -31,7 +31,6 @@
 #include "SDL2/SDL_events.h"
 
 namespace cc {
-
 SystemWindowManager::SystemWindowManager(IEventDispatch *delegate)
     : _eventDispatcher(delegate) {
 }
@@ -68,7 +67,9 @@ void SystemWindowManager::swapWindows() {
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
     ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
     if (window) {
-        window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+        if (!info.externalHandle) {
+            window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+        }
         _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
         _nextWindowId++;
     }
@@ -88,7 +89,7 @@ ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
 cc::ISystemWindow *SystemWindowManager::getWindowFromSDLWindow(SDL_Window *window) const {
     for (const auto &iter : _windows) {
         SystemWindow *sysWindow = static_cast<SystemWindow *>(iter.second.get());
-        SDL_Window *sdlWindow = sysWindow->_getSDLWindow();
+        SDL_Window *sdlWindow = sysWindow->getSDLWindow();
         if (sdlWindow == window) {
             return sysWindow;
         }

@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <string>
-#include <memory>
 #include "base/std/container/unordered_map.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 

@@ -216,7 +216,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     initTexture(textureInfo, _depthStencilTexture);
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
+    auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
     checkSwapchainStatus(viewSize.x, viewSize.y);
 
@@ -412,7 +412,7 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
     if (!_gpuSwapchain || _gpuSwapchain->vkSurface != VK_NULL_HANDLE) return;
     createVkSurface();
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
+    auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
     checkSwapchainStatus(viewSize.x, viewSize.y);
 #else

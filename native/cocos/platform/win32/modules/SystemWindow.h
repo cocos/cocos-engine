@@ -70,7 +70,7 @@ private:
     int _height{0};
 
     uint32_t _windowId{0};
-    void* _externalHandle{nullptr};
+    uintptr_t _windowHandle{0};
     SDL_Window* _window{nullptr};
 };
 

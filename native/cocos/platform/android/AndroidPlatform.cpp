@@ -96,24 +96,7 @@ static bool keyState[INPUT_ACTION_COUNT] = {false};
 extern void gameControllerStatusCallback(int32_t controllerIndex,
                                          Paddleboat_ControllerStatus status,
                                          void *userData);
-
-// TODO(linwei): test code
-/*extern "C" JNIEXPORT void JNICALL Java_com_cocos_game_AppActivity_nativeAddSurface(JNIEnv* env, jobject thiz, jobject surface) {
-    ISystemWindowManager *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
-    if (windowMgr) {
-        ANativeWindow *windowHandle = ANativeWindow_fromSurface(env, surface);
-
-        ISystemWindowInfo info;
-        info.title = ccstd::string("");
-        info.x = 0;
-        info.y = 0;
-        info.width  = 800;
-        info.height = 600;
-        info.externalHandle = windowHandle;
-        ISystemWindow *window = windowMgr->createWindow(info);
-    }
-}*/
-
+                                         
 class GameInputProxy {
 public:
     explicit GameInputProxy(AndroidPlatform *platform) {

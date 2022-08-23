@@ -82,8 +82,9 @@ void Root::initialize(gfx::Swapchain *  /*swapchain*/) {
     const auto &windows = windowMgr->getWindows();
     for (const auto &pair : windows) {
         auto *window = pair.second.get();
+        scene::RenderWindow *renderWindow = createRenderWindowFromSystemWindow(window);
         if (!_mainRenderWindow) {
-            _mainRenderWindow = createRenderWindowFromSystemWindow(window);
+            _mainRenderWindow = renderWindow;
         }
     }
     _curRenderWindow = _mainRenderWindow;
@@ -149,6 +150,11 @@ void Root::destroy() {
     CC_SAFE_DESTROY_NULL(_pipeline);
 
     CC_SAFE_DELETE(_batcher);
+
+    for (auto swapchain : _swapchains) {
+        CC_SAFE_DELETE(swapchain);
+    }
+    _swapchains.clear();
 
     // TODO(minggo):
     //    this.dataPoolManager.clear();
@@ -373,13 +379,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
     }
 
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
-        //_swapchains.clear();
-        //_swapchains.emplace_back(_swapchain);
         _device->acquire(_swapchains);
-
-        // linwei: test code
-        //_cameraList[0]->changeTargetWindow(_windows[0]);
-        //_cameraList[1]->changeTargetWindow(_windows[1]);
 
         // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
@@ -445,45 +445,15 @@ void Root::destroyWindows() {
 uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     ISystemWindow *window = windowMgr->createWindow(info);
-    if (window) {
-        auto *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
-        float pixelRatio = screen->getDevicePixelRatio();
-        
-        auto handle = window->getWindowHandle();
-        const auto &size = window->getViewSize();
-        uint32_t windowId = window->getWindowId();
-
-        gfx::SwapchainInfo info;
-        info.width  = static_cast<uint32_t>(size.x) * pixelRatio;
-        info.height = static_cast<uint32_t>(size.y) * pixelRatio;
-        info.windowHandle = reinterpret_cast<void *>(handle);
-        info.windowId = windowId;
-
-        gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);
-        _swapchains.emplace_back(swapchain);
-
-        gfx::RenderPassInfo renderPassInfo;
-
-        gfx::ColorAttachment colorAttachment;
-        colorAttachment.format = swapchain->getColorTexture()->getFormat();
-        renderPassInfo.colorAttachments.emplace_back(colorAttachment);
-
-        auto &depthStencilAttachment = renderPassInfo.depthStencilAttachment;
-        depthStencilAttachment.format = swapchain->getDepthStencilTexture()->getFormat();
-        depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
-        depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
-
-        scene::IRenderWindowInfo windowInfo;
-        windowInfo.title = StringUtil::format("renderWindow_%d", windowId);
-        windowInfo.width = swapchain->getWidth();
-        windowInfo.height = swapchain->getHeight();
-        windowInfo.renderPassInfo = renderPassInfo;
-        windowInfo.swapchain = swapchain;
-        _mainRenderWindow = createWindow(windowInfo);
-
-        return windowId;
+    if (!window) {
+        return 0;
     }
-    return 0;
+
+    scene::RenderWindow *renderWindow = createRenderWindowFromSystemWindow(window);
+    if (!_mainRenderWindow) {
+        _mainRenderWindow = renderWindow;
+    }
+    return window->getWindowId();
 }
 
 scene::RenderScene *Root::createScene(const scene::IRenderSceneInfo &info) {

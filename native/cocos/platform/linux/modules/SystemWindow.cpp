@@ -39,11 +39,15 @@
 
 namespace cc {
 SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
-    : _windowId(windowId)
-    , _externalHandle(externalHandle) {
+: _windowId(windowId) {
+    if (externalHandle) {
+        _windowHandle = reinterpret_cast<uintptr_t>(externalHandle);
+    }
 }
 
 SystemWindow::~SystemWindow() {
+    _windowHandle = 0;
+    _windowId = 0;
 }
 
 void SystemWindow::swapWindow() {
@@ -52,25 +56,28 @@ void SystemWindow::swapWindow() {
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    if (!createWindow(title, 0, 0, w, h, flags)) {
+    if (!createWindow(title, -1, -1, w, h, flags)) {
         return false;
     }
-
-    _width = w;
-    _height = h;
     return true;
 }
 
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    _window = SDLHelper::createWindow(title, x, y, w, h, flags);
+    if (x == -1 && y == -1) {
+        _window = SDLHelper::createWindow(title, w, h, flags);
+    } else {
+        _window = SDLHelper::createWindow(title, x, y, w, h, flags);
+    }
     if (!_window) {
         return false;
     }
 
-    _width = w;
+    _width  = w;
     _height = h;
+    _windowHandle = SDLHelper::getWindowHandle(_window);
+
     return true;
 }
 
@@ -83,7 +90,7 @@ void SystemWindow::closeWindow() {
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {
-    return SDLHelper::getWindowHandle(_window);
+    return _windowHandle;
 }
 
 uintptr_t SystemWindow::getDisplay() const {

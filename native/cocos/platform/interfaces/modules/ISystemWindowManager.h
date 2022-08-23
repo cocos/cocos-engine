@@ -43,41 +43,41 @@ struct ISystemWindowInfo {
 using SystemWindowMap = ccstd::unordered_map<uint32_t, std::shared_ptr<ISystemWindow>>;
 
 /**
- * 负责创建、查找 ISystemWindow 及消息处理
+ * Responsible for creating, finding ISystemWindow object and message handling
  */
 class ISystemWindowManager : public OSInterface {
 public:
     /**
-     * 初始化 NativeWindow 环境
-     * @return 0 成功 -1 失败
+     * Initialize the NativeWindow environment
+     * @return 0 Succeed -1 Failed
      */
     virtual int init() = 0;
 
     /**
-     * 处理 PAL 层的消息
+     * Process messages at the PAL layer
      */
     virtual void processEvent(bool *quit) = 0;
 
     /**
-     * 交换窗口后台缓冲区
+     * Swap window back buffer
      */
     virtual void swapWindows() = 0;
 
     /**
-     * 创建一个ISystemWindow对象
-     * @param info 窗口描述
-     * @return 创建的ISystemWindow对象，如失败返回nullptr
+     * Create an ISystemWindow object
+     * @param info window description
+     * @return The created ISystemWindow object，if failed then return nullptr
      */
     virtual ISystemWindow *createWindow(const ISystemWindowInfo &info) = 0;
 
     /**
-     * 获取一个ISystemWindow窗口对象
-     * @param windowId 窗口Id
+     * Find an ISystemWindow object
+     * @param windowId unique ID of window
      */
     virtual ISystemWindow *getWindow(uint32_t windowId) const = 0;
 
     /**
-     * 获取所有窗口
+     * Retrive all windows
      */
     virtual const SystemWindowMap &getWindows() const = 0;
 };
