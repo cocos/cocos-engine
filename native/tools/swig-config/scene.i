@@ -540,7 +540,6 @@ using namespace cc;
 // Brief: Include header files in which classes and methods will be bound
 %include "core/scene-graph/NodeEnum.h"
 %include "core/scene-graph/Layers.h"
-%include "core/scene-graph/BaseNode.h"
 %include "core/scene-graph/Node.h"
 %include "core/scene-graph/Scene.h"
 %include "core/scene-graph/SceneGlobals.h"
