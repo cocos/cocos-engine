@@ -85,7 +85,7 @@ export function launchEngine (): Promise<void> {
             System.import('./src/<%= applicationUrl%>').then(({ createApplication }) => {
                 log('imported createApplication', createApplication)
                 return createApplication({
-                    loadJsListFile: (url: string) => require(url),
+                    loadJsListFile: (url: string) => loadModule(url),
                     fetchWasm: (url: string) => url,
                 }).then((application) => {
                     log('created application', application)

@@ -570,7 +570,6 @@ elseif(ANDROID)
     )
 elseif(OPENHARMONY)
     cocos_source_files(
-        cocos/platform/openharmony/napi/NapiInit.cpp
         cocos/platform/openharmony/napi/NapiHelper.cpp
         cocos/platform/openharmony/napi/NapiHelper.h
 
