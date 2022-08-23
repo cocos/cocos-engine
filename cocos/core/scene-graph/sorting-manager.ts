@@ -21,7 +21,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { errorID } from '../platform';
+import { errorID } from '../platform/debug';
 
 export class SortingManager {
     private static nameMap = new Map<number, string>();
