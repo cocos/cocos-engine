@@ -181,6 +181,12 @@ export const sys = {
     browserVersion: systemInfo.browserVersion,
 
     /**
+     * @en Whether the running platform is xr app
+     * @zh 指示运行平台是否是XR平台
+     */
+    isXR: systemInfo.isXR,
+
+    /**
      * @en Indicate the real pixel resolution of the whole game window
      * @zh 指示游戏窗口的像素分辨率
      *

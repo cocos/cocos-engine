@@ -1,0 +1,23 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cocos.service">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.huawei.vrhandle.permission.DEVICE_MANAGER"/>
+    <uses-permission android:name="com.huawei.android.permission.VR"/>
+
+    <application>
+        <meta-data android:name="com.huawei.android.vr.application.mode" android:value="vr_only" />
+        <meta-data android:name="android.max_aspect" android:value="2.1" />
+
+        <activity
+            android:name="com.cocos.game.AppActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.huawei.android.vr.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

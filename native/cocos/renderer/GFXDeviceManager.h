@@ -64,7 +64,13 @@ namespace cc {
 namespace gfx {
 
 class CC_DLL DeviceManager final {
+#if CC_USE_XR && CC_USE_VULKAN && XR_OEM_META
     static constexpr bool DETACH_DEVICE_THREAD{true};
+#elif CC_USE_XR
+    static constexpr bool DETACH_DEVICE_THREAD{false};
+#else
+    static constexpr bool DETACH_DEVICE_THREAD{true};
+#endif
     static constexpr bool FORCE_DISABLE_VALIDATION{false};
     static constexpr bool FORCE_ENABLE_VALIDATION{false};
 

@@ -40,8 +40,10 @@
 #include "GFXShader.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
+#include "application/ApplicationManager.h"
 #include "base/RefCounted.h"
 #include "base/std/container/array.h"
+#include "platform/java/modules/XRInterface.h"
 #include "states/GFXBufferBarrier.h"
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
@@ -73,6 +75,7 @@ public:
     inline Queue *createQueue(const QueueInfo &info);
     inline QueryPool *createQueryPool(const QueryPoolInfo &info);
     inline Swapchain *createSwapchain(const SwapchainInfo &info);
+    inline const ccstd::vector<Swapchain *> &getSwapchains() const { return _swapchains; }
     inline Buffer *createBuffer(const BufferInfo &info);
     inline Buffer *createBuffer(const BufferViewInfo &info);
     inline Texture *createTexture(const TextureInfo &info);
@@ -150,6 +153,7 @@ protected:
     virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
     virtual PipelineLayout *createPipelineLayout() = 0;
     virtual PipelineState *createPipelineState() = 0;
+    virtual Swapchain *createXRSwapchain(const SwapchainInfo &info);
 
     virtual Sampler *createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
     virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return ccnew GeneralBarrier(info); }
@@ -188,6 +192,8 @@ protected:
     ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
     ccstd::unordered_map<BufferBarrierInfo, BufferBarrier *, Hasher<BufferBarrierInfo>> _bufferBarriers;
 
+    IXRInterface *_xr{nullptr};
+
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
 };
@@ -213,6 +219,9 @@ QueryPool *Device::createQueryPool(const QueryPoolInfo &info) {
 }
 
 Swapchain *Device::createSwapchain(const SwapchainInfo &info) {
+    if (_xr) {
+        return createXRSwapchain(info);
+    }
     Swapchain *res = createSwapchain();
     res->initialize(info);
     _swapchains.push_back(res);

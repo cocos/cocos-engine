@@ -28,6 +28,7 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TASKFLOW  OFF)
 cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
+cc_set_if_undefined(USE_XR                   OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
 cc_set_if_undefined(USE_PLUGINS              ON)
 cc_set_if_undefined(USE_OCCLUSION_QUERY      ON)
@@ -203,6 +204,7 @@ cc_inspect_values(
     USE_PHYSICS_PHYSX
     USE_JOB_SYSTEM_TBB
     USE_JOB_SYSTEM_TASKFLOW
+    USE_XR
     USE_SERVER_MODE
     USE_CCACHE
     CCACHE_EXECUTABLE
@@ -527,6 +529,8 @@ cocos_source_files(
     cocos/platform/interfaces/modules/ISystemWindow.h
     cocos/platform/interfaces/modules/ISystemWindowManager.h
     cocos/platform/interfaces/modules/IVibrator.h
+    cocos/platform/interfaces/modules/XRCommon.h
+    cocos/platform/interfaces/modules/IXRInterface.h
 )
 
 cocos_source_files(
@@ -612,6 +616,8 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/SystemWindow.h
         cocos/platform/java/modules/SystemWindowManager.cpp
         cocos/platform/java/modules/SystemWindowManager.h
+        cocos/platform/java/modules/XRInterface.cpp
+        cocos/platform/java/modules/XRInterface.h
     )
 endif()
 
@@ -2108,6 +2114,13 @@ if(USE_WEBVIEW)
     )
 endif()
 
+if(USE_XR)
+    cocos_source_files(
+        NO_WERROR    cocos/bindings/auto/jsb_xr_auto.cpp
+                     cocos/bindings/auto/jsb_xr_auto.h
+    )
+endif()
+
 if(USE_MIDDLEWARE)
     cocos_source_files(
                      cocos/editor-support/IOBuffer.cpp
@@ -2880,6 +2893,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_VIDEO}>,CC_USE_VIDEO=1,CC_USE_VIDEO=0>
         $<IF:$<BOOL:${USE_WEBVIEW}>,CC_USE_WEBVIEW=1,CC_USE_WEBVIEW=0>
         $<IF:$<BOOL:${USE_AUDIO}>,CC_USE_AUDIO=1,CC_USE_AUDIO=0>
+        $<IF:$<BOOL:${USE_XR}>,CC_USE_XR=1,CC_USE_XR=0>
         $<IF:$<BOOL:${USE_SOCKET}>,CC_USE_SOCKET=1,CC_USE_SOCKET=0>
         $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
@@ -2914,6 +2928,17 @@ if(USE_MODULES)
     cc_apply_definations(ccutils)
 endif()
 
+if(USE_XR)
+    cc_xr_apply_definations(${ENGINE_NAME})
+    if(USE_MODULES)
+        cc_xr_apply_definations(ccmath)
+        cc_xr_apply_definations(cclog)
+        cc_xr_apply_definations(ccfilesystem)
+        cc_xr_apply_definations(ccunzip)
+        cc_xr_apply_definations(ccbindings)
+        cc_xr_apply_definations(ccutils)
+    endif()
+endif()
 
 if(MSVC)
     set(V8_DIR

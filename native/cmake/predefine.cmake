@@ -220,10 +220,19 @@ function(cc_redirect_property target from_property to_property)
     endif()
 endfunction()
 
-
-find_program(NODE_EXECUTABLE NAMES node)
-find_program(TSC_EXECUTABLE NAMES tsc)
-find_program(CCACHE_EXECUTABLE NAMES ccache)
+if(NOT DEFINED NODE_EXECUTABLE)
+    if(DEFINED EDITOR_NODEJS)
+        set(NODE_EXECUTABLE ${EDITOR_NODEJS})
+    else() 
+        find_program(NODE_EXECUTABLE NAMES node)
+    endif()
+endif()
+if(NOT DEFINED TSC_EXECUTABLE)
+    find_program(TSC_EXECUTABLE NAMES tsc)
+endif()
+if(NOT DEFINED CCACHE_EXECUTABLE)
+    find_program(CCACHE_EXECUTABLE NAMES ccache)
+endif()
 
 ## predefined configurations for game applications
 include(${CMAKE_CURRENT_LIST_DIR}/../../templates/cmake/common.cmake)
