@@ -194,7 +194,10 @@ var fsUtils = {
             const str = fs.getStringFromFile(path);
             return JSON.parse(str);
         } catch (e) {
+            //TODO : resolve warn exception.
+            if (!window.oh) {
             cc.warn(`Read json failed: path: ${path} message: ${e.message}`);
+            }
             return new Error(e.message);
         }
     },
