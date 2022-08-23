@@ -34,22 +34,17 @@
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/network/WebSocketServer.h"
 
+namespace {
+template <typename T>
+std::shared_ptr<T> sharedPtrObj(se::State &s) {
+    auto *privateObj = s.thisObject()->getPrivateObject();
+    assert(privateObj->isSharedPtr());
+    return static_cast<se::SharedPrivateObject<T> *>(privateObj)->getData();
+}
+} // namespace
+
 se::Class *__jsb_WebSocketServer_class = nullptr;            // NOLINT
 se::Class *__jsb_WebSocketServer_Connection_class = nullptr; // NOLINT
-
-const auto WSS_SHARED_PTR = [](se::State &s) {
-    auto *privateObj = s.thisObject()->getPrivateObject();
-    assert(privateObj->isSharedPtr());
-    auto sharedPtrObj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServer> *>(privateObj)->getData();
-    return sharedPtrObj;
-};
-
-const auto WSS_CONN_SHARED_PTR = [](se::State &s) {
-    auto *privateObj = s.thisObject()->getPrivateObject();
-    assert(privateObj->isSharedPtr());
-    auto sharedPtrObj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServerConnection> *>(privateObj)->getData();
-    return sharedPtrObj;
-};
 
 static int sendIndex = 1;
 
@@ -99,10 +94,7 @@ static bool WebSocketServer_listen(se::State &s) { // NOLINT(readability-identif
         return false;
     }
 
-    // auto *privateObj = s.thisObject()->getPrivateObject();
-    // assert(privateObj->isSharedPtr());
-    // auto cobj = static_cast<se::SharedPrivateObject<cc::network::WebSocketServer> *>(privateObj)->getData();
-    auto cobj = WSS_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServer>(s);
     int argPort = 0;
     ccstd::string argHost;
     std::function<void(const ccstd::string &)> argCallback;
@@ -173,10 +165,10 @@ static bool WebSocketServer_onconnection(se::State &s) { // NOLINT(readability-i
 
     s.thisObject()->setProperty("__onconnection", args[0]);
 
-    auto cobj = WSS_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServer>(s);
     std::weak_ptr<cc::network::WebSocketServer> serverWeak = cobj;
 
-    cobj->setOnConnection([serverWeak](const std::shared_ptr<cc::network::WebSocketServerConnection>& conn) {
+    cobj->setOnConnection([serverWeak](const std::shared_ptr<cc::network::WebSocketServerConnection> &conn) {
         se::AutoHandleScope hs;
 
         auto server = serverWeak.lock();
@@ -197,7 +189,7 @@ static bool WebSocketServer_onconnection(se::State &s) { // NOLINT(readability-i
         // a connection is dead only if no reference & closed!
         obj->root();
         obj->setPrivateObject(se::shared_private_object(conn));
-        
+
         conn->setData(obj);
         std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = conn;
         conn->setOnEnd([connWeak, obj]() {
@@ -233,7 +225,7 @@ static bool WebSocketServer_onclose(se::State &s) { // NOLINT(readability-identi
     }
 
     std::function<void(const ccstd::string &)> callback;
-    auto cobj = WSS_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServer>(s);
     std::weak_ptr<cc::network::WebSocketServer> serverWeak = cobj;
     s.thisObject()->setProperty("__onclose", args[0]);
 
@@ -277,7 +269,7 @@ static bool WebSocketServer_close(se::State &s) { // NOLINT(readability-identifi
     }
 
     std::function<void(const ccstd::string &)> callback;
-    auto cobj = WSS_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServer>(s);
 
     if (argc == 1) {
         if (args[0].isObject() && args[0].toObject()->isFunction()) {
@@ -328,7 +320,7 @@ static bool WebSocketServer_connections(se::State &s) { // NOLINT(readability-id
     int argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        auto cobj = WSS_SHARED_PTR(s);
+        auto cobj = sharedPtrObj<cc::network::WebSocketServer>(s);
         auto conns = cobj->getConnections();
         se::Object *ret = se::Object::createArrayObject(conns.size());
         for (uint32_t i = 0; i < conns.size(); i++) {
@@ -369,7 +361,7 @@ static bool WebSocketServer_Connection_send(se::State &s) { // NOLINT(readabilit
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
 
-    auto cobj = WSS_CONN_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -491,7 +483,7 @@ static bool WebSocketServer_Connection_onconnect(se::State &s) { // NOLINT(reada
         return false;
     }
 
-    auto cobj = WSS_CONN_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -535,7 +527,7 @@ static bool WebSocketServer_Connection_onerror(se::State &s) { // NOLINT(readabi
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto cobj = WSS_CONN_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -581,7 +573,7 @@ static bool WebSocketServer_Connection_onclose(se::State &s) { // NOLINT(readabi
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto cobj = WSS_CONN_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -630,7 +622,7 @@ static bool WebSocketServer_Connection_ontext(se::State &s) { // NOLINT(readabil
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto cobj = WSS_CONN_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -676,7 +668,7 @@ static bool WebSocketServer_Connection_onbinary(se::State &s) { // NOLINT(readab
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto cobj = WSS_CONN_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
@@ -722,7 +714,7 @@ static bool WebSocketServer_Connection_ondata(se::State &s) { // NOLINT(readabil
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
         return false;
     }
-    auto cobj = WSS_CONN_SHARED_PTR(s);
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
 
     if (!cobj) {
         SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
