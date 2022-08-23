@@ -1083,8 +1083,7 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
 bool Image::saveImageToJPG(const std::string& filePath)
 {
     bool ret = false;
-    do
-    {
+    do {
         struct jpeg_compress_struct cinfo;
         struct jpeg_error_mgr jerr;
         FILE * outfile;                 /* target file */

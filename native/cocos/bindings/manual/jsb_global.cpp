@@ -667,7 +667,7 @@ static bool js_saveImageData(se::State& s) // NOLINT
 {
     const auto& args = s.args();
     size_t argc = args.size();
-    bool ok = true;
+    bool ok = true;// NOLINT(readability-identifier-length)
     if (argc == 4 || argc == 5) {
         auto *uint8ArrayObj = args[0].toObject();
         uint8_t *uint8ArrayData {nullptr};
@@ -703,10 +703,10 @@ static bool js_saveImageData(se::State& s) // NOLINT
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
 
-                se::Value visSuccess;
-                nativevalue_to_se(isSuccess, visSuccess);
+                se::Value isSuccessVal;
+                nativevalue_to_se(isSuccess, isSuccessVal);
 
-                seArgs.push_back(visSuccess);
+                seArgs.push_back(isSuccessVal);
                 if (callbackObj) {
                     callbackObj->call(seArgs, nullptr);
                     callbackObj->unroot();

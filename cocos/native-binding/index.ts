@@ -1349,5 +1349,5 @@ export declare namespace native {
         }));
      */
     export function saveImageData(data: Uint8Array, width: number, height: number, filePath: string,
-        callback: (isSuccess: boolean) => void): void;
+        callback: (isSuccess: boolean) => void): Promise<void>;
 }

@@ -124,6 +124,20 @@ if( NATIVE ){
             globalJsb.__JsbBridgeWrapper = value;
         },
     });
+    const originSaveImageData = globalJsb.saveImageData;
+    globalJsb.saveImageData = (data: Uint8Array, width: number, height: number, filePath: string,
+        callback: (isSuccess: boolean) => void) => {
+            return new Promise<void>((resolve, reject) => {
+                originSaveImageData(data, width, height, filePath, (isSuccess) => {
+                    callback(isSuccess);
+                    if (isSuccess) {
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                })
+            });
+    }
 }
 
 export const native = {
