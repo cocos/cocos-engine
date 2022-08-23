@@ -8,11 +8,9 @@
 #include "Pmr.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
-#include "frame-graph/Resource.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/RenderCommonFwd.h"
-#include "renderer/frame-graph/FrameGraph.h"
 
 namespace cc {
 
@@ -20,199 +18,173 @@ namespace render {
 
 namespace {
 
-void setRenderTextureInfo(const ResourceDesc& desc, const RasterView& view, gfx::TextureInfo& info) {
-    CC_EXPECTS(desc.depthOrArraySize == 1); // array not supported yet
-    CC_EXPECTS(desc.mipLevels == 1); // render target with mipmap is not supported
+void clear(gfx::RenderPassInfo& info) {
+    info.colorAttachments.clear();
+    info.depthStencilAttachment = {};
+    info.subpasses.clear();
+    info.dependencies.clear();
+}
 
-    // type
-    switch(desc.dimension) {
-        case ResourceDimension::BUFFER: {
-            CC_EXPECTS(false);
-            break;
-        }
-        case ResourceDimension::TEXTURE1D: {
-            info.type = gfx::TextureType::TEX1D;
-            break;
-        }
-        case ResourceDimension::TEXTURE2D: {
-            info.type = gfx::TextureType::TEX2D;
-            break;
-        }
-        case ResourceDimension::TEXTURE3D: {
-            info.type = gfx::TextureType::TEX3D;
-            break;
-        }
-    }
-
-    // usage
-    if (any(desc.flags & ResourceFlags::SAMPLED)) {
-        info.usage |= gfx::TextureUsageBit::SAMPLED;
-    }
-    if (any(desc.flags & ResourceFlags::INPUT_ATTACHMENT)) {
-        CC_EXPECTS(view.attachmentType == AttachmentType::RENDER_TARGET);
-        info.usage |= gfx::TextureUsageBit::INPUT_ATTACHMENT;
-    }
-    if (any(desc.flags & ResourceFlags::COLOR_ATTACHMENT)) {
-        CC_EXPECTS(view.attachmentType == AttachmentType::RENDER_TARGET);
-        info.usage |= gfx::TextureUsageBit::COLOR_ATTACHMENT;
-    }
-    if (any(desc.flags & ResourceFlags::DEPTH_STENCIL_ATTACHMENT)) {
-        CC_EXPECTS(view.attachmentType == AttachmentType::DEPTH_STENCIL);
-        info.usage |= gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT;
-    }
-
-    // format, width, height
-    info.format = desc.format;
-    info.width = desc.width;
-    info.height = desc.height;
-
-    // flags
-    info.flags = desc.textureFlags;
-
-    // layerCount
-    if (info.type == gfx::TextureType::TEX3D) {
-        info.layerCount = 1;
-    } else {
-        info.layerCount = desc.depthOrArraySize;
-    }
-
-    // levelCount
-    info.levelCount = desc.mipLevels;
-
-    // samples
-    info.samples = desc.sampleCount;
-
-    // depth
-    if (info.type == gfx::TextureType::TEX3D) {
-        info.depth = desc.depthOrArraySize;
-    } else {
-        info.depth = 1;
-    }
-
-    // externalRes
-    info.externalRes = {};
+uint8_t getRasterViewSlot(const RasterView& view) {
+    std::ignore = view;
+    CC_EXPECTS(false); // not implemented yet
+    return 0;
 }
 
 } // namespace
 
-struct RenderGraphFrameGraphBuilder : boost::dfs_visitor<> {
-    void addRasterPass(
-        const PmrTransparentMap<ccstd::pmr::string, RasterView>& rasterViews,
-        const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>& computeViews,
-        bool bSubpass, bool bSubpassEnd) {
-        auto passSetup = [&](framegraph::PassNodeBuilder& builder, NativePassData& data) {
-            if (bSubpass) {
-                builder.subpass(bSubpassEnd);
+struct RenderGraphVisitorContext {
+    RenderGraphVisitorContext(
+        const RenderGraph& gIn,
+        const ResourceGraph& resgIn,
+        const FrameGraphDispatcher& fgdIn,
+        const FrameGraphDispatcher::BarrierMap& barrierMapIn,
+        gfx::Device* deviceIn,
+        cc::gfx::CommandBuffer* cmdBuffIn,
+        boost::container::pmr::memory_resource* scratchIn)
+    : g(gIn),
+      resg(resgIn),
+      fgd(fgdIn),
+      barrierMap(barrierMapIn),
+      device(deviceIn),
+      cmdBuff(cmdBuffIn),
+      scratch(scratchIn) {}
+
+    const RenderGraph& g;
+    const ResourceGraph& resg;
+    const FrameGraphDispatcher& fgd;
+    const FrameGraphDispatcher::BarrierMap& barrierMap;
+    gfx::Device* device = nullptr;
+    cc::gfx::CommandBuffer* cmdBuff = nullptr;
+    boost::container::pmr::memory_resource* scratch = nullptr;
+    gfx::RenderPassInfo rpInfo;
+};
+
+struct RenderGraphVisitor : boost::dfs_visitor<> {
+    void begin(const RasterPass& pass) const {
+        auto& rpInfo = ctx.rpInfo;
+        // viewport
+        auto vp = pass.viewport;
+        if (vp.width == 0 && vp.height == 0) {
+            vp.width = pass.width;
+            vp.height = pass.height;
+        }
+        // scissor
+        gfx::Rect scissor{0, 0, vp.width, vp.height};
+
+        // render pass
+        clear(rpInfo);
+        uint32_t numDepthStencil = 0;
+        rpInfo.colorAttachments.resize(pass.rasterViews.size());
+        for (const auto& pair : pass.rasterViews) {
+            const auto& name = pair.first;
+            const auto& view = pair.second;
+            const auto resID = vertex(name, ctx.resg);
+            const auto& desc = get(ResourceGraph::DescTag{}, ctx.resg, resID);
+
+            if (view.attachmentType == AttachmentType::RENDER_TARGET) { // RenderTarget
+                auto slot = getRasterViewSlot(view);
+                auto& rt = rpInfo.colorAttachments[slot];
+                rt.format = desc.format;
+                rt.sampleCount = desc.sampleCount;
+                rt.loadOp = view.loadOp;
+                rt.storeOp = view.storeOp;
+                rt.barrier = nullptr;
+                rt.isGeneralLayout = hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT);
+            } else { // DepthStencil
+                ++numDepthStencil;
+                auto& ds = rpInfo.depthStencilAttachment;
+                ds.format = desc.format;
+                ds.sampleCount = desc.sampleCount;
+                ds.depthLoadOp = view.loadOp;
+                ds.depthStoreOp = view.storeOp;
+                ds.stencilLoadOp = view.loadOp;
+                ds.stencilStoreOp = view.storeOp;
+                ds.barrier = nullptr;
+                ds.isGeneralLayout = hasFlag(desc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT);
             }
-            for (const auto& pair : rasterViews) {
-                const auto& name = pair.first;
-                const auto& view = pair.second;
-                auto viewID = vertex(name, resg);
-                const auto& desc = get(ResourceGraph::DescTag{}, resg, viewID);
-                visitObject(
-                    viewID, resg,
-                    [&](const ManagedResource&) {
+        }
+        CC_EXPECTS(numDepthStencil <= 1);
+        if (numDepthStencil) {
+            CC_EXPECTS(rpInfo.colorAttachments.back().format == gfx::Format::UNKNOWN);
+            rpInfo.colorAttachments.pop_back();
+        }
+        auto* cmdBuffer = ctx.cmdBuff;
 
-                    },
-                    [&](const IntrusivePtr<gfx::Buffer>&) {
+        // cmdBuff->beginRenderPass();
 
-                    },
-                    [&](const IntrusivePtr<gfx::Texture>&) {
+    }
+    void begin(const ComputePass& pass) const {
+    }
+    void begin(const CopyPass& pass) const {
+    }
+    void begin(const MovePass& pass) const {
+    }
+    void begin(const PresentPass& pass) const {
+    }
+    void begin(const RaytracePass& pass) const {
+    }
+    void begin(const RenderQueue& pass) const {
+    }
+    void begin(const SceneData& pass) const {
+    }
+    void begin(const Blit& pass) const {
+    }
+    void begin(const Dispatch& pass) const {
+    }
+    void begin(const ccstd::pmr::vector<ClearView>& pass) const {
+    }
+    void begin(const gfx::Viewport& pass) const {
+    }
 
-                    },
-                    [&](const IntrusivePtr<gfx::Framebuffer>&) {
-
-                    },
-                    [&](const RenderSwapchain&) {
-
-                    });
-
-                const auto handle = framegraph::FrameGraph::stringToHandle(name.c_str());
-                auto typedHandle = builder.readFromBlackboard(handle);
-                data.outputViews.emplace_back();
-                auto &lastTex = data.outputViews.back();
-                framegraph::Texture::Descriptor colorTexInfo{};
-                setRenderTextureInfo(desc, view, colorTexInfo);
-
-                if (view.accessType == AccessType::READ) {
-                    colorTexInfo.usage = gfx::TextureUsage::INPUT_ATTACHMENT | gfx::TextureUsage::COLOR_ATTACHMENT;
-                }
-                // lastTex.first = view.second.accessType;
-                // lastTex.second = static_cast<framegraph::TextureHandle>(typedHandle);
-
-                // if (framegraph::Handle::IndexType(typedHandle) == framegraph::Handle::UNINITIALIZED) {
-                //     colorTexInfo.width = 960;
-                //     colorTexInfo.height = 640;
-
-                //     lastTex.second = builder.create(handle, colorTexInfo);
-                // }
-
-                // framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-                // colorAttachmentInfo.usage = view.second.attachmentType == AttachmentType::RENDER_TARGET ? framegraph::RenderTargetAttachment::Usage::COLOR : framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-                // colorAttachmentInfo.clearColor = view.second.clearColor;
-                // colorAttachmentInfo.loadOp = view.second.loadOp;
-                // if (view.second.accessType == AccessType::WRITE) {
-                //     lastTex.second = builder.write(lastTex.second, colorAttachmentInfo);
-                //     builder.writeToBlackboard(handle, lastTex.second);
-                //     colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
-                // } else {
-                //     colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_READ;
-                //     auto res = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(handle)));
-                //     builder.writeToBlackboard(handle, res);
-                // }
-            }
-        };
+    void end(const RasterPass& pass) const {
+    }
+    void end(const ComputePass& pass) const {
+    }
+    void end(const CopyPass& pass) const {
+    }
+    void end(const MovePass& pass) const {
+    }
+    void end(const PresentPass& pass) const {
+    }
+    void end(const RaytracePass& pass) const {
+    }
+    void end(const RenderQueue& pass) const {
+    }
+    void end(const SceneData& pass) const {
+    }
+    void end(const Blit& pass) const {
+    }
+    void end(const Dispatch& pass) const {
+    }
+    void end(const ccstd::pmr::vector<ClearView>& pass) const {
+    }
+    void end(const gfx::Viewport& pass) const {
     }
 
     void discover_vertex(
         RenderGraph::vertex_descriptor vertID,
         const AddressableView<RenderGraph>& gv) const {
+        std::ignore = gv;
         visitObject(
-            vertID, g,
-            [&](const RasterPass& pass) {
-
-            },
-            [&](const ComputePass& pass) {
-
-            },
-            [&](const CopyPass& pass) {
-
-            },
-            [&](const MovePass& pass) {
-
-            },
-            [&](const PresentPass& pass) {
-
-            },
-            [&](const RaytracePass& pass) {
-
-            },
-            [&](const RenderQueue& pass) {
-
-            },
-            [&](const SceneData& pass) {
-
-            },
-            [&](const Blit& pass) {
-
-            },
-            [&](const Dispatch& pass) {
-
-            },
-            [&](const ccstd::pmr::vector<ClearView>& pass) {
-
-            },
-            [&](const gfx::Viewport& pass) {
-
+            vertID, ctx.g,
+            [&](const auto& pass) {
+                begin(pass);
             });
     }
 
-    const RenderGraph& g;
-    const ResourceGraph& resg;
-    framegraph::FrameGraph& fg;
-    const FrameGraphDispatcher& fgd;
-    const FrameGraphDispatcher::BarrierMap& barrierMap;
-    boost::container::pmr::memory_resource* scratch = nullptr;
+    void finish_vertex(
+        RenderGraph::vertex_descriptor vertID,
+        const AddressableView<RenderGraph>& gv) const {
+        std::ignore = gv;
+        visitObject(
+            vertID, ctx.g,
+            [&](const auto& pass) {
+                end(pass);
+            });
+    }
+
+    RenderGraphVisitorContext& ctx;
 };
 
 } // namespace render

@@ -241,9 +241,9 @@ public:
     const scene::RenderScene* scene{nullptr};
 };
 
-struct NativeRenderViewHandle {
-    NativeRenderViewHandle() = default;
-    NativeRenderViewHandle(AccessType accessTypeIn, framegraph::TextureHandle handleIn) noexcept
+struct NativeRenderViewDesc {
+    NativeRenderViewDesc() = default;
+    NativeRenderViewDesc(AccessType accessTypeIn, framegraph::TextureHandle handleIn) noexcept
     : accessType(accessTypeIn),
       handle(std::move(handleIn)) {}
 
@@ -266,7 +266,7 @@ struct NativePassData {
     NativePassData& operator=(NativePassData&& rhs) = default;
     NativePassData& operator=(NativePassData const& rhs) = default;
 
-    ccstd::pmr::vector<NativeRenderViewHandle> outputViews;
+    ccstd::pmr::vector<NativeRenderViewDesc> outputViews;
 };
 
 class NativePipeline final : public Pipeline {

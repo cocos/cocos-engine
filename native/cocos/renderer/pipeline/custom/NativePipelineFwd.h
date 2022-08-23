@@ -46,7 +46,7 @@ class NativeComputePassBuilder;
 class NativeMovePassBuilder;
 class NativeCopyPassBuilder;
 class NativeSceneTransversal;
-struct NativeRenderViewHandle;
+struct NativeRenderViewDesc;
 struct NativePassData;
 class NativePipeline;
 
