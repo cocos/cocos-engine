@@ -108,6 +108,8 @@ public:
     explicit CCSharedPtrPrivateObject(cc::IntrusivePtr<T> &&p) : _ptr(std::move(p)) {}
     ~CCSharedPtrPrivateObject() override = default;
 
+    inline cc::IntrusivePtr<T> getData() const { return _ptr; }
+
     inline void *getRaw() const override {
         return _ptr.get();
     }
@@ -140,7 +142,7 @@ public:
         _ptr = nullptr;
     }
 
-    //bool *getValidAddr() { return &_validate; }
+    // bool *getValidAddr() { return &_validate; }
 
     void allowDestroyInGC() const override {
         _allowGC = true;
@@ -150,13 +152,13 @@ public:
     }
 
     void *getRaw() const override {
-        //CC_ASSERT(_validate);
+        // CC_ASSERT(_validate);
         return _ptr;
     }
 
 private:
     T *_ptr = nullptr;
-    //bool         _validate = true;
+    // bool         _validate = true;
     mutable bool _allowGC = false;
 };
 
@@ -186,24 +188,17 @@ inline void inHeap(void *ptr) {
 #endif
 
 template <typename T>
-typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, PrivateObjectBase *>::type
-cc_tmp_new_ptr(T *cobj) {
-    return ccnew CCSharedPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
-}
-template <typename T>
-typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, PrivateObjectBase *>::type
-cc_tmp_new_ptr(T *cobj) {
-    return ccnew SharedPrivateObject<T>(std::shared_ptr<T>(cobj));
-}
-
-template <typename T>
 inline PrivateObjectBase *make_shared_private_object(T *cobj) { // NOLINT
     static_assert(!std::is_same<T, void>::value, "void * is not allowed");
 // static_assert(!std::is_pointer_v<T> && !std::is_null_pointer_v<decltype(cobj)>, "bad pointer");
 #if CC_DEBUG
     inHeap(cobj);
 #endif
-    return cc_tmp_new_ptr(cobj);
+    if constexpr (std::is_base_of<cc::RefCounted, T>::value) {
+        return ccnew CCSharedPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
+    } else {
+        return ccnew SharedPrivateObject<T>(std::shared_ptr<T>(cobj));
+    }
 }
 template <typename T>
 inline PrivateObjectBase *shared_private_object(std::shared_ptr<T> &&ptr) { // NOLINT
