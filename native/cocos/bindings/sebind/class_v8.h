@@ -52,8 +52,9 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope handleScope(isolate);
     std::optional<bool> ret;
-    se::ValueArray &args = se::gValueArrayPool.get(v8args.Length());
-    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};
+    bool needDeleteValueArray{false};
+    se::ValueArray &args = se::gValueArrayPool.get(v8args.Length(), needDeleteValueArray);
+    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
     se::internal::jsToSeArgs(v8args, args);
     auto *self = reinterpret_cast<context_type *>(v8args.Data().IsEmpty() ? nullptr : v8args.Data().As<v8::External>()->Value());
     se::Object *thisObject = se::Object::_createJSObject(self->kls, v8args.This());
@@ -97,8 +98,9 @@ void genericAccessorSet(v8::Local<v8::Name> /*prop*/, v8::Local<v8::Value> jsVal
     v8::HandleScope handleScope(isolate);
     bool ret = true;
     auto *thisObject = reinterpret_cast<se::Object *>(se::internal::getPrivate(isolate, v8args.This()));
-    se::ValueArray &args = se::gValueArrayPool.get(1);
-    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};
+    bool needDeleteValueArray{false};
+    se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);
+    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
     se::Value &data{args[0]};
     se::internal::jsToSeValue(isolate, jsVal, &data);
     se::State state(thisObject, args);

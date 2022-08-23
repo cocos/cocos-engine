@@ -67,6 +67,12 @@ Node::Node(const ccstd::string &name) {
 
 Node::~Node() {
     CC_SAFE_DELETE(_eventProcessor);
+    if (!_children.empty()) {
+        // Reset children's _parent to nullptr to avoid dangerous pointer
+        for (const auto &child : _children) {
+            child->_parent = nullptr;
+        }
+    }
 }
 
 void Node::onBatchCreated(bool dontChildPrefab) {
