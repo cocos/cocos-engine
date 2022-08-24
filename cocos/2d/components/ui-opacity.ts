@@ -84,6 +84,10 @@ export class UIOpacity extends Component {
 
     // for UIOpacity
     public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
+        if (!node) {
+            return;
+        }
+
         const render = node._uiProps.uiComp as UIRenderer;
         const uiOp = node.getComponent<UIOpacity>(UIOpacity);
         let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
