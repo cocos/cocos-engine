@@ -383,7 +383,7 @@ public:
     template <typename T>
     inline cc::IntrusivePtr<T> getPrivateInstrusivePtr() const {
         assert(_privateObject->isCCIntrusivePtr());
-        return static_cast<se::CCIntrusivePtrPtrPrivateObject<T> *>(_privateObject)->getData();
+        return static_cast<se::CCIntrusivePtrPrivateObject<T> *>(_privateObject)->getData();
     }
 
     template <typename T>

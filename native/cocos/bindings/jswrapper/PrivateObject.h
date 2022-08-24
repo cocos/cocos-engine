@@ -104,12 +104,12 @@ private:
 };
 
 template <typename T>
-class CCIntrusivePtrPtrPrivateObject final : public TypedPrivateObject<T> {
+class CCIntrusivePtrPrivateObject final : public TypedPrivateObject<T> {
 public:
-    CCIntrusivePtrPtrPrivateObject() = default;
-    explicit CCIntrusivePtrPtrPrivateObject(const cc::IntrusivePtr<T> &p) : _ptr(p) {}
-    explicit CCIntrusivePtrPtrPrivateObject(cc::IntrusivePtr<T> &&p) : _ptr(std::move(p)) {}
-    ~CCIntrusivePtrPtrPrivateObject() override = default;
+    CCIntrusivePtrPrivateObject() = default;
+    explicit CCIntrusivePtrPrivateObject(const cc::IntrusivePtr<T> &p) : _ptr(p) {}
+    explicit CCIntrusivePtrPrivateObject(cc::IntrusivePtr<T> &&p) : _ptr(std::move(p)) {}
+    ~CCIntrusivePtrPrivateObject() override = default;
 
     inline const cc::IntrusivePtr<T>& getData() const { return _ptr; }
     inline cc::IntrusivePtr<T>& getData() { return _ptr; }
@@ -177,7 +177,7 @@ inline std::shared_ptr<T> TypedPrivateObject<T>::share() {
 template <typename T>
 inline cc::IntrusivePtr<T> &TypedPrivateObject<T>::ccShared() {
     CC_ASSERT(isCCIntrusivePtr());
-    return reinterpret_cast<CCIntrusivePtrPtrPrivateObject<T> *>(this)->_ptr;
+    return reinterpret_cast<CCIntrusivePtrPrivateObject<T> *>(this)->_ptr;
 }
 
 #if CC_DEBUG
@@ -199,7 +199,7 @@ inline PrivateObjectBase *make_shared_private_object(T *cobj) { // NOLINT
     inHeap(cobj);
 #endif
     if constexpr (std::is_base_of<cc::RefCounted, T>::value) {
-        return ccnew CCIntrusivePtrPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
+        return ccnew CCIntrusivePtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
     } else {
         return ccnew SharedPtrPrivateObject<T>(std::shared_ptr<T>(cobj));
     }
@@ -229,11 +229,11 @@ inline PrivateObjectBase *rawref_private_object(T *ptr) { // NOLINT
 template <typename T>
 inline PrivateObjectBase *ccshared_ptr_private_object(const cc::IntrusivePtr<T> &ptr) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
-    return ccnew CCIntrusivePtrPtrPrivateObject<T>(ptr);
+    return ccnew CCIntrusivePtrPrivateObject<T>(ptr);
 }
 template <typename T>
 inline PrivateObjectBase *ccshared_ptr_private_object(T *cobj) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
-    return ccnew CCIntrusivePtrPtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
+    return ccnew CCIntrusivePtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
 }
 } // namespace se
