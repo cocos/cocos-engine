@@ -125,8 +125,7 @@ if( NATIVE ){
         },
     });
     const originSaveImageData = globalJsb.saveImageData;
-    globalJsb.saveImageData = (data: Uint8Array, width: number, height: number, filePath: string,
-        callback: (isSuccess: boolean) => void) => {
+    globalJsb.saveImageData = (data: Uint8Array, width: number, height: number, filePath: string) => {
             return new Promise<void>((resolve, reject) => {
                 originSaveImageData(data, width, height, filePath, (isSuccess) => {
                     if (isSuccess) {
