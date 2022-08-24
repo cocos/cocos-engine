@@ -695,7 +695,8 @@ static bool js_saveImageData(se::State& s) // NOLINT
         gThreadPool->pushTask([=](int /*tid*/) {
             // isToRGB = false, to keep alpha channel
             auto *img = ccnew Image();
-            img->initWithRawData(uint8ArrayData, length, width, height, 32 /*Unused*/);
+            // A conversion from size_t to uint32_t might lose integer precision
+            img->initWithRawData(uint8ArrayData, static_cast<uint32_t>(length), width, height, 32 /*Unused*/);
             bool isSuccess = img->saveToFile(filePath, false/*isToRGB*/);
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
