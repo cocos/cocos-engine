@@ -525,7 +525,6 @@ export class Root {
     public createWindow (info: IRenderWindowInfo): RenderWindow | null {
         const window = this._createWindowFun(this);
         window.initialize(this.device, info);
-        this._windows.push(window);
         return window;
     }
 
@@ -535,12 +534,10 @@ export class Root {
      * @param window The render window to be destroyed
      */
     public destroyWindow (window: RenderWindow) {
-        for (let i = 0; i < this._windows.length; ++i) {
-            if (this._windows[i] === window) {
-                window.destroy();
-                this._windows.splice(i, 1);
-                return;
-            }
+        if (this._windows.includes(window)) {
+            const idx = this._windows.indexOf(window);
+            window.destroy();
+            this._windows.splice(idx, 1);
         }
     }
 

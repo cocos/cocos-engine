@@ -29,6 +29,7 @@ import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
 } from '../../gfx';
+import { legacyCC } from '../../global-exports';
 import { Root } from '../../root';
 import { Camera } from '../scene';
 
@@ -243,6 +244,10 @@ export class RenderWindow {
                 return;
             }
         }
+        const windows = legacyCC.director.root.windows;
+        if (!windows.includes(this)) {
+            windows.push(this);
+        }
         this._cameras.push(camera);
         this.sortCameras();
     }
@@ -256,9 +261,16 @@ export class RenderWindow {
         for (let i = 0; i < this._cameras.length; ++i) {
             if (this._cameras[i] === camera) {
                 this._cameras.splice(i, 1);
+                if (!this._cameras.length) this._detachFromRoot();
                 return;
             }
         }
+    }
+
+    private _detachFromRoot () {
+        const windows = legacyCC.director.root.windows;
+        const idx = windows.indexOf(this);
+        if (idx !== -1) windows.splice(idx, 1);
     }
 
     /**
@@ -267,6 +279,7 @@ export class RenderWindow {
      */
     public clearCameras () {
         this._cameras.length = 0;
+        this._detachFromRoot();
     }
 
     /**
