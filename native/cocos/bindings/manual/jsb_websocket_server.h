@@ -49,7 +49,8 @@ SE_DECLARE_FUNC(WebSocketServer_Connection_onbinary);
 SE_DECLARE_FUNC(WebSocketServer_Connection_onconnect);
 SE_DECLARE_FUNC(WebSocketServer_Connection_onerror);
 SE_DECLARE_FUNC(WebSocketServer_Connection_onclose);
-SE_DECLARE_FUNC(WebSocketServer_Connection_ondata);
+SE_DECLARE_FUNC(WebSocketServer_Connection_ondata); // deprecated since v3.7, please use onmessage to instead.
+SE_DECLARE_FUNC(WebSocketServer_Connection_onmessage);
 
 SE_DECLARE_FUNC(WebSocketServer_Connection_headers);
 SE_DECLARE_FUNC(WebSocketServer_Connection_protocols);
