@@ -252,6 +252,10 @@ module.exports = {
                     name: '混合模式下的深度写入',
                     title: '当 Alpha 模式为 "BLEND" 时开启深度写入。',
                 },
+                ignoreOriginalImageLocation: {
+                    name: '忽略原始图像位置',
+                    title: '启用后，忽略模型文件中记录的图像位置，仅在项目中搜索同名图像。',
+                },
                 skipValidation: {
                     name: '跳过验证',
                     title: '跳过对模型文件的验证。',
