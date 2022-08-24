@@ -23,8 +23,8 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <SLES/OpenSLES_Android.h>
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-#include "SLES/OpenSLES_OpenHarmony.h"
-#include "SLES/OpenSLES_Platform.h"
+#include <SLES/OpenSLES_OpenHarmony.h>
+#include <SLES/OpenSLES_Platform.h>
 #endif
 
 #if defined(__APPLE__)
