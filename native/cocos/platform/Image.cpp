@@ -289,7 +289,6 @@ bool Image::initWithImageFile(const ccstd::string &path) {
 
 bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen) {
     bool ret = false;
-
     do {
         CC_BREAK_IF(!data || dataLen <= 0);
 
@@ -945,23 +944,19 @@ bool Image::initWithRawData(const unsigned char *data, uint32_t /*dataLen*/, int
     return ret;
 }
 
-bool Image::saveToFile(const std::string& filename, bool isToRGB)
-{
+bool Image::saveToFile(const std::string& filename, bool isToRGB) {
     //only support for Image::PixelFormat::RGB888 or Image::PixelFormat::RGBA8888 uncompressed data
-    if (isCompressed() || (_renderFormat != gfx::Format::RGB8 && _renderFormat != gfx::Format::RGBA8))
-    {
+    if (isCompressed() || (_renderFormat != gfx::Format::RGB8 && _renderFormat != gfx::Format::RGBA8)) {
         CC_LOG_DEBUG("saveToFile: Image: saveToFile is only support for gfx::Format::RGB8 or gfx::Format::RGBA8 uncompressed data for now");
         return false;
     }
 
     std::string fileExtension = FileUtils::getInstance()->getFileExtension(filename);
 
-    if (fileExtension == ".png")
-    {
+    if (fileExtension == ".png") {
         return saveImageToPNG(filename, isToRGB);
     }
-    if (fileExtension == ".jpg")
-    {
+    if (fileExtension == ".jpg") {
         return saveImageToJPG(filename);
     }
     CC_LOG_DEBUG("saveToFile: Image: saveToFile no support file extension(only .png or .jpg) for file: %s", filename.c_str());
@@ -969,8 +964,7 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
 }
 
 
-bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
-{
+bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB) {
     bool ret = false;
 
     FILE *fp{nullptr};
@@ -983,8 +977,7 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
         // Init png structure and png ptr
         pngPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
         CC_BREAK_IF(!pngPtr);
-        if (setjmp(png_jmpbuf(pngPtr)))
-        {
+        if (setjmp(png_jmpbuf(pngPtr))) {
             break;
         }
         infoPtr = png_create_info_struct(pngPtr);
@@ -1009,21 +1002,15 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
         rowPointers = static_cast<png_bytep *>(CC_MALLOC(_height * sizeof(png_bytep)));
         CC_BREAK_IF(!rowPointers);
 
-        if (!hasAlpha)
-        {
-            for (int i = 0; i < _height; i++)
-            {
+        if (!hasAlpha) {
+            for (int i = 0; i < _height; i++) {
                 rowPointers[i] = static_cast<png_bytep>(_data) + i * _width * 3;
             }
             png_write_image(pngPtr, rowPointers);
-        }
-        else
-        {
-            if (isToRGB)
-            {
+        } else {
+            if (isToRGB) {
                 auto *tempData = static_cast<unsigned char*>(CC_MALLOC(_width * _height * 3 * sizeof(unsigned char)));
-                if (nullptr == tempData)
-                {
+                if (nullptr == tempData) {
                     break;
                 }
                 auto *dst = tempData;
@@ -1034,19 +1021,15 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
                     src += 4;
                 }
 
-                for (int i = 0; i < _height; i++)
-                {
+                for (int i = 0; i < _height; i++) {
                     rowPointers[i] = static_cast<png_bytep>(tempData) + i * _width * 3;
                 }
                 if (tempData != nullptr) {
                     CC_FREE(tempData);
                 }
                 png_write_image(pngPtr, rowPointers);
-            }
-            else
-            {
-                for (int i = 0; i < _height; i++)
-                {
+            } else {
+                for (int i = 0; i < _height; i++) {
                     rowPointers[i] = static_cast<png_bytep>(_data) + i *    _width * 4 /*Bytes per pixel*/;
                 }
                 png_write_image(pngPtr, rowPointers);
@@ -1077,8 +1060,7 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
     return ret;
 }
 
-bool Image::saveImageToJPG(const std::string& filePath)
-{
+bool Image::saveImageToJPG(const std::string& filePath) {
     bool ret = false;
     do {
         struct jpeg_compress_struct cinfo;
@@ -1108,17 +1090,14 @@ bool Image::saveImageToJPG(const std::string& filePath)
         rowStride = _width * 3; /* JSAMPLEs per row in image_buffer */
         bool hasAlpha = gfx::GFX_FORMAT_INFOS[static_cast<int>(_renderFormat)].hasAlpha;
 
-        if (hasAlpha)
-        {
+        if (hasAlpha) {
             auto *tempData = static_cast<unsigned char*>(CC_MALLOC(_width * _height * 3 * sizeof(unsigned char)));
-            if (nullptr == tempData)
-            {
+            if (nullptr == tempData) {
                 jpeg_finish_compress(&cinfo);
                 jpeg_destroy_compress(&cinfo);
                 fclose(outfile);
                 break;
             }
-
             auto *dst = tempData;
             auto *src = _data;
             for (int t = 0; t < _width * _height; t++) {
@@ -1126,21 +1105,14 @@ bool Image::saveImageToJPG(const std::string& filePath)
                 dst += 3;
                 src += 4;
             }
-
-
-            while (cinfo.next_scanline < cinfo.image_height)
-            {
+            while (cinfo.next_scanline < cinfo.image_height) {
                 rowPointer[0] = & tempData[cinfo.next_scanline * rowStride];
                 (void) jpeg_write_scanlines(&cinfo, rowPointer, 1);
             }
-
-            if (tempData != nullptr)
-            {
+            if (tempData != nullptr) {
                 CC_FREE(tempData);
             }
-        }
-        else
-        {
+        } else {
             while (cinfo.next_scanline < cinfo.image_height) {
                 rowPointer[0] = & _data[cinfo.next_scanline * rowStride];
                 (void) jpeg_write_scanlines(&cinfo, rowPointer, 1);

@@ -661,8 +661,7 @@ static bool js_loadImage(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(js_loadImage)
 //pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
-static bool js_saveImageData(se::State& s) // NOLINT
-{
+static bool js_saveImageData(se::State& s) { // NOLINT
     const auto& args = s.args();
     size_t argc = args.size();
     bool ok = true;// NOLINT(readability-identifier-length)
