@@ -227,12 +227,12 @@ inline PrivateObjectBase *rawref_private_object(T *ptr) { // NOLINT
 }
 
 template <typename T>
-inline PrivateObjectBase *ccshared_ptr_private_object(const cc::IntrusivePtr<T> &ptr) { // NOLINT
+inline PrivateObjectBase *ccintrusive_ptr_private_object(const cc::IntrusivePtr<T> &ptr) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
     return ccnew CCIntrusivePtrPrivateObject<T>(ptr);
 }
 template <typename T>
-inline PrivateObjectBase *ccshared_ptr_private_object(T *cobj) { // NOLINT
+inline PrivateObjectBase *ccintrusive_ptr_private_object(T *cobj) { // NOLINT
     static_assert(std::is_base_of<cc::RefCounted, T>::value, "cc::RefCounted expected!");
     return ccnew CCIntrusivePtrPrivateObject<T>(cc::IntrusivePtr<T>(cobj));
 }

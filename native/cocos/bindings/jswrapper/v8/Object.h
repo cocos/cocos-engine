@@ -331,7 +331,7 @@ public:
      */
     template <typename T>
     inline void setPrivateData(const cc::IntrusivePtr<T> &data) {
-        setPrivateObject(se::ccshared_ptr_private_object(data));
+        setPrivateObject(se::ccintrusive_ptr_private_object(data));
     }
 
     /**
