@@ -84,13 +84,13 @@ const Elements = {
                 panel.metaList.forEach((meta) => {
                     meta.userData.type = event.target.value;
                 });
-                panel.dispatch('change');
 
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
                 // imageAssets 类型有 spriteFrame 变化的话需要处理 mipmaps
                 panel.updatePanel(spriteFrameChange);
+                panel.dispatch('change');
             });
         },
         update() {
