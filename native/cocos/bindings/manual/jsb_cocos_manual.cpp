@@ -34,7 +34,7 @@
 
 extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration, readability-identifier-naming)
 
-static bool jsb_ccx_empty_func(const se::State & /*s*/) { // NOLINT(readability-identifier-naming)
+static bool jsb_ccx_empty_func(se::State & /*s*/) { // NOLINT(readability-identifier-naming)
     return true;
 }
 SE_BIND_FUNC(jsb_ccx_empty_func) // NOLINT(readability-identifier-naming)
@@ -225,7 +225,7 @@ static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identi
 }
 SE_BIND_FUNC(JSB_localStorageGetItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool JSB_localStorageRemoveItem(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -242,7 +242,7 @@ static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readabili
 }
 SE_BIND_FUNC(JSB_localStorageRemoveItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool JSB_localStorageSetItem(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 2) {
@@ -263,7 +263,7 @@ static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-
 }
 SE_BIND_FUNC(JSB_localStorageSetItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageClear(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool JSB_localStorageClear(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -468,7 +468,7 @@ static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NO
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_measureText) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_CanvasRenderingContext2D_fillRect(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
@@ -494,7 +494,7 @@ static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { //
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillRect) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_CanvasRenderingContext2D_fillText(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
@@ -525,7 +525,7 @@ static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { //
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillText) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_CanvasRenderingContext2D_strokeText(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
@@ -611,7 +611,7 @@ static bool register_canvas_context2d(se::Object * /*obj*/) { // NOLINT(readabil
     return true;
 }
 
-static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_FileUtils_listFilesRecursively(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::FileUtils *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
