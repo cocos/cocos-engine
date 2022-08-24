@@ -923,6 +923,10 @@ module.exports = {
             label: "Custom Render Pipeline (Experimental)",
             description: "Enable custom render pipeline",
         },
+        websocket_server: {
+            label: "WebSocket Server",
+            description: "Enable WebSocket Server for native.",
+        },
     },
     renderable_2d: {
         srcBlendFactor: 'Specifies the source blend mode, it will clone a new material object.',
