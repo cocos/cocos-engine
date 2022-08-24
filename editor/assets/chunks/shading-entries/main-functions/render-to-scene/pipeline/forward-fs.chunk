@@ -108,11 +108,15 @@ void main()  {
     CC_APPLY_FOG_BASE(color, fogFactor);
   #endif
 
-  // CSM Debug
   #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
+    // CSM Debug
     if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION) {
         color.rgb *= colDebugCSMLayer.rgb;
     }
+    // Invalid input data visualization
+    #if CC_SURFACES_USE_TANGENT_SPACE
+      color = CCSurfacesDebugDisplayInvalidInputData(color, FSInput_worldTangent);
+    #endif
   #endif
 #endif
 
@@ -127,9 +131,7 @@ void main()  {
     if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_GAMMA_CORRECTION)
   #endif
   color.rgb = LinearToSRGB(color.rgb);
+  
 
-
-  CCSurfacesDebugDisplayInvalidNumber(color);
-
-  fragColorX = color;
+  fragColorX = CCSurfacesDebugDisplayInvalidNumber(color);
 }

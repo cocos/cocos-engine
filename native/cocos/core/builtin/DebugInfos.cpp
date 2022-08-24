@@ -304,6 +304,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 6032, "cc.ParticleSystem.initWithDictionary() : error loading the texture" },
 { 6033, "cc.ParticleSystem: not allowing create to be invoked twice with different particle system" },
 { 6034, "cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak" },
+{ 6035, "cc.ParticleSystem: change material failed, please use proper particle material" },
 { 6400, "asset.url is not usable in core process" },
 { 6402, "AssetLibrary has already been initialized!" },
 { 6500, "Widget target must be one of the parent nodes of it" },

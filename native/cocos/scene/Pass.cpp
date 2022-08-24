@@ -656,6 +656,10 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
     _hash = target->_hash ^ hashFactor;
 }
 
+void Pass::updatePassHash() {
+    _hash = Pass::getPassHash(this);
+}
+
 gfx::DescriptorSetLayout *Pass::getLocalSetLayout() const {
     return ProgramLib::getInstance()->getDescriptorSetLayout(_device, _programName, true);
 }

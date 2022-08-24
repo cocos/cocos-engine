@@ -40,7 +40,326 @@ export declare namespace native {
      * @en Copy text to clipboard @zh 拷贝字符串到剪切板
      * @param text
      */
-    export function copyTextToClipboard(text:string): void;
+    export function copyTextToClipboard(text: string): void;
+
+    /**
+     * @en Trigger garbage collection of ScriptEngine @zh 触发 ScriptEngine 的 GC
+     */
+    export function garbageCollect(): void;
+
+    export class EventAssetsManager {
+        // methods list
+        getEventCode(): number;
+        getCURLECode(): number;
+        getCURLMCode(): number;
+        getMessage(): string;
+        getAssetId(): string;
+        getAssetsManagerEx(): AssetsManager;
+        isResuming(): boolean;
+        getPercent(): number;
+        getPercentByFile(): number;
+        getDownloadedBytes(): number;
+        getTotalBytes(): number;
+        getDownloadedFiles(): number;
+        getTotalFiles(): number;
+        constructor(eventName: string, manager: AssetsManager, code: number, assetId: string, message: string, curleCode: number, curlmCode: number);
+    }
+
+    export namespace EventAssetsManager {
+        export const ERROR_NO_LOCAL_MANIFEST:number;
+        export const ERROR_DOWNLOAD_MANIFEST:number;
+        export const ERROR_PARSE_MANIFEST :number;
+        export const NEW_VERSION_FOUND :number;
+        export const ALREADY_UP_TO_DATE :number;
+        export const UPDATE_PROGRESSION :number;
+        export const ASSET_UPDATED :number;
+        export const ERROR_UPDATING :number;
+        export const UPDATE_FINISHED :number;
+        export const UPDATE_FAILED :number;
+        export const ERROR_DECOMPRESS :number;
+    }
+
+    export interface ManifestAsset {
+        md5: string;
+        path: string;
+        compressed: boolean;
+        size: number;
+        downloadState: number;
+    }
+
+    export class Manifest {
+        /**
+         * @en Check whether the version informations have been fully loaded
+         * @zh 检查是否已加载版本信息
+         */
+        isVersionLoaded(): boolean;
+        /**
+         * @en Check whether the manifest have been fully loaded
+         * @zh 检查是否已加载 manifest
+         */
+        isLoaded(): boolean;
+        /**
+         * @en Gets remote package url.
+         * @zh 获取远程包的 URL
+         */
+        getPackageUrl(): string;
+        /**
+         * @en Gets remote manifest file url.
+         * @zh 获取远程 manifest 文件的 URL
+         */
+        getManifestFileUrl(): string;
+        /**
+         * @en Gets remote version file url.
+         * @zh 获取远程版本文件的 URL
+         */
+        getVersionFileUrl(): string;
+        /**
+         * @en Gets manifest version.
+         * @zh 获取远程 manifest 文件的版本
+         */
+        getVersion(): string;
+        /**
+         * @en Get the search paths list related to the Manifest.
+         * @zh 返回 Manifest 相关的搜索路径
+         */
+        getSearchPaths(): string[];
+        /**
+         * @en Get the manifest root path, normally it should also be the local storage path.
+         * @zh 获取 manifest 的根路径, 一般为本地存储目录.
+         */
+        getManifestRoot(): string;
+
+        constructor(content: string, manifestRoot: string);
+        constructor(manifestUrl: string);
+        /**
+         * @en Parse the manifest file information into this manifest
+         * @zh 解析 manifest 文件
+         * @param manifestUrl @en Url of the local manifest @zh 文件路径
+         */
+        parseFile(manifestUrl: string): void;
+        /**
+         * @en Parse the manifest from json string into this manifest
+         * @zh 解析 manifest 的 JSON 文件
+         * @param content @en Json string content @zh JSON 文本
+         * @param manifestRoot @en The root path of the manifest file (It should be local path,
+         * so that we can find assets path relative to the root path) @zh manifest 根路径
+         */
+        parseJSONString(content: string, manifestRoot: string): void;
+        /**
+         * @en Get whether the manifest is being updating
+         * @en 是否在更新
+         * @return @en Updating or not @zh 是否在更新
+         */
+        isUpdating(): boolean;
+        /**
+         * @en Set whether the manifest is being updating
+         * @zh 设置更新状态
+         * @param updating @en Updating or not @zh 是否更新
+         */
+        setUpdating(updating: boolean): void;
+    } // endof class Manifest
+
+    export namespace Manifest {
+        export enum DownloadState {
+            UNSTARTED,
+            DOWNLOADING,
+            SUCCESSED,
+            UNMARKED,
+        }
+    }
+
+    export class AssetsManager {
+        // static methods list
+        /**
+         * @en Create function for creating a new AssetsManagerEx
+         *
+         * warning   The cached manifest in your storage path have higher priority and will be searched first,
+         * only if it doesn't exist, AssetsManagerEx will use the given manifestUrl.
+         *
+         * @zh 创建 AssetManager
+         *
+         * @param manifestUrl  @en The url for the local manifest file @zh manifest 文件路径
+         * @param storagePath  @en The storage path for downloaded assets @zh 存储路径
+         */
+        static create(manifestUrl: string, storagePath: string): AssetsManager;
+        // methods list
+        constructor(manifestUrl: string, storagePath: string, handle: (arg1: string, arg2: string) => number);
+        constructor(manifestUrl: string, storagePath: string);
+        /**
+         * @en  Check out if there is a new version of manifest.
+         * You may use this method before updating, then let user determine whether
+         * he wants to update resources.
+         * @zh 检查更新
+         */
+        checkUpdate(): void; // void
+        /**
+         * @en Prepare the update process, this will cleanup download process flags,
+         * fill up download units with temporary manifest or remote manifest
+         * @zh 准备更新
+         */
+        prepareUpdate(): void; // void
+        /**
+         * @en Update with the current local manifest.
+         * @zh 执行更新
+         */
+        update(): void; // void
+        /**
+         * @en Reupdate all failed assets under the current AssetsManagerEx context
+         * @zh 重新下载之前失败的资源
+         */
+        downloadFailedAssets(): void; // void
+        /**
+         * @en Gets the current update state.
+         * @zh 返回当前的状态码
+         */
+        getState(): number; // cc::extension::AssetsManagerEx::State
+        /**
+         * @en Gets storage path.
+         * @zh 获取存储路径
+         */
+        getStoragePath(): string; // std::string
+        /**
+         * @en Function for retrieving the local manifest object
+         * @zh 获取本地 manifest 路径
+         */
+        getLocalManifest(): Manifest; // cc::extension::Manifest*
+        /**
+         * @en Load a local manifest from url.
+         *
+         * You can only manually load local manifest when the update state is UNCHECKED, it will fail once the update process is began.
+         *
+         * This API will do the following things:
+         *
+         * 1. Reset storage path
+         *
+         * 2. Set local storage
+         *
+         * 3. Search for cached manifest and compare with the local manifest
+         *
+         * 4. Init temporary manifest and remote manifest
+         *
+         * If successfully load the given local manifest and inited other manifests, it will return true, otherwise it will return false
+         * @zh 加载本地的 manifest
+         * @param manifestUrl  @en The local manifest url @zh manifest 路径
+         */
+        loadLocalManifest(manifestUrl: string): boolean;
+        /**
+         * @en Load a custom local manifest object, the local manifest must be loaded already.
+         *
+         * You can only manually load local manifest when the update state is UNCHECKED, it will fail once the update process is began.
+         *
+         * This API will do the following things:
+         *
+         * 1. Reset storage path
+         *
+         * 2. Set local storage
+         *
+         * 3. Search for cached manifest and compare with the local manifest
+         *
+         * 4. Init temporary manifest and remote manifest
+         *
+         * If successfully load the given local manifest and inited other manifests, it will return true, otherwise it will return false
+         * @zh 加载本地的 manifest
+         *
+         * @param localManifest @en The local manifest object to be set @zh manifest 对象
+         *
+         * @param storagePath  @en The local storage path @zh 存储路径
+         */
+        loadLocalManifest(localManifest: Manifest, storagePath: string): boolean;
+        /**
+         * @en Function for retrieving the remote manifest object
+         * @zh 获取远程的 manifest 对象
+         */
+        getRemoteManifest(): Manifest;
+        /**
+         * @en Load a custom remote manifest object, the manifest must be loaded already.
+         *
+         * You can only manually load remote manifest when the update state is UNCHECKED and local manifest is already inited,
+         * it will fail once the update process is began.
+         * @zh 加载自定义i的远程 manifest 对象
+         * @param remoteManifest   @en The remote manifest object to be set @zh manifest 对象
+         */
+        loadRemoteManifest(remoteManifest: Manifest): boolean;
+        /**
+         * @en Gets whether the current download is resuming previous unfinished job,
+         * this will only be available after READY_TO_UPDATE state,
+         * under unknown states it will return false by default.
+         * @zh 是否在恢复状态
+         */
+        isResuming(): boolean;
+        /**
+         * @en Gets the total byte size to be downloaded of the update, this will only be available
+         * after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 需要下载或者更新的总字节数
+         */
+        getTotalBytes(): number;
+        /**
+         * @en Gets the current downloaded byte size of the update, this will only be available
+         * after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 已下载的字节数
+         */
+        getDownloadedBytes(): number;
+        /**
+         * @en Gets the total files count to be downloaded of the update, this will only be available
+         *  after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 需要下载的总的文件数目
+         */
+        getTotalFiles(): number;
+        /**
+         * @en Gets the current downloaded files count of the update, this will only be available
+         *  after READY_TO_UPDATE state, under unknown states it will return 0 by default.
+         * @zh 已下载的文件数目
+         */
+        getDownloadedFiles(): number;
+        /**
+         * @en Function for retrieving the max concurrent task count
+         * @zh 下载的最大并发数
+         */
+        getMaxConcurrentTask(): number;
+        /**
+         * @en Function for setting the max concurrent task count
+         * @zh 设置下载的最大并发数目
+         */
+        setMaxConcurrentTask(max: number): void;
+        /**
+         * @en Set the handle function for comparing manifests versions
+         * @zh 设置版本比对函数
+         *
+         * @param handle  @en  The compare function @zh 比较函数
+         */
+        setVersionCompareHandle(handle: (arg1: string, arg2: string) => number): void;
+        /**
+         * @en Set the verification function for checking whether downloaded asset is correct, e.g. using md5 verification
+         * @zh 设置内容校验函数
+         * @param callback  @en The verify callback function @zh 校验函数
+         */
+        setVerifyCallback(callback: (arg1: string, arg: ManifestAsset) => boolean): void;
+        /**
+         * @en Set the event callback for receiving update process events
+         * @zh 设置更新事件处理回调
+         * @param callback @en The event callback function @zh 事件处理回调
+         */
+        setEventCallback(callback: (arg: EventAssetsManager) => void): void;
+    }
+
+    export namespace AssetsManager {
+        export enum State {
+            UNINITED,
+            UNCHECKED,
+            PREDOWNLOAD_VERSION,
+            DOWNLOADING_VERSION,
+            VERSION_LOADED,
+            PREDOWNLOAD_MANIFEST,
+            DOWNLOADING_MANIFEST,
+            MANIFEST_LOADED,
+            NEED_UPDATE,
+            READY_TO_UPDATE,
+            UPDATING,
+            UNZIPPING,
+            UP_TO_DATE,
+            FAIL_TO_UPDATE,
+        }
+    }
 
     /**
      * @en DownloaderHints @zh 下载任务的配置接口
@@ -84,7 +403,7 @@ export declare namespace native {
          * let downloader = new native.Downloader(hints); // create a Downloader object with DownloaderHints
          * ```
          */
-        constructor (hints: DownloaderHints);
+        constructor(hints: DownloaderHints);
 
         /**
          * @en create a download task. The maximum size for a single download file is 4GB.
@@ -98,7 +417,7 @@ export declare namespace native {
          * let task = downloader.createDownloadTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
          * ```
          */
-        createDownloadTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
+        createDownloadTask(requestURL: string, storagePath: string, identifier?: string): DownloaderTask;
 
         /**
          * @en setter for the callback function after download success
@@ -161,7 +480,7 @@ export declare namespace native {
          * let task = downloader.createDownloadFileTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
          * ```
          */
-        createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
+        createDownloadFileTask(requestURL: string, storagePath: string, identifier?: string): DownloaderTask;
 
         /**
          * @deprecated since v3.6.0, please use setter `onSuccess` to instead.
@@ -176,7 +495,7 @@ export declare namespace native {
          * });
          * ```
          */
-        setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
+        setOnFileTaskSuccess(onSucceed: (task: DownloaderTask) => void): void;
 
         /**
          * @deprecated since v3.6.0, please use setter `onProgress` to instead.
@@ -192,7 +511,7 @@ export declare namespace native {
          * });
          * ```
          */
-        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
+        setOnTaskProgress(onProgress: (task: DownloaderTask, bytesReceived: number,
             totalBytesReceived: number, totalBytesExpected: number) => void): void;
         /**
          * @deprecated since v3.6.0, please use setter `onError` to instead.
@@ -207,14 +526,14 @@ export declare namespace native {
          * });
          * ```
         */
-        setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
+        setOnTaskError(onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
 
     /**
      * @en ZipUtils  Helper class to handle unzip related operations.
      * @zh ZipUtils  对解压操作的辅助类。
      */
-    export namespace zipUtils{
+    export namespace zipUtils {
         /**
          * @en
          * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
@@ -230,7 +549,7 @@ export declare namespace native {
          *
          * @return @en The deflated buffer. @zh 解压后的数据缓存区
          */
-        export function inflateMemory(input:string | ArrayBuffer | TypedArray, outLengthHint?: number): ArrayBuffer | null;
+        export function inflateMemory(input: string | ArrayBuffer | TypedArray, outLengthHint?: number): ArrayBuffer | null;
 
         /**
          * @en Inflates a GZip file into memory.
@@ -240,7 +559,7 @@ export declare namespace native {
          *
          * @return @en The deflated buffer. @zh 解压后的数据缓存区
          */
-        export function inflateGZipFile(path:string): ArrayBuffer | null;
+        export function inflateGZipFile(path: string): ArrayBuffer | null;
 
         /**
          * @en Test a file is a GZip format file or not.
@@ -250,7 +569,7 @@ export declare namespace native {
          *
          * @return @en True is a GZip format file. false is not. @zh true GZip 格式文件，否则不是。
          */
-        export function isGZipFile(path:string): boolean;
+        export function isGZipFile(path: string): boolean;
 
         /**
          * @en Test the buffer is GZip format or not.
@@ -260,7 +579,7 @@ export declare namespace native {
          *
          * @return @en True is GZip format. false is not. @zh 返回true表示是 GZip 格式，否则不是。
          */
-        export function isGZipBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
+        export function isGZipBuffer(buffer: string | ArrayBuffer | TypedArray): boolean;
 
         /**
          * @en Inflates a CCZ file into memory.
@@ -269,7 +588,7 @@ export declare namespace native {
          * @param path @en The CCZ file path. @zh CCZ 文件的路径
          * @return @en The deflated buffer. @zh 解压后的数据缓存区
          */
-        export function inflateCCZFile(path:string): ArrayBuffer | null;
+        export function inflateCCZFile(path: string): ArrayBuffer | null;
 
         /**
          * @en Inflates a buffer with CCZ format into memory.
@@ -279,7 +598,7 @@ export declare namespace native {
          *
          * @return @en The deflated buffer. @zh 解压后的数据缓存区
          */
-        export function inflateCCZBuffer(buffer:string | ArrayBuffer | TypedArray): ArrayBuffer | null;
+        export function inflateCCZBuffer(buffer: string | ArrayBuffer | TypedArray): ArrayBuffer | null;
 
         /**
          * @en Test a file is a CCZ format file or not.
@@ -287,7 +606,7 @@ export declare namespace native {
          *
          * @return @en True is a CCZ format file. false is not. @zh 返回true表示是 CCZ 格式，否则不是。
          */
-        export function isCCZFile(path:string): boolean;
+        export function isCCZFile(path: string): boolean;
 
         /**
          * @en Test the buffer is CCZ format or not.
@@ -297,7 +616,7 @@ export declare namespace native {
          *
          * @return @en True is CCZ format. false is not. @zh 返回true表示是 CCZ 格式，否则不是。
          */
-        export function isCCZBuffer(buffer:string | ArrayBuffer | TypedArray): boolean;
+        export function isCCZBuffer(buffer: string | ArrayBuffer | TypedArray): boolean;
 
         /**
          * @en
@@ -342,7 +661,7 @@ export declare namespace native {
          * @param index @en Part of the key [0..3]. @zh 密钥[0..3]的部分。
          * @param value @en Value of the key part. @zh 密钥部分的值。
          */
-        export function setPvrEncryptionKeyPart(index:number, value:number): void;
+        export function setPvrEncryptionKeyPart(index: number, value: number): void;
 
         /**
          * @en
@@ -374,7 +693,7 @@ export declare namespace native {
          * @param keyPart3 @en The key value part 3. @zh 密钥部分 3 的值。
          * @param keyPart4 @en The key value part 4. @zh 密钥部分 4 的值。
          */
-        export function setPvrEncryptionKey(keyPart1:number, keyPart2:number, keyPart3:number, keyPart4:number): void;
+        export function setPvrEncryptionKey(keyPart1: number, keyPart2: number, keyPart3: number, keyPart4: number): void;
     }
 
     /**
@@ -393,7 +712,7 @@ export declare namespace native {
          *  @param path The path that needs to be checked.
          *  @return True if it's an absolute path, false if not.
          */
-        export function isAbsolutePath (path:string):boolean;
+        export function isAbsolutePath(path: string): boolean;
         /**
          *  @en
          *  Returns the fullpath for a given filename.
@@ -443,7 +762,7 @@ export declare namespace native {
         *  通过文件名获取绝对路径
         *  @since v2.1
         */
-        export function fullPathForFilename (filename:string):string;
+        export function fullPathForFilename(filename: string): string;
         /**
          *
          *  @en
@@ -453,7 +772,7 @@ export declare namespace native {
          *  读取文件里的字符串
          *
          */
-        export function getStringFromFile (filename:string):string;
+        export function getStringFromFile(filename: string): string;
         /**
          *  @en
          *  Removes a file.
@@ -464,7 +783,7 @@ export declare namespace native {
          *  @param filepath The full path of the file, it must be an absolute path.
          *  @return True if the file have been removed successfully, false if not.
          */
-        export function removeFile (filepath:string):boolean;
+        export function removeFile(filepath: string): boolean;
         /**
          *  @en
          *  Checks whether the path is a directory.
@@ -475,7 +794,7 @@ export declare namespace native {
          *  @param dirPath The path of the directory, it could be a relative or an absolute path.
          *  @return True if the directory exists, false if not.
          */
-        export function isDirectoryExist (dirPath:string):boolean;
+        export function isDirectoryExist(dirPath: string): boolean;
         /**
          *  @en
          *  Normalize: remove . and ..
@@ -485,7 +804,7 @@ export declare namespace native {
          *
          * @param filepath
          */
-        export function normalizePath (filepath:string):string;
+        export function normalizePath(filepath: string): string;
         /**
          *  @en
          *  Gets the array of search paths.
@@ -494,7 +813,7 @@ export declare namespace native {
          *  获取默认资源根路径
          *
          */
-        export function getDefaultResourceRootPath ():string;
+        export function getDefaultResourceRootPath(): string;
 
         /**
          *  @en
@@ -505,7 +824,7 @@ export declare namespace native {
          *  将文件的内容转换为 ValueVector
          *  这个方法是内部使用的
          */
-        export function getValueVectorFromFile (filepath:string):Array<any>;
+        export function getValueVectorFromFile(filepath: string): Array<any>;
         /**
          *  @en
          *  Gets the array of search paths.
@@ -520,7 +839,7 @@ export declare namespace native {
          *  @see fullPathForFilename (const char*).
          *  @lua NA
          */
-        export function getSearchPaths ():Array<string>;
+        export function getSearchPaths(): Array<string>;
         /**
          *  @en
          *  Get the directory where the file is located by the file path.
@@ -529,7 +848,7 @@ export declare namespace native {
          *  通过文件路径获取文件所在目录
          * @param filepath
          */
-        export function getFileDir (filepath:string):string;
+        export function getFileDir(filepath: string): string;
         /**
          *  @en
          *  write a ValueMap into a plist file.
@@ -540,7 +859,7 @@ export declare namespace native {
          *  @param dict the ValueMap want to save (key,value)
          *  @return bool
          */
-        export function writeToFile (valueMap:any):boolean;
+        export function writeToFile(valueMap: any): boolean;
         /**
          *  @en
          *  Gets the original search path array set by 'setSearchPaths' or 'addSearchPath'.
@@ -550,7 +869,7 @@ export declare namespace native {
          *
          *  @return The array of the original search paths
          */
-        export function getOriginalSearchPaths ():Array<string>;
+        export function getOriginalSearchPaths(): Array<string>;
         /**
          *  @en
          *  List all files in a directory
@@ -561,7 +880,7 @@ export declare namespace native {
          *  @param dirPath The path of the directory, it could be a relative or an absolute path.
          *  @return File paths in a string vector
          */
-        export function listFiles (filepath:string):Array<string>;
+        export function listFiles(filepath: string): Array<string>;
         /**
          *  @en
          *  Converts the contents of a file to a ValueMap.
@@ -573,7 +892,7 @@ export declare namespace native {
          *  @return ValueMap of the file contents.
          *  @note This method is used internally.
          */
-        export function getValueMapFromFile (filepath:string):any;
+        export function getValueMapFromFile(filepath: string): any;
         /**
          *  @en
          *  Retrieve the file size.
@@ -584,7 +903,7 @@ export declare namespace native {
          *  @param filepath The path of the file, it could be a relative or absolute path.
          *  @return The file size.
          */
-        export function getFileSize (filepath:string):number;
+        export function getFileSize(filepath: string): number;
 
         /**
          *  @en
@@ -596,7 +915,7 @@ export declare namespace native {
          *  这个方法是内部使用的
          *
          */
-        export function getValueMapFromData (filedata:string, filesize:number):any;
+        export function getValueMapFromData(filedata: string, filesize: number): any;
         /**
          *
          *  @en
@@ -608,7 +927,7 @@ export declare namespace native {
          *  @param dirPath  The full path of the directory, it must be an absolute path.
          *  @return True if the directory have been removed successfully, false if not.
          */
-        export function removeDirectory (dirPath:string):boolean;
+        export function removeDirectory(dirPath: string): boolean;
         /**
          *  @en
          *  Sets the array of search paths.
@@ -632,7 +951,7 @@ export declare namespace native {
          *  In js:var setSearchPaths(var jsval);
          *  @lua NA
          */
-        export function setSearchPaths (searchPath:Array<string>):void;
+        export function setSearchPaths(searchPath: Array<string>): void;
         /**
          *  @en
          *  write a string into a file.
@@ -644,7 +963,7 @@ export declare namespace native {
          * @param fullPath The full path to the file you want to save a string
          * @return bool True if write success
          */
-        export function writeStringToFile (dataStr:string, fullPath:string):boolean;
+        export function writeStringToFile(dataStr: string, fullPath: string): boolean;
 
         /**
          *  @en
@@ -655,7 +974,7 @@ export declare namespace native {
          *
          * @since v2.1
          */
-        export function addSearchPath (path:string, front:boolean):void;
+        export function addSearchPath(path: string, front: boolean): void;
         /**
          *
          *  @en
@@ -668,7 +987,7 @@ export declare namespace native {
         *@param fullPath The full path to the file you want to save a string
         *@return bool
         */
-        export function writeValueVectorToFile (vecData:Array<any>, fullPath:string):boolean;
+        export function writeValueVectorToFile(vecData: Array<any>, fullPath: string): boolean;
         /**
          *  @en
          *  Checks whether a file exists.
@@ -680,7 +999,7 @@ export declare namespace native {
          *  @param filename The path of the file, it could be a relative or absolute path.
          *  @return True if the file exists, false if not.
          */
-        export function isFileExist (filename:string):boolean;
+        export function isFileExist(filename: string): boolean;
         /**
          *
          *  @en
@@ -689,7 +1008,7 @@ export declare namespace native {
          *  @zh
          *  清除路径缓存
          */
-        export function purgeCachedEntries ():void;
+        export function purgeCachedEntries(): void;
         /**
          *  @en
          *  Gets full path from a file name and the path of the relative file.
@@ -704,7 +1023,7 @@ export declare namespace native {
          *               Return: /User/path1/path2/hello.pvr (If there a a key(hello.png)-value(hello.pvr) in FilenameLookup dictionary. )
          *
          */
-        export function fullPathFromRelativeFile (filename:string, relativeFile:string):string;
+        export function fullPathFromRelativeFile(filename: string, relativeFile: string): string;
         /**
          *  @en
          *  Windows fopen can't support UTF-8 filename
@@ -716,7 +1035,7 @@ export declare namespace native {
          *  @param filenameUtf8 std::string name file for conversion from utf-8
          *  @return std::string ansi filename in current locale
          */
-        export function getSuitableFOpen (filenameUtf8:string):string;
+        export function getSuitableFOpen(filenameUtf8: string): string;
         /**
          *
          *  @en
@@ -728,7 +1047,7 @@ export declare namespace native {
          *  @param fullPath The full path to the file you want to save a string
          *  @return bool
          */
-        export function writeValueMapToFile (dict:any, fullPath:string):string;
+        export function writeValueMapToFile(dict: any, fullPath: string): string;
         /**
          *  @en
          *  Gets filename extension is a suffix (separated from the base filename by a dot) in lower case.
@@ -740,7 +1059,7 @@ export declare namespace native {
          *  @param filePath The path of the file, it could be a relative or absolute path.
          *  @return suffix for filename in lower case or empty if a dot not found.
          */
-        export function getFileExtension (filePath:string):string;
+        export function getFileExtension(filePath: string): string;
         /**
          *  @en
          *  Sets writable path.
@@ -750,7 +1069,7 @@ export declare namespace native {
          *
          *  @param writablePath The path of the directory.
          */
-        export function setWritablePath (writablePath:string):void;
+        export function setWritablePath(writablePath: string): void;
         /**
          *  @en
          *  Set default resource root path.
@@ -760,7 +1079,7 @@ export declare namespace native {
          *
          *  @param dirPath The path of the directory.
          */
-        export function setDefaultResourceRootPath (dirPath:string):void;
+        export function setDefaultResourceRootPath(dirPath: string): void;
 
         /**
          *  @en
@@ -772,7 +1091,7 @@ export declare namespace native {
          *  @param dirPath The path of the directory, it must be an absolute path.
          *  @return True if the directory have been created successfully, false if not.
          */
-        export function createDirectory (dirPath:string):string;
+        export function createDirectory(dirPath: string): string;
         /**
          *  @en
          *  List all files recursively in a directory.
@@ -783,12 +1102,12 @@ export declare namespace native {
          *  @param dirPath The path of the directory, it could be a relative or an absolute path.
          *  @return File paths in a string vector
          */
-        export function listFilesRecursively (dirPath:string, files:Array<string>):void;
+        export function listFilesRecursively(dirPath: string, files: Array<string>): void;
         /**
          *  Gets the writable path.
          *  @return  The path that can be write/read a file in
          */
-        export function getWritablePath():string;
+        export function getWritablePath(): string;
 
         /**
          *  @en
@@ -801,7 +1120,7 @@ export declare namespace native {
          *  @param newFullPath  The new fullpath of the file. Includes path and name.
          *  @return True if the file have been renamed successfully, false if not.
          */
-        export function renameFile(oldFullpath: string, newFullPath: string):boolean;
+        export function renameFile(oldFullpath: string, newFullPath: string): boolean;
 
         /**
          *  @en
@@ -813,7 +1132,7 @@ export declare namespace native {
          *  @param fullpath The current fullpath of the file. Includes path and name.
          *  @return A data object.
          */
-        export function getDataFromFile(fullpath: string):ArrayBuffer;
+        export function getDataFromFile(fullpath: string): ArrayBuffer;
 
         /**
          *  @en
@@ -826,7 +1145,7 @@ export declare namespace native {
          *  @param fullpath The full path to the file you want to save a string
          *  @return bool
          */
-        export function writeDataToFile(buffer: ArrayBuffer, fullpath: string):boolean;
+        export function writeDataToFile(buffer: ArrayBuffer, fullpath: string): boolean;
     }
 
     /**
@@ -868,7 +1187,7 @@ export declare namespace native {
          * @param screenPos @en the output screen position @zh 输出的屏幕位置
          * @param info @en the output text information @zh 输出的文本属性
          */
-        addText(text:string, screenPos: Vec2, info?: DebugTextInfo): void;
+        addText(text: string, screenPos: Vec2, info?: DebugTextInfo): void;
     }
 
     export namespace reflection {
@@ -882,7 +1201,7 @@ export declare namespace native {
          * @param methodSignature : @en the method signature of the Objective-C/Java class @zh Objective-C/Java 方法签名
          * @param parameters : @en the parameters of the Objective-C/Java class to translate @zh 传递至该 Objective-C/Java 方法的参数
          */
-        export function callStaticMethod (methodName: string, methodSignature: string, ...parameters:any): any;
+        export function callStaticMethod(className: string, methodName: string, methodSignature: string, ...parameters: any): any;
     }
 
     /**
@@ -937,7 +1256,7 @@ export declare namespace native {
          * @param arg0 : @en the first parameter @zh 第一个参数
          * @param arg1 : @en the second parameter @zh 第二个参数
          */
-        export function onNative(arg0: string, arg1?: string|null): void;
+        export function onNative(arg0: string, arg1?: string | null): void;
     }
     /**
      * @en

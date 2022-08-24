@@ -81,7 +81,8 @@ jobs:
         id: run_test_cases
         run: |
           cd ..
-          python3 -u ./python/main.py ${{ steps.parse_pr.outputs.pr_base_ref }}
+          python3 -u ./python/main.py --workspace ${{github.workspace}} --pr_number ${{ steps.get_pr.outputs.pr_number }} --author ${{ steps.parse_pr.outputs.pr_author }}  --base_ref ${{ steps.parse_pr.outputs.pr_base_ref }}  --base_sha  ${{ steps.parse_pr.outputs.pr_base_sha }}  --head_ref  ${{ steps.parse_pr.outputs.pr_head_ref }} --head_sha ${{ steps.parse_pr.outputs.pr_head_sha }}
+
       - name: Update Comment
         uses: peter-evans/create-or-update-comment@v1
         with:
@@ -89,10 +90,13 @@ jobs:
           body: |
             @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
             - Test Platform: Windows
+            - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
             - Task Result: ${{ steps.run_test_cases.outputs.task }}
             - Task URL: ${{ steps.run_test_cases.outputs.url }}
-            - Task Details: ${{ steps.run_test_cases.outputs.msg }}
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
+            ## Task Details
+            ${{ steps.run_test_cases.outputs.report }}
+  
   macOS-RunTestCases:
     if: |
       contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
@@ -164,7 +168,8 @@ jobs:
         id: run_test_cases
         run: |
           cd ..
-          python3 -u ./python/main.py ${{ steps.parse_pr.outputs.pr_base_ref }}
+          python3 -u ./python/main.py --workspace ${{github.workspace}} --pr_number ${{ steps.get_pr.outputs.pr_number }} --author ${{ steps.parse_pr.outputs.pr_author }}  --base_ref ${{ steps.parse_pr.outputs.pr_base_ref }}  --base_sha  ${{ steps.parse_pr.outputs.pr_base_sha }}  --head_ref  ${{ steps.parse_pr.outputs.pr_head_ref }} --head_sha ${{ steps.parse_pr.outputs.pr_head_sha }}
+
       - name: Update Comment
         uses: peter-evans/create-or-update-comment@v1
         with:
@@ -172,7 +177,9 @@ jobs:
           body: |
             @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
             - Test Platform: macOS
+            - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
             - Task Result: ${{ steps.run_test_cases.outputs.task }}
             - Task URL: ${{ steps.run_test_cases.outputs.url }}
-            - Task Details: ${{ steps.run_test_cases.outputs.msg }}
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
+            ## Task Details
+            ${{ steps.run_test_cases.outputs.report }}

@@ -35,6 +35,7 @@ ccenum(TextureUsageBit);
 ccenum(StoreOp);
 ccenum(LoadOp);
 ccenum(AccessFlagBit);
+ccenum(Format);
 
 /**
  * @en The tag of the render flow, including SCENE, POSTPROCESS and UI.

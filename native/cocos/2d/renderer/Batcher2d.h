@@ -67,6 +67,10 @@ public:
     void walk(Node* node, float parentOpacity);
     void handlePostRender(RenderEntity* entity);
     void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
+    void handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
+    void handleModelDraw(RenderEntity* entity, RenderDrawInfo* drawInfo);
+    void handleIADraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
+    void handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 
@@ -161,7 +165,6 @@ private:
     Material* _currMaterial{nullptr};
     // weak reference
     gfx::Texture* _currTexture{nullptr};
-    ccstd::hash_t _currTextureHash{0};
     // weak reference
     gfx::Sampler* _currSampler{nullptr};
     ccstd::hash_t _currSamplerHash{0};

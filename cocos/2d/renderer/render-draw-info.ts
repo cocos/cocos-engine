@@ -25,7 +25,6 @@ export enum AttrUInt32ArrayView {
     IndexOffset,
     VBCount,
     IBCount,
-    TextureHash,
     DataHash,
     Count
 }
@@ -34,6 +33,7 @@ export enum RenderDrawInfoType {
     COMP,
     MODEL,
     IA,
+    SUB_NODE,
 }
 
 export class RenderDrawInfo {
@@ -50,11 +50,11 @@ export class RenderDrawInfo {
     protected _ibCount = 0;
     protected _dataHash = 0;
     protected _isMeshBuffer = false;
-    protected _textureHash = 0;
     protected _material: Material | null = null;
     protected _texture: Texture | null = null;
     protected _sampler: Sampler | null = null;
     protected _stride = 0;
+    protected _useLocal = false;
 
     protected _model: Model | null = null;
     protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
@@ -106,10 +106,12 @@ export class RenderDrawInfo {
     }
 
     public setAccId (accId) {
-        this._accId = accId;
         if (JSB) {
-            this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
+            if (this._accId !== accId) {
+                this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
+            }
         }
+        this._accId = accId;
     }
 
     public setBufferId (bufferId) {
@@ -120,6 +122,18 @@ export class RenderDrawInfo {
             }
         }
         this._bufferId = bufferId;
+    }
+
+    public setAccAndBuffer (accId, bufferId) {
+        if (JSB) {
+            if (this._accId !== accId || this._bufferId !== bufferId) {
+                this._uint16SharedBuffer[AttrUInt16ArrayView.AccessorID] = accId;
+                this._uint16SharedBuffer[AttrUInt16ArrayView.BufferID] = bufferId;
+                this._nativeObj.changeMeshBuffer();
+            }
+        }
+        this._bufferId = bufferId;
+        this._accId = accId;
     }
 
     public setVertexOffset (vertexOffset) {
@@ -212,13 +226,6 @@ export class RenderDrawInfo {
         this._texture = texture;
     }
 
-    public setTextureHash (textureHash: number) {
-        if (JSB) {
-            this._uint32SharedBuffer[AttrUInt32ArrayView.TextureHash] = textureHash;
-        }
-        this._textureHash = textureHash;
-    }
-
     public setSampler (sampler: Sampler | null) {
         if (JSB) {
             if (this._sampler !== sampler) {
@@ -273,27 +280,12 @@ export class RenderDrawInfo {
             const fillLength = Math.min(this._vbCount, vertexDataArr.length);
             let bufferOffset = 0;
             for (let i = 0; i < fillLength; i++) {
-                this.updateVertexBuffer(bufferOffset, vertexDataArr[i]);
+                const temp = vertexDataArr[i];
+                this._render2dBuffer[bufferOffset] = temp.x;
+                this._render2dBuffer[bufferOffset + 1] = temp.y;
+                this._render2dBuffer[bufferOffset + 2] = temp.z;
                 bufferOffset += this._stride;
             }
-        }
-    }
-
-    public updateVertexBuffer (bufferOffset: number, vertexData: IRenderData) {
-        if (JSB) {
-            if (bufferOffset >= this.render2dBuffer.length) {
-                return;
-            }
-            const temp: IRenderData = vertexData;
-            this._render2dBuffer[bufferOffset++] = temp.x;
-            this._render2dBuffer[bufferOffset++] = temp.y;
-            this._render2dBuffer[bufferOffset++] = temp.z;
-            this._render2dBuffer[bufferOffset++] = temp.u;
-            this._render2dBuffer[bufferOffset++] = temp.v;
-            this._render2dBuffer[bufferOffset++] = temp.color.r;
-            this._render2dBuffer[bufferOffset++] = temp.color.g;
-            this._render2dBuffer[bufferOffset++] = temp.color.b;
-            this._render2dBuffer[bufferOffset++] = temp.color.a;
         }
     }
 }

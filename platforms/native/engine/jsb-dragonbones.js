@@ -334,7 +334,7 @@ const cacheManager = require('./jsb-cache-manager');
     ////////////////////////////////////////////////////////////
     // override ArmatureDisplay
     ////////////////////////////////////////////////////////////
-    const superProto = cc.internal.Renderable2D.prototype;
+    const superProto = cc.internal.UIRenderer.prototype;
     const armatureDisplayProto = cc.internal.ArmatureDisplay.prototype;
     const AnimationCacheMode = cc.internal.ArmatureDisplay.AnimationCacheMode;
     const armatureSystem = cc.internal.ArmatureSystem;
@@ -778,12 +778,11 @@ const cacheManager = require('./jsb-cache-manager');
 
             const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
             const drawInfo = this.requestDrawInfo(index);
+            drawInfo.setDrawInfoType(renderData.drawInfoType);
+            drawInfo.setAccAndBuffer(renderData.accessor.id, renderData.chunk.bufferId);
             drawInfo.setTexture(realTexture.getGFXTexture());
-            drawInfo.setTextureHash(realTexture.getHash());
             drawInfo.setSampler(realTexture.getGFXSampler());
             drawInfo.setMaterial(this.material);
-            renderData.fillDrawInfoAttributes(drawInfo);
-
             drawInfo.setIndexOffset(_tempIndicesOffset);
             drawInfo.setIBCount(_tempIndicesCount);
 

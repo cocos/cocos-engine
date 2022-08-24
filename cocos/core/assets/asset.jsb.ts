@@ -31,6 +31,7 @@ import { createMap } from '../utils/js-typed';
 import { property } from '../data/class-decorator';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { extname } from '../utils/path';
+import { ExtraEventMethods } from '../utils/jsb-utils'
 import '../data/object';
 
 declare const jsb: any;
@@ -41,7 +42,7 @@ declare const jsb: any;
  */
 export type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
-applyMixins(jsb.Asset, [CallbacksInvoker]);
+applyMixins(jsb.Asset, [CallbacksInvoker, ExtraEventMethods]);
 
 const assetProto: any = jsb.Asset.prototype;
 
@@ -112,6 +113,10 @@ assetProto.decRef = function (autoRelease = true): Asset {
         legacyCC.assetManager._releaseManager.tryRelease(this);
     }
     return this;
+};
+
+assetProto.toString = function () {
+    return this.nativeUrl;   
 };
 
 assetProto.createNode = null!;

@@ -59,6 +59,7 @@ export class ModelRenderer extends Renderer {
 
     set priority (val) {
         if (val === this._priority) return;
+        this._priority = val;
         this._updatePriority();
     }
 

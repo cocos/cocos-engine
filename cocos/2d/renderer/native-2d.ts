@@ -40,21 +40,13 @@ export declare class NativeRenderDrawInfo {
 }
 
 export declare class NativeRenderEntity {
-    constructor();
+    constructor(type: number);
 
     addDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo);
     setDynamicRenderDrawInfo(drawInfo: NativeRenderDrawInfo, index: number);
     removeDynamicRenderDrawInfo();
     clearDynamicRenderDrawInfos();
-
-    get isMask(): boolean;
-    set isMask(val: boolean);
-
-    get isSubMask(): boolean;
-    set isSubMask(val: boolean);
-
-    get isMaskInverted(): boolean;
-    set isMaskInverted(val: boolean);
+    clearStaticRenderDrawInfos();
 
     get node(): Node | null;
     set node(node: Node | null);
@@ -65,7 +57,6 @@ export declare class NativeRenderEntity {
     get staticDrawInfoSize(): number;
     set staticDrawInfoSize(size: number);
 
-    setRenderEntityType(type: number);
     getStaticRenderDrawInfo(index: number): NativeRenderDrawInfo;
     getEntitySharedBufferForJS(): ArrayBufferLike;
 }
@@ -75,6 +66,8 @@ export declare class NativeUIMeshBuffer {
     set vData(val: Float32Array);
     get iData(): Uint16Array;
     set iData(val: Uint16Array);
+    get useLinkData(): boolean;
+    set useLinkData(val: boolean);
 
     syncSharedBufferToNative(data: TypedArray);
 
@@ -97,10 +90,11 @@ export declare class NativeBatcher2d {
 
 export declare class NativeUIModelProxy {
     initModel(node);
-    activeSubModel(index: number);
+    activeSubModels();
     uploadData();
     destroy();
     clear();
+    getModel(): Model;
     updateModels(model);
     attachDrawInfo();
     attachNode(node);

@@ -466,7 +466,9 @@ private:
     #if JSB_TRACK_OBJECT_CREATION
     ccstd::string _objectCreationStackFrame;
     #endif
+
     friend class ScriptEngine;
+    friend class JSBPersistentHandleVisitor;
 };
 // NOLINTNEXTLINE
 extern std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
