@@ -137,9 +137,9 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @readOnly
      */
     @editable
-    get children (): ReadonlyArray<Node[]> {
+    get children (): ReadonlyArray<Node> {
         // @ts-expect-error force cast
-        return this._children as ReadonlyArray<Node[]>;
+        return this._children as ReadonlyArray<Node>;
     }
 
     /**
