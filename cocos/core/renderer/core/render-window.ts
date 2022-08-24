@@ -244,10 +244,7 @@ export class RenderWindow {
                 return;
             }
         }
-        const windows = legacyCC.director.root.windows;
-        if (!windows.includes(this)) {
-            windows.push(this);
-        }
+        legacyCC.director.root.attachWindow(this);
         this._cameras.push(camera);
         this.sortCameras();
     }
@@ -268,9 +265,7 @@ export class RenderWindow {
     }
 
     private _detachFromRoot () {
-        const windows = legacyCC.director.root.windows;
-        const idx = windows.indexOf(this);
-        if (idx !== -1) windows.splice(idx, 1);
+        legacyCC.director.root.detachWindow(this);
     }
 
     /**

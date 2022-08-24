@@ -159,6 +159,9 @@ public:
     }
 
     void destroyLight(scene::Light *light);
+    void detachWindow(scene::RenderWindow *window);
+    
+    void attachWindow(scene::RenderWindow *window);
 
     scene::Camera *createCamera() const;
     /**

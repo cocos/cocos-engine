@@ -535,10 +535,31 @@ export class Root {
      */
     public destroyWindow (window: RenderWindow) {
         if (this._windows.includes(window)) {
-            const idx = this._windows.indexOf(window);
             window.destroy();
-            this._windows.splice(idx, 1);
+            this.detachWindow(window);
         }
+    }
+
+    /**
+    * @en Attach a render window
+    * @zh 添加指定的窗口
+    * @param window The render window to be attached
+    */
+    public attachWindow (window: RenderWindow) {
+        if (!this._windows.includes(window)) {
+            this._windows.push(window);
+        }
+    }
+
+    /**
+    * @en Detach a render window
+    * @zh 移除指定的窗口
+    * @param window The render window to be detached
+    */
+    public detachWindow (window: RenderWindow) {
+        const windows = this._windows;
+        const idx = windows.indexOf(window);
+        if (idx !== -1) windows.splice(idx, 1);
     }
 
     /**

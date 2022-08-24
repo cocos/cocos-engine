@@ -416,7 +416,6 @@ scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {
     IntrusivePtr<scene::RenderWindow> window = ccnew scene::RenderWindow();
 
     window->initialize(_device, info);
-    _windows.emplace_back(window);
     return window;
 }
 
@@ -476,6 +475,26 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
         }
     }
     light->destroy();
+}
+
+void Root::detachWindow(scene::RenderWindow *window) {
+    if(window == nullptr) {
+        return;
+    }
+    auto it = std::find(_windows.begin(), _windows.end(), window);
+    if (it != _windows.end()) {
+         _windows.erase(it);
+    }
+}
+
+void Root::attachWindow(scene::RenderWindow *window) {
+    if(window == nullptr) {
+        return;
+    }
+    auto it = std::find(_windows.begin(), _windows.end(), window);
+    if (it == _windows.end()) {
+         _windows.emplace_back(window);
+    }
 }
 
 scene::Camera *Root::createCamera() const {

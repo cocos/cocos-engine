@@ -30,6 +30,7 @@
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/gfx-base/GFXTexture.h"
 #include "scene/Camera.h"
+#include "core/Root.h"
 
 namespace cc {
 namespace scene {
@@ -147,6 +148,7 @@ void RenderWindow::attachCamera(Camera *camera) {
     for (Camera *cam : _cameras) {
         if (cam == camera) return;
     }
+    Root::getInstance()->attachWindow(this);
     _cameras.emplace_back(camera);
     sortCameras();
 }
@@ -155,16 +157,15 @@ void RenderWindow::detachCamera(Camera *camera) {
     for (auto it = _cameras.begin(); it != _cameras.end(); ++it) {
         if (*it == camera) {
             _cameras.erase(it);
+            if(_cameras.empty()) Root::getInstance()->detachWindow(this);
             return;
         }
     }
 }
 
 void RenderWindow::clearCameras() {
-    for (Camera *camera : _cameras) {
-        CC_SAFE_DESTROY(camera);
-    }
     _cameras.clear();
+    Root::getInstance()->detachWindow(this);
 }
 
 void RenderWindow::sortCameras() {
