@@ -252,6 +252,10 @@ module.exports = {
                     name: 'Depth-Write If Blending',
                     title: 'Enable depth-write if the alpha mode is set to "BLEND". ',
                 },
+                ignoreOriginalImageLocation: {
+                    name: 'Ignore Original Image Location',
+                    title: 'If enabled, ignore the image location recorded in model file and only search for image with same name within project',
+                },
                 skipValidation: {
                     name: 'Skip Validation',
                     title: 'Skip validation of the model file.',

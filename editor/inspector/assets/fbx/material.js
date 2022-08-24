@@ -20,6 +20,10 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.depthWriteInAlphaModeBlend.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.depthWriteInAlphaModeBlend.title"></ui-label>
         <ui-checkbox slot="content" class="depthWriteInAlphaModeBlend-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.ignoreOriginalImageLocation.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.ignoreOriginalImageLocation.title"></ui-label>
+        <ui-checkbox slot="content" class="ignoreOriginalImageLocation-checkbox"></ui-checkbox>
+    </ui-prop>
     <div class="images"></div>
 </div>
 `;
@@ -61,6 +65,7 @@ exports.$ = {
     materialDumpDirFile: '.materialDumpDir-file',
     useVertexColorsCheckbox: '.useVertexColors-checkbox',
     depthWriteInAlphaModeBlendCheckbox: '.depthWriteInAlphaModeBlend-checkbox',
+    ignoreOriginalImageLocationCheckbox: '.ignoreOriginalImageLocation-checkbox',
     images: '.images',
 };
 
@@ -171,6 +176,21 @@ const Elements = {
 
             panel.updateInvalid(panel.$.depthWriteInAlphaModeBlendCheckbox, 'depthWriteInAlphaModeBlend');
             panel.updateReadonly(panel.$.depthWriteInAlphaModeBlendCheckbox);
+        },
+    },
+    ignoreOriginalImageLocation: {
+        ready() {
+            const panel = this;
+
+            panel.$.ignoreOriginalImageLocationCheckbox.addEventListener('change', panel.setProp.bind(panel, 'ignoreOriginalImageLocation'));
+        },
+        update() {
+            const panel = this;
+
+            panel.$.ignoreOriginalImageLocationCheckbox.value = panel.getDefault(panel.meta.userData.ignoreOriginalImageLocation, true);
+
+            panel.updateInvalid(panel.$.ignoreOriginalImageLocationCheckbox, 'ignoreOriginalImageLocation');
+            panel.updateReadonly(panel.$.ignoreOriginalImageLocationCheckbox);
         },
     },
     images: {
