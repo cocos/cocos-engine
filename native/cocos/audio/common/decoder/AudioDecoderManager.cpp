@@ -24,66 +24,46 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "audio/oalsoft/AudioDecoder.h"
-#include <stdint.h>
-#include <string.h>
-#include "audio/oalsoft/AudioMacros.h"
-#include "platform/FileUtils.h"
+#define LOG_TAG "AudioDecoderManager"
 
-#ifdef LOG_TAG
-    #undef LOG_TAG
-#endif
-#define LOG_TAG "AudioDecoder"
+#include "audio/common/decoder/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoderMp3.h"
+#include "audio/common/decoder/AudioDecoderOgg.h"
+#include "audio/common/decoder/AudioDecoderWav.h"
+#include "audio/include/AudioMacros.h"
+#include "base/memory/Memory.h"
+#include "platform/FileUtils.h"
 
 namespace cc {
 
-AudioDecoder::AudioDecoder()
-: _isOpened(false) {}
-
-AudioDecoder::~AudioDecoder() {
+bool AudioDecoderManager::init() {
+    return true;
 }
 
-bool AudioDecoder::isOpened() const {
-    return _isOpened;
+void AudioDecoderManager::destroy() {
+    AudioDecoderMp3::destroy();
 }
 
-uint32_t AudioDecoder::readFixedFrames(uint32_t framesToRead, char *pcmBuf) {
-    uint32_t framesRead = 0;
-    uint32_t framesReadOnce = 0;
-    do {
-        framesReadOnce = read(framesToRead - framesRead, pcmBuf + framesRead * _pcmHeader.bytesPerFrame);
-        framesRead += framesReadOnce;
-    } while (framesReadOnce != 0 && framesRead < framesToRead);
-
-    if (framesRead < framesToRead) {
-        memset(pcmBuf + framesRead * _pcmHeader.bytesPerFrame, 0x00, (framesToRead - framesRead) * _pcmHeader.bytesPerFrame);
+AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
+    ccstd::string suffix = FileUtils::getInstance()->getFileExtension(path);
+    if (suffix == ".ogg") {
+        return ccnew AudioDecoderOgg();
     }
 
-    return framesRead;
+    if (suffix == ".mp3") {
+        return ccnew AudioDecoderMp3();
+    }
+#if CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_WINDOWS
+    if (suffix == ".wav") {
+        return ccnew AudioDecoderWav();
+    }
+#endif
+
+    return nullptr;
 }
 
-uint32_t AudioDecoder::getTotalFrames() const {
-    return _pcmHeader.totalFrames;
-}
-
-uint32_t AudioDecoder::getBytesPerFrame() const {
-    return _pcmHeader.bytesPerFrame;
-}
-
-uint32_t AudioDecoder::getSampleRate() const {
-    return _pcmHeader.sampleRate;
-}
-
-uint32_t AudioDecoder::getChannelCount() const {
-    return _pcmHeader.channelCount;
-}
-
-AudioDataFormat AudioDecoder::getDataFormat() const {
-    return _pcmHeader.dataFormat;
-}
-
-PCMHeader AudioDecoder::getPCMHeader() const {
-    return _pcmHeader;
+void AudioDecoderManager::destroyDecoder(AudioDecoder *decoder) {
+    delete decoder;
 }
 
 } // namespace cc

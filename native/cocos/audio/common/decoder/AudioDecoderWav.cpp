@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 #define LOG_TAG "AudioDecoderWav"
 
-#include "audio/oalsoft/AudioDecoderWav.h"
+#include "audio/common/decoder/AudioDecoderWav.h"
 #include "platform/FileUtils.h"
 #include "base/Log.h"
 

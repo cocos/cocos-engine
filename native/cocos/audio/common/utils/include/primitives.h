@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef COCOS_AUDIO_PRIMITIVES_H
-#define COCOS_AUDIO_PRIMITIVES_H
+#pragma once
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <sys/cdefs.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include <sys/types.h>
+    #include "audio/include/AudioMacros.h"
+#endif
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sys/cdefs.h>
-
 __BEGIN_DECLS
 
 /* The memcpy_* conversion routines are designed to work in-place on same dst as src
@@ -929,5 +933,3 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
 }
 
 __END_DECLS
-
-#endif // COCOS_AUDIO_PRIMITIVES_H

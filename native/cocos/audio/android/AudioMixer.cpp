@@ -26,7 +26,7 @@
 #include <sys/types.h>
 
 #include "audio/android/audio.h"
-#include "audio/android/audio_utils/include/audio_utils/primitives.h"
+#include "audio/common/utils/include/primitives.h"
 #include "audio/android/AudioMixerOps.h"
 #include "audio/android/AudioMixer.h"
 #include "base/memory/Memory.h"

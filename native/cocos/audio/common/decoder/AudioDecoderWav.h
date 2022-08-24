@@ -25,8 +25,8 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "audio/oalsoft/AudioDecoder.h"
-#include "audio/oalsoft/tinysndfile.h"
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/common/utils/include/tinysndfile.h"
 
 namespace cc {
 

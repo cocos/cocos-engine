@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "audio/oalsoft/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoder.h"
 
 #include <functional>
 

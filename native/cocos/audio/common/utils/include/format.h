@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <sys/cdefs.h>
+
 #include "audio/android/audio.h"
 
 __BEGIN_DECLS

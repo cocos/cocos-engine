@@ -24,50 +24,66 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#define LOG_TAG "AudioDecoderManager"
-
-#include "audio/oalsoft/AudioDecoderManager.h"
-#include "audio/oalsoft/AudioDecoderMp3.h"
-#include "audio/oalsoft/AudioDecoderOgg.h"
-#if CC_PLATFORM == CC_PLATFORM_OHOS
-#include "audio/android/AudioDecoderWav.h"
-#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
-#include "audio/oalsoft/AudioDecoderWav.h"
-#endif
-#include "audio/oalsoft/AudioMacros.h"
-#include "base/memory/Memory.h"
+#include <stdint.h>
+#include <string.h>
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/include/AudioMacros.h"
 #include "platform/FileUtils.h"
+
+#ifdef LOG_TAG
+    #undef LOG_TAG
+#endif
+#define LOG_TAG "AudioDecoder"
 
 namespace cc {
 
-bool AudioDecoderManager::init() {
-    return true;
+AudioDecoder::AudioDecoder()
+: _isOpened(false) {}
+
+AudioDecoder::~AudioDecoder() {
 }
 
-void AudioDecoderManager::destroy() {
-    AudioDecoderMp3::destroy();
+bool AudioDecoder::isOpened() const {
+    return _isOpened;
 }
 
-AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
-    ccstd::string suffix = FileUtils::getInstance()->getFileExtension(path);
-    if (suffix == ".ogg") {
-        return ccnew AudioDecoderOgg();
+uint32_t AudioDecoder::readFixedFrames(uint32_t framesToRead, char *pcmBuf) {
+    uint32_t framesRead = 0;
+    uint32_t framesReadOnce = 0;
+    do {
+        framesReadOnce = read(framesToRead - framesRead, pcmBuf + framesRead * _pcmHeader.bytesPerFrame);
+        framesRead += framesReadOnce;
+    } while (framesReadOnce != 0 && framesRead < framesToRead);
+
+    if (framesRead < framesToRead) {
+        memset(pcmBuf + framesRead * _pcmHeader.bytesPerFrame, 0x00, (framesToRead - framesRead) * _pcmHeader.bytesPerFrame);
     }
 
-    if (suffix == ".mp3") {
-        return ccnew AudioDecoderMp3();
-    }
-#if CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_WINDOWS
-    if (suffix == ".wav") {
-        return ccnew AudioDecoderWav();
-    }
-#endif
-
-    return nullptr;
+    return framesRead;
 }
 
-void AudioDecoderManager::destroyDecoder(AudioDecoder *decoder) {
-    delete decoder;
+uint32_t AudioDecoder::getTotalFrames() const {
+    return _pcmHeader.totalFrames;
+}
+
+uint32_t AudioDecoder::getBytesPerFrame() const {
+    return _pcmHeader.bytesPerFrame;
+}
+
+uint32_t AudioDecoder::getSampleRate() const {
+    return _pcmHeader.sampleRate;
+}
+
+uint32_t AudioDecoder::getChannelCount() const {
+    return _pcmHeader.channelCount;
+}
+
+AudioDataFormat AudioDecoder::getDataFormat() const {
+    return _pcmHeader.dataFormat;
+}
+
+PCMHeader AudioDecoder::getPCMHeader() const {
+    return _pcmHeader;
 }
 
 } // namespace cc

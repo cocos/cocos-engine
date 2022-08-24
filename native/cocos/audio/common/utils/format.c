@@ -18,8 +18,8 @@
 #define LOG_TAG "audio_utils_format"
 
 #include "audio/android/cutils/log.h"
-#include "audio/android/audio_utils/include/audio_utils/primitives.h"
-#include "audio/android/audio_utils/include/audio_utils/format.h"
+#include "audio/common/utils/include/primitives.h"
+#include "audio/common/utils/include/format.h"
 #include "audio/android/audio.h"
 
 void memcpy_by_audio_format(void *dst, audio_format_t dst_format,

@@ -24,10 +24,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "audio/oalsoft/AudioDecoderMp3.h"
 #include <malloc.h>
-#include <stdint.h>
-#include "audio/oalsoft/AudioMacros.h"
+#include <cstdint>
+#include "audio/common/decoder/AudioDecoderMp3.h"
+#include "audio/include/AudioMacros.h"
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX

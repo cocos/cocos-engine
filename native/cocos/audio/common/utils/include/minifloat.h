@@ -17,8 +17,12 @@
 #ifndef COCOS_AUDIO_MINIFLOAT_H
 #define COCOS_AUDIO_MINIFLOAT_H
 
-#include <stdint.h>
-#include <sys/cdefs.h>
+#include <cstdint>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <sys/cdefs.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include <sys/types.h>
+#endif
 
 __BEGIN_DECLS
 

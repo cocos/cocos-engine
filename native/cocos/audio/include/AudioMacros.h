@@ -75,3 +75,7 @@
         CC_LOG_DEBUG("(" QUOTEME(condition) ") failed, message: " fmt, ##__VA_ARGS__); \
         break;                                                                         \
     }
+#ifndef __BEGIN_DECLS
+    #define __BEGIN_DECLS extern "C" {
+    #define __END_DECLS }
+#endif
