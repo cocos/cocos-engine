@@ -795,7 +795,11 @@ export class ParticleSystem extends ModelRenderer {
         // HACK, TODO
         this.renderer.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
-        if (this._trailModule) this._trailModule.onInit(this);
+        if (this._trailModule && !this.renderer.useGPU) {
+            this._trailModule.onInit(this);
+        } else if (this._trailModule && this.renderer.useGPU) {
+            this._trailModule.enable = false;
+        }
         this.bindModule();
         this._resetPosition();
 
