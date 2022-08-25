@@ -28,6 +28,7 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <jni.h>
+#include "base/memory/Memory.h"
 #include "platform/android/AndroidPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 
@@ -67,7 +68,7 @@ private:
 extern "C" {
 
 JNIEXPORT jlong Java_com_cocos_lib_CocosSurfaceView_constructNative(JNIEnv *env, jobject /*thiz*/) {
-    auto cache = new NativeWindowCache();
+    auto cache = ccnew NativeWindowCache();
     cache->env = env;
     return reinterpret_cast<jlong>(cache);
 }
