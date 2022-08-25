@@ -35,7 +35,9 @@ export class LightProbesData {
     public build (points: Vec3[]) {
         const delaunay = new Delaunay();
         delaunay.build(points);
-        delaunay.getResults(this._probes, this._tetrahedrons);
+
+        this._probes = delaunay.getProbes();
+        this._tetrahedrons = delaunay.getTetrahedrons();
     }
 
     public get probes () {
@@ -44,6 +46,10 @@ export class LightProbesData {
 
     public get tetrahedrons () {
         return this._tetrahedrons;
+    }
+
+    public set tetrahedrons (val: Tetrahedron[]) {
+        this._tetrahedrons = val;
     }
 
     public getInterpolationSHCoefficients (position: Vec3, tetIndex: number, coefficients: Vec3[]) {

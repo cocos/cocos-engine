@@ -23,25 +23,33 @@
  THE SOFTWARE.
  */
 
+import { serializable } from 'cc.decorator';
 import { Mat3 } from '../../core/math/mat3';
 import { EPSILON } from '../../core/math/utils';
 import { Vec3 } from '../../core/math/vec3';
 import { warnID } from '../../core/platform/debug';
 
 export class Vertex {
-    public position: Vec3;
+    @serializable
+    public position = new Vec3(0, 0, 0);
+    @serializable
     public normal = new Vec3(0, 0, 0);
+    @serializable
     public coefficients: Vec3[] = [];
 
     public constructor (pos: Vec3) {
-        this.position = new Vec3(pos);
+        this.position.set(pos);
     }
 }
 
 class Edge {
+    @serializable
     public tetrahedron = -1;    // tetrahedron index this edge belongs to
+    @serializable
     public index = -1;          // index in triangle's three edges of an outer cell
+    @serializable
     public vertex0 = -1;
+    @serializable
     public vertex1 = -1;
 
     public constructor (tet: number, i: number, v0: number, v1: number) {
@@ -58,12 +66,19 @@ class Edge {
 }
 
 class Triangle {
+    @serializable
     public invalid = false;
+    @serializable
     public isHullSurface = true;
+    @serializable
     public tetrahedron = -1;    // tetrahedron index this triangle belongs to
+    @serializable
     public index = -1;          // index in tetrahedron's four triangles
+    @serializable
     public vertex0 = -1;
+    @serializable
     public vertex1 = -1;
+    @serializable
     public vertex2 = -1;
 
     public constructor (tet: number, i: number, v0: number, v1: number, v2: number) {
@@ -85,7 +100,9 @@ class Triangle {
 }
 
 class CircumSphere {
+    @serializable
     public center = new Vec3(0, 0, 0);
+    @serializable
     public radiusSquared = 0.0;
 
     public init (p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3) {
@@ -109,16 +126,26 @@ class CircumSphere {
  * inner tetrahedron or outer cell structure
  */
 export class Tetrahedron {
+    @serializable
     public invalid = false;
+    @serializable
     public vertex0 = -1;
+    @serializable
     public vertex1 = -1;
+    @serializable
     public vertex2 = -1;
+    @serializable
     public vertex3 = -1;     // -1 means outer cell, otherwise inner tetrahedron
+    @serializable
     public neighbours: number[] = [-1, -1, -1, -1]
 
+    @serializable
     public matrix = new Mat3();
-    public offset = new Vec3();         // only valid in outer cell
-    public barycentric = new Vec3();    // only valid in inner tetrahedron
+    @serializable
+    public offset = new Vec3(0.0, 0.0, 0.0);         // only valid in outer cell
+    @serializable
+    public barycentric = new Vec3(0.0, 0.0, 0.0);    // only valid in inner tetrahedron
+    @serializable
     public sphere = new CircumSphere(); // only valid in inner tetrahedron
 
     // inner tetrahedron or outer cell constructor
@@ -136,7 +163,6 @@ export class Tetrahedron {
             const p2 = probes[this.vertex2].position;
             const p3 = probes[this.vertex3].position;
 
-            this.barycentric = new Vec3(0.0, 0.0, 0.0);
             Vec3.add(this.barycentric, p0, p1);
             Vec3.add(this.barycentric, this.barycentric, p2);
             Vec3.add(this.barycentric, this.barycentric, p3);
@@ -146,7 +172,7 @@ export class Tetrahedron {
     }
 
     public isInCircumSphere (point: Vec3) {
-        return Vec3.squaredDistance(point, this.sphere.center) <= this.sphere.radiusSquared;
+        return Vec3.squaredDistance(point, this.sphere.center) < this.sphere.radiusSquared - EPSILON;
     }
 
     public contain (vertexIndex: number) {
@@ -164,7 +190,9 @@ export class Tetrahedron {
 }
 
 export class Delaunay {
+    @serializable
     private _probes: Vertex[] = [];
+    @serializable
     private _tetrahedrons: Tetrahedron[] = [];
 
     public getProbes () { return this._probes; }
@@ -186,11 +214,6 @@ export class Delaunay {
         this.tetrahedralize();
         this.computeAdjacency();
         this.computeMatrices();
-    }
-
-    public getResults (probes: Vertex[], tetrahedrons: Tetrahedron[]) {
-        probes = this._probes;
-        tetrahedrons = this._tetrahedrons;
     }
 
     private reset () {
@@ -331,7 +354,7 @@ export class Delaunay {
         }
 
         for (let i = 0; i < triangles.length; i++) {
-            for (let k = i; k < triangles.length; k++) {
+            for (let k = i + 1; k < triangles.length; k++) {
                 if (triangles[i].isSame(triangles[k])) {
                     // update adjacency between tetrahedrons
                     this._tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = triangles[k].tetrahedron;
@@ -376,7 +399,7 @@ export class Delaunay {
         }
 
         for (let i = 0; i < edges.length; i++) {
-            for (let k = i; i < edges.length; k++) {
+            for (let k = i + 1; k < edges.length; k++) {
                 if (edges[i].isSame(edges[k])) {
                     // update adjacency between outer cells
                     this._tetrahedrons[edges[i].tetrahedron].neighbours[edges[i].index] = edges[k].tetrahedron;
@@ -434,9 +457,9 @@ export class Delaunay {
         const Ap = new Vec3(0.0, 0.0, 0.0);
         Vec3.subtract(Ap, v[0], v[2]);
         const B = new Vec3(0.0, 0.0, 0.0);
-        Vec3.subtract(A, p[1], p[2]);
+        Vec3.subtract(B, p[1], p[2]);
         const Bp = new Vec3(0.0, 0.0, 0.0);
-        Vec3.subtract(Ap, v[1], v[2]);
+        Vec3.subtract(Bp, v[1], v[2]);
         const P2 = new Vec3(p[2]);
         const Cp = new Vec3(0.0, 0.0, 0.0);
         Vec3.negate(Cp, v[2]);

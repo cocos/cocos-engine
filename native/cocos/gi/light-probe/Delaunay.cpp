@@ -26,7 +26,6 @@
 
 #include "Delaunay.h"
 #include "math/Mat3.h"
-#include "math/Utils.h"
 #include "base/Log.h"
 #include "core/platform/Debug.h"
 #include <algorithm>
@@ -219,7 +218,7 @@ void Delaunay::computeAdjacency() {
     }
     
     for (auto i = 0; i < triangles.size(); i++) {
-        for (auto k = i; k < triangles.size(); k++) {
+        for (auto k = i + 1; k < triangles.size(); k++) {
             if (triangles[i].isSame(triangles[k])) {
                 // update adjacency between tetrahedrons
                 _tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = triangles[k].tetrahedron;
@@ -264,7 +263,7 @@ void Delaunay::computeAdjacency() {
     }
 
     for (auto i = 0; i < edges.size(); i++) {
-        for (auto k = i; i < edges.size(); k++) {
+        for (auto k = i + 1; k < edges.size(); k++) {
             if (edges[i].isSame(edges[k])) {
                 // update adjacency between outer cells
                 _tetrahedrons[edges[i].tetrahedron].neighbours[edges[i].index] = edges[k].tetrahedron;

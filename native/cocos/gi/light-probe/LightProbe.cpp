@@ -34,7 +34,9 @@ namespace gi {
 void LightProbesData::build(const ccstd::vector<Vec3> &points) {
     Delaunay delaunay;
     delaunay.build(points);
-    delaunay.getResults(_probes, _tetrahedrons);
+
+    _probes = delaunay.getProbes();
+    _tetrahedrons = delaunay.getTetrahedrons();
 }
 
 int32_t LightProbesData::getInterpolationSHCoefficients(const Vec3 &position, int32_t tetIndex, ccstd::vector<Vec3> &coefficients) const {

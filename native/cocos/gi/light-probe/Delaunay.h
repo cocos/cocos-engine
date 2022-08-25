@@ -27,6 +27,7 @@
 #pragma once
 #include "math/Vec3.h"
 #include "base/Macros.h"
+#include "math/Utils.h"
 #include "base/std/container/vector.h"
 #include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
@@ -112,7 +113,7 @@ struct Tetrahedron {
     Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32_t v2, int32_t v3 = -1);
     
     inline bool isInCircumSphere(const Vec3 &point) const {
-        return point.distanceSquared(sphere.center) <= sphere.radiusSquared;
+        return point.distanceSquared(sphere.center) < sphere.radiusSquared - mathutils::EPSILON;
     }
     
     inline bool contain(int32_t vertexIndex) const {
@@ -121,11 +122,11 @@ struct Tetrahedron {
     }
 
     inline bool isInnerTetrahedron() const {
-        return this.vertex3 != -1;
+        return vertex3 != -1;
     }
 
     inline bool isOuterCell() const {
-        return this.vertex3 == -1;
+        return vertex3 == -1;
     }
 };
 
@@ -138,11 +139,6 @@ public:
     inline const ccstd::vector<Tetrahedron>& getTetrahedrons() const { return _tetrahedrons; }
 
     void build(const ccstd::vector<Vec3> &points);
-
-    inline void getResults(ccstd::vector<Vertex>& probes, ccstd::vector<Tetrahedron>& tetrahedrons) {
-        probes = std::move(_probes);
-        tetrahedrons = std::move(_tetrahedrons);
-    }
 
 private:
     void reset();

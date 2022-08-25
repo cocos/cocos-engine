@@ -38,7 +38,7 @@ import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
-import { LightProbeGroup } from '../../gi/light-probe';
+import { LightProbeGroup, Tetrahedron, Vertex } from '../../gi/light-probe';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1210,7 +1210,7 @@ export class LightProbeInfo {
             this._data = new LightProbesData();
         }
 
-        //this._data.build(lightProbeGroup.probes);
+        this._data.build(lightProbeGroup.probes);
     }
 }
 legacyCC.LightProbeInfo = LightProbeInfo;

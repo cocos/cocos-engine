@@ -24,6 +24,7 @@
  */
 
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { randomRange } from '../../core/math/utils';
 import { Vec3 } from '../../core/math/vec3';
 import { Enum } from '../../core/value-types';
 
@@ -67,13 +68,13 @@ export class AutoPlacement {
         );
 
         for (let x = 0; x < info.nProbesX; x++) {
-            position.x = x * gridSize.x + info.minPos.x;
+            position.x = x * gridSize.x + info.minPos.x;// + randomRange(0, 6);
 
             for (let y = 0; y < info.nProbesY; y++) {
-                position.y = y * gridSize.y + info.minPos.y;
+                position.y = y * gridSize.y + info.minPos.y;// + randomRange(0, 3);
 
                 for (let z = 0; z < info.nProbesZ; z++) {
-                    position.z = z * gridSize.z + info.minPos.z;
+                    position.z = z * gridSize.z + info.minPos.z;// + randomRange(0, 8);
                     probes.push(new Vec3(position));
                 }
             }
