@@ -103,7 +103,8 @@ export class UIOpacity extends Component {
             interruptOpacity = 1;
         } else if (uiOp) {
             // there is a just UIOpacity but no UIRenderer on the node.
-            interruptOpacity = uiOp.opacity / 255;
+            // we should transport the interrupt opacity downward
+            interruptOpacity = interruptOpacity * uiOp.opacity / 255;
         }
 
         for (let i = 0; i < node.children.length; i++) {
