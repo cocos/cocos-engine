@@ -554,7 +554,7 @@ static inline bool setVolumeRampVariables(float newVolume, int32_t ramp,
     // audio artifacts, so it never reaches the range limit of U4.28.
     // We safely use signed 16 and 32 bit integers here.
     const float scaledVolume = newVolume * AudioMixer::UNITY_GAIN_INT; // not neg, subnormal, nan
-    const int32_t intVolume = (scaledVolume >= (float)AudioMixer::UNITY_GAIN_INT) ? AudioMixer::UNITY_GAIN_INT : (int32_t)scaledVolume;
+    const int32_t intVolume = (scaledVolume >= static_cast<float>(AudioMixer::UNITY_GAIN_INT)) ? AudioMixer::UNITY_GAIN_INT : static_cast<int32_t>(scaledVolume);
 
     // set integer volume ramp
     if (ramp != 0) {
@@ -592,13 +592,13 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
     track_t &track = mState.tracks[name];
 
     int valueInt = static_cast<int>(reinterpret_cast<uintptr_t>(value));
-    int32_t *valueBuf = reinterpret_cast<int32_t *>(value);
+    auto *valueBuf = reinterpret_cast<int32_t *>(value);
 
     switch (target) {
         case TRACK:
             switch (param) {
                 case CHANNEL_MASK: {
-                    const audio_channel_mask_t trackChannelMask =
+                    const auto trackChannelMask =
                         static_cast<audio_channel_mask_t>(valueInt);
                     if (setChannelMasks(name, trackChannelMask, track.mMixerChannelMask)) {
                         ALOGV("setParameter(TRACK, CHANNEL_MASK, %x)", trackChannelMask);
@@ -620,7 +620,7 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
                     }
                     break;
                 case FORMAT: {
-                    audio_format_t format = static_cast<audio_format_t>(valueInt);
+                    auto format = static_cast<audio_format_t>(valueInt);
                     if (track.mFormat != format) {
                         ALOG_ASSERT(audio_is_linear_pcm(format), "Invalid format %#x", format);
                         track.mFormat = format;
@@ -634,14 +634,14 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
                 /* case DOWNMIX_TYPE:
             break          */
                 case MIXER_FORMAT: {
-                    audio_format_t format = static_cast<audio_format_t>(valueInt);
+                    auto format = static_cast<audio_format_t>(valueInt);
                     if (track.mMixerFormat != format) {
                         track.mMixerFormat = format;
                         ALOGV("setParameter(TRACK, MIXER_FORMAT, %#x)", format);
                     }
                 } break;
                 case MIXER_CHANNEL_MASK: {
-                    const audio_channel_mask_t mixerChannelMask =
+                    const auto mixerChannelMask =
                         static_cast<audio_channel_mask_t>(valueInt);
                     if (setChannelMasks(name, track.channelMask, mixerChannelMask)) {
                         ALOGV("setParameter(TRACK, MIXER_CHANNEL_MASK, %#x)", mixerChannelMask);
@@ -692,7 +692,7 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
                     }
                     break;
                 default:
-                    if ((unsigned)param >= VOLUME0 && (unsigned)param < VOLUME0 + MAX_NUM_VOLUMES) {
+                    if (static_cast<unsigned>(param) >= VOLUME0 && static_cast<unsigned>(param) < VOLUME0 + MAX_NUM_VOLUMES) {
                         if (setVolumeRampVariables(*reinterpret_cast<float *>(value),
                                                    target == RAMP_VOLUME ? mState.frameCount : 0,
                                                    &track.volume[param - VOLUME0], &track.prevVolume[param - VOLUME0],

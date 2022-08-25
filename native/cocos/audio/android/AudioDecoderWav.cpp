@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "platform/FileUtils.h"
 
 namespace cc {
-using namespace sf;
+using namespace sf; //NOLINT
 AudioDecoderWav::AudioDecoderWav() {
     ALOGV("Create AudioDecoderWav");
 }
