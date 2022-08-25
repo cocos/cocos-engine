@@ -25,6 +25,7 @@
 #pragma once
 
 #include "class.inl"
+#include "cocos/bindings/jswrapper/ValueArrayPool.h"
 
 namespace sebind {
 // finalizer callback
