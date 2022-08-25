@@ -152,8 +152,8 @@ public:
         _onbinary = cb;
     }
 
-    inline void setOnData(const std::function<void(std::shared_ptr<DataFrame>)> &cb) {
-        _ondata = cb;
+    inline void setOnMessage(const std::function<void(std::shared_ptr<DataFrame>)> &cb) {
+        _onmessage = cb;
     }
 
     inline void setOnConnect(const std::function<void()> &cb) {
@@ -180,8 +180,8 @@ private:
     }
 
     void onConnected();
-    void onDataReceive(void *in, int len);
-    int onDrainData();
+    void onMessageReceive(void *in, int len);
+    int onDrainMessage();
     void onHTTP();
     void onClientCloseInit(int code, const ccstd::string &msg);
 
@@ -201,7 +201,7 @@ private:
     std::function<void(const ccstd::string &)> _onerror;
     std::function<void(std::shared_ptr<DataFrame>)> _ontext;
     std::function<void(std::shared_ptr<DataFrame>)> _onbinary;
-    std::function<void(std::shared_ptr<DataFrame>)> _ondata;
+    std::function<void(std::shared_ptr<DataFrame>)> _onmessage;
     std::function<void()> _onconnect;
     std::function<void()> _onend;
     uv_async_t _async = {};

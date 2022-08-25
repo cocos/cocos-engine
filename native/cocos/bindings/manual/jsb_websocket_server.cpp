@@ -707,6 +707,7 @@ static bool WebSocketServer_Connection_onbinary(se::State &s) { // NOLINT(readab
 }
 SE_BIND_PROP_SET(WebSocketServer_Connection_onbinary)
 
+//deprecated since v3.7, please use WebSocketServer_Connection_onmessage to instead.
 static bool WebSocketServer_Connection_ondata(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
@@ -724,7 +725,7 @@ static bool WebSocketServer_Connection_ondata(se::State &s) { // NOLINT(readabil
     s.thisObject()->setProperty("__ondata", args[0]);
     std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
 
-    cobj->setOnData([connWeak](const std::shared_ptr<cc::network::DataFrame> &text) {
+    cobj->setOnMessage([connWeak](const std::shared_ptr<cc::network::DataFrame> &text) {
         se::AutoHandleScope hs;
 
         auto connPtr = connWeak.lock();
@@ -754,9 +755,61 @@ static bool WebSocketServer_Connection_ondata(se::State &s) { // NOLINT(readabil
             se::ScriptEngine::getInstance()->clearException();
         }
     });
+    SE_REPORT_ERROR("Deprecated callback function ondata since v3.7, please use onmessage to instead.");
     return true;
 }
 SE_BIND_PROP_SET(WebSocketServer_Connection_ondata)
+
+static bool WebSocketServer_Connection_onmessage(se::State &s) { // NOLINT(readability-identifier-naming)
+    const auto &args = s.args();
+    int argc = static_cast<int>(args.size());
+    if (!(argc == 1 && args[0].isObject() && args[0].toObject()->isFunction())) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1 & function", argc);
+        return false;
+    }
+    auto cobj = sharedPtrObj<cc::network::WebSocketServerConnection>(s);
+
+    if (!cobj) {
+        SE_REPORT_ERROR("Connection is not constructed by WebSocketServer, invalidate format!!");
+        return false;
+    }
+
+    s.thisObject()->setProperty("__onmessage", args[0]);
+    std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = cobj;
+
+    cobj->setOnMessage([connWeak](const std::shared_ptr<cc::network::DataFrame> &text) {
+        se::AutoHandleScope hs;
+
+        auto connPtr = connWeak.lock();
+        if (!connPtr) {
+            return;
+        }
+        auto *sobj = static_cast<se::Object *>(connPtr->getData());
+        if (!sobj) {
+            return;
+        }
+
+        se::Value callback;
+        if (!sobj->getProperty("__onmessage", &callback)) {
+            return;
+        }
+
+        se::ValueArray args;
+        if (text->isBinary()) {
+            se::Object *buffer = se::Object::createArrayBufferObject(text->getData(), text->size());
+            args.push_back(se::Value(buffer));
+        } else if (text->isString()) {
+            args.push_back(se::Value(text->toString()));
+        }
+        bool success = callback.toObject()->call(args, sobj, nullptr);
+        ;
+        if (!success) {
+            se::ScriptEngine::getInstance()->clearException();
+        }
+    });
+    return true;
+}
+SE_BIND_PROP_SET(WebSocketServer_Connection_onmessage)
 
 static bool WebSocketServer_Connection_headers(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
@@ -855,7 +908,8 @@ bool register_all_websocket_server(se::Object *obj) {
     cls->defineProperty("onconnect", nullptr, _SE(WebSocketServer_Connection_onconnect));
     cls->defineProperty("onerror", nullptr, _SE(WebSocketServer_Connection_onerror));
     cls->defineProperty("onclose", nullptr, _SE(WebSocketServer_Connection_onclose));
-    cls->defineProperty("ondata", nullptr, _SE(WebSocketServer_Connection_ondata));
+    cls->defineProperty("ondata", nullptr, _SE(WebSocketServer_Connection_ondata)); //deprecated since v3.7, please use onmessage to instead.
+    cls->defineProperty("onmessage", nullptr, _SE(WebSocketServer_Connection_onmessage));
 
     cls->defineProperty("headers", _SE(WebSocketServer_Connection_headers), nullptr);
     cls->defineProperty("protocols", _SE(WebSocketServer_Connection_protocols), nullptr);
