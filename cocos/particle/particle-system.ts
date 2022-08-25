@@ -1000,7 +1000,6 @@ export class ParticleSystem extends ModelRenderer {
                 this._trailModule._detachFromScene();
             }
         }
-        
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();
