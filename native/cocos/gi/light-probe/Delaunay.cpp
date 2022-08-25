@@ -59,8 +59,6 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
         const auto &p1 = probes[vertex1].position;
         const auto &p2 = probes[vertex2].position;
         const auto &p3 = probes[vertex3].position;
-
-        barycentric = (p0 + p1 + p2 + p3) * 0.25F;
         sphere.init(p0, p1, p2, p3);
     }
 }
@@ -196,7 +194,7 @@ void Delaunay::addProbe(int32_t vertexIndex) {
 void Delaunay::reorder(const Vec3 &center) {
     // The tetrahedron in the middle is placed at the front of the vector
     std::sort(_tetrahedrons.begin(), _tetrahedrons.end(), [center](Tetrahedron &a, Tetrahedron &b){
-        return a.barycentric.distanceSquared(center) <= b.barycentric.distanceSquared(center);
+        return a.sphere.center.distanceSquared(center) <= b.sphere.center.distanceSquared(center);
     });
 }
 

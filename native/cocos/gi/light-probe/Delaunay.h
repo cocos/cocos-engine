@@ -106,7 +106,6 @@ struct Tetrahedron {
     
     Mat3    matrix;
     Vec3    offset;         // only valid in outer cell
-    Vec3    barycentric;    // only valid in inner tetrahedron
     CircumSphere sphere;    // only valid in inner tetrahedron
     
     // inner tetrahedron or outer cell constructor

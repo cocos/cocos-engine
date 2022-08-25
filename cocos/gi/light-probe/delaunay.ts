@@ -137,14 +137,12 @@ export class Tetrahedron {
     @serializable
     public vertex3 = -1;     // -1 means outer cell, otherwise inner tetrahedron
     @serializable
-    public neighbours: number[] = [-1, -1, -1, -1]
+    public neighbours: number[] = [-1, -1, -1, -1];
 
     @serializable
     public matrix = new Mat3();
     @serializable
-    public offset = new Vec3(0.0, 0.0, 0.0);         // only valid in outer cell
-    @serializable
-    public barycentric = new Vec3(0.0, 0.0, 0.0);    // only valid in inner tetrahedron
+    public offset = new Vec3(0.0, 0.0, 0.0); // only valid in outer cell
     @serializable
     public sphere = new CircumSphere(); // only valid in inner tetrahedron
 
@@ -162,11 +160,6 @@ export class Tetrahedron {
             const p1 = probes[this.vertex1].position;
             const p2 = probes[this.vertex2].position;
             const p3 = probes[this.vertex3].position;
-
-            Vec3.add(this.barycentric, p0, p1);
-            Vec3.add(this.barycentric, this.barycentric, p2);
-            Vec3.add(this.barycentric, this.barycentric, p3);
-            Vec3.multiplyScalar(this.barycentric, this.barycentric, 0.25);
             this.sphere.init(p0, p1, p2, p3);
         }
     }
@@ -332,7 +325,7 @@ export class Delaunay {
 
     private reorder (center: Vec3) {
         // The tetrahedron in the middle is placed at the front of the vector
-        this._tetrahedrons.sort((a, b) => Vec3.squaredDistance(a.barycentric, center) - Vec3.squaredDistance(b.barycentric, center));
+        this._tetrahedrons.sort((a, b) => Vec3.squaredDistance(a.sphere.center, center) - Vec3.squaredDistance(b.sphere.center, center));
     }
 
     private computeAdjacency () {
