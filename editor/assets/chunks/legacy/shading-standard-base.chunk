@@ -118,7 +118,13 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   #endif
 
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    vec3 finalColor = diffuse * s.lightmap.rgb * shadow;
+    vec3 lightmap = s.lightmap.rgb;
+    #if CC_USE_HDR
+        // convert from standard camera exposure parameters to current exposure value
+        // baked in LDR scene still regarded as exposured with standard camera parameters
+        lightmap.rgb *= cc_exposure.w * cc_exposure.x;
+    #endif
+    vec3 finalColor = diffuse * lightmap.rgb * shadow;
   #else
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
