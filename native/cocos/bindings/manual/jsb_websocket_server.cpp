@@ -755,6 +755,7 @@ static bool WebSocketServer_Connection_ondata(se::State &s) { // NOLINT(readabil
             se::ScriptEngine::getInstance()->clearException();
         }
     });
+    SE_REPORT_ERROR("Deprecated callback function ondata since v3.7, please use onmessage to instead.");
     return true;
 }
 SE_BIND_PROP_SET(WebSocketServer_Connection_ondata)
