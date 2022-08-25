@@ -111,6 +111,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         auto* cmdBuffer = ctx.cmdBuff;
 
+        // gfx::Resource<gfx::RenderPass, gfx::RenderPassInfo>
         // cmdBuff->beginRenderPass();
 
     }
@@ -185,6 +186,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
 
     RenderGraphVisitorContext& ctx;
+    
 };
 
 } // namespace render

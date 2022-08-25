@@ -30,6 +30,7 @@
  */
 // clang-format off
 #pragma once
+#include <functional>
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
@@ -79,5 +80,19 @@ struct RenderGraph;
 } // namespace render
 
 } // namespace cc
+
+namespace std {
+
+template <>
+struct hash<cc::render::SubpassGraph> {
+    size_t operator()(const cc::render::SubpassGraph& v) const noexcept;
+};
+
+template <>
+struct hash<cc::render::RasterPass> {
+    size_t operator()(const cc::render::RasterPass& v) const noexcept;
+};
+
+}
 
 // clang-format on

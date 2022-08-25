@@ -45,6 +45,8 @@ using namespace cc::render;
 %ignore cc::render::PipelineRuntime::getMacros;
 %ignore cc::render::PipelineRuntime::setValue;
 %ignore cc::render::PipelineRuntime::isOcclusionQueryEnabled;
+%ignore cc::render::PipelineRuntime::resetRenderQueue;
+%ignore cc::render::PipelineRuntime::isRenderQueueReset;
 %ignore cc::render::SceneVisitor::bindDescriptorSet;
 %ignore cc::render::SceneVisitor::updateBuffer;
 

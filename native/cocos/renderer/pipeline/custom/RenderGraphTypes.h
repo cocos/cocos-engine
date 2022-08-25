@@ -37,6 +37,7 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
@@ -417,6 +418,15 @@ struct RasterPass {
     uint32_t height{0};
     gfx::Viewport viewport;
 };
+
+inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
+    return std::forward_as_tuple(lhs.isValid, lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.viewport) ==
+           std::forward_as_tuple(rhs.isValid, rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.viewport);
+}
+
+inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 struct ComputePass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -902,5 +912,29 @@ struct RenderGraph {
 } // namespace render
 
 } // namespace cc
+
+namespace std {
+
+inline size_t hash<cc::render::SubpassGraph>::operator()(const cc::render::SubpassGraph& v) const noexcept {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.vertices);
+    ccstd::hash_combine(seed, v.names);
+    ccstd::hash_combine(seed, v.subpasses);
+    return static_cast<size_t>(seed);
+}
+
+inline size_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterPass& v) const noexcept {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.isValid);
+    ccstd::hash_combine(seed, v.rasterViews);
+    ccstd::hash_combine(seed, v.computeViews);
+    ccstd::hash_combine(seed, v.subpassGraph);
+    ccstd::hash_combine(seed, v.width);
+    ccstd::hash_combine(seed, v.height);
+    ccstd::hash_combine(seed, v.viewport);
+    return static_cast<size_t>(seed);
+}
+
+} // namespace std
 
 // clang-format on
