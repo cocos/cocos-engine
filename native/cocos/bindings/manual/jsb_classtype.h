@@ -41,10 +41,10 @@ public:
     template <typename T>
     static se::Class *findClass(const T *nativeObj) {
         bool found = false;
-        ccstd::string typeNameFromValue = typeid(*nativeObj).name();
+        const char *typeNameFromValue = typeid(*nativeObj).name();
         auto iter = jsbClassTypeMap.find(typeNameFromValue);
         if (iter == jsbClassTypeMap.end()) {
-            ccstd::string typeNameFromType = typeid(T).name();
+            const char *typeNameFromType = typeid(T).name();
             iter = jsbClassTypeMap.find(typeNameFromType);
             if (iter != jsbClassTypeMap.end()) {
                 found = true;
@@ -61,5 +61,5 @@ public:
     }
 
 private:
-    static ccstd::unordered_map<ccstd::string, se::Class *> jsbClassTypeMap;
+    static ccstd::unordered_map<const char *, se::Class *> jsbClassTypeMap;
 };
