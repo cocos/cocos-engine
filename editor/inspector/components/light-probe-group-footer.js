@@ -23,8 +23,9 @@ exports.$ = {
     edit: '.edit',
 };
 
-exports.update = async function() {
+exports.update = async function(dump) {
     const panel = this;
+    panel.dump = dump;
 
     panel.sceneProbeMode = await Editor.Message.request('scene', 'query-light-probe-edit-mode');
     if (panel.sceneProbeMode) {
@@ -45,12 +46,15 @@ exports.ready = function() {
         });
 
         if (result.response === 0) {
-            const uuid = panel.$this.dump.value.uuid.value;
-            Editor.Message.send('scene', 'execute-component-method', {
-                uuid: uuid,
-                name: 'generateLightProbes',
-                args: [],
-            });
+            const uuidObject = panel.dump.value.uuid;
+            const uuids = uuidObject.values ? uuidObject.values : [uuidObject.value];
+            for (const uuid of uuids) {
+                Editor.Message.send('scene', 'execute-component-method', {
+                    uuid: uuid,
+                    name: 'generateLightProbes',
+                    args: [],
+                });
+            }
         }
     });
 
