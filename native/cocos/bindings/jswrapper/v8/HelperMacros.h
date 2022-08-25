@@ -119,6 +119,7 @@ void jsbSetterWrapper(v8::Local<v8::Value>,
         #define SE_HOT __attribute__((hot))
     #else
         #define SE_UNUSED
+        #define SE_HOT 
     #endif
 
     #define SAFE_INC_REF(obj) \
