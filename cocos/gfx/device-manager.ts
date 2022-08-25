@@ -24,15 +24,15 @@
  */
 
 import { JSB } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-import { error, getError } from '../platform/debug';
-import { sys } from '../platform/sys';
+import { legacyCC } from '../core/global-exports';
+import { error, getError } from '../core/platform/debug';
+import { sys } from '../core/platform/sys';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
-import { BrowserType } from '../../../pal/system-info/enum-type';
-import { screen } from '../platform/screen';
-import { Settings, settings } from '../settings';
+import { screen } from '../core/platform/screen';
+import { Settings, settings } from '../core/settings';
+import { BrowserType } from '../../pal/system-info/enum-type';
 
 /**
  * @en

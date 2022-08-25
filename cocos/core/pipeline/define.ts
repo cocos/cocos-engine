@@ -30,7 +30,7 @@ import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
     Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
-} from '../gfx';
+} from '../../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';

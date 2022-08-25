@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { AttributeName, Format, Attribute, API, deviceManager } from '../../core/gfx';
+import { AttributeName, Format, Attribute, API, deviceManager } from '../../gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';

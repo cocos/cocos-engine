@@ -27,7 +27,7 @@ import { FramebufferInfo } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { WebGL2CmdFuncCreateFramebuffer, WebGL2CmdFuncDestroyFramebuffer } from './webgl2-commands';
 import { WebGL2DeviceManager } from './webgl2-define';
-import { IWebGL2GPUFramebuffer, IWebGL2GPUTexture, IWebGL2GPUTextureView } from './webgl2-gpu-objects';
+import { IWebGL2GPUFramebuffer, IWebGL2GPUTextureView } from './webgl2-gpu-objects';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2Texture } from './webgl2-texture';
 

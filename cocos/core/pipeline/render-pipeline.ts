@@ -31,13 +31,12 @@ import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlag
     DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler,
     InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
     Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager,
-} from '../gfx';
+} from '../../gfx';
 import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { RenderWindow } from '../renderer/core/render-window';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
-import { Root } from '../root';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';

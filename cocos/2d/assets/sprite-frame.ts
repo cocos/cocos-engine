@@ -27,7 +27,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
-import { Color, Mat4, Rect, Size, Vec2, Vec3, Vec4 } from '../../core/math';
+import { Mat4, Rect, Size, Vec2, Vec3, Vec4 } from '../../core/math';
 import { Asset } from '../../core/assets/asset';
 import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
@@ -38,7 +38,7 @@ import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
 import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
-import { Attribute, AttributeName, Format, PrimitiveMode } from '../../core/gfx';
+import { Attribute, AttributeName, Format, PrimitiveMode } from '../../gfx';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;

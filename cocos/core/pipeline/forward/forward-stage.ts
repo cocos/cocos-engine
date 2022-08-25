@@ -27,7 +27,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
-import { ClearFlagBit, Color, Rect } from '../../gfx';
+import { ClearFlagBit, Color, Rect } from '../../../gfx';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
@@ -179,7 +179,7 @@ export class ForwardStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
-        
+
         for (let i = 0; i < this.additiveInstanceQueues.length; i++) {
             this.additiveInstanceQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }

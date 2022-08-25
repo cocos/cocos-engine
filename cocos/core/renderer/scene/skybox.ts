@@ -34,7 +34,7 @@ import { legacyCC } from '../../global-exports';
 import type { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
-import { Device, deviceManager } from '../../gfx';
+import { deviceManager } from '../../../gfx';
 import { Enum } from '../../value-types';
 
 let skybox_mesh: Mesh | null = null;

@@ -34,7 +34,7 @@ import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { ImageAsset } from '../core/assets/image-asset';
 import { ParticleAsset } from './particle-asset';
-import { BlendFactor } from '../core/gfx';
+import { BlendFactor } from '../gfx';
 import { path } from '../core/utils';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';

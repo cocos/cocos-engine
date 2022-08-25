@@ -32,7 +32,7 @@ import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
-} from '../../gfx';
+} from '../../../gfx';
 import { EffectAsset } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
 import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType,

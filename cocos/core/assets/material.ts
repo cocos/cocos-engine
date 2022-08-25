@@ -26,7 +26,7 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { Texture, Type } from '../gfx';
+import { Texture, Type } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';

@@ -24,7 +24,7 @@
  */
 
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
-    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
+    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../../gfx';
 import { Light } from '../renderer/scene';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
 
