@@ -99,13 +99,13 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNativ
     // todo: create gfx surface
 }
 
-JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNative(JNIEnv *env,
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNative(JNIEnv *env,//NOLINT JNI function name
                                                                                   jobject /*thiz*/,
                                                                                   jlong handle,
                                                                                   jobject surface,
                                                                                   jint format,
                                                                                   jint width,
-                                                                                  jint height) { //NOLINT JNI function name
+                                                                                  jint height) {
     CC_UNUSED_PARAM(env);
     CC_UNUSED_PARAM(format);
     CC_UNUSED_PARAM(width);
@@ -137,13 +137,15 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceDestroyedNat
 
 // NOLINTNEXTLINE
 JNIEXPORT void JNICALL
-Java_com_cocos_lib_CocosTouchHandler_handleActionDown(JNIEnv *env,
+Java_com_cocos_lib_CocosTouchHandler_handleActionDown(JNIEnv *env,//NOLINT JNI function name
                                                       jobject obj,
                                                       jlong windowCacheHandle,
                                                       jint id,
                                                       jfloat x,
-                                                      jfloat y) {//NOLINT JNI function name
+                                                      jfloat y) {
     CC_UNUSED_PARAM(env);
+    CC_UNUSED_PARAM(obj);
+    CC_UNUSED_PARAM(windowCacheHandle);
     touchEvent.type = cc::TouchEvent::Type::BEGAN;
     touchEvent.touches.emplace_back(x, y, id);
     auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
@@ -152,13 +154,15 @@ Java_com_cocos_lib_CocosTouchHandler_handleActionDown(JNIEnv *env,
 }
 
 // NOLINTNEXTLINE
-JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEnv *env,
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEnv *env,//NOLINT JNI function name
                                                                            jobject obj,
                                                                            jlong windowCacheHandle,
                                                                            jint id,
                                                                            jfloat x,
-                                                                           jfloat y) { //NOLINT JNI function name
+                                                                           jfloat y) {
     CC_UNUSED_PARAM(env);
+    CC_UNUSED_PARAM(obj);
+    CC_UNUSED_PARAM(windowCacheHandle);
     touchEvent.type = cc::TouchEvent::Type::ENDED;
     touchEvent.touches.emplace_back(x, y, id);
     auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
@@ -167,12 +171,14 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEn
 }
 
 // NOLINTNEXTLINE
-JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNIEnv *env,
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNIEnv *env,//NOLINT JNI function name
                                                                              jobject obj,
                                                                              jlong windowCacheHandle,
                                                                              jintArray ids,
                                                                              jfloatArray xs,
-                                                                             jfloatArray ys) { //NOLINT JNI function name
+                                                                             jfloatArray ys) {
+    CC_UNUSED_PARAM(obj);
+    CC_UNUSED_PARAM(windowCacheHandle);
     touchEvent.type = cc::TouchEvent::Type::MOVED;
     int size = env->GetArrayLength(ids);
     jint id[size];
@@ -192,12 +198,14 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNI
 }
 
 // NOLINTNEXTLINE
-JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(JNIEnv *env,
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(JNIEnv *env,//NOLINT JNI function name
                                                                                jobject obj,
                                                                                jlong windowCacheHandle,
                                                                                jintArray ids,
                                                                                jfloatArray xs,
-                                                                               jfloatArray ys) {//NOLINT JNI function name
+                                                                               jfloatArray ys) {
+    CC_UNUSED_PARAM(obj);
+    CC_UNUSED_PARAM(windowCacheHandle);
     touchEvent.type = cc::TouchEvent::Type::CANCELLED;
     int size = env->GetArrayLength(ids);
     jint id[size];
