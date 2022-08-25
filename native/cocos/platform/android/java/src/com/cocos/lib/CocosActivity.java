@@ -24,17 +24,18 @@
 
 package com.cocos.lib;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -45,11 +46,14 @@ import java.lang.reflect.Field;
 
 public class CocosActivity extends GameActivity {
     private static final String _TAG = "CocosActivity";
+    private static final boolean _ENABLE_SUBSURFACE = false;
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
     private CocosOrientationHelper mOrientationHelper = null;
 
     private CocosSensorHandler mSensorHandler;
+    private CocosSurfaceView mSubsurfaceView;
+
 
 
     private native void onCreateNative(Context activity);
@@ -118,6 +122,12 @@ public class CocosActivity extends GameActivity {
 
         if (mVideoHelper == null) {
             mVideoHelper = new CocosVideoHelper(this, frameLayout);
+        }
+        if (_ENABLE_SUBSURFACE) {
+            mSubsurfaceView = new CocosSurfaceView(this);
+            mSubsurfaceView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            mSubsurfaceView.setBackgroundColor(Color.BLUE);
+            frameLayout.addView(mSubsurfaceView, 1000, 1000);
         }
     }
 

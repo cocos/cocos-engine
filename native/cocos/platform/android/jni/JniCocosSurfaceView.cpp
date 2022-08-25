@@ -25,20 +25,184 @@
 
 #include <android/keycodes.h>
 #include <android/log.h>
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
 #include <jni.h>
-#include "platform/BasePlatform.h"
+#include "platform/android/AndroidPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
+
+namespace {
+struct cc::TouchEvent touchEvent;
+
+class NativeWindowCache {
+public:
+    ~NativeWindowCache() {
+        setSurface(nullptr);
+    }
+
+    void setSurface(jobject _surface) {
+        if (_nativeWindow != NULL) {
+            ANativeWindow_release(_nativeWindow);
+        }
+        if (_surface != NULL) {
+            _nativeWindow = ANativeWindow_fromSurface(env, _surface);
+        } else {
+            _nativeWindow = NULL;
+        }
+    }
+
+    ANativeWindow *getNativeWindow() {
+        return _nativeWindow;
+    }
+
+    JNIEnv *env;
+
+private:
+    ANativeWindow *_nativeWindow{nullptr};
+};
+} // namespace
 
 //#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "JniCocosSurfaceView JNI", __VA_ARGS__)
 
 extern "C" {
-//NOLINTNEXTLINE
-JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_nativeOnSizeChanged(JNIEnv *env, jobject thiz, jint width,
-                                                                               jint height) {
+
+JNIEXPORT jlong Java_com_cocos_lib_CocosSurfaceView_constructNative(JNIEnv *env, jobject /*thiz*/) {
+    auto cache = new NativeWindowCache();
+    cache->env = env;
+    return reinterpret_cast<jlong>(cache);
+}
+
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_destructNative(JNIEnv *env, jobject /*thiz*/, jlong handle) {
+    auto *windowCache = (NativeWindowCache *)handle;
+    delete windowCache;
+}
+
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSizeChangedNative(JNIEnv *env, jobject /*thiz*/, jlong handle, jint width, jint height) {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
     ev.width = width;
     ev.height = height;
-    JNI_NATIVE_GLUE()->dispatchEvent(ev);
+    auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    platform->dispatchEvent(ev);
+}
+
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceRedrawNeededNative(JNIEnv *env, jobject /*thiz*/, jlong handle) {
+    //
+}
+
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNative(JNIEnv *env, jobject /*thiz*/, jlong handle, jobject surface) {
+    auto *windowCache = (NativeWindowCache *)handle;
+    windowCache->setSurface(surface);
+    // todo: create gfx surface
+}
+
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNative(JNIEnv *env,
+                                                                                  jobject /*thiz*/,
+                                                                                  jlong handle,
+                                                                                  jobject surface,
+                                                                                  jint format,
+                                                                                  jint width,
+                                                                                  jint height) {
+    if (handle != 0) {
+        auto *windowCache = (NativeWindowCache *)handle;
+        ANativeWindow *oldNativeWindow = windowCache->getNativeWindow();
+        // Fix for window being destroyed behind the scenes on older Android
+        // versions.
+        if (oldNativeWindow != NULL) {
+            ANativeWindow_acquire(oldNativeWindow);
+        }
+        windowCache->setSurface(surface);
+        if (oldNativeWindow != windowCache->getNativeWindow()) {
+            // todo: update systemwindow`s nativewindow ?
+        }
+        // Release the window we acquired earlier.
+        if (oldNativeWindow != NULL) {
+            ANativeWindow_release(oldNativeWindow);
+        }
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceDestroyedNative(JNIEnv *env, jobject /*thiz*/, jlong handle) {
+    auto *windowCache = (NativeWindowCache *)handle;
+    // todo: destroy gfx surface
+    windowCache->setSurface(nullptr);
+}
+
+// NOLINTNEXTLINE
+JNIEXPORT void JNICALL
+Java_com_cocos_lib_CocosTouchHandler_handleActionDown(JNIEnv *env,
+                                                      jobject obj,
+                                                      jlong windowCacheHandle,
+                                                      jint id,
+                                                      jfloat x,
+                                                      jfloat y) {
+    touchEvent.type = cc::TouchEvent::Type::BEGAN;
+    touchEvent.touches.emplace_back(x, y, id);
+    auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    platform->dispatchEvent(touchEvent);
+    touchEvent.touches.clear();
+}
+
+// NOLINTNEXTLINE
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEnv *env,
+                                                                           jobject obj,
+                                                                           jlong windowCacheHandle,
+                                                                           jint id,
+                                                                           jfloat x,
+                                                                           jfloat y) {
+    touchEvent.type = cc::TouchEvent::Type::ENDED;
+    touchEvent.touches.emplace_back(x, y, id);
+    auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    platform->dispatchEvent(touchEvent);
+    touchEvent.touches.clear();
+}
+
+// NOLINTNEXTLINE
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNIEnv *env,
+                                                                             jobject obj,
+                                                                             jlong windowCacheHandle,
+                                                                             jintArray ids,
+                                                                             jfloatArray xs,
+                                                                             jfloatArray ys) {
+    touchEvent.type = cc::TouchEvent::Type::MOVED;
+    int size = env->GetArrayLength(ids);
+    jint id[size];
+    jfloat x[size];
+    jfloat y[size];
+
+    env->GetIntArrayRegion(ids, 0, size, id);
+    env->GetFloatArrayRegion(xs, 0, size, x);
+    env->GetFloatArrayRegion(ys, 0, size, y);
+    for (int i = 0; i < size; i++) {
+        touchEvent.touches.emplace_back(x[i], y[i], id[i]);
+    }
+
+    auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    platform->dispatchEvent(touchEvent);
+    touchEvent.touches.clear();
+}
+
+// NOLINTNEXTLINE
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(JNIEnv *env,
+                                                                               jobject obj,
+                                                                               jlong windowCacheHandle,
+                                                                               jintArray ids,
+                                                                               jfloatArray xs,
+                                                                               jfloatArray ys) {
+    touchEvent.type = cc::TouchEvent::Type::CANCELLED;
+    int size = env->GetArrayLength(ids);
+    jint id[size];
+    jfloat x[size];
+    jfloat y[size];
+
+    env->GetIntArrayRegion(ids, 0, size, id);
+    env->GetFloatArrayRegion(xs, 0, size, x);
+    env->GetFloatArrayRegion(ys, 0, size, y);
+    for (int i = 0; i < size; i++) {
+        touchEvent.touches.emplace_back(x[i], y[i], id[i]);
+    }
+    auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    platform->dispatchEvent(touchEvent);
+    touchEvent.touches.clear();
 }
 }
