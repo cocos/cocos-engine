@@ -641,9 +641,9 @@ static inline int32_t clampq4_27_from_float(float f) {
     static const float limneg = -16.;
 
     if (f <= limneg) {
-        return -0x80000000; /* or 0x80000000 */
+        return INT32_MIN; /* or 0x80000000 */
     } else if (f >= limpos) {
-        return 0x7fffffff;
+        return INT32_MAX;
     }
     f *= scale;
     /* integer conversion is through truncation (though int to float is not).
@@ -665,9 +665,9 @@ static inline int32_t clamp32_from_float(float f) {
     static const float limneg = -1.;
 
     if (f <= limneg) {
-        return -0x80000000; /* or 0x80000000 */
+        return INT32_MIN; /* or 0x80000000 */
     } else if (f >= limpos) {
-        return 0x7fffffff;
+        return INT32_MAX;
     }
     f *= scale;
     /* integer conversion is through truncation (though int to float is not).
@@ -737,7 +737,8 @@ static inline uint32_t u4_28_from_float(float f) {
     if (f <= 0.) {
         return 0;
     } else if (f >= limpos) {
-        return 0xffffffff;
+        // return 0xffffffff;
+        return UINT32_MAX;
     }
     /* integer conversion is through truncation (though int to float is not).
      * ensure that we round to nearest, ties away from 0.
@@ -759,7 +760,8 @@ static inline uint16_t u4_12_from_float(float f) {
     if (f <= 0.) {
         return 0;
     } else if (f >= limpos) {
-        return 0xffff;
+        // return 0xffff;
+        return UINT16_MAX;
     }
     /* integer conversion is through truncation (though int to float is not).
      * ensure that we round to nearest, ties away from 0.
@@ -899,9 +901,9 @@ static inline int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a)
 #else
     if (left) {
         return a + (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
-    } else {
-        return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    }
+    }  
+    return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
+    
 #endif
 }
 
@@ -926,9 +928,9 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
 #else
     if (left) {
         return (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
-    } else {
-        return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    }
+    }  
+    return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
+    
 #endif
 }
 
