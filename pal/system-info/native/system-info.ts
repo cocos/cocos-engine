@@ -34,6 +34,7 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly isXR: boolean;
     private _featureMap: IFeatureMap;
     // TODO: need to wrap the function __isObjectValid()
 
@@ -75,6 +76,8 @@ class SystemInfo extends EventTarget {
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
 
+        this.isXR = typeof xr !== 'undefined';
+
         this._featureMap = {
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
@@ -87,6 +90,9 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_MOUSE]: !this.isMobile,
             [Feature.EVENT_TOUCH]: true,
             [Feature.EVENT_ACCELEROMETER]: this.isMobile,
+            [Feature.EVENT_GAMEPAD]: true,
+            [Feature.EVENT_HANDLE]: this.isXR,
+            [Feature.EVENT_HMD]: this.isXR,
         };
 
         this._registerEvent();

@@ -331,6 +331,9 @@ public:
 
     bool isOcclusionQueryEnabled() const override;
 
+    void resetRenderQueue(bool reset) override;
+    bool isRenderQueueReset() const override;
+
     gfx::Device* device{nullptr};
     gfx::Swapchain* swapchain{nullptr};
     MacroRecord macros;

@@ -168,7 +168,6 @@
 %import "core/data/Object.h"
 %import "core/assets/Asset.h"
 %import "core/assets/Material.h"
-%import "core/scene-graph/BaseNode.h"
 %import "core/scene-graph/Node.h"
 
 %import "2d/renderer/StencilManager.h"

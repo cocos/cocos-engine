@@ -38,6 +38,7 @@
 #include "math/Mat4.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
+#include "platform/java/modules/XRInterface.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
 
@@ -115,6 +116,20 @@ enum class CameraShutter {
     D4000,
 };
 
+enum class CameraType {
+    DEFAULT = -1,
+    LEFT_EYE = 0,
+    RIGHT_EYE = 1,
+    MAIN = 2,
+};
+
+enum class TrackingType {
+    NO_TRACKING = 0,
+    POSITION_AND_ROTATION = 1,
+    POSITION = 2,
+    ROTATION = 3,
+};
+
 struct ICameraInfo {
     ccstd::string name;
     Node *node{nullptr};
@@ -123,6 +138,8 @@ struct ICameraInfo {
     RenderWindow *window{nullptr};
     uint32_t priority{0};
     ccstd::optional<ccstd::string> pipeline;
+    CameraType cameraType{CameraType::DEFAULT};
+    TrackingType trackingType{TrackingType::NO_TRACKING};
 };
 
 class Camera : public RefCounted {
@@ -324,6 +341,15 @@ public:
 
     void detachCamera();
 
+    inline CameraType getCameraType() const { return _cameraType; }
+    inline void setCameraType(CameraType type) { _cameraType = type; }
+
+    inline TrackingType getTrackingType() const { return _trackingType; }
+    inline void setTrackingType(TrackingType type) { _trackingType = type; }
+
+    inline bool isCullingEnabled() const { return _isCullingEnabled; }
+    inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
+
 protected:
     void setExposure(float ev100);
 
@@ -338,6 +364,7 @@ private:
     IntrusivePtr<Node> _node;
     ccstd::string _name;
     bool _enabled{false};
+    bool _isCullingEnabled{true};
     CameraProjection _proj{CameraProjection::UNKNOWN};
     float _aspect{0.F};
     float _orthoHeight{10.0F};
@@ -371,6 +398,8 @@ private:
     uint32_t _height{0};
     gfx::ClearFlagBit _clearFlag{gfx::ClearFlagBit::NONE};
     float _clearDepth{1.0F};
+    CameraType _cameraType{CameraType::DEFAULT};
+    TrackingType _trackingType{TrackingType::NO_TRACKING};
 
 #if CC_USE_GEOMETRY_RENDERER
     IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;
@@ -383,6 +412,7 @@ private:
     uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
     float _exposure{0.F};
     uint32_t _clearStencil{0};
+    IXRInterface *_xr{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Camera);
 };

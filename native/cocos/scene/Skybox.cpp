@@ -191,6 +191,7 @@ void SkyboxInfo::activate(Skybox *resource) {
         _resource->setDiffuseMaps(_diffuseMapHDR, _diffuseMapLDR);
         _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
         _resource->setSkyboxMaterial(_editableMaterial);
+        _resource->setRotationAngle(_rotationAngle);
         _resource->activate(); // update global DS first
     }
 }
@@ -283,6 +284,10 @@ void Skybox::setReflectionMaps(TextureCube *reflectionHDR, TextureCube *reflecti
 
 void Skybox::setSkyboxMaterial(Material *skyboxMat) {
     _editableMaterial = skyboxMat;
+}
+
+void Skybox::setRotationAngle(float angle) {
+    _rotationAngle = angle;
 }
 
 void Skybox::activate() {

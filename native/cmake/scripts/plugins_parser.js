@@ -268,3 +268,4 @@ if (cc_config_json_list.length == 0) {
         fs.writeFileSync(plugin_cmake_output_file, output_lines.join("\n") + "\n", { encoding: 'utf8' });
     }
 }
+process.exit(0);

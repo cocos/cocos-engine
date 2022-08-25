@@ -27961,6 +27961,33 @@ static bool js_cc_gfx_Device_createSwapchain(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Device_createSwapchain) 
 
+static bool js_cc_gfx_Device_getSwapchains(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
+    ccstd::vector< cc::gfx::Swapchain * > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::vector< cc::gfx::Swapchain * > *) &((cc::gfx::Device const *)arg1)->getSwapchains();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Device_getSwapchains, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_Device_getSwapchains) 
+
 static bool js_cc_gfx_Device_createBuffer__SWIG_0(se::State& s)
 {
     // js_overloaded_function
@@ -29071,6 +29098,7 @@ bool js_register_cc_gfx_Device(se::Object* obj) {
     cls->defineFunction("createQueue", _SE(js_cc_gfx_Device_createQueue)); 
     cls->defineFunction("createQueryPool", _SE(js_cc_gfx_Device_createQueryPool)); 
     cls->defineFunction("createSwapchain", _SE(js_cc_gfx_Device_createSwapchain)); 
+    cls->defineFunction("getSwapchains", _SE(js_cc_gfx_Device_getSwapchains)); 
     cls->defineFunction("createBuffer", _SE(js_cc_gfx_Device_createBuffer)); 
     cls->defineFunction("createTexture", _SE(js_cc_gfx_Device_createTexture)); 
     cls->defineFunction("createShader", _SE(js_cc_gfx_Device_createShader)); 
