@@ -417,7 +417,7 @@ public:
     /**
      *  Decomposes the scale, rotation and translation components of this matrix.
      */
-    static void toRTS(Quaternion &rotation, Vec3 &translation, Vec3 &scale, Mat4 *dst);
+    static void toRTS(const Mat4 &src, Quaternion *rotation, Vec3 *translation, Vec3 *scale);
 
     /**
      * Decomposes the scale, rotation and translation components of this matrix.

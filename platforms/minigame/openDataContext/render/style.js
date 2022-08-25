@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     container: {
         width: '100%',
         height: '100%',
@@ -78,7 +78,7 @@ export default {
         height: 100,
         fontSize: 33,
         fontWeight: 'bold',
-        paddingRight : 200,
+        paddingRight: 200,
         lineHeight: 100,
         textAlign: 'center',
     },
@@ -99,11 +99,11 @@ export default {
         height: 70,
     },
 
-    listItemName:{
+    listItemName: {
         width: 210,
         height: 100,
         fontSize: 30,
         lineHeight: 100,
         marginLeft: 30,
     },
-}
+};

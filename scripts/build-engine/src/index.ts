@@ -28,6 +28,7 @@ import { StatsQuery } from './stats-query';
 import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 import { codeAsset } from './rollup-plugins/code-asset';
+import { ModeType, PlatformType } from './constant-manager';
 
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
@@ -272,10 +273,38 @@ async function doBuild ({
 
     const featureUnits = statsQuery.getUnitsOfFeatures(features);
 
+    // HACK: get platform, mode, flags from build time constants
+    const flags: Record<string, any> = {};
+    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE'].forEach((key) => {
+        flags[key] = buildTimeConstants[key];
+    });
+    let platform = options.platform as PlatformType;
+    if (!platform) {
+        ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE"].some(key => {
+            if (buildTimeConstants[key]) {
+                platform = key as PlatformType;
+                return true;
+            }
+            return false;
+        });
+    }
+    let mode = options.mode as ModeType;
+    if (!mode) {
+        ["EDITOR", "PREVIEW", "BUILD", "TEST"].some((key) => {
+            if (buildTimeConstants[key]) {
+                mode = key as ModeType;
+                return true;
+            }
+            return false;
+        });
+    }
+
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = statsQuery.evaluateEnvModuleSourceFromRecord({
-        EXPORT_TO_GLOBAL: true,
-        ...buildTimeConstants,
+    
+    const vmInternalConstants = statsQuery.constantManager.exportStaticConstants({
+        platform,
+        mode,
+        flags,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;

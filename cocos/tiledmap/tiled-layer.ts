@@ -1496,6 +1496,7 @@ export class TiledLayer extends UIRenderer {
                             this._drawInfoList[idx] = new RenderDrawInfo();
                         }
                         const drawInfo = this._drawInfoList[idx];
+                        drawInfo.setDrawInfoType(RenderDrawInfoType.SUB_NODE);
                         drawInfo.setSubNode(c.node);
                         entity.setDynamicRenderDrawInfo(drawInfo, idx);
                         idx++;
@@ -1506,12 +1507,10 @@ export class TiledLayer extends UIRenderer {
                 if (td.texture) {
                     if (!this._drawInfoList[idx]) {
                         this._drawInfoList[idx] = new RenderDrawInfo();
-                        this._drawInfoList[idx].setDrawInfoType(RenderDrawInfoType.IA);
                     }
                     const drawInfo = this._drawInfoList[idx];
                     td.renderData!.fillDrawInfoAttributes(drawInfo);
                     drawInfo.setTexture(td.texture.getGFXTexture());
-                    drawInfo.setTextureHash(td.texture.getHash());
                     drawInfo.setSampler(td.texture.getGFXSampler());
                     drawInfo.setMaterial(this.getRenderMaterial(0)!);
                     this.fillIndicesBuffer(td.renderData!, drawInfo);

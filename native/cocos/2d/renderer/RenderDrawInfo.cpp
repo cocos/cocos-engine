@@ -31,6 +31,12 @@
 
 namespace cc {
 
+static gfx::DescriptorSetInfo gDsInfo;
+static float matrixData[pipeline::UBOLocal::COUNT] = {0.F};
+void mat4ToFloatArray(const cc::Mat4& mat, float* out, index_t ofs = 0) {
+    memcpy(out + ofs, mat.m, 16 * sizeof(float));
+}
+
 RenderDrawInfo::RenderDrawInfo() {
     _attrSharedBufferActor.initialize(&_drawInfoAttrs, sizeof(_drawInfoAttrs));
 }
@@ -95,6 +101,12 @@ void RenderDrawInfo::destroy() {
         _iaPool->clear();
         CC_SAFE_DELETE(_iaPool);
     }
+
+    if (_localDSBF) {
+        CC_SAFE_DELETE(_localDSBF->ds);
+        CC_SAFE_DELETE(_localDSBF->uboBuf);
+        CC_SAFE_DELETE(_localDSBF);
+    }
 }
 
 gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
@@ -124,4 +136,29 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
 
     return ia;
 }
+
+void RenderDrawInfo::updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout) {
+    if (_localDSBF == nullptr) {
+        _localDSBF = new LocalDSBF();
+        auto *device = Root::getInstance()->getDevice();
+        gDsInfo.layout = dsLayout;
+        _localDSBF->ds = device->createDescriptorSet(gDsInfo);
+        _localDSBF->uboBuf = device->createBuffer({
+            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+            pipeline::UBOLocal::SIZE,
+            pipeline::UBOLocal::SIZE,
+        });
+    }
+    if (_texture != nullptr && _sampler != nullptr) {
+        _localDSBF->ds->bindTexture(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), _texture);
+        _localDSBF->ds->bindSampler(static_cast<uint32_t>(pipeline::ModelLocalBindings::SAMPLER_SPRITE), _sampler);
+    }
+    _localDSBF->ds->bindBuffer(pipeline::UBOLocal::BINDING, _localDSBF->uboBuf);
+    _localDSBF->ds->update();
+    const auto& worldMatrix = transform->getWorldMatrix();
+    mat4ToFloatArray(worldMatrix, matrixData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
+    _localDSBF->uboBuf->update(matrixData);
+}
+
 } // namespace cc

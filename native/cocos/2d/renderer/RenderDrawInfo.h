@@ -45,10 +45,16 @@ struct Render2dLayout {
     Vec4 color;
 };
 
-enum class RenderDrawInfoType: uint8_t {
+enum class RenderDrawInfoType : uint8_t {
     COMP,
     MODEL,
-    IA
+    IA,
+    SUB_NODE,
+};
+
+struct LocalDSBF {
+    gfx::DescriptorSet* ds;
+    gfx::Buffer* uboBuf;
 };
 
 class Batcher2d;
@@ -144,14 +150,6 @@ public:
         _texture = texture;
     }
 
-    inline uint32_t getTextureHash() const {
-        return _drawInfoAttrs._textureHash;
-    }
-
-    inline void setTextureHash(uint32_t textureHash) {
-        _drawInfoAttrs._textureHash = textureHash;
-    }
-
     inline gfx::Sampler* getSampler() const {
         return _sampler;
     }
@@ -188,8 +186,12 @@ public:
         }
     }
 
-    inline Node* getSubNode() const { return _subNode; }
+    inline Node* getSubNode() const {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
+        return _subNode;
+    }
     inline void setSubNode(Node* node) {
+        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
         _subNode = node;
     }
 
@@ -213,6 +215,35 @@ public:
     void uploadBuffers();
     void resetMeshIA();
 
+    inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
+    void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
+
+    inline void resetDrawInfo() {
+        destroy();
+
+        _drawInfoAttrs._bufferId = 0;
+        _drawInfoAttrs._accId = 0;
+        _drawInfoAttrs._vertexOffset = 0;
+        _drawInfoAttrs._indexOffset = 0;
+        _drawInfoAttrs._vbCount = 0;
+        _drawInfoAttrs._ibCount = 0;
+        _drawInfoAttrs._stride = 0;
+        _drawInfoAttrs._dataHash = 0;
+        _drawInfoAttrs._vertDirty = false;
+        _drawInfoAttrs._isMeshBuffer = false;
+
+        _vbBuffer = nullptr;
+        _ibBuffer = nullptr;
+        _vDataBuffer = nullptr;
+        _iDataBuffer = nullptr;
+        _material = nullptr;
+        _texture = nullptr;
+        _sampler = nullptr;
+        _subNode = nullptr;
+        _model = nullptr;
+        _sharedBuffer = nullptr;
+    }
+
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderDrawInfo);
     void destroy();
@@ -230,9 +261,10 @@ private:
         uint32_t _indexOffset{0};
         uint32_t _vbCount{0};
         uint32_t _ibCount{0};
-        uint32_t _textureHash{0};
         ccstd::hash_t _dataHash{0};
     } _drawInfoAttrs{};
+
+    uint16_t _nextFreeIAHandle{0};
 
     bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
     // weak reference
@@ -257,9 +289,8 @@ private:
         scene::Model* _model;
         uint8_t* _sharedBuffer;
     };
-
     gfx::InputAssemblerInfo* _iaInfo{nullptr};
     ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
-    uint16_t _nextFreeIAHandle{0};
+    LocalDSBF* _localDSBF{nullptr};
 };
 } // namespace cc

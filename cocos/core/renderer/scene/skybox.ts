@@ -368,30 +368,22 @@ export class Skybox {
         }
 
         if (this.enabled) {
+            const envmap = this.envmap ? this.envmap : this._default;
             if (this._editableMaterial) {
-                if (this.reflectionMap) {
-                    this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: true });
-                    this._editableMaterial.setProperty('environmentMap', this.envmap);
-                } else {
-                    this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: false });
-                }
+                this._editableMaterial.setProperty('environmentMap', envmap);
+                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             } else if (skybox_material) {
-                if (this.reflectionMap) {
-                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: true });
-                    skybox_material.setProperty('environmentMap', this.envmap);
+                skybox_material.setProperty('environmentMap', envmap);
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+            }
+            if (this._model) {
+                if (this._editableMaterial) {
+                    this._model.setSubModelMaterial(0, this._editableMaterial);
                 } else {
-                    skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE, USE_REFLECTION_CUBEMAP: false });
+                    this._model.setSubModelMaterial(0, skybox_material!);
                 }
+                this._updateSubModes();
             }
-        }
-
-        if (this._model) {
-            if (this._editableMaterial) {
-                this._model.setSubModelMaterial(0, this._editableMaterial);
-            } else {
-                this._model.setSubModelMaterial(0, skybox_material!);
-            }
-            this._updateSubModes();
         }
     }
 

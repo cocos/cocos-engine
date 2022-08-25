@@ -75,6 +75,7 @@ RenderPipeline::~RenderPipeline() {
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
     _flows = info.flows;
     _tag = info.tag;
+    _isResourceOwner = false;
     return true;
 }
 
@@ -149,8 +150,14 @@ void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *>
 #endif
 
 bool RenderPipeline::destroy() {
-    for (auto *flow : _flows) {
-        CC_SAFE_DESTROY_AND_DELETE(flow);
+    if (_isResourceOwner) {
+        for (auto *flow : _flows) {
+            CC_SAFE_DESTROY_AND_DELETE(flow);
+        }
+    } else {
+        for (auto *flow : _flows) {
+            CC_SAFE_DESTROY(flow);
+        }
     }
     _flows.clear();
 

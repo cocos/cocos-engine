@@ -50,14 +50,25 @@ extern se::Class * __jsb_cc_geometry_Plane_class; // NOLINT
 
 bool js_register_cc_geometry_Plane(se::Object *obj); // NOLINT
 
+SE_DECLARE_FUNC(js_geometry_Plane_clone);
 SE_DECLARE_FUNC(js_geometry_Plane_define);
 SE_DECLARE_FUNC(js_geometry_Plane_distance);
 SE_DECLARE_FUNC(js_geometry_Plane_getW);
 SE_DECLARE_FUNC(js_geometry_Plane_getX);
 SE_DECLARE_FUNC(js_geometry_Plane_getY);
 SE_DECLARE_FUNC(js_geometry_Plane_getZ);
+SE_DECLARE_FUNC(js_geometry_Plane_setW);
+SE_DECLARE_FUNC(js_geometry_Plane_setX);
+SE_DECLARE_FUNC(js_geometry_Plane_setY);
+SE_DECLARE_FUNC(js_geometry_Plane_setZ);
 SE_DECLARE_FUNC(js_geometry_Plane_transform);
+SE_DECLARE_FUNC(js_geometry_Plane_clone);
+SE_DECLARE_FUNC(js_geometry_Plane_copy);
 SE_DECLARE_FUNC(js_geometry_Plane_create);
+SE_DECLARE_FUNC(js_geometry_Plane_fromNormalAndPoint);
+SE_DECLARE_FUNC(js_geometry_Plane_fromPoints);
+SE_DECLARE_FUNC(js_geometry_Plane_normalize);
+SE_DECLARE_FUNC(js_geometry_Plane_set);
 SE_DECLARE_FUNC(js_geometry_Plane_Plane);
 
 extern se::Object *__jsb_cc_geometry_Frustum_proto; // NOLINT

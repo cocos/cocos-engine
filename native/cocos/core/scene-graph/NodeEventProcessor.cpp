@@ -357,7 +357,7 @@ void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, void *target
     }
 }
 
-void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, CallbackInfoBase::ID cbID, bool /*useCapture*/) {
+void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool /*useCapture*/) {
     //    bool touchEventExist = std::find(TOUCH_EVENTS.begin(), TOUCH_EVENTS.end(), type) != TOUCH_EVENTS.end();
     //    bool mouseEventExist = std::find(MOUSE_EVENTS.begin(), MOUSE_EVENTS.end(), type) != MOUSE_EVENTS.end();
     //    if (touchEventExist || mouseEventExist) {
@@ -380,6 +380,29 @@ void NodeEventProcessor::off(const CallbacksInvoker::KeyType &type, CallbackInfo
     }
 }
 
+void NodeEventProcessor::offAll(const CallbacksInvoker::KeyType &type, bool /* useCapture = false*/) {
+    //    bool touchEventExist = std::find(TOUCH_EVENTS.begin(), TOUCH_EVENTS.end(), type) != TOUCH_EVENTS.end();
+    //    bool mouseEventExist = std::find(MOUSE_EVENTS.begin(), MOUSE_EVENTS.end(), type) != MOUSE_EVENTS.end();
+    //    if (touchEventExist || mouseEventExist) {
+    //        offDispatch(type, target, useCapture);
+    //
+    //        if (touchEventExist) {
+    //            if (_touchListener && !checkListeners(_node, TOUCH_EVENTS)) {
+    //                event::EventManager::getInstance()->removeEventListener(_touchListener);
+    //                _touchListener = nullptr;
+    //            }
+    //        } else if (mouseEventExist) {
+    //            if (_mouseListener && !checkListeners(_node, MOUSE_EVENTS)) {
+    //                event::EventManager::getInstance()->removeEventListener(_mouseListener);
+    //                _mouseListener = nullptr;
+    //            }
+    //        }
+    //    } else
+    if (_bubblingTargets != nullptr) {
+        _bubblingTargets->offAll(type);
+    }
+}
+
 //void NodeEventProcessor::dispatchEvent(event::Event *event) {
 //    doDispatchEvent(_node, event);
 //    cachedArray.clear();
@@ -396,7 +419,7 @@ bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type)
     return has;
 }
 
-bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, CallbackInfoBase::ID cbID) const {
+bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, const CallbackID &cbID) const {
     bool has = false;
     if (_bubblingTargets) {
         has = _bubblingTargets->hasEventListener(type, cbID);
@@ -417,7 +440,7 @@ bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type,
     }
     return has;
 }
-bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, CallbackInfoBase::ID cbID) const {
+bool NodeEventProcessor::hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID &cbID) const {
     bool has = false;
     if (_bubblingTargets) {
         has = _bubblingTargets->hasEventListener(type, target, cbID);
@@ -535,8 +558,8 @@ void NodeEventProcessor::getBubblingTargets(const CallbacksInvoker::KeyType &typ
 //    return forDispatch;
 //}
 
-void NodeEventProcessor::offDispatch(const CallbacksInvoker::KeyType &type, CallbackInfoBase::ID cbID, bool useCapture) {
-    if (cbID == 0) {
+void NodeEventProcessor::offDispatch(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture) {
+    if (cbID.value == 0) {
         if (_capturingTargets != nullptr) {
             _capturingTargets->offAll(type);
         }

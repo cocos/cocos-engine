@@ -120,6 +120,11 @@ if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
     set(USE_JOB_SYSTEM_TBB      OFF)
 endif()
 
+if(OHOS AND USE_JOB_SYSTEM_TBB)
+    message(WARNING "JobSystem tbb is not supported by HarmonyOS")
+    set(USE_JOB_SYSTEM_TBB      OFF)
+endif()
+
 if(USE_JOB_SYSTEM_TASKFLOW)
     set(CMAKE_CXX_STANDARD 17)
     if(IOS AND "${TARGET_IOS_VERSION}" VERSION_LESS "12.0")
@@ -137,6 +142,27 @@ if(ANDROID)
     endif()
 endif()
 
+if(CI_FORCE_MINIMAL_FEATURES)
+    set(USE_V8_DEBUGGER_FORCE OFF)
+    set(USE_V8_DEBUGGER OFF)
+    set(USE_AUDIO OFF)
+    set(USE_EDIT_BOX OFF)
+    set(USE_VIDEO OFF)
+    set(USE_WEBVIEW OFF)
+    set(USE_MIDDLEWARE OFF)
+    set(USE_DRAGONBONES OFF)
+    set(USE_SPINE OFF)
+    set(USE_SOCKET OFF)
+    set(USE_WEBSOCKET_SERVER OFF)
+    set(USE_PHYSICS_PHYSX OFF)
+    set(USE_JOB_SYSTEM_TBB OFF)
+    set(USE_JOB_SYSTEM_TASKFLOW OFF)
+    set(USE_PLUGINS OFF)
+    set(USE_OCCLUSION_QUERY OFF)
+    set(USE_DEBUG_RENDERER OFF)
+    set(USE_GEOMETRY_RENDERER OFF)
+    set(USE_WEBP OFF)
+endif()
 ################################# list all option values ##############################
 
 cc_inspect_values(
@@ -475,8 +501,6 @@ endif()
 cocos_source_files(
     cocos/platform/interfaces/OSInterface.cpp
     cocos/platform/interfaces/OSInterface.h
-    cocos/platform/interfaces/OSInterfaceManager.cpp
-    cocos/platform/interfaces/OSInterfaceManager.h
 )
 
 ############ platform : Interface definition

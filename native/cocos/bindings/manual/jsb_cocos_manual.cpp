@@ -375,7 +375,7 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= Data_to_seval(larg0, &args[0]);
+                    ok &= Data_to_TypedArray(larg0, &args[0]);
                     se::Value rval;
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
@@ -651,6 +651,11 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
         jsArgs[2] = se::Value(stack);
         objFunc->call(jsArgs, nullptr);
     });
+
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([objFunc] {
+        objFunc->decRef();
+    });
+
     return true;
 }
 SE_BIND_FUNC(js_se_setExceptionCallback) // NOLINT(readability-identifier-naming)

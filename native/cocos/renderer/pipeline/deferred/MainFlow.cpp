@@ -50,6 +50,8 @@ bool MainFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
     if (_stages.empty()) {
+        _isResourceOwner = true;
+
         auto *gbufferStage = ccnew GbufferStage;
         gbufferStage->initialize(GbufferStage::getInitializeInfo());
         _stages.emplace_back(gbufferStage);

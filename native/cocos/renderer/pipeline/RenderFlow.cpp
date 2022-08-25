@@ -40,6 +40,7 @@ bool RenderFlow::initialize(const RenderFlowInfo &info) {
     _priority = info.priority;
     _tag = info.tag;
     _stages = info.stages;
+    _isResourceOwner = false;
     return true;
 }
 
@@ -62,8 +63,14 @@ void RenderFlow::render(scene::Camera *camera) {
 }
 
 void RenderFlow::destroy() {
-    for (auto *stage : _stages) {
-        CC_SAFE_DESTROY_AND_DELETE(stage);
+    if (_isResourceOwner) {
+        for (auto *stage : _stages) {
+            CC_SAFE_DESTROY_AND_DELETE(stage);
+        }
+    } else {
+        for (auto *stage : _stages) {
+            CC_SAFE_DESTROY(stage);
+        }
     }
 
     _stages.clear();
