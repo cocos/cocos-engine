@@ -214,7 +214,7 @@ if(USE_AUDIO)
     if(WINDOWS)
         cocos_source_files(
             cocos/audio/common/utils/tinysndfile.cpp
-            cocos/audio/common/utils/primitives.cpp
+NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/common/utils/include/tinysndfile.h
             cocos/audio/common/utils/include/primitives.h
             cocos/audio/common/utils/private/private.h
