@@ -66,15 +66,15 @@ static inline T max(const T &x, const T &y) {
 
 // Set kUseNewMixer to true to use the new mixer engine always. Otherwise the
 // original code will be used for stereo sinks, the new mixer for multichannel.
-static const bool kUseNewMixer = false;
+static const bool kUseNewMixer = false; //NOLINT
 
 // Set kUseFloat to true to allow floating input into the mixer engine.
 // If kUseNewMixer is false, this is ignored or may be overridden internally
 // because of downmix/upmix support.
-static const bool kUseFloat = false;
+static const bool kUseFloat = false;//NOLINT
 
 // Set to default copy buffer size in frames for input processing.
-static const size_t kCopyBufferFrameCount = 256;
+static const size_t kCopyBufferFrameCount = 256;//NOLINT
 
 namespace cc {
 
@@ -105,8 +105,8 @@ AudioMixer::AudioMixer(size_t frameCount, uint32_t sampleRate, uint32_t maxNumTr
     mState.needsChanged = 0;
     mState.frameCount = frameCount;
     mState.hook = process__nop;
-    mState.outputTemp = NULL;
-    mState.resampleTemp = NULL;
+    mState.outputTemp = nullptr;
+    mState.resampleTemp = nullptr;
     //cjh    mState.mLog         = &mDummyLog;
     // mState.reserved
 
@@ -115,10 +115,10 @@ AudioMixer::AudioMixer(size_t frameCount, uint32_t sampleRate, uint32_t maxNumTr
     // and mTrackNames is initially 0.  However, leave it here until that's verified.
     track_t *t = mState.tracks;
     for (unsigned i = 0; i < MAX_NUM_TRACKS; i++) {
-        t->resampler = NULL;
-        //cjh        t->downmixerBufferProvider = NULL;
-        //        t->mReformatBufferProvider = NULL;
-        //        t->mTimestretchBufferProvider = NULL;
+        t->resampler = nullptr;
+        //cjh        t->downmixerBufferProvider = nullptr;
+        //        t->mReformatBufferProvider = nullptr;
+        //        t->mTimestretchBufferProvider = nullptr;
         t++;
     }
 }
@@ -192,22 +192,22 @@ int AudioMixer::getTrackName(audio_channel_mask_t channelMask,
         t->channelMask = channelMask;
         t->sessionId = sessionId;
         // setBufferProvider(name, AudioBufferProvider *) is required before enable(name)
-        t->bufferProvider = NULL;
-        t->buffer.raw = NULL;
+        t->bufferProvider = nullptr;
+        t->buffer.raw = nullptr;
         // no initialization needed
         // t->buffer.frameCount
-        t->hook = NULL;
-        t->in = NULL;
-        t->resampler = NULL;
+        t->hook = nullptr;
+        t->in = nullptr;
+        t->resampler = nullptr;
         t->sampleRate = mSampleRate;
         // setParameter(name, TRACK, MAIN_BUFFER, mixBuffer) is required before enable(name)
-        t->mainBuffer = NULL;
-        t->auxBuffer = NULL;
-        t->mInputBufferProvider = NULL;
-        //cjh        t->mReformatBufferProvider = NULL;
-        //        t->downmixerBufferProvider = NULL;
-        //        t->mPostDownmixReformatBufferProvider = NULL;
-        //        t->mTimestretchBufferProvider = NULL;
+        t->mainBuffer = nullptr;
+        t->auxBuffer = nullptr;
+        t->mInputBufferProvider = nullptr;
+        //cjh        t->mReformatBufferProvider = nullptr;
+        //        t->downmixerBufferProvider = nullptr;
+        //        t->mPostDownmixReformatBufferProvider = nullptr;
+        //        t->mTimestretchBufferProvider = nullptr;
         t->mMixerFormat = AUDIO_FORMAT_PCM_16_BIT;
         t->mFormat = format;
         t->mMixerInFormat = selectMixerInFormat(format);
@@ -279,7 +279,7 @@ bool AudioMixer::setChannelMasks(int name,
         // resampler channels may have changed.
         const uint32_t resetToSampleRate = track.sampleRate;
         delete track.resampler;
-        track.resampler = NULL;
+        track.resampler = nullptr;
         track.sampleRate = mSampleRate; // without resampler, track rate is device sample rate.
         // recreate the resampler with updated format, channels, saved sampleRate.
         track.setResampler(resetToSampleRate /*trackSampleRate*/, mSampleRate /*devSampleRate*/);
@@ -291,11 +291,11 @@ void AudioMixer::track_t::unprepareForDownmix() {
     ALOGV("AudioMixer::unprepareForDownmix(%p)", this);
 
     mDownmixRequiresFormat = AUDIO_FORMAT_INVALID;
-    //cjh    if (downmixerBufferProvider != NULL) {
+    //cjh    if (downmixerBufferProvider != nullptr) {
     //        // this track had previously been configured with a downmixer, delete it
     //        ALOGV(" deleting old downmixer");
     //        delete downmixerBufferProvider;
-    //        downmixerBufferProvider = NULL;
+    //        downmixerBufferProvider = nullptr;
     //        reconfigureBufferProviders();
     //    } else
     {
@@ -344,14 +344,14 @@ status_t AudioMixer::track_t::prepareForDownmix() {
 void AudioMixer::track_t::unprepareForReformat() {
     ALOGV("AudioMixer::unprepareForReformat(%p)", this);
     bool requiresReconfigure = false;
-    //cjh    if (mReformatBufferProvider != NULL) {
+    //cjh    if (mReformatBufferProvider != nullptr) {
     //        delete mReformatBufferProvider;
-    //        mReformatBufferProvider = NULL;
+    //        mReformatBufferProvider = nullptr;
     //        requiresReconfigure = true;
     //    }
-    //    if (mPostDownmixReformatBufferProvider != NULL) {
+    //    if (mPostDownmixReformatBufferProvider != nullptr) {
     //        delete mPostDownmixReformatBufferProvider;
-    //        mPostDownmixReformatBufferProvider = NULL;
+    //        mPostDownmixReformatBufferProvider = nullptr;
     //        requiresReconfigure = true;
     //    }
     if (requiresReconfigure) {
@@ -423,14 +423,14 @@ void AudioMixer::deleteTrackName(int name) {
     }
     // delete the resampler
     delete track.resampler;
-    track.resampler = NULL;
+    track.resampler = nullptr;
     // delete the downmixer
     mState.tracks[name].unprepareForDownmix();
     // delete the reformatter
     mState.tracks[name].unprepareForReformat();
     // delete the timestretch provider
     //cjh    delete track.mTimestretchBufferProvider;
-    //    track.mTimestretchBufferProvider = NULL;
+    //    track.mTimestretchBufferProvider = nullptr;
     mTrackNames &= ~(1 << name);
 }
 
@@ -669,7 +669,7 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
                     break;
                 case REMOVE:
                     delete track.resampler;
-                    track.resampler = NULL;
+                    track.resampler = nullptr;
                     track.sampleRate = mSampleRate;
                     invalidateState(1 << name);
                     break;
@@ -739,10 +739,10 @@ void AudioMixer::setParameter(int name, int target, int param, void *value) {
 }
 
 bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSampleRate) {
-    if (trackSampleRate != devSampleRate || resampler != NULL) {
+    if (trackSampleRate != devSampleRate || resampler != nullptr) {
         if (sampleRate != trackSampleRate) {
             sampleRate = trackSampleRate;
-            if (resampler == NULL) {
+            if (resampler == nullptr) {
                 ALOGV("Creating resampler from track %d Hz to device %d Hz",
                       trackSampleRate, devSampleRate);
                 AudioResampler::src_quality quality;
@@ -758,7 +758,7 @@ bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSam
 
                 // REFINE: Remove MONO_HACK. Resampler sees #channels after the downmixer
                 // but if none exists, it is the channel count (1 for mono).
-                const int resamplerChannelCount = false /*downmixerBufferProvider != NULL*/
+                const int resamplerChannelCount = false /*downmixerBufferProvider != nullptr*/
                                                       ? mMixerChannelCount
                                                       : channelCount;
                 ALOGVV(
@@ -778,17 +778,17 @@ bool AudioMixer::track_t::setResampler(uint32_t trackSampleRate, uint32_t devSam
 }
 
 bool AudioMixer::track_t::setPlaybackRate(const AudioPlaybackRate &playbackRate) {
-    //cjh    if ((mTimestretchBufferProvider == NULL &&
+    //cjh    if ((mTimestretchBufferProvider == nullptr &&
     //            fabs(playbackRate.mSpeed - mPlaybackRate.mSpeed) < AUDIO_TIMESTRETCH_SPEED_MIN_DELTA &&
     //            fabs(playbackRate.mPitch - mPlaybackRate.mPitch) < AUDIO_TIMESTRETCH_PITCH_MIN_DELTA) ||
     //            isAudioPlaybackRateEqual(playbackRate, mPlaybackRate)) {
     //        return false;
     //    }
     mPlaybackRate = playbackRate;
-    //    if (mTimestretchBufferProvider == NULL) {
+    //    if (mTimestretchBufferProvider == nullptr) {
     //        // REFINE: Remove MONO_HACK. Resampler sees #channels after the downmixer
     //        // but if none exists, it is the channel count (1 for mono).
-    //        const int timestretchChannelCount = downmixerBufferProvider != NULL
+    //        const int timestretchChannelCount = downmixerBufferProvider != nullptr
     //                ? mMixerChannelCount : channelCount;
     //        mTimestretchBufferProvider = ccnew TimestretchBufferProvider(timestretchChannelCount,
     //                mMixerInFormat, sampleRate, playbackRate);
@@ -870,13 +870,13 @@ void AudioMixer::setBufferProvider(int name, AudioBufferProvider *bufferProvider
     if (mState.tracks[name].mInputBufferProvider == bufferProvider) {
         return; // don't reset any buffer providers if identical.
     }
-    //cjh    if (mState.tracks[name].mReformatBufferProvider != NULL) {
+    //cjh    if (mState.tracks[name].mReformatBufferProvider != nullptr) {
     //        mState.tracks[name].mReformatBufferProvider->reset();
-    //    } else if (mState.tracks[name].downmixerBufferProvider != NULL) {
+    //    } else if (mState.tracks[name].downmixerBufferProvider != nullptr) {
     //        mState.tracks[name].downmixerBufferProvider->reset();
-    //    } else if (mState.tracks[name].mPostDownmixReformatBufferProvider != NULL) {
+    //    } else if (mState.tracks[name].mPostDownmixReformatBufferProvider != nullptr) {
     //        mState.tracks[name].mPostDownmixReformatBufferProvider->reset();
-    //    } else if (mState.tracks[name].mTimestretchBufferProvider != NULL) {
+    //    } else if (mState.tracks[name].mTimestretchBufferProvider != nullptr) {
     //        mState.tracks[name].mTimestretchBufferProvider->reset();
     //    }
 
@@ -929,7 +929,7 @@ void AudioMixer::process__validate(state_t *state, int64_t pts) {
         if (t.doesResample()) {
             n |= NEEDS_RESAMPLE;
         }
-        if (t.auxLevel != 0 && t.auxBuffer != NULL) {
+        if (t.auxLevel != 0 && t.auxBuffer != nullptr) {
             n |= NEEDS_AUX;
         }
 
@@ -988,11 +988,11 @@ void AudioMixer::process__validate(state_t *state, int64_t pts) {
         } else {
             if (state->outputTemp) {
                 delete[] state->outputTemp;
-                state->outputTemp = NULL;
+                state->outputTemp = nullptr;
             }
             if (state->resampleTemp) {
                 delete[] state->resampleTemp;
-                state->resampleTemp = NULL;
+                state->resampleTemp = nullptr;
             }
             state->hook = process__genericNoResampling;
             if (all16BitsStereoNoResample && !volumeRamp) {
@@ -1057,7 +1057,7 @@ void AudioMixer::track__genericResample(track_t *t, int32_t *out, size_t outFram
     t->resampler->setSampleRate(t->sampleRate);
 
     // ramp gain - resample to temp buffer and scale/mix in 2nd step
-    if (aux != NULL) {
+    if (aux != nullptr) {
         // always resample with unity gain when sending to auxiliary buffer to be able
         // to apply send level after resampling
         t->resampler->setVolume(UNITY_GAIN_FLOAT, UNITY_GAIN_FLOAT);
@@ -1100,7 +1100,7 @@ void AudioMixer::volumeRampStereo(track_t *t, int32_t *out, size_t frameCount, i
     //       (vl + vlInc*frameCount)/65536.0f, frameCount);
 
     // ramp volume
-    if (CC_UNLIKELY(aux != NULL)) {
+    if (CC_UNLIKELY(aux != nullptr)) {
         int32_t va = t->prevAuxLevel;
         const int32_t vaInc = t->auxInc;
         int32_t l;
@@ -1127,7 +1127,7 @@ void AudioMixer::volumeRampStereo(track_t *t, int32_t *out, size_t frameCount, i
     }
     t->prevVolume[0] = vl;
     t->prevVolume[1] = vr;
-    t->adjustVolumeRamp(aux != NULL);
+    t->adjustVolumeRamp(aux != nullptr);
 }
 
 void AudioMixer::volumeStereo(track_t *t, int32_t *out, size_t frameCount, int32_t *temp,
@@ -1135,7 +1135,7 @@ void AudioMixer::volumeStereo(track_t *t, int32_t *out, size_t frameCount, int32
     const int16_t vl = t->volume[0];
     const int16_t vr = t->volume[1];
 
-    if (CC_UNLIKELY(aux != NULL)) {
+    if (CC_UNLIKELY(aux != nullptr)) {
         const int16_t va = t->auxLevel;
         do {
             int16_t l = (int16_t)(*temp++ >> 12);
@@ -1163,7 +1163,7 @@ void AudioMixer::track__16BitsStereo(track_t *t, int32_t *out, size_t frameCount
     ALOGVV("track__16BitsStereo\n");
     const int16_t *in = static_cast<const int16_t *>(t->in);
 
-    if (CC_UNLIKELY(aux != NULL)) {
+    if (CC_UNLIKELY(aux != nullptr)) {
         int32_t l;
         int32_t r;
         // ramp gain
@@ -1254,7 +1254,7 @@ void AudioMixer::track__16BitsMono(track_t *t, int32_t *out, size_t frameCount,
     ALOGVV("track__16BitsMono\n");
     const int16_t *in = static_cast<int16_t const *>(t->in);
 
-    if (CC_UNLIKELY(aux != NULL)) {
+    if (CC_UNLIKELY(aux != nullptr)) {
         // ramp gain
         if (CC_UNLIKELY(t->volumeInc[0] | t->volumeInc[1] | t->auxInc)) {
             int32_t vl = t->prevVolume[0];
@@ -1372,7 +1372,7 @@ void AudioMixer::process__nop(state_t *state, int64_t pts) {
                     int64_t outputPTS = calculateOutputPTS(
                         t3, pts, state->frameCount - outFrames);
                     t3.bufferProvider->getNextBuffer(&t3.buffer, outputPTS);
-                    if (t3.buffer.raw == NULL) break;
+                    if (t3.buffer.raw == nullptr) break;
                     outFrames -= t3.buffer.frameCount;
                     t3.bufferProvider->releaseBuffer(&t3.buffer);
                 }
@@ -1427,14 +1427,14 @@ void AudioMixer::process__genericNoResampling(state_t *state, int64_t pts) {
                 e2 &= ~(1 << i);
                 track_t &t = state->tracks[i];
                 size_t outFrames = BLOCKSIZE;
-                int32_t *aux = NULL;
+                int32_t *aux = nullptr;
                 if (CC_UNLIKELY(t.needs & NEEDS_AUX)) {
                     aux = t.auxBuffer + numFrames;
                 }
                 while (outFrames) {
-                    // t.in == NULL can happen if the track was flushed just after having
+                    // t.in == nullptr can happen if the track was flushed just after having
                     // been enabled for mixing.
-                    if (t.in == NULL) {
+                    if (t.in == nullptr) {
                         enabledTracks &= ~(1 << i);
                         e1 &= ~(1 << i);
                         break;
@@ -1445,7 +1445,7 @@ void AudioMixer::process__genericNoResampling(state_t *state, int64_t pts) {
                                inFrames, state->resampleTemp, aux);
                         t.frameCount -= inFrames;
                         outFrames -= inFrames;
-                        if (CC_UNLIKELY(aux != NULL)) {
+                        if (CC_UNLIKELY(aux != nullptr)) {
                             aux += inFrames;
                         }
                     }
@@ -1457,7 +1457,7 @@ void AudioMixer::process__genericNoResampling(state_t *state, int64_t pts) {
                             t, pts, numFrames + (BLOCKSIZE - outFrames));
                         t.bufferProvider->getNextBuffer(&t.buffer, outputPTS);
                         t.in = t.buffer.raw;
-                        if (t.in == NULL) {
+                        if (t.in == nullptr) {
                             enabledTracks &= ~(1 << i);
                             e1 &= ~(1 << i);
                             break;
@@ -1515,7 +1515,7 @@ void AudioMixer::process__genericResampling(state_t *state, int64_t pts) {
             const int i = 31 - __builtin_clz(e1);
             e1 &= ~(1 << i);
             track_t &t = state->tracks[i];
-            int32_t *aux = NULL;
+            int32_t *aux = nullptr;
             if (CC_UNLIKELY(t.needs & NEEDS_AUX)) {
                 aux = t.auxBuffer;
             }
@@ -1534,11 +1534,11 @@ void AudioMixer::process__genericResampling(state_t *state, int64_t pts) {
                     int64_t outputPTS = calculateOutputPTS(t, pts, outFrames);
                     t.bufferProvider->getNextBuffer(&t.buffer, outputPTS);
                     t.in = t.buffer.raw;
-                    // t.in == NULL can happen if the track was flushed just after having
+                    // t.in == nullptr can happen if the track was flushed just after having
                     // been enabled for mixing.
-                    if (t.in == NULL) break;
+                    if (t.in == nullptr) break;
 
-                    if (CC_UNLIKELY(aux != NULL)) {
+                    if (CC_UNLIKELY(aux != nullptr)) {
                         aux += outFrames;
                     }
                     t.hook(&t, outTemp + outFrames * t.mMixerChannelCount, t.buffer.frameCount,
@@ -1580,9 +1580,9 @@ void AudioMixer::process__OneTrack16BitsStereoNoResampling(state_t *state,
         t.bufferProvider->getNextBuffer(&b, outputPTS);
         const int16_t *in = b.i16;
 
-        // in == NULL can happen if the track was flushed just after having
+        // in == nullptr can happen if the track was flushed just after having
         // been enabled for mixing.
-        if (in == NULL || (((uintptr_t)in) & 3)) {
+        if (in == nullptr || (((uintptr_t)in) & 3)) {
             memset(out, 0, numFrames * t.mMixerChannelCount * audio_bytes_per_sample(t.mMixerFormat));
             ALOGE_IF((((uintptr_t)in) & 3),
                      "process__OneTrack16BitsStereoNoResampling: misaligned buffer"
@@ -1761,7 +1761,7 @@ void AudioMixer::volumeMix(TO *out, size_t outFrames,
             volumeRampMulti<MIXTYPE>(t->mMixerChannelCount, out, outFrames, in, aux,
                                      t->mPrevVolume, t->mVolumeInc, &t->prevAuxLevel, t->auxInc);
             if (ADJUSTVOL) {
-                t->adjustVolumeRamp(aux != NULL, true);
+                t->adjustVolumeRamp(aux != nullptr, true);
             }
         } else {
             volumeMulti<MIXTYPE>(t->mMixerChannelCount, out, outFrames, in, aux,
@@ -1772,7 +1772,7 @@ void AudioMixer::volumeMix(TO *out, size_t outFrames,
             volumeRampMulti<MIXTYPE>(t->mMixerChannelCount, out, outFrames, in, aux,
                                      t->prevVolume, t->volumeInc, &t->prevAuxLevel, t->auxInc);
             if (ADJUSTVOL) {
-                t->adjustVolumeRamp(aux != NULL);
+                t->adjustVolumeRamp(aux != nullptr);
             }
         } else {
             volumeMulti<MIXTYPE>(t->mMixerChannelCount, out, outFrames, in, aux,
@@ -1810,9 +1810,9 @@ void AudioMixer::process_NoResampleOneTrack(state_t *state, int64_t pts) {
         t->bufferProvider->getNextBuffer(&b, outputPTS);
         const TI *in = reinterpret_cast<TI *>(b.raw);
 
-        // in == NULL can happen if the track was flushed just after having
+        // in == nullptr can happen if the track was flushed just after having
         // been enabled for mixing.
-        if (in == NULL || (((uintptr_t)in) & 3)) {
+        if (in == nullptr || (((uintptr_t)in) & 3)) {
             memset(out, 0, numFrames * channels * audio_bytes_per_sample(t->mMixerFormat));
             ALOGE_IF((((uintptr_t)in) & 3),
                      "process_NoResampleOneTrack: bus error: "
@@ -1826,7 +1826,7 @@ void AudioMixer::process_NoResampleOneTrack(state_t *state, int64_t pts) {
             out, outFrames, in, aux, ramp, t);
 
         out += outFrames * channels;
-        if (aux != NULL) {
+        if (aux != nullptr) {
             aux += channels;
         }
         numFrames -= b.frameCount;
@@ -1835,7 +1835,7 @@ void AudioMixer::process_NoResampleOneTrack(state_t *state, int64_t pts) {
         t->bufferProvider->releaseBuffer(&b);
     }
     if (ramp) {
-        t->adjustVolumeRamp(aux != NULL, is_same<TI, float>::value);
+        t->adjustVolumeRamp(aux != nullptr, is_same<TI, float>::value);
     }
 }
 
@@ -1852,9 +1852,9 @@ void AudioMixer::track__Resample(track_t *t, TO *out, size_t outFrameCount, TO *
     ALOGVV("track__Resample\n");
     t->resampler->setSampleRate(t->sampleRate);
     const bool ramp = t->needsRamp();
-    if (ramp || aux != NULL) {
+    if (ramp || aux != nullptr) {
         // if ramp:        resample with unity gain to temp buffer and scale/mix in 2nd step.
-        // if aux != NULL: resample with unity gain to temp buffer then apply send level.
+        // if aux != nullptr: resample with unity gain to temp buffer then apply send level.
 
         t->resampler->setVolume(UNITY_GAIN_FLOAT, UNITY_GAIN_FLOAT);
         memset(temp, 0, outFrameCount * t->mMixerChannelCount * sizeof(TO));
@@ -1998,7 +1998,7 @@ AudioMixer::hook_t AudioMixer::getTrackHook(int trackType, uint32_t channelCount
             LOG_ALWAYS_FATAL("bad trackType: %d", trackType);
             break;
     }
-    return NULL;
+    return nullptr;
 }
 
 /* Returns the proper process hook for mixing tracks. Currently works only for
@@ -2012,7 +2012,7 @@ AudioMixer::process_hook_t AudioMixer::getProcessHook(int processType, uint32_t 
                                                       audio_format_t mixerInFormat, audio_format_t mixerOutFormat) {
     if (processType != PROCESSTYPE_NORESAMPLEONETRACK) { // Only NORESAMPLEONETRACK
         LOG_ALWAYS_FATAL("bad processType: %d", processType);
-        return NULL;
+        return nullptr;
     }
     if (!kUseNewMixer && channelCount == FCC_2 && mixerInFormat == AUDIO_FORMAT_PCM_16_BIT) {
         return process__OneTrack16BitsStereoNoResampling;
@@ -2049,7 +2049,7 @@ AudioMixer::process_hook_t AudioMixer::getProcessHook(int processType, uint32_t 
             LOG_ALWAYS_FATAL("bad mixerInFormat: %#x", mixerInFormat);
             break;
     }
-    return NULL;
+    return nullptr;
 }
 
 // ----------------------------------------------------------------------------
