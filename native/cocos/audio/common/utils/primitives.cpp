@@ -19,8 +19,8 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "audio/android/cutils/bitops.h" /* for popcount() */
 #else
-    #include <cocos/base/Utils.h>
-    using namespace cc::utils;
+    #include "base/Utils.h"
+    using namespace cc::utils::popcount;
 #endif
 
 //namespace {
