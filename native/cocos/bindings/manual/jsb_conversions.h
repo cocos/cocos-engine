@@ -323,20 +323,18 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, T> *r
     return true;
 }
 
-template <typename T>
-inline typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, void>::type
-cc_tmp_set_private_data(se::Object *obj, T *v) { // NOLINT(readability-identifier-naming)
-    obj->setPrivateData(v);
+template<typename T>
+void cc_tmp_set_private_data(se::Object *obj, T *v) { // NOLINT(readability-identifier-naming)
+    if constexpr (std::is_base_of_v<cc::RefCounted,T>) {
+        obj->setPrivateData(v);
+    }else{
+        obj->setRawPrivateData(v);
+    }
+
 }
 
-template <typename T>
-inline typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, void>::type
-cc_tmp_set_private_data(se::Object *obj, T *v) { // NOLINT(readability-identifier-naming)
-    obj->setPrivateObject(se::rawref_private_object(v));
-}
-
-inline void cc_tmp_set_private_data(se::Object *obj, cc::gfx::Sampler *v) {
-    obj->setPrivateObject(se::rawref_private_object(v));
+inline void cc_tmp_set_private_data(se::Object *obj, cc::gfx::Sampler *v) { // NOLINT(readability-identifier-naming)
+    obj->setRawPrivateData(v);
 }
 
 //handle reference
@@ -392,7 +390,7 @@ bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
         CC_ASSERT(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
         obj->root();
-        obj->setPrivateObject(se::rawref_private_object(v));
+        obj->setRawPrivateData(v);
         if (isReturnCachedValue != nullptr) {
             *isReturnCachedValue = false;
         }
@@ -1080,9 +1078,7 @@ bool sevalue_to_native(const se::Value &from, std::shared_ptr<T> *out, se::Objec
         out->reset();
         return true;
     }
-    auto *privateObject = from.toObject()->getPrivateObject();
-    CC_ASSERT(privateObject->isSharedPtr());
-    *out = static_cast<se::TypedPrivateObject<T>*>(privateObject)->share();
+    *out = from.toObject()->getPrivateSharedPtr<T>();
     return true;
 }
 
@@ -1100,17 +1096,7 @@ bool sevalue_to_native(const se::Value &from, cc::IntrusivePtr<T> *to, se::Objec
         to = nullptr;
         return true;
     }
-
-    auto *privateObject = from.toObject()->getPrivateObject();
-    if (!privateObject) {
-        T *tmp = nullptr;
-        bool ok = sevalue_to_native(from, &tmp, ctx);
-        *to = tmp;
-        return ok;
-    }
-
-    CC_ASSERT(privateObject->isCCShared());
-    *to = static_cast<se::CCSharedPtrPrivateObject<T> *>(privateObject)->ccShared();
+    *to = from.toObject()->getPrivateInstrusivePtr<T>();
     return true;
 }
 
@@ -1222,12 +1208,12 @@ template <typename T>
 inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::Object *ctx); // NOLINT
 
 template <typename T>
-inline bool nativevalue_to_se(const ccstd::vector<T> *from, se::Value &to, se::Object *ctx) {
+inline bool nativevalue_to_se(const ccstd::vector<T> *from, se::Value &to, se::Object *ctx) { // NOLINT
     return nativevalue_to_se(*from, to, ctx);
 }
 
 template <typename T>
-inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::Object *ctx) {
+inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::Object *ctx) {  // NOLINT
     return nativevalue_to_se(*from, to, ctx);
 }
 
@@ -1564,7 +1550,8 @@ inline bool nativevalue_to_se(const std::shared_ptr<T> &from, se::Value &to, se:
         CC_ASSERT(cls);
         se::Object *obj = se::Object::createObjectWithClass(cls);
         to.setObject(obj, true);
-        obj->setPrivateObject(se::shared_private_object(from));
+        obj->setPrivateData(from);
+
     } else {
         to.setObject(it->second);
     }
@@ -1585,7 +1572,7 @@ inline bool nativevalue_to_se(const cc::IntrusivePtr<T> &from, se::Value &to, se
         CC_ASSERT(cls);
         se::Object *obj = se::Object::createObjectWithClass(cls);
         to.setObject(obj, true);
-        obj->setPrivateObject(se::ccshared_private_object(from));
+        obj->setPrivateData(from);
     } else {
         to.setObject(it->second);
     }

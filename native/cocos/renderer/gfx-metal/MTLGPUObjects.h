@@ -171,17 +171,10 @@ public:
 
     ~CCMTLGPUStagingBufferPool() {
         for (auto &buffer : _pool) {
-            if (_tripleEnabled) {
-                for (id<MTLBuffer> mtlBuf : buffer.dynamicDataBuffers) {
-                    [mtlBuf release];
-                }
-                buffer.dynamicDataBuffers.clear();
-                buffer.mtlBuffer = nil;
-            } else {
-                [buffer.mtlBuffer release];
-                buffer.mtlBuffer = nil;
-            }
+            [buffer.mtlBuffer release];
+            buffer.mtlBuffer = nil;
         }
+        
         _pool.clear();
     }
 
@@ -199,22 +192,12 @@ public:
             }
         }
         if (!buffer) {
-            uint32_t mbNeeds = mu::roundUp(gpuBuffer->size, MegaBytesToBytes);
-            mbNeeds = cc::utils::nextPOT(mbNeeds);
-            CC_ASSERT(mbNeeds > gpuBuffer->size / static_cast<float>(MegaBytesToBytes));
+            uint32_t needs = mu::alignUp(gpuBuffer->size, MegaBytesToBytes);
 
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
-            if (_tripleEnabled) {
-                for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-                    // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
-                    id<MTLBuffer> dataBuffer = [_device newBufferWithLength:mbNeeds * MegaBytesToBytes options:MTLResourceStorageModeShared];
-                    buffer->dynamicDataBuffers[i] = dataBuffer;
-                }
-                buffer->mtlBuffer = buffer->dynamicDataBuffers[0];
-            } else {
-                buffer->mtlBuffer = [_device newBufferWithLength:mbNeeds * MegaBytesToBytes options:MTLResourceStorageModeShared];
-            }
+
+            buffer->mtlBuffer = [_device newBufferWithLength:needs options:MTLResourceStorageModeShared];
             buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
             offset = 0;
         }
@@ -222,22 +205,7 @@ public:
         gpuBuffer->startOffset = offset;
         gpuBuffer->mappedData = buffer->mappedData + offset;
         buffer->curOffset = offset + gpuBuffer->size;
-    }
-
-    void updateInflightBuffer() {
-        if (_tripleEnabled) {
-            _inflightIndex = ((_inflightIndex + 1) % MAX_FRAMES_IN_FLIGHT);
-
-            size_t bufferCount = _pool.size();
-            Buffer *buffer = nullptr;
-            for (size_t idx = 0; idx < bufferCount; idx++) {
-                buffer = &_pool[idx];
-                id<MTLBuffer> prevFrameBuffer = buffer->mtlBuffer;
-                buffer->mtlBuffer = buffer->dynamicDataBuffers[_inflightIndex];
-                memcpy((uint8_t *)buffer->mtlBuffer.contents, prevFrameBuffer.contents, buffer->curOffset);
-                buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
-            }
-        }
+        
     }
 
     void reset() {
@@ -260,13 +228,10 @@ public:
 protected:
     struct Buffer {
         id<MTLBuffer> mtlBuffer = nil;
-        ccstd::vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
         uint8_t *mappedData = nullptr;
         uint32_t curOffset = 0;
     };
 
-    bool _tripleEnabled = false;
-    uint32_t _inflightIndex = 0;
     id<MTLDevice> _device = nil;
     ccstd::vector<Buffer> _pool;
 };
