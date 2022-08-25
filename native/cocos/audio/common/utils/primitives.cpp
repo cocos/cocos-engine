@@ -20,7 +20,7 @@
     #include "audio/android/cutils/bitops.h" /* for popcount() */
 #else
     #include "base/Utils.h"
-    using namespace cc::utils::popcount;
+    using namespace cc::utils;
 #endif
 
 //namespace {
