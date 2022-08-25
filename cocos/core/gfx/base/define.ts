@@ -2412,3 +2412,8 @@ export function formatAlignment (format: Format): FormatAlignment {
 export function alignTo (size: number, alignment: number): number {
     return Math.ceil(size / alignment) * alignment;
 }
+
+export function getAlignedSizeOfVertexFormat (vertexFormat: Format): number {
+    const sz = FormatInfos[vertexFormat].size;
+    return Math.floor((sz + 3) / 4) * 4;
+}

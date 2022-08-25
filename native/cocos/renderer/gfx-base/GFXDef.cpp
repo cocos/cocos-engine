@@ -30,6 +30,7 @@
 #include "GFXDef.h"
 #include "GFXRenderPass.h"
 #include "GFXTexture.h"
+#include "boost/align/align_up.hpp"
 
 namespace cc {
 namespace gfx {
@@ -628,6 +629,12 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
         height = std::max(height >> 1, 1U);
     }
 
+    return size;
+}
+
+uint32_t getAlignedSizeOfVertexFormat(Format vertexFormat) {
+    auto size = GFX_FORMAT_INFOS[static_cast<uint32_t>(vertexFormat)].size;
+    size = boost::alignment::align_up(size, 4);
     return size;
 }
 

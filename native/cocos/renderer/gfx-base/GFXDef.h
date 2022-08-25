@@ -137,6 +137,13 @@ uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t dep
 uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
 
 /**
+ * @en Get the aligned size of vertex format.
+ * @zh 获取顶点格式的对齐大小。
+ * @param vertexFormat The format type. Input must be valid vertex format.
+ */
+uint32_t getAlignedSizeOfVertexFormat(Format vertexFormat);
+
+/**
  * @en Get the memory size of the specified type.
  * @zh 得到 GFX 数据类型的大小。
  * @param type The target type.
