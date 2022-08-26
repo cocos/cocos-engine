@@ -1250,7 +1250,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         CCVKGPUBuffer stagingBuffer;
         stagingBuffer.size = chunkSizeToUpload;
         device->gpuStagingBufferPool()->alloc(&stagingBuffer);
-        memcpy(stagingBuffer.mappedData, (char*)dataToUpload + chunkOffset, chunkSizeToUpload);
+        memcpy(stagingBuffer.mappedData, static_cast<const char *>(dataToUpload) + chunkOffset, chunkSizeToUpload);
 
         VkBufferCopy region{
             stagingBuffer.startOffset,
