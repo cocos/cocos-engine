@@ -1339,9 +1339,10 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
 
         uint32_t destOffset = 0;
         uint32_t buffOffset = 0;
-
-        uint32_t destWidth = (region.texExtent.width + offset.x == (gpuTexture->width >> mipLevel)) ? region.texExtent.width : extent.width;
-        uint32_t destHeight = (region.texExtent.height + offset.y == (gpuTexture->height >> mipLevel)) ? region.texExtent.height : extent.height;
+        uint32_t imageWidth = std::max(1U, gpuTexture->width >> mipLevel);
+        uint32_t imageHeight = std::max(1U, gpuTexture->height >> mipLevel);
+        uint32_t destWidth = (region.texExtent.width + offset.x == imageWidth) ? region.texExtent.width : extent.width;
+        uint32_t destHeight = (region.texExtent.height + offset.y == imageHeight) ? region.texExtent.height : extent.height;
 
         int32_t heightOffset = 0;
         uint32_t stepHeight = 0;

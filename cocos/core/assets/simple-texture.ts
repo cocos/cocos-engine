@@ -142,8 +142,8 @@ export class SimpleTexture extends TextureBase {
         }
 
         const region = _regions[0];
-        region.texExtent.width = this._textureWidth >> level;
-        region.texExtent.height = this._textureHeight >> level;
+        region.texExtent.width = Math.max(1, this._textureWidth >> level);
+        region.texExtent.height = Math.max(1, this._textureHeight >> level);
         region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
 
