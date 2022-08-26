@@ -29,7 +29,7 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
 import { intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer } from '../../gfx';
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';

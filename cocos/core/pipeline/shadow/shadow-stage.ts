@@ -24,7 +24,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';
+import { Color, Rect, Framebuffer, DescriptorSet } from '../../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { ForwardStagePriority } from '../enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';

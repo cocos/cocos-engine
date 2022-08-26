@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -34,7 +34,7 @@ import { EventTarget } from './event';
 import { AsyncDelegate } from './event/async-delegate';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { deviceManager } from './gfx';
+import { deviceManager } from '../gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { legacyCC, VERSION } from './global-exports';

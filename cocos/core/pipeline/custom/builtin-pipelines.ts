@@ -1,6 +1,6 @@
 import { Material } from '../../assets';
 import { intersect, Sphere } from '../../geometry';
-import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
+import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { macro } from '../../platform';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../renderer/scene';
 import { supportsR32FloatTexture } from '../define';

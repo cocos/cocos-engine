@@ -1,9 +1,8 @@
 import { JSB } from 'internal:constants';
-import { BaseRenderData, IRenderData } from './render-data';
-import { Stage } from './stencil-manager';
+import { IRenderData } from './render-data';
 import { NativeRenderDrawInfo } from './native-2d';
-import { director, Material, Node } from '../../core';
-import { Sampler, Texture } from '../../core/gfx';
+import { Material, Node } from '../../core';
+import { Sampler, Texture } from '../../gfx';
 import { Model } from '../../core/renderer/scene';
 
 export enum AttrUInt8ArrayView {

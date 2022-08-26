@@ -31,10 +31,10 @@ import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
 import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
-import { Color, director, Mat4, Node, Texture2D } from '../../core';
-import { BlendFactor } from '../../core/gfx';
+import { Color, director, Node, Texture2D } from '../../core';
+import { BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
-import { StaticVBAccessor, StaticVBChunk } from '../../2d/renderer/static-vb-accessor';
+import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
 
 const FLAG_TWO_COLOR = 0x01;

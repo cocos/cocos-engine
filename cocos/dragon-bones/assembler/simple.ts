@@ -25,7 +25,7 @@
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
 import { Color, Mat4, Node, Texture2D, director } from '../../core';
-import { BlendFactor } from '../../core/gfx';
+import { BlendFactor } from '../../gfx';
 import { TextureBase } from '../../core/assets/texture-base';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';

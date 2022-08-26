@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { CachedArray } from '../../memop/cached-array';
-import { debug, error, errorID } from '../../platform/debug';
+import { debug, error, errorID, CachedArray } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';

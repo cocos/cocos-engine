@@ -32,7 +32,7 @@
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
+import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';

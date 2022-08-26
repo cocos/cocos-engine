@@ -26,7 +26,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
-import { TextureType, TextureInfo, TextureViewInfo } from '../gfx';
+import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
 import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';

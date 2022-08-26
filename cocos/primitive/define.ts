@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { PrimitiveMode, Attribute } from '../core/gfx';
+import { PrimitiveMode, Attribute } from '../gfx';
 
 /**
  * @en

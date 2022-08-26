@@ -28,7 +28,7 @@ import { ccclass, help, type, requireComponent } from 'cc.decorator';
 import { Component } from '../core/components';
 import { Sprite } from '../2d/components/sprite';
 import { Label } from '../2d/components/label';
-import { BlendFactor } from '../core/gfx';
+import { BlendFactor } from '../gfx';
 
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';

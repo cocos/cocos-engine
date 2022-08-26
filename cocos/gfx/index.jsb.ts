@@ -25,7 +25,7 @@
 
 declare const gfx: any;
 
-import { legacyCC } from '../global-exports';
+import { legacyCC } from '../core/global-exports';
 import * as defines from './base/define';
 import * as pso from './base/pipeline-state';
 

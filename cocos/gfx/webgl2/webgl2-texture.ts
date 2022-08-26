@@ -25,7 +25,7 @@
 
 import {
     FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
-    FormatInfos, TextureUsageBit, TextureFlagBit, FormatInfo,
+    FormatInfos, TextureUsageBit,
 } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';

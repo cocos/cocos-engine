@@ -23,11 +23,9 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
-import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
+import { ComparisonFunc, StencilOp, DepthStencilState } from '../../gfx';
 import { Mask } from '../components/mask';
 import { Material } from '../../core';
-import { NativeStencilManager } from './native-2d';
 
 // Stage types
 export enum Stage {

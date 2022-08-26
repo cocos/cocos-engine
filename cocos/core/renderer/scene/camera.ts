@@ -24,7 +24,7 @@
  */
 import { EDITOR } from 'internal:constants';
 import { Frustum, Ray } from '../../geometry';
-import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
+import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../../gfx';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { Node } from '../../scene-graph';

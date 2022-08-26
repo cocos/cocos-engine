@@ -23,27 +23,37 @@
  THE SOFTWARE.
  */
 
-import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
-import { GFXObject, ObjectType, GeneralBarrierInfo } from '../define';
+import { murmurhash2_32_gc } from '../../../core/utils/murmurhash2_gc';
+import { GFXObject, ObjectType, TextureBarrierInfo } from '../define';
 
 /**
- * @en GFX global barrier.
- * @zh GFX 全局内存屏障。
+ * @en GFX texture barrier.
+ * @zh GFX 贴图内存屏障。
  */
-export class GeneralBarrier extends GFXObject {
-    get info (): Readonly<GeneralBarrierInfo> { return this._info; }
+export class TextureBarrier extends GFXObject {
+    get info (): Readonly<TextureBarrierInfo> { return this._info; }
     get hash (): number { return this._hash; }
 
-    protected _info: GeneralBarrierInfo = new GeneralBarrierInfo();
+    protected _info: TextureBarrierInfo = new TextureBarrierInfo();
     protected _hash = 0;
 
-    constructor (info: Readonly<GeneralBarrierInfo>, hash: number) {
-        super(ObjectType.GLOBAL_BARRIER);
+    constructor (info: Readonly<TextureBarrierInfo>, hash: number) {
+        super(ObjectType.TEXTURE_BARRIER);
         this._info.copy(info);
         this._hash = hash;
     }
 
-    static computeHash (info: Readonly<GeneralBarrierInfo>) {
-        return murmurhash2_32_gc(`${info.prevAccesses} ${info.nextAccesses} ${info.type}`, 666);
+    static computeHash (info: Readonly<TextureBarrierInfo>) {
+        let res = `${info.prevAccesses} ${info.nextAccesses}`;
+        res += info.type;
+        res += info.baseMipLevel;
+        res += info.levelCount;
+        res += info.baseSlice;
+        res += info.sliceCount;
+        res += info.discardContents;
+        res += info.srcQueue ? info.srcQueue.type : 0;
+        res += info.dstQueue ? info.dstQueue.type : 0;
+
+        return murmurhash2_32_gc(res, 666);
     }
 }

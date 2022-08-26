@@ -28,7 +28,7 @@ import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../core/gfx';
+    Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
 import { scene } from '../../core/renderer';

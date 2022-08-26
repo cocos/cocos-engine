@@ -24,7 +24,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
+import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
 import { getComponentPerVertex } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
 import { sys } from '../../core';

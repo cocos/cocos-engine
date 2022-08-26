@@ -26,12 +26,12 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { clamp } from '../math/utils';
-import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager } from '../gfx';
+import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager } from '../../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
-import { BufferTextureCopy } from '../gfx/base/define';
+import { BufferTextureCopy } from '../../gfx/base/define';
 import { errorID } from '../platform/debug';
 
 export interface IRenderTextureCreateInfo {

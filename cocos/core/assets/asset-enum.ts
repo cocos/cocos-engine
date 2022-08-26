@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Address, Filter as GFXFilter, Format } from '../gfx';
+import { Address, Filter as GFXFilter, Format } from '../../gfx';
 
 // define a specified number for the pixel format which gfx do not have a standard definition.
 const CUSTOM_PIXEL_FORMAT = 1024;

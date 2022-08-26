@@ -27,12 +27,11 @@
 import { JSB } from 'internal:constants';
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../core/gfx';
+    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../core/assets';
-import { legacyCC } from '../../core/global-exports';
 
 const _uvs = [
     0, 0, // bottom-left

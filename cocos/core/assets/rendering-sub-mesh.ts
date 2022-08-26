@@ -27,8 +27,8 @@ import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';
 import {
     Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo, AttributeName, BufferUsageBit,
-    Format, FormatInfos, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo,
-} from '../gfx';
+    Format, FormatInfos, MemoryUsageBit, PrimitiveMode, DrawInfo,
+} from '../../gfx';
 import { Vec3 } from '../math';
 import { Mesh } from '../../3d/assets/mesh';
 
