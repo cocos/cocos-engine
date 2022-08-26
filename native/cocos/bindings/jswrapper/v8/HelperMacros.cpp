@@ -113,15 +113,15 @@ SE_HOT void jsbFinalizeWrapper(se::Object *thisObject, se_function_ptr func, con
     }
     engine->_setGarbageCollecting(false);
 }
-SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &_v8args, se_function_ptr func, se_finalize_ptr finalizeCb, se::Class *cls, const char *funcName) {
-    v8::Isolate *isolate = _v8args.GetIsolate();
+SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args, se_function_ptr func, se_finalize_ptr finalizeCb, se::Class *cls, const char *funcName) {
+    v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope scope(isolate);
     bool ret = true;
     bool needDeleteValueArray{false};
-    se::ValueArray &args = se::gValueArrayPool.get(_v8args.Length(), needDeleteValueArray);
+    se::ValueArray &args = se::gValueArrayPool.get(v8args.Length(), needDeleteValueArray);
     se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
-    se::internal::jsToSeArgs(_v8args, args);
-    se::Object *thisObject = se::Object::_createJSObject(cls, _v8args.This());
+    se::internal::jsToSeArgs(v8args, args);
+    se::Object *thisObject = se::Object::_createJSObject(cls, v8args.This());
     thisObject->_setFinalizeCallback(finalizeCb);
     se::State state(thisObject, args);
     ret = func(state);
@@ -134,17 +134,17 @@ SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &_v8
     if (found) property.toObject()->call(args, thisObject);
 }
 
-SE_HOT void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &_v8args, se_function_ptr func, const char *funcName) {
-    v8::Isolate *isolate = _v8args.GetIsolate();
+SE_HOT void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
+    v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope scope(isolate);
     bool ret = true;
-    se::Object *thisObject = se::internal::getPrivate(isolate, _v8args.This());
+    se::Object *thisObject = se::internal::getPrivate(isolate, v8args.This());
     se::State state(thisObject);
     ret = func(state);
     if (!ret) {
         SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
     }
-    se::internal::setReturnValue(state.rval(), _v8args);
+    se::internal::setReturnValue(state.rval(), v8args);
 }
 
 SE_HOT void jsbSetterWrapper(v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &_v8args, se_function_ptr func, const char *funcName) {

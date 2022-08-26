@@ -26,62 +26,79 @@
 
 #pragma once
 
+#include "Object.h"
 #include "PrivateObject.h"
 #include "Value.h"
+
 
 namespace se {
 
 class Object;
 
 /**
-     *  State represents an environment while a function or an accesstor is invoked from JavaScript.
-     */
+ *  State represents an environment while a function or an accesstor is invoked from JavaScript.
+ */
 class State final {
 public:
     /**
-         *  @brief Gets void* pointer of `this` object's private data.
-         *  @return A void* pointer of `this` object's private data.
-         */
-    void *nativeThisObject() const;
+     *  @brief Gets void* pointer of `this` object's private data.
+     *  @return A void* pointer of `this` object's private data.
+     */
+    void *nativeThisObject() const {
+        return _thisObject ? _thisObject->getPrivateData() : nullptr;
+    }
 
     /**
-         *  @brief Gets the arguments of native binding functions or accesstors.
-         *  @return The arguments of native binding functions or accesstors.
-         */
-    const ValueArray &args() const;
+     *  @brief Gets the arguments of native binding functions or accesstors.
+     *  @return The arguments of native binding functions or accesstors.
+     */
+    const ValueArray &args() const {
+        return _args ? *_args : EmptyValueArray;
+    }
 
     /**
-         *  @brief Gets the JavaScript `this` object wrapped in se::Object.
-         *  @return The JavaScript `this` object wrapped in se::Object.
-         */
-    Object *thisObject();
+     *  @brief Gets the JavaScript `this` object wrapped in se::Object.
+     *  @return The JavaScript `this` object wrapped in se::Object.
+     */
+    Object *thisObject() { return _thisObject; }
 
     /**
-         *  @brief Gets the return value reference. Used for setting return value for a function.
-         *  @return The return value reference.
-         */
-    Value &rval();
+     *  @brief Gets the return value reference. Used for setting return value for a function.
+     *  @return The return value reference.
+     */
+    Value &rval() { return _retVal; }
 
     // Private API used in wrapper
     /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
-    ~State();
+     *  @brief
+     *  @param[in]
+     *  @return
+     */
+    ~State() {
+        SAFE_DEC_REF(_thisObject);
+    }
 
-    explicit State(Object *thisObject);
-    State(Object *thisObject, const ValueArray &args);
+    explicit State(Object *thisObject) : _thisObject(thisObject) {
+        if (_thisObject != nullptr) {
+            _thisObject->incRef();
+        }
+    }
+    State(Object *thisObject, const ValueArray &args) : _thisObject(thisObject),
+                                                        _args(&args) {
+        if (_thisObject != nullptr) {
+            _thisObject->incRef();
+        }
+    }
+
+    // Disable copy/move constructor, copy/move assigment
+    State(const State &) = delete;
+    State(State &&) noexcept = delete;
+    State &operator=(const State &) = delete;
+    State &operator=(State &&) noexcept = delete;
 
 private:
-    // Disable copy/move constructor, copy/move assigment
-    State(const State &);
-    State(State &&) noexcept;
-    State &operator=(const State &);
-    State &operator=(State &&) noexcept;
-
-    Object *_thisObject{nullptr};     //weak ref
-    const ValueArray *_args{nullptr}; //weak ref
-    Value _retVal;                    //weak ref
+    Object *_thisObject{nullptr};     // weak ref
+    const ValueArray *_args{nullptr}; // weak ref
+    Value _retVal;                    // weak ref
 };
 } // namespace se
