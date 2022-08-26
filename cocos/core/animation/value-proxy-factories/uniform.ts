@@ -28,12 +28,11 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../../2d/assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
-import { deviceManager, Type } from '../../gfx';
+import { deviceManager, Type } from '../../../gfx';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType } from '../../renderer/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
 import { warn } from '../../platform/debug';
-import { legacyCC } from '../../global-exports';
 
 /**
  * @en

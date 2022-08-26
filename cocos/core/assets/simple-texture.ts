@@ -25,7 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../gfx';
+import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';

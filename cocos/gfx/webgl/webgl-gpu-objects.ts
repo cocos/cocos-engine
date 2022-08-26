@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { nextPow2 } from '../../math/bits';
+import { nextPow2 } from '../../core';
 import {
     DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,

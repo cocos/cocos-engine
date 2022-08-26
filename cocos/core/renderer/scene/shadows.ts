@@ -31,7 +31,7 @@ import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import type { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
-import { Shader } from '../../gfx';
+import { Shader } from '../../../gfx';
 import { assert } from '../../platform/debug';
 
 /**

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { PrimitiveMode } from '../core/gfx';
+import { PrimitiveMode } from '../gfx';
 import { IGeometry } from './define';
 
 /**

@@ -25,8 +25,7 @@
 
 import { AABB, intersect } from '../geometry';
 import { SetIndex } from './define';
-import { CommandBuffer, Device, RenderPass } from '../gfx';
-import { InstancedBuffer } from './instanced-buffer';
+import { CommandBuffer, Device, RenderPass } from '../../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Model, Camera } from '../renderer/scene';
 import { RenderInstancedQueue } from './render-instanced-queue';

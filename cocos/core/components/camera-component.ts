@@ -37,11 +37,11 @@ import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO
 import { Root } from '../root';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
-import { ccenum, Enum } from '../value-types';
+import { Enum } from '../value-types';
 import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../renderer/core/render-window';
-import { ClearFlagBit } from '../gfx';
+import { ClearFlagBit } from '../../gfx';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -522,7 +522,7 @@ export class Camera extends Component {
     }
 
     public onLoad () {
-         this._createCamera();
+        this._createCamera();
     }
 
     public onEnable () {

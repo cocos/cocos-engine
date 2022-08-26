@@ -2,7 +2,7 @@ import { Pool } from './memop';
 import { warnID } from './platform/debug';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
-import { Device, deviceManager } from './gfx';
+import { Device, deviceManager } from '../gfx';
 import { DebugView } from './pipeline/debug-view';
 import { buildDeferredLayout, buildForwardLayout } from './pipeline/custom/effect';
 

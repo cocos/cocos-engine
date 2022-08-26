@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Device } from '../../gfx';
+import { Device } from '../../../gfx';
 import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';

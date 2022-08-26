@@ -32,7 +32,7 @@
 import * as impl from './graph';
 import { Material } from '../../assets';
 import { Camera } from '../../renderer/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../../gfx';
 import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {

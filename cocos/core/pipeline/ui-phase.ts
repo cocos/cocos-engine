@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { RenderPass } from '../gfx';
+import { RenderPass } from '../../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
 import { Camera } from '../renderer/scene/camera';

@@ -22,13 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { JSB } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
-} from '../../gfx';
+} from '../../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
 

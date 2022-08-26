@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import { deviceManager } from '../gfx';
+import { deviceManager } from '../../gfx';
 import { legacyCC } from '../global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';

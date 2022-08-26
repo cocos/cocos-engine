@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { CommandBuffer, Device, Rect, RenderPass, Swapchain, Viewport } from '../gfx';
+import { CommandBuffer, Device, Rect, RenderPass, Viewport } from '../../gfx';
 import { IVec4Like } from '../math';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';

@@ -25,7 +25,7 @@
 
 import type { AnimationClip } from '../../core/animation/animation-clip';
 import type { Skeleton } from '../assets';
-import { Device } from '../../core/gfx';
+import { Device } from '../../gfx';
 import { JointAnimationInfo, JointTexturePool } from './skeletal-animation-utils';
 import { legacyCC } from '../../core/global-exports';
 

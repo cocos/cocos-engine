@@ -33,7 +33,7 @@ import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit,
     CommandBuffer, Device, DrawInfo, Format, InputAssembler,
-    InputAssemblerInfo, MemoryUsageBit, RenderPass } from '../gfx';
+    InputAssemblerInfo, MemoryUsageBit, RenderPass } from '../../gfx';
 import { warnID } from '../platform/debug';
 import { Frustum } from '../geometry/frustum';
 import { toRadian } from '../math/utils';

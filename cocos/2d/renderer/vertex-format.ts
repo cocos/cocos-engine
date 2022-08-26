@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { AttributeName, Format, FormatInfos, Attribute } from '../../core/gfx';
+import { AttributeName, Format, FormatInfos, Attribute } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 
 /**

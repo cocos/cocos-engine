@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-import { CachedArray } from '../../memop/cached-array';
-import { error, errorID, debug } from '../../platform/debug';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
@@ -53,9 +51,8 @@ import {
     IWebGL2GPUUniformBlock,
     IWebGL2GPUUniformSamplerTexture,
     IWebGL2GPURenderPass,
-    IWebGL2GPUTextureView,
 } from './webgl2-gpu-objects';
-import { max } from '../../math/bits';
+import { CachedArray, error, errorID, debug } from '../../core';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT

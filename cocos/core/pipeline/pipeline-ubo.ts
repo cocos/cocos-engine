@@ -25,7 +25,7 @@
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
     supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM } from './define';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color, toRadian } from '../math';
 import { PipelineRuntime } from './custom/pipeline';
