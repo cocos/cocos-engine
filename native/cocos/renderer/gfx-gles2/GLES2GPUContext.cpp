@@ -289,9 +289,17 @@ void GLES2GPUContext::bindContext(bool bound) {
 void GLES2GPUContext::makeCurrent(const GLES2GPUSwapchain *drawSwapchain, const GLES2GPUSwapchain *readSwapchain) {
     EGLSurface drawSurface = drawSwapchain ? drawSwapchain->eglSurface : _eglCurrentDrawSurface;
     EGLSurface readSurface = readSwapchain ? readSwapchain->eglSurface : _eglCurrentReadSurface;
-    if (_eglCurrentDrawSurface == drawSurface && _eglCurrentReadSurface == readSurface) return;
+    EGLContext prevContext = eglGetCurrentContext();
+
+    if (_eglCurrentDrawSurface == drawSurface && _eglCurrentReadSurface == readSurface && _eglCurrentContext == prevContext) {
+        return;
+    }
 
     makeCurrent(drawSurface, readSurface, _eglCurrentContext);
+    
+    if (prevContext != _eglCurrentContext) {
+        resetStates();
+    }
 }
 
 void GLES2GPUContext::present(const GLES2GPUSwapchain *swapchain) {

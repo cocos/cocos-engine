@@ -251,6 +251,8 @@ void GLES3Device::doDestroy() {
 }
 
 void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
+    _gpuContext->makeCurrent();
+
     if (_onAcquire) _onAcquire->execute();
 
     _swapchains.clear();
