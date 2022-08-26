@@ -312,9 +312,10 @@ void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Textur
         uint32_t offsetY = region.texOffset.y;
         uint32_t extentX = region.texExtent.width;
         uint32_t extentY = region.texExtent.height;
-        uint32_t imgWidth = dst->getWidth() >> level;
-        uint32_t imgHeight = dst->getHeight() >> level;
+        uint32_t imgWidth = std::max(dst->getWidth() >> level, 1U);
+        uint32_t imgHeight = std::max(dst->getHeight() >> level, 1U);
 
+        CC_ASSERT(extentX != 0 && extentY != 0);
         CC_ASSERT(offsetX % blockWidth == 0);
         CC_ASSERT(offsetY % blockHeight == 0);
 
