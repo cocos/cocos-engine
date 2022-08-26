@@ -326,14 +326,14 @@ void WebSocketServer::onCloseClientInit(struct lws *wsi, void *in, int len) {
 void WebSocketServer::onClientReceive(struct lws *wsi, void *in, int len) {
     std::shared_ptr<WebSocketServerConnection> conn = findConnection(wsi);
     if (conn) {
-        conn->onDataReceive(in, len);
+        conn->onMessageReceive(in, len);
     }
 }
 int WebSocketServer::onServerWritable(struct lws *wsi) {
     LOGE();
     std::shared_ptr<WebSocketServerConnection> conn = findConnection(wsi);
     if (conn) {
-        return conn->onDrainData();
+        return conn->onDrainMessage();
     }
     return 0;
 }
@@ -386,7 +386,7 @@ WebSocketServerConnection::~WebSocketServerConnection() {
 
 bool WebSocketServerConnection::send(std::shared_ptr<DataFrame> data) {
     _sendQueue.emplace_back(data);
-    onDrainData();
+    onDrainMessage();
     return true;
 }
 
@@ -428,7 +428,7 @@ void WebSocketServerConnection::onConnected() {
     RUN_IN_GAMETHREAD(if (_onconnect) _onconnect());
 }
 
-void WebSocketServerConnection::onDataReceive(void *in, int len) {
+void WebSocketServerConnection::onMessageReceive(void *in, int len) {
     bool isFinal = static_cast<bool>(lws_is_final_fragment(_wsi));
     bool isBinary = static_cast<bool>(lws_frame_is_binary(_wsi));
 
@@ -448,13 +448,13 @@ void WebSocketServerConnection::onDataReceive(void *in, int len) {
             RUN_IN_GAMETHREAD(if (_ontext) _ontext(fullpkg));
         }
 
-        RUN_IN_GAMETHREAD(if (_ondata) _ondata(fullpkg));
+        RUN_IN_GAMETHREAD(if (_onmessage) _onmessage(fullpkg));
 
         _prevPkg.reset();
     }
 }
 
-int WebSocketServerConnection::onDrainData() {
+int WebSocketServerConnection::onDrainMessage() {
     if (!_wsi) return -1;
     if (_closed) return -1;
     if (_readyState == ReadyState::CLOSING) {
