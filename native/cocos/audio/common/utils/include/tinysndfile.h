@@ -25,13 +25,11 @@
     #include <sys/cdefs.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include <sys/types.h>
-    #include "audio/include/AudioMacros.h"
 #endif
 
 #include <cstdio>
 #include <cstdint>
 
-__BEGIN_DECLS
 namespace sf {
 
 // visible to clients
@@ -91,4 +89,3 @@ struct SNDFILE_ {
     snd_callbacks callback;
 };
 } // namespace sf
-__END_DECLS

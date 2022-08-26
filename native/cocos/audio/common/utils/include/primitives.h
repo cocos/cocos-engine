@@ -19,13 +19,12 @@
     #include <sys/cdefs.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include <sys/types.h>
-    #include "audio/include/AudioMacros.h"
 #endif
 
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-__BEGIN_DECLS
+
 
 /* The memcpy_* conversion routines are designed to work in-place on same dst as src
  * buffers only if the types shrink on copy, with the exception of memcpy_to_i16_from_u8().
@@ -933,5 +932,3 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
     
 #endif
 }
-
-__END_DECLS

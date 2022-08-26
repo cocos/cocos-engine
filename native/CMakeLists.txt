@@ -264,7 +264,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/common/utils/minifloat.cpp
             cocos/audio/common/utils/primitives.cpp
             cocos/audio/common/utils/tinysndfile.cpp
-            cocos/audio/common/utils/format.c
+            cocos/audio/common/utils/format.cpp
             cocos/audio/android/AssetFd.cpp
             cocos/audio/android/AssetFd.h
             cocos/audio/android/audio.h

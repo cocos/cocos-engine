@@ -40,8 +40,7 @@ namespace cc {
 AudioDecoder::AudioDecoder()
 : _isOpened(false) {}
 
-AudioDecoder::~AudioDecoder() {
-}
+AudioDecoder::~AudioDecoder() = default;
 
 bool AudioDecoder::isOpened() const {
     return _isOpened;
