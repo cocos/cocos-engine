@@ -32,7 +32,7 @@
     #error EXPONENT_BITS and MANTISSA_BITS must sum to 16
 #endif
 
-extern "C" {
+
 
 gain_minifloat_t gain_from_float(float v) {
     if (std::isnan(v) || v <= 0.0f) {
@@ -60,4 +60,4 @@ float float_from_gain(gain_minifloat_t a) {
                   exponent - EXCESS);
 }
 
-} // extern "C" {
+
