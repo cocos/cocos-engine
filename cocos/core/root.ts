@@ -454,6 +454,14 @@ export class Root {
     }
 
     /**
+     * @en Recover potentially lost gfx context
+     * @zh 恢复渲染环境
+     */
+    public recoverGfxContext () {
+        this._device.makeCurrent();
+    }
+
+    /**
      * @en The entry function of the render process for every frame.
      * @zh 用于每帧执行渲染流程的入口函数
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间

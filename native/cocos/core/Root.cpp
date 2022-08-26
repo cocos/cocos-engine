@@ -116,6 +116,10 @@ void Root::destroy() {
     //    this.dataPoolManager.clear();
 }
 
+void Root::recoverGfxContext() {
+    _device->makeCurrent();
+}
+
 void Root::resize(uint32_t width, uint32_t height) {
     for (const auto &window : _windows) {
         if (window->getSwapchain()) {

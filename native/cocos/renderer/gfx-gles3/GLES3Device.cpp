@@ -242,9 +242,11 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
 }
 
-void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
+void GLES3Device::makeCurrent() {
     _gpuContext->makeCurrent();
+}
 
+void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 
     _swapchains.clear();

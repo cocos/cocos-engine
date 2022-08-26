@@ -239,6 +239,8 @@ export class WebGLDevice extends Device {
 
     public flushCommands (cmdBuffs: CommandBuffer[]) {}
 
+    public makeCurrent () {}
+
     public acquire (swapchains: Swapchain[]) {}
 
     public present () {
