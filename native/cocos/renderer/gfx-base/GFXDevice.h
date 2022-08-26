@@ -59,7 +59,7 @@ public:
     bool initialize(const DeviceInfo &info);
     void destroy();
 
-    virtual void makeCurrent() {}
+    virtual void makeCurrent() = 0;
     virtual void acquire(Swapchain *const *swapchains, uint32_t count) = 0;
     virtual void present() = 0;
 
