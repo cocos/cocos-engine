@@ -104,7 +104,7 @@ public class CocosDownloader {
                     .dispatcher(dispatcher)
                     .followRedirects(true)
                     .followSslRedirects(true)
-                    .callTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                    .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .build();
         } else {
             downloader._httpClient = new OkHttpClient().newBuilder()
