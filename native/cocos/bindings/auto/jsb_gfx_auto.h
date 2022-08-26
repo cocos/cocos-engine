@@ -910,6 +910,7 @@ SE_DECLARE_FUNC(js_gfx_Device_getSampler);
 SE_DECLARE_FUNC(js_gfx_Device_getTextureBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
+SE_DECLARE_FUNC(js_gfx_Device_makeCurrent);
 SE_DECLARE_FUNC(js_gfx_Device_present);
 
 extern se::Object *__jsb_cc_gfx_DeviceManager_proto;   // NOLINT

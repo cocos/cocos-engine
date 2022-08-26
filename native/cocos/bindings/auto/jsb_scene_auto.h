@@ -416,6 +416,7 @@ SE_DECLARE_FUNC(js_scene_Root_getDebugViewConfig);
 SE_DECLARE_FUNC(js_scene_Root_getEventProcessor);
 SE_DECLARE_FUNC(js_scene_Root_initialize);
 SE_DECLARE_FUNC(js_scene_Root_onGlobalPipelineStateChanged);
+SE_DECLARE_FUNC(js_scene_Root_recoverGfxContext);
 SE_DECLARE_FUNC(js_scene_Root_resetCumulativeTime);
 SE_DECLARE_FUNC(js_scene_Root_resize);
 SE_DECLARE_FUNC(js_scene_Root_setDebugViewConfig);

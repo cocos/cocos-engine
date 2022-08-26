@@ -23430,6 +23430,22 @@ static bool js_gfx_Device_initialize(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_gfx_Device_initialize)
 
+static bool js_gfx_Device_makeCurrent(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->makeCurrent();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_makeCurrent)
+
 static bool js_gfx_Device_present(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
@@ -23489,6 +23505,7 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getTextureBarrier", _SE(js_gfx_Device_getTextureBarrier));
     cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));
     cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
+    cls->defineFunction("makeCurrent", _SE(js_gfx_Device_makeCurrent));
     cls->defineFunction("present", _SE(js_gfx_Device_present));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Device>(cls);
