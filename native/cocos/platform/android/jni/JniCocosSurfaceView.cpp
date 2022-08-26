@@ -75,7 +75,7 @@ JNIEXPORT jlong Java_com_cocos_lib_CocosSurfaceView_constructNative(JNIEnv *env,
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_destructNative(JNIEnv */*env*/, jobject /*thiz*/, jlong handle) {//NOLINT JNI function name
     auto *windowCache = (NativeWindowCache *)handle;
-    delete windowCache;
+    CC_SAFE_DELETE(windowCache);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSizeChangedNative(JNIEnv */*env*/, jobject /*thiz*/, jlong handle, jint width, jint height) {//NOLINT JNI function name
