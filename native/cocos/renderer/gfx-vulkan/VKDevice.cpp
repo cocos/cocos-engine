@@ -600,6 +600,10 @@ VkImageMemoryBarrier presentBarrier{
 };
 } // namespace
 
+void CCVKDevice::makeCurrent() {
+    // noop
+}
+
 void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 

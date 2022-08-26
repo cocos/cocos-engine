@@ -308,6 +308,10 @@ emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture *src, const BufferTex
 void CCWGPUDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
 }
 
+void CCWGPUDevice::makeCurrent() {
+    // noop
+}
+
 void CCWGPUDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     for (auto *swapchain : _swapchains) {
         swapchain->update();

@@ -186,6 +186,10 @@ void CCMTLDevice::doDestroy() {
     CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked
 }
 
+void CCMTLDevice::makeCurrent() {
+    // noop
+}
+
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     if (_onAcquire) _onAcquire->execute();
 

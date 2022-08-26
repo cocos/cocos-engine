@@ -126,6 +126,10 @@ void DeviceAgent::doDestroy() {
     }
 }
 
+void DeviceAgent::makeCurrent() {
+    // noop
+}
+
 void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
     auto *actorSwapchains = _mainMessageQueue->allocate<Swapchain *>(count);
     for (uint32_t i = 0; i < count; ++i) {

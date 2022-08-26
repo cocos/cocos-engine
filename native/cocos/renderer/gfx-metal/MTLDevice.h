@@ -64,6 +64,7 @@ public:
     using Device::createShader;
     using Device::createTexture;
 
+    void makeCurrent() override;
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
