@@ -113,7 +113,7 @@ public:
     ccstd::vector<uint8_t> readPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height) const;
 
 private:
-    scene::RenderWindow* _window{nullptr};
+    IntrusivePtr<scene::RenderWindow> _window{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderTexture);
 };
