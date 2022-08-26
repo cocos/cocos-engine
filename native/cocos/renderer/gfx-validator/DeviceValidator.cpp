@@ -140,6 +140,10 @@ void DeviceValidator::doDestroy() {
     _actor->destroy();
 }
 
+void DeviceValidator::makeCurrent() {
+    _actor->makeCurrent();
+}
+
 void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {
     static ccstd::vector<Swapchain *> swapchainActors;
     swapchainActors.resize(count);

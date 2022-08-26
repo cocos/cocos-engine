@@ -56,6 +56,7 @@ public:
     using Device::createTexture;
     using Device::createTextureBarrier;
 
+    void makeCurrent() override;
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
