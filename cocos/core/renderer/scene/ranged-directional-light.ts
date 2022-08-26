@@ -27,9 +27,9 @@ import { Light, LightType } from './light';
 const _forward = new Vec3(0, 0, -1);
 
 /**
- * @en Render the abstraction of light in the scene, which is a fill light source in the scene. Non main light source,
- * each scene is allowed to have multiple fill light sources without shadows.
- * @zh 渲染场景中的光的抽象，这是场景中的补充光源。非主光源，每个场景允许有多个补充光源，不包含阴影。
+ * @en Render the abstraction of light in the scene, which is a ranged directional light source in the scene. Non main light source,
+ * each scene is allowed to have multiple ranged directional light sources without shadows.
+ * @zh 渲染场景中的光的抽象，这是场景中的范围平行光光源。非主光源，每个场景允许有多个范围平行光光源，不包含阴影。
  */
 export class RangedDirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(0, 0, -1);
@@ -126,8 +126,8 @@ export class RangedDirectionalLight extends Light {
     }
 
     /**
-     * @en Update the direction
-     * @zh 更新方向
+     * @en Update
+     * @zh 更新
      */
     public update () {
         if (this._node && this._node.hasChangedFlags) {

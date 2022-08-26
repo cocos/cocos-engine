@@ -28,8 +28,8 @@ import { Root } from '../../core/root';
 import { property } from '../../core/data/class-decorator';
 
 /**
- * @en The fill light component, Multiple fill light sources are allowed in a scene.
- * @zh 补充光源组件，一个场景允许存在多个补充光源。
+ * @en The ranged directional light component, Multiple ranged directional light sources are allowed in a scene.
+ * @zh 范围平行光光源组件，一个场景允许存在多个范围平行光光源。
  */
 @ccclass('cc.RangedDirectionalLight')
 @help('i18n:cc.RangedDirectionalLight')

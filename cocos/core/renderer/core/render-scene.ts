@@ -385,8 +385,8 @@ export class RenderScene {
     }
 
     /**
-     * @en Add a fill light source.
-     * @zh 增加一个补充光源。
+     * @en Add a ranged directional light source.
+     * @zh 增加一个范围平行光源。
      * @param sl The fill light.
      */
     public addRangedDirLight (sl: RangedDirectionalLight) {
@@ -395,8 +395,8 @@ export class RenderScene {
     }
 
     /**
-     * @en Remove a fill light source.
-     * @zh 删除一个补充光源。
+     * @en Remove a ranged directional light source.
+     * @zh 删除一个范围平行光源。
      * @param sl The fill light.
      */
     public removeRangedDirLight (sl: RangedDirectionalLight) {
@@ -411,8 +411,8 @@ export class RenderScene {
     }
 
     /**
-     * @en Remove all fill light sources.
-     * @zh 删除所有补充光源。
+     * @en Remove all ranged directional light sources.
+     * @zh 删除所有范围平行光源。
      */
     public removeRangedDirLights () {
         for (let i = 0; i < this._rangedDirLights.length; ++i) {

@@ -146,7 +146,6 @@ void RenderScene::removeDirectionalLight(DirectionalLight *dl) {
     if (iter != _directionalLights.end()) {
         (*iter)->detachFromScene();
         _directionalLights.erase(iter);
-        return;
     }
 }
 
@@ -199,7 +198,7 @@ void RenderScene::removeRangedDirLight(RangedDirectionalLight *rangedDirLight) {
     if (iter != _rangedDirLights.end()) {
         _rangedDirLights.erase(iter);
     } else {
-        CC_LOG_WARNING("Try to remove invalid spot light.");
+        CC_LOG_WARNING("Try to remove invalid ranged directional light.");
     }
 }
 
