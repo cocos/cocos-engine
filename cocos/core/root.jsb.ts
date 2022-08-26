@@ -15,6 +15,8 @@ enum LightType {
     DIRECTIONAL,
     SPHERE,
     SPOT,
+    RANGEDDIR,
+    POINT,
     UNKNOWN,
 }
 

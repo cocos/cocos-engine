@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "Ranged Direcational Light",
+    "_name": "Ranged Directional Light",
     "_objFlags": 0,
     "_native": "",
     "data": {
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Ranged Direcational Light",
+    "_name": "Ranged Directional Light",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
