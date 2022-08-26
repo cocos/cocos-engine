@@ -758,13 +758,8 @@ export class RichText extends Component {
         for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
-                if (child.parent === this.node) {
-                    child.parent = null;
-                } else {
-                    // In case child.parent !== this.node, child cannot be removed from children
-
-                    children.splice(i, 1);
-                }
+                assert(child.parent === this.node);
+                child.parent = null;
 
                 const segment = createSegment(child.name);
                 segment.node = child;
