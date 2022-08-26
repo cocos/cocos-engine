@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Attribute, deviceManager } from '../../gfx';
+import { Attribute, deviceManager } from '../../../gfx';
 import { Vec3 } from '../../math';
 
 export interface IInstancedAttributeBlock {

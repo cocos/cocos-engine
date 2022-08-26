@@ -24,7 +24,7 @@
 */
 
 import { EffectAsset } from './effect-asset';
-import { Texture } from '../gfx';
+import { Texture } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../renderer';
