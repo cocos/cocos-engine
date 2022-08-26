@@ -27,7 +27,7 @@ import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
-import { intersect } from '../geometry';
+import { AABB, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
 import { Pool } from '../memop';
@@ -35,6 +35,7 @@ import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
+import { RangedDirectionalLight } from '../renderer/scene/ranged-directional-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
@@ -54,11 +55,14 @@ interface IAdditiveLightPass {
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
+const _v3 = new Vec3();
 const _vec4Array = new Float32Array(4);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
 const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 function cullSphereLight (light: SphereLight, model: Model) {
     return !!(model.worldBounds && !intersect.aabbWithAABB(model.worldBounds, light.aabb));
@@ -67,6 +71,12 @@ function cullSphereLight (light: SphereLight, model: Model) {
 function cullSpotLight (light: SpotLight, model: Model) {
     return !!(model.worldBounds
         && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
+}
+
+function cullRangedDirLight (light: RangedDirectionalLight, model: Model) {
+    AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+    return !!(model.worldBounds
+        && (!intersect.aabbWithAABB(model.worldBounds, _tmpBoundingBox)));
 }
 
 const _phaseID = getPhaseID('forward-add');
@@ -286,6 +296,9 @@ export class RenderAdditiveLightQueue {
                 break;
             case LightType.SPOT:
                 if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
+                break;
+            case LightType.RANGEDDIR:
+                if (isNeedCulling) { isCulled = cullRangedDirLight(light as RangedDirectionalLight, model); }
                 break;
             default:
             }
@@ -507,6 +520,41 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
                 } else {
                     _vec4Array[3] = (light as SpotLight).luminance;
+                }
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                break;
+            case LightType.RANGEDDIR:
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).position);
+                _vec4Array[3] = 2;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+
+                Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).right);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+
+                Vec3.toArray(_vec4Array, (light as RangedDirectionalLight).direction);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
+
+                // eslint-disable-next-line no-case-declarations
+                const scale = (light as RangedDirectionalLight).scale;
+                _v3.set(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
+                Vec3.toArray(_vec4Array, _v3);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET);
+
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                if (isHDR) {
+                    _vec4Array[3] = (light as RangedDirectionalLight).illuminance * exposure;
+                } else {
+                    _vec4Array[3] = (light as RangedDirectionalLight).illuminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;

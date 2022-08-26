@@ -16,32 +16,45 @@
       for (int i = 0; i < LIGHTS_PER_PASS; i++) {
         if (i >= numLights) break;
 
-        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, cc_lightPos[i].xyz - worldPos);
+        vec3 lightDirWithLength = cc_lightPos[i].xyz - worldPos;
+        if(IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR)) {
+          lightDirWithLength = -normalize(cc_lightDir[i].xyz);
+        }
+
+        CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData, surfaceData, lightDirWithLength);
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
+        if(IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR)) {
+          float isOutOfRange = GetOutOfRange(worldPos, cc_lightPos[i].xyz, cc_lightDir[i].xyz, cc_lightSizeRangeAngle[i].xyz, cc_lightBoundingSizeVS[i].xyz);
+          lightingResult.diffuseColorWithLighting *= isOutOfRange;
+          lightingResult.specularColorWithLighting *= isOutOfRange;
+        }
   
         vec3 diffuseLighting, specularLighting;
         CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);
         
         float shadow = 1.0;
-      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-        if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
-          if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-            vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-            shadow = CCSpotShadowFactorBase(shadowPos, worldPos, shadowBias);
+        #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+          if (IS_LIGHT_TYPE(LIGHT_TYPE_SPOT) && cc_lightSizeRangeAngle[i].w > 0.0) {
+            if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
+              vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+              shadow = CCSpotShadowFactorBase(shadowPos, worldPos, shadowBias);
+            }
           }
-        }
-      #endif
+        #endif
       
-      #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-        if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW) {
-          shadow = 1.0;
-        }
-      #endif
+        #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+          if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW) {
+            shadow = 1.0;
+          }
+        #endif
 
-        float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
+        float distAtt = 1.0;
+        if(IS_LIGHT_TYPE(LIGHT_TYPE_SPOT)) {
+          distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
+        }
 
         float angleAtt = 1.0;
-        if (cc_lightPos[i].w > 0.0) {
+        if (!IS_LIGHT_TYPE(LIGHT_TYPE_RANGED_DIR)) {
           angleAtt = CCSurfacesLightingCalculateAngleAttenuation(lightingData, cc_lightSizeRangeAngle[i], -cc_lightDir[i].xyz);
         }
 

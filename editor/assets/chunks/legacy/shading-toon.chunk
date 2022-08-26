@@ -57,7 +57,7 @@ struct ToonSurface {
       float specularMask = step(specularWeight, SNH);
       vec3 specular = s.specular.rgb * specularMask;
 
-      if (cc_lightPos[i].w > 0.0) {
+      if (IS_LIGHT_TYPE(LIGHT_TYPE_SPOT)) {
         float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
         float cosOuter = cc_lightSizeRangeAngle[i].z;
         float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);

@@ -29,6 +29,7 @@ import { DirectionalLight } from '../scene/directional-light';
 import { Model } from '../scene/model';
 import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
+import { RangedDirectionalLight } from '../scene/ranged-directional-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
 
@@ -112,6 +113,14 @@ export class RenderScene {
     }
 
     /**
+     * @en All fill light sources of the render scene
+     * @zh 渲染场景管理的所有补充光源
+     */
+    get rangedDirLights (): RangedDirectionalLight[] {
+        return this._rangedDirLights;
+    }
+
+    /**
      * @en All active models of the render scene
      * @zh 渲染场景管理的所有模型
      */
@@ -135,6 +144,7 @@ export class RenderScene {
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
+    private _rangedDirLights: RangedDirectionalLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
 
@@ -184,6 +194,12 @@ export class RenderScene {
             light.update();
         }
 
+        const rangedDirLights = this._rangedDirLights;
+        for (let i = 0; i < rangedDirLights.length; i++) {
+            const light = rangedDirLights[i];
+            light.update();
+        }
+
         const models = this._models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
@@ -203,6 +219,7 @@ export class RenderScene {
         this.removeCameras();
         this.removeSphereLights();
         this.removeSpotLights();
+        this.removeRangedDirLights();
         this.removeModels();
     }
 
@@ -365,6 +382,43 @@ export class RenderScene {
             this._spotLights[i].detachFromScene();
         }
         this._spotLights = [];
+    }
+
+    /**
+     * @en Add a fill light source.
+     * @zh 增加一个补充光源。
+     * @param sl The fill light.
+     */
+    public addRangedDirLight (sl: RangedDirectionalLight) {
+        sl.attachToScene(this);
+        this._rangedDirLights.push(sl);
+    }
+
+    /**
+     * @en Remove a fill light source.
+     * @zh 删除一个补充光源。
+     * @param sl The fill light.
+     */
+    public removeRangedDirLight (sl: RangedDirectionalLight) {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            if (this._rangedDirLights[i] === sl) {
+                sl.detachFromScene();
+                this._rangedDirLights.splice(i, 1);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @en Remove all fill light sources.
+     * @zh 删除所有补充光源。
+     */
+    public removeRangedDirLights () {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            this._rangedDirLights[i].detachFromScene();
+        }
+        this._rangedDirLights = [];
     }
 
     /**

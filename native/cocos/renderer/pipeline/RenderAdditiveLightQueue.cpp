@@ -44,6 +44,7 @@
 #include "scene/Shadow.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -196,6 +197,13 @@ bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, cons
     return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(light->getAABB()) || !model->getWorldBounds()->aabbFrustum(light->getFrustum()));
 }
 
+bool RenderAdditiveLightQueue::cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model) {
+    geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+    light->getNode()->updateWorldTransform();
+    rangedDirLightBoundingBox.transform(light->getNode()->getWorldMatrix(), &rangedDirLightBoundingBox);
+    return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(rangedDirLightBoundingBox));
+}
+
 bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model *model) {
     const auto &subModels = model->getSubModels();
     const auto subModelCount = subModels.size();
@@ -263,61 +271,122 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 
     for (unsigned l = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
         const auto *light = _validPunctualLights[l];
-        const bool isSpotLight = scene::LightType::SPOT == light->getType();
-        const auto *spotLight = isSpotLight ? static_cast<const scene::SpotLight *>(light) : nullptr;
-        const auto *sphereLight = isSpotLight ? nullptr : static_cast<const scene::SphereLight *>(light);
-
-        auto index = offset + UBOForwardLight::LIGHT_POS_OFFSET;
-        const auto &position = isSpotLight ? spotLight->getPosition() : sphereLight->getPosition();
-        _lightBufferData[index++] = position.x;
-        _lightBufferData[index++] = position.y;
-        _lightBufferData[index] = position.z;
-
-        index = offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET;
-        _lightBufferData[index++] = isSpotLight ? spotLight->getSize() : sphereLight->getSize();
-        _lightBufferData[index] = isSpotLight ? spotLight->getRange() : sphereLight->getRange();
-
-        index = offset + UBOForwardLight::LIGHT_COLOR_OFFSET;
         const auto &color = light->getColor();
-        if (light->isUseColorTemperature()) {
-            const auto &tempRGB = light->getColorTemperatureRGB();
-            _lightBufferData[index++] = color.x * tempRGB.x;
-            _lightBufferData[index++] = color.y * tempRGB.y;
-            _lightBufferData[index++] = color.z * tempRGB.z;
-        } else {
-            _lightBufferData[index++] = color.x;
-            _lightBufferData[index++] = color.y;
-            _lightBufferData[index++] = color.z;
-        }
-
-        const float luminanceHDR = isSpotLight ? spotLight->getLuminanceHDR() : sphereLight->getLuminanceHDR();
-        const float luminanceLDR = isSpotLight ? spotLight->getLuminanceLDR() : sphereLight->getLuminanceLDR();
-        if (sceneData->isHDR()) {
-            _lightBufferData[index] = luminanceHDR * exposure * _lightMeterScale;
-        } else {
-            _lightBufferData[index] = luminanceLDR;
-        }
-
+        
         switch (light->getType()) {
-            case scene::LightType::SPHERE:
+            case scene::LightType::SPHERE: {
+                const auto *sphereLight = static_cast<const scene::SphereLight *>(light);
+                const auto &pos = sphereLight->getPosition();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 0] = pos.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 1] = pos.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 2] = pos.z;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 0;
+
+                const float luminanceHDR = sphereLight->getLuminanceHDR();
+                const float luminanceLDR = sphereLight->getLuminanceLDR();
+                if (light->isUseColorTemperature()) {
+                    const auto &tempRGB = light->getColorTemperatureRGB();
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 0] = color.x * tempRGB.x;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 1] = color.y * tempRGB.y;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 2] = color.z * tempRGB.z;
+                } else {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 0] = color.x;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 1] = color.y;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 2] = color.z;
+                }
+                if (sceneData->isHDR()) {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 3] = luminanceHDR * exposure * _lightMeterScale;
+                } else {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 3] = luminanceLDR;
+                }
+
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = sphereLight->getSize();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = sphereLight->getRange();
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
-                break;
+            } break;
             case scene::LightType::SPOT: {
-                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 1.0F;
+                const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+                const auto &pos = spotLight->getPosition();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 0] = pos.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 1] = pos.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 2] = pos.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 1;
+
+                const float luminanceHDR = spotLight->getLuminanceHDR();
+                const float luminanceLDR = spotLight->getLuminanceLDR();
+                if (light->isUseColorTemperature()) {
+                    const auto &tempRGB = light->getColorTemperatureRGB();
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 0] = color.x * tempRGB.x;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 1] = color.y * tempRGB.y;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 2] = color.z * tempRGB.z;
+                } else {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 0] = color.x;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 1] = color.y;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 2] = color.z;
+                }
+                if (sceneData->isHDR()) {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 3] = luminanceHDR * exposure * _lightMeterScale;
+                } else {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 3] = luminanceLDR;
+                }
+
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = spotLight->getSize();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = spotLight->getRange();
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->isEnabled() &&
                                                                                                  spotLight->isShadowEnabled() &&
                                                                                                  shadowInfo->getType() == scene::ShadowType::SHADOW_MAP)
-                                                                                                    ? 1.0F
-                                                                                                    : 0.0F;
+                                                                                                    ? 1
+                                                                                                    : 0;
 
-                index = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction = spotLight->getDirection();
-                _lightBufferData[index++] = direction.x;
-                _lightBufferData[index++] = direction.y;
-                _lightBufferData[index] = direction.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 0] = direction.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 1] = direction.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 2] = direction.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0;
+            } break;
+            case scene::LightType::RANGEDDIR: {
+                const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+                const auto &pos = rangedDirLight->getPosition();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 0] = pos.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 1] = pos.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 2] = pos.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3] = 2;
+
+                if (light->isUseColorTemperature()) {
+                    const auto &tempRGB = light->getColorTemperatureRGB();
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 0] = color.x * tempRGB.x;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 1] = color.y * tempRGB.y;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 2] = color.z * tempRGB.z;
+                } else {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 0] = color.x;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 1] = color.y;
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 2] = color.z;
+                }
+                if (sceneData->isHDR()) {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 3] = rangedDirLight->getIlluminanceHDR() * exposure;
+                } else {
+                    _lightBufferData[offset + UBOForwardLight::LIGHT_COLOR_OFFSET + 3] = rangedDirLight->getIlluminanceLDR();
+                }
+
+                const Vec3 &right = rangedDirLight->getRight();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+
+                const auto &direction = rangedDirLight->getDirection();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 0] = direction.x;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 1] = direction.y;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 2] = direction.z;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0;
+
+                const auto &scale = rangedDirLight->getScale();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5F;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
             } break;
             default:
                 break;
@@ -455,6 +524,11 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
             case scene::LightType::SPOT:
                 if (isNeedCulling) {
                     isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
+                }
+                break;
+            case scene::LightType::RANGEDDIR:
+                if (isNeedCulling) {
+                    isCulled = cullRangedDirLight(static_cast<const scene::RangedDirectionalLight *>(light), model);
                 }
                 break;
             default:

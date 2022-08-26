@@ -313,7 +313,8 @@ struct CC_DLL UBOForwardLight {
     static constexpr uint32_t LIGHT_COLOR_OFFSET = UBOForwardLight::LIGHT_POS_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight::LIGHT_COLOR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t LIGHT_DIR_OFFSET = UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
-    static constexpr uint32_t COUNT = UBOForwardLight::LIGHT_DIR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint32_t LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLight::LIGHT_DIR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint32_t COUNT = UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t SIZE = UBOForwardLight::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_FORWARD_LIGHTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;

@@ -46,6 +46,7 @@ class DrawBatch2D;
 class DirectionalLight;
 class SphereLight;
 class SpotLight;
+class RangedDirectionalLight;
 
 struct IRaycastResult {
     Node *node{nullptr};
@@ -83,6 +84,10 @@ public:
     void removeSpotLight(SpotLight *);
     void removeSpotLights();
 
+    void addRangedDirLight(RangedDirectionalLight *);
+    void removeRangedDirLight(RangedDirectionalLight *);
+    void removeRangedDirLights();
+
     void addModel(Model *);
     void removeModel(Model *model);
     void removeModels();
@@ -101,6 +106,7 @@ public:
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
     inline const ccstd::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
     inline const ccstd::vector<IntrusivePtr<SpotLight>> &getSpotLights() const { return _spotLights; }
+    inline const ccstd::vector<IntrusivePtr<RangedDirectionalLight>> &getRangedDirLights() const { return _rangedDirLights; }
     inline const ccstd::vector<IntrusivePtr<Model>> &getModels() const { return _models; }
     inline Octree *getOctree() const { return _octree; }
     void updateOctree(Model *model);
@@ -115,6 +121,7 @@ private:
     ccstd::vector<IntrusivePtr<DirectionalLight>> _directionalLights;
     ccstd::vector<IntrusivePtr<SphereLight>> _sphereLights;
     ccstd::vector<IntrusivePtr<SpotLight>> _spotLights;
+    ccstd::vector<IntrusivePtr<RangedDirectionalLight>> _rangedDirLights;
     ccstd::vector<DrawBatch2D *> _batches;
     Octree *_octree{nullptr};
 

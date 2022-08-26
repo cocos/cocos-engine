@@ -23,19 +23,21 @@
  THE SOFTWARE.
  */
 
-import { intersect, Sphere } from '../geometry';
+import { AABB, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Vec3 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
+import { ShadowType, CSMOptimizationMode } from '../renderer/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
@@ -75,12 +77,23 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
         if (light.baked) {
             continue;
         }
+
         Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
         if (intersect.sphereFrustum(_sphere, camera.frustum)) {
             validPunctualLights.push(light);
         }
     }
+
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
 }
+
 export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;

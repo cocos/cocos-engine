@@ -42,6 +42,7 @@
 #include "scene/Octree.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace scene {
@@ -75,6 +76,9 @@ void RenderScene::update(uint32_t stamp) {
     for (const auto &spotLight : _spotLights) {
         spotLight->update();
     }
+    for (const auto &rangedDirLight : _rangedDirLights) {
+        rangedDirLight->update();
+    }
     for (const auto &model : _models) {
         if (model->isEnabled()) {
             model->updateTransform(stamp);
@@ -92,6 +96,7 @@ void RenderScene::destroy() {
     removeCameras();
     removeSphereLights();
     removeSpotLights();
+    removeRangedDirLights();
     removeModels();
 }
 
@@ -101,7 +106,7 @@ void RenderScene::addCamera(Camera *camera) {
 }
 
 void RenderScene::removeCamera(Camera *camera) {
-    auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
+    const auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
     if (iter != _cameras.end()) {
         (*iter)->detachFromScene();
         _cameras.erase(iter);
@@ -137,7 +142,7 @@ void RenderScene::addDirectionalLight(DirectionalLight *dl) {
 }
 
 void RenderScene::removeDirectionalLight(DirectionalLight *dl) {
-    auto iter = std::find(_directionalLights.begin(), _directionalLights.end(), dl);
+    const auto iter = std::find(_directionalLights.begin(), _directionalLights.end(), dl);
     if (iter != _directionalLights.end()) {
         (*iter)->detachFromScene();
         _directionalLights.erase(iter);
@@ -150,7 +155,7 @@ void RenderScene::addSphereLight(SphereLight *light) {
 }
 
 void RenderScene::removeSphereLight(SphereLight *sphereLight) {
-    auto iter = std::find(_sphereLights.begin(), _sphereLights.end(), sphereLight);
+    const auto iter = std::find(_sphereLights.begin(), _sphereLights.end(), sphereLight);
     if (iter != _sphereLights.end()) {
         _sphereLights.erase(iter);
     } else {
@@ -163,7 +168,7 @@ void RenderScene::addSpotLight(SpotLight *spotLight) {
 }
 
 void RenderScene::removeSpotLight(SpotLight *spotLight) {
-    auto iter = std::find(_spotLights.begin(), _spotLights.end(), spotLight);
+    const auto iter = std::find(_spotLights.begin(), _spotLights.end(), spotLight);
     if (iter != _spotLights.end()) {
         _spotLights.erase(iter);
     } else {
@@ -183,6 +188,26 @@ void RenderScene::removeSpotLights() {
         spotLight->detachFromScene();
     }
     _spotLights.clear();
+}
+
+void RenderScene::addRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    _rangedDirLights.emplace_back(rangedDirLight);
+}
+
+void RenderScene::removeRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    const auto iter = std::find(_rangedDirLights.begin(), _rangedDirLights.end(), rangedDirLight);
+    if (iter != _rangedDirLights.end()) {
+        _rangedDirLights.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid spot light.");
+    }
+}
+
+void RenderScene::removeRangedDirLights() {
+    for (const auto &rangedDirLight : _rangedDirLights) {
+        rangedDirLight->detachFromScene();
+    }
+    _rangedDirLights.clear();
 }
 
 void RenderScene::addModel(Model *model) {
