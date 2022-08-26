@@ -202,7 +202,6 @@
         "cc.SphereColliderComponent",
         "cc.SphereLightComponent",
         "cc.SpotLightComponent",
-        "cc.RangedDirectionalLightComponent",
         "cc.SpriteAtlas",
 		"cc.Sprite",
         "cc.SpriteComponent",
