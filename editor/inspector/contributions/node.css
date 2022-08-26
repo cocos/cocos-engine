@@ -61,6 +61,10 @@
     margin: 10px 0;
 }
 
+.scene ui-section div[slot="header"] ui-link {
+    margin-right: 4px;
+}
+
 :host([type="node"][sub-type='scene']) > .container > .scene {
     display: block;
 }
