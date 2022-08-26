@@ -165,6 +165,8 @@ export abstract class Device {
 
     public abstract destroy (): void;
 
+    public abstract makeCurrent (): void;
+
     /**
      * @en Acquire next swapchain image.
      * @zh 获取下一个交换链缓冲。

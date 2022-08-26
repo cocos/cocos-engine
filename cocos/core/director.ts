@@ -690,6 +690,10 @@ export class Director extends EventTarget {
      */
     public tick (dt: number) {
         if (!this._invalid) {
+            // Recover potentially lost gfx context
+            this.root?.recoverGfxContext();
+
+            // Execute frame
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR || legacyCC.GAME_VIEW) {
                 // @ts-expect-error _frameDispatchEvents is a private method.

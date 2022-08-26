@@ -71,6 +71,12 @@ public:
 
     /**
      * @zh
+     * 恢复渲染环境
+     */
+    void recoverGfxContext();
+
+    /**
+     * @zh
      * 重置大小
      * @param width 屏幕宽度
      * @param height 屏幕高度

@@ -90,6 +90,7 @@ export class EmptyDevice extends Device {
     }
 
     public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>) {}
+    public makeCurrent () {}
     public acquire (swapchains: Readonly<Swapchain[]>) {}
     public present () {}
 
