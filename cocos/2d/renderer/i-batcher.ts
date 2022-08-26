@@ -48,6 +48,7 @@ export interface IBatcher {
     autoMergeBatches (renderComp?: UIRenderer);
     forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: UIRenderer);
     finishMergeBatches ();
+    maskFinishMergeBatches ();
     flushMaterial (mat: Material);
 
     walk (node: Node, level?: number);

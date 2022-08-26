@@ -611,7 +611,8 @@ export class Sprite extends UIRenderer {
             return;
         }
 
-        render.commitComp(this, null, null, this._postAssembler, null);
+        render.maskFinishMergeBatches();
+        this._postAssembler.fillBuffers(this, render);
     }
 
     private _applySpriteSize () {

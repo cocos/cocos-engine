@@ -214,6 +214,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
+     * @internal
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -223,6 +224,16 @@ export class UIRenderer extends Renderer {
     set stencilStage (val: Stage) {
         this._stencilStage = val;
         this._renderEntity.setStencilStage(val);
+    }
+
+    /**
+     * @internal
+     */
+    get isForMask (): boolean {
+        return this._isForMask;
+    }
+    set isForMask (val: boolean) {
+        this._isForMask = val;
     }
 
     @override
@@ -238,6 +249,7 @@ export class UIRenderer extends Renderer {
     protected _color: Color = Color.WHITE.clone();
 
     protected _stencilStage: Stage = Stage.DISABLED;
+    protected _isForMask = false;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;

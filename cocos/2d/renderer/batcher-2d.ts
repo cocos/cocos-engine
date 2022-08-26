@@ -27,9 +27,9 @@ import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
-import { RenderRoot2D, UIRenderer } from '../framework';
+import { Renderable2D, RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
-    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager } from '../../core/gfx';
+    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../core/gfx';
 import { Pool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
@@ -44,7 +44,7 @@ import { Mat4, Vec3 } from '../../core/math';
 import { IBatcher } from './i-batcher';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
+import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
@@ -53,6 +53,9 @@ import { NativeBatcher2d, NativeRenderDrawInfo, NativeUIMeshBuffer } from './nat
 import { mapBuffer, readBuffer } from '../../3d/misc';
 import { MeshBuffer } from './mesh-buffer';
 import { propertyDefine } from '../../core/utils/misc';
+import { scene } from '../../core/renderer';
+import { builtinResMgr, RenderingSubMesh } from '../../core';
+import { Mask } from '../components/mask';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -119,6 +122,11 @@ export class Batcher2D implements IBatcher {
 
     private _meshDataArray :MeshRenderData[] = [];
 
+    // mask use
+    private _maskClearModel :Model | null = null;
+    private _maskClearMtl :Material | null = null;
+    private _maskModelMesh :RenderingSubMesh | null = null;
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
@@ -149,6 +157,14 @@ export class Batcher2D implements IBatcher {
         this._descriptorSetCache.destroy();
 
         StencilManager.sharedManager!.destroy();
+
+        if (this._maskClearModel && this._maskModelMesh) {
+            legacyCC.director.root.destroyModel(this._maskClearModel);
+            this._maskModelMesh.destroy();
+        }
+        if (this._maskClearMtl) {
+            this._maskClearMtl.destroy();
+        }
     }
 
     private syncRootNodesToNative () {
@@ -363,6 +379,9 @@ export class Batcher2D implements IBatcher {
      * @param transform - Node type transform, if passed, then batcher will consider it's using model matrix, could be null
      */
     public commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
+        if (comp.isForMask) {
+            this._insertMaskBatch(comp);
+        }
         let dataHash = 0;
         let mat;
         let bufferID = -1;
@@ -404,6 +423,9 @@ export class Batcher2D implements IBatcher {
         }
 
         assembler.fillBuffers(comp, this);
+        if (comp && comp.isForMask) {
+            StencilManager.sharedManager!.enableMask();
+        }
     }
 
     /**
@@ -448,6 +470,11 @@ export class Batcher2D implements IBatcher {
         }
         curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, null);
         this._batches.push(curDrawBatch);
+
+        // useless
+        if (renderComp && renderComp.isForMask) {
+            StencilManager.sharedManager!.enableMask();
+        }
     }
 
     /**
@@ -464,6 +491,9 @@ export class Batcher2D implements IBatcher {
      * @param mat - The material used, could be null
      */
     public commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null) {
+        if (comp.isForMask) {
+            this._insertMaskBatch(comp);
+        }
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -501,6 +531,10 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
             curDrawBatch.descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
+        }
+
+        if (comp && comp.isForMask) {
+            StencilManager.sharedManager!.enableMask();
         }
     }
 
@@ -738,6 +772,101 @@ export class Batcher2D implements IBatcher {
         } else {
             this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
         }
+    }
+
+    public maskFinishMergeBatches () {
+        this.autoMergeBatches(this._currComponent!);
+        this.resetRenderStates();
+    }
+
+    // Mask use
+    private _createClearModel () {
+        if (!this._maskClearModel) {
+            this._maskClearMtl = builtinResMgr.get<Material>('default-clear-stencil');
+
+            this._maskClearModel = legacyCC.director.root.createModel(scene.Model);
+            // node 呢？？？
+            const stride = getAttributeStride(vfmt);
+            const gfxDevice: Device = deviceManager.gfxDevice;
+            const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                4 * stride,
+                stride,
+            ));
+
+            const vb = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+            vertexBuffer.update(vb);
+            const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                6 * Uint16Array.BYTES_PER_ELEMENT,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+
+            const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
+            indexBuffer.update(ib);
+            this._maskModelMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            this._maskModelMesh.subMeshIdx = 0;
+
+            this._maskClearModel!.initSubModel(0, this._maskModelMesh, this._maskClearMtl);
+        }
+    }
+
+    // 包括状态管理啥的都处理
+    private _insertMaskBatch (comp: UIRenderer) {
+        const mask = comp.node.getComponent(Mask)!;
+        this.maskFinishMergeBatches();// 处理之前的合批
+        this._createClearModel(); // 确保clearModel
+        this._maskClearModel!.node = this._maskClearModel!.transform = mask.node; // 为了复用 model 做出 hack
+        // 如何保证能渲染，缺个条件
+        const _stencilManager = StencilManager.sharedManager!;
+        _stencilManager.pushMask(1);//数组应该改一下，就要个长度
+        _stencilManager.clear(mask); //涉及到 invert
+
+        let depthStencil;
+        let dssHash = 0;
+        const mat = this._maskClearMtl;
+        if (mat) {
+            depthStencil = StencilManager.sharedManager!.getStencilStage(mask.stencilStage, mat);
+            dssHash = StencilManager.sharedManager!.getStencilHash(mask.stencilStage);
+        }
+
+        // 不确定是否需要更新 ubo
+        const model = this._maskClearModel!;
+        const stamp = legacyCC.director.getTotalFrames();
+        if (model) {
+            model.updateTransform(stamp);
+            model.updateUBOs(stamp);
+        }
+
+        for (let i = 0; i < model.subModels.length; i++) {
+            const curDrawBatch = this._drawBatchPool.alloc();
+            const subModel = model.subModels[i];
+            curDrawBatch.visFlags = mask.node.layer;
+            curDrawBatch.model = model;
+            curDrawBatch.texture = null;
+            curDrawBatch.sampler = null;
+            curDrawBatch.useLocalData = null;
+            if (!depthStencil) { depthStencil = null; }
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, subModel.patches);
+            curDrawBatch.inputAssembler = subModel.inputAssembler;
+            curDrawBatch.model.visFlags = curDrawBatch.visFlags;
+            curDrawBatch.descriptorSet = subModel.descriptorSet;
+            this._batches.push(curDrawBatch);
+        }
+
+        _stencilManager.enterLevel(mask);
+        // 这步有点奇怪
+        // if (mask.type === MaskType.IMAGE_STENCIL) {
+        if (mask.type === 3) {
+        // Apply stencil stage
+            _stencilManager.stage = mask.subComp!.stencilStage;
+        }
+
+        // 以上就把mask 的 model 那个插入完了
+        // 然后画那个 graphics
+        // 然后执行一次 enableMask
     }
 
     //sync mesh buffer to naive
