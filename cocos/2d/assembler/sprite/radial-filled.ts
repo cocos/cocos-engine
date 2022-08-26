@@ -354,7 +354,7 @@ export const radialFilled: IAssembler = {
                 // need dirty
                 this.updateWorldUVData(sprite);
                 //this.updateColorLate(sprite);
-                if (sprite.renderEntity) { sprite.renderEntity.colorDirty = true; }
+                sprite.renderEntity.colorDirty = true;
             }
             renderData.updateRenderData(sprite, frame);
         }
