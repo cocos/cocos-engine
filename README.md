@@ -29,19 +29,28 @@
 
 # Engine for Cocos Creator
 
-![image](https://user-images.githubusercontent.com/1503156/111035862-53548000-8457-11eb-8e8b-52d854caf627.png)
+**Cocos Creator is the new generation of game development tool in Cocos family, it brings a complete set of 3D and 2D features while providing an intuitive, low cost and collaboration friendly workflow to game developers.** Cocos Engine is the runtime framework for Cocos Creator editor.
 
-Cocos Engine is the framework for Cocos Creator editor. Cocos Creator is the new generation of game development tool in Cocos family, it brings a complete set of 3D features and provides an intuitive, low cost and collaboration friendly workflow to game developers.
+![image](https://www.cocos.com/wp-content/uploads/2022/08/13f41f1c975e8255fdc06f59597b9546-7.png)
 
-Cocos Creator inherited many good qualities and cool features from its previous versions, such as cross-platform support including instant gaming platforms like WeChat mini game, asset management, powerful animation editing, etc. Furthermore, Cocos Creator has pushed our technology to a whole new level. Our GFX implementation is designed to adapt to the latest graphic backend APIs, it already supports WebGL 2 and can be seamlessly fall back to WebGL 1, it will support Vulkan and Metal in the native build. The material system is built on our own effect format which uses GLSL 300 and can be easily adapted to lower version on low end devices. Developers can produce high performance, extremely expressive shaders with good compatibility. Along with physical based camera and lighting, high level game graphic can be easily achieved. Our pure GPU driven skeleton animation also make sure your game runs as smooth as possible. Besides all these exciting features, Cocos Creator have builtin physics support, terrain editing support, visual effect editing, ui system, TypeScript support, instant preview etc.
+Cocos Creator inherited many good qualities and cool features from its previous versions, such as high performance low level C++ implementation, intuitive editor, cross-platform support. It supports native platforms, web platforms and rapidly expanding instant gaming platforms, including Windows, Mac, iOS, Android, HarmonyOS, Web, Facebook Instant Games, WeChat Mini Game and TikTok Mini Games.
+
+Furthermore, Cocos Creator has pushed our technology to a whole new level for high performance with scalability on various platforms, full extensibility and easy development.
+
+1. **Modern Graphics**: Our GFX implementation is designed to adapt to the modern graphics APIs, it uses Vulkan on Windows and Android, Metal on Mac OS and iOS, WebGL on Web platform.
+2. **High Performance**: The runtime engine is built with half C++ and half TypeScript, low level infrastructure, native platform adaptation, renderer and scene management are all written in C++ to ensure high runtime performance. We continue to move heavy lifting work to native as much as possible.
+3. **Customizable Render Pipeline**: The render pipeline is designed to be fully customizable, it has supported the builtin forward and deferred render pipeline across all platforms. Developers can customize their own render pipeline following the same approach.
+4. **Extensible Surface Shader**: The material system is built on our own effect format which uses GLSL 300, the shader programs will be converted to suitable runtime format automatically. The surface shader permit to fully customize the surface material while ensuring universal lighting model.
+5. **Physically Based Rendering**: Our standard effect adopts physically based rendering, along with the physically based camera and the lighting based on physical metrics, developers can easily achieve realistic and seamless rendering results across different environment.
+6. **Easy TypeScript API**: Our user level API set is provided in TypeScript, along with the powerful VSCode editor, development with Cocos Creator is incredibly efficient.
+
+Besides all these highlights, Cocos Creator also provides builtin animation system, physics system, particle system, terrain editing support, complex UI system, instant preview etc.
 
 ![image](https://user-images.githubusercontent.com/1503156/111037166-f27c7600-845d-11eb-988f-4c2c8b5c7321.png)
 
-This repo is the engine part of Cocos Creator, it's mainly written in TypeScript and support users to use TypeScript or ES6 to write game logics. In addition, the `native` directory provides the underlying implementation of the engine on native platforms. The engine itself is mostly self-contained, with full-fledged runtime modules including lighting, material, particle, animation, physical, UI, terrain, sound, resource and scene-graph management, etc. It supports both native and web platforms, including Windows, Mac, iOS, Android, HarmonyOS, Web. What's more exciting is that it supports rapidly expanding instant gaming platforms like WeChat Mini Game and Facebook Instant Games.
+This open source repository is the runtime engine of Cocos Creator, the engine is naturally integrated within Cocos Creator, designed to only be the essential runtime library and not to be used independently.
 
-The engine is naturally integrated within Cocos Creator, designed to only be the essential runtime library and not to be used independently.
-
-## Developer
+## Development and Contribution Notice
 
 ### Prerequisite
 
@@ -72,16 +81,16 @@ Please refer to [native readme](native/README.md) if want to develop native appl
 
 ## Example Project
 
-- [Example Cases](https://github.com/cocos/cocos-example-projects): Simple yet expressive demo scenes for baseline testing and topic-specific case study.
 - [Mind Your Step 3D](https://github.com/cocos/cocos-tutorial-mind-your-step): Beginner's step-by-step tutorial project repo.
-- [UI Demo](https://github.com/cocos/cocos-example-ui): Use cases for various kinds of UI components.
 - [Test Cases](https://github.com/cocos/cocos-test-projects): Unit test scenes for every engine module.
+- [Example Cases](https://github.com/cocos/cocos-example-projects): Simple yet expressive demo scenes for baseline testing and topic-specific case study.
+- [Awesome Cocos](https://github.com/cocos/awesome-cocos): You can find out other useful tools and show cases here.
 
 ## Links
 
-- [Official site](https://www.cocos.com/products#CocosCreator)
-- [Download](https://www.cocos.com/creator)
+- [Official site](https://www.cocos.com/)
+- [Download](https://www.cocos.com/creator/download)
 - [Documentation](https://docs.cocos.com/creator/manual/en/)
 - [API References](https://docs.cocos.com/creator/api/en/)
 - [Forum](https://discuss.cocos2d-x.org/c/creator)
-- [Road Map](https://trello.com/b/JWVRRxMG/cocos-creator-roadmap)
+- [Projects and road map](https://github.com/orgs/cocos/projects?query=is%3Aopen&type=new)
