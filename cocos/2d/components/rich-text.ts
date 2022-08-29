@@ -25,7 +25,7 @@
 */
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
-import { DEV, EDITOR } from 'internal:constants';
+import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID } from '../../core/platform';
@@ -758,7 +758,9 @@ export class RichText extends Component {
         for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
-                assert(child.parent === this.node);
+                if (DEBUG) {
+                    assert(child.parent === this.node);
+                }
                 child.parent = null;
 
                 const segment = createSegment(child.name);
