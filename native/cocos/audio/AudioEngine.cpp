@@ -35,6 +35,7 @@
 #include <thread>
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    // OpenHarmony and Android use the same audio playback module
     #include "audio/android/AudioEngine-inl.h"
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
     #include "audio/apple/AudioEngine-inl.h"
