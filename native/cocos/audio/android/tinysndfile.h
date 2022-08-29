@@ -24,8 +24,7 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <sys/cdefs.h>
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-#include <iostream>
-#include <stdio.h>
+#include <cstdint>
 #endif
 #include "audio/android/utils/Compat.h"
 
