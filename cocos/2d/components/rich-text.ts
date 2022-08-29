@@ -236,6 +236,27 @@ export class RichText extends Component {
         this._layoutDirty = true;
         this._updateRichTextStatus();
     }
+    
+    /**
+     * @en
+     * Font color of RichText.
+     *
+     * @zh
+     * 富文本默认文字颜色。
+     */
+    @type(Color)
+    get fontColor () {
+        return this._fontColor;
+    }
+    set fontColor (value: Color) {
+        if (this._fontColor === value) {
+            return;
+        }
+
+        this._fontColor = value;
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
 
     /**
      * @en
@@ -444,6 +465,8 @@ export class RichText extends Component {
     protected _verticalAlign = VerticalTextAlignment.TOP;
     @serializable
     protected _fontSize = 40;
+    @serializable
+    protected _fontColor: Color = Color.WHITE.clone();
     @serializable
     protected _maxWidth = 0;
     @serializable
@@ -1282,7 +1305,7 @@ export class RichText extends Component {
 
     protected _resetLabelState (label: Label) {
         label.fontSize = this._fontSize;
-        label.color = Color.WHITE;
+        label.color = this._fontColor;
         label.isBold = false;
         label.isItalic = false;
         label.isUnderline = false;
