@@ -394,7 +394,7 @@ jobs:
   compile_wgpu_mac:
     name: "Emscripten"
     runs-on: macos-latest
-    if: contains( github.event.head_commit.message, 'WGPU_CI_ON' )
+    if: contains( github.event.commits[0].message, 'WGPU_CI_ON' )
     steps:
       - uses: actions/checkout@v2
       - name: Download external libraries
