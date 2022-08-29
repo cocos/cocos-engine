@@ -28,6 +28,8 @@
 #include "base/std/container/unordered_map.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 
+struct ANativeWindow;
+
 namespace cc {
 class ISystemWindow;
 
@@ -41,6 +43,8 @@ public:
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
     const SystemWindowMap &getWindows() const override { return _windows; }
+
+    ISystemWindow *getWindowFromANativeWindow(ANativeWindow *window) const;
 
 private:
     uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID

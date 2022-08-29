@@ -62,4 +62,18 @@ ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
     }
     return nullptr;
 }
+
+ISystemWindow *SystemWindowManager::getWindowFromANativeWindow(ANativeWindow *window) const {
+    if (!window) {
+        return nullptr;
+    }
+    for (const auto &pair : _windows) {
+        ISystemWindow *sysWindow = pair.second.get();
+        auto *nativeWindow = reinterpret_cast<ANativeWindow *>(sysWindow->getWindowHandle());
+        if (nativeWindow == window) {
+            return sysWindow;
+        }
+    }
+    return nullptr;
+}
 } // namespace cc

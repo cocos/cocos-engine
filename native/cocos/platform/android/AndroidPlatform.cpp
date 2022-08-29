@@ -207,7 +207,7 @@ public:
 
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
-            touchEvent.windowId = 1; // Assuming main window
+            touchEvent.windowId = 1; // must be main window here
 
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
@@ -295,18 +295,19 @@ public:
                 break;
             case APP_CMD_INIT_WINDOW: {
                 _hasWindow = true;
-
                 ANativeWindow *nativeWindow = _androidPlatform->_app->window;
-                ISystemWindowInfo info;
-                info.width  = ANativeWindow_getWidth(nativeWindow);
-                info.height = ANativeWindow_getHeight(nativeWindow);
-                info.externalHandle = nativeWindow;
-                _androidPlatform->getInterface<SystemWindowManager>()->createWindow(info);
 
                 // We have a window!
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
                 if (!_launched) {
                     _launched = true;
+
+                    ISystemWindowInfo info;
+                    info.width  = ANativeWindow_getWidth(nativeWindow);
+                    info.height = ANativeWindow_getHeight(nativeWindow);
+                    info.externalHandle = nativeWindow;
+                    _androidPlatform->getInterface<SystemWindowManager>()->createWindow(info);
+
                     if (cocos_main(0, nullptr) != 0) {
                         CC_LOG_ERROR("AndroidPlatform: Launch game failed!");
                     } else {
@@ -320,6 +321,10 @@ public:
                     if (xr) {
                         xr->onRenderResume();
                     }
+
+                    auto *window = static_cast<cc::SystemWindow *>(CC_GET_SYSTEM_WINDOW(1));
+                    window->setWindowHandle(nativeWindow);
+
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
                     event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);

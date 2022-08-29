@@ -57,6 +57,10 @@ void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     copyTextToClipboardJNI(text);
 }
 
+void SystemWindow::setWindowHandle(void *handle) {
+    _windowHandle = handle;
+}
+
 uintptr_t SystemWindow::getWindowHandle() const {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     CC_ASSERT(_windowHandle);
