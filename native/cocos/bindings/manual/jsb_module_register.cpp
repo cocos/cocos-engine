@@ -163,7 +163,7 @@ bool jsb_register_all_modules() {
 
 #endif // USE_MIDDLEWARE
 
-#if USE_PHYSICS_PHYSX && CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO:May be removed later
+#if USE_PHYSICS_PHYSX
     se->addRegisterCallback(register_all_physics);
 #endif
 

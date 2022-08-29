@@ -233,7 +233,6 @@ bool register_all_spine_manual(se::Object *obj) {
     ns->defineFunction("disposeSkeletonData", _SE(js_register_spine_disposeSkeletonData));
 
     spine::setSpineObjectDisposeCallback([](void *spineObj) {
-#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO:May be removed later
         // Support Native Spine fo Creator V3.0
         se::Object *seObj = nullptr;
         auto iter = se::NativePtrToObjectMap::find(spineObj);
@@ -270,7 +269,6 @@ bool register_all_spine_manual(se::Object *obj) {
         } else {
             CleanupTask::pushTaskToAutoReleasePool(cleanup);
         }
-#endif
     });
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
