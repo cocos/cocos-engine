@@ -597,7 +597,7 @@ Object* Object::createJSONObject(const std::string& jsonStr) {
 }
 
 void Object::clearPrivateData(bool clearMapping) {
-    //not impl
+    //TODO：fix later
 }
 
 } // namespace se
