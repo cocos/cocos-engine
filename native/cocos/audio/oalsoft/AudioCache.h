@@ -81,6 +81,7 @@ protected:
     float _duration;
     uint32_t _totalFrames;
     uint32_t _framesRead;
+    uint32_t _bytesPerFrame;
 
     bool _isStreaming{false};
     uint32_t _channelCount{1};
