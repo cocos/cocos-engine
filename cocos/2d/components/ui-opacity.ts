@@ -84,7 +84,7 @@ export class UIOpacity extends Component {
 
     // for UIOpacity
     public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
-        if (!node) {
+        if (!node.isValid) {
             return;
         }
 
