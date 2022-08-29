@@ -54,6 +54,7 @@ public:
     void addPlayCallback(const std::function<void()> &callback);
 
     void addLoadCallback(const std::function<void(bool)> &callback);
+    bool isStreaming() const { return _isStreaming; }
 
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };
@@ -69,7 +70,9 @@ protected:
     float _duration;
     uint32_t _totalFrames;
     uint32_t _framesRead;
-
+    uint32_t _bytesPerFrame;
+    bool _isStreaming{false};
+    uint32_t _channelCount{1};
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
