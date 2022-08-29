@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { AttributeName, Format, Attribute, API, deviceManager } from '../../core/gfx';
+import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -76,7 +76,7 @@ const _vert_attr_name = {
     DIR_LIFE: 'a_dir_life',
     RANDOM_SEED: 'a_rndSeed',
     VERT_SIZE_FID: 'a_size_fid',
-    VERT_ROTATION_RND: 'a_rotation_rnd',
+    VERT_ROTATION: 'a_rotation',
     VERT_UV: 'a_uv',
 };
 
@@ -105,18 +105,20 @@ const _gpu_vert_attr_mesh = [
 const _gpu_vert_attr_ins = [
     new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
-    new Attribute(_vert_attr_name.VERT_ROTATION_RND, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_UV, Format.RGB32F, false, 1),
 ];
 
 const _gpu_vert_attr_mesh_ins = [
     new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
-    new Attribute(_vert_attr_name.VERT_ROTATION_RND, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),      // mesh uv
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),         // mesh normal
@@ -488,6 +490,51 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
     }
 
+    public updateVertexAttrib () {
+        if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
+            return;
+        }
+        if (!this._useInstance) {
+            if (this._renderInfo!.mesh) {
+                const format = this._renderInfo!.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
+                if (format) {
+                    let type = Format.RGBA8;
+                    for (let i = 0; i < FormatInfos.length; ++i) {
+                        if (FormatInfos[i].name === format.name) {
+                            type = i;
+                            break;
+                        }
+                    }
+                    this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true);
+                } else { // mesh without vertex color
+                    const type = Format.RGBA8;
+                    this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true);
+                }
+            }
+        } else {
+            this._updateVertexAttribIns();
+        }
+    }
+
+    private _updateVertexAttribIns () {
+        if (this._renderInfo!.mesh) {
+            const format = this._renderInfo!.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
+            if (format) {
+                let type = Format.RGBA8;
+                for (let i = 0; i < FormatInfos.length; ++i) {
+                    if (FormatInfos[i].name === format.name) {
+                        type = i;
+                        break;
+                    }
+                }
+                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 1);
+            } else { // mesh without vertex color
+                const type = Format.RGBA8;
+                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 1);
+            }
+        }
+    }
+
     private _setVertexAttrib () {
         if (!this._useInstance) {
             switch (this._renderInfo!.renderMode) {
@@ -527,11 +574,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (shareMaterial !== null) {
             const effectName = shareMaterial._effectAsset._name;
             this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
-            if (effectName.indexOf('builtin-particle-gpu') === -1) {
-                this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
-                // reset material
-                this._particleSystem.setMaterial(null, 0);
-            }
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {

@@ -32,7 +32,7 @@ import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
 import { Device, Feature, Format, FormatFeatureBit } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
-import { errorID, warnID } from '../../core';
+import { errorID } from '../../core';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
@@ -170,7 +170,6 @@ export default class ParticleSystemRenderer {
         } else {
             const effectName = val.effectName;
             if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
-                warnID(6035);
                 return;
             }
         }
@@ -199,7 +198,6 @@ export default class ParticleSystemRenderer {
         } else {
             const effectName = val.effectName;
             if (effectName.indexOf('particle-gpu') === -1) {
-                warnID(6035);
                 return;
             }
         }
@@ -310,9 +308,9 @@ export default class ParticleSystemRenderer {
             errorID(6034);
         }
         if (!this._useGPU) {
-            this.cpuMaterial = this.particleMaterial;
+            this.cpuMaterial = this._cpuMaterial;
         } else {
-            this.gpuMaterial = this.particleMaterial;
+            this.gpuMaterial = this._gpuMaterial;
         }
     }
 
