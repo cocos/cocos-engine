@@ -329,9 +329,9 @@ export class AudioSource extends Component {
         if (this.state === AudioState.PLAYING) {
             this._player?.stop().catch((e) => {});
         }
-        const pIayer = this._player;
+        const player = this._player;
         this._player?.play().then(() => {
-            audioManager.addPlaying(pIayer!);
+            audioManager.addPlaying(player!);
             this.node?.emit(AudioSourceEventType.STARTED, this);
         }).catch((e) => {});
     }
@@ -347,9 +347,9 @@ export class AudioSource extends Component {
             this._operationsBeforeLoading.push('pause');
             return;
         }
-        const pIayer = this._player;
+        const player = this._player;
         this._player?.pause().then(() => {
-            audioManager.removePlaying(pIayer!);
+            audioManager.removePlaying(player!);
         }).catch((e) => {});
     }
 
@@ -364,9 +364,9 @@ export class AudioSource extends Component {
             this._operationsBeforeLoading.push('stop');
             return;
         }
-        const pIayer = this._player;
+        const player = this._player;
         this._player?.stop().then(() => {
-            audioManager.removePlaying(pIayer!);
+            audioManager.removePlaying(player!);
         }).catch((e) => {});
     }
 
