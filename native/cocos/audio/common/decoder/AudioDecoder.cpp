@@ -24,10 +24,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "audio/oalsoft/AudioDecoder.h"
-#include <stdint.h>
-#include <string.h>
-#include "audio/oalsoft/AudioMacros.h"
+#include <cstdint>
+#include <cstring>
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/include/AudioMacros.h"
 #include "platform/FileUtils.h"
 
 #ifdef LOG_TAG
@@ -40,8 +40,7 @@ namespace cc {
 AudioDecoder::AudioDecoder()
 : _isOpened(false) {}
 
-AudioDecoder::~AudioDecoder() {
-}
+AudioDecoder::~AudioDecoder() = default;
 
 bool AudioDecoder::isOpened() const {
     return _isOpened;

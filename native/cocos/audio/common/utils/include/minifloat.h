@@ -17,10 +17,13 @@
 #ifndef COCOS_AUDIO_MINIFLOAT_H
 #define COCOS_AUDIO_MINIFLOAT_H
 
-#include <stdint.h>
-#include <sys/cdefs.h>
+#include <cstdint>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <sys/cdefs.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include <sys/types.h>
+#endif
 
-__BEGIN_DECLS
 
 /* A single gain expressed as minifloat */
 typedef uint16_t gain_minifloat_t;
@@ -68,11 +71,10 @@ static inline gain_minifloat_t gain_minifloat_unpack_right(gain_minifloat_packed
  * There are 13 significand bits specified, 1 implied hidden bit, 3 exponent bits,
  * and no sign bit.  Denormals are supported.
  */
-gain_minifloat_t gain_from_float(float f);
+gain_minifloat_t gain_from_float(float v);
 
 /* Convert the internal representation used for gains to float */
-float float_from_gain(gain_minifloat_t gain);
+float float_from_gain(gain_minifloat_t a);
 
-__END_DECLS
 
 #endif // COCOS_AUDIO_MINIFLOAT_H

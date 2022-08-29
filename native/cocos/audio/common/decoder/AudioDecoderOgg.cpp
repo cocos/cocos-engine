@@ -24,9 +24,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "audio/oalsoft/AudioDecoderOgg.h"
-#include <stdint.h>
-#include "audio/oalsoft/AudioMacros.h"
+#include <cstdint>
+#include "audio/common/decoder/AudioDecoderOgg.h"
+
+#include "audio/include/AudioMacros.h"
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_OHOS

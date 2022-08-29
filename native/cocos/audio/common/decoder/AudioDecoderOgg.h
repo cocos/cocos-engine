@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "audio/oalsoft/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoder.h"
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include "vorbis/vorbisfile.h"

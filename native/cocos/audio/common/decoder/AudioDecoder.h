@@ -29,7 +29,7 @@
 #include <cstdint>
 #include <functional>
 
-#include <audio/include/AudioDef.h>
+#include "audio/include/AudioDef.h"
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include "vorbis/vorbisfile.h"
@@ -116,7 +116,6 @@ public:
     virtual AudioDataFormat getDataFormat() const;
 
     virtual PCMHeader getPCMHeader() const;
-
 protected:
     AudioDecoder();
     virtual ~AudioDecoder();
