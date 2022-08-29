@@ -394,6 +394,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
+                if (ps.node.parent) {
+                    ps.node.parent.getWorldMatrix(_tempWorldTrans);
+                    _tempWorldTrans.invert();
+                    this._gravity = this._gravity.transformMat4(_tempWorldTrans);
+                }
                 this._gravity = this._gravity.transformMat4(this._localMat);
 
                 p.velocity.x += this._gravity.x;

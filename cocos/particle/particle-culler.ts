@@ -36,6 +36,7 @@ import { AABB } from '../core/geometry';
 import type { ParticleSystem } from './particle-system';
 
 const _node_mat = new Mat4();
+const _node_parent = new Mat4();
 const _node_rol = new Quat();
 const _node_scale = new Vec3();
 
@@ -220,6 +221,11 @@ export class ParticleCuller {
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
+                if (ps.node.parent) {
+                    ps.node.parent.getWorldMatrix(_node_parent);
+                    _node_parent.invert();
+                    this._gravity = this._gravity.transformMat4(_node_parent);
+                }
                 this._gravity = this._gravity.transformMat4(this._localMat);
 
                 p.velocity.x += this._gravity.x;
