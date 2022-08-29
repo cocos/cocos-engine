@@ -569,7 +569,7 @@ uint32_t nextPow2(uint32_t val) {
 }
 
 bool supportsR16HalfFloatTexture(const gfx::Device* device) {
-    return false;//hasAllFlags(device->getFormatFeatures(gfx::Format::R16F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
+    return hasAllFlags(device->getFormatFeatures(gfx::Format::R16F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 
 bool supportsR32FloatTexture(const gfx::Device* device) {
