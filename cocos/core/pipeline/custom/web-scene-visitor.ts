@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-import { PipelineState, DescriptorSet, InputAssembler, DrawInfo, Buffer, CommandBuffer, Rect, Viewport } from '../../gfx';
+import { PipelineState, DescriptorSet, InputAssembler, DrawInfo, Buffer, CommandBuffer, Rect, Viewport } from '../../../gfx';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneVisitor } from './pipeline';
 

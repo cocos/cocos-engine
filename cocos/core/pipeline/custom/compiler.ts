@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
+import { Buffer, Framebuffer, Texture, Viewport } from '../../../gfx';
 import { assert } from '../../platform/debug';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';

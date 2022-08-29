@@ -37,7 +37,7 @@ import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { legacyCC } from '../../core/global-exports';
-import { BlendFactor } from '../../core/gfx';
+import { BlendFactor } from '../../gfx';
 import { Color } from '../../core';
 
 const tempColor = Color.WHITE.clone();

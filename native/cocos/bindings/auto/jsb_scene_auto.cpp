@@ -1565,55 +1565,6 @@ static bool js_cc_toNumber(se::State& s)
 }
 SE_BIND_FUNC(js_cc_toNumber) 
 
-se::Class* __jsb_cc_BaseNode_class = nullptr;
-se::Object* __jsb_cc_BaseNode_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_BaseNode) 
-
-// js_ctor
-static bool js_new_cc_BaseNode(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::BaseNode *result;
-    result = (cc::BaseNode *)new cc::BaseNode();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_BaseNode, __jsb_cc_BaseNode_class, js_delete_cc_BaseNode)
-
-static bool js_delete_cc_BaseNode(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_BaseNode) 
-
-bool js_register_cc_BaseNode(se::Object* obj) {
-    auto* cls = se::Class::create("BaseNode", obj, __jsb_cc_CCObject_proto, _SE(js_new_cc_BaseNode)); 
-    
-    
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_BaseNode));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::BaseNode>(cls);
-    
-    __jsb_cc_BaseNode_proto = cls->getProto();
-    __jsb_cc_BaseNode_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
 se::Class* __jsb_cc_Node_class = nullptr;
 se::Object* __jsb_cc_Node_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Node) 
@@ -4035,7 +3986,7 @@ static bool js_cc_Node__persistNode_get(se::State& s)
 SE_BIND_PROP_GET(js_cc_Node__persistNode_get) 
 
 bool js_register_cc_Node(se::Object* obj) {
-    auto* cls = se::Class::create("Node", obj, __jsb_cc_BaseNode_proto, _SE(js_new_Node)); 
+    auto* cls = se::Class::create("Node", obj, __jsb_cc_CCObject_proto, _SE(js_new_Node)); 
     
     cls->defineProperty("onSiblingIndexChanged", _SE(js_cc_Node_onSiblingIndexChanged_get), _SE(js_cc_Node_onSiblingIndexChanged_set)); 
     cls->defineProperty("_id", _SE(js_cc_Node__id_get), _SE(js_cc_Node__id_set)); 
@@ -26605,7 +26556,6 @@ bool register_all_scene(se::Object* obj) {
     se::Object* ns = nsVal.toObject();
     /* Register classes */
     js_register_cc_Layers(ns); 
-    js_register_cc_BaseNode(ns); 
     js_register_cc_Node(ns); 
     js_register_cc_Node_UserData(ns); 
     js_register_cc_Scene(ns); 

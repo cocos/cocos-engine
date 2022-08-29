@@ -1,9 +1,9 @@
 import { DEBUG } from 'internal:constants';
 import { ccclass } from '../../data/decorators';
 // eslint-disable-next-line max-len
-import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, UniformBlock } from '../../../gfx';
 import { VectorGraphColorMap } from './effect';
-import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
+import { DefaultVisitor, depthFirstSearch } from './graph';
 // eslint-disable-next-line max-len
 import { DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';

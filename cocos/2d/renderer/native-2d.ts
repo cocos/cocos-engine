@@ -1,5 +1,5 @@
 import { Material } from '../../core/assets';
-import { Attribute, Device, Sampler, Texture } from '../../core/gfx';
+import { Attribute, Device, Sampler, Texture } from '../../gfx';
 import { Node } from '../../core/scene-graph';
 import { Model } from '../../core/renderer/scene';
 

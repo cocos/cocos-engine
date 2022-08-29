@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo, AttributeName, BufferUsageBit, Format, MemoryUsageBit } from '../gfx';
+import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo, AttributeName, BufferUsageBit, Format, MemoryUsageBit } from '../../gfx';
 import { IGeometry } from '../../primitive/define';
 
 export function createIA (device: Device, data: IGeometry) {

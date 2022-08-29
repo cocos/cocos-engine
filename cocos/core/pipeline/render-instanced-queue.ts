@@ -24,7 +24,7 @@
  */
 
 import { InstancedBuffer } from './instanced-buffer';
-import { Device, RenderPass, PipelineState, CommandBuffer, DescriptorSet } from '../gfx';
+import { Device, RenderPass, PipelineState, CommandBuffer, DescriptorSet } from '../../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
 

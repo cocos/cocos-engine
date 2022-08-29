@@ -236,7 +236,6 @@
         "cc.WebGLDevice",
 		"cc.Widget",
         "cc.WidgetComponent",
-        "cc._BaseNode",
         "cc._JavaScript",
         "cc._MissingScript",
         "cc._Prefab",

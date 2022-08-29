@@ -461,11 +461,11 @@ class Parser {
         if (isCCClassOrFastDefined(ctor)) {
             if (this.parent) {
                 if (this.parent instanceof legacyCC.Component) {
-                    if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
+                    if (obj instanceof legacyCC.Node || obj instanceof legacyCC.Component) {
                         return this.getObjRef(obj);
                     }
-                } else if (this.parent instanceof legacyCC._BaseNode) {
-                    if (obj instanceof legacyCC._BaseNode) {
+                } else if (this.parent instanceof legacyCC.Node) {
+                    if (obj instanceof legacyCC.Node) {
                         if (!obj.isChildOf(this.parent)) {
                             // should not clone other nodes if not descendant
                             return this.getObjRef(obj);
@@ -535,7 +535,7 @@ export function equalsToDefault (def: any, value: any) {
 }
 
 export function compile (node) {
-    const root = (node instanceof legacyCC._BaseNode) && node;
+    const root = (node instanceof legacyCC.Node) && node;
     const parser = new Parser(node, root);
     return parser.result;
 }

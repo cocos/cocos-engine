@@ -24,7 +24,6 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../core/builtin';
 import { ModelRenderer } from '../core/components/model-renderer';
 import { EffectAsset, Texture2D } from '../core/assets';
@@ -34,7 +33,7 @@ import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager } from '../core/gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager } from '../gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { Pass, scene } from '../core/renderer';
@@ -46,7 +45,7 @@ import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCFloat, CCInteger, Node, PipelineEventType } from '../core';
+import { CCBoolean, CCFloat, Node, PipelineEventType } from '../core';
 
 /**
  * @en Terrain info

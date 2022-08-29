@@ -24,7 +24,7 @@
  */
 
 import { Component } from '../../core';
-import { Attribute, deviceManager, Feature } from '../../core/gfx';
+import { Attribute, deviceManager, Feature } from '../../gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../core/assets';

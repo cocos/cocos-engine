@@ -26,8 +26,8 @@
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
-import { AttributeName, Format, Attribute } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random } from '../../core/math';
+import { AttributeName, Format, Attribute } from '../../gfx';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';

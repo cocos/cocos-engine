@@ -38,7 +38,7 @@ import { ShadowFlow } from '../shadow/shadow-flow';
 import { Format, StoreOp,
     ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, Texture, AccessFlagBit, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';

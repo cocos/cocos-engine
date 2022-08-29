@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { ccclass } from '../../data/decorators';
 

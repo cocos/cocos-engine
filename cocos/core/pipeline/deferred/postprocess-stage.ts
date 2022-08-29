@@ -29,7 +29,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { SetIndex, UBOLocal } from '../define';
-import { Color, Rect, PipelineState, ClearFlagBit, DescriptorSetInfo, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../gfx';
+import { Color, Rect, PipelineState, ClearFlagBit, DescriptorSetInfo, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from '../enum';
 import { Material } from '../../assets/material';

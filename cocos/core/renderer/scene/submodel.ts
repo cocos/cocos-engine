@@ -27,7 +27,7 @@ import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager } from '../../gfx';
+    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager } from '../../../gfx';
 import { legacyCC } from '../../global-exports';
 import { errorID } from '../../platform/debug';
 import { getPhaseID } from '../../pipeline/pass-phase';

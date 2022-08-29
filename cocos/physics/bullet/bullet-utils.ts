@@ -25,7 +25,7 @@
 
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 import { Mesh } from '../../3d';
-import { PrimitiveMode } from '../../core/gfx';
+import { PrimitiveMode } from '../../gfx';
 import { bt } from './instantiated';
 import { BulletCache } from './bullet-cache';
 

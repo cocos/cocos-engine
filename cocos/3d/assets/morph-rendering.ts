@@ -25,7 +25,7 @@
 
 import {
     AttributeName, Buffer, BufferUsageBit, Device, MemoryUsageBit, DescriptorSet, BufferInfo, FormatFeatureBit, Format,
-} from '../../core/gfx';
+} from '../../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { ImageAsset } from '../../core/assets/image-asset';

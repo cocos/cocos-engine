@@ -27,7 +27,7 @@ import { Model } from '../../core/renderer/scene/model';
 import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
-import { DescriptorSet } from '../../core/gfx';
+import { DescriptorSet } from '../../gfx';
 import { IMacroPatch } from '../../core/renderer';
 
 /**

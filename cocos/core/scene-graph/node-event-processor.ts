@@ -26,15 +26,14 @@
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { Event, EventMouse, EventTouch, Touch } from '../../input/types';
 import { Vec2 } from '../math/vec2';
-import { BaseNode } from './base-node';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { NodeEventType } from './node-event';
 import { InputEventType, SystemEventTypeUnion } from '../../input/types/event-enum';
 
-const _cachedArray = new Array<BaseNode>(16);
-let _currentHovered: BaseNode | null = null;
+const _cachedArray = new Array<Node>(16);
+let _currentHovered: Node | null = null;
 const pos = new Vec2();
 
 const _touchEvents = [
@@ -253,7 +252,7 @@ export class NodeEventProcessor {
 
     public dispatchEvent (event: Event) {
         const owner = this.node;
-        let target: BaseNode;
+        let target: Node;
         let i = 0;
         event.target = owner;
 
@@ -330,7 +329,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getCapturingTargets (type: string, targets: BaseNode[]) {
+    public getCapturingTargets (type: string, targets: Node[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.capturingTarget?.hasEventListener(type)) {
@@ -349,7 +348,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getBubblingTargets (type: string, targets: BaseNode[]) {
+    public getBubblingTargets (type: string, targets: Node[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.bubblingTarget?.hasEventListener(type)) {
