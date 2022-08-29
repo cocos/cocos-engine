@@ -30,8 +30,8 @@
 #include <cstdlib>
 #include <cstring>
 #include "audio/oalsoft/AudioCache.h"
-#include "audio/oalsoft/AudioDecoder.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"
 

@@ -439,11 +439,13 @@ bool js_register_cc_scene_Skybox(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_scene_Skybox_activate);
 SE_DECLARE_FUNC(js_scene_Skybox_getReflectionMap);
+SE_DECLARE_FUNC(js_scene_Skybox_getRotationAngle);
 SE_DECLARE_FUNC(js_scene_Skybox_initialize);
 SE_DECLARE_FUNC(js_scene_Skybox_isUsingConvolutionMap);
 SE_DECLARE_FUNC(js_scene_Skybox_setDiffuseMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setEnvMaps);
 SE_DECLARE_FUNC(js_scene_Skybox_setReflectionMaps);
+SE_DECLARE_FUNC(js_scene_Skybox_setRotationAngle);
 SE_DECLARE_FUNC(js_scene_Skybox_setSkyboxMaterial);
 SE_DECLARE_FUNC(js_scene_Skybox_Skybox);
 
@@ -543,7 +545,9 @@ SE_DECLARE_FUNC(js_scene_Camera_detachFromScene);
 SE_DECLARE_FUNC(js_scene_Camera_getAspect);
 SE_DECLARE_FUNC(js_scene_Camera_initGeometryRenderer);
 SE_DECLARE_FUNC(js_scene_Camera_initialize);
+SE_DECLARE_FUNC(js_scene_Camera_isCullingEnabled);
 SE_DECLARE_FUNC(js_scene_Camera_resize);
+SE_DECLARE_FUNC(js_scene_Camera_setCullingEnable);
 SE_DECLARE_FUNC(js_scene_Camera_setFixedSize);
 SE_DECLARE_FUNC(js_scene_Camera_setViewportInOrientedSpace);
 SE_DECLARE_FUNC(js_scene_Camera_update);

@@ -43,15 +43,21 @@ vec3 CalculateNormalFromTangentSpace(vec3 normalFromTangentSpace, float normalSt
             normalFromTangentSpace.z * normalize(normal);
 }
 
+vec3 RotationVecFromAxisY(vec3 v, float cosTheta, float sinTheta)
+{
+    vec3 result;
+    result.x = dot(v, vec3(cosTheta, 0.0, -sinTheta));
+    result.y = v.y;
+    result.z = dot(v, vec3(sinTheta, 0.0,  cosTheta));
+    return result;
+}
+
 // rotationAngle: radians, 0-2Pi
 void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 normal, float rotationAngle)
 {
     float cosTheta = cos(rotationAngle), sinTheta = sin(rotationAngle);
-    vec3 T = vec3(0.0), B = vec3(0.0);
-    B.x = dot(vec3(1.0, 0.0, 0.0), vec3(cosTheta, 0.0, -sinTheta));
-    B.z = dot(vec3(1.0, 0.0, 0.0), vec3(sinTheta, 0.0,  cosTheta));
-    T.x = dot(vec3(0.0, 0.0, 1.0), vec3(cosTheta, 0.0, -sinTheta));
-    T.z = dot(vec3(0.0, 0.0, 1.0), vec3(sinTheta, 0.0,  cosTheta));
+    vec3 B = RotationVecFromAxisY(vec3(1.0, 0.0, 0.0), cosTheta, sinTheta);
+    vec3 T = RotationVecFromAxisY(vec3(0.0, 0.0, 1.0), cosTheta, sinTheta);
 
     vec3 tangentNew, binormalNew;
     binormalNew.x = dot(B, binormal);

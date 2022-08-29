@@ -38,9 +38,9 @@ import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../core/platform/sys';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 
 const LEFT_PADDING = 2;
 
@@ -57,6 +57,8 @@ enum EventType {
     EDITING_DID_ENDED = 'editing-did-ended',
     TEXT_CHANGED = 'text-changed',
     EDITING_RETURN = 'editing-return',
+    XR_EDITING_DID_BEGAN = 'xr-editing-did-began',
+    XR_EDITING_DID_ENDED = 'xr-editing-did-ended',
 }
 /**
  * @en
@@ -692,11 +694,17 @@ export class EditBox extends Component {
     protected _registerEvent () {
         this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+
+        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
+        this.node.on(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
     }
 
     protected _unregisterEvent () {
         this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+
+        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
+        this.node.off(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
     }
 
     private _onBackgroundSpriteFrameChanged () {
@@ -758,6 +766,14 @@ export class EditBox extends Component {
         }
 
         this._syncSize();
+    }
+
+    protected _xrUnClick() {
+        this.node.emit(EventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
+    }
+
+    protected _xrKeyBoardInput(str: string) {
+        this.string = str;
     }
 }
 

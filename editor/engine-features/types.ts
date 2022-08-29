@@ -8,6 +8,7 @@ export type EngineFeature =
     | 'graphcis'
     | '3d'
     | '2d'
+    | 'xr'
     | 'ui'
     | 'particle'
     | 'physics'

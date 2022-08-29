@@ -29,28 +29,24 @@
 #include "jsb_global_init.h"
 
 template <typename T, class... Args>
-T *jsb_override_new(Args &&...args) { //NOLINT(readability-identifier-naming)
-    //create object in the default way
+T *jsb_override_new(Args &&...args) { // NOLINT(readability-identifier-naming)
+    // create object in the default way
     return ccnew T(std::forward<Args>(args)...);
 }
 
 template <typename T>
-void jsb_override_delete(T *arg) { //NOLINT(readability-identifier-naming)
-    //create object in gfx way
+void jsb_override_delete(T *arg) { // NOLINT(readability-identifier-naming)
+    // create object in gfx way
     delete (arg);
 }
 
 template <typename T, typename... ARGS>
-typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
-jsb_make_private_object(ARGS &&...args) { //NOLINT(readability-identifier-naming)
-    //return se::raw_private_data(ccnew T(std::forward<ARGS>(args)...));
-    return se::ccshared_private_object(ccnew T(std::forward<ARGS>(args)...));
-}
-
-template <typename T, typename... ARGS>
-typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
-jsb_make_private_object(ARGS &&...args) { //NOLINT(readability-identifier-naming)
-    return se::shared_private_object(std::make_shared<T>(std::forward<ARGS>(args)...));
+se::PrivateObjectBase *jsb_make_private_object(ARGS &&...args) { // NOLINT(readability-identifier-naming)
+    if constexpr (std::is_base_of<cc::RefCounted, T>::value) {
+        return se::ccintrusive_ptr_private_object(ccnew T(std::forward<ARGS>(args)...));
+    } else {
+        return se::shared_ptr_private_object(std::make_shared<T>(std::forward<ARGS>(args)...));
+    }
 }
 
 #define JSB_MAKE_PRIVATE_OBJECT(kls, ...) jsb_make_private_object<kls>(__VA_ARGS__)
@@ -61,10 +57,10 @@ class Class;
 class Value;
 } // namespace se
 
-bool jsb_register_global_variables(se::Object *global); //NOLINT(readability-identifier-naming)
+bool jsb_register_global_variables(se::Object *global); // NOLINT(readability-identifier-naming)
 
-bool jsb_set_extend_property(const char *ns, const char *clsName);                    //NOLINT(readability-identifier-naming)
-bool jsb_run_script(const ccstd::string &filePath, se::Value *rval = nullptr);        //NOLINT(readability-identifier-naming)
-bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval = nullptr); //NOLINT(readability-identifier-naming)
+bool jsb_set_extend_property(const char *ns, const char *clsName);                    // NOLINT(readability-identifier-naming)
+bool jsb_run_script(const ccstd::string &filePath, se::Value *rval = nullptr);        // NOLINT(readability-identifier-naming)
+bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval = nullptr); // NOLINT(readability-identifier-naming)
 
-bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal); //NOLINT(readability-identifier-naming)
+bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackVal); // NOLINT(readability-identifier-naming)
