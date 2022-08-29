@@ -52,20 +52,21 @@ void SystemWindow::swapWindow() {
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    if (!createWindow(title, -1, -1, w, h, flags)) {
+    _window = SDLHelper::createWindow(title, w, h, flags);
+    if (!_window) {
         return false;
     }
+
+    _width = w;
+    _height = h;
+    _windowHandle = SDLHelper::getWindowHandle(_window);
     return true;
 }
 
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    if (x == -1 && y == -1) {
-        _window = SDLHelper::createWindow(title, w, h, flags);
-    } else {
-        _window = SDLHelper::createWindow(title, x, y, w, h, flags);
-    }
+    _window = SDLHelper::createWindow(title, x, y, w, h, flags);
     if (!_window) {
         return false;
     }

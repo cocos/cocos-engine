@@ -211,10 +211,6 @@ void SDLHelper::dispatchWindowEvent(IEventDispatch *delegate, uint32_t windowId,
     }
 }
 
-void SDLHelper::dispatchSDLEvent(const SDL_Event &sdlEvent, bool *quit) {
-    dispatchSDLEvent(nullptr, 0, sdlEvent, quit);
-}
-
 void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, const SDL_Event &sdlEvent, bool *quit) {
     cc::TouchEvent touch;
     cc::MouseEvent mouse;
@@ -329,22 +325,6 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
         default:
             break;
     }
-}
-
-void SDLHelper::pollEvent(bool *quit) {
-    SDL_Event sdlEvent;
-    int cnt = 0;
-    while ((cnt = SDL_PollEvent(&sdlEvent)) != 0) {
-        dispatchSDLEvent(sdlEvent, quit);
-        if (*quit) {
-            break;
-        }
-    }
-}
-
-int SDLHelper::pollEvent(SDL_Event *event) {
-    int cnt = SDL_PollEvent(event);
-    return cnt;
 }
 
 SDL_Window *SDLHelper::createWindow(const char *title,

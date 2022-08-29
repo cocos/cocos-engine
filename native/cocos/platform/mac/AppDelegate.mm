@@ -76,6 +76,9 @@
                                              selector:@selector(windowWillCloseNotification)
                                                  name:NSWindowWillCloseNotification
                                                object:window];
+    if (!_window) {
+        _window = window;
+    }
     return window;
 }
 

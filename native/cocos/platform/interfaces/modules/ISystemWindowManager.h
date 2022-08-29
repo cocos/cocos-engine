@@ -40,6 +40,7 @@ struct ISystemWindowInfo {
     void *externalHandle{nullptr};
 };
 
+// key: window id
 using SystemWindowMap = ccstd::unordered_map<uint32_t, std::shared_ptr<ISystemWindow>>;
 
 /**

@@ -99,7 +99,7 @@ static bool keyState[INPUT_ACTION_COUNT] = {false};
 extern void gameControllerStatusCallback(int32_t controllerIndex,
                                          Paddleboat_ControllerStatus status,
                                          void *userData);
-                                         
+
 class GameInputProxy {
 public:
     explicit GameInputProxy(AndroidPlatform *platform) {

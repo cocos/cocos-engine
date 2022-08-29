@@ -209,7 +209,7 @@ public:
      * @zh
      * 窗口列表
      */
-    inline const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _windows; }
+    inline const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _renderWindows; }
 
     /**
      * @zh
@@ -301,7 +301,7 @@ private:
     IntrusivePtr<scene::RenderWindow> _mainRenderWindow;
     IntrusivePtr<scene::RenderWindow> _curRenderWindow;
     IntrusivePtr<scene::RenderWindow> _tempWindow;
-    ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
+    ccstd::vector<IntrusivePtr<scene::RenderWindow>> _renderWindows;
     IntrusivePtr<pipeline::RenderPipeline> _pipeline{nullptr};
     std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;

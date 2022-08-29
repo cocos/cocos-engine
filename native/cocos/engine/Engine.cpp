@@ -375,7 +375,7 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
                ev.type == WindowEvent::Type::RESIZED) {
         cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
         auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
-        CC_ASSERT(w && "MainSystemWindow is null.");
+        CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||

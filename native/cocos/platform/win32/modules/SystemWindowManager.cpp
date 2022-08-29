@@ -44,12 +44,15 @@ void SystemWindowManager::processEvent(bool *quit) {
     SDL_Event sdlEvent;
     while (SDL_PollEvent(&sdlEvent) != 0) {
         SDL_Window *sdlWindow = SDL_GetWindowFromID(sdlEvent.window.windowID);
-        ISystemWindow *window = getWindowFromSDLWindow(sdlWindow);
-        uint32_t windowId = 0;
-        if (window) {
-            windowId = window->getWindowId();
+        // SDL_Event like SDL_QUIT does not associate a window
+        if (!sdlWindow) {
+            SDLHelper::dispatchSDLEvent(_eventDispatcher, 0, sdlEvent, quit);
+        } else {
+            ISystemWindow *window = getWindowFromSDLWindow(sdlWindow);
+            CC_ASSERT(window);
+            uint32_t windowId = window->getWindowId();
+            SDLHelper::dispatchSDLEvent(_eventDispatcher, windowId, sdlEvent, quit);
         }
-        SDLHelper::dispatchSDLEvent(_eventDispatcher, windowId, sdlEvent, quit);
         if (*quit) {
             break;
         }

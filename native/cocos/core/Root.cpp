@@ -31,7 +31,6 @@
 #include "platform/BasePlatform.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
-#include "platform/BasePlatform.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -46,11 +45,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-#include "platform/interfaces/modules/ISystemWindowManager.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/IScreen.h"
-#include "platform/BasePlatform.h"
-#include "application/ApplicationManager.h"
 
 namespace cc {
 
@@ -164,7 +159,7 @@ void Root::destroy() {
 }
 
 void Root::resize(uint32_t width, uint32_t height) {
-    for (const auto &window : _windows) {
+    for (const auto &window : _renderWindows) {
         if (window->getSwapchain()) {
             if (_xr) {
                 // xr, window's width and height should not change by device
@@ -450,7 +445,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         doXRFrameMove(totalFrames);
     } else {
         frameMoveBegin();
-        frameMoveProcess(true, totalFrames, _windows);
+        frameMoveProcess(true, totalFrames, _renderWindows);
         frameMoveEnd();
     }
 }
@@ -459,23 +454,23 @@ scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {
     IntrusivePtr<scene::RenderWindow> window = ccnew scene::RenderWindow();
 
     window->initialize(_device, info);
-    _windows.emplace_back(window);
+    _renderWindows.emplace_back(window);
     return window;
 }
 
 void Root::destroyWindow(scene::RenderWindow *window) {
-    auto it = std::find(_windows.begin(), _windows.end(), window);
-    if (it != _windows.end()) {
+    auto it = std::find(_renderWindows.begin(), _renderWindows.end(), window);
+    if (it != _renderWindows.end()) {
         CC_SAFE_DESTROY(*it);
-        _windows.erase(it);
+        _renderWindows.erase(it);
     }
 }
 
 void Root::destroyWindows() {
-    for (const auto &window : _windows) {
+    for (const auto &window : _renderWindows) {
         CC_SAFE_DESTROY(window);
     }
-    _windows.clear();
+    _renderWindows.clear();
 }
 
 uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
@@ -483,11 +478,6 @@ uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
     ISystemWindow *window = windowMgr->createWindow(info);
     if (!window) {
         return 0;
-    }
-
-    scene::RenderWindow *renderWindow = createRenderWindowFromSystemWindow(window);
-    if (!_mainRenderWindow) {
-        _mainRenderWindow = renderWindow;
     }
     return window->getWindowId();
 }
@@ -554,7 +544,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             _xr->beginRenderEyeFrame(xrEye);
 
             ccstd::vector<IntrusivePtr<scene::Camera>> allCameras;
-            for (const auto &window : _windows) {
+            for (const auto &window : _renderWindows) {
                 const ccstd::vector<IntrusivePtr<scene::Camera>> &wndCams = window->getCameras();
                 allCameras.insert(allCameras.end(), wndCams.begin(), wndCams.end());
             }
@@ -576,7 +566,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             //but we only need left/right camera when in left/right eye loop
             //condition2: main camera draw twice
             ccstd::vector<IntrusivePtr<scene::RenderWindow>> xrWindows;
-            for (const auto &window : _windows) {
+            for (const auto &window : _renderWindows) {
                 if (window->getSwapchain()) {
                     // not rt
                     _xr->bindXREyeWithRenderWindow(window, static_cast<xr::XREye>(xrEye));

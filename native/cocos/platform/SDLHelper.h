@@ -51,9 +51,6 @@ public:
                       int x, int y, int w,
                       int h, int flags);
 
-    void pollEvent(bool* quit);
-    int pollEvent(SDL_Event* event);
-
     static uintptr_t getWindowHandle(SDL_Window* window);
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
     static uintptr_t getDisplay(SDL_Window* window);
@@ -61,7 +58,6 @@ public:
     static void setCursorEnabled(bool value);
 
 private:
-    void dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);
     static void dispatchSDLEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_Event& sdlEvent, bool* quit);
     static void dispatchWindowEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_WindowEvent& wevent);
 };
