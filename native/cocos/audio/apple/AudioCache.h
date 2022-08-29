@@ -54,7 +54,7 @@ public:
     void addPlayCallback(const std::function<void()> &callback);
 
     void addLoadCallback(const std::function<void(bool)> &callback);
-    bool isStreaming() const { return _isStreaming; }
+    inline bool isStreaming() const { return _isStreaming; }
 
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };
@@ -65,26 +65,26 @@ protected:
     void invokingLoadCallbacks();
 
     //pcm data related stuff
-    ALenum _format;
-    ALsizei _sampleRate;
-    float _duration;
-    uint32_t _totalFrames;
-    uint32_t _framesRead;
-    uint32_t _bytesPerFrame;
+    ALenum _format{-1};
+    ALsizei _sampleRate{0};
+    float _duration{0};
+    uint32_t _totalFrames{0};
+    uint32_t _framesRead{0};
+    uint32_t _bytesPerFrame{0};
     bool _isStreaming{false};
     uint32_t _channelCount{1};
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
     ALuint _alBufferId;
-    char *_pcmData;
+    char *_pcmData{nullptr};
 
     /*Queue buffer related stuff
      *  Streaming in openal when sizeInBytes greater then PCMDATA_CACHEMAXSIZE
      */
     char *_queBuffers[QUEUEBUFFER_NUM];
     ALsizei _queBufferSize[QUEUEBUFFER_NUM];
-    uint32_t _queBufferFrames;
+    uint32_t _queBufferFrames{0};
 
     std::mutex _playCallbackMutex;
     ccstd::vector<std::function<void()>> _playCallbacks;
@@ -94,13 +94,13 @@ protected:
 
     std::mutex _readDataTaskMutex;
 
-    State _state;
+    State _state{State::INITIAL};
 
     std::shared_ptr<bool> _isDestroyed;
     ccstd::string _fileFullPath;
     unsigned int _id;
-    bool _isLoadingFinished;
-    bool _isSkipReadDataTask;
+    bool _isLoadingFinished{false};
+    bool _isSkipReadDataTask{false};
 
     friend class AudioEngineImpl;
     friend class AudioPlayer;

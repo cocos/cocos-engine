@@ -92,7 +92,6 @@ private:
 
     bool isSmallFile(const AudioFileInfo &info);
 
-private:
     SLEngineItf _engineItf;
     SLObjectItf _outputMixObject;
     int _deviceSampleRate;

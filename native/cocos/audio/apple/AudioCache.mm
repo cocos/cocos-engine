@@ -86,7 +86,7 @@ unsigned int __idIndex = 0;
 using namespace cc;
 
 AudioCache::AudioCache()
-: _format(-1), _duration(0.0f), _totalFrames(0), _framesRead(0), _bytesPerFrame(0), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
+: _alBufferId(INVALID_AL_BUFFER_ID), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex){
     ALOGVV("AudioCache() %p, id=%u", this, _id);
     for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
         _queBuffers[i] = nullptr;
