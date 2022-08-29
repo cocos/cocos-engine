@@ -544,7 +544,7 @@ bool AudioEngineImpl::checkAudioIdValid(int audioID) {
 PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
     PCMHeader header{};
     auto itr = _audioCaches.find(url);
-    if (itr != _audioCaches.end()) {
+    if (itr != _audioCaches.end() && itr->second._state == AudioCache::State::READY) {
         CC_LOG_DEBUG("file %s found in cache, load header directly", url);
         auto cache = &itr->second;
         header.bytesPerFrame = cache->_bytesPerFrame;
