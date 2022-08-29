@@ -8,6 +8,7 @@
 
 namespace {
 struct Utils {};
+struct Empty2 {};
 
 void doAssert(bool value, const std::string &message) {
     if (!value) {
@@ -46,7 +47,6 @@ bool Coconut_weight(se::State &s) {
     s.rval().setFloat(88.8);
     return true;
 }
-
 
 demo::Coconut *Coconut_create(int, int, int, int) {
     return new demo::Coconut();
@@ -131,6 +131,35 @@ bool jsb_register_fruits(se::Object *globalThis) {
             })
             .install(ns);
     }
+    {
+        sebind::class_<Empty2> demo("Empty");
+
+        demo.staticFunction(
+                "add", +[](const se::Value &func, int a, int b) {
+                    auto addFunc = sebind::bindFunction<int(int, int)>(func);
+                    auto result = addFunc(a, b);
+                    auto result2 = sebind::callFunction<int, int, int>(func, a, b);
+                    auto result3 = sebind::callFunction<int, int, int>(func, 6, 8);
+                    auto result4 = sebind::callFunction<int>(func, a, b);
+                    auto result5 = sebind::callFunction<int>(func, 6, 8);
+                    std::cout << "result 1 " << result << std::endl;
+                    std::cout << "result 2 " << result2 << std::endl;
+                })
+            .staticFunction(
+                "addStr", +[](const se::Value &func, const std::string &a, const char *b) {
+                    auto addFunc = sebind::bindFunction<std::string(
+                        const std::string, const char *)>(func);
+                    auto result = addFunc(a, b);
+                    auto result2 =
+                        sebind::callFunction<std::string, const std::string &,
+                                             const char *>(func, a, b);
+                    std::cout << "result 1 " << result << std::endl;
+                    std::cout << "result 2 " << result2 << std::endl;
+                    return result;
+                });
+
+        demo.install(ns);
+    };
 
     return true;
 }
