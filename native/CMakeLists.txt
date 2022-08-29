@@ -219,153 +219,157 @@ include(${EXTERNAL_ROOT}/CMakeLists.txt)
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
-                     cocos/audio/AudioEngine.cpp
-                     cocos/audio/include/AudioEngine.h
-                     cocos/audio/include/AudioDef.h
-                     cocos/audio/include/Export.h
+            cocos/audio/AudioEngine.cpp
+            cocos/audio/include/AudioEngine.h
+            cocos/audio/include/AudioDef.h
+            cocos/audio/include/Export.h
     )
     if(WINDOWS)
         cocos_source_files(
+            cocos/audio/common/utils/tinysndfile.cpp
+NO_WERROR   cocos/audio/common/utils/primitives.cpp
+            cocos/audio/common/utils/include/tinysndfile.h
+            cocos/audio/common/utils/include/primitives.h
+            cocos/audio/common/utils/private/private.h
+            cocos/audio/common/decoder/AudioDecoder.cpp
+            cocos/audio/common/decoder/AudioDecoder.h
+            cocos/audio/common/decoder/AudioDecoderManager.cpp
+            cocos/audio/common/decoder/AudioDecoderManager.h
+            cocos/audio/common/decoder/AudioDecoderMp3.cpp
+            cocos/audio/common/decoder/AudioDecoderMp3.h
+            cocos/audio/common/decoder/AudioDecoderOgg.cpp
+            cocos/audio/common/decoder/AudioDecoderOgg.h
+            cocos/audio/common/decoder/AudioDecoderWav.cpp
+            cocos/audio/common/decoder/AudioDecoderWav.h
             cocos/audio/oalsoft/AudioCache.cpp
             cocos/audio/oalsoft/AudioCache.h
-            cocos/audio/oalsoft/AudioDecoder.cpp
-            cocos/audio/oalsoft/AudioDecoder.h
-            cocos/audio/oalsoft/AudioDecoderManager.cpp
-            cocos/audio/oalsoft/AudioDecoderManager.h
-            cocos/audio/oalsoft/AudioDecoderMp3.cpp
-            cocos/audio/oalsoft/AudioDecoderMp3.h
-            cocos/audio/oalsoft/AudioDecoderOgg.cpp
-            cocos/audio/oalsoft/AudioDecoderOgg.h
             cocos/audio/oalsoft/AudioEngine-soft.cpp
             cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/oalsoft/AudioMacros.h
+            cocos/audio/include/AudioMacros.h
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
         )
     elseif(LINUX OR QNX)
         cocos_source_files(
+            cocos/audio/common/decoder/AudioDecoder.cpp
+            cocos/audio/common/decoder/AudioDecoder.h
+            cocos/audio/common/decoder/AudioDecoderManager.cpp
+            cocos/audio/common/decoder/AudioDecoderManager.h
+            cocos/audio/common/decoder/AudioDecoderMp3.cpp
+            cocos/audio/common/decoder/AudioDecoderMp3.h
+            cocos/audio/common/decoder/AudioDecoderOgg.cpp
+            cocos/audio/common/decoder/AudioDecoderOgg.h
             cocos/audio/oalsoft/AudioCache.cpp
             cocos/audio/oalsoft/AudioCache.h
-            cocos/audio/oalsoft/AudioDecoder.cpp
-            cocos/audio/oalsoft/AudioDecoder.h
-            cocos/audio/oalsoft/AudioDecoderManager.cpp
-            cocos/audio/oalsoft/AudioDecoderManager.h
-            cocos/audio/oalsoft/AudioDecoderMp3.cpp
-            cocos/audio/oalsoft/AudioDecoderMp3.h
-            cocos/audio/oalsoft/AudioDecoderOgg.cpp
-            cocos/audio/oalsoft/AudioDecoderOgg.h
             cocos/audio/oalsoft/AudioEngine-soft.cpp
             cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/oalsoft/AudioMacros.h
+            cocos/audio/include/AudioMacros.h
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
         )
     elseif(ANDROID)
         cocos_source_files(
-                         cocos/audio/android/AssetFd.cpp
-                         cocos/audio/android/AssetFd.h
-                         cocos/audio/android/audio.h
-                         cocos/audio/android/AudioBufferProvider.h
-                         cocos/audio/android/AudioDecoder.cpp
-                         cocos/audio/android/AudioDecoder.h
-                         cocos/audio/android/AudioDecoderMp3.cpp
-                         cocos/audio/android/AudioDecoderMp3.h
-                         cocos/audio/android/AudioDecoderOgg.cpp
-                         cocos/audio/android/AudioDecoderOgg.h
-                         cocos/audio/android/AudioDecoderProvider.cpp
-                         cocos/audio/android/AudioDecoderProvider.h
-                         cocos/audio/android/AudioDecoderSLES.cpp
-                         cocos/audio/android/AudioDecoderSLES.h
-                         cocos/audio/android/AudioDecoderWav.cpp
-                         cocos/audio/android/AudioDecoderWav.h
-                         cocos/audio/android/AudioEngine-inl.cpp
-                         cocos/audio/android/AudioEngine-inl.h
-                         cocos/audio/android/AudioMixer.cpp
-                         cocos/audio/android/AudioMixer.h
-                         cocos/audio/android/AudioMixerController.cpp
-                         cocos/audio/android/AudioMixerController.h
-                         cocos/audio/android/AudioMixerOps.h
-                         cocos/audio/android/AudioPlayerProvider.cpp
-                         cocos/audio/android/AudioPlayerProvider.h
-                         cocos/audio/android/AudioResampler.cpp
-                         cocos/audio/android/AudioResampler.h
-                         cocos/audio/android/AudioResamplerCubic.cpp
-                         cocos/audio/android/AudioResamplerCubic.h
-                         cocos/audio/android/AudioResamplerPublic.h
-                         cocos/audio/android/audio_utils/format.c
-                         cocos/audio/android/audio_utils/include/audio_utils/format.h
-                         cocos/audio/android/audio_utils/include/audio_utils/minifloat.h
-                         cocos/audio/android/audio_utils/include/audio_utils/primitives.h
-                         cocos/audio/android/audio_utils/minifloat.cpp
-                         cocos/audio/android/audio_utils/primitives.c
-                         cocos/audio/android/audio_utils/private/private.h
-                         cocos/audio/android/cutils/bitops.h
-                         cocos/audio/android/cutils/log.h
-                         cocos/audio/android/IAudioPlayer.h
-                         cocos/audio/android/ICallerThreadUtils.h
-                         cocos/audio/android/IVolumeProvider.h
-                         cocos/audio/android/mp3reader.cpp
-                         cocos/audio/android/mp3reader.h
-                         cocos/audio/android/OpenSLHelper.h
-                         cocos/audio/android/PcmAudioPlayer.cpp
-                         cocos/audio/android/PcmAudioPlayer.h
-                         cocos/audio/android/PcmAudioService.cpp
-                         cocos/audio/android/PcmAudioService.h
-                         cocos/audio/android/PcmBufferProvider.cpp
-                         cocos/audio/android/PcmBufferProvider.h
-                         cocos/audio/android/PcmData.cpp
-                         cocos/audio/android/PcmData.h
-                         cocos/audio/android/tinysndfile.cpp
-                         cocos/audio/android/tinysndfile.h
-                         cocos/audio/android/Track.cpp
-                         cocos/audio/android/Track.h
-                         cocos/audio/android/UrlAudioPlayer.cpp
-                         cocos/audio/android/UrlAudioPlayer.h
-                         cocos/audio/android/utils/Compat.h
-                         cocos/audio/android/utils/Errors.h
-                         cocos/audio/android/utils/Utils.cpp
-                         cocos/audio/android/utils/Utils.h
+            cocos/audio/common/utils/include/primitives.h
+            cocos/audio/common/utils/include/format.h
+            cocos/audio/common/utils/include/minifloat.h
+            cocos/audio/common/utils/include/tinysndfile.h
+            cocos/audio/common/utils/private/private.h
+            cocos/audio/common/utils/minifloat.cpp
+            cocos/audio/common/utils/primitives.cpp
+            cocos/audio/common/utils/tinysndfile.cpp
+            cocos/audio/common/utils/format.cpp
+            cocos/audio/android/AssetFd.cpp
+            cocos/audio/android/AssetFd.h
+            cocos/audio/android/audio.h
+            cocos/audio/android/AudioBufferProvider.h
+            cocos/audio/android/AudioDecoder.cpp
+            cocos/audio/android/AudioDecoder.h
+            cocos/audio/android/AudioDecoderMp3.cpp
+            cocos/audio/android/AudioDecoderMp3.h
+            cocos/audio/android/AudioDecoderOgg.cpp
+            cocos/audio/android/AudioDecoderOgg.h
+            cocos/audio/android/AudioDecoderProvider.cpp
+            cocos/audio/android/AudioDecoderProvider.h
+            cocos/audio/android/AudioDecoderSLES.cpp
+            cocos/audio/android/AudioDecoderSLES.h
+            cocos/audio/android/AudioDecoderWav.cpp
+            cocos/audio/android/AudioDecoderWav.h
+            cocos/audio/android/AudioEngine-inl.cpp
+            cocos/audio/android/AudioEngine-inl.h
+            cocos/audio/android/AudioMixer.cpp
+            cocos/audio/android/AudioMixer.h
+            cocos/audio/android/AudioMixerController.cpp
+            cocos/audio/android/AudioMixerController.h
+            cocos/audio/android/AudioMixerOps.h
+            cocos/audio/android/AudioPlayerProvider.cpp
+            cocos/audio/android/AudioPlayerProvider.h
+            cocos/audio/android/AudioResampler.cpp
+            cocos/audio/android/AudioResampler.h
+            cocos/audio/android/AudioResamplerCubic.cpp
+            cocos/audio/android/AudioResamplerCubic.h
+            cocos/audio/android/AudioResamplerPublic.h
+            cocos/audio/android/cutils/bitops.h
+            cocos/audio/android/cutils/log.h
+            cocos/audio/android/IAudioPlayer.h
+            cocos/audio/android/ICallerThreadUtils.h
+            cocos/audio/android/IVolumeProvider.h
+            cocos/audio/android/mp3reader.cpp
+            cocos/audio/android/mp3reader.h
+            cocos/audio/android/OpenSLHelper.h
+            cocos/audio/android/PcmAudioPlayer.cpp
+            cocos/audio/android/PcmAudioPlayer.h
+            cocos/audio/android/PcmAudioService.cpp
+            cocos/audio/android/PcmAudioService.h
+            cocos/audio/android/PcmBufferProvider.cpp
+            cocos/audio/android/PcmBufferProvider.h
+            cocos/audio/android/PcmData.cpp
+            cocos/audio/android/PcmData.h
+            cocos/audio/android/Track.cpp
+            cocos/audio/android/Track.h
+            cocos/audio/android/UrlAudioPlayer.cpp
+            cocos/audio/android/UrlAudioPlayer.h
+            cocos/audio/android/utils/Compat.h
+            cocos/audio/android/utils/Errors.h
+            cocos/audio/android/utils/Utils.cpp
+            cocos/audio/android/utils/Utils.h
         )
      elseif(OHOS)
         cocos_source_files(
+            cocos/audio/common/utils/tinysndfile.cpp
+            cocos/audio/common/utils/primitives.cpp
+            cocos/audio/common/utils/include/tinysndfile.h
+            cocos/audio/common/utils/include/primitives.h
+            cocos/audio/common/decoder/AudioDecoder.cpp
+            cocos/audio/common/decoder/AudioDecoder.h
+            cocos/audio/common/decoder/AudioDecoderManager.cpp
+            cocos/audio/common/decoder/AudioDecoderManager.h
+            cocos/audio/common/decoder/AudioDecoderMp3.cpp
+            cocos/audio/common/decoder/AudioDecoderMp3.h
+            cocos/audio/common/decoder/AudioDecoderOgg.cpp
+            cocos/audio/common/decoder/AudioDecoderOgg.h
+            cocos/audio/common/decoder/AudioDecoderWav.cpp
+            cocos/audio/common/decoder/AudioDecoderWav.h
             cocos/audio/oalsoft/AudioCache.cpp
             cocos/audio/oalsoft/AudioCache.h
-            cocos/audio/oalsoft/AudioDecoderManager.cpp
-            cocos/audio/oalsoft/AudioDecoderManager.h
-            cocos/audio/oalsoft/AudioDecoder.cpp
-            cocos/audio/oalsoft/AudioDecoder.h
-            cocos/audio/oalsoft/AudioDecoderMp3.cpp
-            cocos/audio/oalsoft/AudioDecoderMp3.h
-            cocos/audio/oalsoft/AudioDecoderOgg.cpp
-            cocos/audio/oalsoft/AudioDecoderOgg.h
             cocos/audio/oalsoft/AudioEngine-soft.cpp
             cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/oalsoft/AudioMacros.h
+            cocos/audio/include/AudioMacros.h
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
-
-            cocos/audio/ohos/AudioDecoderWav.h
-            cocos/audio/ohos/AudioDecoderWav.cpp
-            # cocos/audio/ohos/AudioDecoderMp3.h
-            # cocos/audio/ohos/AudioDecoderMp3.cpp
             cocos/audio/ohos/FsCallback.h
             cocos/audio/ohos/FsCallback.cpp
-
-            cocos/audio/android/tinysndfile.cpp
-            cocos/audio/android/tinysndfile.h
-            cocos/audio/android/audio_utils/primitives.c
         )
     elseif(APPLE)
         cocos_source_files(
-                                    cocos/audio/apple/AudioDecoder.h
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioPlayer.mm
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
-                                    cocos/audio/apple/AudioPlayer.h
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-inl.mm
-                                    cocos/audio/apple/AudioMacros.h
-            NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioCache.mm
-                                    cocos/audio/apple/AudioCache.h
-                                    cocos/audio/apple/AudioEngine-inl.h
+                            cocos/audio/apple/AudioDecoder.h
+    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioPlayer.mm
+    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
+                            cocos/audio/apple/AudioPlayer.h
+    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-inl.mm
+                            cocos/audio/apple/AudioMacros.h
+    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioCache.mm
+                            cocos/audio/apple/AudioCache.h
+                            cocos/audio/apple/AudioEngine-inl.h
         )
     endif()
 

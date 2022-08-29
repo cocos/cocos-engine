@@ -16,11 +16,13 @@
 
 #ifndef ANDROID_AUDIO_PRIVATE_H
 #define ANDROID_AUDIO_PRIVATE_H
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <sys/cdefs.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include <sys/types.h>
+    #define __attribute__(x)
+#endif
 #include <stdint.h>
-
-__BEGIN_DECLS
-
 /* Defines not necessary for external use but kept here to be common
  * to the audio_utils library.
  */
@@ -28,10 +30,9 @@ __BEGIN_DECLS
 /* struct representation of 3 bytes for packed PCM 24 bit data.
  * The naming follows the ARM NEON convention.
  */
-typedef struct {
+extern "C" {
+typedef struct __attribute__((__packed__)) {
     uint8_t c[3];
-} __attribute__((__packed__)) uint8x3_t;
-
-__END_DECLS
-
+} uint8x3_t;
+}
 #endif /*ANDROID_AUDIO_PRIVATE_H*/

@@ -21,11 +21,16 @@
 // much smaller and has an Apache 2.0 license.
 // The API should be familiar to clients of similar libraries, but there is
 // no guarantee that it will stay exactly source-code compatible with other libraries.
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <sys/cdefs.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include <sys/types.h>
+#endif
 
-#include <sys/cdefs.h>
 #include <cstdio>
+#include <cstdint>
 
-__BEGIN_DECLS
+namespace sf {
 
 // visible to clients
 using sf_count_t = int;
@@ -73,5 +78,14 @@ sf_count_t sf_readf_int(SNDFILE *handle, int *ptr, sf_count_t desired);
 
 off_t sf_seek(SNDFILE *handle, int offset, int whence); //NOLINT(readability-identifier-naming)
 off_t sf_tell(SNDFILE *handle);                         //NOLINT(readability-identifier-naming)
-
-__END_DECLS
+static int sInited = 0;
+static void sf_lazy_init(); //NOLINT(readability-identifier-naming)
+struct SNDFILE_ {
+    uint8_t *temp; // realloc buffer used for shrinking 16 bits to 8 bits and byte-swapping
+    void *stream;
+    size_t bytesPerFrame;
+    size_t remaining; // frames unread for SFM_READ, frames written for SFM_WRITE
+    SF_INFO info;
+    snd_callbacks callback;
+};
+} // namespace sf

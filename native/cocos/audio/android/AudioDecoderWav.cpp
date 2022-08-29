@@ -26,11 +26,11 @@ THE SOFTWARE.
 #define LOG_TAG "AudioDecoderWav"
 
 #include "audio/android/AudioDecoderWav.h"
-#include "audio/android/tinysndfile.h"
+#include "audio/common/utils/include/tinysndfile.h"
 #include "platform/FileUtils.h"
 
 namespace cc {
-
+using namespace sf; //NOLINT
 AudioDecoderWav::AudioDecoderWav() {
     ALOGV("Create AudioDecoderWav");
 }
