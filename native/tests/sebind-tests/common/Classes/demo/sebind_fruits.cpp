@@ -57,6 +57,21 @@ public:
     using Coconut::Coconut;
 };
 
+class AbstractClass {
+public:
+    virtual bool tick() = 0;
+};
+
+AbstractClass *fakeConstructor() {
+    assert(false); // Abstract class cannot be instantiated
+    return nullptr;
+}
+
+class SubClass : public AbstractClass {
+public:
+    bool tick() override { return true; }
+};
+
 } // namespace
 
 bool jsb_register_fruits(se::Object *globalThis) {
@@ -156,10 +171,23 @@ bool jsb_register_fruits(se::Object *globalThis) {
                     std::cout << "result 1 " << result << std::endl;
                     std::cout << "result 2 " << result2 << std::endl;
                     return result;
+                })
+            .staticFunction(
+                "jsObjArg", +[](const se::Object *o1, se::Object *o2) {
+                    return o1->toStringExt() + " ??  " + o2->toString();
                 });
 
         demo.install(ns);
     };
 
+    {
+        sebind::class_<AbstractClass> base("AbstractBase");
+        base.constructor<>(&fakeConstructor).function("tick", &AbstractClass::tick);
+        base.install(globalThis);
+
+        sebind::class_<SubClass> sub("SubClass", base.prototype());
+
+        sub.install(globalThis);
+    }
     return true;
 }
