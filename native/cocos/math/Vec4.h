@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_VEC4_H
-#define MATH_VEC4_H
+#pragma once
 
 #undef __SSE__
 #ifdef __SSE__
@@ -29,6 +28,7 @@
 #endif
 
 #include "math/MathBase.h"
+#include "math/Math.h"
 
 /**
  * @addtogroup base
@@ -437,6 +437,13 @@ public:
      */
     inline bool operator!=(const Vec4 &v) const;
 
+    /**
+     * Determines if this vector is approximately equal to the given vector.
+     */
+    inline bool approxEquals(const Vec4& v, float precision = CC_DEFAULT_FLOAT_PRECISION) const {
+        return math::isEqualF(x, v.x, precision) && math::isEqualF(y, v.y, precision) && math::isEqualF(z, v.z, precision) && math::isEqualF(w, v.w, precision);
+    }
+
     /** equals to Vec4(0,0,0,0) */
     static const Vec4 ZERO;
     /** equals to Vec4(1,1,1,1) */
@@ -467,4 +474,3 @@ NS_CC_MATH_END
  */
 #include "math/Vec4.inl"
 
-#endif // MATH_VEC4_H

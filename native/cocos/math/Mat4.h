@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_MAT4_H
-#define MATH_MAT4_H
+#pragma once
 
 #include "base/Macros.h"
 
@@ -918,6 +917,16 @@ public:
      */
     inline Mat4 &operator*=(const Mat4 &mat);
 
+    /**
+     * Determines if this matrix is approximately equal to the given matrix.
+     */
+    inline bool approxEquals(const Mat4& v, float precision = CC_DEFAULT_FLOAT_PRECISION) const {
+        return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) && math::isEqualF(m[2], v.m[2], precision) && math::isEqualF(m[3], v.m[3], precision)
+            && math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision) && math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision)
+            && math::isEqualF(m[8], v.m[8], precision) && math::isEqualF(m[9], v.m[9], precision) && math::isEqualF(m[10], v.m[10], precision) && math::isEqualF(m[11], v.m[11], precision)
+            && math::isEqualF(m[12], v.m[12], precision) && math::isEqualF(m[13], v.m[13], precision) && math::isEqualF(m[14], v.m[14], precision) && math::isEqualF(m[15], v.m[15], precision);
+    }
+
     /** equals to a matrix full of zeros */
     static const Mat4 ZERO;
     /** equals to the identity matrix */
@@ -958,4 +967,3 @@ NS_CC_MATH_END
  */
 #include "math/Mat4.inl"
 
-#endif // MATH_MAT4_H

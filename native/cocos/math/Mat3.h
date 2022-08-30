@@ -22,8 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef MATH_MAT3_H
-#define MATH_MAT3_H
+#pragma once
 
 #define MATRIX3_SIZE (sizeof(float) * 9)
 
@@ -220,6 +219,15 @@ public:
      */
     static void subtract(const Mat3 &a, const Mat3 &b, Mat3 *out);
 
+    /**
+     * Determines if this matrix is approximately equal to the given matrix.
+     */
+    inline bool approxEquals(const Mat3& v, float precision = CC_DEFAULT_FLOAT_PRECISION) const {
+        return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) && math::isEqualF(m[2], v.m[2], precision)
+            && math::isEqualF(m[3], v.m[3], precision) && math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision)
+            && math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision) && math::isEqualF(m[8], v.m[8], precision);
+    }
+
     /** equals to a matrix full of zeros */
     static const Mat3 ZERO;
     /** equals to the identity matrix */
@@ -233,4 +241,3 @@ NS_CC_MATH_END
  @}
  */
 
-#endif
