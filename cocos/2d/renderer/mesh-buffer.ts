@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
-import { getAttributeStride, getComponentPerVertex } from './vertex-format';
+import { getAttributeStride, Vertex2DFormat, vfmtPosUvColor, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
 import { sys } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
@@ -198,7 +198,14 @@ export class MeshBuffer {
         // Initialize the first ia
         this._iaPool.push(this.createNewIA(device));
         if (JSB) {
-            this._nativeObj.initialize(device, attrs, vFloatCount, iCount);
+            // default vfmtPosUvColor
+            let vfm = Vertex2DFormat.V3F_T2F_C4F;
+            if (attrs === vfmtPosUvColor4B) {
+                vfm = Vertex2DFormat.V3F_T2F_C4B;
+            } else if (attrs === vfmtPosUvTwoColor4B) {
+                vfm = Vertex2DFormat.V3F_T2F_C4B_C4B;
+            }
+            this._nativeObj.initialize(device, vfm, vFloatCount, iCount);
         }
     }
 
