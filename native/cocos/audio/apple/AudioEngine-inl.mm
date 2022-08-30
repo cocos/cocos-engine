@@ -569,6 +569,8 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
 
     do {
         if (!player->_ready) {
+            player->_timeDirty = true;
+            player->_currTime = time;
             break;
         }
 
