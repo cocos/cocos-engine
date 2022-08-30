@@ -21,6 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+
+#undef CC_USE_NVN
+#undef CC_USE_VULKAN
+#undef CC_USE_METAL
+#undef CC_USE_GLES3
+#undef CC_USE_GLES2
+
 #include "bindings/jswrapper/SeApi.h"
 #include "core/Root.h"
 #include "gtest/gtest.h"
