@@ -52,10 +52,7 @@ public:
          *  @return The arguments of native binding functions or accesstors.
          */
     inline const ValueArray &args() const {
-        if (_args != nullptr) {
-            return *(_args);
-        }
-        return EmptyValueArray;
+        return _args != nullptr ? (*_args) : EmptyValueArray;
     }
 
     /**
