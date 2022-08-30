@@ -405,7 +405,7 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return header;
     }
-    if (_audioPlayerProvider->getHeader(url, header)) {
+    if (_audioPlayerProvider->getPcmHeader(url, header)) {
         CC_LOG_DEBUG("file %s pcm data already cached", url);
         return header;
     }
