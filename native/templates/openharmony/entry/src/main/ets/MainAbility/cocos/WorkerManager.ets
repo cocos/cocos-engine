@@ -15,7 +15,7 @@
 
 import worker from '@ohos.worker';
 import {Constants} from '../common/Constants'
-import {log} from '../cocos/log_utils'
+
 export class WorkerManager {
     private static instance: WorkerManager;
     private cocosWorker: any;
@@ -32,7 +32,6 @@ export class WorkerManager {
     }
 
     public static getInstance(): WorkerManager {
-        console.log("cocos WorkerManager getInstance");
         if (AppStorage.Get(Constants.APP_KEY_WORKER_MANAGER) == null) {
             AppStorage.SetOrCreate(Constants.APP_KEY_WORKER_MANAGER, new WorkerManager);
         }

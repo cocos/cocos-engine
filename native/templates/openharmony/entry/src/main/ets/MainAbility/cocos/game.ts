@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { log } from './log_utils'
 import importMap from './src/<%= importMapUrl%>'
-import resourceManager from '@ohos.resourceManager';
 const commonJSModuleMap: Record<string, Function> = {
     '/src/<%= applicationUrl%>'() { require('./src/<%= applicationUrl%>'); },
 <% if (chunkBundleUrl) { %>
@@ -67,36 +65,29 @@ export function launchEngine (): Promise<void> {
             try {
                 require("./jsb-adapter/jsb-builtin.js");
             } catch (e) {
-                log('error in builtin ', e.stack, e.message);
+                console.error('error in builtin ', e.stack, e.message);
             }
 
-            console.log('window.require2')
             require("./src/<%= systemBundleUrl%>");
-            console.log('window.require3')
             System.warmup({
                 importMap,
                 importMapUrl: './src/<%= importMapUrl%>',
                 defaultHandler: (urlNoSchema: string) => {
-                    log('urlNoSchema ', urlNoSchema);
+                    console.info('urlNoSchema ', urlNoSchema);
                     loadModule(urlNoSchema);
                 },
             });
-            console.log('window.require4')
             System.import('./src/<%= applicationUrl%>').then(({ createApplication }) => {
-                log('imported createApplication', createApplication)
+                console.info('imported createApplication', createApplication)
                 return createApplication({
                     loadJsListFile: (url: string) => loadModule(url),
                     fetchWasm: (url: string) => url,
                 }).then((application) => {
-                    log('created application', application)
                     return onTouch().then(() => {
-                        log('onTouch')
                         application.import('cc').then((cc) => {
-                            log('importing cc');
                             require('./jsb-adapter/jsb-engine.js');
                             cc.macro.CLEANUP_IMAGE_CACHE = false;
                         }).then(() => {
-                            log('start application');
                             return application.start({
                                 // @ts-ignore
                                 settings: window._CCSettings,
@@ -118,7 +109,7 @@ export function launchEngine (): Promise<void> {
                     })
                 });
             }).catch((e: any) => {
-                log('imported failed', e.message, e.stack)
+                console.error('imported failed', e.message, e.stack)
                 reject(e);
             })
         });
