@@ -242,16 +242,18 @@ export function removeSelf (isNeedCleanUp: boolean): ActionInstant {
  */
 export class CallFunc extends ActionInstant {
     private _selectorTarget = null;
+    // eslint-disable-next-line @typescript-eslint/ban-types
     private _function: Function | null = null;
     private _data = null;
 
     /*
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
-	 * Creates a CallFunc action with the callback.
-	 * @param {function} selector
-	 * @param {object} [selectorTarget=null]
-	 * @param {*} [data=null] data for function, it accepts all data types.
-	 */
+     * Creates a CallFunc action with the callback.
+     * @param {function} selector
+     * @param {object} [selectorTarget=null]
+     * @param {*} [data=null] data for function, it accepts all data types.
+     */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     constructor (selector?: Function, selectorTarget?: any, data?: any) {
         super();
         this.initWithFunction(selector, selectorTarget, data);
