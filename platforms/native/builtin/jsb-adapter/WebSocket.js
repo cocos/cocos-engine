@@ -11,23 +11,25 @@ if (window.oh) {
                 this._proto = args[0];
             }
 
-            this._instance.on('close', this.innerClose);
-            this._instance.on('error', this.innerError);
-            this._instance.on('message', this.innerMessage);
-            this._instance.on('open', this.innerOpen);
+            this._instance.on('close', this.innerClose.bind(this));
+            this._instance.on('error', this.innerError.bind(this));
+            this._instance.on('message', this.innerMessage.bind(this));
+            this._instance.on('open', this.innerOpen.bind(this));
 
             this.connect();
         }
 
         connect() {
             this.readyState = WebSocket.CONNECTING;
-            this._instance.connect(this._url, (err, value) => {
+            var callback = function(err, value) {
                 if (err) {
                     this.onerror(err);
                 } else {
                     this.readyState = WebSocket.OPEN;  
                 }
-            });
+            };
+            var bindCallback = callback.bind(this);
+            this._instance.connect(this._url, bindCallback);
         }
         //
         innerClose(err, value) {
@@ -67,16 +69,18 @@ if (window.oh) {
 
         //methed
         send(data) {
-            this._instance.send(data, (err, value) => {
+            var callback = function(err, value) {
                 if (err) {
                     this.onerror(err);
                 }
-            });
+            }
+            var bindCallback = callback.bind(this);
+            this._instance.send(data, bindCallback);
         }
 
         close(...args) {
             this.readyState = WebSocket.CLOSING;
-            this._instance.close((err, value) => {
+            this._instance.close.bind(this)((err, value) => {
                 if (err) {
                     this.onerror(err);
                 } else {

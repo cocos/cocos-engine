@@ -1,2 +1,2 @@
 require('./window')
-
+require('./WebSocket')
