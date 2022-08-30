@@ -600,10 +600,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (shareMaterial != null) {
             const effectName = shareMaterial._effectAsset._name;
             this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
-            // reset material
-            if (effectName.indexOf('builtin-particle') === -1 || effectName.indexOf('builtin-particle-gpu') !== -1) {
-                ps.setMaterial(null, 0);
-            }
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {

@@ -45,6 +45,44 @@ using SeCallbackFnPtr = bool (*)(se::State &);
 
 namespace intl {
 
+template <typename T>
+struct FunctionExactor;
+
+template <typename R, typename... ARGS>
+struct FunctionExactor<R(ARGS...)> {
+    using type = R(ARGS...);
+    using return_type = R;
+    static std::function<R(ARGS...)> bind(const se::Value &fnVal) {
+        std::function<R(ARGS...)> func = [=](ARGS... args) {
+            se::AutoHandleScope scope;
+            se::ValueArray jsArgs;
+            jsArgs.resize(sizeof...(ARGS));
+            nativevalue_to_se_args_v(jsArgs, std::forward<ARGS>(args)...);
+            se::Value rval;
+            bool succ = fnVal.toObject()->call(jsArgs, nullptr, &rval);
+            if constexpr (!std::is_void_v<R>) {
+                R result;
+                sevalue_to_native(rval, &result, nullptr);
+                return result;
+            }
+        };
+        return func;
+    }
+    static R call(const se::Value &fnVal, ARGS &&...args) {
+        se::AutoHandleScope scope;
+        se::ValueArray jsArgs;
+        jsArgs.resize(sizeof...(ARGS));
+        nativevalue_to_se_args_v(jsArgs, std::forward<ARGS>(args)...);
+        se::Value rval;
+        bool succ = fnVal.toObject()->call(jsArgs, nullptr, &rval);
+        if constexpr (!std::is_void_v<R>) {
+            R result;
+            sevalue_to_native(rval, &result, nullptr);
+            return result;
+        }
+    }
+};
+
 template <typename... ARGS>
 struct TypeList;
 
@@ -293,10 +331,10 @@ ResultType mapTupleArguments(se::Object *self, TupleIn &input, std::index_sequen
     using map_tuple = typename Mapping::mapping_list::tuple_type;
     using result_type = typename Mapping::result_types_tuple_mutable;
     static_assert(std::is_same<ResultType, result_type>::value, "result_type mismatch");
-    //if CC_CONSTEXPR (std::tuple_size<result_type>::value > 0) {
+    // if CC_CONSTEXPR (std::tuple_size<result_type>::value > 0) {
     return result_type(ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...);
     //}
-    //return result_type();
+    // return result_type();
 }
 
 template <size_t M, size_t N>
@@ -1000,4 +1038,20 @@ private:
 };
 
 } // namespace intl
+template <typename T>
+auto bindFunction(const se::Value &fnVal) {
+    assert(fnVal.isObject() && fnVal.toObject()->isFunction());
+    return intl::FunctionExactor<T>::bind(fnVal);
+}
+
+template <typename R, typename... ARGS>
+R callFunction(const se::Value &fnVal, ARGS... args) {
+    using T = R(ARGS...);
+    assert(fnVal.isObject() && fnVal.toObject()->isFunction());
+    if constexpr (!std::is_void_v<R>) {
+        return intl::FunctionExactor<T>::call(fnVal, std::forward<ARGS>(args)...);
+    } else {
+        intl::FunctionExactor<T>::call(fnVal, std::forward<ARGS>(args)...);
+    }
+}
 } // namespace sebind

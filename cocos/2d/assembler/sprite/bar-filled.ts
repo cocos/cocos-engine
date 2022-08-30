@@ -70,7 +70,6 @@ export const barFilled: IAssembler = {
             let fillEnd = fillStart + fillRange;
             fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-            this.updateColor(sprite); // need Dirty
             this.updateUVs(sprite, fillStart, fillEnd); // need Dirty
             this.updateVertexData(sprite, fillStart, fillEnd);
             renderData.updateRenderData(sprite, frame);

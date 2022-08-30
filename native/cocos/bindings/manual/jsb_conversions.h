@@ -1420,17 +1420,17 @@ inline bool nativevalue_to_se(const std::function<R(Args...)> & /*from*/, se::Va
 ///////////////////////// function ///////////////////////
 
 template <int i, typename T>
-bool nativevalue_to_se_args(se::ValueArray &array, T &x) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se(x, array[i], nullptr);
+bool nativevalue_to_se_args(se::ValueArray &array, T &&x) { // NOLINT(readability-identifier-naming)
+    return nativevalue_to_se(std::forward<T>(x), array[i], nullptr);
 }
 template <int i, typename T, typename... Args>
-bool nativevalue_to_se_args(se::ValueArray &array, T &x, Args &...args) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se_args<i, T>(array, x) && nativevalue_to_se_args<i + 1, Args...>(array, args...);
+bool nativevalue_to_se_args(se::ValueArray &array, T &&x, Args &&...args) { // NOLINT(readability-identifier-naming)
+    return nativevalue_to_se_args<i, T>(array, std::forward<T>(x)) && nativevalue_to_se_args<i + 1, Args...>(array, std::forward<Args>(args)...);
 }
 
 template <typename... Args>
-bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args) { // NOLINT(readability-identifier-naming)
-    return nativevalue_to_se_args<0, Args...>(array, args...);
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &&...args) { // NOLINT(readability-identifier-naming)
+    return nativevalue_to_se_args<0, Args...>(array, std::forward<Args>(args)...);
 }
 
 // Spine conversions
