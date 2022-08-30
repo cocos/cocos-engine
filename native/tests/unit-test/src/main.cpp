@@ -21,9 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "core/Root.h"
+#include "gtest/gtest.h"
 #include "renderer/GFXDeviceManager.h"
 
 using namespace cc;
@@ -37,11 +37,9 @@ int cocos_main(int argc, const char** argv) {
     return 0;
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char* argv[]) {
     cocos_main(argc, argv);
     se::AutoHandleScope hs;
     ::testing::InitGoogleTest(&argc, (char**)argv);
     return RUN_ALL_TESTS();
 }
-
-
