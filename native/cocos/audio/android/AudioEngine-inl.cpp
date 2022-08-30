@@ -125,9 +125,11 @@ static int fdGetter(const std::string &url, off_t *start, off_t *length) {
     }
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     FileUtilsOpenHarmony* fileUtils = dynamic_cast<FileUtilsOpenHarmony*>(FileUtils::getInstance());
-    RawFileDescriptor descriptor;
-    fileUtils->getRawFileDescriptor(url, descriptor);
-	fd = descriptor.fd;
+    if(fileUtils) {
+        RawFileDescriptor descriptor;
+        fileUtils->getRawFileDescriptor(url, descriptor);
+        fd = descriptor.fd;
+    }
 #endif
     if (fd <= 0) {
         ALOGE("Failed to open file descriptor for '%s'", url.c_str());

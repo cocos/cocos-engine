@@ -44,7 +44,7 @@ private:
     void queryAudioInfo();
 
     void signalEos();
-    void decodeToPcmCallback(BufferQueueItf queueItf);
+    void decodeToPcmCallback(CCSLBufferQueueItf queueItf);
     void prefetchCallback(SLPrefetchStatusItf caller, SLuint32 event);
     void decodeProgressCallback(SLPlayItf caller, SLuint32 event);
 

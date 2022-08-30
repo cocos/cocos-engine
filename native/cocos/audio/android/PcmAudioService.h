@@ -52,7 +52,7 @@ private:
 
     bool enqueue();
 
-    void bqFetchBufferCallback(BufferQueueItf bq);
+    void bqFetchBufferCallback(CCSLBufferQueueItf bq);
 
     void pause();
     void resume();
@@ -64,7 +64,7 @@ private:
     SLObjectItf _playObj;
     SLPlayItf _playItf;
     SLVolumeItf _volumeItf;
-    BufferQueueItf _bufferQueueItf;
+    CCSLBufferQueueItf _bufferQueueItf;
 
     int _numChannels;
     int _sampleRate;

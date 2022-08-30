@@ -79,7 +79,7 @@ public:
         thiz->prefetchCallback(caller, event);
     }
 
-    static void decPlayCallback(BufferQueueItf queueItf, void *context) {
+    static void decPlayCallback(CCSLBufferQueueItf queueItf, void *context) {
         AudioDecoderSLES *thiz = reinterpret_cast<AudioDecoderSLES *>(context);
         thiz->decodeToPcmCallback(queueItf);
     }
@@ -132,7 +132,7 @@ bool AudioDecoderSLES::decodeToPcm() {
     SLObjectItf player;
 
     /* Interfaces for the audio player */
-    BufferQueueItf decBuffQueueItf;
+    CCSLBufferQueueItf decBuffQueueItf;
     SLPrefetchStatusItf prefetchItf;
     SLPlayItf playItf;
     SLMetadataExtractionItf mdExtrItf;
@@ -521,7 +521,7 @@ void AudioDecoderSLES::decodeProgressCallback(SLPlayItf caller, SLuint32 event) 
 
 //-----------------------------------------------------------------
 /* Callback for decoding buffer queue events */
-void AudioDecoderSLES::decodeToPcmCallback(BufferQueueItf queueItf) {
+void AudioDecoderSLES::decodeToPcmCallback(CCSLBufferQueueItf queueItf) {
     _isDecodingCallbackInvoked = true;
     ALOGV("%s ...", __FUNCTION__);
     _counter++;

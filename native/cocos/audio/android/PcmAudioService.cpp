@@ -38,9 +38,9 @@ static std::vector<char> __silenceData;
 class SLPcmAudioPlayerCallbackProxy {
 public:
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    static void samplePlayerCallback(BufferQueueItf bq, void *context) {
+    static void samplePlayerCallback(CCSLBufferQueueItf bq, void *context) {
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    static void samplePlayerCallback(BufferQueueItf bq, void *context, SLuint32 size) {
+    static void samplePlayerCallback(CCSLBufferQueueItf bq, void *context, SLuint32 size) {
 #endif
         PcmAudioService *thiz = reinterpret_cast<PcmAudioService *>(context);
         thiz->bqFetchBufferCallback(bq);
@@ -78,7 +78,7 @@ bool PcmAudioService::enqueue() {
     return true;
 }
 
-void PcmAudioService::bqFetchBufferCallback(BufferQueueItf bq) {
+void PcmAudioService::bqFetchBufferCallback(CCSLBufferQueueItf bq) {
     // IDEA: PcmAudioService instance may be destroyed, we need to find a way to wait...
     // It's in sub thread
     enqueue();
@@ -125,7 +125,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     const SLInterfaceID ids[] = {
         SL_IID_PLAY,
         SL_IID_VOLUME,
-        IDD_BUFFER_QUEUE,
+        CC_SL_IDD_BUFFER_QUEUE,
     };
 
     const SLboolean req[] = {
@@ -148,8 +148,8 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     r = (*_playObj)->GetInterface(_playObj, SL_IID_VOLUME, &_volumeItf);
     SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_VOLUME failed");
 
-    r = (*_playObj)->GetInterface(_playObj, IDD_BUFFER_QUEUE, &_bufferQueueItf);
-    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface IDD_BUFFER_QUEUE failed");
+    r = (*_playObj)->GetInterface(_playObj, CC_SL_IDD_BUFFER_QUEUE, &_bufferQueueItf);
+    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface CC_SL_IDD_BUFFER_QUEUE failed");
 
     r = (*_bufferQueueItf)->RegisterCallback(_bufferQueueItf, SLPcmAudioPlayerCallbackProxy::samplePlayerCallback, this);
     SL_RETURN_VAL_IF_FAILED(r, false, "_bufferQueueItf RegisterCallback failed");
