@@ -23,6 +23,8 @@
  THE SOFTWARE.
 */
 
+import './deprecated-3.6.0';
+
 export * from './canvas';
 export * from './ui-component';
 export * from './ui-renderer';
