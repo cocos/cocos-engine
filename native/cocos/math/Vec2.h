@@ -25,8 +25,8 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
-#include "math/MathBase.h"
 #include "math/Math.h"
+#include "math/MathBase.h"
 
 NS_CC_MATH_BEGIN
 
@@ -448,7 +448,7 @@ public:
     /**
      * Determines if this vector is approximately equal to the given vector.
      */
-    inline bool approxEquals(const Vec2& v, float precision = CC_DEFAULT_FLOAT_PRECISION) const {
+    inline bool approxEquals(const Vec2 &v, float precision = CC_DEFAULT_FLOAT_PRECISION) const {
         return math::isEqualF(x, v.x, precision) && math::isEqualF(y, v.y, precision);
     }
 

@@ -240,4 +240,3 @@ NS_CC_MATH_END
  end of base group
  @}
  */
-

@@ -966,4 +966,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Mat4.inl"
-
