@@ -42,7 +42,7 @@
 
 namespace se {
 //NOLINTNEXTLINE
-std::unique_ptr<ccstd::unordered_set<Object *>> __objectSet; // Currently, the value `void*` is always nullptr
+std::unique_ptr<ccstd::unordered_set<Object *>> __objectSet;
 
 namespace {
 v8::Isolate *__isolate = nullptr; //NOLINT
