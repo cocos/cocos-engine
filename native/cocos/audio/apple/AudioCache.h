@@ -35,6 +35,8 @@
 #include "base/Macros.h"
 #include "base/std/container/vector.h"
 
+#define INVALID_AL_BUFFER_ID 0xFFFFFFFF
+
 namespace cc {
 class AudioEngineImpl;
 class AudioPlayer;
@@ -76,7 +78,7 @@ protected:
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
-    ALuint _alBufferId;
+    ALuint _alBufferId{INVALID_AL_BUFFER_ID};
     char *_pcmData{nullptr};
 
     /*Queue buffer related stuff

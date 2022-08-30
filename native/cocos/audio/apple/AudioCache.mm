@@ -49,7 +49,6 @@ namespace {
 unsigned int __idIndex = 0;
 }
 
-#define INVALID_AL_BUFFER_ID 0xFFFFFFFF
 #define PCMDATA_CACHEMAXSIZE 1048576
 
 @interface NSTimerWrapper : NSObject {
@@ -86,7 +85,7 @@ unsigned int __idIndex = 0;
 using namespace cc;
 
 AudioCache::AudioCache()
-: _alBufferId(INVALID_AL_BUFFER_ID), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex){
+: _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex){
     ALOGVV("AudioCache() %p, id=%u", this, _id);
     for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
         _queBuffers[i] = nullptr;

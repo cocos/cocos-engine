@@ -53,11 +53,11 @@ public:
     virtual ~AudioPlayerProvider();
     bool isFileCached(const ccstd::string &audioFilePath);
     IAudioPlayer *getAudioPlayer(const ccstd::string &audioFilePath);
-    bool getHeader(const ccstd::string &audioFilePath, PCMHeader &header);
+    bool getPcmHeader(const ccstd::string &audioFilePath, PCMHeader &header);
     bool getPcmData(const ccstd::string &audioFilePath, PcmData &data);
     using PreloadCallback = std::function<void(bool, PcmData)>;
     void preloadEffect(const ccstd::string &audioFilePath, const PreloadCallback &callback);
-    bool registerPcmData(const ccstd::string &audioFilePath, PcmData &data);
+    void registerPcmData(const ccstd::string &audioFilePath, PcmData &data);
     float getDurationFromFile(const ccstd::string &filePath);
     void clearPcmCache(const ccstd::string &audioFilePath);
 

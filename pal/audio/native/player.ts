@@ -83,7 +83,7 @@ export class AudioPlayer implements OperationQueueable {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
-    private _pcmHeader: jsb.PCMHeader|null;
+    private _pcmHeader: jsb.PCMHeader | null;
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.

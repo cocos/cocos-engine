@@ -449,18 +449,18 @@ void AudioPlayerProvider::resume() {
         _pcmAudioService->resume();
     }
 }
-bool AudioPlayerProvider::registerPcmData(const ccstd::string &audioFilePath, PcmData &data) {
+void AudioPlayerProvider::registerPcmData(const ccstd::string &audioFilePath, PcmData &data) {
     std::lock_guard<std::mutex> lck(_pcmCacheMutex);
     if (_pcmCache.find(audioFilePath) != _pcmCache.end()){
         CC_LOG_DEBUG("file %s pcm data is already cached.", audioFilePath.c_str());
-        return true;
+        return;
     }
-    _pcmCache.insert(std::make_pair(audioFilePath, data));
-    return true;
+    _pcmCache.emplace(audioFilePath, data);
 }
 
-bool AudioPlayerProvider::getHeader(const ccstd::string &audioFilePath, PCMHeader &header) {
-    _pcmCacheMutex.lock();
+bool AudioPlayerProvider::getPcmHeader(const ccstd::string &audioFilePath, PCMHeader &header) {
+
+    std::lock_guard<std::mutex> lck(_pcmCacheMutex);
     auto &&iter = _pcmCache.find(audioFilePath);
     if (iter != _pcmCache.end()) {
         ALOGV("get pcm header from cache, url: %s", audioFilePath.c_str());
@@ -470,14 +470,12 @@ bool AudioPlayerProvider::getHeader(const ccstd::string &audioFilePath, PCMHeade
         header.dataFormat = AudioDataFormat::SIGNED_16;
         header.sampleRate = iter->second.sampleRate;
         header.totalFrames = iter->second.numFrames;
-        _pcmCacheMutex.unlock();
         return true;
     }
-    _pcmCacheMutex.unlock();
     return false;
 }
 bool AudioPlayerProvider::getPcmData(const ccstd::string &audioFilePath, PcmData &data) {
-    _pcmCacheMutex.lock();
+    std::lock_guard<std::mutex> lck(_pcmCacheMutex);
     auto &&iter = _pcmCache.find(audioFilePath);
     if (iter != _pcmCache.end()) {
         ALOGV("get pcm buffer from cache, url: %s", audioFilePath.c_str());
