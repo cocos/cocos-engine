@@ -29,15 +29,13 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
+import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
 import { Color, director, Mat4, Node, Texture2D } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
-import { StaticVBAccessor, StaticVBChunk } from '../../2d/renderer/static-vb-accessor';
+import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
-
-const FLAG_TWO_COLOR = 0x01;
 
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
 const _slotColor = new Color(0, 0, 255, 255);
@@ -80,14 +78,6 @@ let _tempg: number;
 let _tempb: number;
 let _inRange: boolean;
 let _mustFlush: boolean;
-let _x: number;
-let _y: number;
-let _m00: number;
-let _m04: number;
-let _m12: number;
-let _m01: number;
-let _m05: number;
-let _m13: number;
 let _r: number;
 let _g: number;
 let _b: number;
@@ -100,7 +90,6 @@ let _dg: number;
 let _db: number;
 let _da: number;
 let _comp: Skeleton | undefined;
-let _node: Node | undefined;
 let _renderData: RenderData | null;
 let _ibuf: Uint16Array;
 let _vbuf: Float32Array;
@@ -188,7 +177,7 @@ export const simple: IAssembler = {
         if (!accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
-            const attributes = useTint ? vfmtPosUvTwoColor : vfmtPosUvColor;
+            const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
             if (useTint) {
                 accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
@@ -226,7 +215,7 @@ export const simple: IAssembler = {
                     }
                 }
             }
-            rd = RenderData.add(useTint ? vfmtPosUvTwoColor : vfmtPosUvColor, accessor);
+            rd = RenderData.add(useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B, accessor);
             rd.resize(vCount, iCount);
             if (!rd.indices || iCount !== rd.indices.length) {
                 rd.indices = new Uint16Array(iCount);
@@ -275,7 +264,6 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     // Reuse draw list
     comp.drawList.reset();
     _comp = comp;
-    _node = comp.node;
     _renderData = comp.renderData!;
 
     _currentMaterial = null;
@@ -306,7 +294,6 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     comp.attachUtil._syncAttachedNode();
 
     // Clear temp var.
-    _node = undefined;
     _comp = undefined;
     _vertexEffect = null;
 }

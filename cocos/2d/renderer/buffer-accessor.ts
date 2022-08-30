@@ -25,7 +25,7 @@
 
 import { Attribute, Device } from '../../core/gfx';
 import type { MeshBuffer } from './mesh-buffer';
-import { getComponentPerVertex } from './vertex-format';
+import { getAttributeStride, getComponentPerVertex } from './vertex-format';
 
 export class BufferAccessor {
     public get attributes (): Readonly<Attribute[]> { return this._attributes; }
@@ -41,7 +41,8 @@ export class BufferAccessor {
     constructor (device: Device, attributes: Attribute[]) {
         this._device = device;
         this._attributes = attributes;
-        this._floatsPerVertex = getComponentPerVertex(attributes);
+
+        this._floatsPerVertex = getAttributeStride(attributes) >> 2;
         this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
     }
 
