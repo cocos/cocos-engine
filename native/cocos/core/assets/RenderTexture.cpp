@@ -28,7 +28,6 @@
 #include "core/platform/Debug.h"
 #include "core/utils/IDGenerator.h"
 #include "renderer/gfx-base/GFXDef-common.h"
-#include "scene/RenderWindow.h"
 
 namespace cc {
 

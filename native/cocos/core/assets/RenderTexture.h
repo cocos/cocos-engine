@@ -27,6 +27,7 @@
 
 #include "core/assets/TextureBase.h"
 #include "renderer/gfx-base/GFXDef.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 
@@ -36,9 +37,6 @@ struct IRenderTextureCreateInfo {
     uint32_t height;
     ccstd::optional<gfx::RenderPassInfo> passInfo;
 };
-namespace scene {
-class RenderWindow;
-}
 
 namespace gfx {
 class Texture;
