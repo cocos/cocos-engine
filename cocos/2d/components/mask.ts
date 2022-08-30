@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide, executeInEditMode } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
@@ -118,6 +118,7 @@ const SEGMENTS_MAX = 10000;
 @help('i18n:cc.Mask')
 @executionOrder(110)
 @menu('2D/Mask')
+@executeInEditMode
 export class Mask extends Component {
     /**
      * @en
@@ -138,11 +139,11 @@ export class Mask extends Component {
         }
 
         this._type = value;
-        this._updateMaterial();// 材质同步时机，可能是重复操作
 
         if (this._type !== MaskType.IMAGE_STENCIL) {
             if (this._sprite) {
                 this.node.removeComponent(Sprite);
+                this._sprite._destroyImmediate();
                 this._sprite = null;
             }
             this._spriteFrame = null;
@@ -157,6 +158,7 @@ export class Mask extends Component {
             if (this._graphics) {
                 this._graphics.clear();
                 this.node.removeComponent(Graphics);
+                this._graphics._destroyImmediate();
                 this._graphics = null;
             }
             this._changeRenderType();
@@ -415,17 +417,16 @@ export class Mask extends Component {
             this._createSprite();
         }
         this.subComp!.isForMask = true;
-    }
-
-    private _initSpriteNode () {
-        const node = this.node;
-        node.addComponent(Sprite);
+        this._updateMaterial();
     }
 
     protected _createSprite () {
         if (!this._sprite) {
-            this._initSpriteNode();
-            const sprite = this._sprite = this.node.getComponent(Sprite)!;
+            let sprite = this._sprite = this.node.getComponent(Sprite);
+            if (!sprite) {
+                const node = this.node;
+                sprite = this._sprite = node.addComponent(Sprite);
+            }
             sprite.color = Color.WHITE.clone();
             // 这儿要处理下怎么触发
             // 流程问题，要去除，但是要怎么触发
@@ -434,20 +435,16 @@ export class Mask extends Component {
             sprite._postAssembler = PostAssembler.getAssembler(sprite);
         }
         // 可能需要转调，工作流更顺畅
-        this._sprite.spriteFrame = this._spriteFrame;
-        // 材质不确定有没有时机问题
-        this._updateMaterial();
-    }
-
-    private _initGraphicsNode () {
-        const node = this.node;
-        node.addComponent(Graphics);
+        this._sprite!.spriteFrame = this._spriteFrame;
     }
 
     protected _createGraphics () {
         if (!this._graphics) {
-            this._initGraphicsNode();
-            const graphics = this._graphics = this.node.getComponent(Graphics)!;
+            let graphics = this._graphics = this.node.getComponent(Graphics);
+            if (!graphics) {
+                const node = this.node;
+                graphics = this._graphics = node.addComponent(Graphics);
+            }
             graphics.lineWidth = 1;
             const color = Color.WHITE.clone();
             color.a = 0;
@@ -455,8 +452,6 @@ export class Mask extends Component {
             // @ts-expect-error Mask hack
             graphics._postAssembler = PostAssembler.getAssembler(graphics);
         }
-        // 材质时机可能有问题
-        this._updateMaterial();
     }
 
     protected _updateGraphics () {
@@ -548,21 +543,26 @@ export class Mask extends Component {
 
     // 很可能会出现时机问题
     protected _updateMaterial () {
-        if (this._graphics) {
-            const target = this._graphics;
-            target.stencilStage = Stage.DISABLED;
-            const mat = builtinResMgr.get<Material>('ui-graphics-material');
-            target.setMaterial(mat, 0);
-            target.getMaterialInstance(0);
-        } else if (this._sprite) {
-            const target = this._sprite;
-            target.stencilStage = Stage.DISABLED;
-            let mat = builtinResMgr.get<Material>('ui-alpha-test-material');
-            target.customMaterial = mat;
-            // target.setMaterial(mat, 0);
-            mat = target.getMaterialInstance(0)!;
-            mat.setProperty('alphaThreshold', this._alphaThreshold);
-        }
+        // if (this._graphics) {
+        //     const target = this._graphics;
+        //     target.stencilStage = Stage.DISABLED;
+        //     const mat = builtinResMgr.get<Material>('ui-graphics-material');
+        //     target.setMaterial(mat, 0);
+        //     target.getMaterialInstance(0);
+        // } else
+        // if (this._sprite) {
+        //     const target = this._sprite;
+        //     target.stencilStage = Stage.DISABLED;
+        //     let mat = builtinResMgr.get<Material>('ui-alpha-test-material');
+        //     // target.customMaterial = mat; // 如何使 sprite 使用这个材质？ // 是否可以使用 onMaterialModife
+        //     // 三个思路
+        //     // 1 customMaterial
+        //     // 2 在 ui——render中加一个type
+        //     // 3 _onMaterialModified 中处理（不是 render 组件）
+        //     target.setMaterial(mat, 0);
+        //     mat = target.getMaterialInstance(0)!;
+        //     mat.setProperty('alphaThreshold', this._alphaThreshold);
+        // }
     }
 
     // 问题是怎么不允许删除呢？

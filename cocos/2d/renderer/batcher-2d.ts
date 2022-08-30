@@ -126,6 +126,7 @@ export class Batcher2D implements IBatcher {
     private _maskClearModel :Model | null = null;
     private _maskClearMtl :Material | null = null;
     private _maskModelMesh :RenderingSubMesh | null = null;
+    private _maskSpriteMtl :Material | null = null;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -407,6 +408,9 @@ export class Batcher2D implements IBatcher {
             this._currComponent = comp;
             this._currTransform = transform;
             this._currMaterial = comp.getRenderMaterial(0)!;
+            // if (comp.isForMask) {
+            //     this._currMaterial = this._maskSpriteMtl!;
+            // }
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
             if (frame) {
@@ -862,6 +866,9 @@ export class Batcher2D implements IBatcher {
         if (mask.type === 3) {
         // Apply stencil stage
             _stencilManager.stage = mask.subComp!.stencilStage;
+            // if (!this._maskSpriteMtl) {
+            //     this._maskSpriteMtl = builtinResMgr.get<Material>('ui-alpha-test-material');
+            // }
         }
 
         // 以上就把mask 的 model 那个插入完了
