@@ -907,6 +907,7 @@ SE_DECLARE_FUNC(js_gfx_Device_getGeneralBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPool);
 SE_DECLARE_FUNC(js_gfx_Device_getQueryPoolResults);
 SE_DECLARE_FUNC(js_gfx_Device_getSampler);
+SE_DECLARE_FUNC(js_gfx_Device_getSwapchains);
 SE_DECLARE_FUNC(js_gfx_Device_getTextureBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);

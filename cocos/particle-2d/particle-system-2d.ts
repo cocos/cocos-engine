@@ -1187,7 +1187,7 @@ export class ParticleSystem2D extends UIRenderer {
     }
 
     protected _canRender () {
-        return super._canRender() && !this._stopped && this._renderSpriteFrame !== null;
+        return super._canRender() && !this._stopped && this._renderSpriteFrame !== null && this._renderSpriteFrame !== undefined;
     }
 
     protected _render (render: IBatcher) {

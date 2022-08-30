@@ -26,6 +26,7 @@
 
 declare const gfx: any;
 declare const global: any;
+declare const xr: any;
 
 interface Window {
 

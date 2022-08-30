@@ -104,10 +104,6 @@ void main()  {
   // Shading
   vec4 color = CCSurfacesShading(surfaceData, lightingResult);
 
-  #if !CC_FORWARD_ADD
-    CC_APPLY_FOG_BASE(color, fogFactor);
-  #endif
-
   #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
     // CSM Debug
     if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION) {
@@ -132,6 +128,9 @@ void main()  {
   #endif
   color.rgb = LinearToSRGB(color.rgb);
   
+  #if !CC_FORWARD_ADD && CC_USE_FOG != CC_FOG_NONE
+    CC_APPLY_FOG_BASE(color, fogFactor);
+  #endif
 
   fragColorX = CCSurfacesDebugDisplayInvalidNumber(color);
 }

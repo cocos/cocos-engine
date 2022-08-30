@@ -132,6 +132,22 @@ else()
     message(STATUS "Ignore NO_WERROR")
 endif()
 
+if(ANDROID)
+    if("${ANDROID_ABI}" STREQUAL "armeabi-v7a")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpu=neon-fp16")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon-fp16")
+    endif()
+    
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char -ffunction-sections -fdata-sections -fstrict-aliasing")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char -ffunction-sections -fdata-sections -fstrict-aliasing -frtti -fexceptions")
+
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fvisibility=default -fno-omit-frame-pointer")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fvisibility=default -fno-omit-frame-pointer")
+    if(NOT DEFINED HIDE_SYMBOLS OR HIDE_SYMBOLS) # hidden by default
+        set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fvisibility=hidden")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fvisibility=hidden -fvisibility-inlines-hidden")
+    endif()
+endif()
 
 function(cc_enable_werror source_list)
     foreach(src IN LISTS source_list)
@@ -220,10 +236,19 @@ function(cc_redirect_property target from_property to_property)
     endif()
 endfunction()
 
-
-find_program(NODE_EXECUTABLE NAMES node)
-find_program(TSC_EXECUTABLE NAMES tsc)
-find_program(CCACHE_EXECUTABLE NAMES ccache)
+if(NOT DEFINED NODE_EXECUTABLE)
+    if(DEFINED EDITOR_NODEJS)
+        set(NODE_EXECUTABLE ${EDITOR_NODEJS})
+    else() 
+        find_program(NODE_EXECUTABLE NAMES node)
+    endif()
+endif()
+if(NOT DEFINED TSC_EXECUTABLE)
+    find_program(TSC_EXECUTABLE NAMES tsc)
+endif()
+if(NOT DEFINED CCACHE_EXECUTABLE)
+    find_program(CCACHE_EXECUTABLE NAMES ccache)
+endif()
 
 ## predefined configurations for game applications
 include(${CMAKE_CURRENT_LIST_DIR}/../../templates/cmake/common.cmake)

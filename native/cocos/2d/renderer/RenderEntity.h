@@ -58,7 +58,7 @@ struct EntityAttrLayout {
     uint8_t colorA{255};
     uint8_t maskMode{0};
     uint8_t colorDirtyBit{1};
-    uint8_t enabledIndex{1};
+    uint8_t enabledIndex{0};
     uint8_t useLocal{0};
 };
 

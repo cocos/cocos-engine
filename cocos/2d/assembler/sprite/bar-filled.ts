@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4, Vec3 } from '../../../core/math';
+import {  Mat4 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
@@ -33,8 +33,7 @@ import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const FillType = Sprite.FillType;
-const matrix = new Mat4();
-const vec3_temp = new Vec3();
+const m = new Mat4();
 const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
 /**
@@ -71,7 +70,6 @@ export const barFilled: IAssembler = {
             let fillEnd = fillStart + fillRange;
             fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-            this.updateColor(sprite); // need Dirty
             this.updateUVs(sprite, fillStart, fillEnd); // need Dirty
             this.updateVertexData(sprite, fillStart, fillEnd);
             renderData.updateRenderData(sprite, frame);
@@ -215,7 +213,7 @@ export const barFilled: IAssembler = {
 
     updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
         const node = sprite.node;
-        node.getWorldMatrix(matrix);
+        node.getWorldMatrix(m);
 
         const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
@@ -225,12 +223,15 @@ export const barFilled: IAssembler = {
         let offset = 0;
         for (let i = 0; i < 4; i++) {
             const local = dataList[i];
-            Vec3.set(vec3_temp, local.x, local.y, 0);
-            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+            const x = local.x;
+            const y = local.y;
+            let rhw = m.m03 * x + m.m07 * y + m.m15;
+            rhw = rhw ? Math.abs(1 / rhw) : 1;
+
             offset = i * stride;
-            vData[offset] = vec3_temp.x;
-            vData[offset + 1] = vec3_temp.y;
-            vData[offset + 2] = vec3_temp.z;
+            vData[offset] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+            vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+            vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
         }
     },
 

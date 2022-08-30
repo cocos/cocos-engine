@@ -51,9 +51,10 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     using context_type = typename class_<T>::Context;
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope handleScope(isolate);
-    bool ret = false;
-    se::ValueArray &args = se::gValueArrayPool.get(v8args.Length());
-    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};
+    std::optional<bool> ret;
+    bool needDeleteValueArray{false};
+    se::ValueArray &args = se::gValueArrayPool.get(v8args.Length(), needDeleteValueArray);
+    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
     se::internal::jsToSeArgs(v8args, args);
     auto *self = reinterpret_cast<context_type *>(v8args.Data().IsEmpty() ? nullptr : v8args.Data().As<v8::External>()->Value());
     se::Object *thisObject = se::Object::_createJSObject(self->kls, v8args.This());
@@ -70,7 +71,11 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
             if (ret) break;
         }
     }
-    if (!ret) {
+
+    if (!ret.has_value()) {
+        SE_LOGE("[ERROR] Failed match constructor for class %s, %d args, location: %s:%d\n", self->className.c_str(),
+                static_cast<int>(args.size()), __FILE__, __LINE__);
+    } else if (!ret.value()) {
         SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", "constructor", __FILE__, __LINE__);
     }
     assert(ret); // construction failure is not allowed.
@@ -93,8 +98,9 @@ void genericAccessorSet(v8::Local<v8::Name> /*prop*/, v8::Local<v8::Value> jsVal
     v8::HandleScope handleScope(isolate);
     bool ret = true;
     auto *thisObject = reinterpret_cast<se::Object *>(se::internal::getPrivate(isolate, v8args.This()));
-    se::ValueArray &args = se::gValueArrayPool.get(1);
-    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};
+    bool needDeleteValueArray{false};
+    se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);
+    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
     se::Value &data{args[0]};
     se::internal::jsToSeValue(isolate, jsVal, &data);
     se::State state(thisObject, args);
@@ -189,6 +195,8 @@ bool class_<T>::install(se::Object *nsObject) {
         _ctx->kls->defineStaticProperty(std::get<0>(prop).c_str(), fieldGetter, fieldSetter, std::get<1>(prop).get());
     }
     _ctx->kls->install();
+    JSBClassType::registerClass<T>(_ctx->kls);
+
     return true;
 }
 } // namespace sebind
