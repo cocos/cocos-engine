@@ -26,11 +26,11 @@ THE SOFTWARE.
 #include "core/Root.h"
 //#include "core/platform/event-manager/Events.h"
 //#include "core/scene-graph/SceneGraphModuleHeader.h"
+#include "core/scene-graph/Scene.h"
 #include "gtest/gtest.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "utils.h"
-#include "core/scene-graph/Scene.h"
 
 using namespace cc;
 //using namespace cc::event;
