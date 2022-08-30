@@ -85,6 +85,8 @@ export class UIOpacity extends Component {
     // for UIOpacity
     public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
         if (!node.isValid) {
+            // Since children might be destroyed before the parent,
+            // we should add protecting condition when executing recursion downwards.
             return;
         }
 
