@@ -136,4 +136,9 @@ TEST(mathVec2Test, test1) {
     // getIntersectPoint
     logLabel = "test whether vec2 getIntersectPoint function";
     ExpectEq(cc::Vec2::getIntersectPoint(cc::Vec2(0, 1), cc::Vec2(3, 1), cc::Vec2(0, 1), cc::Vec2(1, -1)) == cc::Vec2(0, 1), true);
+    // approxEqual
+    logLabel = "test the Vec2 approx equal function";
+    cc::Vec2 a{0.123456F, 1.234567F};
+    cc::Vec2 b{0.123455F, 1.234568F};
+    ExpectEq(a.approxEquals(b), true);
 }
