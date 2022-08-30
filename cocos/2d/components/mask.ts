@@ -26,26 +26,18 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide, executeInEditMode } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { warnID } from '../../core/platform';
 import { IBatcher } from '../renderer/i-batcher';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, CCObject, Node, NodeEventType, Component } from '../../core';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode, deviceManager } from '../../core/gfx';
+import { NodeEventType, Component } from '../../core';
 import { legacyCC } from '../../core/global-exports';
-import { MaterialInstance, scene } from '../../core/renderer';
-import { Model } from '../../core/renderer/scene';
-import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage, StencilManager } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
-import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { MaskMode, RenderEntity, RenderEntityType } from '../renderer/render-entity';
-import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { Sprite } from './sprite';
 
 const _worldMatrix = new Mat4();
@@ -75,7 +67,7 @@ export enum MaskType {
      * @zh
      * 使用矩形作为遮罩。
      */
-    RECT = 0,
+    GRAPHICS_RECT = 0,
 
     /**
      * @en Ellipse Mask.
@@ -83,7 +75,7 @@ export enum MaskType {
      * @zh
      * 使用椭圆作为遮罩。
      */
-    ELLIPSE = 1,
+    GRAPHICS_ELLIPSE = 1,
 
     /**
      * @en Graphics Mask.
@@ -99,7 +91,7 @@ export enum MaskType {
      * @zh
      * 使用图片模版作为遮罩。
      */
-    IMAGE_STENCIL = 3,
+    SPRITE_STENCIL = 3,
 }
 
 ccenum(MaskType);
@@ -140,7 +132,7 @@ export class Mask extends Component {
 
         this._type = value;
 
-        if (this._type !== MaskType.IMAGE_STENCIL) {
+        if (this._type !== MaskType.SPRITE_STENCIL) {
             if (this._sprite) {
                 this.node.removeComponent(Sprite);
                 this._sprite._destroyImmediate();
@@ -183,7 +175,7 @@ export class Mask extends Component {
 
     set inverted (value) {
         this._inverted = value;
-        this.stencilStage = Stage.DISABLED;//决定自身的清屏数据，反向遮罩 // 有点问题，invert 决定了 stage
+        this.stencilStage = Stage.DISABLED;
         if (this._graphics) {
             this._graphics.stencilStage = Stage.DISABLED;
         } else if (this._sprite) {
@@ -207,7 +199,7 @@ export class Mask extends Component {
      * 椭圆遮罩的曲线细分数。
      */
     @visible(function (this: Mask) {
-        return this.type === MaskType.ELLIPSE;
+        return this.type === MaskType.GRAPHICS_ELLIPSE;
     })
     get segments () {
         return this._segments;
@@ -219,7 +211,7 @@ export class Mask extends Component {
         }
 
         this._segments = clamp(value, SEGMENTS_MIN, SEGMENTS_MAX);
-        this._updateGraphics();//工具函数
+        this._updateGraphics();
     }
 
     /**
@@ -231,13 +223,13 @@ export class Mask extends Component {
      */
     @type(SpriteFrame)
     @visible(function (this: Mask) {
-        return this.type === MaskType.IMAGE_STENCIL;
+        return this.type === MaskType.SPRITE_STENCIL;
     })
     get spriteFrame () {
         return this._spriteFrame;
     }
 
-    set spriteFrame (value) { // 核心功能为转调
+    set spriteFrame (value) {
         if (this._spriteFrame === value) {
             return;
         }
@@ -247,7 +239,6 @@ export class Mask extends Component {
         if (this._sprite) {
             this._sprite.spriteFrame = value;
         }
-        this._updateMaterial();
     }
 
     /**
@@ -264,7 +255,7 @@ export class Mask extends Component {
      * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容
      */
     @visible(function (this: Mask) {
-        return this.type === MaskType.IMAGE_STENCIL;
+        return this.type === MaskType.SPRITE_STENCIL;
     })
     @range([0, 1, 0.1])
     @slide
@@ -272,19 +263,19 @@ export class Mask extends Component {
         return this._alphaThreshold;
     }
 
-    set alphaThreshold (value) { // 核心功能为转调
+    set alphaThreshold (value) {
         if (this._alphaThreshold === value) {
             return;
         }
 
         this._alphaThreshold = value;
-        if (this.type === MaskType.IMAGE_STENCIL && this._sprite) {
+        if (this.type === MaskType.SPRITE_STENCIL && this._sprite) {
             const mat = this._sprite.getMaterialInstance(0)!;
             mat.setProperty('alphaThreshold', this._alphaThreshold);
         }
     }
 
-    get subComp () { //看看是否要暴露个 渲染节点出来
+    get subComp () {
         return this._graphics || this._sprite;
     }
 
@@ -292,7 +283,7 @@ export class Mask extends Component {
      * @internal
      */
     get stencilStage (): Stage {
-        return this._stencilStage;
+        return this._stencilStage;// for invert
     }
     set stencilStage (val: Stage) {
         this._stencilStage = val;
@@ -300,28 +291,26 @@ export class Mask extends Component {
         // this._renderEntity.setStencilStage(val);
     }
 
-    // 这些序列化的属性实际应该生效于 init 上
     @serializable
-    protected _type = MaskType.RECT;
+    protected _type = MaskType.GRAPHICS_RECT;
 
     @serializable
-    protected _inverted = false; // 最麻烦
+    protected _inverted = false;
 
     @serializable
     protected _segments = 64;
 
     // for image stencil
     @serializable
-    protected _spriteFrame: SpriteFrame | null = null;
+    protected _spriteFrame: SpriteFrame | null = null;// 是否要处理同步？
 
     @serializable
     protected _alphaThreshold = 0.1;
 
-    // 引用，是否需要，或者说是否只用于检查？
     protected _sprite: Sprite | null = null;
     protected _graphics: Graphics | null = null;
 
-    protected _stencilStage: Stage = Stage.DISABLED;
+    protected _stencilStage: Stage = Stage.DISABLED; // 原生怎么办
 
     public onLoad () {
         this._changeRenderType(); // 主要用于，创建组件？
@@ -340,9 +329,9 @@ export class Mask extends Component {
     }
 
     public onEnable () {
-        this._changeRenderType();// 可能会覆盖用户设置
+        this._changeRenderType();// Maybe useless,a protect,may effect custom setting
         this._updateGraphics();
-        this._enableGraphics();
+        this._enableRender();
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
@@ -352,12 +341,12 @@ export class Mask extends Component {
      * 图形内容重塑。
      */
     public onRestore () {
-        this._changeRenderType(); // 执行时序问题，restore 到底是谁先执行
+        this._changeRenderType();
         this._updateGraphics();
     }
 
     public onDisable () {
-        this._disableGraphics();
+        this._disableRender();
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
@@ -366,7 +355,6 @@ export class Mask extends Component {
         this._removeMaskNode();
     }
 
-    // hit 得再考虑，比较麻烦
     /**
      * Hit test with point in World Space.
      *
@@ -387,9 +375,9 @@ export class Mask extends Component {
         testPt.y += ap.y * h;
 
         let result = false;
-        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL || this.type === MaskType.IMAGE_STENCIL) {
+        if (this.type === MaskType.GRAPHICS_RECT || this.type === MaskType.GRAPHICS_STENCIL || this.type === MaskType.SPRITE_STENCIL) {
             result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
-        } else if (this.type === MaskType.ELLIPSE) {
+        } else if (this.type === MaskType.GRAPHICS_ELLIPSE) {
             const rx = w / 2;
             const ry = h / 2;
             const px = testPt.x - 0.5 * w;
@@ -404,20 +392,18 @@ export class Mask extends Component {
         return result;
     }
 
-    // 用于在节点状态变化时触发graphics更新
     protected _nodeStateChange (type: TransformBit) {
         this._updateGraphics();
     }
 
     private _changeRenderType () {
-        const isGraphics = (this._type !== MaskType.IMAGE_STENCIL);
+        const isGraphics = (this._type !== MaskType.SPRITE_STENCIL);
         if (isGraphics) {
             this._createGraphics();
         } else {
             this._createSprite();
         }
         this.subComp!.isForMask = true;
-        this._updateMaterial();
     }
 
     protected _createSprite () {
@@ -428,13 +414,10 @@ export class Mask extends Component {
                 sprite = this._sprite = node.addComponent(Sprite);
             }
             sprite.color = Color.WHITE.clone();
-            // 这儿要处理下怎么触发
-            // 流程问题，要去除，但是要怎么触发
             sprite.sizeMode = 0;
             // @ts-expect-error Mask hack
             sprite._postAssembler = PostAssembler.getAssembler(sprite);
         }
-        // 可能需要转调，工作流更顺畅
         this._sprite!.spriteFrame = this._spriteFrame;
     }
 
@@ -455,7 +438,7 @@ export class Mask extends Component {
     }
 
     protected _updateGraphics () {
-        if (!this._graphics || (this._type !== MaskType.RECT && this._type !== MaskType.ELLIPSE)) {
+        if (!this._graphics || (this._type !== MaskType.GRAPHICS_RECT && this._type !== MaskType.GRAPHICS_ELLIPSE)) {
             return;
         }
 
@@ -469,9 +452,9 @@ export class Mask extends Component {
         const ap = uiTrans.anchorPoint;
         const x = -width * ap.x;
         const y = -height * ap.y;
-        if (this._type === MaskType.RECT) {
+        if (this._type === MaskType.GRAPHICS_RECT) {
             graphics.rect(x, y, width, height);
-        } else if (this._type === MaskType.ELLIPSE) {
+        } else if (this._type === MaskType.GRAPHICS_ELLIPSE) {
             const center = new Vec3(x + width / 2, y + height / 2, 0);
             const radius = new Vec3(width / 2, height / 2, 0);
             const points = _calculateCircle(center, radius, this._segments);
@@ -489,94 +472,14 @@ export class Mask extends Component {
         graphics.fill();
     }
 
-    // protected _createClearModel () {
-    //     if (!this._clearModel) {
-    //         // 这个挪到公用里。一个清全屏的 batch，包括材质等都可以
-    //         // 但是可能材质实例化有问题
-    //         // 那如果是特殊处理的，就不用走通用流程了
-    //         // 不共用，自有的一个batch
-    //         const mtl = builtinResMgr.get<Material>('default-clear-stencil');
-    //         this._clearStencilMtl = new MaterialInstance({
-    //             parent: mtl,
-    //             owner: this,
-    //             subModelIdx: 0,
-    //         });
-
-    //         this._clearModel = director.root!.createModel(scene.Model);
-    //         this._clearModel.node = this._clearModel.transform = this.node;
-    //         const stride = getAttributeStride(vfmt);
-    //         const gfxDevice: Device = deviceManager.gfxDevice;
-    //         const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
-    //             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-    //             MemoryUsageBit.DEVICE,
-    //             4 * stride,
-    //             stride,
-    //         ));
-
-    //         const vb = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
-    //         vertexBuffer.update(vb);
-    //         const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
-    //             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-    //             MemoryUsageBit.DEVICE,
-    //             6 * Uint16Array.BYTES_PER_ELEMENT,
-    //             Uint16Array.BYTES_PER_ELEMENT,
-    //         ));
-
-    //         const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
-    //         indexBuffer.update(ib);
-    //         this._clearModelMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
-    //         this._clearModelMesh.subMeshIdx = 0;
-
-    //         this._clearModel.initSubModel(0, this._clearModelMesh, this._clearStencilMtl);
-    //         //上述逻辑都有些浪费，但是单独处理可能存在 updateGFXBuffer 的问题
-    //         // 不用同步，但是需要在原生也有一份
-    //         // sync to native
-    //         if (JSB) {
-    //             if (this._renderData) {
-    //                 const drawInfo = this._renderData.renderDrawInfo;
-    //                 drawInfo.setModel(this._clearModel);
-    //                 drawInfo.setMaterial(this._clearStencilMtl);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // 很可能会出现时机问题
-    protected _updateMaterial () {
-        // if (this._graphics) {
-        //     const target = this._graphics;
-        //     target.stencilStage = Stage.DISABLED;
-        //     const mat = builtinResMgr.get<Material>('ui-graphics-material');
-        //     target.setMaterial(mat, 0);
-        //     target.getMaterialInstance(0);
-        // } else
-        // if (this._sprite) {
-        //     const target = this._sprite;
-        //     target.stencilStage = Stage.DISABLED;
-        //     let mat = builtinResMgr.get<Material>('ui-alpha-test-material');
-        //     // target.customMaterial = mat; // 如何使 sprite 使用这个材质？ // 是否可以使用 onMaterialModife
-        //     // 三个思路
-        //     // 1 customMaterial
-        //     // 2 在 ui——render中加一个type
-        //     // 3 _onMaterialModified 中处理（不是 render 组件）
-        //     target.setMaterial(mat, 0);
-        //     mat = target.getMaterialInstance(0)!;
-        //     mat.setProperty('alphaThreshold', this._alphaThreshold);
-        // }
-    }
-
     // 问题是怎么不允许删除呢？
-    protected _enableGraphics () {
-        // 引用组件的声明周期控制
-        // 可能还是要交给 mask
+    protected _enableRender () {
         if (this.subComp) {
             this.subComp.enabled = true;
         }
     }
 
-    protected _disableGraphics () {
-        // 引用组件的声明周期控制
-        // 可能还是要交给 mask
+    protected _disableRender () {
         if (this.subComp) {
             this.subComp.enabled = false;
         }

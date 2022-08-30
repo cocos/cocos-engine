@@ -538,7 +538,6 @@ export class UIRenderer extends Renderer {
         super._onMaterialModified(idx, material);
     }
 
-    // 不太想侵入这里
     protected _updateBuiltinMaterial (): Material {
         let mat: Material;
         if (this.isForMask) {

@@ -126,7 +126,6 @@ export class Batcher2D implements IBatcher {
     private _maskClearModel :Model | null = null;
     private _maskClearMtl :Material | null = null;
     private _maskModelMesh :RenderingSubMesh | null = null;
-    private _maskSpriteMtl :Material | null = null;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -380,9 +379,6 @@ export class Batcher2D implements IBatcher {
      * @param transform - Node type transform, if passed, then batcher will consider it's using model matrix, could be null
      */
     public commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
-        if (comp.isForMask) {
-            this._insertMaskBatch(comp);
-        }
         let dataHash = 0;
         let mat;
         let bufferID = -1;
@@ -392,7 +388,12 @@ export class Batcher2D implements IBatcher {
             mat = renderData.material;
             bufferID = renderData.chunk.bufferId;
         }
-        comp.stencilStage = StencilManager.sharedManager!.stage;
+        // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
+        if (comp.isForMask) {
+            this._insertMaskBatch(comp);
+        } else {
+            comp.stencilStage = StencilManager.sharedManager!.stage;
+        }
         const depthStencilStateStage = comp.stencilStage;
 
         if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
@@ -408,9 +409,6 @@ export class Batcher2D implements IBatcher {
             this._currComponent = comp;
             this._currTransform = transform;
             this._currMaterial = comp.getRenderMaterial(0)!;
-            // if (comp.isForMask) {
-            //     this._currMaterial = this._maskSpriteMtl!;
-            // }
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
             if (frame) {
@@ -474,11 +472,6 @@ export class Batcher2D implements IBatcher {
         }
         curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, null);
         this._batches.push(curDrawBatch);
-
-        // useless
-        if (renderComp && renderComp.isForMask) {
-            StencilManager.sharedManager!.enableMask();
-        }
     }
 
     /**
@@ -495,9 +488,6 @@ export class Batcher2D implements IBatcher {
      * @param mat - The material used, could be null
      */
     public commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null) {
-        if (comp.isForMask) {
-            this._insertMaskBatch(comp);
-        }
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -507,8 +497,10 @@ export class Batcher2D implements IBatcher {
         let depthStencil;
         let dssHash = 0;
         if (mat) {
-            // Notice: A little hack, if not this two stage, not need update here, while control by stencilManger
-            if (comp.stencilStage === Stage.ENABLED || comp.stencilStage === Stage.DISABLED) {
+            // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
+            if (comp.isForMask) {
+                this._insertMaskBatch(comp);
+            } else {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
             }
             depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage, mat);
@@ -789,7 +781,6 @@ export class Batcher2D implements IBatcher {
             this._maskClearMtl = builtinResMgr.get<Material>('default-clear-stencil');
 
             this._maskClearModel = legacyCC.director.root.createModel(scene.Model);
-            // node 呢？？？
             const stride = getAttributeStride(vfmt);
             const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
@@ -817,16 +808,14 @@ export class Batcher2D implements IBatcher {
         }
     }
 
-    // 包括状态管理啥的都处理
-    private _insertMaskBatch (comp: UIRenderer) {
+    private _insertMaskBatch (comp: UIRenderer | UIMeshRenderer) {
         const mask = comp.node.getComponent(Mask)!;
-        this.maskFinishMergeBatches();// 处理之前的合批
-        this._createClearModel(); // 确保clearModel
+        this.maskFinishMergeBatches();
+        this._createClearModel();
         this._maskClearModel!.node = this._maskClearModel!.transform = mask.node; // 为了复用 model 做出 hack
-        // 如何保证能渲染，缺个条件
         const _stencilManager = StencilManager.sharedManager!;
         _stencilManager.pushMask(1);//数组应该改一下，就要个长度
-        _stencilManager.clear(mask); //涉及到 invert
+        _stencilManager.clear(mask); //invert
 
         let depthStencil;
         let dssHash = 0;
@@ -861,19 +850,6 @@ export class Batcher2D implements IBatcher {
         }
 
         _stencilManager.enterLevel(mask);
-        // 这步有点奇怪
-        // if (mask.type === MaskType.IMAGE_STENCIL) {
-        if (mask.type === 3) {
-        // Apply stencil stage
-            _stencilManager.stage = mask.subComp!.stencilStage;
-            // if (!this._maskSpriteMtl) {
-            //     this._maskSpriteMtl = builtinResMgr.get<Material>('ui-alpha-test-material');
-            // }
-        }
-
-        // 以上就把mask 的 model 那个插入完了
-        // 然后画那个 graphics
-        // 然后执行一次 enableMask
     }
 
     //sync mesh buffer to naive
