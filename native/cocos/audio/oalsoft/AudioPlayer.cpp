@@ -221,7 +221,6 @@ bool AudioPlayer::play2d() {
 void AudioPlayer::rotateBufferThread(int offsetFrame) {
     char *tmpBuffer = nullptr;
     AudioDecoder *decoder = AudioDecoderManager::createDecoder(_audioCache->_fileFullPath.c_str());
-    CC_LOG_DEBUG("rotate buffer thread start, id %d with address %p time is dirty? %d, curtime %f", _id, this, _timeDirty, _currTime);
     do {
         BREAK_IF(decoder == nullptr || !decoder->open(_audioCache->_fileFullPath.c_str()));
 
