@@ -73,7 +73,7 @@ const Elements = {
             const panel = this;
 
             panel.$.typeSelect.addEventListener('change', (event) => {
-                // metaList 时以以选中的第一个 asset 的类型进行处理
+                // metaList take the type of the first asset selected to solve
                 let spriteFrameChange;
                 if (panel.meta.userData.type === 'sprite-frame') {
                     spriteFrameChange = 'spriteFrameToOthers';
@@ -88,8 +88,9 @@ const Elements = {
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
-                // imageAssets 类型有 spriteFrame 变化的话需要处理 mipmaps
+                // imageAssets type change to spriteFrame, update mipmaps
                 panel.updatePanel(spriteFrameChange);
+                // need to be dispatched after updatePanel
                 panel.dispatch('change');
             });
         },
