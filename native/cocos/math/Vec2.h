@@ -528,14 +528,14 @@ public:
      @since v3.0
      */
     inline Vec2 getMidpoint(const Vec2 &other) const {
-        return Vec2((x + other.x) / 2.0f, (y + other.y) / 2.0f);
+        return Vec2((x + other.x) / 2.0F, (y + other.y) / 2.0F);
     }
 
     /** Clamp a point between from and to.
      @since v3.0
      */
-    inline Vec2 getClampPoint(const Vec2 &min_inclusive, const Vec2 &max_inclusive) const {
-        return Vec2(clampf(x, min_inclusive.x, max_inclusive.x), clampf(y, min_inclusive.y, max_inclusive.y));
+    inline Vec2 getClampPoint(const Vec2 &minInclusive, const Vec2 &maxInclusive) const {
+        return Vec2(clampf(x, minInclusive.x, maxInclusive.x), clampf(y, minInclusive.y, maxInclusive.y));
     }
 
     /** Run a math operation function on each point component
@@ -545,7 +545,7 @@ public:
      * p.compOp(floorf);
      @since v3.0
      */
-    inline Vec2 compOp(std::function<float(float)> function) const {
+    inline Vec2 compOp(const std::function<float(float)> &function) const {
         return Vec2(function(x), function(y));
     }
 
@@ -591,7 +591,7 @@ public:
      @since v2.1.4
      */
     inline Vec2 lerp(const Vec2 &other, float alpha) const {
-        return *this * (1.f - alpha) + other * alpha;
+        return *this * (1.F - alpha) + other * alpha;
     };
 
     /** Rotates a point counter clockwise by the angle around a pivot
@@ -696,7 +696,7 @@ public:
  */
 inline const Vec2 operator*(float x, const Vec2 &v);
 
-typedef Vec2 Point;
+using Point = Vec2;
 
 NS_CC_MATH_END
 
