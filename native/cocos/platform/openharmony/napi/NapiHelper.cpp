@@ -164,12 +164,14 @@ napi_value NapiHelper::napiOnCreate(napi_env env, napi_callback_info info) {
 }
 
 napi_value NapiHelper::napiOnShow(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->onShowNative();
+    //TODO (oahcy) fix crash when press home button
+    //OpenHarmonyPlatform::getInstance()->onShowNative();
     return nullptr;
 }
 
 napi_value NapiHelper::napiOnHide(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->onHideNative();
+    //TODO (oahcy) fix crash when press home button
+    //OpenHarmonyPlatform::getInstance()->onHideNative();
     return nullptr;
 }
 
