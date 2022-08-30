@@ -218,6 +218,11 @@ public:
     void garbageCollect();
 
     /**
+          *  @brief Tests whether script engine is being cleaned up.
+          *  @return true if it's in cleaning up, otherwise false.
+          */
+    bool isInCleanup() const { return _isInCleanup; }
+    /**
          *  @brief Executes a file which contains JavaScript code.
          *  @param[in] path Script file path.
          *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
@@ -266,6 +271,7 @@ public:
      */
     bool _needCallConstructor();
 
+     void _setGarbageCollecting(bool isGarbageCollecting); //NOLINT(readability-identifier-naming)
 private:
     ScriptEngine();
     ~ScriptEngine();

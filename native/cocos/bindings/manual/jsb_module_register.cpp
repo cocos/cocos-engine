@@ -111,12 +111,12 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(jsb_register_global_variables);
     se->addRegisterCallback(register_all_engine);
     se->addRegisterCallback(register_all_cocos_manual);
-#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO:May be removed later
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later
     se->addRegisterCallback(register_platform_bindings);
 #endif
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(register_all_gfx_manual);
-#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO:May be removed later
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later
     se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_network_manual);
     se->addRegisterCallback(register_all_xmlhttprequest);
@@ -143,7 +143,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_audio);
 #endif
 
-#if USE_SOCKET && CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO:May be removed later
+#if USE_SOCKET && CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
 #endif
@@ -163,7 +163,7 @@ bool jsb_register_all_modules() {
 
 #endif // USE_MIDDLEWARE
 
-#if USE_PHYSICS_PHYSX && CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO:May be removed later
+#if USE_PHYSICS_PHYSX
     se->addRegisterCallback(register_all_physics);
 #endif
 

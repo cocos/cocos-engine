@@ -80,7 +80,8 @@ void Class::defineStaticProperty(const char* name, napi_callback g, napi_callbac
 }
 
 void Class::defineFunction(const char* name, napi_callback func) {
-    _properties.push_back({name, nullptr, func, nullptr, nullptr, nullptr, napi_default_method, nullptr});
+	// When Napi defines a function, it needs to add the enum attribute, otherwise JS cannot traverse the function
+    _properties.push_back({name, nullptr, func, nullptr, nullptr, nullptr, napi_default_jsproperty, nullptr});
 }
 
 void Class::defineStaticFunction(const char* name, napi_callback func) {
