@@ -19,9 +19,13 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <sys/cdefs.h>
+#endif
 
-__BEGIN_DECLS
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 /* The memcpy_* conversion routines are designed to work in-place on same dst as src
  * buffers only if the types shrink on copy, with the exception of memcpy_to_i16_from_u8().
@@ -928,6 +932,8 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
 #endif
 }
 
-__END_DECLS
+#ifdef	__cplusplus
+}
+#endif
 
 #endif // COCOS_AUDIO_PRIMITIVES_H
