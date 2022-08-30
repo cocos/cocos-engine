@@ -22,8 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "gtest/gtest.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "core/Root.h"
+#include "renderer/GFXDeviceManager.h"
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
+using namespace cc;
+using namespace cc::gfx;
+
+// Fix linking error of undefined symbol cocos_main
+int cocos_main(int argc, const char** argv) {
+    ccnew Root(DeviceManager::create());
+    ccnew se::ScriptEngine();
+    se::ScriptEngine::getInstance()->start();
+    return 0;
+}
+
+int main(int argc, const char *argv[]) {
+    cocos_main(argc, argv);
+    se::AutoHandleScope hs;
+    ::testing::InitGoogleTest(&argc, (char**)argv);
     return RUN_ALL_TESTS();
 }
+
+
