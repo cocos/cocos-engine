@@ -182,7 +182,7 @@ export class Canvas extends RenderRoot2D {
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
             // (anchor in uiTransform, but it can edit, this is different from cocos creator)
-            this.node._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
+            this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
         } else {
             // In Editor dont need resized camera when scene window resize
             this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
