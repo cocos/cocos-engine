@@ -31,15 +31,23 @@ using namespace cc::gfx;
 
 // Fix linking error of undefined symbol cocos_main
 int cocos_main(int argc, const char** argv) {
-    ccnew Root(DeviceManager::create());
-    ccnew se::ScriptEngine();
-    se::ScriptEngine::getInstance()->start();
     return 0;
 }
 
 int main(int argc, const char* argv[]) {
+    int ret = 0;
     cocos_main(argc, argv);
-    se::AutoHandleScope hs;
-    ::testing::InitGoogleTest(&argc, (char**)argv);
-    return RUN_ALL_TESTS();
+
+    Root* root = new Root(DeviceManager::create());
+    se::ScriptEngine* scriptEngine = new se::ScriptEngine();
+    scriptEngine->start();
+    {
+        se::AutoHandleScope hs;
+        ::testing::InitGoogleTest(&argc, (char**)argv);
+        ret = RUN_ALL_TESTS();
+    }
+    scriptEngine->cleanup();
+    delete root;
+    delete scriptEngine;
+    return ret;
 }
