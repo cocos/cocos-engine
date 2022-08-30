@@ -536,6 +536,8 @@ export class Sprite extends UIRenderer {
             this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
         } else if (this.grayscale) {
             this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+        } else if (this.isForMask) {
+            this._instanceMaterialType = InstanceMaterialType.ALPHA_TEST;
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }

@@ -103,6 +103,15 @@ export enum InstanceMaterialType {
      * 着色器带颜色和贴图属性,并使用灰度模式。
      */
     USE_ALPHA_SEPARATED_AND_GRAY = 4,
+
+    /**
+     * @en
+     * The shader uses alpha test.
+     *
+     * @zh
+     * 着色器使用透明度测试。
+     */
+    ALPHA_TEST = 5,
 }
 
 /**
@@ -540,10 +549,6 @@ export class UIRenderer extends Renderer {
 
     protected _updateBuiltinMaterial (): Material {
         let mat: Material;
-        if (this.isForMask) {
-            mat = builtinResMgr.get(`ui-alpha-test-material`);
-            return mat;
-        }
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
             mat = builtinResMgr.get(`ui-base-material`);
@@ -556,6 +561,9 @@ export class UIRenderer extends Renderer {
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
             mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep-material`);
+            break;
+        case InstanceMaterialType.ALPHA_TEST:
+            mat = builtinResMgr.get(`ui-alpha-test-material`);
             break;
         default:
             mat = builtinResMgr.get(`ui-sprite-material`);

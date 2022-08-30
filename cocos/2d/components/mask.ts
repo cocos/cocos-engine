@@ -113,6 +113,13 @@ const SEGMENTS_MAX = 10000;
 @executeInEditMode
 export class Mask extends Component {
     /**
+     * @en The type for mask.
+     *
+     * @zh 遮罩组件类型。
+     */
+    public static Type = MaskType;
+
+    /**
      * @en
      * The mask type.
      *
@@ -403,7 +410,6 @@ export class Mask extends Component {
         } else {
             this._createSprite();
         }
-        this.subComp!.isForMask = true;
     }
 
     protected _createSprite () {
@@ -418,6 +424,7 @@ export class Mask extends Component {
             // @ts-expect-error Mask hack
             sprite._postAssembler = PostAssembler.getAssembler(sprite);
         }
+        this._sprite!.isForMask = true;
         this._sprite!.spriteFrame = this._spriteFrame;
     }
 
@@ -435,6 +442,7 @@ export class Mask extends Component {
             // @ts-expect-error Mask hack
             graphics._postAssembler = PostAssembler.getAssembler(graphics);
         }
+        this._graphics!.isForMask = true;
     }
 
     protected _updateGraphics () {
