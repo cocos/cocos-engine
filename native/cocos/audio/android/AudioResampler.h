@@ -20,6 +20,10 @@
 #include <stdint.h>
 #include <sys/system_properties.h>
 #include <sys/types.h>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include <android/log.h>
+#include <sys/system_properties.h>
+#endif
 
 #include "audio/android/AudioBufferProvider.h"
 

@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include <condition_variable>
 #include <mutex>
 #include "audio/android/AudioDecoder.h"
+#include "audio/android/utils/Compat.h"
 
 namespace cc {
 
@@ -43,7 +44,7 @@ private:
     void queryAudioInfo();
 
     void signalEos();
-    void decodeToPcmCallback(SLAndroidSimpleBufferQueueItf queueItf);
+    void decodeToPcmCallback(CCSLBufferQueueItf queueItf);
     void prefetchCallback(SLPrefetchStatusItf caller, SLuint32 event);
     void decodeProgressCallback(SLPlayItf caller, SLuint32 event);
 

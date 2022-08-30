@@ -23,6 +23,7 @@
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include <sys/types.h>
 #endif
+#include "audio/android/utils/Compat.h"
 
 
 /* A single gain expressed as minifloat */

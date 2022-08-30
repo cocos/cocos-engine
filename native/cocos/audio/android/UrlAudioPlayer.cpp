@@ -243,7 +243,7 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
                              int length) {
     _url = url;
     _assetFd = assetFd;
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     const char *locatorTypeStr = "UNKNOWN";
     if (locatorType == SL_DATALOCATOR_ANDROIDFD)
         locatorTypeStr = "SL_DATALOCATOR_ANDROIDFD";
@@ -316,7 +316,7 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
     setState(State::INITIALIZED);
 
     setVolume(1.0f);
-
+#endif
     return true;
 }
 

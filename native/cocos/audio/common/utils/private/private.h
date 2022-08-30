@@ -23,6 +23,11 @@
     #define __attribute__(x)
 #endif
 #include <stdint.h>
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 /* Defines not necessary for external use but kept here to be common
  * to the audio_utils library.
  */
@@ -33,6 +38,10 @@
 extern "C" {
 typedef struct __attribute__((__packed__)) {
     uint8_t c[3];
-} uint8x3_t;
+} __attribute__((__packed__)) uint8x3_t;
+
+#ifdef	__cplusplus
 }
+#endif
+
 #endif /*ANDROID_AUDIO_PRIVATE_H*/
