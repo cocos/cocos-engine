@@ -16,10 +16,7 @@
 import worker from '@ohos.worker';
 import nativerender from "libcocos.so";
 import { ContextType } from "../common/Constants"
-import { log } from '../cocos/log_utils';
 import { launchEngine } from '../cocos/game'
-
-console.log("cocos worker: New Worker Thread")
 
 const nativeContext = nativerender.getContext(ContextType.WORKER_INIT);
 nativeContext.workerInit()
@@ -34,9 +31,9 @@ parentPort.onmessage = function(e) {
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
             launchEngine().then(() => {
-                log('launch CC engien finished');
+                console.info('launch CC engien finished');
             }).catch(e => {
-                log('launch CC engien failed');
+                console.error('launch CC engien failed');
             });
             break;
         default:

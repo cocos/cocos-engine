@@ -2,7 +2,6 @@ import nativerender from "libcocos.so";
 
 import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
-import {log} from '../cocos/log_utils'
 import featureAbility from '@ohos.ability.featureAbility'
 
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
@@ -16,25 +15,23 @@ struct Index {
   cocosWorker = WorkerManager.getInstance().getWorker();
   aboutToAppear(): void  {
     console.log('[LIFECYCLE-Index] cocos aboutToAppear');
-//    this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "aboutToAppear"});
-//    nativePageLifecycle.aboutToAppear();
+//  this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "aboutToAppear"});
+//  nativePageLifecycle.aboutToAppear();
   }
 
   aboutToDisappear(): void {
     console.log('[LIFECYCLE-Index] cocos aboutToDisappear');
-//    this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "aboutToAppear"});
-//    nativePageLifecycle.aboutToDisappear();
+//  this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "aboutToAppear"});
+//  nativePageLifecycle.aboutToDisappear();
   }
 
   onPageShow(): void  {
     console.log('[LIFECYCLE-Page] cocos onPageShow');
-//    this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "onPageShow"});
     nativePageLifecycle.onPageShow();
   }
 
   onPageHide(): void  {
     console.log('[LIFECYCLE-Page] cocos onPageHide');
-//    this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "onPageHide"});
     nativePageLifecycle.onPageHide();
   }
 
@@ -51,7 +48,6 @@ struct Index {
             engineUtils.writablePathInit(data);
           });
 
-          log('post msg when XCLoad');
           this.context = context;
           this.cocosWorker.postMessage({type: "onXCLoad", data: "XComponent"});
         })

@@ -1,6 +1,5 @@
 import nativerender from "libcocos.so";
 import { ContextType } from "./common/Constants"
-import {log} from './cocos/log_utils'
 import resourceManager from '@ohos.resourceManager';
 
 
