@@ -246,7 +246,6 @@ bool register_all_spine_manual(se::Object *obj) {
             seObj->setClearMappingInFinalizer(false);
             se::NativePtrToObjectMap::erase(iter);
         }
-#endif
     });
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {

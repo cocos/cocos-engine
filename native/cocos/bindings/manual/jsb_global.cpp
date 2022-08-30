@@ -93,7 +93,7 @@ static cc::network::Downloader *localDownloader() {
 }
 
 static void localDownloaderCreateTask(const ccstd::string &url, const std::function<void(const ccstd::string &, unsigned char *, int)> &callback) {
-#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO:May be removed later
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO(qgh):May be removed later
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
@@ -1381,7 +1381,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("destroyImage", _SE(js_destroyImage));
-#if CC_USE_EDITBOX && CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO:May be removed later
+#if CC_USE_EDITBOX && CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO(qgh):May be removed later
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
 #endif

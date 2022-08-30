@@ -69,7 +69,7 @@ AssetsManagerEx::AssetsManagerEx(const std::string &manifestUrl, const std::stri
 }
 
 void AssetsManagerEx::init(const std::string &manifestUrl, const std::string &storagePath) {
-#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO:May be removed later
+#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
     // Init variables
     std::string pointer = StringUtils::format("%p", this);
     _eventName = "__cc_assets_manager_" + pointer;
@@ -103,7 +103,7 @@ void AssetsManagerEx::init(const std::string &manifestUrl, const std::string &st
 }
 
 AssetsManagerEx::~AssetsManagerEx() {
-#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO:May be removed later
+#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
     _downloader->onTaskError = (nullptr);
     _downloader->onFileTaskSuccess = (nullptr);
     _downloader->onTaskProgress = (nullptr);
@@ -578,7 +578,7 @@ void AssetsManagerEx::downloadVersion() {
     if (!versionUrl.empty()) {
         _updateState = State::DOWNLOADING_VERSION;
         // Download version file asynchronously
-		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO:May be removed later
+		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
         _downloader->createDownloadFileTask(versionUrl, _tempVersionPath, VERSION_ID);
 		#endif
     }
@@ -623,7 +623,7 @@ void AssetsManagerEx::downloadManifest() {
     if (!manifestUrl.empty()) {
         _updateState = State::DOWNLOADING_MANIFEST;
         // Download version file asynchronously
-		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO:May be removed later
+		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
         _downloader->createDownloadFileTask(manifestUrl, _tempManifestPath, MANIFEST_ID);
 		#endif
     }
@@ -1135,7 +1135,7 @@ void AssetsManagerEx::queueDowload() {
         _currConcurrentTask++;
         DownloadUnit &unit = _downloadUnits[key];
         _fileUtils->createDirectory(basename(unit.storagePath));
-		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO:May be removed later
+		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
         _downloader->createDownloadFileTask(unit.srcUrl, unit.storagePath, unit.customId);
 		#endif
 

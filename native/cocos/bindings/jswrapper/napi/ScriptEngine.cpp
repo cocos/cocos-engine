@@ -240,6 +240,14 @@ void ScriptEngine::garbageCollect() {
     return;
 }
 
+bool ScriptEngine::isGarbageCollecting() const {
+    return _isGarbageCollecting;
+}
+
+void ScriptEngine::_setGarbageCollecting(bool isGarbageCollecting) { //NOLINT(readability-identifier-naming)
+    _isGarbageCollecting = isGarbageCollecting;
+}
+
 void ScriptEngine::setJSExceptionCallback(const ExceptionCallback &cb) {
     //not impl
     return;
