@@ -27,6 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import Bundle from './bundle';
 import Cache from './cache';
+import LRUCache from './lru-cache';
 import { Pipeline } from './pipeline';
 import RequestItem from './request-item';
 import WeakCache from './weak-cache';
@@ -93,7 +94,7 @@ export interface INativeAssetOptions extends IDownloadParseOptions {
 export type AssetType<T = Asset> = Constructor<T>;
 
 export const assets = EDITOR ? new WeakCache<Asset>() : new Cache<Asset>();
-export const files = new Cache();
+export const files = new LRUCache();
 export const parsed = new Cache();
 export const bundles = new Cache<Bundle>();
 export const pipeline = new Pipeline('normal load', []);

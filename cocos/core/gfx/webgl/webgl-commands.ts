@@ -1237,6 +1237,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                 }
                 return;
             }
+            gpuStage.source = '';
         }
     }
 

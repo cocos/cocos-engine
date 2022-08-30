@@ -67,6 +67,7 @@ export class WebGLShader extends Shader {
                 source: stage.source,
                 glShader: null,
             };
+            stage.source = '';
         }
     }
 

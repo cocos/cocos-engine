@@ -719,6 +719,7 @@ export class Director extends EventTarget {
                 }
             }
 
+            legacyCC.assetManager._files.update();
             this.emit(Director.EVENT_BEFORE_DRAW);
             uiRendererManager.updateAllDirtyRenderers();
             this._root!.frameMove(dt);
