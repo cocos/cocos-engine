@@ -26,9 +26,9 @@
 
 #pragma once
 
+#include "Object.h"
 #include "PrivateObject.h"
 #include "Value.h"
-#include "Object.h"
 
 namespace se {
 
