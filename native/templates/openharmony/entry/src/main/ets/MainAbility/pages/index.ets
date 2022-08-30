@@ -51,14 +51,9 @@ struct Index {
             engineUtils.writablePathInit(data);
           });
 
-          // HACK: delay to post massage to wait for worker launching.
-          setTimeout(() => {
-            log('post msg when XCLoad');
-            console.log('cocos xcomponent onLoad');
-            this.context = context;
-            this.cocosWorker.postMessage({type: "onXCLoad", data: "XComponent"});
-          }, 500)
-
+          log('post msg when XCLoad');
+          this.context = context;
+          this.cocosWorker.postMessage({type: "onXCLoad", data: "XComponent"});
         })
         .onDestroy(() => {
           console.log('cocos onDestroy')

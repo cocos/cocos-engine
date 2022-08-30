@@ -29,69 +29,15 @@ const parentPort = worker.parentPort;
 var renderContext: any = undefined;
 parentPort.onmessage = function(e) {
     var data = e.data;
-
-    console.log("cocos worker type:" + data.type);
     switch(data.type) {
-        case "AppLifecycle":
-            console.log("cocos worker: AppLifecycle");
-            const nativeAppLifecycle = nativerender.getContext(ContextType.APP_LIFECYCLE);
-            switch(data.data) {
-                case "onCreate":
-                    console.log("cocos worker: onCreate");
-                    nativeAppLifecycle.onCreate();
-                    break;
-                case "onShow":
-                    console.log("cocos worker: onShow");
-                    nativeAppLifecycle.onShow();
-                    break;
-                case "onHide":
-                    console.log("cocos worker: onHide");
-                    nativeAppLifecycle.onHide();
-                    break;
-                case "onDestroy":
-                    console.log("cocos worker: onDestroy");
-                    nativeAppLifecycle.onDestroy();
-                    break;
-            }
-            break;
-        case "JSPageLifecycle":
-            const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
-            console.log("cocos worker: JSPageLifecycle");
-            switch(data.data) {
-                case "onPageShow":
-                    console.log("cocos worker: onPageShow");
-                    nativePageLifecycle.onPageShow();
-                    break;
-                case "onPageHide":
-                    console.log("cocos worker: onPageHide");
-                    nativePageLifecycle.onPageHide();
-                    break;
-            }
-            break;
         case "onXCLoad":
-            log('recieve msg from host XCLoad');
-            log('start to launch CC engine');
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
-            console.log("cocos worker: onXCLoad");
             launchEngine().then(() => {
                 log('launch CC engien finished');
             }).catch(e => {
                 log('launch CC engien failed');
             });
-            console.log("cocos worker napi init ok");
-            console.log(data.data);
-            break;
-        case "render":
-            console.log("cocos worker: render");
-            if (data.data == "changeColor") {
-                console.log("cocos worker: changeColor");
-                renderContext.changeColor()
-            }
-        //            nativerender.bindXComponent(data.data);
-            break;
-        case "normal":
-            console.log("cocos worker: data = " + data.date);
             break;
         default:
             console.error("cocos worker: message type unknown")
