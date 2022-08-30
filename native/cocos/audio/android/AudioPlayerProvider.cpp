@@ -459,7 +459,6 @@ void AudioPlayerProvider::registerPcmData(const ccstd::string &audioFilePath, Pc
 }
 
 bool AudioPlayerProvider::getPcmHeader(const ccstd::string &audioFilePath, PCMHeader &header) {
-
     std::lock_guard<std::mutex> lck(_pcmCacheMutex);
     auto &&iter = _pcmCache.find(audioFilePath);
     if (iter != _pcmCache.end()) {
@@ -481,10 +480,8 @@ bool AudioPlayerProvider::getPcmData(const ccstd::string &audioFilePath, PcmData
         ALOGV("get pcm buffer from cache, url: %s", audioFilePath.c_str());
         // On Android, all pcm buffer is resampled to sign16.
         data = iter->second;
-        _pcmCacheMutex.unlock();
         return true;
     }
-    _pcmCacheMutex.unlock();
     return false;
 }
 } // namespace cc
