@@ -1170,6 +1170,7 @@ void cmdFuncCCVKCreateGeneralBarrier(CCVKDevice * /*device*/, CCVKGPUGeneralBarr
     thsvsGetVulkanMemoryBarrier(gpuGeneralBarrier->barrier, &gpuGeneralBarrier->srcStageMask, &gpuGeneralBarrier->dstStageMask, &gpuGeneralBarrier->vkBarrier);
 }
 
+namespace {
 void bufferUpload(const CCVKGPUBuffer &stagingBuffer, CCVKGPUBuffer &gpuBuffer, VkBufferCopy region, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     if (gpuBuffer.transferAccess) {
@@ -1185,6 +1186,7 @@ void bufferUpload(const CCVKGPUBuffer &stagingBuffer, CCVKGPUBuffer &gpuBuffer, 
 #endif
     vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer.vkBuffer, 1, &region);
 };
+} // namespace
 
 void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const void *buffer, uint32_t size, const CCVKGPUCommandBuffer *cmdBuffer) {
     if (!gpuBuffer) return;
@@ -1238,10 +1240,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     }
 
     // upload buffer by chunks
-    uint32_t chunkSize = sizeToUpload;
-    while (chunkSize > CCVKGPUStagingBufferPool::CHUNK_SIZE) {
-        chunkSize = utils::alignTo(chunkSize >> 1, 16U);
-    }
+    uint32_t chunkSize = std::min(sizeToUpload, CCVKGPUStagingBufferPool::CHUNK_SIZE);
 
     uint32_t chunkOffset = 0U;
     while (sizeToUpload) {
