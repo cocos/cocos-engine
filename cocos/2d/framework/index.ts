@@ -23,6 +23,8 @@
  THE SOFTWARE.
 */
 
+import './deprecated-1.2.0';
+import './deprecated-3.0.0';
 import './deprecated-3.6.0';
 
 export * from './canvas';
