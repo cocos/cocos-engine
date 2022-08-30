@@ -613,7 +613,9 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
-        this._trailModel!.enabled = this.ibOffset > 0;
+        if (this._trailModel) {
+            this._trailModel.enabled = this.ibOffset > 0;
+        }
     }
 
     public updateIA (count: number) {
@@ -675,10 +677,10 @@ export default class TrailModule {
         this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
 
         const trailModel = this._trailModel;
-        if (trailModel) {
+        if (trailModel && this._material) {
             trailModel.node = trailModel.transform = this._particleSystem.node;
             trailModel.visFlags = this._particleSystem.visibility;
-            trailModel.initSubModel(0, this._subMeshData, this._material!);
+            trailModel.initSubModel(0, this._subMeshData, this._material);
             trailModel.enabled = true;
         }
     }
