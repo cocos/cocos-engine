@@ -37,7 +37,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Stage, StencilManager } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
-import { MaskMode, RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { MaskMode } from '../renderer/render-entity';
 import { Sprite } from './sprite';
 
 const _worldMatrix = new Mat4();
@@ -149,8 +149,6 @@ export class Mask extends Component {
             this._changeRenderType();
             this._updateGraphics();
             if (JSB) {
-                // 原生同步需要考虑
-                // 如何传递下去
                 this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
             }
         } else {
@@ -162,7 +160,6 @@ export class Mask extends Component {
             }
             this._changeRenderType();
             if (JSB) {
-                // 同样缺少同步机制
                 this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
             }
         }
@@ -190,11 +187,10 @@ export class Mask extends Component {
         }
 
         // todo native
-        // if (JSB) {
-        //     // 同步到原生的机制
-        //     this._renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
-        //     this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
-        // }
+        if (JSB) {
+            // 同步到原生的机制
+            this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
+        }
     }
 
     /**
@@ -322,17 +318,12 @@ export class Mask extends Component {
     public onLoad () {
         this._changeRenderType(); // 主要用于，创建组件？
 
-        // todo native
-        // if (JSB) {
-        //     // 主要需要同步标签以便于处理
-        //     if (this.renderData && this.subComp) {
-        //         this._renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
-        //         this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
-        //         // hack for isMeshBuffer flag
-        //         this.renderData.renderDrawInfo.setIsMeshBuffer(true);
-        //         this.renderData.drawInfoType = RenderDrawInfoType.MODEL;
-        //     }
-        // }
+        if (JSB) {
+            // 主要需要同步标签以便于处理
+            if (this.subComp) {
+                this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
+            }
+        }
     }
 
     public onEnable () {
