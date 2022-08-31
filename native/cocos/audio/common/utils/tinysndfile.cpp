@@ -16,8 +16,8 @@
 
 #define LOG_TAG "tinysndfile"
 
-#include "audio/android/tinysndfile.h"
-#include "audio/android/audio_utils/include/audio_utils/primitives.h"
+#include "audio/common/utils/include/tinysndfile.h"
+#include "audio/common/utils/include/primitives.h"
 
 #include "base/Log.h"
 
@@ -37,17 +37,9 @@
 #define WAVE_FORMAT_IEEE_FLOAT 3
 #define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
-static snd_callbacks sDefaultCallback;
-static int sInited = 0;
+namespace sf {
 
-struct SNDFILE_ {
-    uint8_t *temp; // realloc buffer used for shrinking 16 bits to 8 bits and byte-swapping
-    void *stream;
-    size_t bytesPerFrame;
-    size_t remaining; // frames unread for SFM_READ, frames written for SFM_WRITE
-    SF_INFO info;
-    snd_callbacks callback;
-};
+static snd_callbacks sDefaultCallback;
 
 static unsigned little2u(unsigned char *ptr) {
     return (ptr[1] << 8) + ptr[0];
@@ -91,7 +83,7 @@ static long tell_func(void *datasource) { //NOLINT(google-runtime-int,readabilit
     return ftell(static_cast<FILE *>(datasource));
 }
 
-static void lazyInit() {
+static void sf_lazy_init() { //NOLINT(readability-identifier-naming)
     if (sInited == 0) {
         sDefaultCallback.open = open_func;
         sDefaultCallback.read = read_func;
@@ -103,7 +95,7 @@ static void lazyInit() {
 }
 
 SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *user) { //NOLINT(readability-identifier-naming)
-    lazyInit();
+    sf_lazy_init();
 
     if (path == nullptr || info == nullptr) {
 #ifdef HAVE_STDERR
@@ -527,3 +519,4 @@ sf_count_t sf_readf_int(SNDFILE *handle, int *ptr, sf_count_t desiredFrames)
     return actualFrames;
 }
  */
+} // namespace sf

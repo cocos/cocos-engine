@@ -26,13 +26,11 @@
 
 #define LOG_TAG "AudioDecoderManager"
 
-#include "audio/oalsoft/AudioDecoderManager.h"
-#include "audio/oalsoft/AudioDecoderMp3.h"
-#include "audio/oalsoft/AudioDecoderOgg.h"
-#if CC_PLATFORM == CC_PLATFORM_OHOS
-    #include "audio/ohos/AudioDecoderWav.h"
-#endif
-#include "audio/oalsoft/AudioMacros.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoderMp3.h"
+#include "audio/common/decoder/AudioDecoderOgg.h"
+#include "audio/common/decoder/AudioDecoderWav.h"
+#include "audio/include/AudioMacros.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
@@ -55,8 +53,7 @@ AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
     if (suffix == ".mp3") {
         return ccnew AudioDecoderMp3();
     }
-
-#if CC_PLATFORM == CC_PLATFORM_OHOS
+#if CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_WINDOWS
     if (suffix == ".wav") {
         return ccnew AudioDecoderWav();
     }

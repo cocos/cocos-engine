@@ -40,7 +40,7 @@
 #elif CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     #include <AL/al.h>
 #endif
-#include "audio/oalsoft/AudioMacros.h"
+#include "audio/include/AudioMacros.h"
 #include "base/Macros.h"
 #include "base/std/container/vector.h"
 

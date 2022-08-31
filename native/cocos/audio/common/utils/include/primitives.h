@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef COCOS_AUDIO_PRIMITIVES_H
-#define COCOS_AUDIO_PRIMITIVES_H
+#pragma once
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <sys/cdefs.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include <sys/types.h>
+#endif
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sys/cdefs.h>
 
-__BEGIN_DECLS
 
 /* The memcpy_* conversion routines are designed to work in-place on same dst as src
  * buffers only if the types shrink on copy, with the exception of memcpy_to_i16_from_u8().
@@ -637,9 +640,9 @@ static inline int32_t clampq4_27_from_float(float f) {
     static const float limneg = -16.;
 
     if (f <= limneg) {
-        return -0x80000000; /* or 0x80000000 */
+        return INT32_MIN; /* or 0x80000000 */
     } else if (f >= limpos) {
-        return 0x7fffffff;
+        return INT32_MAX;
     }
     f *= scale;
     /* integer conversion is through truncation (though int to float is not).
@@ -661,9 +664,9 @@ static inline int32_t clamp32_from_float(float f) {
     static const float limneg = -1.;
 
     if (f <= limneg) {
-        return -0x80000000; /* or 0x80000000 */
+        return INT32_MIN; /* or 0x80000000 */
     } else if (f >= limpos) {
-        return 0x7fffffff;
+        return INT32_MAX;
     }
     f *= scale;
     /* integer conversion is through truncation (though int to float is not).
@@ -733,7 +736,8 @@ static inline uint32_t u4_28_from_float(float f) {
     if (f <= 0.) {
         return 0;
     } else if (f >= limpos) {
-        return 0xffffffff;
+        // return 0xffffffff;
+        return UINT32_MAX;
     }
     /* integer conversion is through truncation (though int to float is not).
      * ensure that we round to nearest, ties away from 0.
@@ -755,7 +759,8 @@ static inline uint16_t u4_12_from_float(float f) {
     if (f <= 0.) {
         return 0;
     } else if (f >= limpos) {
-        return 0xffff;
+        // return 0xffff;
+        return UINT16_MAX;
     }
     /* integer conversion is through truncation (though int to float is not).
      * ensure that we round to nearest, ties away from 0.
@@ -895,9 +900,9 @@ static inline int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a)
 #else
     if (left) {
         return a + (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
-    } else {
-        return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    }
+    }  
+    return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
+    
 #endif
 }
 
@@ -922,12 +927,8 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
 #else
     if (left) {
         return (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
-    } else {
-        return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    }
+    }  
+    return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
+    
 #endif
 }
-
-__END_DECLS
-
-#endif // COCOS_AUDIO_PRIMITIVES_H

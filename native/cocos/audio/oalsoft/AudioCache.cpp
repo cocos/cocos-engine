@@ -30,8 +30,8 @@
 #include <algorithm>
 #include <thread>
 #include "application/ApplicationManager.h"
-#include "audio/oalsoft/AudioDecoder.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 
 #include <string.h>
 

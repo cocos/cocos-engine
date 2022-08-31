@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-#include "audio/android/audio_utils/include/audio_utils/primitives.h"
-#include "audio/android/audio_utils/private/private.h"
-#include "audio/android/cutils/bitops.h" /* for popcount() */
+#include "audio/common/utils/include/primitives.h"
+#include "audio/common/utils/private/private.h"
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include "audio/android/cutils/bitops.h" /* for popcount() */
+#else
+    #include "base/Utils.h"
+    using namespace cc::utils;
+#endif
 
+//namespace {
 void ditherAndClamp(int32_t *out, const int32_t *sums, size_t c) {
     size_t i;
     for (i = 0; i < c; i++) {
-        int32_t l  = *sums++;
-        int32_t r  = *sums++;
+        int32_t l = *sums++;
+        int32_t r = *sums++;
         int32_t nl = l >> 12;
         int32_t nr = r >> 12;
-        l          = clamp16(nl);
-        r          = clamp16(nr);
-        *out++     = (r << 16) | (l & 0xFFFF);
+        l = clamp16(nl);
+        r = clamp16(nr);
+        *out++ = (r << 16) | (l & 0xFFFF);
     }
 }
 
@@ -35,7 +41,7 @@ void memcpy_to_i16_from_u8(int16_t *dst, const uint8_t *src, size_t count) {
     dst += count;
     src += count;
     while (count--) {
-        *--dst = (int16_t)(*--src - 0x80) << 8;
+        *--dst = static_cast<int16_t>(*--src - 0x80) << 8;
     }
 }
 
@@ -174,7 +180,7 @@ void memcpy_to_p24_from_i32(uint8_t *dst, const int32_t *src, size_t count) {
 
 void memcpy_to_q8_23_from_i16(int32_t *dst, const int16_t *src, size_t count) {
     while (count--) {
-        *dst++ = (int32_t)*src++ << 8;
+        *dst++ = static_cast<int32_t>(*src++) << 8;
     }
 }
 
@@ -189,7 +195,7 @@ void memcpy_to_q8_23_from_p24(int32_t *dst, const uint8_t *src, size_t count) {
 #ifdef HAVE_BIG_ENDIAN
         *dst++ = (int8_t)src[0] << 16 | src[1] << 8 | src[2];
 #else
-        *dst++ = (int8_t)src[2] << 16 | src[1] << 8 | src[0];
+        *dst++ = static_cast<int8_t>(src[2]) << 16 | src[1] << 8 | src[0];
 #endif
         src += 3;
     }
@@ -215,7 +221,7 @@ void memcpy_to_float_from_q8_23(float *dst, const int32_t *src, size_t count) {
 
 void memcpy_to_i32_from_i16(int32_t *dst, const int16_t *src, size_t count) {
     while (count--) {
-        *dst++ = (int32_t)*src++ << 16;
+        *dst++ = static_cast<int32_t>(*src++) << 16;
     }
 }
 
@@ -233,7 +239,7 @@ void memcpy_to_float_from_i32(float *dst, const int32_t *src, size_t count) {
 
 void downmix_to_mono_i16_from_stereo_i16(int16_t *dst, const int16_t *src, size_t count) {
     while (count--) {
-        *dst++ = (int16_t)(((int32_t)src[0] + (int32_t)src[1]) >> 1);
+        *dst++ = static_cast<int16_t>((static_cast<int32_t>(src[0]) + static_cast<int32_t>(src[1])) >> 1);
         src += 2;
     }
 }
@@ -241,8 +247,8 @@ void downmix_to_mono_i16_from_stereo_i16(int16_t *dst, const int16_t *src, size_
 void upmix_to_stereo_i16_from_mono_i16(int16_t *dst, const int16_t *src, size_t count) {
     while (count--) {
         int32_t temp = *src++;
-        dst[0]       = temp;
-        dst[1]       = temp;
+        dst[0] = temp;
+        dst[1] = temp;
         dst += 2;
     }
 }
@@ -257,8 +263,8 @@ void downmix_to_mono_float_from_stereo_float(float *dst, const float *src, size_
 void upmix_to_stereo_float_from_mono_float(float *dst, const float *src, size_t frames) {
     while (frames--) {
         float temp = *src++;
-        dst[0]     = temp;
-        dst[1]     = temp;
+        dst[0] = temp;
+        dst[1] = temp;
         dst += 2;
     }
 }
@@ -309,7 +315,7 @@ size_t nonZeroStereo16(const int16_t *frames, size_t count) {
  * C macro to do channel mask copying independent of dst/src sample type.
  * Don't pass in any expressions for the macro arguments here.
  */
-#define copy_frame_by_mask(dst, dmask, src, smask, count, zero) \
+#define COPY_FRAME_BY_MASK(dst, dmask, src, smask, count, zero) \
     {                                                           \
         uint32_t bit, ormask;                                   \
         while ((count)--) {                                     \
@@ -326,8 +332,8 @@ size_t nonZeroStereo16(const int16_t *frames, size_t count) {
         }                                                       \
     }
 
-void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
-                            const void *src, uint32_t src_mask, size_t sample_size, size_t count) {
+void memcpy_by_channel_mask(void *dst, uint32_t dstMask,
+                            const void *src, uint32_t srcMask, size_t sampleSize, size_t count) {
 #if 0
     /* alternate way of handling memcpy_by_channel_mask by using the idxary */
     int8_t idxary[32];
@@ -337,35 +343,35 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
 
     memcpy_by_idxary(dst, dst_channels, src, src_channels, idxary, sample_size, count);
 #else
-    if (dst_mask == src_mask) {
-        memcpy(dst, src, sample_size * popcount(dst_mask) * count);
+    if (dstMask == srcMask) {
+        memcpy(dst, src, sampleSize * popcount(dstMask) * count);
         return;
     }
-    switch (sample_size) {
+    switch (sampleSize) {
         case 1: {
-            uint8_t *udst = (uint8_t *)dst;
-            const uint8_t *usrc = (const uint8_t *)src;
+            auto *udst = static_cast<uint8_t *>(dst);
+            const auto *usrc = static_cast<const uint8_t *>(src);
 
-            copy_frame_by_mask(udst, dst_mask, usrc, src_mask, count, 0);
+            COPY_FRAME_BY_MASK(udst, dstMask, usrc, srcMask, count, 0);
         } break;
         case 2: {
-            uint16_t *udst = (uint16_t *)dst;
-            const uint16_t *usrc = (const uint16_t *)src;
+            auto *udst = static_cast<uint16_t *>(dst);
+            const auto *usrc = static_cast<const uint16_t *>(src);
 
-            copy_frame_by_mask(udst, dst_mask, usrc, src_mask, count, 0);
+            COPY_FRAME_BY_MASK(udst, dstMask, usrc, srcMask, count, 0);
         } break;
         case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
-            uint8x3_t *udst = (uint8x3_t *)dst;
-            const uint8x3_t *usrc = (const uint8x3_t *)src;
-            static const uint8x3_t zero; /* tricky - we use this to zero out a sample */
+            auto *udst = static_cast<uint8x3_t *>(dst);
+            const auto *usrc = static_cast<const uint8x3_t *>(src);
+            static const uint8x3_t ZERO{0,0,0}; /* tricky - we use this to zero out a sample */
 
-            copy_frame_by_mask(udst, dst_mask, usrc, src_mask, count, zero);
+            COPY_FRAME_BY_MASK(udst, dstMask, usrc, srcMask, count, ZERO);
         } break;
         case 4: {
-            uint32_t *udst = (uint32_t *)dst;
-            const uint32_t *usrc = (const uint32_t *)src;
+            auto *udst = static_cast<uint32_t *>(dst);
+            const auto *usrc = static_cast<const uint32_t *>(src);
 
-            copy_frame_by_mask(udst, dst_mask, usrc, src_mask, count, 0);
+            COPY_FRAME_BY_MASK(udst, dstMask, usrc, srcMask, count, 0);
         } break;
         default:
             abort(); /* illegal value */
@@ -379,47 +385,47 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
  * within a frame.  This is independent of src/dst sample type.
  * Don't pass in any expressions for the macro arguments here.
  */
-#define copy_frame_by_idx(dst, dst_channels, src, src_channels, idxary, count, zero) \
+#define COPY_FRAME_BY_IDX(dst, dst_channels, src, src_channels, idxary, count, zero) \
     {                                                                                \
         unsigned i;                                                                  \
-        int      index;                                                              \
+        int index;                                                                   \
         while ((count)--) {                                                          \
             for (i = 0; i < (dst_channels); ++i) {                                   \
-                index    = (idxary)[i];                                              \
+                index = (idxary)[i];                                                 \
                 *(dst)++ = index < 0 ? (zero) : (src)[index];                        \
             }                                                                        \
             (src) += (src_channels);                                                 \
         }                                                                            \
     }
 
-void memcpy_by_index_array(void *dst, uint32_t dst_channels,
-                           const void *src, uint32_t src_channels,
-                           const int8_t *idxary, size_t sample_size, size_t count) {
-    switch (sample_size) {
+void memcpy_by_index_array(void *dst, uint32_t dstChannels,
+                           const void *src, uint32_t srcChannels,
+                           const int8_t *idxary, size_t sampleSize, size_t count) {
+    switch (sampleSize) {
         case 1: {
-            uint8_t *      udst = (uint8_t *)dst;
-            const uint8_t *usrc = (const uint8_t *)src;
+            auto *udst = static_cast<uint8_t *>(dst);
+            const auto *usrc = static_cast<const uint8_t *>(src);
 
-            copy_frame_by_idx(udst, dst_channels, usrc, src_channels, idxary, count, 0);
+            COPY_FRAME_BY_IDX(udst, dstChannels, usrc, srcChannels, idxary, count, 0); // NOLINT
         } break;
         case 2: {
-            uint16_t *      udst = (uint16_t *)dst;
-            const uint16_t *usrc = (const uint16_t *)src;
+            auto *udst = static_cast<uint16_t *>(dst);
+            const auto *usrc = static_cast<const uint16_t *>(src);
 
-            copy_frame_by_idx(udst, dst_channels, usrc, src_channels, idxary, count, 0);
+            COPY_FRAME_BY_IDX(udst, dstChannels, usrc, srcChannels, idxary, count, 0); // NOLINT
         } break;
         case 3: { /* could be slow.  use a struct to represent 3 bytes of data. */
-            uint8x3_t *            udst = (uint8x3_t *)dst;
-            const uint8x3_t *      usrc = (const uint8x3_t *)src;
-            static const uint8x3_t zero;
+            auto *udst = static_cast<uint8x3_t *>(dst);
+            const auto *usrc = static_cast<const uint8x3_t *>(src);
+            static const uint8x3_t ZERO{0,0,0};
 
-            copy_frame_by_idx(udst, dst_channels, usrc, src_channels, idxary, count, zero);
+            COPY_FRAME_BY_IDX(udst, dstChannels, usrc, srcChannels, idxary, count, ZERO);
         } break;
         case 4: {
-            uint32_t *      udst = (uint32_t *)dst;
-            const uint32_t *usrc = (const uint32_t *)src;
+            auto *udst = static_cast<uint32_t *>(dst);
+            const auto *usrc = static_cast<const uint32_t *>(src);
 
-            copy_frame_by_idx(udst, dst_channels, usrc, src_channels, idxary, count, 0);
+            COPY_FRAME_BY_IDX(udst, dstChannels, usrc, srcChannels, idxary, count, 0);
         } break;
         default:
             abort(); /* illegal value */
@@ -428,63 +434,67 @@ void memcpy_by_index_array(void *dst, uint32_t dst_channels,
 }
 
 size_t memcpy_by_index_array_initialization(int8_t *idxary, size_t idxcount,
-                                            uint32_t dst_mask, uint32_t src_mask) {
-    size_t   n      = 0;
-    int      srcidx = 0;
-    uint32_t bit, ormask = src_mask | dst_mask;
+                                            uint32_t dstMask, uint32_t srcMask) {
+    size_t n = 0;
+    int srcidx = 0;
+    uint32_t bit;
+    uint32_t ormask = srcMask | dstMask;
 
     while (ormask && n < idxcount) {
         bit = ormask & -ormask;          /* get lowest bit */
         ormask ^= bit;                   /* remove lowest bit */
-        if (src_mask & dst_mask & bit) { /* matching channel */
+        if (srcMask & dstMask & bit) { /* matching channel */
             idxary[n++] = srcidx++;
-        } else if (src_mask & bit) { /* source channel only */
+        } else if (srcMask & bit) { /* source channel only */
             ++srcidx;
         } else { /* destination channel only */
             idxary[n++] = -1;
         }
     }
-    return n + popcount(ormask & dst_mask);
+    return n + popcount(ormask & dstMask);
 }
 
 size_t memcpy_by_index_array_initialization_src_index(int8_t *idxary, size_t idxcount,
-                                                      uint32_t dst_mask, uint32_t src_mask) {
-    size_t dst_count = popcount(dst_mask);
+                                                      uint32_t dstMask, uint32_t srcMask) {
+    size_t dstCount = popcount(dstMask);
     if (idxcount == 0) {
-        return dst_count;
+        return dstCount;
     }
-    if (dst_count > idxcount) {
-        dst_count = idxcount;
+    if (dstCount > idxcount) {
+        dstCount = idxcount;
     }
 
-    size_t src_idx, dst_idx;
-    for (src_idx = 0, dst_idx = 0; dst_idx < dst_count; ++dst_idx) {
-        if (src_mask & 1) {
-            idxary[dst_idx] = src_idx++;
+    size_t srcIdx;
+    size_t dstIdx;
+    for (srcIdx = 0, dstIdx = 0; dstIdx < dstCount; ++dstIdx) {
+        if (srcMask & 1) {
+            idxary[dstIdx] = srcIdx++;
         } else {
-            idxary[dst_idx] = -1;
+            idxary[dstIdx] = -1;
         }
-        src_mask >>= 1;
+        srcMask >>= 1;
     }
-    return dst_idx;
+    return dstIdx;
 }
 
 size_t memcpy_by_index_array_initialization_dst_index(int8_t *idxary, size_t idxcount,
-                                                      uint32_t dst_mask, uint32_t src_mask) {
-    size_t src_idx, dst_idx;
-    size_t dst_count = __builtin_popcount(dst_mask);
-    size_t src_count = __builtin_popcount(src_mask);
+                                                      uint32_t dstMask, uint32_t srcMask) {
+    size_t srcIdx;
+    size_t dstIdx;
+    size_t dstCount = popcount(dstMask);
+    size_t srcCount = popcount(srcMask);
     if (idxcount == 0) {
-        return dst_count;
+        return dstCount;
     }
-    if (dst_count > idxcount) {
-        dst_count = idxcount;
+    if (dstCount > idxcount) {
+        dstCount = idxcount;
     }
-    for (src_idx = 0, dst_idx = 0; dst_idx < dst_count; ++src_idx) {
-        if (dst_mask & 1) {
-            idxary[dst_idx++] = src_idx < src_count ? (signed)src_idx : -1;
+    for (srcIdx = 0, dstIdx = 0; dstIdx < dstCount; ++srcIdx) {
+        if (dstMask & 1) {
+            idxary[dstIdx++] = srcIdx < srcCount ? static_cast<signed>(srcIdx) : -1;
         }
-        dst_mask >>= 1;
+        dstMask >>= 1;
     }
-    return dst_idx;
+    return dstIdx;
 }
+//} // namespace

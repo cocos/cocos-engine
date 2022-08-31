@@ -19,9 +19,9 @@
 
 #include <stdint.h>
 #include <sys/cdefs.h>
+
 #include "audio/android/audio.h"
 
-__BEGIN_DECLS
 
 /* Copy buffers with conversion between buffer sample formats.
  *
@@ -73,6 +73,5 @@ void memcpy_by_audio_format(void *dst, audio_format_t dst_format,
 size_t memcpy_by_index_array_initialization_from_channel_mask(int8_t *idxary, size_t arysize,
                                                               audio_channel_mask_t dst_channel_mask, audio_channel_mask_t src_channel_mask);
 
-__END_DECLS
 
 #endif // COCOS_AUDIO_FORMAT_H

@@ -273,6 +273,16 @@ inline bool sevalue_to_native(const se::Value &from, se::Value *to, se::Object *
     return true;
 }
 
+inline bool sevalue_to_native(const se::Value &from, se::Object **to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
+    *to = from.toObject();
+    return true;
+}
+
+inline bool sevalue_to_native(const se::Value &from, const se::Object **to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
+    *to = from.toObject();
+    return true;
+}
+
 bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
 bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)

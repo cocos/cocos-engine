@@ -29,6 +29,8 @@
 #include "MiddlewareMacro.h"
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
 
 #define POOL_DEBUG 0
 
@@ -49,23 +51,15 @@ const static std::size_t MAX_POOL_SIZE = 50;
 TypedArrayPool *TypedArrayPool::instance = nullptr;
 
 TypedArrayPool::TypedArrayPool() {
-    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
+    cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [this](const CustomEvent &){
+        clearPool();
+    });
 }
 
 TypedArrayPool::~TypedArrayPool() {
     clearPool();
 }
 
-void TypedArrayPool::afterCleanupHandle() {
-    this->_allowPush = false;
-    clearPool();
-    se::ScriptEngine::getInstance()->addAfterInitHook([this] { afterInitHandle(); });
-}
-
-void TypedArrayPool::afterInitHandle() {
-    this->_allowPush = true;
-    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
-}
 
 void TypedArrayPool::clearPool() {
     POOL_LOG("*****clearPool TypeArray pool begin");

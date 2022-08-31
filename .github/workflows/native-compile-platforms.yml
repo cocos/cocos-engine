@@ -394,7 +394,7 @@ jobs:
   compile_wgpu_mac:
     name: "Emscripten"
     runs-on: macos-latest
-    if: contains( github.event.head_commit.message, 'WGPU_CI_ON' )
+    if: contains( github.event.pull_request.title, 'WGPU_CI_ON' )
     steps:
       - uses: actions/checkout@v2
       - name: Download external libraries
@@ -404,10 +404,11 @@ jobs:
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - name: Setup Emscripten
         run: |
-          git clone https://github.com/emscripten-core/emsdk.git ../emsdk
-          cd ../emsdk
-          ./emsdk install latest
-          ./emsdk activate latest
+          NATIVE_ROOT=$GITHUB_WORKSPACE/native
+          git clone https://github.com/emscripten-core/emsdk.git NATIVE_ROOT/../../emsdk
+          cd NATIVE_ROOT/../../emsdk
+          ./emsdk install 3.1.17
+          ./emsdk activate 3.1.17
           source ./emsdk_env.sh
           emcc -v
       - name: Compile
@@ -416,6 +417,6 @@ jobs:
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           cd $NATIVE_ROOT/cocos/renderer/gfx-wgpu
-          $NATIVE_ROOT/../emsdk/upstream/emscripten/emcmake cmake .
-          $NATIVE_ROOT/../emsdk/upstream/emscripten/emmake make
+          $NATIVE_ROOT/../../emsdk/upstream/emscripten/emcmake cmake .
+          $NATIVE_ROOT/../../emsdk/upstream/emscripten/emmake make
           echo "Compile WGPU by ems on MacOS Done!"
