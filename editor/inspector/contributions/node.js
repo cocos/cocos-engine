@@ -711,9 +711,12 @@ const Elements = {
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
             // skyBox 逻辑 start
-            panel.$.sceneSkyboxBefore.innerHTML = '';
-            panel.$.sceneSkyboxAfter.innerHTML = '';
-            let $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
+            panel.skyBoxBefore = panel.$.sceneSkyboxBefore.children;
+            panel.skyBoxAfter = panel.$.sceneSkyboxAfter.children;
+
+            const skyBoxBeforeAndAfter = { before: [], after: [] };
+            let keyOfSkyBoxBeforeAndAfter = 'before';
+
             for (const key in panel.dump._globals.skybox.value) {
                 const dump = panel.dump._globals.skybox.value[key];
                 if (!dump.visible) {
@@ -722,13 +725,16 @@ const Elements = {
                 const $prop = document.createElement('ui-prop');
                 $prop.setAttribute('type', 'dump');
                 $prop.render(dump);
-                $sceneSkyboxContainer.appendChild($prop);
+                skyBoxBeforeAndAfter[keyOfSkyBoxBeforeAndAfter].push($prop);
 
                 if (dump.name === 'envmap') {
                     // envmap 之后的属性放在后面的容器
-                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
+                    keyOfSkyBoxBeforeAndAfter = 'after';
                 }
             }
+
+            utils.diffRenderTree(panel.skyBoxBefore, skyBoxBeforeAndAfter.before, panel.$.sceneSkyboxBefore);
+            utils.diffRenderTree(panel.skyBoxAfter, skyBoxBeforeAndAfter.after, panel.$.sceneSkyboxAfter);
 
             Elements.scene.skyboxReflectionConvolution.call(panel);
             // skyBox 逻辑 end
@@ -856,6 +862,9 @@ const Elements = {
     node: {
         ready() {
             const panel = this;
+
+            panel.skyBoxAfter = [];
+            panel.skyBoxBefore = [];
 
             panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
 
