@@ -29,7 +29,7 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { waitForWebGPUInstantiation, gfx, webgpuAdapter } from '../../webgpu/instantiated';
+import { gfx, webgpuAdapter } from '../../webgpu/instantiated';
 
 import './deprecated-3.0.0';
 
