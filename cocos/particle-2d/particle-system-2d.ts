@@ -1166,6 +1166,9 @@ export class ParticleSystem2D extends UIRenderer {
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
+        if (mat && mat.passes.length > 0) {
+            this._updateBlendFunc();
+        }
     }
 
     /**
