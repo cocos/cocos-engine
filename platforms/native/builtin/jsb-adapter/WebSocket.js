@@ -1,6 +1,7 @@
 if (window.oh) {
     const ohWebSocket = window.oh.WebSocket;
-    class WebSocket {
+
+    class WebSocketAdapter {
         constructor(url, ...args) {
             this.readyState = WebSocket.CLOSED;
             this.binaryType = "";
@@ -31,6 +32,7 @@ if (window.oh) {
             var bindCallback = callback.bind(this);
             this._instance.connect(this._url, bindCallback);
         }
+
         //
         innerClose(err, value) {
             if (this.onclose) {
@@ -58,15 +60,6 @@ if (window.oh) {
             }
         }
 
-        //origin event
-        onclose(evt) { }
-
-        onerror(evt) { }
-
-        onmessage(evt) { }
-
-        onopen(evt) { }
-
         //methed
         send(data) {
             var callback = function(err, value) {
@@ -87,6 +80,48 @@ if (window.oh) {
                     this.readyState = WebSocket.CLOSED;
                 }
             });
+        }
+
+    }
+    class WebSocket {
+        constructor(url, ...args) {
+            this._websocketAdapter = new WebSocketAdapter(url, args);
+            this._websocketAdapter.onopen = (function(evt) {this.onopen(evt)}).bind(this);
+            this._websocketAdapter.onerror = (function(evt) {this.onerror(evt)}).bind(this);
+            this._websocketAdapter.onmessage = (function(evt) {this.onmessage(evt)}).bind(this);
+            this._websocketAdapter.onclose = (function(evt) {this.onclose(evt)}).bind(this);
+        }
+
+
+        //origin event
+        onclose(evt) { }
+
+        onerror(evt) { }
+
+        onmessage(evt) { }
+
+        onopen(evt) { }
+
+        //prop
+        get readyState() {
+            return this._websocketAdapter.readyState;
+        }
+
+        get binaryType() {
+            return this._websocketAdapter.binaryType;
+        }
+
+        set binaryType(binaryType) {
+            this._websocketAdapter.binaryType = binaryType;
+        }
+
+        //methed
+        send(data) {
+            this._websocketAdapter.send(data);
+        }
+
+        close(...args) {
+            this._websocketAdapter.close(...args);
         }
     }
 
