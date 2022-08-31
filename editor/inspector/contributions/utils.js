@@ -196,7 +196,7 @@ function diffRenderTree(oldTree, newTree, resultTree) {
             // 如果节点名称对应不上，则删除原树节点并添加新树节点
             resultTree.removeChild(beforeChildren);
             resultTree.appendChild(afterChildren);
-        } else if (beforeChildren.innerTHML !== afterChildren.innerTHML) {
+        } else if (beforeChildren.innerHTML !== afterChildren.innerHTML) {
             // 如果节点名称一样，但内容改变，则修改原树节点的内容
             // 如果没有其他子节点，则直接改变
             if (beforeChildren.length === 0) {

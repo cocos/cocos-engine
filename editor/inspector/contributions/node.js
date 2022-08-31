@@ -711,30 +711,39 @@ const Elements = {
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
             // skyBox 逻辑 start
-            panel.skyBoxBefore = panel.$.sceneSkyboxBefore.children;
-            panel.skyBoxAfter = panel.$.sceneSkyboxAfter.children;
-
-            const skyBoxBeforeAndAfter = { before: [], after: [] };
-            let keyOfSkyBoxBeforeAndAfter = 'before';
+            let $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
+            const newSkyBoxBeforeAndAfterList = [];
 
             for (const key in panel.dump._globals.skybox.value) {
                 const dump = panel.dump._globals.skybox.value[key];
                 if (!dump.visible) {
                     continue;
                 }
-                const $prop = document.createElement('ui-prop');
-                $prop.setAttribute('type', 'dump');
-                $prop.render(dump);
-                skyBoxBeforeAndAfter[keyOfSkyBoxBeforeAndAfter].push($prop);
+                const id = `${dump.type || dump.name}:${dump.path}`;
+                let $prop = panel.skyBoxBeforeAndAfterList[id];
+                newSkyBoxBeforeAndAfterList.push(id);
+
+                if (!$prop) {
+                    $prop = document.createElement('ui-prop');
+                    $prop.setAttribute('type', 'dump');
+                    panel.skyBoxBeforeAndAfterList[id] = $prop;
+                    $sceneSkyboxContainer.appendChild($prop);
+                } else {
+                    if (newSkyBoxBeforeAndAfterList.includes(id) && !panel.skyBoxBeforeAndAfterList[id]) {
+                        $sceneSkyboxContainer.appendChild($prop);
+                    }
+
+                    if (panel.skyBoxBeforeAndAfterList[id] && !newSkyBoxBeforeAndAfterList.includes(id)) {
+                        $sceneSkyboxContainer.removeChild($prop);
+                    }
+                }
 
                 if (dump.name === 'envmap') {
                     // envmap 之后的属性放在后面的容器
-                    keyOfSkyBoxBeforeAndAfter = 'after';
+                    $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
                 }
+                $prop.render(dump);
             }
-
-            utils.diffRenderTree(panel.skyBoxBefore, skyBoxBeforeAndAfter.before, panel.$.sceneSkyboxBefore);
-            utils.diffRenderTree(panel.skyBoxAfter, skyBoxBeforeAndAfter.after, panel.$.sceneSkyboxAfter);
 
             Elements.scene.skyboxReflectionConvolution.call(panel);
             // skyBox 逻辑 end
@@ -863,8 +872,7 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.skyBoxAfter = [];
-            panel.skyBoxBefore = [];
+            panel.skyBoxBeforeAndAfterList = {};
 
             panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
 
@@ -1825,3 +1833,43 @@ exports.beforeClose = async function beforeClose() {
 exports.config = {
     section: require('../components.js'),
 };
+
+
+/**
+ * @description 比较节点树，并渲染节点树
+ * @param oldTree 旧树
+ * @param newTree 新树
+ * @param resultTree 结果树
+ *
+ * */
+function diffRenderTree(oldTree, newTree, resultTree) {
+    // 获取较大树的 长度
+    let count = Math.max(oldTree.length, newTree.length);
+    console.log(oldTree, 'oldTree');
+    // 进行循环遍历
+    for (let i = 0; i < count; i++) {
+        const beforeChildren = oldTree[i];
+        const afterChildren = newTree[i];
+        console.log(beforeChildren, 'ppp');
+        if (beforeChildren === undefined) {
+            // 如果原树没有，新树有，则添加
+            resultTree.appendChild(afterChildren);
+        } else if (afterChildren === undefined) {
+            // 如果原树有，新树没有，则删除
+            resultTree.removeChild(beforeChildren);
+        } else if (beforeChildren.tagName !== afterChildren.tagName) {
+            // 如果节点名称对应不上，则删除原树节点并添加新树节点
+            resultTree.removeChild(beforeChildren);
+            resultTree.appendChild(afterChildren);
+        } else if (beforeChildren.innerHTML !== afterChildren.innerHTML) {
+            // 如果节点名称一样，但内容改变，则修改原树节点的内容
+            // 如果没有其他子节点，则直接改变
+            if (beforeChildren.length === 0) {
+                resultTree.children[i].innerHTML = afterChildren.innerHTML;
+            } else {
+                // 否则进行递归比较
+                diffRenderTree(beforeChildren, afterChildren, resultTree.children[i]);
+            }
+        }
+    }
+}
