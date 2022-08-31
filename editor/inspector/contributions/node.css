@@ -192,10 +192,10 @@
 }
 
 .section-asset > ui-panel[type="asset"] {
-    margin-bottom: 8px;
-    border-radius: 8px;
+    margin-bottom: 4px;
+    border-radius: 2px;
 }
 
 .section-asset > ui-panel[type="asset"][focused] {
-    box-shadow: var(--color-normal-fill-emphasis) 0 0 4px;
+    box-shadow: var(--color-primary-contrast-weakest) 0 0 4px;
 }

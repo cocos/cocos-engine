@@ -18,7 +18,6 @@
 :host > .container > .header {
     display: flex;
     flex: 1;
-    margin-left: 2px;
 }
 
 :host > .container > .header > .icon {
@@ -71,6 +70,7 @@
     height: 20px;
     line-height: 20px;
     margin-left: 8px;
+    margin-top: 2px;
 }
 
 :host > .container > .header[dirty] > .tiny {
