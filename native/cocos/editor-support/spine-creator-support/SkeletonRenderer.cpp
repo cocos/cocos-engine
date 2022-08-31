@@ -97,7 +97,6 @@ void SkeletonRenderer::initialize() {
 
     _skeleton->setToSetupPose();
     _skeleton->updateWorldTransform();
-    beginSchedule();
 }
 
 void SkeletonRenderer::beginSchedule() {

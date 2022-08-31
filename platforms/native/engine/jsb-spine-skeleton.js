@@ -307,6 +307,9 @@ const cacheManager = require('./jsb-cache-manager');
             nativeSkeleton = new spine.SkeletonAnimation();
             try {
                 spine.initSkeletonRenderer(nativeSkeleton, uuid);
+                if (this._objFlags !== 0) {
+                    nativeSkeleton.beginSchedule();
+                }
             } catch (e) {
                 cc._throw(e);
                 return;
