@@ -194,6 +194,13 @@
             }
         },
         {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.WEBGPU",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.ems.ts"
+            }
+        },
+        {
             "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "overrides": {
@@ -456,6 +463,12 @@
             "type": "number",
             "value": 0,
             "internal": false
+        },
+        "WEBGPU": {
+            "comment": "Running with webgpu rendering backend.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
         }
     }
 }

@@ -24,8 +24,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { EDITOR } from 'internal:constants';
-import { game } from '../core/game';
 import { legacyCC } from '../core/global-exports';
 
 // import glslangURL from '@cocos/webgpu/glslang.wasmurl';
@@ -33,6 +31,7 @@ import { legacyCC } from '../core/global-exports';
 // import glslangLoader from '@cocos/webgpu/glslang';
 import wasmDevice from './webgpu_wasm';
 import glslangLoader from './glslang';
+import { WEBGPU } from 'internal:constants';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -48,32 +47,35 @@ export const webgpuAdapter: any = {
     device: null,
 };
 
-export function waitForWebGPUInstantiation () {
-    return Promise.all([
-        glslangLoader('./glslang.wasm').then((res) => {
-            glslalgWasmModule.glslang = res;
-        }),
-        new Promise<void>((resolve) => {
-            //http://192.168.52.147:7456
-            fetch('./webgpu_wasm.wasm').then((response) => {
-                response.arrayBuffer().then((buffer) => {
-                    gfx.wasmBinary = buffer;
-                    wasmDevice(gfx).then(() => {
-                        legacyCC.WebGPUDevice = gfx.CCWGPUDevice;
+export const promiseForWebGPUInstantiation = (() => {
+    if (WEBGPU) {
+        return Promise.all([
+            glslangLoader('./glslang.wasm').then((res) => {
+                glslalgWasmModule.glslang = res;
+            }),
+            new Promise<void>((resolve) => {
+                //http://192.168.52.147:7456
+                fetch('./webgpu_wasm.wasm').then((response) => {
+                    response.arrayBuffer().then((buffer) => {
+                        gfx.wasmBinary = buffer;
+                        wasmDevice(gfx).then(() => {
+                            legacyCC.WebGPUDevice = gfx.CCWGPUDevice;
+                            resolve();
+                        });
+                    });
+                });
+            }),
+            new Promise<void>((resolve) => {
+                (navigator as any).gpu.requestAdapter().then((adapter) => {
+                    adapter.requestDevice().then((device) => {
+                        webgpuAdapter.adapter = adapter;
+                        webgpuAdapter.device = device;
+                        console.log(gfx);
                         resolve();
                     });
                 });
-            });
-        }),
-        new Promise<void>((resolve) => {
-            (navigator as any).gpu.requestAdapter().then((adapter) => {
-                adapter.requestDevice().then((device) => {
-                    webgpuAdapter.adapter = adapter;
-                    webgpuAdapter.device = device;
-                    console.log(gfx);
-                    resolve();
-                });
-            });
-        }),
-    ]).then(() => Promise.resolve());
-}
+            }),
+        ]).then(() => Promise.resolve());
+    }
+    return Promise.resolve();
+})();
