@@ -340,7 +340,7 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
 
-        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4B);
+        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
@@ -367,11 +367,11 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
 
         // Transform component matrix to global matrix
         middleware::Triangles &triangles = slot->triangles;
-        middleware::V2F_T2F_C4B *worldTriangles = slot->worldVerts;
+        middleware::V3F_T2F_C4B *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4B *vertex = triangles.verts + v;
-            middleware::V2F_T2F_C4B *worldVertex = worldTriangles + v;
+            middleware::V3F_T2F_C4B *vertex = triangles.verts + v;
+            middleware::V3F_T2F_C4B *worldVertex = worldTriangles + v;
 
             vertex->vertex.z = 0; //reset for z value
             worldVertex->vertex.transformMat4(vertex->vertex, *worldMatrix);

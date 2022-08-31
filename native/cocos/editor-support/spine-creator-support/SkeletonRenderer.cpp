@@ -308,11 +308,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     cc::middleware::IOBuffer &ib = mb->getIB();
 
     // vertex size int bytes with one color
-    unsigned int vbs1 = sizeof(V2F_T2F_C4B);
+    unsigned int vbs1 = sizeof(V3F_T2F_C4B);
     // vertex size in floats with one color
     unsigned int vs1 = vbs1 / sizeof(float);
     // vertex size int bytes with two color
-    unsigned int vbs2 = sizeof(V2F_T2F_C4B_C4B);
+    unsigned int vbs2 = sizeof(V3F_T2F_C4B_C4B);
     // verex size in floats with two color
     unsigned int vs2 = vbs2 / sizeof(float);
 
@@ -461,9 +461,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
             if (!_useTint) {
                 triangles.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize = triangles.vertCount * sizeof(V2F_T2F_C4B);
+                vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                triangles.verts = reinterpret_cast<V2F_T2F_C4B *>(vb.getCurBuffer());
+                triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
                 memcpy(static_cast<void *>(triangles.verts), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 
@@ -474,9 +474,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 memcpy(triangles.indices, attachmentVertices->_triangles->indices, ibSize);
             } else {
                 trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4B_C4B);
+                vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4B_C4B *>(vb.getCurBuffer());
+                trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
                 for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
@@ -518,9 +518,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
             if (!_useTint) {
                 triangles.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize = triangles.vertCount * sizeof(V2F_T2F_C4B);
+                vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                triangles.verts = reinterpret_cast<V2F_T2F_C4B *>(vb.getCurBuffer());
+                triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
                 memcpy(static_cast<void *>(triangles.verts), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 
@@ -531,9 +531,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 memcpy(triangles.indices, attachmentVertices->_triangles->indices, ibSize);
             } else {
                 trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4B_C4B);
+                vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4B_C4B *>(vb.getCurBuffer());
+                trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
                 for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
@@ -625,9 +625,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
 
                 triangles.vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
-                vbSize = triangles.vertCount * sizeof(V2F_T2F_C4B);
+                vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                triangles.verts = reinterpret_cast<V2F_T2F_C4B *>(vb.getCurBuffer());
+                triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
 
                 triangles.indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
                 ibSize = triangles.indexCount * sizeof(uint16_t);
@@ -640,7 +640,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
                 if (effect) {
                     for (int v = 0, vn = triangles.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4B *vertex = triangles.verts + v;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
                         vertex->vertex.x = verts[vv];
                         vertex->vertex.y = verts[vv + 1];
                         vertex->texCoord.u = uvs[vv];
@@ -650,7 +650,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                     }
                 } else {
                     for (int v = 0, vn = triangles.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4B *vertex = triangles.verts + v;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
                         vertex->vertex.x = verts[vv];
                         vertex->vertex.y = verts[vv + 1];
                         vertex->texCoord.u = uvs[vv];
@@ -662,13 +662,13 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             } else {
                 if (effect) {
                     for (int v = 0, vn = triangles.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4B *vertex = triangles.verts + v;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
                         effect->transform(vertex->vertex.x, vertex->vertex.y);
                         vertex->color = light;
                     }
                 } else {
                     for (int v = 0, vn = triangles.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4B *vertex = triangles.verts + v;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
                         vertex->color = light;
                     }
                 }
@@ -695,9 +695,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
 
                 trianglesTwoColor.vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
-                vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4B_C4B);
+                vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4B_C4B *>(vb.getCurBuffer());
+                trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
 
                 trianglesTwoColor.indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
                 ibSize = trianglesTwoColor.indexCount * sizeof(uint16_t);
@@ -709,7 +709,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
                 if (effect) {
                     for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                         vertex->vertex.x = verts[vv];
                         vertex->vertex.y = verts[vv + 1];
                         vertex->texCoord.u = uvs[vv];
@@ -720,7 +720,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                     }
                 } else {
                     for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                         vertex->vertex.x = verts[vv];
                         vertex->vertex.y = verts[vv + 1];
                         vertex->texCoord.u = uvs[vv];
@@ -732,14 +732,14 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             } else {
                 if (effect) {
                     for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                         effect->transform(vertex->vertex.x, vertex->vertex.y);
                         vertex->color = light;
                         vertex->color2 = dark;
                     }
                 } else {
                     for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                         vertex->color = light;
                         vertex->color2 = dark;
                     }

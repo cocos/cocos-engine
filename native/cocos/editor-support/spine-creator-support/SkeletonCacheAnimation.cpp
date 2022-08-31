@@ -200,11 +200,11 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     const auto &srcIB = frameData->ib;
 
     // vertex size int bytes with one color
-    int vbs1 = sizeof(V2F_T2F_C4B);
+    int vbs1 = sizeof(V3F_T2F_C4B);
     // vertex size in floats with one color
     int vs1 = static_cast<int32_t>(vbs1 / sizeof(float));
     // vertex size int bytes with two color
-    int vbs2 = sizeof(V2F_T2F_C4B_C4B);
+    int vbs2 = sizeof(V3F_T2F_C4B_C4B);
     // vertex size in floats with two color
     int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
 

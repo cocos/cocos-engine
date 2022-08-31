@@ -265,7 +265,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
 
         // fill vertex buffer
         vb.checkSpace(vertexBytes, true);
-        dstVertexOffset = vb.getCurPos() / sizeof(V2F_T2F_C4B);
+        dstVertexOffset = vb.getCurPos() / sizeof(V3F_T2F_C4B);
         dstVertexBuffer = reinterpret_cast<float *>(vb.getCurBuffer());
         dstColorBuffer = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
         vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);

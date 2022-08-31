@@ -74,7 +74,7 @@ struct Tex2F {
 /**
  *  Vertex Format with x y z u v color.
  */
-struct V2F_T2F_C4B { //NOLINT
+struct V3F_T2F_C4B { //NOLINT
     // vertices (3F)
     cc::Vec3 vertex;
 
@@ -88,7 +88,7 @@ struct V2F_T2F_C4B { //NOLINT
 /**
  *  Vertex Format with x y u v color1 color2.
  */
-struct V2F_T2F_C4B_C4B { // NOLINT
+struct V3F_T2F_C4B_C4B { // NOLINT
     // vertices (3F)
     cc::Vec3 vertex;
 
@@ -104,7 +104,7 @@ struct V2F_T2F_C4B_C4B { // NOLINT
 
 struct Triangles {
     /**Vertex data pointer.*/
-    V2F_T2F_C4B *verts = nullptr;
+    V3F_T2F_C4B *verts = nullptr;
     /**Index data pointer.*/
     unsigned short *indices = nullptr; // NOLINT
     /**The number of vertices.*/
@@ -115,7 +115,7 @@ struct Triangles {
 
 struct TwoColorTriangles {
     /**Vertex data pointer.*/
-    V2F_T2F_C4B_C4B *verts = nullptr;
+    V3F_T2F_C4B_C4B *verts = nullptr;
     /**Index data pointer.*/
     unsigned short *indices = nullptr; //NOLINT
     /**The number of vertices.*/

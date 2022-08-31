@@ -339,7 +339,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         texture = slot->getTexture();
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
-        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4B);
+        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         isFull |= vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
@@ -358,11 +358,11 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         middleware::Triangles &triangles = slot->triangles;
         cc::Mat4 *worldMatrix = &slot->worldMatrix;
 
-        middleware::V2F_T2F_C4B *worldTriangles = slot->worldVerts;
+        middleware::V3F_T2F_C4B *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4B *vertex = triangles.verts + v;
-            middleware::V2F_T2F_C4B *worldVertex = worldTriangles + v;
+            middleware::V3F_T2F_C4B *vertex = triangles.verts + v;
+            middleware::V3F_T2F_C4B *worldVertex = worldTriangles + v;
 
             vertex->vertex.z = 0; //reset for z value
             worldVertex->vertex.transformMat4(vertex->vertex, *worldMatrix);
@@ -371,7 +371,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         }
 
         // Fill MiddlewareManager vertex buffer
-        auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B);
+        auto vertexOffset = vb.getCurPos() / sizeof(middleware::V3F_T2F_C4B);
         vb.writeBytes(reinterpret_cast<char *>(worldTriangles), vbSize);
 
         auto ibSize = triangles.indexCount * sizeof(uint16_t);
