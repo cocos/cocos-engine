@@ -190,7 +190,7 @@ private:
 
     // Mask use
     IntrusivePtr<scene::Model> _maskClearModel;
-    Material* _maskClearMtl;
+    IntrusivePtr<Material> _maskClearMtl;
     IntrusivePtr<RenderingSubMesh> _maskModelMesh;
     ccstd::vector<gfx::Attribute> _maskAttributes{
         gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},

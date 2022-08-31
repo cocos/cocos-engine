@@ -56,6 +56,17 @@ Batcher2d::~Batcher2d() { // NOLINT
         delete drawBatch;
     }
     _attributes.clear();
+
+    if(_maskClearModel != nullptr) {
+        Root::getInstance()->destroyModel(_maskClearModel);
+        _maskClearModel = nullptr;
+    }
+    if (_maskModelMesh != nullptr) {
+        _maskClearMtl->destroy();
+        _maskModelMesh = nullptr;
+    }
+    _maskAttributes.clear();
+
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -133,6 +144,8 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
 void Batcher2d::handlePostRender(RenderEntity* entity) {
     bool isSubMask = entity->getIsSubMask();
     if (isSubMask) {
+        generateBatch(_currEntity, _currDrawInfo);
+        resetRenderStates();
         _stencilManager->exitMask();
     }
 }
@@ -206,23 +219,15 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
     ccstd::hash_t dssHash = 0;
     Material* renderMat = drawInfo->getMaterial();
 
-    bool isMask = entity->getIsMask();
     bool isSubMask = entity->getIsSubMask();
-    if (isMask) {
-        //Mask node
-        _stencilManager->pushMask();
-        _stencilManager->clear(entity);
-
-    } else if (isSubMask) {
+    if (isSubMask) {
         //Mask Comp
-        _stencilManager->enterLevel(entity);
-    }
-    _currStencilStage = _stencilManager->getStencilStage();
-
-    StencilStage entityStage = entity->getEnumStencilStage();
-    if (entityStage == StencilStage::ENABLED || entityStage == StencilStage::DISABLED) {
+        _insertMaskBatch(entity);
+    } else {
         entity->setEnumStencilStage(_stencilManager->getStencilStage());
     }
+
+    StencilStage entityStage = entity->getEnumStencilStage();
     depthStencil = _stencilManager->getDepthStencilState(entityStage, renderMat);
     dssHash = _stencilManager->getStencilHash(entityStage);
 
@@ -243,6 +248,10 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
 
         curdrawBatch->fillPass(renderMat, depthStencil, dssHash, &(submodel->getPatches()));
         _batches.push_back(curdrawBatch);
+    }
+
+    if(isSubMask) {
+        _stencilManager->enableMask();
     }
 }
 
@@ -519,15 +528,16 @@ void Batcher2d::_insertMaskBatch(RenderEntity* entity){
     generateBatch(_currEntity, _currDrawInfo);
     resetRenderStates();
     _createClearModel();
-    _maskClearModel.node = _maskClearModel.transform = entity.node;
+    _maskClearModel->setNode(entity->getNode());
+    _maskClearModel->setTransform(entity->getNode());
     _stencilManager->pushMask();
-    _stencilManager->clear(entity);// 这儿要一个mask，想想办法
+    auto stage = _stencilManager->clear(entity);
 
     gfx::DepthStencilState* depthStencil = nullptr;
     ccstd::hash_t dssHash = 0;
-    if(_maskClearMtl != nullptr){ // 类型不对
-        depthStencil = _stencilManager->getStencilStage(stage, _maskClearModel)// 缺一个mask的stage
-        dssHash = _stencilManager->getStencilHash(stage)//同样缺一个 mask 的 stage
+    if(_maskClearMtl != nullptr){
+        depthStencil = _stencilManager->getDepthStencilState(stage, _maskClearMtl);
+        dssHash = _stencilManager->getStencilHash(stage);
     }
 
     // Model
@@ -544,14 +554,14 @@ void Batcher2d::_insertMaskBatch(RenderEntity* entity){
         curdrawBatch->setInputAssembler(submodel->getInputAssembler());
         curdrawBatch->setDescriptorSet(submodel->getDescriptorSet());
 
-        curdrawBatch->fillPass(renderMat, depthStencil, dssHash, &(submodel->getPatches()));
+        curdrawBatch->fillPass(_maskClearMtl, depthStencil, dssHash, &(submodel->getPatches()));
         _batches.push_back(curdrawBatch);
     }
 
-    _stencilManager->enterLevel(entity);//理论上是给mask的stage赋值的，但这儿可能有问题
+    _stencilManager->enterLevel(entity);
 }
 
-void Batcher2d::createClearModel () {
+void Batcher2d::_createClearModel() {
     if (_maskClearModel == nullptr) {
         _maskClearMtl = BuiltinResMgr::getInstance()->get<Material>(ccstd::string("default-clear-stencil"));
 
@@ -565,7 +575,7 @@ void Batcher2d::createClearModel () {
             _stride,
         });
         const float vertices[] = {-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0};
-        vertexBuffer.update(vertices);
+        vertexBuffer->update(vertices);
         auto* indexBuffer = _device->createBuffer({
             gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
@@ -573,14 +583,14 @@ void Batcher2d::createClearModel () {
             sizeof(uint16_t),
         });
         const uint16_t indices[] = {0, 2, 1, 2, 1, 3};
-        indexBuffer.update(indices);
+        indexBuffer->update(indices);
 
         gfx::BufferList vbReference;
         vbReference.emplace_back(vertexBuffer);
         _maskModelMesh = ccnew RenderingSubMesh(vbReference, _maskAttributes, _primitiveMode, indexBuffer);
-        _maskModelMesh.setSubMeshIdx(0);
+        _maskModelMesh->setSubMeshIdx(0);
 
-        _maskClearModel.initSubModel(0, _maskModelMesh, _maskClearMtl);
+        _maskClearModel->initSubModel(0, _maskModelMesh, _maskClearMtl);
     }
 }
 } // namespace cc

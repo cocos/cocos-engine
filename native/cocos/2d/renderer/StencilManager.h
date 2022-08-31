@@ -83,7 +83,7 @@ public:
         ++_maskStackSize;
     }
 
-    void clear(RenderEntity* entity);
+    StencilStage clear(RenderEntity* entity);
     void enterLevel(RenderEntity* entity);
 
     inline void enableMask() {
