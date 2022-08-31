@@ -275,7 +275,7 @@ async function doBuild ({
 
     // HACK: get platform, mode, flags from build time constants
     const flags: Record<string, any> = {};
-    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE'].forEach((key) => {
+    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'WEBGPU'].forEach((key) => {
         flags[key] = buildTimeConstants[key];
     });
     let platform = options.platform as PlatformType;
