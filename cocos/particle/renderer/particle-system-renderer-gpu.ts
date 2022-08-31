@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { AttributeName, Format, Attribute, API, deviceManager } from '../../core/gfx';
+import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -485,6 +485,28 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     public onRebuildPSO (index: number, material: Material) {
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
+        }
+    }
+
+    public updateVertexAttrib () {
+        if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
+            return;
+        }
+        if (this._renderInfo!.mesh) {
+            const format = this._renderInfo!.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
+            if (format) {
+                let type = Format.RGBA8;
+                for (let i = 0; i < FormatInfos.length; ++i) {
+                    if (FormatInfos[i].name === format.name) {
+                        type = i;
+                        break;
+                    }
+                }
+                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+            } else { // mesh without vertex color
+                const type = Format.RGBA8;
+                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+            }
         }
     }
 
