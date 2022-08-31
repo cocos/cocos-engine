@@ -63,6 +63,9 @@ Object.defineProperty(IStructProto, 'minPosition', {
             this._minPositionCache = undefined;
         }
         return this._minPositionCache;
+    },
+    set (v) {
+        this.setMinPosition(v);
     }
 });
 
@@ -81,6 +84,9 @@ Object.defineProperty(IStructProto, 'maxPosition', {
             this._maxPositionCache = undefined;
         }
         return this._maxPositionCache;
+    },
+    set (v) {
+        this.setMaxPosition(v);
     }
 });
 
