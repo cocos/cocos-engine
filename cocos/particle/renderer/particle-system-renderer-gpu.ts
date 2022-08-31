@@ -494,29 +494,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
             return;
         }
-        if (!this._useInstance) {
-            if (this._renderInfo!.mesh) {
-                const format = this._renderInfo!.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
-                if (format) {
-                    let type = Format.RGBA8;
-                    for (let i = 0; i < FormatInfos.length; ++i) {
-                        if (FormatInfos[i].name === format.name) {
-                            type = i;
-                            break;
-                        }
-                    }
-                    this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true);
-                } else { // mesh without vertex color
-                    const type = Format.RGBA8;
-                    this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true);
-                }
-            }
-        } else {
-            this._updateVertexAttribIns();
-        }
-    }
-
-    private _updateVertexAttribIns () {
         if (this._renderInfo!.mesh) {
             const format = this._renderInfo!.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
             if (format) {
@@ -527,10 +504,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                         break;
                     }
                 }
-                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 1);
+                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
             } else { // mesh without vertex color
                 const type = Format.RGBA8;
-                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, 1);
+                this._vertAttrs[9] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
             }
         }
     }
