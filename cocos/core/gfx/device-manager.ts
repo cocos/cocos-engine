@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
+import { JSB, WEBGPU } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { error, getError } from '../platform/debug';
 import { sys } from '../platform/sys';
@@ -129,7 +129,9 @@ export class DeviceManager {
                 }
 
                 const deviceCtors: Constructor<Device>[] = [];
-                // deviceCtors.push(legacyCC.WebGPUDevice);
+                if(WEBGPU) {
+                    deviceCtors.push(legacyCC.WebGPUDevice);
+                }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
                     deviceCtors.push(legacyCC.WebGL2Device);
                 }
