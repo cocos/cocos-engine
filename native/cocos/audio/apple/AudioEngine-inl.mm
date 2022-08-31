@@ -569,6 +569,9 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
 
     do {
         if (!player->_ready) {
+            std::lock_guard<std::mutex> lck(player->_play2dMutex);// To prevent the race condition
+            player->_timeDirty = true;
+            player->_currTime = time;
             break;
         }
 
