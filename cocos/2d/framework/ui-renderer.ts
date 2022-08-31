@@ -257,8 +257,9 @@ export class UIRenderer extends Renderer {
     @serializable
     protected _color: Color = Color.WHITE.clone();
 
-    protected _stencilStage: Stage = Stage.DISABLED;
+    @serializable
     protected _isForMask = false;
+    protected _stencilStage: Stage = Stage.DISABLED;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
