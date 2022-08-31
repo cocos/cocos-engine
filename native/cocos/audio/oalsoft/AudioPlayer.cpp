@@ -154,6 +154,9 @@ bool AudioPlayer::play2d() {
                 CHECK_AL_ERROR_DEBUG();
             }
         } else {
+            if (_currTime > _audioCache->_duration) {
+                _currTime = 0.F; // Target current start time is invalid, reset to 0.
+            }
             alGenBuffers(3, _bufferIds);
 
             auto alError = alGetError();

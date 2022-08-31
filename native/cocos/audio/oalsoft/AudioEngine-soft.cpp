@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include "audio/common/decoder/AudioDecoder.h"
 #include "base/Log.h"
 #include "base/Utils.h"
@@ -443,6 +444,9 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
 
     do {
         if (!player->_ready) {
+            std::lock_guard<std::mutex> lck(player->_play2dMutex);// To prevent the race condition
+            player->_timeDirty = true;
+            player->_currTime = time;
             break;
         }
 
