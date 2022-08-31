@@ -169,7 +169,7 @@ public:
          */
         ccstd::optional<Vec3> minPosition;
         inline const ccstd::optional<Vec3> &getMinPosition() const { return minPosition; } // For JSB binding only
-        inline void setMinPosition(const ccstd::optional<Vec3> &v) { minPosition = v; } // For JSB binding only
+        inline void setMinPosition(const ccstd::optional<Vec3> &v) { minPosition = v; }    // For JSB binding only
 
         /**
          * @en The maximum position of all vertices in the mesh
@@ -177,7 +177,7 @@ public:
          */
         ccstd::optional<Vec3> maxPosition;
         inline const ccstd::optional<Vec3> &getMaxPosition() const { return maxPosition; } // For JSB binding only
-        inline void setMaxPosition(const ccstd::optional<Vec3> &v) { maxPosition = v; } // For JSB binding only
+        inline void setMaxPosition(const ccstd::optional<Vec3> &v) { maxPosition = v; }    // For JSB binding only
 
         /**
          * @en The joint index map list.
