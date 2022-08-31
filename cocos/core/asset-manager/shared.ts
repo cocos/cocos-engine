@@ -100,6 +100,7 @@ export const pipeline = new Pipeline('normal load', []);
 export const fetchPipeline = new Pipeline('fetch', []);
 export const transformPipeline = new Pipeline('transform url', []);
 export const references = EDITOR ? new Cache<any[]>() : null;
+export const assetsOverrideMap = new Map<string, string>();
 
 export enum RequestType {
 
