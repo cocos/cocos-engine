@@ -1113,6 +1113,54 @@ cc.Director.EVENT_BEFORE_PHYSICS = 'director_before_physics';
  */
 cc.Director.EVENT_AFTER_PHYSICS = 'director_after_physics';
 
+
+/**
+ * !#en Enable FixedDeltaTime mode.
+ * !#zh 开启 FixedDeltaTime 模式.
+ * @method enableFixedDeltaTime
+ * @param {number} options - the value of fixedDeltaTime
+ * @example
+ *   cc.director.enableFixedDeltaTime()
+ *   cc.director.enableFixedDeltaTime(0.02)
+ */
+cc.Director.prototype.enableFixedDeltaTime = function(fixedDeltaTime) {
+    this.updateFixedDeltaTime(fixedDeltaTime || this.__fixedDeltaTime)
+    this.calculateDeltaTime = this.__calculateFixedDeltaTime;
+}
+
+/**
+ * !#en Disable FixedDeltaTime mode.
+ * !#zh 关闭 FixedDeltaTime 模式.
+ * @method disableFixedDeltaTime
+ * @example
+ *   cc.director.disableFixedDeltaTime()
+ */
+cc.Director.prototype.disableFixedDeltaTime = function() {
+    this.calculateDeltaTime = this.__calculateDeltaTime;
+}
+
+/**
+ * !#en Update the value of fixedDeltaTime for FixedDeltaTime mode.
+ * !#zh 更新 FixedDeltaTime 模式 所使用的 fixedDeltaTime 值.
+ * @method updateFixedDeltaTime
+ * @param {number} options - the value of fixedDeltaTime
+ * @example
+ *   cc.director.updateFixedDeltaTime()
+ *   cc.director.updateFixedDeltaTime(0.02)
+ */
+cc.Director.prototype.updateFixedDeltaTime = function(fixedDeltaTime) {
+    this.__fixedDeltaTime = fixedDeltaTime || 1 / game.getFrameRate();
+}
+
+cc.Director.prototype.__calculateDeltaTime = cc.Director.prototype.calculateDeltaTime
+cc.Director.prototype.__fixedDeltaTime = 0;
+
+cc.Director.prototype.__calculateFixedDeltaTime = function(now) {
+    this._deltaTime = this.__fixedDeltaTime
+    this._lastUpdate = now || performance.now()
+}
+
+
 /**
  * @module cc
  */
