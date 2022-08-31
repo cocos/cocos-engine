@@ -2440,7 +2440,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 Quat.copy(this._lrot, rot as Quat);
                 this._eulerDirty = true;
             } else {
-                Vec3.copy(this._euler, rot);
+                Vec3.copy(this._euler, rot as Vec3);
                 Quat.fromEuler(this._lrot, rot.x, rot.y, rot.z);
                 this._eulerDirty = false;
             }

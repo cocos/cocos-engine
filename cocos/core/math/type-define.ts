@@ -73,6 +73,32 @@ export interface IVec3Like {
     x: number;
     y: number;
     z: number;
+    /**
+     * @zh
+     * 这里是一个技巧，用于阻止 `IVec3Like` 和 `IQuatLike`/`IVec4Like` 之间的类型匹配。
+     * 例如：
+     * ```ts
+     * Vec3.copy(new Vec3(), new Vec3()); // 正确：Vec3 属于 IVec3Like
+     * Vec3.copy(new Quat(), new Quat()); // 错误：Quat 不属于 IVec3Like
+     * ```
+     * 如果你的确想要在四元数上进行一些“IVec3Like 操作”，那就进行一下类型转换：
+     * ```ts
+     * Vec3.copy(new Vec3(), new Quat() as unknown as IVec3Like);
+     * ```
+     * @en
+     * Here is a trick used to prevents type matching between `IVec3Like` and `IQuatLike`/`IVec4Like`.
+     * For example:
+     * ```ts
+     * Vec3.copy(new Vec3(), new Vec3()); // OK: Vec3 is a IVec3Like
+     * Vec3.copy(new Quat(), new Quat()); // Error: Quat is not a IVec3Like
+     * ```
+     * If you indeed want to perform some "IVec3Like operations" on Quaternions,
+     * just give it a type conversion:
+     * ```ts
+     * Vec3.copy(new Vec3(), new Quat() as unknown as IVec3Like);
+     * ```
+     */
+    w?: never;
 }
 
 export interface IVec4Like {

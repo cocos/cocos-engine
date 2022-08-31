@@ -86,7 +86,7 @@ export class Quat extends ValueType {
      * @en Sets the out quaternion with the shortest path orientation between two vectors, considering both vectors normalized
      * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
-    public static rotationTo<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, a: VecLike, b: VecLike) {
+    public static rotationTo<Out extends IQuatLike> (out: Out, a: IVec3Like, b: IVec3Like) {
         const dot = Vec3.dot(a, b);
         if (dot < -0.999999) {
             Vec3.cross(v3_1, Vec3.UNIT_X, a);
