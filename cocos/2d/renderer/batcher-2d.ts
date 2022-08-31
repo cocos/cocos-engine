@@ -812,9 +812,9 @@ export class Batcher2D implements IBatcher {
         const mask = comp.node.getComponent(Mask)!;
         this.maskFinishMergeBatches();
         this._createClearModel();
-        this._maskClearModel!.node = this._maskClearModel!.transform = mask.node; // 为了复用 model 做出 hack
+        this._maskClearModel!.node = this._maskClearModel!.transform = mask.node;
         const _stencilManager = StencilManager.sharedManager!;
-        _stencilManager.pushMask(1);//数组应该改一下，就要个长度
+        _stencilManager.pushMask(1);//not need object，only use length
         _stencilManager.clear(mask); //invert
 
         let depthStencil;
@@ -825,7 +825,6 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(mask.stencilStage);
         }
 
-        // 不确定是否需要更新 ubo
         const model = this._maskClearModel!;
         const stamp = legacyCC.director.getTotalFrames();
         if (model) {

@@ -186,9 +186,7 @@ export class Mask extends Component {
             this._sprite.stencilStage = Stage.DISABLED;
         }
 
-        // todo native
         if (JSB) {
-            // 同步到原生的机制
             this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
         }
     }
@@ -290,8 +288,6 @@ export class Mask extends Component {
     }
     set stencilStage (val: Stage) {
         this._stencilStage = val;
-        // todo native
-        // this._renderEntity.setStencilStage(val);
     }
 
     @serializable
@@ -305,7 +301,7 @@ export class Mask extends Component {
 
     // for image stencil
     @serializable
-    protected _spriteFrame: SpriteFrame | null = null;// 是否要处理同步？
+    protected _spriteFrame: SpriteFrame | null = null;
 
     @serializable
     protected _alphaThreshold = 0.1;
@@ -313,13 +309,12 @@ export class Mask extends Component {
     protected _sprite: Sprite | null = null;
     protected _graphics: Graphics | null = null;
 
-    protected _stencilStage: Stage = Stage.DISABLED; // 原生怎么办
+    protected _stencilStage: Stage = Stage.DISABLED;
 
     public onLoad () {
-        this._changeRenderType(); // 主要用于，创建组件？
+        this._changeRenderType();
 
         if (JSB) {
-            // 主要需要同步标签以便于处理
             if (this.subComp) {
                 this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
             }
@@ -471,7 +466,6 @@ export class Mask extends Component {
         graphics.fill();
     }
 
-    // 问题是怎么不允许删除呢？
     protected _enableRender () {
         if (this.subComp) {
             this.subComp.enabled = true;
@@ -496,9 +490,7 @@ export class Mask extends Component {
     }
 }
 
-// 这个改法是为了利用现有的 postAssembler 机制
-// 亦可以直接在 batcher 中根据 isMask 标签在 postAss 处进行调用
-// 目的是为了 exitMask
+// postAssembler
 const maskEndAssembler: IAssembler = {
     fillBuffers (mask: Mask, ui: IBatcher) {
         StencilManager.sharedManager!.exitMask();
