@@ -502,6 +502,7 @@ export class ParticleSystem2D extends UIRenderer {
     public set positionType (val) {
         this._positionType = val;
         this._updateMaterial();
+        this.updatePositionType();
     }
 
     /**
@@ -809,16 +810,7 @@ export class ParticleSystem2D extends UIRenderer {
     public onLoad () {
         super.onLoad();
 
-        if (this._positionType === PositionType.RELATIVE) {
-            this._renderEntity.setUseLocalNode(this.node.parent);
-            this._renderEntity.setUseLocal(true);
-        } else if (this.positionType === PositionType.GROUPED) {
-            this._renderEntity.setUseLocalNode(this.node);
-            this._renderEntity.setUseLocal(true);
-        } else {
-            this._renderEntity.setUseLocalNode(null);
-            this._renderEntity.setUseLocal(false);
-        }
+        this.updatePositionType();
     }
 
     public __preload () {
@@ -1212,6 +1204,19 @@ export class ParticleSystem2D extends UIRenderer {
             render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node);
         } else {
             render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, null);
+        }
+    }
+
+    protected updatePositionType () {
+        if (this._positionType === PositionType.RELATIVE) {
+            this._renderEntity.setUseLocalNode(this.node.parent);
+            this._renderEntity.setUseLocal(true);
+        } else if (this.positionType === PositionType.GROUPED) {
+            this._renderEntity.setUseLocalNode(this.node);
+            this._renderEntity.setUseLocal(true);
+        } else {
+            this._renderEntity.setUseLocalNode(null);
+            this._renderEntity.setUseLocal(false);
         }
     }
 }
