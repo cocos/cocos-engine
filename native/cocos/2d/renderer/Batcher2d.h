@@ -168,8 +168,6 @@ private:
     // weak reference
     gfx::Sampler* _currSampler{nullptr};
     ccstd::hash_t _currSamplerHash{0};
-    // weak reference
-    Node* _currUseLocalNode{nullptr};
 
     // weak reference
     ccstd::vector<RenderDrawInfo*> _meshRenderDrawInfo;
