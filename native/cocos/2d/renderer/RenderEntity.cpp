@@ -86,6 +86,10 @@ void RenderEntity::setNode(Node* node) {
     }
 }
 
+void RenderEntity::setUseLocalNode(Node* useLocalNode) {
+    _useLocalNode = useLocalNode;
+}
+
 RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {
     CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
     if (index >= _dynamicDrawInfos.size()) {

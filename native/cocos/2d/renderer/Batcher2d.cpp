@@ -173,6 +173,7 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
         _currMaterial = drawInfo->getMaterial();
         _currStencilStage = tempStage;
         _currLayer = entity->getNode()->getLayer();
+        _currUseLocalNode = entity->getUseLocalNode();
         _currEntity = entity;
         _currDrawInfo = drawInfo;
 
@@ -261,6 +262,7 @@ CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInf
     _currEntity = nullptr;
     _currDrawInfo = nullptr;
     _currMeshBuffer = nullptr;
+    _currUseLocalNode = entity->getUseLocalNode();
 
     // if(frame)
     _currTexture = drawInfo->getTexture();
@@ -364,7 +366,12 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
 
-    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+    if (entity->getUseLocal()) {
+        drawInfo->updateLocalDescriptorSet(_currUseLocalNode, pass->getLocalSetLayout());
+        curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
+    } else {
+        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+    }
     _batches.push_back(curdrawBatch);
 }
 
@@ -373,6 +380,7 @@ void Batcher2d::resetRenderStates() {
     _currTexture = nullptr;
     _currSampler = nullptr;
     _currSamplerHash = 0;
+    _currUseLocalNode = nullptr;
     _currLayer = 0;
     _currEntity = nullptr;
     _currDrawInfo = nullptr;
@@ -512,6 +520,7 @@ void Batcher2d::reset() {
     _currMaterial = nullptr;
     _currTexture = nullptr;
     _currSampler = nullptr;
+    _currUseLocalNode = nullptr;
 
     // stencilManager
 }

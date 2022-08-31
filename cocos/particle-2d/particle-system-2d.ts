@@ -806,6 +806,21 @@ export class ParticleSystem2D extends UIRenderer {
         }
     }
 
+    public onLoad () {
+        super.onLoad();
+
+        if (this._positionType === PositionType.RELATIVE) {
+            this._renderEntity.setUseLocalNode(this.node.parent);
+            this._renderEntity.setUseLocal(true);
+        } else if (this.positionType === PositionType.GROUPED) {
+            this._renderEntity.setUseLocalNode(this.node);
+            this._renderEntity.setUseLocal(true);
+        } else {
+            this._renderEntity.setUseLocalNode(null);
+            this._renderEntity.setUseLocal(false);
+        }
+    }
+
     public __preload () {
         super.__preload();
 

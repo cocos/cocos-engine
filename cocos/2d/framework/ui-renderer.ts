@@ -319,6 +319,7 @@ export class UIRenderer extends Renderer {
 
     public onDestroy () {
         this._renderEntity.setNode(null);
+        this._renderEntity.setUseLocalNode(null);
         if (this.node._uiProps.uiComp === this) {
             this.node._uiProps.uiComp = null;
         }

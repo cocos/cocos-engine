@@ -51,6 +51,9 @@ export declare class NativeRenderEntity {
     get node(): Node | null;
     set node(node: Node | null);
 
+    get useLocalNode(): Node | null;
+    set useLocalNode(node: Node | null);
+
     get stencilStage(): number;
     set stencilStage(stage: number);
 
