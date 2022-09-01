@@ -96,14 +96,65 @@ struct constructor {
         EXPORT_STRUCT_CTOR(CLASSNAME, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__));                               \
     }
 
-/*
+template <class R, class T>
+R getMemberType(R T::*);
 
-    class_<ems::MemoryUsageBit>("MemoryUsageBit")
-        .class_property("NONE", &ems::MemoryUsageBit::NONE)
-        .class_property("DEVICE", &ems::MemoryUsageBit::DEVICE)
-        .class_property("HOST", &ems::MemoryUsageBit::HOST);
+#define MEMBER_TYPE(prop) decltype(getMemberType(prop))
 
-*/
+template <typename T, typename U, typename V, typename FallBack = void>
+struct Exporter {
+    Exporter(T &t, const char *propName, U V::*field) {
+        t.field(propName, field);
+    }
+};
+
+template <typename T, typename U, typename V>
+struct Exporter<T, U, V, typename std::enable_if<std::is_enum<U>::value>::type> {
+    Exporter(T &t, const char *propName, U V::*field) {
+        std::function<void(V & v, std::underlying_type_t<U> u)> set = [field](V &v, std::underlying_type_t<U> u) {
+            v.*field = U{u};
+        };
+        std::function<std::underlying_type_t<U>(const V &v)> get = [field](const V &v) {
+            return static_cast<std::underlying_type_t<U>>(v.*field);
+        };
+        t.field(propName, get, set);
+    }
+};
+
+// template <typename T, typename U, typename V>
+// struct Exporter<T, U, V, typename std::enable_if<std::is_pointer<U>::value>::type> {
+//     Exporter(T &t, const char *propName, U V::*field) {
+//         std::function<void(V & v, uintptr_t u)> set = [field](V &v, uintptr_t u) {
+//             v.*field = reinterpret_cast<U>(u);
+//         };
+//         std::function<uintptr_t(const V &v)> get = [field](const V &v) {
+//             return reinterpret_cast<uintptr_t>(v.*field);
+//         };
+//         t.field(propName, get, set);
+//     }
+// };
+
+#define PROCESS_STRUCT_MEMBERS(r, struct_name, property) \
+    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property); }
+
+#define EXPORT_STRUCT_POD(struct_name, ...)                                                                \
+    {                                                                                                      \
+        auto obj = value_object<struct_name>(#struct_name);                                                \
+        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+    }
+
+// #define PROCESS_STRUCT_MEMBERS_MAY_BE_PTR \
+//     { \
+//         EmsSpecializer<MEMBER_TYPE(prop)>\
+//         Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property); \
+//     }
+
+// #define EXPORT_STRUCT_NPOD(struct_name, ...)                                                                \
+//     {                                                                                                      \
+//         auto obj = value_object<struct_name>(#struct_name);                                                \
+//         BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+//     }
+
 #define EXPORT_ENUMFIELD_BY_SEQ(r, ENUMNAME, FIELD) \
     .class_property(BOOST_PP_STRINGIZE(FIELD), &ems::ENUMNAME::FIELD)
 
@@ -135,6 +186,112 @@ struct VecCtorExport<R, T, N, std::index_sequence<Indices...>> {
         BOOST_PP_REPEAT(CTOR_NUMS, EXPORT_CTOR_N, ELEMNAME)       \
     }
 
+#if 1
+enum class TestEnum : uint32_t {
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+};
+
+struct PtInternal {
+    uint32_t value{0};
+};
+
+struct PtTest {
+    uint32_t value{0};
+    cc::gfx::CCWGPUDevice *device{nullptr};
+};
+
+struct Point2D {
+    uint32_t x;
+    uint32_t y;
+    uint32_t z;
+    uint32_t w;
+    TestEnum type;
+    TestEnum usage;
+    TestEnum flag;
+    TestEnum prop;
+    PtTest *test;
+};
+
+struct TestPoint {
+    uint32_t value;
+    Point2D pt;
+};
+
+// void printPoint(TestPoint info) {
+//     printf("point2D %u, %u, %u, %u, %u, %u, %u, %u, %u, %u\n", info.pt.x, info.pt.y, info.pt.z, info.pt.w, info.pt.type, info.pt.usage, info.pt.flag, info.pt.prop, info.pt.test->value, info.pt.test->next->value);
+// }
+
+void printPtTest(const PtTest &test) {
+    printf("%u, %s\n", test.value, test.device->getDeviceName().c_str());
+}
+
+static Point2D s_pt;
+
+void testPoint(const Point2D &pt) {
+    s_pt = pt;
+}
+#endif
+
+// namespace emscripten {
+// namespace internal {
+
+// template <typename T>
+// struct emscripten::internal::BindingType<PtTest *> {
+//    typedef PtTest* WireType;
+//     static WireType toWireType(PtTest *ptr) {
+//         return ptr;
+//     }
+
+//     static WireType fromWireType(WireType value) {
+//         return value;
+//     }
+// };
+
+// template <>
+// struct emscripten::internal::TypeID<PtTest *, void> {
+//     static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::CanonicalizedID<PtTest *>::get(); }
+// };
+
+// template <>
+// struct emscripten::internal::TypeID<PtInternal *, void> {
+//     static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::CanonicalizedID<PtInternal *>::get(); }
+// };
+
+template <>
+struct emscripten::internal::TypeID<cc::gfx::CCWGPUDevice *, void> {
+    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::CanonicalizedID<cc::gfx::CCWGPUDevice *>::get(); }
+};
+
+// uint32  PtTest*
+template <typename T>
+struct EmsSpecializer {
+};
+
+// remove_cv/remove_reference are required for TypeID, but not BindingType, see https://github.com/emscripten-core/emscripten/issues/7292
+// template<typename T>
+// struct TypeID<T, typename std::enable_if<std::is_pod<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value, void>::type> {
+//   static constexpr TYPEID get() {
+//     return TypeID<IntWrapperIntermediate>::get();
+//   }
+// };
+
+// template<typename T>
+// struct BindingType<T, typename std::enable_if<std::is_pod<T>::value, void>::type> {
+//   typedef typename BindingType<IntWrapperIntermediate>::WireType WireType;
+
+//   constexpr static WireType toWireType(const T& v) {
+//     return BindingType<IntWrapperIntermediate>::toWireType(v.get());
+//   }
+//   constexpr static T fromWireType(WireType v) {
+//     return T::create(BindingType<IntWrapperIntermediate>::fromWireType(v));
+//   }
+// };
+// } // namespace internal
+// } // namespace emscripten
+
 namespace cc::gfx {
 
 using ::emscripten::allow_raw_pointer;
@@ -154,61 +311,45 @@ using ::emscripten::value_object;
 using String = ccstd::string;
 using ccstd::vector;
 
-/*
-    value_object<PipelineLayoutInfo>("PipelineLayoutInfo")
-        .field("setLayouts", &PipelineLayoutInfo::setLayouts);
-    function("PipelineLayoutInfo", &GenInstance<PipelineLayoutInfo>::instance);
-*/
-
-// fieldName<boost::pfr::tuple_element_t<Seq, T>>(boost::fusion::extension::struct_member_name<T, Seq>::call())
-
-// template <typename Raw, typename Exp, std::size_t index>
-// Exp &exportFiled(const Raw &raw, Exp &exp) {
-//     boost::fusion::get<0>(raw);
-//     return exp;
-//     // return exp.field(boost::fusion::extension::struct_member_name<Raw, index>::call(), reinterpret_cast<char *>(&get<index>(raw)) - reinterpret_cast<char *>(&get<0>(raw)));
-// }
-
-// template <typename Raw, typename Exp, std::size_t... seq>
-// void exportStruct(const Raw &raw, Exp &exp, std::index_sequence<seq...>) {
-//     (..., exportFiled<Raw, Exp, seq>(raw, exp));
-//     // (..., getInt(seq));
-//     //decltype(auto) res = exp.field(boost::fusion::extension::struct_member_name<Raw, seq>::call(), reinterpret_cast<char *>(&get<seq>(raw)) - reinterpret_cast<char *>(&get<0>(raw))), ...;
-// }
-
-// template <typename Raw>
-// void exportStruct() {
-//     Raw            raw{};
-//     const auto &   name = boost::typeindex::type_id<Raw>().pretty_name();
-//     decltype(auto) exp  = value_object<Raw>(name.c_str());
-//     exportStruct(raw, exp, std::make_index_sequence<tuple_size_v<Raw>>{});
-//     function(name.c_str(), &GenInstance<Raw>::instance);
-// }
-
-// template <typename T, class... Ts>
-// struct GenInstances {
-//     OBJECT_EXPORT(T);
-//     GenInstance<Ts...>;
-// };
-
-// template <typename T>
-// struct GenInstances<T> {
-//     OBJECT_EXPORT(T);
-// };
-
-// inline void setSwapchainVsyncMode(SwapchainInfo &info, uint32_t mode) { info.vsyncMode = gfx::VsyncMode(mode); }
-
-// inline uint32_t getSwapchainVsyncMode(const SwapchainInfo &info) { return static_cast<std::underlying_type<decltype(info.vsyncMode)>::type>(info.vsyncMode); }
-
-// GenInstances<DeviceInfo, BindingMappingInfo, ColorAttachment, DepthStencilAttachment, SubpassInfo, SubpassDependency, RenderPassInfo, Offset, Extent, TextureSubresLayers, BufferTextureCopy, SamplerInfo, BufferInfo,
-//              DescriptorSetLayoutInfo, DescriptorSetLayoutBinding, PipelineLayoutInfo, UniformStorageImage, ShaderStage, Attribute, UniformBlock, UniformStorageBuffer>;
+class TestClass {
+public:
+    TestClass() = default;
+    Point2D *getPt() const {
+        return _pt;
+    }
+    void setPt(Point2D *pt) {
+        _pt = pt;
+    }
+    Point2D *_pt;
+};
 
 EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
-    EXPORT_STRUCT(Size, x, y, z);
-    EXPORT_STRUCT(DeviceCaps, maxVertexAttributes, maxVertexUniformVectors, maxFragmentUniformVectors, maxTextureUnits, maxImageUnits, maxVertexTextureUnits, maxColorRenderTargets,
-                  maxShaderStorageBufferBindings, maxShaderStorageBlockSize, maxUniformBufferBindings, maxUniformBlockSize, maxTextureSize, maxCubeMapTextureSize, uboOffsetAlignment,
-                  maxComputeSharedMemorySize, maxComputeWorkGroupInvocations, maxComputeWorkGroupSize, maxComputeWorkGroupCount, supportQuery, clipSpaceMinZ, screenSpaceSignY, clipSpaceSignY);
-    EXPORT_STRUCT(DrawInfo, vertexCount, firstVertex, indexCount, firstIndex, instanceCount, firstInstance);
+    // register_vector<uint32_t>("Uint32Vector");
+
+    EXPORT_STRUCT_POD(Size, x, y, z);
+    EXPORT_STRUCT_POD(DeviceCaps, maxVertexAttributes, maxVertexUniformVectors, maxFragmentUniformVectors, maxTextureUnits, maxImageUnits, maxVertexTextureUnits, maxColorRenderTargets,
+                      maxShaderStorageBufferBindings, maxShaderStorageBlockSize, maxUniformBufferBindings, maxUniformBlockSize, maxTextureSize, maxCubeMapTextureSize, uboOffsetAlignment,
+                      maxComputeSharedMemorySize, maxComputeWorkGroupInvocations, maxComputeWorkGroupSize, maxComputeWorkGroupCount, supportQuery, clipSpaceMinZ, screenSpaceSignY, clipSpaceSignY);
+    EXPORT_STRUCT_POD(DrawInfo, vertexCount, firstVertex, indexCount, firstIndex, instanceCount, firstInstance);
+
+    // EXPORT_STRUCT_POD(PtTest, value, next);
+    // EXPORT_STRUCT_POD(Point2D, x, y, z, w, type, usage, flag, prop, test);
+    // EXPORT_STRUCT_POD(TestPoint, value, pt);
+    EXPORT_STRUCT_POD(Offset, x, y, z);
+    EXPORT_STRUCT_POD(Rect, x, y, width, height);
+    EXPORT_STRUCT_POD(Extent, width, height, depth);
+    EXPORT_STRUCT_POD(TextureSubresLayers, mipLevel, baseArrayLayer, layerCount);
+    EXPORT_STRUCT_POD(TextureCopy, srcSubres, srcOffset, dstSubres, dstOffset, extent);
+    EXPORT_STRUCT_POD(TextureBlit, srcSubres, srcOffset, srcExtent, dstSubres, dstOffset, dstExtent);
+    EXPORT_STRUCT_POD(BufferTextureCopy, buffOffset, buffStride, buffTexHeight, texOffset, texExtent, texSubres);
+    EXPORT_STRUCT_POD(Viewport, left, top, width, height, minDepth, maxDepth);
+    EXPORT_STRUCT_POD(Color, x, y, z, w);
+
+    // class_<TestClass>("TestClass")
+    //     .constructor<>()
+    //     .property("pt", &TestClass::getPt, &TestClass::setPt, allow_raw_pointers());
+    // EXPORT_STRUCT_POD(BindingMappingInfo, maxBlockCounts, maxSamplerTextureCounts, maxSamplerCounts, maxTextureCounts, maxBufferCounts, maxImageCounts, maxSubpassInputCounts, setIndices);
+
     //--------------------------------------------------CLASS---------------------------------------------------------------------------
     class_<cc::gfx::Swapchain>("Swapchain")
         .function("initialize", &cc::gfx::Swapchain::initialize, allow_raw_pointer<arg<0>>())
@@ -233,6 +374,19 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .field("bufferSize", &MemoryStatus::bufferSize)
         .field("textureSize", &MemoryStatus::textureSize);
 
+    // value_object<TestEnum>("TestEnum")
+    //     .field("ZERO", &TestEnum::ZERO)
+    //     .field("ONE", &TestEnum::ONE)
+    //     .field("TWO", &TestEnum::TWO)
+    //     .field("THREE", &TestEnum::THREE);
+
+    // std::function<uint32_t(const Point2D &p)> getX = [](const Point2D &p) {
+    //     return p.x;
+    // };
+    // std::function<void(Point2D & p, uint32_t x)> setX = [](Point2D &p, uint32_t x) {
+    //     p.x = x;
+    // };
+
     class_<Device>("Device")
         // .function("initialize", &Device::initialize, allow_raw_pointer<arg<0>>())
         .function("destroy", &Device::destroy, pure_virtual())
@@ -250,6 +404,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("present", select_overload<void(void)>(&Device::present),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .property("capabilities", &Device::getCapabilities)
+        .property("name", &Device::getDeviceName)
         .property("renderer", &Device::getRenderer)
         .property("vendor", &Device::getVendor)
         .property("numDrawCalls", &Device::getNumDrawCalls)
@@ -294,6 +449,19 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("gfxAPI", &CCWGPUDevice::getGFXAPI)
         .property("memoryStatus", &CCWGPUDevice::getMemStatus)
         .function("hasFeature", &CCWGPUDevice::hasFeature);
+
+    value_object<PtInternal>("PtInternal")
+        .field("value", &PtInternal::value);
+    function("PtInternal", &GenInstance<PtInternal>::instance);
+
+    value_object<PtTest>("PtTest")
+        .field("value", &PtTest::value)
+        .field("device", &PtTest::device);
+
+    function("PtTest", &GenInstance<PtTest>::instance);
+
+    function("printPtTest", &printPtTest);
+    // function("testPoint", &testPoint);
 
     class_<RenderPass>("RenderPass")
         .class_function("computeHash", select_overload<ccstd::hash_t(const RenderPassInfo &)>(&RenderPass::computeHash), allow_raw_pointer<arg<0>>())
@@ -434,7 +602,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("begin0", select_overload<void(void)>(&CommandBuffer::begin))
         .function("begin1", select_overload<void(RenderPass *)>(&CommandBuffer::begin), allow_raw_pointers())
         .function("begin2", select_overload<void(RenderPass *, uint32_t)>(&CommandBuffer::begin), allow_raw_pointers())
-        .function("execute", select_overload<void(const CommandBufferList &, uint32_t)>(&CommandBuffer::execute))
+        .function("execute", select_overload<void(const CommandBufferList &, uint32_t)>(&CommandBuffer::execute), allow_raw_pointers())
         .function("blitTexture2", select_overload<void(Texture *, Texture *, const TextureBlitList &, Filter)>(&CommandBuffer::blitTexture), allow_raw_pointers())
         .function("getQueue", &CommandBuffer::getQueue, allow_raw_pointer<arg<0>>())
         .property("numDrawCalls", &CommandBuffer::getNumDrawCalls)

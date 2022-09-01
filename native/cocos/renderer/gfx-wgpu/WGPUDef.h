@@ -49,6 +49,36 @@ function("PipelineLayoutInfo", &GenInstance<PipelineLayoutInfo>::instance);
     #define CC_WGPU_RS(expr)
 #endif
 
+// https://github.com/emscripten-core/emscripten/issues/11070#issuecomment-717675128
+namespace emscripten {
+namespace internal {
+
+template <typename T, typename Allocator>
+struct BindingType<std::vector<T, Allocator>> {
+    using ValBinding = BindingType<val>;
+    using WireType = ValBinding::WireType;
+
+    static WireType toWireType(const std::vector<T, Allocator>& vec) {
+        return ValBinding::toWireType(val::array(vec));
+    }
+
+    static std::vector<T, Allocator> fromWireType(WireType value) {
+        return vecFromJSArray<T>(ValBinding::fromWireType(value), allow_raw_pointers());
+    }
+};
+
+template <typename T>
+struct TypeID<T,
+              typename std::enable_if_t<std::is_same<
+                  typename Canonicalized<T>::type,
+                  std::vector<typename Canonicalized<T>::type::value_type,
+                              typename Canonicalized<T>::type::allocator_type>>::value>> {
+    static constexpr TYPEID get() { return TypeID<val>::get(); }
+};
+
+} // namespace internal
+} // namespace emscripten
+
 namespace cc::gfx {
 
 using ::emscripten::allow_raw_pointers;
@@ -96,5 +126,15 @@ val vecToEMS(const std::vector<T>& Ts) {
     }
     return arr;
 }
+
+template <typename T, typename EnumFallBack = void>
+struct GetType {
+    using type = T;
+};
+
+template <typename T>
+struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
+    using type = typename std::underlying_type<T>::type;
+};
 
 } // namespace cc::gfx

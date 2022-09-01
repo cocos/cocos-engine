@@ -34,10 +34,34 @@ import {
 } from '../override';
 import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, FramebufferInfo, RenderPassInfo,
-    InputAssemblerInfo, ObjectType, PipelineLayoutInfo, QueueInfo, TextureViewInfo, TextureInfo, DrawInfo,
+    InputAssemblerInfo, ObjectType, PipelineLayoutInfo, QueueInfo, TextureViewInfo, TextureInfo, DrawInfo, TextureType, Format, TextureUsageBit,
 } from '../base/define';
 import { murmurhash2_32_gc } from '../../utils';
 import { PipelineStateInfo } from '../base/pipeline-state';
+
+// const point2DObj: [number, number] = [1, 3];
+
+enum TestEnum {
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+}
+
+const printPoint = gfx.printPoint;
+const prTest2 = new gfx.PtTest();
+prTest2.value = 22;
+
+const ptTest0 = { value: 10, next: undefined };
+const ptTest = { value: 10, next: ptTest0 };
+const pt2D = { x: 1, y: 2, z: 3, w: 4, type: TestEnum.ZERO, usage: TestEnum.ONE, flag: TestEnum.TWO, prop: TestEnum.THREE, test: prTest2 };
+const ptTeeee = { value: 5, pt: pt2D };
+// printPoint(ptTeeee);
+const printPtTest = gfx.printPtTest;
+
+// const Point2D_2 = { x: 1, y: 2, type: 0, usage: 1 };
+// // expect 1, 2, 0, 1
+// printPoint(Point2D);
 
 const originDeviceInitializeFunc = Device.prototype.initialize;
 Device.prototype.initialize = function (info: DeviceInfo) {
@@ -49,6 +73,9 @@ Device.prototype.initialize = function (info: DeviceInfo) {
         throw new Error('Something bad happened');
     });
     console.log(adapter);
+
+    prTest2.device = this;
+    printPtTest(prTest2);
 
     originDeviceInitializeFunc.call(this, info);
 

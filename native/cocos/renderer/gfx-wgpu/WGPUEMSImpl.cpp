@@ -90,16 +90,6 @@ std::vector<T> vecFromJSArray_local(const val& v) {
     return rv;
 }
 
-template <typename T, typename EnumFallBack = void>
-struct GetType {
-    using type = T;
-};
-
-template <typename T>
-struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
-    using type = typename std::underlying_type<T>::type;
-};
-
 #define UNREACHABLE_CONDITION CC_ASSERT(false);
 
 #define NUMARGS(...) (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
