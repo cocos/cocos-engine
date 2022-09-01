@@ -18884,6 +18884,86 @@ bool js_register_assets_Mesh_IDynamicStruct(se::Object* obj) // NOLINT(readabili
 se::Object* __jsb_cc_Mesh_IStruct_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_Mesh_IStruct_class = nullptr;  // NOLINT
 
+static bool js_assets_IStruct_getMaxPosition(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const boost::optional<cc::Vec3>& result = cobj->getMaxPosition();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_IStruct_getMaxPosition)
+
+static bool js_assets_IStruct_getMinPosition(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const boost::optional<cc::Vec3>& result = cobj->getMinPosition();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_assets_IStruct_getMinPosition)
+
+static bool js_assets_IStruct_setMaxPosition(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<boost::optional<cc::Vec3>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setMaxPosition(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_IStruct_setMaxPosition)
+
+static bool js_assets_IStruct_setMinPosition(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<boost::optional<cc::Vec3>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setMinPosition(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_assets_IStruct_setMinPosition)
+
 static bool js_assets_IStruct_get_vertexBundles(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
@@ -19208,6 +19288,10 @@ bool js_register_assets_Mesh_IStruct(se::Object* obj) // NOLINT(readability-iden
     cls->defineProperty("jointMaps", _SE(js_assets_IStruct_get_jointMaps), _SE(js_assets_IStruct_set_jointMaps));
     cls->defineProperty("morph", _SE(js_assets_IStruct_get_morph), _SE(js_assets_IStruct_set_morph));
     cls->defineProperty("dynamic", _SE(js_assets_IStruct_get_dynamic), _SE(js_assets_IStruct_set_dynamic));
+    cls->defineFunction("getMaxPosition", _SE(js_assets_IStruct_getMaxPosition));
+    cls->defineFunction("getMinPosition", _SE(js_assets_IStruct_getMinPosition));
+    cls->defineFunction("setMaxPosition", _SE(js_assets_IStruct_setMaxPosition));
+    cls->defineFunction("setMinPosition", _SE(js_assets_IStruct_setMinPosition));
     cls->defineFinalizeFunction(_SE(js_cc_Mesh_IStruct_finalize));
     cls->install();
     JSBClassType::registerClass<cc::Mesh::IStruct>(cls);
@@ -19586,7 +19670,7 @@ static bool js_assets_Mesh_getMaxPosition(se::State& s) // NOLINT(readability-id
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::Vec3& result = cobj->getMaxPosition();
+        const cc::Vec3* result = cobj->getMaxPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19595,7 +19679,7 @@ static bool js_assets_Mesh_getMaxPosition(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getMaxPosition)
+SE_BIND_FUNC(js_assets_Mesh_getMaxPosition)
 
 static bool js_assets_Mesh_getMinPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19606,7 +19690,7 @@ static bool js_assets_Mesh_getMinPosition(se::State& s) // NOLINT(readability-id
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::Vec3& result = cobj->getMinPosition();
+        const cc::Vec3* result = cobj->getMinPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19615,7 +19699,7 @@ static bool js_assets_Mesh_getMinPosition(se::State& s) // NOLINT(readability-id
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC_AS_PROP_GET(js_assets_Mesh_getMinPosition)
+SE_BIND_FUNC(js_assets_Mesh_getMinPosition)
 
 static bool js_assets_Mesh_getRenderingSubMeshes(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20055,8 +20139,6 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineProperty({"_hash", "hash"}, _SE(js_assets_Mesh_getHash_asGetter), _SE(js_assets_Mesh_setHash_asSetter));
     cls->defineProperty({"data", "_data"}, _SE(js_assets_Mesh_getData_asGetter), _SE(js_assets_Mesh_setData_asSetter));
     cls->defineProperty("jointBufferIndices", _SE(js_assets_Mesh_getJointBufferIndices_asGetter), nullptr);
-    cls->defineProperty("maxPosition", _SE(js_assets_Mesh_getMaxPosition_asGetter), nullptr);
-    cls->defineProperty("minPosition", _SE(js_assets_Mesh_getMinPosition_asGetter), nullptr);
     cls->defineProperty("renderingSubMeshes", _SE(js_assets_Mesh_getRenderingSubMeshes_asGetter), nullptr);
     cls->defineProperty("subMeshCount", _SE(js_assets_Mesh_getSubMeshCount_asGetter), nullptr);
     cls->defineProperty("_nativeAsset", _SE(js_assets_Mesh_getAssetData_asGetter), _SE(js_assets_Mesh_setAssetData_asSetter));
@@ -20066,6 +20148,8 @@ bool js_register_assets_Mesh(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("copyIndices", _SE(js_assets_Mesh_copyIndices));
     cls->defineFunction("destroyRenderingMesh", _SE(js_assets_Mesh_destroyRenderingMesh));
     cls->defineFunction("getBoneSpaceBounds", _SE(js_assets_Mesh_getBoneSpaceBounds));
+    cls->defineFunction("getMaxPosition", _SE(js_assets_Mesh_getMaxPosition));
+    cls->defineFunction("getMinPosition", _SE(js_assets_Mesh_getMinPosition));
     cls->defineFunction("getStruct", _SE(js_assets_Mesh_getStruct));
     cls->defineFunction("initialize", _SE(js_assets_Mesh_initialize));
     cls->defineFunction("merge", _SE(js_assets_Mesh_merge));
