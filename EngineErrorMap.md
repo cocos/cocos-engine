@@ -3295,3 +3295,7 @@ The native folder may be generated from older versions, please refer https://doc
 ### 16101
 
 The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html
+
+### 16201
+
+The asset replacing failed, can not found override asset('%s') for '%s' 

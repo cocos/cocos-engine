@@ -25,6 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 import { js } from '../utils/js';
 import * as path from '../utils/path';
 import Config, { IAddressableInfo, IAssetInfo } from './config';
@@ -182,6 +183,8 @@ export function replace (task: Task) {
                 item.config = config;
                 item.info = info;
                 item.ext = item.isNative ? item.ext : (info?.extension || '.json');
+            } else {
+                warnID(16201, uuid, item.uuid);
             }
         }
     }
