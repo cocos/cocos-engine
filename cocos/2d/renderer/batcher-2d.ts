@@ -389,7 +389,8 @@ export class Batcher2D implements IBatcher {
             bufferID = renderData.chunk.bufferId;
         }
         // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
-        if (comp.isForMask) {
+        const isForMask = (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED);
+        if (isForMask) {
             this._insertMaskBatch(comp);
         } else {
             comp.stencilStage = StencilManager.sharedManager!.stage;
@@ -425,7 +426,7 @@ export class Batcher2D implements IBatcher {
         }
 
         assembler.fillBuffers(comp, this);
-        if (comp && comp.isForMask) {
+        if (comp && isForMask) {
             StencilManager.sharedManager!.enableMask();
         }
     }
@@ -496,9 +497,10 @@ export class Batcher2D implements IBatcher {
 
         let depthStencil;
         let dssHash = 0;
+        const isForMask = (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED);
         if (mat) {
             // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
-            if (comp.isForMask) {
+            if (isForMask) {
                 this._insertMaskBatch(comp);
             } else {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
@@ -529,7 +531,7 @@ export class Batcher2D implements IBatcher {
             this._batches.push(curDrawBatch);
         }
 
-        if (comp && comp.isForMask) {
+        if (comp && isForMask) {
             StencilManager.sharedManager!.enableMask();
         }
     }
@@ -848,7 +850,7 @@ export class Batcher2D implements IBatcher {
             this._batches.push(curDrawBatch);
         }
 
-        _stencilManager.enterLevel(mask);
+        // _stencilManager.enterLevel(mask);
     }
 
     //sync mesh buffer to naive

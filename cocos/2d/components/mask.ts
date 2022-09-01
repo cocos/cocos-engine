@@ -39,6 +39,7 @@ import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor'
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { MaskMode } from '../renderer/render-entity';
 import { Sprite } from './sprite';
+import { InstanceMaterialType } from '../framework/ui-renderer';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -145,7 +146,6 @@ export class Mask extends Component {
                 this._sprite._destroyImmediate();
                 this._sprite = null;
             }
-            this._spriteFrame = null;
             this._changeRenderType();
             this._updateGraphics();
             if (JSB) {
@@ -181,9 +181,11 @@ export class Mask extends Component {
         this._inverted = value;
         this.stencilStage = Stage.DISABLED;
         if (this._graphics) {
-            this._graphics.stencilStage = Stage.DISABLED;
+            StencilManager.sharedManager!.enterLevel(this);
+            // this._graphics.stencilStage = Stage.DISABLED;
         } else if (this._sprite) {
-            this._sprite.stencilStage = Stage.DISABLED;
+            StencilManager.sharedManager!.enterLevel(this);
+            // this._sprite.stencilStage = Stage.DISABLED;
         }
 
         if (JSB) {
@@ -222,21 +224,14 @@ export class Mask extends Component {
      * @zh
      * 遮罩所需要的贴图。
      */
-    @type(SpriteFrame)
-    @visible(function (this: Mask) {
-        return this.type === MaskType.SPRITE_STENCIL;
-    })
     get spriteFrame () {
-        return this._spriteFrame;
+        if (this._sprite) {
+            return this._sprite.spriteFrame;
+        }
+        return null;
     }
 
     set spriteFrame (value) {
-        if (this._spriteFrame === value) {
-            return;
-        }
-
-        this._spriteFrame = value;
-
         if (this._sprite) {
             this._sprite.spriteFrame = value;
         }
@@ -313,6 +308,10 @@ export class Mask extends Component {
 
     public onLoad () {
         this._changeRenderType();
+        if (this._spriteFrame && !this.spriteFrame) {
+            this.spriteFrame = this._spriteFrame;
+            this._spriteFrame = this.spriteFrame;
+        }
 
         if (JSB) {
             if (this.subComp) {
@@ -410,8 +409,9 @@ export class Mask extends Component {
             // @ts-expect-error Mask hack
             sprite._postAssembler = PostAssembler.getAssembler(sprite);
         }
-        this._sprite!.isForMask = true;
-        this._sprite!.spriteFrame = this._spriteFrame;
+        StencilManager.sharedManager!.enterLevel(this);
+        // @ts-expect-error Mask hack
+        this._sprite!.updateMaterial();
     }
 
     protected _createGraphics () {
@@ -428,7 +428,7 @@ export class Mask extends Component {
             // @ts-expect-error Mask hack
             graphics._postAssembler = PostAssembler.getAssembler(graphics);
         }
-        this._graphics!.isForMask = true;
+        StencilManager.sharedManager!.enterLevel(this);
     }
 
     protected _updateGraphics () {

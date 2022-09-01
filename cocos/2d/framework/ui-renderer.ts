@@ -47,6 +47,7 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { assert, director } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import { IMacroPatch } from '../../core/renderer/core/pass';
 
 // hack
 ccenum(BlendFactor);
@@ -113,6 +114,10 @@ export enum InstanceMaterialType {
      */
     ALPHA_TEST = 5,
 }
+
+const alphaTestPatches: IMacroPatch[] = [
+    { name: 'USE_ALPHA_TEST', value: true },
+];
 
 /**
  * @en Base class for UI components which supports rendering features.
@@ -235,16 +240,6 @@ export class UIRenderer extends Renderer {
         this._renderEntity.setStencilStage(val);
     }
 
-    /**
-     * @internal
-     */
-    get isForMask (): boolean {
-        return this._isForMask;
-    }
-    set isForMask (val: boolean) {
-        this._isForMask = val;
-    }
-
     @override
     protected _materials: (Material | null)[] = [];
     @type(Material)
@@ -257,8 +252,6 @@ export class UIRenderer extends Renderer {
     @serializable
     protected _color: Color = Color.WHITE.clone();
 
-    @serializable
-    protected _isForMask = false;
     protected _stencilStage: Stage = Stage.DISABLED;
 
     protected _assembler: IAssembler | null = null;
@@ -445,6 +438,9 @@ export class UIRenderer extends Renderer {
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
+        if (this.stencilStage === Stage.ENTER_LEVEL || this.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
+            this.getMaterialInstance(0)!.passes[0].getShaderVariant(alphaTestPatches); // todo,not only pass0
+        }
         this._updateBlendFunc();
     }
 

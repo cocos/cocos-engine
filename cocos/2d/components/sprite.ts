@@ -38,6 +38,7 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { Material, RenderTexture } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { legacyCC } from '../../core/global-exports';
+import { Stage } from '../renderer/stencil-manager';
 
 /**
  * @en
@@ -536,8 +537,6 @@ export class Sprite extends UIRenderer {
             this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
         } else if (this.grayscale) {
             this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
-        } else if (this.isForMask) {
-            this._instanceMaterialType = InstanceMaterialType.ALPHA_TEST;
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }

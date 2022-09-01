@@ -256,10 +256,6 @@ export class UIMeshRenderer extends Component {
     get renderData () {
         return this._renderData;
     }
-
-    get isForMask (): boolean {
-        return false;
-    }
 }
 
 legacyCC.UIMeshRenderer = UIMeshRenderer;
