@@ -292,12 +292,6 @@ export class Mask extends Component {
     public onLoad () {
         this._changeRenderType();
 
-        // to migrate spriteframe
-        if (this._spriteFrame && !this.spriteFrame) {
-            this.spriteFrame = this._spriteFrame;
-            this._spriteFrame = null;
-        }
-
         if (JSB) {
             if (this.subComp) {
                 this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
