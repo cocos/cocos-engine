@@ -47,6 +47,15 @@ static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B_C4B {
     gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
 };
 
+static uint32_t getAttributesStride(ccstd::vector<gfx::Attribute>& attrs) {
+    uint32_t stride = 0;
+    for (auto& attr : attrs) {
+        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+        stride += info.size;
+    }
+    return stride;
+}
+
 UIMeshBuffer::~UIMeshBuffer() {
     destroy();
 }
@@ -59,25 +68,9 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* /*device*/,Vertex2DFormat vfm, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
-    switch (vfm) {
-        case Vertex2DFormat::V3F_T2F_C4F: {
-            _attributes = ATTRIBUTES_V3F_T2F_C4F;
-            _vertexFormatBytes = 9 * sizeof(float);
-        } break;
-        case Vertex2DFormat::V3F_T2F_C4B: {
-            _attributes = ATTRIBUTES_V3F_T2F_C4B;
-            _vertexFormatBytes = 6 * sizeof(float);
-        } break;
-        case Vertex2DFormat::V3F_T2F_C4B_C4B: {
-            _attributes = ATTRIBUTES_V3F_T2F_C4B_C4B;
-            _vertexFormatBytes = 7 * sizeof(float);
-        } break;
-        default: {
-            _attributes = ATTRIBUTES_V3F_T2F_C4F;
-            _vertexFormatBytes = 9 * sizeof(float);
-        } break;
-    }
+void UIMeshBuffer::initialize(gfx::Device* /*device*/,ccstd::vector<gfx::Attribute> &&attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
+    _attributes = attrs;
+    _vertexFormatBytes = getAttributesStride(attrs);
 }
 
 void UIMeshBuffer::reset() {

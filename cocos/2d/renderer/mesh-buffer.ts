@@ -198,14 +198,7 @@ export class MeshBuffer {
         // Initialize the first ia
         this._iaPool.push(this.createNewIA(device));
         if (JSB) {
-            // default vfmtPosUvColor
-            let vfm = Vertex2DFormat.V3F_T2F_C4F;
-            if (attrs === vfmtPosUvColor4B) {
-                vfm = Vertex2DFormat.V3F_T2F_C4B;
-            } else if (attrs === vfmtPosUvTwoColor4B) {
-                vfm = Vertex2DFormat.V3F_T2F_C4B_C4B;
-            }
-            this._nativeObj.initialize(device, vfm, vFloatCount, iCount);
+            this._nativeObj.initialize(device, attrs, vFloatCount, iCount);
         }
     }
 
