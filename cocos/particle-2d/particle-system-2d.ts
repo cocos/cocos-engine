@@ -502,7 +502,7 @@ export class ParticleSystem2D extends UIRenderer {
     public set positionType (val) {
         this._positionType = val;
         this._updateMaterial();
-        this.updatePositionType();
+        this._updatePositionType();
     }
 
     /**
@@ -751,6 +751,7 @@ export class ParticleSystem2D extends UIRenderer {
     public onEnable () {
         super.onEnable();
         this._updateMaterial();
+        this._updatePositionType();
     }
 
     public onDestroy () {
@@ -805,12 +806,6 @@ export class ParticleSystem2D extends UIRenderer {
         if (this._previewTimer) {
             clearInterval(this._previewTimer);
         }
-    }
-
-    public onLoad () {
-        super.onLoad();
-
-        this.updatePositionType();
     }
 
     public __preload () {
@@ -1207,7 +1202,7 @@ export class ParticleSystem2D extends UIRenderer {
         }
     }
 
-    protected updatePositionType () {
+    protected _updatePositionType () {
         if (this._positionType === PositionType.RELATIVE) {
             this._renderEntity.setUseLocalNode(this.node.parent);
             this._renderEntity.setUseLocal(true);
