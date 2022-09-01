@@ -310,10 +310,6 @@ export class Mask extends Component {
 
     public onLoad () {
         this._changeRenderType();
-        if (this._spriteFrame && !this.spriteFrame) {
-            this.spriteFrame = this._spriteFrame;
-            this._spriteFrame = this.spriteFrame;
-        }
 
         if (JSB) {
             if (this.subComp) {
