@@ -29,7 +29,7 @@ import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 import { codeAsset } from './rollup-plugins/code-asset';
 import { ModeType, PlatformType } from './constant-manager';
-import { externalAsset } from './rollup-plugins/external-asset';
+import { assetUrl } from './rollup-plugins/asset-url';
 
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
@@ -540,8 +540,8 @@ async function doBuild ({
         defaultHandler(warning);
     };
 
-    rollupPlugins.unshift(externalAsset({
-        externalRoot: ps.join(engineRoot, 'native/external'),
+    rollupPlugins.unshift(assetUrl({
+        engineRoot,
         useWebGPU,
     }));
 

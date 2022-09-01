@@ -3,14 +3,14 @@ import fs from 'fs-extra';
 import ps, { join } from 'path';
 
 interface IOptions {
-    externalRoot: string;
+    engineRoot: string,
     useWebGPU?: boolean;
 }
-const PREFIX = '\0external:';
-const EXTERNAL = 'external:';
+const URL_PROTOCOL = 'url:';
+const PREFIX = `\0${URL_PROTOCOL}`;
 
-export function externalAsset ({
-    externalRoot,
+export function assetUrl ({
+    engineRoot,
     useWebGPU = false,
 }: IOptions): rollup.Plugin {
     const files = new Set<string>();
@@ -18,9 +18,9 @@ export function externalAsset ({
         name: '@cocos/build-engine|external-asset',
 
         async resolveId (this, source, importer) {
-            if (source.startsWith(EXTERNAL) && importer) {
-                const subPath = source.substring(EXTERNAL.length);
-                const externalAssetPath = join(externalRoot, subPath);
+            if (source.startsWith(URL_PROTOCOL) && importer) {
+                const subPath = source.substring(URL_PROTOCOL.length);
+                const externalAssetPath = join(engineRoot, subPath);
                 return PREFIX + externalAssetPath;
             }
 
@@ -31,7 +31,7 @@ export function externalAsset ({
             if (id.startsWith(PREFIX)) {
                 const path = id.substring(PREFIX.length);
                 if (!useWebGPU) {
-                    return `export const url = '';`;
+                    return `export default '';`;
                 }
                 const referenceId = this.emitFile({
                     type: 'asset',
@@ -39,7 +39,7 @@ export function externalAsset ({
                     source: await fs.readFile(path),
                 });
                 files.add(referenceId);
-                return `export const url = import.meta.ROLLUP_FILE_URL_${referenceId};`;
+                return `export default import.meta.ROLLUP_FILE_URL_${referenceId};`;
             }
             return null;
         },
