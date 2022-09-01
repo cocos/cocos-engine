@@ -96,7 +96,7 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 
-    uint32_t maxJoints = std::floor(_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
+    uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
 }
