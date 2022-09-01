@@ -62,9 +62,10 @@ Batcher2d::~Batcher2d() { // NOLINT
         _maskClearModel = nullptr;
     }
     if (_maskModelMesh != nullptr) {
-        _maskClearMtl->destroy();
+        _maskModelMesh->destroy();
         _maskModelMesh = nullptr;
     }
+    _maskClearMtl = nullptr;
     _maskAttributes.clear();
 
 }
@@ -142,8 +143,8 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
 }
 
 void Batcher2d::handlePostRender(RenderEntity* entity) {
-    bool isSubMask = entity->getIsSubMask();
-    if (isSubMask) {
+    bool isMask = entity->getIsMask();
+    if (isMask) {
         generateBatch(_currEntity, _currDrawInfo);
         resetRenderStates();
         _stencilManager->exitMask();
@@ -156,8 +157,8 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
     }
 
     // may slow
-    bool isSubMask = entity->getIsSubMask();
-    if (isSubMask) {
+    bool isMask = entity->getIsMask();
+    if (isMask) {
         // Mask subComp
         _insertMaskBatch(entity);
     } else {
@@ -205,7 +206,7 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
         fillIndexBuffers(drawInfo);
     }
 
-    if (isSubMask) {
+    if (isMask) {
         _stencilManager->enableMask();
     }
 }
@@ -219,8 +220,8 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
     ccstd::hash_t dssHash = 0;
     Material* renderMat = drawInfo->getMaterial();
 
-    bool isSubMask = entity->getIsSubMask();
-    if (isSubMask) {
+    bool isMask = entity->getIsMask();
+    if (isMask) {
         //Mask Comp
         _insertMaskBatch(entity);
     } else {
@@ -250,7 +251,7 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
         _batches.push_back(curdrawBatch);
     }
 
-    if(isSubMask) {
+    if(isMask) {
         _stencilManager->enableMask();
     }
 }

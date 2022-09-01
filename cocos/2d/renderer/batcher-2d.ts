@@ -386,8 +386,7 @@ export class Batcher2D implements IBatcher {
             bufferID = renderData.chunk.bufferId;
         }
         // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
-        const isForMask = (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED);
-        if (isForMask) {
+        if (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
             this._insertMaskBatch(comp);
         } else {
             comp.stencilStage = StencilManager.sharedManager!.stage;
@@ -423,9 +422,6 @@ export class Batcher2D implements IBatcher {
         }
 
         assembler.fillBuffers(comp, this);
-        if (comp && isForMask) {
-            StencilManager.sharedManager!.enableMask();
-        }
     }
 
     /**
@@ -494,10 +490,9 @@ export class Batcher2D implements IBatcher {
 
         let depthStencil;
         let dssHash = 0;
-        const isForMask = (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED);
         if (mat) {
             // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
-            if (isForMask) {
+            if (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
                 this._insertMaskBatch(comp);
             } else {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
@@ -526,10 +521,6 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
             curDrawBatch.descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
-        }
-
-        if (comp && isForMask) {
-            StencilManager.sharedManager!.enableMask();
         }
     }
 
@@ -751,6 +742,12 @@ export class Batcher2D implements IBatcher {
         // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
+            if ((render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)
+            && (StencilManager.sharedManager!.getMaskStackSize() > 0)) {
+                this.autoMergeBatches(this._currComponent!);
+                this.resetRenderStates();
+                StencilManager.sharedManager!.exitMask();
+            }
         }
 
         level += 1;
@@ -767,11 +764,6 @@ export class Batcher2D implements IBatcher {
         } else {
             this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
         }
-    }
-
-    public maskFinishMergeBatches () {
-        this.autoMergeBatches(this._currComponent!);
-        this.resetRenderStates();
     }
 
     // Mask use
@@ -808,20 +800,20 @@ export class Batcher2D implements IBatcher {
     }
 
     private _insertMaskBatch (comp: UIRenderer | UIMeshRenderer) {
-        const mask = comp.node.getComponent(Mask)!;
-        this.maskFinishMergeBatches();
+        this.autoMergeBatches(this._currComponent!);
+        this.resetRenderStates();
         this._createClearModel();
-        this._maskClearModel!.node = this._maskClearModel!.transform = mask.node;
+        this._maskClearModel!.node = this._maskClearModel!.transform = comp.node;
         const _stencilManager = StencilManager.sharedManager!;
         _stencilManager.pushMask(1);//not need object，only use length
-        _stencilManager.clear(mask); //invert
+        const stage =  _stencilManager.clear(comp); //invert
 
         let depthStencil;
         let dssHash = 0;
         const mat = this._maskClearMtl;
         if (mat) {
-            depthStencil = StencilManager.sharedManager!.getStencilStage(mask.stencilStage, mat);
-            dssHash = StencilManager.sharedManager!.getStencilHash(mask.stencilStage);
+            depthStencil = _stencilManager.getStencilStage(stage, mat);
+            dssHash = _stencilManager.getStencilHash(stage);
         }
 
         const model = this._maskClearModel!;
@@ -834,7 +826,7 @@ export class Batcher2D implements IBatcher {
         for (let i = 0; i < model.subModels.length; i++) {
             const curDrawBatch = this._drawBatchPool.alloc();
             const subModel = model.subModels[i];
-            curDrawBatch.visFlags = mask.node.layer;
+            curDrawBatch.visFlags = comp.node.layer;
             curDrawBatch.model = model;
             curDrawBatch.texture = null;
             curDrawBatch.sampler = null;
@@ -846,8 +838,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
         }
-
-        // _stencilManager.enterLevel(mask);
+        _stencilManager.enableMask();
     }
 
     //sync mesh buffer to naive

@@ -275,16 +275,6 @@ export class Graphics extends UIRenderer {
         this._flushAssembler();
     }
 
-    // hack for mask
-    protected _postRender (render: IBatcher) {
-        if (!this._postAssembler) {
-            return;
-        }
-
-        render.maskFinishMergeBatches();
-        this._postAssembler.fillBuffers(this, render);
-    }
-
     public onEnable () {
         super.onEnable();
         this._updateMtlForGraphics();

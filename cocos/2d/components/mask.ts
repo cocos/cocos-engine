@@ -24,19 +24,17 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide, executeInEditMode } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, serializable, range, slide, executeInEditMode } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { IBatcher } from '../renderer/i-batcher';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { NodeEventType, Component } from '../../core';
 import { legacyCC } from '../../core/global-exports';
-import { Stage, StencilManager } from '../renderer/stencil-manager';
+import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
-import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { MaskMode } from '../renderer/render-entity';
 import { Sprite } from './sprite';
 
@@ -148,7 +146,7 @@ export class Mask extends Component {
             this._changeRenderType();
             this._updateGraphics();
             if (JSB) {
-                this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
+                this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
             }
         } else {
             if (this._graphics) {
@@ -159,7 +157,7 @@ export class Mask extends Component {
             }
             this._changeRenderType();
             if (JSB) {
-                this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
+                this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
             }
         }
     }
@@ -179,16 +177,10 @@ export class Mask extends Component {
     set inverted (value) {
         this._inverted = value;
         this.stencilStage = Stage.DISABLED;
-        if (this._graphics) {
-            StencilManager.sharedManager!.enterLevel(this);
-            // this._graphics.stencilStage = Stage.DISABLED;
-        } else if (this._sprite) {
-            StencilManager.sharedManager!.enterLevel(this);
-            // this._sprite.stencilStage = Stage.DISABLED;
-        }
+        this.subComp!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
 
         if (JSB) {
-            this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
+            this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
         }
     }
 
@@ -222,6 +214,7 @@ export class Mask extends Component {
      *
      * @zh
      * 遮罩所需要的贴图。
+     * @deprecated since v3.6.1
      */
     get spriteFrame () {
         if (this._sprite) {
@@ -313,12 +306,12 @@ export class Mask extends Component {
         // to migrate spriteframe
         if (this._spriteFrame && !this.spriteFrame) {
             this.spriteFrame = this._spriteFrame;
-            this._spriteFrame = this.spriteFrame;
+            this._spriteFrame = null;
         }
 
         if (JSB) {
             if (this.subComp) {
-                this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
+                this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
             }
         }
     }
@@ -409,10 +402,8 @@ export class Mask extends Component {
             }
             sprite.color = Color.WHITE.clone();
             sprite.sizeMode = 0;
-            // @ts-expect-error Mask hack
-            sprite._postAssembler = PostAssembler.getAssembler(sprite);
         }
-        StencilManager.sharedManager!.enterLevel(this);
+        this._sprite!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
         // @ts-expect-error Mask hack
         this._sprite!.updateMaterial();
     }
@@ -428,10 +419,8 @@ export class Mask extends Component {
             const color = Color.WHITE.clone();
             color.a = 0;
             graphics.fillColor = color;
-            // @ts-expect-error Mask hack
-            graphics._postAssembler = PostAssembler.getAssembler(graphics);
         }
-        StencilManager.sharedManager!.enterLevel(this);
+        this._graphics!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
     }
 
     protected _updateGraphics () {
@@ -478,6 +467,8 @@ export class Mask extends Component {
     protected _disableRender () {
         if (this.subComp) {
             this.subComp.stencilStage = Stage.DISABLED;
+            // @ts-expect-error Mask hack
+            this.subComp.updateMaterial();
             this.subComp.enabled = false;
         }
     }
@@ -493,19 +484,6 @@ export class Mask extends Component {
         }
     }
 }
-
-// postAssembler
-const maskEndAssembler: IAssembler = {
-    fillBuffers (mask: Mask, ui: IBatcher) {
-        StencilManager.sharedManager!.exitMask();
-    },
-};
-
-const PostAssembler: IAssemblerManager = {
-    getAssembler () {
-        return maskEndAssembler;
-    },
-};
 
 NodeEventProcessor._maskComp = Mask;
 
