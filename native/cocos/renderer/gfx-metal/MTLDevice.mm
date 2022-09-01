@@ -166,9 +166,11 @@ void CCMTLDevice::doDestroy() {
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
     
     for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
-        _inFlightSemaphore->trySyncAll(1000);
-        CC_SAFE_DELETE(_inFlightSemaphore);
-        _inFlightSemaphore = nullptr;
+        if(_inFlightSemaphore) {
+            _inFlightSemaphore->trySyncAll(1000);
+            CC_SAFE_DELETE(_inFlightSemaphore);
+            _inFlightSemaphore = nullptr;
+        }
     }
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
