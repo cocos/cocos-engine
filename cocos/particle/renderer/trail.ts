@@ -368,6 +368,9 @@ export default class TrailModule {
             const b = ps.bursts[i];
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
+        if (this.lifeTime.getMax() < 1.0) {
+            console.warn('Life time should bigger than 1 or buffer will be insufficient');
+        }
         this._trailNum = Math.ceil(psTime * Math.ceil(this.lifeTime.getMax()) * 60 * (psRate * duration + burstCount));
         this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment) => obj.trailElements.length = 0);
         if (this._enable) {
