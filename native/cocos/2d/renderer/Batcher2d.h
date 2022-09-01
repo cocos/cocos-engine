@@ -134,8 +134,8 @@ private:
         }
     }
     
-    void _insertMaskBatch(RenderEntity* entity);
-    void _createClearModel ();
+    void insertMaskBatch(RenderEntity* entity);
+    void createClearModel ();
 
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout);
 

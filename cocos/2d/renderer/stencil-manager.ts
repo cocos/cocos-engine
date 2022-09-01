@@ -23,12 +23,8 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
-import { Mask } from '../components/mask';
 import { Material } from '../../core';
-import { NativeStencilManager } from './native-2d';
-import { boolean } from '../../core/data/decorators';
 import { UIRenderer } from '../framework/ui-renderer';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 

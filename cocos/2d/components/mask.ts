@@ -176,7 +176,6 @@ export class Mask extends Component {
 
     set inverted (value) {
         this._inverted = value;
-        this.stencilStage = Stage.DISABLED;
         this.subComp!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
 
         if (JSB) {
@@ -267,16 +266,6 @@ export class Mask extends Component {
 
     get subComp () {
         return this._graphics || this._sprite;
-    }
-
-    /**
-     * @internal
-     */
-    get stencilStage (): Stage {
-        return this._stencilStage;// for invert
-    }
-    set stencilStage (val: Stage) {
-        this._stencilStage = val;
     }
 
     @serializable

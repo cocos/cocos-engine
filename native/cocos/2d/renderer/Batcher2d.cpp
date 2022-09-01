@@ -160,7 +160,7 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
     bool isMask = entity->getIsMask();
     if (isMask) {
         // Mask subComp
-        _insertMaskBatch(entity);
+        insertMaskBatch(entity);
     } else {
         entity->setEnumStencilStage(_stencilManager->getStencilStage());
     }
@@ -223,7 +223,7 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
     bool isMask = entity->getIsMask();
     if (isMask) {
         //Mask Comp
-        _insertMaskBatch(entity);
+        insertMaskBatch(entity);
     } else {
         entity->setEnumStencilStage(_stencilManager->getStencilStage());
     }
@@ -525,10 +525,10 @@ void Batcher2d::reset() {
     // stencilManager
 }
 
-void Batcher2d::_insertMaskBatch(RenderEntity* entity){
+void Batcher2d::insertMaskBatch(RenderEntity* entity){
     generateBatch(_currEntity, _currDrawInfo);
     resetRenderStates();
-    _createClearModel();
+    createClearModel();
     _maskClearModel->setNode(entity->getNode());
     _maskClearModel->setTransform(entity->getNode());
     _stencilManager->pushMask();
@@ -562,18 +562,18 @@ void Batcher2d::_insertMaskBatch(RenderEntity* entity){
     _stencilManager->enterLevel(entity);
 }
 
-void Batcher2d::_createClearModel() {
+void Batcher2d::createClearModel() {
     if (_maskClearModel == nullptr) {
         _maskClearMtl = BuiltinResMgr::getInstance()->get<Material>(ccstd::string("default-clear-stencil"));
 
         _maskClearModel = Root::getInstance()->createModel<scene::Model>();
-        uint32_t _stride = 12;// vfmt
+        uint32_t stride = 12;// vfmt
 
         auto* vertexBuffer = _device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
-            4 * _stride,
-            _stride,
+            4 * stride,
+            stride,
         });
         const float vertices[] = {-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0};
         vertexBuffer->update(vertices);
