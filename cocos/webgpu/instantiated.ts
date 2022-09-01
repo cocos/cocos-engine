@@ -24,14 +24,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { legacyCC } from '../core/global-exports';
-
-// import glslangURL from '@cocos/webgpu/glslang.wasmurl';
-// import webgpuURL from '@cocos/webgpu/webgpu_wasm.wasmurl';
-// import glslangLoader from '@cocos/webgpu/glslang';
-import wasmDevice from './webgpu_wasm';
-import glslangLoader from './glslang';
 import { WEBGPU } from 'internal:constants';
+import webgpuUrl from 'url:native/external/emscripten/webgpu/webgpu_wasm.wasm';
+import glslangUrl from 'url:native/external/emscripten/webgpu/glslang.wasm';
+import wasmDevice from '../../native/external/emscripten/webgpu/webgpu_wasm.js';
+import glslangLoader from '../../native/external/emscripten/webgpu/glslang.js';
+import { legacyCC } from '../core/global-exports';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -50,12 +48,13 @@ export const webgpuAdapter: any = {
 export const promiseForWebGPUInstantiation = (() => {
     if (WEBGPU) {
         return Promise.all([
-            glslangLoader('./glslang.wasm').then((res) => {
+            // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', or 'nodenext'.
+            glslangLoader(new URL(glslangUrl, import.meta.url).href).then((res) => {
                 glslalgWasmModule.glslang = res;
             }),
             new Promise<void>((resolve) => {
-                //http://192.168.52.147:7456
-                fetch('./webgpu_wasm.wasm').then((response) => {
+                // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', or 'nodenext'.
+                fetch(new URL(webgpuUrl, import.meta.url).href).then((response) => {
                     response.arrayBuffer().then((buffer) => {
                         gfx.wasmBinary = buffer;
                         wasmDevice(gfx).then(() => {
