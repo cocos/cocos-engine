@@ -129,12 +129,6 @@ export function getAttributeStride (attrs: Attribute[]) {
     return count;
 }
 
-export enum Vertex2DFormat {
-    V3F_T2F_C4F,
-    V3F_T2F_C4B,
-    V3F_T2F_C4B_C4B,
-}
-
 legacyCC.internal.vfmtPosUvColor = vfmtPosUvColor;
 legacyCC.internal.vfmtPosUvTwoColor = vfmtPosUvTwoColor;
 legacyCC.internal.vfmtPosUvColor4B = vfmtPosUvColor4B;

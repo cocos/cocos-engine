@@ -29,11 +29,6 @@
 #include "renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {
-enum class Vertex2DFormat {
-    V3F_T2F_C4F,
-    V3F_T2F_C4B,
-    V3F_T2F_C4B_C4B,
-};
 
 struct MeshBufferLayout {
     uint32_t byteOffset;
