@@ -101,7 +101,7 @@ void Root::initialize(gfx::Swapchain *swapchain) {
 
     uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
-    pipeline::localDescriptorSetLayout_ResizeMaxJoints(maxJoints);
+    pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
