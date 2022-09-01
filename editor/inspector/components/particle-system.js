@@ -734,7 +734,7 @@ exports.listeners = {
             textureAnimationModule: 'A100007',
             'limitVelocityOvertimeModule.enable':'A100008',
             'trailModule.enable': 'A100009',
-            'renderer.useGPU': 'A1000010',
+            'renderer.useGPU': 'A100010',
         };
 
         const dumpKey = Object.keys(trackMap).find(key => dump.path.endsWith(key));
