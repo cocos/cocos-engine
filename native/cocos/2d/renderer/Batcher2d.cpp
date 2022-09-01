@@ -464,12 +464,12 @@ void Batcher2d::uploadBuffers() {
 #if CC_USE_MIDDLEWARE
             // set vData and iData With Middleware buffer.
             if (buffer->getUseLinkData()) {
-                int nativeFormat = 9;
+                int nativeFormat = 6;
                 size_t index = i;
                 if (buffer->getAttributes().size() == 3) {
                     i++;
                 } else {
-                    nativeFormat = 13;
+                    nativeFormat = 7;
                     index = ii;
                     ii++;
                 }
