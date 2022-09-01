@@ -374,6 +374,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
 
+        if (ps.node.parent) {
+            ps.node.parent.getWorldMatrix(_tempWorldTrans);
+            _tempWorldTrans.invert();
+        }
+
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
@@ -395,8 +400,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
                 if (ps.node.parent) {
-                    ps.node.parent.getWorldMatrix(_tempWorldTrans);
-                    _tempWorldTrans.invert();
                     this._gravity = this._gravity.transformMat4(_tempWorldTrans);
                 }
                 this._gravity = this._gravity.transformMat4(this._localMat);

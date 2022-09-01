@@ -210,6 +210,11 @@ export class ParticleCuller {
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
 
+        if (ps.node.parent) {
+            ps.node.parent.getWorldMatrix(_node_parent);
+            _node_parent.invert();
+        }
+
         for (let i = 0; i < particleLst.length; ++i) {
             const p: Particle = particleLst[i];
             p.remainingLifetime -= dt;
@@ -222,8 +227,6 @@ export class ParticleCuller {
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
                 if (ps.node.parent) {
-                    ps.node.parent.getWorldMatrix(_node_parent);
-                    _node_parent.invert();
                     this._gravity = this._gravity.transformMat4(_node_parent);
                 }
                 this._gravity = this._gravity.transformMat4(this._localMat);
