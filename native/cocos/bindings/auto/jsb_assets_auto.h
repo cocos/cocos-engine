@@ -738,6 +738,10 @@ bool js_register_cc_Mesh_IStruct(se::Object *obj); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &, cc::Mesh::IStruct *, se::Object *ctx); //NOLINT
+SE_DECLARE_FUNC(js_assets_IStruct_getMaxPosition);
+SE_DECLARE_FUNC(js_assets_IStruct_getMinPosition);
+SE_DECLARE_FUNC(js_assets_IStruct_setMaxPosition);
+SE_DECLARE_FUNC(js_assets_IStruct_setMinPosition);
 
 extern se::Object *__jsb_cc_Mesh_ICreateInfo_proto;   // NOLINT
 extern se::Class *__jsb_cc_Mesh_ICreateInfo_class;    // NOLINT
@@ -757,6 +761,8 @@ SE_DECLARE_FUNC(js_assets_Mesh_copyAttribute);
 SE_DECLARE_FUNC(js_assets_Mesh_copyIndices);
 SE_DECLARE_FUNC(js_assets_Mesh_destroyRenderingMesh);
 SE_DECLARE_FUNC(js_assets_Mesh_getBoneSpaceBounds);
+SE_DECLARE_FUNC(js_assets_Mesh_getMaxPosition);
+SE_DECLARE_FUNC(js_assets_Mesh_getMinPosition);
 SE_DECLARE_FUNC(js_assets_Mesh_getStruct);
 SE_DECLARE_FUNC(js_assets_Mesh_initialize);
 SE_DECLARE_FUNC(js_assets_Mesh_merge);
