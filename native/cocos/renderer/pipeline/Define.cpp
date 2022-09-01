@@ -588,7 +588,7 @@ uint32_t getPhaseID(const ccstd::string& phaseName) {
     return phases.at(phaseName);
 }
 
-void localDescriptorSetLayout_ResizeMaxJoints(uint32_t maxCount) {
+void localDescriptorSetLayoutResizeMaxJoints(uint32_t maxCount) {
     UBOSkinning::initLayout(maxCount);
     localDescriptorSetLayout.blocks[UBOSkinning::NAME] = UBOSkinning::layout;
     localDescriptorSetLayout.bindings[UBOSkinning::BINDING] = UBOSkinning::DESCRIPTOR;
