@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_MAT4_H
-#define MATH_MAT4_H
+#pragma once
 
 #include "base/Macros.h"
 
@@ -918,6 +917,11 @@ public:
      */
     inline Mat4 &operator*=(const Mat4 &mat);
 
+    /**
+     * Determines if this matrix is approximately equal to the given matrix.
+     */
+    bool approxEquals(const Mat4& v, float precision = CC_FLOAT_CMP_PRECISION) const;
+
     /** equals to a matrix full of zeros */
     static const Mat4 ZERO;
     /** equals to the identity matrix */
@@ -957,5 +961,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Mat4.inl"
-
-#endif // MATH_MAT4_H
