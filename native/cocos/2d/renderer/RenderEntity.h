@@ -95,8 +95,8 @@ public:
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
 
-    inline Node* getUseLocalNode() const { return _useLocalNode; }
-    void setUseLocalNode(Node* useLocalNode);
+    inline Node* getRenderTransform() const { return _renderTransform; }
+    void setRenderTransform(Node* renderTransform);
 
     inline uint32_t getStencilStage() const { return static_cast<uint32_t>(_stencilStage); }
     inline void setStencilStage(uint32_t stage) {
@@ -141,7 +141,7 @@ private:
     Node* _node{nullptr};
 
     // weak reference
-    Node* _useLocalNode{nullptr};
+    Node* _renderTransform{nullptr};
 
     EntityAttrLayout _entityAttrLayout;
     float _opacity{1.0F};

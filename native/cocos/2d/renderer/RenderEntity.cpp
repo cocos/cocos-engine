@@ -86,8 +86,8 @@ void RenderEntity::setNode(Node* node) {
     }
 }
 
-void RenderEntity::setUseLocalNode(Node* useLocalNode) {
-    _useLocalNode = useLocalNode;
+void RenderEntity::setRenderTransform(Node* renderTransform) {
+    _renderTransform = renderTransform;
 }
 
 RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {

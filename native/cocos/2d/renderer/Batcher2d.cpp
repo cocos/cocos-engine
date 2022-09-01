@@ -365,7 +365,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     const auto& pass = curdrawBatch->getPasses().at(0);
 
     if (entity->getUseLocal()) {
-        drawInfo->updateLocalDescriptorSet(entity->getUseLocalNode(), pass->getLocalSetLayout());
+        drawInfo->updateLocalDescriptorSet(entity->getRenderTransform(), pass->getLocalSetLayout());
         curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
     } else {
         curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));

@@ -48,7 +48,7 @@ export class RenderEntity {
     private _dynamicDrawInfoArr: RenderDrawInfo[] = [];
 
     protected _node: Node | null = null;
-    protected _useLocalNode: Node | null = null;
+    protected _renderTransform: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
     protected _useLocal = false;
     protected _maskMode = MaskMode.NONE;
@@ -198,13 +198,13 @@ export class RenderEntity {
         this._node = node;
     }
 
-    setUseLocalNode (useLocalNode: Node | null) {
+    setRenderTransform (renderTransform: Node | null) {
         if (JSB) {
-            if (this._useLocalNode !== useLocalNode) {
-                this._nativeObj.useLocalNode = useLocalNode;
+            if (this._renderTransform !== renderTransform) {
+                this._nativeObj.renderTransform = renderTransform;
             }
         }
-        this._useLocalNode = useLocalNode;
+        this._renderTransform = renderTransform;
     }
 
     setStencilStage (stage: Stage) {

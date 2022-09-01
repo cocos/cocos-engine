@@ -1204,13 +1204,13 @@ export class ParticleSystem2D extends UIRenderer {
 
     protected _updatePositionType () {
         if (this._positionType === PositionType.RELATIVE) {
-            this._renderEntity.setUseLocalNode(this.node.parent);
+            this._renderEntity.setRenderTransform(this.node.parent);
             this._renderEntity.setUseLocal(true);
         } else if (this.positionType === PositionType.GROUPED) {
-            this._renderEntity.setUseLocalNode(this.node);
+            this._renderEntity.setRenderTransform(this.node);
             this._renderEntity.setUseLocal(true);
         } else {
-            this._renderEntity.setUseLocalNode(null);
+            this._renderEntity.setRenderTransform(null);
             this._renderEntity.setUseLocal(false);
         }
     }
