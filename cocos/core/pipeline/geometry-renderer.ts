@@ -50,6 +50,7 @@ const _v4 = new Vec3();
 const _v5 = new Vec3();
 const _v6 = new Vec3();
 const _v7 = new Vec3();
+const _v8 = new Vec3();
 
 /**
  * GEOMETRY_DEPTH_TYPE_COUNT:
