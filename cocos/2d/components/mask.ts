@@ -277,10 +277,6 @@ export class Mask extends Component {
     @serializable
     protected _segments = 64;
 
-    // for image stencil
-    @serializable
-    protected _spriteFrame: SpriteFrame | null = null;
-
     @serializable
     protected _alphaThreshold = 0.1;
 
