@@ -1,7 +1,19 @@
-declare module 'external:emscripten/webgpu/webgpu_wasm.wasm' {
-    export const url: string;
+declare module 'external:native/external/emscripten/webgpu/webgpu_wasm.wasmurl' {
+    const url: string;
+    export default url;
 }
 
-declare module 'external:emscripten/webgpu/glslang.wasm' {
-    export const url: string;
+declare module 'external:native/external/emscripten/webgpu/glslang.wasmurl' {
+    const url: string;
+    export default url;
+}
+
+declare module 'external:native/external/emscripten/webgpu/webgpu_wasm.js' {
+    const module: any;
+    export default module;
+}
+
+declare module 'external:native/external/emscripten/webgpu/glslang.js' {
+    const module: any;
+    export default module;
 }

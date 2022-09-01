@@ -25,11 +25,11 @@
  THE SOFTWARE.
  */
 import { WEBGPU } from 'internal:constants';
-import { url as webgpuUrl } from 'external:emscripten/webgpu/webgpu_wasm.wasm';
-import { url as glslangUrl } from 'external:emscripten/webgpu/glslang.wasm';
+import webgpuUrl from 'external:native/external/emscripten/webgpu/webgpu_wasm.wasmurl';
+import glslangUrl from 'external:native/external/emscripten/webgpu/glslang.wasmurl';
+import wasmDevice from 'external:native/external/emscripten/webgpu/webgpu_wasm.js';
+import glslangLoader from 'external:native/external/emscripten/webgpu/glslang.js';
 import { legacyCC } from '../core/global-exports';
-import wasmDevice from './webgpu_wasm';
-import glslangLoader from './glslang';
 
 export const glslalgWasmModule: any = {
     glslang: null,
