@@ -413,7 +413,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
 }
 
 scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) const {
-    scene::RenderWindow *window = ccnew scene::RenderWindow();
+    auto *window = ccnew scene::RenderWindow();
 
     window->initialize(_device, info);
     return window;
