@@ -47,7 +47,6 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { assert, director } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
-import { IMacroPatch } from '../../core/renderer/core/pass';
 
 // hack
 ccenum(BlendFactor);
@@ -104,20 +103,7 @@ export enum InstanceMaterialType {
      * 着色器带颜色和贴图属性,并使用灰度模式。
      */
     USE_ALPHA_SEPARATED_AND_GRAY = 4,
-
-    /**
-     * @en
-     * The shader uses alpha test.
-     *
-     * @zh
-     * 着色器使用透明度测试。
-     */
-    ALPHA_TEST = 5,
 }
-
-const alphaTestPatches: IMacroPatch[] = [
-    { name: 'USE_ALPHA_TEST', value: true },
-];
 
 /**
  * @en Base class for UI components which supports rendering features.
@@ -558,9 +544,6 @@ export class UIRenderer extends Renderer {
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
             mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep-material`);
-            break;
-        case InstanceMaterialType.ALPHA_TEST:
-            mat = builtinResMgr.get(`ui-alpha-test-material`);
             break;
         default:
             mat = builtinResMgr.get(`ui-sprite-material`);

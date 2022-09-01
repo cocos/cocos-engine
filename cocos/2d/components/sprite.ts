@@ -38,7 +38,6 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { Material, RenderTexture } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { legacyCC } from '../../core/global-exports';
-import { Stage } from '../renderer/stencil-manager';
 
 /**
  * @en

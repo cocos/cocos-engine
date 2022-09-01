@@ -39,7 +39,6 @@ import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor'
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { MaskMode } from '../renderer/render-entity';
 import { Sprite } from './sprite';
-import { InstanceMaterialType } from '../framework/ui-renderer';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -311,6 +310,12 @@ export class Mask extends Component {
     public onLoad () {
         this._changeRenderType();
 
+        // to migrate spriteframe
+        if (this._spriteFrame && !this.spriteFrame) {
+            this.spriteFrame = this._spriteFrame;
+            this._spriteFrame = this.spriteFrame;
+        }
+
         if (JSB) {
             if (this.subComp) {
                 this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_NODE_INVERTED : MaskMode.MASK_NODE);
@@ -472,6 +477,7 @@ export class Mask extends Component {
 
     protected _disableRender () {
         if (this.subComp) {
+            this.subComp.stencilStage = Stage.DISABLED;
             this.subComp.enabled = false;
         }
     }
