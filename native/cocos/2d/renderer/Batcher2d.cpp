@@ -364,7 +364,12 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
 
-    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+    if (entity->getUseLocal()) {
+        drawInfo->updateLocalDescriptorSet(entity->getRenderTransform(), pass->getLocalSetLayout());
+        curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
+    } else {
+        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+    }
     _batches.push_back(curdrawBatch);
 }
 

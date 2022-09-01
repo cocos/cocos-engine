@@ -1562,6 +1562,26 @@ static bool js_2d_RenderEntity_getRenderDrawInfosSize(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_2d_RenderEntity_getRenderDrawInfosSize)
 
+static bool js_2d_RenderEntity_getRenderTransform(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::Node* result = cobj->getRenderTransform();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_GET(js_2d_RenderEntity_getRenderTransform)
+
 static bool js_2d_RenderEntity_getStaticDrawInfoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -1763,6 +1783,26 @@ static bool js_2d_RenderEntity_setOpacity(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_2d_RenderEntity_setOpacity)
 
+static bool js_2d_RenderEntity_setRenderTransform(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Node*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setRenderTransform(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC_AS_PROP_SET(js_2d_RenderEntity_setRenderTransform)
+
 static bool js_2d_RenderEntity_setStaticDrawInfoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::RenderEntity>(s);
@@ -1854,6 +1894,7 @@ bool js_register_2d_RenderEntity(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("node", _SE(js_2d_RenderEntity_getNode_asGetter), _SE(js_2d_RenderEntity_setNode_asSetter));
     cls->defineProperty("staticDrawInfoSize", _SE(js_2d_RenderEntity_getStaticDrawInfoSize_asGetter), _SE(js_2d_RenderEntity_setStaticDrawInfoSize_asSetter));
     cls->defineProperty("stencilStage", _SE(js_2d_RenderEntity_getStencilStage_asGetter), _SE(js_2d_RenderEntity_setStencilStage_asSetter));
+    cls->defineProperty("renderTransform", _SE(js_2d_RenderEntity_getRenderTransform_asGetter), _SE(js_2d_RenderEntity_setRenderTransform_asSetter));
     cls->defineFunction("addDynamicRenderDrawInfo", _SE(js_2d_RenderEntity_addDynamicRenderDrawInfo));
     cls->defineFunction("clearDynamicRenderDrawInfos", _SE(js_2d_RenderEntity_clearDynamicRenderDrawInfos));
     cls->defineFunction("clearStaticRenderDrawInfos", _SE(js_2d_RenderEntity_clearStaticRenderDrawInfos));
