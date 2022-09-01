@@ -23,23 +23,12 @@
  THE SOFTWARE.
  */
 
-import { deprecateModuleExportedName } from './x-deprecated';
+import { deprecateModuleExportedName } from '../../core/utils/x-deprecated';
 
 deprecateModuleExportedName({
-    replaceProperty: {
+    Renderable2D: {
+        newName: 'UIRenderer',
         since: '3.6.0',
-        removed: false,
-    },
-    removeProperty: {
-        since: '3.6.0',
-        removed: false,
-    },
-    markAsWarning: {
-        since: '3.6.0',
-        removed: false,
-    },
-    setDefaultLogTimes: {
-        since: '3.6.0',
-        removed: false,
+        removed: true,
     },
 });
