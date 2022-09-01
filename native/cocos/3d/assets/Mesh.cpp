@@ -245,12 +245,12 @@ uint32_t Mesh::getSubMeshCount() const {
     return static_cast<uint32_t>(_renderingSubMeshes.size());
 }
 
-const Vec3 &Mesh::getMinPosition() const {
-    return _struct.minPosition.has_value() ? _struct.minPosition.value() : Vec3::ZERO;
+const Vec3 *Mesh::getMinPosition() const {
+    return _struct.minPosition.has_value() ? &_struct.minPosition.value() : nullptr;
 }
 
-const Vec3 &Mesh::getMaxPosition() const {
-    return _struct.maxPosition.has_value() ? _struct.maxPosition.value() : Vec3::ZERO;
+const Vec3 *Mesh::getMaxPosition() const {
+    return _struct.maxPosition.has_value() ? &_struct.maxPosition.value() : nullptr;
 }
 
 ccstd::hash_t Mesh::getHash() {
