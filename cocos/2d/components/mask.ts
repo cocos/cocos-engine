@@ -234,6 +234,8 @@ export class Mask extends Component {
     set spriteFrame (value) {
         if (this._sprite) {
             this._sprite.spriteFrame = value;
+        } else {
+            console.error('please change type to sprite_stencil first');
         }
     }
 

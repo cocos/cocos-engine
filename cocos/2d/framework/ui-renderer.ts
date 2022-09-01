@@ -439,7 +439,7 @@ export class UIRenderer extends Renderer {
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
         if (this.stencilStage === Stage.ENTER_LEVEL || this.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
-            this.getMaterialInstance(0)!.passes[0].getShaderVariant(alphaTestPatches); // todo,not only pass0
+            this.getMaterialInstance(0)!.recompileShaders({ USE_ALPHA_TEST: true });
         }
         this._updateBlendFunc();
     }
