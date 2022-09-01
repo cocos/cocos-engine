@@ -24,12 +24,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { legacyCC } from '../core/global-exports';
-import wasmDevice from './webgpu_wasm';
-import glslangLoader from './glslang';
 import { WEBGPU } from 'internal:constants';
 import { url as webgpuUrl } from 'external:emscripten/webgpu/webgpu_wasm.wasm';
 import { url as glslangUrl } from 'external:emscripten/webgpu/glslang.wasm';
+import { legacyCC } from '../core/global-exports';
+import wasmDevice from './webgpu_wasm';
+import glslangLoader from './glslang';
 
 export const glslalgWasmModule: any = {
     glslang: null,
