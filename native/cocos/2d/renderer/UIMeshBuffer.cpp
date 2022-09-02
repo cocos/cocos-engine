@@ -27,6 +27,34 @@
 #include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
+static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4F {
+    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR2, gfx::Format::RGBA32F},
+};
+
+static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B {
+    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
+};
+
+static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B_C4B {
+    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
+};
+
+static uint32_t getAttributesStride(ccstd::vector<gfx::Attribute>& attrs) {
+    uint32_t stride = 0;
+    for (auto& attr : attrs) {
+        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+        stride += info.size;
+    }
+    return stride;
+}
 
 UIMeshBuffer::~UIMeshBuffer() {
     destroy();
@@ -40,10 +68,9 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* /*device*/, ccstd::vector<gfx::Attribute*>&& attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
-    if (attrs.size() == 4) {
-        _attributes.push_back(gfx::Attribute{gfx::ATTR_NAME_COLOR2, gfx::Format::RGBA32F});
-    }
+void UIMeshBuffer::initialize(gfx::Device* /*device*/,ccstd::vector<gfx::Attribute> &&attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
+    _attributes = attrs;
+    _vertexFormatBytes = getAttributesStride(attrs);
 }
 
 void UIMeshBuffer::reset() {
@@ -126,7 +153,7 @@ void UIMeshBuffer::recycleIA(gfx::InputAssembler* ia) {
 
 gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
     if (_iaPool.empty()) {
-        uint32_t vbStride = _vertexFormatBytes = getFloatsPerVertex() * sizeof(float);
+        uint32_t vbStride = _vertexFormatBytes;
         uint32_t ibStride = sizeof(uint16_t);
 
         auto* vertexBuffer = device->createBuffer({
@@ -175,10 +202,6 @@ void UIMeshBuffer::setIndexOffset(uint32_t indexOffset) {
 
 void UIMeshBuffer::setDirty(bool dirty) const {
     _meshBufferLayout->dirtyMark = dirty ? 1 : 0;
-}
-
-void UIMeshBuffer::setFloatsPerVertex(uint32_t floatsPerVertex) {
-    _meshBufferLayout->floatsPerVertex = floatsPerVertex;
 }
 
 } // namespace cc

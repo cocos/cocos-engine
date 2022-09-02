@@ -115,7 +115,7 @@ static bool js_2d_UIMeshBuffer_initialize(se::State& s) // NOLINT(readability-id
     CC_UNUSED bool ok = true;
     if (argc == 4) {
         HolderType<cc::gfx::Device*, false> arg0 = {};
-        HolderType<std::vector<cc::gfx::Attribute *>, true> arg1 = {};
+        HolderType<std::vector<cc::gfx::Attribute>, true> arg1 = {};
         HolderType<unsigned int, false> arg2 = {};
         HolderType<unsigned int, false> arg3 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
