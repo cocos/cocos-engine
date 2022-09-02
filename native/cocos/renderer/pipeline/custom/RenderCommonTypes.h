@@ -279,24 +279,24 @@ struct LightInfo {
 
 namespace ccstd {
 
-inline size_t hash<cc::render::RasterView>::operator()(const cc::render::RasterView& v) const noexcept {
-    ccstd::hash_t seed = 0;
-    ccstd::hash_combine(seed, v.slotName);
-    ccstd::hash_combine(seed, v.accessType);
-    ccstd::hash_combine(seed, v.attachmentType);
-    ccstd::hash_combine(seed, v.loadOp);
-    ccstd::hash_combine(seed, v.storeOp);
-    ccstd::hash_combine(seed, v.clearFlags);
-    return static_cast<size_t>(seed);
+inline hash_t hash<cc::render::RasterView>::operator()(const cc::render::RasterView& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.slotName);
+    hash_combine(seed, val.accessType);
+    hash_combine(seed, val.attachmentType);
+    hash_combine(seed, val.loadOp);
+    hash_combine(seed, val.storeOp);
+    hash_combine(seed, val.clearFlags);
+    return seed;
 }
 
-inline size_t hash<cc::render::ComputeView>::operator()(const cc::render::ComputeView& v) const noexcept {
-    ccstd::hash_t seed = 0;
-    ccstd::hash_combine(seed, v.name);
-    ccstd::hash_combine(seed, v.accessType);
-    ccstd::hash_combine(seed, v.clearFlags);
-    ccstd::hash_combine(seed, v.clearValueType);
-    return static_cast<size_t>(seed);
+inline hash_t hash<cc::render::ComputeView>::operator()(const cc::render::ComputeView& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.name);
+    hash_combine(seed, val.accessType);
+    hash_combine(seed, val.clearFlags);
+    hash_combine(seed, val.clearValueType);
+    return seed;
 }
 
 } // namespace ccstd

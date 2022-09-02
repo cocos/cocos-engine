@@ -76,12 +76,12 @@ namespace ccstd {
 
 template <>
 struct hash<cc::render::RasterView> {
-    size_t operator()(const cc::render::RasterView& v) const noexcept;
+    hash_t operator()(const cc::render::RasterView& val) const noexcept;
 };
 
 template <>
 struct hash<cc::render::ComputeView> {
-    size_t operator()(const cc::render::ComputeView& v) const noexcept;
+    hash_t operator()(const cc::render::ComputeView& val) const noexcept;
 };
 
 } // namespace ccstd

@@ -687,10 +687,10 @@ struct LayoutGraphData {
 
 namespace ccstd {
 
-inline size_t hash<cc::render::NameLocalID>::operator()(const cc::render::NameLocalID& v) const noexcept {
-    ccstd::hash_t seed = 0;
-    ccstd::hash_combine(seed, v.value);
-    return static_cast<size_t>(seed);
+inline hash_t hash<cc::render::NameLocalID>::operator()(const cc::render::NameLocalID& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.value);
+    return seed;
 }
 
 } // namespace ccstd

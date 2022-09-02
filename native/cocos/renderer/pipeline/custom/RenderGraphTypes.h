@@ -933,30 +933,30 @@ struct RenderGraph {
 
 namespace ccstd {
 
-inline size_t hash<cc::render::RasterSubpass>::operator()(const cc::render::RasterSubpass& v) const noexcept {
-    ccstd::hash_t seed = 0;
-    ccstd::hash_combine(seed, v.rasterViews);
-    ccstd::hash_combine(seed, v.computeViews);
-    return static_cast<size_t>(seed);
+inline hash_t hash<cc::render::RasterSubpass>::operator()(const cc::render::RasterSubpass& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.rasterViews);
+    hash_combine(seed, val.computeViews);
+    return seed;
 }
 
-inline size_t hash<cc::render::SubpassGraph>::operator()(const cc::render::SubpassGraph& v) const noexcept {
-    ccstd::hash_t seed = 0;
-    ccstd::hash_combine(seed, v.names);
-    ccstd::hash_combine(seed, v.subpasses);
-    return static_cast<size_t>(seed);
+inline hash_t hash<cc::render::SubpassGraph>::operator()(const cc::render::SubpassGraph& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.names);
+    hash_combine(seed, val.subpasses);
+    return seed;
 }
 
-inline size_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterPass& v) const noexcept {
-    ccstd::hash_t seed = 0;
-    ccstd::hash_combine(seed, v.isValid);
-    ccstd::hash_combine(seed, v.rasterViews);
-    ccstd::hash_combine(seed, v.computeViews);
-    ccstd::hash_combine(seed, v.subpassGraph);
-    ccstd::hash_combine(seed, v.width);
-    ccstd::hash_combine(seed, v.height);
-    ccstd::hash_combine(seed, v.viewport);
-    return static_cast<size_t>(seed);
+inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterPass& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.isValid);
+    hash_combine(seed, val.rasterViews);
+    hash_combine(seed, val.computeViews);
+    hash_combine(seed, val.subpassGraph);
+    hash_combine(seed, val.width);
+    hash_combine(seed, val.height);
+    hash_combine(seed, val.viewport);
+    return seed;
 }
 
 } // namespace ccstd

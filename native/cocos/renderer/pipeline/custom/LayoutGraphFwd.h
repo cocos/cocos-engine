@@ -73,7 +73,7 @@ namespace ccstd {
 
 template <>
 struct hash<cc::render::NameLocalID> {
-    size_t operator()(const cc::render::NameLocalID& v) const noexcept;
+    hash_t operator()(const cc::render::NameLocalID& val) const noexcept;
 };
 
 } // namespace ccstd

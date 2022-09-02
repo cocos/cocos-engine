@@ -85,17 +85,17 @@ namespace ccstd {
 
 template <>
 struct hash<cc::render::RasterSubpass> {
-    size_t operator()(const cc::render::RasterSubpass& v) const noexcept;
+    hash_t operator()(const cc::render::RasterSubpass& val) const noexcept;
 };
 
 template <>
 struct hash<cc::render::SubpassGraph> {
-    size_t operator()(const cc::render::SubpassGraph& v) const noexcept;
+    hash_t operator()(const cc::render::SubpassGraph& val) const noexcept;
 };
 
 template <>
 struct hash<cc::render::RasterPass> {
-    size_t operator()(const cc::render::RasterPass& v) const noexcept;
+    hash_t operator()(const cc::render::RasterPass& val) const noexcept;
 };
 
 } // namespace ccstd
