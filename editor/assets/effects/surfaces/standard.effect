@@ -7,26 +7,27 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       properties: &props
-        tilingOffset:             { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:                { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
-        albedoScale:              { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold:           { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
-        occlusion:                { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        roughness:                { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        metallic:                 { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        specularIntensity:        { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
-        emissive:                 { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
-        emissiveScale:            { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
-        normalStrength:           { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
-        anisotropyShape:          { value: 1.0, target: anisotropyParam.x, editor: { parent: IS_ANISOTROPY, slide : true, range : [0.0, 1.0] , step : 0.0001 } }
-        anisotropyRotation:       { value: 0.0, target: anisotropyParam.y, editor: { parent: IS_ANISOTROPY, slide : true, range : [0, 1.0] , step : 0.0001 } }
-        mainTexture:              { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        normalMap:                { value: normal }
-        pbrMap:                   { value: grey }
-        metallicRoughnessMap:     { value: grey }
-        occlusionMap:             { value: white }
-        emissiveMap:              { value: grey }
-        anisotropyMap:            { value: black, editor : { parent: IS_ANISOTROPY } }
+        tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
+        albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:                        { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:                        { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:                         { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        emissive:                         { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
+        emissiveScale:                    { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
+        normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { parent: IS_ANISOTROPY, slide : true, range : [0.0, 1.0] , step : 0.0001 } }
+        anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { parent: IS_ANISOTROPY, slide : true, range : [0, 1.0] , step : 0.0001 } }
+        anisotropyMapResolutionHeight:    { value: 0.0, target: anisotropyParam.w, editor: { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
+        mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:                        { value: normal }
+        pbrMap:                           { value: grey }
+        occlusionMap:                     { value: white }
+        emissiveMap:                      { value: grey }
+        anisotropyMap:                    { value: black, editor : { parent: IS_ANISOTROPY } }
+        anisotropyMapNearestFilter:       { value: black, editor : { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -84,7 +85,7 @@ CCProgram shared-ubos %{
     vec4 pbrParams;
     vec4 emissive;
     vec4 emissiveScaleParam;
-    vec2 anisotropyParam;
+    vec4 anisotropyParam;
   };
 }%
 
@@ -154,9 +155,6 @@ CCProgram surface-fragment %{
   #if USE_PBR_MAP
     uniform sampler2D pbrMap;
   #endif
-  #if USE_METALLIC_ROUGHNESS_MAP
-    uniform sampler2D metallicRoughnessMap;
-  #endif
   #if USE_OCCLUSION_MAP
     uniform sampler2D occlusionMap;
   #endif
@@ -166,6 +164,7 @@ CCProgram surface-fragment %{
   #endif
   #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
     uniform sampler2D anisotropyMap;
+    uniform sampler2D anisotropyMapNearestFilter;
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r
@@ -243,6 +242,22 @@ CCProgram surface-fragment %{
       anisotropyShape *= tex.x;
     #endif
 
+    // fix rotation map seam line of black and white
+    #if FIX_ANISOTROPIC_ROTATION_MAP
+      #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+        vec4 reference = texture(anisotropyMapNearestFilter, DEFAULT_UV);
+        vec2 oneTap = vec2(0.0, 1.0 / anisotropyParam.w);
+        float threshold = 0.2;
+        // scan more taps for stable result
+        vec4 sample1 = texture(anisotropyMapNearestFilter, DEFAULT_UV + oneTap);
+        vec4 sample2 = texture(anisotropyMapNearestFilter, DEFAULT_UV - oneTap);
+        if (abs(sample1.y - reference.y) > threshold || abs(sample2.y - reference.y) > threshold) {
+            tex.y = reference.y;
+        }
+        anisotropyRotation = fract(anisotropyParam.y * PI * 0.5 + tex.y) * PI2;
+      #endif
+    #endif
+
     isRotation = 1.0;
     return vec4(anisotropyShape, anisotropyRotation, 0.0, 0.0);
   }
@@ -267,11 +282,6 @@ CCProgram surface-fragment %{
       pbr.y *= res.ROUGHNESS_CHANNEL;
       pbr.z *= res.METALLIC_CHANNEL;
       pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
-    #endif
-    #if USE_METALLIC_ROUGHNESS_MAP
-      vec4 metallicRoughness = texture(metallicRoughnessMap, DEFAULT_UV);
-      pbr.z *= metallicRoughness.METALLIC_CHANNEL;
-      pbr.y *= metallicRoughness.ROUGHNESS_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
       pbr.x *= texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL;

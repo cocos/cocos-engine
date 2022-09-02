@@ -30,8 +30,8 @@
 #include <cstdlib>
 #include <cstring>
 #include "audio/oalsoft/AudioCache.h"
-#include "audio/oalsoft/AudioDecoder.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"
 
@@ -154,6 +154,9 @@ bool AudioPlayer::play2d() {
                 CHECK_AL_ERROR_DEBUG();
             }
         } else {
+            if (_currTime > _audioCache->_duration) {
+                _currTime = 0.F; // Target current start time is invalid, reset to 0.
+            }
             alGenBuffers(3, _bufferIds);
 
             auto alError = alGetError();

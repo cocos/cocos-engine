@@ -234,6 +234,8 @@ export class NoiseModule extends ParticleModuleBase {
 
     private noise: ParticleNoise = new ParticleNoise();
 
+    private samplePosition: Vec3 = new Vec3();
+
     public animate (particle: Particle, dt: number) {
         this.noise.setTime(particle.particleSystem.time);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
@@ -241,7 +243,10 @@ export class NoiseModule extends ParticleModuleBase {
         this.noise.setAbs(this.remapX, this.remapY, this.remapZ);
         this.noise.setAmplititude(this.strengthX, this.strengthY, this.strengthZ);
         this.noise.setOctaves(this.octaves, this.octaveMultiplier, this.octaveScale);
-        this.noise.setSamplePoint(particle.position);
+
+        this.samplePosition.set(particle.position);
+        this.samplePosition.add3f(Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0);
+        this.noise.setSamplePoint(this.samplePosition);
         this.noise.getNoiseParticle();
 
         const noisePosition: Vec3 = this.noise.getResult();

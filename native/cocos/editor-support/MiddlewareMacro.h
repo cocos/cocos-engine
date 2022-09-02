@@ -53,5 +53,5 @@
 #endif
 
 // R G B A �ֱ�ռ��32λ
-#define VF_XYZUVC  9
-#define VF_XYZUVCC 13
+#define VF_XYZUVC  6
+#define VF_XYZUVCC 7

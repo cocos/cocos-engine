@@ -32,7 +32,10 @@ exports.methods = {
         $group.$header.addEventListener('change', (e) => {
             const tabNames = Object.keys($group.tabs);
             const tabName = tabNames[e.target.value || 0];
-            $group.querySelectorAll('.tab-content').forEach((child) => {
+            $group.childNodes.forEach((child) => {
+                if (!child.classList.contains('tab-content')) {
+                    return;
+                }
                 if (child.getAttribute('name') === tabName) {
                     child.style.display = 'block';
                 } else {

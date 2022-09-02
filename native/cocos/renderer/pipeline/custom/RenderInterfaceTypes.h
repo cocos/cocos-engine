@@ -109,6 +109,9 @@ public:
     virtual void setValue(const ccstd::string& name, bool value) = 0;
 
     virtual bool isOcclusionQueryEnabled() const = 0;
+
+    virtual void resetRenderQueue(bool reset) = 0;
+    virtual bool isRenderQueueReset() const = 0;
 };
 
 class Setter {

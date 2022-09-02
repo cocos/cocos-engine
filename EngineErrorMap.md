@@ -2471,6 +2471,10 @@ cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will b
 
 cc.ParticleSystem: change material failed, please use proper particle material
 
+### 6036
+
+cc.ParticleSystem: life time should bigger than 1 or buffer will be insufficient
+
 ### 6100
 
 <!-- DEPRECATED -->

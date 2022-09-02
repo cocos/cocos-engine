@@ -23341,6 +23341,26 @@ static bool js_gfx_Device_getSampler(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_gfx_Device_getSampler)
 
+static bool js_gfx_Device_getSwapchains(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::Swapchain *>& result = cobj->getSwapchains();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_getSwapchains)
+
 static bool js_gfx_Device_getTextureBarrier(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
@@ -23486,6 +23506,7 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getQueryPool", _SE(js_gfx_Device_getQueryPool));
     cls->defineFunction("getQueryPoolResults", _SE(js_gfx_Device_getQueryPoolResults));
     cls->defineFunction("getSampler", _SE(js_gfx_Device_getSampler));
+    cls->defineFunction("getSwapchains", _SE(js_gfx_Device_getSwapchains));
     cls->defineFunction("getTextureBarrier", _SE(js_gfx_Device_getTextureBarrier));
     cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));
     cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));

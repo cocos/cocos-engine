@@ -23,11 +23,10 @@
  THE SOFTWARE.
 */
 
-import { JSB } from 'internal:constants';
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
-import { Mask } from '../components/mask';
 import { Material } from '../../core';
-import { NativeStencilManager } from './native-2d';
+import { UIRenderer } from '../framework/ui-renderer';
+import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 // Stage types
 export enum Stage {
@@ -89,14 +88,9 @@ export class StencilManager {
         this._maskStack.push(mask);
     }
 
-    public clear (comp: Mask) {
-        comp.stencilStage = comp.inverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
-        // this.stage = Stage.CLEAR;
-    }
-
-    public enterLevel (comp: Mask) {
-        comp.subComp!.stencilStage = comp.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
-        // this.stage = Stage.ENTER_LEVEL;
+    public clear (comp: UIRenderer | UIMeshRenderer) {
+        const isInverted = (comp.stencilStage !== Stage.ENTER_LEVEL);
+        return isInverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
     }
 
     public enableMask () {
@@ -130,6 +124,10 @@ export class StencilManager {
             result += (0x00000001 << i);
         }
         return result;
+    }
+
+    public getMaskStackSize () {
+        return this._maskStack.length;
     }
 
     public reset () {

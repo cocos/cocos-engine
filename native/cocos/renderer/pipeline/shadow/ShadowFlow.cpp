@@ -58,7 +58,6 @@ ShadowFlow::~ShadowFlow() = default;
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
     if (_stages.empty()) {
-        _isResourceOwner = true;
 
         auto *shadowStage = ccnew ShadowStage;
         shadowStage->initialize(ShadowStage::getInitializeInfo());
@@ -84,6 +83,21 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
                               (UBOGlobal::COUNT + UBOCamera::COUNT + UBOShadow::COUNT + UBOCSM::COUNT) >> 2;
     pipeline->getPipelineSceneData()->setCSMSupported(csmSupported);
     pipeline->setValue("CC_SUPPORT_CASCADED_SHADOW_MAP", csmSupported);
+
+    // 0: CC_SHADOW_NONE, 1: CC_SHADOW_PLANAR, 2: CC_SHADOW_MAP
+    pipeline->setValue("CC_SHADOW_TYPE", 0);
+
+    // 0: PCFType.HARD, 1: PCFType.SOFT, 2: PCFType.SOFT_2X, 3: PCFType.SOFT_4X
+    pipeline->setValue("CC_DIR_SHADOW_PCF_TYPE", static_cast<int32_t>(scene::PCFType::HARD));
+
+    // 0: CC_DIR_LIGHT_SHADOW_UNIFORM, 1: CC_DIR_LIGHT_SHADOW_CASCADED, 2: CC_DIR_LIGHT_SHADOW_VARIANCE
+    pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 0);
+
+    // 0: PCFType.HARD, 1: PCFType.SOFT, 2: PCFType.SOFT_2X, 3: PCFType.SOFT_4X
+    pipeline->setValue("CC_DIR_SHADOW_PCF_TYPE", 0);
+
+    // 0: CC_DIR_LIGHT_SHADOW_PLANAR, 1: CC_DIR_LIGHT_SHADOW_UNIFORM, 2: CC_DIR_LIGHT_SHADOW_CASCADED, 3: CC_DIR_LIGHT_SHADOW_VARIANCE
+    pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE ", 0);
 
     pipeline->onGlobalPipelineStateChanged();
 }
@@ -151,8 +165,8 @@ void ShadowFlow::render(scene::Camera *camera) {
 }
 
 void ShadowFlow::renderStage(gfx::DescriptorSet *globalDS, scene::Camera *camera, const scene::Light *light, gfx::Framebuffer *framebuffer, uint32_t level) {
-    for (auto *stage : _stages) {
-        auto *shadowStage = static_cast<ShadowStage *>(stage);
+    for (auto &stage : _stages) {
+        auto *shadowStage = static_cast<ShadowStage *>(stage.get());
         shadowStage->setUsage(globalDS, light, framebuffer, level);
         shadowStage->render(camera);
     }
@@ -184,8 +198,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(mainLight).get();
-        for (auto *stage : _stages) {
-            auto *shadowStage = static_cast<ShadowStage *>(stage);
+        for (auto &stage : _stages) {
+            auto *shadowStage = static_cast<ShadowStage *>(stage.get());
             shadowStage->setUsage(globalDS, mainLight, shadowFrameBuffer);
             shadowStage->render(camera);
         }
@@ -198,8 +212,8 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light).get();
-        for (auto *stage : _stages) {
-            auto *shadowStage = static_cast<ShadowStage *>(stage);
+        for (auto &stage : _stages) {
+            auto *shadowStage = static_cast<ShadowStage *>(stage.get());
             shadowStage->setUsage(ds, light, shadowFrameBuffer);
             shadowStage->clearFramebuffer(camera);
         }

@@ -88,6 +88,13 @@ export class GlobalDSManager {
         this._globalDescriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
     }
 
+    regenLayout () {
+        const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
+
+        this._globalDescriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+    }
+
     /**
      * @en Bind buffer for all descriptorSets, so that all created descriptorSet buffer are consistent
      * @zh 为所有的 descriptorSet 绑定 buffer，使得所有已创建的 descriptorSet buffer 保持一致

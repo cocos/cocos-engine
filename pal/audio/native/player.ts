@@ -83,7 +83,7 @@ export class AudioPlayer implements OperationQueueable {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
-    private _pcmHeader: jsb.PCMHeader;
+    private _pcmHeader: jsb.PCMHeader | null;
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -104,8 +104,8 @@ export class AudioPlayer implements OperationQueueable {
 
     constructor (url: string) {
         this._url = url;
-        this._pcmHeader = audioEngine.getPCMHeader(url);
-
+        // this._pcmHeader = audioEngine.getPCMHeader(url);
+        this._pcmHeader = null;
         // event
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
@@ -143,7 +143,10 @@ export class AudioPlayer implements OperationQueueable {
         return new Promise((resolve, reject) => {
             if (systemInfo.platform === Platform.WIN32) {
                 // NOTE: audioEngine.preload() not works well on Win32 platform.
-                // Especially when there is not audio output device.
+                // Especially when there is not audio output device. But still need to preload
+                audioEngine.preload(url, (isSuccess) => {
+                    console.debug('somehow preload success on windows');
+                });
                 resolve(url);
             } else {
                 audioEngine.preload(url, (isSuccess) => {
@@ -218,13 +221,18 @@ export class AudioPlayer implements OperationQueueable {
     }
 
     get sampleRate (): number {
+        if (this._pcmHeader === null) {
+            this._pcmHeader = jsb.AudioEngine.getPCMHeader(this._url);
+        }
         return this._pcmHeader.sampleRate;
     }
 
     public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
         const arrayBuffer = audioEngine.getOriginalPCMBuffer(this._url, channelIndex);
-        const pcmHeader = this._pcmHeader;
-        const audioBufferInfo = bufferConstructorMap[pcmHeader.audioFormat];
+        if (this._pcmHeader === null) {
+            this._pcmHeader = jsb.AudioEngine.getPCMHeader(this._url);
+        }
+        const audioBufferInfo = bufferConstructorMap[this._pcmHeader.audioFormat];
         if (!arrayBuffer || !audioBufferInfo) {
             return undefined;
         }

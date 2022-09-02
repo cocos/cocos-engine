@@ -25,6 +25,7 @@
 
 #include "jsb_global.h"
 #include "application/ApplicationManager.h"
+#include "base/Data.h"
 #include "base/DeferredReleasePool.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"
@@ -659,7 +660,67 @@ static bool js_loadImage(se::State &s) { // NOLINT
     return false;
 }
 SE_BIND_FUNC(js_loadImage)
+//pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
+static bool js_saveImageData(se::State& s) { // NOLINT
+    const auto& args = s.args();
+    size_t argc = args.size();
+    bool ok = true;// NOLINT(readability-identifier-length)
+    if (argc == 4 || argc == 5) {
+        auto *uint8ArrayObj = args[0].toObject();
+        uint8_t *uint8ArrayData {nullptr};
+        size_t length = 0;
+        uint8ArrayObj->root();
+        uint8ArrayObj->incRef();
+        uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
+        uint32_t width;
+        uint32_t height;
+        ok &= sevalue_to_native(args[1], &width);
+        ok &= sevalue_to_native(args[2], &height);
 
+        std::string filePath;
+        ok &= sevalue_to_native(args[3], &filePath);
+        SE_PRECONDITION2(ok, false, "js_saveImageData : Error processing arguments");
+
+        se::Value callbackVal = argc == 5 ? args[4] : se::Value::Null;
+        se::Object *callbackObj {nullptr};
+        if (!callbackVal.isNull()) {
+            CC_ASSERT(callbackVal.isObject());
+            CC_ASSERT(callbackVal.toObject()->isFunction());
+            callbackObj = callbackVal.toObject();
+            callbackObj->root();
+            callbackObj->incRef();
+        }
+
+        gThreadPool->pushTask([=](int /*tid*/) {
+            // isToRGB = false, to keep alpha channel
+            auto *img = ccnew Image();
+            // A conversion from size_t to uint32_t might lose integer precision
+            img->initWithRawData(uint8ArrayData, static_cast<uint32_t>(length), width, height, 32 /*Unused*/);
+            bool isSuccess = img->saveToFile(filePath, false/*isToRGB*/);
+            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
+                se::AutoHandleScope hs;
+                se::ValueArray seArgs;
+
+                se::Value isSuccessVal;
+                nativevalue_to_se(isSuccess, isSuccessVal);
+
+                seArgs.push_back(isSuccessVal);
+                if (callbackObj) {
+                    callbackObj->call(seArgs, nullptr);
+                    callbackObj->unroot();
+                    callbackObj->decRef();
+                }
+                uint8ArrayObj->unroot();
+                uint8ArrayObj->decRef();
+                delete img;
+            });
+        });
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d or %d", (int)argc, 4, 5);
+    return false;
+}
+SE_BIND_FUNC(js_saveImageData)
 static bool js_destroyImage(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
@@ -1313,6 +1374,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
     __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
+    __jsbObj->defineFunction("saveImageData", _SE(js_saveImageData));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
