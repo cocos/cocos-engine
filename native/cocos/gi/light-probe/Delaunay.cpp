@@ -53,7 +53,7 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
 : vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
 
     // inner tetrahedron
-    if (v3 != -1) {
+    if (v3 >= 0) {
         const auto &probes = delaunay->getProbes();
         const auto &p0 = probes[vertex0].position;
         const auto &p1 = probes[vertex1].position;
@@ -221,13 +221,13 @@ void Delaunay::computeAdjacency() {
                 // update adjacency between tetrahedrons
                 _tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = triangles[k].tetrahedron;
                 _tetrahedrons[triangles[k].tetrahedron].neighbours[triangles[k].index] = triangles[i].tetrahedron;
-                triangles[i].isHullSurface = false;
-                triangles[k].isHullSurface = false;
+                triangles[i].isOuterFace = false;
+                triangles[k].isOuterFace = false;
                 break;
             }
         }
         
-        if (triangles[i].isHullSurface) {
+        if (triangles[i].isOuterFace) {
             auto &probe0 = _probes[triangles[i].vertex0];
             auto &probe1 = _probes[triangles[i].vertex1];
             auto &probe2 = _probes[triangles[i].vertex2];
@@ -280,7 +280,7 @@ void Delaunay::computeAdjacency() {
 
 void Delaunay::computeMatrices() {
     for (auto &tetrahedron : _tetrahedrons) {
-        if (tetrahedron.vertex3 != -1) {
+        if (tetrahedron.vertex3 >= 0) {
             computeTetrahedronMatrix(tetrahedron);
         } else {
             computeOuterCellMatrix(tetrahedron);
@@ -299,6 +299,7 @@ void Delaunay::computeTetrahedronMatrix(Tetrahedron &tetrahedron) {
         p0.y - p3.y, p1.y - p3.y, p2.y - p3.y,
         p0.z - p3.z, p1.z - p3.z, p2.z - p3.z);
     tetrahedron.matrix.inverse();
+    tetrahedron.matrix.transpose();
 }
 
 void Delaunay::computeOuterCellMatrix(Tetrahedron &tetrahedron) {
@@ -313,60 +314,60 @@ void Delaunay::computeOuterCellMatrix(Tetrahedron &tetrahedron) {
     p[1] = _probes[tetrahedron.vertex1].position;
     p[2] = _probes[tetrahedron.vertex2].position;
     
-    Vec3 A = p[0] - p[2];
-    Vec3 Ap = v[0] - v[2];
-    Vec3 B = p[1] - p[2];
-    Vec3 Bp = v[1] - v[2];
-    Vec3 P2 = p[2];
-    Vec3 Cp = -v[2];
+    Vec3 a = p[0] - p[2];
+    Vec3 ap = v[0] - v[2];
+    Vec3 b = p[1] - p[2];
+    Vec3 bp = v[1] - v[2];
+    Vec3 p2 = p[2];
+    Vec3 cp = -v[2];
     
     float m[12];
     
-    m[0] = Ap.y * Bp.z - Ap.z * Bp.y;
-    m[3] = -Ap.x * Bp.z + Ap.z * Bp.x;
-    m[6] = Ap.x * Bp.y - Ap.y * Bp.x;
-    m[9] = A.x * Bp.y * Cp.z
-            -A.y * Bp.x * Cp.z
-            +Ap.x * B.y * Cp.z
-            -Ap.y * B.x * Cp.z
-            +A.z * Bp.x * Cp.y
-            -A.z * Bp.y * Cp.x
-            +Ap.z * B.x * Cp.y
-            -Ap.z * B.y * Cp.x
-            -A.x * Bp.z * Cp.y
-            +A.y * Bp.z * Cp.x
-            -Ap.x * B.z * Cp.y
-            +Ap.y * B.z * Cp.x;
-    m[9] -= P2.x * m[0] + P2.y * m[3] + P2.z * m[6];
+    m[0] = ap.y * bp.z - ap.z * bp.y;
+    m[3] = -ap.x * bp.z + ap.z * bp.x;
+    m[6] = ap.x * bp.y - ap.y * bp.x;
+    m[9] = a.x * bp.y * cp.z
+            -a.y * bp.x * cp.z
+            +ap.x * b.y * cp.z
+            -ap.y * b.x * cp.z
+            +a.z * bp.x * cp.y
+            -a.z * bp.y * cp.x
+            +ap.z * b.x * cp.y
+            -ap.z * b.y * cp.x
+            -a.x * bp.z * cp.y
+            +a.y * bp.z * cp.x
+            -ap.x * b.z * cp.y
+            +ap.y * b.z * cp.x;
+    m[9] -= p2.x * m[0] + p2.y * m[3] + p2.z * m[6];
     
-    m[1] = Ap.y * B.z + A.y * Bp.z - Ap.z * B.y - A.z * Bp.y;
-    m[4] = -A.x * Bp.z - Ap.x * B.z + A.z * Bp.x + Ap.z * B.x;
-    m[7] = A.x * Bp.y - A.y * Bp.x + Ap.x * B.y - Ap.y * B.x;
-    m[10] = A.x * B.y * Cp.z
-            -A.y * B.x * Cp.z
-            -A.x * B.z * Cp.y
-            +A.y * B.z * Cp.x
-            +A.z * B.x * Cp.y
-            -A.z * B.y * Cp.x;
-    m[10] -= P2.x * m[1] + P2.y * m[4] + P2.z * m[7];
+    m[1] = ap.y * b.z + a.y * bp.z - ap.z * b.y - a.z * bp.y;
+    m[4] = -a.x * bp.z - ap.x * b.z + a.z * bp.x + ap.z * b.x;
+    m[7] = a.x * bp.y - a.y * bp.x + ap.x * b.y - ap.y * b.x;
+    m[10] = a.x * b.y * cp.z
+            -a.y * b.x * cp.z
+            -a.x * b.z * cp.y
+            +a.y * b.z * cp.x
+            +a.z * b.x * cp.y
+            -a.z * b.y * cp.x;
+    m[10] -= p2.x * m[1] + p2.y * m[4] + p2.z * m[7];
     
-    m[2] = -A.z * B.y + A.y * B.z;
-    m[5] = -A.x * B.z + A.z * B.x;
-    m[8] = A.x * B.y - A.y * B.x;
+    m[2] = -a.z * b.y + a.y * b.z;
+    m[5] = -a.x * b.z + a.z * b.x;
+    m[8] = a.x * b.y - a.y * b.x;
     m[11] = 0.0F;
-    m[11] -= P2.x * m[2] + P2.y * m[5] + P2.z * m[8];
+    m[11] -= p2.x * m[2] + p2.y * m[5] + p2.z * m[8];
     
-    float a = Ap.x * Bp.y * Cp.z
-            -Ap.y * Bp.x * Cp.z
-            +Ap.z * Bp.x * Cp.y
-            -Ap.z * Bp.y * Cp.x
-            +Ap.y * Bp.z * Cp.x
-            -Ap.x * Bp.z * Cp.y;
+    float c = ap.x * bp.y * cp.z
+            -ap.y * bp.x * cp.z
+            +ap.z * bp.x * cp.y
+            -ap.z * bp.y * cp.x
+            +ap.y * bp.z * cp.x
+            -ap.x * bp.z * cp.y;
     
-    if (std::abs(a) > mathutils::EPSILON) {
+    if (std::abs(c) > mathutils::EPSILON) {
         // t^3 + p * t^2 + q * t + r = 0
         for (auto k = 0; k < 12; k++) {
-            m[k] /= a;
+            m[k] /= c;
         }
     } else {
         // set last vertex index of outer cell to -2
@@ -375,10 +376,10 @@ void Delaunay::computeOuterCellMatrix(Tetrahedron &tetrahedron) {
     }
     
     // transpose the matrix
-    tetrahedron.matrix.set(m[0], m[4], m[8], m[1], m[5], m[9], m[2], m[6], m[10]);
-    
+    tetrahedron.matrix.set(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+
     // last column of mat3x4
-    tetrahedron.offset.set(m[3], m[7], m[11]);
+    tetrahedron.offset.set(m[9], m[10], m[11]);
 }
 
 } // namespace gi

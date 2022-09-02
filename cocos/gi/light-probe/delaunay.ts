@@ -69,7 +69,7 @@ class Triangle {
     @serializable
     public invalid = false;
     @serializable
-    public isHullSurface = true;
+    public isOuterFace = true;
     @serializable
     public tetrahedron = -1;    // tetrahedron index this triangle belongs to
     @serializable
@@ -154,7 +154,7 @@ export class Tetrahedron {
         this.vertex3 = v3;
 
         // inner tetrahedron
-        if (v3 !== -1) {
+        if (v3 >= 0) {
             const probes = delaunay.getProbes();
             const p0 = probes[this.vertex0].position;
             const p1 = probes[this.vertex1].position;
@@ -174,11 +174,11 @@ export class Tetrahedron {
     }
 
     public isInnerTetrahedron () {
-        return this.vertex3 !== -1;
+        return this.vertex3 >= 0;
     }
 
     public isOuterCell () {
-        return this.vertex3 === -1;
+        return this.vertex3 < 0;    // -1 or -2
     }
 }
 
@@ -352,13 +352,13 @@ export class Delaunay {
                     // update adjacency between tetrahedrons
                     this._tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = triangles[k].tetrahedron;
                     this._tetrahedrons[triangles[k].tetrahedron].neighbours[triangles[k].index] = triangles[i].tetrahedron;
-                    triangles[i].isHullSurface = false;
-                    triangles[k].isHullSurface = false;
+                    triangles[i].isOuterFace = false;
+                    triangles[k].isOuterFace = false;
                     break;
                 }
             }
 
-            if (triangles[i].isHullSurface) {
+            if (triangles[i].isOuterFace) {
                 const probe0 = this._probes[triangles[i].vertex0];
                 const probe1 = this._probes[triangles[i].vertex1];
                 const probe2 = this._probes[triangles[i].vertex2];
@@ -411,7 +411,7 @@ export class Delaunay {
         for (let i = 0; i < this._tetrahedrons.length; i++) {
             const tetrahedron = this._tetrahedrons[i];
 
-            if (tetrahedron.vertex3 !== -1) {
+            if (tetrahedron.vertex3 >= 0) {
                 this.computeTetrahedronMatrix(tetrahedron);
             } else {
                 this.computeOuterCellMatrix(tetrahedron);
@@ -431,6 +431,7 @@ export class Delaunay {
             p0.z - p3.z, p1.z - p3.z, p2.z - p3.z,
         );
         tetrahedron.matrix.invert();
+        tetrahedron.matrix.transpose();
     }
 
     private computeOuterCellMatrix (tetrahedron: Tetrahedron) {
@@ -445,65 +446,66 @@ export class Delaunay {
         p[1] = this._probes[tetrahedron.vertex1].position;
         p[2] = this._probes[tetrahedron.vertex2].position;
 
-        const A = new Vec3(0.0, 0.0, 0.0);
-        Vec3.subtract(A, p[0], p[2]);
-        const Ap = new Vec3(0.0, 0.0, 0.0);
-        Vec3.subtract(Ap, v[0], v[2]);
-        const B = new Vec3(0.0, 0.0, 0.0);
-        Vec3.subtract(B, p[1], p[2]);
-        const Bp = new Vec3(0.0, 0.0, 0.0);
-        Vec3.subtract(Bp, v[1], v[2]);
-        const P2 = new Vec3(p[2]);
-        const Cp = new Vec3(0.0, 0.0, 0.0);
-        Vec3.negate(Cp, v[2]);
+        const a = new Vec3(0.0, 0.0, 0.0);
+        Vec3.subtract(a, p[0], p[2]);
+        const ap = new Vec3(0.0, 0.0, 0.0);
+        Vec3.subtract(ap, v[0], v[2]);
+        const b = new Vec3(0.0, 0.0, 0.0);
+        Vec3.subtract(b, p[1], p[2]);
+        const bp = new Vec3(0.0, 0.0, 0.0);
+        Vec3.subtract(bp, v[1], v[2]);
+        const p2 = new Vec3(p[2]);
+        const cp = new Vec3(0.0, 0.0, 0.0);
+        Vec3.negate(cp, v[2]);
 
         const m: number[] = [];
 
-        m[0] = Ap.y * Bp.z - Ap.z * Bp.y;
-        m[3] = -Ap.x * Bp.z + Ap.z * Bp.x;
-        m[6] = Ap.x * Bp.y - Ap.y * Bp.x;
-        m[9] = A.x * Bp.y * Cp.z
-                - A.y * Bp.x * Cp.z
-                + Ap.x * B.y * Cp.z
-                - Ap.y * B.x * Cp.z
-                + A.z * Bp.x * Cp.y
-                - A.z * Bp.y * Cp.x
-                + Ap.z * B.x * Cp.y
-                - Ap.z * B.y * Cp.x
-                - A.x * Bp.z * Cp.y
-                + A.y * Bp.z * Cp.x
-                - Ap.x * B.z * Cp.y
-                + Ap.y * B.z * Cp.x;
-        m[9] -= P2.x * m[0] + P2.y * m[3] + P2.z * m[6];
+        m[0] = ap.y * bp.z - ap.z * bp.y;
+        m[3] = -ap.x * bp.z + ap.z * bp.x;
+        m[6] = ap.x * bp.y - ap.y * bp.x;
+        m[9] = a.x * bp.y * cp.z
+                - a.y * bp.x * cp.z
+                + ap.x * b.y * cp.z
+                - ap.y * b.x * cp.z
+                + a.z * bp.x * cp.y
+                - a.z * bp.y * cp.x
+                + ap.z * b.x * cp.y
+                - ap.z * b.y * cp.x
+                - a.x * bp.z * cp.y
+                + a.y * bp.z * cp.x
+                - ap.x * b.z * cp.y
+                + ap.y * b.z * cp.x;
+        m[9] -= p2.x * m[0] + p2.y * m[3] + p2.z * m[6];
 
-        m[1] = Ap.y * B.z + A.y * Bp.z - Ap.z * B.y - A.z * Bp.y;
-        m[4] = -A.x * Bp.z - Ap.x * B.z + A.z * Bp.x + Ap.z * B.x;
-        m[7] = A.x * Bp.y - A.y * Bp.x + Ap.x * B.y - Ap.y * B.x;
-        m[10] = A.x * B.y * Cp.z
-                - A.y * B.x * Cp.z
-                - A.x * B.z * Cp.y
-                + A.y * B.z * Cp.x
-                + A.z * B.x * Cp.y
-                - A.z * B.y * Cp.x;
-        m[10] -= P2.x * m[1] + P2.y * m[4] + P2.z * m[7];
+        m[1] = ap.y * b.z + a.y * bp.z - ap.z * b.y - a.z * bp.y;
+        m[4] = -a.x * bp.z - ap.x * b.z + a.z * bp.x + ap.z * b.x;
+        m[7] = a.x * bp.y - a.y * bp.x + ap.x * b.y - ap.y * b.x;
+        m[10] = a.x * b.y * cp.z
+                - a.y * b.x * cp.z
+                - a.x * b.z * cp.y
+                + a.y * b.z * cp.x
+                + a.z * b.x * cp.y
+                - a.z * b.y * cp.x;
+        m[10] -= p2.x * m[1] + p2.y * m[4] + p2.z * m[7];
 
-        m[2] = -A.z * B.y + A.y * B.z;
-        m[5] = -A.x * B.z + A.z * B.x;
-        m[8] = A.x * B.y - A.y * B.x;
+        m[2] = -a.z * b.y + a.y * b.z;
+        m[5] = -a.x * b.z + a.z * b.x;
+        m[8] = a.x * b.y - a.y * b.x;
         m[11] = 0.0;
-        m[11] -= P2.x * m[2] + P2.y * m[5] + P2.z * m[8];
+        m[11] -= p2.x * m[2] + p2.y * m[5] + p2.z * m[8];
 
-        const a = Ap.x * Bp.y * Cp.z
-                - Ap.y * Bp.x * Cp.z
-                + Ap.z * Bp.x * Cp.y
-                - Ap.z * Bp.y * Cp.x
-                + Ap.y * Bp.z * Cp.x
-                - Ap.x * Bp.z * Cp.y;
+        // coefficient of t^3
+        const c = ap.x * bp.y * cp.z
+                - ap.y * bp.x * cp.z
+                + ap.z * bp.x * cp.y
+                - ap.z * bp.y * cp.x
+                + ap.y * bp.z * cp.x
+                - ap.x * bp.z * cp.y;
 
-        if (Math.abs(a) > EPSILON) {
+        if (Math.abs(c) > EPSILON) {
             // t^3 + p * t^2 + q * t + r = 0
             for (let k = 0; k < 12; k++) {
-                m[k] /= a;
+                m[k] /= c;
             }
         } else {
             // set last vertex index of outer cell to -2
@@ -512,9 +514,9 @@ export class Delaunay {
         }
 
         // transpose the matrix
-        tetrahedron.matrix.set(m[0], m[4], m[8], m[1], m[5], m[9], m[2], m[6], m[10]);
+        tetrahedron.matrix.set(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
 
         // last column of mat3x4
-        tetrahedron.offset.set(m[3], m[7], m[11]);
+        tetrahedron.offset.set(m[9], m[10], m[11]);
     }
 }

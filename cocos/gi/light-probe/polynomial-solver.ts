@@ -65,9 +65,9 @@ export class PolynomialSolver {
         } else if (delta < 0.0) {
             // three different real roots
             const angle = Math.acos(-q * Math.sqrt(-p) / (p * p)) / 3.0;
-            roots.push(2.0 * Math.sqrt(-p) * Math.acos(angle));
-            roots.push(2.0 * Math.sqrt(-p) * Math.acos(angle + 2.0 * Math.PI / 3.0));
-            roots.push(2.0 * Math.sqrt(-p) * Math.acos(angle + 4.0 * Math.PI / 3.0));
+            roots.push(2.0 * Math.sqrt(-p) * Math.cos(angle));
+            roots.push(2.0 * Math.sqrt(-p) * Math.cos(angle + 2.0 * Math.PI / 3.0));
+            roots.push(2.0 * Math.sqrt(-p) * Math.cos(angle + 4.0 * Math.PI / 3.0));
         } else if (q === 0.0) {
             // three real roots, at least two equal roots
             roots.push(0.0);

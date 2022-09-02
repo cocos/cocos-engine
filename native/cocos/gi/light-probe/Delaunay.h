@@ -65,7 +65,7 @@ struct Edge {
 
 struct Triangle {
     bool    invalid{false};
-    bool    isHullSurface{true};
+    bool    isOuterFace{true};
     int32_t tetrahedron{-1};    // tetrahedron index this triangle belongs to
     int32_t index{-1};          // index in tetrahedron's four triangles
     int32_t vertex0{-1};
@@ -121,11 +121,11 @@ struct Tetrahedron {
     }
 
     inline bool isInnerTetrahedron() const {
-        return vertex3 != -1;
+        return vertex3 >= 0;
     }
 
     inline bool isOuterCell() const {
-        return vertex3 == -1;
+        return vertex3 < 0; // -1 or -2
     }
 };
 
