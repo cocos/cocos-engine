@@ -159,13 +159,14 @@ export function parse (task: Task) {
     return null;
 }
 
-export function replace (task: Task) {
+export function replaceOverrideAsset (task: Task) {
     const input = task.output = task.input;
     for (let i = 0; i < input.length; i++) {
         const item = input[i] as RequestItem;
         if (assetsOverrideMap.has(item.uuid)) {
             const uuid = assetsOverrideMap.get(item.uuid)!;
             if (EDITOR) {
+                // In EDITOR, there is no bundle, so just change uuid.
                 item.overrideUuid = uuid;
                 item.ext = item.isNative ? item.ext : '.json';
                 continue;

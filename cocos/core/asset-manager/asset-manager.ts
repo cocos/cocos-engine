@@ -58,7 +58,7 @@ import {
     assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline, assetsOverrideMap } from './shared';
 
 import Task from './task';
-import { combine, parse, replace } from './url-transformer';
+import { combine, parse, replaceOverrideAsset } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
 
 /**
@@ -149,7 +149,7 @@ export class AssetManager {
      * Url 转换器
      *
      */
-    public transformPipeline: Pipeline = transformPipeline.append(parse).append(replace).append(combine);
+    public transformPipeline: Pipeline = transformPipeline.append(parse).append(replaceOverrideAsset).append(combine);
 
     /**
      * @en
@@ -170,7 +170,10 @@ export class AssetManager {
      */
     public assets: ICache<Asset> = assets;
 
-    public assetsOverrideMap = assetsOverrideMap;
+    /**
+     * @internal only using in L10N for now
+     */
+    public readonly assetsOverrideMap = assetsOverrideMap;
 
     public generalImportBase = '';
     public generalNativeBase = '';
@@ -307,7 +310,7 @@ export class AssetManager {
      * @en
      * The builtin 'resources' bundle
      *
-     * @zh
+     * @zhq
      * 内置 resources 包
      *
      */
