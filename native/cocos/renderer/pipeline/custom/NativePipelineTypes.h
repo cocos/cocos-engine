@@ -245,7 +245,7 @@ struct NativeRenderViewDesc {
     NativeRenderViewDesc() = default;
     NativeRenderViewDesc(AccessType accessTypeIn, framegraph::TextureHandle handleIn) noexcept
     : accessType(accessTypeIn),
-      handle(std::move(handleIn)) {}
+      handle(handleIn) {}
 
     AccessType accessType{AccessType::READ};
     framegraph::TextureHandle handle;
