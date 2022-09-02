@@ -1282,7 +1282,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         const newPrefabInfo = cloned._prefab;
         if (EDITOR && newPrefabInfo) {
-            EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
+            // EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
             if (cloned === newPrefabInfo.root) {
                 // newPrefabInfo.fileId = '';
             } else {
