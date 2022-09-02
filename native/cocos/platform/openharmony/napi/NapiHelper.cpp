@@ -164,17 +164,20 @@ napi_value NapiHelper::napiOnCreate(napi_env env, napi_callback_info info) {
 }
 
 napi_value NapiHelper::napiOnShow(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->onShowNative();
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_SHOW, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
     return nullptr;
 }
 
 napi_value NapiHelper::napiOnHide(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->onHideNative();
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_HIDE, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
     return nullptr;
 }
 
 napi_value NapiHelper::napiOnDestroy(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->onDestroyNative();
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_DESTROY, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
     return nullptr;
 }
 
