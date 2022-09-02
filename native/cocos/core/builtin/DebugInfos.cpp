@@ -454,6 +454,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 16002, "'%s' is removed since v%s." },
 { 16003, "'%s' is removed since v%s, please use '%s' instead." },
 { 16101, "The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html" },
+{ 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 
 };
 }//namespace cc
