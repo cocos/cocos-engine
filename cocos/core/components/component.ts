@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
@@ -39,6 +40,7 @@ import { errorID, warnID, assertID } from '../platform/debug';
 import { CompPrefabInfo } from '../utils/prefab/prefab-info';
 import { EventHandler } from './component-event-handler';
 
+declare const Editor: any;
 const idGenerator = new IDGenerator('Comp');
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
@@ -460,6 +462,12 @@ class Component extends CCObject {
      */
     public scheduleOnce (callback, delay = 0) {
         this.schedule(callback, 0, 0, delay);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    protected async saveDataToImage (data: Float32Array, width: number, height: number, format: string, fullpath: string, callback: Function) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return EditorExtends.Asset.saveDataToImage(data, width, height, fullpath, callback);
     }
 
     /**

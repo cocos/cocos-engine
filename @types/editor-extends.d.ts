@@ -47,6 +47,7 @@ interface EditorExtendsComponent {
 interface EditorExtendsAsset {
     queryAssetInfo(uuid: string, callback: Function): any;
     getAssetInfoFromUrl(url: string): EditorAssetInfo;
+    saveDataToImage(buffer: Float32Array | null, width: number, height: number, fullpath: string, callback: Function): any;
 }
 
 interface EditorExtendsUuid {
@@ -70,7 +71,7 @@ declare namespace EditorExtends {
         classInstance: any;
         class: any;
         object: any;
-    }
+    };
 
     const serialize: any;
 
