@@ -685,7 +685,7 @@ struct LayoutGraphData {
 
 } // namespace cc
 
-namespace std {
+namespace ccstd {
 
 inline size_t hash<cc::render::NameLocalID>::operator()(const cc::render::NameLocalID& v) const noexcept {
     ccstd::hash_t seed = 0;
@@ -693,6 +693,6 @@ inline size_t hash<cc::render::NameLocalID>::operator()(const cc::render::NameLo
     return static_cast<size_t>(seed);
 }
 
-} // namespace std
+} // namespace ccstd
 
 // clang-format on

@@ -30,6 +30,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 
@@ -70,5 +71,19 @@ struct LightInfo;
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+template <>
+struct hash<cc::render::RasterView> {
+    size_t operator()(const cc::render::RasterView& v) const noexcept;
+};
+
+template <>
+struct hash<cc::render::ComputeView> {
+    size_t operator()(const cc::render::ComputeView& v) const noexcept;
+};
+
+} // namespace ccstd
 
 // clang-format on

@@ -32,6 +32,7 @@
 #pragma once
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Light.h"
@@ -210,6 +211,15 @@ struct RasterView {
     gfx::Color clearColor;
 };
 
+inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {
+    return std::forward_as_tuple(lhs.slotName, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags) ==
+           std::forward_as_tuple(rhs.slotName, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags);
+}
+
+inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 enum class ClearValueType {
     FLOAT_TYPE,
     INT_TYPE,
@@ -244,6 +254,15 @@ struct ComputeView {
     ClearValueType clearValueType{ClearValueType::FLOAT_TYPE};
 };
 
+inline bool operator==(const ComputeView& lhs, const ComputeView& rhs) noexcept {
+    return std::forward_as_tuple(lhs.name, lhs.accessType, lhs.clearFlags, lhs.clearValueType) ==
+           std::forward_as_tuple(rhs.name, rhs.accessType, rhs.clearFlags, rhs.clearValueType);
+}
+
+inline bool operator!=(const ComputeView& lhs, const ComputeView& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct LightInfo {
     LightInfo() = default;
     LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
@@ -257,5 +276,29 @@ struct LightInfo {
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+inline size_t hash<cc::render::RasterView>::operator()(const cc::render::RasterView& v) const noexcept {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.slotName);
+    ccstd::hash_combine(seed, v.accessType);
+    ccstd::hash_combine(seed, v.attachmentType);
+    ccstd::hash_combine(seed, v.loadOp);
+    ccstd::hash_combine(seed, v.storeOp);
+    ccstd::hash_combine(seed, v.clearFlags);
+    return static_cast<size_t>(seed);
+}
+
+inline size_t hash<cc::render::ComputeView>::operator()(const cc::render::ComputeView& v) const noexcept {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.name);
+    ccstd::hash_combine(seed, v.accessType);
+    ccstd::hash_combine(seed, v.clearFlags);
+    ccstd::hash_combine(seed, v.clearValueType);
+    return static_cast<size_t>(seed);
+}
+
+} // namespace ccstd
 
 // clang-format on

@@ -273,6 +273,15 @@ struct RasterSubpass {
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
+inline bool operator==(const RasterSubpass& lhs, const RasterSubpass& rhs) noexcept {
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews);
+}
+
+inline bool operator!=(const RasterSubpass& lhs, const RasterSubpass& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct SubpassGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -394,6 +403,15 @@ struct SubpassGraph {
     ccstd::pmr::vector<ccstd::pmr::string> names;
     ccstd::pmr::vector<RasterSubpass> subpasses;
 };
+
+inline bool operator==(const SubpassGraph& lhs, const SubpassGraph& rhs) noexcept {
+    return std::forward_as_tuple(lhs.names, lhs.subpasses) ==
+           std::forward_as_tuple(rhs.names, rhs.subpasses);
+}
+
+inline bool operator!=(const SubpassGraph& lhs, const SubpassGraph& rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 struct RasterPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -913,11 +931,17 @@ struct RenderGraph {
 
 } // namespace cc
 
-namespace std {
+namespace ccstd {
+
+inline size_t hash<cc::render::RasterSubpass>::operator()(const cc::render::RasterSubpass& v) const noexcept {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, v.rasterViews);
+    ccstd::hash_combine(seed, v.computeViews);
+    return static_cast<size_t>(seed);
+}
 
 inline size_t hash<cc::render::SubpassGraph>::operator()(const cc::render::SubpassGraph& v) const noexcept {
     ccstd::hash_t seed = 0;
-    ccstd::hash_combine(seed, v.vertices);
     ccstd::hash_combine(seed, v.names);
     ccstd::hash_combine(seed, v.subpasses);
     return static_cast<size_t>(seed);
@@ -935,6 +959,6 @@ inline size_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     return static_cast<size_t>(seed);
 }
 
-} // namespace std
+} // namespace ccstd
 
 // clang-format on
