@@ -189,7 +189,7 @@ def main():
             popen = _run_cmd(command)
             popen.communicate()
             if popen.returncode != 0:
-                print ("Error: falied to generate bindings for '%s'" % (section))
+                print ("Error: failed to generate bindings for '%s'" % (section))
                 sys.exit(popen.returncode)
 
         if len(sys.argv) > 2 and sys.argv[1] == '--config':
