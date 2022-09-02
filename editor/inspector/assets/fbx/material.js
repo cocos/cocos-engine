@@ -355,6 +355,7 @@ exports.methods = {
         });
 
         this.dispatch('change');
+        this.dispatch('track', { tab: 'material', prop, value: event.target.value });
     },
     /**
      * Update whether a data is editable in multi-select state

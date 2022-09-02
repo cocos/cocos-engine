@@ -77,6 +77,9 @@ jobs:
               - exclude: 'native/cocos/bindings/manual/jsb_conversions.*'
               - exclude: 'native/cocos/bindings/jswrapper/v8/debugger/**'
               - exclude: 'native/cocos/audio/android/audio_utils/**'
+              - exclude: 'native/cocos/audio/android/AudioMixer.cpp'
+              - exclude: 'native/cocos/audio/android/AudioResampler.cpp'
+              - exclude: 'native/cocos/audio/common/utils/**'
             allChanges:
               - added|modified|deleted: '**'
             skipedDebug:

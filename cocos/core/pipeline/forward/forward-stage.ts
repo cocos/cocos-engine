@@ -83,6 +83,8 @@ export class ForwardStage extends RenderStage {
     private declare _planarQueue: PlanarShadowQueue;
     private declare _uiPhase: UIPhase;
 
+    additiveInstanceQueues: RenderInstancedQueue[] = [];
+
     constructor () {
         super();
         this._batchedQueue = new RenderBatchedQueue();
@@ -154,6 +156,10 @@ export class ForwardStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         pipeline.pipelineUBO.updateShadowUBO(camera);
 
+        for (let i = 0; i < this.additiveInstanceQueues.length; i++) {
+            this.additiveInstanceQueues[i].uploadBuffers(cmdBuff);
+        }
+
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
         this._additiveLightQueue.gatherLightPasses(camera, cmdBuff);
@@ -173,6 +179,11 @@ export class ForwardStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
+        
+        for (let i = 0; i < this.additiveInstanceQueues.length; i++) {
+            this.additiveInstanceQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+        }
+
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 

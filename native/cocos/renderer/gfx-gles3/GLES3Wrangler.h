@@ -29,5 +29,6 @@
 #include "../gfx-gles-common/gles2w.h"
 #include "../gfx-gles-common/gles3w.h"
 
+PFNGLES3WLOADPROC pfnGLES3wLoadProc();
 bool gles3wInit();
 bool gles3wExit();

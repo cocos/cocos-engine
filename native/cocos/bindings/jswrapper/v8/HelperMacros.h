@@ -112,8 +112,9 @@ void printJSBInvokeAtFrame(int n);
             bool ret = false;                                                                             \
             v8::Isolate *_isolate = _v8args.GetIsolate();                                                 \
             v8::HandleScope _hs(_isolate);                                                                \
-            se::ValueArray &args = se::gValueArrayPool.get(_v8args.Length());                             \
-            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                          \
+            bool needDeleteValueArray{false};                                                             \
+            se::ValueArray &args = se::gValueArrayPool.get(_v8args.Length(), needDeleteValueArray);       \
+            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};    \
             se::internal::jsToSeArgs(_v8args, args);                                                      \
             se::Object *thisObject = se::internal::getPrivate(_isolate, _v8args.This());                  \
             se::State state(thisObject, args);                                                            \
@@ -156,8 +157,9 @@ void printJSBInvokeAtFrame(int n);
             v8::Isolate *_isolate = _v8args.GetIsolate();                                                 \
             v8::HandleScope _hs(_isolate);                                                                \
             bool ret = true;                                                                              \
-            se::ValueArray &args = se::gValueArrayPool.get(_v8args.Length());                             \
-            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                          \
+            bool needDeleteValueArray{false};                                                             \
+            se::ValueArray &args = se::gValueArrayPool.get(_v8args.Length(), needDeleteValueArray);       \
+            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};    \
             se::internal::jsToSeArgs(_v8args, args);                                                      \
             se::Object *thisObject = se::Object::_createJSObject(cls, _v8args.This());                    \
             thisObject->_setFinalizeCallback(_SE(finalizeCb));                                            \
@@ -197,8 +199,9 @@ void printJSBInvokeAtFrame(int n);
             v8::HandleScope _hs(_isolate);                                                                                                                \
             bool ret = true;                                                                                                                              \
             se::Object *thisObject = se::internal::getPrivate(_isolate, _v8args.This());                                                                  \
-            se::ValueArray &args = se::gValueArrayPool.get(1);                                                                                            \
-            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                                                                          \
+            bool needDeleteValueArray{false};                                                                                                             \
+            se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);                                                                      \
+            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};                                                    \
             se::Value &data{args[0]};                                                                                                                     \
             se::internal::jsToSeValue(_isolate, _value, &data);                                                                                           \
             se::State state(thisObject, args);                                                                                                            \

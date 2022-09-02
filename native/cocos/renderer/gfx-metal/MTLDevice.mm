@@ -75,7 +75,7 @@ CCMTLDevice::~CCMTLDevice() {
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
-    _inFlightSemaphore = ccnew CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT);
+    _inFlightSemaphore = ccnew CCMTLSemaphore(3);
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -164,13 +164,12 @@ void CCMTLDevice::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
-
-    if (_inFlightSemaphore) {
-        // has present ? syncSuccess : no need to wait;
+    
+    for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         _inFlightSemaphore->trySyncAll(1000);
+        CC_SAFE_DELETE(_inFlightSemaphore);
+        _inFlightSemaphore = nullptr;
     }
-
-    CC_SAFE_DELETE(_inFlightSemaphore);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
@@ -210,6 +209,7 @@ void CCMTLDevice::present() {
     _numTriangles = queue->gpuQueueObj()->numTriangles;
 
     //hold this pointer before update _currentFrameIndex
+    auto tempIndex = _currentFrameIndex;
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
@@ -232,18 +232,18 @@ void CCMTLDevice::present() {
             [drawable release];
         }
         [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-            onPresentCompleted();
+            onPresentCompleted(tempIndex);
         }];
         [cmdBuffer commit];
     }
 }
 
-void CCMTLDevice::onPresentCompleted() {
-    if (_currentBufferPoolId >= 0 && _currentBufferPoolId < MAX_FRAMES_IN_FLIGHT) {
-        CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentBufferPoolId];
+void CCMTLDevice::onPresentCompleted(uint32_t index) {
+    if (index >= 0 && index < MAX_FRAMES_IN_FLIGHT) {
+        CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[index];
         if (bufferPool) {
             bufferPool->reset();
-            CCMTLGPUGarbageCollectionPool::getInstance()->clear(_currentBufferPoolId);
+            CCMTLGPUGarbageCollectionPool::getInstance()->clear(index);
         }
     }
     _inFlightSemaphore->signal();

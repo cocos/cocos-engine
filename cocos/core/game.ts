@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST, WEBGPU } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -51,6 +51,7 @@ import { assert } from './platform/debug';
 import { IBundleOptions } from './asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
+import { promiseForWebGPUInstantiation } from '../webgpu/instantiated';
 
 /**
  * @zh
@@ -686,6 +687,17 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.timeEnd('Init Base');
                 }
+
+                if (sys.isXR) {
+                    // XrEntry must not be destroyed
+                    xr.entry = xr.XrEntry.getInstance();
+
+                    const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
+                    const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+                    xr.entry.setMultisamplesRTT(xrMSAA);
+                    xr.entry.setRenderingScale(xrRenderingScale);
+                }
+
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })
@@ -1030,3 +1042,7 @@ legacyCC.Game = Game;
  * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
  */
 export const game = legacyCC.game = new Game();
+
+if (WEBGPU) {
+    game.onPreInfrastructureInitDelegate.add(() => promiseForWebGPUInstantiation);
+}

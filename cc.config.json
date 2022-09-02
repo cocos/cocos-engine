@@ -94,6 +94,7 @@
         },
         "audio": { "modules": [ "audio" ] },
         "video": { "modules": [ "video" ] },
+        "xr": { "modules": [ "xr" ] },
         "terrain": { 
             "modules": [ "terrain" ], 
             "dependentAssets": [ "1d08ef62-a503-4ce2-8b9a-46c90873f7d3" ] 
@@ -190,6 +191,13 @@
                 "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
                 "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
                 "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.WEBGPU",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.ems.ts"
             }
         },
         {
@@ -455,6 +463,12 @@
             "type": "number",
             "value": 0,
             "internal": false
+        },
+        "WEBGPU": {
+            "comment": "Running with webgpu rendering backend.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
         }
     }
 }

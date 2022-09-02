@@ -33,8 +33,8 @@ namespace se {
 
 class CallbackDepthGuard final {
 public:
-    CallbackDepthGuard(ValueArray &arr, uint32_t &depth)
-    : _arr(arr), _depth(depth) {
+    CallbackDepthGuard(ValueArray &arr, uint32_t &depth, bool needDelete)
+    : _arr(arr), _depth(depth), _needDelete(needDelete) {
         ++_depth;
     }
 
@@ -43,11 +43,15 @@ public:
         for (auto &e : _arr) {
             e.setUndefined();
         }
+        if (_needDelete) {
+            delete &_arr;
+        }
     }
 
 private:
     ValueArray &_arr;
     uint32_t &_depth;
+    const bool _needDelete{false};
 };
 
 class ValueArrayPool final {
@@ -56,7 +60,7 @@ public:
 
     ValueArrayPool();
 
-    ValueArray &get(uint32_t argc);
+    ValueArray &get(uint32_t argc, bool &outNeedDelete);
 
     uint32_t _depth{0};
 

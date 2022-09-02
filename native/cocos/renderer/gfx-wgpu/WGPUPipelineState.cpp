@@ -125,6 +125,13 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
     return hash;
 }
 
+ccstd::hash_t hash(const WGPUComputePipelineDescriptor &desc) {
+    ccstd::hash_t hash = 9527;
+    hash_combine(hash, desc.layout);
+    hash_combine(hash, desc.compute);
+    return hash;
+}
+
 } // namespace
 
 CCWGPUPipelineState::CCWGPUPipelineState() : PipelineState() {
@@ -243,7 +250,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             vbLayouts[i] = {
                 .arrayStride = offset[i],
                 .stepMode = isInstance ? WGPUVertexStepMode_Instance : WGPUVertexStepMode_Vertex,
-                .attributeCount = wgpuAttrsVec[i].size(),
+                .attributeCount = static_cast<uint32_t>(wgpuAttrsVec[i].size()),
                 .attributes = wgpuAttrsVec[i].data(),
             };
             // for (size_t j = 0; j < wgpuAttrsVec[i].size(); ++j) {
@@ -372,7 +379,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         _ppl = pipelineLayout;
         _forceUpdate = false;
     } else if (_bindPoint == PipelineBindPoint::COMPUTE) {
-        if (_gpuPipelineStateObj->wgpuComputePipeline)
+        if (_gpuPipelineStateObj->wgpuComputePipeline && !_forceUpdate)
             return;
         WGPUProgrammableStageDescriptor psDesc = {
             .module = static_cast<CCWGPUShader *>(_shader)->gpuShaderObject()->wgpuShaderComputeModule,
@@ -383,7 +390,19 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .layout = pipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout,
             .compute = psDesc,
         };
-        _gpuPipelineStateObj->wgpuComputePipeline = wgpuDeviceCreateComputePipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+        auto hashVal = hash(piplineDesc);
+        _hash = hashVal;
+
+        auto iter = pipelineMap.find(hashVal);
+        if (iter == pipelineMap.end()) {
+            _gpuPipelineStateObj->wgpuComputePipeline = wgpuDeviceCreateComputePipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+            printf("ppl %s\n", static_cast<CCWGPUShader *>(_shader)->getName().c_str());
+            pipelineMap[hashVal] = _gpuPipelineStateObj->wgpuComputePipeline;
+        } else {
+            _gpuPipelineStateObj->wgpuComputePipeline = static_cast<WGPUComputePipeline>(iter->second);
+        }
+        _ppl = pipelineLayout;
+        _forceUpdate = false;
     } else {
         printf("unsupport pipeline bind point");
     }

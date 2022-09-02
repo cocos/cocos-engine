@@ -24,15 +24,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { EDITOR } from 'internal:constants';
-import { game } from '../core/game';
+import { WEBGPU } from 'internal:constants';
+import webgpuUrl from 'url:native/external/emscripten/webgpu/webgpu_wasm.wasm';
+import glslangUrl from 'url:native/external/emscripten/webgpu/glslang.wasm';
+import wasmDevice from '../../native/external/emscripten/webgpu/webgpu_wasm.js';
+import glslangLoader from '../../native/external/emscripten/webgpu/glslang.js';
 import { legacyCC } from '../core/global-exports';
-
-// import glslangURL from '@cocos/webgpu/glslang.wasmurl';
-// import webgpuURL from '@cocos/webgpu/webgpu_wasm.wasmurl';
-// import glslangLoader from '@cocos/webgpu/glslang';
-import wasmDevice from './webgpu_wasm';
-import glslangLoader from './glslang';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -48,32 +45,36 @@ export const webgpuAdapter: any = {
     device: null,
 };
 
-export function waitForWebGPUInstantiation () {
-    return Promise.all([
-        glslangLoader('./glslang.wasm').then((res) => {
-            glslalgWasmModule.glslang = res;
-        }),
-        new Promise<void>((resolve) => {
-            //http://192.168.52.147:7456
-            fetch('./webgpu_wasm.wasm').then((response) => {
-                response.arrayBuffer().then((buffer) => {
-                    gfx.wasmBinary = buffer;
-                    wasmDevice(gfx).then(() => {
-                        legacyCC.WebGPUDevice = gfx.CCWGPUDevice;
+export const promiseForWebGPUInstantiation = (() => {
+    if (WEBGPU) {
+        return Promise.all([
+            // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', or 'nodenext'.
+            glslangLoader(new URL(glslangUrl, import.meta.url).href).then((res) => {
+                glslalgWasmModule.glslang = res;
+            }),
+            new Promise<void>((resolve) => {
+                // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', or 'nodenext'.
+                fetch(new URL(webgpuUrl, import.meta.url).href).then((response) => {
+                    response.arrayBuffer().then((buffer) => {
+                        gfx.wasmBinary = buffer;
+                        wasmDevice(gfx).then(() => {
+                            legacyCC.WebGPUDevice = gfx.CCWGPUDevice;
+                            resolve();
+                        });
+                    });
+                });
+            }),
+            new Promise<void>((resolve) => {
+                (navigator as any).gpu.requestAdapter().then((adapter) => {
+                    adapter.requestDevice().then((device) => {
+                        webgpuAdapter.adapter = adapter;
+                        webgpuAdapter.device = device;
+                        console.log(gfx);
                         resolve();
                     });
                 });
-            });
-        }),
-        new Promise<void>((resolve) => {
-            (navigator as any).gpu.requestAdapter().then((adapter) => {
-                adapter.requestDevice().then((device) => {
-                    webgpuAdapter.adapter = adapter;
-                    webgpuAdapter.device = device;
-                    console.log(gfx);
-                    resolve();
-                });
-            });
-        }),
-    ]).then(() => Promise.resolve());
-}
+            }),
+        ]).then(() => Promise.resolve());
+    }
+    return Promise.resolve();
+})();

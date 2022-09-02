@@ -3,6 +3,6 @@
         "type": "github",
         "owner": "cocos-creator",
         "name": "engine-native-external",
-        "checkout": "v3d-gfx-130"
+        "checkout": "v3.6.1-1"
     }
 }

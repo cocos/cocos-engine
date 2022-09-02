@@ -28,7 +28,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include "audio/oalsoft/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoder.h"
 #include "base/Log.h"
 #include "base/Utils.h"
 #include "base/std/container/vector.h"
@@ -51,7 +51,7 @@
 #endif
 #include "application/ApplicationManager.h"
 #include "audio/include/AudioEngine.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 #include "base/Scheduler.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"

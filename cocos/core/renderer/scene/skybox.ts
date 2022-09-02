@@ -226,6 +226,7 @@ export class Skybox {
     protected _activated = false;
     protected _reflectionHDR: TextureCube | null = null;
     protected _reflectionLDR: TextureCube | null = null;
+    protected _rotationAngle = 0;
 
     public initialize (skyboxInfo: SkyboxInfo) {
         this._activated = false;
@@ -288,6 +289,19 @@ export class Skybox {
         this._reflectionLDR = reflectionLDR;
         this._updateGlobalBinding();
         this._updatePipeline();
+    }
+
+    /**
+     * @en Set skybox rotation angle
+     * @zh 设置天空盒旋转角度
+     * @param angle  @en rotation angle @zh 旋转角度
+     */
+    public setRotationAngle (angle: number) {
+        this._rotationAngle = angle;
+    }
+
+    public getRotationAngle () {
+        return this._rotationAngle;
     }
 
     public updateMaterialRenderInfo () {
@@ -369,19 +383,13 @@ export class Skybox {
 
         if (this.enabled) {
             const envmap = this.envmap ? this.envmap : this._default;
-            if (this._editableMaterial) {
-                this._editableMaterial.setProperty('environmentMap', envmap);
-                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-            } else if (skybox_material) {
-                skybox_material.setProperty('environmentMap', envmap);
-                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+            const skyboxMat = this._editableMaterial ? this._editableMaterial : skybox_material;
+            if (skyboxMat) {
+                skyboxMat.setProperty('environmentMap', envmap);
+                skyboxMat.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
             }
             if (this._model) {
-                if (this._editableMaterial) {
-                    this._model.setSubModelMaterial(0, this._editableMaterial);
-                } else {
-                    this._model.setSubModelMaterial(0, skybox_material!);
-                }
+                this._model.setSubModelMaterial(0, skyboxMat!);
                 this._updateSubModes();
             }
         }

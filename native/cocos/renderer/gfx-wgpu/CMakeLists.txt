@@ -11,7 +11,7 @@ set(ENGINE_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../..)
 
 include(${ENGINE_ROOT_DIR}/cmake/predefine.cmake)
 
-include (${ENGINE_ROOT_DIR}/external/CMakeLists.txt)
+# include (${ENGINE_ROOT_DIR}/external/CMakeLists.txt)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -Wextra -Wno-nonportable-include-path -fno-exceptions -v")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g3 -D_DEBUG=1 -Wno-unused -O0 -std=c++17")

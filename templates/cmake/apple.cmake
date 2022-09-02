@@ -8,10 +8,12 @@ macro(cc_ios_before_target target_name)
     list(APPEND CC_PROJ_SOURCES
         ${CC_UI_RESOURCES}
     ) 
-    if (USE_PORTRAIT)
-        configure_file(${CC_PROJECT_DIR}/LaunchScreenBackgroundPortrait.png ${CC_PROJECT_DIR}/LaunchScreenBackground.png COPYONLY)
-    else()
-        configure_file(${CC_PROJECT_DIR}/LaunchScreenBackgroundLandscape.png ${CC_PROJECT_DIR}/LaunchScreenBackground.png COPYONLY)
+    if(NOT EXISTS ${CC_PROJECT_DIR}/LaunchScreenBackground.png)
+        if (USE_PORTRAIT)
+            configure_file(${CC_PROJECT_DIR}/LaunchScreenBackgroundPortrait.png ${CC_PROJECT_DIR}/LaunchScreenBackground.png COPYONLY)
+        else()
+            configure_file(${CC_PROJECT_DIR}/LaunchScreenBackgroundLandscape.png ${CC_PROJECT_DIR}/LaunchScreenBackground.png COPYONLY)
+        endif()
     endif()
     if(NOT CUSTOM_COPY_RESOURCE_HOOK)
         cc_include_resources(${RES_DIR}/data CC_ASSET_FILES)
@@ -147,3 +149,4 @@ endif()
     cc_common_after_target(${target_name})
 
 endmacro()
+
