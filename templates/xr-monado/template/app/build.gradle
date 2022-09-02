@@ -74,6 +74,14 @@ android {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.release
             }
+                        
+            externalNativeBuild {
+                cmake {
+                    // switch HIDE_SYMBOLS to OFF to skip compilation flag `-fvisibility=hidden`
+                    arguments "-DHIDE_SYMBOLS=ON"
+                }
+            }
+            
             // resValue  "string", "app_name", PROP_APP_NAME
         }
 
