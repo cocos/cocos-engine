@@ -212,7 +212,7 @@ export class Mask extends Component {
      *
      * @zh
      * 遮罩所需要的贴图。
-     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation.1
+     * @deprecated since v3.6.1
      */
     get spriteFrame () {
         if (this._sprite) {
