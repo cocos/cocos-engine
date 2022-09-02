@@ -855,7 +855,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 ///
 
 template <typename... Args>
-bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args); // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &&...args); // NOLINT(readability-identifier-naming)
 
 template <typename R>
 inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
