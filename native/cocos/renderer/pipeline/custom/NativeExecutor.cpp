@@ -189,6 +189,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     
 };
 
+void executeRenderGraph(const RenderGraph& renderGraph) {
+    
+}
+
 } // namespace render
 
 } // namespace cc
