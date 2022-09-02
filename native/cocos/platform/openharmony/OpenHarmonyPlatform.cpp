@@ -141,24 +141,41 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
     void*             window          = nullptr;
     WorkerMessageData msgData;
     OpenHarmonyPlatform* platform = OpenHarmonyPlatform::getInstance();
-    if(!platform->dequeue(reinterpret_cast<WorkerMessageData*>(&msgData))) {
-        // Queue has no data
-        return;
-    }
 
-    OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
-    CC_ASSERT(nativexcomponet != nullptr);
+    while (true) {
+        //loop until all msg dispatch
+        if (!platform->dequeue(reinterpret_cast<WorkerMessageData*>(&msgData))) {
+            // Queue has no data
+            break;
+        }
 
-    if(msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
-        platform->onSurfaceCreated(nativexcomponet, msgData.window);
-    } else if(msgData.type == MessageType::WM_XCOMPONENT_TOUCH_EVENT) {
-        platform->dispatchTouchEvent(nativexcomponet, msgData.window);
-    } else if(msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CHANGED) {
-        platform->onSurfaceChanged(nativexcomponet, msgData.window);
-    } else if(msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
-        platform->onSurfaceDestroyed(nativexcomponet, msgData.window);
-    } else {
-        CC_LOG_WARNING("Unknown message data");
+        if ((msgData.type >= MessageType::WM_XCOMPONENT_SURFACE_CREATED) && (msgData.type <= MessageType::WM_XCOMPONENT_SURFACE_DESTROY)) {
+            OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
+            CC_ASSERT(nativexcomponet != nullptr);
+
+            if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
+                platform->onSurfaceCreated(nativexcomponet, msgData.window);
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_TOUCH_EVENT) {
+                platform->dispatchTouchEvent(nativexcomponet, msgData.window);
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CHANGED) {
+                platform->onSurfaceChanged(nativexcomponet, msgData.window);
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
+                platform->onSurfaceDestroyed(nativexcomponet, msgData.window);
+            } else {
+                CC_ASSERT(false);
+            }
+            continue;
+        }
+
+        if (msgData.type == MessageType::WM_APP_SHOW) {
+            platform->onShowNative();
+        } else if (msgData.type == MessageType::WM_APP_HIDE) {
+            platform->onHideNative();
+        } else if (msgData.type == MessageType::WM_APP_DESTROY) {
+            platform->onDestroyNative();
+        } else {
+            CC_ASSERT(false);
+        }
     }
 }
 
