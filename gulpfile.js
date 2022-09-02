@@ -90,7 +90,7 @@ gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
         cli,
         `--engine=${__dirname}`,
         '--module=system',
-        '--compress',
+        //'--compress',
         '--sourcemap',
         '--build-mode=BUILD',
         '--platform=HTML5',

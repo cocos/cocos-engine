@@ -15,7 +15,6 @@ import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
 import * as rollup from 'rollup';
 // @ts-expect-error: No typing
 import rpProgress from 'rollup-plugin-progress';
-// @ts-expect-error: No typing
 import rpVirtual from '@rollup/plugin-virtual';
 import nodeResolve from 'resolve';
 import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
@@ -29,8 +28,15 @@ import { StatsQuery } from './stats-query';
 import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 import { codeAsset } from './rollup-plugins/code-asset';
+import decoratorScanner, { outputs } from './decorator-scanner';
+// @ts-expect-error: No typing
+import babelPluginConstEnum from 'babel-plugin-const-enum';
+// @ts-expect-error: No typing
+import plugin_transform_typescript from "@babel/plugin-transform-typescript";
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
+
+const decoratorRecord = 'C:\\Users\\Administrator\\Desktop\\record.txt';
 
 function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
     if (lhs.length !== rhs.length) {
@@ -320,6 +326,12 @@ async function doBuild ({
     }
 
     const babelPlugins: any[] = [];
+    babelPlugins.push([babelPluginConstEnum, { transform: 'constObject' }]);
+    babelPlugins.push([plugin_transform_typescript, {
+            allowNamespaces: true,
+            allowDeclareFields: true,
+        }]);
+    babelPlugins.push([decoratorScanner, { legacy: true }]);
     if (options.targets === undefined) {
         babelPlugins.push([babelPluginTransformForOf, {
             loose: true,
@@ -574,6 +586,8 @@ export default Bullet;
         await fs.ensureDir(ps.dirname(incrementalFile));
         await fs.writeFile(incrementalFile, JSON.stringify(watchFiles, undefined, 2));
     }
+
+    await fs.writeFile(decoratorRecord, outputs.join('\n'));
 
     const result: build.Result = {
         chunkAliases: {},
