@@ -32,6 +32,11 @@ namespace cc {
 namespace scene {
 
 void DrawBatch2D::clear() {
+    _inputAssembler = nullptr;
+    _descriptorSet = nullptr;
+    _model = nullptr;
+    _useLocalData = nullptr;
+    _visFlags = 1 << 23;
 }
 
 void DrawBatch2D::fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const ccstd::vector<IMacroPatch> *patches) {

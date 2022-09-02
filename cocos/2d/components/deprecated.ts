@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Mask } from './mask';
+import { Mask, MaskType } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';
 import { RichText } from './rich-text';
@@ -105,5 +105,26 @@ replaceProperty(Mask.prototype, 'Mask', [
         newName: 'subComp',
         target: Mask.prototype,
         targetName: 'Mask',
+    },
+]);
+
+replaceProperty(MaskType, 'MaskType', [
+    {
+        name: 'RECT',
+        newName: 'GRAPHICS_RECT',
+        target: MaskType,
+        targetName: 'MaskType',
+    },
+    {
+        name: 'ELLIPSE',
+        newName: 'GRAPHICS_ELLIPSE',
+        target: MaskType,
+        targetName: 'MaskType',
+    },
+    {
+        name: 'IMAGE_STENCIL',
+        newName: 'SPRITE_STENCIL',
+        target: MaskType,
+        targetName: 'MaskType',
     },
 ]);

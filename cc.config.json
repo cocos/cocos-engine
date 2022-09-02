@@ -53,9 +53,12 @@
                 "14da1725-c4c2-42b4-ab08-ee0aeb6898b3",
                 "081cab31-dccd-428e-8652-f2404cc81c47",
                 "78e0584a-4343-4727-8f37-e14e65c2a2db" 
-            ] 
+            ]
         },
-        "particle-2d": { "modules": [ "particle-2d" ] },
+        "particle-2d": { 
+            "modules": [ "particle-2d" ],
+            "dependentModules": [ "2d" ]
+        },
         "physics-framework": { "modules": [ "physics-framework" ] },
         "physics-cannon": { "modules": [ "physics-cannon", "physics-framework" ] ,
             "dependentAssets": [ "ba21476f-2866-4f81-9c4d-6e359316e448" ]},
@@ -100,15 +103,22 @@
         },
         "webview": { "modules": [ "webview" ] },
         "tween": { "modules": [ "tween" ] },
-        "tiled-map": { "modules": [ "tiled-map" ] },
+        "tiled-map": { 
+            "modules": [ "tiled-map" ],
+            "dependentModules": [ "2d" ]
+        },
         "spine": { 
             "modules": [ "spine" ], 
             "dependentAssets":[ 
                 "c27215d8-6835-4b68-bfbb-bdeac6100c04",
                 "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
-            ] 
+            ],
+            "dependentModules": [ "2d" ]
         },
-        "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "dragon-bones": { 
+            "modules": [ "dragon-bones" ],
+            "dependentModules": [ "2d" ]
+        },
         "marionette": {
             "modules": [],
             "intrinsicFlags": {

@@ -48,9 +48,9 @@ StencilManager::~StencilManager() {
     }
 }
 
-void StencilManager::clear(RenderEntity* entity) { // NOLINT(readability-convert-member-functions-to-static)
+StencilStage StencilManager::clear(RenderEntity* entity) { // NOLINT(readability-convert-member-functions-to-static)
     bool inverted = entity->getIsMaskInverted();
-    entity->setEnumStencilStage(inverted ? StencilStage::CLEAR_INVERTED : StencilStage::CLEAR);
+    return inverted ? StencilStage::CLEAR_INVERTED : StencilStage::CLEAR;
 }
 
 void StencilManager::enterLevel(RenderEntity* entity) { // NOLINT(readability-convert-member-functions-to-static)

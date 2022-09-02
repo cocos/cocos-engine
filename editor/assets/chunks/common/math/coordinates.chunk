@@ -60,14 +60,10 @@ void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 norm
     vec3 T = RotationVecFromAxisY(vec3(0.0, 0.0, 1.0), cosTheta, sinTheta);
 
     vec3 tangentNew, binormalNew;
-    binormalNew.x = dot(B, binormal);
-    binormalNew.y = dot(B, normal);
-    binormalNew.z = dot(B, tangent);
+    binormalNew = B.x * binormal + B.y * normal + B.z * tangent;
     binormal = normalize(binormalNew);
 
-    tangentNew.x = dot(T, binormal);
-    tangentNew.y = dot(T, normal);
-    tangentNew.z = dot(T, tangent);
+    tangentNew = T.x * binormal + T.y * normal + T.z * tangent;
     tangent = normalize(tangentNew);
     // tangent = cross(binormal, normal);
 }

@@ -117,7 +117,7 @@ interface IPhysicsSelector {
 function updateLegacyMacro (id: string) {
     legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
     legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
-    legacyCC._global.CC_PHYSICS_AMMO = id === 'ammo.js';
+    legacyCC._global.CC_PHYSICS_AMMO = id === 'bullet';
 }
 
 function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {

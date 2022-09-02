@@ -179,6 +179,11 @@ void checkAttributesNeedConvert(const gfx::AttributeList &orignalAttributes,    
 
     uint32_t attributeIndex = 0;
     for (auto &attribute : attributes) {
+        /*
+         NOTE: The size of RGB16F is 6 bytes, some Android devices may require 4 bytes alignment for attribute and Metal must require 4 bytes alignment.
+                Mesh will not be displayed correctly if setting non 4 bytes alignment (RGB16F is 6 bytes) on those devices.
+                And currently we depend on gfx::GFX_FORMAT_INFOS[format].size a lot, so we disable optimize NORMAL data temporarily before we find a better solution.
+
         if (attribute.name == gfx::ATTR_NAME_NORMAL) {
             if (attribute.format == gfx::Format::RGB32F) {
                 attributeIndicsNeedConvert.emplace_back(attributeIndex);
@@ -189,7 +194,9 @@ void checkAttributesNeedConvert(const gfx::AttributeList &orignalAttributes,    
                 dstStride -= 6;
     #endif
             }
-        } else if (attribute.name == gfx::ATTR_NAME_TEX_COORD || attribute.name == gfx::ATTR_NAME_TEX_COORD1 || attribute.name == gfx::ATTR_NAME_TEX_COORD2 || attribute.name == gfx::ATTR_NAME_TEX_COORD3 || attribute.name == gfx::ATTR_NAME_TEX_COORD4 || attribute.name == gfx::ATTR_NAME_TEX_COORD5 || attribute.name == gfx::ATTR_NAME_TEX_COORD6 || attribute.name == gfx::ATTR_NAME_TEX_COORD7 || attribute.name == gfx::ATTR_NAME_TEX_COORD8) {
+        } else */
+
+        if (attribute.name == gfx::ATTR_NAME_TEX_COORD || attribute.name == gfx::ATTR_NAME_TEX_COORD1 || attribute.name == gfx::ATTR_NAME_TEX_COORD2 || attribute.name == gfx::ATTR_NAME_TEX_COORD3 || attribute.name == gfx::ATTR_NAME_TEX_COORD4 || attribute.name == gfx::ATTR_NAME_TEX_COORD5 || attribute.name == gfx::ATTR_NAME_TEX_COORD6 || attribute.name == gfx::ATTR_NAME_TEX_COORD7 || attribute.name == gfx::ATTR_NAME_TEX_COORD8) {
             if (attribute.format == gfx::Format::RG32F) {
                 attributeIndicsNeedConvert.emplace_back(attributeIndex);
                 attribute.format = gfx::Format::RG16F;
@@ -245,12 +252,12 @@ uint32_t Mesh::getSubMeshCount() const {
     return static_cast<uint32_t>(_renderingSubMeshes.size());
 }
 
-const Vec3 &Mesh::getMinPosition() const {
-    return _struct.minPosition.has_value() ? _struct.minPosition.value() : Vec3::ZERO;
+const Vec3 *Mesh::getMinPosition() const {
+    return _struct.minPosition.has_value() ? &_struct.minPosition.value() : nullptr;
 }
 
-const Vec3 &Mesh::getMaxPosition() const {
-    return _struct.maxPosition.has_value() ? _struct.maxPosition.value() : Vec3::ZERO;
+const Vec3 *Mesh::getMaxPosition() const {
+    return _struct.maxPosition.has_value() ? &_struct.maxPosition.value() : nullptr;
 }
 
 ccstd::hash_t Mesh::getHash() {

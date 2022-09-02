@@ -43,6 +43,7 @@
 #include "application/ApplicationManager.h"
 #include "base/RefCounted.h"
 #include "base/std/container/array.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 #include "platform/java/modules/XRInterface.h"
 #include "states/GFXBufferBarrier.h"
 #include "states/GFXGeneralBarrier.h"
