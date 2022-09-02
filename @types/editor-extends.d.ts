@@ -33,6 +33,10 @@ interface EditorExtendsNode {
     getNodes(): {[uuid: string]: any};
 }
 
+interface EditorExtendsPrefabUtils {
+    addPrefabInstance(node: Node);
+}
+
 interface EditorExtendsComponent {
     addMenu(component: Function, path: string, priority?: number);
     removeMenu(component: Function);
@@ -66,7 +70,7 @@ declare namespace EditorExtends {
     const Component: EditorExtendsComponent;
     const Asset: EditorExtendsAsset;
     const UuidUtils: EditorExtendsUuid;
-
+    const PrefabUtils:EditorExtendsPrefabUtils;
     const MissingReporter: {
         classInstance: any;
         class: any;

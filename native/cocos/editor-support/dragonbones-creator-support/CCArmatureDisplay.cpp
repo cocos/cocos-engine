@@ -253,10 +253,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
     if (!attachInfo) return;
 
     // range [0.0, 255.0]
-    float r;
-    float g;
-    float b;
-    float a;
+    Color4B color(0, 0, 0, 0);
     CCSlot *slot = nullptr;
     middleware::Texture2D *texture = nullptr;
     int isFull = 0;
@@ -342,7 +339,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         texture = slot->getTexture();
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
-        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4F);
+        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         isFull |= vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
@@ -351,33 +348,30 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         }
 
         // Calculation vertex color.
-        a = realOpacity * static_cast<float>(slot->color.a) * parentOpacity / 255.0F;
-        float multiplier = _premultipliedAlpha ? a / 255.0F : 1.0F / 255.0F;
-        r = _nodeColor.r * static_cast<float>(slot->color.r) * multiplier;
-        g = _nodeColor.g * static_cast<float>(slot->color.g) * multiplier;
-        b = _nodeColor.b * static_cast<float>(slot->color.b) * multiplier;
+        color.a = (uint8_t)(realOpacity * static_cast<float>(slot->color.a) * parentOpacity);
+        float multiplier = _premultipliedAlpha ? color.a / 255.0F : 1.0F;
+        color.r = _nodeColor.r * slot->color.r * multiplier;
+        color.g = _nodeColor.g * slot->color.g * multiplier;
+        color.b = _nodeColor.b * slot->color.b * multiplier;
 
         // Transform component matrix to global matrix
         middleware::Triangles &triangles = slot->triangles;
         cc::Mat4 *worldMatrix = &slot->worldMatrix;
 
-        middleware::V2F_T2F_C4F *worldTriangles = slot->worldVerts;
+        middleware::V3F_T2F_C4B *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4F *vertex = triangles.verts + v;
-            middleware::V2F_T2F_C4F *worldVertex = worldTriangles + v;
+            middleware::V3F_T2F_C4B *vertex = triangles.verts + v;
+            middleware::V3F_T2F_C4B *worldVertex = worldTriangles + v;
 
             vertex->vertex.z = 0; //reset for z value
             worldVertex->vertex.transformMat4(vertex->vertex, *worldMatrix);
 
-            worldVertex->color.r = r;
-            worldVertex->color.g = g;
-            worldVertex->color.b = b;
-            worldVertex->color.a = a;
+            worldVertex->color = color;
         }
 
         // Fill MiddlewareManager vertex buffer
-        auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4F);
+        auto vertexOffset = vb.getCurPos() / sizeof(middleware::V3F_T2F_C4B);
         vb.writeBytes(reinterpret_cast<char *>(worldTriangles), vbSize);
 
         auto ibSize = triangles.indexCount * sizeof(uint16_t);

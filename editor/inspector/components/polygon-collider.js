@@ -23,14 +23,15 @@ exports.ready = function() {
                     Editor.Message.send('scene', 'snapshot');
                 });
 
-                $button.addEventListener('confirm', (event) => {
+                $button.addEventListener('confirm', async (event) => {
                     event.stopPropagation();
 
                     const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+                    for (const uuid of uuids) {
+                        await Editor.Message.request('scene', 'regenerate-polygon-2d-points', uuid);
+                    }
 
-                    uuids.forEach((uuid) => {
-                        Editor.Message.request('scene', 'regenerate-polygon-2d-points', uuid);
-                    });
+                    Editor.Message.send('scene', 'snapshot');
                 });
             },
         },

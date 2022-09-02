@@ -137,9 +137,9 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @readOnly
      */
     @editable
-    get children (): Node[] {
+    get children (): ReadonlyArray<Node> {
         // @ts-expect-error force cast
-        return this._children as Node[];
+        return this._children as ReadonlyArray<Node>;
     }
 
     /**
@@ -1282,6 +1282,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         const newPrefabInfo = cloned._prefab;
         if (EDITOR && newPrefabInfo) {
+            // EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
             if (cloned === newPrefabInfo.root) {
                 // newPrefabInfo.fileId = '';
             } else {

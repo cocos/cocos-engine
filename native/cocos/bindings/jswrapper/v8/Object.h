@@ -542,7 +542,7 @@ private:
     friend class JSBPersistentHandleVisitor;
 };
 // NOLINTNEXTLINE
-extern std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
+extern std::unique_ptr<ccstd::unordered_set<Object *>> __objectSet;
 
 } // namespace se
 

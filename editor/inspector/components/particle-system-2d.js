@@ -91,6 +91,8 @@ exports.ready = function() {
 
                         this.$this.dispatch('change-dump');
                     }
+
+                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 const $export = document.createElement('ui-button');
@@ -128,6 +130,8 @@ exports.ready = function() {
 
                         this.$this.dispatch('change-dump');
                     }
+
+                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 this.$.syncButton = $sync;
