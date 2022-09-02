@@ -1800,6 +1800,7 @@ exports.methods = {
         this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
     },
     isAnimationMode() {
+        return Editor.EditMode.getMode() === 'animation';
     },
     handlerSceneChangeMode() {
         this.toggleShowAddComponentBtn(!this.isAnimationMode()); // 动画编辑模式下，要隐藏按钮
