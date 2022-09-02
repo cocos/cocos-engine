@@ -379,6 +379,9 @@ public:
             CLEAR_EXCEPTON(t.env);
             ret = cc::JniHelper::jstring2string(jret);
             ccDeleteLocalRef(t.env, jret);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             deleteLocalRefs(t.env, &localRefs);
         } else {
             reportError(className, methodName, signature);

@@ -120,4 +120,9 @@ TEST(mathMat3Test, test4) {
     cc::Mat3 subOut;
     cc::Mat3::subtract(lAdd, rAdd, &subOut);
     ExpectEq(subOut.m[0] == 8 && subOut.m[2] == 8 && subOut.m[4] == 6, true);
+    // approxEqual
+    logLabel = "test the mat3 approx equal function";
+    cc::Mat3 a{1.111224F, 0.123455F, 0.384182F, 1.111223F, 3.123454F, 4.384182F, 5.111222F, 6.123455F, 7.384183F};
+    cc::Mat3 b{1.111223F, 0.123454F, 0.384183F, 1.111224F, 3.123455F, 4.384183F, 5.111223F, 6.123454F, 7.384182F};
+    ExpectEq(a.approxEquals(b), true);
 }

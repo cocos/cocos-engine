@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,10 +21,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+ */
 
-import './utils';
+import { deprecateModuleExportedName } from '../../core/utils/x-deprecated';
 
-export * from './graphics';
-export * from './label';
-export * from './sprite';
+deprecateModuleExportedName({
+    UIRenderable: {
+        newName: 'UIRenderer',
+        since: '3.0.0',
+        removed: true,
+    },
+});

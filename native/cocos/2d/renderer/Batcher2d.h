@@ -133,6 +133,9 @@ private:
             vbBuffer[offset++] = entity->getOpacity();
         }
     }
+    
+    void insertMaskBatch(RenderEntity* entity);
+    void createClearModel ();
 
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout);
 
@@ -184,6 +187,15 @@ private:
         gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
         gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
     };
+
+    // Mask use
+    IntrusivePtr<scene::Model> _maskClearModel;
+    IntrusivePtr<Material> _maskClearMtl;
+    IntrusivePtr<RenderingSubMesh> _maskModelMesh;
+    ccstd::vector<gfx::Attribute> _maskAttributes{
+        gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+    };
+    gfx::PrimitiveMode _primitiveMode{gfx::PrimitiveMode::TRIANGLE_LIST};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Batcher2d);
 };

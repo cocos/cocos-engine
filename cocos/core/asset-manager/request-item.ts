@@ -43,7 +43,7 @@ export default class RequestItem {
      */
     get id (): string {
         if (!this._id) {
-            this._id = `${this.uuid}@${this.isNative ? 'native' : 'import'}`;
+            this._id = `${this.overrideUuid || this.uuid}@${this.isNative ? 'native' : 'import'}`;
         }
         return this._id;
     }
@@ -82,6 +82,8 @@ export default class RequestItem {
      *
      */
     public uuid = '';
+
+    public overrideUuid = '';
 
     /**
      * @en
@@ -169,6 +171,7 @@ export default class RequestItem {
         if (RequestItem._deadPool.length === RequestItem.MAX_DEAD_NUM) { return; }
         this._id = '';
         this.uuid = '';
+        this.overrideUuid = '';
         this.url = '';
         this.ext = '.json';
         this.content = null;

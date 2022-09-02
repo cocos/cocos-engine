@@ -405,6 +405,11 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return header;
     }
+    if (_audioPlayerProvider->getPcmHeader(url, header)) {
+        CC_LOG_DEBUG("file %s pcm data already cached", url);
+        return header;
+    }
+
     AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
 
     if (decoder == nullptr) {
@@ -436,18 +441,24 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return pcmData;
     }
-    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
-    if (decoder == nullptr) {
-        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
-        return pcmData;
-    }
-    if (!decoder->start()) {
-        CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
-        return pcmData;
+    PcmData data;
+    if (_audioPlayerProvider->getPcmData(url, data)) {
+        CC_LOG_DEBUG("file %s pcm data already cached", url);
+    } else {
+        AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+        if (decoder == nullptr) {
+            CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+            return pcmData;
+        }
+        if (!decoder->start()) {
+            CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+            return pcmData;
+        }
+        data = decoder->getResult();
+        _audioPlayerProvider->registerPcmData(url, data);
+        AudioDecoderProvider::destroyAudioDecoder(&decoder);
     }
     do {
-        PcmData data = decoder->getResult();
-
         const uint32_t channelCount = data.numChannels;
         if (channelID >= channelCount) {
             CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);
@@ -466,6 +477,6 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
             p += bytesPerChannelInFrame;
         }
     } while (false);
-    AudioDecoderProvider::destroyAudioDecoder(&decoder);
+
     return pcmData;
 }
