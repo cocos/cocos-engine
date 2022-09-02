@@ -40,3 +40,5 @@
 -dontwarn android.webkit.WebView
 -dontwarn android.net.http.SslError
 -dontwarn android.webkit.WebViewClient
+
+-keep class com.huawei.hvr.LibUpdateClient {*;}
