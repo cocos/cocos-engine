@@ -310,7 +310,7 @@ export class AssetManager {
      * @en
      * The builtin 'resources' bundle
      *
-     * @zhq
+     * @zh
      * 内置 resources 包
      *
      */
