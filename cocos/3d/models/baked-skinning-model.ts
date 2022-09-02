@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import type { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';

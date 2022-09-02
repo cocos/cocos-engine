@@ -10,7 +10,7 @@ import {
     MotionState,
     SubStateMachine,
     VariableType,
-} from '../../../cocos/core/animation/marionette/asset-creation';
+} from '../../../cocos/animation/marionette/asset-creation';
 
 export interface VariableBindingView {
     /**

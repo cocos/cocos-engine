@@ -1,6 +1,6 @@
 import { Node } from "../../../cocos/core";
-import { AnimationClip } from "../../../cocos/core/animation/animation-clip";
-import { AnimationState } from "../../../cocos/core/animation/animation-state";
+import { AnimationClip } from "../../../cocos/animation/animation-clip";
+import { AnimationState } from "../../../cocos/animation/animation-state";
 
 test('Evaluate embedded players in animation state', () => {
     const clip = new AnimationClip();

@@ -1,2 +1,2 @@
 
-export { AnimationClipLegacyData } from '../../cocos/core/animation/legacy-clip-data';
+export { AnimationClipLegacyData } from '../../cocos/animation/legacy-clip-data';
