@@ -45,9 +45,6 @@ public:
 
     using RenderPass::initialize;
 
-    EXPORT_EMS(
-        void initialize(const emscripten::val &info);)
-
 protected:
     void doInit(const RenderPassInfo &info) override;
     void doDestroy() override;

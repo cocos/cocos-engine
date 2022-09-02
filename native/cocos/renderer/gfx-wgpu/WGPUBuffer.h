@@ -40,7 +40,6 @@ public:
     CCWGPUBuffer();
     ~CCWGPUBuffer();
 
-    void update(const void *buffer, uint32_t size) override;
     inline CCWGPUBufferObject *gpuBufferObject() const { return _gpuBufferObject; }
     inline uint32_t getOffset() const { return _offset; }
     void update(const DrawInfoList &drawInfos);
@@ -54,17 +53,22 @@ public:
     static CCWGPUBuffer *defaultUniformBuffer();
     static CCWGPUBuffer *defaultStorageBuffer();
 
+    uint32_t getBufferUsage() const {
+        return static_cast<uint32_t>(_usage);
+    }
+
+    uint32_t getBufferMemUsage() const {
+        return static_cast<uint32_t>(_memUsage);
+    }
+
+    uint32_t getBufferFlags() const {
+        return static_cast<uint32_t>(_flags);
+    }
+
+    void update(const void *buffer, uint32_t size) override;
+
     EXPORT_EMS(
-        void update(const emscripten::val &v, uint32_t size) {
-            ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-            update(reinterpret_cast<const void *>(buffer.data()), size);
-        }
-
-        uint32_t getBufferUsage() const;
-        uint32_t getBufferMemUsage() const;
-        uint32_t getBufferFlags() const;
-
-    )
+        void update(const emscripten::val &v, uint32_t size);)
 
 protected:
     void doInit(const BufferInfo &info) override;

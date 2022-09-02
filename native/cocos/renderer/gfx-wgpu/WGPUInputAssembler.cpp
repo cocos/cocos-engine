@@ -38,22 +38,9 @@ CCWGPUInputAssembler::~CCWGPUInputAssembler() {
 
 void CCWGPUInputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssemblerObj = ccnew CCWGPUInputAssemblerObject;
-    // // typedef struct WGPUVertexState {
-    // //     WGPUChainedStruct const * nextInChain;
-    // //     WGPUShaderModule module;
-    // //     char const * entryPoint;
-    // //     uint32_t bufferCount;
-    // //     WGPUVertexBufferLayout const * buffers;
-    // // } WGPUVertexState;
-
-    // _gpuInputAssemblerObj->wgpuVertexState.nextInChain = nullptr;
 }
 
 void CCWGPUInputAssembler::doDestroy() {
-}
-
-void CCWGPUInputAssembler::update(const DrawInfo &info) {
-    _drawInfo = info;
 }
 
 } // namespace gfx

@@ -28,5 +28,12 @@
 namespace cc {
 namespace gfx {
 
+WGPUBufferBarrier::WGPUBufferBarrier(const BufferBarrierInfo &info) : BufferBarrier(info) {
+}
+
+ccstd::hash_t WGPUBufferBarrier::computeHash(const BufferBarrierInfo &info) {
+    return 0;
+}
+
 } // namespace gfx
 } // namespace cc

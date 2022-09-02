@@ -33,9 +33,9 @@ namespace gfx {
 
 class CC_DLL WGPUTextureBarrier : public TextureBarrier {
 public:
-    explicit WGPUTextureBarrier(const emscripten::val &info);
+    explicit WGPUTextureBarrier(const TextureBarrierInfo &info);
 
-    static ccstd::hash_t computeHash(const emscripten::val &info);
+    static ccstd::hash_t computeHash(const TextureBarrierInfo &info);
 };
 
 } // namespace gfx

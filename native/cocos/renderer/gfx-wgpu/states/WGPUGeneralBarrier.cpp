@@ -28,5 +28,12 @@
 namespace cc {
 namespace gfx {
 
+WGPUGeneralBarrier::WGPUGeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
+}
+
+ccstd::hash_t WGPUGeneralBarrier::computeHash(const GeneralBarrierInfo &info) {
+    return 0;
+}
+
 } // namespace gfx
 } // namespace cc

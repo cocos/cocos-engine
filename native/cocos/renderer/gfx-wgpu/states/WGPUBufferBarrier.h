@@ -33,9 +33,9 @@ namespace gfx {
 
 class CC_DLL WGPUBufferBarrier : public BufferBarrier {
 public:
-    explicit WGPUBufferBarrier(const emscripten::val &info);
+    explicit WGPUBufferBarrier(const BufferBarrierInfo &info);
 
-    static ccstd::hash_t computeHash(const emscripten::val &info);
+    static ccstd::hash_t computeHash(const BufferBarrierInfo &info);
 
     // inline const GeneralBarrierInfo &getInfo() const { return _info; }
     // inline const ccstd::hash_t &getHash() const { return _hash; }

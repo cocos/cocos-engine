@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable func-names */
@@ -35,34 +36,10 @@ import {
 } from '../override';
 import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, FramebufferInfo, RenderPassInfo,
-    InputAssemblerInfo, ObjectType, PipelineLayoutInfo, QueueInfo, TextureViewInfo, TextureInfo, DrawInfo, TextureType, Format, TextureUsageBit,
+    InputAssemblerInfo, ObjectType, PipelineLayoutInfo, QueueInfo, TextureViewInfo, TextureInfo, DrawInfo, TextureType, Format, TextureUsageBit, BufferViewInfo,
 } from '../base/define';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { PipelineStateInfo } from '../base/pipeline-state';
-
-// const Point2D_2 = { x: 1, y: 2, type: 0, usage: 1 };
-// // expect 1, 2, 0, 1
-// printPoint(Point2D);
-
-// const point2DObj: [number, number] = [1, 3];
-
-enum TestEnum {
-    ZERO,
-    ONE,
-    TWO,
-    THREE,
-}
-
-const printPoint = gfx.printPoint;
-const prTest2 = new gfx.PtTest();
-prTest2.value = 22;
-
-const ptTest0 = { value: 10, next: undefined };
-const ptTest = { value: 10, next: ptTest0 };
-const pt2D = { x: 1, y: 2, z: 3, w: 4, type: TestEnum.ZERO, usage: TestEnum.ONE, flag: TestEnum.TWO, prop: TestEnum.THREE, test: prTest2 };
-const ptTeeee = { value: 5, pt: pt2D };
-// printPoint(ptTeeee);
-const printPtTest = gfx.printPtTest;
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const originDeviceInitializeFunc = Device.prototype.initialize;
@@ -75,6 +52,17 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
             throw new Error('Something bad happened');
         });
         console.log(adapter);
+
+        const printPoint = gfx.printPoint;
+        const prTest2 = new gfx.PtTest();
+        prTest2.value = 22;
+
+        // const ptTest0 = { value: 10, next: undefined };
+        // const ptTest = { value: 10, next: ptTest0 };
+        // const pt2D = { x: 1, y: 2, z: 3, w: 4, type: TestEnum.ZERO, usage: TestEnum.ONE, flag: TestEnum.TWO, prop: TestEnum.THREE, test: prTest2 };
+        // const ptTeeee = { value: 5, pt: pt2D };
+        // // printPoint(ptTeeee);
+        const printPtTest = gfx.printPtTest;
         prTest2.device = this;
         printPtTest(prTest2);
 
@@ -257,6 +245,24 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         pso.dynamicStates = info.dynamicStates;
         pso.renderPass = info.renderPass;
         return pso;
+    };
+
+    const oldCreateTexture = Device.prototype.createTexture;
+    Device.prototype.createTexture = function (info: TextureInfo | TextureViewInfo) {
+        if ('texture' in info) {
+            return this.createTextureView(info);
+        } else {
+            return oldCreateTexture.call(this, info);
+        }
+    };
+
+    const oldCreateBuffer = Device.prototype.createBuffer;
+    Device.prototype.createBuffer = function (info: BufferInfo | BufferViewInfo) {
+        if ('buffer' in info) {
+            return this.createBufferView(info);
+        } else {
+            return oldCreateBuffer.call(this, info);
+        }
     };
 
     const oldCreateInputAssembler = Device.prototype.createInputAssembler;
@@ -915,16 +921,17 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
     const createShader = Device.prototype.createShader;
     Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
+        const spvDatas: any = [];
         for (let i = 0; i < shaderInfo.stages.length; ++i) {
             shaderInfo.stages[i].source = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
             const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : shaderInfo.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
             const sourceCode = `#version 450\n${shaderInfo.stages[i].source}`;
-            const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.3');
-            shaderInfo.stages[i].spvData = code;
+            const spv = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.3');
+            spvDatas.push(spv);
         }
 
-        const shader = this.createShaderNative(shaderInfo);
+        const shader = this.createShaderNative(shaderInfo, spvDatas);
         shader.typedID = ObjectType.SHADER;
         shader.name = shaderInfo.name;
         shader.attributes = shaderInfo.attributes;

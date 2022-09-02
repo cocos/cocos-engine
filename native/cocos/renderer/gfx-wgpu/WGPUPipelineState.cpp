@@ -128,7 +128,7 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
 ccstd::hash_t hash(const WGPUComputePipelineDescriptor &desc) {
     ccstd::hash_t hash = 9527;
     hash_combine(hash, desc.layout);
-    hash_combine(hash, desc.compute);
+    // hash_combine(hash, desc.compute);
     return hash;
 }
 

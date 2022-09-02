@@ -55,19 +55,14 @@ public:
     // resource handler changed?
     inline bool internalChanged() const { return _internalChanged; }
 
-    EXPORT_EMS(
-        inline uint32_t getDepth() const { return _info.depth; };
-        inline uint32_t getLayerCount() const { return _info.layerCount; };
-        inline uint32_t getLevelCount() const { return _info.levelCount; };
-        inline uint32_t getTextureType() const { return static_cast<uint32_t>(_info.type); };
-        inline uint32_t getTextureUsage() const { return static_cast<uint32_t>(_info.usage); };
-        inline uint32_t getTextureFormat() const { return static_cast<uint32_t>(_info.format); };
-        inline uint32_t getTextureSamples() const { return static_cast<uint32_t>(_info.samples); };
-        inline uint32_t getTextureFlags() const { return static_cast<uint32_t>(_info.flags); };
-        emscripten::val getTextureInfo() const;
-        emscripten::val getTextureViewInfo() const;
-
-    )
+    inline uint32_t getDepth() const { return _info.depth; };
+    inline uint32_t getLayerCount() const { return _info.layerCount; };
+    inline uint32_t getLevelCount() const { return _info.levelCount; };
+    inline uint32_t getTextureType() const { return static_cast<uint32_t>(_info.type); };
+    inline uint32_t getTextureUsage() const { return static_cast<uint32_t>(_info.usage); };
+    inline uint32_t getTextureFormat() const { return static_cast<uint32_t>(_info.format); };
+    inline uint32_t getTextureSamples() const { return static_cast<uint32_t>(_info.samples); };
+    inline uint32_t getTextureFlags() const { return static_cast<uint32_t>(_info.flags); };
 
 protected:
     void doInit(const TextureInfo &info) override;

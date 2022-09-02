@@ -217,6 +217,12 @@ CommandBuffer *CCWGPUDevice::createCommandBuffer(const CommandBufferInfo &info, 
     return ccnew CCWGPUCommandBuffer;
 }
 
+Shader *CCWGPUDevice::createShader(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spvData) {
+    auto *shader = ccnew CCWGPUShader;
+    shader->initialize(info, spvData);
+    return shader;
+}
+
 void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
     Format dstFormat = dst->getFormat();
     uint32_t pxSize = GFX_FORMAT_INFOS[static_cast<uint>(dstFormat)].size;

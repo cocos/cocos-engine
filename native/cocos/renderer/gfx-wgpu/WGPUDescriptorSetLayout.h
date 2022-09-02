@@ -58,13 +58,6 @@ public:
 
     void print() const;
 
-    EXPORT_EMS(
-        emscripten::val getDSLayoutBindings() const;
-        emscripten::val getDSLayoutBindingIndices() const;
-        emscripten::val getDSLayoutIndices() const;
-
-    )
-
     ccstd::hash_t getHash() {
         return _hash;
     }

@@ -103,14 +103,14 @@ R getMemberType(R T::*);
 
 template <typename T, typename U, typename V, typename FallBack = void>
 struct Exporter {
-    Exporter(T &t, const char *propName, U V::*field) {
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
         t.field(propName, field);
     }
 };
 
 template <typename T, typename U, typename V>
 struct Exporter<T, U, V, typename std::enable_if<std::is_enum<U>::value>::type> {
-    Exporter(T &t, const char *propName, U V::*field) {
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
         std::function<void(V & v, std::underlying_type_t<U> u)> set = [field](V &v, std::underlying_type_t<U> u) {
             v.*field = U{u};
         };
@@ -121,18 +121,16 @@ struct Exporter<T, U, V, typename std::enable_if<std::is_enum<U>::value>::type> 
     }
 };
 
-// template <typename T, typename U, typename V>
-// struct Exporter<T, U, V, typename std::enable_if<std::is_pointer<U>::value>::type> {
-//     Exporter(T &t, const char *propName, U V::*field) {
-//         std::function<void(V & v, uintptr_t u)> set = [field](V &v, uintptr_t u) {
-//             v.*field = reinterpret_cast<U>(u);
-//         };
-//         std::function<uintptr_t(const V &v)> get = [field](const V &v) {
-//             return reinterpret_cast<uintptr_t>(v.*field);
-//         };
-//         t.field(propName, get, set);
-//     }
-// };
+template <typename T, typename U, typename V>
+struct Exporter<T, U, V, typename std::enable_if<std::is_pointer<U>::value>::type> {
+    Exporter(T &t, const char *propName, U V::*field) {
+        static_assert(!std::is_pointer<U>::value, "Export pointer with struct, try EXPORT_STRUCT_NPOD!");
+    }
+
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert) {
+        t.field(propName, field);
+    }
+};
 
 #define PROCESS_STRUCT_MEMBERS(r, struct_name, property) \
     { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property); }
@@ -143,48 +141,23 @@ struct Exporter<T, U, V, typename std::enable_if<std::is_enum<U>::value>::type> 
         BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
 
-// #define PROCESS_STRUCT_MEMBERS_MAY_BE_PTR \
-//     { \
-//         EmsSpecializer<MEMBER_TYPE(prop)>\
-//         Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property); \
-//     }
+#define PROCESS_STRUCT_MEMBERS_MAY_BE_PTR(r, struct_name, property) \
+    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property, true); }
 
-// #define EXPORT_STRUCT_NPOD(struct_name, ...)                                                                \
-//     {                                                                                                      \
-//         auto obj = value_object<struct_name>(#struct_name);                                                \
-//         BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
-//     }
-
-#define EXPORT_ENUMFIELD_BY_SEQ(r, ENUMNAME, FIELD) \
-    .class_property(BOOST_PP_STRINGIZE(FIELD), &ems::ENUMNAME::FIELD)
-
-#define EXPORT_ENUM(ENUMNAME, ...)   \
-    class_<ems::ENUMNAME>(#ENUMNAME) \
-        BOOST_PP_SEQ_FOR_EACH(EXPORT_ENUMFIELD_BY_SEQ, ENUMNAME, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__));
-
-template <typename T, int index>
-using ElementType = T;
-
-template <typename R, typename T, std::size_t N, typename Indices = std::make_index_sequence<N>>
-struct VecCtorExport;
-
-template <typename R, typename T, std::size_t N, std::size_t... Indices>
-struct VecCtorExport<R, T, N, std::index_sequence<Indices...>> {
-    R &operator()(R &r) {
-        r.constructor<ElementType<T, Indices>...>();
-        return r;
+#define EXPORT_STRUCT_NPOD(struct_name, ...)                                                                          \
+    {                                                                                                                 \
+        auto obj = value_object<struct_name>(#struct_name);                                                           \
+        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS_MAY_BE_PTR, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
     }
-};
 
-// VecCtorExport<decltype(obj), ELEMNAME, 3>()(obj);
-#define EXPORT_CTOR_N(z, i, ELEMNAME) \
-    VecCtorExport<decltype(obj), ELEMNAME, i>()(obj);
+#define SPECIALIZE_PTR_FOR_STRUCT(r, _, TYPE)                                                                                                                       \
+    template <>                                                                                                                                                     \
+    struct emscripten::internal::TypeID<cc::gfx::TYPE *, void> {                                                                                                    \
+        static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<emscripten::internal::AllowedRawPointer<cc::gfx::TYPE>>::get(); } \
+    };
 
-#define EXPORT_STRUCT_VECTOR(CLASSNAME, ELEMNAME, CTOR_NUMS, ...) \
-    {                                                             \
-        auto obj = class_<ems::CLASSNAME>(#CLASSNAME);            \
-        BOOST_PP_REPEAT(CTOR_NUMS, EXPORT_CTOR_N, ELEMNAME)       \
-    }
+#define REGISTER_GFX_PTRS_FOR_STRUCT(...) \
+    BOOST_PP_SEQ_FOR_EACH(SPECIALIZE_PTR_FOR_STRUCT, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__));
 
 #if 1
 enum class TestEnum : uint32_t {
@@ -235,62 +208,13 @@ void testPoint(const Point2D &pt) {
 }
 #endif
 
-// namespace emscripten {
-// namespace internal {
-
-// template <typename T>
-// struct emscripten::internal::BindingType<PtTest *> {
-//    typedef PtTest* WireType;
-//     static WireType toWireType(PtTest *ptr) {
-//         return ptr;
-//     }
-
-//     static WireType fromWireType(WireType value) {
-//         return value;
-//     }
-// };
-
-// template <>
-// struct emscripten::internal::TypeID<PtTest *, void> {
-//     static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::CanonicalizedID<PtTest *>::get(); }
-// };
-
-// template <>
-// struct emscripten::internal::TypeID<PtInternal *, void> {
-//     static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::CanonicalizedID<PtInternal *>::get(); }
-// };
-
+// specialize for void*
 template <>
-struct emscripten::internal::TypeID<cc::gfx::CCWGPUDevice *, void> {
-    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::CanonicalizedID<cc::gfx::CCWGPUDevice *>::get(); }
+struct emscripten::internal::TypeID<void *, void> {
+    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<uintptr_t>::get(); }
 };
 
-// uint32  PtTest*
-template <typename T>
-struct EmsSpecializer {
-};
-
-// remove_cv/remove_reference are required for TypeID, but not BindingType, see https://github.com/emscripten-core/emscripten/issues/7292
-// template<typename T>
-// struct TypeID<T, typename std::enable_if<std::is_pod<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::value, void>::type> {
-//   static constexpr TYPEID get() {
-//     return TypeID<IntWrapperIntermediate>::get();
-//   }
-// };
-
-// template<typename T>
-// struct BindingType<T, typename std::enable_if<std::is_pod<T>::value, void>::type> {
-//   typedef typename BindingType<IntWrapperIntermediate>::WireType WireType;
-
-//   constexpr static WireType toWireType(const T& v) {
-//     return BindingType<IntWrapperIntermediate>::toWireType(v.get());
-//   }
-//   constexpr static T fromWireType(WireType v) {
-//     return T::create(BindingType<IntWrapperIntermediate>::fromWireType(v));
-//   }
-// };
-// } // namespace internal
-// } // namespace emscripten
+REGISTER_GFX_PTRS_FOR_STRUCT(CCWGPUDevice, Buffer, Texture, GeneralBarrier, Queue, RenderPass, Shader, PipelineLayout, DescriptorSetLayout);
 
 namespace cc::gfx {
 
@@ -330,11 +254,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     EXPORT_STRUCT_POD(DeviceCaps, maxVertexAttributes, maxVertexUniformVectors, maxFragmentUniformVectors, maxTextureUnits, maxImageUnits, maxVertexTextureUnits, maxColorRenderTargets,
                       maxShaderStorageBufferBindings, maxShaderStorageBlockSize, maxUniformBufferBindings, maxUniformBlockSize, maxTextureSize, maxCubeMapTextureSize, uboOffsetAlignment,
                       maxComputeSharedMemorySize, maxComputeWorkGroupInvocations, maxComputeWorkGroupSize, maxComputeWorkGroupCount, supportQuery, clipSpaceMinZ, screenSpaceSignY, clipSpaceSignY);
-    EXPORT_STRUCT_POD(DrawInfo, vertexCount, firstVertex, indexCount, firstIndex, instanceCount, firstInstance);
-
-    // EXPORT_STRUCT_POD(PtTest, value, next);
-    // EXPORT_STRUCT_POD(Point2D, x, y, z, w, type, usage, flag, prop, test);
-    // EXPORT_STRUCT_POD(TestPoint, value, pt);
+    EXPORT_STRUCT_NPOD(PtTest, value, device);
     EXPORT_STRUCT_POD(Offset, x, y, z);
     EXPORT_STRUCT_POD(Rect, x, y, width, height);
     EXPORT_STRUCT_POD(Extent, width, height, depth);
@@ -344,12 +264,59 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     EXPORT_STRUCT_POD(BufferTextureCopy, buffOffset, buffStride, buffTexHeight, texOffset, texExtent, texSubres);
     EXPORT_STRUCT_POD(Viewport, left, top, width, height, minDepth, maxDepth);
     EXPORT_STRUCT_POD(Color, x, y, z, w);
+    EXPORT_STRUCT_POD(BindingMappingInfo, maxBlockCounts, maxSamplerTextureCounts, maxSamplerCounts, maxTextureCounts, maxBufferCounts, maxImageCounts, maxSubpassInputCounts, setIndices);
+    EXPORT_STRUCT_NPOD(SwapchainInfo, windowHandle, vsyncMode, width, height);
+    EXPORT_STRUCT_POD(DeviceInfo, bindingMappingInfo);
+    EXPORT_STRUCT_POD(BufferInfo, usage, memUsage, size, stride, flags);
+    EXPORT_STRUCT_NPOD(BufferViewInfo, buffer, offset, range);
+    EXPORT_STRUCT_POD(DrawInfo, vertexCount, firstVertex, indexCount, firstIndex, vertexOffset, instanceCount, firstInstance);
+    EXPORT_STRUCT_NPOD(DispatchInfo, groupCountX, groupCountY, groupCountZ, indirectBuffer, indirectOffset);
+    EXPORT_STRUCT_POD(IndirectBuffer, drawInfos);
+    EXPORT_STRUCT_NPOD(TextureInfo, type, usage, format, width, height, flags, layerCount, levelCount, samples, depth, externalRes);
+    EXPORT_STRUCT_NPOD(TextureViewInfo, texture, type, format, baseLevel, levelCount, baseLayer, layerCount);
+    EXPORT_STRUCT_POD(SamplerInfo, minFilter, magFilter, mipFilter, addressU, addressV, addressW, maxAnisotropy, cmpFunc);
+    EXPORT_STRUCT_POD(Uniform, name, type, count);
+    EXPORT_STRUCT_POD(UniformBlock, set, binding, name, members, count);
+    EXPORT_STRUCT_POD(UniformSamplerTexture, set, binding, name, type, count);
+    EXPORT_STRUCT_POD(UniformSampler, set, binding, name, count);
+    EXPORT_STRUCT_POD(UniformTexture, set, binding, name, type, count);
+    EXPORT_STRUCT_POD(UniformStorageImage, set, binding, name, type, count, memoryAccess);
+    EXPORT_STRUCT_POD(UniformStorageBuffer, set, binding, name, count, memoryAccess);
+    EXPORT_STRUCT_POD(UniformInputAttachment, set, binding, name, count);
+    EXPORT_STRUCT_POD(ShaderStage, stage, source);
+    EXPORT_STRUCT_POD(Attribute, name, format, isNormalized, stream, isInstanced, location);
+    EXPORT_STRUCT_POD(ShaderInfo, name, stages, attributes, blocks, buffers, samplerTextures, samplers, textures, images, subpassInputs);
+    EXPORT_STRUCT_NPOD(InputAssemblerInfo, attributes, vertexBuffers, indexBuffer, indirectBuffer);
+    EXPORT_STRUCT_NPOD(ColorAttachment, format, sampleCount, loadOp, storeOp, barrier, isGeneralLayout);
+    EXPORT_STRUCT_NPOD(DepthStencilAttachment, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, barrier, isGeneralLayout);
+    EXPORT_STRUCT_POD(SubpassInfo, inputs, colors, resolves, preserves, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
 
-    // class_<TestClass>("TestClass")
-    //     .constructor<>()
-    //     .property("pt", &TestClass::getPt, &TestClass::setPt, allow_raw_pointers());
-    // EXPORT_STRUCT_POD(BindingMappingInfo, maxBlockCounts, maxSamplerTextureCounts, maxSamplerCounts, maxTextureCounts, maxBufferCounts, maxImageCounts, maxSubpassInputCounts, setIndices);
-
+    // MAYBE TODO(Zeqiang): all ts related backend no need to care about barriers.
+    EXPORT_STRUCT_POD(SubpassDependency, srcSubpass, dstSubpass, bufferBarrierCount, textureBarrierCount);
+    EXPORT_STRUCT_POD(RenderPassInfo, colorAttachments, depthStencilAttachment, subpasses, dependencies);
+    EXPORT_STRUCT_POD(GeneralBarrierInfo, prevAccesses, nextAccesses, type);
+    EXPORT_STRUCT_NPOD(TextureBarrierInfo, prevAccesses, nextAccesses, type, baseMipLevel, levelCount, baseSlice, sliceCount, discardContents, srcQueue, dstQueue);
+    EXPORT_STRUCT_NPOD(BufferBarrierInfo, prevAccesses, nextAccesses, type, offset, size, discardContents, srcQueue, dstQueue);
+    EXPORT_STRUCT_NPOD(FramebufferInfo, renderPass, colorTextures, depthStencilTexture);
+    EXPORT_STRUCT_NPOD(DescriptorSetLayoutBinding, binding, descriptorType, count, stageFlags, immutableSamplers);
+    EXPORT_STRUCT_POD(DescriptorSetLayoutInfo, bindings);
+    EXPORT_STRUCT_NPOD(DescriptorSetInfo, layout);
+    EXPORT_STRUCT_NPOD(PipelineLayoutInfo, setLayouts);
+    EXPORT_STRUCT_POD(InputState, attributes);
+    EXPORT_STRUCT_POD(RasterizerState, isDiscard, polygonMode, shadeModel, cullMode, isFrontFaceCCW, depthBiasEnabled, depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
+    EXPORT_STRUCT_POD(DepthStencilState, depthTest, depthWrite, depthFunc, stencilTestFront, stencilReadMaskFront, stencilWriteMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilPassOpFront,
+                      stencilRefFront, stencilTestBack, stencilFuncBack, stencilReadMaskBack, stencilWriteMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilPassOpBack, stencilRefBack);
+    EXPORT_STRUCT_POD(BlendTarget, blend, blendSrc, blendDst, blendEq, blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask);
+    EXPORT_STRUCT_POD(BlendState, isA2C, isIndepend, blendColor, targets)
+    // MAYBE TODO(Zeqiang): no subpass in ts now
+    EXPORT_STRUCT_NPOD(PipelineStateInfo, shader, pipelineLayout, renderPass, inputState, rasterizerState, depthStencilState, blendState, primitive, dynamicStates, bindPoint);
+    EXPORT_STRUCT_NPOD(CommandBufferInfo, queue);
+    EXPORT_STRUCT_POD(QueueInfo, type);
+    EXPORT_STRUCT_POD(QueryPoolInfo, type, maxQueryObjects, forceWait);
+    // EXPORT_STRUCT_POD(FormatInfo, name, size, count, type, hasAlpha, hasDepth, hasStencil, isCompressed);
+    EXPORT_STRUCT_POD(MemoryStatus, bufferSize, textureSize);
+    EXPORT_STRUCT_POD(DynamicStencilStates, writeMask, compareMask, reference);
+    EXPORT_STRUCT_POD(DynamicStates, viewport, scissor, blendConstant, lineWidth, depthBiasConstant, depthBiasClamp, depthBiasSlope, depthMinBounds, depthMaxBounds, stencilStatesFront, stencilStatesBack);
     //--------------------------------------------------CLASS---------------------------------------------------------------------------
     class_<cc::gfx::Swapchain>("Swapchain")
         .function("initialize", &cc::gfx::Swapchain::initialize, allow_raw_pointer<arg<0>>())
@@ -370,10 +337,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("width", &CCWGPUSwapchain::getWidth)
         .property("height", &CCWGPUSwapchain::getHeight);
 
-    value_object<MemoryStatus>("MemoryStatus")
-        .field("bufferSize", &MemoryStatus::bufferSize)
-        .field("textureSize", &MemoryStatus::textureSize);
-
     // value_object<TestEnum>("TestEnum")
     //     .field("ZERO", &TestEnum::ZERO)
     //     .field("ONE", &TestEnum::ONE)
@@ -386,16 +349,25 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     // std::function<void(Point2D & p, uint32_t x)> setX = [](Point2D &p, uint32_t x) {
     //     p.x = x;
     // };
-
     class_<Device>("Device")
-        // .function("initialize", &Device::initialize, allow_raw_pointer<arg<0>>())
+        .function("initialize", &Device::initialize)
         .function("destroy", &Device::destroy, pure_virtual())
         .function("present", &Device::present, pure_virtual())
-        .function("createQueue", select_overload<Queue *(const QueueInfo &)>(&Device::createQueue),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        // .function("getSampler", &Device::getSampler, allow_raw_pointer<arg<0>>())
-        // .function("createGlobalBarrier", select_overload<GlobalBarrier*(const GlobalBarrierInfo&)>(&Device::createGlobalBarrier),
-        //           /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
+        .function("createQueue", select_overload<Queue *(const QueueInfo &)>(&Device::createQueue), allow_raw_pointer<arg<0>>())
+        .function("createSwapchain", select_overload<Swapchain *(const SwapchainInfo &)>(&Device::createSwapchain), allow_raw_pointer<arg<0>>())
+        .function("createRenderPass", select_overload<RenderPass *(const RenderPassInfo &)>(&Device::createRenderPass))
+        .function("createFramebuffer", select_overload<Framebuffer *(const FramebufferInfo &)>(&Device::createFramebuffer), allow_raw_pointer<arg<0>>())
+        .function("createBuffer", select_overload<Buffer *(const BufferInfo &)>(&Device::createBuffer), allow_raw_pointer<arg<0>>())
+        .function("createBufferView", select_overload<Buffer *(const BufferViewInfo &)>(&Device::createBuffer), allow_raw_pointer<arg<0>>())
+        .function("createTexture", select_overload<Texture *(const TextureInfo &)>(&Device::createTexture), allow_raw_pointer<arg<0>>())
+        .function("createTextureView", select_overload<Texture *(const TextureViewInfo &)>(&Device::createTexture), allow_raw_pointer<arg<0>>())
+        .function("createDescriptorSetLayout", select_overload<DescriptorSetLayout *(const DescriptorSetLayoutInfo &)>(&Device::createDescriptorSetLayout), allow_raw_pointer<arg<0>>())
+        .function("createInputAssembler", select_overload<InputAssembler *(const InputAssemblerInfo &)>(&Device::createInputAssembler), allow_raw_pointer<arg<0>>())
+        .function("createPipelineState", select_overload<PipelineState *(const PipelineStateInfo &)>(&Device::createPipelineState), allow_raw_pointer<arg<0>>())
+        .function("createDescriptorSet", select_overload<DescriptorSet *(const DescriptorSetInfo &)>(&Device::createDescriptorSet), allow_raw_pointer<arg<0>>())
+        .function("createPipelineLayout", select_overload<PipelineLayout *(const PipelineLayoutInfo &)>(&Device::createPipelineLayout), allow_raw_pointer<arg<0>>())
+        .function("getSampler", &Device::getSampler, allow_raw_pointer<arg<0>>())
+        .function("getGeneralBarrier", &Device::getGeneralBarrier, allow_raw_pointer<arg<0>>())
         // .function("createTextureBarrier", select_overload<TextureBarrier*(const TextureBarrierInfo&)>(&Device::createTextureBarrier),
         //           /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("getCommandBuffer", &Device::getCommandBuffer, allow_raw_pointers())
@@ -414,49 +386,19 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         // .class_function("getInstance", &CCWGPUDevice::getInstance, allow_raw_pointer<arg<0>>())
         .constructor<>()
         .function("debug", &CCWGPUDevice::debug)
-        .function("initialize", select_overload<void(const emscripten::val &)>(&CCWGPUDevice::initialize))
-        .function("acquire", select_overload<void(const emscripten::val &)>(&CCWGPUDevice::acquire),
+
+        .function("acquire", select_overload<void(const std::vector<Swapchain *> &)>(&CCWGPUDevice::acquire),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createSwapchain", select_overload<Swapchain *(const emscripten::val &)>(&CCWGPUDevice::createSwapchain),
-                  /* pure_virtual(), */ allow_raw_pointers())
-        .function("createRenderPass", select_overload<RenderPass *(const emscripten::val &)>(&CCWGPUDevice::createRenderPass),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createFramebuffer", select_overload<Framebuffer *(const emscripten::val &)>(&CCWGPUDevice::createFramebuffer),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createBuffer", select_overload<Buffer *(const emscripten::val &)>(&CCWGPUDevice::createBuffer),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createTexture", select_overload<Texture *(const emscripten::val &)>(&CCWGPUDevice::createTexture),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createShaderNative", select_overload<Shader *(const val &)>(&CCWGPUDevice::createShader),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createDescriptorSetLayout", select_overload<DescriptorSetLayout *(const emscripten::val &)>(&CCWGPUDevice::createDescriptorSetLayout),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createInputAssembler", select_overload<InputAssembler *(const emscripten::val &)>(&CCWGPUDevice::createInputAssembler),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createPipelineState", select_overload<PipelineState *(const emscripten::val &)>(&CCWGPUDevice::createPipelineState),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createDescriptorSet", select_overload<DescriptorSet *(const emscripten::val &)>(&CCWGPUDevice::createDescriptorSet),
+        .function("createShaderNative", select_overload<Shader *(const ShaderInfo &, const emscripten::val &)>(&CCWGPUDevice::createShader),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         .function("copyTextureToBuffers", select_overload<void(Texture * src, const emscripten::val &, const emscripten::val &)>(&CCWGPUDevice::copyTextureToBuffers),
                   /* pure_virtual(), */ allow_raw_pointers())
-        .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *, const emscripten::val &)>(&CCWGPUDevice::copyBuffersToTexture),
+        .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *dst, const std::vector<BufferTextureCopy> &)>(&CCWGPUDevice::copyBuffersToTexture),
                   /* pure_virtual(), */ allow_raw_pointers())
-        .function("createPipelineLayout", select_overload<PipelineLayout *(const emscripten::val &)>(&CCWGPUDevice::createPipelineLayout),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("getSampler", select_overload<Sampler *(const emscripten::val &)>(&CCWGPUDevice::getSampler), allow_raw_pointer<arg<0>>())
-        .function("getGeneralBarrier", select_overload<WGPUGeneralBarrier *(const emscripten::val &)>(&CCWGPUDevice::getGeneralBarrier), allow_raw_pointer<arg<0>>())
         .function("getFormatFeatures", select_overload<uint32_t(uint32_t)>(&CCWGPUDevice::getFormatFeatures))
         .property("gfxAPI", &CCWGPUDevice::getGFXAPI)
         .property("memoryStatus", &CCWGPUDevice::getMemStatus)
         .function("hasFeature", &CCWGPUDevice::hasFeature);
-
-    value_object<PtInternal>("PtInternal")
-        .field("value", &PtInternal::value);
-    function("PtInternal", &GenInstance<PtInternal>::instance);
-
-    value_object<PtTest>("PtTest")
-        .field("value", &PtTest::value)
-        .field("device", &PtTest::device);
 
     function("PtTest", &GenInstance<PtTest>::instance);
 
@@ -470,10 +412,10 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("DepthStencilAttachment", &RenderPass::getDepthStencilAttachment)
         .function("SubpassInfoList", &RenderPass::getSubpasses)
         .function("SubpassDependencyList", &RenderPass::getDependencies)
-        .function("getHash", &RenderPass::getHash);
+        .function("getHash", &RenderPass::getHash)
+        .function("initialize", select_overload<void(const RenderPassInfo &)>(&CCWGPURenderPass::initialize), allow_raw_pointer<arg<0>>());
     class_<CCWGPURenderPass, base<RenderPass>>("CCWGPURenderPass")
-        .constructor<>()
-        .function("initialize", select_overload<void(const val &)>(&CCWGPURenderPass::initialize), allow_raw_pointer<arg<0>>());
+        .constructor<>();
 
     class_<Texture>("Texture")
         .class_function("computeHash", select_overload<ccstd::hash_t(const TextureInfo &)>(&Texture::computeHash), allow_raw_pointer<arg<0>>())
@@ -481,13 +423,13 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("initialize", select_overload<void(const TextureViewInfo &)>(&Texture::initialize), allow_raw_pointer<arg<0>>())
         .function("destroy", &Texture::destroy)
         .function("resize", &Texture::resize)
+        .function("getInfo", &Texture::getInfo)
+        .function("getViewInfo", &Texture::getViewInfo)
         .property("width", &Texture::getWidth)
         .property("height", &Texture::getHeight)
         .property("size", &Texture::getSize)
         .property("isTextureView", &Texture::isTextureView);
     class_<CCWGPUTexture, base<Texture>>("CCWGPUTexture")
-        .function("getInfo", &CCWGPUTexture::getTextureInfo)
-        .function("getViewInfo", &CCWGPUTexture::getTextureViewInfo)
         .property("depth", &CCWGPUTexture::getDepth)
         .property("layerCount", &CCWGPUTexture::getLayerCount)
         .property("levelCount", &CCWGPUTexture::getLevelCount)
@@ -503,9 +445,9 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("destroy", &Framebuffer::destroy)
         .function("getRenderPass", &Framebuffer::getRenderPass, allow_raw_pointer<arg<0>>())
         .function("getColorTextures", &Framebuffer::getColorTextures, allow_raw_pointer<arg<0>>())
-        .function("getDepthStencilTexture", &Framebuffer::getDepthStencilTexture, allow_raw_pointer<arg<0>>());
+        .function("getDepthStencilTexture", &Framebuffer::getDepthStencilTexture, allow_raw_pointer<arg<0>>())
+        .function("initialize", &Framebuffer::initialize, allow_raw_pointer<arg<0>>());
     class_<CCWGPUFramebuffer, base<Framebuffer>>("CCWGPUFramebuffer")
-        .function("initialize", select_overload<void(const emscripten::val &)>(&CCWGPUFramebuffer::initialize), allow_raw_pointer<arg<0>>())
         .constructor<>();
 
     class_<Sampler>("Sampler")
@@ -531,11 +473,11 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
 
     class_<DescriptorSetLayout>("DescriptorSetLayout")
         .function("initialize", &DescriptorSetLayout::initialize)
-        .function("destroy", &DescriptorSetLayout::destroy);
+        .function("destroy", &DescriptorSetLayout::destroy)
+        .function("getBindings", &DescriptorSetLayout::getBindings)
+        .function("getBindingIndices", &DescriptorSetLayout::getBindingIndices)
+        .function("getDescriptorIndices", &DescriptorSetLayout::getDescriptorIndices);
     class_<CCWGPUDescriptorSetLayout, base<DescriptorSetLayout>>("CCWGPUDescriptorSetLayout")
-        .function("getBindings", &CCWGPUDescriptorSetLayout::getDSLayoutBindings)
-        .function("getBindingIndices", &CCWGPUDescriptorSetLayout::getDSLayoutBindingIndices)
-        .function("getDescriptorIndices", &CCWGPUDescriptorSetLayout::getDSLayoutIndices)
         .constructor<>();
 
     class_<DescriptorSet>("DescriptorSet")
@@ -574,14 +516,13 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("firstIndex", &InputAssembler::getFirstIndex, &InputAssembler::setFirstIndex)
         .property("vertexOffset", &InputAssembler::getVertexOffset, &InputAssembler::setVertexOffset)
         .property("instanceCount", &InputAssembler::getInstanceCount, &InputAssembler::setInstanceCount)
-        .property("firstInstance", &InputAssembler::getFirstInstance, &InputAssembler::setFirstInstance);
+        .property("firstInstance", &InputAssembler::getFirstInstance, &InputAssembler::setFirstInstance)
+        .function("getAttributes", &InputAssembler::getAttributes)
+        .function("getVertexBuffers", &InputAssembler::getVertexBuffers, allow_raw_pointers())
+        .function("getIndexBuffer", &InputAssembler::getIndexBuffer, allow_raw_pointers())
+        .function("getIndirectBuffer", &InputAssembler::getIndirectBuffer, allow_raw_pointers());
     class_<CCWGPUInputAssembler, base<InputAssembler>>("CCWGPUInputAssembler")
-        .constructor<>()
-        .function("update", &CCWGPUInputAssembler::update)
-        .function("getAttributes", &CCWGPUInputAssembler::getEMSAttributes)
-        .function("getVertexBuffers", &CCWGPUInputAssembler::getEMSVertexBuffers, allow_raw_pointers())
-        .function("getIndexBuffer", &CCWGPUInputAssembler::getEMSIndexBuffer, allow_raw_pointers())
-        .function("getIndirectBuffer", &CCWGPUInputAssembler::getEMSIndirectBuffer, allow_raw_pointers());
+        .constructor<>();
 
     class_<CommandBuffer>("CommandBuffer")
         .function("initialize", &CommandBuffer::initialize)
@@ -605,28 +546,28 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("execute", select_overload<void(const CommandBufferList &, uint32_t)>(&CommandBuffer::execute), allow_raw_pointers())
         .function("blitTexture2", select_overload<void(Texture *, Texture *, const TextureBlitList &, Filter)>(&CommandBuffer::blitTexture), allow_raw_pointers())
         .function("getQueue", &CommandBuffer::getQueue, allow_raw_pointer<arg<0>>())
+        .function("draw", select_overload<void(InputAssembler *)>(&CommandBuffer::draw), allow_raw_pointers())
         .property("numDrawCalls", &CommandBuffer::getNumDrawCalls)
         .property("numInstances", &CommandBuffer::getNumInstances)
         .property("numTris", &CommandBuffer::getNumTris);
     class_<CCWGPUCommandBuffer, base<CommandBuffer>>("CCWGPUCommandBuffer")
         .constructor<>()
-        .function("setViewport", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::setViewport))
-        .function("setScissor", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::setScissor))
-        .function("beginRenderPass", select_overload<void(RenderPass *, Framebuffer *, const emscripten::val &, const emscripten::val &, float, uint32_t)>(&CCWGPUCommandBuffer::beginRenderPass), allow_raw_pointers())
-        .function("bindDescriptorSet", select_overload<void(uint32_t, DescriptorSet *, const emscripten::val &)>(&CCWGPUCommandBuffer::bindDescriptorSet), allow_raw_pointers())
-        .function("bindPipelineState", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::bindPipelineState), allow_raw_pointer<arg<0>>())
-        .function("bindInputAssembler", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::bindInputAssembler), allow_raw_pointer<arg<0>>())
-        .function("draw", select_overload<void(const emscripten::val &)>(&CCWGPUCommandBuffer::draw))
+        .function("setViewport", select_overload<void(const Viewport &)>(&CCWGPUCommandBuffer::setViewport))
+        .function("setScissor", select_overload<void(const Rect &)>(&CCWGPUCommandBuffer::setScissor))
+        .function("beginRenderPass", select_overload<void(RenderPass *, Framebuffer *, const Rect &, const ColorList &, float, uint32_t)>(&CCWGPUCommandBuffer::beginRenderPass), allow_raw_pointers())
+        .function("bindDescriptorSet", select_overload<void(uint32_t, DescriptorSet *, const std::vector<uint32_t> &)>(&CCWGPUCommandBuffer::bindDescriptorSet), allow_raw_pointers())
+        .function("bindPipelineState", select_overload<void(PipelineState *)>(&CCWGPUCommandBuffer::bindPipelineState), allow_raw_pointer<arg<0>>())
+        .function("bindInputAssembler", select_overload<void(InputAssembler *)>(&CCWGPUCommandBuffer::bindInputAssembler), allow_raw_pointer<arg<0>>())
         .function("drawByInfo", select_overload<void(const DrawInfo &)>(&CCWGPUCommandBuffer::draw))
         .function("updateIndirectBuffer", select_overload<void(Buffer *, const DrawInfoList &)>(&CCWGPUCommandBuffer::updateIndirectBuffer), allow_raw_pointers())
         .function("updateBuffer", select_overload<void(Buffer *, const emscripten::val &v, uint32_t)>(&CCWGPUCommandBuffer::updateBuffer), allow_raw_pointers())
         .function("getType", &CCWGPUCommandBuffer::getCommandBufferType);
 
     class_<Queue>("Queue")
-        .function("destroy", &Queue::destroy);
+        .function("initialize", &Queue::initialize)
+        .function("destroy", &Queue::destroy)
+        .function("submit", select_overload<void(const CommandBufferList &cmdBuffs)>(&Queue::submit));
     class_<CCWGPUQueue, base<Queue>>("CCWGPUQueue")
-        .function("initialize", &CCWGPUQueue::initialize)
-        .function("submit", select_overload<void(const emscripten::val &)>(&CCWGPUQueue::submit))
         .constructor<>();
 
     class_<PipelineState>("PipelineState")
@@ -635,13 +576,19 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     class_<CCWGPUPipelineState, base<PipelineState>>("CCWGPUPipelineState")
         .constructor<>();
 
+    class_<GeneralBarrier>("GeneralBarrier")
+        .constructor<GeneralBarrierInfo>();
     class_<WGPUGeneralBarrier>("WGPUGeneralBarrier")
-        .constructor<val>();
+        .constructor<GeneralBarrierInfo>();
 
+    class_<BufferBarrier>("BufferBarrier")
+        .constructor<BufferBarrierInfo>();
     class_<WGPUBufferBarrier>("WGPUBufferBarrier")
-        .constructor<val>();
+        .constructor<BufferBarrierInfo>();
 
+    class_<TextureBarrier>("TextureBarrier")
+        .constructor<TextureBarrierInfo>();
     class_<WGPUTextureBarrier>("WGPUTextureBarrier")
-        .constructor<val>();
+        .constructor<TextureBarrierInfo>();
 };
 } // namespace cc::gfx

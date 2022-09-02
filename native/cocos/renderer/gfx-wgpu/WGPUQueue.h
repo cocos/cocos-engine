@@ -48,8 +48,6 @@ public:
 
     inline void resetStatus() { _numDrawCalls = _numInstances = _numTriangles = 0; }
 
-    EXPORT_EMS(
-        void submit(const emscripten::val &cmdBuffs);)
 protected:
     void doInit(const QueueInfo &info) override;
     void doDestroy() override;

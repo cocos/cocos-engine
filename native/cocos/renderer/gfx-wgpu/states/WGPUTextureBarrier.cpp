@@ -28,5 +28,12 @@
 namespace cc {
 namespace gfx {
 
+WGPUTextureBarrier::WGPUTextureBarrier(const TextureBarrierInfo &info) : TextureBarrier(info) {
+}
+
+ccstd::hash_t WGPUTextureBarrier::computeHash(const TextureBarrierInfo &info) {
+    return 0;
+}
+
 } // namespace gfx
 } // namespace cc

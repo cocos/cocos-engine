@@ -45,6 +45,8 @@ public:
     void initialize(const ShaderInfo &info) { doInit(info); }
 
     // ems export
+    EXPORT_EMS(
+        void initialize(const ShaderInfo &info, emscripten::val &spirvs);)
     void initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs);
 
 protected:

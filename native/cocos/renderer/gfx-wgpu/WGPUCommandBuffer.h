@@ -83,19 +83,14 @@ public:
 
     void reset();
 
+    inline uint32_t getCommandBufferType() const { return static_cast<uint32_t>(_type); };
+    void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const std::vector<uint32_t> &dynamicOffsets) {
+        bindDescriptorSet(set, descriptorSet, dynamicOffsets.size(), dynamicOffsets.data());
+    }
+
     // emscripten export
     EXPORT_EMS(
-        void beginRenderPass(RenderPass *renderpass, Framebuffer *framebuffer, const emscripten::val &area, const emscripten::val &colors, float depth, uint32_t stencil);
-        void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const emscripten::val &dynamicOffsets);
-        void draw(const emscripten::val &info);
-        void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size);
-        void setViewport(const emscripten::val &info);
-        void setScissor(const emscripten::val &info);
-        void bindPipelineState(const emscripten::val &info);
-        void bindInputAssembler(const emscripten::val &info);
-        inline uint32_t getCommandBufferType() const { return static_cast<uint32_t>(_type); };
-
-    )
+        void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size);)
 
 protected:
     virtual void doInit(const CommandBufferInfo &info);

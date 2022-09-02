@@ -33,9 +33,9 @@ namespace gfx {
 
 class CC_DLL WGPUGeneralBarrier : public GeneralBarrier {
 public:
-    explicit WGPUGeneralBarrier(const emscripten::val &info);
+    explicit WGPUGeneralBarrier(const GeneralBarrierInfo &info);
 
-    static ccstd::hash_t computeHash(const emscripten::val &info);
+    static ccstd::hash_t computeHash(const GeneralBarrierInfo &info);
 
     // inline const GeneralBarrierInfo &getInfo() const { return _info; }
     // inline const ccstd::hash_t &getHash() const { return _hash; }

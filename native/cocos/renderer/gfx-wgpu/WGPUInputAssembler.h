@@ -44,14 +44,6 @@ public:
 
     inline CCWGPUInputAssemblerObject *gpuInputAssemblerObject() { return _gpuInputAssemblerObj; }
 
-    void update(const DrawInfo &info);
-
-    EXPORT_EMS(
-        emscripten::val getEMSAttributes() const;
-        val getEMSVertexBuffers() const;
-        CCWGPUBuffer * getEMSIndexBuffer() const;
-        CCWGPUBuffer * getEMSIndirectBuffer() const;)
-
 protected:
     void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;
