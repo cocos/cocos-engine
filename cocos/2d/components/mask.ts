@@ -30,7 +30,6 @@ import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { SpriteFrame } from '../assets/sprite-frame';
 import { NodeEventType, Component } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { Stage } from '../renderer/stencil-manager';
@@ -213,7 +212,7 @@ export class Mask extends Component {
      *
      * @zh
      * 遮罩所需要的贴图。
-     * @deprecated since v3.6.1
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation.1
      */
     get spriteFrame () {
         if (this._sprite) {
@@ -461,6 +460,124 @@ export class Mask extends Component {
             this._graphics.destroy();
             this._graphics = null;
         }
+    }
+
+    // deprecated interface
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get customMaterial () {
+        return null;
+    }
+    set customMaterial (val) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get color () {
+        return null;
+    }
+    set color (value) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public markForUpdateRenderData (enable = true) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public requestRenderData (any) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public destroyRenderData () {
+    }
+
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public updateRenderer () {
+    }
+
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public fillBuffers (render: any) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public postUpdateAssembler (render: any) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setNodeDirty () {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setTextureDirty () {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get sharedMaterial () {
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get sharedMaterials () {
+        return null;
+    }
+    set sharedMaterials (val) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get material (): any {
+        return null;
+    }
+    set material (val: any) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get materials (): (any)[] {
+        return [null];
+    }
+    set materials (val: (any)[]) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getMaterial (idx: number): any {
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setMaterial (material: any, index: number) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getMaterialInstance (idx: number): any {
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setMaterialInstance (matInst: any, index: number) {
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getRenderMaterial (index: number): any {
+        return null;
     }
 }
 
