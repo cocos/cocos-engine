@@ -31,11 +31,11 @@
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
-    vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);     \
+    vec4 color = CCFragOutput(CCStandardShadingBase(s, CC_SHADOW_POSITION));     \
     #if CC_USE_FOG != CC_FOG_NONE                                  \
       CC_APPLY_FOG(color, s.position.xyz);                         \
     #endif                                                         \
-    fragColorX = CCFragOutput(color);                              \
+    fragColorX = color;                                            \
   }                                                                \
                                                                    \
 #elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED                \

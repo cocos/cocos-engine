@@ -30,8 +30,8 @@
 #include <algorithm>
 #include <thread>
 #include "application/ApplicationManager.h"
-#include "audio/oalsoft/AudioDecoder.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 
 #include <string.h>
 
@@ -48,13 +48,12 @@ namespace {
 unsigned int gIdIndex = 0;
 }
 
-#define INVALID_AL_BUFFER_ID 0xFFFFFFFF
 #define PCMDATA_CACHEMAXSIZE 1048576
 
 using namespace cc; //NOLINT
 
 AudioCache::AudioCache()
-: _format(-1), _sampleRate(0), _duration(0.0F), _totalFrames(0), _framesRead(0), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++gIdIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
+: _isDestroyed(std::make_shared<bool>(false)), _id(++gIdIndex) {
     ALOGVV("AudioCache() %p, id=%u", this, _id);
     for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
         _queBuffers[i] = nullptr;

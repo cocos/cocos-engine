@@ -26,7 +26,7 @@
 #include "audio/android/utils/Utils.h"
 //#include <cutils/properties.h>
 #include "audio/android/AudioResampler.h"
-#include "audio/android/audio_utils/include/audio_utils/primitives.h"
+#include "audio/common/utils/include/primitives.h"
 //#include "audio/android/AudioResamplerSinc.h"
 #include "audio/android/AudioResamplerCubic.h"
 #include "base/memory/Memory.h"

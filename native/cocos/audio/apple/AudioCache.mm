@@ -49,7 +49,6 @@ namespace {
 unsigned int __idIndex = 0;
 }
 
-#define INVALID_AL_BUFFER_ID 0xFFFFFFFF
 #define PCMDATA_CACHEMAXSIZE 1048576
 
 @interface NSTimerWrapper : NSObject {
@@ -86,7 +85,7 @@ unsigned int __idIndex = 0;
 using namespace cc;
 
 AudioCache::AudioCache()
-: _format(-1), _duration(0.0f), _totalFrames(0), _framesRead(0), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
+: _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex){
     ALOGVV("AudioCache() %p, id=%u", this, _id);
     for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
         _queBuffers[i] = nullptr;
@@ -142,14 +141,14 @@ void AudioCache::readDataTask(unsigned int selfId) {
         const uint32_t originalTotalFrames = decoder.getTotalFrames();
         const uint32_t bytesPerFrame = decoder.getBytesPerFrame();
         const uint32_t sampleRate = decoder.getSampleRate();
-        const uint32_t channelCount = decoder.getChannelCount();
+        _channelCount = decoder.getChannelCount();
 
         uint32_t totalFrames = originalTotalFrames;
         uint32_t dataSize = totalFrames * bytesPerFrame;
         uint32_t remainingFrames = totalFrames;
         uint32_t adjustFrames = 0;
 
-        _format = channelCount > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+        _format = _channelCount > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
         _sampleRate = (ALsizei)sampleRate;
         _duration = 1.0f * totalFrames / sampleRate;
         _totalFrames = totalFrames;
@@ -240,6 +239,7 @@ void AudioCache::readDataTask(unsigned int selfId) {
             invokingPlayCallbacks();
 
         } else {
+            _isStreaming = true;
             _queBufferFrames = sampleRate * QUEUEBUFFER_TIME_STEP;
             BREAK_IF_ERR_LOG(_queBufferFrames == 0, "_queBufferFrames == 0");
 

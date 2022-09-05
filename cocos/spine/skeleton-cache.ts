@@ -51,7 +51,7 @@ const PerVertexSize = 6;
 // x y u v r1 g1 b1 a1 r2 g2 b2 a2
 const PerClipVertexSize = 12;
 // x y z / u v / r g b a/ r g b a
-const ExportVertexSize = 13;
+const ExportVertexSize = 7;
 
 let _vfCount = 0;
 let _indexCount = 0;
@@ -407,13 +407,14 @@ export class AnimationCache {
         if (!vertices || vertices.length < copyOutVerticeSize) {
             vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
+        const intVbuf = new Uint32Array(vertices.buffer);
         for (let i = 0, j = 0; i < copyOutVerticeSize;) {
             vertices[i] = _vertices[j++]; // x
             vertices[i + 1] = _vertices[j++]; // y
             vertices[i + 3] = _vertices[j++]; // u
             vertices[i + 4] = _vertices[j++]; // v
-            this._setVerticeColor(_vertices[j++], vertices, i + 5);
-            this._setVerticeColor(_vertices[j++], vertices, i + 9);
+            intVbuf[i + 5] = _vertices[j++];
+            intVbuf[i + 6] = _vertices[j++];
             i += ExportVertexSize;
         }
 
@@ -599,12 +600,12 @@ export class AnimationCache {
         clipper.clipEnd();
     }
 
-    private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
-        buffer[offset] = (colorI32 & 0xff) / 255.0;
-        buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
-        buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
-        buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
-    }
+    // private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
+    //     buffer[offset] = (colorI32 & 0xff) / 255.0;
+    //     buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
+    //     buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
+    //     buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
+    // }
 }
 
 class SkeletonCache {

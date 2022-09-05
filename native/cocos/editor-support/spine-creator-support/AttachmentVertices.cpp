@@ -38,7 +38,7 @@ AttachmentVertices::AttachmentVertices(middleware::Texture2D *texture, int verti
     if (_texture) _texture->addRef();
 
     _triangles = new middleware::Triangles();
-    _triangles->verts = new middleware::V2F_T2F_C4F[verticesCount];
+    _triangles->verts = new middleware::V3F_T2F_C4B[verticesCount];
     _triangles->vertCount = verticesCount;
     _triangles->indices = triangles;
     _triangles->indexCount = trianglesCount;

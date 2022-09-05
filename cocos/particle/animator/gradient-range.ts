@@ -171,9 +171,12 @@ function evaluateHeight (gr: GradientRange) {
         return 1;
     }
 }
-export function packGradientRange (samples: number, gr: GradientRange) {
+export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange) {
     const height = evaluateHeight(gr);
-    const data = new Uint8Array(samples * height * 4);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Uint8Array(samples * height * 4);
+    }
     const interval = 1.0 / (samples);
     let offset = 0;
 
@@ -188,11 +191,16 @@ export function packGradientRange (samples: number, gr: GradientRange) {
         }
     }
 
-    const texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA8888);
-    texture.setFilters(Filter.LINEAR, Filter.LINEAR);
-    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-    texture.uploadData(data);
+    if (tex === null || samples !== tex.width || height !== tex.height) {
+        if (tex) {
+            tex.destroy();
+        }
+        tex = new Texture2D();
+        tex.create(samples, height, PixelFormat.RGBA8888);
+        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+        tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
+    }
+    tex.uploadData(data);
 
-    return texture;
+    return { texture: tex, texdata: data };
 }

@@ -200,11 +200,11 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     const auto &srcIB = frameData->ib;
 
     // vertex size int bytes with one color
-    int vbs1 = sizeof(V2F_T2F_C4F);
+    int vbs1 = sizeof(V3F_T2F_C4B);
     // vertex size in floats with one color
     int vs1 = static_cast<int32_t>(vbs1 / sizeof(float));
     // vertex size int bytes with two color
-    int vbs2 = sizeof(V2F_T2F_C4F_C4F);
+    int vbs2 = sizeof(V3F_T2F_C4B_C4B);
     // vertex size in floats with two color
     int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
 
@@ -218,8 +218,8 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     SkeletonCache::ColorData *nowColor = colors[colorOffset++];
     auto maxVFOffset = nowColor->vertexFloatOffset;
 
-    Color4F finalColor;
-    Color4F darkColor;
+    Color4B finalColor;
+    Color4B darkColor;
     float tempR = 0.0F;
     float tempG = 0.0F;
     float tempB = 0.0F;
@@ -259,15 +259,15 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         tempG = _nodeColor.g * multiplier;
         tempB = _nodeColor.b * multiplier;
 
-        finalColor.a = tempA / 255.0f;
-        finalColor.r = (colorData->finalColor.r * tempR) / 255.0f;
-        finalColor.g = (colorData->finalColor.g * tempG) / 255.0f;
-        finalColor.b = (colorData->finalColor.b * tempB) / 255.0f;
+        finalColor.a = (uint8_t)floorf(tempA);
+        finalColor.r = (uint8_t)floorf(colorData->finalColor.r * tempR);
+        finalColor.g = (uint8_t)floorf(colorData->finalColor.g * tempG);
+        finalColor.b = (uint8_t)floorf(colorData->finalColor.b * tempB);
 
-        darkColor.r = (colorData->darkColor.r * tempR) / 255.0f;
-        darkColor.g = (colorData->darkColor.g * tempG) / 255.0f;
-        darkColor.b = (colorData->darkColor.b * tempB) / 255.0f;
-        darkColor.a = _premultipliedAlpha ? 1.0f : 0.0f;
+        darkColor.r = (uint8_t)floorf(colorData->darkColor.r * tempR);
+        darkColor.g = (uint8_t)floorf(colorData->darkColor.g * tempG);
+        darkColor.b = (uint8_t)floorf(colorData->darkColor.b * tempB);
+        darkColor.a = _premultipliedAlpha ? 255 : 0;
     };
 
     handleColor(nowColor);
@@ -337,7 +337,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
                         maxVFOffset = nowColor->vertexFloatOffset;
                     }
                     memcpy(dstColorBuffer + colorIndex + 5, &finalColor, sizeof(finalColor));
-                    memcpy(dstColorBuffer + colorIndex + 9, &darkColor, sizeof(darkColor));
+                    memcpy(dstColorBuffer + colorIndex + 6, &darkColor, sizeof(darkColor));
                 }
             } else {
                 for (auto colorIndex = 0; colorIndex < vertexFloats; colorIndex += vs, srcVertexFloatOffset += vs2) {
