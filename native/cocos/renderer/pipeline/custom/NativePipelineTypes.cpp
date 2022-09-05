@@ -35,14 +35,33 @@ namespace cc {
 
 namespace render {
 
-NativePassData::NativePassData(const allocator_type& alloc) noexcept
-: outputViews(alloc) {}
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
+: clearColors(alloc) {}
 
-NativePassData::NativePassData(NativePassData&& rhs, const allocator_type& alloc)
-: outputViews(std::move(rhs.outputViews), alloc) {}
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc)
+: renderPass(std::move(rhs.renderPass)),
+  framebuffer(std::move(rhs.framebuffer)),
+  clearColors(std::move(rhs.clearColors), alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
 
-NativePassData::NativePassData(NativePassData const& rhs, const allocator_type& alloc)
-: outputViews(rhs.outputViews, alloc) {}
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
+: renderPass(rhs.renderPass),
+  framebuffer(rhs.framebuffer),
+  clearColors(rhs.clearColors, alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
+
+RenderContext::RenderContext(const allocator_type& alloc) noexcept
+: renderPasses(alloc) {}
+
+RenderContext::RenderContext(RenderContext&& rhs, const allocator_type& alloc)
+: renderPasses(std::move(rhs.renderPasses), alloc) {}
+
+RenderContext::RenderContext(RenderContext const& rhs, const allocator_type& alloc)
+: renderPasses(rhs.renderPasses, alloc) {}
 
 } // namespace render
 
