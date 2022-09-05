@@ -368,14 +368,16 @@ function toLegacyWrapMode (extrapolationMode: ExtrapolationMode): WrapModeMask {
     }
 }
 
+const defaultRealCurve = [
+    [0.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
+    [1.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
+] as Iterable<[number, RealKeyframeValue]>;
+
 /**
  * Same as but more effective than `new LegacyCurve()._internalCurve`.
  */
 export function constructLegacyCurveAndConvert () {
     const curve = new RealCurve();
-    curve.assignSorted([
-        [0.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
-        [1.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
-    ]);
+    curve.assignSorted(defaultRealCurve);
     return curve;
 }
