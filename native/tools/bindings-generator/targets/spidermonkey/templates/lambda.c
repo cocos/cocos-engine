@@ -8,6 +8,7 @@ do {
         #else
         jsThis.toObject()->attachObject(jsFunc.toObject());
         #end if
+        auto * thisObj = s.thisObject();
         auto lambda = [=](${lambda_parameters}) -> ${ret_type.name} {
             se::ScriptEngine::getInstance()->clearException();
             se::AutoHandleScope hs;
@@ -34,7 +35,6 @@ do {
                 #set $count = $count + 1
             #end while
             se::Value rval;
-            se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
             se::Object* funcObj = jsFunc.toObject();
             #if $arg_count > 0
             bool succeed = funcObj->call(args, thisObj, &rval);

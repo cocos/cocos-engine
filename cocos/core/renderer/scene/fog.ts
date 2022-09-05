@@ -23,12 +23,10 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Enum } from '../../value-types';
 import { Color, Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
-import type { FogInfo } from '../../scene-graph/scene-globals';
-import { NativeFog } from '../native-scene';
+import { FogInfo } from '../../scene-graph/scene-globals';
 import { SRGBToLinear } from '../../pipeline/pipeline-funcs';
 
 const _v4 = new Vec4();
@@ -88,7 +86,7 @@ export class Fog {
      * @en Enable global fog
      */
     set enabled (val: boolean) {
-        this._setEnable(val);
+        this._enabled = val;
         if (!val) {
             this._type = FOG_TYPE_NONE;
             this._updatePipeline();
@@ -106,7 +104,7 @@ export class Fog {
      * @en Enable accurate fog (pixel fog)
      */
     set accurate (val: boolean) {
-        this._setAccurate(val);
+        this._accurate = val;
         this._updatePipeline();
     }
 
@@ -120,11 +118,9 @@ export class Fog {
      */
     set fogColor (val: Color) {
         this._fogColor.set(val);
+
         _v4.set(val.x, val.y, val.z, val.w);
         SRGBToLinear(this._colorArray, _v4);
-        if (JSB) {
-            this._nativeObj!.color = this._fogColor;
-        }
     }
 
     get fogColor () {
@@ -146,7 +142,7 @@ export class Fog {
         return this._type;
     }
     set type (val: number) {
-        this._setType(val);
+        this._type = this.enabled ? val : FOG_TYPE_NONE;
         if (this.enabled) this._updatePipeline();
     }
 
@@ -160,9 +156,6 @@ export class Fog {
 
     set fogDensity (val: number) {
         this._fogDensity = val;
-        if (JSB) {
-            this._nativeObj!.density = val;
-        }
     }
     /**
      * @zh 雾效起始位置，只适用于线性雾
@@ -174,9 +167,6 @@ export class Fog {
 
     set fogStart (val: number) {
         this._fogStart = val;
-        if (JSB) {
-            this._nativeObj!.start = val;
-        }
     }
 
     /**
@@ -189,9 +179,6 @@ export class Fog {
 
     set fogEnd (val: number) {
         this._fogEnd = val;
-        if (JSB) {
-            this._nativeObj!.end = val;
-        }
     }
 
     /**
@@ -204,9 +191,6 @@ export class Fog {
 
     set fogAtten (val: number) {
         this._fogAtten = val;
-        if (JSB) {
-            this._nativeObj!.atten = val;
-        }
     }
 
     /**
@@ -219,9 +203,6 @@ export class Fog {
 
     set fogTop (val: number) {
         this._fogTop = val;
-        if (JSB) {
-            this._nativeObj!.top = val;
-        }
     }
 
     /**
@@ -234,9 +215,6 @@ export class Fog {
 
     set fogRange (val: number) {
         this._fogRange = val;
-        if (JSB) {
-            this._nativeObj!.range = val;
-        }
     }
     get colorArray (): Readonly<Vec4> {
         return this._colorArray;
@@ -252,44 +230,14 @@ export class Fog {
     protected _fogAtten = 5;
     protected _fogTop = 1.5;
     protected _fogRange = 1.2;
-    protected declare _nativeObj: NativeFog | null;
-
-    get native (): NativeFog {
-        return this._nativeObj!;
-    }
-
-    constructor () {
-        if (JSB) {
-            this._nativeObj = new NativeFog();
-        }
-    }
-
-    protected _setType (val) {
-        this._type = this.enabled ? val : FOG_TYPE_NONE;
-        if (JSB) {
-            this._nativeObj!.type = this._type;
-        }
-    }
-
-    protected _setEnable (val) {
-        this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.enabled = val;
-        }
-    }
-
-    protected _setAccurate (val) {
-        this._accurate = val;
-        if (JSB) {
-            this._nativeObj!.accurate = val;
-        }
-    }
+    protected _activated = false;
 
     public initialize (fogInfo : FogInfo) {
+        this._activated = false;
         this.fogColor = fogInfo.fogColor;
-        this._setEnable(fogInfo.enabled);
-        this._setAccurate(fogInfo.accurate);
-        this._setType(fogInfo.type);
+        this._enabled = fogInfo.enabled;
+        this._type = this.enabled ? fogInfo.type : FOG_TYPE_NONE;
+        this._accurate = fogInfo.accurate;
         this.fogDensity = fogInfo.fogDensity;
         this.fogStart = fogInfo.fogStart;
         this.fogEnd = fogInfo.fogEnd;
@@ -300,6 +248,7 @@ export class Fog {
 
     public activate () {
         this._updatePipeline();
+        this._activated = true;
     }
 
     protected _updatePipeline () {
@@ -312,17 +261,9 @@ export class Fog {
         }
         pipeline.macros.CC_USE_FOG = value;
         pipeline.macros.CC_USE_ACCURATE_FOG = accurateValue;
-        root.onGlobalPipelineStateChanged();
-    }
-
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
+        if (this._activated) {
+            root.onGlobalPipelineStateChanged();
         }
-    }
-
-    public destroy () {
-        this._destroy();
     }
 }
 

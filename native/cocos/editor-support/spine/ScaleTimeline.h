@@ -33,19 +33,19 @@
 #include <spine/TranslateTimeline.h>
 
 namespace spine {
-	class SP_API ScaleTimeline : public TranslateTimeline {
-		friend class SkeletonBinary;
-		friend class SkeletonJson;
+class SP_API ScaleTimeline : public TranslateTimeline {
+    friend class SkeletonBinary;
+    friend class SkeletonJson;
 
-		RTTI_DECL
+    RTTI_DECL
 
-	public:
-		explicit ScaleTimeline(int frameCount);
+public:
+    explicit ScaleTimeline(int frameCount);
 
-		virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
+    virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
 
-		virtual int getPropertyId();
-	};
-}
+    virtual int getPropertyId();
+};
+} // namespace spine
 
 #endif /* Spine_ScaleTimeline_h */

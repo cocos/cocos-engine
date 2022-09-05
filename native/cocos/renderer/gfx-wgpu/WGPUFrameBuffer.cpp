@@ -33,10 +33,10 @@ namespace gfx {
 CCWGPUFramebuffer::CCWGPUFramebuffer() : wrapper<Framebuffer>(val::object()) {
 }
 
-void CCWGPUFramebuffer::doInit(const FramebufferInfo& info) {
-    for (auto* tex : info.colorTextures) {
-        auto*            ccTex     = static_cast<CCWGPUTexture*>(tex);
-        CCWGPUSwapchain* swapchain = ccTex->swapchain();
+void CCWGPUFramebuffer::doInit(const FramebufferInfo &info) {
+    for (auto *tex : info.colorTextures) {
+        auto *ccTex = static_cast<CCWGPUTexture *>(tex);
+        CCWGPUSwapchain *swapchain = ccTex->swapchain();
         if (swapchain) {
             _swapchain = swapchain;
             break;
@@ -44,7 +44,7 @@ void CCWGPUFramebuffer::doInit(const FramebufferInfo& info) {
     }
 
     if (_depthStencilTexture) {
-        CCWGPUSwapchain* swapchain = static_cast<CCWGPUTexture*>(_depthStencilTexture)->swapchain();
+        CCWGPUSwapchain *swapchain = static_cast<CCWGPUTexture *>(_depthStencilTexture)->swapchain();
         if (swapchain) {
             _swapchain = swapchain;
         }

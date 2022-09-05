@@ -45,15 +45,15 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
             #set $count = $count + 1
         #end while
         #if $arg_idx > 0
-        SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         #end if
         #set $arg_list = ", ".join($arg_array)
     #if str($ret_type) != "void"
         #if $func_name.startswith("create") and $is_ref_class
         auto result = ${namespaced_class_name}::${func_name}($arg_list);
-        result->retain();
+        result->addRef();
         auto obj = se::Object::createObjectWithClass(__jsb_${underlined_class_name}_class);
-        obj->setPrivateData(result);
+        obj->setPrivateObject(se::make_shared_private_object(result));
         s.rval().setObject(obj);
         #elif $func_name.startswith("getInstance") and $is_ref_class
         auto result = ${namespaced_class_name}::${func_name}($arg_list);
@@ -73,7 +73,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
                                 "class_name": $ret_type.get_class_name($generator),
                                 "ntype": str($ret_type),
                                 "level": 1})};
-        SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #end if
     #else

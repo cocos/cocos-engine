@@ -23,13 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
+#include "EmptyDevice.h"
+#include <thread>
 #include "EmptyBuffer.h"
 #include "EmptyCommandBuffer.h"
 #include "EmptyDescriptorSet.h"
 #include "EmptyDescriptorSetLayout.h"
-#include "EmptyDevice.h"
 #include "EmptyFramebuffer.h"
 #include "EmptyInputAssembler.h"
 #include "EmptyPipelineLayout.h"
@@ -40,6 +39,7 @@
 #include "EmptyShader.h"
 #include "EmptySwapchain.h"
 #include "EmptyTexture.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {
@@ -61,19 +61,18 @@ EmptyDevice::~EmptyDevice() {
 bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
+    _queue = createQueue(queueInfo);
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
     _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+    _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _formatFeatures.fill(static_cast<FormatFeature>(-1)); // allow all usages for all formats
     _formatFeatures[toNumber(Format::UNKNOWN)] = FormatFeature::NONE;
-    _formatFeatures[toNumber(Format::COUNT)] = FormatFeature::NONE;
 
     CC_LOG_INFO("Empty device initialized.");
 
@@ -81,9 +80,9 @@ bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
 }
 
 void EmptyDevice::doDestroy() {
-    CC_SAFE_DESTROY(_cmdBuff);
-    CC_SAFE_DESTROY(_queryPool);
-    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
+    CC_SAFE_DESTROY_AND_DELETE(_queryPool);
+    CC_SAFE_DESTROY_AND_DELETE(_queue);
 }
 
 void EmptyDevice::acquire(Swapchain *const * /*swapchains*/, uint32_t /*count*/) {
@@ -95,59 +94,59 @@ void EmptyDevice::present() {
 }
 
 CommandBuffer *EmptyDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {
-    return CC_NEW(EmptyCommandBuffer);
+    return ccnew EmptyCommandBuffer;
 }
 
 Queue *EmptyDevice::createQueue() {
-    return CC_NEW(EmptyQueue);
+    return ccnew EmptyQueue;
 }
 
 QueryPool *EmptyDevice::createQueryPool() {
-    return CC_NEW(EmptyQueryPool);
+    return ccnew EmptyQueryPool;
 }
 
 Swapchain *EmptyDevice::createSwapchain() {
-    return CC_NEW(EmptySwapchain);
+    return ccnew EmptySwapchain;
 }
 
 Buffer *EmptyDevice::createBuffer() {
-    return CC_NEW(EmptyBuffer);
+    return ccnew EmptyBuffer;
 }
 
 Texture *EmptyDevice::createTexture() {
-    return CC_NEW(EmptyTexture);
+    return ccnew EmptyTexture;
 }
 
 Shader *EmptyDevice::createShader() {
-    return CC_NEW(EmptyShader);
+    return ccnew EmptyShader;
 }
 
 InputAssembler *EmptyDevice::createInputAssembler() {
-    return CC_NEW(EmptyInputAssembler);
+    return ccnew EmptyInputAssembler;
 }
 
 RenderPass *EmptyDevice::createRenderPass() {
-    return CC_NEW(EmptyRenderPass);
+    return ccnew EmptyRenderPass;
 }
 
 Framebuffer *EmptyDevice::createFramebuffer() {
-    return CC_NEW(EmptyFramebuffer);
+    return ccnew EmptyFramebuffer;
 }
 
 DescriptorSet *EmptyDevice::createDescriptorSet() {
-    return CC_NEW(EmptyDescriptorSet);
+    return ccnew EmptyDescriptorSet;
 }
 
 DescriptorSetLayout *EmptyDevice::createDescriptorSetLayout() {
-    return CC_NEW(EmptyDescriptorSetLayout);
+    return ccnew EmptyDescriptorSetLayout;
 }
 
 PipelineLayout *EmptyDevice::createPipelineLayout() {
-    return CC_NEW(EmptyPipelineLayout);
+    return ccnew EmptyPipelineLayout;
 }
 
 PipelineState *EmptyDevice::createPipelineState() {
-    return CC_NEW(EmptyPipelineState);
+    return ccnew EmptyPipelineState;
 }
 
 void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

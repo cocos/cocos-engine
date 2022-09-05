@@ -1,8 +1,6 @@
 /****************************************************************************
  Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
-
  http://www.cocos.com
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +8,8 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,38 +21,39 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "base/Macros.h"
+#include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
 #include "GLES3Std.h"
 #include "GLES3Wrangler.h"
-
 namespace cc {
 namespace gfx {
 
-class GLES3GPUConstantRegistry final : public Object {
-public:
-    size_t   currentBoundThreadID{0U};
+struct GLES3GPUConstantRegistry {
+    size_t currentBoundThreadID{0U};
     uint32_t glMinorVersion{0U};
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
-    FBFSupportLevel  mFBF{FBFSupportLevel::NONE};
+    FBFSupportLevel mFBF{FBFSupportLevel::NONE};
 };
 
 class GLES3GPUStateCache;
-class GLES3GPUSwapchain;
-class GLES3GPUContext final : public Object {
+struct GLES3GPUSwapchain;
+class GLES3GPUContext final {
 public:
     bool initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstantRegistry *constantRegistry);
     void destroy();
 
-    EGLint         eglMajorVersion{0};
-    EGLint         eglMinorVersion{0};
-    EGLDisplay     eglDisplay{EGL_NO_DISPLAY};
-    EGLConfig      eglConfig{nullptr};
-    vector<EGLint> eglAttributes;
+    EGLint eglMajorVersion{0};
+    EGLint eglMinorVersion{0};
+    EGLDisplay eglDisplay{EGL_NO_DISPLAY};
+    EGLConfig eglConfig{nullptr};
+    ccstd::vector<EGLint> eglAttributes;
 
     EGLSurface eglDefaultSurface{EGL_NO_SURFACE};
     EGLContext eglDefaultContext{EGL_NO_CONTEXT};
@@ -67,35 +64,35 @@ public:
 
     void present(const GLES3GPUSwapchain *swapchain);
 
-    inline bool checkExtension(const String &extension) const {
+    inline bool checkExtension(const ccstd::string &extension) const {
         return std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end();
     }
 
 private:
-    bool       makeCurrent(EGLSurface drawSurface, EGLSurface readSurface, EGLContext context, bool updateCache = true);
+    bool makeCurrent(EGLSurface drawSurface, EGLSurface readSurface, EGLContext context, bool updateCache = true);
     EGLContext getSharedContext();
-    void       resetStates() const;
+    void resetStates() const;
 
     // state caches
     EGLSurface _eglCurrentDrawSurface{EGL_NO_SURFACE};
     EGLSurface _eglCurrentReadSurface{EGL_NO_SURFACE};
     EGLContext _eglCurrentContext{EGL_NO_CONTEXT};
-    EGLint     _eglCurrentInterval{0};
+    EGLint _eglCurrentInterval{0};
 
-    GLES3GPUStateCache *      _stateCache{nullptr};
+    GLES3GPUStateCache *_stateCache{nullptr};
     GLES3GPUConstantRegistry *_constantRegistry{nullptr};
 
-    map<size_t, EGLContext> _sharedContexts;
+    ccstd::unordered_map<size_t, EGLContext> _sharedContexts;
 
-    StringArray _extensions;
+    ccstd::vector<ccstd::string> _extensions;
 };
 
-class GLES3GPUQueryPool final : public Object {
+class GLES3GPUQueryPool final {
 public:
-    QueryType           type{QueryType::OCCLUSION};
-    uint32_t            maxQueryObjects{0};
-    bool                forceWait{true};
-    std::vector<GLuint> glQueryIds;
+    QueryType type{QueryType::OCCLUSION};
+    uint32_t maxQueryObjects{0};
+    bool forceWait{true};
+    ccstd::vector<GLuint> glQueryIds;
 
     inline GLuint mapGLQueryId(uint32_t queryId) {
         if (queryId < maxQueryObjects) {
@@ -106,89 +103,85 @@ public:
     }
 };
 
-class GLES3GPUBuffer final : public Object {
-public:
-    BufferUsage  usage    = BufferUsage::NONE;
-    MemoryUsage  memUsage = MemoryUsage::NONE;
-    uint32_t     size     = 0;
-    uint32_t     stride   = 0;
-    uint32_t     count    = 0;
-    GLenum       glTarget = 0;
-    GLuint       glBuffer = 0;
-    GLuint       glOffset = 0;
-    uint8_t *    buffer   = nullptr;
+struct GLES3GPUBuffer {
+    BufferUsage usage = BufferUsage::NONE;
+    MemoryUsage memUsage = MemoryUsage::NONE;
+    uint32_t size = 0;
+    uint32_t stride = 0;
+    uint32_t count = 0;
+    GLenum glTarget = 0;
+    GLuint glBuffer = 0;
+    GLuint glOffset = 0;
+    uint8_t *buffer = nullptr;
     DrawInfoList indirects;
 };
-using GLES3GPUBufferList = vector<GLES3GPUBuffer *>;
+using GLES3GPUBufferList = ccstd::vector<GLES3GPUBuffer *>;
 
-class GLES3GPUTexture final : public Object {
-public:
-    TextureType        type{TextureType::TEX2D};
-    Format             format{Format::UNKNOWN};
-    TextureUsage       usage{TextureUsageBit::NONE};
-    uint32_t           width{0};
-    uint32_t           height{0};
-    uint32_t           depth{1};
-    uint32_t           size{0};
-    uint32_t           arrayLayer{1};
-    uint32_t           mipLevel{1};
-    SampleCount        samples{SampleCount::ONE};
-    TextureFlags       flags{TextureFlagBit::NONE};
-    bool               isPowerOf2{false};
-    bool               memoryless{false};
-    GLenum             glTarget{0};
-    GLenum             glInternalFmt{0};
-    GLenum             glFormat{0};
-    GLenum             glType{0};
-    GLenum             glUsage{0};
-    GLint              glSamples{0};
-    GLuint             glTexture{0};
-    GLuint             glRenderbuffer{0};
-    GLenum             glWrapS{0};
-    GLenum             glWrapT{0};
-    GLenum             glMinFilter{0};
-    GLenum             glMagFilter{0};
+struct GLES3GPUTexture {
+    TextureType type{TextureType::TEX2D};
+    Format format{Format::UNKNOWN};
+    TextureUsage usage{TextureUsageBit::NONE};
+    uint32_t width{0};
+    uint32_t height{0};
+    uint32_t depth{1};
+    uint32_t size{0};
+    uint32_t arrayLayer{1};
+    uint32_t mipLevel{1};
+    SampleCount samples{SampleCount::ONE};
+    TextureFlags flags{TextureFlagBit::NONE};
+    bool isPowerOf2{false};
+    bool memoryless{false};
+    GLenum glTarget{0};
+    GLenum glInternalFmt{0};
+    GLenum glFormat{0};
+    GLenum glType{0};
+    GLenum glUsage{0};
+    GLint glSamples{0};
+    GLuint glTexture{0};
+    GLuint glRenderbuffer{0};
+    GLenum glWrapS{0};
+    GLenum glWrapT{0};
+    GLenum glMinFilter{0};
+    GLenum glMagFilter{0};
     GLES3GPUSwapchain *swapchain{nullptr};
 };
 
-class GLES3GPUTextureView final : public Object {
-public:
+struct GLES3GPUTextureView {
     GLES3GPUTexture *gpuTexture{nullptr};
-    TextureType      type       = TextureType::TEX2D;
-    Format           format     = Format::UNKNOWN;
-    uint32_t         baseLevel  = 0U;
-    uint32_t         levelCount = 1U;
+    TextureType type = TextureType::TEX2D;
+    Format format = Format::UNKNOWN;
+    uint32_t baseLevel = 0U;
+    uint32_t levelCount = 1U;
 };
 
-using GLES3GPUTextureViewList = vector<GLES3GPUTextureView *>;
+using GLES3GPUTextureViewList = ccstd::vector<GLES3GPUTextureView *>;
 
-class GLES3GPUSwapchain final : public Object {
-public:
+struct GLES3GPUSwapchain {
 #if CC_SWAPPY_ENABLED
     bool swappyEnabled{false};
 #endif
-    EGLSurface       eglSurface{EGL_NO_SURFACE};
-    EGLint           eglSwapInterval{0};
-    GLuint           glFramebuffer{0};
+    EGLSurface eglSurface{EGL_NO_SURFACE};
+    EGLint eglSwapInterval{0};
+    GLuint glFramebuffer{0};
     GLES3GPUTexture *gpuColorTexture{nullptr};
 };
 
-class GLES3GPUSampler final : public Object {
+class GLES3GPUSampler final {
 public:
-    Filter  minFilter   = Filter::NONE;
-    Filter  magFilter   = Filter::NONE;
-    Filter  mipFilter   = Filter::NONE;
-    Address addressU    = Address::CLAMP;
-    Address addressV    = Address::CLAMP;
-    Address addressW    = Address::CLAMP;
-    GLenum  glMinFilter = 0;
-    GLenum  glMagFilter = 0;
-    GLenum  glWrapS     = 0;
-    GLenum  glWrapT     = 0;
-    GLenum  glWrapR     = 0;
+    Filter minFilter = Filter::NONE;
+    Filter magFilter = Filter::NONE;
+    Filter mipFilter = Filter::NONE;
+    Address addressU = Address::CLAMP;
+    Address addressV = Address::CLAMP;
+    Address addressW = Address::CLAMP;
+    GLenum glMinFilter = 0;
+    GLenum glMagFilter = 0;
+    GLenum glWrapS = 0;
+    GLenum glWrapT = 0;
+    GLenum glWrapR = 0;
 
-    ~GLES3GPUSampler() override {
-        vector<GLuint> glSampelrs;
+    ~GLES3GPUSampler() {
+        ccstd::vector<GLuint> glSampelrs;
         for (const auto &pair : _cache) {
             glSampelrs.push_back(pair.second);
         }
@@ -198,167 +191,158 @@ public:
     GLuint getGLSampler(uint16_t minLod, uint16_t maxLod);
 
 private:
-    unordered_map<uint32_t, GLuint> _cache;
+    ccstd::unordered_map<uint32_t, GLuint> _cache;
 };
 
-class GLES3GPUInput final : public Object {
-public:
+struct GLES3GPUInput {
     uint32_t binding = 0;
-    String   name;
-    Type     type   = Type::UNKNOWN;
+    ccstd::string name;
+    Type type = Type::UNKNOWN;
     uint32_t stride = 0;
-    uint32_t count  = 0;
-    uint32_t size   = 0;
-    GLenum   glType = 0;
-    GLint    glLoc  = -1;
+    uint32_t count = 0;
+    uint32_t size = 0;
+    GLenum glType = 0;
+    GLint glLoc = -1;
 };
-using GLES3GPUInputList = vector<GLES3GPUInput>;
+using GLES3GPUInputList = ccstd::vector<GLES3GPUInput>;
 
-class GLES3GPUUniform final : public Object {
-public:
+struct GLES3GPUUniform {
     uint32_t binding = INVALID_BINDING;
-    String   name;
-    Type     type   = Type::UNKNOWN;
+    ccstd::string name;
+    Type type = Type::UNKNOWN;
     uint32_t stride = 0;
-    uint32_t count  = 0;
-    uint32_t size   = 0;
+    uint32_t count = 0;
+    uint32_t size = 0;
     uint32_t offset = 0;
-    GLenum   glType = 0;
-    GLint    glLoc  = -1;
+    GLenum glType = 0;
+    GLint glLoc = -1;
 };
-using GLES3GPUUniformList = vector<GLES3GPUUniform>;
+using GLES3GPUUniformList = ccstd::vector<GLES3GPUUniform>;
 
-class GLES3GPUUniformBuffer final : public Object {
-public:
-    uint32_t set     = INVALID_BINDING;
+struct GLES3GPUUniformBuffer {
+    uint32_t set = INVALID_BINDING;
     uint32_t binding = INVALID_BINDING;
-    String   name;
-    uint32_t size      = 0;
+    ccstd::string name;
+    uint32_t size = 0;
     uint32_t glBinding = 0xffffffff;
-    bool     isStorage = false;
+    bool isStorage = false;
 };
-using GLES3GPUUniformBufferList = vector<GLES3GPUUniformBuffer>;
+using GLES3GPUUniformBufferList = ccstd::vector<GLES3GPUUniformBuffer>;
 
-class GLES3GPUUniformSamplerTexture final : public Object {
-public:
-    uint32_t set     = 0;
+struct GLES3GPUUniformSamplerTexture {
+    uint32_t set = 0;
     uint32_t binding = 0;
-    String   name;
-    Type     type  = Type::UNKNOWN;
+    ccstd::string name;
+    Type type = Type::UNKNOWN;
     uint32_t count = 0U;
 
-    vector<GLint> units;
-    GLenum        glType = 0;
-    GLint         glLoc  = -1;
+    ccstd::vector<GLint> units;
+    GLenum glType = 0;
+    GLint glLoc = -1;
 };
-using GLES3GPUUniformSamplerTextureList = vector<GLES3GPUUniformSamplerTexture>;
+using GLES3GPUUniformSamplerTextureList = ccstd::vector<GLES3GPUUniformSamplerTexture>;
 
-class GLES3GPUUniformStorageImage final : public Object {
-public:
-    uint32_t set     = 0;
+struct GLES3GPUUniformStorageImage {
+    uint32_t set = 0;
     uint32_t binding = 0;
-    String   name;
-    Type     type  = Type::UNKNOWN;
+    ccstd::string name;
+    Type type = Type::UNKNOWN;
     uint32_t count = 0U;
 
-    vector<int> units;
-    GLenum      glMemoryAccess = GL_READ_WRITE;
-    GLint       glLoc          = -1;
+    ccstd::vector<int> units;
+    GLenum glMemoryAccess = GL_READ_WRITE;
+    GLint glLoc = -1;
 };
-using GLES3GPUUniformStorageImageList = vector<GLES3GPUUniformStorageImage>;
+using GLES3GPUUniformStorageImageList = ccstd::vector<GLES3GPUUniformStorageImage>;
 
-class GLES3GPUShaderStage final : public Object {
-public:
-    GLES3GPUShaderStage(ShaderStageFlagBit t, String s, GLuint shader = 0)
+struct GLES3GPUShaderStage {
+    GLES3GPUShaderStage(ShaderStageFlagBit t, ccstd::string s, GLuint shader = 0)
     : type(t),
       source(std::move(std::move(s))),
       glShader(shader) {}
     ShaderStageFlagBit type;
-    String             source;
-    GLuint             glShader = 0;
+    ccstd::string source;
+    GLuint glShader = 0;
 };
-using GLES3GPUShaderStageList = vector<GLES3GPUShaderStage>;
+using GLES3GPUShaderStageList = ccstd::vector<GLES3GPUShaderStage>;
 
-class GLES3GPUShader final : public Object {
-public:
-    String                     name;
-    UniformBlockList           blocks;
-    UniformStorageBufferList   buffers;
-    UniformSamplerTextureList  samplerTextures;
-    UniformSamplerList         samplers;
-    UniformTextureList         textures;
-    UniformStorageImageList    images;
+struct GLES3GPUShader {
+    ccstd::string name;
+    UniformBlockList blocks;
+    UniformStorageBufferList buffers;
+    UniformSamplerTextureList samplerTextures;
+    UniformSamplerList samplers;
+    UniformTextureList textures;
+    UniformStorageImageList images;
     UniformInputAttachmentList subpassInputs;
 
-    GLES3GPUShaderStageList           gpuStages;
-    GLuint                            glProgram = 0;
-    GLES3GPUInputList                 glInputs;
-    GLES3GPUUniformBufferList         glBuffers;
+    GLES3GPUShaderStageList gpuStages;
+    GLuint glProgram = 0;
+    GLES3GPUInputList glInputs;
+    GLES3GPUUniformBufferList glBuffers;
     GLES3GPUUniformSamplerTextureList glSamplerTextures;
-    GLES3GPUUniformStorageImageList   glImages;
+    GLES3GPUUniformStorageImageList glImages;
 };
 
-class GLES3GPUAttribute final : public Object {
-public:
-    String   name;
-    GLuint   glBuffer       = 0;
-    GLenum   glType         = 0;
-    uint32_t size           = 0;
-    uint32_t count          = 0;
-    uint32_t stride         = 1;
+struct GLES3GPUAttribute {
+    ccstd::string name;
+    GLuint glBuffer = 0;
+    GLenum glType = 0;
+    uint32_t size = 0;
+    uint32_t count = 0;
+    uint32_t stride = 1;
     uint32_t componentCount = 1;
-    bool     isNormalized   = false;
-    bool     isInstanced    = false;
-    uint32_t offset         = 0;
+    bool isNormalized = false;
+    bool isInstanced = false;
+    uint32_t offset = 0;
 };
-using GLES3GPUAttributeList = vector<GLES3GPUAttribute>;
+using GLES3GPUAttributeList = ccstd::vector<GLES3GPUAttribute>;
 
-class GLES3GPUInputAssembler final : public Object {
-public:
-    AttributeList                 attributes;
-    GLES3GPUBufferList            gpuVertexBuffers;
-    GLES3GPUBuffer *              gpuIndexBuffer    = nullptr;
-    GLES3GPUBuffer *              gpuIndirectBuffer = nullptr;
-    GLES3GPUAttributeList         glAttribs;
-    GLenum                        glIndexType = 0;
-    unordered_map<size_t, GLuint> glVAOs;
+struct GLES3GPUInputAssembler {
+    AttributeList attributes;
+    GLES3GPUBufferList gpuVertexBuffers;
+    GLES3GPUBuffer *gpuIndexBuffer = nullptr;
+    GLES3GPUBuffer *gpuIndirectBuffer = nullptr;
+    GLES3GPUAttributeList glAttribs;
+    GLenum glIndexType = 0;
+    ccstd::unordered_map<size_t, GLuint> glVAOs;
 };
 
-class GLES3GPUGeneralBarrier final : public Object {
-public:
+struct GLES3GPUGeneralBarrier {
     AccessFlags prevAccesses = AccessFlagBit::NONE;
     AccessFlags nextAccesses = AccessFlagBit::NONE;
 
-    GLbitfield glBarriers         = 0U;
+    GLbitfield glBarriers = 0U;
     GLbitfield glBarriersByRegion = 0U;
 };
 
-class GLES3GPURenderPass final : public Object {
-public:
+struct GLES3GPURenderPass {
     struct AttachmentStatistics {
         uint32_t loadSubpass{SUBPASS_EXTERNAL};
         uint32_t storeSubpass{SUBPASS_EXTERNAL};
     };
 
-    ColorAttachmentList    colorAttachments;
+    ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
-    SubpassInfoList        subpasses;
+    SubpassInfoList subpasses;
+    SubpassDependencyList dependencies;
 
-    vector<AttachmentStatistics> statistics; // per attachment
+    ccstd::vector<AttachmentStatistics> statistics; // per attachment
 
-    vector<GLES3GPUGeneralBarrier> barriers; // per subpass
+    ccstd::vector<GLES3GPUGeneralBarrier> subpassBarriers; // per subpass
+    GLES3GPUGeneralBarrier blockBarrier;
 };
 
 class GLES3GPUFramebufferCacheMap;
-class GLES3GPUFramebuffer final : public Object {
+class GLES3GPUFramebuffer final {
 public:
-    GLES3GPURenderPass *    gpuRenderPass{nullptr};
+    GLES3GPURenderPass *gpuRenderPass{nullptr};
     GLES3GPUTextureViewList gpuColorViews;
-    GLES3GPUTextureView *   gpuDepthStencilView{nullptr};
-    bool                    usesFBF{false};
+    GLES3GPUTextureView *gpuDepthStencilView{nullptr};
+    bool usesFBF{false};
 
     struct GLFramebufferInfo {
-        GLuint   glFramebuffer{0U};
+        GLuint glFramebuffer{0U};
         uint32_t width{UINT_MAX};
         uint32_t height{UINT_MAX};
     };
@@ -366,10 +350,10 @@ public:
         inline void initialize(GLES3GPUSwapchain *sc) { swapchain = sc; }
         inline void initialize(const GLFramebufferInfo &info) {
             _glFramebuffer = info.glFramebuffer;
-            _width         = info.width;
-            _height        = info.height;
+            _width = info.width;
+            _height = info.height;
         }
-        inline GLuint   getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
+        inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
         inline uint32_t getWidth() const { return swapchain ? swapchain->gpuColorTexture->width : _width; }
         inline uint32_t getHeight() const { return swapchain ? swapchain->gpuColorTexture->height : _height; }
 
@@ -378,7 +362,7 @@ public:
         GLES3GPUSwapchain *swapchain{nullptr};
 
     private:
-        GLuint   _glFramebuffer{0U};
+        GLuint _glFramebuffer{0U};
         uint32_t _width{0U};
         uint32_t _height{0U};
     };
@@ -387,16 +371,16 @@ public:
         GLFramebuffer framebuffer;
 
         // for blit-based manual resolving
-        GLbitfield    resolveMask{0U};
+        GLbitfield resolveMask{0U};
         GLFramebuffer resolveFramebuffer;
     };
 
     // one per subpass, if not using FBF
-    vector<Framebuffer> instances;
+    ccstd::vector<Framebuffer> instances;
 
-    vector<uint32_t> uberColorAttachmentIndices;
-    uint32_t         uberDepthStencil{INVALID_BINDING};
-    Framebuffer      uberInstance;
+    ccstd::vector<uint32_t> uberColorAttachmentIndices;
+    uint32_t uberDepthStencil{INVALID_BINDING};
+    Framebuffer uberInstance;
 
     // the assumed shader output, may differ from actual subpass output
     // see Feature::INPUT_ATTACHMENT_BENEFIT for more details on this
@@ -404,111 +388,104 @@ public:
     uint32_t uberFinalOutput{INVALID_BINDING};
 };
 
-class GLES3GPUDescriptorSetLayout final : public Object {
-public:
+struct GLES3GPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
-    vector<uint32_t>               dynamicBindings;
+    ccstd::vector<uint32_t> dynamicBindings;
 
-    vector<uint32_t> bindingIndices;
-    vector<uint32_t> descriptorIndices;
-    uint32_t         descriptorCount = 0U;
+    ccstd::vector<uint32_t> bindingIndices;
+    ccstd::vector<uint32_t> descriptorIndices;
+    uint32_t descriptorCount = 0U;
 };
-using GLES3GPUDescriptorSetLayoutList = vector<GLES3GPUDescriptorSetLayout *>;
+using GLES3GPUDescriptorSetLayoutList = ccstd::vector<GLES3GPUDescriptorSetLayout *>;
 
-class GLES3GPUPipelineLayout final : public Object {
-public:
+struct GLES3GPUPipelineLayout {
     GLES3GPUDescriptorSetLayoutList setLayouts;
 
     // helper storages
-    vector<vector<int>> dynamicOffsetIndices;
-    vector<uint32_t>    dynamicOffsetOffsets;
-    vector<uint32_t>    dynamicOffsets;
-    uint32_t            dynamicOffsetCount;
+    ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
+    ccstd::vector<uint32_t> dynamicOffsetOffsets;
+    ccstd::vector<uint32_t> dynamicOffsets;
+    uint32_t dynamicOffsetCount;
 };
 
-class GLES3GPUPipelineState final : public Object {
-public:
-    GLenum                  glPrimitive = GL_TRIANGLES;
-    GLES3GPUShader *        gpuShader   = nullptr;
-    RasterizerState         rs;
-    DepthStencilState       dss;
-    BlendState              bs;
-    DynamicStateList        dynamicStates;
-    GLES3GPUPipelineLayout *gpuLayout         = nullptr;
-    GLES3GPURenderPass *    gpuRenderPass     = nullptr;
+struct GLES3GPUPipelineState {
+    GLenum glPrimitive = GL_TRIANGLES;
+    GLES3GPUShader *gpuShader = nullptr;
+    RasterizerState rs;
+    DepthStencilState dss;
+    BlendState bs;
+    DynamicStateList dynamicStates;
+    GLES3GPUPipelineLayout *gpuLayout = nullptr;
+    GLES3GPURenderPass *gpuRenderPass = nullptr;
     GLES3GPUPipelineLayout *gpuPipelineLayout = nullptr;
 };
 
-class GLES3GPUDescriptor final : public Object {
-public:
-    DescriptorType       type           = DescriptorType::UNKNOWN;
-    GLES3GPUBuffer *     gpuBuffer      = nullptr;
+struct GLES3GPUDescriptor {
+    DescriptorType type = DescriptorType::UNKNOWN;
+    GLES3GPUBuffer *gpuBuffer = nullptr;
     GLES3GPUTextureView *gpuTextureView = nullptr;
-    GLES3GPUSampler *    gpuSampler     = nullptr;
+    GLES3GPUSampler *gpuSampler = nullptr;
 };
-using GLES3GPUDescriptorList = vector<GLES3GPUDescriptor>;
+using GLES3GPUDescriptorList = ccstd::vector<GLES3GPUDescriptor>;
 
-class GLES3GPUDescriptorSet final : public Object {
-public:
-    GLES3GPUDescriptorList  gpuDescriptors;
-    const vector<uint32_t> *descriptorIndices = nullptr;
+struct GLES3GPUDescriptorSet {
+    GLES3GPUDescriptorList gpuDescriptors;
+    const ccstd::vector<uint32_t> *descriptorIndices = nullptr;
 };
 
-class GLES3GPUDispatchInfo final : public Object {
-public:
+struct GLES3GPUDispatchInfo {
     uint32_t groupCountX = 0;
     uint32_t groupCountY = 0;
     uint32_t groupCountZ = 0;
 
     GLES3GPUBuffer *indirectBuffer = nullptr;
-    uint32_t        indirectOffset = 0;
+    uint32_t indirectOffset = 0;
 };
 
-class GLES3ObjectCache final : public Object {
-public:
-    uint32_t                subpassIdx        = 0U;
-    GLES3GPURenderPass *    gpuRenderPass     = nullptr;
-    GLES3GPUFramebuffer *   gpuFramebuffer    = nullptr;
-    GLES3GPUPipelineState * gpuPipelineState  = nullptr;
+struct GLES3ObjectCache {
+    uint32_t subpassIdx = 0U;
+    GLES3GPURenderPass *gpuRenderPass = nullptr;
+    GLES3GPUFramebuffer *gpuFramebuffer = nullptr;
+    GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
-    GLenum                  glPrimitive       = 0;
-    Rect                    renderArea;
-    ColorList               clearColors;
-    float                   clearDepth   = 1.F;
-    uint32_t                clearStencil = 0U;
+    GLenum glPrimitive = 0;
+    Rect renderArea;
+    ColorList clearColors;
+    float clearDepth = 1.F;
+    uint32_t clearStencil = 0U;
 };
 
-class GLES3GPUStateCache final : public Object {
+class GLES3GPUStateCache final {
 public:
-    GLuint                          glArrayBuffer        = 0;
-    GLuint                          glElementArrayBuffer = 0;
-    GLuint                          glUniformBuffer      = 0;
-    vector<GLuint>                  glBindUBOs;
-    vector<GLuint>                  glBindUBOOffsets;
-    GLuint                          glShaderStorageBuffer = 0;
-    vector<GLuint>                  glBindSSBOs;
-    vector<GLuint>                  glBindSSBOOffsets;
-    GLuint                          glDispatchIndirectBuffer = 0;
-    GLuint                          glVAO                    = 0;
-    uint32_t                        texUint                  = 0;
-    vector<GLuint>                  glTextures;
-    vector<GLuint>                  glImages;
-    vector<GLuint>                  glSamplers;
-    GLuint                          glProgram = 0;
-    vector<bool>                    glEnabledAttribLocs;
-    vector<bool>                    glCurrentAttribLocs;
-    GLuint                          glReadFramebuffer = 0;
-    GLuint                          glDrawFramebuffer = 0;
-    GLuint                          glRenderbuffer    = 0;
-    Viewport                        viewport;
-    Rect                            scissor;
-    RasterizerState                 rs;
-    DepthStencilState               dss;
-    BlendState                      bs;
-    bool                            isCullFaceEnabled    = true;
-    bool                            isStencilTestEnabled = false;
-    unordered_map<String, uint32_t> texUnitCacheMap;
-    GLES3ObjectCache                gfxStateCache;
+    GLuint glArrayBuffer = 0;
+    GLuint glElementArrayBuffer = 0;
+    GLuint glUniformBuffer = 0;
+    ccstd::vector<GLuint> glBindUBOs;
+    ccstd::vector<GLuint> glBindUBOOffsets;
+    GLuint glShaderStorageBuffer = 0;
+    ccstd::vector<GLuint> glBindSSBOs;
+    ccstd::vector<GLuint> glBindSSBOOffsets;
+    GLuint glDispatchIndirectBuffer = 0;
+    GLuint glVAO = 0;
+    uint32_t texUint = 0;
+    ccstd::vector<GLuint> glTextures;
+    ccstd::vector<GLuint> glImages;
+    ccstd::vector<GLuint> glSamplers;
+    GLuint glProgram = 0;
+    ccstd::vector<bool> glEnabledAttribLocs;
+    ccstd::vector<bool> glCurrentAttribLocs;
+    GLuint glReadFramebuffer = 0;
+    GLuint glDrawFramebuffer = 0;
+    GLuint glRenderbuffer = 0;
+    Viewport viewport;
+    Rect scissor;
+    RasterizerState rs;
+    DepthStencilState dss;
+    BlendState bs;
+    bool isCullFaceEnabled = true;
+    bool isStencilTestEnabled = false;
+    ccstd::unordered_map<ccstd::string, uint32_t> texUnitCacheMap;
+    GLES3ObjectCache gfxStateCache;
 
     void initialize(size_t texUnits, size_t imageUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
         glBindUBOs.resize(uboBindings, 0U);
@@ -526,55 +503,55 @@ public:
     void reset() {
         if (!_initialized) return;
 
-        glArrayBuffer        = 0;
+        glArrayBuffer = 0;
         glElementArrayBuffer = 0;
-        glUniformBuffer      = 0;
+        glUniformBuffer = 0;
         glBindUBOs.assign(glBindUBOs.size(), 0U);
         glBindUBOOffsets.assign(glBindUBOOffsets.size(), 0U);
         glShaderStorageBuffer = 0;
         glBindSSBOs.assign(glBindSSBOs.size(), 0U);
         glBindSSBOOffsets.assign(glBindSSBOOffsets.size(), 0U);
         glDispatchIndirectBuffer = 0;
-        glVAO                    = 0;
-        texUint                  = 0;
+        glVAO = 0;
+        texUint = 0;
         glTextures.assign(glTextures.size(), 0U);
         glImages.assign(glImages.size(), 0U);
         glSamplers.assign(glSamplers.size(), 0U);
         glProgram = 0;
         glEnabledAttribLocs.assign(glEnabledAttribLocs.size(), false);
         glCurrentAttribLocs.assign(glCurrentAttribLocs.size(), false);
-        glReadFramebuffer    = 0;
-        glDrawFramebuffer    = 0;
-        glRenderbuffer       = 0;
-        isCullFaceEnabled    = true;
+        glReadFramebuffer = 0;
+        glDrawFramebuffer = 0;
+        glRenderbuffer = 0;
+        isCullFaceEnabled = true;
         isStencilTestEnabled = false;
 
         viewport = Viewport();
-        scissor  = Rect();
-        rs       = RasterizerState();
-        dss      = DepthStencilState();
-        bs       = BlendState();
+        scissor = Rect();
+        rs = RasterizerState();
+        dss = DepthStencilState();
+        bs = BlendState();
 
-        gfxStateCache.gpuRenderPass     = nullptr;
-        gfxStateCache.gpuFramebuffer    = nullptr;
-        gfxStateCache.gpuPipelineState  = nullptr;
+        gfxStateCache.gpuRenderPass = nullptr;
+        gfxStateCache.gpuFramebuffer = nullptr;
+        gfxStateCache.gpuPipelineState = nullptr;
         gfxStateCache.gpuInputAssembler = nullptr;
-        gfxStateCache.glPrimitive       = 0U;
-        gfxStateCache.subpassIdx        = 0U;
+        gfxStateCache.glPrimitive = 0U;
+        gfxStateCache.subpassIdx = 0U;
     }
 
 private:
     bool _initialized{false};
 };
 
-class GLES3GPUFramebufferCacheMap final : public Object {
+class GLES3GPUFramebufferCacheMap final {
 public:
     explicit GLES3GPUFramebufferCacheMap(GLES3GPUStateCache *cache) : _cache(cache) {}
 
     void registerExternal(GLuint glFramebuffer, const GLES3GPUTexture *gpuTexture, uint32_t mipLevel) {
-        bool   isTexture  = gpuTexture->glTexture;
+        bool isTexture = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
-        auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
+        auto &cacheMap = isTexture ? _textureMap : _renderbufferMap;
 
         if (cacheMap[glResource].empty()) cacheMap[glResource].resize(gpuTexture->mipLevel);
         if (!cacheMap[glResource][mipLevel].glFramebuffer) {
@@ -602,13 +579,13 @@ public:
     }
 
     GLuint getFramebufferFromTexture(const GLES3GPUTexture *gpuTexture, const TextureSubresLayers &subres) {
-        bool     isTexture  = gpuTexture->glTexture;
-        GLuint   glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
-        auto &   cacheMap   = isTexture ? _textureMap : _renderbufferMap;
-        uint32_t mipLevel   = isTexture ? subres.mipLevel : 0;
+        bool isTexture = gpuTexture->glTexture;
+        GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
+        auto &cacheMap = isTexture ? _textureMap : _renderbufferMap;
+        uint32_t mipLevel = isTexture ? subres.mipLevel : 0;
 
         if (gpuTexture->swapchain) return gpuTexture->swapchain->glFramebuffer;
-        CCASSERT(gpuTexture->glTexture || gpuTexture->glRenderbuffer, "Texture already destroyed?");
+        CC_ASSERT(gpuTexture->glTexture || gpuTexture->glRenderbuffer);
 
         if (cacheMap[glResource].empty()) cacheMap[glResource].resize(gpuTexture->mipLevel);
 
@@ -620,8 +597,8 @@ public:
                 _cache->glDrawFramebuffer = glFramebuffer;
             }
 
-            const FormatInfo &info       = GFX_FORMAT_INFOS[static_cast<uint32_t>(gpuTexture->format)];
-            GLenum            attachment = GL_COLOR_ATTACHMENT0;
+            const FormatInfo &info = GFX_FORMAT_INFOS[static_cast<uint32_t>(gpuTexture->format)];
+            GLenum attachment = GL_COLOR_ATTACHMENT0;
             if (info.hasStencil) {
                 attachment = GL_DEPTH_STENCIL_ATTACHMENT;
             } else if (info.hasDepth) {
@@ -635,7 +612,7 @@ public:
 
             GLenum status;
             GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
-            CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
+            CC_ASSERT(status == GL_FRAMEBUFFER_COMPLETE);
 
             cacheMap[glResource][mipLevel].glFramebuffer = glFramebuffer;
         }
@@ -644,9 +621,9 @@ public:
     }
 
     void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {
-        bool   isTexture  = gpuTexture->glTexture;
+        bool isTexture = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
-        auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
+        auto &cacheMap = isTexture ? _textureMap : _renderbufferMap;
 
         if (cacheMap.count(glResource)) {
             for (auto &record : cacheMap[glResource]) {
@@ -667,14 +644,14 @@ private:
 
     struct FramebufferRecord {
         GLuint glFramebuffer{0};
-        bool   isExternal{false};
+        bool isExternal{false};
     };
-    using CacheMap = unordered_map<GLuint, vector<FramebufferRecord>>;
+    using CacheMap = ccstd::unordered_map<GLuint, ccstd::vector<FramebufferRecord>>;
     CacheMap _renderbufferMap; // renderbuffer -> mip level -> framebuffer
     CacheMap _textureMap;      // texture -> mip level -> framebuffer
 };
 
-class GLES3GPUFramebufferHub final : public Object {
+class GLES3GPUFramebufferHub final {
 public:
     void connect(GLES3GPUTexture *texture, GLES3GPUFramebuffer *framebuffer) {
         _framebuffers[texture].push_back(framebuffer);
@@ -692,7 +669,7 @@ public:
     void update(GLES3GPUTexture *texture);
 
 private:
-    unordered_map<GLES3GPUTexture *, vector<GLES3GPUFramebuffer *>> _framebuffers;
+    ccstd::unordered_map<GLES3GPUTexture *, ccstd::vector<GLES3GPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

@@ -33,10 +33,16 @@
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
 #include "modules/Network.h"
-#include "modules/Screen.h"
 #include "modules/System.h"
-#include "modules/SystemWindow.h"
 #include "modules/Vibrator.h"
+
+#if defined(CC_SERVER_MODE)
+    #include "platform/empty/modules/Screen.h"
+    #include "platform/empty/modules/SystemWindow.h"
+#else
+    #include "modules/Screen.h"
+    #include "modules/SystemWindow.h"
+#endif
 
 namespace {
 
@@ -62,7 +68,7 @@ int32_t LinuxPlatform::init() {
 }
 
 static long getCurrentMillSecond() {
-    long           lLastTime;
+    long lLastTime;
     struct timeval stCurrentTime;
 
     gettimeofday(&stCurrentTime, NULL);
@@ -71,14 +77,14 @@ static long getCurrentMillSecond() {
 }
 
 int32_t LinuxPlatform::loop() {
-    long lastTime        = 0L;
-    long curTime         = 0L;
+    long lastTime = 0L;
+    long curTime = 0L;
     long desiredInterval = 0L;
-    long actualInterval  = 0L;
+    long actualInterval = 0L;
     onResume();
     while (!_quit) {
-        curTime         = getCurrentMillSecond();
-		desiredInterval = static_cast<long>(1000.0 / getFps());
+        curTime = getCurrentMillSecond();
+        desiredInterval = static_cast<long>(1000.0 / getFps());
         _window->pollEvent(&_quit);
         actualInterval = curTime - lastTime;
         if (actualInterval >= desiredInterval) {
@@ -90,7 +96,7 @@ int32_t LinuxPlatform::loop() {
         }
     }
 
-    onDestory();
+    onDestroy();
     return 0;
 }
 

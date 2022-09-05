@@ -28,6 +28,9 @@
 #include <utility>
 #include "WGPUDef.h"
 #include "base/Utils.h"
+#include "base/std/container/map.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXDef.h"
 
 class WGPURenderPassDescriptor;
@@ -54,42 +57,42 @@ class CCWGPUDescriptorSet;
 class CCWGPUInputAssembler;
 
 struct CCWGPUResource {
-    CCWGPUBuffer* uniformBuffer = nullptr;
-    CCWGPUBuffer* storageBuffer = nullptr;
+    CCWGPUBuffer *uniformBuffer = nullptr;
+    CCWGPUBuffer *storageBuffer = nullptr;
 
-    CCWGPUTexture* commonTexture  = nullptr;
-    CCWGPUTexture* storageTexture = nullptr;
+    CCWGPUTexture *commonTexture = nullptr;
+    CCWGPUTexture *storageTexture = nullptr;
 
-    CCWGPUSampler* sampler = nullptr;
+    CCWGPUSampler *sampler = nullptr;
 };
 
 struct CCWGPUDeviceObject {
     WGPUDevice wgpuDevice = wgpuDefaultHandle;
-    WGPUQueue  wgpuQueue  = wgpuDefaultHandle;
+    WGPUQueue wgpuQueue = wgpuDefaultHandle;
 
     CCWGPUResource defaultResources;
 };
 
 struct CCWGPUSwapchainObject {
     WGPUSwapChain wgpuSwapChain = wgpuDefaultHandle;
-    WGPUSurface   wgpuSurface   = wgpuDefaultHandle;
-    WGPUInstance  wgpuInstance  = wgpuDefaultHandle;
+    WGPUSurface wgpuSurface = wgpuDefaultHandle;
+    WGPUInstance wgpuInstance = wgpuDefaultHandle;
 
-    CCWGPUTexture* swapchainColor        = nullptr;
-    CCWGPUTexture* swapchainDepthStencil = nullptr;
+    CCWGPUTexture *swapchainColor = nullptr;
+    CCWGPUTexture *swapchainDepthStencil = nullptr;
 };
 
 struct CCWGPURenderPassObject {
-    RenderPassInfo            info;
-    String                    label;
-    uint8_t                   sampleCount        = 1;
-    WGPURenderPassDescriptor* wgpuRenderPassDesc = wgpuDefaultHandle;
+    RenderPassInfo info;
+    ccstd::string label;
+    uint8_t sampleCount = 1;
+    WGPURenderPassDescriptor *wgpuRenderPassDesc = wgpuDefaultHandle;
 };
 
 struct CCWGPUTextureObject {
-    WGPUTexture     wgpuTexture     = wgpuDefaultHandle;
+    WGPUTexture wgpuTexture = wgpuDefaultHandle;
     WGPUTextureView wgpuTextureView = wgpuDefaultHandle;
-    WGPUTextureView selfView        = wgpuDefaultHandle;
+    WGPUTextureView selfView = wgpuDefaultHandle;
 };
 
 //The indirect drawIndexed parameters encoded in the buffer must be a tightly packed block
@@ -101,10 +104,10 @@ struct CCWGPUTextureObject {
 // drawIndexedIndirectParameters[3] = baseVertex;
 // drawIndexedIndirectParameters[4] = 0; // firstInstance. Must be 0.
 struct CCWGPUDrawIndexedIndirectObject {
-    uint32_t indexCount    = 0;
+    uint32_t indexCount = 0;
     uint32_t instanceCount = 0;
-    uint32_t firstIndex    = 0;
-    uint32_t baseVertex    = 0;
+    uint32_t firstIndex = 0;
+    uint32_t baseVertex = 0;
     uint32_t firstInstance = 0;
 };
 static_assert(sizeof(CCWGPUDrawIndexedIndirectObject) == 20, "WGPU drawIndexedIndirect structure validation failed!");
@@ -118,45 +121,45 @@ static_assert(sizeof(CCWGPUDrawIndexedIndirectObject) == 20, "WGPU drawIndexedIn
 // drawIndirectParameters[2]  = firstVertex;
 // drawIndirectParameters[3]  = 0; // firstInstance. Must be 0.
 struct CCWGPUDrawIndirectObject {
-    uint32_t vertexCount   = 0;
+    uint32_t vertexCount = 0;
     uint32_t instanceCount = 0;
-    uint32_t firstIndex    = 0;
+    uint32_t firstIndex = 0;
     uint32_t firstInstance = 0;
 };
 static_assert(sizeof(CCWGPUDrawIndirectObject) == 16, "WGPU drawIndirect structure validation failed!");
 
 struct CCWGPUBufferObject {
-    WGPUBuffer                                   wgpuBuffer = wgpuDefaultHandle;
-    std::vector<CCWGPUDrawIndexedIndirectObject> indexedIndirectObjs;
-    std::vector<CCWGPUDrawIndirectObject>        indirectObjs;
-    bool                                         mapped            = false;
-    bool                                         hasDynamicOffsets = false;
+    WGPUBuffer wgpuBuffer = wgpuDefaultHandle;
+    ccstd::vector<CCWGPUDrawIndexedIndirectObject> indexedIndirectObjs;
+    ccstd::vector<CCWGPUDrawIndirectObject> indirectObjs;
+    bool mapped = false;
+    bool hasDynamicOffsets = false;
 };
 
 struct CCWGPUSamplerObject {
     WGPUSampler wgpuSampler = wgpuDefaultHandle;
 
-    WGPUAddressMode     addressModeU  = WGPUAddressMode_Repeat;
-    WGPUAddressMode     addressModeV  = WGPUAddressMode_Repeat;
-    WGPUAddressMode     addressModeW  = WGPUAddressMode_Repeat;
-    WGPUFilterMode      magFilter     = WGPUFilterMode_Linear;
-    WGPUFilterMode      minFilter     = WGPUFilterMode_Linear;
-    WGPUFilterMode      mipmapFilter  = WGPUFilterMode_Linear;
-    float               lodMinClamp   = 0.1f;
-    float               lodMaxClamp   = 1000.0f;
-    WGPUCompareFunction compare       = WGPUCompareFunction_Always;
-    uint16_t            maxAnisotropy = 0;
+    WGPUAddressMode addressModeU = WGPUAddressMode_Repeat;
+    WGPUAddressMode addressModeV = WGPUAddressMode_Repeat;
+    WGPUAddressMode addressModeW = WGPUAddressMode_Repeat;
+    WGPUFilterMode magFilter = WGPUFilterMode_Linear;
+    WGPUFilterMode minFilter = WGPUFilterMode_Linear;
+    WGPUFilterMode mipmapFilter = WGPUFilterMode_Linear;
+    float lodMinClamp = 0.1f;
+    float lodMaxClamp = 1000.0f;
+    WGPUCompareFunction compare = WGPUCompareFunction_Always;
+    uint16_t maxAnisotropy = 0;
 };
 
 struct CCWGPUBindGroupLayoutObject {
-    WGPUBindGroupLayout                   bindGroupLayout = wgpuDefaultHandle;
-    std::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
+    WGPUBindGroupLayout bindGroupLayout = wgpuDefaultHandle;
+    ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
 };
 
 struct CCWGPUBindGroupObject {
-    WGPUBindGroup                   bindgroup = wgpuDefaultHandle;
-    std::vector<WGPUBindGroupEntry> bindGroupEntries;
-    std::set<uint8_t>               bindingSet;
+    WGPUBindGroup bindgroup = wgpuDefaultHandle;
+    ccstd::vector<WGPUBindGroupEntry> bindGroupEntries;
+    ccstd::set<uint8_t> bindingSet;
 };
 
 struct CCWGPUPipelineLayoutObject {
@@ -164,18 +167,18 @@ struct CCWGPUPipelineLayoutObject {
 };
 
 struct CCWGPUPipelineStateObject {
-    WGPURenderPipeline  wgpuRenderPipeline  = wgpuDefaultHandle;
+    WGPURenderPipeline wgpuRenderPipeline = wgpuDefaultHandle;
     WGPUComputePipeline wgpuComputePipeline = wgpuDefaultHandle;
 
-    std::vector<WGPUVertexAttribute> redundantAttr;
-    uint32_t                         maxAttrLength = 0;
+    ccstd::vector<WGPUVertexAttribute> redundantAttr;
+    uint32_t maxAttrLength = 0;
 };
 
 struct CCWGPUShaderObject {
-    String           name;
-    WGPUShaderModule wgpuShaderVertexModule   = wgpuDefaultHandle;
+    ccstd::string name;
+    WGPUShaderModule wgpuShaderVertexModule = wgpuDefaultHandle;
     WGPUShaderModule wgpuShaderFragmentModule = wgpuDefaultHandle;
-    WGPUShaderModule wgpuShaderComputeModule  = wgpuDefaultHandle;
+    WGPUShaderModule wgpuShaderComputeModule = wgpuDefaultHandle;
 };
 
 struct CCWGPUInputAssemblerObject {
@@ -184,62 +187,62 @@ struct CCWGPUInputAssemblerObject {
 
 struct CCWGPUQueueObject {
     WGPUQueue wgpuQueue = wgpuDefaultHandle;
-    QueueType type      = QueueType::GRAPHICS;
+    QueueType type = QueueType::GRAPHICS;
 };
 
 struct CCWGPUDescriptorSetObject {
-    uint32_t             index              = 0;
-    CCWGPUDescriptorSet* descriptorSet      = nullptr;
-    uint32_t             dynamicOffsetCount = 0;
-    const uint32_t*      dynamicOffsets     = nullptr;
+    uint32_t index = 0;
+    CCWGPUDescriptorSet *descriptorSet = nullptr;
+    uint32_t dynamicOffsetCount = 0;
+    const uint32_t *dynamicOffsets = nullptr;
 };
 
 struct CCWGPUStencilMasks {
-    uint writeMask   = 0;
-    uint compareRef  = 0;
-    uint compareMask = 0;
+    uint32_t writeMask = 0;
+    uint32_t compareRef = 0;
+    uint32_t compareMask = 0;
 };
 
 struct CCWGPUStateCache {
-    CCWGPUPipelineState*  pipelineState  = nullptr;
-    CCWGPUInputAssembler* inputAssembler = nullptr;
+    CCWGPUPipelineState *pipelineState = nullptr;
+    CCWGPUInputAssembler *inputAssembler = nullptr;
 
     float depthBiasConstant = 0.0f;
-    float depthBiasClamp    = 0.0f;
-    float depthBiasSlope    = 0.0f;
-    float depthMinBound     = 0.0f;
-    float depthMaxBound     = 100.0f;
+    float depthBiasClamp = 0.0f;
+    float depthBiasSlope = 0.0f;
+    float depthMinBound = 0.0f;
+    float depthMaxBound = 100.0f;
 
-    Color    blendConstants;
+    Color blendConstants;
     Viewport viewport;
-    Rect     rect;
+    Rect rect;
 
-    uint32_t minAttachmentWidth  = 0;
+    uint32_t minAttachmentWidth = 0;
     uint32_t minAttachmentHeight = 0;
 
-    std::vector<CCWGPUDescriptorSetObject>    descriptorSets;
-    std::map<StencilFace, CCWGPUStencilMasks> stencilMasks;
+    ccstd::vector<CCWGPUDescriptorSetObject> descriptorSets;
+    ccstd::map<StencilFace, CCWGPUStencilMasks> stencilMasks;
 };
 
 struct CCWGPUCommandBufferObject {
     bool renderPassBegan = false;
 
-    WGPUCommandEncoder     wgpuCommandEncoder    = wgpuDefaultHandle;
-    WGPURenderPassEncoder  wgpuRenderPassEncoder = wgpuDefaultHandle;
-    WGPUComputePassEncoder wgpuComputeEncoder    = wgpuDefaultHandle;
-    CommandBufferType      type                  = CommandBufferType::PRIMARY;
-    CCWGPUQueue*           queue                 = nullptr;
+    WGPUCommandEncoder wgpuCommandEncoder = wgpuDefaultHandle;
+    WGPURenderPassEncoder wgpuRenderPassEncoder = wgpuDefaultHandle;
+    WGPUComputePassEncoder wgpuComputeEncoder = wgpuDefaultHandle;
+    CommandBufferType type = CommandBufferType::PRIMARY;
+    CCWGPUQueue *queue = nullptr;
 
     WGPURenderPassDescriptor renderPassDescriptor;
-    CCWGPUStateCache         stateCache;
+    CCWGPUStateCache stateCache;
 
-    std::map<uint32_t, CCWGPUBuffer*> redundantVertexBufferMap;
+    ccstd::unordered_map<uint32_t, CCWGPUBuffer *> redundantVertexBufferMap;
 };
 
 struct CCWGPUQueryPoolObject {
-    QueryType             type            = QueryType::OCCLUSION;
-    uint32_t              maxQueryObjects = 0;
-    std::vector<uint32_t> idPool;
+    QueryType type = QueryType::OCCLUSION;
+    uint32_t maxQueryObjects = 0;
+    ccstd::vector<uint32_t> idPool;
 };
 
 } // namespace gfx

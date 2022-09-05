@@ -27,11 +27,10 @@
 #pragma once
 
 #include <functional>
-
-#include "base/Config.h"
 #include "base/Data.h"
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
+#include "base/std/container/string.h"
 
 /**
  * @addtogroup ui
@@ -49,7 +48,7 @@ class WebViewImpl;
  * It's mean WebView displays web pages above all graphical elements of cocos2d-x.
  * @js NA
  */
-class WebView : public Ref {
+class WebView final {
 public:
     /**
          * Allocates and initializes a WebView.
@@ -57,11 +56,16 @@ public:
     static WebView *create();
 
     /**
+     * Destroy webview, remove it from its parent
+     */
+    void destroy();
+
+    /**
          * Set javascript interface scheme.
          *
          * @see WebView::setOnJSCallback()
          */
-    void setJavascriptInterfaceScheme(const std::string &scheme);
+    void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
     /**
          * Sets the main page contents, MIME type, content encoding, and base URL.
@@ -71,10 +75,10 @@ public:
          * @param encoding The encoding of the data.
          * @param baseURL The base URL for the content.
          */
-    void loadData(const cc::Data &   data,
-                  const std::string &mimeType,
-                  const std::string &encoding,
-                  const std::string &baseURL);
+    void loadData(const cc::Data &data,
+                  const ccstd::string &mimeType,
+                  const ccstd::string &encoding,
+                  const ccstd::string &baseURL);
 
     /**
          * Sets the main page content and base URL.
@@ -82,21 +86,21 @@ public:
          * @param string The content for the main page.
          * @param baseURL The base URL for the content.
          */
-    void loadHTMLString(const std::string &string, const std::string &baseURL = "");
+    void loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL = "");
 
     /**
          * Loads the given URL.
          *
          * @param url Content URL.
          */
-    void loadURL(const std::string &url);
+    void loadURL(const ccstd::string &url);
 
     /**
          * Loads the given fileName.
          *
          * @param fileName Content fileName.
          */
-    void loadFile(const std::string &fileName);
+    void loadFile(const ccstd::string &fileName);
 
     /**
          * Stops the current load.
@@ -135,7 +139,7 @@ public:
     /**
          * Evaluates JavaScript in the context of the currently displayed page.
          */
-    void evaluateJS(const std::string &js);
+    void evaluateJS(const ccstd::string &js);
 
     /**
          * Set WebView should support zooming. The default value is false.
@@ -149,12 +153,12 @@ public:
          * @return YES if the web view should begin loading content; otherwise, NO.
          */
     void setOnShouldStartLoading(
-        const std::function<bool(WebView *sender, const std::string &url)> &callback);
+        const std::function<bool(WebView *sender, const ccstd::string &url)> &callback);
 
     /**
          * A callback which will be called when a WebView event happens.
          */
-    using ccWebViewCallback = std::function<void(WebView *, const std::string &)>;
+    using ccWebViewCallback = std::function<void(WebView *, const ccstd::string &)>;
 
     /**
          * Call after a web view finishes loading.
@@ -178,7 +182,7 @@ public:
     /**
          * Get the callback when WebView is about to start.
          */
-    std::function<bool(WebView *sender, const std::string &url)>
+    std::function<bool(WebView *sender, const ccstd::string &url)>
     getOnShouldStartLoading() const;
 
     /**
@@ -217,7 +221,7 @@ public:
     virtual void setBackgroundTransparent(bool isTransparent);
 
 protected:
-    std::function<bool(WebView *sender, const std::string &url)> _onShouldStartLoading;
+    std::function<bool(WebView *sender, const ccstd::string &url)> _onShouldStartLoading;
 
     ccWebViewCallback _onDidFinishLoading;
 
@@ -233,7 +237,7 @@ protected:
     /**
          * Default destructor.
          */
-    ~WebView() override;
+    ~WebView();
 
 private:
     WebViewImpl *_impl;

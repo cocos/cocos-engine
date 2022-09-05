@@ -461,7 +461,7 @@ export class UITransform extends Component {
         const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
-            if (!(camera.visibility & this.node.layer)) continue;
+            if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) continue;
 
             // Convert Screen Space into World Space.
             Vec3.set(v3WorldPt, screenPoint.x, screenPoint.y, 0);  // vec3 screen pos
@@ -717,8 +717,6 @@ export class UITransform extends Component {
         const uiComp = this.node._uiProps.uiComp;
         if (uiComp) {
             uiComp.markForUpdateRenderData();
-            // @ts-expect-error hack for canRender is false // HACK,Need remove
-            if (uiComp.renderData) { uiComp.renderData.vertDirty = true; }
         }
     }
 

@@ -27,16 +27,19 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
-import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
+import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Pass } from '../../core/renderer';
+import { ParticleNoise } from '../noise';
+import { NoiseModule } from '../animator/noise-module';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -51,6 +54,7 @@ const _anim_module = [
     '_limitVelocityOvertimeModule',
     '_rotationOvertimeModule',
     '_textureAnimationModule',
+    '_noiseModule',
 ];
 
 const _uvs = [
@@ -64,6 +68,7 @@ const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 
 const CC_RENDER_MODE = 'CC_RENDER_MODE';
 const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
+const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
 const RENDER_MODE_BILLBOARD = 0;
 const RENDER_MODE_STRETCHED_BILLBOARD = 1;
 const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
@@ -96,6 +101,34 @@ const _vertex_attrs_mesh = [
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
     new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
+];
+
+const _vertex_attrs_ins = [
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
+];
+
+const _vertex_attrs_stretch_ins = [
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // color
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F, false, 0, true),         // particle velocity
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // uv
+];
+
+const _vertex_attrs_mesh_ins = [
+    new Attribute(AttributeName.ATTR_TEX_COORD4, Format.RGBA32F, false, 0, true),    // particle position,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F, false, 0, true),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F, false, 0, true),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0, true),            // particle color
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),            // mesh uv
+    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),           // mesh position
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),               // mesh normal
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true, 1),                 // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -134,7 +167,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec4();
-        this._attrs = new Array(5);
+        this._attrs = new Array(7);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
             CC_USE_BILLBOARD: true,
@@ -279,7 +312,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -311,6 +344,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         pass.setUniform(this._uScaleHandle, this._node_scale);
     }
+
+    private noise: ParticleNoise = new ParticleNoise();
 
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
@@ -385,6 +420,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.length;
     }
 
+    public getNoisePreview (out: number[], width: number, height: number) {
+        this._runAnimateList.forEach((value) => {
+            if (value.name === PARTICLE_MODULE_NAME.NOISE) {
+                const m = value as NoiseModule;
+                m.getNoisePreview(out, this._particleSystem, width, height);
+            }
+        });
+    }
+
     // internal function
     public updateRenderData () {
         // update vertex buffer
@@ -454,46 +498,95 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _fillStrecthedData (p: Particle, idx: number, fi: number) {
-        for (let j = 0; j < 4; ++j) { // four verts per particle.
-            this._attrs[0] = p.position;
-            _tempAttribUV.x = _uvs[2 * j];
-            _tempAttribUV.y = _uvs[2 * j + 1];
-            _tempAttribUV.z = fi;
-            this._attrs[1] = _tempAttribUV;
-            this._attrs[2] = p.size;
-            this._attrs[3] = p.rotation;
-            this._attrs[4] = p.color._val;
-            this._attrs[5] = p.ultimateVelocity;
-            this._attrs[6] = null;
-            this._model!.addParticleVertexData(idx++, this._attrs);
+        if (!this._useInstance) {
+            for (let j = 0; j < 4; ++j) { // four verts per particle.
+                this._attrs[0] = p.position;
+                _tempAttribUV.x = _uvs[2 * j];
+                _tempAttribUV.y = _uvs[2 * j + 1];
+                _tempAttribUV.z = fi;
+                this._attrs[1] = _tempAttribUV;
+                this._attrs[2] = p.size;
+                this._attrs[3] = p.rotation;
+                this._attrs[4] = p.color._val;
+                this._attrs[5] = p.ultimateVelocity;
+                this._attrs[6] = null;
+                this._model!.addParticleVertexData(idx++, this._attrs);
+            }
+        } else {
+            this._fillStrecthedDataIns(p, idx, fi);
         }
+    }
+
+    private _fillStrecthedDataIns (p: Particle, idx: number, fi: number) {
+        const i = idx / 4;
+        this._attrs[0] = p.position;
+        _tempAttribUV.z = fi;
+        this._attrs[1] = _tempAttribUV;
+        this._attrs[2] = p.size;
+        this._attrs[3] = p.rotation;
+        this._attrs[4] = p.color._val;
+        this._attrs[5] = p.ultimateVelocity;
+        this._model!.addParticleVertexData(i, this._attrs);
     }
 
     private _fillNormalData (p: Particle, idx: number, fi: number) {
-        for (let j = 0; j < 4; ++j) { // four verts per particle.
-            this._attrs[0] = p.position;
-            _tempAttribUV.x = _uvs[2 * j];
-            _tempAttribUV.y = _uvs[2 * j + 1];
-            _tempAttribUV.z = fi;
-            this._attrs[1] = _tempAttribUV;
-            this._attrs[2] = p.size;
-            this._attrs[3] = p.rotation;
-            this._attrs[4] = p.color._val;
-            this._attrs[5] = null;
-            this._model!.addParticleVertexData(idx++, this._attrs);
+        if (!this._useInstance) {
+            for (let j = 0; j < 4; ++j) { // four verts per particle.
+                this._attrs[0] = p.position;
+                _tempAttribUV.x = _uvs[2 * j];
+                _tempAttribUV.y = _uvs[2 * j + 1];
+                _tempAttribUV.z = fi;
+                this._attrs[1] = _tempAttribUV;
+                this._attrs[2] = p.size;
+                this._attrs[3] = p.rotation;
+                this._attrs[4] = p.color._val;
+                this._attrs[5] = null;
+                this._model!.addParticleVertexData(idx++, this._attrs);
+            }
+        } else {
+            this._fillNormalDataIns(p, idx, fi);
         }
     }
 
+    private _fillNormalDataIns (p: Particle, idx: number, fi: number) {
+        const i = idx / 4;
+        this._attrs[0] = p.position;
+        _tempAttribUV.z = fi;
+        this._attrs[1] = _tempAttribUV;
+        this._attrs[2] = p.size;
+        this._attrs[3] = p.rotation;
+        this._attrs[4] = p.color._val;
+        this._attrs[5] = null;
+        this._model!.addParticleVertexData(i, this._attrs);
+    }
+
     private _setVertexAttrib () {
+        if (!this._useInstance) {
+            switch (this._renderInfo!.renderMode) {
+            case RenderMode.StrecthedBillboard:
+                this._vertAttrs = _vertex_attrs_stretch.slice();
+                break;
+            case RenderMode.Mesh:
+                this._vertAttrs = _vertex_attrs_mesh.slice();
+                break;
+            default:
+                this._vertAttrs = _vertex_attrs.slice();
+            }
+        } else {
+            this._setVertexAttribIns();
+        }
+    }
+
+    private _setVertexAttribIns () {
         switch (this._renderInfo!.renderMode) {
         case RenderMode.StrecthedBillboard:
-            this._vertAttrs = _vertex_attrs_stretch.slice();
+            this._vertAttrs = _vertex_attrs_stretch_ins.slice();
             break;
         case RenderMode.Mesh:
-            this._vertAttrs = _vertex_attrs_mesh.slice();
+            this._vertAttrs = _vertex_attrs_mesh_ins.slice();
             break;
         default:
-            this._vertAttrs = _vertex_attrs.slice();
+            this._vertAttrs = _vertex_attrs_ins.slice();
         }
     }
 
@@ -508,7 +601,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             const effectName = shareMaterial._effectAsset._name;
             this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
             // reset material
-            if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
+            if (effectName.indexOf('builtin-particle') === -1 || effectName.indexOf('builtin-particle-gpu') !== -1) {
                 ps.setMaterial(null, 0);
             }
         }
@@ -567,6 +660,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const roationModule = this._particleSystem._rotationOvertimeModule;
         enable = roationModule && roationModule.enable;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
+        this._defines[INSTANCE_PARTICLE] = this._useInstance;
 
         mat.recompileShaders(this._defines);
         if (this._model) {
@@ -600,5 +694,17 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             mat.recompileShaders(this._trailDefines);
             trailModule.updateMaterial();
         }
+    }
+
+    public setUseInstance (value: boolean) {
+        if (this._useInstance === value) {
+            return;
+        }
+        this._useInstance = value;
+        if (this._model) {
+            this._model.useInstance = value;
+            this._model.doDestroy();
+        }
+        this.updateRenderMode();
     }
 }

@@ -28,25 +28,24 @@
 #include "../Config.h"
 #if USE_MEMORY_LEAK_DETECTOR
 
-    #include "../Macros.h"
-    #include "CallStack.h"
-
     #include <mutex>
-    #include <unordered_map>
-    #include <vector>
+    #include "../Macros.h"
+    #include "base/std/container/string.h"
+    #include "base/std/container/unordered_map.h"
+    #include "base/std/container/vector.h"
 
-typedef void* (*MallocType)(size_t size);
-typedef void (*FreeType)(void* ptr);
+typedef void *(*MallocType)(size_t size);
+typedef void (*FreeType)(void *ptr);
 
-typedef void (*NewHookType)(const void* ptr, size_t size);
-typedef void (*DeleteHookType)(const void* ptr);
+typedef void (*NewHookType)(const void *ptr, size_t size);
+typedef void (*DeleteHookType)(const void *ptr);
 
 namespace cc {
 
 struct CC_DLL MemoryRecord {
-    uint64_t           address{0};
-    size_t             size{0};
-    std::vector<void*> callstack;
+    uint64_t address{0};
+    size_t size{0};
+    ccstd::vector<void *> callstack;
 };
 
 class CC_DLL MemoryHook {
@@ -57,10 +56,11 @@ public:
     /**
      * RecordMap's key is memory address.
      */
-    using RecordMap = std::unordered_map<uint64_t, MemoryRecord>;
+    using RecordMap = ccstd::unordered_map<uint64_t, MemoryRecord>;
 
     void addRecord(uint64_t address, size_t size);
     void removeRecord(uint64_t address);
+    inline size_t getTotalSize() const { return _totalSize; }
 
 private:
     /**
@@ -68,7 +68,7 @@ private:
      */
     void dumpMemoryLeak();
 
-    static void log(const std::string& msg);
+    static void log(const ccstd::string &msg);
 
     /**
      * Register all malloc hooks
@@ -82,8 +82,9 @@ private:
 
 private:
     std::recursive_mutex _mutex;
-    bool                 _hooking{false};
-    RecordMap            _records;
+    bool _hooking{false};
+    RecordMap _records;
+    size_t _totalSize{0U};
 };
 
 extern MemoryHook GMemoryHook;

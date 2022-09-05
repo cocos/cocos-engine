@@ -23,10 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
-#include "GFXObject.h"
 #include "GFXPipelineLayout.h"
+#include "GFXObject.h"
 
 namespace cc {
 namespace gfx {
@@ -37,7 +35,7 @@ PipelineLayout::PipelineLayout()
 
 PipelineLayout::~PipelineLayout() = default;
 
-void PipelineLayout::initialize(const PipelineLayoutInfo& info) {
+void PipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _setLayouts = info.setLayouts;
 
     doInit(info);

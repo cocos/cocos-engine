@@ -45,4 +45,5 @@ export default {
     SHAPE_FRUSTUM: (1 << 7),
     SHAPE_FRUSTUM_ACCURATE: (1 << 8),
     SHAPE_CAPSULE: (1 << 9),
+    SHAPE_SPLINE: (1 << 10),
 };

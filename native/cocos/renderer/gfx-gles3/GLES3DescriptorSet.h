@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES3GPUDescriptorSet;
+struct GLES3GPUDescriptorSet;
 
 class CC_GLES3_API GLES3DescriptorSet final : public DescriptorSet {
 public:
@@ -39,6 +39,7 @@ public:
     ~GLES3DescriptorSet() override;
 
     void update() override;
+    void forceUpdate() override;
 
     inline GLES3GPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 

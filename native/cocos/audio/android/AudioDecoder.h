@@ -35,7 +35,7 @@ public:
     AudioDecoder();
     virtual ~AudioDecoder();
 
-    virtual bool init(const std::string &url, int sampleRate);
+    virtual bool init(const ccstd::string &url, int sampleRate);
 
     bool start();
 
@@ -49,9 +49,9 @@ protected:
     static size_t fileRead(void *ptr, size_t size, size_t nmemb, void *datasource);
     static int fileSeek(void *datasource, int64_t offset, int whence);
     static int fileClose(void *datasource);
-    static long fileTell(void *datasource);
+    static long fileTell(void *datasource); // NOLINT
 
-    std::string _url;
+    ccstd::string _url;
     PcmData _result;
     int _sampleRate;
     Data _fileData;

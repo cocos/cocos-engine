@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include "base/std/container/string.h"
 
 namespace se {
 class Object;
@@ -35,6 +35,6 @@ class Object;
 extern se::Object *__jsbObj; //NOLINT
 extern se::Object *__glObj;  //NOLINT
 
-void jsb_init_file_operation_delegate();                                                                       //NOLINT
-void jsb_set_xxtea_key(const std::string &key);                                                                //NOLINT
-bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect = false); //NOLINT
+void jsb_init_file_operation_delegate();                                                                         //NOLINT
+void jsb_set_xxtea_key(const ccstd::string &key);                                                                //NOLINT
+bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect = false); //NOLINT

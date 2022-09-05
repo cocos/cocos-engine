@@ -25,7 +25,6 @@
 
 #pragma once
 #include "../RenderStage.h"
-#include "scene/Light.h"
 
 namespace cc {
 namespace pipeline {
@@ -34,8 +33,8 @@ class ShadowMapBatchedQueue;
 
 class CC_DLL ShadowStage : public RenderStage {
 public:
-    ShadowStage()           = default;
-    ~ShadowStage() override = default;
+    ShadowStage();
+    ~ShadowStage() override;
 
     static const RenderStageInfo &getInitializeInfo();
 
@@ -45,21 +44,23 @@ public:
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
     inline void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
-    inline void setUsage(gfx::DescriptorSet *globalDS, const scene::Light *light, gfx::Framebuffer *framebuffer) {
-        _globalDS    = globalDS;
-        _light       = light;
+    inline void setUsage(gfx::DescriptorSet *globalDS, const scene::Light *light, gfx::Framebuffer *framebuffer, uint32_t level = 0) {
+        _globalDS = globalDS;
+        _light = light;
         _framebuffer = framebuffer;
+        _level = level;
     }
 
-    void clearFramebuffer(scene::Camera *camera);
+    void clearFramebuffer(const scene::Camera* camera);
 
 private:
     static RenderStageInfo initInfo;
 
-    gfx::Rect           _renderArea;
-    gfx::DescriptorSet *_globalDS    = nullptr;
-    const scene::Light *_light       = nullptr;
-    gfx::Framebuffer *  _framebuffer = nullptr;
+    gfx::Rect _renderArea;
+    gfx::DescriptorSet *_globalDS = nullptr;
+    const scene::Light *_light = nullptr;
+    gfx::Framebuffer *_framebuffer = nullptr;
+    uint32_t _level;
 
     ShadowMapBatchedQueue *_additiveShadowQueue = nullptr;
 };

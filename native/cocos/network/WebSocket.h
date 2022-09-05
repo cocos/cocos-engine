@@ -28,12 +28,12 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
+#include "base/std/container/vector.h"
 #include "platform/StdC.h"
 
 #include <algorithm>
-#include <string>
-#include <vector>
+#include "base/std/container/string.h"
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
         #define OBJC_CLASS(name) @class name
@@ -57,7 +57,7 @@ namespace network {
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
  * Please note that all public methods of WebSocket have to be invoked on Cocos Thread.
  */
-class CC_DLL WebSocket : public Ref {
+class CC_DLL WebSocket : public RefCounted {
 public:
     /**
      * Close all connections and wait for all websocket threads to exit
@@ -87,11 +87,11 @@ public:
      */
     struct Data {
         Data() = default;
-        char *  bytes{nullptr};
-        ssize_t len{0}, issued{0};
-        bool    isBinary{false};
-        void *  ext{nullptr};
-        ssize_t getRemain() const { return std::max(static_cast<ssize_t>(0), len - issued); }
+        char *bytes{nullptr};
+        uint32_t len{0}, issued{0};
+        bool isBinary{false};
+        void *ext{nullptr};
+        uint32_t getRemain() const { return std::max(static_cast<uint32_t>(0), len - issued); }
     };
 
     /**
@@ -126,7 +126,7 @@ public:
         /**
          * This function to be called after the client connection complete a handshake with the remote server.
          * This means that the WebSocket connection is ready to send and receive data.
-         * 
+         *
          * @param ws The WebSocket object connected
          */
         virtual void onOpen(WebSocket *ws) = 0;
@@ -166,22 +166,22 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &                delegate,
-              const std::string &             url,
-              const std::vector<std::string> *protocols  = nullptr,
-              const std::string &             caFilePath = "");
+    bool init(const Delegate &delegate,
+              const ccstd::string &url,
+              const ccstd::vector<ccstd::string> *protocols = nullptr,
+              const ccstd::string &caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.
-     *  
+     *
      *  @param message string data.
      *  @lua sendstring
      */
-    void send(const std::string &message);
+    void send(const ccstd::string &message);
 
     /**
      *  @brief Sends binary data to websocket server.
-     *  
+     *
      *  @param binaryMsg binary string data.
      *  @param len the size of binary string data.
      *  @lua sendstring
@@ -197,7 +197,7 @@ public:
     /**
      *  @brief Closes the connection to server asynchronously.
      *  @note It's an asynchronous method, it just notifies websocket thread to exit and returns directly,
-     *        If using 'closeAsync' to close websocket connection, 
+     *        If using 'closeAsync' to close websocket connection,
      *        be careful of not using destructed variables in the callback of 'onClose'.
      */
     void closeAsync();
@@ -210,7 +210,7 @@ public:
     *  @param code close reason
     *  @param reason reason text description
     */
-    void closeAsync(int code, const std::string &reason);
+    void closeAsync(int code, const ccstd::string &reason);
 
     /**
      *  @brief Gets current state of connection.
@@ -221,7 +221,7 @@ public:
     /**
      *  @brief Gets the URL of websocket connection.
      */
-    const std::string &getUrl() const;
+    const ccstd::string &getUrl() const;
 
     /**
     * @brief Returns the number of bytes of data that have been queued using calls to send() but not yet transmitted to the network.
@@ -231,17 +231,17 @@ public:
     /**
     * @brief Returns the extensions selected by the server.
     */
-    std::string getExtensions() const;
+    ccstd::string getExtensions() const;
 
     /**
      *  @brief Gets the protocol selected by websocket server.
      */
-    const std::string &getProtocol() const;
+    const ccstd::string &getProtocol() const;
 
     Delegate *getDelegate() const;
 
 private:
-    WebSocketImpl *_impl;
+    WebSocketImpl *_impl{nullptr};
 };
 
 } // namespace network

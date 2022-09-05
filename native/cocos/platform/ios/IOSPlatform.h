@@ -44,13 +44,13 @@ public:
     /**
      * @brief Start base platform initialization.
      */
-    int32_t run(int argc, const char** argv) override;
+    int32_t run(int argc, const char **argv) override;
     /**
      * @brief Implement the main logic of the base platform.
      */
     int32_t loop() override;
+    void setFps(int32_t fps) override;
 
-    void    setFps(int32_t fps) override;
     int32_t getFps() const override;
 
     void onPause() override;

@@ -74,7 +74,8 @@ public:
         // path, return full path
         std::function<std::string(const std::string &)> onGetFullPath;
     };
-
+    ScriptEngine();
+    ~ScriptEngine();
     /**
          *  @brief Sets the delegate for file operation.
          *  @param delegate[in] The delegate instance for file operation.
@@ -273,8 +274,6 @@ public:
 
      void _setGarbageCollecting(bool isGarbageCollecting); //NOLINT(readability-identifier-naming)
 private:
-    ScriptEngine();
-    ~ScriptEngine();
     FileOperationDelegate         _fileOperationDelegate;
     std::vector<RegisterCallback> _registerCallbackArray;
     std::vector<RegisterCallback> _permRegisterCallbackArray;

@@ -3,8 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const History = require('./asset-history/index');
 
-const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
-
+const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
 exports.listeners = {};
 
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
@@ -24,7 +23,9 @@ exports.template = `
         <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-icon class="copy" value="copy" tooltip="i18n:ENGINE.inspector.cloneToEdit"></ui-icon>
+        <ui-button type="icon" class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
+            <ui-icon value="copy"></ui-icon>
+        </ui-button>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -240,7 +241,7 @@ const Elements = {
                 panel.$.copy.style.display = 'none';
             }
 
-            const isImage = showImage.includes(panel.asset.type);
+            const isImage = showImage.includes(panel.asset.importer);
 
             if (isImage) {
                 panel.$.image.value = panel.asset.uuid;
@@ -516,6 +517,7 @@ exports.methods = {
 
         if (continueSaveMeta === false) {
             return;
+
         }
         panel.uuidList.forEach((uuid, index) => {
             const content = JSON.stringify(panel.metaList[index]);

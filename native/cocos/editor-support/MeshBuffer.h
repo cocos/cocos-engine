@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <vector>
 #include "IOBuffer.h"
 #include "IOTypedArray.h"
+#include "base/std/container/vector.h"
 
 MIDDLEWARE_BEGIN
 
@@ -46,6 +46,16 @@ public:
     se_object_ptr getIBTypedArray(std::size_t bufferPos) {
         if (_ibArr.size() <= bufferPos) return nullptr;
         return _ibArr[bufferPos]->getTypeArray();
+    }
+
+    uint8_t *getVBFromBufferArray(std::size_t index) {
+        if (_vbArr.size() <= index) return nullptr;
+        return _vbArr[index]->getBuffer();
+    }
+    
+    uint8_t *getIBFromBufferArray(std::size_t index) {
+        if (_ibArr.size() <= index) return nullptr;
+        return _ibArr[index]->getBuffer();
     }
 
     std::size_t getVBTypedArrayLength(std::size_t bufferPos) {
@@ -84,12 +94,12 @@ private:
     void init();
     void afterCleanupHandle();
 
-    std::vector<IOTypedArray *> _ibArr;
-    std::vector<IOTypedArray *> _vbArr;
-    std::size_t                 _bufferPos = 0;
-    IOBuffer                    _vb;
-    IOBuffer                    _ib;
-    int                         _vertexFormat = 0;
+    ccstd::vector<IOTypedArray *> _ibArr;
+    ccstd::vector<IOTypedArray *> _vbArr;
+    std::size_t _bufferPos = 0;
+    IOBuffer _vb;
+    IOBuffer _ib;
+    int _vertexFormat = 0;
 };
 
 MIDDLEWARE_END

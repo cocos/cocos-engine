@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUSwapchain;
+struct GLES2GPUSwapchain;
 
 class CC_GLES2_API GLES2Swapchain final : public Swapchain {
 public:

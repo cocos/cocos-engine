@@ -93,7 +93,7 @@ export const value = (() => {
         writable: false,
         configurable: true,
     };
-    return (object: Object, propertyName: string, value_: any, writable?: boolean, enumerable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, value_: any, writable?: boolean, enumerable?: boolean) => {
         descriptor.value = value_;
         descriptor.writable = writable;
         descriptor.enumerable = enumerable;
@@ -117,7 +117,7 @@ export const getset = (() => {
         set: undefined,
         enumerable: false,
     };
-    return (object: {}, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false) => {
+    return (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false) => {
         if (typeof setter === 'boolean') {
             enumerable = setter;
             setter = undefined;
@@ -146,7 +146,7 @@ export const get = (() => {
         enumerable: false,
         configurable: false,
     };
-    return (object: Object, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean) => {
         descriptor.get = getter;
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
@@ -169,7 +169,7 @@ export const set = (() => {
         enumerable: false,
         configurable: false,
     };
-    return (object: Object, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean) => {
+    return (object: Record<string | number, any>, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean) => {
         descriptor.set = setter;
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
@@ -214,11 +214,12 @@ export function createMap (forceDictMode?: boolean): any {
  * 获取对象的类型名称，如果对象是 {} 字面量，将会返回 ""
  * @param objOrCtor instance or constructor
  */
-export function getClassName (objOrCtor: Object | Function): string {
+export function getClassName (objOrCtor: any): string {
     if (typeof objOrCtor === 'function') {
         const prototype = objOrCtor.prototype;
+        // eslint-disable-next-line no-prototype-builtins
         if (prototype && prototype.hasOwnProperty(classNameTag) && prototype[classNameTag]) {
-            return prototype[classNameTag];
+            return prototype[classNameTag] as string;
         }
         let retval = '';
         //  for browsers which have name property in the constructor of the object, such as chrome
@@ -230,9 +231,11 @@ export function getClassName (objOrCtor: Object | Function): string {
             const str = objOrCtor.toString();
             if (str.charAt(0) === '[') {
                 // str is "[object objectClass]"
+                // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
                 arr = /\[\w+\s*(\w+)\]/.exec(str);
             } else {
                 // str is function objectClass () {} for IE Firefox
+                // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
                 arr = /function\s*(\w+)/.exec(str);
             }
             if (arr && arr.length === 2) {
@@ -264,7 +267,7 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
         if (DEV) {
             warnID(5400, obsoleted, newExpr);
         }
-        return this[newProp];
+        return this[newProp] as unknown;
     }
     function setter (this: any, value_: any) {
         if (DEV) {
@@ -315,7 +318,7 @@ const REGEXP_STR = /%s/;
  * js.formatStr(a, b, c);
  * ```
  */
-export function formatStr (msg: string | any, ...subst: any[]) {
+export function formatStr (msg: string, ...subst: any[]) {
     if (arguments.length === 0) {
         return '';
     }
@@ -349,6 +352,7 @@ export function shiftArguments () {
     for (let i = 0; i < len; ++i) {
         args[i] = arguments[i + 1];
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return args;
 }
 
@@ -373,6 +377,18 @@ function _copyprop (name: string, source: any, target: any) {
     }
 }
 
+export function copyAllProperties (source: any, target: any, excepts: Array<string>) {
+    const propertyNames: Array<string> = Object.getOwnPropertyNames(source);
+    for (let i = 0, len = propertyNames.length; i < len; ++i) {
+        const propertyName: string = propertyNames[i];
+        if (excepts.indexOf(propertyName) !== -1) {
+            continue;
+        }
+
+        _copyprop(propertyName, source, target);
+    }
+}
+
 /**
  * @en
  * Copy all properties not defined in object from arguments[1...n].
@@ -382,7 +398,7 @@ function _copyprop (name: string, source: any, target: any) {
  * @param sources Source object to copy properties from.
  * @return The result object.
  */
-export function addon (object?: any, ...sources: any[]) {
+export function addon (object?: Record<string | number, any>, ...sources: any[]) {
     object = object || {};
     for (const source of sources) {
         if (source) {
@@ -407,7 +423,7 @@ export function addon (object?: any, ...sources: any[]) {
  * 拷贝源对象所有属性到目标对象上，如果有属性冲突，则以源对象为准
  * @return The result object.
  */
-export function mixin (object?: any, ...sources: any[]) {
+export function mixin (object?: Record<string | number, any>, ...sources: any[]) {
     object = object || {};
     for (const source of sources) {
         if (source) {
@@ -434,6 +450,7 @@ export function mixin (object?: any, ...sources: any[]) {
  * @param base The baseclass to inherit.
  * @return The result class.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function extend (cls: Function, base: Function) {
     if (DEV) {
         if (!base) {
@@ -448,6 +465,7 @@ export function extend (cls: Function, base: Function) {
             errorID(5406);
         }
     }
+    // eslint-disable-next-line no-prototype-builtins
     for (const p in base) { if (base.hasOwnProperty(p)) { cls[p] = base[p]; } }
     cls.prototype = Object.create(base.prototype, {
         constructor: {
@@ -456,6 +474,7 @@ export function extend (cls: Function, base: Function) {
             configurable: true,
         },
     });
+    // eslint-disable-next-line consistent-return
     return cls;
 }
 
@@ -466,9 +485,11 @@ export function extend (cls: Function, base: Function) {
  * 获取父类
  * @param constructor The constructor of subclass.
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function getSuper (constructor: Function) {
     const proto = constructor.prototype; // binded function do not have prototype
     const dunderProto = proto && Object.getPrototypeOf(proto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return dunderProto && dunderProto.constructor;
 }
 
@@ -496,6 +517,7 @@ export function isChildClassOf (subclass: unknown, superclass: unknown) {
             return true;
         }
         for (; ;) {
+            // eslint-disable-next-line @typescript-eslint/ban-types
             subclass = getSuper(subclass as Function);
             if (!subclass) {
                 return false;
@@ -514,7 +536,7 @@ export function isChildClassOf (subclass: unknown, superclass: unknown) {
  * @zh
  * 移除对象中所有可枚举属性
  */
-export function clear (object: {}) {
+export function clear (object: Record<string | number, any>) {
     for (const key of Object.keys(object)) {
         delete object[key];
     }
@@ -534,9 +556,10 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: object) {
+function setup (tag: string, table: Record<string | number, any>, allowExist: boolean) {
     return function (id: string, constructor: Constructor) {
         // deregister old
+        // eslint-disable-next-line no-prototype-builtins
         if (constructor.prototype.hasOwnProperty(tag)) {
             delete table[constructor.prototype[tag]];
         }
@@ -544,9 +567,10 @@ function setup (tag: string, table: object) {
         // register class
         if (id) {
             const registered = table[id];
-            if (registered && registered !== constructor) {
+            if (!allowExist && registered && registered !== constructor) {
                 let err = `A Class already exists with the same ${tag} : "${id}".`;
                 if (TEST) {
+                    // eslint-disable-next-line no-multi-str
                     err += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 js.unregisterClass to remove the id of unused class';
@@ -572,9 +596,9 @@ js.unregisterClass to remove the id of unused class';
  * @param constructor
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export const _setClassId = setup('__cid__', _idToClass);
+export const _setClassId = setup('__cid__', _idToClass, false);
 
-const doSetClassName = setup('__classname__', _nameToClass);
+const doSetClassName = setup('__classname__', _nameToClass, true);
 
 /**
  * @en
@@ -588,6 +612,7 @@ const doSetClassName = setup('__classname__', _nameToClass);
 export function setClassName (className: string, constructor: Constructor) {
     doSetClassName(className, constructor);
     // auto set class id
+    // eslint-disable-next-line no-prototype-builtins
     if (!constructor.prototype.hasOwnProperty(classIdTag)) {
         const id = className || tempCIDGenerator.getNewId();
         if (id) {
@@ -604,8 +629,8 @@ export function setClassName (className: string, constructor: Constructor) {
  * @zh 为类设置别名。
  * 当 `setClassAlias(target, alias)` 后，
  * `alias` 将作为类 `target`的“单向 ID” 和“单向名称”。
- * 因此，`_getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
- * 这种映射是单向的，意味着 `getClassName(target)` 和 `_getClassId(target)` 将不会是 `alias`。
+ * 因此，`getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
+ * 这种映射是单向的，意味着 `getClassName(target)` 和 `getClassId(target)` 将不会是 `alias`。
  * @param target Constructor of target class.
  * @param alias Alias to set. The name shall not have been set as class name or alias of another class.
  */
@@ -645,6 +670,7 @@ export function setClassAlias (target: Constructor, alias: string) {
  *
  * @param ...constructor - the class you will want to unregister, any number of classes can be added
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function unregisterClass (...constructors: Function[]) {
     for (const constructor of constructors) {
         const p = constructor.prototype;
@@ -677,6 +703,18 @@ export function unregisterClass (...constructors: Function[]) {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function _getClassById (classId) {
+    return getClassById(classId);
+}
+
+/**
+ * @en
+ * Get the registered class by id
+ * @zh
+ * 通过 id 获取已注册的类型
+ * @param classId
+ * @return constructor
+ */
+export function getClassById (classId) {
     return _idToClass[classId];
 }
 
@@ -703,24 +741,39 @@ export function getClassByName (classname) {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export function _getClassId (obj, allowTempId?: boolean) {
+    return getClassId(obj, allowTempId);
+}
+
+/**
+ * @en
+ * Get class id of the object
+ * @zh
+ * 获取对象的 class id
+ * @param obj - instance or constructor
+ * @param [allowTempId = true]   - can return temp id in editor
+ * @return
+ */
+export function getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;
+    // eslint-disable-next-line no-prototype-builtins
     if (typeof obj === 'function' && obj.prototype.hasOwnProperty(classIdTag)) {
         res = obj.prototype[classIdTag];
         if (!allowTempId && (DEV || EDITOR) && isTempClassId(res)) {
             return '';
         }
-        return res;
+        return res as string;
     }
     if (obj && obj.constructor) {
         const prototype = obj.constructor.prototype;
+        // eslint-disable-next-line no-prototype-builtins
         if (prototype && prototype.hasOwnProperty(classIdTag)) {
             res = obj[classIdTag];
             if (!allowTempId && (DEV || EDITOR) && isTempClassId(res)) {
                 return '';
             }
-            return res;
+            return res as string;
         }
     }
     return '';

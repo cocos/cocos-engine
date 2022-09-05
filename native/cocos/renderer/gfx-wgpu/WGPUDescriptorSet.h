@@ -26,15 +26,15 @@
 #pragma once
 
 #include <emscripten/bind.h>
-#include <map>
-#include <vector>
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXDescriptorSet.h"
 namespace cc {
 namespace gfx {
 
 struct CCWGPUBindGroupObject;
 
-using Pairs = std::vector<std::pair<uint8_t, uint8_t>>;
+using Pairs = ccstd::vector<std::pair<uint8_t, uint8_t>>;
 
 class CCWGPUDescriptorSet final : public emscripten::wrapper<DescriptorSet> {
 public:
@@ -42,7 +42,7 @@ public:
     CCWGPUDescriptorSet();
     ~CCWGPUDescriptorSet() = default;
 
-    inline CCWGPUBindGroupObject* gpuBindGroupObject() { return _gpuBindGroupObj; }
+    inline CCWGPUBindGroupObject *gpuBindGroupObject() { return _gpuBindGroupObj; }
 
     void update() override;
 
@@ -50,23 +50,23 @@ public:
 
     void prepare();
 
-    static void* defaultBindGroup();
+    static void *defaultBindGroup();
 
-    inline Pairs& dynamicOffsets() { return _dynamicOffsets; }
+    inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
 
     // void* bgl() const{return _bgl;}
 
     // DescriptorSetLayout* local()const {return _local;}
 
 protected:
-    void doInit(const DescriptorSetInfo& info) override;
+    void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;
 
-    CCWGPUBindGroupObject* _gpuBindGroupObj = nullptr;
+    CCWGPUBindGroupObject *_gpuBindGroupObj = nullptr;
 
     // seperate combined sampler-texture index
-    std::map<uint8_t, uint8_t> _textureIdxMap;
-    std::map<uint8_t, uint8_t> _samplerIdxMap;
+    ccstd::unordered_map<uint8_t, uint8_t> _textureIdxMap;
+    ccstd::unordered_map<uint8_t, uint8_t> _samplerIdxMap;
 
     // dynamic offsets, inuse ? 1 : 0;
     Pairs _dynamicOffsets;

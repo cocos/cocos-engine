@@ -446,8 +446,9 @@ var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
     // TODO: JsbDownloader is not supported for OpenHarmony for now
-    if (!window.oh) {
-        initJsbDownloader(options.jsbDownloaderMaxTasks, options.jsbDownloaderTimeout);
+    if (!window.oh) {        const jsbDownloaderMaxTasks = cc.settings.querySettings('assets', 'jsbDownloaderMaxTasks');
+        const jsbDownloaderTimeout = cc.settings.querySettings('assets', 'jsbDownloaderTimeout');
+        initJsbDownloader(jsbDownloaderMaxTasks, jsbDownloaderTimeout);
     }
     cacheManager.init();
 };

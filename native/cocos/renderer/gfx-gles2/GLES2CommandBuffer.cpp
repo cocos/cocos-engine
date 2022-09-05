@@ -35,6 +35,7 @@
 #include "GLES2PipelineState.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Texture.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -48,11 +49,11 @@ GLES2CommandBuffer::~GLES2CommandBuffer() {
 }
 
 void GLES2CommandBuffer::doInit(const CommandBufferInfo &info) {
-    _type  = info.type;
+    _type = info.type;
     _queue = info.queue;
 
-    _cmdAllocator  = CC_NEW(GLES2GPUCommandAllocator);
-    _curCmdPackage = CC_NEW(GLES2CmdPackage);
+    _cmdAllocator = ccnew GLES2GPUCommandAllocator;
+    _curCmdPackage = ccnew GLES2CmdPackage;
 
     size_t setCount = GLES2Device::getInstance()->bindingMappingInfo().setIndices.size();
     _curGPUDescriptorSets.resize(setCount);
@@ -104,7 +105,7 @@ void GLES2CommandBuffer::end() {
         _curCmdPackage = _freePackages.front();
         _freePackages.pop();
     } else {
-        _curCmdPackage = CC_NEW(GLES2CmdPackage);
+        _curCmdPackage = ccnew GLES2CmdPackage;
     }
 }
 
@@ -112,18 +113,18 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     _curSubpassIdx = 0U;
 
     GLES2CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
-    cmd->subpassIdx              = _curSubpassIdx;
-    cmd->gpuRenderPass           = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
-    cmd->gpuFBO                  = static_cast<GLES2Framebuffer *>(fbo)->gpuFBO();
-    cmd->renderArea              = renderArea;
-    size_t numClearColors        = cmd->gpuRenderPass->colorAttachments.size();
+    cmd->subpassIdx = _curSubpassIdx;
+    cmd->gpuRenderPass = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
+    cmd->gpuFBO = static_cast<GLES2Framebuffer *>(fbo)->gpuFBO();
+    cmd->renderArea = renderArea;
+    size_t numClearColors = cmd->gpuRenderPass->colorAttachments.size();
     memcpy(cmd->clearColors, colors, numClearColors * sizeof(Color));
-    cmd->clearDepth   = depth;
+    cmd->clearDepth = depth;
     cmd->clearStencil = stencil;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.scissor = renderArea;
 }
 
 void GLES2CommandBuffer::endRenderPass() {
@@ -133,7 +134,7 @@ void GLES2CommandBuffer::endRenderPass() {
 void GLES2CommandBuffer::nextSubpass() {
     _curCmdPackage->cmds.push(GLESCmdType::END_RENDER_PASS);
     GLES2CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
-    cmd->subpassIdx              = ++_curSubpassIdx;
+    cmd->subpassIdx = ++_curSubpassIdx;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 }
@@ -142,17 +143,17 @@ void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
     GLES2GPUPipelineState *gpuPipelineState = static_cast<GLES2PipelineState *>(pso)->gpuPipelineState();
     if (_curGPUPipelineState != gpuPipelineState) {
         _curGPUPipelineState = gpuPipelineState;
-        _isStateInvalid      = true;
+        _isStateInvalid = true;
     }
 }
 
 void GLES2CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
-    CCASSERT(_curGPUDescriptorSets.size() > set, "Invalid set index");
+    CC_ASSERT(_curGPUDescriptorSets.size() > set);
 
     GLES2GPUDescriptorSet *gpuDescriptorSet = static_cast<GLES2DescriptorSet *>(descriptorSet)->gpuDescriptorSet();
     if (_curGPUDescriptorSets[set] != gpuDescriptorSet) {
         _curGPUDescriptorSets[set] = gpuDescriptorSet;
-        _isStateInvalid            = true;
+        _isStateInvalid = true;
     }
     if (dynamicOffsetCount) {
         _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
@@ -165,7 +166,7 @@ void GLES2CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descript
 
 void GLES2CommandBuffer::bindInputAssembler(InputAssembler *ia) {
     _curGPUInputAssember = static_cast<GLES2InputAssembler *>(ia)->gpuInputAssembler();
-    _isStateInvalid      = true;
+    _isStateInvalid = true;
 }
 
 void GLES2CommandBuffer::setViewport(const Viewport &vp) {
@@ -173,10 +174,10 @@ void GLES2CommandBuffer::setViewport(const Viewport &vp) {
         (_curDynamicStates.viewport.top != vp.top) ||
         (_curDynamicStates.viewport.width != vp.width) ||
         (_curDynamicStates.viewport.height != vp.height) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.minDepth, vp.minDepth) ||
-        math::IsNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
+        math::isNotEqualF(_curDynamicStates.viewport.minDepth, vp.minDepth) ||
+        math::isNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
         _curDynamicStates.viewport = vp;
-        _isStateInvalid            = true;
+        _isStateInvalid = true;
     }
 }
 
@@ -186,47 +187,47 @@ void GLES2CommandBuffer::setScissor(const Rect &rect) {
         (_curDynamicStates.scissor.width != rect.width) ||
         (_curDynamicStates.scissor.height != rect.height)) {
         _curDynamicStates.scissor = rect;
-        _isStateInvalid           = true;
+        _isStateInvalid = true;
     }
 }
 
 void GLES2CommandBuffer::setLineWidth(float width) {
-    if (math::IsNotEqualF(_curDynamicStates.lineWidth, width)) {
+    if (math::isNotEqualF(_curDynamicStates.lineWidth, width)) {
         _curDynamicStates.lineWidth = width;
-        _isStateInvalid             = true;
+        _isStateInvalid = true;
     }
 }
 
 void GLES2CommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    if (math::IsNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
-        math::IsNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
-        math::IsNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
+    if (math::isNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
+        math::isNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
+        math::isNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
         _curDynamicStates.depthBiasConstant = constant;
-        _curDynamicStates.depthBiasClamp    = clamp;
-        _curDynamicStates.depthBiasSlope    = slope;
-        _isStateInvalid                     = true;
+        _curDynamicStates.depthBiasClamp = clamp;
+        _curDynamicStates.depthBiasSlope = slope;
+        _isStateInvalid = true;
     }
 }
 
 void GLES2CommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
-        math::IsNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
+    if (math::isNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
+        math::isNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
         _curDynamicStates.blendConstant.x = constants.x;
         _curDynamicStates.blendConstant.y = constants.y;
         _curDynamicStates.blendConstant.z = constants.z;
         _curDynamicStates.blendConstant.w = constants.w;
-        _isStateInvalid                   = true;
+        _isStateInvalid = true;
     }
 }
 
 void GLES2CommandBuffer::setDepthBound(float minBounds, float maxBounds) {
-    if (math::IsNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
-        math::IsNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
+    if (math::isNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
+        math::isNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
         _curDynamicStates.depthMinBounds = minBounds;
         _curDynamicStates.depthMaxBounds = maxBounds;
-        _isStateInvalid                  = true;
+        _isStateInvalid = true;
     }
 }
 
@@ -234,7 +235,7 @@ void GLES2CommandBuffer::setStencilWriteMask(StencilFace face, uint32_t mask) {
     auto update = [&](DynamicStencilStates &stencilState) {
         if (stencilState.writeMask != mask) {
             stencilState.writeMask = mask;
-            _isStateInvalid        = true;
+            _isStateInvalid = true;
         }
     };
     if (hasFlag(face, StencilFace::FRONT)) update(_curDynamicStates.stencilStatesFront);
@@ -245,9 +246,9 @@ void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, u
     auto update = [&](DynamicStencilStates &stencilState) {
         if ((stencilState.reference != ref) ||
             (stencilState.compareMask != mask)) {
-            stencilState.reference   = ref;
+            stencilState.reference = ref;
             stencilState.compareMask = mask;
-            _isStateInvalid          = true;
+            _isStateInvalid = true;
         }
     };
     if (hasFlag(face, StencilFace::FRONT)) update(_curDynamicStates.stencilStatesFront);
@@ -255,12 +256,13 @@ void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, u
 }
 
 void GLES2CommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(GLES2CommandBufferDraw);
     if (_isStateInvalid) {
         bindStates();
     }
 
     GLES2CmdDraw *cmd = _cmdAllocator->drawCmdPool.alloc();
-    cmd->drawInfo     = info;
+    cmd->drawInfo = info;
     _curCmdPackage->drawCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::DRAW);
 
@@ -288,9 +290,9 @@ void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
     GLES2GPUBuffer *gpuBuffer = static_cast<GLES2Buffer *>(buff)->gpuBuffer();
     if (gpuBuffer) {
         GLES2CmdUpdateBuffer *cmd = _cmdAllocator->updateBufferCmdPool.alloc();
-        cmd->gpuBuffer            = gpuBuffer;
-        cmd->size                 = size;
-        cmd->buffer               = static_cast<const uint8_t *>(data);
+        cmd->gpuBuffer = gpuBuffer;
+        cmd->size = size;
+        cmd->buffer = static_cast<const uint8_t *>(data);
 
         _curCmdPackage->updateBufferCmds.push(cmd);
         _curCmdPackage->cmds.push(GLESCmdType::UPDATE_BUFFER);
@@ -301,10 +303,10 @@ void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     GLES2GPUTexture *gpuTexture = static_cast<GLES2Texture *>(texture)->gpuTexture();
     if (gpuTexture) {
         GLES2CmdCopyBufferToTexture *cmd = _cmdAllocator->copyBufferToTextureCmdPool.alloc();
-        cmd->gpuTexture                  = gpuTexture;
-        cmd->regions                     = regions;
-        cmd->count                       = count;
-        cmd->buffers                     = buffers;
+        cmd->gpuTexture = gpuTexture;
+        cmd->regions = regions;
+        cmd->count = count;
+        cmd->buffers = buffers;
 
         _curCmdPackage->copyBufferToTextureCmds.push(cmd);
         _curCmdPackage->cmds.push(GLESCmdType::COPY_BUFFER_TO_TEXTURE);
@@ -316,18 +318,18 @@ void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
     if (srcTexture) cmd->gpuTextureSrc = static_cast<GLES2Texture *>(srcTexture)->gpuTexture();
     if (dstTexture) cmd->gpuTextureDst = static_cast<GLES2Texture *>(dstTexture)->gpuTexture();
     cmd->regions = regions;
-    cmd->count   = count;
-    cmd->filter  = filter;
+    cmd->count = count;
+    cmd->filter = filter;
 
     _curCmdPackage->blitTextureCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BLIT_TEXTURE);
 }
 
 void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
-    CCASSERT(false, "Command 'execute' must be recorded in primary command buffers.");
+    CC_ASSERT(false); // Command 'execute' must be recorded in primary command buffers.
 
     for (uint32_t i = 0; i < count; ++i) {
-        auto *           cmdBuff    = static_cast<GLES2CommandBuffer *>(cmdBuffs[i]);
+        auto *cmdBuff = static_cast<GLES2CommandBuffer *>(cmdBuffs[i]);
         GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
         for (uint32_t j = 0; j < cmdPackage->beginRenderPassCmds.size(); ++j) {
@@ -379,16 +381,16 @@ void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
 void GLES2CommandBuffer::bindStates() {
     GLES2CmdBindStates *cmd = _cmdAllocator->bindStatesCmdPool.alloc();
 
-    cmd->gpuPipelineState  = _curGPUPipelineState;
+    cmd->gpuPipelineState = _curGPUPipelineState;
     cmd->gpuInputAssembler = _curGPUInputAssember;
     cmd->gpuDescriptorSets = _curGPUDescriptorSets;
 
     if (_curGPUPipelineState) {
-        vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
         cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-            //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
+            // CC_ASSERT(_curDynamicOffsets[i].size() >= count);
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint32_t));
         }

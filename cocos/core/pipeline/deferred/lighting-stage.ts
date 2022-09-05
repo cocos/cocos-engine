@@ -322,7 +322,7 @@ export class LightingStage extends RenderStage {
             // planarQueue
             this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         }
-        this._pipeline.geometryRenderer.render(renderPass, cmdBuff);
+        camera.geometryRenderer?.render(renderPass, cmdBuff, pipeline.pipelineSceneData);
         this._uiPhase.render(camera, renderPass);
         cmdBuff.endRenderPass();
     }

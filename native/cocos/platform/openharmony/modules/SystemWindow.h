@@ -45,8 +45,8 @@ public:
     void               setCursorEnabled(bool value) override;
     void               copyTextToClipboard(const std::string& text) override;
 
-    void setWindowHandler(void* window);
-    uintptr_t          getWindowHandler() const override;
+    void setWindowHandle(void* window);
+    uintptr_t          getWindowHandle() const override;
     Size getViewSize() const override;
 
 private:

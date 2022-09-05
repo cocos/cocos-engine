@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUDescriptorSetLayout;
+struct CCVKGPUDescriptorSetLayout;
 
 class CC_VULKAN_API CCVKDescriptorSetLayout final : public DescriptorSetLayout {
 public:

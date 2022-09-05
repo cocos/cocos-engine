@@ -26,17 +26,18 @@
 
 #pragma once
 
-#include "audio/include/Export.h"
-#include "base/Macros.h"
-
-#include "bindings/event/CustomEventTypes.h"
-#include "bindings/event/EventDispatcher.h"
-
+#include <cstdint>
 #include <chrono>
 #include <functional>
-#include <list>
-#include <string>
-#include <unordered_map>
+#include "audio/include/Export.h"
+#include "audio/include/AudioDef.h"
+#include "base/Macros.h"
+#include "base/std/container/list.h"
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 
 #ifdef ERROR
     #undef ERROR
@@ -57,7 +58,7 @@ namespace cc {
 class EXPORT_DLL AudioProfile {
 public:
     //Profile name can't be empty.
-    std::string name;
+    ccstd::string name;
     //The maximum number of simultaneous audio instance.
     unsigned int maxInstances{};
 
@@ -125,7 +126,7 @@ public:
      *
      * @see `AudioProfile`
      */
-    static int play2d(const std::string &filePath, bool loop = false, float volume = 1.0F, const AudioProfile *profile = nullptr);
+    static int play2d(const ccstd::string &filePath, bool loop = false, float volume = 1.0F, const AudioProfile *profile = nullptr);
 
     /** 
      * Sets whether an audio instance loop or not.
@@ -151,7 +152,13 @@ public:
      */
     static void setVolume(int audioID, float volume);
 
-    /** 
+    /**
+     * sets volume factor for all audio instance
+     * @param factor, Volume factor(range from 0.0 to 1.0).
+     */
+    static void setVolumeFactor(float factor);
+
+    /**
      * Gets the volume value of an audio instance.
      *
      * @param audioID An audioID returned by the play2d function.
@@ -220,7 +227,7 @@ public:
     * @param filePath The path of an audio file.
     * @return The duration of an audio file.
     */
-    static float getDurationFromFile(const std::string &filePath);
+    static float getDurationFromFile(const ccstd::string &filePath);
 
     /** 
      * Returns the state of an audio instance.
@@ -236,7 +243,7 @@ public:
      * @param audioID An audioID returned by the play2d function.
      * @param callback
      */
-    static void setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
+    static void setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
     /**
      * Gets the maximum number of simultaneous audio instance of AudioEngine.
@@ -257,7 +264,7 @@ public:
      * @warning This can lead to stop related audio first.
      * @param filePath Audio file path.
      */
-    static void uncache(const std::string &filePath);
+    static void uncache(const ccstd::string &filePath);
 
     /** 
      * Uncache all audio data from internal buffer.
@@ -280,20 +287,20 @@ public:
      * @param profileName A name of audio profile.
      * @return The audio profile.
      */
-    static AudioProfile *getProfile(const std::string &profileName);
+    static AudioProfile *getProfile(const ccstd::string &profileName);
 
     /**
      * Preload audio file.
      * @param filePath The file path of an audio.
      */
-    static void preload(const std::string &filePath) { preload(filePath, nullptr); }
+    static void preload(const ccstd::string &filePath) { preload(filePath, nullptr); }
 
     /**
      * Preload audio file.
      * @param filePath The file path of an audio.
      * @param callback A callback which will be called after loading is finished.
      */
-    static void preload(const std::string &filePath, const std::function<void(bool isSuccess)> &callback);
+    static void preload(const ccstd::string &filePath, const std::function<void(bool isSuccess)> &callback);
 
     /**
      * Gets playing audio count.
@@ -310,17 +317,35 @@ public:
      */
     static bool isEnabled();
 
+    /**
+     * @brief Get the PCMHeader of audio
+     * 
+     * @param url The file url of an audio. same as filePath
+     * @return PCMHeader of audio
+     */
+    static PCMHeader getPCMHeader(const char *url);
+
+    /**
+     * @brief Get the Buffer object
+     * 
+     * @param channelID as there might be several channels at same time, select one to get buffer. 
+     * Start from 0
+     * @return PCM datas behave as a ccstd::vector<char>. You can check byte length in PCMHeader.
+     */
+    static ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
+
+
 protected:
     static void addTask(const std::function<void()> &task);
     static void remove(int audioID);
 
-    static void pauseAll(std::vector<int> *pausedAudioIDs);
-    static void resumeAll(std::vector<int> *pausedAudioIDs);
+    static void pauseAll(ccstd::vector<int> *pausedAudioIDs);
+    static void resumeAll(ccstd::vector<int> *pausedAudioIDs);
 
     struct ProfileHelper {
         AudioProfile profile;
 
-        std::list<int> audioIDs;
+        ccstd::list<int> audioIDs;
 
         std::chrono::high_resolution_clock::time_point lastPlayTime;
 
@@ -328,12 +353,12 @@ protected:
     };
 
     struct AudioInfo {
-        const std::string *filePath;
-        ProfileHelper *    profileHelper;
+        const ccstd::string *filePath;
+        ProfileHelper *profileHelper;
 
-        float      volume;
-        bool       loop;
-        float      duration;
+        float volume;
+        bool loop;
+        float duration;
         AudioState state;
 
         AudioInfo();
@@ -347,13 +372,13 @@ protected:
     };
 
     //audioID,audioAttribute
-    static std::unordered_map<int, AudioInfo> sAudioIDInfoMap;
+    static ccstd::unordered_map<int, AudioInfo> sAudioIDInfoMap;
 
     //audio file path,audio IDs
-    static std::unordered_map<std::string, std::list<int>> sAudioPathIDMap;
+    static ccstd::unordered_map<ccstd::string, ccstd::list<int>> sAudioPathIDMap;
 
     //profileName,ProfileHelper
-    static std::unordered_map<std::string, ProfileHelper> sAudioPathProfileHelperMap;
+    static ccstd::unordered_map<ccstd::string, ProfileHelper> sAudioPathProfileHelperMap;
 
     static unsigned int sMaxInstances;
 
@@ -367,9 +392,10 @@ protected:
     static bool sIsEnabled;
 
 private:
-    static uint32_t         sOnPauseListenerID;
-    static uint32_t         sOnResumeListenerID;
-    static std::vector<int> sBreakAudioID;
+    static float sVolumeFactor;
+    static uint32_t sOnPauseListenerID;
+    static uint32_t sOnResumeListenerID;
+    static ccstd::vector<int> sBreakAudioID;
 
     static void onEnterBackground(const CustomEvent &);
     static void onEnterForeground(const CustomEvent &);

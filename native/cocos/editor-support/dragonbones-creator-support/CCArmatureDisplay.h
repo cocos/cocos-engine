@@ -24,16 +24,17 @@
 #ifndef DRAGONBONES_CC_ARMATURE_DISPLAY_CONTAINER_H
 #define DRAGONBONES_CC_ARMATURE_DISPLAY_CONTAINER_H
 
+#include <map>
+#include <utility>
+#include <vector>
 #include "IOTypedArray.h"
 #include "MiddlewareManager.h"
-#include "base/Map.h"
-#include "base/Ref.h"
+#include "base/RefMap.h"
+#include "base/RefCounted.h"
 #include "bindings/event/EventDispatcher.h"
 #include "dragonbones-creator-support/CCSlot.h"
 #include "dragonbones/DragonBonesHeaders.h"
 #include "middleware-adapter.h"
-#include <map>
-#include <vector>
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -42,7 +43,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * It will not save vertices and indices.Only CCSlot will save these info.
  * And CCArmatureDisplay will traverse all tree node and calculate render data.
  */
-class CCArmatureDisplay : public cc::Ref, public virtual IArmatureProxy {
+class CCArmatureDisplay : public cc::RefCounted, public virtual IArmatureProxy {
     DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(CCArmatureDisplay)
 
 public:
@@ -52,7 +53,7 @@ public:
     static CCArmatureDisplay *create();
 
 private:
-    void traverseArmature(Armature *armature, float parentOpacity = 1.0f);
+    void traverseArmature(Armature *armature, float parentOpacity = 1.0F);
 
 protected:
     bool _debugDraw = false;
@@ -60,64 +61,64 @@ protected:
 
 public:
     CCArmatureDisplay();
-    virtual ~CCArmatureDisplay();
+    ~CCArmatureDisplay() override;
 
     /**
      * @inheritDoc
      */
-    virtual void dbInit(Armature *armature) override;
+    void dbInit(Armature *armature) override;
     /**
      * @inheritDoc
      */
-    virtual void dbClear() override;
+    void dbClear() override;
     /**
      * @inheritDoc
      */
-    virtual void dbUpdate() override;
+    void dbUpdate() override;
     /**
      * @inheritDoc
      */
-    virtual void dbRender() override;
+    void dbRender() override;
     /**
      * @inheritDoc
      */
-    virtual void dispose(bool disposeProxy = true) override;
+    void dispose() override;
     /**
      * @inheritDoc
      */
-    virtual bool hasDBEventListener(const std::string &type) const override;
+    bool hasDBEventListener(const std::string &type) const override;
     /**
      * @inheritDoc
      */
-    virtual void dispatchDBEvent(const std::string &type, EventObject *value) override;
+    void dispatchDBEvent(const std::string &type, EventObject *value) override;
     /**
      * @inheritDoc
      */
-    virtual void addDBEventListener(const std::string &type, const std::function<void(EventObject *)> &listener) override;
+    void addDBEventListener(const std::string &type, const std::function<void(EventObject *)> &listener) override;
     /**
      * @inheritDoc
      */
-    virtual void removeDBEventListener(const std::string &type, const std::function<void(EventObject *)> &listener) override;
+    void removeDBEventListener(const std::string &type, const std::function<void(EventObject *)> &listener) override;
     /**
      * @inheritDoc
      */
-    virtual uint32_t getRenderOrder() const override;
+    uint32_t getRenderOrder() const override;
 
-    typedef std::function<void(EventObject *)> dbEventCallback;
+    using dbEventCallback = std::function<void(EventObject *)>;
     void setDBEventCallback(dbEventCallback callback) {
-        _dbEventCallback = callback;
+        _dbEventCallback = std::move(callback);
     }
 
     /**
      * @inheritDoc
      */
-    inline virtual Armature *getArmature() const override {
+    inline Armature *getArmature() const override {
         return _armature;
     }
     /**
      * @inheritDoc
      */
-    inline virtual Animation *getAnimation() const override {
+    inline Animation *getAnimation() const override {
         return _armature->getAnimation();
     }
 
@@ -161,7 +162,7 @@ public:
      * @param[in] pos Component position
      * @return Global position
      */
-    cc::Vec2 convertToRootSpace(float x, float y) const;
+    const cc::Vec2 &convertToRootSpace(float x, float y) const;
 
     /**
      * @return root display,if this diplay is root,then return itself.
@@ -182,9 +183,13 @@ private:
     int _debugSlotsLen = 0;
     int _materialLen = 0;
 
-    bool _batch = true;
     bool _useAttach = false;
     bool _premultipliedAlpha = false;
+
+    // NOTE: We bind Vec2 to make JS deserialization works, we need to return const reference in convertToRootSpace method,
+    // because returning Vec2 JSB object on stack to JS will let JS get mess data.
+    mutable cc::Vec2 _tmpVec2;
+    //
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
     dbEventCallback _dbEventCallback = nullptr;
 

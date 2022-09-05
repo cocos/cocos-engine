@@ -25,10 +25,8 @@
 
 #pragma once
 
-#include <array>
 #include "../RenderPipeline.h"
-#include "frame-graph/FrameGraph.h"
-#include "frame-graph/Handle.h"
+#include "base/std/container/array.h"
 #include "pipeline/Enum.h"
 
 namespace cc {
@@ -40,22 +38,18 @@ struct UBOShadow;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
-    ForwardPipeline()           = default;
+    ForwardPipeline();
     ~ForwardPipeline() override = default;
 
     bool initialize(const RenderPipelineInfo &info) override;
-    void destroy() override;
+    bool destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
-    void render(const vector<scene::Camera *> &cameras) override;
+    void render(const ccstd::vector<scene::Camera *> &cameras) override;
 
-    inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
-    inline const LightList &      getValidLights() const { return _validLights; }
+    inline const LightList &getValidLights() const { return _validLights; }
     inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
-    inline const UintList &       getLightIndexOffsets() const { return _lightIndexOffsets; }
-    inline const UintList &       getLightIndices() const { return _lightIndices; }
-
-    static framegraph::StringHandle fgStrHandleForwardColorTexture;
-    static framegraph::StringHandle fgStrHandleForwardDepthTexture;
+    inline const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
+    inline const UintList &getLightIndices() const { return _lightIndices; }
 
     static framegraph::StringHandle fgStrHandleForwardPass;
 
@@ -63,11 +57,10 @@ private:
     bool activeRenderer(gfx::Swapchain *swapchain);
     void updateUBO(scene::Camera *);
 
-    gfx::Buffer *   _lightsUBO = nullptr;
-    LightList       _validLights;
+    LightList _validLights;
     gfx::BufferList _lightBuffers;
-    UintList        _lightIndexOffsets;
-    UintList        _lightIndices;
+    UintList _lightIndexOffsets;
+    UintList _lightIndices;
 };
 
 } // namespace pipeline

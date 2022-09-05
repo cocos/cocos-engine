@@ -22,36 +22,34 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
-#include "CocosApplication.h"
-
 #include <string>
+#include "CocosApplication.h"
 
 namespace cc {
 class BaseGame : public CocosApplication {
 public:
     struct DebuggerInfo {
-        bool        enabled{true};
-        int32_t     port{6086};
+        bool enabled{true};
+        int32_t port{6086};
         std::string address{"0.0.0.0"};
-        bool        pauseOnStart{false};
+        bool pauseOnStart{false};
     };
     struct WindowInfo {
         std::string title;
-        int32_t     x{-1};
-        int32_t     y{-1};
-        int32_t     width{-1};
-        int32_t     height{-1};
-        int32_t     flags{-1};
+        int32_t x{-1};
+        int32_t y{-1};
+        int32_t width{-1};
+        int32_t height{-1};
+        int32_t flags{-1};
     };
 
     BaseGame() = default;
     int init() override;
 
 protected:
-    std::string  _xxteaKey;
+    std::string _xxteaKey;
     DebuggerInfo _debuggerInfo;
-    WindowInfo   _windowInfo;
+    WindowInfo _windowInfo;
     std::once_flag _windowCreateFlag;
 };
 } // namespace cc

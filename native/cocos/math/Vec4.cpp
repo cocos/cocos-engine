@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#include <boost/functional/hash.hpp>
+#include "base/std/hash/hash.h"
 
 #include "math/Vec4.h"
 
@@ -58,7 +58,7 @@ Vec4::Vec4(const Vec4 &copy) {
 
 Vec4 Vec4::fromColor(unsigned int color) {
     float components[4];
-    int   componentIndex = 0;
+    int componentIndex = 0;
     for (int i = 3; i >= 0; --i) {
         uint32_t component = (color >> i * 8) & 0x000000ff;
 
@@ -93,7 +93,7 @@ void Vec4::add(const Vec4 &v) {
 }
 
 void Vec4::add(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x + v2.x;
     dst->y = v1.y + v2.y;
@@ -102,80 +102,80 @@ void Vec4::add(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
 }
 
 void Vec4::clamp(const Vec4 &min, const Vec4 &max) {
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
 
     // Clamp the x value.
     if (x < min.x) {
         x = min.x;
-}
+    }
     if (x > max.x) {
         x = max.x;
-}
+    }
 
     // Clamp the y value.
     if (y < min.y) {
         y = min.y;
-}
+    }
     if (y > max.y) {
         y = max.y;
-}
+    }
 
     // Clamp the z value.
     if (z < min.z) {
         z = min.z;
-}
+    }
     if (z > max.z) {
         z = max.z;
-}
+    }
 
     // Clamp the z value.
     if (w < min.w) {
         w = min.w;
-}
+    }
     if (w > max.w) {
         w = max.w;
-}
+    }
 }
 
 void Vec4::clamp(const Vec4 &v, const Vec4 &min, const Vec4 &max, Vec4 *dst) {
-    GP_ASSERT(dst);
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
+    CC_ASSERT(dst);
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
 
     // Clamp the x value.
     dst->x = v.x;
     if (dst->x < min.x) {
         dst->x = min.x;
-}
+    }
     if (dst->x > max.x) {
         dst->x = max.x;
-}
+    }
 
     // Clamp the y value.
     dst->y = v.y;
     if (dst->y < min.y) {
         dst->y = min.y;
-}
+    }
     if (dst->y > max.y) {
         dst->y = max.y;
-}
+    }
 
     // Clamp the z value.
     dst->z = v.z;
     if (dst->z < min.z) {
         dst->z = min.z;
-}
+    }
     if (dst->z > max.z) {
         dst->z = max.z;
-}
+    }
 
     // Clamp the w value.
     dst->w = v.w;
     if (dst->w < min.w) {
         dst->w = min.w;
-}
+    }
     if (dst->w > max.w) {
         dst->w = max.w;
-}
+    }
 }
 
 float Vec4::distance(const Vec4 &v) const {
@@ -224,13 +224,13 @@ void Vec4::normalize() {
     // Already normalized.
     if (n == 1.0F) {
         return;
-}
+    }
 
     n = std::sqrt(n);
     // Too close to zero.
     if (n < MATH_TOLERANCE) {
         return;
-}
+    }
 
     n = 1.0F / n;
     x *= n;
@@ -260,7 +260,7 @@ void Vec4::set(float xx, float yy, float zz, float ww) {
 }
 
 void Vec4::set(const float *array) {
-    GP_ASSERT(array);
+    CC_ASSERT(array);
 
     x = array[0];
     y = array[1];
@@ -290,7 +290,7 @@ void Vec4::subtract(const Vec4 &v) {
 }
 
 void Vec4::subtract(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x - v2.x;
     dst->y = v1.y - v2.y;
@@ -298,16 +298,24 @@ void Vec4::subtract(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
     dst->w = v1.w - v2.w;
 }
 
-const Vec4 Vec4::ZERO   = Vec4(0.0F, 0.0F, 0.0F, 0.0F);
-const Vec4 Vec4::ONE    = Vec4(1.0F, 1.0F, 1.0F, 1.0F);
+void Vec4::lerp(const Vec4 &a, const Vec4 &b, float t, Vec4 *dst) {
+    CC_ASSERT(dst);
+    dst->x = a.x + t * (b.x - a.x);
+    dst->y = a.y + t * (b.y - a.y);
+    dst->z = a.z + t * (b.z - a.z);
+    dst->w = a.w + t * (b.w - a.w);
+}
+
+const Vec4 Vec4::ZERO = Vec4(0.0F, 0.0F, 0.0F, 0.0F);
+const Vec4 Vec4::ONE = Vec4(1.0F, 1.0F, 1.0F, 1.0F);
 const Vec4 Vec4::UNIT_X = Vec4(1.0F, 0.0F, 0.0F, 0.0F);
 const Vec4 Vec4::UNIT_Y = Vec4(0.0F, 1.0F, 0.0F, 0.0F);
 const Vec4 Vec4::UNIT_Z = Vec4(0.0F, 0.0F, 1.0F, 0.0F);
 const Vec4 Vec4::UNIT_W = Vec4(0.0F, 0.0F, 0.0F, 1.0F);
 
 template <>
-size_t Hasher<Vec4>::operator()(const Vec4 &v) const {
-    return boost::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
+ccstd::hash_t Hasher<Vec4>::operator()(const Vec4 &v) const {
+    return ccstd::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
                              reinterpret_cast<const uint64_t *>(&v.x + 4));
 }
 

@@ -568,7 +568,11 @@ export class Details {
     }, 5);
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public declare assignAssetsBy: Function;
+    public declare assignAssetsBy: (getter: (uuid: string, options: {
+        type: Constructor<Asset>;
+        owner: Record<string, unknown>;
+        prop: string;
+    }) => Asset) => void;
 
     /**
      * @method init
@@ -629,13 +633,22 @@ Details.pool.get = function () {
     return this._get() || new Details();
 };
 if (EDITOR || TEST) {
-    Details.prototype.assignAssetsBy = function (getter: (uuid: string, type: Constructor<Asset>) => any) {
+    Details.prototype.assignAssetsBy = function (getter: (uuid: string, options: {
+        type: Constructor<Asset>;
+        owner: Record<string, unknown>;
+        prop: string;
+    }) => any) {
         for (let i = 0, len = this.uuidList!.length; i < len; i++) {
-            const obj = this.uuidObjList![i];
-            const prop = this.uuidPropList![i];
+            const obj = this.uuidObjList![i] as Record<string, unknown>;
+            const prop = this.uuidPropList![i] as string;
             const uuid = this.uuidList![i];
             const type = this.uuidTypeList[i];
-            obj[prop] = getter(uuid as string, js._getClassById(type) as Constructor<Asset> || Asset);
+            const _type = js.getClassById(type) as Constructor<Asset> || Asset;
+            obj[prop] = getter(uuid as string, {
+                type: _type,
+                owner: obj,
+                prop,
+            });
         }
     };
 }
@@ -757,7 +770,17 @@ function parseCustomClass (data: IFileData, owner: any, key: string, value: ICus
 }
 
 function parseValueTypeCreated (data: IFileData, owner: any, key: string, value: IValueTypeData) {
-    BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
+    /**BuiltinValueTypes index: Vec2=0, Vec3=1, Vec4=2, Quat=3, Color=4, Size=5, Rect=6, Mat4=7
+       The native layer type corresponding to the BuiltinValueTypes has not been exported exclude Color,
+       so we need to set to native after value changed
+     * */
+    if (JSB) {
+        const tmp = owner[key];
+        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](tmp, value);
+        owner[key] = tmp;
+    } else {
+        BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
+    }
 }
 
 function parseValueType (data: IFileData, owner: any, key: string, value: IValueTypeData) {
@@ -918,7 +941,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
 }
 
 function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass) {
-    const classFinder = customFinder || js._getClassById;
+    const classFinder = customFinder || js.getClassById;
     const classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
         const klassLayout = classes[i];

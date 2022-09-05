@@ -94,7 +94,7 @@ public:
     CCFactory() : _prevPath() {
         if (_dragonBonesInstance == nullptr) {
             const auto eventManager = CCArmatureDisplay::create();
-            eventManager->retain();
+            eventManager->addRef();
 
             _dragonBonesInstance = new DragonBones(eventManager);
 

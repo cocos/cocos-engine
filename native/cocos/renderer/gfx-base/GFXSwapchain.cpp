@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXSwapchain.h"
 
 namespace cc {
@@ -37,10 +35,12 @@ Swapchain::Swapchain()
 Swapchain::~Swapchain() = default;
 
 void Swapchain::initialize(const SwapchainInfo &info) {
-    CCASSERT(info.windowHandle, "Invalid window handle");
+#if !defined(CC_SERVER_MODE)
+    CC_ASSERT(info.windowHandle);
+#endif
 
     _windowHandle = info.windowHandle;
-    _vsyncMode    = info.vsyncMode;
+    _vsyncMode = info.vsyncMode;
 
     doInit(info);
 }

@@ -44,7 +44,7 @@ public:
     /**
      * @brief Application main business logic.
      */
-    int32_t run(int argc, const char** argv) override;
+    int32_t run(int argc, const char **argv) override;
     /**
      * @brief Pause the application.
      */
@@ -67,6 +67,10 @@ public:
     BaseEngine::Ptr getEngine() const override;
 
     /**
+     * @brief Processing engine start events.
+     */
+    virtual void onStart();
+    /**
      * @brief Processing pause events..
      */
     virtual void onPause();
@@ -78,7 +82,7 @@ public:
      * @brief Processing close events.
      */
     virtual void onClose();
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
     /**
      * @brief Create window.
      * @param title: Window title
@@ -88,7 +92,7 @@ public:
      * @param h: Window height
      * @param flags: Window flag
      */
-    virtual void createWindow(const char* title,
+    virtual void createWindow(const char *title,
                               int32_t x, int32_t y, int32_t w,
                               int32_t h, int32_t flags);
     /**
@@ -98,7 +102,7 @@ public:
      * @param h: Window height
      * @param flags: Window flag
      */
-    virtual void createWindow(const char* title, int32_t w,
+    virtual void createWindow(const char *title, int32_t w,
                               int32_t h, int32_t flags);
 #endif
     /**
@@ -107,23 +111,25 @@ public:
      * @param port:Server port.
      * @param isWaitForConnect:Is Wait for connect.
      */
-    virtual void setDebugIpAndPort(const std::string& serverAddr, uint32_t port, bool isWaitForConnect);
+    virtual void setDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect);
     /**
      * @brief Run the script file
      * @param filePath:script path.
      */
-    virtual void runScript(const std::string& filePath);
+    virtual void runScript(const ccstd::string &filePath);
     /**
      * @brief Script exception handling
      * @param location,Exception location
      * @param message,Exception message
      * @param stack,Exception stack
      */
-    virtual void handleException(const char* location, const char* message, const char* stack);
-    virtual void setXXTeaKey(const std::string& key);
+    virtual void handleException(const char *location, const char *message, const char *stack);
+    virtual void setXXTeaKey(const ccstd::string &key);
 
 private:
-    ISystemWindow*  _systemWidow{nullptr};
+    void unregisterAllEngineEvents();
+
+    ISystemWindow *_systemWindow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
 };
 } // namespace cc

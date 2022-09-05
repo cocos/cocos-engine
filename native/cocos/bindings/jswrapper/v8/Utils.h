@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -38,23 +38,18 @@ namespace se {
 
 namespace internal {
 
-struct PrivateData {
-    void *  data;
-    Object *seObj;
-};
-
-void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &_v8args, ValueArray *outArr);
+void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &v8args, ValueArray &outArr);
 void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v);
-void seToJsArgs(v8::Isolate *isolate, const ValueArray &args, std::vector<v8::Local<v8::Value>> *outArr);
+void seToJsArgs(v8::Isolate *isolate, const ValueArray &args, v8::Local<v8::Value> *outArr);
 void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *outJsVal);
 
 void setReturnValue(const Value &data, const v8::FunctionCallbackInfo<v8::Value> &argv);
 void setReturnValue(const Value &data, const v8::PropertyCallbackInfo<v8::Value> &argv);
 
-bool  hasPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
-void  setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, void *data, PrivateData **outInternalData);
-void *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
-void  clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
+bool hasPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
+void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, Object *obj);
+Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
+void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
 
 } // namespace internal
 } // namespace se

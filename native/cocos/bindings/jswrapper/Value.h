@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-
+#include <string_view>
 #include "HandleObject.h"
 #include "base/Macros.h"
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 
 namespace se {
 
@@ -133,7 +133,7 @@ public:
     /**
          *  @brief The constructor with an UTF8 string argument.
          */
-    explicit Value(const std::string &v);
+    explicit Value(const ccstd::string &v);
 
     /**
          *  @brief The constructor with an Object.
@@ -301,7 +301,13 @@ public:
          *  @brief Sets se::Value to string value.
          *  @param[in] v The string value to be set.
          */
-    void setString(const std::string &v);
+    void setString(const ccstd::string &v);
+
+    /**
+         *  @brief Sets se::Value to string value by string_view.
+         *  @param[in] v The string_view
+         */
+    void setString(const std::string_view &v);
 
     /**
          *  @brief Sets se::Value to se::Object value.
@@ -384,18 +390,18 @@ public:
     bool toBoolean() const;
 
     /**
-         *  @brief Gets std::string if se::Value stores a string. It will trigger an assertion if se::Value isn't a string.
-         *  @return A std::string reference.
+         *  @brief Gets ccstd::string if se::Value stores a string. It will trigger an assertion if se::Value isn't a string.
+         *  @return A ccstd::string reference.
          *  @see toStringForce
          */
-    const std::string &toString() const;
+    const ccstd::string &toString() const;
 
     /**
-         *  @brief Converts a se::Value to std::string. Could be invoked even when se::Value isn't a string.
-         *  @return A copied std::string value.
+         *  @brief Converts a se::Value to ccstd::string. Could be invoked even when se::Value isn't a string.
+         *  @return A copied ccstd::string value.
          *  @see toString
          */
-    std::string toStringForce() const;
+    ccstd::string toStringForce() const;
 
     /**
          *  @brief Gets the se::Object pointer if se::Value stores an object. It will trigger an assertion if se::Value isn't a object.
@@ -474,18 +480,18 @@ private:
     void reset(Type type);
 
     union {
-        bool         _boolean;
-        double       _number;
-        std::string *_string;
-        Object *     _object;
-        int64_t      _bigint;
+        bool _boolean;
+        double _number;
+        ccstd::string *_string;
+        Object *_object;
+        int64_t _bigint;
     } _u;
 
     Type _type;
     bool _autoRootUnroot;
 };
 
-using ValueArray = std::vector<Value>;
+using ValueArray = ccstd::vector<Value>;
 extern ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
 } // namespace se

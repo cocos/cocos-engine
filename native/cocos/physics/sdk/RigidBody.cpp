@@ -38,7 +38,7 @@ RigidBody::~RigidBody() {
     _impl.reset(nullptr);
 }
 
-void RigidBody::initialize(scene::Node *node, const ERigidBodyType t, const uint32_t g) {
+void RigidBody::initialize(Node *node, const ERigidBodyType t, const uint32_t g) {
     _impl->initialize(node, t, g);
 }
 
@@ -184,6 +184,10 @@ uint32_t RigidBody::getMask() {
 
 void RigidBody::setMask(uint32_t m) {
     _impl->setMask(m);
+}
+
+uint32_t RigidBody::getObjectID() const {
+    return _impl->getObjectID();
 }
 
 } // namespace physics

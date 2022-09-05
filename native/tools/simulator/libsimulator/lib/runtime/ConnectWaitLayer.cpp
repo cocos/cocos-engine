@@ -96,7 +96,7 @@ ConnectWaitLayer::ConnectWaitLayer()
     addChild(IPlabel, 9001);
 
     std::string transferTip = "waiting for file transfer ...";
-    if (CC_PLATFORM_WINDOWS == CC_PLATFORM || CC_PLATFORM_MAC_OSX == CC_PLATFORM)
+    if (CC_PLATFORM_WINDOWS == CC_PLATFORM || CC_PLATFORM_MACOS == CC_PLATFORM)
     {
         transferTip = "waiting for debugger to connect ...";
     }

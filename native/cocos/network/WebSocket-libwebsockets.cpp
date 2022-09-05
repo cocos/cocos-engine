@@ -32,6 +32,7 @@
 
 // clang-format off
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 #include "uv.h"
 // clang-format on
 
@@ -46,15 +47,14 @@
 #include <cerrno>
 #include <condition_variable>
 #include <csignal>
-#include <list>
 #include <memory> // for std::shared_ptr
 #include <mutex>
-#include <queue>
-#include <string>
 #include <thread>
-#include <vector>
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
+#include "base/std/container/list.h"
+#include "base/std/container/queue.h"
+#include "base/std/container/string.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
 
@@ -93,11 +93,11 @@ struct lws_vhost;
 //IDEA: Move _winLog, winLog to a separated file
 static void _winLog(const char *format, va_list args) {
     static const int MAX_LOG_LENGTH = 16 * 1024;
-    int              bufferSize     = MAX_LOG_LENGTH;
-    char *           buf            = nullptr;
+    int bufferSize = MAX_LOG_LENGTH;
+    char *buf = nullptr;
 
     do {
-        buf = new (std::nothrow) char[bufferSize];
+        buf = ccnew char[bufferSize];
         if (buf == nullptr)
             return; // not enough memory
 
@@ -113,10 +113,10 @@ static void _winLog(const char *format, va_list args) {
 
     strcat(buf, "\n");
 
-    int   pos                         = 0;
-    int   len                         = strlen(buf);
-    char  tempBuf[MAX_LOG_LENGTH + 1] = {0};
-    WCHAR wszBuf[MAX_LOG_LENGTH + 1]  = {0};
+    int pos = 0;
+    int len = strlen(buf);
+    char tempBuf[MAX_LOG_LENGTH + 1] = {0};
+    WCHAR wszBuf[MAX_LOG_LENGTH + 1] = {0};
 
     do {
         std::copy(buf + pos, buf + pos + MAX_LOG_LENGTH, tempBuf);
@@ -148,7 +148,7 @@ static void wsLog(const char *format, ...) {
 #define QUOTEME(x)    DO_QUOTEME(x)
 
 // Since CC_LOG_DEBUG isn't thread safe, we uses LOGD for multi-thread logging.
-#ifdef ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     #if CC_DEBUG > 0
         #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
     #else
@@ -186,7 +186,7 @@ static void printWebSocketLog(int level, const char *line) {
     };
 
     char buf[30] = {0};
-    int  n;
+    int n;
 
     for (n = 0; n < LLL_COUNT; n++) {
         if (level != (1 << n)) {
@@ -208,27 +208,27 @@ public:
     ~WebSocketImpl();
 
     bool init(const cc::network::WebSocket::Delegate &delegate,
-              const std::string &                     url,
-              const std::vector<std::string> *        protocols  = nullptr,
-              const std::string &                     caFilePath = "");
+              const ccstd::string &url,
+              const ccstd::vector<ccstd::string> *protocols = nullptr,
+              const ccstd::string &caFilePath = "");
 
-    void                              send(const std::string &message);
-    void                              send(const unsigned char *binaryMsg, unsigned int len);
-    void                              close();
-    void                              closeAsync();
-    void                              closeAsync(int code, const std::string &reason);
-    cc::network::WebSocket::State     getReadyState() const;
-    const std::string &               getUrl() const;
-    const std::string &               getProtocol() const;
+    void send(const ccstd::string &message);
+    void send(const unsigned char *binaryMsg, unsigned int len);
+    void close();
+    void closeAsync();
+    void closeAsync(int code, const ccstd::string &reason);
+    cc::network::WebSocket::State getReadyState() const;
+    const ccstd::string &getUrl() const;
+    const ccstd::string &getProtocol() const;
     cc::network::WebSocket::Delegate *getDelegate() const;
 
-    size_t      getBufferedAmount() const;
-    std::string getExtensions() const;
+    size_t getBufferedAmount() const;
+    ccstd::string getExtensions() const;
 
 private:
     // The following callback functions are invoked in websocket thread
     void onClientOpenConnectionRequest();
-    int  onSocketCallback(struct lws *wsi, enum lws_callback_reasons reason, void *in, ssize_t len);
+    int onSocketCallback(struct lws *wsi, enum lws_callback_reasons reason, void *in, ssize_t len);
 
     int onClientWritable();
     int onClientReceivedData(void *in, ssize_t len);
@@ -238,24 +238,24 @@ private:
 
     struct lws_vhost *createVhost(struct lws_protocols *protocols, int *sslConnection);
 
-    cc::network::WebSocket *      _ws;
+    cc::network::WebSocket *_ws;
     cc::network::WebSocket::State _readyState;
-    std::mutex                    _readyStateMutex;
-    std::string                   _url;
-    std::vector<char>             _receivedData;
+    std::mutex _readyStateMutex;
+    ccstd::string _url;
+    ccstd::vector<char> _receivedData;
 
-    struct lws *          _wsInstance;
+    struct lws *_wsInstance;
     struct lws_protocols *_lwsProtocols;
-    std::string           _clientSupportedProtocols;
-    std::string           _selectedProtocol;
+    ccstd::string _clientSupportedProtocols;
+    ccstd::string _selectedProtocol;
 
     std::shared_ptr<std::atomic<bool>> _isDestroyed;
-    cc::network::WebSocket::Delegate * _delegate;
+    cc::network::WebSocket::Delegate *_delegate;
 
-    std::mutex              _closeMutex;
+    std::mutex _closeMutex;
     std::condition_variable _closeCondition;
 
-    std::vector<std::string> _enabledExtensions;
+    ccstd::vector<ccstd::string> _enabledExtensions;
 
     enum class CloseState {
         NONE,
@@ -265,7 +265,7 @@ private:
     };
     CloseState _closeState;
 
-    std::string _caFilePath;
+    ccstd::string _caFilePath;
 
     friend class WsThreadHelper;
     friend class WebSocketCallbackWrapper;
@@ -279,17 +279,17 @@ enum WsMsg {
 
 class WsThreadHelper;
 
-static std::vector<WebSocketImpl *> *websocketInstances{nullptr};
-static std::recursive_mutex          instanceMutex;
-static struct lws_context *          wsContext{nullptr};
-static WsThreadHelper *              wsHelper{nullptr};
-static std::atomic_bool              wsPolling{false};
+static ccstd::vector<WebSocketImpl *> *websocketInstances{nullptr};
+static std::recursive_mutex instanceMutex;
+static struct lws_context *wsContext{nullptr};
+static WsThreadHelper *wsHelper{nullptr};
+static std::atomic_bool wsPolling{false};
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
-static std::string getFileNameForPath(const std::string &filePath) {
-    std::string  fileName     = filePath;
+static ccstd::string getFileNameForPath(const ccstd::string &filePath) {
+    ccstd::string fileName = filePath;
     const size_t lastSlashIdx = fileName.find_last_of("\\/");
-    if (std::string::npos != lastSlashIdx) {
+    if (ccstd::string::npos != lastSlashIdx) {
         fileName.erase(0, lastSlashIdx + 1);
     }
     return fileName;
@@ -309,7 +309,7 @@ static lws_context_creation_info convertToContextCreationInfo(const struct lws_p
      * For this client-only demo, we tell it to not listen on any port.
      */
 
-    info.port      = CONTEXT_PORT_NO_LISTEN;
+    info.port = CONTEXT_PORT_NO_LISTEN;
     info.protocols = protocols;
 
     // IDEA: Disable 'permessage-deflate' extension temporarily because of issues:
@@ -339,10 +339,10 @@ static lws_context_creation_info convertToContextCreationInfo(const struct lws_p
 class WsMessage {
 public:
     WsMessage() : id(++idCount) {}
-    unsigned int                  id;
-    unsigned int                  what{0}; // message type
+    unsigned int id;
+    unsigned int what{0}; // message type
     cc::network::WebSocket::Data *data{nullptr};
-    void *                        user{nullptr};
+    void *user{nullptr};
 
 private:
     static unsigned int idCount;
@@ -382,9 +382,9 @@ protected:
     void wsThreadEntryFunc() const;
 
 public:
-    std::list<WsMessage *> *_subThreadWsMessageQueue;
-    std::mutex              _subThreadWsMessageQueueMutex;
-    std::thread *           _subThreadInstance{nullptr};
+    ccstd::list<WsMessage *> *_subThreadWsMessageQueue;
+    std::mutex _subThreadWsMessageQueueMutex;
+    std::thread *_subThreadInstance{nullptr};
 
 private:
     bool _needQuit{false};
@@ -401,7 +401,7 @@ public:
         int ret = 0;
         {
             std::lock_guard<std::recursive_mutex> lk(instanceMutex);
-            auto *                                ws = static_cast<WebSocketImpl *>(lws_wsi_user(wsi));
+            auto *ws = static_cast<WebSocketImpl *>(lws_wsi_user(wsi));
             if (ws != nullptr && websocketInstances != nullptr) {
                 if (std::find(websocketInstances->begin(), websocketInstances->end(), ws) != websocketInstances->end()) {
                     ret = ws->onSocketCallback(wsi, reason, in, len);
@@ -419,7 +419,7 @@ public:
 WsThreadHelper::WsThreadHelper()
 
 {
-    _subThreadWsMessageQueue = new (std::nothrow) std::list<WsMessage *>();
+    _subThreadWsMessageQueue = ccnew ccstd::list<WsMessage *>();
 }
 
 WsThreadHelper::~WsThreadHelper() {
@@ -430,21 +430,12 @@ WsThreadHelper::~WsThreadHelper() {
 
 bool WsThreadHelper::createWebSocketThread() {
     // Creates websocket thread
-    _subThreadInstance = new (std::nothrow) std::thread(&WsThreadHelper::wsThreadEntryFunc, this);
+    _subThreadInstance = ccnew std::thread(&WsThreadHelper::wsThreadEntryFunc, this);
     return true;
 }
 
 void WsThreadHelper::quitWebSocketThread() {
     _needQuit = true;
-#if WS_ENABLE_LIBUV
-    // stop libuv loop
-    if (wsContext && wsPolling) {
-        auto *loop = lws_uv_getloop(wsContext, 0);
-        if (loop) {
-            uv_stop(loop);
-        }
-    }
-#endif
 }
 
 void WsThreadHelper::onSubThreadLoop() {
@@ -457,7 +448,7 @@ void WsThreadHelper::onSubThreadLoop() {
             auto iter = wsHelper->_subThreadWsMessageQueue->begin();
             for (; iter != wsHelper->_subThreadWsMessageQueue->end();) {
                 auto *msg = (*iter);
-                auto *ws  = static_cast<WebSocketImpl *>(msg->user);
+                auto *ws = static_cast<WebSocketImpl *>(msg->user);
                 // REFINE: ws may be a invalid pointer
                 if (msg->what == WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION) {
                     ws->onClientOpenConnectionRequest();
@@ -483,13 +474,13 @@ void WsThreadHelper::onSubThreadStarted() {
 
     memset(defaultProtocols, 0, 2 * sizeof(struct lws_protocols));
 
-    defaultProtocols[0].name           = "";
-    defaultProtocols[0].callback       = WebSocketCallbackWrapper::onSocketCallback;
+    defaultProtocols[0].name = "";
+    defaultProtocols[0].callback = WebSocketCallbackWrapper::onSocketCallback;
     defaultProtocols[0].rx_buffer_size = WS_RX_BUFFER_SIZE;
-    defaultProtocols[0].id             = std::numeric_limits<uint32_t>::max();
+    defaultProtocols[0].id = std::numeric_limits<uint32_t>::max();
 
     lws_context_creation_info creationInfo = convertToContextCreationInfo(defaultProtocols, true);
-    wsContext                              = lws_create_context(&creationInfo);
+    wsContext = lws_create_context(&creationInfo);
 #if WS_ENABLE_LIBUV
     if (lws_uv_initloop(wsContext, nullptr, 0)) {
         LOGE("WsThreadHelper: failed to init libuv");
@@ -532,7 +523,7 @@ void WsThreadHelper::sendMessageToWebSocketThread(WsMessage *msg) {
 
 size_t WsThreadHelper::countBufferedBytes(const WebSocketImpl *ws) {
     std::lock_guard<std::mutex> lk(_subThreadWsMessageQueueMutex);
-    size_t                      total = 0;
+    size_t total = 0;
     for (auto *msg : *_subThreadWsMessageQueue) {
         if (msg->user == ws && msg->data && (msg->what == WS_MSG_TO_SUBTRHEAD_SENDING_STRING || msg->what == WS_MSG_TO_SUBTRHEAD_SENDING_BINARY)) {
             total += msg->data->getRemain();
@@ -565,9 +556,9 @@ public:
             std::copy(buf, buf + len, _data.begin() + LWS_PRE);
         }
 
-        _payload       = _data.data() + LWS_PRE;
+        _payload = _data.data() + LWS_PRE;
         _payloadLength = len;
-        _frameLength   = len;
+        _frameLength = len;
         return true;
     }
 
@@ -577,15 +568,15 @@ public:
     }
 
     unsigned char *getPayload() const { return _payload; }
-    ssize_t        getPayloadLength() const { return _payloadLength; }
-    ssize_t        getFrameLength() const { return _frameLength; }
+    ssize_t getPayloadLength() const { return _payloadLength; }
+    ssize_t getFrameLength() const { return _frameLength; }
 
 private:
     unsigned char *_payload{nullptr};
-    ssize_t        _payloadLength{0};
+    ssize_t _payloadLength{0};
 
-    ssize_t                    _frameLength{0};
-    std::vector<unsigned char> _data;
+    ssize_t _frameLength{0};
+    ccstd::vector<unsigned char> _data;
 };
 
 //
@@ -619,7 +610,7 @@ WebSocketImpl::WebSocketImpl(cc::network::WebSocket *ws)
     {
         std::lock_guard<std::recursive_mutex> lk(instanceMutex);
         if (websocketInstances == nullptr) {
-            websocketInstances = new (std::nothrow) std::vector<WebSocketImpl *>();
+            websocketInstances = ccnew ccstd::vector<WebSocketImpl *>();
         }
         websocketInstances->push_back(this);
     }
@@ -668,11 +659,11 @@ WebSocketImpl::~WebSocketImpl() {
 }
 
 bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
-                         const std::string &                     url,
-                         const std::vector<std::string> *        protocols /* = nullptr*/,
-                         const std::string &                     caFilePath /* = ""*/) {
-    _delegate   = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
-    _url        = url;
+                         const ccstd::string &url,
+                         const ccstd::vector<ccstd::string> *protocols /* = nullptr*/,
+                         const ccstd::string &caFilePath /* = ""*/) {
+    _delegate = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
+    _url = url;
     _caFilePath = caFilePath;
 
     if (_url.empty()) {
@@ -680,7 +671,7 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
     }
 
     if (protocols != nullptr && !protocols->empty()) {
-        size_t size   = protocols->size();
+        size_t size = protocols->size();
         _lwsProtocols = static_cast<struct lws_protocols *>(malloc((size + 1) * sizeof(struct lws_protocols)));
         memset(_lwsProtocols, 0, (size + 1) * sizeof(struct lws_protocols));
 
@@ -688,15 +679,15 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
 
         for (size_t i = 0; i < size; ++i) {
             _lwsProtocols[i].callback = WebSocketCallbackWrapper::onSocketCallback;
-            size_t nameLen            = protocols->at(i).length();
-            char * name               = static_cast<char *>(malloc(nameLen + 1));
-            name[nameLen]             = '\0';
+            size_t nameLen = protocols->at(i).length();
+            char *name = static_cast<char *>(malloc(nameLen + 1));
+            name[nameLen] = '\0';
             strcpy(name, protocols->at(i).c_str());
-            _lwsProtocols[i].name                  = name;
-            _lwsProtocols[i].id                    = ++wsId;
-            _lwsProtocols[i].rx_buffer_size        = WS_RX_BUFFER_SIZE;
+            _lwsProtocols[i].name = name;
+            _lwsProtocols[i].id = ++wsId;
+            _lwsProtocols[i].rx_buffer_size = WS_RX_BUFFER_SIZE;
             _lwsProtocols[i].per_session_data_size = 0;
-            _lwsProtocols[i].user                  = nullptr;
+            _lwsProtocols[i].user = nullptr;
 
             _clientSupportedProtocols += name;
             if (i < (size - 1)) {
@@ -707,11 +698,11 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
 
     bool isWebSocketThreadCreated = true;
     if (wsHelper == nullptr) {
-        wsHelper                 = new (std::nothrow) WsThreadHelper();
+        wsHelper = ccnew WsThreadHelper();
         isWebSocketThreadCreated = false;
     }
 
-    auto *msg = new (std::nothrow) WsMessage();
+    auto *msg = ccnew WsMessage();
     msg->what = WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION;
     msg->user = this;
     wsHelper->sendMessageToWebSocketThread(msg);
@@ -739,26 +730,26 @@ size_t WebSocketImpl::getBufferedAmount() const {
     return wsHelper->countBufferedBytes(this);
 }
 
-std::string WebSocketImpl::getExtensions() const {
+ccstd::string WebSocketImpl::getExtensions() const {
     //join vector with ";"
     if (_enabledExtensions.empty()) return "";
-    std::string ret;
+    ccstd::string ret;
     for (const auto &enabledExtension : _enabledExtensions) ret += (enabledExtension + "; ");
     ret += _enabledExtensions[_enabledExtensions.size() - 1];
     return ret;
 }
 
-void WebSocketImpl::send(const std::string &message) {
+void WebSocketImpl::send(const ccstd::string &message) {
     if (_readyState == cc::network::WebSocket::State::OPEN) {
         // In main thread
-        auto *data  = new (std::nothrow) cc::network::WebSocket::Data();
+        auto *data = ccnew cc::network::WebSocket::Data();
         data->bytes = static_cast<char *>(malloc(message.length() + 1));
         // Make sure the last byte is '\0'
         data->bytes[message.length()] = '\0';
         strcpy(data->bytes, message.c_str());
         data->len = static_cast<ssize_t>(message.length());
 
-        auto *msg = new (std::nothrow) WsMessage();
+        auto *msg = ccnew WsMessage();
         msg->what = WS_MSG_TO_SUBTRHEAD_SENDING_STRING;
         msg->data = data;
         msg->user = this;
@@ -771,10 +762,10 @@ void WebSocketImpl::send(const std::string &message) {
 void WebSocketImpl::send(const unsigned char *binaryMsg, unsigned int len) {
     if (_readyState == cc::network::WebSocket::State::OPEN) {
         // In main thread
-        auto *data = new (std::nothrow) cc::network::WebSocket::Data();
+        auto *data = ccnew cc::network::WebSocket::Data();
         if (len == 0) {
             // If data length is zero, allocate 1 byte for safe.
-            data->bytes    = static_cast<char *>(malloc(1));
+            data->bytes = static_cast<char *>(malloc(1));
             data->bytes[0] = '\0';
         } else {
             data->bytes = static_cast<char *>(malloc(len));
@@ -782,7 +773,7 @@ void WebSocketImpl::send(const unsigned char *binaryMsg, unsigned int len) {
         }
         data->len = len;
 
-        auto *msg = new (std::nothrow) WsMessage();
+        auto *msg = ccnew WsMessage();
         msg->what = WS_MSG_TO_SUBTRHEAD_SENDING_BINARY;
         msg->data = data;
         msg->user = this;
@@ -826,8 +817,10 @@ void WebSocketImpl::close() {
     _delegate->onClose(_ws);
 }
 
-void WebSocketImpl::closeAsync(int code, const std::string &reason) {
-    lws_close_reason(_wsInstance, static_cast<lws_close_status>(code), reinterpret_cast<unsigned char *>(const_cast<char *>(reason.c_str())), reason.length());
+void WebSocketImpl::closeAsync(int code, const ccstd::string &reason) {
+    if (_wsInstance) {
+        lws_close_reason(_wsInstance, static_cast<lws_close_status>(code), reinterpret_cast<unsigned char *>(const_cast<char *>(reason.c_str())), reason.length());
+    }
     closeAsync();
 }
 
@@ -854,11 +847,11 @@ cc::network::WebSocket::State WebSocketImpl::getReadyState() const {
     return _readyState;
 }
 
-const std::string &WebSocketImpl::getUrl() const {
+const ccstd::string &WebSocketImpl::getUrl() const {
     return _url;
 }
 
-const std::string &WebSocketImpl::getProtocol() const {
+const ccstd::string &WebSocketImpl::getProtocol() const {
     return _selectedProtocol;
 }
 
@@ -867,8 +860,8 @@ cc::network::WebSocket::Delegate *WebSocketImpl::getDelegate() const {
 }
 
 struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, int *sslConnectionOut) {
-    auto *fileUtils     = cc::FileUtils::getInstance();
-    bool  isCAFileExist = fileUtils->isFileExist(_caFilePath);
+    auto *fileUtils = cc::FileUtils::getInstance();
+    bool isCAFileExist = fileUtils->isFileExist(_caFilePath);
     if (isCAFileExist) {
         _caFilePath = fileUtils->fullPathForFilename(_caFilePath);
     }
@@ -880,17 +873,17 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
         if (isCAFileExist) {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
             // if ca file is in the apk, try to extract it to writable path
-            std::string writablePath  = fileUtils->getWritablePath();
-            std::string caFileName    = getFileNameForPath(_caFilePath);
-            std::string newCaFilePath = writablePath + caFileName;
+            ccstd::string writablePath = fileUtils->getWritablePath();
+            ccstd::string caFileName = getFileNameForPath(_caFilePath);
+            ccstd::string newCaFilePath = writablePath + caFileName;
 
             if (fileUtils->isFileExist(newCaFilePath)) {
                 LOGD("CA file (%s) in writable path exists!", newCaFilePath.c_str());
-                _caFilePath          = newCaFilePath;
+                _caFilePath = newCaFilePath;
                 info.ssl_ca_filepath = _caFilePath.c_str();
             } else {
                 if (fileUtils->isFileExist(_caFilePath)) {
-                    std::string fullPath = fileUtils->fullPathForFilename(_caFilePath);
+                    ccstd::string fullPath = fileUtils->fullPathForFilename(_caFilePath);
                     LOGD("Found CA file: %s", fullPath.c_str());
                     if (fullPath[0] != '/') {
                         LOGD("CA file is in APK");
@@ -901,21 +894,21 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
                                 LOGD("New CA file path: %s", newCaFilePath.c_str());
                                 fwrite(caData.getBytes(), caData.getSize(), 1, fp);
                                 fclose(fp);
-                                _caFilePath          = newCaFilePath;
+                                _caFilePath = newCaFilePath;
                                 info.ssl_ca_filepath = _caFilePath.c_str();
                             } else {
-                                CCASSERT(false, "Open new CA file failed");
+                                CC_ASSERT(false); // Open new CA file failed
                             }
                         } else {
-                            CCASSERT(false, "CA file is empty!");
+                            CC_ASSERT(false); // CA file is empty!
                         }
                     } else {
                         LOGD("CA file isn't in APK!");
-                        _caFilePath          = fullPath;
+                        _caFilePath = fullPath;
                         info.ssl_ca_filepath = _caFilePath.c_str();
                     }
                 } else {
-                    CCASSERT(false, "CA file doesn't exist!");
+                    CC_ASSERT(false); // CA file doesn't exist!
                 }
             }
 #else
@@ -970,27 +963,27 @@ void WebSocketImpl::onClientOpenConnectionRequest() {
             port = uri.isSecure() ? 443 : 80;
         }
 
-        const std::string &hostName  = uri.getHostName();
-        std::string        path      = uri.getPathEtc();
-        const std::string &authority = uri.getAuthority();
+        const ccstd::string &hostName = uri.getHostName();
+        ccstd::string path = uri.getPathEtc();
+        const ccstd::string &authority = uri.getAuthority();
         if (path.empty()) {
             path = "/";
         }
 
         struct lws_client_connect_info connectInfo;
         memset(&connectInfo, 0, sizeof(connectInfo));
-        connectInfo.context                   = wsContext;
-        connectInfo.address                   = hostName.c_str();
-        connectInfo.port                      = port;
-        connectInfo.ssl_connection            = sslConnection;
-        connectInfo.path                      = path.c_str();
-        connectInfo.host                      = hostName.c_str();
-        connectInfo.origin                    = authority.c_str();
-        connectInfo.protocol                  = _clientSupportedProtocols.empty() ? nullptr : _clientSupportedProtocols.c_str();
+        connectInfo.context = wsContext;
+        connectInfo.address = hostName.c_str();
+        connectInfo.port = port;
+        connectInfo.ssl_connection = sslConnection;
+        connectInfo.path = path.c_str();
+        connectInfo.host = hostName.c_str();
+        connectInfo.origin = authority.c_str();
+        connectInfo.protocol = _clientSupportedProtocols.empty() ? nullptr : _clientSupportedProtocols.c_str();
         connectInfo.ietf_version_or_minus_one = -1;
-        connectInfo.userdata                  = this;
-        connectInfo.client_exts               = EXTS;
-        connectInfo.vhost                     = vhost;
+        connectInfo.userdata = this;
+        connectInfo.client_exts = EXTS;
+        connectInfo.vhost = vhost;
 
         _wsInstance = lws_client_connect_via_info(&connectInfo);
 
@@ -1039,14 +1032,14 @@ int WebSocketImpl::onClientWritable() {
             const ssize_t cBufferSize = WS_RX_BUFFER_SIZE;
 
             const ssize_t remaining = data->len - data->issued;
-            const ssize_t n         = std::min(remaining, cBufferSize);
+            const ssize_t n = std::min(remaining, cBufferSize);
 
             WebSocketFrame *frame = nullptr;
 
             if (data->ext) {
                 frame = static_cast<WebSocketFrame *>(data->ext);
             } else {
-                frame        = new (std::nothrow) WebSocketFrame();
+                frame = ccnew WebSocketFrame();
                 bool success = frame && frame->init(reinterpret_cast<unsigned char *>(data->bytes + data->issued), n);
                 if (success) {
                     data->ext = frame;
@@ -1157,12 +1150,12 @@ int WebSocketImpl::onClientReceivedData(void *in, ssize_t len) {
     }
 
     // If no more data pending, send it to the client thread
-    size_t remainingSize   = lws_remaining_packet_payload(_wsInstance);
-    int    isFinalFragment = lws_is_final_fragment(_wsInstance);
+    size_t remainingSize = lws_remaining_packet_payload(_wsInstance);
+    int isFinalFragment = lws_is_final_fragment(_wsInstance);
     //    LOGD("remainingSize: %d, isFinalFragment: %d\n", (int)remainingSize, isFinalFragment);
 
     if (remainingSize == 0 && isFinalFragment) {
-        auto *frameData = new (std::nothrow) std::vector<char>(std::move(_receivedData));
+        auto *frameData = ccnew ccstd::vector<char>(std::move(_receivedData));
 
         // reset capacity of received data buffer
         _receivedData.reserve(WS_RESERVE_RECEIVE_BUFFER_SIZE);
@@ -1182,8 +1175,8 @@ int WebSocketImpl::onClientReceivedData(void *in, ssize_t len) {
 
             cc::network::WebSocket::Data data;
             data.isBinary = isBinary;
-            data.bytes    = static_cast<char *>(frameData->data());
-            data.len      = frameSize;
+            data.bytes = static_cast<char *>(frameData->data());
+            data.len = frameSize;
 
             if (*isDestroyed) {
                 LOGD("WebSocket instance was destroyed!\n");
@@ -1200,7 +1193,7 @@ int WebSocketImpl::onClientReceivedData(void *in, ssize_t len) {
 
 int WebSocketImpl::onConnectionOpened() {
     const lws_protocols *lwsSelectedProtocol = lws_get_protocol(_wsInstance);
-    _selectedProtocol                        = lwsSelectedProtocol->name;
+    _selectedProtocol = lwsSelectedProtocol->name;
     LOGD("onConnectionOpened...: %p, client protocols: %s, server selected protocol: %s\n", this, _clientSupportedProtocols.c_str(), _selectedProtocol.c_str());
     /*
      * start the ball rolling,
@@ -1354,21 +1347,21 @@ void WebSocket::closeAllConnections() {
 }
 
 WebSocket::WebSocket() {
-    _impl = new (std::nothrow) WebSocketImpl(this);
+    _impl = ccnew WebSocketImpl(this);
 }
 
 WebSocket::~WebSocket() {
     delete _impl;
 }
 
-bool WebSocket::init(const Delegate &                delegate,
-                     const std::string &             url,
-                     const std::vector<std::string> *protocols /* = nullptr*/,
-                     const std::string &             caFilePath /* = ""*/) {
+bool WebSocket::init(const Delegate &delegate,
+                     const ccstd::string &url,
+                     const ccstd::vector<ccstd::string> *protocols /* = nullptr*/,
+                     const ccstd::string &caFilePath /* = ""*/) {
     return _impl->init(delegate, url, protocols, caFilePath);
 }
 
-void WebSocket::send(const std::string &message) {
+void WebSocket::send(const ccstd::string &message) {
     _impl->send(message);
 }
 
@@ -1383,7 +1376,7 @@ void WebSocket::close() {
 void WebSocket::closeAsync() {
     _impl->closeAsync();
 }
-void WebSocket::closeAsync(int code, const std::string &reason) {
+void WebSocket::closeAsync(int code, const ccstd::string &reason) {
     _impl->closeAsync(code, reason);
 }
 
@@ -1391,7 +1384,7 @@ WebSocket::State WebSocket::getReadyState() const {
     return _impl->getReadyState();
 }
 
-std::string WebSocket::getExtensions() const {
+ccstd::string WebSocket::getExtensions() const {
     return _impl->getExtensions();
 }
 
@@ -1399,11 +1392,11 @@ size_t WebSocket::getBufferedAmount() const {
     return _impl->getBufferedAmount();
 }
 
-const std::string &WebSocket::getUrl() const {
+const ccstd::string &WebSocket::getUrl() const {
     return _impl->getUrl();
 }
 
-const std::string &WebSocket::getProtocol() const {
+const ccstd::string &WebSocket::getProtocol() const {
     return _impl->getProtocol();
 }
 

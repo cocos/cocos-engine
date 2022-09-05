@@ -1,0 +1,572 @@
+/*
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { DEBUG, EDITOR, JSB } from 'internal:constants';
+import {
+    ccclass, executeInEditMode, requireComponent, tooltip,
+    type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
+} from 'cc.decorator';
+import { Color } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
+import { builtinResMgr } from '../../core/builtin';
+import { Material } from '../../core/assets';
+import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
+import { IAssembler, IAssemblerManager } from '../renderer/base';
+import { RenderData } from '../renderer/render-data';
+import { IBatcher } from '../renderer/i-batcher';
+import { Node } from '../../core/scene-graph';
+import { TransformBit } from '../../core/scene-graph/node-enum';
+import { UITransform } from './ui-transform';
+import { Stage } from '../renderer/stencil-manager';
+import { legacyCC } from '../../core/global-exports';
+import { NodeEventType } from '../../core/scene-graph/node-event';
+import { Renderer } from '../../core/components/renderer';
+import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { uiRendererManager } from './ui-renderer-manager';
+import { assert, director } from '../../core';
+import { RenderDrawInfoType } from '../renderer/render-draw-info';
+
+// hack
+ccenum(BlendFactor);
+
+/**
+ * @en
+ * The shader property type of the material after instantiation.
+ *
+ * @zh
+ * 实例后的材质的着色器属性类型。
+ */
+export enum InstanceMaterialType {
+    /**
+     * @en
+     * The shader only has color properties.
+     *
+     * @zh
+     * 着色器只带颜色属性。
+     */
+    ADD_COLOR = 0,
+
+    /**
+     * @en
+     * The shader has color and texture properties.
+     *
+     * @zh
+     * 着色器带颜色和贴图属性。
+     */
+    ADD_COLOR_AND_TEXTURE = 1,
+
+    /**
+     * @en
+     * The shader has color and texture properties and uses grayscale mode.
+     *
+     * @zh
+     * 着色器带颜色和贴图属性,并使用灰度模式。
+     */
+    GRAYSCALE = 2,
+
+    /**
+     * @en
+     * The shader has color and texture properties and uses embedded alpha mode.
+     *
+     * @zh
+     * 着色器带颜色和贴图属性,并使用透明通道分离贴图。
+     */
+    USE_ALPHA_SEPARATED = 3,
+
+    /**
+     * @en
+     * The shader has color and texture properties and uses embedded alpha and grayscale mode.
+     *
+     * @zh
+     * 着色器带颜色和贴图属性,并使用灰度模式。
+     */
+    USE_ALPHA_SEPARATED_AND_GRAY = 4,
+}
+
+/**
+ * @en Base class for UI components which supports rendering features.
+ * This component will setup NodeUIProperties.uiComp in its owner [[Node]]
+ *
+ * @zh 所有支持渲染的 UI 组件的基类。
+ * 这个组件会设置 [[Node]] 上的 NodeUIProperties.uiComp。
+ */
+@ccclass('cc.UIRenderer')
+@requireComponent(UITransform)
+@executeInEditMode
+export class UIRenderer extends Renderer {
+    /**
+     * @en The blend factor enums
+     * @zh 混合模式枚举类型
+     * @see [[gfx.BlendFactor]]
+     */
+    public static BlendState = BlendFactor;
+    /**
+     * @en The render data assembler
+     * @zh 渲染数据组装器
+     */
+    public static Assembler: IAssemblerManager = null!;
+    /**
+     * @en The post render data assembler
+     * @zh 后置渲染数据组装器
+     */
+    public static PostAssembler: IAssemblerManager | null = null;
+
+    constructor () {
+        super();
+        this._renderEntity = this.createRenderEntity();
+    }
+
+    @override
+    @visible(false)
+    get sharedMaterials () {
+        // if we don't create an array copy, the editor will modify the original array directly.
+        return EDITOR && this._materials.slice() || this._materials;
+    }
+
+    set sharedMaterials (val) {
+        for (let i = 0; i < val.length; i++) {
+            if (val[i] !== this._materials[i]) {
+                this.setMaterial(val[i], i);
+            }
+        }
+        if (val.length < this._materials.length) {
+            for (let i = val.length; i < this._materials.length; i++) {
+                this.setMaterial(null, i);
+            }
+            this._materials.splice(val.length);
+        }
+    }
+
+    /**
+     * @en The customMaterial
+     * @zh 用户自定材质
+     */
+    @type(Material)
+    @displayOrder(0)
+    @tooltip('i18n:UIRenderer.customMaterial')
+    @displayName('CustomMaterial')
+    @disallowAnimation
+    get customMaterial () {
+        return this._customMaterial;
+    }
+
+    set customMaterial (val) {
+        this._customMaterial = val;
+        this.updateMaterial();
+    }
+
+    /**
+     * @en Main color for rendering, it normally multiplies with texture color.
+     * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
+     */
+    @displayOrder(1)
+    @tooltip('i18n:UIRenderer.color')
+    get color (): Readonly<Color> {
+        return this._color;
+    }
+    set color (value) {
+        if (this._color.equals(value)) {
+            return;
+        }
+        this._color.set(value);
+        this._updateColor();
+        if (EDITOR) {
+            const clone = value.clone();
+            this.node.emit(NodeEventType.COLOR_CHANGED, clone);
+        }
+    }
+
+    protected _renderData: RenderData | null = null;
+    /**
+     * @internal
+     */
+    get renderData () {
+        return this._renderData;
+    }
+
+    /**
+     * @internal
+     */
+    get useVertexOpacity () {
+        return this._useVertexOpacity;
+    }
+
+    /**
+     * @en The component stencil stage (please do not any modification directly on this object)
+     * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
+     */
+    get stencilStage (): Stage {
+        return this._stencilStage;
+    }
+    set stencilStage (val: Stage) {
+        this._stencilStage = val;
+        this._renderEntity.setStencilStage(val);
+    }
+
+    @override
+    protected _materials: (Material | null)[] = [];
+    @type(Material)
+    protected _customMaterial: Material | null = null;
+
+    @serializable
+    protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
+    @serializable
+    protected _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
+    @serializable
+    protected _color: Color = Color.WHITE.clone();
+
+    protected _stencilStage: Stage = Stage.DISABLED;
+
+    protected _assembler: IAssembler | null = null;
+    protected _postAssembler: IAssembler | null = null;
+
+    // RenderEntity
+    //protected renderData: RenderData | null = null;
+    protected _renderDataFlag = true;
+    protected _renderFlag = true;
+
+    protected _renderEntity: RenderEntity;
+
+    protected _instanceMaterialType = -1;
+    protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
+    protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
+    /**
+     * @internal
+     */
+    public _dirtyVersion = -1;
+    /**
+     * @internal
+     */
+    public _internalId = -1;
+
+    get batcher () {
+        return director.root!.batcher2D;
+    }
+
+    get renderEntity () {
+        if (DEBUG) {
+            assert(this._renderEntity, 'this._renderEntity should not be invalid');
+        }
+        return this._renderEntity;
+    }
+
+    /**
+     * @en Marks for calculating opacity per vertex
+     * @zh 标记组件是否逐顶点计算透明度
+     */
+    protected _useVertexOpacity = false;
+
+    protected _lastParent: Node | null = null;
+
+    public onLoad () {
+        this._renderEntity.setNode(this.node);
+    }
+
+    public __preload () {
+        this.node._uiProps.uiComp = this;
+        if (this._flushAssembler) {
+            this._flushAssembler();
+        }
+    }
+
+    public onEnable () {
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
+        this.updateMaterial();
+        this._colorDirty();
+        uiRendererManager.addRenderer(this);
+        this.markForUpdateRenderData();
+    }
+
+    // For Redo, Undo
+    public onRestore () {
+        this.updateMaterial();
+        // restore render data
+        this.markForUpdateRenderData();
+    }
+
+    public onDisable () {
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.PARENT_CHANGED, this._colorDirty, this);
+        uiRendererManager.removeRenderer(this);
+        this._renderFlag = false;
+        this._renderEntity.enabled = false;
+    }
+
+    public onDestroy () {
+        this._renderEntity.setNode(null);
+        if (this.node._uiProps.uiComp === this) {
+            this.node._uiProps.uiComp = null;
+        }
+        this.destroyRenderData();
+        if (this._materialInstances) {
+            for (let i = 0; i < this._materialInstances.length; i++) {
+                const instance = this._materialInstances[i];
+                if (instance) { instance.destroy(); }
+            }
+        }
+    }
+
+    /**
+     * @en Marks the render data of the current component as modified so that the render data is recalculated.
+     * @zh 标记当前组件的渲染数据为已修改状态，这样渲染数据才会重新计算。
+     * @param enable Marked necessary to update or not
+     */
+    public markForUpdateRenderData (enable = true) {
+        if (enable) {
+            const renderData = this.renderData;
+            if (renderData) {
+                renderData.vertDirty = true;
+            }
+            uiRendererManager.markDirtyRenderer(this);
+        }
+    }
+
+    /**
+     * @en Request new render data object.
+     * @zh 请求新的渲染数据对象。
+     * @return The new render data
+     */
+    public requestRenderData (drawInfoType = RenderDrawInfoType.COMP) {
+        const data = RenderData.add();
+        data.initRenderDrawInfo(this, drawInfoType);
+        this._renderData = data;
+        return data;
+    }
+
+    /**
+     * @en Destroy current render data.
+     * @zh 销毁当前渲染数据。
+     */
+    public destroyRenderData () {
+        if (!this.renderData) {
+            return;
+        }
+        this.renderData.removeRenderDrawInfo(this);
+        RenderData.remove(this.renderData);
+        this._renderData = null;
+    }
+
+    // test code: to replace prev part updateAssembler
+    public updateRenderer () {
+        if (this._assembler) {
+            this._assembler.updateRenderData(this);
+        }
+        this._renderFlag = this._canRender();
+        this._renderEntity.enabled = this._renderFlag;
+    }
+
+    // test code: to replace after part updateAssembler
+    public fillBuffers (render: IBatcher) {
+        if (this._renderFlag) {
+            this._render(render);
+        }
+    }
+
+    /**
+     * @en Post render data submission procedure, it's executed after assembler updated for all children.
+     * It may assemble some extra render data to the geometry buffers, or it may only change some render states.
+     * Don't call it unless you know what you are doing.
+     * @zh 后置渲染数据组装程序，它会在所有子节点的渲染数据组装完成后被调用。
+     * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
+    public postUpdateAssembler (render: IBatcher) {
+        if (this._postAssembler && this._renderFlag) {
+            this._postRender(render);
+        }
+    }
+
+    protected _render (render: IBatcher) { }
+
+    protected _postRender (render: IBatcher) { }
+
+    protected _canRender () {
+        if (DEBUG) {
+            assert(this.isValid, 'this component should not be invalid!');
+        }
+        return this.getMaterial(0) !== null
+            && this._enabled
+            && this._color.a > 0;
+    }
+
+    protected _postCanRender () { }
+
+    protected updateMaterial () {
+        if (this._customMaterial) {
+            this.setMaterial(this._customMaterial, 0);
+            return;
+        }
+        const mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
+        this._updateBlendFunc();
+    }
+
+    protected _updateColor () {
+        this.node._uiProps.colorDirty = true;
+        this.setEntityColorDirty(true);
+        this.setEntityColor(this._color);
+        this.setEntityOpacity(this.node._uiProps.localOpacity);
+
+        if (this._assembler) {
+            this._assembler.updateColor(this);
+            // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
+            this._renderFlag = this._canRender();
+            this.setEntityEnabled(this._renderFlag);
+        }
+    }
+
+    // for common
+    public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        if (render && render.color) { // exclude UIMeshRenderer which has not color
+            render._renderEntity.colorDirty = dirty;
+        }
+        for (let i = 0; i < node.children.length; i++) {
+            UIRenderer.setEntityColorDirtyRecursively(node.children[i], dirty);
+        }
+    }
+
+    private setEntityColorDirty (dirty: boolean) {
+        if (JSB) {
+            UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+        }
+    }
+
+    public setEntityColor (color: Color) {
+        if (JSB) {
+            this._renderEntity.color = color;
+        }
+    }
+
+    public setEntityOpacity (opacity: number) {
+        if (JSB) {
+            this._renderEntity.localOpacity = opacity;
+        }
+    }
+
+    public setEntityEnabled (enabled: boolean) {
+        if (JSB) {
+            this._renderEntity.enabled = enabled;
+        }
+    }
+
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    public _updateBlendFunc () {
+        // todo: Not only Pass[0].target[0]
+        let target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+        this._dstBlendFactorCache = target.blendDst;
+        this._srcBlendFactorCache = target.blendSrc;
+        if (this._dstBlendFactorCache !== this._dstBlendFactor || this._srcBlendFactorCache !== this._srcBlendFactor) {
+            target = this.getMaterialInstance(0)!.passes[0].blendState.targets[0];
+            target.blend = true;
+            target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
+            target.blendDst = this._dstBlendFactor;
+            target.blendSrc = this._srcBlendFactor;
+            const targetPass = this.getMaterialInstance(0)!.passes[0];
+            targetPass.blendState.setTarget(0, target);
+            // @ts-expect-error hack for UI use pass object
+            targetPass._updatePassHash();
+            this._dstBlendFactorCache = this._dstBlendFactor;
+            this._srcBlendFactorCache = this._srcBlendFactor;
+        }
+    }
+
+    // pos, rot, scale changed
+    protected _nodeStateChange (transformType: TransformBit) {
+        if (this.renderData) {
+            this.markForUpdateRenderData();
+        }
+
+        for (let i = 0; i < this.node.children.length; ++i) {
+            const child = this.node.children[i];
+            const renderComp = child.getComponent(UIRenderer);
+            if (renderComp) {
+                renderComp.markForUpdateRenderData();
+            }
+        }
+    }
+
+    protected _colorDirty () {
+        this.node._uiProps.colorDirty = true;
+        this.setEntityColorDirty(true);
+    }
+
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this.renderData) {
+            this.markForUpdateRenderData();
+            this.renderData.passDirty = true;
+        }
+        super._onMaterialModified(idx, material);
+    }
+
+    protected _updateBuiltinMaterial (): Material {
+        let mat: Material;
+        switch (this._instanceMaterialType) {
+        case InstanceMaterialType.ADD_COLOR:
+            mat = builtinResMgr.get(`ui-base-material`);
+            break;
+        case InstanceMaterialType.GRAYSCALE:
+            mat = builtinResMgr.get(`ui-sprite-gray-material`);
+            break;
+        case InstanceMaterialType.USE_ALPHA_SEPARATED:
+            mat = builtinResMgr.get(`ui-sprite-alpha-sep-material`);
+            break;
+        case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
+            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep-material`);
+            break;
+        default:
+            mat = builtinResMgr.get(`ui-sprite-material`);
+            break;
+        }
+        return mat;
+    }
+
+    protected _flushAssembler?(): void;
+
+    public setNodeDirty () {
+        if (this.renderData) {
+            this.renderData.nodeDirty = true;
+        }
+    }
+
+    public setTextureDirty () {
+        if (this.renderData) {
+            this.renderData.textureDirty = true;
+        }
+    }
+
+    // RenderEntity
+    // it should be overwritten by inherited classes
+    protected createRenderEntity () {
+        return new RenderEntity(RenderEntityType.STATIC);
+    }
+}
+
+legacyCC.internal.UIRenderer = UIRenderer;

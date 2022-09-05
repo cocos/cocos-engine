@@ -30,7 +30,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "cocos/base/Vector.h"
+#include "cocos/base/RefVector.h"
 #include "stdafx.h"
 #include "PlayerMenuServiceProtocol.h"
 #include "SimulatorExport.h"
@@ -55,7 +55,7 @@ protected:
     UINT _commandId;
     HMENU _hmenu;
     bool _menubarEnabled;
-    cc::Vector<PlayerMenuItemWin*> _children;
+    cc::RefVector<PlayerMenuItemWin*> _children;
 
     friend class PlayerMenuServiceWin;
 };

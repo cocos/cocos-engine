@@ -26,15 +26,16 @@
 #pragma once
 
 #include "GLES2Std.h"
+#include "base/std/container/queue.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
 
-class GLES2CmdPackage;
-class GLES2GPUPipelineState;
-class GLES2GPUDescriptorSet;
-class GLES2GPUInputAssembler;
+struct GLES2CmdPackage;
+struct GLES2GPUPipelineState;
+struct GLES2GPUDescriptorSet;
+struct GLES2GPUInputAssembler;
 class GLES2GPUCommandAllocator;
 
 class CC_GLES2_API GLES2CommandBuffer : public CommandBuffer {
@@ -66,7 +67,7 @@ public:
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override {}
-    void pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override {}
+    void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override {}
     void beginQuery(QueryPool *queryPool, uint32_t id) override {}
     void endQuery(QueryPool *queryPool, uint32_t id) override {}
     void resetQueryPool(QueryPool *queryPool) override {}
@@ -77,16 +78,16 @@ protected:
 
     virtual void bindStates();
 
-    GLES2GPUCommandAllocator *_cmdAllocator  = nullptr;
-    GLES2CmdPackage *         _curCmdPackage = nullptr;
-    queue<GLES2CmdPackage *>  _pendingPackages, _freePackages;
+    GLES2GPUCommandAllocator *_cmdAllocator = nullptr;
+    GLES2CmdPackage *_curCmdPackage = nullptr;
+    ccstd::queue<GLES2CmdPackage *> _pendingPackages, _freePackages;
 
-    uint32_t                        _curSubpassIdx       = 0U;
-    GLES2GPUPipelineState *         _curGPUPipelineState = nullptr;
-    vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint32_t>>        _curDynamicOffsets;
-    GLES2GPUInputAssembler *        _curGPUInputAssember = nullptr;
-    DynamicStates                   _curDynamicStates;
+    uint32_t _curSubpassIdx = 0U;
+    GLES2GPUPipelineState *_curGPUPipelineState = nullptr;
+    ccstd::vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
+    ccstd::vector<ccstd::vector<uint32_t>> _curDynamicOffsets;
+    GLES2GPUInputAssembler *_curGPUInputAssember = nullptr;
+    DynamicStates _curDynamicStates;
 
     bool _isStateInvalid = false;
 };

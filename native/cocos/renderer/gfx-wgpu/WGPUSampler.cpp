@@ -33,28 +33,28 @@ namespace cc {
 namespace gfx {
 
 namespace anoymous {
-CCWGPUSampler* defaultSampler = nullptr;
+CCWGPUSampler *defaultSampler = nullptr;
 }
 
 using namespace emscripten;
 
-CCWGPUSampler::CCWGPUSampler(const SamplerInfo& info) : wrapper<Sampler>(val::object(), info) {
+CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : wrapper<Sampler>(val::object(), info) {
     WGPUSamplerDescriptor descriptor = {
-        .nextInChain   = nullptr,
-        .label         = nullptr,
-        .addressModeU  = toWGPUAddressMode(info.addressU),
-        .addressModeV  = toWGPUAddressMode(info.addressV),
-        .addressModeW  = toWGPUAddressMode(info.addressW),
-        .magFilter     = toWGPUFilterMode(info.magFilter),
-        .minFilter     = toWGPUFilterMode(info.minFilter),
-        .mipmapFilter  = toWGPUFilterMode(info.mipFilter),
-        .lodMinClamp   = 0.0f,
-        .lodMaxClamp   = std::numeric_limits<float>::max(),
-        .compare       = WGPUCompareFunction_Undefined, //toWGPUCompareFunction(info.cmpFunc),
+        .nextInChain = nullptr,
+        .label = nullptr,
+        .addressModeU = toWGPUAddressMode(info.addressU),
+        .addressModeV = toWGPUAddressMode(info.addressV),
+        .addressModeW = toWGPUAddressMode(info.addressW),
+        .magFilter = toWGPUFilterMode(info.magFilter),
+        .minFilter = toWGPUFilterMode(info.minFilter),
+        .mipmapFilter = toWGPUFilterMode(info.mipFilter),
+        .lodMinClamp = 0.0f,
+        .lodMaxClamp = std::numeric_limits<float>::max(),
+        .compare = WGPUCompareFunction_Undefined, //toWGPUCompareFunction(info.cmpFunc),
         .maxAnisotropy = static_cast<uint16_t>(info.maxAnisotropy),
     };
 
-    auto* device = CCWGPUDevice::getInstance();
+    auto *device = CCWGPUDevice::getInstance();
     _wgpuSampler = wgpuDeviceCreateSampler(device->gpuDeviceObject()->wgpuDevice, &descriptor);
 }
 
@@ -62,19 +62,19 @@ CCWGPUSampler::~CCWGPUSampler() {
     wgpuSamplerRelease(_wgpuSampler);
 }
 
-CCWGPUSampler* CCWGPUSampler::defaultSampler() {
+CCWGPUSampler *CCWGPUSampler::defaultSampler() {
     if (!anoymous::defaultSampler) {
         SamplerInfo info = {
-            .minFilter     = Filter::LINEAR,
-            .magFilter     = Filter::LINEAR,
-            .mipFilter     = Filter::NONE,
-            .addressU      = Address::WRAP,
-            .addressV      = Address::WRAP,
-            .addressW      = Address::WRAP,
+            .minFilter = Filter::LINEAR,
+            .magFilter = Filter::LINEAR,
+            .mipFilter = Filter::NONE,
+            .addressU = Address::WRAP,
+            .addressV = Address::WRAP,
+            .addressW = Address::WRAP,
             .maxAnisotropy = 0,
-            .cmpFunc       = ComparisonFunc::ALWAYS,
+            .cmpFunc = ComparisonFunc::ALWAYS,
         };
-        anoymous::defaultSampler = new CCWGPUSampler(info);
+        anoymous::defaultSampler = ccnew CCWGPUSampler(info);
     }
     return anoymous::defaultSampler;
 }

@@ -30,33 +30,32 @@
 #include "base/Scheduler.h"
 
 #include <algorithm>
-#include <vector>
-
 #include <climits>
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 namespace {
 constexpr unsigned CC_REPEAT_FOREVER{UINT_MAX - 1};
-constexpr int      MAX_FUNC_TO_PERFORM{30};
-constexpr int      INITIAL_TIMER_COUND{10};
+constexpr int MAX_FUNC_TO_PERFORM{30};
+constexpr int INITIAL_TIMER_COUND{10};
 } // namespace
 
 namespace cc {
 // implementation Timer
 
 void Timer::setupTimerWithInterval(float seconds, unsigned int repeat, float delay) {
-    _elapsed    = -1;
-    _interval   = seconds;
-    _delay      = delay;
-    _useDelay   = _delay > 0.0F;
-    _repeat     = repeat;
+    _elapsed = -1;
+    _interval = seconds;
+    _delay = delay;
+    _useDelay = _delay > 0.0F;
+    _repeat = repeat;
     _runForever = _repeat == CC_REPEAT_FOREVER;
 }
 
 void Timer::update(float dt) {
     if (_elapsed == -1) {
-        _elapsed       = 0;
+        _elapsed = 0;
         _timesExecuted = 0;
         return;
     }
@@ -104,11 +103,11 @@ void Timer::update(float dt) {
 
 // TimerTargetCallback
 
-bool TimerTargetCallback::initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const std::string &key, float seconds, unsigned int repeat, float delay) {
+bool TimerTargetCallback::initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const ccstd::string &key, float seconds, unsigned int repeat, float delay) {
     _scheduler = scheduler;
-    _target    = target;
-    _callback  = callback;
-    _key       = key;
+    _target = target;
+    _callback = callback;
+    _key = key;
     setupTimerWithInterval(seconds, repeat, delay);
     return true;
 }
@@ -142,22 +141,22 @@ void Scheduler::removeHashElement(HashTimerEntry *element) {
         element->timers.clear();
 
         _hashForTimers.erase(element->target);
-        free(element);
+        delete element;
     }
 }
 
-void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const std::string &key) {
+void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const ccstd::string &key) {
     this->schedule(callback, target, interval, CC_REPEAT_FOREVER, 0.0F, paused, key);
 }
 
-void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const std::string &key) {
-    CCASSERT(target, "Argument target must be non-nullptr");
-    CCASSERT(!key.empty(), "key should not be empty!");
+void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const ccstd::string &key) {
+    CC_ASSERT(target);
+    CC_ASSERT(!key.empty());
 
-    auto            iter    = _hashForTimers.find(target);
+    auto iter = _hashForTimers.find(target);
     HashTimerEntry *element = nullptr;
     if (iter == _hashForTimers.end()) {
-        element         = new HashTimerEntry();
+        element = ccnew HashTimerEntry();
         element->target = target;
 
         _hashForTimers[target] = element;
@@ -166,7 +165,7 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
         element->paused = paused;
     } else {
         element = iter->second;
-        CCASSERT(element->paused == paused, "element's paused should be paused!");
+        CC_ASSERT(element->paused == paused);
     }
 
     if (element->timers.empty()) {
@@ -182,12 +181,13 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
         }
     }
 
-    auto *timer = new (std::nothrow) TimerTargetCallback();
+    auto *timer = ccnew TimerTargetCallback();
+    timer->addRef();
     timer->initWithCallback(this, callback, target, key, interval, repeat, delay);
-    element->timers.push_back(timer);
+    element->timers.emplace_back(timer);
 }
 
-void Scheduler::unschedule(const std::string &key, void *target) {
+void Scheduler::unschedule(const ccstd::string &key, void *target) {
     // explicit handle nil arguments when removing an object
     if (target == nullptr || key.empty()) {
         return;
@@ -196,15 +196,15 @@ void Scheduler::unschedule(const std::string &key, void *target) {
     auto iter = _hashForTimers.find(target);
     if (iter != _hashForTimers.end()) {
         HashTimerEntry *element = iter->second;
-        int             i       = 0;
-        auto &          timers  = element->timers;
+        int i = 0;
+        auto &timers = element->timers;
 
         for (auto *t : timers) {
             auto *timer = dynamic_cast<TimerTargetCallback *>(t);
 
             if (timer && key == timer->getKey()) {
                 if (timer == element->currentTimer && (!element->currentTimerSalvaged)) {
-                    element->currentTimer->retain();
+                    element->currentTimer->addRef();
                     element->currentTimerSalvaged = true;
                 }
 
@@ -232,9 +232,9 @@ void Scheduler::unschedule(const std::string &key, void *target) {
     }
 }
 
-bool Scheduler::isScheduled(const std::string &key, void *target) {
-    CCASSERT(!key.empty(), "Argument key must not be empty");
-    CCASSERT(target, "Argument target must be non-nullptr");
+bool Scheduler::isScheduled(const ccstd::string &key, void *target) {
+    CC_ASSERT(!key.empty());
+    CC_ASSERT(target);
 
     auto iter = _hashForTimers.find(target);
     if (iter == _hashForTimers.end()) {
@@ -270,10 +270,10 @@ void Scheduler::unscheduleAllForTarget(void *target) {
     auto iter = _hashForTimers.find(target);
     if (iter != _hashForTimers.end()) {
         HashTimerEntry *element = iter->second;
-        auto &          timers  = element->timers;
+        auto &timers = element->timers;
         if (std::find(timers.begin(), timers.end(), element->currentTimer) != timers.end() &&
             (!element->currentTimerSalvaged)) {
-            element->currentTimer->retain();
+            element->currentTimer->addRef();
             element->currentTimerSalvaged = true;
         }
 
@@ -291,7 +291,7 @@ void Scheduler::unscheduleAllForTarget(void *target) {
 }
 
 void Scheduler::resumeTarget(void *target) {
-    CCASSERT(target != nullptr, "target can't be nullptr!");
+    CC_ASSERT(target != nullptr);
 
     // custom selectors
     auto iter = _hashForTimers.find(target);
@@ -301,7 +301,7 @@ void Scheduler::resumeTarget(void *target) {
 }
 
 void Scheduler::pauseTarget(void *target) {
-    CCASSERT(target != nullptr, "target can't be nullptr!");
+    CC_ASSERT(target != nullptr);
 
     // custom selectors
     auto iter = _hashForTimers.find(target);
@@ -311,7 +311,7 @@ void Scheduler::pauseTarget(void *target) {
 }
 
 bool Scheduler::isTargetPaused(void *target) {
-    CCASSERT(target != nullptr, "target must be non nil");
+    CC_ASSERT(target != nullptr);
 
     // Custom selectors
     auto iter = _hashForTimers.find(target);
@@ -340,14 +340,14 @@ void Scheduler::update(float dt) {
     // Iterate over all the custom selectors
     HashTimerEntry *elt = nullptr;
     for (auto iter = _hashForTimers.begin(); iter != _hashForTimers.end();) {
-        elt                    = iter->second;
-        _currentTarget         = elt;
+        elt = iter->second;
+        _currentTarget = elt;
         _currentTargetSalvaged = false;
 
         if (!_currentTarget->paused) {
             // The 'timers' array may change while inside this loop
             for (elt->timerIndex = 0; elt->timerIndex < static_cast<int>(elt->timers.size()); ++(elt->timerIndex)) {
-                elt->currentTimer         = elt->timers[elt->timerIndex];
+                elt->currentTimer = elt->timers.at(elt->timerIndex);
                 elt->currentTimerSalvaged = false;
 
                 elt->currentTimer->update(dt);
@@ -376,7 +376,7 @@ void Scheduler::update(float dt) {
     }
 
     _updateHashLocked = false;
-    _currentTarget    = nullptr;
+    _currentTarget = nullptr;
 
     //
     // Functions allocated from another thread

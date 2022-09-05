@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 
 #include "BufferValidator.h"
@@ -45,25 +44,26 @@ InputAssemblerValidator::~InputAssemblerValidator() {
 }
 
 void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     // vertex attributes validations
     for (auto const &attribute : info.attributes) {
-        CCASSERT(hasFlag(DeviceValidator::getInstance()->getFormatFeatures(attribute.format), FormatFeature::VERTEX_ATTRIBUTE), "Format not supported for the specified features");
+        // Format not supported for the specified features.
+        CC_ASSERT(hasFlag(DeviceValidator::getInstance()->getFormatFeatures(attribute.format), FormatFeature::VERTEX_ATTRIBUTE));
     }
 
     for (auto *vertexBuffer : info.vertexBuffers) {
-        CCASSERT(vertexBuffer && static_cast<BufferValidator *>(vertexBuffer)->isInited(), "already destroyed?");
-        CCASSERT(hasFlag(vertexBuffer->getUsage(), BufferUsageBit::VERTEX), "Input is not a vertex buffer");
+        CC_ASSERT(vertexBuffer && static_cast<BufferValidator *>(vertexBuffer)->isInited());
+        CC_ASSERT(hasFlag(vertexBuffer->getUsage(), BufferUsageBit::VERTEX));
     }
     if (info.indexBuffer) {
-        CCASSERT(static_cast<BufferValidator *>(info.indexBuffer)->isInited(), "already destroyed?");
-        CCASSERT(hasFlag(info.indexBuffer->getUsage(), BufferUsageBit::INDEX), "Input is not an index buffer");
+        CC_ASSERT(static_cast<BufferValidator *>(info.indexBuffer)->isInited());
+        CC_ASSERT(hasFlag(info.indexBuffer->getUsage(), BufferUsageBit::INDEX));
     }
     if (info.indirectBuffer) {
-        CCASSERT(static_cast<BufferValidator *>(info.indirectBuffer)->isInited(), "already destroyed?");
-        CCASSERT(hasFlag(info.indirectBuffer->getUsage(), BufferUsageBit::INDIRECT), "Input is not an indirect buffer");
+        CC_ASSERT(static_cast<BufferValidator *>(info.indirectBuffer)->isInited());
+        CC_ASSERT(hasFlag(info.indirectBuffer->getUsage(), BufferUsageBit::INDIRECT));
     }
 
     /////////// execute ///////////
@@ -83,7 +83,7 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
 }
 
 void InputAssemblerValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

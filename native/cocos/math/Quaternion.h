@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 #ifndef QUATERNION_H_
 #define QUATERNION_H_
 
-#include "math/Vec3.h"
 #include "math/Mat4.h"
+#include "math/Vec3.h"
 //#include "Plane.h"
 
 /**
@@ -35,7 +35,7 @@
 NS_CC_MATH_BEGIN
 
 class Mat4;
-
+class Mat3;
 /**
  * Defines a 4-element quaternion that represents the orientation of an object in space.
  *
@@ -72,27 +72,27 @@ public:
     /**
      * The x-value of the quaternion's vector component.
      */
-    float x;
+    float x{0.0F};
     /**
      * The y-value of the quaternion's vector component.
      */
-    float y;
+    float y{0.0F};
     /**
      * The z-value of the quaternion's vector component.
      */
-    float z;
+    float z{0.0F};
     /**
      * The scalar component of the quaternion.
      */
-    float w;
+    float w{1.0F};
 
     /**
      * Constructs a quaternion initialized to (0, 0, 0, 1).
      */
-    Quaternion();
+    Quaternion() = default;
 
     /**
-     * Constructs a quaternion initialized to (0, 0, 0, 1).
+     * Constructs a quaternion.
      *
      * @param xx The x component of the quaternion.
      * @param yy The y component of the quaternion.
@@ -106,14 +106,14 @@ public:
      *
      * @param array The values for the new quaternion.
      */
-    Quaternion(float *array);
+    explicit Quaternion(float *array);
 
     /**
      * Constructs a quaternion equal to the rotational part of the specified matrix.
      *
      * @param m The matrix.
      */
-    Quaternion(const Mat4 &m);
+    explicit Quaternion(const Mat4 &m);
 
     /**
      * Constructs a quaternion equal to the rotation from the specified axis and angle.
@@ -122,18 +122,6 @@ public:
      * @param angle The angle of rotation (in radians).
      */
     Quaternion(const Vec3 &axis, float angle);
-
-    /**
-     * Constructs a new quaternion that is a copy of the specified one.
-     *
-     * @param copy The quaternion to copy.
-     */
-    Quaternion(const Quaternion &copy);
-
-    /**
-     * Destructor.
-     */
-    ~Quaternion();
 
     /**
      * Returns the identity quaternion.
@@ -164,6 +152,16 @@ public:
     bool isZero() const;
 
     /**
+     * Calculates the quaternion with Euler angles, the rotation order is YZX
+     */
+    static void fromEuler(float x, float y, float z, Quaternion *dst);
+
+    /**
+     * Converts the quaternion to angles, result angle x, y in the range of [-180, 180], z in the range of [-90, 90] interval, the rotation order is YZX
+     */
+    static void toEuler(const Quaternion &q, bool outerZ, Vec3 *out);
+
+    /**
      * Creates a quaternion equal to the rotational part of the specified matrix
      * and stores the result in dst.
      *
@@ -181,6 +179,15 @@ public:
      * @param dst A quaternion to store the conjugate in.
      */
     static void createFromAxisAngle(const Vec3 &axis, float angle, Quaternion *dst);
+
+    /**
+     * @en Calculates the quaternion with given 2D angle (0, 0, z).
+     * @zh 根据 2D 角度（0, 0, z）计算四元数
+     *
+     * @param out Output quaternion
+     * @param z Angle to rotate around Z axis in degrees.
+     */
+    static void createFromAngleZ(float z, Quaternion *dst);
 
     /**
      * Sets this quaternion to the conjugate of itself.
@@ -263,7 +270,7 @@ public:
      *
      * @param array An array containing the elements of the quaternion in the order x, y, z, w.
      */
-    void set(float *array);
+    void set(const float *array);
 
     /**
      * Sets the quaternion equal to the rotational part of the specified matrix.
@@ -299,7 +306,7 @@ public:
      *
      * @return The angle (in radians).
      */
-    float toAxisAngle(Vec3 *e) const;
+    float toAxisAngle(Vec3 *axis) const;
 
     /**
      * Interpolates between two quaternions using linear interpolation.
@@ -313,6 +320,17 @@ public:
      * @param dst A quaternion to store the result in.
      */
     static void lerp(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst);
+
+    /**
+     * Calculates the quaternion with the three-dimensional transform matrix, considering no scale included in the matrix
+     */
+    static void fromMat3(const Mat3 &m, Quaternion *out);
+
+    /**
+     * Calculates the quaternion with the up direction and the direction of the viewport
+     */
+    static void fromViewUp(const Vec3 &view, Quaternion *out);
+    static void fromViewUp(const Vec3 &view, const Vec3 &up, Quaternion *out);
 
     /**
      * Interpolates between two quaternions using spherical linear interpolation.

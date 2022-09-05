@@ -38,8 +38,6 @@ class Object;
 class Class;
 class Value;
 
-extern Class *__jsb_CCPrivateData_class;
-
 /**
      * A stack-allocated class that governs a number of local handles.
      * It's only implemented for v8 wrapper now.
@@ -82,6 +80,13 @@ public:
          *  @note This method just add a callback to a vector, callbacks is invoked in `start` method.
          */
     void addRegisterCallback(RegisterCallback cb);
+
+    /**
+     *  @brief Adds a callback for registering a native binding module, which will not be removed by ScriptEngine::cleanup.
+     *  @param[in] cb A callback for registering a native binding module.
+     *  @note This method just add a callback to a vector, callbacks is invoked in `start` method.
+     */
+    void addPermanentRegisterCallback(RegisterCallback cb);
 
     /**
          *  @brief Starts the script engine.
@@ -140,6 +145,23 @@ public:
          *  @return true if succeed, otherwise false.
          */
     bool evalString(const char *scriptStr, ssize_t length = -1, Value *rval = nullptr, const char *fileName = nullptr);
+
+    /**
+     *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.
+     *  @param[in] path The path of script file.
+     *  @param[in] pathBc The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
+     *  @return true if succeed, otherwise false.
+     */
+    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc) {
+        assert(false);
+        return false;
+    } //cjh
+
+    /**
+     * @brief Grab a snapshot of the current JavaScript execution stack.
+     * @return current stack trace string
+     */
+    std::string getCurrentStackTrace() { return ""; } //cjh
 
     /**
          *  Delegate class for file operation
@@ -210,6 +232,11 @@ public:
     bool isValid() { return _isValid; }
 
     /**
+     * @brief Throw JS exception
+     */
+    void throwException(const std::string &errorMessage) { assert(false); } //cjh
+
+    /**
          *  @brief Clears all exceptions.
          */
     void clearException();
@@ -221,6 +248,12 @@ public:
          *  @param[in] cb The callback function to notify that an exception is fired.
          */
     void setExceptionCallback(const ExceptionCallback &cb);
+
+    /**
+     *  @brief Sets the callback function while an exception is fired in JS.
+     *  @param[in] cb The callback function to notify that an exception is fired.
+     */
+    void setJSExceptionCallback(const ExceptionCallback &cb);
 
     /**
          *  @brief Gets the start time of script engine.
@@ -252,44 +285,55 @@ public:
          */
     uint32_t getVMId() const { return _vmId; }
 
+    /**
+     * @brief Fast version of call script function, faster than Object::call
+     */
+    bool callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval = nullptr);
+
+    /**
+     * @brief Handle all exceptions throwed by promise
+     */
+    void handlePromiseExceptions();
+
     // Private API used in wrapper
     JSContext *_getContext() { return _cx; }
-    void       _setGarbageCollecting(bool isGarbageCollecting);
-    void       _debugProcessInput(const std::string &str);
+    void _setGarbageCollecting(bool isGarbageCollecting);
+    void _debugProcessInput(const std::string &str);
     //
 private:
     ScriptEngine();
     ~ScriptEngine();
 
-    static void onWeakPointerCompartmentCallback(JSContext *cx, JSCompartment *comp, void *data);
-    static void onWeakPointerZoneGroupCallback(JSContext *cx, void *data);
+    static void onWeakPointerCompartmentCallback(JSTracer *trc, JS::Compartment *comp, void *data);
+    static void onWeakPointerZoneGroupCallback(JSTracer *trc, void *data);
 
     bool getScript(const std::string &path, JS::MutableHandleScript script);
     bool compileScript(const std::string &path, JS::MutableHandleScript script);
 
-    JSContext *    _cx;
-    JSCompartment *_oldCompartment;
+    JSContext *_cx;
+    JS::Realm *_oldCompartment;
 
     Object *_globalObj;
     Object *_debugGlobalObj;
 
     FileOperationDelegate _fileOperationDelegate;
 
-    std::vector<RegisterCallback>         _registerCallbackArray;
+    ccstd::vector<RegisterCallback> _registerCallbackArray;
+    ccstd::vector<RegisterCallback> _permRegisterCallbackArray;
     std::chrono::steady_clock::time_point _startTime;
 
-    std::vector<std::function<void()>> _beforeInitHookArray;
-    std::vector<std::function<void()>> _afterInitHookArray;
+    ccstd::vector<std::function<void()>> _beforeInitHookArray;
+    ccstd::vector<std::function<void()>> _afterInitHookArray;
 
-    std::vector<std::function<void()>> _beforeCleanupHookArray;
-    std::vector<std::function<void()>> _afterCleanupHookArray;
+    ccstd::vector<std::function<void()>> _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>> _afterCleanupHookArray;
 
     ExceptionCallback _exceptionCallback;
     // name ~> JSScript map
     std::unordered_map<std::string, JS::PersistentRootedScript *> _filenameScriptMap;
 
     std::string _debuggerServerAddr;
-    uint32_t    _debuggerServerPort;
+    uint32_t _debuggerServerPort;
 
     uint32_t _vmId;
 

@@ -8,6 +8,6 @@
       highp mat4 cc_matWorlds[BATCHING_COUNT];
     };
   #else
-    #include <cc-local>
+    #include <builtin/uniforms/cc-local>
   #endif
 #endif

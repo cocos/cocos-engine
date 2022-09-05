@@ -26,67 +26,112 @@
 #pragma once
 
 #include "Define.h"
-#include "scene/Define.h"
-#include "scene/Light.h"
-#include "scene/Sphere.h"
+#include "base/RefCounted.h"
+#include "core/assets/Material.h"
+#include "renderer/pipeline/shadow/CSMLayers.h"
+#include "renderer/gfx-base/GFXFramebuffer.h"
 
 namespace cc {
 
 namespace gfx {
 class Framebuffer;
 }
-
+namespace scene {
+class Pass;
+class Ambient;
+class Shadows;
+class Skybox;
+class Fog;
+class Octree;
+class Light;
+} // namespace scene
 namespace pipeline {
 
-class RenderPipeline;
-
-class CC_DLL PipelineSceneData : public Object {
+class CC_DLL PipelineSceneData : public RefCounted {
 public:
-    PipelineSceneData()           = default;
-    ~PipelineSceneData() override = default;
-    void activate(gfx::Device *device, RenderPipeline *pipeline);
-    void setPipelineSharedSceneData(scene::PipelineSharedSceneData *data);
+    PipelineSceneData();
+    ~PipelineSceneData() override;
+    virtual void activate(gfx::Device *device);
     void destroy();
 
-    inline void                                                                setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
-    inline const std::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
-    inline scene::PipelineSharedSceneData *                                    getSharedData() const { return _sharedSceneData; }
-    inline const RenderObjectList &                                            getRenderObjects() const { return _renderObjects; }
-    inline const RenderObjectList &                                            getDirShadowObjects() const { return _dirShadowObjects; }
-    inline void                                                                setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
-    inline void                                                                setDirShadowObjects(RenderObjectList &&ro) { _dirShadowObjects = std::forward<RenderObjectList>(ro); }
-    inline const RenderObjectList &                                            getCastShadowObjects() const { return _castShadowObjects; }
-    inline void                                                                setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
-    inline const vector<const scene::Light *> &                                getValidPunctualLights() const { return _validPunctualLights; }
-    inline void                                                                setValidPunctualLights(vector<const scene::Light *> &&validPunctualLights) { _validPunctualLights = std::forward<vector<const scene::Light *>>(validPunctualLights); }
-    inline float                                                               getShadowCameraFar() const { return _shadowCameraFar; }
-    inline void                                                                setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
-    inline Mat4                                                                getMatShadowView() const { return _matShadowView; }
-    inline void                                                                setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
-    inline Mat4                                                                getMatShadowProj() const { return _matShadowProj; }
-    inline void                                                                setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
-    inline Mat4                                                                getMatShadowViewProj() const { return _matShadowViewProj; }
-    inline void                                                                setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
-    inline void                                                                addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
-    inline void                                                                clearRenderObjects() { _renderObjects.clear(); }
-    inline void                                                                addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
-    inline void                                                                clearValidPunctualLights() { _validPunctualLights.clear(); }
+    virtual void updatePipelineSceneData() {}
 
-private:
-    RenderObjectList             _renderObjects;
-    RenderObjectList             _dirShadowObjects;
-    RenderObjectList             _castShadowObjects;
-    vector<const scene::Light *> _validPunctualLights;
+    inline void setShadowFramebuffer(const scene::Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap[light] = framebuffer; }
+    inline const ccstd::unordered_map<const scene::Light *, IntrusivePtr<gfx::Framebuffer>> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
+    inline const RenderObjectList &getRenderObjects() const { return _renderObjects; }
+    inline void setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
+    inline const ccstd::vector<const scene::Light *> &getValidPunctualLights() const { return _validPunctualLights; }
+    inline bool isHDR() const { return _isHDR; }
+    inline void setHDR(bool val) { _isHDR = val; }
+    inline scene::Shadows *getShadows() const { return _shadow; }
+    inline CSMLayers *getCSMLayers() const { return _csmLayers; }
+    inline scene::Ambient *getAmbient() const { return _ambient; }
+    inline scene::Skybox *getSkybox() const { return _skybox; }
+    inline scene::Fog *getFog() const { return _fog; }
+    inline scene::Octree *getOctree() const { return _octree; }
+    inline gfx::InputAssembler *getOcclusionQueryInputAssembler() const { return _occlusionQueryInputAssembler; }
+    inline scene::Pass *getOcclusionQueryPass() const { return _occlusionQueryPass; }
+    inline gfx::Shader *getOcclusionQueryShader() const { return _occlusionQueryShader; }
+    inline const ccstd::vector<IntrusivePtr<Material>> &getGeometryRendererMaterials() const { return _geometryRendererMaterials; }
+    inline const ccstd::vector<scene::Pass *> &getGeometryRendererPasses() const { return _geometryRendererPasses; }
+    inline const ccstd::vector<gfx::Shader *> &getGeometryRendererShaders() const { return _geometryRendererShaders; }
+    inline scene::Pass *getDebugRendererPass() const { return _debugRendererPass; }
+    inline gfx::Shader *getDebugRendererShader() const { return _debugRendererShader; }
+    inline void addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
+    inline void clearRenderObjects() { _renderObjects.clear(); }
+    inline void addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
+    inline void clearValidPunctualLights() { _validPunctualLights.clear(); }
+    inline float getShadingScale() const { return _shadingScale; }
+    inline void setShadingScale(float val) { _shadingScale = val; }
+    inline bool getCSMSupported() const { return _csmSupported; }
+    inline void setCSMSupported(bool val) { _csmSupported = val; }
 
-    scene::PipelineSharedSceneData *_sharedSceneData = nullptr;
-    RenderPipeline *                _pipeline        = nullptr;
-    gfx::Device *                   _device          = nullptr;
-    float                           _shadowCameraFar = 0.0F;
-    Mat4                            _matShadowView;
-    Mat4                            _matShadowProj;
-    Mat4                            _matShadowViewProj;
+protected:
+    void initOcclusionQuery();
+    void initGeometryRenderer();
+    void initDebugRenderer();
+    gfx::InputAssembler *createOcclusionQueryIA();
 
-    std::unordered_map<const scene::Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
+    static constexpr uint32_t GEOMETRY_RENDERER_TECHNIQUE_COUNT{6};
+
+    IntrusivePtr<gfx::Buffer> _occlusionQueryVertexBuffer;
+    IntrusivePtr<gfx::Buffer> _occlusionQueryIndicesBuffer;
+    IntrusivePtr<gfx::InputAssembler> _occlusionQueryInputAssembler;
+    IntrusivePtr<Material> _occlusionQueryMaterial{nullptr};
+    IntrusivePtr<Material> _debugRendererMaterial{nullptr};
+
+    gfx::Shader *_occlusionQueryShader{nullptr}; // weak reference
+    scene::Pass *_occlusionQueryPass{nullptr};   // weak reference
+    gfx::Shader *_debugRendererShader{nullptr};  // weak reference
+    scene::Pass *_debugRendererPass{nullptr};    // weak reference
+    gfx::Device *_device{nullptr};               // weak reference
+    // manage memory manually
+    scene::Fog *_fog{nullptr};
+    // manage memory manually
+    scene::Ambient *_ambient{nullptr};
+    // manage memory manually
+    scene::Skybox *_skybox{nullptr};
+    // manage memory manually
+    scene::Shadows *_shadow{nullptr};
+    // manage memory manually
+    scene::Octree *_octree{nullptr};
+    // manage memory manually
+    CSMLayers *_csmLayers{nullptr};
+
+    bool _isHDR{true};
+    bool _csmSupported{true};
+
+    float _shadingScale{1.0F};
+
+    RenderObjectList _renderObjects;
+
+    ccstd::vector<IntrusivePtr<Material>> _geometryRendererMaterials;
+    // `scene::Light *`: weak reference
+    ccstd::vector<const scene::Light *> _validPunctualLights;
+    ccstd::vector<scene::Pass *> _geometryRendererPasses;  // weak reference
+    ccstd::vector<gfx::Shader *> _geometryRendererShaders; // weak reference
+
+    ccstd::unordered_map<const scene::Light *, IntrusivePtr<gfx::Framebuffer>> _shadowFrameBufferMap;
 };
 
 } // namespace pipeline

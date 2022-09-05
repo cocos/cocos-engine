@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPURenderPass;
+struct GLES2GPURenderPass;
 
 class CC_GLES2_API GLES2RenderPass final : public RenderPass {
 public:

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "base/Object.h"
+#include "base/std/container/unordered_set.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
@@ -40,19 +40,21 @@ namespace pipeline {
 
 class BatchedBuffer;
 
-class CC_DLL RenderBatchedQueue : public Object {
+class CC_DLL RenderBatchedQueue final {
 public:
-    RenderBatchedQueue()           = default;
-    ~RenderBatchedQueue() override = default;
+    RenderBatchedQueue() = default;
+    ~RenderBatchedQueue() = default;
 
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, gfx::DescriptorSet *ds = nullptr, uint offset = 0);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                             gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0, const ccstd::vector<uint32_t> *dynamicOffsets = nullptr);
     void add(BatchedBuffer *batchedBuffer);
     bool empty() const { return _queues.empty(); }
 
 private:
-    unordered_set<BatchedBuffer *> _queues;
+    // weak reference
+    ccstd::unordered_set<BatchedBuffer *> _queues;
 };
 
 } // namespace pipeline

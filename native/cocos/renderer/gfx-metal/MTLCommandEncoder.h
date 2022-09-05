@@ -30,7 +30,7 @@ namespace gfx {
 
 class CCMTLCommandEncoder {
 public:
-    CCMTLCommandEncoder()          = default;
+    CCMTLCommandEncoder() = default;
     virtual ~CCMTLCommandEncoder() = default;
 };
 

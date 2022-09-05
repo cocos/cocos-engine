@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES3GPUGeneralBarrier;
+struct GLES3GPUGeneralBarrier;
 
 class CC_GLES3_API GLES3GeneralBarrier : public GeneralBarrier {
 public:

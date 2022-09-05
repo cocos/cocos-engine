@@ -1,0 +1,74 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: debug-renderer-vs:vert
+      frag: debug-renderer-fs:frag
+      priority: max
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram debug-renderer-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+
+  out vec2 v_texCoord;
+  out vec4 v_color;
+
+  vec4 vert () {
+    int orientation = int(cc_surfaceTransform.x);
+    vec4 transform = vec4(1.0, 0.0, 0.0, 1.0);
+
+    if (orientation == 0) {
+      transform = vec4(1.0, 0.0, 0.0, 1.0);
+    } else if (orientation == 1) {
+      transform = vec4(0.0, 1.0, -1.0, 0.0);
+    } else if (orientation == 2) {
+      transform = vec4(-1.0, 0.0, 0.0, -1.0);
+    } else if (orientation == 3) {
+      transform =  vec4(0.0, -1.0, 1.0, 0.0);
+    }
+
+    vec2 invScreenSize = (orientation == 1 || orientation == 3) ? cc_screenSize.wz : cc_screenSize.zw;
+    vec2 position = a_position * invScreenSize;
+    position = position * vec2(2.0, -2.0) + vec2(-1.0, 1.0);
+
+    vec2 clipPos = vec2(dot(transform.xy, position), dot(transform.zw, position));
+    CC_HANDLE_GET_CLIP_FLIP(clipPos);
+
+    v_texCoord = a_texCoord;
+    v_color = a_color;
+
+    return vec4(clipPos, 0.0, 1.0);
+  }
+}%
+
+CCProgram debug-renderer-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  in vec2 v_texCoord;
+  in vec4 v_color;
+
+  uniform sampler2D mainTexture;
+
+  vec4 frag () {
+    vec4 color = vec4(v_color.rgb, v_color.a * texture(mainTexture, v_texCoord).r);
+    return CCFragOutput(color);
+  }
+}%

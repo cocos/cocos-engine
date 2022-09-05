@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
     AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
@@ -58,6 +59,9 @@ export class LineModel extends scene.Model {
 
     constructor () {
         super();
+        if (JSB) {
+            (this as any)._registerListeners();
+        }
         this.type = scene.ModelType.LINE;
         this._capacity = 100;
         this._iaInfo = new IndirectBuffer([new DrawInfo()]);

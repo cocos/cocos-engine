@@ -1,7 +1,7 @@
 #include <surfaces/default-functions/common-vs>
 #include <surfaces/module-functions/common-vs>
 
-out float v_clip_depth;
+out highp vec2 v_clip_depth;
 
 void main()
 {
@@ -29,5 +29,5 @@ void main()
   CCSurfacesVertexOutput(In);
 
   // Depth
-  v_clip_depth = In.clipPos.z / In.clipPos.w * 0.5 + 0.5;
+  v_clip_depth = In.clipPos.zw;
 }

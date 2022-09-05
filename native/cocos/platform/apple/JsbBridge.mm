@@ -25,13 +25,15 @@
 
 #include "JsbBridge.h"
 #import <Foundation/Foundation.h>
-#include <string>
+#include "base/std/container/string.h"
 #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
 
-bool callPlatformStringMethod(const std::string &arg0, const std::string &arg1) {
-    NSString  *oc_arg0 = [NSString stringWithCString:arg0.c_str() encoding:NSUTF8StringEncoding];
-    NSString  *oc_arg1 = [NSString stringWithCString:arg1.c_str() encoding:NSUTF8StringEncoding];
-    JsbBridge *m       = [JsbBridge sharedInstance];
+bool callPlatformStringMethod(const ccstd::string &arg0, const ccstd::string &arg1) {
+    NSString *oc_arg0 = [NSString stringWithCString:arg0.c_str() encoding:NSUTF8StringEncoding];
+    NSString *oc_arg1 = [NSString stringWithCString:arg1.c_str() encoding:NSUTF8StringEncoding];
+    JsbBridge *m = [JsbBridge sharedInstance];
     [m callByScript:oc_arg0 arg1:oc_arg1];
     return true;
 }
@@ -46,6 +48,7 @@ static JsbBridge *instance = nil;
     static dispatch_once_t pred = 0;
     dispatch_once(&pred, ^{
         instance = [[super allocWithZone:NULL] init];
+        NSAssert(instance != nil, @"alloc or init failed");
     });
     return instance;
 }
@@ -59,7 +62,13 @@ static JsbBridge *instance = nil;
 }
 
 - (id)init {
-    self = [super init];
+    if (self = [super init]) {
+        cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
+            if ([JsbBridge sharedInstance] != nil) {
+                [[JsbBridge sharedInstance] release];
+            }
+        });
+    }
     return self;
 }
 
@@ -76,13 +85,13 @@ static JsbBridge *instance = nil;
 }
 
 - (void)sendToScript:(NSString *)arg0 arg1:(NSString *)arg1 {
-    const std::string c_arg0{[arg0 UTF8String]};
-    const std::string c_arg1{[arg1 UTF8String]};
+    const ccstd::string c_arg0{[arg0 UTF8String]};
+    const ccstd::string c_arg1{[arg1 UTF8String]};
     callScript(c_arg0, c_arg1);
 }
 
 - (void)sendToScript:(NSString *)arg0 {
-    const std::string c_arg0{[arg0 UTF8String]};
+    const ccstd::string c_arg0{[arg0 UTF8String]};
     callScript(c_arg0, "");
 }
 

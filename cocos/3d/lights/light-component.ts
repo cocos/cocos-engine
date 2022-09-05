@@ -267,7 +267,7 @@ export class Light extends Component {
 
     protected _destroyLight () {
         if (this._light) {
-            legacyCC.director.root.destroyLight(this);
+            legacyCC.director.root.recycleLight(this._light);
             this._light = null;
         }
     }

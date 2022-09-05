@@ -29,6 +29,7 @@
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "CustomAppEvent.h"
 #include <sstream>
+#include "cocos/base/DeferredReleasePool.h"
 
 ///////////////////////////////////////  menu helper  //////////////////////////////////////////////
 static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
@@ -137,7 +138,8 @@ PlayerMenuItemMac *PlayerMenuItemMac::create(const std::string &menuId, const st
     PlayerMenuItemMac *item = new PlayerMenuItemMac();
     item->_menuId = menuId;
     item->_title = title;
-    item->autorelease();
+    item->addRef();
+    cc::DeferredReleasePool::add(item);
     return item;
 }
 
@@ -260,7 +262,7 @@ PlayerMenuItem* PlayerMenuServiceMac::addItem(const std::string &menuId, const s
     // create new menu item
     PlayerMenuItemMac *item = PlayerMenuItemMac::create(menuId, title);
     item->_parent = parent;
-    item->_parent->retain();
+    item->_parent->addRef();
     
     // check new menu item position
     int childSize = (int) [parent->_menu itemArray].count;

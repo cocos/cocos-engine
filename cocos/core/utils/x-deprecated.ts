@@ -29,10 +29,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable prefer-const */
 
-import { error, warn } from '../platform/debug';
+import { error, errorID, warn, warnID } from '../platform/debug';
 
 let defaultLogTimes = 10;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export function setDefaultLogTimes (times: number): void {
     if (times > 0) {
         defaultLogTimes = times;
@@ -78,10 +81,19 @@ interface IMarkItem {
     suggest?: string;
 }
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let replaceProperty: (owner: object, ownerName: string, properties: IReplacement[]) => void;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let removeProperty: (owner: object, ownerName: string, properties: IRemoveItem[]) => void;
 
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ */
 export let markAsWarning: (owner: object, ownerName: string, properties: IMarkItem[]) => void;
 
 let replacePropertyLog: (n: string, dp: string, n2: string, newp: string, f: Function, id: number, s: string) => void;
@@ -283,3 +295,110 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
 //     removePropertyLog = () => { };
 //     markAsWarningLog = () => { };
 // }
+
+/**
+ * @engineInternal
+ */
+interface IDeprecateInfo {
+    newName?: string;
+    since: string;
+    removed: boolean,
+}
+
+/**
+ * @engineInternal
+ */
+interface TopLevelDeprecateList {
+    [name: string]: IDeprecateInfo | undefined;
+}
+
+const topLevelDeprecateList: TopLevelDeprecateList = {
+};
+
+/**
+ * This is an internal method to register the deprecate info of module exported binding name.
+ * DO NOT USE THIS INTERFACE.
+ *
+ * @example
+ * ```ts
+ * deprecateModuleExportedName({
+ *     ButtonComponent: {
+ *         newName: 'Button',
+ *         since: '1.2.0',
+ *         removed: false,
+ *     },
+ * });
+ * ```
+ * @engineInternal
+ */
+export function deprecateModuleExportedName (deprecateList: TopLevelDeprecateList) {
+    for (let deprecateName in deprecateList) {
+        const deprecateInfo = deprecateList[deprecateName];
+        topLevelDeprecateList[deprecateName] = deprecateInfo;
+    }
+}
+
+function _checkObsoleteByName (checkName: string) {
+    const deprecateInfo = topLevelDeprecateList[checkName];
+    if (!deprecateInfo) {
+        return;
+    }
+    const { newName, since, removed } = deprecateInfo;
+    if (removed) {
+        if (newName) {
+            errorID(16003, checkName, since, newName);
+        } else {
+            errorID(16002, checkName, since);
+        }
+    } else if (newName) {
+        warnID(16001, checkName, since, newName);
+    } else {
+        warnID(16000, checkName, since);
+    }
+}
+
+/**
+ * An internal method to check whether the top level interface is deprecated.
+ * DO NOT USE THIS INTERFACE.
+ *
+ * @example
+ * ```ts
+ * // print deprecate info of ButtonComponent and ToggleComponent
+ * import { ButtonComponent, ToggleComponent } from 'cc';
+ * ```
+ * @engineInternal
+ */
+export function __checkObsolete__ (checkList: string[]) {
+    for (let checkName of checkList) {
+        _checkObsoleteByName(checkName);
+    }
+}
+
+let _cachedProxy;
+/**
+ * An internal method to check whether the top level interface is deprecated in namespace.
+ * DO NOT USE THIS INTERFACE.
+ *
+ * @example
+ * ```ts
+ * import * as cc from 'cc';
+ * console.log(cc.ButtonComponent);  // print deprecate info of ButtonComponent
+ * ```
+ * @engineInternal
+ */
+export function __checkObsoleteInNamespace__ (ccNamespace: object) {
+    if (!_cachedProxy) {
+        if (typeof Proxy === 'undefined') {
+            _cachedProxy = {};
+        } else {
+            _cachedProxy = new Proxy(ccNamespace, {
+                get (target, name, receiver) {
+                    // @ts-expect-error name could be a symbol
+                    _checkObsoleteByName(name);
+                    return Reflect.get(target, name, receiver);
+                },
+            });
+        }
+    }
+    return _cachedProxy;
+}

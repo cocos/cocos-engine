@@ -43,25 +43,25 @@ public:
     CCWGPUDescriptorSetLayout();
     ~CCWGPUDescriptorSetLayout() = default;
 
-    inline CCWGPUBindGroupLayoutObject* gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
+    inline CCWGPUBindGroupLayoutObject *gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
 
-    void updateLayout(uint8_t binding, const CCWGPUBuffer* buffer = nullptr, const CCWGPUTexture* tex = nullptr, const CCWGPUSampler* sampler = nullptr);
+    void updateLayout(uint8_t binding, const CCWGPUBuffer *buffer = nullptr, const CCWGPUTexture *tex = nullptr, const CCWGPUSampler *sampler = nullptr);
 
     void prepare(bool forceUpdate = false);
 
     inline uint8_t dynamicOffsetCount() { return _dynamicOffsetCount; }
 
-    static void* defaultBindGroupLayout();
+    static void *defaultBindGroupLayout();
 
     void print() const;
 
 protected:
-    void doInit(const DescriptorSetLayoutInfo& info) override;
+    void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;
 
     size_t hash() const;
 
-    CCWGPUBindGroupLayoutObject* _gpuLayoutEntryObj = nullptr;
+    CCWGPUBindGroupLayoutObject *_gpuLayoutEntryObj = nullptr;
 
     uint8_t _dynamicOffsetCount = 0;
 };

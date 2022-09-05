@@ -25,51 +25,50 @@
 
 #pragma once
 
-#include <array>
+#include "base/std/container/array.h"
 
-#include <unordered_map>
-#include "gfx-base/GFXBuffer.h"
-#include "gfx-base/GFXInputAssembler.h"
-#include "pipeline/ClusterLightCulling.h"
+#include "base/std/container/unordered_map.h"
 #include "pipeline/Enum.h"
 #include "pipeline/RenderPipeline.h"
-#include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
+class ClusterLightCulling;
+
 struct UBOGlobal;
 struct UBOCamera;
 struct UBOShadow;
 
 class CC_DLL DeferredPipeline : public RenderPipeline {
 public:
-    DeferredPipeline()           = default;
-    ~DeferredPipeline() override = default;
+    DeferredPipeline();
+    ~DeferredPipeline() override;
 
     bool initialize(const RenderPipelineInfo &info) override;
-    void destroy() override;
+    bool destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
-    void render(const vector<scene::Camera *> &cameras) override;
+    void render(const ccstd::vector<scene::Camera *> &cameras) override;
+    void onGlobalPipelineStateChanged() override;
 
-    inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
-    inline const LightList &      getValidLights() const { return _validLights; }
+    inline gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
+    inline const LightList &getValidLights() const { return _validLights; }
     inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
-    inline const UintList &       getLightIndexOffsets() const { return _lightIndexOffsets; }
-    inline const UintList &       getLightIndices() const { return _lightIndices; }
+    inline const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
+    inline const UintList &getLightIndices() const { return _lightIndices; }
 
 private:
     bool activeRenderer(gfx::Swapchain *swapchain);
 
-    gfx::Buffer *   _lightsUBO = nullptr;
-    LightList       _validLights;
+    gfx::Buffer *_lightsUBO = nullptr;
+    LightList _validLights;
     gfx::BufferList _lightBuffers;
-    UintList        _lightIndexOffsets;
-    UintList        _lightIndices;
+    UintList _lightIndexOffsets;
+    UintList _lightIndices;
 
     ClusterLightCulling *_clusterComp{nullptr};
 
 public:
-    static constexpr uint GBUFFER_COUNT = 3;
+    static constexpr uint32_t GBUFFER_COUNT = 3;
 
     // deferred resource names
     static framegraph::StringHandle fgStrHandleGbufferTexture[GBUFFER_COUNT];

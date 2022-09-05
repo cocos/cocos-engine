@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUPipelineState;
+struct CCVKGPUPipelineState;
 
 class CC_VULKAN_API CCVKPipelineState final : public PipelineState {
 public:

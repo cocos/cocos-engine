@@ -61,7 +61,7 @@ void onSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     CC_ASSERT(ret == OH_NATIVEXCOMPONENT_RESULT_SUCCESS);
     cc::SystemWindow* intf = cc::BasePlatform::getPlatform()->getInterface<cc::SystemWindow>();
     intf->createWindow("", 0, 0, width, height, 0);
-    intf->setWindowHandler(window);
+    intf->setWindowHandle(window);
 }
 
 void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
@@ -178,7 +178,7 @@ void OpenHarmonyPlatform::onHideNative() {
 }
 
 void OpenHarmonyPlatform::onDestroyNative() {
-    onDestory();
+    onDestroy();
 }
 
 void OpenHarmonyPlatform::timerCb(uv_timer_t* handle) {
@@ -205,7 +205,7 @@ void OpenHarmonyPlatform::onSurfaceChanged(OH_NativeXComponent* component, void*
 
 void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, void* window) {
     SystemWindow* systemWindowIntf = getPlatform()->getInterface<SystemWindow>();
-    systemWindowIntf->setWindowHandler(nullptr);
+    systemWindowIntf->setWindowHandle(nullptr);
 }
 
 void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, void* window) {

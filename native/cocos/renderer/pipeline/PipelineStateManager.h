@@ -25,23 +25,26 @@
 
 #pragma once
 
+#include "cocos/base/Ptr.h"
 #include "gfx-base/GFXDef.h"
-#include "scene/Pass.h"
 
 namespace cc {
+namespace scene {
+class Pass;
+}
 namespace pipeline {
 
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::PipelineState *getOrCreatePipelineState(const scene::Pass *  pass,
-                                                        gfx::Shader *        shader,
+    static gfx::PipelineState *getOrCreatePipelineState(const scene::Pass *pass,
+                                                        gfx::Shader *shader,
                                                         gfx::InputAssembler *inputAssembler,
-                                                        gfx::RenderPass *    renderPass,
-                                                        uint                 subpass = 0);
-    static void                destroyAll();
+                                                        gfx::RenderPass *renderPass,
+                                                        uint32_t subpass = 0);
+    static void destroyAll();
 
 private:
-    static unordered_map<size_t, gfx::PipelineState *> psoHashMap;
+    static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<gfx::PipelineState>> psoHashMap;
 };
 
 } // namespace pipeline

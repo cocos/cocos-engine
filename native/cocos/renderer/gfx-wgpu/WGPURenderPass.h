@@ -40,17 +40,17 @@ public:
     CCWGPURenderPass();
     ~CCWGPURenderPass() = default;
 
-    inline CCWGPURenderPassObject* gpuRenderPassObject() { return _renderPassObject; }
+    inline CCWGPURenderPassObject *gpuRenderPassObject() { return _renderPassObject; }
 
 protected:
-    void doInit(const RenderPassInfo& info) override;
+    void doInit(const RenderPassInfo &info) override;
     void doDestroy() override;
 
-    CCWGPURenderPassObject* _renderPassObject = nullptr;
-    CCWGPURenderPassHelper* _rpHelper         = nullptr;
+    CCWGPURenderPassObject *_renderPassObject = nullptr;
+    CCWGPURenderPassHelper *_rpHelper = nullptr;
 };
 
-inline CCWGPURenderPass* getThis(CCWGPURenderPass* that) {
+inline CCWGPURenderPass *getThis(CCWGPURenderPass *that) {
     return that;
 }
 

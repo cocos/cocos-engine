@@ -37,13 +37,13 @@
 #include <sys/types.h>
 #include <mutex>
 #include <thread>
-#include <unordered_map>
 
+#include "application/ApplicationManager.h"
 #include "audio/include/AudioEngine.h"
 #include "base/Log.h"
 #include "base/Scheduler.h"
 #include "base/UTF8.h"
-#include "application/ApplicationManager.h"
+#include "base/memory/Memory.h"
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniHelper.h"
@@ -57,16 +57,17 @@
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/cutils/log.h"
-
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "audio/android/AudioDecoder.h"
+#include "audio/android/AudioDecoderProvider.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 
 using namespace cc; //NOLINT
 
 // Audio focus values synchronized with which in cocos/platform/android/java/src/com/cocos/lib/CocosNativeActivity.java
 namespace {
-AudioEngineImpl *gAudioImpl         = nullptr;
-int              outputSampleRate   = 44100;
+AudioEngineImpl *gAudioImpl = nullptr;
+int outputSampleRate = 44100;
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 int              bufferSizeInFrames = 192;
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
@@ -107,18 +108,18 @@ private:
 
 static CallerThreadUtils gCallerThreadUtils;
 
-static int fdGetter(const std::string &url, off_t *start, off_t *length) {
+static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     int fd = -1;
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         int64_t startV;
         int64_t lenV;
-        fd      = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
-        *start  = static_cast<off_t>(startV);
+        fd = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
+        *start = static_cast<off_t>(startV);
         *length = static_cast<off_t>(lenV);
     }
     if (fd <= 0) {
-        auto* asset = AAssetManager_open(cc::FileUtilsAndroid::getAssetManager(), url.c_str(), AASSET_MODE_UNKNOWN);
+        auto *asset = AAssetManager_open(cc::FileUtilsAndroid::getAssetManager(), url.c_str(), AASSET_MODE_UNKNOWN);
         // open asset as file descriptor
         fd = AAsset_openFileDescriptor(asset, start, length);
         AAsset_close(asset);
@@ -193,8 +194,8 @@ bool AudioEngineImpl::init() {
 
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
-        const SLboolean     outputMixReqs[] = {};
-        result                              = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
+        const SLboolean outputMixReqs[] = {};
+        result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
         if (SL_RESULT_SUCCESS != result) {
             CC_LOG_ERROR("create output mix fail");
             break;
@@ -207,7 +208,7 @@ bool AudioEngineImpl::init() {
             break;
         }
 
-        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
+        _audioPlayerProvider = ccnew AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
 
         ret = true;
     } while (false);
@@ -221,7 +222,7 @@ void AudioEngineImpl::setAudioFocusForAllPlayers(bool isFocus) {
     }
 }
 
-int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume) {
+int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
     ALOGV("play2d, _audioPlayers.size=%d", (int)_audioPlayers.size());
     auto audioId = AudioEngine::INVALID_AUDIO_ID;
 
@@ -234,7 +235,7 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
 
         audioId = _audioIDIndex++;
 
-        auto* player = _audioPlayerProvider->getAudioPlayer(fullPath);
+        auto *player = _audioPlayerProvider->getAudioPlayer(fullPath);
         if (player != nullptr) {
             player->setId(audioId);
             _audioPlayers.insert(std::make_pair(audioId, player));
@@ -284,7 +285,7 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
 void AudioEngineImpl::setVolume(int audioID, float volume) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         player->setVolume(volume);
     }
 }
@@ -292,7 +293,7 @@ void AudioEngineImpl::setVolume(int audioID, float volume) {
 void AudioEngineImpl::setLoop(int audioID, bool loop) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         player->setLoop(loop);
     }
 }
@@ -300,7 +301,7 @@ void AudioEngineImpl::setLoop(int audioID, bool loop) {
 void AudioEngineImpl::pause(int audioID) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         player->pause();
     }
 }
@@ -308,7 +309,7 @@ void AudioEngineImpl::pause(int audioID) {
 void AudioEngineImpl::resume(int audioID) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         player->resume();
     }
 }
@@ -316,7 +317,7 @@ void AudioEngineImpl::resume(int audioID) {
 void AudioEngineImpl::stop(int audioID) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         player->stop();
     }
 }
@@ -329,14 +330,14 @@ void AudioEngineImpl::stopAll() {
     // Create a temporary vector for storing all players since
     // p->stop() will trigger _audioPlayers.erase,
     // and it will cause a crash as it's already in for loop
-    std::vector<IAudioPlayer *> players;
+    ccstd::vector<IAudioPlayer *> players;
     players.reserve(_audioPlayers.size());
 
     for (const auto &e : _audioPlayers) {
         players.push_back(e.second);
     }
 
-    for (auto* p : players) {
+    for (auto *p : players) {
         p->stop();
     }
 }
@@ -344,13 +345,13 @@ void AudioEngineImpl::stopAll() {
 float AudioEngineImpl::getDuration(int audioID) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         return player->getDuration();
     }
     return 0.0F;
 }
 
-float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
+float AudioEngineImpl::getDurationFromFile(const ccstd::string &filePath) {
     if (_audioPlayerProvider != nullptr) {
         auto fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         return _audioPlayerProvider->getDurationFromFile(fullPath);
@@ -361,7 +362,7 @@ float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
 float AudioEngineImpl::getCurrentTime(int audioID) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         return player->getPosition();
     }
     return 0.0F;
@@ -370,19 +371,19 @@ float AudioEngineImpl::getCurrentTime(int audioID) {
 bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
     auto iter = _audioPlayers.find(audioID);
     if (iter != _audioPlayers.end()) {
-        auto* player = iter->second;
+        auto *player = iter->second;
         return player->setPosition(time);
     }
     return false;
 }
 
-void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback) {
+void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback) {
     _callbackMap[audioID] = callback;
 }
 
-void AudioEngineImpl::preload(const std::string &filePath, const std::function<void(bool)> &callback) {
+void AudioEngineImpl::preload(const ccstd::string &filePath, const std::function<void(bool)> &callback) {
     if (_audioPlayerProvider != nullptr) {
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         _audioPlayerProvider->preloadEffect(fullPath, [callback](bool succeed, const PcmData & /*data*/) {
             if (callback != nullptr) {
                 callback(succeed);
@@ -395,9 +396,9 @@ void AudioEngineImpl::preload(const std::string &filePath, const std::function<v
     }
 }
 
-void AudioEngineImpl::uncache(const std::string &filePath) {
+void AudioEngineImpl::uncache(const ccstd::string &filePath) {
     if (_audioPlayerProvider != nullptr) {
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         _audioPlayerProvider->clearPcmCache(fullPath);
     }
 }
@@ -418,4 +419,79 @@ void AudioEngineImpl::onResume() {
     if (_audioPlayerProvider != nullptr) {
         _audioPlayerProvider->resume();
     }
+}
+
+PCMHeader AudioEngineImpl::getPCMHeader(const char* url) {
+    PCMHeader header{};
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return header;
+    }
+    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return header;
+    }
+    if (!decoder->start()){
+        CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+        return header;
+    }
+    // Ready to decode
+    do {
+        PcmData data = decoder->getResult();
+        header.bytesPerFrame = data.bitsPerSample / 8;
+        header.channelCount = data.numChannels;
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = data.sampleRate;
+        header.totalFrames = data.numFrames;
+    } while (false);
+
+    AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    return header;
+}
+
+
+
+
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return pcmData;
+    }
+    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return pcmData;
+    }
+    if (!decoder->start()){
+        CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+        return pcmData;
+    }
+    do {
+        PcmData data = decoder->getResult();
+
+        const uint32_t channelCount = data.numChannels;
+        if (channelID >= channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);
+            break;
+        }
+        // bytesPerSample  = bitsPerSample / 8, according to 1 byte = 8 bits
+        const uint32_t bytesPerFrame = data.numChannels * data.bitsPerSample / 8;
+        const uint32_t numFrames = data.numFrames;
+        const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
+
+        pcmData.resize(bytesPerChannelInFrame * numFrames);
+        uint8_t *p = pcmData.data();
+        char *tmpBuf = data.pcmBuffer->data(); // shared ptr
+        for (int itr = 0; itr < numFrames; itr++) {
+            memcpy(p, tmpBuf + itr * bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+            p += bytesPerChannelInFrame;
+        }
+    } while (false);
+    AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    return pcmData;
 }

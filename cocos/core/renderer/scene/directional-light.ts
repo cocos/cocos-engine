@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { NativeDirectionalLight } from '../native-scene';
-import { PCFType, Shadows } from './shadows';
+import { CSMLevel, CSMOptimizationMode, PCFType, Shadows } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -52,8 +50,12 @@ export class DirectionalLight extends Light {
     protected _shadowBias = 0.00001;
     protected _shadowNormalBias = 0.0;
     protected _shadowSaturation = 1.0;
-    protected _shadowDistance = 100;
+    protected _shadowDistance = 50;
     protected _shadowInvisibleOcclusionRange = 200;
+    protected _csmLevel = CSMLevel.LEVEL_4;
+    protected _csmNeedUpdate = false;
+    protected _csmLayerLambda = 0.75;
+    protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -67,9 +69,6 @@ export class DirectionalLight extends Light {
      */
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setDirection(dir);
-        }
     }
 
     get direction (): Vec3 {
@@ -106,9 +105,6 @@ export class DirectionalLight extends Light {
     }
     set illuminanceHDR (value: number) {
         this._illuminanceHDR = value;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setIlluminanceHDR(value);
-        }
     }
 
     /**
@@ -120,9 +116,6 @@ export class DirectionalLight extends Light {
     }
     set illuminanceLDR (value: number) {
         this._illuminanceLDR = value;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setIlluminanceLDR(value);
-        }
     }
 
     /**
@@ -134,9 +127,6 @@ export class DirectionalLight extends Light {
     }
     set shadowEnabled (val) {
         this._shadowEnabled = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowEnabled(val);
-        }
     }
 
     /**
@@ -148,9 +138,6 @@ export class DirectionalLight extends Light {
     }
     set shadowPcf (val) {
         this._shadowPcf = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowPcf(val);
-        }
     }
 
     /**
@@ -162,9 +149,6 @@ export class DirectionalLight extends Light {
     }
     set shadowBias (val) {
         this._shadowBias = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowBias(val);
-        }
     }
 
     /**
@@ -176,23 +160,17 @@ export class DirectionalLight extends Light {
     }
     set shadowNormalBias (val: number) {
         this._shadowNormalBias = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowNormalBias(val);
-        }
     }
 
     /**
-      * @en Shadow color saturation
-      * @zh 阴影颜色饱和度
-      */
+     * @en Shadow color saturation
+     * @zh 阴影颜色饱和度
+     */
     get shadowSaturation () {
         return this._shadowSaturation;
     }
     set shadowSaturation (val: number) {
         this._shadowSaturation = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowSaturation(this._shadowSaturation);
-        }
     }
 
     /**
@@ -204,9 +182,6 @@ export class DirectionalLight extends Light {
     }
     set shadowDistance (val) {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowDistance(val);
-        }
     }
 
     /**
@@ -218,9 +193,50 @@ export class DirectionalLight extends Light {
     }
     set shadowInvisibleOcclusionRange (val) {
         this._shadowInvisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowInvisibleOcclusionRange(val);
-        }
+    }
+
+    /**
+     * @en get or set shadow CSM level
+     * @zh 获取或者设置级联阴影层数
+     */
+    get csmLevel () {
+        return this._csmLevel;
+    }
+    set csmLevel (val) {
+        this._csmLevel = val;
+    }
+
+    /**
+     * @en is CSM need update
+     * @zh 获取或者设置级联阴影是否需要更新
+     */
+    get csmNeedUpdate () {
+        return this._csmNeedUpdate;
+    }
+    set csmNeedUpdate (val) {
+        this._csmNeedUpdate = val;
+    }
+
+    /**
+     * @en get or set shadow CSM level ratio
+     * @zh 获取或者设置级联阴影层数系数
+     */
+    get csmLayerLambda () {
+        return this._csmLayerLambda;
+    }
+    set csmLayerLambda (val) {
+        this._csmLayerLambda = val;
+    }
+
+    /**
+     * @en get or set shadow CSM performance optimization mode
+     * @zh 获取或者设置级联阴影性能优化模式
+     */
+    get csmOptimizationMode () {
+        return this._csmOptimizationMode;
+    }
+    set csmOptimizationMode (val) {
+        this._csmOptimizationMode = val;
     }
 
     /**
@@ -232,9 +248,6 @@ export class DirectionalLight extends Light {
     }
     set shadowFixedArea (val) {
         this._shadowFixedArea = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowFixedArea(val);
-        }
     }
 
     /**
@@ -246,9 +259,6 @@ export class DirectionalLight extends Light {
     }
     set shadowNear (val) {
         this._shadowNear = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowNear(val);
-        }
     }
 
     /**
@@ -260,9 +270,6 @@ export class DirectionalLight extends Light {
     }
     set shadowFar (val) {
         this._shadowFar = Math.min(val, Shadows.MAX_FAR);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowFar(val);
-        }
     }
 
     /**
@@ -274,9 +281,6 @@ export class DirectionalLight extends Light {
     }
     set shadowOrthoSize (val) {
         this._shadowOrthoSize = val;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setShadowOrthoSize(val);
-        }
     }
 
     constructor () {

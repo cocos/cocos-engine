@@ -31,8 +31,8 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUBuffer;
-class CCVKGPUBufferView;
+struct CCVKGPUBuffer;
+struct CCVKGPUBufferView;
 
 class CC_VULKAN_API CCVKBuffer final : public Buffer {
 public:
@@ -41,7 +41,7 @@ public:
 
     void update(const void *buffer, uint32_t size) override;
 
-    inline CCVKGPUBuffer *    gpuBuffer() const { return _gpuBuffer; }
+    inline CCVKGPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     inline CCVKGPUBufferView *gpuBufferView() const { return _gpuBufferView; }
 
 protected:
@@ -52,7 +52,7 @@ protected:
 
     void createBufferView();
 
-    CCVKGPUBuffer *    _gpuBuffer     = nullptr;
+    CCVKGPUBuffer *_gpuBuffer = nullptr;
     CCVKGPUBufferView *_gpuBufferView = nullptr;
 };
 

@@ -52,7 +52,7 @@ export interface SerializationOutput {
 
 export type SerializationContext = {
     /**
-     * The root value passed to serialization procedure.
+     * The main serializing asset or root node in the scene/prefab passed to serialization procedure.
      */
     root: unknown;
 

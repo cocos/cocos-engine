@@ -26,7 +26,7 @@
 */
 
 import { FiniteTimeAction, Action } from './action';
-import { RenderableComponent } from '../../core/components/renderable-component';
+import { ModelRenderer } from '../../core/components/model-renderer';
 
 /**
  * @en Instant actions are immediate actions. They don't have a duration like the ActionInterval actions.
@@ -70,7 +70,7 @@ export class ActionInstant extends FiniteTimeAction {
  */
 export class Show extends ActionInstant {
     update (dt: any) {
-        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        const _renderComps = this.target!.getComponentsInChildren(ModelRenderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = true;
@@ -106,7 +106,7 @@ export function show (): ActionInstant {
  */
 export class Hide extends ActionInstant {
     update (dt: any) {
-        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        const _renderComps = this.target!.getComponentsInChildren(ModelRenderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = false;
@@ -142,7 +142,7 @@ export function hide (): ActionInstant {
  */
 export class ToggleVisibility extends ActionInstant {
     update (dt: any) {
-        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        const _renderComps = this.target!.getComponentsInChildren(ModelRenderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = !render.enabled;

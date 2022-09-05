@@ -51,10 +51,10 @@ GLES2Swapchain::~GLES2Swapchain() {
     destroy();
 }
 
-void GLES2Swapchain::doInit(const SwapchainInfo& info) {
-    const auto* context = GLES2Device::getInstance()->context();
-    _gpuSwapchain       = CC_NEW(GLES2GPUSwapchain);
-    auto window         = reinterpret_cast<EGLNativeWindowType>(info.windowHandle); //NOLINT[readability-qualified-auto]
+void GLES2Swapchain::doInit(const SwapchainInfo &info) {
+    const auto *context = GLES2Device::getInstance()->context();
+    _gpuSwapchain = ccnew GLES2GPUSwapchain;
+    auto window = reinterpret_cast<EGLNativeWindowType>(info.windowHandle); //NOLINT[readability-qualified-auto]
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     EGLint nFmt;
@@ -64,9 +64,9 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
     }
 
     #if CC_SWAPPY_ENABLED
-    bool  enableSwappy = true;
-    auto* platform     = static_cast<AndroidPlatform*>(cc::BasePlatform::getPlatform());
-    enableSwappy &= SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
+    bool enableSwappy = true;
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    enableSwappy &= SwappyGL_init(static_cast<JNIEnv *>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
     int32_t fps = cc::BasePlatform::getPlatform()->getFps();
     if (enableSwappy) {
         if (!fps)
@@ -81,7 +81,7 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
 
     #endif
 
-    auto width  = static_cast<int32_t>(info.width);
+    auto width = static_cast<int32_t>(info.width);
     auto height = static_cast<int32_t>(info.height);
 
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -109,20 +109,20 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = CC_NEW(GLES2Texture);
-    _depthStencilTexture = CC_NEW(GLES2Texture);
+    _colorTexture = ccnew GLES2Texture;
+    _depthStencilTexture = ccnew GLES2Texture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = Format::RGBA8;
-    textureInfo.width     = info.width;
-    textureInfo.height    = info.height;
+    textureInfo.format = Format::RGBA8;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = Format::DEPTH_STENCIL;
     initTexture(textureInfo, _depthStencilTexture);
 
-    _gpuSwapchain->gpuColorTexture = static_cast<GLES2Texture*>(_colorTexture)->gpuTexture();
+    _gpuSwapchain->gpuColorTexture = static_cast<GLES2Texture *>(_colorTexture.get())->gpuTexture();
 }
 
 void GLES2Swapchain::doDestroy() {
@@ -152,16 +152,16 @@ void GLES2Swapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 
 void GLES2Swapchain::doDestroySurface() {
     if (_gpuSwapchain->eglSurface != EGL_NO_SURFACE) {
-        auto* context = GLES2Device::getInstance()->context();
+        auto *context = GLES2Device::getInstance()->context();
         eglDestroySurface(context->eglDisplay, _gpuSwapchain->eglSurface);
         _gpuSwapchain->eglSurface = EGL_NO_SURFACE;
         context->bindContext(true);
     }
 }
 
-void GLES2Swapchain::doCreateSurface(void* windowHandle) {
-    auto* context = GLES2Device::getInstance()->context();
-    auto  window  = reinterpret_cast<EGLNativeWindowType>(windowHandle); //NOLINT [readability-qualified-auto]
+void GLES2Swapchain::doCreateSurface(void *windowHandle) {
+    auto *context = GLES2Device::getInstance()->context();
+    auto window = reinterpret_cast<EGLNativeWindowType>(windowHandle); //NOLINT [readability-qualified-auto]
 
     EGLint nFmt = 0;
     if (eglGetConfigAttrib(context->eglDisplay, context->eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
@@ -169,7 +169,7 @@ void GLES2Swapchain::doCreateSurface(void* windowHandle) {
         return;
     }
 
-    auto width  = static_cast<int>(_colorTexture->getWidth());
+    auto width = static_cast<int>(_colorTexture->getWidth());
     auto height = static_cast<int>(_colorTexture->getHeight());
     CC_UNUSED_PARAM(width);
     CC_UNUSED_PARAM(height);

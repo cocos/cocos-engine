@@ -34,18 +34,18 @@ public:
     template <typename T>
     static void registerClass(se::Class *cls) {
         const char *typeName = typeid(T).name();
-        assert(jsbClassTypeMap.find(typeName) == jsbClassTypeMap.end());
+        CC_ASSERT(jsbClassTypeMap.find(typeName) == jsbClassTypeMap.end());
         jsbClassTypeMap.emplace(typeName, cls);
     }
 
     template <typename T>
-    static se::Class *findClass(const T * /*nativeObj*/) {
-        bool        found    = false;
-        std::string typeName = typeid(T).name();
-        auto        iter     = jsbClassTypeMap.find(typeName);
+    static se::Class *findClass(const T *nativeObj) {
+        bool found = false;
+        ccstd::string typeName = typeid(*nativeObj).name();
+        auto iter = jsbClassTypeMap.find(typeName);
         if (iter == jsbClassTypeMap.end()) {
             typeName = typeid(T).name();
-            iter     = jsbClassTypeMap.find(typeName);
+            iter = jsbClassTypeMap.find(typeName);
             if (iter != jsbClassTypeMap.end()) {
                 found = true;
             }
@@ -60,5 +60,5 @@ public:
     }
 
 private:
-    static std::unordered_map<std::string, se::Class *> jsbClassTypeMap;
+    static ccstd::unordered_map<ccstd::string, se::Class *> jsbClassTypeMap;
 };

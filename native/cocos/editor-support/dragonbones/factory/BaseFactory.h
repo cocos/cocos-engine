@@ -54,8 +54,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class BaseFactory
-{
+class BaseFactory {
 protected:
     static JSONDataParser _jsonParser;
     static BinaryDataParser _binaryParser;
@@ -83,17 +82,14 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    BaseFactory(DataParser* dataParser = nullptr) :
-        autoSearch(false),
-        _dragonBonesDataMap(),
-        _textureAtlasDataMap(),
-        _dragonBones(nullptr),
-        _dataParser(nullptr)
-    {
+    BaseFactory(DataParser* dataParser = nullptr) : autoSearch(false),
+                                                    _dragonBonesDataMap(),
+                                                    _textureAtlasDataMap(),
+                                                    _dragonBones(nullptr),
+                                                    _dataParser(nullptr) {
         _dataParser = dataParser != nullptr ? dataParser : &BaseFactory::_jsonParser;
     }
-    virtual ~BaseFactory()
-    {
+    virtual ~BaseFactory() {
         clear();
 
         _dragonBones = nullptr;
@@ -101,15 +97,13 @@ public:
     }
 
 protected:
-    virtual inline bool _isSupportMesh() const
-    {
+    virtual inline bool _isSupportMesh() const {
         return true;
     }
     virtual TextureData* _getTextureData(const std::string& textureAtlasName, const std::string& textureName) const;
     virtual bool _fillBuildArmaturePackage(
         BuildArmaturePackage& dataPackage,
-        const std::string& dragonBonesName, const std::string& armatureName, const std::string& skinName, const std::string& textureAtlasName
-    ) const;
+        const std::string& dragonBonesName, const std::string& armatureName, const std::string& skinName, const std::string& textureAtlasName) const;
     virtual void _buildBones(const BuildArmaturePackage& dataPackage, Armature* armature) const;
     /**
      * @private
@@ -200,8 +194,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline DragonBonesData* getDragonBonesData(const std::string& name) const
-    {
+    inline DragonBonesData* getDragonBonesData(const std::string& name) const {
         return mapFind(_dragonBonesDataMap, name);
     }
     /**
@@ -270,8 +263,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline std::vector<TextureAtlasData*>* getTextureAtlasData(const std::string& name)
-    {
+    inline std::vector<TextureAtlasData*>* getTextureAtlasData(const std::string& name) {
         return mapFindB(_textureAtlasDataMap, name);
     }
     /**
@@ -386,7 +378,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    virtual Armature* buildArmature(const std::string& armatureName, const std::string& dragonBonesName = "", const std::string& skinName = "", const std::string & textureAtlasName = "") const;
+    virtual Armature* buildArmature(const std::string& armatureName, const std::string& dragonBonesName = "", const std::string& skinName = "", const std::string& textureAtlasName = "") const;
     /**
      * @private
      */
@@ -429,15 +421,13 @@ public:
      */
     virtual bool replaceSlotDisplay(
         const std::string& dragonBonesName, const std::string& armatureName, const std::string& slotName, const std::string& displayName,
-        Slot* slot, int displayIndex = -1
-    ) const;
+        Slot* slot, int displayIndex = -1) const;
     /**
      * @private
      */
     virtual bool replaceSlotDisplayList(
         const std::string& dragonBonesName, const std::string& armatureName, const std::string& slotName,
-        Slot* slot
-    ) const;
+        Slot* slot) const;
     /**
      * - Share specific skin data with specific armature.
      * @param armature - The armature.
@@ -523,15 +513,13 @@ public:
     /**
      * @private
      */
-    inline const std::map<std::string, std::vector<TextureAtlasData*>>& getAllTextureAtlasData() const
-    {
+    inline const std::map<std::string, std::vector<TextureAtlasData*>>& getAllTextureAtlasData() const {
         return _textureAtlasDataMap;
     }
     /**
      * @private
      */
-    inline const std::map<std::string, DragonBonesData*>& getAllDragonBonesData() const
-    {
+    inline const std::map<std::string, DragonBonesData*>& getAllDragonBonesData() const {
         return _dragonBonesDataMap;
     }
     /**
@@ -544,8 +532,7 @@ public:
      * @version DragonBones 5.7
      * @language zh_CN
      */
-    inline WorldClock* getClock() const 
-    {
+    inline WorldClock* getClock() const {
         return _dragonBones->getClock();
     }
 
@@ -559,16 +546,14 @@ public:
      * @deprecated
      * @language zh_CN
      */
-    inline bool changeSkin(Armature* armature, SkinData* skin, const std::vector<std::string>& exclude) const
-    {
+    inline bool changeSkin(Armature* armature, SkinData* skin, const std::vector<std::string>& exclude) const {
         return replaceSkin(armature, skin, false, exclude);
     }
 };
 /**
  * @internal
  */
-class BuildArmaturePackage
-{
+class BuildArmaturePackage {
     DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(BuildArmaturePackage)
 
 public:
@@ -578,13 +563,11 @@ public:
     ArmatureData* armature;
     SkinData* skin;
 
-    BuildArmaturePackage() :
-        dataName(),
-        textureAtlasName(),
-        data(nullptr),
-        armature(nullptr),
-        skin(nullptr)
-    {}
+    BuildArmaturePackage() : dataName(),
+                             textureAtlasName(),
+                             data(nullptr),
+                             armature(nullptr),
+                             skin(nullptr) {}
     ~BuildArmaturePackage() {}
 };
 

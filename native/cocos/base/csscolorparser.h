@@ -50,18 +50,17 @@
 #pragma once
 
 #include <cmath>
-#include <string>
+#include "base/std/container/string.h"
 
 namespace CSSColorParser {
 
 struct Color {
     inline Color() = default;
     inline Color(unsigned char red, unsigned char green, unsigned char blue, float alpha)
-    : r(red), g(green), b(blue), a(alpha > 1 ? 1 : alpha < 0 ? 0
-                                                             : alpha) {
+    : r(red), g(green), b(blue), a(alpha > 1 ? 1 : alpha < 0 ? 0 : alpha) {
     }
     unsigned char r = 0, g = 0, b = 0;
-    float         a = 1.0f;
+    float a = 1.0f;
 };
 
 inline bool operator==(const Color &lhs, const Color &rhs) {
@@ -72,6 +71,6 @@ inline bool operator!=(const Color &lhs, const Color &rhs) {
     return !(lhs == rhs);
 }
 
-Color parse(const std::string &cssStr);
+Color parse(const ccstd::string &cssStr);
 
 } // namespace CSSColorParser

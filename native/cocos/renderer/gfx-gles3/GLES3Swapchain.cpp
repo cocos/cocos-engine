@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -51,10 +51,14 @@ GLES3Swapchain::~GLES3Swapchain() {
     destroy();
 }
 
-void GLES3Swapchain::doInit(const SwapchainInfo& info) {
-    const auto* context = GLES3Device::getInstance()->context();
-    _gpuSwapchain       = CC_NEW(GLES3GPUSwapchain);
-    auto window         = reinterpret_cast<EGLNativeWindowType>(info.windowHandle); //NOLINT [readability-qualified-auto]
+void GLES3Swapchain::doInit(const SwapchainInfo &info) {
+    const auto *context = GLES3Device::getInstance()->context();
+    _gpuSwapchain = ccnew GLES3GPUSwapchain;
+#if CC_PLATFORM == CC_PLATFORM_LINUX
+    auto window = reinterpret_cast<EGLNativeWindowType>(info.windowHandle);
+#else
+    auto *window = reinterpret_cast<EGLNativeWindowType>(info.windowHandle);
+#endif
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     EGLint nFmt;
@@ -64,9 +68,9 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
     }
 
     #if CC_SWAPPY_ENABLED
-    bool  enableSwappy = true;
-    auto* platform     = static_cast<AndroidPlatform*>(cc::BasePlatform::getPlatform());
-    enableSwappy &= SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
+    bool enableSwappy = true;
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    enableSwappy &= SwappyGL_init(static_cast<JNIEnv *>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
     int32_t fps = cc::BasePlatform::getPlatform()->getFps();
     if (enableSwappy) {
         if (!fps)
@@ -81,7 +85,7 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
 
     #endif
 
-    auto width  = static_cast<int32_t>(info.width);
+    auto width = static_cast<int32_t>(info.width);
     auto height = static_cast<int32_t>(info.height);
 
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -109,20 +113,20 @@ void GLES3Swapchain::doInit(const SwapchainInfo& info) {
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = CC_NEW(GLES3Texture);
-    _depthStencilTexture = CC_NEW(GLES3Texture);
+    _colorTexture = ccnew GLES3Texture;
+    _depthStencilTexture = ccnew GLES3Texture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = Format::RGBA8;
-    textureInfo.width     = info.width;
-    textureInfo.height    = info.height;
+    textureInfo.format = Format::RGBA8;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = Format::DEPTH_STENCIL;
     initTexture(textureInfo, _depthStencilTexture);
 
-    _gpuSwapchain->gpuColorTexture = static_cast<GLES3Texture*>(_colorTexture)->gpuTexture();
+    _gpuSwapchain->gpuColorTexture = static_cast<GLES3Texture *>(_colorTexture.get())->gpuTexture();
 }
 
 void GLES3Swapchain::doDestroy() {
@@ -136,7 +140,6 @@ void GLES3Swapchain::doDestroy() {
 
     CC_SAFE_DESTROY(_depthStencilTexture)
     CC_SAFE_DESTROY(_colorTexture)
-
     doDestroySurface();
     CC_SAFE_DELETE(_gpuSwapchain);
 }
@@ -152,16 +155,20 @@ void GLES3Swapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 
 void GLES3Swapchain::doDestroySurface() {
     if (_gpuSwapchain->eglSurface != EGL_NO_SURFACE) {
-        auto* context = GLES3Device::getInstance()->context();
+        auto *context = GLES3Device::getInstance()->context();
         eglDestroySurface(context->eglDisplay, _gpuSwapchain->eglSurface);
         _gpuSwapchain->eglSurface = EGL_NO_SURFACE;
         context->bindContext(true);
     }
 }
 
-void GLES3Swapchain::doCreateSurface(void* windowHandle) {
-    auto* context = GLES3Device::getInstance()->context();
-    auto  window  = reinterpret_cast<EGLNativeWindowType>(windowHandle); //NOLINT [readability-qualified-auto]
+void GLES3Swapchain::doCreateSurface(void *windowHandle) {
+    auto *context = GLES3Device::getInstance()->context();
+#if CC_PLATFORM == CC_PLATFORM_LINUX
+    auto window = reinterpret_cast<EGLNativeWindowType>(windowHandle);
+#else
+    auto *window = reinterpret_cast<EGLNativeWindowType>(windowHandle);
+#endif
 
     EGLint nFmt = 0;
     if (eglGetConfigAttrib(context->eglDisplay, context->eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
@@ -169,7 +176,7 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
         return;
     }
 
-    auto width  = static_cast<int>(_colorTexture->getWidth());
+    auto width = static_cast<int>(_colorTexture->getWidth());
     auto height = static_cast<int>(_colorTexture->getHeight());
     CC_UNUSED_PARAM(width);
     CC_UNUSED_PARAM(height);

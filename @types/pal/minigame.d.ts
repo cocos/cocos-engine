@@ -1,6 +1,7 @@
 declare module 'pal/minigame' {
     export const minigame: IMiniGame;
     export interface IMiniGame {
+        setPreferredFramesPerSecond(_targetFrameRate: number);
         // platform related
         wx?: WeChatAPI;
         tt?: ByteDanceAPI;
@@ -24,6 +25,8 @@ declare module 'pal/minigame' {
         getSafeArea(): SafeArea;
         triggerGC(): void;
         getBatteryInfoSync(): BatteryInfo;
+
+        exitMiniProgram? (): void;
 
         // render
         getSharedCanvas(): any;

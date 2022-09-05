@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUInputAssembler;
+struct CCVKGPUInputAssembler;
 
 class CC_VULKAN_API CCVKInputAssembler final : public InputAssembler {
 public:

@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 
 #include "DeviceValidator.h"
@@ -44,7 +43,7 @@ ShaderValidator::~ShaderValidator() {
 }
 
 void ShaderValidator::doInit(const ShaderInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     /////////// execute ///////////
@@ -53,7 +52,7 @@ void ShaderValidator::doInit(const ShaderInfo &info) {
 }
 
 void ShaderValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

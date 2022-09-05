@@ -32,6 +32,7 @@ import { Eventify } from '../../../../core/event';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
 import { selector, createConstraint } from '../../physics-selector';
 import { EConstraintType } from '../../physics-enum';
+import { legacyCC } from '../../../../core/global-exports';
 
 /**
  * @en
@@ -77,7 +78,7 @@ export class Constraint extends Eventify(Component) {
 
     set connectedBody (v: RigidBody | null) {
         this._connectedBody = v;
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._constraint) this._constraint.setConnectedBody(v);
         }
     }
@@ -95,7 +96,7 @@ export class Constraint extends Eventify(Component) {
 
     set enableCollision (v) {
         this._enableCollision = v;
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._constraint) this._constraint.setEnableCollision(v);
         }
     }

@@ -1,6 +1,7 @@
 #pragma once
 #include <emscripten/val.h>
 #include "../gfx-base/GFXDef-common.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
@@ -51,11 +52,11 @@ public:
 
         info.flags = flags;
     }
-    inline void setLevelCount(uint levelCount) { info.levelCount = levelCount; }
-    inline void setLayerCount(uint layerCount) { info.layerCount = layerCount; }
+    inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
+    inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
     inline void setSamples(SampleCount sample) { info.samples = sample; }
     inline void setDepth(uint32_t depth) { info.depth = depth; }
-    inline void setImageBuffer(intptr_t imgBuff) { info.externalRes = reinterpret_cast<void*>(imgBuff); }
+    inline void setImageBuffer(intptr_t imgBuff) { info.externalRes = reinterpret_cast<void *>(imgBuff); }
 
     explicit operator const TextureInfo() const { return info; }
 
@@ -67,13 +68,13 @@ class TextureViewInfoInstance {
 public:
     TextureViewInfoInstance() = default;
 
-    inline void setTexture(Texture* tex) { info.texture = tex; }
+    inline void setTexture(Texture *tex) { info.texture = tex; }
     inline void setType(TextureType type) { info.type = type; }
     inline void setFormat(Format format) { info.format = format; }
-    inline void setBaseLevel(uint baseLevel) { info.baseLevel = baseLevel; }
-    inline void setLevelCount(uint levelCount) { info.levelCount = levelCount; }
-    inline void setBaseLayer(uint baseLayer) { info.baseLayer = baseLayer; }
-    inline void setLayerCount(uint layerCount) { info.layerCount = layerCount; }
+    inline void setBaseLevel(uint32_t baseLevel) { info.baseLevel = baseLevel; }
+    inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
+    inline void setBaseLayer(uint32_t baseLayer) { info.baseLayer = baseLayer; }
+    inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
 
     explicit operator const TextureViewInfo() const { return info; }
 
@@ -85,7 +86,7 @@ class SwapchainInfoInstance {
 public:
     SwapchainInfoInstance() = default;
 
-    inline void setWindowHandle(uintptr_t hwnd) { info.windowHandle = reinterpret_cast<void*>(hwnd); }
+    inline void setWindowHandle(uintptr_t hwnd) { info.windowHandle = reinterpret_cast<void *>(hwnd); }
     inline void setVsyncMode(VsyncMode mode) { info.vsyncMode = mode; }
     inline void setWidth(uint32_t width) { info.width = width; }
     inline void setHeight(uint32_t height) { info.height = height; }
@@ -100,9 +101,9 @@ class FramebufferInfoInstance {
 public:
     FramebufferInfoInstance() = default;
 
-    inline void setRenderPass(RenderPass* renderPass) { info.renderPass = renderPass; }
+    inline void setRenderPass(RenderPass *renderPass) { info.renderPass = renderPass; }
     inline void setColorTextures(TextureList colors) { info.colorTextures = colors; }
-    inline void setDepthStencilTexture(Texture* tex) { info.depthStencilTexture = tex; }
+    inline void setDepthStencilTexture(Texture *tex) { info.depthStencilTexture = tex; }
 
     explicit operator const FramebufferInfo() const { return info; }
 
@@ -114,7 +115,7 @@ class BufferViewInfoInstance {
 public:
     BufferViewInfoInstance() = default;
 
-    inline void setBuffer(Buffer* buffer) { info.buffer = buffer; }
+    inline void setBuffer(Buffer *buffer) { info.buffer = buffer; }
     inline void setOffset(uint32_t offset) { info.offset = offset; }
     inline void setRange(uint32_t range) { info.range = range; }
 
@@ -127,7 +128,7 @@ private:
 class DescriptorSetInfoInstance {
 public:
     DescriptorSetInfoInstance() = default;
-    inline void setDescriptorSetLayout(DescriptorSetLayout* layout) { info.layout = layout; }
+    inline void setDescriptorSetLayout(DescriptorSetLayout *layout) { info.layout = layout; }
 
     explicit operator const DescriptorSetInfo() const { return info; }
 
@@ -137,9 +138,9 @@ private:
 
 class PipelineStateInfoInstance {
 public:
-    inline void setShader(Shader* shader) { info.shader = shader; }
-    inline void setPipelineLayout(PipelineLayout* pipelineLayout) { info.pipelineLayout = pipelineLayout; }
-    inline void setRenderPass(RenderPass* renderPass) { info.renderPass = renderPass; }
+    inline void setShader(Shader *shader) { info.shader = shader; }
+    inline void setPipelineLayout(PipelineLayout *pipelineLayout) { info.pipelineLayout = pipelineLayout; }
+    inline void setRenderPass(RenderPass *renderPass) { info.renderPass = renderPass; }
     inline void setInputState(InputState inputState) { info.inputState = inputState; }
     inline void setRasterizerState(RasterizerState rasterizerState) { info.rasterizerState = rasterizerState; }
     inline void setDepthStencilState(DepthStencilState depthStencilState) { info.depthStencilState = depthStencilState; }
@@ -159,8 +160,8 @@ class InputAssemblerInfoInstance {
 public:
     inline void setAttributes(AttributeList attributes) { info.attributes = attributes; }
     inline void setBuffers(BufferList buffers) { info.vertexBuffers = buffers; }
-    inline void setIndexBuffer(Buffer* buffer) { info.indexBuffer = buffer; }
-    inline void setIndirectBuffer(Buffer* buffer) { info.indirectBuffer = buffer; }
+    inline void setIndexBuffer(Buffer *buffer) { info.indexBuffer = buffer; }
+    inline void setIndirectBuffer(Buffer *buffer) { info.indirectBuffer = buffer; }
 
     explicit operator const InputAssemblerInfo() const { return info; }
 
@@ -170,7 +171,7 @@ private:
 
 class CommandBufferInfoInstance {
 public:
-    inline void setQueue(Queue* q) { info.queue = q; }
+    inline void setQueue(Queue *q) { info.queue = q; }
     inline void setType(CommandBufferType type) { info.type = type; }
 
     explicit operator const CommandBufferInfo() const { return info; }
@@ -184,7 +185,7 @@ public:
     inline void setGroupCountX(uint32_t groupCountX) { info.groupCountX = groupCountX; }
     inline void setGroupCountY(uint32_t groupCountY) { info.groupCountY = groupCountY; }
     inline void setGroupCountZ(uint32_t groupCountZ) { info.groupCountZ = groupCountZ; }
-    inline void setIndirectBuffer(Buffer* indirectBuffer) { info.indirectBuffer = indirectBuffer; }
+    inline void setIndirectBuffer(Buffer *indirectBuffer) { info.indirectBuffer = indirectBuffer; }
     inline void setIndirectOffset(uint32_t offset) { info.indirectOffset = offset; }
 
     explicit operator const DispatchInfo() const { return info; }
@@ -195,18 +196,18 @@ private:
 
 class SPVShaderStageInstance {
 public:
-    ShaderStageFlagBit    stage{ShaderStageFlagBit::NONE};
-    std::vector<uint32_t> spv;
+    ShaderStageFlagBit stage{ShaderStageFlagBit::NONE};
+    ccstd::vector<uint32_t> spv;
 
     inline void setStage(ShaderStageFlagBit stageIn) { stage = stageIn; }
-    inline void setSPVData(const emscripten::val& v) { spv = emscripten::convertJSArrayToNumberVector<uint32_t>(v); }
+    inline void setSPVData(const emscripten::val &v) { spv = emscripten::convertJSArrayToNumberVector<uint32_t>(v); }
 };
 
 class SPVShaderInfoInstance {
 public:
-    inline void setName(String name) { info.name = name; }
+    inline void setName(ccstd::string name) { info.name = name; }
     inline void setAttributes(AttributeList attrs) { info.attributes = attrs; }
-    inline void setStages(std::vector<SPVShaderStageInstance> spvStages) { stages = spvStages; }
+    inline void setStages(ccstd::vector<SPVShaderStageInstance> spvStages) { stages = spvStages; }
     inline void setBlocks(UniformBlockList blocks) { info.blocks = blocks; }
     inline void setBuffers(UniformStorageBufferList buffers) { info.buffers = buffers; }
     inline void setSamplerTextures(UniformSamplerTextureList list) { info.samplerTextures = list; }
@@ -215,8 +216,8 @@ public:
     inline void setImages(UniformStorageImageList images) { info.images = images; }
     inline void setSubpasses(UniformInputAttachmentList subpassInputs) { info.subpassInputs = subpassInputs; }
 
-    ShaderInfo                          info;
-    std::vector<SPVShaderStageInstance> stages;
+    ShaderInfo info;
+    ccstd::vector<SPVShaderStageInstance> stages;
 };
 
 class DescriptorSetLayoutBindingInstance {
@@ -256,7 +257,7 @@ private:
 
 class DescriptorSetLayoutInfoInstance {
 public:
-    inline void setBindings(std::vector<DescriptorSetLayoutBindingInstance> bindings) { info.bindings = std::vector<DescriptorSetLayoutBinding>(bindings.begin(), bindings.end()); }
+    inline void setBindings(ccstd::vector<DescriptorSetLayoutBindingInstance> bindings) { info.bindings = ccstd::vector<DescriptorSetLayoutBinding>(bindings.begin(), bindings.end()); }
 
     explicit operator const DescriptorSetLayoutInfo() const { return info; }
 

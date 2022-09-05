@@ -29,24 +29,24 @@
 
 #include "SkeletonCache.h"
 #include "spine-creator-support/AttachmentVertices.h"
+#include "base/memory/Memory.h"
 
-USING_NS_MW;
-using namespace cc;
+USING_NS_MW;        // NOLINT(google-build-using-namespace)
+using namespace cc; // NOLINT(google-build-using-namespace)
 
 namespace spine {
 
-float SkeletonCache::FrameTime = 1.0f / 60.0f;
-float SkeletonCache::MaxCacheTime = 120.0f;
+float SkeletonCache::FrameTime = 1.0F / 60.0F;
+float SkeletonCache::MaxCacheTime = 120.0F;
 
-SkeletonCache::SegmentData::SegmentData() {
-}
+SkeletonCache::SegmentData::SegmentData() = default;
 
 SkeletonCache::SegmentData::~SegmentData() {
     CC_SAFE_RELEASE_NULL(_texture);
 }
 
 void SkeletonCache::SegmentData::setTexture(cc::middleware::Texture2D *value) {
-    CC_SAFE_RETAIN(value);
+    CC_SAFE_ADD_REF(value);
     CC_SAFE_RELEASE(_texture);
     _texture = value;
 }
@@ -55,22 +55,21 @@ cc::middleware::Texture2D *SkeletonCache::SegmentData::getTexture() const {
     return _texture;
 }
 
-SkeletonCache::FrameData::FrameData() {
-}
+SkeletonCache::FrameData::FrameData() = default;
 
 SkeletonCache::FrameData::~FrameData() {
-    for (std::size_t i = 0, c = _bones.size(); i < c; i++) {
-        delete _bones[i];
+    for (auto &bone : _bones) {
+        delete bone;
     }
     _bones.clear();
 
-    for (std::size_t i = 0, c = _colors.size(); i < c; i++) {
-        delete _colors[i];
+    for (auto &color : _colors) {
+        delete color;
     }
     _colors.clear();
 
-    for (std::size_t i = 0, c = _segments.size(); i < c; i++) {
-        delete _segments[i];
+    for (auto &segment : _segments) {
+        delete segment;
     }
     _segments.clear();
 }
@@ -78,7 +77,7 @@ SkeletonCache::FrameData::~FrameData() {
 SkeletonCache::BoneData *SkeletonCache::FrameData::buildBoneData(std::size_t index) {
     if (index > _bones.size()) return nullptr;
     if (index == _bones.size()) {
-        BoneData *boneData = new BoneData;
+        auto *boneData = new BoneData;
         _bones.push_back(boneData);
     }
     return _bones[index];
@@ -91,7 +90,7 @@ std::size_t SkeletonCache::FrameData::getBoneCount() const {
 SkeletonCache::ColorData *SkeletonCache::FrameData::buildColorData(std::size_t index) {
     if (index > _colors.size()) return nullptr;
     if (index == _colors.size()) {
-        ColorData *colorData = new ColorData;
+        auto *colorData = new ColorData;
         _colors.push_back(colorData);
     }
     return _colors[index];
@@ -104,7 +103,7 @@ std::size_t SkeletonCache::FrameData::getColorCount() const {
 SkeletonCache::SegmentData *SkeletonCache::FrameData::buildSegmentData(std::size_t index) {
     if (index > _segments.size()) return nullptr;
     if (index == _segments.size()) {
-        SegmentData *segmentData = new SegmentData;
+        auto *segmentData = new SegmentData;
         _segments.push_back(segmentData);
     }
     return _segments[index];
@@ -114,20 +113,19 @@ std::size_t SkeletonCache::FrameData::getSegmentCount() const {
     return _segments.size();
 }
 
-SkeletonCache::AnimationData::AnimationData() {
-}
+SkeletonCache::AnimationData::AnimationData() = default;
 
 SkeletonCache::AnimationData::~AnimationData() {
     reset();
 }
 
 void SkeletonCache::AnimationData::reset() {
-    for (std::size_t i = 0, c = _frames.size(); i < c; i++) {
-        delete _frames[i];
+    for (auto &frame : _frames) {
+        delete frame;
     }
     _frames.clear();
     _isComplete = false;
-    _totalTime = 0.0f;
+    _totalTime = 0.0F;
 }
 
 bool SkeletonCache::AnimationData::needUpdate(int toFrameIdx) const {
@@ -139,7 +137,7 @@ SkeletonCache::FrameData *SkeletonCache::AnimationData::buildFrameData(std::size
         return nullptr;
     }
     if (frameIdx == _frames.size()) {
-        auto frameData = new FrameData();
+        auto *frameData = new FrameData();
         _frames.push_back(frameData);
     }
     return _frames[frameIdx];
@@ -156,12 +154,11 @@ std::size_t SkeletonCache::AnimationData::getFrameCount() const {
     return _frames.size();
 }
 
-SkeletonCache::SkeletonCache() {
-}
+SkeletonCache::SkeletonCache() = default;
 
 SkeletonCache::~SkeletonCache() {
-    for (auto it = _animationCaches.begin(); it != _animationCaches.end(); it++) {
-        delete it->second;
+    for (auto &animationCache : _animationCaches) {
+        delete animationCache.second;
     }
     _animationCaches.clear();
 }
@@ -170,7 +167,7 @@ SkeletonCache::AnimationData *SkeletonCache::buildAnimationData(const std::strin
     AnimationData *aniData = nullptr;
     auto it = _animationCaches.find(animationName);
     if (it == _animationCaches.end()) {
-        auto animation = findAnimation(animationName);
+        auto *animation = findAnimation(animationName);
         if (animation == nullptr) return nullptr;
 
         aniData = new AnimationData();
@@ -186,9 +183,8 @@ SkeletonCache::AnimationData *SkeletonCache::getAnimationData(const std::string 
     auto it = _animationCaches.find(animationName);
     if (it == _animationCaches.end()) {
         return nullptr;
-    } else {
-        return it->second;
     }
+    return it->second;
 }
 
 void SkeletonCache::update(float deltaTime) {
@@ -238,8 +234,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
         return;
     }
 
-    Color4F preColor(-1.0f, -1.0f, -1.0f, -1.0f);
-    Color4F preDarkColor(-1.0f, -1.0f, -1.0f, -1.0f);
+    Color4F preColor(-1.0F, -1.0F, -1.0F, -1.0F);
+    Color4F preDarkColor(-1.0F, -1.0F, -1.0F, -1.0F);
     // range [0.0, 1.0]
     Color4F color;
     Color4F darkColor;
@@ -250,8 +246,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
 
     // vertex size int bytes with two color
     int vbs2 = sizeof(V2F_T2F_C4F_C4F);
-    // verex size in floats with two color
-    int vs2 = vbs2 / sizeof(float);
+    // vertex size in floats with two color
+    int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
 
     int vbSize = 0;
     int ibSize = 0;
@@ -282,9 +278,9 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
         segmentData->blendMode = slot->getData().getBlendMode();
 
         // save new segment count pos field
-        preISegWritePos = (int)ib.getCurPos() / sizeof(unsigned short);
+        preISegWritePos = static_cast<int>(ib.getCurPos() / sizeof(uint16_t));
         // reset pre blend mode to current
-        preBlendMode = (int)slot->getData().getBlendMode();
+        preBlendMode = static_cast<int>(slot->getData().getBlendMode());
         // reset pre texture index to current
         preTextureIndex = curTextureIndex;
         // reset index segmentation count
@@ -331,8 +327,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
         TwoColorTriangles trianglesTwoColor;
 
         if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
-            RegionAttachment *attachment = (RegionAttachment *)slot->getAttachment();
-            attachmentVertices = (AttachmentVertices *)attachment->getRendererObject();
+            auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
+            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -341,18 +337,18 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-            vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F));
             vb.checkSpace(vbSize, true);
-            trianglesTwoColor.verts = (V2F_T2F_C4F_C4F *)vb.getCurBuffer();
+            trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                 trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
             }
-            attachment->computeWorldVertices(slot->getBone(), (float *)trianglesTwoColor.verts, 0, vs2);
+            attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 
             trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
-            ibSize = trianglesTwoColor.indexCount * sizeof(unsigned short);
+            ibSize = static_cast<int32_t>(trianglesTwoColor.indexCount * sizeof(uint16_t));
             ib.checkSpace(ibSize, true);
-            trianglesTwoColor.indices = (unsigned short *)ib.getCurBuffer();
+            trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
             memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
 
             color.r = attachment->getColor().r;
@@ -361,8 +357,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             color.a = attachment->getColor().a;
 
         } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
-            MeshAttachment *attachment = (MeshAttachment *)slot->getAttachment();
-            attachmentVertices = (AttachmentVertices *)attachment->getRendererObject();
+            auto *attachment = dynamic_cast<MeshAttachment *>(slot->getAttachment());
+            attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 
             // Early exit if attachment is invisible
             if (attachment->getColor().a == 0) {
@@ -371,18 +367,18 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-            vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F));
             vb.checkSpace(vbSize, true);
-            trianglesTwoColor.verts = (V2F_T2F_C4F_C4F *)vb.getCurBuffer();
+            trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                 trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
             }
-            attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), (float *)trianglesTwoColor.verts, 0, vs2);
+            attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 
             trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
-            ibSize = trianglesTwoColor.indexCount * sizeof(unsigned short);
+            ibSize = static_cast<int32_t>(trianglesTwoColor.indexCount * sizeof(uint16_t));
             ib.checkSpace(ibSize, true);
-            trianglesTwoColor.indices = (unsigned short *)ib.getCurBuffer();
+            trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
             memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
 
             color.r = attachment->getColor().r;
@@ -391,7 +387,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             color.a = attachment->getColor().a;
 
         } else if (slot->getAttachment()->getRTTI().isExactly(ClippingAttachment::rtti)) {
-            ClippingAttachment *clip = (ClippingAttachment *)slot->getAttachment();
+            auto *clip = dynamic_cast<ClippingAttachment *>(slot->getAttachment());
             _clipper->clipStart(*slot, clip);
             continue;
         } else {
@@ -431,7 +427,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             auto colorCount = frameData->getColorCount();
             if (colorCount > 0) {
                 ColorData *preColorData = frameData->buildColorData(colorCount - 1);
-                preColorData->vertexFloatOffset = (int)vb.getCurPos() / sizeof(float);
+                preColorData->vertexFloatOffset = static_cast<int>(vb.getCurPos() / sizeof(float));
             }
             ColorData *colorData = frameData->buildColorData(colorCount);
             colorData->finalColor = color;
@@ -440,23 +436,23 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
 
         // Two color tint logic
         if (_clipper->isClipping()) {
-            _clipper->clipTriangles((float *)&trianglesTwoColor.verts[0].vertex, trianglesTwoColor.indices, trianglesTwoColor.indexCount, (float *)&trianglesTwoColor.verts[0].texCoord, vs2);
+            _clipper->clipTriangles(reinterpret_cast<float *>(&trianglesTwoColor.verts[0].vertex), trianglesTwoColor.indices, trianglesTwoColor.indexCount, reinterpret_cast<float *>(&trianglesTwoColor.verts[0].texCoord), vs2);
 
             if (_clipper->getClippedTriangles().size() == 0) {
                 _clipper->clipEnd(*slot);
                 continue;
             }
 
-            trianglesTwoColor.vertCount = (int)_clipper->getClippedVertices().size() >> 1;
-            vbSize = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+            trianglesTwoColor.vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
+            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F));
             vb.checkSpace(vbSize, true);
-            trianglesTwoColor.verts = (V2F_T2F_C4F_C4F *)vb.getCurBuffer();
+            trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
 
-            trianglesTwoColor.indexCount = (int)_clipper->getClippedTriangles().size();
-            ibSize = trianglesTwoColor.indexCount * sizeof(unsigned short);
+            trianglesTwoColor.indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
+            ibSize = static_cast<int32_t>(trianglesTwoColor.indexCount * sizeof(uint16_t));
             ib.checkSpace(ibSize, true);
-            trianglesTwoColor.indices = (unsigned short *)ib.getCurBuffer();
-            memcpy(trianglesTwoColor.indices, _clipper->getClippedTriangles().buffer(), sizeof(unsigned short) * _clipper->getClippedTriangles().size());
+            trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
+            memcpy(trianglesTwoColor.indices, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * _clipper->getClippedTriangles().size());
 
             float *verts = _clipper->getClippedVertices().buffer();
             float *uvs = _clipper->getClippedUVs().buffer();
@@ -467,26 +463,26 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
                 vertex->vertex.y = verts[vv + 1];
                 vertex->texCoord.u = uvs[vv];
                 vertex->texCoord.v = uvs[vv + 1];
-                vertex->color.r = color.r / 255.0f;
-                vertex->color.g = color.g / 255.0f;
-                vertex->color.b = color.b / 255.0f;
-                vertex->color.a = color.a / 255.0f;
-                vertex->color2.r = darkColor.r / 255.0f;
-                vertex->color2.g = darkColor.g / 255.0f;
-                vertex->color2.b = darkColor.b / 255.0f;
-                vertex->color2.a = darkColor.a / 255.0f;
+                vertex->color.r = color.r / 255.0F;
+                vertex->color.g = color.g / 255.0F;
+                vertex->color.b = color.b / 255.0F;
+                vertex->color.a = color.a / 255.0F;
+                vertex->color2.r = darkColor.r / 255.0F;
+                vertex->color2.g = darkColor.g / 255.0F;
+                vertex->color2.b = darkColor.b / 255.0F;
+                vertex->color2.a = darkColor.a / 255.0F;
             }
         } else {
             for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
                 V2F_T2F_C4F_C4F *vertex = trianglesTwoColor.verts + v;
-                vertex->color.r = color.r / 255.0f;
-                vertex->color.g = color.g / 255.0f;
-                vertex->color.b = color.b / 255.0f;
-                vertex->color.a = color.a / 255.0f;
-                vertex->color2.r = darkColor.r / 255.0f;
-                vertex->color2.g = darkColor.g / 255.0f;
-                vertex->color2.b = darkColor.b / 255.0f;
-                vertex->color2.a = darkColor.a / 255.0f;
+                vertex->color.r = color.r / 255.0F;
+                vertex->color.g = color.g / 255.0F;
+                vertex->color.b = color.b / 255.0F;
+                vertex->color.a = color.a / 255.0F;
+                vertex->color2.r = darkColor.r / 255.0F;
+                vertex->color2.g = darkColor.g / 255.0F;
+                vertex->color2.b = darkColor.b / 255.0F;
+                vertex->color2.a = darkColor.a / 255.0F;
             }
         }
 
@@ -501,8 +497,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             auto vertexOffset = curVSegLen / vs2;
 
             if (vertexOffset > 0) {
-                unsigned short *ibBuffer = (unsigned short *)ib.getCurBuffer();
-                for (int ii = 0, nn = ibSize / sizeof(unsigned short); ii < nn; ii++) {
+                auto *ibBuffer = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
+                for (uint32_t ii = 0, nn = ibSize / sizeof(uint16_t); ii < nn; ii++) {
                     ibBuffer[ii] += vertexOffset;
                 }
             }
@@ -510,8 +506,8 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             ib.move(ibSize);
 
             // Record this turn index segmentation count,it will store in material buffer in the end.
-            curISegLen += ibSize / sizeof(unsigned short);
-            curVSegLen += vbSize / sizeof(float);
+            curISegLen += static_cast<int32_t>(ibSize / sizeof(uint16_t));
+            curVSegLen += static_cast<int32_t>(vbSize / sizeof(float));
         }
 
         _clipper->clipEnd(*slot);
@@ -528,7 +524,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     auto colorCount = frameData->getColorCount();
     if (colorCount > 0) {
         ColorData *preColorData = frameData->buildColorData(colorCount - 1);
-        preColorData->vertexFloatOffset = (int)vb.getCurPos() / sizeof(float);
+        preColorData->vertexFloatOffset = static_cast<int>(vb.getCurPos() / sizeof(float));
     }
 }
 
@@ -547,15 +543,15 @@ void SkeletonCache::onAnimationStateEvent(TrackEntry *entry, EventType type, Eve
 }
 
 void SkeletonCache::resetAllAnimationData() {
-    for (auto it = _animationCaches.begin(); it != _animationCaches.end(); it++) {
-        it->second->reset();
+    for (auto &animationCache : _animationCaches) {
+        animationCache.second->reset();
     }
 }
 
 void SkeletonCache::resetAnimationData(const std::string &animationName) {
-    for (auto it = _animationCaches.begin(); it != _animationCaches.end(); it++) {
-        if (it->second->_animationName == animationName) {
-            it->second->reset();
+    for (auto &animationCache : _animationCaches) {
+        if (animationCache.second->_animationName == animationName) {
+            animationCache.second->reset();
             break;
         }
     }

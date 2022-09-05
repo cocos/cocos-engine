@@ -243,7 +243,7 @@ export class VideoPlayer extends Component {
      */
     @tooltip('i18n:videoplayer.fullScreenOnAwake')
     get fullScreenOnAwake () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._impl) {
                 this._fullScreenOnAwake = this._impl.fullScreenOnAwake;
                 return this._fullScreenOnAwake;
@@ -264,8 +264,10 @@ export class VideoPlayer extends Component {
      * @en
      * Always below the game view (only useful on Web.
      * Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).
+     * Note: This property depends on the translucency of Canvas, please enable ENABLE_TRANSPARENT_CANVAS in the project preferences
      * @zh
      * 永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）
+     * 注意：该属性依赖 Canvas 的半透明特性，请在项目偏好设置里开启 ENABLE_TRANSPARENT_CANVAS
      */
     @tooltip('i18n:videoplayer.stayOnBottom')
     get stayOnBottom () {
@@ -367,7 +369,7 @@ export class VideoPlayer extends Component {
     }
 
     public __preload () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._impl = VideoPlayerImplManager.getImpl(this);

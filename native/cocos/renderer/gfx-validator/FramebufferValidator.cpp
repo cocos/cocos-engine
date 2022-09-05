@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
 #include "base/Macros.h"
 #include "base/threading/MessageQueue.h"
 
@@ -47,27 +46,27 @@ FramebufferValidator::~FramebufferValidator() {
 }
 
 void FramebufferValidator::doInit(const FramebufferInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
-    CCASSERT(info.renderPass && static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
-    CCASSERT(!info.colorTextures.empty() || info.depthStencilTexture, "no attachments?");
-    CCASSERT(info.colorTextures.size() == info.renderPass->getColorAttachments().size(), "attachment count mismatch");
+    CC_ASSERT(info.renderPass && static_cast<RenderPassValidator *>(info.renderPass)->isInited());
+    CC_ASSERT(!info.colorTextures.empty() || info.depthStencilTexture);
+    CC_ASSERT(info.colorTextures.size() == info.renderPass->getColorAttachments().size());
     if (info.renderPass->getDepthStencilAttachment().format != Format::UNKNOWN) {
-        CCASSERT(info.depthStencilTexture, "missing depth stencil attachment");
+        CC_ASSERT(info.depthStencilTexture);
     }
 
     for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
         const auto &desc = info.renderPass->getColorAttachments()[i];
-        const auto *tex  = info.colorTextures[i];
-        CCASSERT(tex && static_cast<const TextureValidator *>(tex)->isInited(), "already destroyed?");
-        CCASSERT(hasAnyFlags(tex->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT), "Input is not an attachment");
-        CCASSERT(tex->getFormat() == desc.format, "attachment format mismatch");
+        const auto *tex = info.colorTextures[i];
+        CC_ASSERT(tex && static_cast<const TextureValidator *>(tex)->isInited());
+        CC_ASSERT(hasAnyFlags(tex->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT));
+        CC_ASSERT(tex->getFormat() == desc.format);
     }
     if (info.depthStencilTexture) {
-        CCASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited(), "already destroyed?");
-        CCASSERT(hasFlag(info.depthStencilTexture->getInfo().usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT), "Input is not a depth stencil attachment");
-        CCASSERT(info.depthStencilTexture->getFormat() == info.renderPass->getDepthStencilAttachment().format, "attachment format mismatch");
+        CC_ASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited());
+        CC_ASSERT(hasFlag(info.depthStencilTexture->getInfo().usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT));
+        CC_ASSERT(info.depthStencilTexture->getFormat() == info.renderPass->getDepthStencilAttachment().format);
     }
 
     /////////// execute ///////////
@@ -87,7 +86,8 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
 }
 
 void FramebufferValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    // Destroy twice?
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

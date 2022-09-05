@@ -29,23 +29,23 @@
 
 #pragma once
 #include "SkeletonCache.h"
-#include "base/Map.h"
+#include "base/RefMap.h"
 
 namespace spine {
 
 class SkeletonCacheMgr {
 public:
     static SkeletonCacheMgr *getInstance() {
-        if (_instance == nullptr) {
-            _instance = new SkeletonCacheMgr();
+        if (instance == nullptr) {
+            instance = new SkeletonCacheMgr();
         }
-        return _instance;
+        return instance;
     }
 
     static void destroyInstance() {
-        if (_instance) {
-            delete _instance;
-            _instance = nullptr;
+        if (instance) {
+            delete instance;
+            instance = nullptr;
         }
     }
 
@@ -53,8 +53,8 @@ public:
     SkeletonCache *buildSkeletonCache(const std::string &uuid);
 
 private:
-    static SkeletonCacheMgr *_instance;
-    cc::Map<std::string, SkeletonCache *> _caches;
+    static SkeletonCacheMgr *instance;
+    cc::RefMap<std::string, SkeletonCache *> _caches;
 };
 
 } // namespace spine

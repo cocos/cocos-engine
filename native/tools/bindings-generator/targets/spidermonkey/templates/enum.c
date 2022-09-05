@@ -10,7 +10,7 @@ bool sevalue_to_native(const se::Value &from, ${current_class.namespaced_class_n
     return false;
 }
 
-int js_register_${generator.prefix}_${current_class.class_name}(se::Object* obj) // NOLINT(readability-identifier-naming)
+int js_register_${generator.prefix}_${current_class.nested_class_name}(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto enum_kls = se::Object::createPlainObject();
     #for m in fields

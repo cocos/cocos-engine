@@ -26,9 +26,9 @@
 #pragma once
 
 #include <functional>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 
 namespace se {
 class Value;
@@ -38,13 +38,13 @@ namespace cc {
 
 enum class OSEventType {
     KEYBOARD_OSEVENT = 0,
-    TOUCH_OSEVENT    = 1,
-    MOUSE_OSEVENT    = 2,
-    CUSTOM_OSEVENT   = 3,
-    DEVICE_OSEVENT   = 4,
-    WINDOW_OSEVENT   = 5,
-    APP_OSEVENT      = 6,
-    UNKNOWN_OSEVENT  = 7
+    TOUCH_OSEVENT = 1,
+    MOUSE_OSEVENT = 2,
+    CUSTOM_OSEVENT = 3,
+    DEVICE_OSEVENT = 4,
+    WINDOW_OSEVENT = 5,
+    APP_OSEVENT = 6,
+    UNKNOWN_OSEVENT = 7
 };
 
 class OSEvent {
@@ -68,7 +68,6 @@ private:
 #define CONSTRUCT_EVENT(name, type) \
     name() : OSEvent(type) {}
 
-
 class WindowEvent : public OSEvent {
 public:
     CONSTRUCT_EVENT(WindowEvent, OSEventType::WINDOW_OSEVENT)
@@ -83,17 +82,17 @@ public:
         CLOSE,
         UNKNOWN,
     };
-    Type type   = Type::UNKNOWN;
-    int  width  = 0;
-    int  height = 0;
+    Type type = Type::UNKNOWN;
+    int width = 0;
+    int height = 0;
 };
 // Touch event related
 
 class TouchInfo {
 public:
-    float x     = 0;
-    float y     = 0;
-    int   index = 0;
+    float x = 0;
+    float y = 0;
+    int index = 0;
 
     TouchInfo(float x, float y, int index)
     : x(x),
@@ -112,8 +111,8 @@ public:
         UNKNOWN
     };
 
-    std::vector<TouchInfo> touches;
-    Type                   type = Type::UNKNOWN;
+    ccstd::vector<TouchInfo> touches;
+    Type type = Type::UNKNOWN;
 };
 
 class MouseEvent : public OSEvent {
@@ -132,66 +131,75 @@ public:
     // The button number that was pressed when the mouse event was fired: Left button=0, middle button=1 (if present), right button=2.
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
     uint16_t button = 0;
-    Type     type   = Type::UNKNOWN;
+    Type type = Type::UNKNOWN;
 };
 
 enum class KeyCode {
-    BACKSPACE       = 8,
-    TAB             = 9,
-    NUM_LOCK        = 12,
-    NUMPAD_ENTER    = 20013,
-    ENTER           = 13,
-    SHIFT_RIGHT     = 20016,
-    SHIFT_LEFT      = 16,
-    CONTROL_LEFT    = 17,
-    CONTROL_RIGHT   = 20017,
-    ALT_RIGHT       = 20018,
-    ALT_LEFT        = 18,
-    PAUSE           = 19,
-    CAPS_LOCK       = 20,
-    ESCAPE          = 27,
-    SPACE           = 32,
-    PAGE_UP         = 33,
-    PAGE_DOWN       = 34,
-    END             = 35,
-    HOME            = 36,
-    ARROW_LEFT      = 37,
-    ARROW_UP        = 38,
-    ARROW_RIGHT     = 39,
-    ARROW_DOWN      = 40,
-    INSERT          = 45,
-    DELETE_KEY      = 46, //DELETE has conflict
-    META_LEFT       = 91,
-    CONTEXT_MENU    = 20093,
-    PRINT_SCREEN    = 20094,
-    META_RIGHT      = 93,
+    /**
+     * @en The back key on mobile phone
+     * @zh 移动端返回键
+     */
+    MOBILE_BACK = 6,
+    BACKSPACE = 8,
+    TAB = 9,
+    NUM_LOCK = 12,
+    NUMPAD_ENTER = 20013,
+    ENTER = 13,
+    SHIFT_RIGHT = 20016,
+    SHIFT_LEFT = 16,
+    CONTROL_LEFT = 17,
+    CONTROL_RIGHT = 20017,
+    ALT_RIGHT = 20018,
+    ALT_LEFT = 18,
+    PAUSE = 19,
+    CAPS_LOCK = 20,
+    ESCAPE = 27,
+    SPACE = 32,
+    PAGE_UP = 33,
+    PAGE_DOWN = 34,
+    END = 35,
+    HOME = 36,
+    ARROW_LEFT = 37,
+    ARROW_UP = 38,
+    ARROW_RIGHT = 39,
+    ARROW_DOWN = 40,
+    INSERT = 45,
+    DELETE_KEY = 46, //DELETE has conflict
+    META_LEFT = 91,
+    CONTEXT_MENU = 20093,
+    PRINT_SCREEN = 20094,
+    META_RIGHT = 93,
     NUMPAD_MULTIPLY = 106,
-    NUMPAD_PLUS     = 107,
-    NUMPAD_MINUS    = 109,
-    NUMPAD_DECIMAL  = 110,
-    NUMPAD_DIVIDE   = 111,
-    SCROLLLOCK      = 145,
-    SEMICOLON       = 186,
-    EQUAL           = 187,
-    COMMA           = 188,
-    MINUS           = 189,
-    PERIOD          = 190,
-    SLASH           = 191,
-    BACKQUOTE       = 192,
-    BRACKET_LEFT    = 219,
-    BACKSLASH       = 220,
-    BRACKET_RIGHT   = 221,
-    QUOTE           = 222,
-    NUMPAD_0        = 10048,
-    NUMPAD_1        = 10049,
-    NUMPAD_2        = 10050,
-    NUMPAD_3        = 10051,
-    NUMPAD_4        = 10052,
-    NUMPAD_5        = 10053,
-    NUMPAD_6        = 10054,
-    NUMPAD_7        = 10055,
-    NUMPAD_8        = 10056,
-    NUMPAD_9        = 10057
+    NUMPAD_PLUS = 107,
+    NUMPAD_MINUS = 109,
+    NUMPAD_DECIMAL = 110,
+    NUMPAD_DIVIDE = 111,
+    SCROLLLOCK = 145,
+    SEMICOLON = 186,
+    EQUAL = 187,
+    COMMA = 188,
+    MINUS = 189,
+    PERIOD = 190,
+    SLASH = 191,
+    BACKQUOTE = 192,
+    BRACKET_LEFT = 219,
+    BACKSLASH = 220,
+    BRACKET_RIGHT = 221,
+    QUOTE = 222,
+    NUMPAD_0 = 10048,
+    NUMPAD_1 = 10049,
+    NUMPAD_2 = 10050,
+    NUMPAD_3 = 10051,
+    NUMPAD_4 = 10052,
+    NUMPAD_5 = 10053,
+    NUMPAD_6 = 10054,
+    NUMPAD_7 = 10055,
+    NUMPAD_8 = 10056,
+    NUMPAD_9 = 10057,
+    DPAD_UP = 1003,
+    DPAD_LEFT = 1000,
+    DPAD_DOWN = 1004,
+    DPAD_RIGHT = 1001
 };
 
 class KeyboardEvent : public OSEvent {
@@ -204,41 +212,42 @@ public:
         UNKNOWN
     };
 
-    int    key            = -1;
-    Action action         = Action::UNKNOWN;
-    bool   altKeyActive   = false;
-    bool   ctrlKeyActive  = false;
-    bool   metaKeyActive  = false;
-    bool   shiftKeyActive = false;
+    int key = -1;
+    Action action = Action::UNKNOWN;
+    bool altKeyActive = false;
+    bool ctrlKeyActive = false;
+    bool metaKeyActive = false;
+    bool shiftKeyActive = false;
     // TODO(mingo): support caps lock?
 };
 union EventParameterType {
-    void *  ptrVal;
+    void *ptrVal;
     int32_t longVal;
-    int     intVal;
+    int intVal;
     int16_t shortVal;
-    char    charVal;
-    bool    boolVal;
+    char charVal;
+    bool boolVal;
 };
+
 class CustomEvent : public OSEvent {
 public:
     CONSTRUCT_EVENT(CustomEvent, OSEventType::CUSTOM_OSEVENT)
-    std::string name;
+    ccstd::string name;
     EventParameterType args[10];
 
-    virtual ~CustomEvent() = default;
+    virtual ~CustomEvent() = default; // NOLINT(modernize-use-nullptr)
 };
 
 class DeviceEvent : public OSEvent {
 public:
     CONSTRUCT_EVENT(DeviceEvent, OSEventType::DEVICE_OSEVENT)
     enum class Type {
-        DEVICE_MEMORY,
-        DEVICE_ORIENTATION,
+        MEMORY,
+        ORIENTATION,
         UNKNOWN
     };
     EventParameterType args[3];
-    Type type = Type::DEVICE_MEMORY;
+    Type type{Type::UNKNOWN}; // NOLINT(modernize-use-nullptr)
 };
 
 class EventDispatcher {
@@ -260,13 +269,14 @@ public:
     static void dispatchCloseEvent();
     static void dispatchDestroyWindowEvent();
     static void dispatchRecreateWindowEvent();
+    static void dispatchSceneLoadEvent();
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;
-    static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);
-    static void     removeCustomEventListener(const std::string &eventName, uint32_t listenerID);
-    static void     removeAllCustomEventListeners(const std::string &eventName);
-    static void     removeAllEventListeners();
-    static void     dispatchCustomEvent(const CustomEvent &event);
+    static uint32_t addCustomEventListener(const ccstd::string &eventName, const CustomEventListener &listener);
+    static void removeCustomEventListener(const ccstd::string &eventName, uint32_t listenerID);
+    static void removeAllCustomEventListeners(const ccstd::string &eventName);
+    static void removeAllEventListeners();
+    static void dispatchCustomEvent(const CustomEvent &event);
 
 private:
     static void doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args);
@@ -274,11 +284,11 @@ private:
 
     struct Node {
         CustomEventListener listener;
-        uint32_t            listenerID;
-        struct Node *       next = nullptr;
+        uint32_t listenerID;
+        struct Node *next = nullptr;
     };
-    static std::unordered_map<std::string, Node *> listeners;
-    static uint32_t                                hashListenerId; //simple increment hash
+    static ccstd::unordered_map<ccstd::string, Node *> listeners;
+    static uint32_t hashListenerId; //simple increment hash
 };
 
 } // end of namespace cc

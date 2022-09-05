@@ -25,11 +25,12 @@
 
 #pragma once
 
-#include "memory/Memory.h"
-
 namespace cc {
 
-// Now define all the base classes for each allocation
-using Object = AllocatedObject<GAP>;
+class Object {
+public:
+    Object() = default;
+    virtual ~Object() = default;
+};
 
 } // namespace cc

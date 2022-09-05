@@ -46,21 +46,21 @@ public:
     void setDepthStencilAttachment(CCMTLTexture *texture, int level);
 
     inline MTLRenderPassDescriptor *getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
-    inline uint                     getColorRenderTargetNums() const { return _colorRenderTargetNums; }
-    inline const vector<Vec2> &     getRenderTargetSizes() const { return _renderTargetSizes; }
-    inline void                     nextSubpass() { _currentSubpassIndex++; }
-    inline uint                     getCurrentSubpassIndex() { return _currentSubpassIndex; }
-    inline void                     reset() { _currentSubpassIndex = 0; }
+    inline uint32_t getColorRenderTargetNums() const { return _colorRenderTargetNums; }
+    inline const ccstd::vector<Vec2> &getRenderTargetSizes() const { return _renderTargetSizes; }
+    inline void nextSubpass() { _currentSubpassIndex++; }
+    inline uint32_t getCurrentSubpassIndex() { return _currentSubpassIndex; }
+    inline void reset() { _currentSubpassIndex = 0; }
 
 protected:
     void doInit(const RenderPassInfo &info) override;
     void doDestroy() override;
 
-    uint                     _outputAttachmentOffset  = 0;
-    uint                     _currentSubpassIndex     = 0;
+    uint32_t _outputAttachmentOffset = 0;
+    uint32_t _currentSubpassIndex = 0;
     MTLRenderPassDescriptor *_mtlRenderPassDescriptor = nil;
-    uint                     _colorRenderTargetNums   = 0;
-    vector<Vec2>             _renderTargetSizes;
+    uint32_t _colorRenderTargetNums = 0;
+    ccstd::vector<Vec2> _renderTargetSizes;
 };
 
 } // namespace gfx

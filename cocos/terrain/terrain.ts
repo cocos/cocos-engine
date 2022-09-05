@@ -26,7 +26,7 @@
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../core/builtin';
-import { RenderableComponent } from '../core/components/renderable-component';
+import { ModelRenderer } from '../core/components/model-renderer';
 import { EffectAsset, Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
@@ -34,7 +34,7 @@ import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo, deviceManager } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { Pass, scene } from '../core/renderer';
@@ -46,7 +46,7 @@ import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCFloat, CCInteger, Node, PipelineEventType, RenderPipeline } from '../core';
+import { CCBoolean, CCFloat, CCInteger, Node, PipelineEventType } from '../core';
 
 /**
  * @en Terrain info
@@ -174,7 +174,7 @@ export class TerrainLayer {
  * @en Terrain renderable
  * @zh 地形渲染组件
  */
-class TerrainRenderable extends RenderableComponent {
+class TerrainRenderable extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -1217,7 +1217,7 @@ export class Terrain extends Component {
             }
 
             // Ensure device is created
-            if (legacyCC.director.root.device) {
+            if (deviceManager.gfxDevice) {
                 // rebuild
                 this._buildImp();
             }
@@ -1576,7 +1576,7 @@ export class Terrain extends Component {
 
     public getEffectAsset () {
         if (this._effectAsset === null) {
-            return legacyCC.EffectAsset.get('terrain') as EffectAsset;
+            return legacyCC.EffectAsset.get('builtin-terrain') as EffectAsset;
         }
 
         return this._effectAsset;
@@ -1591,11 +1591,11 @@ export class Terrain extends Component {
             this._blocks[i].visible = true;
         }
 
-        legacyCC.director.root.pipeline.on(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
+        (legacyCC.director.root as Root).pipelineEvent.on(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
     }
 
     public onDisable () {
-        legacyCC.director.root.pipeline.off(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
+        (legacyCC.director.root as Root).pipelineEvent.off(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
 
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].visible = false;
@@ -2090,19 +2090,28 @@ export class Terrain extends Component {
     }
 
     /**
+     * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+     */
+    public _createSharedIndexBuffer () {
+        // initialize shared index buffer
+        const gfxDevice = deviceManager.gfxDevice;
+        const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
+        gfxBuffer.update(this._lod._indexBuffer);
+
+        return gfxBuffer;
+    }
+
+    /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getSharedIndexBuffer () {
         if (this._sharedIndexBuffer == null) {
-            // initialize shared index buffer
-            const gfxDevice = legacyCC.director.root.device as Device;
-            this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
-                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.DEVICE,
-                Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
-                Uint16Array.BYTES_PER_ELEMENT,
-            ));
-            this._sharedIndexBuffer.update(this._lod._indexBuffer);
+            this._sharedIndexBuffer = this._createSharedIndexBuffer();
         }
 
         return this._sharedIndexBuffer;

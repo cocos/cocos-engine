@@ -26,31 +26,37 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
+#include "base/RefVector.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL Framebuffer : public GFXObject {
+class CC_DLL Framebuffer : public GFXObject, public RefCounted {
 public:
     Framebuffer();
     ~Framebuffer() override;
 
-    static size_t computeHash(const FramebufferInfo &info);
+    static ccstd::hash_t computeHash(const FramebufferInfo &info);
 
     void initialize(const FramebufferInfo &info);
     void destroy();
 
-    inline RenderPass *       getRenderPass() const { return _renderPass; }
+    inline RenderPass *getRenderPass() const { return _renderPass; }
     inline const TextureList &getColorTextures() const { return _colorTextures; }
-    inline Texture *          getDepthStencilTexture() const { return _depthStencilTexture; }
+    inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
 
 protected:
     virtual void doInit(const FramebufferInfo &info) = 0;
-    virtual void doDestroy()                         = 0;
+    virtual void doDestroy() = 0;
 
-    RenderPass *_renderPass = nullptr;
+    // weak reference
+    RenderPass *_renderPass{nullptr};
+    // weak reference
     TextureList _colorTextures;
-    Texture *   _depthStencilTexture = nullptr;
+    // weak reference
+    Texture *_depthStencilTexture{nullptr};
 };
 
 } // namespace gfx

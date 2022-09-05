@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,32 +44,34 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef SRC_NODE_OBJECT_WRAP_H_
-#define SRC_NODE_OBJECT_WRAP_H_
+#pragma once
 
 #include "../config.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
+    #include "../PrivateObject.h"
     #include "Base.h"
 
 namespace se {
 
 class ObjectWrap {
 public:
+    static constexpr uint16_t MAGIC_CLASS_ID_JSB = 0x1234;
+
     ObjectWrap();
     ~ObjectWrap();
 
-    bool init(v8::Local<v8::Object> handle);
-    void setFinalizeCallback(V8FinalizeFunc finalizeCb);
+    bool init(v8::Local<v8::Object> handle, Object *parent, bool registerWeak);
+    using FinalizeFunc = void (*)(Object *seObj);
+    void setFinalizeCallback(FinalizeFunc finalizeCb);
 
-    v8::Local<v8::Object>       handle();
-    v8::Local<v8::Object>       handle(v8::Isolate *isolate);
+    v8::Local<v8::Object> handle();
+    v8::Local<v8::Object> handle(v8::Isolate *isolate);
     v8::Persistent<v8::Object> &persistent();
 
-    void         wrap(void *nativeObj);
-    static void *unwrap(v8::Local<v8::Object> handle);
-
+    void wrap(void *nativeObj, uint32_t fieldIndex);
+    static void *unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex);
     /* Ref() marks the object as being attached to an event loop.
          * Refed objects will not be garbage collected, even if
          * all references are lost.
@@ -88,17 +90,18 @@ public:
     void unref();
 
 private:
-    static void weakCallback(const v8::WeakCallbackInfo<ObjectWrap> &data);
-    void        makeWeak();
+    static void weakCallback(const v8::WeakCallbackInfo<Object> &data);
 
-    int                        refs_; // ro
-    v8::Persistent<v8::Object> handle_;
-    void *                     _nativeObj;
-    V8FinalizeFunc             _finalizeCb;
+    void makeWeak();
+
+    int _refs{0}; // ro
+    v8::Persistent<v8::Object> _handle;
+    FinalizeFunc _finalizeCb{nullptr};
+    Object *_parent{nullptr};
+
+    bool _registerWeakCallback{false};
 };
 
 } // namespace se
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-
-#endif // SRC_NODE_OBJECT_WRAP_H_

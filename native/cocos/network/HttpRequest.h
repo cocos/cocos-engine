@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,11 +29,10 @@
 #define __HTTP_REQUEST_H__
 
 #include "base/Macros.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 #include <functional>
-#include <string>
-#include <vector>
+#include "base/std/container/string.h"
 
 /**
  * @addtogroup network
@@ -47,7 +46,7 @@ namespace network {
 class HttpClient;
 class HttpResponse;
 
-typedef std::function<void(HttpClient *, HttpResponse *)> ccHttpRequestCallback;
+using ccHttpRequestCallback = std::function<void(HttpClient *, HttpResponse *)>;
 
 /**
  * Defines the object which users must packed for HttpClient::send(HttpRequest*) method.
@@ -63,7 +62,7 @@ typedef std::function<void(HttpClient *, HttpResponse *)> ccHttpRequestCallback;
     #endif
 #endif
 
-class CC_DLL HttpRequest : public Ref {
+class CC_DLL HttpRequest : public RefCounted {
 public:
     /**
      * The HttpRequest type enum used in the HttpRequest::setRequestType.
@@ -85,28 +84,10 @@ public:
          Please refer to HttpRequestTest.cpp to find its usage.
      */
     HttpRequest()
-    : _requestType(Type::UNKNOWN),
-      _callback(nullptr),
-      _userData(nullptr),
-      _timeoutInSeconds(10.0f) {
-    }
+    : _callback(nullptr) {}
 
     /** Destructor. */
-    virtual ~HttpRequest() {
-    }
-
-    /**
-     * Override autorelease method to avoid developers to call it.
-     * If this function was called, it would trigger assert in debug mode
-     *
-     * @return Ref* always return nullptr.
-     */
-    Ref *autorelease() {
-        CCASSERT(false,
-                 "HttpResponse is used between network thread and ui thread \
-                 therefore, autorelease is forbidden here");
-        return nullptr;
-    }
+    ~HttpRequest() override = default;
 
     // setter/getters for properties
 
@@ -134,7 +115,7 @@ public:
      *
      * @param url the string object.
      */
-    inline void setUrl(const std::string &url) {
+    inline void setUrl(const ccstd::string &url) {
         _url = url;
     }
 
@@ -163,8 +144,9 @@ public:
      * @return char* the request data pointer.
      */
     inline char *getRequestData() {
-        if (!_requestData.empty())
+        if (!_requestData.empty()) {
             return _requestData.data();
+        }
 
         return nullptr;
     }
@@ -172,10 +154,10 @@ public:
     /**
      * Get the size of request data
      *
-     * @return ssize_t the size of request data
+     * @return uint32_t the size of request data
      */
-    inline ssize_t getRequestDataSize() const {
-        return _requestData.size();
+    inline uint32_t getRequestDataSize() const {
+        return static_cast<uint32_t>(_requestData.size());
     }
 
     /**
@@ -184,7 +166,7 @@ public:
      *
      * @param tag the string object.
      */
-    inline void setTag(const std::string &tag) {
+    inline void setTag(const ccstd::string &tag) {
         _tag = tag;
     }
 
@@ -243,16 +225,16 @@ public:
      *
      * @param pHeaders the string vector of custom-defined headers.
      */
-    inline void setHeaders(const std::vector<std::string> &headers) {
+    inline void setHeaders(const ccstd::vector<ccstd::string> &headers) {
         _headers = headers;
     }
 
     /**
      * Get custom headers.
      *
-     * @return std::vector<std::string> the string vector of custom-defined headers.
+     * @return ccstd::vector<ccstd::string> the string vector of custom-defined headers.
      */
-    inline std::vector<std::string> getHeaders() const {
+    inline ccstd::vector<ccstd::string> getHeaders() const {
         return _headers;
     }
 
@@ -266,14 +248,14 @@ public:
 
 protected:
     // properties
-    Type                     _requestType; /// kHttpRequestGet, kHttpRequestPost or other enums
-    std::string              _url;         /// target url that this request is sent to
-    std::vector<char>        _requestData; /// used for POST
-    std::string              _tag;         /// user defined tag, to identify different requests in response callback
-    ccHttpRequestCallback    _callback;    /// C++11 style callbacks
-    void *                   _userData;    /// You can add your customed data here
-    std::vector<std::string> _headers;     /// custom http headers
-    float                    _timeoutInSeconds;
+    Type _requestType{Type::UNKNOWN};      /// kHttpRequestGet, kHttpRequestPost or other enums
+    ccstd::string _url;                    /// target url that this request is sent to
+    ccstd::vector<char> _requestData;      /// used for POST
+    ccstd::string _tag;                    /// user defined tag, to identify different requests in response callback
+    ccHttpRequestCallback _callback;       /// C++11 style callbacks
+    void *_userData{nullptr};              /// You can add your customed data here
+    ccstd::vector<ccstd::string> _headers; /// custom http headers
+    float _timeoutInSeconds{10.F};
 };
 
 } // namespace network

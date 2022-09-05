@@ -28,17 +28,18 @@
 #include "platform/win32/Utils-win32.h"
 #include <sstream>
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 #include "platform/StdC.h"
 
 namespace cc {
 
-std::wstring StringUtf8ToWideChar(const std::string &strUtf8) {
+std::wstring StringUtf8ToWideChar(const ccstd::string &strUtf8) {
     std::wstring ret;
     if (!strUtf8.empty()) {
         int nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, nullptr, 0);
         if (nNum) {
-            WCHAR *wideCharString = new WCHAR[nNum + 1];
-            wideCharString[0]     = 0;
+            WCHAR *wideCharString = ccnew WCHAR[nNum + 1];
+            wideCharString[0] = 0;
 
             nNum = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, wideCharString, nNum + 1);
 
@@ -51,13 +52,13 @@ std::wstring StringUtf8ToWideChar(const std::string &strUtf8) {
     return ret;
 }
 
-std::string StringWideCharToUtf8(const std::wstring &strWideChar) {
-    std::string ret;
+ccstd::string StringWideCharToUtf8(const std::wstring &strWideChar) {
+    ccstd::string ret;
     if (!strWideChar.empty()) {
         int nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
         if (nNum) {
-            char *utf8String = new char[nNum + 1];
-            utf8String[0]    = 0;
+            char *utf8String = ccnew char[nNum + 1];
+            utf8String[0] = 0;
 
             nNum = WideCharToMultiByte(CP_UTF8, 0, strWideChar.c_str(), -1, utf8String, nNum + 1, nullptr, FALSE);
 
@@ -71,14 +72,14 @@ std::string StringWideCharToUtf8(const std::wstring &strWideChar) {
     return ret;
 }
 
-std::string UTF8StringToMultiByte(const std::string &strUtf8) {
-    std::string ret;
+ccstd::string UTF8StringToMultiByte(const ccstd::string &strUtf8) {
+    ccstd::string ret;
     if (!strUtf8.empty()) {
         std::wstring strWideChar = StringUtf8ToWideChar(strUtf8);
-        int          nNum        = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
+        int nNum = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, nullptr, 0, nullptr, FALSE);
         if (nNum) {
-            char *ansiString = new char[nNum + 1];
-            ansiString[0]    = 0;
+            char *ansiString = ccnew char[nNum + 1];
+            ansiString[0] = 0;
 
             nNum = WideCharToMultiByte(CP_ACP, 0, strWideChar.c_str(), -1, ansiString, nNum + 1, nullptr, FALSE);
 

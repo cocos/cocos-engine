@@ -39,10 +39,10 @@ CCWGPUQueryPool::~CCWGPUQueryPool() {
     destroy();
 }
 
-void CCWGPUQueryPool::doInit(const QueryPoolInfo& /*info*/) {
-    CCWGPUDevice* device           = CCWGPUDevice::getInstance();
-    _gpuQueryPool                  = CC_NEW(CCWGPUQueryPoolObject);
-    _gpuQueryPool->type            = _type;
+void CCWGPUQueryPool::doInit(const QueryPoolInfo & /*info*/) {
+    CCWGPUDevice *device = CCWGPUDevice::getInstance();
+    _gpuQueryPool = ccnew CCWGPUQueryPoolObject;
+    _gpuQueryPool->type = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
     _gpuQueryPool->idPool.resize(_maxQueryObjects, 0U);
 
@@ -54,7 +54,7 @@ void CCWGPUQueryPool::doInit(const QueryPoolInfo& /*info*/) {
 void CCWGPUQueryPool::doDestroy() {
     if (_gpuQueryPool) {
         //cmdFuncGLES3DestroyQuery(GLES3Device::getInstance(), _gpuQueryPool);
-        CC_DELETE(_gpuQueryPool);
+        delete _gpuQueryPool;
         _gpuQueryPool = nullptr;
     }
 }

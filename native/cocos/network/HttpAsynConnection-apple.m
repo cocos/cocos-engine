@@ -22,13 +22,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS) || (CC_PLATFORM == CC_PLATFORM_IOS)
 
     #import "network/HttpAsynConnection-apple.h"
 
 @interface HttpAsynConnection ()
 
 @property (readwrite) NSString *statusString;
+
+- (BOOL)shouldTrustProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
 
 @end
 
@@ -43,7 +45,7 @@
 @synthesize statusString = statusString;
 @synthesize responseError = responseError;
 @synthesize connError = connError;
-@synthesize conn = conn;
+@synthesize task = task;
 @synthesize finish = finish;
 @synthesize runLoop = runLoop;
 
@@ -53,10 +55,8 @@
     [responseHeader release];
     [responseData release];
     [responseError release];
-    [conn release];
     [runLoop release];
     [connError release];
-
     [super dealloc];
 }
 
@@ -73,86 +73,54 @@
     self.responseError = nil;
     self.connError = nil;
 
-    // create the connection with the target request and this class as the delegate
-    self.conn = [[[NSURLConnection alloc] initWithRequest:request
-                                                 delegate:self
-                                         startImmediately:NO] autorelease];
+    session = [NSURLSession sharedSession];
 
-    [self.conn scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-
-    // start the connection
-    [self.conn start];
-}
-
-    #pragma mark NSURLConnectionDelegate methods
-/**
- * This delegate method is called when the NSURLConnection connects to the server.  It contains the 
- * NSURLResponse object with the headers returned by the server.  This method may be called multiple times.
- * Therefore, it is important to reset the data on each call.  Do not assume that it is the first call
- * of this method.
- **/
-- (void)connection:(NSURLConnection *)connection
-    didReceiveResponse:(NSURLResponse *)response {
+    task = [session dataTaskWithRequest:request
+                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *_Nullable error) {
+                          if (error != nil) {
+                              self.connError = error;
+                              finish = true;
+                              return;
+                          }
+                          if (response != nil) {
     #ifdef CC_DEBUG
-        // NSLog(@"Received response from request to url %@", srcURL);
+                // NSLog(@"Received response from request to url %@", srcURL);
     #endif
+                              NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                              //NSLog(@"All headers = %@", [httpResponse allHeaderFields]);
+                              self.responseHeader = [httpResponse allHeaderFields];
 
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-    //NSLog(@"All headers = %@", [httpResponse allHeaderFields]);
-    self.responseHeader = [httpResponse allHeaderFields];
+                              responseCode = httpResponse.statusCode;
+                              self.statusString = [NSHTTPURLResponse localizedStringForStatusCode:responseCode];
+                              if (responseCode == 200)
+                                  self.statusString = @"OK";
 
-    responseCode = httpResponse.statusCode;
-    self.statusString = [NSHTTPURLResponse localizedStringForStatusCode:responseCode];
-    if (responseCode == 200)
-        self.statusString = @"OK";
+                              /*The individual values of the numeric status codes defined for HTTP/1.1
+             | "200"  ; OK
+             | "201"  ; Created
+             | "202"  ; Accepted
+             | "203"  ; Non-Authoritative Information
+             | "204"  ; No Content
+             | "205"  ; Reset Content
+             | "206"  ; Partial Content
+             */
+                              if (responseCode < 200 || responseCode >= 300) { // something went wrong, abort the whole thing
+                                  self.responseError = [NSError errorWithDomain:@"CCBackendDomain"
+                                                                           code:responseCode
+                                                                       userInfo:@{NSLocalizedDescriptionKey : @"Bad HTTP Response Code"}];
+                              }
 
-    /*The individual values of the numeric status codes defined for HTTP/1.1
-    | "200"  ; OK
-    | "201"  ; Created
-    | "202"  ; Accepted
-    | "203"  ; Non-Authoritative Information
-    | "204"  ; No Content
-    | "205"  ; Reset Content
-    | "206"  ; Partial Content
-    */
-    if (responseCode < 200 || responseCode >= 300) { // something went wrong, abort the whole thing
-        self.responseError = [NSError errorWithDomain:@"CCBackendDomain"
-                                                 code:responseCode
-                                             userInfo:@{NSLocalizedDescriptionKey : @"Bad HTTP Response Code"}];
-    }
+                              [responseData setLength:0];
+                          }
 
-    [responseData setLength:0];
-}
+                          if (data != nil) {
+                              [responseData appendData:data];
+                              getDataTime++;
+                          }
 
-/**
- * This delegate method is called for each chunk of data received from the server.  The chunk size
- * is dependent on the network type and the server configuration.  
- */
-- (void)connection:(NSURLConnection *)connection
-    didReceiveData:(NSData *)data {
-    //NSLog(@"get some data");
-    [responseData appendData:data];
-    getDataTime++;
-}
-
-/**
- * This delegate method is called if the connection cannot be established to the server.  
- * The error object will have a description of the error
- **/
-- (void)connection:(NSURLConnection *)connection
-    didFailWithError:(NSError *)error {
-    //NSLog(@"Load failed with error %@", [error localizedDescription]);
-    self.connError = error;
-
-    finish = true;
-}
-
-/**
- * This delegate method is called when the data load is complete.  The delegate will be released 
- * following this call
- **/
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    finish = true;
+                          finish = true;
+                      }];
+    [task resume];
 }
 
 //Server evaluates client's certificate
@@ -191,7 +159,8 @@
     return trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed;
 }
 
-- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
+      completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *_Nullable credential))completionHandler {
     id<NSURLAuthenticationChallengeSender> sender = challenge.sender;
     NSURLProtectionSpace *protectionSpace = challenge.protectionSpace;
 
@@ -204,12 +173,12 @@
         //        NSData *serverCertificateData = (NSData*)SecCertificateCopyData(certificate);
         //        NSString *serverCertificateDataHash = [[serverCertificateData base64EncodedString] ]
         NSURLCredential *credential = [NSURLCredential credentialForTrust:trust];
-        [sender useCredential:credential forAuthenticationChallenge:challenge];
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     } else {
-        [sender cancelAuthenticationChallenge:challenge];
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
     }
 }
 
 @end
 
-#endif // #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#endif // #if (CC_PLATFORM == CC_PLATFORM_MACOS) || (CC_PLATFORM == CC_PLATFORM_IOS)

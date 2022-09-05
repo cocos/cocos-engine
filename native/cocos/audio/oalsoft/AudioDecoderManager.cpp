@@ -33,6 +33,7 @@
     #include "audio/ohos/AudioDecoderWav.h"
 #endif
 #include "audio/oalsoft/AudioMacros.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
 namespace cc {
@@ -46,18 +47,18 @@ void AudioDecoderManager::destroy() {
 }
 
 AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
-    std::string suffix = FileUtils::getInstance()->getFileExtension(path);
+    ccstd::string suffix = FileUtils::getInstance()->getFileExtension(path);
     if (suffix == ".ogg") {
-        return new (std::nothrow) AudioDecoderOgg();
+        return ccnew AudioDecoderOgg();
     }
 
     if (suffix == ".mp3") {
-        return new (std::nothrow) AudioDecoderMp3();
+        return ccnew AudioDecoderMp3();
     }
 
 #if CC_PLATFORM == CC_PLATFORM_OHOS
     if (suffix == ".wav") {
-        return new (std::nothrow) AudioDecoderWav();
+        return ccnew AudioDecoderWav();
     }
 #endif
 

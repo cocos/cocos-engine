@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "ConfigParser.h"
 #include "Runtime.h"
 #include "cocos/base/Log.h"
+#include "cocos/base/memory/Memory.h"
 #include "cocos/platform/FileUtils.h"
 #include "zlib.h"
 
@@ -234,7 +235,7 @@ FileServer::FileServer() : _listenfd(-1),
                            _writeEndThread(false),
                            _responseRunning(false),
                            _responseEndThread(false) {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     // need to be opened by Code IDE
     _isUsingWritePath = false;
 #else
@@ -243,7 +244,7 @@ FileServer::FileServer() : _listenfd(-1),
 
     _writePath = cc::FileUtils::getInstance()->getWritablePath();
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     #include "Widget_mac.h"
     _writePath += getCurAppName();
     _writePath += "/";

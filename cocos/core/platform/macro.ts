@@ -25,7 +25,9 @@
  THE SOFTWARE.
 */
 
+import { EDITOR, MINIGAME, NATIVE, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { Settings, settings } from '../settings';
 
 const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
@@ -1068,6 +1070,21 @@ interface Macro {
      * @default 144 KB
      */
     BATCHER2D_MEM_INCREMENT: number;
+
+    /**
+     * @zh 自定义渲染管线的名字（实验性）
+     * 引擎会根据名字创建对应的渲染管线（仅限Web平台）。如果名字为空，则不启用自定义渲染管线。
+     * 目前仅支持'Forward', 'Deferred'两种。
+     * @en The name of custom rendering pipeline (experimental)
+     * Engine will use the name to create the custom pipeline (Web only). If the name is empty, custom pipeline will be disabled.
+     * Currently only 'Forward' and 'Deferred' are supported.
+     */
+    CUSTOM_PIPELINE_NAME: string;
+
+    /**
+     * @internal
+     */
+    init (): void;
 }
 
 /**
@@ -1097,6 +1114,24 @@ const macro: Macro = {
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
+    CUSTOM_PIPELINE_NAME: '',
+    init () {
+        if (NATIVE || MINIGAME || RUNTIME_BASED) {
+            this.CLEANUP_IMAGE_CACHE = true;
+        }
+        const defaultValues = settings.querySettings(Settings.Category.ENGINE, 'macros');
+        if (defaultValues) {
+            for (const key in defaultValues) {
+                macro[key] = defaultValues[key];
+            }
+        }
+        if (PREVIEW || EDITOR) {
+            this.ENABLE_WEBGL_ANTIALIAS = true;
+        }
+        if (EDITOR) {
+            this.ENABLE_TRANSPARENT_CANVAS = false;
+        }
+    },
 };
 
 legacyCC.macro = macro;

@@ -27,9 +27,7 @@ export class TouchInputSource {
         return (event: any) => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
-            // NOTE: touch position on vivo platform is in physical pixel.
-            // No need to multiply with DPR.
-            const dpr = VIVO ? 1 : screenAdapter.devicePixelRatio;
+            const dpr = screenAdapter.devicePixelRatio;
             const length = event.changedTouches.length;
             for (let i = 0; i < length; ++i) {
                 const changedTouch = event.changedTouches[i];

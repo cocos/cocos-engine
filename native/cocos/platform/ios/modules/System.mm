@@ -26,12 +26,10 @@
 #include "platform/ios/modules/System.h"
 #import <UIKit/UIKit.h>
 
-
 #include <sys/utsname.h>
 #include <algorithm>
 #include <mutex>
 #include <sstream>
-
 
 namespace cc {
 using OSType = System::OSType;
@@ -40,7 +38,7 @@ OSType System::getOSType() const {
     return OSType::IPHONE;
 }
 
-std::string System::getDeviceModel() const {
+ccstd::string System::getDeviceModel() const {
     struct utsname systemInfo;
     uname(&systemInfo);
     return systemInfo.machine;
@@ -48,13 +46,13 @@ std::string System::getDeviceModel() const {
 
 System::LanguageType System::getCurrentLanguage() const {
     // get the current language and country config
-    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
-    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
-    NSString *      currentLanguage = [languages objectAtIndex:0];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
+    NSString *currentLanguage = [languages objectAtIndex:0];
 
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary *temp         = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString *    languageCode = [temp objectForKey:NSLocaleLanguageCode];
+    NSDictionary *temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString *languageCode = [temp objectForKey:NSLocaleLanguageCode];
 
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
@@ -78,22 +76,22 @@ System::LanguageType System::getCurrentLanguage() const {
     return LanguageType::ENGLISH;
 }
 
-std::string System::getCurrentLanguageCode() const {
-    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
-    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
-    NSString *      currentLanguage = [languages objectAtIndex:0];
+ccstd::string System::getCurrentLanguageCode() const {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
+    NSString *currentLanguage = [languages objectAtIndex:0];
     return [currentLanguage UTF8String];
 }
 
-std::string System::getSystemVersion() const {
+ccstd::string System::getSystemVersion() const {
     NSString *systemVersion = [UIDevice currentDevice].systemVersion;
     return [systemVersion UTF8String];
 }
 
-bool System::openURL(const std::string &url) {
-    NSString *   msg   = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
-    NSURL *      nsUrl = [NSURL URLWithString:msg];
-    __block BOOL flag  = false;
+bool System::openURL(const ccstd::string &url) {
+    NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
+    NSURL *nsUrl = [NSURL URLWithString:msg];
+    __block BOOL flag = false;
     [[UIApplication sharedApplication] openURL:nsUrl
         options:@{}
         completionHandler:^(BOOL success) {

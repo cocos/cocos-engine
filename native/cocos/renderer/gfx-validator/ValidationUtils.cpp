@@ -38,7 +38,7 @@ namespace cc {
 
 namespace utils {
 
-String getStacktraceJS() {
+ccstd::string getStacktraceJS() {
 #ifndef CC_WGPU_WASM
     if (!gfx::DeviceValidator::allowStacktraceJS) return "";
     return se::ScriptEngine::getInstance()->getCurrentStackTrace();
@@ -54,12 +54,12 @@ namespace gfx {
 void CommandRecorder::recordBeginRenderPass(const RenderPassSnapshot &renderPass) {
     _renderPassCommands.emplace_back();
     RenderPassCommand &command = _renderPassCommands.back();
-    command.renderArea         = renderPass.renderArea;
-    command.clearColors        = renderPass.clearColors;
-    command.clearDepth         = renderPass.clearDepth;
-    command.clearStencil       = renderPass.clearStencil;
+    command.renderArea = renderPass.renderArea;
+    command.clearColors = renderPass.clearColors;
+    command.clearDepth = renderPass.clearDepth;
+    command.clearStencil = renderPass.clearStencil;
 
-    command.colorAttachments       = renderPass.renderPass->getColorAttachments();
+    command.colorAttachments = renderPass.renderPass->getColorAttachments();
     command.depthStencilAttachment = renderPass.renderPass->getDepthStencilAttachment();
 
     _commands.push_back(CommandType::BEGIN_RENDER_PASS);
@@ -67,15 +67,15 @@ void CommandRecorder::recordBeginRenderPass(const RenderPassSnapshot &renderPass
 
 void CommandRecorder::recordDrawcall(const DrawcallSnapshot &drawcall) {
     _drawcallCommands.emplace_back();
-    DrawcallCommand &command  = _drawcallCommands.back();
-    command.inputState        = drawcall.pipelineState->getInputState();
-    command.rasterizerState   = drawcall.pipelineState->getRasterizerState();
+    DrawcallCommand &command = _drawcallCommands.back();
+    command.inputState = drawcall.pipelineState->getInputState();
+    command.rasterizerState = drawcall.pipelineState->getRasterizerState();
     command.depthStencilState = drawcall.pipelineState->getDepthStencilState();
-    command.blendState        = drawcall.pipelineState->getBlendState();
-    command.primitive         = drawcall.pipelineState->getPrimitive();
-    command.dynamicStates     = drawcall.pipelineState->getDynamicStates();
-    command.bindPoint         = drawcall.pipelineState->getBindPoint();
-    command.drawInfo          = drawcall.inputAssembler->getDrawInfo();
+    command.blendState = drawcall.pipelineState->getBlendState();
+    command.primitive = drawcall.pipelineState->getPrimitive();
+    command.dynamicStates = drawcall.pipelineState->getDynamicStates();
+    command.bindPoint = drawcall.pipelineState->getBindPoint();
+    command.drawInfo = drawcall.inputAssembler->getDrawInfo();
 
     command.descriptorSets = drawcall.descriptorSets;
     for (const auto &offsets : drawcall.dynamicOffsets) command.dynamicOffsets.insert(command.dynamicOffsets.end(), offsets.begin(), offsets.end());
@@ -93,13 +93,13 @@ void CommandRecorder::clear() {
     _drawcallCommands.clear();
 }
 
-vector<uint32_t> CommandRecorder::serialize(const CommandRecorder &recorder) {
-    vector<uint32_t> bytes;
+ccstd::vector<uint32_t> CommandRecorder::serialize(const CommandRecorder &recorder) {
+    ccstd::vector<uint32_t> bytes;
     bytes.push_back(static_cast<uint32_t>(recorder._commands.size()));
     return bytes;
 }
 
-CommandRecorder CommandRecorder::deserialize(const vector<uint32_t> &bytes) {
+CommandRecorder CommandRecorder::deserialize(const ccstd::vector<uint32_t> &bytes) {
     CommandRecorder recorder;
     recorder._commands.resize(bytes[0]);
     return recorder;

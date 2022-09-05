@@ -23,18 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
-#include <cassert>
 #include "DummyJobGraph.h"
+#include "base/Macros.h"
 
 #define DUMMY_GRAPH_NODE_CHUNK_SIZE 64
 
 namespace cc {
 
 namespace {
-DummyGraphNode *              freeList{nullptr};
-std::vector<DummyGraphNode *> allocatedChunks;
+DummyGraphNode *freeList{nullptr};
+ccstd::vector<DummyGraphNode *> allocatedChunks;
 } // namespace
 
 DummyGraphNode::~DummyGraphNode() {
@@ -49,7 +47,7 @@ void DummyGraphNode::reset() {
 }
 
 void DummyGraphNode::succeed(DummyGraphNode *other) {
-    assert(this != other);
+    CC_ASSERT(this != other);
     // Run after other
     this->_predecessors.emplace(other);
     other->_successors.emplace(this);
@@ -61,8 +59,8 @@ void DummyGraphNode::precede(DummyGraphNode *other) {
 }
 
 void DummyGraphNode::allocChunk() {
-    assert(freeList == nullptr);
-    freeList = new (std::nothrow) DummyGraphNode[DUMMY_GRAPH_NODE_CHUNK_SIZE]();
+    CC_ASSERT(freeList == nullptr);
+    freeList = ccnew DummyGraphNode[DUMMY_GRAPH_NODE_CHUNK_SIZE]();
     allocatedChunks.emplace_back(freeList);
     for (auto i = 0; i < DUMMY_GRAPH_NODE_CHUNK_SIZE - 1; i++) {
         freeList[i]._next = &freeList[i + 1];
@@ -74,7 +72,7 @@ DummyGraphNode *DummyGraphNode::alloc() {
     if (freeList == nullptr) {
         DummyGraphNode::allocChunk();
     }
-    auto *p  = freeList;
+    auto *p = freeList;
     freeList = freeList->_next;
     p->reset();
     return p;
@@ -82,7 +80,7 @@ DummyGraphNode *DummyGraphNode::alloc() {
 
 void DummyGraphNode::free(DummyGraphNode *node) {
     node->_next = freeList;
-    freeList    = node;
+    freeList = node;
 }
 
 void DummyGraphNode::freeAll() {
@@ -138,7 +136,7 @@ bool DummyGraph::excuted(DummyGraphNode *n) const {
     return n->_generation != _generation;
 }
 
-void DummyJobGraph::makeEdge(uint j1, uint j2) {
+void DummyJobGraph::makeEdge(uint32_t j1, uint32_t j2) {
     _dummyGraph.link(j1, j2);
 }
 

@@ -27,10 +27,9 @@ THE SOFTWARE.
 #include "audio/android/AudioDecoder.h"
 #include "audio/android/AudioResampler.h"
 #include "audio/android/PcmBufferProvider.h"
-#include "audio/android/AudioResampler.h"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 namespace cc {
 
@@ -48,11 +47,11 @@ size_t AudioDecoder::fileRead(void *ptr, size_t size, size_t nmemb, void *dataso
 int AudioDecoder::fileSeek(void *datasource, int64_t offset, int whence) {
     AudioDecoder *thiz = (AudioDecoder *)datasource;
     if (whence == SEEK_SET)
-        thiz->_fileCurrPos = offset;
+        thiz->_fileCurrPos = static_cast<size_t>(offset);
     else if (whence == SEEK_CUR)
-        thiz->_fileCurrPos = thiz->_fileCurrPos + offset;
+        thiz->_fileCurrPos = static_cast<size_t>(thiz->_fileCurrPos + offset);
     else if (whence == SEEK_END)
-        thiz->_fileCurrPos = thiz->_fileData.getSize();
+        thiz->_fileCurrPos = static_cast<size_t>(thiz->_fileData.getSize());
     return 0;
 }
 
@@ -67,7 +66,7 @@ long AudioDecoder::fileTell(void *datasource) {
 
 AudioDecoder::AudioDecoder()
 : _fileCurrPos(0), _sampleRate(-1) {
-    auto pcmBuffer = std::make_shared<std::vector<char>>();
+    auto pcmBuffer = std::make_shared<ccstd::vector<char>>();
     pcmBuffer->reserve(4096);
     _result.pcmBuffer = pcmBuffer;
 }
@@ -76,7 +75,7 @@ AudioDecoder::~AudioDecoder() {
     ALOGV("~AudioDecoder() %p", this);
 }
 
-bool AudioDecoder::init(const std::string &url, int sampleRate) {
+bool AudioDecoder::init(const ccstd::string &url, int sampleRate) {
     _url = url;
     _sampleRate = sampleRate;
     return true;
@@ -138,7 +137,7 @@ bool AudioDecoder::resample() {
     const int outFrameRate = _sampleRate;
     int outputChannels = 2;
     size_t outputFrameSize = outputChannels * sizeof(int32_t);
-    size_t outputFrames = ((int64_t)r.numFrames * outFrameRate) / r.sampleRate;
+    auto outputFrames = static_cast<size_t>(((int64_t)r.numFrames * outFrameRate) / r.sampleRate);
     size_t outputSize = outputFrames * outputFrameSize;
     void *outputVAddr = malloc(outputSize);
 
@@ -151,10 +150,10 @@ bool AudioDecoder::resample() {
 
     ALOGV("resample() %zu output frames", outputFrames);
 
-    std::vector<int> Ovalues;
+    ccstd::vector<int> Ovalues;
 
     if (Ovalues.empty()) {
-        Ovalues.push_back(outputFrames);
+        Ovalues.push_back(static_cast<int>(outputFrames));
     }
     for (size_t i = 0, j = 0; i < outputFrames;) {
         size_t thisFrames = Ovalues[j++];
@@ -164,8 +163,8 @@ bool AudioDecoder::resample() {
         if (thisFrames == 0 || thisFrames > outputFrames - i) {
             thisFrames = outputFrames - i;
         }
-        int outFrames = resampler->resample((int *)outputVAddr + outputChannels * i, thisFrames,
-                                            &provider);
+        int outFrames = static_cast<int>(resampler->resample(static_cast<int32_t *>(outputVAddr) + outputChannels * i, thisFrames,
+                                                             &provider));
         ALOGV("outFrames: %d", outFrames);
         i += thisFrames;
     }
@@ -209,10 +208,10 @@ bool AudioDecoder::resample() {
     }
 
     // Reset result
-    _result.numFrames = outputFrames;
+    _result.numFrames = static_cast<int>(outputFrames);
     _result.sampleRate = outFrameRate;
 
-    auto buffer = std::make_shared<std::vector<char>>();
+    auto buffer = std::make_shared<ccstd::vector<char>>();
     buffer->reserve(_result.numFrames * _result.bitsPerSample / 8);
     buffer->insert(buffer->end(), (char *)convert,
                    (char *)convert + outputFrames * channels * sizeof(int16_t));
@@ -233,7 +232,7 @@ bool AudioDecoder::interleave() {
     } else if (_result.numChannels == 1) {
         // If it's a mono audio, try to compose a fake stereo buffer
         size_t newBufferSize = _result.pcmBuffer->size() * 2;
-        auto newBuffer = std::make_shared<std::vector<char>>();
+        auto newBuffer = std::make_shared<ccstd::vector<char>>();
         newBuffer->reserve(newBufferSize);
         size_t totalFrameSizeInBytes = (size_t)(_result.numFrames * _result.bitsPerSample / 8);
 

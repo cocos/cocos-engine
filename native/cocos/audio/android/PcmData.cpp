@@ -25,8 +25,8 @@ THE SOFTWARE.
 
 #define LOG_TAG "PcmData"
 
-#include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
+#include "audio/android/OpenSLHelper.h"
 
 namespace cc {
 
@@ -111,8 +111,8 @@ bool PcmData::isValid() const {
     return numChannels > 0 && sampleRate > 0 && bitsPerSample > 0 && containerSize > 0 && numFrames > 0 && duration > 0 && pcmBuffer != nullptr;
 }
 
-std::string PcmData::toString() const {
-    std::string ret;
+ccstd::string PcmData::toString() const {
+    ccstd::string ret;
     char buf[256] = {0};
 
     snprintf(buf, sizeof(buf),

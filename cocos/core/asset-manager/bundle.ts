@@ -24,7 +24,7 @@
  */
 
 import { Asset } from '../assets/asset';
-import SceneAsset from '../assets/scene-asset';
+import { SceneAsset } from '../assets/scene-asset';
 import { legacyCC } from '../global-exports';
 import { error, errorID } from '../platform/debug';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';
@@ -431,9 +431,8 @@ export default class Bundle {
         legacyCC.assetManager.loadAny({ scene: sceneName }, opts, onProg, (err, sceneAsset) => {
             if (err) {
                 error(err.message, err.stack);
-            } else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
+            } else if (sceneAsset.scene) {
                 const scene = sceneAsset.scene;
-                // @ts-expect-error set private property
                 scene._id = sceneAsset._uuid;
                 scene.name = sceneAsset.name;
             } else {

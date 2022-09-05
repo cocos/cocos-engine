@@ -23,22 +23,24 @@
 
 #pragma once
 
+#include <utility>
+
 #include "ArmatureCache.h"
 #include "CCArmatureDisplay.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "dragonbones/DragonBonesHeaders.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-class CCArmatureCacheDisplay : public cc::middleware::IMiddleware, public cc::Ref {
+class CCArmatureCacheDisplay : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
     CCArmatureCacheDisplay(const std::string &armatureName, const std::string &armatureKey, const std::string &atlasUUID, bool isShare);
-    virtual ~CCArmatureCacheDisplay();
+    ~CCArmatureCacheDisplay() override;
     void dispose();
 
-    virtual void update(float dt) override;
-    virtual void render(float dt) override;
-    virtual uint32_t getRenderOrder() const override;
+    void update(float dt) override;
+    void render(float dt) override;
+    uint32_t getRenderOrder() const override;
 
     void setTimeScale(float scale) {
         _timeScale = scale;
@@ -67,9 +69,9 @@ public:
         _premultipliedAlpha = value;
     }
 
-    typedef std::function<void(EventObject *)> dbEventCallback;
+    using dbEventCallback = std::function<void(EventObject *)>;
     void setDBEventCallback(dbEventCallback callback) {
-        _dbEventCallback = callback;
+        _dbEventCallback = std::move(callback);
     }
     void addDBEventListener(const std::string &type);
     void removeDBEventListener(const std::string &type);
@@ -93,11 +95,11 @@ public:
 private:
     float _timeScale = 1;
     int _curFrameIndex = -1;
-    float _accTime = 0.0f;
+    float _accTime = 0.0F;
     int _playCount = 0;
     int _playTimes = 0;
     bool _isAniComplete = true;
-    std::string _animationName = "";
+    std::string _animationName;
 
     Armature *_armature = nullptr;
     ArmatureCache::AnimationData *_animationData = nullptr;

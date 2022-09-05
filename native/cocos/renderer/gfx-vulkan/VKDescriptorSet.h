@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUDescriptorSet;
+struct CCVKGPUDescriptorSet;
 
 class CC_VULKAN_API CCVKDescriptorSet final : public DescriptorSet {
 public:
@@ -39,6 +39,7 @@ public:
     ~CCVKDescriptorSet() override;
 
     void update() override;
+    void forceUpdate() override;
 
     inline CCVKGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 

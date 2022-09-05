@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#include <string>
+#include "base/std/container/string.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 namespace se {
 class Object;
@@ -32,5 +32,5 @@ class Object;
 
 bool register_javascript_objc_bridge(se::Object *obj);
 bool register_script_native_bridge(se::Object *obj); // NOLINT(readability-identifier-naming)
-bool callPlatformStringMethod(const std::string &arg0, const std::string &arg1);
-void callScript(const std::string &arg0, const std::string &arg1);
+bool callPlatformStringMethod(const ccstd::string &arg0, const ccstd::string &arg1);
+void callScript(const ccstd::string &arg0, const ccstd::string &arg1);

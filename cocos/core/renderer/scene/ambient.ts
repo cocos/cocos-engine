@@ -23,11 +23,9 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
-import type { AmbientInfo } from '../../scene-graph/scene-globals';
-import { NativeAmbient } from '../native-scene';
+import { AmbientInfo } from '../../scene-graph/scene-globals';
 
 /**
  * @en Ambient lighting representation in the render scene.
@@ -53,9 +51,6 @@ export class Ambient {
      */
     set enabled (val: boolean) {
         this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.enabled = val;
-        }
     }
     get enabled (): boolean {
         return this._enabled;
@@ -79,9 +74,6 @@ export class Ambient {
         } else {
             this._skyColorLDR.set(color);
         }
-        if (JSB) {
-            this._nativeObj!.skyColor = isHDR ? this._skyColorHDR : this._skyColorLDR;
-        }
     }
 
     /**
@@ -103,9 +95,6 @@ export class Ambient {
         } else {
             this._skyIllumLDR = illum;
         }
-        if (JSB) {
-            this._nativeObj!.skyIllum = isHDR ? this._skyIllumHDR : this._skyIllumLDR;
-        }
     }
     /**
      * @en Ground color
@@ -126,10 +115,6 @@ export class Ambient {
         } else {
             this._groundAlbedoLDR.set(color);
         }
-
-        if (JSB) {
-            this._nativeObj!.groundAlbedo = isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR;
-        }
     }
 
     protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
@@ -140,24 +125,9 @@ export class Ambient {
     protected _skyColorLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
     protected _skyIllumLDR = 0;
 
+    protected _mipmapCount = 1;
+
     protected _enabled = false;
-    /**
-     * @internal
-     */
-    protected declare _nativeObj: NativeAmbient | null;
-
-    /**
-     * @internal
-     */
-    get native (): NativeAmbient {
-        return this._nativeObj!;
-    }
-
-    constructor () {
-        if (JSB) {
-            this._nativeObj = new NativeAmbient();
-        }
-    }
 
     public initialize (ambientInfo: AmbientInfo) {
         // Init HDR/LDR from serialized data on load
@@ -168,22 +138,6 @@ export class Ambient {
         this._skyColorLDR = ambientInfo.skyColorLDR;
         this._groundAlbedoLDR.set(ambientInfo.groundAlbedoLDR);
         this._skyIllumLDR = ambientInfo.skyIllumLDR;
-
-        if (JSB) {
-            this._nativeObj!.skyIllum = this.skyIllum;
-            this._nativeObj!.skyColor = this.skyColor;
-            this._nativeObj!.groundAlbedo = this.groundAlbedo;
-        }
-    }
-
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    public destroy () {
-        this._destroy();
     }
 }
 

@@ -27,18 +27,20 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "base/memory/StlAlloc.h"
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
 class Value;
 
-using ValueVector    = vector<Value>;
-using ValueMap       = unordered_map<String, Value>;
-using ValueMapIntKey = unordered_map<int, Value>;
+using ValueVector = ccstd::vector<Value>;
+using ValueMap = ccstd::unordered_map<ccstd::string, Value>;
+using ValueMapIntKey = ccstd::unordered_map<int, Value>;
 
-CC_DLL extern const ValueVector    VALUE_VECTOR_NULL;
-CC_DLL extern const ValueMap       VALUE_MAP_NULL;
+CC_DLL extern const ValueVector VALUE_VECTOR_NULL;
+CC_DLL extern const ValueMap VALUE_MAP_NULL;
 CC_DLL extern const ValueMapIntKey VALUE_MAP_INT_KEY_NULL;
 
 /*
@@ -74,7 +76,7 @@ public:
     explicit Value(const char *v);
 
     /** Create a Value by a string. */
-    explicit Value(const String &v);
+    explicit Value(const ccstd::string &v);
 
     /** Create a Value by a ValueVector object. */
     explicit Value(const ValueVector &v);
@@ -119,7 +121,7 @@ public:
     /** Assignment operator, assign from char* to Value. */
     Value &operator=(const char *v);
     /** Assignment operator, assign from string to Value. */
-    Value &operator=(const String &v);
+    Value &operator=(const ccstd::string &v);
 
     /** Assignment operator, assign from ValueVector to Value. */
     Value &operator=(const ValueVector &v);
@@ -158,7 +160,7 @@ public:
     /** Gets as a bool value. Will convert to bool if possible, or will trigger assert error. */
     bool asBool() const;
     /** Gets as a string value. Will convert to string if possible, or will trigger assert error. */
-    String asString() const;
+    ccstd::string asString() const;
 
     /** Gets as a ValueVector reference. Will convert to ValueVector if possible, or will trigger assert error. */
     ValueVector &asValueVector();
@@ -211,7 +213,7 @@ public:
     inline Type getType() const { return _type; }
 
     /** Gets the description of the class. */
-    String getDescription() const;
+    ccstd::string getDescription() const;
 
 private:
     void clear();
@@ -219,15 +221,15 @@ private:
 
     union {
         unsigned char byteVal;
-        int           intVal;
-        unsigned int  unsignedVal;
-        float         floatVal;
-        double        doubleVal;
-        bool          boolVal;
+        int intVal;
+        unsigned int unsignedVal;
+        float floatVal;
+        double doubleVal;
+        bool boolVal;
 
-        String *        strVal;
-        ValueVector *   vectorVal;
-        ValueMap *      mapVal;
+        ccstd::string *strVal;
+        ValueVector *vectorVal;
+        ValueMap *mapVal;
         ValueMapIntKey *intKeyMapVal;
     } _field;
 

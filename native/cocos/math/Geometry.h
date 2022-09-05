@@ -24,33 +24,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __MATH_CCGEOMETRY_H__
-#define __MATH_CCGEOMETRY_H__
+#pragma once
 
 #include "base/Macros.h"
 #include "math/Vec2.h"
-
-/**
- * @addtogroup base
- * @{
- */
 
 namespace cc {
 
 class CC_DLL Size {
 public:
     /**Width of the Size.*/
-    float width;
+    float width{0.F};
     /**Height of the Size.*/
-    float height;
+    float height{0.F};
 
-public:
     /**Conversion from Vec2 to Size.*/
-    operator Vec2() const {
+    operator Vec2() const { // NOLINT
         return Vec2(width, height);
     }
 
-public:
     /**
     @{
     Constructor.
@@ -65,45 +57,18 @@ public:
     explicit Size(const Vec2 &point);
     /**@}*/
 
-    /**
-     * @js NA
-     * @lua NA
-     */
     Size &operator=(const Size &other);
-    /**
-     * @js NA
-     * @lua NA
-     */
     Size &operator=(const Vec2 &point);
-    /**
-     * @js NA
-     * @lua NA
-     */
     Size operator+(const Size &right) const;
-    /**
-     * @js NA
-     * @lua NA
-     */
     Size operator-(const Size &right) const;
-    /**
-     * @js NA
-     * @lua NA
-     */
     Size operator*(float a) const;
-    /**
-     * @js NA
-     * @lua NA
-     */
     Size operator/(float a) const;
     /**
     Set the width and height of Size.
-     * @js NA
-     * @lua NA
      */
     void setSize(float width, float height);
     /**
     Check if two size is the same.
-     * @js NA
      */
     bool equals(const Size &target) const;
     /**Size(0,0).*/
@@ -113,98 +78,57 @@ public:
 /**Rectangle area.*/
 class CC_DLL Rect {
 public:
-    /**Low left point of rect.*/
-    Vec2 origin;
-    /**Width and height of the rect.*/
-    Size size;
+    float x{ 0.F };
+    float y{ 0.F };
+    float width{ 0.F };
+    float height{ 0.F };
 
-public:
-    /**
-    Constructor an empty Rect.
-     * @js NA
-     */
     Rect();
-    /**
-    Constructor a rect.
-     * @js NA
-     */
     Rect(float x, float y, float width, float height);
-    /**
-     Constructor a rect.
-     * @js NA
-     */
     Rect(const Vec2 &pos, const Size &dimension);
-    /**
-    Copy constructor.
-     * @js NA
-     * @lua NA
-     */
     Rect(const Rect &other);
-    /**
-     * @js NA
-     * @lua NA
-     */
     Rect &operator=(const Rect &other);
-    /**
-    Set the x, y, width and height of Rect.
-     * @js NA
-     * @lua NA
-     */
     void setRect(float x, float y, float width, float height);
     /**
     Get the left of the rect.
-     * @js NA
      */
     float getMinX() const; /// return the leftmost x-value of current rect
     /**
     Get the X coordinate of center point.
-     * @js NA
      */
     float getMidX() const; /// return the midpoint x-value of current rect
     /**
     Get the right of rect.
-     * @js NA
      */
     float getMaxX() const; /// return the rightmost x-value of current rect
     /**
     Get the bottom of rect.
-     * @js NA
      */
     float getMinY() const; /// return the bottommost y-value of current rect
     /**
     Get the Y coordinate of center point.
-     * @js NA
      */
     float getMidY() const; /// return the midpoint y-value of current rect
     /**
     Get top of rect.
-     * @js NA
      */
     float getMaxY() const; /// return the topmost y-value of current rect
-    /**
-    Compare two rects.
-     * @js NA
-     */
+
     bool equals(const Rect &rect) const;
     /**
     Check if the points is contained in the rect.
-     * @js NA
      */
     bool containsPoint(const Vec2 &point) const;
     /**
     Check the intersect status of two rects.
-     * @js NA
      */
     bool intersectsRect(const Rect &rect) const;
     /**
     Check the intersect status of the rect and a circle.
-     * @js NA
      */
     bool intersectsCircle(const Vec2 &center, float radius) const;
     /**
     Get the min rect which can contain this and rect.
-     * @js NA
-     * @lua NA
      */
     Rect unionWithRect(const Rect &rect) const;
     /**Compute the min rect which can contain this and rect, assign it to this.*/
@@ -214,8 +138,3 @@ public:
 };
 
 } // namespace cc
-
-// end of base group
-/// @}
-
-#endif // __MATH_CCGEOMETRY_H__

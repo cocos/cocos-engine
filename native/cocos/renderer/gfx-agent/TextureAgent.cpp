@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 
 #include "DeviceAgent.h"
@@ -64,7 +63,7 @@ void TextureAgent::doInit(const TextureInfo &info) {
 
 void TextureAgent::doInit(const TextureViewInfo &info) {
     TextureViewInfo actorInfo = info;
-    actorInfo.texture         = static_cast<TextureAgent *>(info.texture)->getActor();
+    actorInfo.texture = static_cast<TextureAgent *>(info.texture)->getActor();
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),

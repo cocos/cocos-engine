@@ -30,11 +30,12 @@
 #include "cocos/bindings/manual/jsb_classtype.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "SimulatorApp.h"
     #include "windows.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     #include <CoreGraphics/CGDisplayConfiguration.h>
     #include "../proj.ios_mac/mac/SimulatorApp.h"
 #endif
@@ -54,13 +55,14 @@ Game::~Game() {
 }
 
 int Game::init() {
+    cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
     SimulatorApp::getInstance()->run();
     int windowWidth  = SimulatorApp::getInstance()->getWidth();
     int windowHeight = SimulatorApp::getInstance()->getHegith();
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     int windowPositionX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
     int windowPositionY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     auto mainDisplayId   = CGMainDisplayID();
     int  windowPositionX = (CGDisplayPixelsWide(mainDisplayId) - windowWidth) / 2;
     int  windowPositionY = (CGDisplayPixelsHigh(mainDisplayId) - windowHeight) / 2;
@@ -87,7 +89,7 @@ int Game::init() {
 
     setXXTeaKey("");
 
-    runScript("jsb-adapter/jsb-builtin.js");
+    runScript("jsb-adapter/web-adapter.js");
     runScript("main.js");
 
     // Runtime end

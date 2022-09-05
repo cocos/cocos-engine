@@ -23,12 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <boost/functional/hash.hpp>
-
-#include "base/CoreStd.h"
 #include "base/Utils.h"
+#include "base/std/container/array.h"
+#include "base/std/hash/hash.h"
 
 #include "GFXDef.h"
+#include "GFXRenderPass.h"
 #include "GFXTexture.h"
 
 namespace cc {
@@ -36,53 +36,53 @@ namespace gfx {
 
 // T must have no implicit padding
 template <typename T>
-size_t quickHashTrivialStruct(const T* info, size_t count = 1) {
+ccstd::hash_t quickHashTrivialStruct(const T *info, size_t count = 1) {
     static_assert(std::is_trivially_copyable<T>::value && sizeof(T) % 8 == 0, "T must be 8 bytes aligned and trivially copyable");
-    return boost::hash_range(reinterpret_cast<const uint64_t*>(info), reinterpret_cast<const uint64_t*>(info + count));
+    return ccstd::hash_range(reinterpret_cast<const uint64_t *>(info), reinterpret_cast<const uint64_t *>(info + count));
 }
 
 template <>
-size_t Hasher<ColorAttachment>::operator()(const ColorAttachment& info) const {
+ccstd::hash_t Hasher<ColorAttachment>::operator()(const ColorAttachment &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const ColorAttachment& lhs, const ColorAttachment& rhs) {
+bool operator==(const ColorAttachment &lhs, const ColorAttachment &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(ColorAttachment));
 }
 
 template <>
-size_t Hasher<DepthStencilAttachment>::operator()(const DepthStencilAttachment& info) const {
+ccstd::hash_t Hasher<DepthStencilAttachment>::operator()(const DepthStencilAttachment &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const DepthStencilAttachment& lhs, const DepthStencilAttachment& rhs) {
+bool operator==(const DepthStencilAttachment &lhs, const DepthStencilAttachment &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(DepthStencilAttachment));
 }
 
 template <>
-size_t Hasher<SubpassDependency>::operator()(const SubpassDependency& info) const {
+ccstd::hash_t Hasher<SubpassDependency>::operator()(const SubpassDependency &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const SubpassDependency& lhs, const SubpassDependency& rhs) {
+bool operator==(const SubpassDependency &lhs, const SubpassDependency &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(SubpassDependency));
 }
 
 template <>
-size_t Hasher<SubpassInfo>::operator()(const SubpassInfo& info) const {
-    size_t seed = 8;
-    boost::hash_combine(seed, info.inputs);
-    boost::hash_combine(seed, info.colors);
-    boost::hash_combine(seed, info.resolves);
-    boost::hash_combine(seed, info.preserves);
-    boost::hash_combine(seed, info.depthStencil);
-    boost::hash_combine(seed, info.depthStencilResolve);
-    boost::hash_combine(seed, info.depthResolveMode);
-    boost::hash_combine(seed, info.stencilResolveMode);
+ccstd::hash_t Hasher<SubpassInfo>::operator()(const SubpassInfo &info) const {
+    ccstd::hash_t seed = 8;
+    ccstd::hash_combine(seed, info.inputs);
+    ccstd::hash_combine(seed, info.colors);
+    ccstd::hash_combine(seed, info.resolves);
+    ccstd::hash_combine(seed, info.preserves);
+    ccstd::hash_combine(seed, info.depthStencil);
+    ccstd::hash_combine(seed, info.depthStencilResolve);
+    ccstd::hash_combine(seed, info.depthResolveMode);
+    ccstd::hash_combine(seed, info.stencilResolveMode);
     return seed;
 }
 
-bool operator==(const SubpassInfo& lhs, const SubpassInfo& rhs) {
+bool operator==(const SubpassInfo &lhs, const SubpassInfo &rhs) {
     return lhs.inputs == rhs.inputs &&
            lhs.colors == rhs.colors &&
            lhs.resolves == rhs.resolves &&
@@ -94,16 +94,16 @@ bool operator==(const SubpassInfo& lhs, const SubpassInfo& rhs) {
 }
 
 template <>
-size_t Hasher<RenderPassInfo>::operator()(const RenderPassInfo& info) const {
-    size_t seed = 4;
-    boost::hash_combine(seed, info.colorAttachments);
-    boost::hash_combine(seed, info.depthStencilAttachment);
-    boost::hash_combine(seed, info.subpasses);
-    boost::hash_combine(seed, info.dependencies);
+ccstd::hash_t Hasher<RenderPassInfo>::operator()(const RenderPassInfo &info) const {
+    ccstd::hash_t seed = 4;
+    ccstd::hash_combine(seed, info.colorAttachments);
+    ccstd::hash_combine(seed, info.depthStencilAttachment);
+    ccstd::hash_combine(seed, info.subpasses);
+    ccstd::hash_combine(seed, info.dependencies);
     return seed;
 }
 
-bool operator==(const RenderPassInfo& lhs, const RenderPassInfo& rhs) {
+bool operator==(const RenderPassInfo &lhs, const RenderPassInfo &rhs) {
     return lhs.colorAttachments == rhs.colorAttachments &&
            lhs.depthStencilAttachment == rhs.depthStencilAttachment &&
            lhs.subpasses == rhs.subpasses &&
@@ -111,29 +111,30 @@ bool operator==(const RenderPassInfo& lhs, const RenderPassInfo& rhs) {
 }
 
 template <>
-size_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo& info) const {
+ccstd::hash_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) const {
     // render pass is mostly irrelevant
-    size_t seed;
+    ccstd::hash_t seed;
     if (info.depthStencilTexture) {
-        seed = (info.colorTextures.size() + 1) * 3;
-        boost::hash_combine(seed, info.depthStencilTexture);
-        boost::hash_combine(seed, info.depthStencilTexture->getRaw());
-        boost::hash_combine(seed, info.depthStencilTexture->getHash());
+        seed = (static_cast<uint32_t>(info.colorTextures.size()) + 1) * 3 + 1;
+        ccstd::hash_combine(seed, info.depthStencilTexture);
+        ccstd::hash_combine(seed, info.depthStencilTexture->getRaw());
+        ccstd::hash_combine(seed, info.depthStencilTexture->getHash());
     } else {
-        seed = info.colorTextures.size() * 3;
+        seed = static_cast<uint32_t>(info.colorTextures.size()) * 3 + 1;
     }
-    for (auto* colorTexture : info.colorTextures) {
-        boost::hash_combine(seed, colorTexture);
-        boost::hash_combine(seed, colorTexture->getRaw());
-        boost::hash_combine(seed, colorTexture->getHash());
+    for (auto *colorTexture : info.colorTextures) {
+        ccstd::hash_combine(seed, colorTexture);
+        ccstd::hash_combine(seed, colorTexture->getRaw());
+        ccstd::hash_combine(seed, colorTexture->getHash());
     }
+    ccstd::hash_combine(seed, info.renderPass->getHash());
     return seed;
 }
 
-bool operator==(const FramebufferInfo& lhs, const FramebufferInfo& rhs) {
+bool operator==(const FramebufferInfo &lhs, const FramebufferInfo &rhs) {
     // render pass is mostly irrelevant
     bool res = false;
-    res      = lhs.colorTextures == rhs.colorTextures;
+    res = lhs.colorTextures == rhs.colorTextures;
 
     if (res) {
         res = lhs.depthStencilTexture == rhs.depthStencilTexture;
@@ -147,6 +148,7 @@ bool operator==(const FramebufferInfo& lhs, const FramebufferInfo& rhs) {
                 break;
             }
         }
+        res = lhs.renderPass->getHash() == rhs.renderPass->getHash();
         if (res) {
             res = lhs.depthStencilTexture->getRaw() == rhs.depthStencilTexture->getRaw() &&
                   lhs.depthStencilTexture->getHash() == rhs.depthStencilTexture->getHash();
@@ -156,93 +158,102 @@ bool operator==(const FramebufferInfo& lhs, const FramebufferInfo& rhs) {
 }
 
 template <>
-size_t Hasher<TextureInfo>::operator()(const TextureInfo& info) const {
+ccstd::hash_t Hasher<TextureInfo>::operator()(const TextureInfo &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const TextureInfo& lhs, const TextureInfo& rhs) {
+bool operator==(const TextureInfo &lhs, const TextureInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(TextureInfo));
 }
 
 template <>
-size_t Hasher<TextureViewInfo>::operator()(const TextureViewInfo& info) const {
+ccstd::hash_t Hasher<TextureViewInfo>::operator()(const TextureViewInfo &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const TextureViewInfo& lhs, const TextureViewInfo& rhs) {
+bool operator==(const TextureViewInfo &lhs, const TextureViewInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(TextureViewInfo));
 }
 
 template <>
-size_t Hasher<BufferInfo>::operator()(const BufferInfo& info) const {
+ccstd::hash_t Hasher<BufferInfo>::operator()(const BufferInfo &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const BufferInfo& lhs, const BufferInfo& rhs) {
+bool operator==(const BufferInfo &lhs, const BufferInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(BufferInfo));
 }
 
 template <>
-size_t Hasher<SamplerInfo>::operator()(const SamplerInfo& info) const {
+ccstd::hash_t Hasher<SamplerInfo>::operator()(const SamplerInfo &info) const {
     // return quickHashTrivialStruct(&info);
 
     // the hash may be used to reconstruct the original struct
-    auto hash = static_cast<size_t>(info.minFilter);
-    hash |= static_cast<size_t>(info.magFilter) << 2;
-    hash |= static_cast<size_t>(info.mipFilter) << 4;
-    hash |= static_cast<size_t>(info.addressU) << 6;
-    hash |= static_cast<size_t>(info.addressV) << 8;
-    hash |= static_cast<size_t>(info.addressW) << 10;
-    hash |= static_cast<size_t>(info.maxAnisotropy) << 12;
-    hash |= static_cast<size_t>(info.cmpFunc) << 16;
-    return hash;
+    auto hash = static_cast<uint32_t>(info.minFilter);
+    hash |= static_cast<uint32_t>(info.magFilter) << 2;
+    hash |= static_cast<uint32_t>(info.mipFilter) << 4;
+    hash |= static_cast<uint32_t>(info.addressU) << 6;
+    hash |= static_cast<uint32_t>(info.addressV) << 8;
+    hash |= static_cast<uint32_t>(info.addressW) << 10;
+    hash |= static_cast<uint32_t>(info.maxAnisotropy) << 12;
+    hash |= static_cast<uint32_t>(info.cmpFunc) << 16;
+    return static_cast<ccstd::hash_t>(hash);
 }
 
-bool operator==(const SamplerInfo& lhs, const SamplerInfo& rhs) {
+bool operator==(const SamplerInfo &lhs, const SamplerInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(SamplerInfo));
 }
 
 template <>
-size_t Hasher<GeneralBarrierInfo>::operator()(const GeneralBarrierInfo& info) const {
+ccstd::hash_t Hasher<GeneralBarrierInfo>::operator()(const GeneralBarrierInfo &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const GeneralBarrierInfo& lhs, const GeneralBarrierInfo& rhs) {
+bool operator==(const GeneralBarrierInfo &lhs, const GeneralBarrierInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(GeneralBarrierInfo));
 }
 
 template <>
-size_t Hasher<TextureBarrierInfo>::operator()(const TextureBarrierInfo& info) const {
+ccstd::hash_t Hasher<TextureBarrierInfo>::operator()(const TextureBarrierInfo &info) const {
     return quickHashTrivialStruct(&info);
 }
 
-bool operator==(const TextureBarrierInfo& lhs, const TextureBarrierInfo& rhs) {
+bool operator==(const TextureBarrierInfo &lhs, const TextureBarrierInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(TextureBarrierInfo));
+}
+
+template <>
+ccstd::hash_t Hasher<BufferBarrierInfo>::operator()(const BufferBarrierInfo &info) const {
+    return quickHashTrivialStruct(&info);
+}
+
+bool operator==(const BufferBarrierInfo &lhs, const BufferBarrierInfo &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(BufferBarrierInfo));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool operator==(const Viewport& lhs, const Viewport& rhs) {
+bool operator==(const Viewport &lhs, const Viewport &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(Viewport));
 }
 
-bool operator==(const Rect& lhs, const Rect& rhs) {
+bool operator==(const Rect &lhs, const Rect &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(Rect));
 }
 
-bool operator==(const Color& lhs, const Color& rhs) {
+bool operator==(const Color &lhs, const Color &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(Color));
 }
 
-bool operator==(const Offset& lhs, const Offset& rhs) {
+bool operator==(const Offset &lhs, const Offset &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(Offset));
 }
 
-bool operator==(const Extent& lhs, const Extent& rhs) {
+bool operator==(const Extent &lhs, const Extent &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(Extent));
 }
 
-bool operator==(const Size& lhs, const Size& rhs) {
+bool operator==(const Size &lhs, const Size &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(Size));
 }
 
@@ -422,11 +433,11 @@ uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t dep
         case Format::PVRTC_RGB2:
         case Format::PVRTC_RGBA2:
         case Format::PVRTC2_2BPP:
-            return ceilDiv(std::max(width, 16U) * std::max(height, 8U), 4) * depth;
+            return ceilDiv(width, 8) * ceilDiv(height, 4) * 8 * depth;
         case Format::PVRTC_RGB4:
         case Format::PVRTC_RGBA4:
         case Format::PVRTC2_4BPP:
-            return ceilDiv(std::max(width, 16U) * std::max(height, 8U), 2) * depth;
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 8 * depth;
 
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:
@@ -474,7 +485,6 @@ uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t dep
             return 0;
     }
 }
-
 std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
     switch (format) {
         case Format::BC1:
@@ -503,15 +513,17 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
         case Format::ETC2_SRGB8_A1:
         case Format::EAC_RG11:
         case Format::EAC_RG11SN:
+            return std::make_pair(4, 4);
+
         case Format::PVRTC_RGB2:
         case Format::PVRTC_RGBA2:
         case Format::PVRTC2_2BPP:
-            return std::make_pair(4, 4);
+            return std::make_pair(8, 4);
 
         case Format::PVRTC_RGB4:
         case Format::PVRTC_RGBA4:
         case Format::PVRTC2_4BPP:
-            return std::make_pair(2, 2);
+            return std::make_pair(4, 4);
 
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:
@@ -560,7 +572,7 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
     }
 }
 
-const uint32_t GFX_TYPE_SIZES[] = {
+static constexpr ccstd::array<uint32_t, static_cast<size_t>(Type::COUNT)> GFX_TYPE_SIZES = {
     0,  // UNKNOWN
     4,  // BOOL
     8,  // BOOL2
@@ -595,16 +607,41 @@ const uint32_t GFX_TYPE_SIZES[] = {
     4,  // SAMPLER_CUBE
 };
 
+/**
+ * @en Get the memory size of the specified type.
+ * @zh 得到 GFX 数据类型的大小。
+ * @param type The target type.
+ */
+uint32_t getTypeSize(Type type) {
+    if (type < Type::COUNT) {
+        return GFX_TYPE_SIZES[toNumber(type)];
+    }
+    return 0;
+}
+
 uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips) {
     uint32_t size = 0;
 
     for (uint32_t i = 0; i < mips; ++i) {
         size += formatSize(format, width, height, depth);
-        width  = std::max(width >> 1, 1U);
+        width = std::max(width >> 1, 1U);
         height = std::max(height >> 1, 1U);
     }
 
     return size;
+}
+
+uint32_t gcd(uint32_t a, uint32_t b) {
+    while (b) {
+        uint32_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+uint32_t lcm(uint32_t a, uint32_t b) {
+    return a * b / gcd(a, b);
 }
 
 } // namespace gfx

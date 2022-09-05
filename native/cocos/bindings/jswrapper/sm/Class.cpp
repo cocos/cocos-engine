@@ -44,7 +44,8 @@ bool empty_constructor(JSContext *cx, uint32_t argc, JS::Value *vp) {
     return true;
 }
 
-std::vector<Class *> __allClasses;
+ccstd::vector<Class *> __allClasses;
+
 } // namespace
 
 Class::Class()
@@ -63,12 +64,24 @@ Class::~Class() {
 }
 
 Class *Class::create(const char *className, Object *obj, Object *parentProto, JSNative ctor) {
-    Class *cls = new Class();
+    Class *cls = ccnew Class();
     if (cls != nullptr && !cls->init(className, obj, parentProto, ctor)) {
         delete cls;
         cls = nullptr;
     }
     return cls;
+}
+
+Class *Class::create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, JSNative ctor) {
+    se::AutoHandleScope scope;
+    se::Object *currentParent = parent;
+    se::Value tmp;
+    for (auto i = 0; i < classPath.size() - 1; i++) {
+        bool ok = currentParent->getProperty(*(classPath.begin() + i), &tmp);
+        CC_ASSERT(ok); // class or namespace in path is not defined
+        currentParent = tmp.toObject();
+    }
+    return create(*(classPath.end() - 1), currentParent, parentProto, ctor);
 }
 
 bool Class::init(const char *clsName, Object *parent, Object *parentProto, JSNative ctor) {
@@ -97,31 +110,41 @@ void Class::destroy() {
     SAFE_DEC_REF(_parentProto);
 }
 
+/* static */
+void Class::onTraceCallback(JSTracer *trc, JSObject *obj) {
+    auto *seObj = reinterpret_cast<Object *>(internal::SE_JS_GetPrivate(obj, 1));
+    if (seObj != nullptr) {
+        JS::TraceEdge(trc, &seObj->_heap, "seObj");
+    }
+}
+
 bool Class::install() {
     //        assert(__clsMap.find(_name) == __clsMap.end());
     //
     //        __clsMap.emplace(_name, this);
 
     _jsCls.name = _name;
+    _jsCls.flags = JSCLASS_USERBIT1 | JSCLASS_HAS_RESERVED_SLOTS(2) | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
     if (_finalizeOp != nullptr) {
-        _jsCls.flags       = JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE; //IDEA: Use JSCLASS_BACKGROUND_FINALIZE to improve GC performance
         _classOps.finalize = _finalizeOp;
     } else {
-        _jsCls.flags = JSCLASS_HAS_PRIVATE;
+        _classOps.finalize = [](JSFreeOp *fop, JSObject *obj) {};
     }
+
+    _classOps.trace = Class::onTraceCallback;
 
     _jsCls.cOps = &_classOps;
 
-    JSObject *       parentObj = _parentProto != nullptr ? _parentProto->_getJSObject() : nullptr;
-    JS::RootedObject parent(__cx, _parent->_getJSObject());
+    JSObject *parentObj = _parentProto != nullptr ? _parentProto->_getJSObject() : nullptr;
     JS::RootedObject parentProto(__cx, parentObj);
+    JS::RootedObject parent(__cx, _parent->_getJSObject());
 
     _funcs.push_back(JS_FS_END);
     _properties.push_back(JS_PS_END);
     _staticFuncs.push_back(JS_FS_END);
     _staticProperties.push_back(JS_PS_END);
 
-    JSObject *jsobj = JS_InitClass(__cx, parent, parentProto, &_jsCls, _ctor, 0, _properties.data(), _funcs.data(), _staticProperties.data(), _staticFuncs.data());
+    JS::RootedObject jsobj(__cx, JS_InitClass(__cx, parent, parentProto, &_jsCls, _ctor, 0, _properties.data(), _funcs.data(), _staticProperties.data(), _staticFuncs.data()));
     if (jsobj != nullptr) {
         _proto = Object::_createJSObject(nullptr, jsobj);
         //            SE_LOGD("_proto: %p, name: %s\n", _proto, _name);
@@ -133,25 +156,33 @@ bool Class::install() {
 }
 
 bool Class::defineFunction(const char *name, JSNative func) {
-    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE);
+    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_ENUMERATE);
     _funcs.push_back(cb);
     return true;
 }
 
 bool Class::defineProperty(const char *name, JSNative getter, JSNative setter) {
-    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE);
     _properties.push_back(property);
     return true;
 }
 
+bool Class::defineProperty(const std::initializer_list<const char *> &names, JSNative getter, JSNative setter) {
+    bool ret = true;
+    for (const auto *name : names) {
+        ret &= defineProperty(name, getter, setter);
+    }
+    return ret;
+}
+
 bool Class::defineStaticFunction(const char *name, JSNative func) {
-    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE);
+    JSFunctionSpec cb = JS_FN(name, func, 0, JSPROP_ENUMERATE);
     _staticFuncs.push_back(cb);
     return true;
 }
 
 bool Class::defineStaticProperty(const char *name, JSNative getter, JSNative setter) {
-    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JSPropertySpec property = JS_PSGS(name, getter, setter, JSPROP_ENUMERATE);
     _staticProperties.push_back(property);
     return true;
 }
@@ -176,11 +207,10 @@ bool Class::defineFinalizeFunction(JSFinalizeOp func) {
 //        return obj;
 //    }
 
-JSObject *Class::_createJSObjectWithClass(Class *cls) {
-    JSObject *       proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
+void Class::_createJSObjectWithClass(Class *cls, JS::MutableHandleObject outObj) {
+    JSObject *proto = cls->_proto != nullptr ? cls->_proto->_getJSObject() : nullptr;
     JS::RootedObject jsProto(__cx, proto);
-    JS::RootedObject obj(__cx, JS_NewObjectWithGivenProto(__cx, &cls->_jsCls, jsProto));
-    return obj;
+    outObj.set(JS_NewObjectWithGivenProto(__cx, &cls->_jsCls, jsProto));
 }
 
 void Class::setContext(JSContext *cx) {

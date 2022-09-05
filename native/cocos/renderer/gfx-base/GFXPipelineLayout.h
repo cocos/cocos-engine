@@ -26,11 +26,12 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL PipelineLayout : public GFXObject {
+class CC_DLL PipelineLayout : public GFXObject, public RefCounted {
 public:
     PipelineLayout();
     ~PipelineLayout() override;
@@ -42,7 +43,7 @@ public:
 
 protected:
     virtual void doInit(const PipelineLayoutInfo &info) = 0;
-    virtual void doDestroy()                            = 0;
+    virtual void doDestroy() = 0;
 
     DescriptorSetLayoutList _setLayouts;
 };

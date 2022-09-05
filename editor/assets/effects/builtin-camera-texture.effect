@@ -64,11 +64,11 @@ CCEffect %{
 
 CCProgram camera-texture-vs %{
   precision highp float;
-  #include <input>
-  #include <cc-global>
-  #include <decode-base>
-  #include <cc-local-batch>
-  #include <input>
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <legacy/input>
 
   #if USE_VERTEX_COLOR
     in lowp vec4 a_color;
@@ -106,7 +106,7 @@ CCProgram camera-texture-vs %{
 
 CCProgram camera-texture-fs %{
   precision highp float;
-  #include <output>
+  #include <legacy/output>
 
   #if USE_ALPHA_TEST
     #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])

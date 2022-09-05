@@ -60,12 +60,12 @@ GLES2PipelineState::~GLES2PipelineState() {
 }
 
 void GLES2PipelineState::doInit(const PipelineStateInfo & /*info*/) {
-    _gpuPipelineState                    = CC_NEW(GLES2GPUPipelineState);
-    _gpuPipelineState->glPrimitive       = GLE_S2_PRIMITIVES[static_cast<int>(_primitive)];
-    _gpuPipelineState->gpuShader         = static_cast<GLES2Shader *>(_shader)->gpuShader();
-    _gpuPipelineState->rs                = _rasterizerState;
-    _gpuPipelineState->dss               = _depthStencilState;
-    _gpuPipelineState->bs                = _blendState;
+    _gpuPipelineState = ccnew GLES2GPUPipelineState;
+    _gpuPipelineState->glPrimitive = GLE_S2_PRIMITIVES[static_cast<int>(_primitive)];
+    _gpuPipelineState->gpuShader = static_cast<GLES2Shader *>(_shader)->gpuShader();
+    _gpuPipelineState->rs = _rasterizerState;
+    _gpuPipelineState->dss = _depthStencilState;
+    _gpuPipelineState->bs = _blendState;
     _gpuPipelineState->gpuPipelineLayout = static_cast<GLES2PipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass)->gpuRenderPass();
 
@@ -77,10 +77,7 @@ void GLES2PipelineState::doInit(const PipelineStateInfo & /*info*/) {
 }
 
 void GLES2PipelineState::doDestroy() {
-    if (_gpuPipelineState) {
-        CC_DELETE(_gpuPipelineState);
-        _gpuPipelineState = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuPipelineState);
 }
 
 } // namespace gfx

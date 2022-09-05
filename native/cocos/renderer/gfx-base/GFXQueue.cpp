@@ -23,10 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
-#include "GFXObject.h"
 #include "GFXQueue.h"
+#include "GFXObject.h"
 
 namespace cc {
 namespace gfx {
@@ -37,7 +35,7 @@ Queue::Queue()
 
 Queue::~Queue() = default;
 
-void Queue::initialize(const QueueInfo& info) {
+void Queue::initialize(const QueueInfo &info) {
     _type = info.type;
 
     doInit(info);

@@ -26,11 +26,11 @@
 
 #pragma once
 
+#include <sys/types.h>
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <string>
-#include <vector>
+#include "base/std/container/string.h"
 #if defined(OPENAL_PLAIN_INCLUDES)
     #include <al.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -42,6 +42,7 @@
 #endif
 #include "audio/oalsoft/AudioMacros.h"
 #include "base/Macros.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 class AudioEngineImpl;
@@ -63,6 +64,9 @@ public:
 
     void addLoadCallback(const std::function<void(bool)> &callback);
 
+    uint32_t getChannelCount() const { return _channelCount; }
+    bool isStreaming() const { return _isStreaming; }
+
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };
     void readDataTask(unsigned int selfId);
@@ -72,40 +76,43 @@ protected:
     void invokingLoadCallbacks();
 
     //pcm data related stuff
-    ALenum   _format;
-    ALsizei  _sampleRate;
-    float    _duration;
+    ALenum _format;
+    ALsizei _sampleRate;
+    float _duration;
     uint32_t _totalFrames;
     uint32_t _framesRead;
+
+    bool _isStreaming{false};
+    uint32_t _channelCount{1};
 
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
     ALuint _alBufferId;
-    char * _pcmData;
+    char *_pcmData;
 
     /*Queue buffer related stuff
      *  Streaming in OpenAL when sizeInBytes greater then PCMDATA_CACHEMAXSIZE
      */
-    char *   _queBuffers[QUEUEBUFFER_NUM];
-    ALsizei  _queBufferSize[QUEUEBUFFER_NUM];
+    char *_queBuffers[QUEUEBUFFER_NUM];
+    ALsizei _queBufferSize[QUEUEBUFFER_NUM];
     uint32_t _queBufferFrames;
 
-    std::mutex                         _playCallbackMutex;
-    std::vector<std::function<void()>> _playCallbacks;
+    std::mutex _playCallbackMutex;
+    ccstd::vector<std::function<void()>> _playCallbacks;
 
     // loadCallbacks doesn't need mutex since it's invoked only in Cocos thread.
-    std::vector<std::function<void(bool)>> _loadCallbacks;
+    ccstd::vector<std::function<void(bool)>> _loadCallbacks;
 
     std::mutex _readDataTaskMutex;
 
     State _state;
 
     std::shared_ptr<bool> _isDestroyed;
-    std::string           _fileFullPath;
-    unsigned int          _id;
-    bool                  _isLoadingFinished;
-    bool                  _isSkipReadDataTask;
+    ccstd::string _fileFullPath;
+    unsigned int _id;
+    bool _isLoadingFinished;
+    bool _isSkipReadDataTask;
 
     friend class AudioEngineImpl;
     friend class AudioPlayer;

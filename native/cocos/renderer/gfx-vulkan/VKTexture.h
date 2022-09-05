@@ -31,15 +31,15 @@
 namespace cc {
 namespace gfx {
 
-class CCVKGPUTexture;
-class CCVKGPUTextureView;
+struct CCVKGPUTexture;
+struct CCVKGPUTextureView;
 
 class CC_VULKAN_API CCVKTexture final : public Texture {
 public:
     CCVKTexture();
     ~CCVKTexture() override;
 
-    inline CCVKGPUTexture *    gpuTexture() const { return _gpuTexture; }
+    inline CCVKGPUTexture *gpuTexture() const { return _gpuTexture; }
     inline CCVKGPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
 protected:
@@ -53,7 +53,7 @@ protected:
 
     void createTextureView();
 
-    CCVKGPUTexture *    _gpuTexture     = nullptr;
+    CCVKGPUTexture *_gpuTexture = nullptr;
     CCVKGPUTextureView *_gpuTextureView = nullptr;
 };
 

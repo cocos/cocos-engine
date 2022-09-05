@@ -41,7 +41,7 @@ GLES2QueryPool::~GLES2QueryPool() {
     destroy();
 }
 
-void GLES2QueryPool::doInit(const QueryPoolInfo& info) {
+void GLES2QueryPool::doInit(const QueryPoolInfo &info) {
 }
 
 void GLES2QueryPool::doDestroy() {

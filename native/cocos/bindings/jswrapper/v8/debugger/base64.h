@@ -69,7 +69,7 @@ bool base64_decode_group_slow(char *const dst, const size_t dstlen,
         if (*k >= dstlen)                          \
             return false;                          \
         hi = lo;
-    V(/* Nothing. */);
+    V(do {} while (false) /* empty*/);
     V(dst[(*k)++] = ((hi & 0x3F) << 2) | ((lo & 0x30) >> 4));
     V(dst[(*k)++] = ((hi & 0x0F) << 4) | ((lo & 0x3C) >> 2));
     V(dst[(*k)++] = ((hi & 0x03) << 6) | ((lo & 0x3F) >> 0));
@@ -135,9 +135,10 @@ static size_t base64_encode(const char *src,
     unsigned k;
     unsigned n;
 
-    static const char table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                "abcdefghijklmnopqrstuvwxyz"
-                                "0123456789+/";
+    static const char table[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        "0123456789+/";
 
     i = 0;
     k = 0;

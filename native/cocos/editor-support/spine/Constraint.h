@@ -36,18 +36,18 @@
 namespace spine {
 /// The interface for all constraints.
 class SP_API Constraint : public Updatable {
-RTTI_DECL
+    RTTI_DECL
 
 public:
-	Constraint();
+    Constraint();
 
-	virtual ~Constraint();
+    virtual ~Constraint();
 
-	virtual void update() = 0;
+    virtual void update() = 0;
 
-	/// The ordinal for the order a skeleton's constraints will be applied.
-	virtual int getOrder() = 0;
+    /// The ordinal for the order a skeleton's constraints will be applied.
+    virtual int getOrder() = 0;
 };
-}
+} // namespace spine
 
 #endif /* Spine_Constraint_h */

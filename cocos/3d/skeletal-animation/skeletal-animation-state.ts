@@ -159,14 +159,6 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
-    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
-        info.dirty = value;
-        if (JSB) {
-            const key = 'nativeDirty';
-            info[key].fill(value ? 1 : 0);
-        }
-    }
-
     private _sampleCurvesBaked (time: number) {
         const ratio = time / this.duration;
         const info = this._animInfo!;
@@ -186,7 +178,10 @@ export class SkeletalAnimationState extends AnimationState {
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[0]) { return; }
         info.data[0] = curFrame;
-        this._setAnimInfoDirty(info, true);
+        info.dirty = true;
+        if (JSB) {
+            info.dirtyForJSB[0] = 1;
+        }
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
             const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]

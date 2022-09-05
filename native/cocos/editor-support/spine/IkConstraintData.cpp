@@ -28,7 +28,7 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/IkConstraintData.h>
@@ -37,74 +37,72 @@
 
 using namespace spine;
 
-IkConstraintData::IkConstraintData(const String &name) :
-		ConstraintData(name),
-		_target(NULL),
-		_bendDirection(1),
-		_compress(false),
-		_stretch(false),
-		_uniform(false),
-		_mix(1),
-		_softness(0) {
+IkConstraintData::IkConstraintData(const String &name) : ConstraintData(name),
+                                                         _target(NULL),
+                                                         _bendDirection(1),
+                                                         _compress(false),
+                                                         _stretch(false),
+                                                         _uniform(false),
+                                                         _mix(1),
+                                                         _softness(0) {
 }
 
 Vector<BoneData *> &IkConstraintData::getBones() {
-	return _bones;
+    return _bones;
 }
 
 BoneData *IkConstraintData::getTarget() {
-	return _target;
+    return _target;
 }
 
 void IkConstraintData::setTarget(BoneData *inValue) {
-	_target = inValue;
+    _target = inValue;
 }
 
 int IkConstraintData::getBendDirection() {
-	return _bendDirection;
+    return _bendDirection;
 }
 
 void IkConstraintData::setBendDirection(int inValue) {
-	_bendDirection = inValue;
+    _bendDirection = inValue;
 }
 
 float IkConstraintData::getMix() {
-	return _mix;
+    return _mix;
 }
 
 void IkConstraintData::setMix(float inValue) {
-	_mix = inValue;
+    _mix = inValue;
 }
 
 bool IkConstraintData::getStretch() {
-	return _stretch;
+    return _stretch;
 }
 
 void IkConstraintData::setStretch(bool inValue) {
-	_stretch = inValue;
+    _stretch = inValue;
 }
 
 bool IkConstraintData::getCompress() {
-	return _compress;
+    return _compress;
 }
 
 void IkConstraintData::setCompress(bool inValue) {
-	_compress = inValue;
+    _compress = inValue;
 }
 
-
 bool IkConstraintData::getUniform() {
-	return _uniform;
+    return _uniform;
 }
 
 void IkConstraintData::setUniform(bool inValue) {
-	_uniform = inValue;
+    _uniform = inValue;
 }
 
 float IkConstraintData::getSoftness() {
-	return _softness;
+    return _softness;
 }
 
 void IkConstraintData::setSoftness(float inValue) {
-	_softness = inValue;
+    _softness = inValue;
 }

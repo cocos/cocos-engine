@@ -26,11 +26,12 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL DescriptorSet : public GFXObject {
+class CC_DLL DescriptorSet : public GFXObject, public RefCounted {
 public:
     DescriptorSet();
     ~DescriptorSet() override;
@@ -39,6 +40,7 @@ public:
     void destroy();
 
     virtual void update() = 0;
+    virtual void forceUpdate() = 0;
 
     virtual void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index);
     virtual void bindTexture(uint32_t binding, Texture *texture, uint32_t index);
@@ -49,27 +51,27 @@ public:
     bool bindTextureJSB(uint32_t binding, Texture *texture, uint32_t index);
     bool bindSamplerJSB(uint32_t binding, Sampler *sampler, uint32_t index);
 
-    Buffer * getBuffer(uint32_t binding, uint32_t index) const;
+    Buffer *getBuffer(uint32_t binding, uint32_t index) const;
     Texture *getTexture(uint32_t binding, uint32_t index) const;
     Sampler *getSampler(uint32_t binding, uint32_t index) const;
 
     inline DescriptorSetLayout *getLayout() { return _layout; }
 
-    inline void     bindBuffer(uint32_t binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
-    inline void     bindTexture(uint32_t binding, Texture *texture) { bindTexture(binding, texture, 0U); }
-    inline void     bindSampler(uint32_t binding, Sampler *sampler) { bindSampler(binding, sampler, 0U); }
-    inline Buffer * getBuffer(uint32_t binding) const { return getBuffer(binding, 0U); }
+    inline void bindBuffer(uint32_t binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
+    inline void bindTexture(uint32_t binding, Texture *texture) { bindTexture(binding, texture, 0U); }
+    inline void bindSampler(uint32_t binding, Sampler *sampler) { bindSampler(binding, sampler, 0U); }
+    inline Buffer *getBuffer(uint32_t binding) const { return getBuffer(binding, 0U); }
     inline Texture *getTexture(uint32_t binding) const { return getTexture(binding, 0U); }
     inline Sampler *getSampler(uint32_t binding) const { return getSampler(binding, 0U); }
 
 protected:
     virtual void doInit(const DescriptorSetInfo &info) = 0;
-    virtual void doDestroy()                           = 0;
+    virtual void doDestroy() = 0;
 
     DescriptorSetLayout *_layout = nullptr;
-    BufferList           _buffers;
-    TextureList          _textures;
-    SamplerList          _samplers;
+    BufferList _buffers;
+    TextureList _textures;
+    SamplerList _samplers;
 
     bool _isDirty = false;
 };

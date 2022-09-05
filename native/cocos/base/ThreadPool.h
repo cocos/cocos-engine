@@ -26,17 +26,15 @@
 
 #pragma once
 
-#include "base/Utils.h"
-
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <queue>
 #include <thread>
-#include <vector>
+#include "base/Utils.h"
+#include "base/std/container/queue.h"
 
 namespace cc {
 
@@ -145,10 +143,10 @@ private:
 
     void stretchPool(int count);
 
-    std::vector<std::unique_ptr<std::thread>>       _threads;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
-    std::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
+    ccstd::vector<std::unique_ptr<std::thread>> _threads;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
+    ccstd::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
 
     template <typename T>
     class ThreadSafeQueue {
@@ -170,39 +168,39 @@ private:
         }
 
         bool empty() const {
-            auto                         thiz = const_cast<ThreadSafeQueue *>(this);
+            auto thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.empty();
         }
 
         size_t size() const {
-            auto                         thiz = const_cast<ThreadSafeQueue *>(this);
+            auto thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.size();
         }
 
     private:
-        std::queue<T> q;
-        std::mutex    mutex;
+        ccstd::queue<T> q;
+        std::mutex mutex;
     };
 
     struct Task {
-        TaskType                  type;
+        TaskType type;
         std::function<void(int)> *callback;
     };
 
     static LegacyThreadPool *_instance;
 
     ThreadSafeQueue<Task> _taskQueue;
-    std::atomic<bool>     _isDone{false};
-    std::atomic<bool>     _isStop{false};
+    std::atomic<bool> _isDone{false};
+    std::atomic<bool> _isStop{false};
 
     //IDEA: std::atomic<int> isn't supported by ndk-r10e while compiling with `armeabi` arch.
     // So using a mutex here instead.
-    int        _idleThreadNum{0}; // how many threads are waiting
+    int _idleThreadNum{0}; // how many threads are waiting
     std::mutex _idleThreadNumMutex;
 
-    std::mutex              _mutex;
+    std::mutex _mutex;
     std::condition_variable _cv;
 
     int _minThreadNum{0};
@@ -210,10 +208,10 @@ private:
     int _initedThreadNum{0};
 
     std::chrono::time_point<std::chrono::high_resolution_clock> _lastShrinkTime;
-    float                                                       _shrinkInterval{5};
-    int                                                         _shrinkStep{2};
-    int                                                         _stretchStep{2};
-    bool                                                        _isFixedSize{false};
+    float _shrinkInterval{5};
+    int _shrinkStep{2};
+    int _stretchStep{2};
+    bool _isFixedSize{false};
 };
 
 } // namespace cc

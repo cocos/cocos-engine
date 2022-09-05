@@ -38,14 +38,14 @@
 #define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
 static snd_callbacks sDefaultCallback;
-static int           sInited = 0;
+static int sInited = 0;
 
 struct SNDFILE_ {
-    uint8_t *     temp; // realloc buffer used for shrinking 16 bits to 8 bits and byte-swapping
-    void *        stream;
-    size_t        bytesPerFrame;
-    size_t        remaining; // frames unread for SFM_READ, frames written for SFM_WRITE
-    SF_INFO       info;
+    uint8_t *temp; // realloc buffer used for shrinking 16 bits to 8 bits and byte-swapping
+    void *stream;
+    size_t bytesPerFrame;
+    size_t remaining; // frames unread for SFM_READ, frames written for SFM_WRITE
+    SF_INFO info;
     snd_callbacks callback;
 };
 
@@ -93,12 +93,12 @@ static long tell_func(void *datasource) { //NOLINT(google-runtime-int,readabilit
 
 static void lazyInit() {
     if (sInited == 0) {
-        sDefaultCallback.open  = open_func;
-        sDefaultCallback.read  = read_func;
-        sDefaultCallback.seek  = seek_func;
+        sDefaultCallback.open = open_func;
+        sDefaultCallback.read = read_func;
+        sDefaultCallback.seek = seek_func;
         sDefaultCallback.close = close_func;
-        sDefaultCallback.tell  = tell_func;
-        sInited                = 1;
+        sDefaultCallback.tell = tell_func;
+        sInited = 1;
     }
 }
 
@@ -134,12 +134,12 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *
 
     // don't attempt to parse all valid forms, just the most common ones
     unsigned char wav[12];
-    size_t        actual;
-    unsigned      riffSize;
-    size_t        remaining;
-    int           hadFmt   = 0;
-    int           hadData  = 0;
-    long          dataTell = 0L; //NOLINT(google-runtime-int)
+    size_t actual;
+    unsigned riffSize;
+    size_t remaining;
+    int hadFmt = 0;
+    int hadData = 0;
+    long dataTell = 0L; //NOLINT(google-runtime-int)
 
     actual = handle->callback.read(wav, sizeof(char), sizeof(wav), stream);
     if (actual < 12) {
@@ -207,8 +207,8 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *
 #endif
                 goto close;
             }
-            unsigned format  = little2u(&fmt[0]);
-            size_t   minSize = 0;
+            unsigned format = little2u(&fmt[0]);
+            size_t minSize = 0;
             switch (format) {
                 case WAVE_FORMAT_PCM:
                 case WAVE_FORMAT_IEEE_FLOAT:
@@ -264,10 +264,10 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *
 #endif
                 goto close;
             }
-            unsigned bytesPerFrame  = (bitsPerSample >> 3) * channels;
-            handle->bytesPerFrame   = bytesPerFrame;
+            unsigned bytesPerFrame = (bitsPerSample >> 3) * channels;
+            handle->bytesPerFrame = bytesPerFrame;
             handle->info.samplerate = static_cast<int>(samplerate);
-            handle->info.channels   = static_cast<int>(channels);
+            handle->info.channels = static_cast<int>(channels);
             switch (bitsPerSample) {
                 case 8:
                     handle->info.format |= SF_FORMAT_PCM_U8;
@@ -300,9 +300,9 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *
 #endif
                 goto close;
             }
-            handle->remaining   = chunkSize / handle->bytesPerFrame;
+            handle->remaining = chunkSize / handle->bytesPerFrame;
             handle->info.frames = handle->remaining;
-            dataTell            = handle->callback.tell(stream);
+            dataTell = handle->callback.tell(stream);
             if (chunkSize > 0) {
                 handle->callback.seek(stream, static_cast<long>(chunkSize), SEEK_CUR); //NOLINT(google-runtime-int)
             }
@@ -384,12 +384,12 @@ sf_count_t sf_readf_short(SNDFILE *handle, int16_t *ptr, sf_count_t desiredFrame
         desiredFrames = handle->remaining;
     }
     // does not check for numeric overflow
-    size_t   desiredBytes = desiredFrames * handle->bytesPerFrame;
-    size_t   actualBytes;
-    void *   temp   = nullptr;
+    size_t desiredBytes = desiredFrames * handle->bytesPerFrame;
+    size_t actualBytes;
+    void *temp = nullptr;
     unsigned format = handle->info.format & SF_FORMAT_SUBMASK;
     if (format == SF_FORMAT_PCM_32 || format == SF_FORMAT_FLOAT || format == SF_FORMAT_PCM_24) {
-        temp        = malloc(desiredBytes);
+        temp = malloc(desiredBytes);
         actualBytes = handle->callback.read(temp, sizeof(char), desiredBytes, handle->stream);
     } else {
         actualBytes = handle->callback.read(ptr, sizeof(char), desiredBytes, handle->stream);

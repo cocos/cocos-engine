@@ -28,6 +28,7 @@
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 namespace gfx {
@@ -37,15 +38,15 @@ using namespace emscripten;
 CCWGPUPipelineLayout::CCWGPUPipelineLayout() : wrapper<PipelineLayout>(val::object()) {
 }
 
-void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo& info) {
-    _gpuPipelineLayoutObj = CC_NEW(CCWGPUPipelineLayoutObject);
+void CCWGPUPipelineLayout::doInit(const PipelineLayoutInfo &info) {
+    _gpuPipelineLayoutObj = ccnew CCWGPUPipelineLayoutObject;
 }
 
-void CCWGPUPipelineLayout::prepare(const std::set<uint8_t>& setInUse) {
-    std::vector<WGPUBindGroupLayout> layouts;
+void CCWGPUPipelineLayout::prepare(const ccstd::set<uint8_t> &setInUse) {
+    ccstd::vector<WGPUBindGroupLayout> layouts;
     // _bgLayouts.clear();
     for (size_t i = 0; i < _setLayouts.size(); i++) {
-        auto* descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout*>(_setLayouts[i]);
+        auto *descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout *>(_setLayouts[i]);
         if (setInUse.find(i) == setInUse.end()) {
             // give it default bindgrouplayout if not in use
             layouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
@@ -60,10 +61,10 @@ void CCWGPUPipelineLayout::prepare(const std::set<uint8_t>& setInUse) {
     }
 
     WGPUPipelineLayoutDescriptor descriptor = {
-        .nextInChain          = nullptr,
-        .label                = nullptr,
+        .nextInChain = nullptr,
+        .label = nullptr,
         .bindGroupLayoutCount = layouts.size(),
-        .bindGroupLayouts     = layouts.data(),
+        .bindGroupLayouts = layouts.data(),
     };
 
     _gpuPipelineLayoutObj->wgpuPipelineLayout = wgpuDeviceCreatePipelineLayout(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
@@ -74,7 +75,7 @@ void CCWGPUPipelineLayout::doDestroy() {
         if (_gpuPipelineLayoutObj->wgpuPipelineLayout) {
             wgpuPipelineLayoutRelease(_gpuPipelineLayoutObj->wgpuPipelineLayout);
         }
-        CC_DELETE(_gpuPipelineLayoutObj);
+        delete _gpuPipelineLayoutObj;
     }
 }
 

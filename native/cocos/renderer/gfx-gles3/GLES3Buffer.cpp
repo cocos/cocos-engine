@@ -28,6 +28,7 @@
 #include "GLES3Buffer.h"
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -41,12 +42,12 @@ GLES3Buffer::~GLES3Buffer() {
 }
 
 void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
-    _gpuBuffer           = CC_NEW(GLES3GPUBuffer);
-    _gpuBuffer->usage    = _usage;
+    _gpuBuffer = ccnew GLES3GPUBuffer;
+    _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
-    _gpuBuffer->size     = _size;
-    _gpuBuffer->stride   = _stride;
-    _gpuBuffer->count    = _count;
+    _gpuBuffer->size = _size;
+    _gpuBuffer->stride = _stride;
+    _gpuBuffer->count = _count;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         _gpuBuffer->indirects.resize(_count);
@@ -54,20 +55,21 @@ void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
 
     cmdFuncGLES3CreateBuffer(GLES3Device::getInstance(), _gpuBuffer);
     GLES3Device::getInstance()->getMemoryStatus().bufferSize += _size;
+    CC_PROFILE_MEMORY_INC(Buffer, _size);
 }
 
 void GLES3Buffer::doInit(const BufferViewInfo &info) {
-    auto *buffer          = static_cast<GLES3Buffer *>(info.buffer);
-    _gpuBuffer            = CC_NEW(GLES3GPUBuffer);
-    _gpuBuffer->usage     = _usage;
-    _gpuBuffer->memUsage  = _memUsage;
-    _gpuBuffer->size      = _size;
-    _gpuBuffer->stride    = _stride;
-    _gpuBuffer->count     = _count;
-    _gpuBuffer->glTarget  = buffer->_gpuBuffer->glTarget;
-    _gpuBuffer->glBuffer  = buffer->_gpuBuffer->glBuffer;
-    _gpuBuffer->glOffset  = info.offset;
-    _gpuBuffer->buffer    = buffer->_gpuBuffer->buffer;
+    auto *buffer = static_cast<GLES3Buffer *>(info.buffer);
+    _gpuBuffer = ccnew GLES3GPUBuffer;
+    _gpuBuffer->usage = _usage;
+    _gpuBuffer->memUsage = _memUsage;
+    _gpuBuffer->size = _size;
+    _gpuBuffer->stride = _stride;
+    _gpuBuffer->count = _count;
+    _gpuBuffer->glTarget = buffer->_gpuBuffer->glTarget;
+    _gpuBuffer->glBuffer = buffer->_gpuBuffer->glBuffer;
+    _gpuBuffer->glOffset = info.offset;
+    _gpuBuffer->buffer = buffer->_gpuBuffer->buffer;
     _gpuBuffer->indirects = buffer->_gpuBuffer->indirects;
 }
 
@@ -76,23 +78,27 @@ void GLES3Buffer::doDestroy() {
         if (!_isBufferView) {
             cmdFuncGLES3DestroyBuffer(GLES3Device::getInstance(), _gpuBuffer);
             GLES3Device::getInstance()->getMemoryStatus().bufferSize -= _size;
+            CC_PROFILE_MEMORY_DEC(Buffer, _size);
         }
-        CC_DELETE(_gpuBuffer);
+        delete _gpuBuffer;
         _gpuBuffer = nullptr;
     }
 }
 
 void GLES3Buffer::doResize(uint32_t size, uint32_t count) {
     GLES3Device::getInstance()->getMemoryStatus().bufferSize -= _size;
+    CC_PROFILE_MEMORY_DEC(Buffer, _size);
 
-    _gpuBuffer->size  = size;
+    _gpuBuffer->size = size;
     _gpuBuffer->count = count;
     cmdFuncGLES3ResizeBuffer(GLES3Device::getInstance(), _gpuBuffer);
 
     GLES3Device::getInstance()->getMemoryStatus().bufferSize += size;
+    CC_PROFILE_MEMORY_INC(Buffer, size);
 }
 
 void GLES3Buffer::update(const void *buffer, uint32_t size) {
+    CC_PROFILE(GLES3BufferUpdate);
     cmdFuncGLES3UpdateBuffer(GLES3Device::getInstance(), _gpuBuffer, buffer, 0U, size);
 }
 

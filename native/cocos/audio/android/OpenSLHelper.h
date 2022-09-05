@@ -35,7 +35,7 @@ THE SOFTWARE.
 #endif
 
 #include <functional>
-#include <string>
+#include "base/std/container/string.h"
 
 #define SL_SAFE_DELETE(obj) \
     if ((obj) != nullptr) { \
@@ -66,7 +66,7 @@ THE SOFTWARE.
         ALOGE(__VA_ARGS__);              \
     }
 
-typedef std::function<int(const std::string &, off_t *start, off_t *length)> FdGetterCallback;
+typedef std::function<int(const ccstd::string &, off_t *start, off_t *length)> FdGetterCallback;
 
 // Copied from OpenSLES_AndroidMetadata.h in android-21
 // It's because android-10 doesn't contain this header file

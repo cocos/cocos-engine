@@ -24,21 +24,18 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-// Webview not available on tvOS
-#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#import <WebKit/WKWebView.h>
+#import <WebKit/WKUIDelegate.h>
+#import <WebKit/WKNavigationDelegate.h>
 
-    #import <WebKit/WKWebView.h>
-    #import <WebKit/WKUIDelegate.h>
-    #import <WebKit/WKNavigationDelegate.h>
-
-    #include "WebView-inl.h"
-    #include "platform/FileUtils.h"
+#include "WebView-inl.h"
+#include "platform/FileUtils.h"
 
 @interface UIWebViewWrapper : NSObject
-@property (nonatomic) std::function<bool(std::string url)> shouldStartLoading;
-@property (nonatomic) std::function<void(std::string url)> didFinishLoading;
-@property (nonatomic) std::function<void(std::string url)> didFailLoading;
-@property (nonatomic) std::function<void(std::string url)> onJsCallback;
+@property (nonatomic) std::function<bool(ccstd::string url)> shouldStartLoading;
+@property (nonatomic) std::function<void(ccstd::string url)> didFinishLoading;
+@property (nonatomic) std::function<void(ccstd::string url)> didFailLoading;
+@property (nonatomic) std::function<void(ccstd::string url)> onJsCallback;
 
 @property (nonatomic, readonly, getter=canGoBack) BOOL canGoBack;
 @property (nonatomic, readonly, getter=canGoForward) BOOL canGoForward;
@@ -51,21 +48,21 @@
 
 - (void)setFrameWithX:(float)x y:(float)y width:(float)width height:(float)height;
 
-- (void)setJavascriptInterfaceScheme:(const std::string &)scheme;
+- (void)setJavascriptInterfaceScheme:(const ccstd::string &)scheme;
 
-- (void)loadData:(const std::string &)data MIMEType:(const std::string &)MIMEType textEncodingName:(const std::string &)encodingName baseURL:(const std::string &)baseURL;
+- (void)loadData:(const ccstd::string &)data MIMEType:(const ccstd::string &)MIMEType textEncodingName:(const ccstd::string &)encodingName baseURL:(const ccstd::string &)baseURL;
 
-- (void)loadHTMLString:(const std::string &)string baseURL:(const std::string &)baseURL;
+- (void)loadHTMLString:(const ccstd::string &)string baseURL:(const ccstd::string &)baseURL;
 
-- (void)loadUrl:(const std::string &)urlString;
+- (void)loadUrl:(const ccstd::string &)urlString;
 
-- (void)loadFile:(const std::string &)filePath;
+- (void)loadFile:(const ccstd::string &)filePath;
 
 - (void)stopLoading;
 
 - (void)reload;
 
-- (void)evaluateJS:(const std::string &)js;
+- (void)evaluateJS:(const ccstd::string &)js;
 
 - (void)goBack;
 
@@ -137,11 +134,11 @@
     }
 }
 
-- (void)setJavascriptInterfaceScheme:(const std::string &)scheme {
+- (void)setJavascriptInterfaceScheme:(const ccstd::string &)scheme {
     self.jsScheme = @(scheme.c_str());
 }
 
-- (void)loadData:(const std::string &)data MIMEType:(const std::string &)MIMEType textEncodingName:(const std::string &)encodingName baseURL:(const std::string &)baseURL {
+- (void)loadData:(const ccstd::string &)data MIMEType:(const ccstd::string &)MIMEType textEncodingName:(const ccstd::string &)encodingName baseURL:(const ccstd::string &)baseURL {
     auto path = [[NSBundle mainBundle] resourcePath];
     path = [path stringByAppendingPathComponent:@(baseURL.c_str())];
     auto url = [NSURL fileURLWithPath:path];
@@ -152,7 +149,7 @@
                       baseURL:url];
 }
 
-- (void)loadHTMLString:(const std::string &)string baseURL:(const std::string &)baseURL {
+- (void)loadHTMLString:(const ccstd::string &)string baseURL:(const ccstd::string &)baseURL {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -162,7 +159,7 @@
     [self.uiWebView loadHTMLString:@(string.c_str()) baseURL:url];
 }
 
-- (void)loadUrl:(const std::string &)urlString {
+- (void)loadUrl:(const ccstd::string &)urlString {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -171,7 +168,7 @@
     [self.uiWebView loadRequest:request];
 }
 
-- (void)loadFile:(const std::string &)filePath {
+- (void)loadFile:(const ccstd::string &)filePath {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -204,7 +201,7 @@
     [self.uiWebView goForward];
 }
 
-- (void)evaluateJS:(const std::string &)js {
+- (void)evaluateJS:(const ccstd::string &)js {
     if (!self.uiWebView) {
         [self setupWebView];
     }
@@ -225,7 +222,7 @@
     [self.uiWebView setBackgroundColor:isTransparent ? [UIColor clearColor] : [UIColor whiteColor]];
 }
 
-    #pragma mark - WKNavigationDelegate
+#pragma mark - WKNavigationDelegate
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     NSString *url = [[navigationAction request].URL.absoluteString stringByRemovingPercentEncoding];
     NSString *scheme = [navigationAction request].URL.scheme;
@@ -262,7 +259,7 @@
     }
 }
 
-    #pragma WKUIDelegate
+#pragma WKUIDelegate
 
 // Implement js alert function.
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)())completionHandler {
@@ -291,23 +288,23 @@ WebViewImpl::WebViewImpl(WebView *webView)
   _webView(webView) {
     [_uiWebViewWrapper retain];
 
-    _uiWebViewWrapper.shouldStartLoading = [this](std::string url) {
+    _uiWebViewWrapper.shouldStartLoading = [this](ccstd::string url) {
         if (this->_webView->_onShouldStartLoading) {
             return this->_webView->_onShouldStartLoading(this->_webView, url);
         }
         return true;
     };
-    _uiWebViewWrapper.didFinishLoading = [this](std::string url) {
+    _uiWebViewWrapper.didFinishLoading = [this](ccstd::string url) {
         if (this->_webView->_onDidFinishLoading) {
             this->_webView->_onDidFinishLoading(this->_webView, url);
         }
     };
-    _uiWebViewWrapper.didFailLoading = [this](std::string url) {
+    _uiWebViewWrapper.didFailLoading = [this](ccstd::string url) {
         if (this->_webView->_onDidFailLoading) {
             this->_webView->_onDidFailLoading(this->_webView, url);
         }
     };
-    _uiWebViewWrapper.onJsCallback = [this](std::string url) {
+    _uiWebViewWrapper.onJsCallback = [this](ccstd::string url) {
         if (this->_webView->_onJSCallback) {
             this->_webView->_onJSCallback(this->_webView, url);
         }
@@ -315,77 +312,144 @@ WebViewImpl::WebViewImpl(WebView *webView)
 }
 
 WebViewImpl::~WebViewImpl() {
-    [_uiWebViewWrapper release];
-    _uiWebViewWrapper = nullptr;
+   destroy();
 }
 
-void WebViewImpl::setJavascriptInterfaceScheme(const std::string &scheme) {
+void WebViewImpl::destroy() {
+    if (_uiWebViewWrapper != nil) {
+        [_uiWebViewWrapper release];
+        _uiWebViewWrapper = nil;
+    }
+}
+
+void WebViewImpl::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setJavascriptInterfaceScheme:scheme];
 }
 
 void WebViewImpl::loadData(const Data &data,
-                           const std::string &MIMEType,
-                           const std::string &encoding,
-                           const std::string &baseURL) {
+                           const ccstd::string &MIMEType,
+                           const ccstd::string &encoding,
+                           const ccstd::string &baseURL) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
 
-    std::string dataString(reinterpret_cast<char *>(data.getBytes()), static_cast<unsigned int>(data.getSize()));
+    ccstd::string dataString(reinterpret_cast<char *>(data.getBytes()), static_cast<unsigned int>(data.getSize()));
     [_uiWebViewWrapper loadData:dataString MIMEType:MIMEType textEncodingName:encoding baseURL:baseURL];
 }
 
-void WebViewImpl::loadHTMLString(const std::string &string, const std::string &baseURL) {
+void WebViewImpl::loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper loadHTMLString:string baseURL:baseURL];
 }
 
-void WebViewImpl::loadURL(const std::string &url) {
+void WebViewImpl::loadURL(const ccstd::string &url) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper loadUrl:url];
 }
 
-void WebViewImpl::loadFile(const std::string &fileName) {
+void WebViewImpl::loadFile(const ccstd::string &fileName) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     auto fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
     [_uiWebViewWrapper loadFile:fullPath];
 }
 
 void WebViewImpl::stopLoading() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper stopLoading];
 }
 
 void WebViewImpl::reload() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper reload];
 }
 
 bool WebViewImpl::canGoBack() {
+    if (_uiWebViewWrapper == nil) {
+        return false;
+    }
     return _uiWebViewWrapper.canGoBack;
 }
 
 bool WebViewImpl::canGoForward() {
+    if (_uiWebViewWrapper == nil) {
+        return false;
+    }
     return _uiWebViewWrapper.canGoForward;
 }
 
 void WebViewImpl::goBack() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper goBack];
 }
 
 void WebViewImpl::goForward() {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper goForward];
 }
 
-void WebViewImpl::evaluateJS(const std::string &js) {
+void WebViewImpl::evaluateJS(const ccstd::string &js) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper evaluateJS:js];
 }
 
 void WebViewImpl::setBounces(bool bounces) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setBounces:bounces];
 }
 
 void WebViewImpl::setScalesPageToFit(bool scalesPageToFit) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setScalesPageToFit:scalesPageToFit];
 }
 
 void WebViewImpl::setVisible(bool visible) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setVisible:visible];
 }
 
 void WebViewImpl::setFrame(float x, float y, float width, float height) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     UIView *view = UIApplication.sharedApplication.delegate.window.rootViewController.view;
     auto scaleFactor = [view contentScaleFactor];
     [_uiWebViewWrapper setFrameWithX:x / scaleFactor
@@ -395,8 +459,10 @@ void WebViewImpl::setFrame(float x, float y, float width, float height) {
 }
 
 void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
+    if (_uiWebViewWrapper == nil) {
+        return;
+    }
+
     [_uiWebViewWrapper setBackgroundTransparent:isTransparent];
 }
 } //namespace cc
-
-#endif

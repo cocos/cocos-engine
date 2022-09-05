@@ -26,37 +26,38 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL RenderPass : public GFXObject {
+class CC_DLL RenderPass : public GFXObject, public RefCounted {
 public:
     RenderPass();
     ~RenderPass() override;
 
-    static size_t computeHash(const RenderPassInfo &info);
+    static ccstd::hash_t computeHash(const RenderPassInfo &info);
 
     void initialize(const RenderPassInfo &info);
     void destroy();
 
-    inline const ColorAttachmentList &   getColorAttachments() const { return _colorAttachments; }
+    inline const ColorAttachmentList &getColorAttachments() const { return _colorAttachments; }
     inline const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
-    inline const SubpassInfoList &       getSubpasses() const { return _subpasses; }
-    inline const SubpassDependencyList & getDependencies() const { return _dependencies; }
-    inline size_t                        getHash() const { return _hash; }
+    inline const SubpassInfoList &getSubpasses() const { return _subpasses; }
+    inline const SubpassDependencyList &getDependencies() const { return _dependencies; }
+    inline ccstd::hash_t getHash() const { return _hash; }
 
 protected:
-    size_t computeHash();
+    ccstd::hash_t computeHash();
 
     virtual void doInit(const RenderPassInfo &info) = 0;
-    virtual void doDestroy()                        = 0;
+    virtual void doDestroy() = 0;
 
-    ColorAttachmentList    _colorAttachments;
+    ColorAttachmentList _colorAttachments;
     DepthStencilAttachment _depthStencilAttachment;
-    SubpassInfoList        _subpasses;
-    SubpassDependencyList  _dependencies;
-    size_t                 _hash = 0;
+    SubpassInfoList _subpasses;
+    SubpassDependencyList _dependencies;
+    ccstd::hash_t _hash = 0;
 };
 
 } // namespace gfx

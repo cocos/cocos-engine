@@ -5,6 +5,13 @@ vec4 SurfacesFragmentModifyBaseColorAndTransparency()
 }
 #endif
 
+#ifndef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// for base shape without color usage, such as render-to-shadow
+void SurfacesFragmentAlphaClipOnly()
+{
+}
+#endif
+
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
 vec3 SurfacesFragmentModifyWorldNormal()
@@ -48,13 +55,14 @@ vec3 SurfacesFragmentModifyEmissive()
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
 vec4 SurfacesFragmentModifyPBRParams()
 {
-    // ao, roughness, metallic, ao, specularIntensity
+    // ao, roughness, metallic, specularIntensity
     return vec4(1.0, 0.5, 0.0, 0.5);
 }
 #endif
 
 // some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
 // this function invokes at last
+// should use corresponding shading-model header: #include <surfaces/data-structures/XXX> before function define
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
 void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
 {

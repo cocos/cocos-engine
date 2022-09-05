@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "PrivateObject.h"
 #include "Value.h"
 
 namespace se {
@@ -67,46 +68,20 @@ public:
          *  @param[in]
          *  @return
          */
-    State();
-
-    /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
     ~State();
 
-    /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
-    State(void *nativeThisObject);
-
-    /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
-    State(void *nativeThisObject, const ValueArray &args);
-
-    /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
+    explicit State(Object *thisObject);
     State(Object *thisObject, const ValueArray &args);
 
 private:
     // Disable copy/move constructor, copy/move assigment
     State(const State &);
-    State(State &&);
+    State(State &&) noexcept;
     State &operator=(const State &);
-    State &operator=(State &&);
+    State &operator=(State &&) noexcept;
 
-    void *            _nativeThisObject; //weak ref
-    Object *          _thisObject;       //weak ref
-    const ValueArray *_args;             //weak ref
-    Value             _retVal;           //weak ref
+    Object *_thisObject{nullptr};     //weak ref
+    const ValueArray *_args{nullptr}; //weak ref
+    Value _retVal;                    //weak ref
 };
 } // namespace se

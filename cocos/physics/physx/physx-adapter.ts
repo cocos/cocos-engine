@@ -33,7 +33,7 @@
 
 import { PhysX } from './physx.asmjs';
 import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { Director, director, Game, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
+import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
 import { AABB, Ray } from '../../core/geometry';
@@ -43,6 +43,7 @@ import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
+import { Settings, settings } from '../../core/settings';
 
 export const PX = {} as any;
 const globalThis = legacyCC._global;
@@ -51,9 +52,9 @@ const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
 const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 
 // Init physx libs when engine init.
-game.onEngineInitedAsync(InitPhysXLibs);
+game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
-function InitPhysXLibs () {
+export function InitPhysXLibs () {
     if (USE_BYTEDANCE) {
         if (!EDITOR && !TEST) console.info('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
         Object.assign(PX, globalThis.nativePhysX);
@@ -738,11 +739,12 @@ interface IPhysicsConfigEXT extends IPhysicsConfig {
 }
 
 function initConfigForByteDance () {
-    if (game.config.physics && (game.config.physics as IPhysicsConfigEXT).physX) {
-        const settings = (game.config.physics as IPhysicsConfigEXT).physX;
-        PX.EPSILON = settings.epsilon;
-        PX.MULTI_THREAD = settings.multiThread;
-        PX.SUB_THREAD_COUNT = settings.subThreadCount;
+    const physX = settings.querySettings(Settings.Category.PHYSICS, 'physX');
+    if (physX) {
+        const { epsilon, multiThread, subThreadCount } = physX;
+        PX.EPSILON = epsilon;
+        PX.MULTI_THREAD = multiThread;
+        PX.SUB_THREAD_COUNT = subThreadCount;
     }
 }
 

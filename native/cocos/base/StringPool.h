@@ -26,19 +26,31 @@
 #pragma once
 
 #include <cstring>
-#include <map>
-#include <vector>
 #include "StringHandle.h"
 #include "base/Macros.h"
+#include "base/memory/Memory.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
+#include "base/std/hash/hash.h"
 #include "threading/ReadWriteLock.h"
 
 namespace cc {
 
-struct StringCompare final {
-    inline bool operator()(char const *lhs, char const *rhs) const noexcept {
-        return strcmp(lhs, rhs) < 0;
+namespace {
+class StringHasher final {
+public:
+    ccstd::hash_t operator()(const char *str) const noexcept {
+        return ccstd::hash_range(str, str + strlen(str));
     }
 };
+
+class StringEqual final {
+public:
+    bool operator()(const char *c1, const char *c2) const noexcept {
+        return strcmp(c1, c2) == 0;
+    }
+};
+} // namespace
 
 template <bool ThreadSafe>
 class StringPool final {
@@ -46,22 +58,22 @@ public:
     StringPool() = default;
     ~StringPool();
     StringPool(const StringPool &) = delete;
-    StringPool(StringPool &&)      = delete;
+    StringPool(StringPool &&) = delete;
     StringPool &operator=(const StringPool &) = delete;
     StringPool &operator=(StringPool &&) = delete;
 
     StringHandle stringToHandle(const char *str) noexcept;
-    char const * handleToString(const StringHandle &handle) const noexcept;
+    char const *handleToString(const StringHandle &handle) const noexcept;
     StringHandle find(const char *str) const noexcept;
 
 private:
     StringHandle doStringToHandle(const char *str) noexcept;
-    char const * doHandleToString(const StringHandle &handle) const noexcept;
+    char const *doHandleToString(const StringHandle &handle) const noexcept;
     StringHandle doFind(const char *str) const noexcept;
 
-    std::map<char const *, StringHandle, StringCompare> _stringToHandles{};
-    std::vector<char const *>                           _handleToStrings{};
-    mutable ReadWriteLock                               _readWriteLock{};
+    ccstd::unordered_map<char const *, StringHandle, StringHasher, StringEqual> _stringToHandles{};
+    ccstd::vector<char const *> _handleToStrings{};
+    mutable ReadWriteLock _readWriteLock{};
 };
 
 using ThreadSafeStringPool = StringPool<true>;
@@ -109,7 +121,7 @@ inline StringHandle StringPool<ThreadSafe>::doStringToHandle(const char *str) no
 
     if (it == _stringToHandles.end()) {
         size_t const strLength = strlen(str) + 1;
-        char *const  strCache  = new char[strLength];
+        char *const strCache = ccnew char[strLength];
         strcpy(strCache, str);
         StringHandle name(static_cast<StringHandle::IndexType>(_handleToStrings.size()), strCache);
         _handleToStrings.emplace_back(strCache);

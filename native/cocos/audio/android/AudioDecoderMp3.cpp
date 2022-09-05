@@ -63,7 +63,7 @@ bool AudioDecoderMp3::decodeToPcm() {
         _result.numFrames = numFrames;
         _result.duration = 1.0f * numFrames / sampleRate;
 
-        std::string info = _result.toString();
+        ccstd::string info = _result.toString();
         ALOGI("Original audio info: %s, total size: %d", info.c_str(), (int)_result.pcmBuffer->size());
         return true;
     }

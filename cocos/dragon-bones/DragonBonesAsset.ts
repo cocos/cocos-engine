@@ -78,17 +78,13 @@ export class DragonBonesAsset extends Asset {
 
     reset () {
         this._clear();
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._armaturesEnum = null;
         }
     }
 
     init (factory?: CCFactory, atlasUUID?: string) {
-        if (EDITOR) {
-            this._factory = factory || new CCFactory();
-        } else {
-            this._factory = factory!;
-        }
+        this._factory = factory || CCFactory.getInstance();
 
         if (!this._dragonBonesJsonData && this.dragonBonesJson) {
             this._dragonBonesJsonData = JSON.parse(this.dragonBonesJson);

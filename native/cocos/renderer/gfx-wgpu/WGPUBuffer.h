@@ -26,6 +26,7 @@
 #pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXBuffer.h"
 
 namespace cc {
@@ -39,22 +40,22 @@ public:
     CCWGPUBuffer();
     ~CCWGPUBuffer() = default;
 
-    void update(const void* buffer, uint size) override;
+    void update(const void *buffer, uint32_t size) override;
 
-    inline CCWGPUBufferObject* gpuBufferObject() const { return _gpuBufferObject; }
+    inline CCWGPUBufferObject *gpuBufferObject() const { return _gpuBufferObject; }
 
-    static CCWGPUBuffer* defaultUniformBuffer();
+    static CCWGPUBuffer *defaultUniformBuffer();
 
-    static CCWGPUBuffer* defaultStorageBuffer();
+    static CCWGPUBuffer *defaultStorageBuffer();
 
-    inline uint getOffset() const { return _offset; }
+    inline uint32_t getOffset() const { return _offset; }
 
-    void update(const emscripten::val& v, uint size) {
-        std::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-        update(reinterpret_cast<const void*>(buffer.data()), size);
+    void update(const emscripten::val &v, uint32_t size) {
+        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
+        update(reinterpret_cast<const void *>(buffer.data()), size);
     }
 
-    void update(const DrawInfoList& drawInfos);
+    void update(const DrawInfoList &drawInfos);
 
     // used before unmap?
     void check();
@@ -66,12 +67,12 @@ public:
     inline bool internalChanged() const { return _internalChanged; }
 
 protected:
-    void doInit(const BufferInfo& info) override;
-    void doInit(const BufferViewInfo& info) override;
+    void doInit(const BufferInfo &info) override;
+    void doInit(const BufferViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
 
-    CCWGPUBufferObject* _gpuBufferObject = nullptr;
+    CCWGPUBufferObject *_gpuBufferObject = nullptr;
 
     bool _internalChanged = false;
 };

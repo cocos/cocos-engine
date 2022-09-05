@@ -55,6 +55,8 @@ bin/
 obj/
 gen/
 assets/
+!/cocos/core/assets
+!/cocos/3d/assets
 local.properties
 
 # Ignore python compiled files
@@ -132,7 +134,6 @@ project.properties
 # Ignore prebuilt libraries folder
 /external/*
 !/external/config.json
-/templates/lua-template-runtime/runtime
 /v*-deps-*.zip
 /new-renderer-*.zip
 /v*-lua-runtime-*.zip

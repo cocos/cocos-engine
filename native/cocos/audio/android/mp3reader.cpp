@@ -204,7 +204,6 @@ static ssize_t sourceReadAt(mp3_callbacks *callback, void *source, off64_t offse
 static bool resync(
     mp3_callbacks *callback, void *source, uint32_t match_header,
     off64_t *inout_pos, uint32_t *out_header) {
-
     if (*inout_pos == 0) {
         // Skip an optional ID3 header if syncing at the very beginning
         // of the datasource.
@@ -359,7 +358,6 @@ Mp3Reader::Mp3Reader() : mSource(NULL), mCallback(NULL) {
 
 // Initialize the MP3 reader.
 bool Mp3Reader::init(mp3_callbacks *callback, void *source) {
-
     mSource = source;
     mCallback = callback;
     // Open the file.
@@ -385,7 +383,6 @@ bool Mp3Reader::init(mp3_callbacks *callback, void *source) {
 
 // Get the next valid MP3 frame.
 bool Mp3Reader::getFrame(void *buffer, uint32_t *size) {
-
     size_t frame_size;
     uint32_t bitrate;
     uint32_t num_samples;

@@ -30,6 +30,7 @@
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
 #include "base/Macros.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -42,63 +43,62 @@ GLES3Texture::~GLES3Texture() {
     destroy();
 }
 
-void GLES3Texture::doInit(const TextureInfo& /*info*/) {
-    _gpuTexture             = CC_NEW(GLES3GPUTexture);
-    _gpuTexture->type       = _info.type;
-    _gpuTexture->format     = _info.format;
-    _gpuTexture->usage      = _info.usage;
-    _gpuTexture->width      = _info.width;
-    _gpuTexture->height     = _info.height;
-    _gpuTexture->depth      = _info.depth;
+void GLES3Texture::doInit(const TextureInfo & /*info*/) {
+    _gpuTexture = ccnew GLES3GPUTexture;
+    _gpuTexture->type = _info.type;
+    _gpuTexture->format = _info.format;
+    _gpuTexture->usage = _info.usage;
+    _gpuTexture->width = _info.width;
+    _gpuTexture->height = _info.height;
+    _gpuTexture->depth = _info.depth;
     _gpuTexture->arrayLayer = _info.layerCount;
-    _gpuTexture->mipLevel   = _info.levelCount;
-    _gpuTexture->samples    = _info.samples;
-    _gpuTexture->flags      = _info.flags;
-    _gpuTexture->size       = _size;
-    _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_info.width) && math::IsPowerOfTwo(_info.height);
-    _gpuTexture->glTexture  = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
+    _gpuTexture->mipLevel = _info.levelCount;
+    _gpuTexture->samples = _info.samples;
+    _gpuTexture->flags = _info.flags;
+    _gpuTexture->size = _size;
+    _gpuTexture->isPowerOf2 = math::isPowerOfTwo(_info.width) && math::isPowerOfTwo(_info.height);
+    _gpuTexture->glTexture = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
 
     cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);
 
     if (!_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += _size;
+        CC_PROFILE_MEMORY_INC(Texture, _size);
     }
 
-    _gpuTextureView = CC_NEW(GLES3GPUTextureView);
+    _gpuTextureView = ccnew GLES3GPUTextureView;
     createTextureView();
 }
 
-void GLES3Texture::doInit(const TextureViewInfo& /*info*/) {
-    _gpuTexture = static_cast<GLES3Texture*>(_viewInfo.texture)->gpuTexture();
+void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
+    _gpuTexture = static_cast<GLES3Texture *>(_viewInfo.texture)->gpuTexture();
 
-    CCASSERT(_viewInfo.texture->getFormat() == _viewInfo.format, "Invalid TextureView fromat");
+    CC_ASSERT(_viewInfo.texture->getFormat() == _viewInfo.format);
 
-    _gpuTextureView = CC_NEW(GLES3GPUTextureView);
+    _gpuTextureView = ccnew GLES3GPUTextureView;
     createTextureView();
 }
 
 void GLES3Texture::createTextureView() {
     _gpuTextureView->gpuTexture = _gpuTexture;
-    _gpuTextureView->type       = _viewInfo.type;
-    _gpuTextureView->format     = _viewInfo.format;
-    _gpuTextureView->baseLevel  = _viewInfo.baseLevel;
+    _gpuTextureView->type = _viewInfo.type;
+    _gpuTextureView->format = _viewInfo.format;
+    _gpuTextureView->baseLevel = _viewInfo.baseLevel;
     _gpuTextureView->levelCount = _viewInfo.levelCount;
 }
 
 void GLES3Texture::doDestroy() {
-    if (_gpuTextureView) {
-        CC_DELETE(_gpuTextureView);
-        _gpuTextureView = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuTextureView);
     if (_gpuTexture) {
         if (!_isTextureView) {
             if (!_gpuTexture->memoryless) {
                 GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+                CC_PROFILE_MEMORY_DEC(Texture, _size);
             }
 
             cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
             GLES3Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
-            CC_DELETE(_gpuTexture);
+            delete _gpuTexture;
         }
         _gpuTexture = nullptr;
     }
@@ -107,11 +107,12 @@ void GLES3Texture::doDestroy() {
 void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (!_isTextureView && !_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+        CC_PROFILE_MEMORY_DEC(Texture, _size);
     }
 
-    _gpuTexture->width    = width;
-    _gpuTexture->height   = height;
-    _gpuTexture->size     = size;
+    _gpuTexture->width = width;
+    _gpuTexture->height = height;
+    _gpuTexture->size = size;
     _gpuTexture->mipLevel = _info.levelCount;
 
     cmdFuncGLES3ResizeTexture(GLES3Device::getInstance(), _gpuTexture);
@@ -120,28 +121,28 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 
     if (!_isTextureView && !_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += size;
+        CC_PROFILE_MEMORY_INC(Texture, size);
     }
 }
 
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
-void GLES3Texture::doInit(const SwapchainTextureInfo& /*info*/) {
-    _gpuTexture             = CC_NEW(GLES3GPUTexture);
-    _gpuTexture->type       = _info.type;
-    _gpuTexture->format     = _info.format;
-    _gpuTexture->usage      = _info.usage;
-    _gpuTexture->width      = _info.width;
-    _gpuTexture->height     = _info.height;
-    _gpuTexture->depth      = _info.depth;
+void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
+    _gpuTexture = ccnew GLES3GPUTexture;
+    _gpuTexture->type = _info.type;
+    _gpuTexture->format = _info.format;
+    _gpuTexture->usage = _info.usage;
+    _gpuTexture->width = _info.width;
+    _gpuTexture->height = _info.height;
+    _gpuTexture->depth = _info.depth;
     _gpuTexture->arrayLayer = _info.layerCount;
-    _gpuTexture->mipLevel   = _info.levelCount;
-    _gpuTexture->samples    = _info.samples;
-    _gpuTexture->flags      = _info.flags;
-    _gpuTexture->size       = _size;
+    _gpuTexture->mipLevel = _info.levelCount;
+    _gpuTexture->samples = _info.samples;
+    _gpuTexture->flags = _info.flags;
+    _gpuTexture->size = _size;
     _gpuTexture->memoryless = true;
-    _gpuTexture->swapchain  = static_cast<GLES3Swapchain*>(_swapchain)->gpuSwapchain();
-
-    _gpuTextureView = CC_NEW(GLES3GPUTextureView);
+    _gpuTexture->swapchain = static_cast<GLES3Swapchain *>(_swapchain)->gpuSwapchain();
+    _gpuTextureView = ccnew GLES3GPUTextureView;
     createTextureView();
 }
 

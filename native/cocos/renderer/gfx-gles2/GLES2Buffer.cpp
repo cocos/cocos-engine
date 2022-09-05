@@ -28,6 +28,7 @@
 #include "GLES2Buffer.h"
 #include "GLES2Commands.h"
 #include "GLES2Device.h"
+#include "profiler/Profiler.h"
 
 namespace cc {
 namespace gfx {
@@ -41,12 +42,12 @@ GLES2Buffer::~GLES2Buffer() {
 }
 
 void GLES2Buffer::doInit(const BufferInfo & /*info*/) {
-    _gpuBuffer           = CC_NEW(GLES2GPUBuffer);
-    _gpuBuffer->usage    = _usage;
+    _gpuBuffer = ccnew GLES2GPUBuffer;
+    _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
-    _gpuBuffer->size     = _size;
-    _gpuBuffer->stride   = _stride;
-    _gpuBuffer->count    = _count;
+    _gpuBuffer->size = _size;
+    _gpuBuffer->stride = _stride;
+    _gpuBuffer->count = _count;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         _gpuBuffer->indirects.resize(_count);
@@ -54,21 +55,23 @@ void GLES2Buffer::doInit(const BufferInfo & /*info*/) {
 
     cmdFuncGLES2CreateBuffer(GLES2Device::getInstance(), _gpuBuffer);
     GLES2Device::getInstance()->getMemoryStatus().bufferSize += _size;
+    CC_PROFILE_MEMORY_INC(Buffer, _size);
 }
 
 void GLES2Buffer::doInit(const BufferViewInfo &info) {
-    auto *buffer              = static_cast<GLES2Buffer *>(info.buffer);
-    _gpuBufferView            = CC_NEW(GLES2GPUBufferView);
+    auto *buffer = static_cast<GLES2Buffer *>(info.buffer);
+    _gpuBufferView = ccnew GLES2GPUBufferView;
     _gpuBufferView->gpuBuffer = buffer->gpuBuffer();
-    _gpuBufferView->range     = _size;
-    _gpuBufferView->offset    = info.offset;
+    _gpuBufferView->range = _size;
+    _gpuBufferView->offset = info.offset;
 }
 
 void GLES2Buffer::doDestroy() {
     if (_gpuBuffer) {
         GLES2Device::getInstance()->getMemoryStatus().bufferSize -= _size;
+        CC_PROFILE_MEMORY_DEC(Buffer, _size);
         cmdFuncGLES2DestroyBuffer(GLES2Device::getInstance(), _gpuBuffer);
-        CC_DELETE(_gpuBuffer);
+        delete _gpuBuffer;
         _gpuBuffer = nullptr;
     }
 
@@ -77,13 +80,16 @@ void GLES2Buffer::doDestroy() {
 
 void GLES2Buffer::doResize(uint32_t size, uint32_t count) {
     GLES2Device::getInstance()->getMemoryStatus().bufferSize -= _size;
-    _gpuBuffer->size  = size;
+    CC_PROFILE_MEMORY_DEC(Buffer, _size);
+    _gpuBuffer->size = size;
     _gpuBuffer->count = count;
     cmdFuncGLES2ResizeBuffer(GLES2Device::getInstance(), _gpuBuffer);
     GLES2Device::getInstance()->getMemoryStatus().bufferSize += size;
+    CC_PROFILE_MEMORY_INC(Buffer, size);
 }
 
 void GLES2Buffer::update(const void *buffer, uint32_t size) {
+    CC_PROFILE(GLES2BufferUpdate);
     cmdFuncGLES2UpdateBuffer(GLES2Device::getInstance(), _gpuBuffer, buffer, 0U, size);
 }
 

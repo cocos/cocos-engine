@@ -31,6 +31,8 @@ export { Node } from './node';
 export { Scene } from './scene';
 export { Layers } from './layers';
 export { find } from './find';
+export * from './node-enum';
+export * from './node-event';
 export * from './scene-globals';
 export * from './deprecated';
 export { default as NodeActivator } from './node-activator';

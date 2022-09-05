@@ -40,15 +40,15 @@ public:
     CCWGPUShader();
     ~CCWGPUShader() = default;
 
-    inline CCWGPUShaderObject* gpuShaderObject() { return _gpuShaderObject; }
+    inline CCWGPUShaderObject *gpuShaderObject() { return _gpuShaderObject; }
 
-    void initialize(const SPVShaderInfoInstance& info);
+    void initialize(const SPVShaderInfoInstance &info);
 
 protected:
-    void doInit(const ShaderInfo& info) override;
+    void doInit(const ShaderInfo &info) override;
     void doDestroy() override;
 
-    CCWGPUShaderObject* _gpuShaderObject = nullptr;
+    CCWGPUShaderObject *_gpuShaderObject = nullptr;
 };
 
 } // namespace gfx

@@ -23,13 +23,12 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
-import { RenderPipeline, MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
+import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../platform/macro';
-import { NativePass } from '../../renderer';
+import { legacyCC } from '../../global-exports';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -85,7 +84,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
     protected declare _postprocessMaterial: Material;
 
-    public onGlobalPipelineStateChanged () {
+    public updatePipelineSceneData () {
         this.updatePipelinePassInfo();
     }
 
@@ -97,8 +96,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         prefilterPass.tryCompile();
         prefilterPass.endChangeStatesSilently();
 
-        const downsamplePasses : NativePass[] = [];
-        const upsamplePasses : NativePass[] = [];
         for (let i = 0; i < MAX_BLOOM_FILTER_PASS_NUM; ++i) {
             const downsamplePass = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX + i];
             downsamplePass.beginChangeStatesSilently();
@@ -109,26 +106,12 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
             upsamplePass.beginChangeStatesSilently();
             upsamplePass.tryCompile();
             upsamplePass.endChangeStatesSilently();
-
-            downsamplePasses.push(downsamplePass.native);
-            upsamplePasses.push(upsamplePass.native);
         }
 
         const combinePass = this._bloomMaterial.passes[BLOOM_COMBINEPASS_INDEX];
         combinePass.beginChangeStatesSilently();
         combinePass.tryCompile();
         combinePass.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.bloomPrefilterPassShader = prefilterPass.getShaderVariant();
-            this._nativeObj!.bloomPrefilterPass = prefilterPass.native;
-            this._nativeObj!.bloomDownsamplePassShader = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX].getShaderVariant();
-            this._nativeObj!.bloomDownsamplePass = downsamplePasses;
-            this._nativeObj!.bloomUpsamplePassShader = this._bloomMaterial.passes[BLOOM_UPSAMPLEPASS_INDEX].getShaderVariant();
-            this._nativeObj!.bloomUpsamplePass = upsamplePasses;
-            this._nativeObj!.bloomCombinePassShader = combinePass.getShaderVariant();
-            this._nativeObj!.bloomCombinePass = combinePass.native;
-        }
     }
 
     private updatePostProcessPass () {
@@ -138,25 +121,20 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         passPost.beginChangeStatesSilently();
         passPost.tryCompile();
         passPost.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.pipelinePostPassShader = passPost.getShaderVariant();
-            this._nativeObj!.pipelinePostPass = passPost.native;
-        }
     }
 
     public initPipelinePassInfo () {
         // builtin deferred material
         const deferredMat = new Material();
         deferredMat._uuid = 'builtin-deferred-material';
-        deferredMat.initialize({ effectName: 'deferred-lighting' });
+        deferredMat.initialize({ effectName: 'pipeline/deferred-lighting' });
         for (let i = 0; i < deferredMat.passes.length; ++i) {
             deferredMat.passes[i].tryCompile();
         }
         this._deferredLightingMaterial = deferredMat;
         const bloomMat = new Material();
         bloomMat._uuid = 'builtin-bloom-material';
-        bloomMat.initialize({ effectName: 'bloom' });
+        bloomMat.initialize({ effectName: 'pipeline/bloom' });
         for (let i = 0; i < bloomMat.passes.length; ++i) {
             bloomMat.passes[i].tryCompile();
         }
@@ -168,7 +146,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
             this._antiAliasing = AntiAliasing.FXAA;
         }
         postMat.initialize({
-            effectName: 'post-process',
+            effectName: 'pipeline/post-process',
             defines: {
                 // Anti-aliasing type, currently only fxaa, so 1 means fxaa
                 ANTIALIAS_TYPE: this._antiAliasing,
@@ -201,8 +179,8 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         this.updateDeferredPassInfo();
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
-        super.activate(device, pipeline);
+    public activate (device: Device) {
+        super.activate(device);
         this.initPipelinePassInfo();
         return true;
     }
@@ -215,18 +193,11 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         if (!this._deferredLightingMaterial) return;
 
         // It's temporary solution for main light shadowmap
-        if (this.shadows.enabled) {
-            this._pipeline.macros.CC_RECEIVE_SHADOW = 1;
-        }
+        legacyCC.director.root.pipeline.macros.CC_RECEIVE_SHADOW = 1;
 
         const passLit = this._deferredLightingMaterial.passes[0];
         passLit.beginChangeStatesSilently();
         passLit.tryCompile();
         passLit.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.deferredLightPassShader = passLit.getShaderVariant();
-            this._nativeObj!.deferredLightPass = passLit.native;
-        }
     }
 }

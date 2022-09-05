@@ -25,6 +25,7 @@
 
 #include "platform/win32/modules/System.h"
 #include <Windows.h>
+#include "base/memory/Memory.h"
 
 namespace cc {
 using OSType = System::OSType;
@@ -33,14 +34,14 @@ OSType System::getOSType() const {
     return OSType::WINDOWS;
 }
 
-std::string System::getDeviceModel() const {
+ccstd::string System::getDeviceModel() const {
     return "Windows";
 }
 
 System::LanguageType System::getCurrentLanguage() const {
     LanguageType ret = LanguageType::ENGLISH;
 
-    LCID           localeID          = GetUserDefaultLCID();
+    LCID localeID = GetUserDefaultLCID();
     unsigned short primaryLanguageID = localeID & 0xFF;
 
     switch (primaryLanguageID) {
@@ -106,22 +107,22 @@ System::LanguageType System::getCurrentLanguage() const {
     return ret;
 }
 
-std::string System::getCurrentLanguageCode() const {
-    LANGID     lid       = GetUserDefaultUILanguage();
+ccstd::string System::getCurrentLanguageCode() const {
+    LANGID lid = GetUserDefaultUILanguage();
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
-    int        length    = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
+    int length = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
 
-    char* tempCode = new char[length];
+    char *tempCode = ccnew char[length];
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, tempCode, length);
-    std::string code = tempCode;
+    ccstd::string code = tempCode;
     delete tempCode;
 
     return code;
 }
 
-std::string System::getSystemVersion() const {
-    char    buff[256] = {0};
-    HMODULE handle    = GetModuleHandleW(L"ntdll.dll");
+ccstd::string System::getSystemVersion() const {
+    char buff[256] = {0};
+    HMODULE handle = GetModuleHandleW(L"ntdll.dll");
     if (handle) {
         typedef NTSTATUS(WINAPI * RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
         RtlGetVersionPtr getVersionPtr = (RtlGetVersionPtr)GetProcAddress(handle, "RtlGetVersion");
@@ -136,9 +137,9 @@ std::string System::getSystemVersion() const {
     return buff;
 }
 
-bool System::openURL(const std::string& url) {
-    WCHAR* temp    = new WCHAR[url.size() + 1];
-    int    urlSize = static_cast<int>(url.size() + 1);
+bool System::openURL(const ccstd::string &url) {
+    WCHAR *temp = ccnew WCHAR[url.size() + 1];
+    int urlSize = static_cast<int>(url.size() + 1);
     MultiByteToWideChar(CP_UTF8, 0, url.c_str(), urlSize, temp, urlSize);
     HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
     delete[] temp;

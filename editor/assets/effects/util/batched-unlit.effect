@@ -31,10 +31,10 @@ CCEffect %{
 
 CCProgram unlit-vs %{
   precision highp float;
-  #include <input>
-  #include <cc-global>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
 
   // array lengths need to be determined at resource-import-time
   // so we can't define this as a runtime macro
@@ -94,7 +94,7 @@ CCProgram unlit-vs %{
 
 CCProgram unlit-fs %{
   precision highp float;
-  #include <output>
+  #include <legacy/output>
   #pragma define BATCHED_UNITS 6
 
   #if USE_TEXTURE

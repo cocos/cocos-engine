@@ -24,9 +24,8 @@
 ****************************************************************************/
 
 #pragma once
-#if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
 
-    #include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 namespace se {
 class Object;
 class Value;
@@ -58,5 +57,3 @@ SE_DECLARE_FUNC(WebSocketServer_Connection_protocol);
 SE_DECLARE_FUNC(WebSocketServer_Connection_readyState);
 
 bool register_all_websocket_server(se::Object *obj);
-
-#endif //#if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)

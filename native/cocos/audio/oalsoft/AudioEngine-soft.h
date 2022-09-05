@@ -26,11 +26,13 @@
 
 #pragma once
 
-#include <unordered_map>
-
+#include <stdint.h>
 #include "audio/oalsoft/AudioCache.h"
+#include "audio/include/AudioDef.h"
 #include "audio/oalsoft/AudioPlayer.h"
-#include "base/Ref.h"
+#include "base/std/container/unordered_map.h"
+#include "cocos/base/RefCounted.h"
+#include "cocos/base/std/any.h"
 
 namespace cc {
 
@@ -38,29 +40,31 @@ class Scheduler;
 
 #define MAX_AUDIOINSTANCES 32
 
-class CC_DLL AudioEngineImpl : public cc::Ref {
+class CC_DLL AudioEngineImpl : public RefCounted {
 public:
     AudioEngineImpl();
     ~AudioEngineImpl() override;
 
-    bool  init();
-    int   play2d(const std::string &filePath, bool loop, float volume);
-    void  setVolume(int audioID, float volume);
-    void  setLoop(int audioID, bool loop);
-    bool  pause(int audioID);
-    bool  resume(int audioID);
-    void  stop(int audioID);
-    void  stopAll();
+    bool init();
+    int play2d(const ccstd::string &filePath, bool loop, float volume);
+    void setVolume(int audioID, float volume);
+    void setLoop(int audioID, bool loop);
+    bool pause(int audioID);
+    bool resume(int audioID);
+    void stop(int audioID);
+    void stopAll();
     float getDuration(int audioID);
-    float getDurationFromFile(const std::string &filePath);
+    float getDurationFromFile(const ccstd::string &filePath);
     float getCurrentTime(int audioID);
-    bool  setCurrentTime(int audioID, float time);
-    void  setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
+    bool setCurrentTime(int audioID, float time);
+    void setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
-    void        uncache(const std::string &filePath);
-    void        uncacheAll();
-    AudioCache *preload(const std::string &filePath, const std::function<void(bool)> &callback);
-    void        update(float dt);
+    void uncache(const ccstd::string &filePath);
+    void uncacheAll();
+    AudioCache *preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
+    void update(float dt);
+    PCMHeader getPCMHeader(const char* url);
+    ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
 
 private:
     bool checkAudioIdValid(int audioID);
@@ -69,18 +73,18 @@ private:
     ALuint _alSources[MAX_AUDIOINSTANCES];
 
     //source,used
-    std::unordered_map<ALuint, bool> _alSourceUsed;
+    ccstd::unordered_map<ALuint, bool> _alSourceUsed;
 
     //filePath,bufferInfo
-    std::unordered_map<std::string, AudioCache> _audioCaches;
+    ccstd::unordered_map<ccstd::string, AudioCache> _audioCaches;
 
     //audioID,AudioInfo
-    std::unordered_map<int, AudioPlayer *> _audioPlayers;
-    std::mutex                             _threadMutex;
+    ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;
+    std::mutex _threadMutex;
 
     bool _lazyInitLoop;
 
-    int                      _currentAudioID;
+    int _currentAudioID;
     std::weak_ptr<Scheduler> _scheduler;
 };
 } // namespace cc

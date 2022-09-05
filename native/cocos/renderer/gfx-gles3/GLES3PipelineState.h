@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES3GPUPipelineState;
+struct GLES3GPUPipelineState;
 
 class CC_GLES3_API GLES3PipelineState final : public PipelineState {
 public:

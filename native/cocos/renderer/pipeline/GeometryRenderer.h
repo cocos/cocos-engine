@@ -25,13 +25,16 @@
 
 #pragma once
 
-#include <vector>
-#include "base/Macros.h"
-#include "gfx-base/GFXDef-common.h"
-#include "gfx-base/GFXDevice.h"
-#include "math/Vec2.h"
-#include "math/Vec3.h"
-#include "math/Vec4.h"
+// NOTE: Still need to wrap all code in CC_USE_GEOMETRY_RENDERER block
+// since auto-generated binding code will include GeometryRenderer.h
+#if CC_USE_GEOMETRY_RENDERER
+
+    #include "base/Macros.h"
+    #include "base/RefCounted.h"
+    #include "gfx-base/GFXDef-common.h"
+    #include "math/Vec2.h"
+    #include "math/Vec3.h"
+    #include "math/Vec4.h"
 
 namespace cc {
 
@@ -42,47 +45,50 @@ class RenderPass;
 class CommandBuffer;
 } // namespace gfx
 
-namespace scene {
+namespace geometry {
 class AABB;
-struct Frustum;
+class Frustum;
+class Spline;
+} // namespace geometry
+
+namespace scene {
 class Pass;
 } // namespace scene
 
 namespace pipeline {
-
-class RenderPipeline;
+class PipelineSceneData;
 struct GeometryVertexBuffers;
 
-struct GeometryConfig {
-    GeometryConfig();
+struct GeometryRendererInfo {
+    GeometryRendererInfo();
 
     uint32_t maxLines{0U};
     uint32_t maxDashedLines{0U};
     uint32_t maxTriangles{0U};
 };
 
-class GeometryRenderer {
+class GeometryRenderer : public RefCounted {
 public:
     GeometryRenderer();
-    ~GeometryRenderer();
+    ~GeometryRenderer() override;
     GeometryRenderer(const GeometryRenderer &) = delete;
-    GeometryRenderer(GeometryRenderer &&)      = delete;
+    GeometryRenderer(GeometryRenderer &&) = delete;
     GeometryRenderer &operator=(const GeometryRenderer &) = delete;
     GeometryRenderer &operator=(GeometryRenderer &&) = delete;
 
-    void activate(gfx::Device *device, RenderPipeline *pipeline, const GeometryConfig &config = GeometryConfig());
-    void flushFromJSB(uint32_t type, uint32_t index, void *vb, uint32_t vertexCount);
-    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
+    void activate(gfx::Device *device, const GeometryRendererInfo &info = GeometryRendererInfo());
+    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData);
     void destroy();
     bool empty() const;
+    void update();
 
     void addDashedLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addLine(const Vec3 &v0, const Vec3 &v1, gfx::Color color, bool depthTest = true);
     void addTriangle(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false);             // counterclockwise
     void addQuad(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false); // counterclockwise
-    void addBoundingBox(const scene::AABB *aabb, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
+    void addBoundingBox(const geometry::AABB &aabb, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addCross(const Vec3 &center, float size, gfx::Color color, bool depthTest = true);
-    void addFrustum(const scene::Frustum *frustum, gfx::Color color, bool depthTest = true);
+    void addFrustum(const geometry::Frustum &frustum, gfx::Color color, bool depthTest = true);
     void addCapsule(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segmentsU = 32U, uint32_t hemiSegmentsV = 8U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addCylinder(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addCone(const Vec3 &center, float radius, float height, gfx::Color color, uint32_t segments = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
@@ -95,17 +101,18 @@ public:
     void addTorus(const Vec3 &center, float bigRadius, float radius, gfx::Color color, uint32_t segmentsU = 32U, uint32_t segmentsV = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addOctahedron(const Vec3 &center, float radius, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, uint32_t segments = 32U, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
-    void addMesh(const Vec3 &center, const std::vector<Vec3> &vertices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
-    void addIndexedMesh(const Vec3 &center, const std::vector<Vec3> &vertices, const std::vector<uint32_t> &indices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
+    void addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index = 0xffffffff, float knotSize = 0.5F, uint32_t segments = 32U, bool depthTest = true);
+    void addMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
+    void addIndexedMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, const ccstd::vector<uint32_t> &indices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
 
 private:
-    void update();
     void reset();
 
-    gfx::Device *          _device{nullptr};
-    RenderPipeline *       _pipeline{nullptr};
+    gfx::Device *_device{nullptr};
     GeometryVertexBuffers *_buffers{nullptr};
 };
 
 } // namespace pipeline
 } // namespace cc
+
+#endif // #if CC_USE_GEOMETRY_RENDERER

@@ -29,14 +29,14 @@
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include <jni.h>
     #include <cstdlib>
-    #include <string>
-    #include <unordered_map>
+    #include "base/std/container/string.h"
+    #include "base/std/container/unordered_map.h"
     #include "platform/FileUtils.h"
     #include "platform/java/jni/JniHelper.h"
 
 //-----------------------------------------------------------------------------------------------------------
 
-static const std::string VIDEO_HELPER_CLASS_NAME = "com/cocos/lib/CocosVideoHelper";
+static const ccstd::string VIDEO_HELPER_CLASS_NAME = "com/cocos/lib/CocosVideoHelper";
 
 using namespace cc; //NOLINT
 
@@ -53,7 +53,7 @@ void Java_com_cocos_lib_CocosVideoHelper_nativeExecuteVideoCallback(JNIEnv *env,
 
 int createVideoWidgetJNI() {
     JniMethodInfo t;
-    int           ret = -1;
+    int ret = -1;
     if (JniHelper::getStaticMethodInfo(t, VIDEO_HELPER_CLASS_NAME.c_str(), "createVideoWidget", "()I")) {
         ret = t.env->CallStaticIntMethod(t.classID, t.methodID);
 
@@ -65,14 +65,14 @@ int createVideoWidgetJNI() {
 
 //-----------------------------------------------------------------------------------------------------------
 
-static std::unordered_map<int, VideoPlayer *> sAllVideoPlayers;
+static ccstd::unordered_map<int, VideoPlayer *> sAllVideoPlayers;
 
 VideoPlayer::VideoPlayer()
 : _videoPlayerIndex(-1),
   _fullScreenEnabled(false),
   _fullScreenDirty(false),
   _keepAspectRatioEnabled(false) {
-    _videoPlayerIndex                   = createVideoWidgetJNI();
+    _videoPlayerIndex = createVideoWidgetJNI();
     sAllVideoPlayers[_videoPlayerIndex] = this;
 
     #if CC_VIDEOPLAYER_DEBUG_DRAW
@@ -82,16 +82,29 @@ VideoPlayer::VideoPlayer()
 }
 
 VideoPlayer::~VideoPlayer() {
-    sAllVideoPlayers.erase(_videoPlayerIndex);
-    JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "removeVideoWidget", _videoPlayerIndex);
+    destroy();
 }
 
-void VideoPlayer::setURL(const std::string &videoUrl) {
-    if (videoUrl.find("://") == std::string::npos) {
-        _videoURL    = FileUtils::getInstance()->fullPathForFilename(videoUrl);
+void VideoPlayer::destroy() {
+    if (_videoPlayerIndex != -1) {
+        auto iter = sAllVideoPlayers.find(_videoPlayerIndex);
+        if (iter != sAllVideoPlayers.end()) {
+            sAllVideoPlayers.erase(iter);
+        }
+
+        JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "removeVideoWidget",
+                                        _videoPlayerIndex);
+
+        _videoPlayerIndex = -1;
+    }
+}
+
+void VideoPlayer::setURL(const ccstd::string &videoUrl) {
+    if (videoUrl.find("://") == ccstd::string::npos) {
+        _videoURL = FileUtils::getInstance()->fullPathForFilename(videoUrl);
         _videoSource = VideoPlayer::Source::FILENAME;
     } else {
-        _videoURL    = videoUrl;
+        _videoURL = videoUrl;
         _videoSource = VideoPlayer::Source::URL;
     }
 
@@ -146,7 +159,7 @@ void VideoPlayer::setVisible(bool visible) {
     JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "setVideoVisible", _videoPlayerIndex, visible);
 }
 
-void VideoPlayer::addEventListener(const std::string &name, const VideoPlayer::ccVideoPlayerCallback &callback) {
+void VideoPlayer::addEventListener(const ccstd::string &name, const VideoPlayer::ccVideoPlayerCallback &callback) {
     _eventCallback[name] = callback;
 }
 

@@ -24,21 +24,29 @@
 ****************************************************************************/
 
 #pragma once
-#include "RenderPipeline.h"
-#include "scene/Camera.h"
+#include "base/Macros.h"
+#include "base/TypeDef.h"
 
 namespace cc {
+namespace scene {
+class Camera;
+}
+namespace gfx {
+class RenderPass;
+}
 namespace pipeline {
+class RenderPipeline;
 
 class CC_DLL UIPhase {
 public:
     UIPhase() = default;
-    void activate(RenderPipeline* pipeline);
-    void render(scene::Camera* camera, gfx::RenderPass* renderPass);
+    void activate(RenderPipeline *pipeline);
+    void render(scene::Camera *camera, gfx::RenderPass *renderPass);
 
 protected:
-    RenderPipeline* _pipeline = nullptr;
-    uint            _phaseID  = 0;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    uint32_t _phaseID{0};
 };
 
 } // namespace pipeline

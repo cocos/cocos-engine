@@ -23,22 +23,22 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { AABB } from '../geometry/aabb';
+import { Spline } from '../geometry/spline';
 import { Color } from '../math/color';
 import { Mat4 } from '../math/mat4';
 import { Vec3 } from '../math/vec3';
 import { Vec4 } from '../math/vec4';
-import { NativeGeometryRenderer } from '../renderer';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { RenderPipeline } from './render-pipeline';
 import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit,
     CommandBuffer, Device, DrawInfo, Format, InputAssembler,
     InputAssemblerInfo, MemoryUsageBit, RenderPass } from '../gfx';
 import { warnID } from '../platform/debug';
 import { Frustum } from '../geometry/frustum';
 import { toRadian } from '../math/utils';
+import { PipelineSceneData } from './pipeline-scene-data';
+import { legacyCC } from '../global-exports';
 
 const _min = new Vec3();
 const _max = new Vec3();
@@ -61,7 +61,7 @@ const GEOMETRY_NO_DEPTH_TEST_PASS_NUM = 1;
 const GEOMETRY_DEPTH_TEST_PASS_NUM    = 2;
 const GEOMETRY_VERTICES_PER_LINE      = 2;
 const GEOMETRY_VERTICES_PER_TRIANGLE  = 3;
-const GEOMETRY_MAX_LINES              = 100000;
+const GEOMETRY_MAX_LINES              = 30000;
 const GEOMETRY_MAX_DASHED_LINES       = 10000;
 const GEOMETRY_MAX_TRIANGLES          = 10000;
 
@@ -102,22 +102,18 @@ class GeometryVertexBuffer {
         this._vertexCount = 0;
         this._stride = stride;
         this._vertices = new Float32Array(maxVertices * stride / Float32Array.BYTES_PER_ELEMENT);
-
-        if (!JSB) {
-            this._buffer = device.createBuffer(
-                new BufferInfo(BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.DEVICE, maxVertices * stride, stride),
-            );
-            this._inputAssembler = device.createInputAssembler(new InputAssemblerInfo(attributes, [this._buffer], null));
-        }
+        this._buffer = device.createBuffer(new BufferInfo(BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE, maxVertices * stride, stride));
+        this._inputAssembler = device.createInputAssembler(new InputAssemblerInfo(attributes, [this._buffer], null));
     }
 
+    public getCount () { return Math.min(this._vertexCount, this._maxVertices); }
     public empty (): boolean { return this._vertexCount === 0; }
     public reset () { this._vertexCount = 0; }
 
     public update () {
         if (!this.empty()) {
-            const count = Math.min(this._vertexCount, this._maxVertices);
+            const count = this.getCount();
             const size = count * this._stride;
             this._buffer.update(this._vertices, size);
         }
@@ -148,7 +144,7 @@ class GeometryVertexBuffers {
     }
 }
 
-export interface IGeometryConfig {
+export interface IGeometryInfo {
     maxLines: number;
     maxDashedLines: number;
     maxTriangles: number;
@@ -156,25 +152,14 @@ export interface IGeometryConfig {
 
 export class GeometryRenderer {
     private _device: Device | null = null;
-    private _pipeline: RenderPipeline | null = null;
     private _buffers: GeometryVertexBuffers;
-    private _nativeObj: NativeGeometryRenderer | null = null;
 
     public constructor () {
         this._buffers = new GeometryVertexBuffers();
-
-        if (JSB) {
-            this._nativeObj = new NativeGeometryRenderer();
-        }
     }
 
-    public get native (): NativeGeometryRenderer | null {
-        return this._nativeObj;
-    }
-
-    public activate (device: Device, pipeline: RenderPipeline, config?: IGeometryConfig) {
+    public activate (device: Device, info?: IGeometryInfo) {
         this._device = device;
-        this._pipeline = pipeline;
 
         const posColorAttributes: Attribute[] = [
             new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
@@ -187,9 +172,9 @@ export class GeometryRenderer {
             new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
         ];
 
-        const maxLines = config ? config.maxLines : GEOMETRY_MAX_LINES;
-        const maxDashedLines = config ? config.maxDashedLines : GEOMETRY_MAX_DASHED_LINES;
-        const maxTriangles = config ? config.maxTriangles : GEOMETRY_MAX_TRIANGLES;
+        const maxLines = info ? info.maxLines : GEOMETRY_MAX_LINES;
+        const maxDashedLines = info ? info.maxDashedLines : GEOMETRY_MAX_DASHED_LINES;
+        const maxTriangles = info ? info.maxTriangles : GEOMETRY_MAX_TRIANGLES;
         const lineStride = Float32Array.BYTES_PER_ELEMENT * (Vec3.length + Color.length);
         const triangleStride = Float32Array.BYTES_PER_ELEMENT * (Vec3.length + Vec4.length + Color.length);
 
@@ -200,35 +185,9 @@ export class GeometryRenderer {
         }
     }
 
-    public flush () {
-        if (JSB) {
-            for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
-                const lines = this._buffers.lines[i];
-                if (!lines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.LINE, i, lines._vertices, lines._vertexCount);
-                    lines.reset();
-                }
-
-                const dashedLines = this._buffers.dashedLines[i];
-                if (!dashedLines.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.DASHED_LINE, i, dashedLines._vertices, dashedLines._vertexCount);
-                    dashedLines.reset();
-                }
-
-                const triangles = this._buffers.triangles[i];
-                if (!triangles.empty()) {
-                    this._nativeObj!.flushFromJSB(GeometryType.TRIANGLE, i, triangles._vertices, triangles._vertexCount);
-                    triangles.reset();
-                }
-            }
-        }
-    }
-
-    public render (renderPass: RenderPass, cmdBuff: CommandBuffer) {
-        this.update();
-
-        const passes = this._pipeline!.pipelineSceneData.geometryRendererPasses;
-        const shaders = this._pipeline!.pipelineSceneData.geometryRendererShaders;
+    public render (renderPass: RenderPass, cmdBuff: CommandBuffer, sceneData: PipelineSceneData) {
+        const passes = sceneData.geometryRendererPasses;
+        const shaders = sceneData.geometryRendererShaders;
 
         let offset = 0;
         const passCount: number[] = [GEOMETRY_NO_DEPTH_TEST_PASS_NUM, GEOMETRY_DEPTH_TEST_PASS_NUM];
@@ -237,7 +196,7 @@ export class GeometryRenderer {
             const lines = this._buffers.lines[i];
             if (!lines.empty()) {
                 const drawInfo = new DrawInfo();
-                drawInfo.vertexCount = lines._vertexCount;
+                drawInfo.vertexCount = lines.getCount();
 
                 for (let p = 0; p < passCount[i]; p++) {
                     const pass   = passes[offset + p];
@@ -257,7 +216,7 @@ export class GeometryRenderer {
             const dashedLines = this._buffers.dashedLines[i];
             if (!dashedLines.empty()) {
                 const drawInfo = new DrawInfo();
-                drawInfo.vertexCount = dashedLines._vertexCount;
+                drawInfo.vertexCount = dashedLines.getCount();
 
                 for (let p = 0; p < passCount[i]; p++) {
                     const pass   = passes[offset + p];
@@ -277,7 +236,7 @@ export class GeometryRenderer {
             const triangles = this._buffers.triangles[i];
             if (!triangles.empty()) {
                 const drawInfo = new DrawInfo();
-                drawInfo.vertexCount = triangles._vertexCount;
+                drawInfo.vertexCount = triangles.getCount();
 
                 for (let p = 0; p < passCount[i]; p++) {
                     const pass   = passes[offset + p];
@@ -298,11 +257,6 @@ export class GeometryRenderer {
     }
 
     public destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-            return;
-        }
-
         for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
             this._buffers.lines[i].destroy();
             this._buffers.dashedLines[i].destroy();
@@ -954,6 +908,25 @@ export class GeometryRenderer {
         }
     }
 
+    public addSpline (spline: Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true) {
+        const numPoints = segments + 1;
+        const points = spline.getPoints(numPoints, index);
+
+        for (let i = 0; i < segments; i++) {
+            this.addLine(points[i], points[i + 1], color, depthTest);
+        }
+
+        if (knotSize > 0.0 && index === 0xffffffff) {
+            const crossColor = new Color(255 - color.r, 255 - color.g, 255 - color.b, color.a);
+            const numKnots = spline.getKnotCount();
+            const knots = spline.knots;
+
+            for (let i = 0; i < numKnots; i++) {
+                this.addCross(knots[i], knotSize, crossColor, depthTest);
+            }
+        }
+    }
+
     public addMesh (center: Vec3, vertices: Array<Vec3>, color: Color, depthTest = true, useTransform = false, transform = new Mat4()) {
         for (let i = 0; i < vertices.length; i += 3) {
             const v0 = new Vec3(center.x + vertices[i].x, center.y + vertices[i].y, center.z + vertices[i].z);
@@ -991,3 +964,5 @@ export class GeometryRenderer {
         }
     }
 }
+
+legacyCC.internal.GeometryRenderer = GeometryRenderer;

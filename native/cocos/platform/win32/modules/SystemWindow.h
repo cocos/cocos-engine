@@ -36,18 +36,22 @@ public:
     explicit SystemWindow(IEventDispatch* delegate);
     ~SystemWindow() override;
 
-    int       init();
-    void      pollEvent(bool* quit);
-    void      swapWindow();
-	
-    bool      createWindow(const char* title, 
-                           int w, int h, int flags) override;
-    bool      createWindow(const char* title,
-                           int x, int y, int w,
-                           int h, int flags) override;
-    uintptr_t getWindowHandler() const override;
+    int init();
+    void pollEvent(bool* quit);
+    void swapWindow();
+
+    bool createWindow(const char* title,
+                      int w, int h, int flags) override;
+    bool createWindow(const char* title,
+                      int x, int y, int w,
+                      int h, int flags) override;
+    void closeWindow() override;
+    uintptr_t getWindowHandle() const override;
     Size getViewSize() const override;
-    void      setViewSize(uint32_t width, uint32_t height) override { _width = width; _height = height; }
+    void setViewSize(uint32_t width, uint32_t height) override {
+        _width = width;
+        _height = height;
+    }
     /*
      @brief enable/disable(lock) the cursor, default is enabled
      */

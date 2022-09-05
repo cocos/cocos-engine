@@ -39,6 +39,8 @@ export class RenderInstancedQueue {
      */
     public queue = new Set<InstancedBuffer>();
 
+    private _renderQueue : InstancedBuffer[] = [];
+
     /**
      * @en Clear the render queue
      * @zh 清空渲染队列。
@@ -49,7 +51,27 @@ export class RenderInstancedQueue {
             res.value.clear();
             res = it.next();
         }
+        this._renderQueue = [];
         this.queue.clear();
+    }
+
+    public sort () {
+        let it = this.queue.values();
+        let res = it.next();
+        while (!res.done) {
+            if (!(res.value.pass.blendState.targets[0].blend)) {
+                this._renderQueue.push(res.value);
+            }
+            res = it.next();
+        }
+        it = this.queue.values();
+        res = it.next();
+        while (!res.done) {
+            if (res.value.pass.blendState.targets[0].blend) {
+                this._renderQueue.push(res.value);
+            }
+            res = it.next();
+        }
     }
 
     public uploadBuffers (cmdBuff: CommandBuffer) {
@@ -65,8 +87,11 @@ export class RenderInstancedQueue {
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, descriptorSet: DescriptorSet | null = null) {
-        const it = this.queue.values(); let res = it.next();
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer,
+        descriptorSet: DescriptorSet | null = null, dynamicOffsets?: Readonly<number[]>) {
+        const it = this._renderQueue.length === 0 ? this.queue.values() : this._renderQueue.values();
+        let res = it.next();
+
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
@@ -82,7 +107,11 @@ export class RenderInstancedQueue {
                         lastPSO = pso;
                     }
                     if (descriptorSet) cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
+                    if (dynamicOffsets) {
+                        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, dynamicOffsets);
+                    } else {
+                        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
+                    }
                     cmdBuff.bindInputAssembler(instance.ia);
                     cmdBuff.draw(instance.ia);
                 }

@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUPipelineLayout;
+struct GLES2GPUPipelineLayout;
 
 class CC_GLES2_API GLES2PipelineLayout final : public PipelineLayout {
 public:

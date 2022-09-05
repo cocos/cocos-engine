@@ -22,14 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./jsb-reflection.js');
-require('./jsb-bridge.js');
-require('./jsb-bridge-wrapper.js');
 require('./jsb-assets-manager.js');
 
 require('./jsb-game.js');
 require('./jsb-gfx.js');
-require('./jsb-scene.js');
 require('./jsb-loader.js');
 require('./jsb-videoplayer.js');
 require('./jsb-webview.js');

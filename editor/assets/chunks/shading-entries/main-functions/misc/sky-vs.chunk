@@ -37,18 +37,17 @@ void main()
     // Local Space
     CCSurfacesVertexInput(In);
 
-    // Can apply uniform scaling for atmosphere effects
-    // can not apply translation
-    mat4 matRotScaleOnly = mat4(mat3(cc_matWorld));
-    In.worldPos = (matRotScaleOnly * In.position).xyz;
+    // cc_matWorld is undefined, so can not use mat4(mat3(cc_matWorld))
+    In.worldPos = In.position.xyz;
+    In.worldPos = SurfacesVertexModifyWorldPos(In);
 
-    In.clipPos = CalcSkyClipPos(In.worldPos.xyz);
+    In.clipPos = CalcSkyClipPos(In.position.xyz);
 
     In.worldNormal.w = 1.0;
-    In.worldNormal.xyz = normalize(In.worldPos.xyz);
+    In.worldNormal.xyz = normalize(In.position.xyz);
 
     // Other Data
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
     In.fogFactor = 0.0;
 #endif
 

@@ -25,7 +25,6 @@
 
 #include "WGPUQueue.h"
 #include <webgpu/webgpu.h>
-#include <vector>
 #include "WGPUCommandBuffer.h"
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
@@ -39,9 +38,9 @@ using namespace emscripten;
 CCWGPUQueue::CCWGPUQueue() : wrapper<Queue>(val::object()) {
 }
 
-void CCWGPUQueue::doInit(const QueueInfo& info) {
-    _gpuQueueObject            = CC_NEW(CCWGPUQueueObject);
-    _gpuQueueObject->type      = info.type;
+void CCWGPUQueue::doInit(const QueueInfo &info) {
+    _gpuQueueObject = ccnew CCWGPUQueueObject;
+    _gpuQueueObject->type = info.type;
     _gpuQueueObject->wgpuQueue = wgpuDeviceGetQueue(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice);
 }
 
@@ -50,12 +49,12 @@ void CCWGPUQueue::doDestroy() {
         if (_gpuQueueObject->wgpuQueue) {
             wgpuQueueRelease(_gpuQueueObject->wgpuQueue);
         }
-        CC_DELETE(_gpuQueueObject);
+        delete _gpuQueueObject;
     }
 }
 
-void CCWGPUQueue::submit(CommandBuffer* const* cmdBuffs, uint count) {
-    // std::vector<WGPUCommandBuffer> commandBuffs(count);
+void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
+    // ccstd::vector<WGPUCommandBuffer> commandBuffs(count);
     // for (size_t i = 0; i < count; i++) {
     //     auto* commandBuff = static_cast<CCWGPUCommandBuffer*>(cmdBuffs[i]);
     //     commandBuffs[i]   = commandBuff->gpuCommandBufferObject()->wgpuCommandBuffer;

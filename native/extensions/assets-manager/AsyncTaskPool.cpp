@@ -25,6 +25,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "AsyncTaskPool.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
@@ -32,7 +33,7 @@ AsyncTaskPool *AsyncTaskPool::sAsyncTaskPool = nullptr;
 
 AsyncTaskPool *AsyncTaskPool::getInstance() {
     if (sAsyncTaskPool == nullptr) {
-        sAsyncTaskPool = new (std::nothrow) AsyncTaskPool();
+        sAsyncTaskPool = ccnew AsyncTaskPool();
     }
     return sAsyncTaskPool;
 }

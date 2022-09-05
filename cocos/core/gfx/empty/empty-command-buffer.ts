@@ -33,6 +33,7 @@ import { Texture } from '../base/texture';
 import { RenderPass } from '../base/render-pass';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
+import { BufferBarrier } from '../base/states/buffer-barrier';
 import { StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo } from '../base/define';
 
 export class EmptyCommandBuffer extends CommandBuffer {
@@ -61,5 +62,8 @@ export class EmptyCommandBuffer extends CommandBuffer {
     public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number) {}
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
     public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number) {}
-    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, textureBarriers: Readonly<TextureBarrier[]>) {}
+    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, bufferBarriers?: Readonly<BufferBarrier[]>,
+        buffers?: Readonly<Buffer[]>,
+        textureBarriers?: Readonly<TextureBarrier[]>,
+        textures?: Readonly<Texture[]>) {}
 }

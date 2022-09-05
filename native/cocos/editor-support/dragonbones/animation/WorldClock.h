@@ -41,8 +41,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class WorldClock : public IAnimatable
-{
+class WorldClock : public IAnimatable {
     DRAGONBONES_DISALLOW_COPY_AND_ASSIGN(WorldClock)
 
 public:
@@ -104,17 +103,14 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    WorldClock(float timeValue = 0.0f) :
-        time(timeValue),
-        timeScale(1.0f),
-        _systemTime(0.0f),
-        _animatebles(),
-        _clock(nullptr)
-    {
+    WorldClock(float timeValue = 0.0f) : time(timeValue),
+                                         timeScale(1.0f),
+                                         _systemTime(0.0f),
+                                         _animatebles(),
+                                         _clock(nullptr) {
         _systemTime = 0.0f;
     }
-    virtual ~WorldClock()
-    {
+    virtual ~WorldClock() {
         clear();
     }
     /**
@@ -141,7 +137,7 @@ public:
      * @language zh_CN
      */
     virtual void render() override;
-    
+
     /**
      * - Check whether contains a specific instance of IAnimatable.
      * @param value - The IAnimatable instance.
@@ -195,8 +191,7 @@ public:
     /**
      * @inheritDoc
      */
-    inline virtual WorldClock* getClock() const override
-    {
+    inline virtual WorldClock* getClock() const override {
         return _clock;
     }
     virtual void setClock(WorldClock* value) override;

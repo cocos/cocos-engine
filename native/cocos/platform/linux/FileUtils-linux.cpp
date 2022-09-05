@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 
 #define DECLARE_GUARD std::lock_guard<std::recursive_mutex> mutexGuard(_mutex)
 #ifndef CC_RESOURCE_FOLDER_LINUX
@@ -37,35 +38,31 @@
 
 namespace cc {
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsLinux();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsLinux");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsLinux();
+}
+
+FileUtilsLinux::FileUtilsLinux() {
+    init();
 }
 
 bool FileUtilsLinux::init() {
     // get application path
-    char    fullpath[256] = {0};
-    ssize_t length        = readlink("/proc/self/exe", fullpath, sizeof(fullpath) - 1);
+    char fullpath[256] = {0};
+    ssize_t length = readlink("/proc/self/exe", fullpath, sizeof(fullpath) - 1);
 
     if (length <= 0) {
         return false;
     }
 
-    fullpath[length]    = '\0';
-    std::string appPath = fullpath;
+    fullpath[length] = '\0';
+    ccstd::string appPath = fullpath;
     _defaultResRootPath = appPath.substr(0, appPath.find_last_of('/'));
     _defaultResRootPath.append(CC_RESOURCE_FOLDER_LINUX);
 
     // Set writable path to $XDG_CONFIG_HOME or ~/.config/<app name>/ if $XDG_CONFIG_HOME not exists.
     const char *xdg_config_path = getenv("XDG_CONFIG_HOME");
-    std::string xdgConfigPath;
+    ccstd::string xdgConfigPath;
     if (xdg_config_path == nullptr) {
         xdgConfigPath = getenv("HOME");
         xdgConfigPath.append("/.config");
@@ -79,12 +76,12 @@ bool FileUtilsLinux::init() {
     return FileUtils::init();
 }
 
-bool FileUtilsLinux::isFileExistInternal(const std::string &filename) const {
+bool FileUtilsLinux::isFileExistInternal(const ccstd::string &filename) const {
     if (filename.empty()) {
         return false;
     }
 
-    std::string strPath = filename;
+    ccstd::string strPath = filename;
     if (!isAbsolutePath(strPath)) { // Not absolute path, add the default root path at the beginning.
         strPath.insert(0, _defaultResRootPath);
     }
@@ -93,7 +90,7 @@ bool FileUtilsLinux::isFileExistInternal(const std::string &filename) const {
     return (stat(strPath.c_str(), &sts) == 0) && S_ISREG(sts.st_mode);
 }
 
-std::string FileUtilsLinux::getWritablePath() const {
+ccstd::string FileUtilsLinux::getWritablePath() const {
     struct stat st;
     stat(_writablePath.c_str(), &st);
     if (!S_ISDIR(st.st_mode)) {

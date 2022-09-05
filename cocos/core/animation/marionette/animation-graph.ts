@@ -18,6 +18,7 @@ import { move } from '../../algorithm/move';
 import { onAfterDeserializedTag } from '../../data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
+import { clamp } from '../../math';
 
 export { State };
 
@@ -64,6 +65,14 @@ export type { TransitionView as Transition };
 
 export type TransitionInternal = Transition;
 
+export enum TransitionInterruptionSource {
+    NONE,
+    CURRENT_STATE,
+    NEXT_STATE,
+    CURRENT_STATE_THEN_NEXT_STATE,
+    NEXT_STATE_THEN_CURRENT_STATE,
+}
+
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationTransition`)
 class AnimationTransition extends Transition {
     /**
@@ -83,6 +92,23 @@ class AnimationTransition extends Transition {
     @serializable
     public exitConditionEnabled = true;
 
+    /**
+     * @en The start time of (final) destination motion state when this transition starts.
+     * Its unit is seconds if `relativeDestinationStart` is `false`,
+     * Otherwise, its unit is the duration of destination motion state.
+     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。
+     * 如果 `relativeDestinationStart`为 `false`，其单位是秒，否则其单位是目标动作状态的周期。
+     */
+    @serializable
+    public destinationStart = 0.0;
+
+    /**
+     * @en Determines the unit of destination start time. See `destinationStart`.
+     * @zh 决定了目标起始时间的单位。见 `destinationStart`。
+     */
+    @serializable
+    public relativeDestinationStart = false;
+
     get exitCondition () {
         return this._exitCondition;
     }
@@ -91,6 +117,25 @@ class AnimationTransition extends Transition {
         assertIsTrue(value >= 0.0);
         this._exitCondition = value;
     }
+
+    /**
+     * @internal This field is exposed for **experimental editor only** usage.
+     */
+    get interruptible () {
+        return this.interruptionSource !== TransitionInterruptionSource.NONE;
+    }
+
+    set interruptible (value) {
+        this.interruptionSource = value
+            ? TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE
+            : TransitionInterruptionSource.NONE;
+    }
+
+    /**
+     * @internal This field is exposed for **internal** usage.
+     */
+    @serializable
+    public interruptionSource = TransitionInterruptionSource.NONE;
 
     @serializable
     private _exitCondition = 1.0;
@@ -119,6 +164,23 @@ export class EmptyStateTransition extends Transition {
      */
     @serializable
     public duration = 0.3;
+
+    /**
+     * @en The start time of (final) destination motion state when this transition starts.
+     * Its unit is seconds if `relativeDestinationStart` is `false`,
+     * Otherwise, its unit is the duration of destination motion state.
+     * @zh 此过渡开始时，（最终）目标动作状态的起始时间。
+     * 如果 `relativeDestinationStart`为 `false`，其单位是秒，否则其单位是目标动作状态的周期。
+     */
+    @serializable
+    public destinationStart = 0.0;
+
+    /**
+      * @en Determines the unit of destination start time. See `destinationStart`.
+      * @zh 决定了目标起始时间的单位。见 `destinationStart`。
+      */
+    @serializable
+    public relativeDestinationStart = false;
 }
 
 @ccclass('cc.animation.StateMachine')
@@ -225,9 +287,12 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
-     * Gets all outgoing transitions of specified state.
-     * @param to The state.
-     * @returns Result transitions.
+     * @en
+     * Gets all transitions outgoing from specified state.
+     * @zh
+     * 获取从指定状态引出的所有过渡。
+     * @param from @en The state. @zh 指定状态。
+     * @returns @en Iterable to result transitions, in priority order. @zh 到结果过渡的迭代器，按优先级顺序。
      */
     public getOutgoings (from: State): Iterable<Transition> {
         assertsOwnedBy(from, this);
@@ -421,6 +486,46 @@ export class StateMachine extends EditorExtendable {
     public eraseTransitionsIncludes (state: State) {
         this.eraseIncomings(state);
         this.eraseOutgoings(state);
+    }
+
+    /**
+     * @en
+     * Adjusts the priority of a transition.
+     *
+     * To demonstrate, one can imagine a transition array sorted by their priority.
+     * - If `diff` is zero, nothing's gonna happen.
+     * - Negative `diff` raises the priority:
+     *   `diff` number of transitions originally having higher priority than `adjusting`
+     *   will then have lower priority than `adjusting`.
+     * - Positive `diff` reduce the priority:
+     *   `|diff|` number of transitions originally having lower priority than `adjusting`
+     *   will then have higher priority than `adjusting`.
+     *
+     * If the number of transitions indicated by `diff`
+     * is more than the actual one, the actual number would be taken.
+     * @zh
+     * 调整过渡的优先级。
+     *
+     * 为了说明，可以想象一个由优先级排序的过渡数组。
+     * - 如果 `diff` 是 0，无事发生。
+     * - 负的 `diff` 会提升该过渡的优先级：原本优先于 `adjusting` 的 `diff` 条过渡的优先级会设置为低于 `adjusting`。
+     * - 正的 `diff` 会降低该过渡的优先级：原本优先级低于 `adjusting` 的 `|diff|` 条过渡会设置为优先于 `adjusting`。
+     *
+     * 如果 `diff` 指示的过渡数量比实际多，则会使用实际数量。
+     *
+     * @param adjusting @en The transition to adjust the priority. @zh 需要调整优先级的过渡。
+     * @param diff @en Indicates how to adjust the priority. @zh 指示如何调整优先级。
+     */
+    public adjustTransitionPriority (adjusting: Transition, diff: number) {
+        const { from } = adjusting;
+        if (diff === 0) {
+            return;
+        }
+        const outgoings = from[outgoingsSymbol];
+        const iAdjusting = outgoings.indexOf(adjusting);
+        assertIsTrue(iAdjusting >= 0);
+        const iOver = clamp(iAdjusting + diff, 0, outgoings.length - 1);
+        move(outgoings, iAdjusting, iOver);
     }
 
     public clone () {
@@ -770,5 +875,31 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
 
     public getVariable (name: string): VariableDescription | undefined {
         return this._variables[name] as VariableDescription | undefined;
+    }
+
+    /**
+     * @zh 重命名一个变量。注意，所有对该变量的引用都不会修改。
+     * 如果变量的原始名称不存在或者新的名称已存在，此方法不会做任何事。
+     * 变量在图中的顺序会保持不变。
+     * @en Renames an variable. Note, this won't changes any reference to the variable.
+     * If the original name of the variable doesn't exists or
+     * the new name has already existed, this method won't do anything.
+     * The variable's order in the graph is also retained.
+     * @param name @zh 要重命名的变量的名字。 @en The name of the variable to be renamed.
+     * @param newName @zh 新的名字。 @en New name.
+     */
+    public renameVariable (name: string, newName: string) {
+        const { _variables: variables } = this;
+        if (!(name in variables)) {
+            return;
+        }
+        if (newName in variables) {
+            return;
+        }
+        // Rename but also retain order.
+        this._variables = Object.entries(variables).reduce((result, [k, v]) => {
+            result[k === name ? newName : k] = v;
+            return result;
+        }, {} as AnimationGraph['_variables']);
     }
 }

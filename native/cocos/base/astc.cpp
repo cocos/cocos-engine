@@ -28,9 +28,9 @@
 #include "base/astc.h"
 #include "platform/Image.h"
 
-static const unsigned int MAGIC                    = 0x5CA1AB13;
-static const astc_byte    ASTC_HEADER_SIZE_X_BEGIN = 7;
-static const astc_byte    ASTC_HEADER_SIZE_Y_BEGIN = 10;
+static const unsigned int MAGIC = 0x5CA1AB13;
+static const astc_byte ASTC_HEADER_SIZE_X_BEGIN = 7;
+static const astc_byte ASTC_HEADER_SIZE_Y_BEGIN = 10;
 
 bool astcIsValid(const astc_byte *pHeader) {
     uint32_t magicval = static_cast<uint32_t>(pHeader[0]) +

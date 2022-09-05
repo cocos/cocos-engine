@@ -28,7 +28,6 @@
 
 #include "network/HttpClient.h"
 
-#include <queue>
 #include <errno.h>
 
 #import "network/HttpAsynConnection-apple.h"
@@ -36,12 +35,15 @@
 #include "platform/FileUtils.h"
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
+#include "base/memory/Memory.h"
+#include "base/ThreadPool.h"
 
 namespace cc {
 
 namespace network {
 
 static HttpClient *_httpClient = nullptr; // pointer to singleton
+static LegacyThreadPool *gThreadPool = nullptr;
 
 static int processTask(HttpClient *client, HttpRequest *request, NSString *requestType, void *stream, long *errorCode, void *headerStream, char *errorBuffer);
 
@@ -50,7 +52,6 @@ void HttpClient::networkThread() {
     increaseThreadCount();
 
     while (true) @autoreleasepool {
-
             HttpRequest *request;
 
             // step 1: send http request if the requestQueue isn't empty
@@ -68,7 +69,8 @@ void HttpClient::networkThread() {
             }
 
             // Create a HttpResponse object, the default setting is http access failed
-            HttpResponse *response = new (std::nothrow) HttpResponse(request);
+            HttpResponse *response = ccnew HttpResponse(request);
+            response->addRef();
 
             processResponse(response, _responseMessage);
 
@@ -140,14 +142,14 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
     [nsrequest setHTTPMethod:requestType];
 
     /* get custom header data (if set) */
-    std::vector<std::string> headers = request->getHeaders();
+    ccstd::vector<ccstd::string> headers = request->getHeaders();
     if (!headers.empty()) {
         /* append custom headers one by one */
         for (auto &header : headers) {
             unsigned long i = header.find(':', 0);
             unsigned long length = header.size();
-            std::string field = header.substr(0, i);
-            std::string value = header.substr(i + 1, length - i);
+            ccstd::string field = header.substr(0, i);
+            ccstd::string value = header.substr(i + 1, length - i);
             NSString *headerField = [NSString stringWithUTF8String:field.c_str()];
             NSString *headerValue = [NSString stringWithUTF8String:value.c_str()];
             [nsrequest setValue:headerValue forHTTPHeaderField:headerField];
@@ -164,7 +166,7 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
     }
 
     //read cookie properties from file and set cookie
-    std::string cookieFilename = client->getCookieFilename();
+    ccstd::string cookieFilename = client->getCookieFilename();
     if (!cookieFilename.empty() && nullptr != client->getCookie()) {
         const CookiesInfo *cookieInfo = client->getCookie()->getMatchCookie(request->getUrl());
         if (cookieInfo != nullptr) {
@@ -191,7 +193,7 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
     httpAsynConn.srcURL = urlstring;
     httpAsynConn.sslFile = nil;
 
-    std::string sslCaFileName = client->getSSLVerification();
+    ccstd::string sslCaFileName = client->getSSLVerification();
     if (!sslCaFileName.empty()) {
         long len = sslCaFileName.length();
         long pos = sslCaFileName.rfind('.', len - 1);
@@ -256,13 +258,13 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
         [header deleteCharactersInRange:range];
     }
     NSData *headerData = [header dataUsingEncoding:NSUTF8StringEncoding];
-    std::vector<char> *headerBuffer = (std::vector<char> *)headerStream;
+    ccstd::vector<char> *headerBuffer = (ccstd::vector<char> *)headerStream;
     const void *headerptr = [headerData bytes];
     long headerlen = [headerData length];
     headerBuffer->insert(headerBuffer->end(), (char *)headerptr, (char *)headerptr + headerlen);
 
     //handle response data
-    std::vector<char> *recvBuffer = (std::vector<char> *)stream;
+    ccstd::vector<char> *recvBuffer = (ccstd::vector<char> *)stream;
     const void *ptr = [httpAsynConn.responseData bytes];
     long len = [httpAsynConn.responseData length];
     recvBuffer->insert(recvBuffer->end(), (char *)ptr, (char *)ptr + len);
@@ -273,7 +275,7 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
 // HttpClient implementation
 HttpClient *HttpClient::getInstance() {
     if (_httpClient == nullptr) {
-        _httpClient = new (std::nothrow) HttpClient();
+        _httpClient = ccnew HttpClient();
     }
 
     return _httpClient;
@@ -310,7 +312,7 @@ void HttpClient::destroyInstance() {
 void HttpClient::enableCookies(const char *cookieFile) {
     _cookieFileMutex.lock();
     if (cookieFile) {
-        _cookieFilename = std::string(cookieFile);
+        _cookieFilename = ccstd::string(cookieFile);
         _cookieFilename = FileUtils::getInstance()->fullPathForFilename(_cookieFilename);
     } else {
         _cookieFilename = (FileUtils::getInstance()->getWritablePath() + "cookieFile.txt");
@@ -318,13 +320,13 @@ void HttpClient::enableCookies(const char *cookieFile) {
     _cookieFileMutex.unlock();
 
     if (nullptr == _cookie) {
-        _cookie = new (std::nothrow) HttpCookie;
+        _cookie = ccnew HttpCookie;
     }
     _cookie->setCookieFileName(_cookieFilename);
     _cookie->readFile();
 }
 
-void HttpClient::setSSLVerification(const std::string &caFile) {
+void HttpClient::setSSLVerification(const ccstd::string &caFile) {
     std::lock_guard<std::mutex> lock(_sslCaFileMutex);
     _sslCaFilename = caFile;
 }
@@ -334,11 +336,15 @@ HttpClient::HttpClient()
   _timeoutForConnect(30),
   _timeoutForRead(60),
   _threadCount(0),
-  _cookie(nullptr),
-  _requestSentinel(new HttpRequest()) {
+  _cookie(nullptr) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
+    if (gThreadPool == nullptr) {
+        gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
+    }
+    _requestSentinel = ccnew HttpRequest();
+    _requestSentinel->addRef();
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
-      _scheduler = CC_CURRENT_ENGINE()->getScheduler();
+    _scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
 }
 
@@ -374,7 +380,7 @@ void HttpClient::send(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
 
     _requestQueueMutex.lock();
     _requestQueue.pushBack(request);
@@ -389,12 +395,12 @@ void HttpClient::sendImmediate(HttpRequest *request) {
         return;
     }
 
-    request->retain();
+    request->addRef();
     // Create a HttpResponse object, the default setting is http access failed
-    HttpResponse *response = new (std::nothrow) HttpResponse(request);
+    HttpResponse *response = ccnew HttpResponse(request);
+    response->addRef(); // NOTE: RefCounted object's reference count is changed to 0 now. so needs to addRef after ccnew.
 
-    auto t = std::thread(&HttpClient::networkThreadAlone, this, request, response);
-    t.detach();
+    gThreadPool->pushTask([this, request, response](int /*tid*/) { HttpClient::networkThreadAlone(request, response); });
 }
 
 // Poll and notify main thread if responses exists in queue
@@ -453,7 +459,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
             break;
 
         default:
-            CCASSERT(false, "CCHttpClient: unknown request type, only GET,POST,PUT or DELETE is supported");
+            CC_ASSERT(false);
             break;
     }
 
@@ -496,12 +502,12 @@ void HttpClient::decreaseThreadCountAndMayDeleteThis() {
     }
 }
 
-const std::string &HttpClient::getCookieFilename() {
+const ccstd::string &HttpClient::getCookieFilename() {
     std::lock_guard<std::mutex> lock(_cookieFileMutex);
     return _cookieFilename;
 }
 
-const std::string &HttpClient::getSSLVerification() {
+const ccstd::string &HttpClient::getSSLVerification() {
     std::lock_guard<std::mutex> lock(_sslCaFileMutex);
     return _sslCaFilename;
 }

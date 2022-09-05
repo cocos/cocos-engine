@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ImageAsset, Texture2D } from '../assets';
+import { ImageAsset } from '../assets/image-asset';
+import { Texture2D } from '../assets/texture-2d';
 import { packCustomObjData, unpackJSONs } from '../data/deserialize';
 import { error, errorID } from '../platform/debug';
 import { js } from '../utils/js';
@@ -88,8 +89,8 @@ export class PackManager {
                 out[`${pack[i]}@import`] = json[i];
             }
         } else {
-            const textureType = js._getClassId(Texture2D);
-            const imageAssetType = js._getClassId(ImageAsset);
+            const textureType = js.getClassId(Texture2D);
+            const imageAssetType = js.getClassId(ImageAsset);
             if (json.type === textureType && json.data) {
                 const datas = json.data;
                 if (datas.length !== pack.length) {

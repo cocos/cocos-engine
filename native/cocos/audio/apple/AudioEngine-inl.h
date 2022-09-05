@@ -24,48 +24,49 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __AUDIO_ENGINE_INL_H_
-#define __AUDIO_ENGINE_INL_H_
-
-#include <list>
-#include <unordered_map>
+#pragma once
 
 #include "audio/apple/AudioCache.h"
 #include "audio/apple/AudioPlayer.h"
-#include "base/Ref.h"
+#include "audio/include/AudioDef.h"
+#include "base/RefCounted.h"
+#include "base/std/container/list.h"
+#include "base/std/container/unordered_map.h"
 
 namespace cc {
 class Scheduler;
 
 #define MAX_AUDIOINSTANCES 24
 
-class AudioEngineImpl : public cc::Ref {
+class AudioEngineImpl : public cc::RefCounted {
 public:
     AudioEngineImpl();
     ~AudioEngineImpl();
 
-    bool  init();
-    int   play2d(const std::string &fileFullPath, bool loop, float volume);
-    void  setVolume(int audioID, float volume);
-    void  setLoop(int audioID, bool loop);
-    bool  pause(int audioID);
-    bool  resume(int audioID);
-    void  stop(int audioID);
-    void  stopAll();
+    bool init();
+    int play2d(const ccstd::string &fileFullPath, bool loop, float volume);
+    void setVolume(int audioID, float volume);
+    void setLoop(int audioID, bool loop);
+    bool pause(int audioID);
+    bool resume(int audioID);
+    void stop(int audioID);
+    void stopAll();
     float getDuration(int audioID);
-    float getDurationFromFile(const std::string &fileFullPath);
+    float getDurationFromFile(const ccstd::string &fileFullPath);
     float getCurrentTime(int audioID);
-    bool  setCurrentTime(int audioID, float time);
-    void  setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
+    bool setCurrentTime(int audioID, float time);
+    void setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
-    void        uncache(const std::string &filePath);
-    void        uncacheAll();
-    AudioCache *preload(const std::string &filePath, std::function<void(bool)> callback);
-    void        update(float dt);
-
+    void uncache(const ccstd::string &filePath);
+    void uncacheAll();
+    AudioCache *preload(const ccstd::string &filePath, std::function<void(bool)> callback);
+    void update(float dt);
+    
+    PCMHeader getPCMHeader(const char* url);
+    std::vector<uint8_t> getOriginalPCMBuffer(const char* url, uint32_t channelID);
 private:
-    bool   checkAudioIdValid(int audioID);
-    void   play2dImpl(AudioCache *cache, int audioID);
+    bool checkAudioIdValid(int audioID);
+    void play2dImpl(AudioCache *cache, int audioID);
     ALuint findValidSource();
 
     static ALvoid myAlSourceNotificationCallback(ALuint sid, ALuint notificationID, ALvoid *userData);
@@ -73,19 +74,18 @@ private:
     ALuint _alSources[MAX_AUDIOINSTANCES];
 
     //source,used
-    std::list<ALuint> _unusedSourcesPool;
+    ccstd::list<ALuint> _unusedSourcesPool;
 
     //filePath,bufferInfo
-    std::unordered_map<std::string, AudioCache> _audioCaches;
+    ccstd::unordered_map<ccstd::string, AudioCache> _audioCaches;
 
     //audioID,AudioInfo
-    std::unordered_map<int, AudioPlayer *> _audioPlayers;
-    std::mutex                             _threadMutex;
+    ccstd::unordered_map<int, AudioPlayer *> _audioPlayers;
+    std::mutex _threadMutex;
 
     bool _lazyInitLoop;
 
-    int                      _currentAudioID;
+    int _currentAudioID;
     std::weak_ptr<Scheduler> _scheduler;
 };
 } // namespace cc
-#endif // __AUDIO_ENGINE_INL_H_

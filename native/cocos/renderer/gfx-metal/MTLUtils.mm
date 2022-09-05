@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
 #include "MTLUtils.h"
 
 #include "MTLDevice.h"
@@ -35,13 +34,14 @@
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
 #include "TargetConditionals.h"
+#include "base/Log.h"
 
 namespace cc {
 namespace gfx {
 namespace {
 
-std::unordered_map<size_t, PipelineState*> pipelineMap;
-std::unordered_map<size_t, RenderPass*> renderPassMap;
+ccstd::unordered_map<size_t, PipelineState *> pipelineMap;
+ccstd::unordered_map<size_t, RenderPass *> renderPassMap;
 
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
@@ -52,7 +52,7 @@ EShLanguage getShaderStage(ShaderStageFlagBit type) {
         case ShaderStageFlagBit::FRAGMENT: return EShLangFragment;
         case ShaderStageFlagBit::COMPUTE: return EShLangCompute;
         default: {
-            CCASSERT(false, "Unsupported ShaderStageFlagBit, convert to EShLanguage failed.");
+            CC_ASSERT(false);
             return EShLangVertex;
         }
     }
@@ -64,7 +64,7 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetVulkan_1_1;
         case 2: return glslang::EShTargetVulkan_1_2;
         default: {
-            CCASSERT(false, "Unsupported vulkan version, convert to EShTargetClientVersion failed.");
+            CC_ASSERT(false);
             return glslang::EShTargetVulkan_1_0;
         }
     }
@@ -76,13 +76,11 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetSpv_1_3;
         case 2: return glslang::EShTargetSpv_1_5;
         default: {
-            CCASSERT(false, "Unsupported vulkan version, convert to EShTargetLanguageVersion failed.");
+            CC_ASSERT(false);
             return glslang::EShTargetSpv_1_0;
         }
     }
 }
-
-
 
 //See more details at https://developer.apple.com/documentation/metal/mtlfeatureset
 enum class GPUFamily {
@@ -97,8 +95,8 @@ enum class GPUFamily {
     Mac2,
 };
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-String getIOSFeatureSetToString(MTLFeatureSet featureSet) {
+#if CC_PLATFORM == CC_PLATFORM_IOS
+ccstd::string getIOSFeatureSetToString(MTLFeatureSet featureSet) {
     if (@available(iOS 8.0, *)) {
         switch (featureSet) {
             case MTLFeatureSet_iOS_GPUFamily1_v1:
@@ -230,7 +228,7 @@ GPUFamily getIOSGPUFamily(MTLFeatureSet featureSet) {
     return GPUFamily::Apple1;
 }
 #else
-String getMacFeatureSetToString(MTLFeatureSet featureSet) {
+ccstd::string getMacFeatureSetToString(MTLFeatureSet featureSet) {
     if (@available(macOS 10.11, *)) {
         switch (featureSet) {
             case MTLFeatureSet_macOS_GPUFamily1_v1:
@@ -314,58 +312,58 @@ bool isASTCFormat(Format format) {
     }
 }
 
-gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
-    String vs = R"(
+gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass *renderPass) {
+    ccstd::string vs = R"(
             layout(location = 0) in vec2 a_position;
             void main() {
                 gl_Position = vec4(a_position, 1.0, 1.0);
             }
     )";
-//    String fs = R"(
-//            precision mediump float;
-//            layout(set = 0, binding = 0) uniform Color {
-//                vec4 u_color;
-//            };
-//            layout(location = 0) out vec4 o_color;
-//
-//            void main() {
-//                o_color = u_color;
-//            }
-//    )";
-    
-    String fs = R"(
+    //    ccstd::string fs = R"(
+    //            precision mediump float;
+    //            layout(set = 0, binding = 0) uniform Color {
+    //                vec4 u_color;
+    //            };
+    //            layout(location = 0) out vec4 o_color;
+    //
+    //            void main() {
+    //                o_color = u_color;
+    //            }
+    //    )";
+
+    ccstd::string fs = R"(
             precision mediump float;
             layout(set = 0, binding = 0) uniform Color {
                 vec4 u_color;
             };
     )";
-    
+
     //TODO_Zeqiang: gather info in framegraph.
-    if(renderPass->getSubpasses().empty()) {
+    if (renderPass->getSubpasses().empty()) {
         for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
             fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
         }
-        
+
         fs += "\nvoid main() {\n    o_color0 = u_color;\n";
-        
+
         for (size_t i = 1; i < renderPass->getColorAttachments().size(); ++i) {
             fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
         }
     } else {
-        const auto& subpasses = renderPass->getSubpasses();
+        const auto &subpasses = renderPass->getSubpasses();
         for (size_t i = 0; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
             fs += "\n layout(location = " + std::to_string(i) + ") out vec4 o_color" + std::to_string(i) + ";";
         }
-        
+
         fs += "\nvoid main() {\n    o_color0 = u_color;\n";
-        
+
         for (size_t i = 1; i < subpasses[renderPass->getCurrentSubpassIndex()].colors.size(); ++i) {
             fs += "    o_color" + std::to_string(i) + " = vec4(0.0);\n";
         }
     }
-    
+
     fs += "}";
-    
+
     gfx::ShaderStageList shaderStageList;
     gfx::ShaderStage vertexShaderStage;
     vertexShaderStage.stage = gfx::ShaderStageFlagBit::VERTEX;
@@ -390,10 +388,10 @@ gfx::Shader *createShader(CCMTLDevice *device, CCMTLRenderPass* renderPass) {
     return device->createShader(shaderInfo);
 }
 
-CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass * curPass) {
-    size_t rpHash = curPass->getHash();
+CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass *curPass) {
+    ccstd::hash_t rpHash = curPass->getHash();
     const auto iter = pipelineMap.find(rpHash);
-    if(iter != pipelineMap.end()) {
+    if (iter != pipelineMap.end()) {
         auto *ccMtlPiplineState = static_cast<CCMTLPipelineState *>(iter->second);
         return ccMtlPiplineState->getGPUPipelineState();
     }
@@ -401,23 +399,23 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
-    pipelineInfo.shader = createShader(device, static_cast<CCMTLRenderPass*>(curPass));
+    pipelineInfo.shader = createShader(device, static_cast<CCMTLRenderPass *>(curPass));
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = curPass;
 
     DepthStencilState dsState;
-    dsState.depthWrite  = 0;
-    dsState.depthTest   = 1;
-    dsState.depthFunc   = ComparisonFunc::LESS_EQUAL;
+    dsState.depthWrite = 0;
+    dsState.depthTest = 1;
+    dsState.depthFunc = ComparisonFunc::LESS_EQUAL;
     pipelineInfo.depthStencilState = dsState;
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
     pipelineMap.emplace(std::make_pair(curPass->getHash(), pipelineState));
-    ((CCMTLPipelineState*)pipelineState)->check();
-    CC_DELETE(pipelineInfo.shader);
+    ((CCMTLPipelineState *)pipelineState)->check();
+    delete pipelineInfo.shader;
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
-}
+} // namespace
 
 MTLResourceOptions mu::toMTLResourceOption(MemoryUsage usage) {
     if (usage & MemoryUsage::HOST && usage & MemoryUsage::DEVICE)
@@ -425,7 +423,7 @@ MTLResourceOptions mu::toMTLResourceOption(MemoryUsage usage) {
     else if (hasFlag(MemoryUsage::DEVICE, usage))
         return MTLResourceStorageModePrivate;
     else
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
         return MTLResourceStorageModeShared;
 #else
         return MTLResourceStorageModeManaged;
@@ -516,7 +514,7 @@ MTLVertexFormat mu::toMTLVertexFormat(Format format, bool isNormalized) {
         case Format::RGB10A2: return isNormalized ? MTLVertexFormatInt1010102Normalized : MTLVertexFormatInvalid;
         case Format::RGB10A2UI: return isNormalized ? MTLVertexFormatUInt1010102Normalized : MTLVertexFormatInvalid;
         case Format::BGRA8: {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
             if (@available(iOS 11.0, *)) {
                 if (isNormalized) {
                     return MTLVertexFormatUChar4Normalized_BGRA;
@@ -554,7 +552,7 @@ Format mu::convertGFXPixelFormat(Format format) {
 MTLPixelFormat mu::toMTLPixelFormat(Format format) {
     switch (format) {
         case Format::A8: return MTLPixelFormatA8Unorm;
-        case Format::R8: return MTLPixelFormatR8Uint;
+        case Format::R8: return MTLPixelFormatR8Unorm;
         case Format::R8SN: return MTLPixelFormatR8Snorm;
         case Format::R8UI: return MTLPixelFormatR8Uint;
         case Format::R16F: return MTLPixelFormatR16Float;
@@ -605,7 +603,7 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
         case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
         case Format::DEPTH: return MTLPixelFormatDepth32Float;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         // FIXME: works fine on imac, but invalid pixel format on intel macbook.
         //case Format::DEPTH_STENCIL: return MTLPixelFormatDepth24Unorm_Stencil8;
         case Format::DEPTH_STENCIL: return MTLPixelFormatDepth32Float_Stencil8;
@@ -698,7 +696,7 @@ MTLBlendFactor mu::toMTLBlendFactor(BlendFactor factor) {
         case BlendFactor::ONE_MINUS_DST_COLOR: return MTLBlendFactorOneMinusDestinationColor;
         case BlendFactor::SRC_ALPHA_SATURATE: return MTLBlendFactorSourceAlphaSaturated;
         default: {
-            CC_LOG_ERROR("Unsupported blend factor %u", (uint)factor);
+            CC_LOG_ERROR("Unsupported blend factor %u", (uint32_t)factor);
             return MTLBlendFactorZero;
         }
     }
@@ -854,10 +852,11 @@ NSUInteger mu::toMTLSampleCount(SampleCount count) {
         case SampleCount::ONE: return 1;
         case SampleCount::MULTIPLE_PERFORMANCE: return 2;
         case SampleCount::MULTIPLE_BALANCE: return 4;
-        case SampleCount::MULTIPLE_QUALITY: return 8;
-//        case SampleCount::X16: return 16;
-//        case SampleCount::X32: return 32;
-//        case SampleCount::X64: return 64;
+        case SampleCount::MULTIPLE_QUALITY:
+            return 8;
+            //        case SampleCount::X16: return 16;
+            //        case SampleCount::X32: return 32;
+            //        case SampleCount::X64: return 64;
     }
 }
 
@@ -867,23 +866,27 @@ MTLSamplerAddressMode mu::toMTLSamplerAddressMode(Address mode) {
         case Address::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
         case Address::CLAMP: return MTLSamplerAddressModeClampToEdge;
         case Address::BORDER: {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
             return MTLSamplerAddressModeClampToBorderColor;
 #endif
         }
     }
+
+    return MTLSamplerAddressModeClampToEdge;
 }
 
 int mu::toMTLSamplerBorderColor(const Color &color) {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     float diff = color.x - 0.5f;
-    if (math::IsEqualF(color.w, 0.f))
+    if (math::isEqualF(color.w, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
-    else if (math::IsEqualF(diff, 0.f))
+    else if (math::isEqualF(diff, 0.f))
         return MTLSamplerBorderColorOpaqueBlack;
     else
         return MTLSamplerBorderColorOpaqueWhite;
 #endif
+
+    return 0;
 }
 
 MTLSamplerMinMagFilter mu::toMTLSamplerMinMagFilter(Filter filter) {
@@ -908,10 +911,10 @@ MTLSamplerMipFilter mu::toMTLSamplerMipFilter(Filter filter) {
 
 bool mu::isImageBlockSupported() {
     //implicit imageblocks
-    if(!mu::isFramebufferFetchSupported()) {
+    if (!mu::isFramebufferFetchSupported()) {
         return false;
     }
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) //|| TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_IOS) //|| TARGET_CPU_ARM64
     return true;
 #else
     return false;
@@ -919,17 +922,17 @@ bool mu::isImageBlockSupported() {
 }
 
 bool mu::isFramebufferFetchSupported() {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) //|| TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_IOS) //|| TARGET_CPU_ARM64
     return true;
 #else
     return false;
 #endif
 }
 
-String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
-                     ShaderStageFlagBit shaderType,
-                     CCMTLGPUShader *gpuShader) {
-    CCMTLDevice* device = CCMTLDevice::getInstance();
+ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
+                            ShaderStageFlagBit shaderType,
+                            CCMTLGPUShader *gpuShader) {
+    CCMTLDevice *device = CCMTLDevice::getInstance();
     spirv_cross::CompilerMSL msl(ir, word_count);
 
     // The SPIR-V is now parsed, and we can perform reflection on it.
@@ -943,16 +946,16 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
     options.enable_decoration_binding = true;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_IOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
 #endif
     options.emulate_subgroups = true;
     options.pad_fragment_output_components = true;
-    if(isFramebufferFetchSupported()) {
+    if (isFramebufferFetchSupported()) {
         options.use_framebuffer_fetch_subpasses = true;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         options.set_msl_version(2, 3, 0);
 #endif
     }
@@ -960,7 +963,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 
     // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
-    uint maxBufferBindingIndex = device->getMaximumBufferBindingIndex();
+    uint32_t maxBufferBindingIndex = device->getMaximumBufferBindingIndex();
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
@@ -970,7 +973,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
 
-        uint fakeHash = set * 128 + binding;
+        uint32_t fakeHash = set * 128 + binding;
         if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
             newBinding.desc_set = set;
@@ -998,8 +1001,8 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
-        
-        uint fakeHash = set * 128 + binding;
+
+        uint32_t fakeHash = set * 128 + binding;
         if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
             auto mappedBinding = gpuShader->bufferIndex;
             newBinding.desc_set = set;
@@ -1024,7 +1027,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         CC_LOG_ERROR("Implementation limits: Should not use more than %d entries in the sampler state argument table", device->getMaximumSamplerUnits());
         return "";
     }
-    
+
     // avoid conflict index with input attachments.
     const uint8_t rtOffsets = executionModel == spv::ExecutionModelFragment ? resources.subpass_inputs.size() : 0;
     for (const auto &sampler : resources.sampled_images) {
@@ -1053,10 +1056,10 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
     }
 
-    if(executionModel == spv::ExecutionModelFragment) {
+    if (executionModel == spv::ExecutionModelFragment) {
         gpuShader->outputs.resize(resources.stage_outputs.size());
-        for(size_t i = 0; i < resources.stage_outputs.size(); i++) {
-            const auto& stageOutput = resources.stage_outputs[i];
+        for (size_t i = 0; i < resources.stage_outputs.size(); i++) {
+            const auto &stageOutput = resources.stage_outputs[i];
             auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
             auto attachmentIndex = static_cast<uint32_t>(i);
             msl.set_decoration(stageOutput.id, spv::DecorationLocation, attachmentIndex);
@@ -1065,14 +1068,14 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             gpuShader->outputs[i].binding = attachmentIndex;
         }
 
-        if(!resources.subpass_inputs.empty()) {
+        if (!resources.subpass_inputs.empty()) {
             gpuShader->inputs.resize(resources.subpass_inputs.size());
-            for(size_t i = 0; i < resources.subpass_inputs.size(); i++) {
-                const auto& attachment = resources.subpass_inputs[i];
+            for (size_t i = 0; i < resources.subpass_inputs.size(); i++) {
+                const auto &attachment = resources.subpass_inputs[i];
                 gpuShader->inputs[i].name = attachment.name;
                 auto set = msl.get_decoration(attachment.id, spv::DecorationDescriptorSet);
                 auto index = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
-                msl.set_decoration(attachment.id, spv::DecorationBinding,index);
+                msl.set_decoration(attachment.id, spv::DecorationBinding, index);
                 gpuShader->inputs[i].binding = index;
                 gpuShader->inputs[i].set = set;
             }
@@ -1080,13 +1083,13 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     }
 
     // Compile to MSL, ready to give to metal driver.
-    String output = msl.compile();
-    if(executionModel == spv::ExecutionModelFragment) {
+    ccstd::string output = msl.compile();
+    if (executionModel == spv::ExecutionModelFragment) {
         // add custom function constant to achieve delay binding for color attachment.
         auto customCodingPos = output.find("using namespace metal;");
         int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
-        for(int i = maxIndex; i >=0; --i) {
-            String indexStr = std::to_string(i);
+        for (int i = maxIndex; i >= 0; --i) {
+            ccstd::string indexStr = std::to_string(i);
             output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[function_constant(" + indexStr + ")]];\n");
             output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
         }
@@ -1098,8 +1101,8 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     return output;
 }
 
-const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint length) {
-    uint finalLength = length * 4;
+const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint32_t length) {
+    uint32_t finalLength = length * 4;
     uint8_t *out = (uint8_t *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB8ToRGBA8().");
@@ -1108,7 +1111,7 @@ const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint length) {
 
     const uint8_t *src = source;
     uint8_t *dst = out;
-    for (uint i = 0; i < length; ++i) {
+    for (uint32_t i = 0; i < length; ++i) {
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = *src++;
@@ -1118,8 +1121,8 @@ const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint length) {
     return out;
 }
 
-const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
-    uint finalLength = length * sizeof(float) * 4;
+const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint32_t length) {
+    uint32_t finalLength = length * sizeof(float) * 4;
     uint8_t *out = (uint8_t *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB32FToRGBA32F().");
@@ -1128,7 +1131,7 @@ const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
 
     const float *src = reinterpret_cast<const float *>(source);
     float *dst = reinterpret_cast<float *>(out);
-    for (uint i = 0; i < length; ++i) {
+    for (uint32_t i = 0; i < length; ++i) {
         *dst++ = *src++;
         *dst++ = *src++;
         *dst++ = *src++;
@@ -1141,7 +1144,7 @@ const uint8_t *mu::convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
 NSUInteger mu::highestSupportedFeatureSet(id<MTLDevice> device) {
     NSUInteger maxKnownFeatureSet;
     NSUInteger defaultFeatureSet;
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     defaultFeatureSet = MTLFeatureSet_iOS_GPUFamily1_v1;
     if (@available(iOS 12.0, *)) {
         maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v2;
@@ -1174,15 +1177,15 @@ NSUInteger mu::highestSupportedFeatureSet(id<MTLDevice> device) {
     return defaultFeatureSet;
 }
 
-uint mu::getGPUFamily(MTLFeatureSet featureSet) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-    return static_cast<uint>(getIOSGPUFamily(featureSet));
+uint32_t mu::getGPUFamily(MTLFeatureSet featureSet) {
+#if CC_PLATFORM == CC_PLATFORM_IOS
+    return static_cast<uint32_t>(getIOSGPUFamily(featureSet));
 #else
-    return static_cast<uint>(getMacGPUFamily(featureSet));
+    return static_cast<uint32_t>(getMacGPUFamily(featureSet));
 #endif
 }
 
-uint mu::getMaxVertexAttributes(uint family) {
+uint32_t mu::getMaxVertexAttributes(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1196,7 +1199,23 @@ uint mu::getMaxVertexAttributes(uint family) {
     }
 }
 
-uint mu::getMaxEntriesInBufferArgumentTable(uint family) {
+uint32_t mu::getMaxUniformBufferBindings(uint32_t family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+            return 31;
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return 14;
+    }
+}
+
+
+uint32_t mu::getMaxEntriesInBufferArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1210,7 +1229,7 @@ uint mu::getMaxEntriesInBufferArgumentTable(uint family) {
     }
 }
 
-uint mu::getMaxEntriesInTextureArgumentTable(uint family) {
+uint32_t mu::getMaxEntriesInTextureArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1226,7 +1245,7 @@ uint mu::getMaxEntriesInTextureArgumentTable(uint family) {
     }
 }
 
-uint mu::getMaxEntriesInSamplerStateArgumentTable(uint family) {
+uint32_t mu::getMaxEntriesInSamplerStateArgumentTable(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1240,7 +1259,7 @@ uint mu::getMaxEntriesInSamplerStateArgumentTable(uint family) {
     }
 }
 
-uint mu::getMaxTexture2DWidthHeight(uint family) {
+uint32_t mu::getMaxTexture2DWidthHeight(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1255,7 +1274,7 @@ uint mu::getMaxTexture2DWidthHeight(uint family) {
     }
 }
 
-uint mu::getMaxCubeMapTextureWidthHeight(uint family) {
+uint32_t mu::getMaxCubeMapTextureWidthHeight(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1270,7 +1289,7 @@ uint mu::getMaxCubeMapTextureWidthHeight(uint family) {
     }
 }
 
-uint mu::getMaxThreadsPerGroup(uint family) {
+uint32_t mu::getMaxThreadsPerGroup(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1285,7 +1304,7 @@ uint mu::getMaxThreadsPerGroup(uint family) {
     }
 }
 
-uint mu::getMaxColorRenderTarget(uint family) {
+uint32_t mu::getMaxColorRenderTarget(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
             return 4;
@@ -1300,7 +1319,7 @@ uint mu::getMaxColorRenderTarget(uint family) {
     }
 }
 
-uint mu::getMinBufferOffsetAlignment(uint family) {
+uint32_t mu::getMinBufferOffsetAlignment(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1319,7 +1338,7 @@ uint mu::getMinBufferOffsetAlignment(uint family) {
     }
 }
 
-bool mu::isPVRTCSuppported(uint family) {
+bool mu::isPVRTCSuppported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1334,7 +1353,7 @@ bool mu::isPVRTCSuppported(uint family) {
     }
 }
 
-bool mu::isEAC_ETCCSuppported(uint family) {
+bool mu::isEAC_ETCCSuppported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1349,7 +1368,7 @@ bool mu::isEAC_ETCCSuppported(uint family) {
     }
 }
 
-bool mu::isASTCSuppported(uint family) {
+bool mu::isASTCSuppported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
             return false;
@@ -1365,7 +1384,7 @@ bool mu::isASTCSuppported(uint family) {
     }
 }
 
-bool mu::isBCSupported(uint family) {
+bool mu::isBCSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1380,7 +1399,7 @@ bool mu::isBCSupported(uint family) {
     }
 }
 
-bool mu::isColorBufferFloatSupported(uint family) {
+bool mu::isColorBufferFloatSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1394,7 +1413,7 @@ bool mu::isColorBufferFloatSupported(uint family) {
     }
 }
 
-bool mu::isColorBufferHalfFloatSupported(uint family) {
+bool mu::isColorBufferHalfFloatSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1408,7 +1427,7 @@ bool mu::isColorBufferHalfFloatSupported(uint family) {
     }
 }
 
-bool mu::isLinearTextureSupported(uint family) {
+bool mu::isLinearTextureSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1422,7 +1441,7 @@ bool mu::isLinearTextureSupported(uint family) {
     }
 }
 
-bool mu::isUISamplerSupported(uint family) {
+bool mu::isUISamplerSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1437,7 +1456,7 @@ bool mu::isUISamplerSupported(uint family) {
     }
 }
 
-bool mu::isRGB10A2UIStorageSupported(uint family) {
+bool mu::isRGB10A2UIStorageSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1452,7 +1471,7 @@ bool mu::isRGB10A2UIStorageSupported(uint family) {
     }
 }
 
-bool mu::isDDepthStencilFilterSupported(uint family) {
+bool mu::isDDepthStencilFilterSupported(uint32_t family) {
     switch (static_cast<GPUFamily>(family)) {
         case GPUFamily::Apple1:
         case GPUFamily::Apple2:
@@ -1468,7 +1487,7 @@ bool mu::isDDepthStencilFilterSupported(uint family) {
 }
 
 bool mu::isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     if (@available(iOS 12.0, *)) {
         return featureSet >= MTLFeatureSet_iOS_GPUFamily3_v4;
     }
@@ -1479,76 +1498,76 @@ bool mu::isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
 #endif
     return false;
 }
-bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint family) {
+bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint32_t family) {
     return true;
-//    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
-//    switch (format) {
-//        case Format::D16:
-//            switch (gpuFamily) {
-//                case GPUFamily::Apple1:
-//                case GPUFamily::Apple2:
-//                case GPUFamily::Apple3:
-//                case GPUFamily::Apple4:
-//                case GPUFamily::Apple5:
-//                case GPUFamily::Apple6:
-//                case GPUFamily::Mac1:
-//                case GPUFamily::Mac2:
-//                    return true;
-//            }
-//        case Format::D32F:
-//        case Format::D32F_S8:
-//            switch (gpuFamily) {
-//                case GPUFamily::Apple1:
-//                case GPUFamily::Apple2:
-//                case GPUFamily::Apple3:
-//                case GPUFamily::Apple4:
-//                case GPUFamily::Apple5:
-//                case GPUFamily::Apple6:
-//#ifdef TARGET_OS_SIMULATOR
-//                    return true;
-//#else
-//                    return false;
-//#endif
-//                case GPUFamily::Mac1:
-//                case GPUFamily::Mac2:
-//                    return true;
-//            }
-//        case Format::D24S8:
-//#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-//            return [device isDepth24Stencil8PixelFormatSupported];
-//#else
-//            return false;
-//#endif
-//        default:
-//            return false;
-//    }
+    //    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
+    //    switch (format) {
+    //        case Format::D16:
+    //            switch (gpuFamily) {
+    //                case GPUFamily::Apple1:
+    //                case GPUFamily::Apple2:
+    //                case GPUFamily::Apple3:
+    //                case GPUFamily::Apple4:
+    //                case GPUFamily::Apple5:
+    //                case GPUFamily::Apple6:
+    //                case GPUFamily::Mac1:
+    //                case GPUFamily::Mac2:
+    //                    return true;
+    //            }
+    //        case Format::D32F:
+    //        case Format::D32F_S8:
+    //            switch (gpuFamily) {
+    //                case GPUFamily::Apple1:
+    //                case GPUFamily::Apple2:
+    //                case GPUFamily::Apple3:
+    //                case GPUFamily::Apple4:
+    //                case GPUFamily::Apple5:
+    //                case GPUFamily::Apple6:
+    //#ifdef TARGET_OS_SIMULATOR
+    //                    return true;
+    //#else
+    //                    return false;
+    //#endif
+    //                case GPUFamily::Mac1:
+    //                case GPUFamily::Mac2:
+    //                    return true;
+    //            }
+    //        case Format::D24S8:
+    //#if (CC_PLATFORM == CC_PLATFORM_MACOS)
+    //            return [device isDepth24Stencil8PixelFormatSupported];
+    //#else
+    //            return false;
+    //#endif
+    //        default:
+    //            return false;
+    //    }
 }
 
-bool mu::isIndirectDrawSupported(uint family) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+bool mu::isIndirectDrawSupported(uint32_t family) {
+#if CC_PLATFORM == CC_PLATFORM_IOS
     return static_cast<GPUFamily>(family) < GPUFamily::Apple3 ? false : true; //is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later'
 #else
     return true;
 #endif
 }
 
-MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint family, uint &depthBits) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint32_t family, uint32_t &depthBits) {
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     return MTLPixelFormatDepth24Unorm_Stencil8;
 #else
     return MTLPixelFormatDepth32Float_Stencil8;
 #endif
 }
 
-String mu::featureSetToString(MTLFeatureSet featureSet) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+ccstd::string mu::featureSetToString(MTLFeatureSet featureSet) {
+#if CC_PLATFORM == CC_PLATFORM_IOS
     return getIOSFeatureSetToString(featureSet);
 #else
     return getMacFeatureSetToString(featureSet);
 #endif
 }
 
-const uint8_t *const mu::convertData(const uint8_t *source, uint length, Format type) {
+const uint8_t *const mu::convertData(const uint8_t *source, uint32_t length, Format type) {
     switch (type) {
         case Format::RGB8: return mu::convertRGB8ToRGBA8(source, length);
         case Format::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
@@ -1556,7 +1575,7 @@ const uint8_t *const mu::convertData(const uint8_t *source, uint length, Format 
     }
 }
 
-uint mu::getBlockSize(Format format) {
+uint32_t mu::getBlockSize(Format format) {
     switch (format) {
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:
@@ -1606,13 +1625,13 @@ uint mu::getBlockSize(Format format) {
         case Format::EAC_RG11SN: // blockWidth = 4, blockHeight = 4;
             return 16u;
         default:
-            return GFX_FORMAT_INFOS[static_cast<uint>(format)].size;
+            return GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
     }
 }
 
-uint mu::getBytesPerRow(Format format, uint width) {
-    uint blockSize = getBlockSize(format);
-    uint widthInBlock = 1u;
+uint32_t mu::getBytesPerRow(Format format, uint32_t width) {
+    uint32_t blockSize = getBlockSize(format);
+    uint32_t widthInBlock = 1u;
     switch (format) {
         case Format::ASTC_RGBA_4X4:
         case Format::ASTC_SRGBA_4X4:
@@ -1684,7 +1703,7 @@ uint mu::getBytesPerRow(Format format, uint width) {
 bool mu::pixelFormatIsColorRenderable(Format format) {
     MTLPixelFormat pixelFormat = toMTLPixelFormat(format);
     BOOL isCompressedFormat = false;
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     isCompressedFormat = (pixelFormat >= MTLPixelFormatASTC_4x4_sRGB && pixelFormat <= MTLPixelFormatASTC_12x12_LDR) ||
                          (pixelFormat >= MTLPixelFormatPVRTC_RGB_2BPP && pixelFormat <= MTLPixelFormatPVRTC_RGBA_4BPP_sRGB) ||
                          (pixelFormat >= MTLPixelFormatEAC_R11Unorm && pixelFormat <= MTLPixelFormatETC2_RGB8A1_sRGB);
@@ -1697,18 +1716,18 @@ bool mu::pixelFormatIsColorRenderable(Format format) {
 }
 
 //CompareFunction of MTLSamplerDescriptor is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later
-bool mu::isSamplerDescriptorCompareFunctionSupported(uint family) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+bool mu::isSamplerDescriptorCompareFunctionSupported(uint32_t family) {
+#if CC_PLATFORM == CC_PLATFORM_IOS
     return (static_cast<GPUFamily>(family) < GPUFamily::Apple3) ? false : true;
 #else
     return true;
 #endif
 }
 
-void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> renderEncoder, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, uint /*stencil*/) {
+void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> renderEncoder, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, uint32_t /*stencil*/) {
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
-    uint slot = 0u;
+    uint32_t slot = 0u;
 
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
@@ -1750,26 +1769,25 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> render
                              length:sizeof(colors[slot])
                             atIndex:0];
 
-    uint count = sizeof(vertexes) / sizeof(Vec2);
+    uint32_t count = sizeof(vertexes) / sizeof(Vec2);
     [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
                       vertexStart:0
                       vertexCount:count];
-
 }
 
 void mu::clearUtilResource() {
-    if(!renderPassMap.empty()) {
-        for (auto& pass : renderPassMap) {
+    if (!renderPassMap.empty()) {
+        for (auto &pass : renderPassMap) {
             //TODO: create and destroy not in the same level
             pass.second->destroy();
-            CC_DELETE(pass.second);
+            delete pass.second;
         }
         renderPassMap.clear();
     }
-    if(!pipelineMap.empty()) {
-        for (auto& pipeline : pipelineMap) {
+    if (!pipelineMap.empty()) {
+        for (auto &pipeline : pipelineMap) {
             pipeline.second->destroy();
-            CC_DELETE(pipeline.second);
+            delete pipeline.second;
         }
         pipelineMap.clear();
     }

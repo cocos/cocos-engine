@@ -37,11 +37,12 @@ public:
     explicit CCMTLDescriptorSet();
     ~CCMTLDescriptorSet();
     CCMTLDescriptorSet(const CCMTLDescriptorSet &) = delete;
-    CCMTLDescriptorSet(CCMTLDescriptorSet &&)      = delete;
+    CCMTLDescriptorSet(CCMTLDescriptorSet &&) = delete;
     CCMTLDescriptorSet &operator=(const CCMTLDescriptorSet &) = delete;
     CCMTLDescriptorSet &operator=(CCMTLDescriptorSet &&) = delete;
 
     void update() override;
+    void forceUpdate() override;
 
     inline CCMTLGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 

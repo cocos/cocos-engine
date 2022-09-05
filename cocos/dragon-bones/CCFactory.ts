@@ -32,6 +32,7 @@ import { TextureBase } from '../core/assets/texture-base';
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * DragonBones factory
@@ -71,7 +72,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         const eventManager = new CCArmatureDisplay();
         this._dragonBones = new DragonBones(eventManager);
 
-        if (!EDITOR && director.getScheduler()) {
+        if (director.getScheduler()) {
             game.on(Game.EVENT_RESTART, this.onRestart, this);
             this.initUpdate();
         }
@@ -89,6 +90,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
     }
 
     update (dt: number) {
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
         this._dragonBones.advanceTime(dt);
     }
 
@@ -97,7 +99,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         return dataParser.parseDragonBonesData(rawData, 1.0);
     }
 
-    // Build new aramture with a new display.
+    // Build new armature with a new display.
     buildArmatureDisplay (armatureName: string, dragonBonesName?: string, skinName?: string, textureAtlasName?: string) {
         const armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
         return armature ? armature._display : null;

@@ -30,16 +30,35 @@
     #define UINT64_C(value) __CONCAT(value, ULL)
 #endif
 
-#include "js/Conversions.h"
-#include "js/Initialization.h"
 #include "jsapi.h"
 #include "jsfriendapi.h"
+
+#include "js/Array.h"
+#include "js/ArrayBuffer.h"
+#include "js/BigInt.h"
+#include "js/BuildId.h"
+#include "js/CompilationAndEvaluation.h"
+#include "js/ContextOptions.h"
+#include "js/Conversions.h"
+#include "js/Equality.h"
+#include "js/GCAPI.h"
+#include "js/Initialization.h"
+#include "js/JSON.h"
+#include "js/LocaleSensitive.h"
+#include "js/MemoryMetrics.h"
+#include "js/SourceText.h"
+#include "js/Warnings.h"
+#include "js/experimental/TypedData.h"
+
+#include "mozilla/Unused.h"
+
+#include "../PrivateObject.h"
+#include "HelperMacros.h"
 
 #include <assert.h>
 #include <chrono>
 #include <functional>
-#include <string>
+#include <initializer_list>
 #include <unordered_map>
 #include <vector>
-
-#include "HelperMacros.h"
+#include "base/std/container/string.h"

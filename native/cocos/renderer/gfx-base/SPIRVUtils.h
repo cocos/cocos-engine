@@ -34,15 +34,15 @@ namespace gfx {
 
 class SPIRVUtils {
 public:
-    static SPIRVUtils* getInstance() { return &instance; }
+    static SPIRVUtils *getInstance() { return &instance; }
 
     void initialize(int vulkanMinorVersion);
     void destroy();
 
-    void compileGLSL(ShaderStageFlagBit type, const String& source);
-    void compressInputLocations(gfx::AttributeList& attributes);
+    void compileGLSL(ShaderStageFlagBit type, const ccstd::string &source);
+    void compressInputLocations(gfx::AttributeList &attributes);
 
-    inline uint32_t* getOutputData() {
+    inline uint32_t *getOutputData() {
         _shader.reset();
         _program.reset();
         return _output.data();
@@ -53,13 +53,13 @@ public:
     }
 
 private:
-    int                               _clientInputSemanticsVersion{0};
-    glslang::EShTargetClientVersion   _clientVersion{glslang::EShTargetClientVersion::EShTargetVulkan_1_0};
+    int _clientInputSemanticsVersion{0};
+    glslang::EShTargetClientVersion _clientVersion{glslang::EShTargetClientVersion::EShTargetVulkan_1_0};
     glslang::EShTargetLanguageVersion _targetVersion{glslang::EShTargetLanguageVersion::EShTargetSpv_1_0};
 
-    std::unique_ptr<glslang::TShader>  _shader{nullptr};
+    std::unique_ptr<glslang::TShader> _shader{nullptr};
     std::unique_ptr<glslang::TProgram> _program{nullptr};
-    vector<uint32_t>                   _output;
+    ccstd::vector<uint32_t> _output;
 
     static SPIRVUtils instance;
 };

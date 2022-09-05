@@ -2,8 +2,13 @@
 
 static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#set $module_macro = $generator.get_method_module_macro($class_name, $func_name)
+#if $module_macro
+\#if $module_macro
+#end if
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
-    SE_PRECONDITION2(cobj, false, "${signature_name} : Invalid Native Object");
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
 #if len($arguments) >= $min_args
     const auto& args = s.args();
     size_t argc = args.size();
@@ -56,7 +61,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
             #set $count = $count + 1
         #end while
         #if $arg_idx > 0
-        SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         #end if
         #set $arg_list = ", ".join($arg_array)
         #if $ret_type.name != "void"
@@ -71,9 +76,9 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
                                     "class_name": $ret_type.get_class_name($generator),
                                     "ntype": str($ret_type),
                                     "level": 2})};
-        SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
             #if $generator.should_obtain_return_value($class_name, $func_name)
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
             #end if
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #else
@@ -86,11 +91,20 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, $arg_count);
 #end if
     return false;
+#if $module_macro
+\#else
+    return true;
+\#endif // \#if $module_macro
+#end if
 }
-#if $current_class is not None and $current_class.is_getter_method($func_name)
-SE_BIND_PROP_GET(${signature_name})
-#elif $current_class is not None and $current_class.is_setter_method($func_name)
-SE_BIND_PROP_SET(${signature_name})
-#else
+#if $current_class is not None
+#if $current_class.is_getter_attribute($func_name)
+SE_BIND_FUNC_AS_PROP_GET(${signature_name})
+#end if
+#if $current_class.is_setter_attribute($func_name)
+SE_BIND_FUNC_AS_PROP_SET(${signature_name})
+#end if
+#if not $current_class.skip_bind_function({"name":$func_name})
 SE_BIND_FUNC(${signature_name})
+#end if
 #end if

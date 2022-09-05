@@ -36,8 +36,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class UserData : public BaseObject
-{
+class UserData : public BaseObject {
     BIND_CLASS_TYPE_A(UserData);
 
 public:
@@ -133,8 +132,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class ActionData : public BaseObject
-{
+class ActionData : public BaseObject {
     BIND_CLASS_TYPE_B(ActionData);
 
 public:
@@ -144,13 +142,10 @@ public:
     const SlotData* slot;
     UserData* data;
 
-    ActionData() :
-        data(nullptr)
-    {
+    ActionData() : data(nullptr) {
         _onClear();
     }
-    virtual ~ActionData()
-    {
+    virtual ~ActionData() {
         _onClear();
     }
 

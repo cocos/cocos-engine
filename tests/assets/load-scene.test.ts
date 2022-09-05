@@ -13,7 +13,7 @@ test('persist node with dynamic scene', function () {
     var childNode = new Node();
     childNode.parent = globalNode;
 
-    game.addPersistRootNode(globalNode);
+    director.addPersistRootNode(globalNode);
 
     var newScene = new Scene('');
     director.runSceneImmediate(newScene);
@@ -24,7 +24,7 @@ test('persist node with dynamic scene', function () {
 test('persist node should replace existing node in scene', function () {
     var oldNode = new Node();
     oldNode.parent = director.getScene();
-    game.addPersistRootNode(oldNode);
+    director.addPersistRootNode(oldNode);
     oldNode.setSiblingIndex(0);
 
     var newScene = new Scene('');
@@ -54,7 +54,7 @@ test('lifecycle methods of persist node and replaced node', function () {
     oldComp.onEnable = jest.fn(() => {});
 
     oldNode.parent = director.getScene();
-    game.addPersistRootNode(oldNode);
+    director.addPersistRootNode(oldNode);
     game.step();
     expect(oldComp.onLoad).toBeCalledTimes(1);
     expect(oldComp.start).toBeCalledTimes(1);

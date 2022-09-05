@@ -26,6 +26,8 @@
 #pragma once
 
 #include <tbb/flow_graph.h>
+#include "base/std/container/deque.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -40,12 +42,12 @@ public:
     }
 
     template <typename Function>
-    uint createJob(Function &&func) noexcept;
+    uint32_t createJob(Function &&func) noexcept;
 
     template <typename Function>
-    uint createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept;
+    uint32_t createForEachIndexJob(uint32_t begin, uint32_t end, uint32_t step, Function &&func) noexcept;
 
-    void makeEdge(uint j1, uint j2) noexcept;
+    void makeEdge(uint32_t j1, uint32_t j2) noexcept;
 
     void run() noexcept;
 
@@ -57,50 +59,50 @@ public:
     }
 
 private:
-    static constexpr uint PARALLEL_JOB_FLAG = 1u << 20;
-    static constexpr uint PARALLEL_JOB_MASK = ~PARALLEL_JOB_FLAG;
+    static constexpr uint32_t PARALLEL_JOB_FLAG = 1u << 20;
+    static constexpr uint32_t PARALLEL_JOB_MASK = ~PARALLEL_JOB_FLAG;
 
     tbb::flow::graph _graph;
 
     using TBBJobNode = tbb::flow::continue_node<tbb::flow::continue_msg>;
-    deque<TBBJobNode> _nodes; // existing nodes cannot be invalidated
+    ccstd::deque<TBBJobNode> _nodes; // existing nodes cannot be invalidated
 
     struct TBBParallelJob {
-        uint predecessor = 0u;
-        uint successor   = 0u;
+        uint32_t predecessor = 0u;
+        uint32_t successor = 0u;
     };
-    vector<TBBParallelJob> _parallelJobs;
+    ccstd::vector<TBBParallelJob> _parallelJobs;
 
     bool _pending = false;
 };
 
 template <typename Function>
-uint TBBJobGraph::createJob(Function &&func) noexcept {
+uint32_t TBBJobGraph::createJob(Function &&func) noexcept {
     _nodes.emplace_back(_graph, func);
     tbb::flow::make_edge(_nodes.front(), _nodes.back());
-    return static_cast<uint>(_nodes.size() - 1u);
+    return static_cast<uint32_t>(_nodes.size() - 1u);
 }
 
 template <typename Function>
-uint TBBJobGraph::createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept {
+uint32_t TBBJobGraph::createForEachIndexJob(uint32_t begin, uint32_t end, uint32_t step, Function &&func) noexcept {
     _nodes.emplace_back(_graph, [](TBBJobToken t) {});
-    uint        predecessorIdx = static_cast<uint>(_nodes.size() - 1u);
-    TBBJobNode &predecessor    = _nodes.back();
+    auto predecessorIdx = static_cast<uint32_t>(_nodes.size() - 1u);
+    TBBJobNode &predecessor = _nodes.back();
 
     tbb::flow::make_edge(_nodes.front(), predecessor);
 
     _nodes.emplace_back(_graph, [](TBBJobToken t) {});
-    uint        successorIdx = static_cast<uint>(_nodes.size() - 1u);
-    TBBJobNode &successor    = _nodes.back();
+    auto successorIdx = static_cast<uint32_t>(_nodes.size() - 1u);
+    TBBJobNode &successor = _nodes.back();
 
-    for (uint i = begin; i < end; i += step) {
+    for (uint32_t i = begin; i < end; i += step) {
         _nodes.emplace_back(_graph, [i, &func](TBBJobToken t) { func(i); });
         tbb::flow::make_edge(predecessor, _nodes.back());
         tbb::flow::make_edge(_nodes.back(), successor);
     }
 
     _parallelJobs.push_back({predecessorIdx, successorIdx});
-    return static_cast<uint>((_parallelJobs.size() - 1u)) | PARALLEL_JOB_FLAG;
+    return static_cast<uint32_t>((_parallelJobs.size() - 1u)) | PARALLEL_JOB_FLAG;
 }
 
 } // namespace cc

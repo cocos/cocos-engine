@@ -29,15 +29,15 @@
 
 #pragma once
 
-#include "base/Ref.h"
-#include "spine/spine.h"
 #include <string>
+#include "base/RefCounted.h"
+#include "spine/spine.h"
 
 namespace spine {
-class VertexEffectDelegate : public cc::Ref {
+class VertexEffectDelegate : public cc::RefCounted {
 public:
     VertexEffectDelegate();
-    ~VertexEffectDelegate();
+    ~VertexEffectDelegate() override;
     JitterVertexEffect *initJitter(float jitterX, float jitterY);
     SwirlVertexEffect *initSwirlWithPow(float radius, int power);
     SwirlVertexEffect *initSwirlWithPowOut(float radius, int power);

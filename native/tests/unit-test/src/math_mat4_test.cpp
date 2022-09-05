@@ -21,15 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
-#include "cocos/math/Vec3.h"
-#include "cocos/math/Vec4.h"
+#include <math.h>
 #include "cocos/math/Mat3.h"
 #include "cocos/math/Mat4.h"
 #include "cocos/math/Math.h"
 #include "cocos/math/Quaternion.h"
+#include "cocos/math/Vec3.h"
+#include "cocos/math/Vec4.h"
+#include "gtest/gtest.h"
 #include "utils.h"
-#include <math.h>
 
 TEST(mathMat4Test, test5) {
     cc::Mat4 mat4;
@@ -55,7 +55,7 @@ TEST(mathMat4Test, test5) {
     logLabel = "test the mat4 createOrthographicOffCenter function";
     cc::Mat4::createOrthographicOffCenter(20, 40, 100, 200, 10, 100, &outMat);
     ExpectEq(outMat.m[12] == -3 && outMat.m[13] == -3, true);
-    cc::Mat4::createOrthographicOffCenter(20, 40, 100, 200, 10, 100, 0, 1, &outMat);
+    cc::Mat4::createOrthographicOffCenter(20, 40, 100, 200, 10, 100, 0, 1, 0, &outMat);
     ExpectEq(outMat.m[12] == -3 && outMat.m[13] == -3, true);
     // createBillboard
     logLabel = "test the mat4 createBillboard function";
@@ -117,7 +117,7 @@ TEST(mathMat4Test, test5) {
     // fromRT
     logLabel = "test the mat4 fromRT function";
     cc::Quaternion rotVec(1, 0, 1, 1);
-    cc::Vec3       transVec(1, 1, 2);
+    cc::Vec3 transVec(1, 1, 2);
     cc::Mat4::fromRT(rotVec, transVec, &outMat);
     ExpectEq(outMat.m[5] == -3 && outMat.m[9] == -2 && outMat.m[14] == 2, true);
     // decompose
@@ -127,16 +127,16 @@ TEST(mathMat4Test, test5) {
     // determinant
     logLabel = "test the mat4 determinant function";
     cc::Mat4 det;
-    det.m[0]     = 5;
-    det.m[1]     = 7;
-    det.m[6]     = 2;
+    det.m[0] = 5;
+    det.m[1] = 7;
+    det.m[6] = 2;
     float detVal = det.determinant();
     ExpectEq(detVal == 5, true);
     // getScale
     logLabel = "test the mat4 getScale function";
     cc::Mat4 getScaleMat;
-    getScaleMat.m[0]  = 5;
-    getScaleMat.m[5]  = 7;
+    getScaleMat.m[0] = 5;
+    getScaleMat.m[5] = 7;
     getScaleMat.m[10] = 2;
     cc::Vec3 scaleOut;
     getScaleMat.getScale(&scaleOut);
@@ -181,15 +181,15 @@ TEST(mathMat4Test, test5) {
     outMat.getBackVector(&backVec3);
     ExpectEq(backVec3.x == 2 && backVec3.y == -2 && backVec3.z == -1, true);
     // inverse
-    logLabel       = "test the mat4 inverse function";
+    logLabel = "test the mat4 inverse function";
     bool isInverse = outMat.inverse();
     ExpectEq(isInverse == true, true);
     // getInversed
     logLabel = "test the mat4 getInversed function";
     cc::Mat4 inversed;
-    inversed.m[1]        = 10;
-    inversed.m[2]        = 13;
-    inversed.m[4]        = 2;
+    inversed.m[1] = 10;
+    inversed.m[2] = 13;
+    inversed.m[4] = 2;
     cc::Mat4 inversedMat = inversed.getInversed();
     ExpectEq(IsEqualF(inversedMat.m[6], -1.36842108), true);
     // identity
@@ -246,13 +246,6 @@ TEST(mathMat4Test, test5) {
     logLabel = "test the mat4 subtract function";
     cc::Mat4::subtract(m1, m2, &outMat);
     ExpectEq(outMat.m[0] == -1, true);
-    // transformPoint
-    logLabel = "test the mat4 transformPoint function";
-    cc::Vec3 transformPot(0, 3, 0);
-    outMat.setIdentity();
-    outMat.m[13] = 2;
-    outMat.transformPoint(&transformPot);
-    ExpectEq(transformPot.y == 5, true);
     // translate
     logLabel = "test the mat4 translate function";
     cc::Mat4 translate;

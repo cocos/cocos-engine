@@ -23,11 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
+#include "QueryPoolValidator.h"
 #include "CommandBufferValidator.h"
 #include "DeviceValidator.h"
-#include "QueryPoolValidator.h"
 #include "ValidationUtils.h"
 
 namespace cc {
@@ -35,8 +33,8 @@ namespace gfx {
 
 QueryPoolValidator::QueryPoolValidator(QueryPool *actor)
 : Agent<QueryPool>(actor) {
-    _typedID         = actor->getTypedID();
-    _type            = actor->getType();
+    _typedID = actor->getTypedID();
+    _type = actor->getType();
     _maxQueryObjects = actor->getMaxQueryObjects();
 }
 
@@ -46,7 +44,7 @@ QueryPoolValidator::~QueryPoolValidator() {
 }
 
 void QueryPoolValidator::doInit(const QueryPoolInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     /////////// execute ///////////
@@ -55,7 +53,7 @@ void QueryPoolValidator::doInit(const QueryPoolInfo &info) {
 }
 
 void QueryPoolValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

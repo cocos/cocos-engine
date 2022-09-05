@@ -32,7 +32,7 @@
 
 #import <AppKit/AppKit.h>
 
-#include "cocos/base/Map.h"
+#include "cocos/base/RefMap.h"
 
 PLAYER_NS_BEGIN
 class PlayerTaskMac;
@@ -97,7 +97,7 @@ public:
     virtual void removeTask(const std::string &name);
 
 protected:
-    cc::Map<std::string, PlayerTaskMac *> _tasks;
+    cc::RefMap<std::string, PlayerTaskMac *> _tasks;
 };
 
 PLAYER_NS_END

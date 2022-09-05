@@ -93,7 +93,7 @@ public:
 #ifdef __SSE__
     union {
         __m128 col[4];
-        float  m[16];
+        float m[16];
     };
 #else
     float m[16];
@@ -201,7 +201,13 @@ public:
      * @param zFarPlane The distance to the far view plane.
      * @param dst A matrix to store the result in.
      */
-    static void createPerspective(float fieldOfView, float aspectRatio, float zNearPlane, float zFarPlane, Mat4 *dst);
+    static void createPerspective(float fieldOfView, float aspectRatio, float zNearPlane, float zFarPlane, Mat4 *dst = nullptr) {
+        Mat4::createPerspective(fieldOfView, aspectRatio, zNearPlane, zFarPlane, true, -1.0F, 1.0F, 0, dst);
+    }
+
+    static void createPerspective(float fieldOfView, float aspectRatio, float zNearPlane, float zFarPlane,
+                                  bool isFieldOfViewY = false, float minClipZ = -1, float projectionSignY = 1,
+                                  int orientation = 0, Mat4 *dst = nullptr);
 
     /**
      * Creates an orthographic projection matrix.
@@ -245,7 +251,8 @@ public:
     static void createOrthographicOffCenter(float left, float right, float bottom, float top,
                                             float zNearPlane, float zFarPlane, Mat4 *dst);
     static void createOrthographicOffCenter(float left, float right, float bottom, float top,
-                                            float zNearPlane, float zFarPlane, float minClipZ, float projectionSignY, Mat4 *dst);
+                                            float zNearPlane, float zFarPlane, float minClipZ,
+                                            float projectionSignY, int orientation, Mat4 *dst);
 
     /**
      * Creates a spherical billboard that rotates around a specified object position.
@@ -406,6 +413,11 @@ public:
      * Compose a matrix from scale, rotation and translation, applied in order.
      */
     static void fromRTS(const Quaternion &rotation, const Vec3 &translation, const Vec3 &scale, Mat4 *dst);
+
+    /**
+     *  Decomposes the scale, rotation and translation components of this matrix.
+     */
+    static void toRTS(const Mat4 &src, Quaternion *rotation, Vec3 *translation, Vec3 *scale);
 
     /**
      * Decomposes the scale, rotation and translation components of this matrix.
@@ -775,61 +787,6 @@ public:
     static void subtract(const Mat4 &m1, const Mat4 &m2, Mat4 *dst);
 
     /**
-     * Transforms the specified point by this matrix.
-     *
-     * The result of the transformation is stored directly into point.
-     *
-     * @param point The point to transform and also a vector to hold the result in.
-     */
-    inline void transformPoint(Vec3 *point) const {
-        GP_ASSERT(point);
-        transformVector(point->x, point->y, point->z, 1.0F, point);
-    }
-
-    /**
-     * Transforms the specified point by this matrix, and stores
-     * the result in dst.
-     *
-     * @param point The point to transform.
-     * @param dst A vector to store the transformed point in.
-     */
-    inline void transformPoint(const Vec3 &point, Vec3 *dst) const {
-        GP_ASSERT(dst);
-        transformVector(point.x, point.y, point.z, 1.0F, dst);
-    }
-
-    /**
-     * Transforms the specified vector by this matrix by
-     * treating the fourth (w) coordinate as zero.
-     *
-     * The result of the transformation is stored directly into vector.
-     *
-     * @param vector The vector to transform and also a vector to hold the result in.
-     */
-    void transformVector(Vec3 *vector) const;
-
-    /**
-     * Transforms the specified vector by this matrix by
-     * treating the fourth (w) coordinate as zero, and stores the
-     * result in dst.
-     *
-     * @param vector The vector to transform.
-     * @param dst A vector to store the transformed vector in.
-     */
-    void transformVector(const Vec3 &vector, Vec3 *dst) const;
-
-    /**
-     * Transforms the specified vector by this matrix.
-     *
-     * @param x The vector x-coordinate to transform by.
-     * @param y The vector y-coordinate to transform by.
-     * @param z The vector z-coordinate to transform by.
-     * @param w The vector w-coordinate to transform by.
-     * @param dst A vector to store the transformed point in.
-     */
-    void transformVector(float x, float y, float z, float w, Vec3 *dst) const;
-
-    /**
      * Transforms the specified vector by this matrix.
      *
      * The result of the transformation is stored directly into vector.
@@ -897,7 +854,7 @@ public:
     /**
     * Calculates the inverse transpose of a matrix and save the results to out matrix
     */
-    static void inverseTranspose(const Mat4& mat, Mat4 *dst);
+    static void inverseTranspose(const Mat4 &mat, Mat4 *dst);
     /**
      * Calculates the sum of this matrix with the given matrix.
      *
@@ -971,28 +928,6 @@ private:
                                       const Vec3 &cameraUpVector, const Vec3 *cameraForwardVector,
                                       Mat4 *dst);
 };
-
-/**
- * Transforms the given vector by the given matrix.
- *
- * Note: this treats the given vector as a vector and not as a point.
- *
- * @param v The vector to transform.
- * @param m The matrix to transform by.
- * @return This vector, after the transformation occurs.
- */
-inline Vec3 &operator*=(Vec3 &v, const Mat4 &m);
-
-/**
- * Transforms the given vector by the given matrix.
- *
- * Note: this treats the given vector as a vector and not as a point.
- *
- * @param m The matrix to transform by.
- * @param v The vector to transform.
- * @return The resulting transformed vector.
- */
-inline const Vec3 operator*(const Mat4 &m, const Vec3 &v);
 
 /**
  * Transforms the given vector by the given matrix.

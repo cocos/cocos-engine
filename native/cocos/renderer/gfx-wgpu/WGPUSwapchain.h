@@ -37,28 +37,28 @@ class CCWGPUTexture;
 class CCWGPUDevice;
 class CCWGPUSwapchain final : public Swapchain {
 public:
-    CCWGPUSwapchain(CCWGPUDevice* device);
+    CCWGPUSwapchain(CCWGPUDevice *device);
     ~CCWGPUSwapchain();
 
-    inline CCWGPUSwapchainObject* gpuSwapchainObject() { return _gpuSwapchainObj; }
+    inline CCWGPUSwapchainObject *gpuSwapchainObject() { return _gpuSwapchainObj; }
 
-    CCWGPUTexture* getColorTexture();
+    CCWGPUTexture *getColorTexture();
 
-    CCWGPUTexture* getDepthStencilTexture();
+    CCWGPUTexture *getDepthStencilTexture();
 
     void update();
 
 protected:
     CCWGPUSwapchain() = delete;
 
-    void doInit(const SwapchainInfo& info) override;
+    void doInit(const SwapchainInfo &info) override;
     void doDestroy() override;
     void doResize(uint32_t width, uint32_t height, SurfaceTransform transform) override;
     void doDestroySurface() override;
-    void doCreateSurface(void* windowHandle) override;
+    void doCreateSurface(void *windowHandle) override;
 
-    CCWGPUSwapchainObject* _gpuSwapchainObj = nullptr;
-    CCWGPUDevice*          _device          = nullptr;
+    CCWGPUSwapchainObject *_gpuSwapchainObj = nullptr;
+    CCWGPUDevice *_device = nullptr;
 };
 
 } // namespace gfx

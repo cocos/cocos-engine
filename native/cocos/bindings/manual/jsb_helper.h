@@ -25,17 +25,17 @@
 
 #pragma once
 
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 
 #include <functional>
 
-class CleanupTask : public cc::Ref {
+class CleanupTask : public cc::RefCounted {
 public:
     static void pushTaskToAutoReleasePool(const std::function<void()> &cb);
 
     CleanupTask();
-    virtual ~CleanupTask();
+    ~CleanupTask() override;
 
 private:
-    std::function<void()> _cb;
+    std::function<void()> _cb{nullptr};
 };

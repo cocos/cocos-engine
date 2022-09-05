@@ -475,7 +475,7 @@ export class ComponentScheduler {
     /**
      * @en Process update phase for registered components
      * @zh 为当前注册的组件执行 update 阶段任务
-     * @param dt 距离上一帧的时间
+     * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
     public updatePhase (dt:number) {
         this.updateInvoker.invoke(dt);
@@ -484,7 +484,7 @@ export class ComponentScheduler {
     /**
      * @en Process late update phase for registered components
      * @zh 为当前注册的组件执行 late update 阶段任务
-     * @param dt 距离上一帧的时间
+     * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
     public lateUpdatePhase (dt:number) {
         this.lateUpdateInvoker.invoke(dt);

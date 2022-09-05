@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #ifndef MATH_VEC3_H
 #define MATH_VEC3_H
 
+#include <cmath>
 #include "math/MathBase.h"
 
 /**
@@ -138,6 +139,11 @@ public:
     static float angle(const Vec3 &v1, const Vec3 &v2);
 
     /**
+     * Transforms the current vector with given scale, rotation and translation in reverse order
+     */
+    static void transformInverseRTS(const Vec3 &v, const Quaternion &r, const Vec3 &t, const Vec3 &s, Vec3 *out);
+
+    /**
      * Adds the elements of the specified vector to this one.
      *
      * @param v The vector to add.
@@ -230,12 +236,35 @@ public:
     void transformMat3(const Vec3 &v, const Mat3 &m);
 
     /**
-     * Transforms this vector by the specified Mat4 and stores the result in this vector.
+     * Transforms the input vector by the specified Mat4 and stores the result in this vector.
      *
      * @param v The Vec3 to transform.
      * @param m The matrix.
      */
     void transformMat4(const Vec3 &v, const Mat4 &m);
+
+    /**
+     * Transforms this vector by the specified Mat4 and stores the result in this vector.
+     * @param m The matrix.
+     */
+    inline void transformMat4(const Mat4 &m) {
+        transformMat4(*this, m);
+    }
+
+    /**
+     * Transforms vector v by the specified Mat4 and stores the result in dst vector.
+     * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
+     * @param v The Vec3 to transform.
+     * @param m The matrix.
+     * @param dst The destination vector
+     */
+    static void transformMat4(const Vec3 &v, const Mat4 &m, Vec3 *dst);
+
+    /**
+     * @en Vector and fourth order matrix multiplication, will complete the vector with a fourth element as one
+     * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
+     */
+    static void transformMat4Normal(const Vec3 &v, const Mat4 &m, Vec3 *dst);
 
     /**
      * Transforms this vector by the specified quaternion and stores the result in this vector.
@@ -533,11 +562,11 @@ public:
      * @return bool
      */
     inline bool operator<(const Vec3 &rhs) const {
-        bool temp = false;
-        if (x < rhs.x && y < rhs.y && z < rhs.z) {
-            temp =  true;
-        }  
-        return temp;
+        return x < rhs.x && y < rhs.y && z < rhs.z;
+    }
+
+    inline bool operator<=(const Vec3 &rhs) const {
+        return x <= rhs.x && y <= rhs.y && z <= rhs.z;
     }
 
     /**
@@ -548,11 +577,11 @@ public:
      * @return bool
      */
     inline bool operator>(const Vec3 &rhs) const {
-        bool temp = false;
-        if (x > rhs.x && y > rhs.y && z > rhs.z) {
-            temp = true;
-        }
-        return temp;
+        return x > rhs.x && y > rhs.y && z > rhs.z;
+    }
+
+    inline bool operator>=(const Vec3 &rhs) const {
+        return x >= rhs.x && y >= rhs.y && z >= rhs.z;
     }
 
     /**
@@ -594,6 +623,10 @@ public:
     static const Vec3 UNIT_Z;
     /** equals to Vec3(0,0,-1) */
     static const Vec3 FORWARD;
+
+private:
+    void transformMat4C(const Vec3 &v, const Mat4 &m);
+    void transformMat4Neon(const Vec3 &v, const Mat4 &m);
 };
 
 /**

@@ -4,6 +4,7 @@ import { Texture2D } from '../../cocos/core';
 
 test('Pack to DynamicAtlas', function () {
 
+    dynamicAtlasManager.enabled = true;
     let sprite = new Sprite();
     dynamicAtlasManager.packToDynamicAtlas(sprite,null);
     expect(dynamicAtlasManager.atlasCount).toBe(0);

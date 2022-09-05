@@ -28,9 +28,9 @@
 #pragma once
 
 #include <sstream>
-#include <string>
-#include <vector>
 #include "base/Macros.h"
+#include "base/std/container/string.h"
+#include "base/std/container/vector.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "platform/java/jni/JniHelper.h"
@@ -41,13 +41,13 @@ namespace cc {
 namespace StringUtils { //NOLINT
 
 template <typename T>
-std::string toString(T arg) {
+ccstd::string toString(T arg) {
     std::stringstream ss;
     ss << arg;
     return ss.str();
 }
 
-std::string CC_DLL format(const char *format, ...) CC_FORMAT_PRINTF(1, 2);
+ccstd::string CC_DLL format(const char *format, ...) CC_FORMAT_PRINTF(1, 2);
 
 /**
  *  @brief Converts from UTF8 string to UTF16 string.
@@ -69,21 +69,21 @@ std::string CC_DLL format(const char *format, ...) CC_FORMAT_PRINTF(1, 2);
  *    }
  *  @endcode
  */
-CC_DLL bool UTF8ToUTF16(const std::string &inUtf8, std::u16string &outUtf16); //NOLINT
+CC_DLL bool UTF8ToUTF16(const ccstd::string &inUtf8, std::u16string &outUtf16); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF8 to UTF32.
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF8ToUTF32(const std::string &inUtf8, std::u32string &outUtf32); //NOLINT
+CC_DLL bool UTF8ToUTF32(const ccstd::string &inUtf8, std::u32string &outUtf32); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF16 to UTF8.
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF16ToUTF8(const std::u16string &inUtf16, std::string &outUtf8); //NOLINT
+CC_DLL bool UTF16ToUTF8(const std::u16string &inUtf16, ccstd::string &outUtf8); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF16 to UTF32.
@@ -97,7 +97,7 @@ CC_DLL bool UTF16ToUTF32(const std::u16string &inUtf16, std::u32string &outUtf32
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF32ToUTF8(const std::u32string &inUtf32, std::string &outUtf8); //NOLINT
+CC_DLL bool UTF32ToUTF8(const std::u32string &inUtf32, ccstd::string &outUtf8); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF32 to UTF16.
@@ -109,35 +109,35 @@ CC_DLL bool UTF32ToUTF16(const std::u32string &inUtf32, std::u16string &outUtf16
 /**
  *  @brief Skip some bad char code.
  */
-CC_DLL void UTF8LooseFix(const std::string &in, std::string &out); //NOLINT
+CC_DLL void UTF8LooseFix(const ccstd::string &in, ccstd::string &out); //NOLINT
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
 /**
-*  @brief convert jstring to utf8 std::string,  same function with env->getStringUTFChars. 
+*  @brief convert jstring to utf8 ccstd::string,  same function with env->getStringUTFChars. 
 *         because getStringUTFChars can not pass special emoticon
 *  @param env   The JNI Env
 *  @param srcjStr The jstring which want to convert
 *  @param ret   True if the conversion succeeds and the ret pointer isn't null
 *  @returns the result of utf8 string
 */
-CC_DLL std::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret = nullptr);
+CC_DLL ccstd::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret = nullptr);
 
 /**
-*  @brief create a jstring with utf8 std::string, same function with env->newStringUTF
+*  @brief create a jstring with utf8 ccstd::string, same function with env->newStringUTF
 *         because newStringUTF can not convert special emoticon
 *  @param env   The JNI Env
-*  @param srcjStr The std::string which want to convert
+*  @param srcjStr The ccstd::string which want to convert
 *  @param ret     True if the conversion succeeds and the ret pointer isn't null
 *  @returns the result of jstring,the jstring need to DeleteLocalRef(jstring);
 */
-CC_DLL jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *ret = nullptr);
+CC_DLL jstring newStringUTFJNI(JNIEnv *env, const ccstd::string &utf8Str, bool *ret = nullptr);
 #endif
 
 /**
  *  @brief Trims the unicode spaces at the end of char16_t vector.
  */
-CC_DLL void trimUTF16Vector(std::vector<char16_t> &str); //NOLINT
+CC_DLL void trimUTF16Vector(ccstd::vector<char16_t> &str); //NOLINT
 
 /**
  *  @brief Whether the character is a whitespace character.
@@ -165,7 +165,7 @@ CC_DLL bool isCJKUnicode(char16_t ch);
  *  @param utf8 An UTF-8 encoded string.
  *  @returns The length of the string in characters.
  */
-CC_DLL long getCharacterCountInUTF8String(const std::string &utf8); //NOLINT
+CC_DLL long getCharacterCountInUTF8String(const ccstd::string &utf8); //NOLINT
 
 /**
  *  @brief Gets the index of the last character that is not equal to the character given.
@@ -173,37 +173,37 @@ CC_DLL long getCharacterCountInUTF8String(const std::string &utf8); //NOLINT
  *  @param c     The character to be searched for.
  *  @returns The index of the last character that is not \p c.
  */
-CC_DLL unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t c);
+CC_DLL unsigned int getIndexOfLastNotChar16(const ccstd::vector<char16_t> &str, char16_t c);
 
 /**
  *  @brief Gets char16_t vector from a given utf16 string.
  */
-CC_DLL std::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16);
+CC_DLL ccstd::vector<char16_t> getChar16VectorFromUTF16String(const std::u16string &utf16);
 
 /**
 * Utf8 sequence
-* Store all utf8 chars as std::string
-* Build from std::string
+* Store all utf8 chars as ccstd::string
+* Build from ccstd::string
 */
 class CC_DLL StringUTF8 {
 public:
     struct CharUTF8 {
-        std::string _char;
-        bool        isAnsi() { return _char.size() == 1; }
+        ccstd::string _char;
+        bool isAnsi() { return _char.size() == 1; }
     };
-    using CharUTF8Store = std::vector<CharUTF8>;
+    using CharUTF8Store = ccstd::vector<CharUTF8>;
 
     StringUTF8() = default;
-    explicit StringUTF8(const std::string &newStr);
+    explicit StringUTF8(const ccstd::string &newStr);
     ~StringUTF8() = default;
 
     std::size_t length() const;
-    void        replace(const std::string &newStr);
+    void replace(const ccstd::string &newStr);
 
-    std::string getAsCharSequence() const;
+    ccstd::string getAsCharSequence() const;
 
     bool deleteChar(std::size_t pos);
-    bool insert(std::size_t pos, const std::string &insertStr);
+    bool insert(std::size_t pos, const ccstd::string &insertStr);
     bool insert(std::size_t pos, const StringUTF8 &insertStr);
 
     CharUTF8Store &getString() { return _str; }

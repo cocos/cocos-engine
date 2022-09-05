@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../builtin';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../../3d/assets/mesh';
@@ -34,9 +33,8 @@ import { Model } from './model';
 import { legacyCC } from '../../global-exports';
 import type { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
-import { NaitveSkybox } from '../native-scene';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
-import { Device } from '../../gfx';
+import { Device, deviceManager } from '../../gfx';
 import { Enum } from '../../value-types';
 
 let skybox_mesh: Mesh | null = null;
@@ -92,7 +90,7 @@ export class Skybox {
     }
 
     set enabled (val: boolean) {
-        this._setEnabled(val);
+        this._enabled = val;
         if (val) this.activate(); else this._updatePipeline();
     }
 
@@ -105,7 +103,7 @@ export class Skybox {
     }
 
     set useHDR (val: boolean) {
-        this._setUseHDR(val);
+        this._useHDR = val;
         this.setEnvMaps(this._envmapHDR, this._envmapLDR);
     }
 
@@ -118,7 +116,7 @@ export class Skybox {
     }
 
     set useIBL (val: boolean) {
-        this._setUseIBL(val);
+        this._useIBL = val;
         this._updatePipeline();
     }
 
@@ -145,6 +143,20 @@ export class Skybox {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @en Whether to use offline baked convolutional maps
+     * @zh 是否使用离线烘焙的卷积图？
+     */
+    get useConvolutionMap (): boolean {
+        if (this.reflectionMap) {
+            return this.reflectionMap.isUsingOfflineMipmaps();
+        }
+        if (this.envmap) {
+            return this.envmap.isUsingOfflineMipmaps();
+        }
+        return false;
     }
 
     /**
@@ -190,6 +202,15 @@ export class Skybox {
         }
     }
 
+    get reflectionMap (): TextureCube | null {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._reflectionHDR;
+        } else {
+            return this._reflectionLDR;
+        }
+    }
+
     protected _envmapLDR: TextureCube | null = null;
     protected _envmapHDR: TextureCube | null = null;
     protected _diffuseMapLDR: TextureCube | null = null;
@@ -201,54 +222,17 @@ export class Skybox {
     protected _useIBL = false;
     protected _useHDR = true;
     protected _useDiffuseMap = false;
-    protected declare _nativeObj: NaitveSkybox | null;
-
-    /**
-     * @internal
-     */
-    get native (): NaitveSkybox {
-        return this._nativeObj!;
-    }
-
-    constructor () {
-        if (JSB) {
-            this._nativeObj = new NaitveSkybox();
-        }
-    }
-
-    private _setEnabled (val) {
-        this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.enabled = val;
-        }
-    }
-
-    private _setUseIBL (val) {
-        this._useIBL = val;
-        if (JSB) {
-            this._nativeObj!.useIBL = val;
-        }
-    }
-
-    private _setUseHDR (val) {
-        this._useHDR = val;
-        if (JSB) {
-            this._nativeObj!.useHDR = val;
-        }
-    }
-
-    private _setUseDiffuseMap (val) {
-        this._useDiffuseMap = val;
-        if (JSB) {
-            this._nativeObj!.useDiffuseMap = val;
-        }
-    }
+    protected _editableMaterial: MaterialInstance | null = null;
+    protected _activated = false;
+    protected _reflectionHDR: TextureCube | null = null;
+    protected _reflectionLDR: TextureCube | null = null;
 
     public initialize (skyboxInfo: SkyboxInfo) {
-        this._setEnabled(skyboxInfo.enabled);
-        this._setUseIBL(skyboxInfo.useIBL);
-        this._setUseDiffuseMap(skyboxInfo.applyDiffuseMap);
-        this._setUseHDR(skyboxInfo.useHDR);
+        this._activated = false;
+        this._enabled = skyboxInfo.enabled;
+        this._useIBL = skyboxInfo.useIBL;
+        this._useDiffuseMap = skyboxInfo.applyDiffuseMap;
+        this._useHDR = skyboxInfo.useHDR;
     }
 
     /**
@@ -278,6 +262,39 @@ export class Skybox {
         this._updatePipeline();
     }
 
+    /**
+     * @en Set custom skybox material
+     * @zh 设置自定义的天空盒材质
+     * @param skyboxMat  @en Skybox material @zh 天空盒材质
+     */
+    public setSkyboxMaterial (skyboxMat: Material | null) {
+        if (skyboxMat) {
+            this._editableMaterial = new MaterialInstance({ parent: skyboxMat });
+            this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+        } else {
+            this._editableMaterial = null;
+        }
+        this._updatePipeline();
+    }
+
+    /**
+     * @en Set the environment reflection convolution map
+     * @zh 设置环境反射卷积图
+     * @param reflectionHDR  @en Reflection convolution map for HDR mode @zh HDR 模式下的反射卷积图
+     * @param reflectionLDR  @en Reflection convolution map for LDR mode @zh LDR 模式下的反射卷积图
+     */
+    public setReflectionMaps (reflectionHDR: TextureCube | null, reflectionLDR: TextureCube | null) {
+        this._reflectionHDR = reflectionHDR;
+        this._reflectionLDR = reflectionLDR;
+        this._updateGlobalBinding();
+        this._updatePipeline();
+    }
+
+    public updateMaterialRenderInfo () {
+        this._updateGlobalBinding();
+        this._updatePipeline();
+    }
+
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDSManager = pipeline.globalDSManager;
@@ -285,22 +302,20 @@ export class Skybox {
 
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
-            // @ts-expect-error private member access
-            this._model._initLocalDescriptors = () => {};
-            // @ts-expect-error private member access
-            this._model._initWorldBoundDescriptors = () => {};
-            if (JSB) {
-                this._nativeObj!.model = this._model.native;
-            }
+            //The skybox material has added properties of 'environmentMap' that need local ubo
+            //this._model._initLocalDescriptors = () => {};
+            //this._model._initWorldBoundDescriptors = () => {};
         }
         let isRGBE = this._default.isRGBE;
+        let isUseConvolutionMap = this._default.isUsingOfflineMipmaps();
         if (this.envmap) {
             isRGBE = this.envmap.isRGBE;
+            isUseConvolutionMap = this.envmap.isUsingOfflineMipmaps();
         }
 
         if (!skybox_material) {
             const mat = new Material();
-            mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: isRGBE } });
+            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
         }
 
@@ -308,7 +323,11 @@ export class Skybox {
             if (!skybox_mesh) {
                 skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh;
             }
-            this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+            if (this._editableMaterial) {
+                this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], this._editableMaterial);
+            } else {
+                this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+            }
         }
 
         if (!this.envmap) {
@@ -321,49 +340,69 @@ export class Skybox {
 
         this._updateGlobalBinding();
         this._updatePipeline();
+
+        this._activated = true;
     }
 
     protected _updatePipeline () {
-        if (JSB) {
-            this._nativeObj!.isRGBE = this.isRGBE;
-        }
-
         const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
 
         const useIBLValue = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
         const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
+        const useConvMapValue = this.useConvolutionMap;
 
         if (pipeline.macros.CC_USE_IBL !== useIBLValue
             || pipeline.macros.CC_USE_DIFFUSEMAP !== useDiffuseMapValue
-            || pipeline.macros.CC_USE_HDR !== useHDRValue) {
+            || pipeline.macros.CC_USE_HDR !== useHDRValue
+            || pipeline.macros.CC_IBL_CONVOLUTED !== useConvMapValue) {
             pipeline.macros.CC_USE_IBL = useIBLValue;
             pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
             pipeline.macros.CC_USE_HDR = useHDRValue;
+            pipeline.macros.CC_IBL_CONVOLUTED = useConvMapValue;
 
-            root.onGlobalPipelineStateChanged();
+            if (this._activated) {
+                root.onGlobalPipelineStateChanged();
+            }
         }
 
-        if (this.enabled && skybox_material) {
-            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-        }
-
-        if (this._model) {
-            this._model.setSubModelMaterial(0, skybox_material!);
+        if (this.enabled) {
+            const envmap = this.envmap ? this.envmap : this._default;
+            if (this._editableMaterial) {
+                this._editableMaterial.setProperty('environmentMap', envmap);
+                this._editableMaterial.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+            } else if (skybox_material) {
+                skybox_material.setProperty('environmentMap', envmap);
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+            }
+            if (this._model) {
+                if (this._editableMaterial) {
+                    this._model.setSubModelMaterial(0, this._editableMaterial);
+                } else {
+                    this._model.setSubModelMaterial(0, skybox_material!);
+                }
+                this._updateSubModes();
+            }
         }
     }
 
     protected _updateGlobalBinding () {
         if (this._globalDSManager) {
-            const device = legacyCC.director.root.device as Device;
-
-            const envmap = this.envmap ? this.envmap : this._default;
-            if (envmap) {
-                const texture = envmap.getGFXTexture()!;
-                const sampler = device.getSampler(envmap.getSamplerInfo());
+            const device = deviceManager.gfxDevice;
+            if (this.reflectionMap) {
+                const texture = this.reflectionMap.getGFXTexture()!;
+                const sampler = device.getSampler(this.reflectionMap.getSamplerInfo());
                 this._globalDSManager.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
                 this._globalDSManager.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+            } else {
+                const envmap = this.envmap ? this.envmap : this._default;
+                if (envmap) {
+                    const texture = envmap.getGFXTexture()!;
+                    const sampler = device.getSampler(envmap.getSamplerInfo());
+                    this._globalDSManager.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
+                    this._globalDSManager.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+                }
             }
 
             const diffuseMap = this.diffuseMap ? this.diffuseMap : this._default;
@@ -378,14 +417,13 @@ export class Skybox {
         }
     }
 
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
+    protected _updateSubModes () {
+        if (this._model) {
+            const subModels = this._model.subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                subModels[i].update();
+            }
         }
-    }
-
-    public destroy () {
-        this._destroy();
     }
 }
 

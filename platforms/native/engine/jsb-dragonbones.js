@@ -334,7 +334,7 @@ const cacheManager = require('./jsb-cache-manager');
     ////////////////////////////////////////////////////////////
     // override ArmatureDisplay
     ////////////////////////////////////////////////////////////
-    const superProto = cc.internal.Renderable2D.prototype;
+    const superProto = cc.internal.UIRenderer.prototype;
     const armatureDisplayProto = cc.internal.ArmatureDisplay.prototype;
     const AnimationCacheMode = cc.internal.ArmatureDisplay.AnimationCacheMode;
     const armatureSystem = cc.internal.ArmatureSystem;
@@ -593,8 +593,7 @@ const cacheManager = require('./jsb-cache-manager');
 
         if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
-            node.updateWorldTransform();
-            const worldMat = node._mat;
+            const worldMat = node.getWorldMatrix();
             paramsBuffer[1]  = worldMat.m00;
             paramsBuffer[2]  = worldMat.m01;
             paramsBuffer[3]  = worldMat.m02;
@@ -694,7 +693,6 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     const _tempAttachMat4 = cc.mat4();
-    const _identityTrans = new cc.Node();
     let _tempBufferIndex; let _tempIndicesOffset; let _tempIndicesCount;
 
     armatureDisplayProto._render = function (ui) {
@@ -703,6 +701,9 @@ const cacheManager = require('./jsb-cache-manager');
 
         const node = this.node;
         if (!node) return;
+
+        const entity = this.renderEntity;
+        entity.clearDynamicRenderDrawInfos();
 
         const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
@@ -769,15 +770,23 @@ const cacheManager = require('./jsb-cache-manager');
             this.material = this.getMaterialForBlend(
                 renderInfo[renderInfoOffset + materialIdx++],
                 renderInfo[renderInfoOffset + materialIdx++],
-);
+            );
 
             _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
 
             const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
-            ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
-            renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
+            const drawInfo = this.requestDrawInfo(index);
+            drawInfo.setDrawInfoType(renderData.drawInfoType);
+            drawInfo.setAccAndBuffer(renderData.accessor.id, renderData.chunk.bufferId);
+            drawInfo.setTexture(realTexture.getGFXTexture());
+            drawInfo.setSampler(realTexture.getGFXSampler());
+            drawInfo.setMaterial(this.material);
+            drawInfo.setIndexOffset(_tempIndicesOffset);
+            drawInfo.setIBCount(_tempIndicesCount);
+
+            entity.setDynamicRenderDrawInfo(drawInfo, index);
             this.material = mat;
         }
     };
@@ -790,7 +799,8 @@ const cacheManager = require('./jsb-cache-manager');
     assembler.createData = function (comp) {
     };
 
-    assembler.updateRenderData = function () {
+    assembler.updateRenderData = function (comp) {
+        comp._render();
     };
 
     // eslint-disable-next-line no-unused-vars

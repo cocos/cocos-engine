@@ -1,5 +1,6 @@
+// clang-format off
 #pragma once
-\#include "base/Config.h"
+
 #if $macro_judgement
 $macro_judgement
 #end if
@@ -11,3 +12,7 @@ $macro_judgement
 \#include "${header}"
 #end for
 #end if
+
+bool register_all_${prefix}(se::Object *obj);                   // NOLINT
+
+// placeholder for jsb_register_types

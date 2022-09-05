@@ -19,7 +19,6 @@
 #include <math.h>
 #include <stdint.h>
 
-
 namespace cc {
 
 // AUDIO_RESAMPLER_DOWN_RATIO_MAX is the maximum ratio between the original
@@ -64,7 +63,7 @@ namespace cc {
 //Determines the current algorithm used for stretching
 enum AudioTimestretchStretchMode : int32_t {
     AUDIO_TIMESTRETCH_STRETCH_DEFAULT = 0,
-    AUDIO_TIMESTRETCH_STRETCH_SPEECH  = 1,
+    AUDIO_TIMESTRETCH_STRETCH_SPEECH = 1,
     //REFINE: add more stretch modes/algorithms
 };
 
@@ -80,15 +79,15 @@ enum AudioTimestretchStretchMode : int32_t {
 // FALLBACK_FAIL:  will stop program execution and log a fatal error
 enum AudioTimestretchFallbackMode : int32_t {
     AUDIO_TIMESTRETCH_FALLBACK_CUT_REPEAT = -1,
-    AUDIO_TIMESTRETCH_FALLBACK_DEFAULT    = 0,
-    AUDIO_TIMESTRETCH_FALLBACK_MUTE       = 1,
-    AUDIO_TIMESTRETCH_FALLBACK_FAIL       = 2,
+    AUDIO_TIMESTRETCH_FALLBACK_DEFAULT = 0,
+    AUDIO_TIMESTRETCH_FALLBACK_MUTE = 1,
+    AUDIO_TIMESTRETCH_FALLBACK_FAIL = 2,
 };
 
 struct AudioPlaybackRate {
-    float                             mSpeed;
-    float                             mPitch;
-    enum AudioTimestretchStretchMode  mStretchMode;
+    float mSpeed;
+    float mPitch;
+    enum AudioTimestretchStretchMode mStretchMode;
     enum AudioTimestretchFallbackMode mFallbackMode;
 };
 
@@ -145,7 +144,7 @@ static inline size_t destinationFramesPossible(size_t srcFrames, uint32_t srcSam
         return srcFrames;
     }
     uint64_t dstFrames = (uint64_t)srcFrames * dstSampleRate / srcSampleRate;
-    return dstFrames > 2 ? dstFrames - 2 : 0;
+    return dstFrames > 2 ? static_cast<size_t>(dstFrames - 2) : 0;
 }
 
 static inline size_t sourceFramesNeededWithTimestretch(

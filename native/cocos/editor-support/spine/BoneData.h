@@ -36,88 +36,88 @@
 
 namespace spine {
 class SP_API BoneData : public SpineObject {
-	friend class SkeletonBinary;
+    friend class SkeletonBinary;
 
-	friend class SkeletonJson;
+    friend class SkeletonJson;
 
-	friend class AnimationState;
+    friend class AnimationState;
 
-	friend class RotateTimeline;
+    friend class RotateTimeline;
 
-	friend class ScaleTimeline;
+    friend class ScaleTimeline;
 
-	friend class ShearTimeline;
+    friend class ShearTimeline;
 
-	friend class TranslateTimeline;
+    friend class TranslateTimeline;
 
 public:
-	BoneData(int index, const String &name, BoneData *parent = NULL);
+    BoneData(int index, const String &name, BoneData *parent = NULL);
 
-	/// The index of the bone in Skeleton.Bones
-	int getIndex();
+    /// The index of the bone in Skeleton.Bones
+    int getIndex();
 
-	/// The name of the bone, which is unique within the skeleton.
-	const String &getName();
+    /// The name of the bone, which is unique within the skeleton.
+    const String &getName();
 
-	/// May be NULL.
-	BoneData *getParent();
+    /// May be NULL.
+    BoneData *getParent();
 
-	float getLength();
+    float getLength();
 
-	void setLength(float inValue);
+    void setLength(float inValue);
 
-	/// Local X translation.
-	float getX();
+    /// Local X translation.
+    float getX();
 
-	void setX(float inValue);
+    void setX(float inValue);
 
-	/// Local Y translation.
-	float getY();
+    /// Local Y translation.
+    float getY();
 
-	void setY(float inValue);
+    void setY(float inValue);
 
-	/// Local rotation.
-	float getRotation();
+    /// Local rotation.
+    float getRotation();
 
-	void setRotation(float inValue);
+    void setRotation(float inValue);
 
-	/// Local scaleX.
-	float getScaleX();
+    /// Local scaleX.
+    float getScaleX();
 
-	void setScaleX(float inValue);
+    void setScaleX(float inValue);
 
-	/// Local scaleY.
-	float getScaleY();
+    /// Local scaleY.
+    float getScaleY();
 
-	void setScaleY(float inValue);
+    void setScaleY(float inValue);
 
-	/// Local shearX.
-	float getShearX();
+    /// Local shearX.
+    float getShearX();
 
-	void setShearX(float inValue);
+    void setShearX(float inValue);
 
-	/// Local shearY.
-	float getShearY();
+    /// Local shearY.
+    float getShearY();
 
-	void setShearY(float inValue);
+    void setShearY(float inValue);
 
-	/// The transform mode for how parent world transforms affect this bone.
-	TransformMode getTransformMode();
+    /// The transform mode for how parent world transforms affect this bone.
+    TransformMode getTransformMode();
 
-	void setTransformMode(TransformMode inValue);
+    void setTransformMode(TransformMode inValue);
 
-	bool isSkinRequired();
-	void setSkinRequired(bool inValue);
+    bool isSkinRequired();
+    void setSkinRequired(bool inValue);
 
 private:
-	const int _index;
-	const String _name;
-	BoneData *_parent;
-	float _length;
-	float _x, _y, _rotation, _scaleX, _scaleY, _shearX, _shearY;
-	TransformMode _transformMode;
-	bool _skinRequired;
+    const int _index;
+    const String _name;
+    BoneData *_parent;
+    float _length;
+    float _x, _y, _rotation, _scaleX, _scaleY, _shearX, _shearY;
+    TransformMode _transformMode;
+    bool _skinRequired;
 };
-}
+} // namespace spine
 
 #endif /* Spine_BoneData_h */

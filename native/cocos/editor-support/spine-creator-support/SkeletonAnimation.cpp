@@ -29,6 +29,7 @@
 
 #include "spine-creator-support/SkeletonAnimation.h"
 #include <algorithm>
+#include "base/DeferredReleasePool.h"
 #include "base/Log.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 #include "spine/Extension.h"
@@ -36,12 +37,12 @@
 namespace spine {
 
 struct TrackEntryListeners {
-    StartListener     startListener;
+    StartListener startListener;
     InterruptListener interruptListener;
-    EndListener       endListener;
-    DisposeListener   disposeListener;
-    CompleteListener  completeListener;
-    EventListener     eventListener;
+    EndListener endListener;
+    DisposeListener disposeListener;
+    CompleteListener completeListener;
+    EventListener eventListener;
 };
 
 void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
@@ -67,34 +68,30 @@ static TrackEntryListeners *getListeners(TrackEntry *entry) {
 }
 
 float SkeletonAnimation::GlobalTimeScale = 1.0F;
-void  SkeletonAnimation::setGlobalTimeScale(float timeScale) {
+void SkeletonAnimation::setGlobalTimeScale(float timeScale) {
     GlobalTimeScale = timeScale;
 }
 
 SkeletonAnimation *SkeletonAnimation::create() {
     auto *skeleton = new SkeletonAnimation();
-    skeleton->autorelease();
     return skeleton;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
     auto *node = new SkeletonAnimation();
     node->initWithData(skeletonData, ownsSkeletonData);
-    node->autorelease();
     return node;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithJsonFile(const std::string &skeletonJsonFile, const std::string &atlasFile, float scale) {
     auto *node = new SkeletonAnimation();
     node->initWithJsonFile(skeletonJsonFile, atlasFile, scale);
-    node->autorelease();
     return node;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithBinaryFile(const std::string &skeletonBinaryFile, const std::string &atlasFile, float scale) {
     auto *node = new SkeletonAnimation();
     node->initWithBinaryFile(skeletonBinaryFile, atlasFile, scale);
-    node->autorelease();
     return node;
 }
 
@@ -102,7 +99,7 @@ void SkeletonAnimation::initialize() {
     super::initialize();
 
     _ownsAnimationStateData = true;
-    _state                  = new (__FILE__, __LINE__) AnimationState(new (__FILE__, __LINE__) AnimationStateData(_skeleton->getData()));
+    _state = new (__FILE__, __LINE__) AnimationState(new (__FILE__, __LINE__) AnimationStateData(_skeleton->getData()));
     _state->setRendererObject(this);
     _state->setListener(animationCallback);
 }
@@ -110,12 +107,12 @@ void SkeletonAnimation::initialize() {
 SkeletonAnimation::SkeletonAnimation() = default;
 
 SkeletonAnimation::~SkeletonAnimation() {
-    _startListener     = nullptr;
+    _startListener = nullptr;
     _interruptListener = nullptr;
-    _endListener       = nullptr;
-    _disposeListener   = nullptr;
-    _completeListener  = nullptr;
-    _eventListener     = nullptr;
+    _endListener = nullptr;
+    _disposeListener = nullptr;
+    _completeListener = nullptr;
+    _eventListener = nullptr;
 
     if (_state) {
         if (_ownsAnimationStateData) delete _state->getData();
@@ -135,7 +132,7 @@ void SkeletonAnimation::update(float deltaTime) {
 }
 
 void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
-    CCASSERT(stateData, "stateData cannot be null.");
+    CC_ASSERT(stateData);
 
     if (_state) {
         if (_ownsAnimationStateData) delete _state->getData();
@@ -143,7 +140,7 @@ void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
     }
 
     _ownsAnimationStateData = false;
-    _state                  = new (__FILE__, __LINE__) AnimationState(stateData);
+    _state = new (__FILE__, __LINE__) AnimationState(stateData);
     _state->setRendererObject(this);
     _state->setListener(animationCallback);
 }

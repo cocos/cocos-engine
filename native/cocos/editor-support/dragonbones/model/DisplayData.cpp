@@ -8,10 +8,8 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-void VerticesData::clear()
-{
-    if (!isShared && weight != nullptr)
-    {
+void VerticesData::clear() {
+    if (!isShared && weight != nullptr) {
         weight->returnToPool();
     }
 
@@ -22,23 +20,20 @@ void VerticesData::clear()
     weight = nullptr;
 }
 
-void VerticesData::shareFrom(const VerticesData& value)
-{
+void VerticesData::shareFrom(const VerticesData& value) {
     isShared = true;
     offset = value.offset;
     weight = value.weight;
 }
 
-void DisplayData::_onClear()
-{
+void DisplayData::_onClear() {
     name = "";
     path = "";
     transform.identity();
     parent = nullptr;
 }
 
-void ImageDisplayData::_onClear()
-{
+void ImageDisplayData::_onClear() {
     DisplayData::_onClear();
 
     type = DisplayType::Image;
@@ -46,12 +41,10 @@ void ImageDisplayData::_onClear()
     texture = nullptr;
 }
 
-void ArmatureDisplayData::_onClear()
-{
+void ArmatureDisplayData::_onClear() {
     DisplayData::_onClear();
 
-    for(const auto action : actions)
-    {
+    for (const auto action : actions) {
         action->returnToPool();
     }
 
@@ -61,13 +54,11 @@ void ArmatureDisplayData::_onClear()
     armature = nullptr;
 }
 
-void ArmatureDisplayData::addAction(ActionData* value)
-{
+void ArmatureDisplayData::addAction(ActionData* value) {
     actions.push_back(value);
 }
 
-void MeshDisplayData::_onClear()
-{
+void MeshDisplayData::_onClear() {
     DisplayData::_onClear();
 
     type = DisplayType::Mesh;
@@ -75,12 +66,10 @@ void MeshDisplayData::_onClear()
     texture = nullptr;
 }
 
-void BoundingBoxDisplayData::_onClear()
-{
+void BoundingBoxDisplayData::_onClear() {
     DisplayData::_onClear();
 
-    if(boundingBox != nullptr)
-    {
+    if (boundingBox != nullptr) {
         boundingBox->returnToPool();
     }
 
@@ -88,15 +77,13 @@ void BoundingBoxDisplayData::_onClear()
     boundingBox = nullptr;
 }
 
-void WeightData::_onClear()
-{
+void WeightData::_onClear() {
     count = 0;
     offset = 0;
     bones.clear();
 }
 
-void WeightData::addBone(BoneData* value)
-{
+void WeightData::addBone(BoneData* value) {
     bones.push_back(value);
 }
 

@@ -25,12 +25,11 @@
 
 #pragma once
 
-#include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/RenderStage.h"
 
 namespace cc {
 namespace scene {
-struct Camera;
+class Camera;
 }
 namespace pipeline {
 
@@ -60,10 +59,10 @@ private:
     void recordCommands(DeferredPipeline *pipeline, scene::Camera *camera, gfx::RenderPass *renderPass);
 
     static RenderStageInfo initInfo;
-    PlanarShadowQueue *    _planarShadowQueue = nullptr;
-    RenderBatchedQueue *   _batchedQueue      = nullptr;
-    RenderInstancedQueue * _instancedQueue    = nullptr;
-    uint                   _phaseID = 0;
+    PlanarShadowQueue *_planarShadowQueue = nullptr;
+    RenderBatchedQueue *_batchedQueue = nullptr;
+    RenderInstancedQueue *_instancedQueue = nullptr;
+    uint32_t _phaseID = 0;
 };
 
 } // namespace pipeline

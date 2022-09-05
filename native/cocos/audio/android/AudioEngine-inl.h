@@ -20,7 +20,7 @@
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
+THE SOFTWARE.
  ****************************************************************************/
 #pragma once
 
@@ -31,12 +31,11 @@
 #include <SLES/OpenSLES_Platform.h>
 #endif
 #include <functional>
-#include <string>
-#include <unordered_map>
-
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "base/Utils.h"
-
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
+#include "audio/include/AudioDef.h"
 #define MAX_AUDIOINSTANCES 13
 
 #define ERRORLOG(msg) log("fun:%s,line:%d,msg:%s", __func__, __LINE__, #msg)
@@ -50,33 +49,36 @@ class AudioPlayerProvider;
 
 class AudioEngineImpl;
 
-class AudioEngineImpl : public cc::Ref {
+class AudioEngineImpl : public RefCounted {
 public:
     AudioEngineImpl();
     ~AudioEngineImpl() override;
 
-    bool  init();
-    int   play2d(const std::string &filePath, bool loop, float volume);
-    void  setVolume(int audioID, float volume);
-    void  setLoop(int audioID, bool loop);
-    void  pause(int audioID);
-    void  resume(int audioID);
-    void  stop(int audioID);
-    void  stopAll();
+    bool init();
+    int play2d(const ccstd::string &filePath, bool loop, float volume);
+    void setVolume(int audioID, float volume);
+    void setLoop(int audioID, bool loop);
+    void pause(int audioID);
+    void resume(int audioID);
+    void stop(int audioID);
+    void stopAll();
     float getDuration(int audioID);
-    float getDurationFromFile(const std::string &filePath);
+    float getDurationFromFile(const ccstd::string &filePath);
     float getCurrentTime(int audioID);
-    bool  setCurrentTime(int audioID, float time);
-    void  setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
+    bool setCurrentTime(int audioID, float time);
+    void setFinishCallback(int audioID, const std::function<void(int, const ccstd::string &)> &callback);
 
-    void uncache(const std::string &filePath);
+    void uncache(const ccstd::string &filePath);
     void uncacheAll();
-    void preload(const std::string &filePath, const std::function<void(bool)> &callback);
+    void preload(const ccstd::string &filePath, const std::function<void(bool)> &callback);
 
     void onResume();
     void onPause();
 
     void setAudioFocusForAllPlayers(bool isFocus);
+
+    PCMHeader getPCMHeader(const char* url);
+    std::vector<uint8_t> getOriginalPCMBuffer(const char* url, uint32_t channelID);
 
 private:
     // engine interfaces
@@ -87,11 +89,11 @@ private:
     SLObjectItf _outputMixObject;
 
     //audioID,AudioInfo
-    std::unordered_map<int, IAudioPlayer *>                                _audioPlayers;
-    std::unordered_map<int, std::function<void(int, const std::string &)>> _callbackMap;
+    ccstd::unordered_map<int, IAudioPlayer *> _audioPlayers;
+    ccstd::unordered_map<int, std::function<void(int, const ccstd::string &)>> _callbackMap;
 
     // UrlAudioPlayers which need to resumed while entering foreground
-    std::unordered_map<int, IAudioPlayer *> _urlAudioPlayersNeedResume;
+    ccstd::unordered_map<int, IAudioPlayer *> _urlAudioPlayersNeedResume;
 
     AudioPlayerProvider *_audioPlayerProvider;
 

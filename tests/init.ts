@@ -1,7 +1,16 @@
 
 jest.mock(
     'internal:constants',
-    () => jest.requireActual('../cocos/core/default-constants'),
+    () => jest.requireActual('./constants-for-test'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'internal:native',
+    () => ({
+        __esModule: true,
+        default: {}
+    }),
     { virtual: true, },
 );
 
@@ -20,6 +29,18 @@ jest.mock(
 jest.mock(
     'pal/system-info',
     () => jest.requireActual('../pal/system-info/web/system-info'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'pal/env',
+    () => jest.requireActual('../pal/env/web/env'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'pal/pacer',
+    () => jest.requireActual('../pal/pacer/pacer-web'),
     { virtual: true, },
 );
 
@@ -71,24 +92,44 @@ jest.mock('serialization-test-helper/run-test', () => {
 
 import '../exports/base';
 import { DebugMode } from "../cocos/core/platform/debug";
-import { game, IGameConfig } from '../exports/base';
+import { EffectAsset, Game, game, IGameConfig } from '../exports/base';
 import './asset-manager/init';
 import '../cocos/core/gfx/empty/empty-device';
 import '../cocos/3d/skeletal-animation/data-pool-manager';
 import '../cocos/core/animation';
+import { effects } from './fixtures/builtin-effects';
+import { glsl4 } from './fixtures/builtin-glsl4';
+import { initBuiltinMaterial } from './fixtures/builtin-material';
+import { initBuiltinPhysicsMaterial } from './fixtures/builtin-physics-material';
 import '../cocos/2d/utils/dynamic-atlas/atlas-manager';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');
 const config: IGameConfig = {
-    customJointTextureLayouts: [],
     debugMode: DebugMode.INFO,
-    renderMode: 3, // Headless Mode
-    adapter: {
-        canvas: canvas,
-        frame: div,
-        container: div
+    overrideSettings: {
+        rendering: {
+            renderMode: 3, // Headless Mode
+        }
     }
 }
-game.init(config);
-game.run();
+globalThis.waitThis((async () => {
+    game.on(Game.EVENT_POST_SUBSYSTEM_INIT, () => {
+        effects.forEach((e, effectIndex) => {
+            const effect = Object.assign(new EffectAsset(), e);
+            effect.shaders.forEach((shaderInfo, shaderIndex) => {
+                const shaderSource = glsl4[effectIndex][shaderIndex];
+                if (shaderSource) {
+                    shaderInfo['glsl4'] = shaderSource;
+                }
+            });
+            effect.hideInEditor = true;
+            effect.onLoaded();
+        });
+        initBuiltinMaterial()
+    });
+
+    initBuiltinPhysicsMaterial();
+    await game.init(config);
+    await game.run();
+})());

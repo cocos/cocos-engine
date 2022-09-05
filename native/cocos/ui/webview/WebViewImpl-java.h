@@ -36,22 +36,24 @@ namespace cc {
 
 class WebView;
 
-class WebViewImpl {
+class WebViewImpl final {
 public:
     explicit WebViewImpl(WebView *webView);
 
-    virtual ~WebViewImpl();
+    ~WebViewImpl();
 
-    void setJavascriptInterfaceScheme(const std::string &scheme);
+    void destroy();
 
-    void loadData(const cc::Data &data, const std::string &mimeType,
-                  const std::string &encoding, const std::string &baseURL);
+    void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
-    void loadHTMLString(const std::string &string, const std::string &baseURL);
+    void loadData(const cc::Data &data, const ccstd::string &mimeType,
+                  const ccstd::string &encoding, const ccstd::string &baseURL);
 
-    void loadURL(const std::string &url);
+    void loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL);
 
-    void loadFile(const std::string &fileName);
+    void loadURL(const ccstd::string &url);
+
+    void loadFile(const ccstd::string &fileName);
 
     void stopLoading();
 
@@ -65,28 +67,28 @@ public:
 
     void goForward();
 
-    void evaluateJS(const std::string &js);
+    void evaluateJS(const ccstd::string &js);
 
     void setScalesPageToFit(bool scalesPageToFit);
 
-    virtual void setVisible(bool visible);
+    void setVisible(bool visible);
 
-    virtual void setFrame(float x, float y, float width, float height);
+    void setFrame(float x, float y, float width, float height);
 
     void setBounces(bool bounces);
 
     void setBackgroundTransparent(bool isTransparent);
 
-    static bool shouldStartLoading(int viewTag, const std::string &url);
+    static bool shouldStartLoading(int viewTag, const ccstd::string &url);
 
-    static void didFinishLoading(int viewTag, const std::string &url);
+    static void didFinishLoading(int viewTag, const ccstd::string &url);
 
-    static void didFailLoading(int viewTag, const std::string &url);
+    static void didFailLoading(int viewTag, const ccstd::string &url);
 
-    static void onJsCallback(int viewTag, const std::string &message);
+    static void onJsCallback(int viewTag, const ccstd::string &message);
 
 private:
-    int      _viewTag;
+    int _viewTag;
     WebView *_webView;
 };
 

@@ -32,17 +32,17 @@ OSInterface::OSInterface()
 : OSInterface(nullptr) {
 }
 
-OSInterface::OSInterface(IEventDispatch* evDispatchInterface)
+OSInterface::OSInterface(IEventDispatch *evDispatchInterface)
 : _evDispatchInterface(evDispatchInterface) {
 }
 
-void OSInterface::dispatchEvent(const OSEvent& ev) {
+void OSInterface::dispatchEvent(const OSEvent &ev) {
     if (_evDispatchInterface) {
         _evDispatchInterface->dispatchEvent(ev);
     }
 }
 
-void OSInterface::dispatchTouchEvent(const TouchEvent& ev) {
+void OSInterface::dispatchTouchEvent(const TouchEvent &ev) {
     if (_evDispatchInterface) {
         _evDispatchInterface->dispatchTouchEvent(ev);
     }

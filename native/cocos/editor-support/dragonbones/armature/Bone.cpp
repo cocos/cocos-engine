@@ -8,8 +8,7 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-void Bone::_onClear()
-{
+void Bone::_onClear() {
     TransformObject::_onClear();
 
     offsetMode = OffsetMode::Additive;
@@ -27,94 +26,67 @@ void Bone::_onClear()
     _cachedFrameIndices = nullptr;
 }
 
-void Bone::_updateGlobalTransformMatrix(bool isCache)
-{
+void Bone::_updateGlobalTransformMatrix(bool isCache) {
     const auto flipX = _armature->getFlipX();
     const auto flipY = _armature->getFlipY() == DragonBones::yDown;
     auto inherit = _parent != nullptr;
     auto rotation = 0.0f;
 
-    if (offsetMode == OffsetMode::Additive) 
-    {
-        if (origin != nullptr)
-        {
+    if (offsetMode == OffsetMode::Additive) {
+        if (origin != nullptr) {
             // global = *origin; // Copy.
             // global.add(offset).add(animationPose);
             global.x = origin->x + offset.x + animationPose.x;
             global.scaleX = origin->scaleX * offset.scaleX * animationPose.scaleX;
             global.scaleY = origin->scaleY * offset.scaleY * animationPose.scaleY;
-            if (DragonBones::yDown)
-            {
+            if (DragonBones::yDown) {
                 global.y = origin->y + offset.y + animationPose.y;
                 global.skew = origin->skew + offset.skew + animationPose.skew;
                 global.rotation = origin->rotation + offset.rotation + animationPose.rotation;
-            }
-            else
-            {
+            } else {
                 global.y = origin->y - offset.y + animationPose.y;
                 global.skew = origin->skew - offset.skew + animationPose.skew;
                 global.rotation = origin->rotation - offset.rotation + animationPose.rotation;
             }
-        }
-        else 
-        {
+        } else {
             global = offset; // Copy.
-            if (!DragonBones::yDown)
-            {
+            if (!DragonBones::yDown) {
                 global.y = -global.y;
                 global.skew = -global.skew;
                 global.rotation = -global.rotation;
             }
             global.add(animationPose);
         }
-    }
-    else if (offsetMode == OffsetMode::None) 
-    {
-        if (origin != nullptr)
-        {
+    } else if (offsetMode == OffsetMode::None) {
+        if (origin != nullptr) {
             global = *origin;
             global.add(animationPose);
-        }
-        else
-        {
+        } else {
             global = animationPose;
         }
-    }
-    else 
-    {
+    } else {
         inherit = false;
         global = offset;
-        if (!DragonBones::yDown)
-        {
+        if (!DragonBones::yDown) {
             global.y = -global.y;
             global.skew = -global.skew;
             global.rotation = -global.rotation;
         }
     }
 
-    if (inherit) 
-    {
+    if (inherit) {
         const auto& parentMatrix = _parent->globalTransformMatrix;
-        if (_boneData->inheritScale) 
-        {
-            if (!_boneData->inheritRotation) 
-            {
+        if (_boneData->inheritScale) {
+            if (!_boneData->inheritRotation) {
                 _parent->updateGlobalTransform();
 
-                if (flipX && flipY) 
-                {
+                if (flipX && flipY) {
                     rotation = global.rotation - (_parent->global.rotation + Transform::PI);
-                }
-                else if (flipX) 
-                {
+                } else if (flipX) {
                     rotation = global.rotation + _parent->global.rotation + Transform::PI;
-                }
-                else if (flipY) 
-                {
+                } else if (flipY) {
                     rotation = global.rotation + _parent->global.rotation;
-                }
-                else 
-                {
+                } else {
                     rotation = global.rotation - _parent->global.rotation;
                 }
 
@@ -124,92 +96,64 @@ void Bone::_updateGlobalTransformMatrix(bool isCache)
             global.toMatrix(globalTransformMatrix);
             globalTransformMatrix.concat(parentMatrix);
 
-            if (_boneData->inheritTranslation) 
-            {
+            if (_boneData->inheritTranslation) {
                 global.x = globalTransformMatrix.tx;
                 global.y = globalTransformMatrix.ty;
-            }
-            else 
-            {
+            } else {
                 globalTransformMatrix.tx = global.x;
                 globalTransformMatrix.ty = global.y;
             }
 
-            if (isCache) 
-            {
+            if (isCache) {
                 global.fromMatrix(globalTransformMatrix);
-            }
-            else 
-            {
+            } else {
                 _globalDirty = true;
             }
-        }
-        else 
-        {
-            if (_boneData->inheritTranslation) 
-            {
+        } else {
+            if (_boneData->inheritTranslation) {
                 const auto x = global.x;
                 const auto y = global.y;
                 global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
                 global.y = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
-            }
-            else 
-            {
-                if (flipX)
-                {
+            } else {
+                if (flipX) {
                     global.x = -global.x;
                 }
 
-                if (flipY)
-                {
+                if (flipY) {
                     global.y = -global.y;
                 }
             }
 
-            if (_boneData->inheritRotation) 
-            {
+            if (_boneData->inheritRotation) {
                 _parent->updateGlobalTransform();
 
-                if (_parent->global.scaleX < 0.0f)
-                {
+                if (_parent->global.scaleX < 0.0f) {
                     rotation = global.rotation + _parent->global.rotation + Transform::PI;
-                }
-                else 
-                {
+                } else {
                     rotation = global.rotation + _parent->global.rotation;
                 }
 
-                if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0f)
-                {
+                if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0f) {
                     rotation -= global.rotation * 2.0f;
 
-                    if (flipX != flipY || _boneData->inheritReflection) 
-                    {
+                    if (flipX != flipY || _boneData->inheritReflection) {
                         global.skew += Transform::PI;
                     }
-                    
-                    if (!DragonBones::yDown)
-                    {
+
+                    if (!DragonBones::yDown) {
                         global.skew = -global.skew;
                     }
                 }
 
                 global.rotation = rotation;
-            }
-            else if (flipX || flipY) 
-            {
-                if (flipX && flipY) 
-                {
+            } else if (flipX || flipY) {
+                if (flipX && flipY) {
                     rotation = global.rotation + Transform::PI;
-                }
-                else 
-                {
-                    if (flipX) 
-                    {
+                } else {
+                    if (flipX) {
                         rotation = Transform::PI - global.rotation;
-                    }
-                    else
-                    {
+                    } else {
                         rotation = -global.rotation;
                     }
 
@@ -221,33 +165,22 @@ void Bone::_updateGlobalTransformMatrix(bool isCache)
 
             global.toMatrix(globalTransformMatrix);
         }
-    }
-    else 
-    {
-        if (flipX || flipY) 
-        {
-            if (flipX) 
-            {
+    } else {
+        if (flipX || flipY) {
+            if (flipX) {
                 global.x = -global.x;
             }
 
-            if (flipY) 
-            {
+            if (flipY) {
                 global.y = -global.y;
             }
 
-            if (flipX && flipY) 
-            {
+            if (flipX && flipY) {
                 rotation = global.rotation + Transform::PI;
-            }
-            else 
-            {
-                if (flipX) 
-                {
+            } else {
+                if (flipX) {
                     rotation = Transform::PI - global.rotation;
-                }
-                else 
-                {
+                } else {
                     rotation = -global.rotation;
                 }
 
@@ -261,18 +194,15 @@ void Bone::_updateGlobalTransformMatrix(bool isCache)
     }
 }
 
-void Bone::init(const BoneData* boneData, Armature* armatureValue)
-{
-    if (_boneData != nullptr) 
-    {
+void Bone::init(const BoneData* boneData, Armature* armatureValue) {
+    if (_boneData != nullptr) {
         return;
     }
 
     _boneData = boneData;
     _armature = armatureValue;
 
-    if (_boneData->parent != nullptr) 
-    {
+    if (_boneData->parent != nullptr) {
         _parent = _armature->getBone(_boneData->parent->name);
     }
 
@@ -281,66 +211,53 @@ void Bone::init(const BoneData* boneData, Armature* armatureValue)
     origin = &(_boneData->transform);
 }
 
-void Bone::update(int cacheFrameIndex)
-{
+void Bone::update(int cacheFrameIndex) {
     _blendState.dirty = false;
 
-    if (cacheFrameIndex >= 0 && _cachedFrameIndices != nullptr) 
-    {
+    if (cacheFrameIndex >= 0 && _cachedFrameIndices != nullptr) {
         const auto cachedFrameIndex = (*_cachedFrameIndices)[cacheFrameIndex];
         if (cachedFrameIndex >= 0 && _cachedFrameIndex == cachedFrameIndex) // Same cache.
         {
             _transformDirty = false;
-        }
-        else if (cachedFrameIndex >= 0) // Has been Cached.
+        } else if (cachedFrameIndex >= 0) // Has been Cached.
         {
             _transformDirty = true;
             _cachedFrameIndex = cachedFrameIndex;
-        }
-        else 
-        {
+        } else {
             if (_hasConstraint) // Update constraints.
             {
-                for (const auto constraint : _armature->_constraints) 
-                {
-                    if (constraint->_root == this)
-                    {
+                for (const auto constraint : _armature->_constraints) {
+                    if (constraint->_root == this) {
                         constraint->update();
                     }
                 }
             }
 
-            if ( _transformDirty || (_parent != nullptr && _parent->_childrenTransformDirty)) // Dirty.
+            if (_transformDirty || (_parent != nullptr && _parent->_childrenTransformDirty)) // Dirty.
             {
                 _transformDirty = true;
                 _cachedFrameIndex = -1;
-            }
-            else if (_cachedFrameIndex >= 0) // Same cache, but not set index yet.
+            } else if (_cachedFrameIndex >= 0) // Same cache, but not set index yet.
             {
                 _transformDirty = false;
                 (*_cachedFrameIndices)[cacheFrameIndex] = _cachedFrameIndex;
-            }
-            else // Dirty.
+            } else // Dirty.
             {
                 _transformDirty = true;
                 _cachedFrameIndex = -1;
             }
         }
-    }
-    else 
-    {
+    } else {
         if (_hasConstraint) // Update constraints.
         {
-            for (const auto constraint : _armature->_constraints)
-            {
-                if (constraint->_root == this)
-                {
+            for (const auto constraint : _armature->_constraints) {
+                if (constraint->_root == this) {
                     constraint->update();
                 }
             }
         }
 
-        if ( _transformDirty || (_parent != nullptr && _parent->_childrenTransformDirty)) // Dirty.
+        if (_transformDirty || (_parent != nullptr && _parent->_childrenTransformDirty)) // Dirty.
         {
             cacheFrameIndex = -1;
             _transformDirty = true;
@@ -348,46 +265,35 @@ void Bone::update(int cacheFrameIndex)
         }
     }
 
-    if (_transformDirty) 
-    {
+    if (_transformDirty) {
         _transformDirty = false;
         _childrenTransformDirty = true;
         //
-        if (_cachedFrameIndex < 0) 
-        {
+        if (_cachedFrameIndex < 0) {
             const auto isCache = cacheFrameIndex >= 0;
-            if (_localDirty) 
-            {
+            if (_localDirty) {
                 _updateGlobalTransformMatrix(isCache);
             }
 
-            if (isCache && _cachedFrameIndices != nullptr) 
-            {
+            if (isCache && _cachedFrameIndices != nullptr) {
                 _cachedFrameIndex = (*_cachedFrameIndices)[cacheFrameIndex] = _armature->_armatureData->setCacheFrame(globalTransformMatrix, global);
             }
-        }
-        else 
-        {
+        } else {
             _armature->_armatureData->getCacheFrame(globalTransformMatrix, global, _cachedFrameIndex);
         }
         //
-    }
-    else if (_childrenTransformDirty) 
-    {
+    } else if (_childrenTransformDirty) {
         _childrenTransformDirty = false;
     }
 
     _localDirty = true;
 }
 
-void Bone::updateByConstraint()
-{
-    if (_localDirty) 
-    {
+void Bone::updateByConstraint() {
+    if (_localDirty) {
         _localDirty = false;
 
-        if (_transformDirty || (_parent != nullptr && _parent->_childrenTransformDirty)) 
-        {
+        if (_transformDirty || (_parent != nullptr && _parent->_childrenTransformDirty)) {
             _updateGlobalTransformMatrix(true);
         }
 
@@ -395,35 +301,28 @@ void Bone::updateByConstraint()
     }
 }
 
-bool Bone::contains(const Bone* value) const
-{
-    if (value == this)
-    {
+bool Bone::contains(const Bone* value) const {
+    if (value == this) {
         return false;
     }
 
     auto ancestor = value;
-    while (ancestor != this && ancestor != nullptr)
-    {
+    while (ancestor != this && ancestor != nullptr) {
         ancestor = ancestor->getParent();
     }
 
     return ancestor == this;
 }
 
-void Bone::setVisible(bool value)
-{
-    if (_visible == value)
-    {
+void Bone::setVisible(bool value) {
+    if (_visible == value) {
         return;
     }
 
     _visible = value;
 
-    for (const auto & slot : _armature->getSlots())
-    {
-        if (slot->getParent() == this)
-        {
+    for (const auto& slot : _armature->getSlots()) {
+        if (slot->getParent() == this) {
             slot->_updateVisible();
         }
     }

@@ -46,8 +46,8 @@ protected:
     void doInit(const QueryPoolInfo &info) override;
     void doDestroy() override;
 
-    CCMTLGPUQueryPool *   _gpuQueryPool{nullptr};
-    std::vector<uint32_t> _ids;
+    CCMTLGPUQueryPool *_gpuQueryPool{nullptr};
+    ccstd::vector<uint32_t> _ids;
 };
 
 } // namespace gfx

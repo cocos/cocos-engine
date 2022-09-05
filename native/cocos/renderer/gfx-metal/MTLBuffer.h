@@ -42,39 +42,39 @@ public:
     explicit CCMTLBuffer();
     ~CCMTLBuffer();
     CCMTLBuffer(const CCMTLBuffer &) = delete;
-    CCMTLBuffer(CCMTLBuffer &&)      = delete;
+    CCMTLBuffer(CCMTLBuffer &&) = delete;
     CCMTLBuffer &operator=(const CCMTLBuffer &) = default;
     CCMTLBuffer &operator=(CCMTLBuffer &&) = delete;
 
-    void update(const void *buffer, uint offset) override;
+    void update(const void *buffer, uint32_t offset) override;
 
-    void encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
+    void encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, uint32_t binding, ShaderStageFlags stages);
 
     id<MTLBuffer> getMTLBuffer() const;
 
-    inline CCMTLGPUBuffer *    gpuBuffer() { return _gpuBuffer; }
-    inline MTLIndexType        getIndexType() const { return _indexType; }
-    inline bool                isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
+    inline CCMTLGPUBuffer *gpuBuffer() { return _gpuBuffer; }
+    inline MTLIndexType getIndexType() const { return _indexType; }
+    inline bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     inline const DrawInfoList &getDrawInfos() const { return _drawInfos; }
 
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
 
-    bool createMTLBuffer(uint size, MemoryUsage usage);
-    void updateMTLBuffer(const void *buffer, uint offset, uint size);
+    bool createMTLBuffer(uint32_t size, MemoryUsage usage);
+    void updateMTLBuffer(const void *buffer, uint32_t offset, uint32_t size);
 
-    MTLIndexType       _indexType               = MTLIndexTypeUInt16;
-    MTLResourceOptions _mtlResourceOptions      = MTLResourceStorageModePrivate;
-    bool               _isIndirectDrawSupported = false;
-    uint               _bufferViewOffset        = 0;
+    MTLIndexType _indexType = MTLIndexTypeUInt16;
+    MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
+    bool _isIndirectDrawSupported = false;
+    uint32_t _bufferViewOffset = 0;
 
-    bool                                              _isDrawIndirectByIndex = false;
-    vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
-    vector<MTLDrawPrimitivesIndirectArguments>        _primitiveIndirectArguments;
-    DrawInfoList                                      _drawInfos;
+    bool _isDrawIndirectByIndex = false;
+    ccstd::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
+    ccstd::vector<MTLDrawPrimitivesIndirectArguments> _primitiveIndirectArguments;
+    DrawInfoList _drawInfos;
 
     CCMTLGPUBuffer *_gpuBuffer = nullptr;
 };

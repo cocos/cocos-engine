@@ -24,19 +24,20 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3 } from '../../core/math';
+import { Vec3, builtinResMgr, RecyclePool, game, Enum } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
-import { RecyclePool, game, Enum } from '../../core';
+
 import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
-import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
+import { IPhysicsConfig, ICollisionMatrix, IPhysicsMaterial } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
+import { Settings, settings } from '../../core/settings';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
@@ -209,6 +210,25 @@ export class PhysicsSystem extends System implements IWorldInitData {
         return this._material;
     }
 
+    initDefaultMaterial () : void {
+        if (this._material != null) {
+            return;
+        }
+
+        this._material = builtinResMgr.get<PhysicsMaterial>('default-physics-material');
+        if (this._material != null) {
+            //console.log('initDefaultMaterial');
+            //console.log('this._materialConfig', this._materialConfig);
+            this.physicsWorld.setDefaultMaterial(this._material);
+            this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
+
+            //set default physics material using material config
+            this.setDefaultMaterial(this._materialConfig);
+        } else {
+            console.error('PhysicsSystem initDefaultMaterial failed');
+        }
+    }
+
     /**
      * @en
      * Gets the wrappered object of the physical world through which you can access the actual underlying object.
@@ -262,9 +282,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
     private _accumulator = 0;
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
-    private readonly _material = new PhysicsMaterial();
+    private _material!: PhysicsMaterial; //default physics material
+    private _materialConfig: IPhysicsMaterial = new PhysicsMaterial();
     private static readonly _instance: PhysicsSystem | null = null;
-
     private readonly raycastOptions: IRaycastOptions = {
         group: -1,
         mask: -1,
@@ -276,11 +296,10 @@ export class PhysicsSystem extends System implements IWorldInitData {
 
     private constructor () {
         super();
-        this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
     }
 
     postUpdate (deltaTime: number) {
-        if (EDITOR && !this._executeInEditMode && !selector.runInEditor) return;
+        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
 
@@ -317,44 +336,62 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * 重置物理配置。
      */
     resetConfiguration (config?: IPhysicsConfig) {
-        const con = config || (game.config ? game.config.physics : null);
-        if (con) {
-            if (typeof con.allowSleep === 'boolean') this._allowSleep = con.allowSleep;
-            if (typeof con.fixedTimeStep === 'number') this._fixedTimeStep = con.fixedTimeStep;
-            if (typeof con.maxSubSteps === 'number') this._maxSubSteps = con.maxSubSteps;
-            if (typeof con.sleepThreshold === 'number') this._sleepThreshold = con.sleepThreshold;
-            if (typeof con.autoSimulation === 'boolean') this.autoSimulation = con.autoSimulation;
-            if (con.gravity) Vec3.copy(this._gravity, con.gravity);
+        const allowSleep = config ? config.allowSleep : settings.querySettings(Settings.Category.PHYSICS, 'allowSleep');
+        if (typeof allowSleep === 'boolean') this._allowSleep = allowSleep;
+        const fixedTimeStep = config ? config.fixedTimeStep : settings.querySettings(Settings.Category.PHYSICS, 'fixedTimeStep');
+        if (typeof fixedTimeStep === 'number') this._fixedTimeStep = fixedTimeStep;
+        const maxSubSteps = config ? config.maxSubSteps : settings.querySettings(Settings.Category.PHYSICS, 'maxSubSteps');
+        if (typeof maxSubSteps === 'number') this._maxSubSteps = maxSubSteps;
+        const sleepThreshold = config ? config.sleepThreshold : settings.querySettings(Settings.Category.PHYSICS, 'sleepThreshold');
+        if (typeof sleepThreshold === 'number') this._sleepThreshold = sleepThreshold;
+        const autoSimulation = config ? config.autoSimulation : settings.querySettings(Settings.Category.PHYSICS, 'autoSimulation');
+        if (typeof autoSimulation === 'boolean') this.autoSimulation = autoSimulation;
 
-            if (con.defaultMaterial) {
-                this._material.setValues(
-                    con.defaultMaterial.friction,
-                    con.defaultMaterial.rollingFriction,
-                    con.defaultMaterial.spinningFriction,
-                    con.defaultMaterial.restitution,
-                );
+        const gravity = config ? config.gravity : settings.querySettings(Settings.Category.PHYSICS, 'gravity');
+        if (gravity) Vec3.copy(this._gravity, gravity);
+
+        const defaultMaterialConfig = config ? config.defaultMaterial : settings.querySettings(Settings.Category.PHYSICS, 'defaultMaterial');
+        //console.log('resetConfiguration');
+        //console.log('defaultMaterialConfig', defaultMaterialConfig);
+        this._materialConfig = defaultMaterialConfig;
+
+        const collisionMatrix = config ? config.collisionMatrix : settings.querySettings(Settings.Category.PHYSICS, 'collisionMatrix');
+        if (collisionMatrix) {
+            for (const i in collisionMatrix) {
+                this.collisionMatrix[`${1 << parseInt(i)}`] = collisionMatrix[i];
             }
-
-            if (con.collisionMatrix) {
-                for (const i in con.collisionMatrix) {
-                    this.collisionMatrix[`${1 << parseInt(i)}`] = con.collisionMatrix[i];
-                }
-            }
-
-            if (con.collisionGroups) {
-                const cg = con.collisionGroups;
-                if (cg instanceof Array) {
-                    cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
-                    Enum.update(PhysicsGroup);
-                }
+        }
+        const collisionGroups = config ? config.collisionGroups : settings.querySettings<Array<{ name: string, index: number }>>(Settings.Category.PHYSICS, 'collisionGroups');
+        if (collisionGroups) {
+            const cg = collisionGroups;
+            if (cg instanceof Array) {
+                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                Enum.update(PhysicsGroup);
             }
         }
 
         if (this.physicsWorld) {
             this.physicsWorld.setGravity(this._gravity);
             this.physicsWorld.setAllowSleep(this._allowSleep);
-            this.physicsWorld.setDefaultMaterial(this._material);
         }
+    }
+
+    /**
+     * @en
+     * Set the default physics material to given value.
+     * @zh
+     * 设置默认物理材质到指定的值。
+     */
+    setDefaultMaterial (materialConfig : IPhysicsMaterial):void {
+        if (!this._material) return;
+        if (!materialConfig) return;
+
+        this._material.setValues(
+            materialConfig.friction,
+            materialConfig.rollingFriction,
+            materialConfig.spinningFriction,
+            materialConfig.restitution,
+        );
     }
 
     /**
@@ -461,6 +498,12 @@ export class PhysicsSystem extends System implements IWorldInitData {
             constructDefaultWorld(sys);
             (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
             director.registerSystem(PhysicsSystem.ID, sys, sys.priority);
+
+            if (!builtinResMgr.get<PhysicsMaterial>('default-physics-material')) {
+                game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));
+            } else {
+                sys.initDefaultMaterial();
+            }
         }
     }
 }

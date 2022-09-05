@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -45,7 +45,7 @@ namespace network {
  * @since v2.0.2.
  * @lua NA
  */
-class CC_DLL HttpResponse : public cc::Ref {
+class CC_DLL HttpResponse : public cc::RefCounted {
 public:
     /**
      * Constructor, it's used by HttpClient internal, users don't need to create HttpResponse manually.
@@ -56,7 +56,7 @@ public:
       _succeed(false),
       _responseDataString("") {
         if (_pHttpRequest) {
-            _pHttpRequest->retain();
+            _pHttpRequest->addRef();
         }
     }
 
@@ -68,18 +68,6 @@ public:
         if (_pHttpRequest) {
             _pHttpRequest->release();
         }
-    }
-
-    /**
-     * Override autorelease method to prevent developers from calling it.
-     * If this method is called , it would trigger CCASSERT.
-     * @return cc::Ref* always return nullptr.
-     */
-    cc::Ref *autorelease() {
-        CCASSERT(false,
-                 "HttpResponse is used between network thread and ui thread \
-                        therefore, autorelease is forbidden here");
-        return nullptr;
     }
 
     // getters, will be called by users
@@ -105,17 +93,17 @@ public:
 
     /**
      * Get the http response data.
-     * @return std::vector<char>* the pointer that point to the _responseData.
+     * @return ccstd::vector<char>* the pointer that point to the _responseData.
      */
-    inline std::vector<char> *getResponseData() {
+    inline ccstd::vector<char> *getResponseData() {
         return &_responseData;
     }
 
     /**
      * Get the response headers.
-     * @return std::vector<char>* the pointer that point to the _responseHeader.
+     * @return ccstd::vector<char>* the pointer that point to the _responseHeader.
      */
-    inline std::vector<char> *getResponseHeader() {
+    inline ccstd::vector<char> *getResponseHeader() {
         return &_responseHeader;
     }
 
@@ -153,7 +141,7 @@ public:
      * Set the http response data buffer, it is used by HttpClient.
      * @param data the pointer point to the response data buffer.
      */
-    inline void setResponseData(std::vector<char> *data) {
+    inline void setResponseData(ccstd::vector<char> *data) {
         _responseData = *data;
     }
 
@@ -161,7 +149,7 @@ public:
      * Set the http response headers buffer, it is used by HttpClient.
      * @param data the pointer point to the response headers buffer.
      */
-    inline void setResponseHeader(std::vector<char> *data) {
+    inline void setResponseHeader(ccstd::vector<char> *data) {
         _responseHeader = *data;
     }
 
@@ -205,13 +193,13 @@ protected:
     bool initWithRequest(HttpRequest *request);
 
     // properties
-    HttpRequest *     _pHttpRequest;       /// the corresponding HttpRequest pointer who leads to this response
-    bool              _succeed;            /// to indicate if the http request is successful simply
-    std::vector<char> _responseData;       /// the returned raw data. You can also dump it as a string
-    std::vector<char> _responseHeader;     /// the returned raw header data. You can also dump it as a string
-    long              _responseCode;       /// the status code returned from libcurl, e.g. 200, 404
-    std::string       _errorBuffer;        /// if _responseCode != 200, please read _errorBuffer to find the reason
-    std::string       _responseDataString; // the returned raw data. You can also dump it as a string
+    HttpRequest *_pHttpRequest;          /// the corresponding HttpRequest pointer who leads to this response
+    bool _succeed;                       /// to indicate if the http request is successful simply
+    ccstd::vector<char> _responseData;   /// the returned raw data. You can also dump it as a string
+    ccstd::vector<char> _responseHeader; /// the returned raw header data. You can also dump it as a string
+    long _responseCode;                  /// the status code returned from libcurl, e.g. 200, 404
+    ccstd::string _errorBuffer;          /// if _responseCode != 200, please read _errorBuffer to find the reason
+    ccstd::string _responseDataString;   // the returned raw data. You can also dump it as a string
 };
 
 } // namespace network

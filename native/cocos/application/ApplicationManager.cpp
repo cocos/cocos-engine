@@ -28,7 +28,7 @@
 
 namespace cc {
 // static
-ApplicationManager* ApplicationManager::getInstance() {
+ApplicationManager *ApplicationManager::getInstance() {
     static ApplicationManager mgr;
     return &mgr;
 }

@@ -28,23 +28,23 @@
  *****************************************************************************/
 
 #pragma once
+#include <queue>
 #include "MiddlewareManager.h"
 #include "SkeletonCache.h"
-#include "base/Ref.h"
+#include "base/RefCounted.h"
 #include "middleware-adapter.h"
 #include "spine/spine.h"
-#include <queue>
 
 namespace spine {
 
-class SkeletonCacheAnimation : public cc::middleware::IMiddleware, public cc::Ref {
+class SkeletonCacheAnimation : public cc::RefCounted, public cc::middleware::IMiddleware {
 public:
     SkeletonCacheAnimation(const std::string &uuid, bool isShare);
-    virtual ~SkeletonCacheAnimation();
+    ~SkeletonCacheAnimation() override;
 
-    virtual void update(float dt) override;
-    virtual void render(float dt) override;
-    virtual uint32_t getRenderOrder() const override;
+    void update(float dt) override;
+    void render(float dt) override;
+    uint32_t getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 
@@ -79,7 +79,7 @@ public:
     void addAnimation(const std::string &name, bool loop, float delay = 0);
     Animation *findAnimation(const std::string &name) const;
 
-    typedef std::function<void(std::string animationName)> CacheFrameEvent;
+    using CacheFrameEvent = std::function<void(std::string)>;
     void setStartListener(const CacheFrameEvent &listener);
     void setEndListener(const CacheFrameEvent &listener);
     void setCompleteListener(const CacheFrameEvent &listener);
@@ -105,7 +105,6 @@ private:
     float _timeScale = 1;
     bool _paused = false;
     bool _useAttach = false;
-    bool _batch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
     bool _premultipliedAlpha = false;
 
@@ -117,17 +116,17 @@ private:
     SkeletonCache::AnimationData *_animationData = nullptr;
     int _curFrameIndex = -1;
 
-    float _accTime = 0.0f;
+    float _accTime = 0.0F;
     int _playCount = 0;
     int _playTimes = 0;
     bool _isAniComplete = true;
-    std::string _animationName = "";
+    std::string _animationName;
     bool _useTint = true;
 
     struct AniQueueData {
-        std::string animationName = "";
+        std::string animationName;
         bool loop = false;
-        float delay = 0.0f;
+        float delay = 0.0F;
     };
     std::queue<AniQueueData *> _animationQueue;
     AniQueueData *_headAnimation = nullptr;

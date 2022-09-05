@@ -48,18 +48,15 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
         #set $count = $count + 1
     #end while
     #if $arg_idx > 0
-    SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     #end if
     #if len($arg_array) == 0
     #set $arg_list=""
     #else
     #set $arg_list = "," + ", ".join($arg_array)
     #end if
-    ${namespaced_class_name}* cobj = JSB_ALLOC(${namespaced_class_name}$arg_list);
-    s.thisObject()->setPrivateData(cobj);
-    #if not $is_ref_class
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    #end if
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(${namespaced_class_name}$arg_list);
+    s.thisObject()->setPrivateObject(ptr);
 #end if
     return true;
 #end if

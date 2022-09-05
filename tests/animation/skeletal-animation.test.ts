@@ -198,3 +198,25 @@ describe('Skeletal animation state', () => {
         state = skeletalAnimation.getState('Anim');
     });
 });
+
+describe('Skeletal animation component', () => {
+    test('Bugfix cocos/cocos-engine#11507 - Activation/Inactivation should resume/pause animation', () => {
+        const clip = new AnimationClip('meow');
+        clip.duration = 1.0;
+        const node = new Node();
+        const skeletalAnimation = node.addComponent(SkeletalAnimation) as SkeletalAnimation;
+        skeletalAnimation.clips = [clip];
+        const scene = new Scene('');
+        scene.addChild(node);
+        director.runSceneImmediate(scene);
+
+        const state = skeletalAnimation.getState('meow');
+
+        skeletalAnimation.play('meow');
+        expect(state.isPlaying && !state.isPaused).toBe(true);
+        skeletalAnimation.enabled = false;
+        expect(state.isPlaying && state.isPaused).toBe(true);
+        skeletalAnimation.enabled = true;
+        expect(state.isPlaying && !state.isPaused).toBe(true);
+    });
+});

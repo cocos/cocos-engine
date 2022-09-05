@@ -97,6 +97,7 @@ CCProgram shared-ubos %{
   };}%
 
 CCProgram macro-remapping %{
+  #pragma define-meta USE_NORMAL_MAP
   #define CC_SURFACES_USE_TANGENT_SPACE USE_NORMAL_MAP
 }%
 
@@ -105,9 +106,6 @@ CCProgram surface-vertex %{
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
   {
     In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
-    In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
-  #endif
   }
 }%
 
@@ -173,28 +171,23 @@ CCProgram surface-fragment %{
     #endif
   }
 
-  // only for render-to-shadow-map or misc usage
-  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
-  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
   {
-    vec4 color = baseColor;
-    #if USE_BASE_COLOR_MAP
-      vec4 texColor = texture(baseColorMap, FSInput_texcoord);
-      texColor.rgb = SRGBToLinear(texColor.rgb);
-      color *= texColor;
-    #endif
-
     #if USE_ALPHA_TEST
-      if (color.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
+      float alpha = baseColor.ALPHA_TEST_CHANNEL;
+      #if USE_BASE_COLOR_MAP
+        alpha = texture(baseColorMap, FSInput_texcoord).ALPHA_TEST_CHANNEL;
+      #endif
+  
+      if (alpha < colorScaleAndCutoff.w) discard;
     #endif
-
-    return color;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
   vec3 SurfacesFragmentModifyWorldNormal()
   {
-      vec3 normal = FSInput_worldNormal;
+    vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, FSInput_texcoord).xyz - vec3(0.5);
       normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleAndStrenth.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
@@ -228,7 +221,11 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_TOON_SPECULAR
   vec4 SurfacesFragmentModifyToonSpecular()
   {
-      return vec4(1.0, 1.0, 1.0, 0.3);
+    vec4 specularParam = specular;
+    #if USE_SPECULAR_MAP
+      specularParam.rgb *= SRGBToLinear(texture(specularMap, FSInput_texcoord).rgb);
+    #endif
+    return specularParam;
   }
 }%
 

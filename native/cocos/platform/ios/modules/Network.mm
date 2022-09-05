@@ -34,10 +34,10 @@ INetwork::NetworkType Network::getNetworkType() const {
     static Reachability *__reachability = nullptr;
     if (__reachability == nullptr) {
         __reachability = Reachability::createForInternetConnection();
-        __reachability->retain();
+        __reachability->addRef();
     }
 
-    NetworkType                 ret    = NetworkType::NONE;
+    NetworkType ret = NetworkType::NONE;
     Reachability::NetworkStatus status = __reachability->getCurrentReachabilityStatus();
     switch (status) {
         case Reachability::NetworkStatus::REACHABLE_VIA_WIFI:

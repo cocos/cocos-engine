@@ -72,7 +72,6 @@ bool AudioDecoder::open(const char *path) {
         _outputFormat.mFramesPerPacket = 1;
         _outputFormat.mBitsPerChannel = 16;
         _outputFormat.mFormatFlags = kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked | kAudioFormatFlagIsSignedInteger;
-
         _sampleRate = _outputFormat.mSampleRate;
         _channelCount = _outputFormat.mChannelsPerFrame;
         _bytesPerFrame = 2 * _outputFormat.mChannelsPerFrame;

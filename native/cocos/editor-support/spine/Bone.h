@@ -45,207 +45,207 @@ class Skeleton;
 /// local transform that can be applied to compute the world transform. The local transform and applied transform may differ if a
 /// constraint or application code modifies the world transform after it was computed from the local transform.
 class SP_API Bone : public Updatable {
-	friend class AnimationState;
+    friend class AnimationState;
 
-	friend class RotateTimeline;
+    friend class RotateTimeline;
 
-	friend class IkConstraint;
+    friend class IkConstraint;
 
-	friend class TransformConstraint;
+    friend class TransformConstraint;
 
-	friend class VertexAttachment;
+    friend class VertexAttachment;
 
-	friend class PathConstraint;
+    friend class PathConstraint;
 
-	friend class Skeleton;
+    friend class Skeleton;
 
-	friend class RegionAttachment;
+    friend class RegionAttachment;
 
-	friend class PointAttachment;
+    friend class PointAttachment;
 
-	friend class ScaleTimeline;
+    friend class ScaleTimeline;
 
-	friend class ShearTimeline;
+    friend class ShearTimeline;
 
-	friend class TranslateTimeline;
+    friend class TranslateTimeline;
 
-RTTI_DECL
+    RTTI_DECL
 
 public:
-	static void setYDown(bool inValue);
+    static void setYDown(bool inValue);
 
-	static bool isYDown();
+    static bool isYDown();
 
-	/// @param parent May be NULL.
-	Bone(BoneData &data, Skeleton &skeleton, Bone *parent = NULL);
+    /// @param parent May be NULL.
+    Bone(BoneData &data, Skeleton &skeleton, Bone *parent = NULL);
 
-	/// Same as updateWorldTransform. This method exists for Bone to implement Spine::Updatable.
-	virtual void update();
+    /// Same as updateWorldTransform. This method exists for Bone to implement Spine::Updatable.
+    virtual void update();
 
-	/// Computes the world transform using the parent bone and this bone's local transform.
-	void updateWorldTransform();
+    /// Computes the world transform using the parent bone and this bone's local transform.
+    void updateWorldTransform();
 
-	/// Computes the world transform using the parent bone and the specified local transform.
-	void updateWorldTransform(float x, float y, float rotation, float scaleX, float scaleY, float shearX, float shearY);
+    /// Computes the world transform using the parent bone and the specified local transform.
+    void updateWorldTransform(float x, float y, float rotation, float scaleX, float scaleY, float shearX, float shearY);
 
-	void setToSetupPose();
+    void setToSetupPose();
 
-	void worldToLocal(float worldX, float worldY, float &outLocalX, float &outLocalY);
+    void worldToLocal(float worldX, float worldY, float &outLocalX, float &outLocalY);
 
-	void localToWorld(float localX, float localY, float &outWorldX, float &outWorldY);
+    void localToWorld(float localX, float localY, float &outWorldX, float &outWorldY);
 
-	float worldToLocalRotation(float worldRotation);
+    float worldToLocalRotation(float worldRotation);
 
-	float localToWorldRotation(float localRotation);
+    float localToWorldRotation(float localRotation);
 
-	/// Rotates the world transform the specified amount and sets isAppliedValid to false.
-	/// @param degrees Degrees.
-	void rotateWorld(float degrees);
+    /// Rotates the world transform the specified amount and sets isAppliedValid to false.
+    /// @param degrees Degrees.
+    void rotateWorld(float degrees);
 
-	float getWorldToLocalRotationX();
+    float getWorldToLocalRotationX();
 
-	float getWorldToLocalRotationY();
+    float getWorldToLocalRotationY();
 
-	BoneData &getData();
+    BoneData &getData();
 
-	Skeleton &getSkeleton();
+    Skeleton &getSkeleton();
 
-	Bone *getParent();
+    Bone *getParent();
 
-	Vector<Bone *> &getChildren();
+    Vector<Bone *> &getChildren();
 
-	/// The local X translation.
-	float getX();
+    /// The local X translation.
+    float getX();
 
-	void setX(float inValue);
+    void setX(float inValue);
 
-	/// The local Y translation.
-	float getY();
+    /// The local Y translation.
+    float getY();
 
-	void setY(float inValue);
+    void setY(float inValue);
 
-	/// The local rotation.
-	float getRotation();
+    /// The local rotation.
+    float getRotation();
 
-	void setRotation(float inValue);
+    void setRotation(float inValue);
 
-	/// The local scaleX.
-	float getScaleX();
+    /// The local scaleX.
+    float getScaleX();
 
-	void setScaleX(float inValue);
+    void setScaleX(float inValue);
 
-	/// The local scaleY.
-	float getScaleY();
+    /// The local scaleY.
+    float getScaleY();
 
-	void setScaleY(float inValue);
+    void setScaleY(float inValue);
 
-	/// The local shearX.
-	float getShearX();
+    /// The local shearX.
+    float getShearX();
 
-	void setShearX(float inValue);
+    void setShearX(float inValue);
 
-	/// The local shearY.
-	float getShearY();
+    /// The local shearY.
+    float getShearY();
 
-	void setShearY(float inValue);
+    void setShearY(float inValue);
 
-	/// The rotation, as calculated by any constraints.
-	float getAppliedRotation();
+    /// The rotation, as calculated by any constraints.
+    float getAppliedRotation();
 
-	void setAppliedRotation(float inValue);
+    void setAppliedRotation(float inValue);
 
-	/// The applied local x translation.
-	float getAX();
+    /// The applied local x translation.
+    float getAX();
 
-	void setAX(float inValue);
+    void setAX(float inValue);
 
-	/// The applied local y translation.
-	float getAY();
+    /// The applied local y translation.
+    float getAY();
 
-	void setAY(float inValue);
+    void setAY(float inValue);
 
-	/// The applied local scaleX.
-	float getAScaleX();
+    /// The applied local scaleX.
+    float getAScaleX();
 
-	void setAScaleX(float inValue);
+    void setAScaleX(float inValue);
 
-	/// The applied local scaleY.
-	float getAScaleY();
+    /// The applied local scaleY.
+    float getAScaleY();
 
-	void setAScaleY(float inValue);
+    void setAScaleY(float inValue);
 
-	/// The applied local shearX.
-	float getAShearX();
+    /// The applied local shearX.
+    float getAShearX();
 
-	void setAShearX(float inValue);
+    void setAShearX(float inValue);
 
-	/// The applied local shearY.
-	float getAShearY();
+    /// The applied local shearY.
+    float getAShearY();
 
-	void setAShearY(float inValue);
+    void setAShearY(float inValue);
 
-	float getA();
+    float getA();
 
-	void setA(float inValue);
+    void setA(float inValue);
 
-	float getB();
+    float getB();
 
-	void setB(float inValue);
+    void setB(float inValue);
 
-	float getC();
+    float getC();
 
-	void setC(float inValue);
+    void setC(float inValue);
 
-	float getD();
+    float getD();
 
-	void setD(float inValue);
+    void setD(float inValue);
 
-	float getWorldX();
+    float getWorldX();
 
-	void setWorldX(float inValue);
+    void setWorldX(float inValue);
 
-	float getWorldY();
+    float getWorldY();
 
-	void setWorldY(float inValue);
+    void setWorldY(float inValue);
 
-	float getWorldRotationX();
+    float getWorldRotationX();
 
-	float getWorldRotationY();
+    float getWorldRotationY();
 
-	/// Returns the magnitide (always positive) of the world scale X.
-	float getWorldScaleX();
+    /// Returns the magnitide (always positive) of the world scale X.
+    float getWorldScaleX();
 
-	/// Returns the magnitide (always positive) of the world scale Y.
-	float getWorldScaleY();
+    /// Returns the magnitide (always positive) of the world scale Y.
+    float getWorldScaleY();
 
-	bool isAppliedValid();
-	void setAppliedValid(bool valid);
+    bool isAppliedValid();
+    void setAppliedValid(bool valid);
 
-	bool isActive();
+    bool isActive();
 
-	void setActive(bool inValue);
+    void setActive(bool inValue);
 
 private:
-	static bool yDown;
+    static bool yDown;
 
-	BoneData &_data;
-	Skeleton &_skeleton;
-	Bone *_parent;
-	Vector<Bone *> _children;
-	float _x, _y, _rotation, _scaleX, _scaleY, _shearX, _shearY;
-	float _ax, _ay, _arotation, _ascaleX, _ascaleY, _ashearX, _ashearY;
-	bool _appliedValid;
-	float _a, _b, _worldX;
-	float _c, _d, _worldY;
-	bool _sorted;
-	bool _active;
+    BoneData &_data;
+    Skeleton &_skeleton;
+    Bone *_parent;
+    Vector<Bone *> _children;
+    float _x, _y, _rotation, _scaleX, _scaleY, _shearX, _shearY;
+    float _ax, _ay, _arotation, _ascaleX, _ascaleY, _ashearX, _ashearY;
+    bool _appliedValid;
+    float _a, _b, _worldX;
+    float _c, _d, _worldY;
+    bool _sorted;
+    bool _active;
 
-	/// Computes the individual applied transform values from the world transform. This can be useful to perform processing using
-	/// the applied transform after the world transform has been modified directly (eg, by a constraint)..
-	///
-	/// Some information is ambiguous in the world transform, such as -1,-1 scale versus 180 rotation.
-	void updateAppliedTransform();
+    /// Computes the individual applied transform values from the world transform. This can be useful to perform processing using
+    /// the applied transform after the world transform has been modified directly (eg, by a constraint)..
+    ///
+    /// Some information is ambiguous in the world transform, such as -1,-1 scale versus 180 rotation.
+    void updateAppliedTransform();
 };
-}
+} // namespace spine
 
 #endif /* Spine_Bone_h */

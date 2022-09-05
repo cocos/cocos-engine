@@ -31,14 +31,14 @@
 #include <CoreText/CoreText.h>
 #include "platform/interfaces/modules/IAccelerometer.h"
 
-static const float g        = 9.80665;
+static const float g = 9.80665;
 static const float radToDeg = (180 / M_PI);
 
 @interface CCMotionDispatcher : NSObject <UIAccelerometerDelegate> {
-    CMMotionManager *               _motionManager;
+    CMMotionManager *_motionManager;
     cc::IAccelerometer::MotionValue _motionValue;
-    float                           _interval; // unit: seconds
-    bool                            _enabled;
+    float _interval; // unit: seconds
+    bool _enabled;
 }
 
 + (id)sharedMotionDispatcher;
@@ -62,8 +62,8 @@ static CCMotionDispatcher *__motionDispatcher = nullptr;
 
 - (id)init {
     if ((self = [super init])) {
-        _enabled       = false;
-        _interval      = 1.0f / 60.0f;
+        _enabled = false;
+        _interval = 1.0f / 60.0f;
         _motionManager = [[CMMotionManager alloc] init];
     }
     return self;
@@ -117,7 +117,7 @@ static CCMotionDispatcher *__motionDispatcher = nullptr;
 
 - (const cc::IAccelerometer::MotionValue &)getMotionValue {
     if (_motionManager.isDeviceMotionAvailable) {
-        CMDeviceMotion *motion     = _motionManager.deviceMotion;
+        CMDeviceMotion *motion = _motionManager.deviceMotion;
         _motionValue.accelerationX = motion.userAcceleration.x * g;
         _motionValue.accelerationY = motion.userAcceleration.y * g;
         _motionValue.accelerationZ = motion.userAcceleration.z * g;
@@ -127,10 +127,10 @@ static CCMotionDispatcher *__motionDispatcher = nullptr;
         _motionValue.accelerationIncludingGravityZ = (motion.userAcceleration.z + motion.gravity.z) * g;
 
         _motionValue.rotationRateAlpha = motion.rotationRate.x * radToDeg;
-        _motionValue.rotationRateBeta  = motion.rotationRate.y * radToDeg;
+        _motionValue.rotationRateBeta = motion.rotationRate.y * radToDeg;
         _motionValue.rotationRateGamma = motion.rotationRate.z * radToDeg;
     } else {
-        CMAccelerometerData *acc                   = _motionManager.accelerometerData;
+        CMAccelerometerData *acc = _motionManager.accelerometerData;
         _motionValue.accelerationIncludingGravityX = acc.acceleration.x * g;
         _motionValue.accelerationIncludingGravityY = acc.acceleration.y * g;
         _motionValue.accelerationIncludingGravityZ = acc.acceleration.z * g;

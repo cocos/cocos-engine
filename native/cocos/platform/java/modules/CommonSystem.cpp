@@ -28,17 +28,17 @@
 #include "platform/java/jni/JniImp.h"
 
 namespace cc {
-CommonSystem::CommonSystem()  = default;
+CommonSystem::CommonSystem() = default;
 CommonSystem::~CommonSystem() = default;
 
-std::string CommonSystem::getDeviceModel() const {
+ccstd::string CommonSystem::getDeviceModel() const {
     return getDeviceModelJNI();
 }
 
 CommonSystem::LanguageType CommonSystem::getCurrentLanguage() const {
-    std::string  languageName  = getCurrentLanguageJNI();
-    const char*  pLanguageName = languageName.c_str();
-    LanguageType ret           = LanguageType::ENGLISH;
+    ccstd::string languageName = getCurrentLanguageJNI();
+    const char *pLanguageName = languageName.c_str();
+    LanguageType ret = LanguageType::ENGLISH;
 
     if (0 == strcmp("zh", pLanguageName)) {
         ret = LanguageType::CHINESE;
@@ -82,15 +82,15 @@ CommonSystem::LanguageType CommonSystem::getCurrentLanguage() const {
     return ret;
 }
 
-std::string CommonSystem::getCurrentLanguageCode() const {
+ccstd::string CommonSystem::getCurrentLanguageCode() const {
     return getCurrentLanguageCodeJNI();
 }
 
-std::string CommonSystem::getSystemVersion() const {
+ccstd::string CommonSystem::getSystemVersion() const {
     return getSystemVersionJNI();
 }
 
-bool CommonSystem::openURL(const std::string& url) {
+bool CommonSystem::openURL(const ccstd::string &url) {
     return openURLJNI(url);
 }
 

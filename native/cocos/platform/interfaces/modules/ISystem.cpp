@@ -28,9 +28,9 @@
 namespace cc {
 ISystem::~ISystem() = default;
 
-std::string ISystem::getCurrentLanguageToString() {
-    LanguageType language    = getCurrentLanguage();
-    std::string  languageStr = ""; // NOLINT
+ccstd::string ISystem::getCurrentLanguageToString() {
+    LanguageType language = getCurrentLanguage();
+    ccstd::string languageStr = ""; // NOLINT
     switch (language) {
         case ISystem::LanguageType::ENGLISH:
             languageStr = "en";

@@ -26,6 +26,8 @@
 #include "GbufferStage.h"
 #include "../BatchedBuffer.h"
 #include "../InstancedBuffer.h"
+#include "../PipelineSceneData.h"
+#include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
 #include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
@@ -35,24 +37,23 @@
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/DevicePassResourceTable.h"
 #include "frame-graph/Resource.h"
-#include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXFramebuffer.h"
-#include "gfx-base/GFXQueue.h"
+#include "profiler/Profiler.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
 RenderStageInfo GbufferStage::initInfo = {
     "GbufferStage",
-    static_cast<uint>(DeferredStagePriority::GBUFFER),
-    static_cast<uint>(RenderFlowTag::SCENE),
+    static_cast<uint32_t>(DeferredStagePriority::GBUFFER),
+    static_cast<uint32_t>(RenderFlowTag::SCENE),
     {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
      {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
 GbufferStage::GbufferStage() {
-    _batchedQueue   = CC_NEW(RenderBatchedQueue);
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
+    _batchedQueue = ccnew RenderBatchedQueue;
+    _instancedQueue = ccnew RenderInstancedQueue;
 }
 
 GbufferStage::~GbufferStage() = default;
@@ -60,7 +61,7 @@ GbufferStage::~GbufferStage() = default;
 bool GbufferStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID                = getPhaseID("default");
+    _phaseID = getPhaseID("default");
     return true;
 }
 
@@ -68,18 +69,18 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint                  phase    = convertPhase(descriptor.stages);
-        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
+        uint32_t phase = convertPhase(descriptor.stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
-    _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+    _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);
 }
 
 void GbufferStage::destroy() {
     CC_SAFE_DELETE(_batchedQueue);
     CC_SAFE_DELETE(_instancedQueue);
-    CC_SAFE_DESTROY(_planarShadowQueue);
+    CC_SAFE_DESTROY_AND_DELETE(_planarShadowQueue);
     RenderStage::destroy();
 }
 
@@ -92,26 +93,26 @@ void GbufferStage::dispenseRenderObject2Queues() {
         queue->clear();
     }
 
-    uint   subModelIdx = 0;
-    uint   passIdx     = 0;
-    size_t k           = 0;
+    uint32_t subModelIdx = 0;
+    uint32_t passIdx = 0;
+    size_t k = 0;
     for (auto ro : renderObjects) {
-        const auto *const model         = ro.model;
-        const auto &      subModels     = model->getSubModels();
-        auto              subModelCount = subModels.size();
+        const auto *const model = ro.model;
+        const auto &subModels = model->getSubModels();
+        auto subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto &subModel  = subModels[subModelIdx];
-            const auto &passes    = subModel->getPasses();
-            auto        passCount = passes.size();
+            const auto &subModel = subModels[subModelIdx];
+            const auto &passes = subModel->getPasses();
+            auto passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
-                    auto *instancedBuffer = InstancedBuffer::get(pass);
+                    auto *instancedBuffer = pass->getInstancedBuffer();
                     instancedBuffer->merge(model, subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                    auto *batchedBuffer = BatchedBuffer::get(pass);
+                    auto *batchedBuffer = pass->getBatchedBuffer();
                     batchedBuffer->merge(subModel, passIdx, model);
                     _batchedQueue->add(batchedBuffer);
                 } else {
@@ -131,7 +132,7 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
     // DescriptorSet bindings
-    const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    const ccstd::array<uint32_t, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
     cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
     // record commands
@@ -141,13 +142,14 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
 }
 
 void GbufferStage::render(scene::Camera *camera) {
+    CC_PROFILE(GbufferStageRender);
     struct RenderData {
         framegraph::TextureHandle gbuffer[4];
         framegraph::TextureHandle depth;
     };
 
     auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
-    float shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
+    float shadingScale{_pipeline->getPipelineSceneData()->getShadingScale()};
     _renderArea = RenderPipeline::getRenderArea(camera);
 
     auto gbufferSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
@@ -158,15 +160,15 @@ void GbufferStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA8,
-            static_cast<uint>(pipeline->getWidth() * shadingScale),
-            static_cast<uint>(pipeline->getHeight() * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
         gfx::TextureInfo gbufferInfoFloat = {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA16F,
-            static_cast<uint>(pipeline->getWidth() * shadingScale),
-            static_cast<uint>(pipeline->getHeight() * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT - 1; ++i) {
             if (i != 0) { // normals need more precision
@@ -187,11 +189,11 @@ void GbufferStage::render(scene::Camera *camera) {
         gfx::Color clearColor{0.0, 0.0, 0.0, 0.0};
 
         framegraph::RenderTargetAttachment::Descriptor colorInfo;
-        colorInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorInfo.loadOp        = gfx::LoadOp::CLEAR;
-        colorInfo.clearColor    = clearColor;
+        colorInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorInfo.loadOp = gfx::LoadOp::CLEAR;
+        colorInfo.clearColor = clearColor;
         colorInfo.beginAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
-        colorInfo.endAccesses   = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
+        colorInfo.endAccesses = gfx::AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             data.gbuffer[i] = builder.write(data.gbuffer[i], colorInfo);
             builder.writeToBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i], data.gbuffer[i]);
@@ -202,8 +204,8 @@ void GbufferStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
             gfx::Format::DEPTH_STENCIL,
-            static_cast<uint>(pipeline->getWidth() * shadingScale),
-            static_cast<uint>(pipeline->getHeight() * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getWidth()) * shadingScale),
+            static_cast<uint32_t>(static_cast<float>(pipeline->getHeight()) * shadingScale),
         };
 
         depthTexInfo.usage |= gfx::TextureUsageBit::INPUT_ATTACHMENT;
@@ -211,12 +213,12 @@ void GbufferStage::render(scene::Camera *camera) {
         data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor depthInfo;
-        depthInfo.usage        = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-        depthInfo.loadOp       = gfx::LoadOp::CLEAR;
-        depthInfo.clearDepth   = camera->clearDepth;
-        depthInfo.clearStencil = camera->clearStencil;
-        depthInfo.endAccesses  = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
-        data.depth             = builder.write(data.depth, depthInfo);
+        depthInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthInfo.loadOp = gfx::LoadOp::CLEAR;
+        depthInfo.clearDepth = camera->getClearDepth();
+        depthInfo.clearStencil = camera->getClearStencil();
+        depthInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        data.depth = builder.write(data.depth, depthInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         // viewport setup
@@ -236,7 +238,7 @@ void GbufferStage::render(scene::Camera *camera) {
     // if empty == true, gbuffer and lightig passes will be ignored
     bool empty = _renderQueues[0]->empty() && _instancedQueue->empty() && _batchedQueue->empty();
     if (!empty) {
-        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
+        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
     }
 }
 } // namespace pipeline

@@ -35,6 +35,8 @@
 #include <locale>
 #include <memory>
 
+#include "Richedit.h"
+
 namespace cc {
 
 /*************************************************************************
@@ -42,10 +44,10 @@ namespace cc {
 ************************************************************************/
 
 namespace {
-bool      g_isMultiline        = false;
-HWND      g_hwndEditBox        = nullptr;
-WNDPROC   g_prevMainWindowProc = nullptr;
-WNDPROC   g_prevEditWindowProc = nullptr;
+bool g_isMultiline = false;
+HWND g_hwndEditBox = nullptr;
+WNDPROC g_prevMainWindowProc = nullptr;
+WNDPROC g_prevEditWindowProc = nullptr;
 se::Value g_textInputCallback;
 
 HWND getCurrentWindowHwnd() {
@@ -56,11 +58,11 @@ HWND getCurrentWindowHwnd() {
     if (!systemWindowIntf) {
         return nullptr;
     }
-    return reinterpret_cast<HWND>(systemWindowIntf->getWindowHandler());
+    return reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
 }
 
 int getCocosWindowHeight() {
-    //HWND parent = cc_get_application_view()->getWindowHandler();
+    // HWND parent = cc_get_application_view()->getWindowHandle();
     HWND parent = getCurrentWindowHwnd();
     RECT rect;
     GetClientRect(parent, &rect);
@@ -71,7 +73,7 @@ void getTextInputCallback() {
     if (!g_textInputCallback.isUndefined())
         return;
 
-    auto      global = se::ScriptEngine::getInstance()->getGlobalObject();
+    auto global = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value jsbVal;
     if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
         jsbVal.toObject()->getProperty("onTextInput", &g_textInputCallback);
@@ -82,33 +84,33 @@ void getTextInputCallback() {
     }
 }
 
-void callJSFunc(const std::string &type, const std::string &text) {
+void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
     getTextInputCallback();
 
     se::AutoHandleScope scope;
-    se::ValueArray      args;
+    se::ValueArray args;
     args.push_back(se::Value(type));
     args.push_back(se::Value(text));
     g_textInputCallback.toObject()->call(args, nullptr);
 }
 
-std::string getText(HWND hwnd) {
-    int    length = GetWindowTextLength(hwnd);
-    LPWSTR str    = (LPWSTR)malloc(sizeof(WCHAR) * (length + 1));
+ccstd::string getText(HWND hwnd) {
+    int length = GetWindowTextLength(hwnd);
+    LPWSTR str = (LPWSTR)malloc(sizeof(WCHAR) * (length + 1));
     GetWindowText(hwnd, str, length + 1);
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
-    std::string                                      ret(convert.to_bytes(str));
+    ccstd::string ret(convert.to_bytes(str));
     free(str);
 
     return ret;
 }
 
-std::wstring str2ws(const std::string &text) {
+std::wstring str2ws(const ccstd::string &text) {
     if (text.empty())
         return std::wstring();
 
-    int          sz = MultiByteToWideChar(CP_UTF8, 0, &text[0], (int)text.size(), 0, 0);
+    int sz = MultiByteToWideChar(CP_UTF8, 0, &text[0], (int)text.size(), 0, 0);
     std::wstring res(sz, 0);
     MultiByteToWideChar(CP_UTF8, 0, &text[0], (int)text.size(), &res[0], sz);
     return res;
@@ -122,9 +124,10 @@ LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SetFocus(getCurrentWindowHwnd());
             break;
         case WM_COMMAND:
-            if (EN_CHANGE == HIWORD(wParam))
+            // EN_CHANGE => EN_UPDATE
+            if (EN_UPDATE == HIWORD(wParam)) {
                 callJSFunc("input", getText(g_hwndEditBox).c_str());
-
+            }
             break;
         default:
             break;
@@ -158,7 +161,7 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     if (!g_hwndEditBox) {
         HWND parent = getCurrentWindowHwnd();
 
-        UINT32 flags  = WS_CHILD | ES_LEFT | WS_TABSTOP | ES_AUTOHSCROLL;
+        UINT32 flags = WS_CHILD | showInfo.textAlignment | WS_TABSTOP | ES_AUTOHSCROLL;
         g_isMultiline = showInfo.isMultiline;
         if (g_isMultiline) {
             flags |= ES_MULTILINE;
@@ -166,9 +169,23 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
         if (showInfo.inputType == "password")
             flags |= WS_EX_TRANSPARENT;
 
-        g_hwndEditBox = CreateWindowEx(
+        /* g_hwndEditBox = CreateWindowEx(
             WS_EX_WINDOWEDGE,
             L"EDIT",
+            NULL,
+            flags,
+            0,
+            0,
+            0,
+            0,
+            parent,
+            0,
+            NULL,
+            NULL);*/
+        LoadLibrary(TEXT("Msftedit.dll"));
+        g_hwndEditBox = CreateWindowEx(
+            0,
+            MSFTEDIT_CLASS,
             NULL,
             flags,
             0,
@@ -199,6 +216,8 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     }
 
     ::SendMessageW(g_hwndEditBox, EM_LIMITTEXT, showInfo.maxLength, 0);
+
+    // SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&cf);
     SetWindowPos(g_hwndEditBox,
                  HWND_NOTOPMOST,
                  showInfo.x,
@@ -208,9 +227,44 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
                  SWP_NOZORDER);
 
     ::SetWindowTextW(g_hwndEditBox, str2ws(showInfo.defaultValue).c_str());
+
+    // SendMessage(g_hwndEditBox, EM_SETFONTSIZE, 1, 0);
+    SendMessage(g_hwndEditBox, EM_SETBKGNDCOLOR, 0, RGB((showInfo.backgroundColor & 0x000000ff), (showInfo.backgroundColor & 0x0000ff00) >> 8, (showInfo.backgroundColor & 0x00ff0000) >> 16));
+
     ::PostMessage(g_hwndEditBox, WM_ACTIVATE, 0, 0);
     ::ShowWindow(g_hwndEditBox, SW_SHOW);
+    /* Get current length of text in the box */
+    int index = GetWindowTextLength(g_hwndEditBox);
     SetFocus(g_hwndEditBox);
+
+    SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)0, (LPARAM)index);
+    // int height = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->kheight;
+    CHARFORMAT2 cf;
+    RECT rect;
+
+    GetWindowRect(getCurrentWindowHwnd(), &rect);
+    float WindowRatio = (float)(rect.bottom - rect.top) / (float)CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize().y;
+    float JsFontRatio = float(showInfo.fontSize) / 5;
+    /** A probale way to calculate the increase of font size
+     * OriginalSize + Increase = OriginalSize * Ratio_of_js_fontSize * Ratio_of_window
+     * Default value : OriginalSize = 8, Ratio_of_js_fontSize = showInfo.fontSize /5,
+     * Ratio_of_window = (float)height / (float)CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize().y
+     * thus Increase was calculated.
+     */
+    int fsize = (float)(JsFontRatio + 8) * WindowRatio - 8;
+
+    SendMessage(g_hwndEditBox, EM_SETFONTSIZE, fsize, 0);
+    /* Set the caret to the end of the text in the box */
+    SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)index, (LPARAM)index);
+
+    cf.cbSize = sizeof(CHARFORMAT2);
+    cf.crTextColor = RGB((showInfo.fontColor & 0x000000ff), (showInfo.fontColor & 0x0000ff00) >> 8, (showInfo.fontColor & 0x00ff0000) >> 16);
+
+    cf.crBackColor = RGB((showInfo.backColor & 0x000000ff), (showInfo.backColor & 0x0000ff00) >> 8, (showInfo.backColor & 0x00ff0000) >> 16);
+    cf.dwMask = CFM_COLOR | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE;
+    cf.dwEffects = (showInfo.isUnderline ? CFE_UNDERLINE : 0) | (showInfo.isBold ? CFE_BOLD : 0) | (showInfo.isItalic ? CFE_ITALIC : 0);
+    cf.bUnderlineColor = showInfo.underlineColor;
+    SendMessage(g_hwndEditBox, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&cf);
 }
 
 void EditBox::hide() {

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,31 +24,27 @@
 ****************************************************************************/
 
 #include "jsb_dragonbones_manual.h"
-#include "base/Config.h"
-
-#if USE_DRAGONBONES > 0
-
-    #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
-    #include "cocos/bindings/auto/jsb_editor_support_auto.h"
-    #include "cocos/bindings/jswrapper/SeApi.h"
-    #include "cocos/bindings/manual/jsb_conversions.h"
-    #include "cocos/bindings/manual/jsb_global.h"
-    #include "cocos/bindings/manual/jsb_helper.h"
-    #include "cocos/editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
+#include "cocos/bindings/auto/jsb_dragonbones_auto.h"
+#include "cocos/bindings/auto/jsb_editor_support_auto.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_helper.h"
+#include "cocos/editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
 
 using namespace cc;
 
 // add by fins
 static bool js_cocos2dx_dragonbones_Slot_get_globalTransformMatrix(se::State &s) {
     dragonBones::Slot *cobj = (dragonBones::Slot *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Slot_get_globalTransformMatrix : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         dragonBones::Matrix *result = cobj->getGlobalTransformMatrix();
         ok &= native_ptr_to_seval<dragonBones::Matrix>((dragonBones::Matrix *)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Slot_get_globalTransformMatrix : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -59,9 +55,9 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_Slot_get_globalTransformMatrix)
 // add by fins
 static bool js_cocos2dx_dragonbones_Animation_get_animations(se::State &s) {
     dragonBones::Animation *cobj = (dragonBones::Animation *)s.nativeThisObject();
-    se::HandleObject        retObj(se::Object::createPlainObject());
-    bool                    ok = false;
-    se::Value               tmp;
+    se::HandleObject retObj(se::Object::createPlainObject());
+    bool ok = false;
+    se::Value tmp;
     for (const auto &e : cobj->getAnimations()) {
         if (!e.first.empty()) {
             ok = native_ptr_to_seval<dragonBones::AnimationData>(e.second, __jsb_dragonBones_AnimationData_class, &tmp);
@@ -76,8 +72,8 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_Animation_get_animations)
 
 static bool js_cocos2dx_dragonbones_Armature_getDisplay(se::State &s) {
     if (s.args().size() == 0) {
-        dragonBones::Armature *         cobj = (dragonBones::Armature *)s.nativeThisObject();
-        dragonBones::CCArmatureDisplay *ret  = (dragonBones::CCArmatureDisplay *)(cobj->getDisplay());
+        dragonBones::Armature *cobj = (dragonBones::Armature *)s.nativeThisObject();
+        dragonBones::CCArmatureDisplay *ret = (dragonBones::CCArmatureDisplay *)(cobj->getDisplay());
         if (ret != nullptr) {
             bool ok = native_ptr_to_seval<dragonBones::CCArmatureDisplay>(ret, __jsb_dragonBones_CCArmatureDisplay_class, &s.rval());
             SE_PRECONDITION2(ok, false, "Convert dragonBones::Animation to se::Value failed!");
@@ -93,13 +89,13 @@ static bool js_cocos2dx_dragonbones_Armature_getDisplay(se::State &s) {
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getDisplay)
 
 static bool js_cocos2dx_dragonbones_Armature_getSlots(se::State &s) {
-    dragonBones::Armature *cobj   = (dragonBones::Armature *)s.nativeThisObject();
-    const auto &           result = cobj->getSlots();
-    se::HandleObject       arr(se::Object::createArrayObject(result.size()));
+    dragonBones::Armature *cobj = (dragonBones::Armature *)s.nativeThisObject();
+    const auto &result = cobj->getSlots();
+    se::HandleObject arr(se::Object::createArrayObject(result.size()));
 
-    uint32_t  i = 0;
+    uint32_t i = 0;
     se::Value tmp;
-    bool      ok = true;
+    bool ok = true;
     for (const auto &slot : result) {
         if (!native_ptr_to_seval<dragonBones::Slot>(slot, &tmp)) {
             ok = false;
@@ -117,13 +113,13 @@ static bool js_cocos2dx_dragonbones_Armature_getSlots(se::State &s) {
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getSlots)
 
 static bool js_cocos2dx_dragonbones_Armature_getBones(se::State &s) {
-    dragonBones::Armature *cobj   = (dragonBones::Armature *)s.nativeThisObject();
-    const auto &           result = cobj->getBones();
-    se::HandleObject       arr(se::Object::createArrayObject(result.size()));
+    dragonBones::Armature *cobj = (dragonBones::Armature *)s.nativeThisObject();
+    const auto &result = cobj->getBones();
+    se::HandleObject arr(se::Object::createArrayObject(result.size()));
 
-    uint32_t  i = 0;
+    uint32_t i = 0;
     se::Value tmp;
-    bool      ok = true;
+    bool ok = true;
     for (const auto &bone : result) {
         if (!native_ptr_to_seval<dragonBones::Bone>(bone, &tmp)) {
             ok = false;
@@ -142,17 +138,17 @@ SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getBones)
 
 static bool js_cocos2dx_dragonbones_Armature_getBoneByDisplay(se::State &s) {
     dragonBones::Armature *cobj = (dragonBones::Armature *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Armature_getBoneByDisplay : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         dragonBones::CCArmatureDisplay *display = nullptr;
-        ok                                      = seval_to_native_ptr(args[0], &display);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Armature_getBoneByDisplay : Error processing arguments");
+        ok = seval_to_native_ptr(args[0], &display);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         dragonBones::Bone *result = cobj->getBoneByDisplay(display);
         ok &= native_ptr_to_seval<dragonBones::Bone>((dragonBones::Bone *)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Armature_getBoneByDisplay : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -162,17 +158,17 @@ SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getBoneByDisplay)
 
 static bool js_cocos2dx_dragonbones_Armature_getSlotByDisplay(se::State &s) {
     dragonBones::Armature *cobj = (dragonBones::Armature *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Armature_getSlotByDisplay : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         dragonBones::CCArmatureDisplay *display = nullptr;
-        ok                                      = seval_to_native_ptr(args[0], &display);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Armature_getSlotByDisplay : Error processing arguments");
+        ok = seval_to_native_ptr(args[0], &display);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         dragonBones::Slot *result = cobj->getSlotByDisplay(display);
         ok &= native_ptr_to_seval<dragonBones::Slot>((dragonBones::Slot *)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Armature_getSlotByDisplay : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -182,14 +178,14 @@ SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getSlotByDisplay)
 
 static bool js_cocos2dx_dragonbones_Armature_setReplacedTexture(se::State &s) {
     dragonBones::Armature *cobj = (dragonBones::Armature *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Armature_setReplacedTexture : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 1) {
         middleware::Texture2D *texture = nullptr;
-        ok                             = seval_to_native_ptr(args[0], &texture);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Armature_setReplacedTexture : Error processing arguments");
+        ok = seval_to_native_ptr(args[0], &texture);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         cobj->setReplacedTexture(texture);
         return true;
     }
@@ -200,14 +196,14 @@ SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_setReplacedTexture)
 
 static bool js_cocos2dx_dragonbones_Armature_getReplacedTexture(se::State &s) {
     dragonBones::Armature *cobj = (dragonBones::Armature *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Armature_getReplacedTexture : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         middleware::Texture2D *result = (middleware::Texture2D *)cobj->getReplacedTexture();
-        ok                            = native_ptr_to_seval<middleware::Texture2D>(result, __jsb_cc_middleware_Texture2D_class, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Armature_getReplacedTexture : Error processing arguments");
+        ok = native_ptr_to_seval<middleware::Texture2D>(result, __jsb_cc_middleware_Texture2D_class, &s.rval());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -217,9 +213,9 @@ SE_BIND_FUNC(js_cocos2dx_dragonbones_Armature_getReplacedTexture)
 
 static bool js_cocos2dx_dragonbones_ArmatureData_get_animations(se::State &s) {
     dragonBones::ArmatureData *cobj = (dragonBones::ArmatureData *)s.nativeThisObject();
-    se::HandleObject           retObj(se::Object::createPlainObject());
-    bool                       ok = false;
-    se::Value                  tmp;
+    se::HandleObject retObj(se::Object::createPlainObject());
+    bool ok = false;
+    se::Value tmp;
     for (const auto &e : cobj->animations) {
         if (!e.first.empty()) {
             ok = native_ptr_to_seval<dragonBones::AnimationData>(e.second, __jsb_dragonBones_AnimationData_class, &tmp);
@@ -234,9 +230,9 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_ArmatureData_get_animations)
 
 static bool js_cocos2dx_dragonbones_ArmatureData_get_bones(se::State &s) {
     dragonBones::ArmatureData *cobj = (dragonBones::ArmatureData *)s.nativeThisObject();
-    se::HandleObject           retObj(se::Object::createPlainObject());
-    bool                       ok = false;
-    se::Value                  tmp;
+    se::HandleObject retObj(se::Object::createPlainObject());
+    bool ok = false;
+    se::Value tmp;
     for (const auto &e : cobj->bones) {
         if (!e.first.empty()) {
             ok = native_ptr_to_seval<dragonBones::BoneData>(e.second, __jsb_dragonBones_BoneData_class, &tmp);
@@ -251,9 +247,9 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_ArmatureData_get_bones)
 
 static bool js_cocos2dx_dragonbones_ArmatureData_get_skins(se::State &s) {
     dragonBones::ArmatureData *cobj = (dragonBones::ArmatureData *)s.nativeThisObject();
-    se::HandleObject           retObj(se::Object::createPlainObject());
-    bool                       ok = false;
-    se::Value                  tmp;
+    se::HandleObject retObj(se::Object::createPlainObject());
+    bool ok = false;
+    se::Value tmp;
     for (const auto &e : cobj->skins) {
         if (!e.first.empty()) {
             ok = native_ptr_to_seval<dragonBones::SkinData>(e.second, __jsb_dragonBones_SkinData_class, &tmp);
@@ -268,9 +264,9 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_ArmatureData_get_skins)
 
 static bool js_cocos2dx_dragonbones_ArmatureData_get_slots(se::State &s) {
     dragonBones::ArmatureData *cobj = (dragonBones::ArmatureData *)s.nativeThisObject();
-    se::HandleObject           retObj(se::Object::createPlainObject());
-    bool                       ok = false;
-    se::Value                  tmp;
+    se::HandleObject retObj(se::Object::createPlainObject());
+    bool ok = false;
+    se::Value tmp;
     for (const auto &e : cobj->slots) {
         if (!e.first.empty()) {
             ok = native_ptr_to_seval<dragonBones::SlotData>(e.second, __jsb_dragonBones_SlotData_class, &tmp);
@@ -287,30 +283,30 @@ static bool js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames(se::State 
     dragonBones::DragonBonesData *cobj = (dragonBones::DragonBonesData *)s.nativeThisObject();
 
     const auto &ret = cobj->getArmatureNames();
-    bool        ok  = std_vector_string_to_seval(ret, &s.rval());
+    bool ok = nativevalue_to_se(ret, s.rval());
     SE_PRECONDITION2(ok, false, "Convert ArmatureNames to se::Value failed!");
     return true;
 }
 SE_BIND_PROP_GET(js_cocos2dx_dragonbones_DragonBonesData_get_armatureNames)
 
 static bool js_cocos2dx_dragonbones_Slot_getDisplay(se::State &s) {
-    dragonBones::Slot *             cobj = (dragonBones::Slot *)s.nativeThisObject();
-    dragonBones::CCArmatureDisplay *ret  = static_cast<dragonBones::CCArmatureDisplay *>(cobj->getDisplay());
-    bool                            ok   = native_ptr_to_seval<dragonBones::CCArmatureDisplay>(ret, __jsb_dragonBones_CCArmatureDisplay_class, &s.rval());
+    dragonBones::Slot *cobj = (dragonBones::Slot *)s.nativeThisObject();
+    dragonBones::CCArmatureDisplay *ret = static_cast<dragonBones::CCArmatureDisplay *>(cobj->getDisplay());
+    bool ok = native_ptr_to_seval<dragonBones::CCArmatureDisplay>(ret, __jsb_dragonBones_CCArmatureDisplay_class, &s.rval());
     SE_PRECONDITION2(ok, false, "Convert dragonBones::DBCCSprite to se::Value failed!");
     return true;
 }
 SE_BIND_FUNC(js_cocos2dx_dragonbones_Slot_getDisplay)
 
 static bool js_cocos2dx_dragonbones_Slot_set_displayIndex(se::State &s) {
-    const auto &       args = s.args();
+    const auto &args = s.args();
     dragonBones::Slot *cobj = (dragonBones::Slot *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Slot_set_displayIndex : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    int32_t        arg0;
-    ok &= seval_to_int32(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Slot_set_displayIndex : Error processing new value");
+    int32_t arg0;
+    ok &= sevalue_to_native(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     cobj->setDisplayIndex(arg0);
     return true;
 }
@@ -318,10 +314,10 @@ SE_BIND_PROP_SET(js_cocos2dx_dragonbones_Slot_set_displayIndex)
 
 static bool js_cocos2dx_dragonbones_Slot_get_displayIndex(se::State &s) {
     dragonBones::Slot *cobj = (dragonBones::Slot *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_Slot_get_displayIndex : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     const int32_t ret = cobj->getDisplayIndex();
-    bool          ok  = int32_to_seval(ret, &s.rval());
+    bool ok = nativevalue_to_se(ret, s.rval());
     SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_Slot_get_displayIndex to se::Value failed!");
     return true;
 }
@@ -329,15 +325,15 @@ SE_BIND_PROP_GET(js_cocos2dx_dragonbones_Slot_get_displayIndex)
 
 static bool js_cocos2dx_dragonbones_Slot_setDisplay(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int argc = (int)args.size();
 
     if (argc == 2) {
-        dragonBones::Slot *             cobj     = (dragonBones::Slot *)s.nativeThisObject();
+        dragonBones::Slot *cobj = (dragonBones::Slot *)s.nativeThisObject();
         dragonBones::CCArmatureDisplay *dbSprite = nullptr;
-        bool                            ok       = seval_to_native_ptr(args[0], &dbSprite);
+        bool ok = seval_to_native_ptr(args[0], &dbSprite);
         SE_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DBCCSprite failed!");
         dragonBones::DisplayType type;
-        ok = seval_to_int32(args[1], (int32_t *)&type);
+        ok = sevalue_to_native(args[1], (int32_t *)&type);
         SE_PRECONDITION2(ok, false, "Convert se::Value to dragonBones::DisplayType failed!");
         cobj->setDisplay(dbSprite, type);
         return true;
@@ -350,55 +346,55 @@ SE_BIND_FUNC(js_cocos2dx_dragonbones_Slot_setDisplay)
 
 static bool js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData(se::State &s) {
     dragonBones::BaseFactory *cobj = (dragonBones::BaseFactory *)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 2) {
         const char *arg0 = nullptr;
-        void *      arg1 = nullptr;
-        std::string arg0_tmp;
-        ok &= seval_to_std_string(args[0], &arg0_tmp);
+        void *arg1 = nullptr;
+        ccstd::string arg0_tmp;
+        ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();
         ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         dragonBones::TextureAtlasData *result = cobj->parseTextureAtlasData(arg0, arg1);
         ok &= native_ptr_to_seval<dragonBones::TextureAtlasData>((dragonBones::TextureAtlasData *)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     if (argc == 3) {
         const char *arg0 = nullptr;
-        void *      arg1 = nullptr;
-        std::string arg2;
-        std::string arg0_tmp;
-        ok &= seval_to_std_string(args[0], &arg0_tmp);
+        void *arg1 = nullptr;
+        ccstd::string arg2;
+        ccstd::string arg0_tmp;
+        ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();
         ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
-        ok &= seval_to_std_string(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        ok &= sevalue_to_native(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         dragonBones::TextureAtlasData *result = cobj->parseTextureAtlasData(arg0, arg1, arg2);
         ok &= native_ptr_to_seval<dragonBones::TextureAtlasData>((dragonBones::TextureAtlasData *)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     if (argc == 4) {
         const char *arg0 = nullptr;
-        void *      arg1 = nullptr;
-        std::string arg2;
-        float       arg3 = 0;
-        std::string arg0_tmp;
-        ok &= seval_to_std_string(args[0], &arg0_tmp);
+        void *arg1 = nullptr;
+        ccstd::string arg2;
+        float arg3 = 0;
+        ccstd::string arg0_tmp;
+        ok &= sevalue_to_native(args[0], &arg0_tmp);
         arg0 = arg0_tmp.c_str();
         ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
-        ok &= seval_to_std_string(args[2], &arg2);
-        ok &= seval_to_float(args[3], &arg3);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        ok &= sevalue_to_native(args[2], &arg2);
+        ok &= sevalue_to_native(args[3], &arg3);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         dragonBones::TextureAtlasData *result = cobj->parseTextureAtlasData(arg0, arg1, arg2, arg3);
         ok &= native_ptr_to_seval<dragonBones::TextureAtlasData>((dragonBones::TextureAtlasData *)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -434,48 +430,23 @@ bool register_all_dragonbones_manual(se::Object *obj) {
     __jsb_dragonBones_BaseFactory_proto->defineFunction("parseTextureAtlasData", _SE(js_cocos2dx_dragonbones_BaseFactory_parseTextureAtlasData));
 
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
-        
+        //ccstd::string typeName = typeid(*obj).name();
 #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO:May be removed later
         se::Object* seObj = nullptr;
+        if (!se::NativePtrToObjectMap::isValid()) {
+            return;
+        }
+        se::Object *seObj = nullptr;
         auto iter = se::NativePtrToObjectMap::find(obj);
         if (iter != se::NativePtrToObjectMap::end()) {
             // Save se::Object pointer for being used in cleanup method.
             seObj = iter->second;
+            seObj->setClearMappingInFinalizer(false);
             // Unmap native and js object since native object was destroyed.
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with
             // the same address.
             se::NativePtrToObjectMap::erase(iter);
-        } else {
-            // CCLOG("Didn't find %s, %p in map", typeName, obj);
-            // assert(false);
-            return;
-        }
-
-        auto cleanup = [seObj](){
-
-            auto se = se::ScriptEngine::getInstance();
-            if (!se->isValid() || se->isInCleanup())
-                return;
-
-            se::AutoHandleScope hs;
-            se->clearException();
-
-            // The mapping of native object & se::Object was cleared in above code.
-            // The private data (native object) may be a different object associated with other se::Object.
-            // Therefore, don't clear the mapping again.
-            seObj->clearPrivateData(false);
-            seObj->unroot();
-            seObj->decRef();
-        };
-
-        if (!se::ScriptEngine::getInstance()->isGarbageCollecting())
-        {
-            cleanup();
-        }
-        else
-        {
-            CleanupTask::pushTaskToAutoReleasePool(cleanup);
         }
 #endif
     });
@@ -492,7 +463,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
         factory->stopSchedule();
 
         // Copy the dragonbones object vector since vector element will be deleted in BaseObject destructor.
-        std::vector<dragonBones::BaseObject *> allDragonBonesObjects = dragonBones::BaseObject::getAllObjects();
+        ccstd::vector<dragonBones::BaseObject *> allDragonBonesObjects = dragonBones::BaseObject::getAllObjects();
         CC_LOG_INFO("Starting to cleanup dragonbones object, count: %d\n", (int)allDragonBonesObjects.size());
         for (auto dbObj : allDragonBonesObjects) {
             if (!dbObj->isInPool()) {
@@ -521,5 +492,3 @@ bool register_all_dragonbones_manual(se::Object *obj) {
 
     return true;
 }
-
-#endif

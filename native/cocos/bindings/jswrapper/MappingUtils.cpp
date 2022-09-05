@@ -25,16 +25,19 @@
 ****************************************************************************/
 
 #include "MappingUtils.h"
+#include "base/memory/Memory.h"
 
 namespace se {
 
 // NativePtrToObjectMap
-NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullptr;
+NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullptr; // NOLINT
+bool NativePtrToObjectMap::__isValid = false;                                      // NOLINT
 
 bool NativePtrToObjectMap::init() {
-    if (__nativePtrToObjectMap == nullptr)
-        __nativePtrToObjectMap = new (std::nothrow) NativePtrToObjectMap::Map();
-
+    if (__nativePtrToObjectMap == nullptr) {
+        __nativePtrToObjectMap = ccnew NativePtrToObjectMap::Map();
+    }
+    __isValid = true;
     return __nativePtrToObjectMap != nullptr;
 }
 
@@ -43,6 +46,11 @@ void NativePtrToObjectMap::destroy() {
         delete __nativePtrToObjectMap;
         __nativePtrToObjectMap = nullptr;
     }
+    __isValid = false;
+}
+
+bool NativePtrToObjectMap::isValid() {
+    return __isValid;
 }
 
 void NativePtrToObjectMap::emplace(void *nativeObj, Object *seObj) {
@@ -80,59 +88,4 @@ NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::begin() {
 NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::end() {
     return __nativePtrToObjectMap->end();
 }
-
-// NonRefNativePtrCreatedByCtorMap
-
-NonRefNativePtrCreatedByCtorMap::Map *NonRefNativePtrCreatedByCtorMap::__nonRefNativeObjectCreatedByCtorMap = nullptr;
-
-bool NonRefNativePtrCreatedByCtorMap::init() {
-    if (__nonRefNativeObjectCreatedByCtorMap == nullptr)
-        __nonRefNativeObjectCreatedByCtorMap = new (std::nothrow) NonRefNativePtrCreatedByCtorMap::Map();
-
-    return __nonRefNativeObjectCreatedByCtorMap != nullptr;
-}
-
-void NonRefNativePtrCreatedByCtorMap::destroy() {
-    if (__nonRefNativeObjectCreatedByCtorMap != nullptr) {
-        delete __nonRefNativeObjectCreatedByCtorMap;
-        __nonRefNativeObjectCreatedByCtorMap = nullptr;
-    }
-}
-
-void NonRefNativePtrCreatedByCtorMap::emplace(void *nativeObj) {
-    __nonRefNativeObjectCreatedByCtorMap->emplace(nativeObj, true);
-}
-
-NonRefNativePtrCreatedByCtorMap::Map::iterator NonRefNativePtrCreatedByCtorMap::find(void *nativeObj) {
-    return __nonRefNativeObjectCreatedByCtorMap->find(nativeObj);
-}
-
-NonRefNativePtrCreatedByCtorMap::Map::iterator NonRefNativePtrCreatedByCtorMap::erase(Map::iterator iter) {
-    return __nonRefNativeObjectCreatedByCtorMap->erase(iter);
-}
-
-void NonRefNativePtrCreatedByCtorMap::erase(void *nativeObj) {
-    __nonRefNativeObjectCreatedByCtorMap->erase(nativeObj);
-}
-
-void NonRefNativePtrCreatedByCtorMap::clear() {
-    __nonRefNativeObjectCreatedByCtorMap->clear();
-}
-
-size_t NonRefNativePtrCreatedByCtorMap::size() {
-    return __nonRefNativeObjectCreatedByCtorMap->size();
-}
-
-const NonRefNativePtrCreatedByCtorMap::Map &NonRefNativePtrCreatedByCtorMap::instance() {
-    return *__nonRefNativeObjectCreatedByCtorMap;
-}
-
-NonRefNativePtrCreatedByCtorMap::Map::iterator NonRefNativePtrCreatedByCtorMap::begin() {
-    return __nonRefNativeObjectCreatedByCtorMap->begin();
-}
-
-NonRefNativePtrCreatedByCtorMap::Map::iterator NonRefNativePtrCreatedByCtorMap::end() {
-    return __nonRefNativeObjectCreatedByCtorMap->end();
-}
-
 } // namespace se

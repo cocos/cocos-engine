@@ -23,12 +23,10 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { AABB, Frustum } from '../../geometry';
 import { legacyCC } from '../../global-exports';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { NativeSpotLight } from '../native-scene';
 import { PCFType } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
@@ -75,28 +73,6 @@ export class SpotLight extends Light {
     protected _shadowBias = 0.00001;
     protected _shadowNormalBias = 0.0;
 
-    protected _init (): void {
-        super._init();
-        if (JSB) {
-            const nativeSpotLight = this._nativeObj! as NativeSpotLight;
-            nativeSpotLight.setAABB(this._aabb.native);
-            nativeSpotLight.setFrustum(this._frustum);
-            nativeSpotLight.setDirection(this._dir);
-            nativeSpotLight.setPosition(this._pos);
-        }
-    }
-
-    protected _destroy (): void {
-        super._destroy();
-    }
-
-    protected _setDirection (dir: Vec3): void {
-        this._dir.set(dir);
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setDirection(dir);
-        }
-    }
-
     /**
      * @en The world position of the light source
      * @zh 光源的世界坐标
@@ -111,9 +87,6 @@ export class SpotLight extends Light {
      */
     set size (size: number) {
         this._size = size;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setSize(size);
-        }
     }
 
     get size (): number {
@@ -126,9 +99,6 @@ export class SpotLight extends Light {
      */
     set range (range: number) {
         this._range = range;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setRange(range);
-        }
 
         this._needUpdate = true;
     }
@@ -167,10 +137,6 @@ export class SpotLight extends Light {
     }
     set luminanceHDR (value: number) {
         this._luminanceHDR = value;
-
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setLuminanceHDR(value);
-        }
     }
 
     /**
@@ -182,10 +148,6 @@ export class SpotLight extends Light {
     }
     set luminanceLDR (value: number) {
         this._luminanceLDR = value;
-
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setLuminanceLDR(value);
-        }
     }
 
     /**
@@ -210,9 +172,6 @@ export class SpotLight extends Light {
     set spotAngle (val: number) {
         this._angle = val;
         this._spotAngle = Math.cos(val * 0.5);
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setAngle(this._spotAngle);
-        }
 
         this._needUpdate = true;
     }
@@ -246,9 +205,6 @@ export class SpotLight extends Light {
     }
     set shadowEnabled (val) {
         this._shadowEnabled = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowEnabled(val);
-        }
     }
 
     /**
@@ -260,9 +216,6 @@ export class SpotLight extends Light {
     }
     set shadowPcf (val) {
         this._shadowPcf = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowPcf(val);
-        }
     }
 
     /**
@@ -274,9 +227,6 @@ export class SpotLight extends Light {
     }
     set shadowBias (val) {
         this._shadowBias = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowBias(val);
-        }
     }
 
     /**
@@ -288,9 +238,6 @@ export class SpotLight extends Light {
     }
     set shadowNormalBias (val: number) {
         this._shadowNormalBias = val;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setShadowNormalBias(val);
-        }
     }
 
     constructor () {
@@ -309,7 +256,7 @@ export class SpotLight extends Light {
         this.luminanceHDR = 1700 / nt2lm(size);
         this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
-        this._setDirection(new Vec3(1.0, -1.0, -1.0));
+        this._dir.set(new Vec3(1.0, -1.0, -1.0));
     }
 
     public update () {

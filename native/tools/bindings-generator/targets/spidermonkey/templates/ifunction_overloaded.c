@@ -2,9 +2,14 @@
 
 static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
+#set $module_macro = $generator.get_method_module_macro($class_name, $func_name)
+#if $module_macro
+\#if $module_macro
+#end if
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
-    SE_PRECONDITION2( cobj, false, "${signature_name} : Invalid Native Object");
+    // SE_PRECONDITION2( cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
     const auto& args = s.args();
     size_t argc = args.size();
 #for func in $implementations
@@ -21,7 +26,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
             #set $count = 0
             #while $count < $arg_idx
                 #set $arg = $func.arguments[$count]
-                #set $arg_type = $arg.to_string($generator, omit_const=True)
+                #set $arg_type = $arg.to_string($generator, omit_const = True)
                 #if $arg.is_reference
                 #set $holder_prefix="HolderType<"+$arg_type+", true>"
                 #else
@@ -67,7 +72,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
                                                       "class_name": $func.ret_type.get_class_name($generator),
                                                       "ntype": str($func.ret_type),
                                                       "level": 2})};
-            SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+            SE_PRECONDITION2(ok, false, "Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #else
             cobj->${func.func_name}($arg_list);
@@ -82,5 +87,20 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
 #end for
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
+#if $module_macro
+\#else
+    return true;
+\#endif // \#if $module_macro
+#end if
 }
+#if $current_class is not None
+#if $current_class.is_getter_attribute($func_name)
+SE_BIND_FUNC_AS_PROP_GET(${signature_name})
+#end if
+#if $current_class.is_setter_attribute($func_name)
+SE_BIND_FUNC_AS_PROP_SET(${signature_name})
+#end if
+#if not $current_class.skip_bind_function({"name":$func_name})
 SE_BIND_FUNC(${signature_name})
+#end if
+#end if

@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXDescriptorSet.h"
 #include "GFXDescriptorSetLayout.h"
 #include "GFXObject.h"
@@ -39,9 +37,9 @@ DescriptorSet::DescriptorSet()
 DescriptorSet::~DescriptorSet() = default;
 
 void DescriptorSet::initialize(const DescriptorSetInfo &info) {
-    CCASSERT(info.layout, "Invalid set layout");
+    CC_ASSERT(info.layout);
 
-    _layout                  = info.layout;
+    _layout = info.layout;
     uint32_t descriptorCount = _layout->getDescriptorCount();
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);
@@ -64,7 +62,7 @@ void DescriptorSet::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index)
     const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding];
     if (_buffers[descriptorIndex + index] != buffer) {
         _buffers[descriptorIndex + index] = buffer;
-        _isDirty                          = true;
+        _isDirty = true;
     }
 }
 
@@ -72,7 +70,7 @@ void DescriptorSet::bindTexture(uint32_t binding, Texture *texture, uint32_t ind
     const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding];
     if (_textures[descriptorIndex + index] != texture) {
         _textures[descriptorIndex + index] = texture;
-        _isDirty                           = true;
+        _isDirty = true;
     }
 }
 
@@ -80,7 +78,7 @@ void DescriptorSet::bindSampler(uint32_t binding, Sampler *sampler, uint32_t ind
     const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding];
     if (_samplers[descriptorIndex + index] != sampler) {
         _samplers[descriptorIndex + index] = sampler;
-        _isDirty                           = true;
+        _isDirty = true;
     }
 }
 
@@ -100,7 +98,7 @@ bool DescriptorSet::bindSamplerJSB(uint32_t binding, Sampler *sampler, uint32_t 
 }
 
 Buffer *DescriptorSet::getBuffer(uint32_t binding, uint32_t index) const {
-    const vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
+    const ccstd::vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
     if (binding >= descriptorIndices.size()) return nullptr;
     const uint32_t descriptorIndex = descriptorIndices[binding] + index;
     if (descriptorIndex >= _buffers.size()) return nullptr;
@@ -108,7 +106,7 @@ Buffer *DescriptorSet::getBuffer(uint32_t binding, uint32_t index) const {
 }
 
 Texture *DescriptorSet::getTexture(uint32_t binding, uint32_t index) const {
-    const vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
+    const ccstd::vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
     if (binding >= descriptorIndices.size()) return nullptr;
     const uint32_t descriptorIndex = descriptorIndices[binding] + index;
     if (descriptorIndex >= _textures.size()) return nullptr;
@@ -116,7 +114,7 @@ Texture *DescriptorSet::getTexture(uint32_t binding, uint32_t index) const {
 }
 
 Sampler *DescriptorSet::getSampler(uint32_t binding, uint32_t index) const {
-    const vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
+    const ccstd::vector<uint32_t> &descriptorIndices = _layout->getDescriptorIndices();
     if (binding >= descriptorIndices.size()) return nullptr;
     const uint32_t descriptorIndex = descriptorIndices[binding] + index;
     if (descriptorIndex >= _samplers.size()) return nullptr;

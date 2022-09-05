@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUInputAssembler;
+struct GLES2GPUInputAssembler;
 class GLES2CmdDraw;
 
 class CC_GLES2_API GLES2InputAssembler final : public InputAssembler {

@@ -25,131 +25,107 @@
 
 #pragma once
 
-#include "AllocatedObj.h"
-#include "MemDef.h"
-#include "MemTracker.h"
-#include "StlAlloc.h"
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
     #include <Availability.h>
 #endif
 
-// Global Interface Definitions
+#ifdef _MSC_VER
+    #include <malloc.h>
+#else
+    #include <cstdlib>
+#endif
 
-// Undefine these macros that are defined in cocos2d-x lite.
-// Should unify them in future.
-#undef CC_SAFE_DELETE
-#undef CC_SAFE_DELETE_ARRAY
-#undef CC_SAFE_FREE
+#include <new> // std::nothrow
 
-#define CC_THROW_IF_OOM(ptr)                       \
-    if (!ptr) {                                    \
-        throw std::runtime_error("out of memory"); \
+#include "base/Macros.h"
+
+namespace cc {
+class MemoryAllocDealloc final {
+public:
+    inline static void *allocateBytesAligned(size_t alignment, size_t count) {
+#ifdef _MSC_VER
+        void *ptr = _aligned_malloc(count, alignment);
+#else
+        // alignment is not multiple of sizeof(void*)
+        CC_ASSERT(alignment % sizeof(void *) == 0);
+        void *ptr = nullptr;
+        posix_memalign(&ptr, alignment, count);
+#endif
+        return ptr;
     }
 
-#define CC_RETURN_IF_OOM(ptr, ret) \
-    if (!ptr) {                    \
-        return ret;                \
+    inline static void deallocateBytesAligned(void *ptr) {
+#ifdef _MSC_VER
+        _aligned_free(ptr);
+#else
+        free(ptr);
+#endif
     }
+};
+} // namespace cc
 
-#define CC_NEW(T)              _CC_NEW T
-#define CC_NEW_ARRAY(T, count) _CC_NEW T[count]
-#define CC_DELETE(ptr)         _CC_DELETE(ptr)
-#define CC_DELETE_ARRAY(ptr)   _CC_DELETE[](ptr)
+#define ccnew                new (std::nothrow) //NOLINT(readability-identifier-naming)
+#define ccnew_placement(...) new (__VA_ARGS__) //NOLINT(readability-identifier-naming)
+
 #define CC_SAFE_DELETE(ptr) \
     if (ptr) {              \
-        CC_DELETE(ptr);     \
+        delete ptr;         \
         (ptr) = nullptr;    \
     }
+
 #define CC_SAFE_DELETE_ARRAY(ptr) \
     if (ptr) {                    \
-        CC_DELETE_ARRAY(ptr);     \
+        delete[] ptr;             \
         (ptr) = nullptr;          \
     }
-#define CC_UNSAFE_DELETE(ptr) \
-    if (ptr) {                \
-        CC_DELETE(ptr);       \
-    }
-#define CC_UNSAFE_DELETE_ARRAY(ptr) \
-    if (ptr) {                      \
-        CC_DELETE_ARRAY(ptr);       \
-    }
 
-#define CC_NEW_T(T)                      _CC_NEW_T(T)
-#define CC_NEW_ARRAY_T(T, count)         _CC_NEW_ARRAY_T(T, count)
-#define CC_DELETE_T(ptr, T)              _CC_DELETE_T(ptr, T)
-#define CC_DELETE_ARRAY_T(ptr, T, count) _CC_DELETE_ARRAY_T(ptr, T, count)
-#define CC_SAFE_DELETE_T(ptr, T) \
-    if (ptr) {                   \
-        CC_DELETE_T(ptr, T);     \
-        (ptr) = nullptr;         \
-    }
-#define CC_SAFE_DELETE_ARRAY_T(ptr, T, count) \
-    if (ptr) {                                \
-        CC_DELETE_ARRAY_T(ptr, T, count);     \
-        (ptr) = nullptr;                      \
-    }
-#define CC_UNSAFE_DELETE_T(ptr, T) \
-    if (ptr) {                     \
-        CC_DELETE_T(ptr, T);       \
-    }
-#define CC_UNSAFE_DELETE_ARRAY_T(ptr, T, count) \
-    if (ptr) {                                  \
-        CC_DELETE_ARRAY_T(ptr, T, count);       \
-    }
+#define CC_MALLOC(bytes)              malloc(bytes)
+#define CC_MALLOC_ALIGN(bytes, align) ::cc::MemoryAllocDealloc::allocateBytesAligned(align, bytes)
+#define CC_REALLOC(ptr, bytes)        realloc(ptr, bytes)
+#define CC_FREE(ptr)                  free((void *)ptr)
+#define CC_FREE_ALIGN(ptr)            ::cc::MemoryAllocDealloc::deallocateBytesAligned(ptr)
 
-#define CC_MALLOC(bytes)       _CC_MALLOC(bytes)
-#define CC_REALLOC(ptr, bytes) _CC_REALLOC(ptr, bytes)
-#define CC_ALLOC(T, count)     _CC_ALLOC_T(T, count)
-#define CC_FREE(ptr)           _CC_FREE(ptr)
 #define CC_SAFE_FREE(ptr) \
     if (ptr) {            \
         CC_FREE(ptr);     \
         (ptr) = nullptr;  \
     }
-#define CC_UNSAFE_FREE(ptr) \
-    if (ptr) {              \
-        CC_FREE(ptr);       \
-    }
 
-#define CC_MALLOC_SIMD(bytes) _CC_MALLOC_SIMD(bytes)
-#define CC_FREE_SIMD(ptr)     _CC_FREE_SIMD(ptr)
-
-#define CC_DESTROY(ptr)   \
-    {                     \
-        (ptr)->destroy(); \
-        CC_DELETE(ptr);   \
-    }
 #define CC_SAFE_DESTROY(ptr) \
     if (ptr) {               \
         (ptr)->destroy();    \
-        CC_DELETE(ptr);      \
-        ptr = nullptr;       \
-    }
-#define CC_UNSAFE_DESTROY(ptr) \
-    if (ptr) {                 \
-        (ptr)->destroy();      \
-        CC_DELETE(ptr);        \
     }
 
-#define CC_SAFE_RELEASE_REF(ptr) \
-    if (ptr) {                   \
-        (ptr)->ReleaseRef();     \
-        ptr = nullptr;           \
-    }
-#define CC_UNSAFE_RELEASE_REF(ptr) \
-    if (ptr) {                     \
-        (ptr)->ReleaseRef();       \
+#define CC_SAFE_DESTROY_AND_DELETE(ptr) \
+    if (ptr) {                          \
+        (ptr)->destroy();               \
+        delete ptr;                     \
+        (ptr) = nullptr;                \
     }
 
-#if 0
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS) && (CC_MODE == CC_MODE_DEBUG)
-CC_CORE_API void *BareNewErroneouslyCalled(size_t sz);
-inline void *operator new(size_t sz) { return BareNewErroneouslyCalled(sz); }
-inline void operator delete(void *ptr) throw() { free(ptr); }
-    #endif
-#endif
+#define CC_SAFE_DESTROY_NULL(ptr) \
+    if (ptr) {                    \
+        (ptr)->destroy();         \
+        (ptr) = nullptr;          \
+    }
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
+#define CC_SAFE_RELEASE(p) \
+    if (p) {               \
+        (p)->release();    \
+    }
+
+#define CC_SAFE_RELEASE_NULL(p) \
+    if (p) {                    \
+        (p)->release();         \
+        (p) = nullptr;          \
+    }
+
+#define CC_SAFE_ADD_REF(p) \
+    if (p) {               \
+        (p)->addRef();     \
+    }
+
+#if (CC_PLATFORM == CC_PLATFORM_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
     #define ALIGNAS(x)
 #else
     #define ALIGNAS(x) alignas(x)

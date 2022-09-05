@@ -24,6 +24,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { error, errorID, getError, warn, warnID } from '../platform/debug';
@@ -33,7 +34,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { SkelAnimDataHub } from '../../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode, WrapModeMask } from './types';
 import { legacyCC } from '../global-exports';
-import { Mat4, Quat, Vec3 } from '../math';
+import { approx, clamp, Mat4, Quat, Vec3 } from '../math';
 import { Node } from '../scene-graph/node';
 import { assertIsTrue } from '../data/utils/asserts';
 import type { PoseOutput } from './pose-output';
@@ -49,6 +50,7 @@ import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
+import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -81,6 +83,12 @@ interface SkeletonAnimationBakeInfo {
 }
 
 export const exoticAnimationTag = Symbol('ExoticAnimation');
+
+export const embeddedPlayerCountTag = Symbol('[[EmbeddedPlayerCount]]');
+export const getEmbeddedPlayersTag = Symbol('[[GetEmbeddedPlayers]]');
+export const addEmbeddedPlayerTag = Symbol('[[AddEmbeddedPlayer]]');
+export const removeEmbeddedPlayerTag = Symbol('[[RemoveEmbeddedPlayer]]');
+export const clearEmbeddedPlayersTag = Symbol('[[ClearEmbeddedPlayers]]');
 
 /**
  * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
@@ -304,6 +312,14 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * Returns if this clip has any event.
+     * @internal Do not use this in your code.
+     */
+    public containsAnyEvent () {
+        return this._events.length !== 0;
+    }
+
+    /**
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
      * @internal Do not use this in your code.
@@ -314,6 +330,26 @@ export class AnimationClip extends Asset {
             this._runtimeEvents.ratios,
             this._runtimeEvents.eventGroups,
             this.wrapMode,
+        );
+    }
+
+    /**
+     * Returns if this clip has any embedded player.
+     * @internal Do not use this in your code.
+     */
+    public containsAnyEmbeddedPlayer () {
+        return this._embeddedPlayers.length !== 0;
+    }
+
+    /**
+     * Creates an embedded player evaluator for this animation.
+     * @param targetNode Target node.
+     * @internal Do not use this in your code.
+     */
+    public createEmbeddedPlayerEvaluator (targetNode: Node) {
+        return new EmbeddedPlayerEvaluation(
+            this._embeddedPlayers,
+            targetNode,
         );
     }
 
@@ -338,7 +374,17 @@ export class AnimationClip extends Asset {
                 this.enableTrsBlending ? context.pose : undefined,
                 false,
             );
-            // TODO: warning
+            if (DEBUG && !trackTarget) {
+                // If we got a null track target here, we should already have warn logged,
+                // To elaborate on error details, we warn here as well.
+                // Note: if in the future this log appears alone,
+                // it must be a BUG which break promise by above statement.
+                warnID(
+                    3937,
+                    this.name,
+                    (context.target instanceof Node) ? context.target.name : context.target,
+                );
+            }
             return trackTarget ?? undefined;
         };
 
@@ -569,6 +615,44 @@ export class AnimationClip extends Asset {
 
     // #endregion
 
+    /**
+     * @internal
+     */
+    get [embeddedPlayerCountTag] () {
+        return this._embeddedPlayers.length;
+    }
+
+    /**
+     * @internal
+     */
+    public [getEmbeddedPlayersTag] (): Iterable<EmbeddedPlayer> {
+        return this._embeddedPlayers;
+    }
+
+    /**
+     * @internal
+     */
+    public [addEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer) {
+        this._embeddedPlayers.push(embeddedPlayer);
+    }
+
+    /**
+     * @internal
+     */
+    public [removeEmbeddedPlayerTag] (embeddedPlayer: EmbeddedPlayer) {
+        const iEmbeddedPlayer = this._embeddedPlayers.indexOf(embeddedPlayer);
+        if (iEmbeddedPlayer >= 0) {
+            this._embeddedPlayers.splice(iEmbeddedPlayer, 1);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    public [clearEmbeddedPlayersTag] () {
+        this._embeddedPlayers.length = 0;
+    }
+
     @serializable
     private _duration = 0;
 
@@ -589,6 +673,9 @@ export class AnimationClip extends Asset {
 
     @serializable
     private _events: AnimationClip.IEvent[] = [];
+
+    @serializable
+    private _embeddedPlayers: EmbeddedPlayer[] = [];
 
     private _runtimeEvents: {
         ratios: number[];
@@ -845,6 +932,195 @@ interface RootMotionOptions {
 }
 
 type ExoticAnimationEvaluator = ReturnType<ExoticAnimation['createEvaluator']>;
+
+class EmbeddedPlayerEvaluation {
+    constructor (embeddedPlayers: ReadonlyArray<EmbeddedPlayer>, rootNode: Node) {
+        this._embeddedPlayers = embeddedPlayers;
+        this._embeddedPlayerEvaluationInfos = embeddedPlayers.map(
+            (embeddedPlayer): EmbeddedPlayerEvaluation['_embeddedPlayerEvaluationInfos'][0] => {
+                const { playable: player } = embeddedPlayer;
+                if (!player) {
+                    return null;
+                }
+                const instantiatedPlayer = player.instantiate(rootNode);
+                if (!instantiatedPlayer) {
+                    return null;
+                }
+                return {
+                    instantiatedPlayer,
+                    entered: false,
+                    hostPauseTime: 0.0,
+                    lastIterations: 0,
+                };
+            },
+        );
+    }
+
+    public destroy () {
+        const {
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayerEvaluationInfos.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            embeddedPlayerEvaluationInfos[iEmbeddedPlayer]?.instantiatedPlayer.destroy();
+        }
+        this._embeddedPlayerEvaluationInfos.length = 0;
+    }
+
+    /**
+     * Evaluates the embedded players.
+     * @param time The time([0, clipDuration]).
+     * @param iterations The iterations the evaluation occurred. Should be integral.
+     */
+    public evaluate (time: number, iterations: number) {
+        assertIsTrue(Number.isInteger(iterations));
+        const {
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
+                continue;
+            }
+            const { entered, instantiatedPlayer, lastIterations } = embeddedPlayerEvaluationInfo;
+            const { begin, end } = embeddedPlayers[iEmbeddedPlayer];
+            const withinEmbeddedPlayer = time >= begin && time <= end;
+            if (withinEmbeddedPlayer) {
+                if (!entered) {
+                    instantiatedPlayer.play();
+                    embeddedPlayerEvaluationInfo.entered = true;
+                } else if (iterations !== lastIterations) {
+                    instantiatedPlayer.stop();
+                    instantiatedPlayer.play();
+                    embeddedPlayerEvaluationInfo.entered = true;
+                }
+            } else if (entered) {
+                instantiatedPlayer.stop();
+                embeddedPlayerEvaluationInfo.entered = false;
+            }
+            embeddedPlayerEvaluationInfo.lastIterations = iterations;
+            if (embeddedPlayerEvaluationInfo.entered) {
+                const playerTime = time - begin;
+                embeddedPlayerEvaluationInfo.instantiatedPlayer.setTime(playerTime);
+            }
+        }
+    }
+
+    public notifyHostSpeedChanged (speed: number) {
+        // Transmit the speed to embedded players that want a reconciled speed.
+        const {
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
+                continue;
+            }
+            const { instantiatedPlayer } = embeddedPlayerEvaluationInfo;
+            const { reconciledSpeed } = embeddedPlayers[iEmbeddedPlayer];
+            if (reconciledSpeed) {
+                instantiatedPlayer.setSpeed(speed);
+            }
+        }
+    }
+
+    /**
+     * Notifies that the host has ran into **playing** state.
+     * @param time The time where host ran into playing state.
+     */
+    public notifyHostPlay (time: number) {
+        // Host has switched to "playing", this can be happened when:
+        // - Previous state is "stopped": we must have stopped all embedded players.
+        // - Is pausing: we need to resume all embedded players.
+        const {
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
+                continue;
+            }
+            const { begin, end } = embeddedPlayers[iEmbeddedPlayer];
+            const { instantiatedPlayer, entered } = embeddedPlayerEvaluationInfo;
+            if (entered) {
+                const { hostPauseTime } = embeddedPlayerEvaluationInfo;
+                // We can resume the embedded player
+                // only if the pause/play happened at the same time
+                // or the embedded player supports random access.
+                // Otherwise we have to say goodbye to that embedded player.
+                if (instantiatedPlayer.randomAccess || approx(hostPauseTime, time, 1e-5)) {
+                    const startTime = clamp(time, begin, end);
+                    instantiatedPlayer.play();
+                    instantiatedPlayer.setTime(startTime - begin);
+                } else {
+                    instantiatedPlayer.stop();
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies that the host has ran into **pause** state.
+     */
+    public notifyHostPause (time: number) {
+        // Host is paused, simply transmit this to embedded players.
+        const {
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
+                continue;
+            }
+            const { instantiatedPlayer, entered } = embeddedPlayerEvaluationInfo;
+            if (entered) {
+                instantiatedPlayer.pause();
+                embeddedPlayerEvaluationInfo.hostPauseTime = time;
+            }
+        }
+    }
+
+    /**
+     * Notifies that the host has ran into **stopped** state.
+     */
+    public notifyHostStop () {
+        // Now that host is stopped, we stop all embedded players' playing
+        // regardless of their progresses.
+        const {
+            _embeddedPlayers: embeddedPlayers,
+            _embeddedPlayerEvaluationInfos: embeddedPlayerEvaluationInfos,
+        } = this;
+        const nEmbeddedPlayers = embeddedPlayers.length;
+        for (let iEmbeddedPlayer = 0; iEmbeddedPlayer < nEmbeddedPlayers; ++iEmbeddedPlayer) {
+            const embeddedPlayerEvaluationInfo = embeddedPlayerEvaluationInfos[iEmbeddedPlayer];
+            if (!embeddedPlayerEvaluationInfo) {
+                continue;
+            }
+            const { instantiatedPlayer, entered } = embeddedPlayerEvaluationInfo;
+            if (entered) {
+                embeddedPlayerEvaluationInfo.entered = false;
+                instantiatedPlayer.stop();
+            }
+        }
+    }
+
+    private declare _embeddedPlayers: ReadonlyArray<EmbeddedPlayer>;
+
+    private declare _embeddedPlayerEvaluationInfos: Array<null | {
+        instantiatedPlayer: EmbeddedPlayableState;
+        entered: boolean;
+        hostPauseTime: number;
+        lastIterations: number;
+    }>;
+}
 
 class AnimationClipEvaluation {
     constructor (

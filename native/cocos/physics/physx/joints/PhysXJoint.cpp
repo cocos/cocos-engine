@@ -31,10 +31,18 @@
 namespace cc {
 namespace physics {
 
-physx::PxRigidActor* PhysXJoint::tempRigidActor = nullptr;
+physx::PxRigidActor *PhysXJoint::tempRigidActor = nullptr;
 
-void PhysXJoint::initialize(scene::Node* node) {
-    auto& ins    = PhysXWorld::getInstance();
+PhysXJoint::PhysXJoint(){
+    _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
+};
+
+PhysXJoint::~PhysXJoint() {
+    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
+}
+
+void PhysXJoint::initialize(Node *node) {
+    auto &ins = PhysXWorld::getInstance();
     _mSharedBody = ins.getSharedBody(node);
     _mSharedBody->reference(true);
     onComponentSet();
@@ -60,10 +68,15 @@ void PhysXJoint::onDestroy() {
     _mSharedBody->reference(false);
 }
 
-void PhysXJoint::setConnectedBody(uintptr_t v) {
-    if (v) {
-        auto& ins       = PhysXWorld::getInstance();
-        _mConnectedBody = ins.getSharedBody(reinterpret_cast<scene::Node*>(v));
+void PhysXJoint::setConnectedBody(uint32_t rigidBodyID){
+    PhysXRigidBody* pxRigidBody = reinterpret_cast<PhysXRigidBody *>(PhysXWorld::getInstance().getWrapperPtrWithObjectID(rigidBodyID));
+    if (pxRigidBody == nullptr)
+        return;
+
+    uintptr_t nodePtr = reinterpret_cast<uintptr_t>(pxRigidBody->getSharedBody().getNode());
+    if (nodePtr) {
+        auto &ins = PhysXWorld::getInstance();
+        _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(nodePtr));
     } else {
         _mConnectedBody = nullptr;
     }
@@ -79,7 +92,7 @@ void PhysXJoint::setEnableCollision(const bool v) {
     }
 }
 
-physx::PxRigidActor& PhysXJoint::getTempRigidActor() {
+physx::PxRigidActor &PhysXJoint::getTempRigidActor() {
     if (!PhysXJoint::tempRigidActor) {
         PhysXJoint::tempRigidActor = PxGetPhysics().createRigidDynamic(physx::PxTransform{physx::PxIdentity});
     }

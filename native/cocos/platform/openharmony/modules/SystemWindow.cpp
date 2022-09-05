@@ -59,11 +59,11 @@ void SystemWindow::copyTextToClipboard(const std::string& text) {
     //copyTextToClipboardJNI(text);
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
+uintptr_t SystemWindow::getWindowHandle() const {
     return reinterpret_cast<uintptr_t>(windowHandler_);
 }
 
-void SystemWindow::setWindowHandler(void* window) {
+void SystemWindow::setWindowHandle(void* window) {
     windowHandler_ = window;
 }
 

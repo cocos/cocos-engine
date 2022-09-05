@@ -35,5 +35,3 @@ export * from './light';
 export * from './directional-light';
 export * from './sphere-light';
 export * from './spot-light';
-// Need to remove later
-export * from '../core/render-scene';

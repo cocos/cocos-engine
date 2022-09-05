@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <string>
 #include "Macros.h"
+#include "base/std/container/string.h"
 
 namespace cc {
 
@@ -49,13 +49,14 @@ class CC_DLL Log {
 public:
     static LogLevel slogLevel; // for read only
 
-    static inline void  setLogLevel(LogLevel level) { slogLevel = level; }
+    static inline void setLogLevel(LogLevel level) { slogLevel = level; }
     static inline FILE *getLogFile() { return slogFile; }
-    static void         setLogFile(const std::string &filename);
-    static void         close();
-    static void         logMessage(LogType type, LogLevel level, const char *formats, ...);
+    static void setLogFile(const ccstd::string &filename);
+    static void close();
+    static void logMessage(LogType type, LogLevel level, const char *formats, ...);
 
 private:
+    static void logRemote(const char *msg);
     static FILE *slogFile;
 };
 

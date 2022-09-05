@@ -1,7 +1,7 @@
 #if __VERSION__ < 300
-    #define CC_SURFACES_VARING_MODIFIER varying
+    #pragma define CC_SURFACES_VARING_MODIFIER varying
 #else
-    #define CC_SURFACES_VARING_MODIFIER in
+    #pragma define CC_SURFACES_VARING_MODIFIER in
 #endif
 
 #include <shading-entries/data-structures/vs-fs>
@@ -9,35 +9,6 @@
 // FS Input
 /*struct SurfacesStandardFragmentInput
 {
-  HIGHP_VALUE_STRUCT_DEFINE(vec3, worldPos);
-  vec3 worldNormal;
-  vec2 texcoord;
-
-#if CC_SURFACES_USE_VERTEX_COLOR
-  vec4 vertexColor;
-#endif
-
-#if CC_SURFACES_USE_TANGENT_SPACE
-  vec3 worldTangent, worldBitangent;
-  float mirrorNormal;
-#endif
-
-#if CC_SURFACES_USE_SECOND_UV
-  vec2 texcoord1;
-#endif
-
-#if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
-  vec3 lightMapUV;
-#endif
-
-#if CC_RECEIVE_SHADOW
-  highp vec4 shadowPos;
-  vec2 shadowBias;
-#endif
-
-#if !CC_USE_ACCURATE_FOG
-  float fogFactor;
-#endif
 }
 void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
 {
@@ -64,24 +35,21 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
   #define FSInput_mirrorNormal 1.0
 #endif
 
-#if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
+#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
   #define FSInput_texcoord1 v_uv1
 #else
   #define FSInput_texcoord1 vec2(0.0, 0.0)
 #endif
 
-#if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
+#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
   #define FSInput_lightMapUV v_luv
 #endif
 
 #if CC_RECEIVE_SHADOW
-  #define FSInput_shadowPos v_shadowPos
-  #if CC_SURFACES_USE_INSTANCING
-    #define FSInput_shadowBias v_shadowBias
-  #endif
+  #define FSInput_shadowBias v_shadowBias
 #endif
 
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
   #define FSInput_fogFactor v_fogFactor
 #endif
 

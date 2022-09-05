@@ -25,24 +25,25 @@
 
 #pragma once
 
-#include <string>
+#include "base/std/container/string.h"
 
-extern std::string getObbFilePathJNI();
-extern int         getObbAssetFileDescriptorJNI(const std::string &path, int64_t *startOffset, int64_t *size);
-extern std::string getCurrentLanguageJNI();
-extern std::string getCurrentLanguageCodeJNI();
-extern std::string getSystemVersionJNI();
-extern bool        openURLJNI(const std::string &url);
-extern void        copyTextToClipboardJNI(const std::string &text);
-extern std::string getDeviceModelJNI();
-extern int         getDPIJNI();
-extern void        setVibrateJNI(float duration);
-extern int         getNetworkTypeJNI();
-extern float *     getSafeAreaEdgeJNI();
-extern int         getDeviceRotationJNI();
-extern float       getBatteryLevelJNI();
-extern void        flushTasksOnGameThreadJNI();
-extern void        flushTasksOnGameThreadAtForegroundJNI();
-extern void        setAccelerometerEnabledJNI(bool isEnabled);
-extern void        setAccelerometerIntervalJNI(float interval);
-extern float *     getDeviceMotionValueJNI();
+extern ccstd::string getObbFilePathJNI();
+extern int getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size);
+extern ccstd::string getCurrentLanguageJNI();
+extern ccstd::string getCurrentLanguageCodeJNI();
+extern ccstd::string getSystemVersionJNI();
+extern bool openURLJNI(const ccstd::string &url);
+extern void copyTextToClipboardJNI(const ccstd::string &text);
+extern ccstd::string getDeviceModelJNI();
+extern int getDPIJNI();
+extern void setVibrateJNI(float duration);
+extern int getNetworkTypeJNI();
+extern float *getSafeAreaEdgeJNI();
+extern int getDeviceRotationJNI();
+extern float getBatteryLevelJNI();
+extern void flushTasksOnGameThreadJNI();
+extern void flushTasksOnGameThreadAtForegroundJNI();
+extern void setAccelerometerEnabledJNI(bool isEnabled);
+extern void setAccelerometerIntervalJNI(float interval);
+extern float *getDeviceMotionValueJNI();
+extern void finishActivity();

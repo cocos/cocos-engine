@@ -11,13 +11,19 @@ target_include_directories(test-bindings PRIVATE
 )
 
 if(MSVC)
-    foreach(item ${WIN32_DLLS})
+    foreach(item ${WINDOWS_DLLS})
         get_filename_component(filename ${item} NAME)
         get_filename_component(abs ${item} ABSOLUTE)
         add_custom_command(TARGET ${LIB_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${abs} $<TARGET_FILE_DIR:${LIB_NAME}>/${filename}
         )
     endforeach()
+    foreach(item ${V8_DLLS})
+            get_filename_component(filename ${item} NAME)
+            add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${V8_DIR}/$<IF:$<BOOL:$<CONFIG:RELEASE>>,Release,Debug>/${filename} $<TARGET_FILE_DIR:${LIB_NAME}>/${filename}
+            )
+        endforeach()
     target_link_options(${LIB_NAME} PRIVATE /SUBSYSTEM:CONSOLE)
 endif()
 

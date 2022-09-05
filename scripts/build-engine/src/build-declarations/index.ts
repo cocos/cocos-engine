@@ -137,6 +137,18 @@ export async function build (options: {
         return false;
     }
 
+    // HACK: fix comments generated on top level namespace
+    let code = fs.readFileSync(tscOutputDtsFile, 'utf8');
+    const regExpRef = /(\/\/\/ <reference types.*)/g;
+    const matches = code.match(regExpRef);
+    code = code.replace(regExpRef, '');
+    if (matches) {
+        let outputUnbundledCode = matches.join('\n');
+        outputUnbundledCode += '\ndeclare const __skip_reference__: never;\n';
+        outputUnbundledCode += code;
+        fs.outputFileSync(tscOutputDtsFile, outputUnbundledCode, 'utf8');
+    }
+
     const types = parsedCommandLine.options.types?.map((typeFile) => `${typeFile}.d.ts`);
     if (types) {
         for (const file of types) {

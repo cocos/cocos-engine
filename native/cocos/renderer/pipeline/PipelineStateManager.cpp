@@ -26,27 +26,28 @@
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {
 
-unordered_map<size_t, gfx::PipelineState *> PipelineStateManager::psoHashMap;
+ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<gfx::PipelineState>> PipelineStateManager::psoHashMap;
 
-gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *  pass,
-                                                                   gfx::Shader *        shader,
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *pass,
+                                                                   gfx::Shader *shader,
                                                                    gfx::InputAssembler *inputAssembler,
-                                                                   gfx::RenderPass *    renderPass,
-                                                                   uint                 subpass) {
-    const auto passHash       = pass->getHash();
+                                                                   gfx::RenderPass *renderPass,
+                                                                   uint32_t subpass) {
+    const auto passHash = pass->getHash();
     const auto renderPassHash = renderPass->getHash();
-    const auto iaHash         = inputAssembler->getAttributesHash();
-    const auto shaderID       = shader->getTypedID();
-    auto       hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
+    const auto iaHash = inputAssembler->getAttributesHash();
+    const auto shaderID = shader->getTypedID();
+    auto hash = passHash ^ renderPassHash ^ iaHash ^ shaderID;
     if (subpass != 0) {
         hash = hash << subpass;
     }
 
-    auto *pso = psoHashMap[hash];
+    auto *pso = psoHashMap[static_cast<ccstd::hash_t>(hash)].get();
     if (!pso) {
         auto *pipelineLayout = pass->getPipelineLayout();
 
@@ -58,11 +59,11 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
                                                                *(pass->getDepthStencilState()),
                                                                *(pass->getBlendState()),
                                                                pass->getPrimitive(),
-                                                               pass->getDynamicState(),
+                                                               pass->getDynamicStates(),
                                                                gfx::PipelineBindPoint::GRAPHICS,
                                                                subpass});
 
-        psoHashMap[hash] = pso;
+        psoHashMap[static_cast<ccstd::hash_t>(hash)] = pso;
     }
 
     return pso;
@@ -70,7 +71,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
 
 void PipelineStateManager::destroyAll() {
     for (auto &pair : psoHashMap) {
-        CC_SAFE_DESTROY(pair.second);
+        CC_SAFE_DESTROY_NULL(pair.second);
     }
     psoHashMap.clear();
 }

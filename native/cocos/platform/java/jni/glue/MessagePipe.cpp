@@ -37,7 +37,7 @@ MessagePipe::MessagePipe() {
         LOGV("Can not create pipe: %s", strerror(errno));
     }
 
-    _pipeRead  = messagePipe[0];
+    _pipeRead = messagePipe[0];
     _pipeWrite = messagePipe[1];
 
     if (fcntl(_pipeRead, F_SETFL, O_NONBLOCK) < 0) {
@@ -54,13 +54,13 @@ void MessagePipe::writeCommand(int8_t cmd) const {
     write(_pipeWrite, &cmd, sizeof(cmd));
 }
 
-int MessagePipe::readCommand(int8_t& cmd) const {
+int MessagePipe::readCommand(int8_t &cmd) const {
     return read(_pipeRead, &cmd, sizeof(cmd));
 }
 
-int MessagePipe::readCommandWithTimeout(void* msg, int32_t size, int delayMS) {
+int MessagePipe::readCommandWithTimeout(void *msg, int32_t size, int delayMS) {
     if (delayMS > 0) {
-        static fd_set  fdSet;
+        static fd_set fdSet;
         static timeval timeout;
 
         timeout = {delayMS / 1000, (delayMS % 1000) * 1000};
@@ -80,11 +80,11 @@ int MessagePipe::readCommandWithTimeout(void* msg, int32_t size, int delayMS) {
     return readCommand(msg, size);
 }
 
-void MessagePipe::writeCommand(void* msg, int32_t size) const {
+void MessagePipe::writeCommand(void *msg, int32_t size) const {
     write(_pipeWrite, msg, size);
 }
 
-int MessagePipe::readCommand(void* msg, int32_t size) const {
+int MessagePipe::readCommand(void *msg, int32_t size) const {
     return read(_pipeRead, msg, size);
 }
 } // namespace cc

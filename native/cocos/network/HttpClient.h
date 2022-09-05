@@ -30,7 +30,7 @@
 
 #include <condition_variable>
 #include <thread>
-#include "base/Vector.h"
+#include "base/RefVector.h"
 #include "network/HttpCookie.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
@@ -81,21 +81,21 @@ public:
      *
      * @return the cookie filename
      */
-    const std::string &getCookieFilename();
+    const ccstd::string &getCookieFilename();
 
     /**
      * Set root certificate path for SSL verification.
      *
      * @param caFile a full path of root certificate.if it is empty, SSL verification is disabled.
      */
-    void setSSLVerification(const std::string &caFile);
+    void setSSLVerification(const ccstd::string &caFile);
 
     /**
      * Get the ssl CA filename
      *
      * @return the ssl CA filename
      */
-    const std::string &getSSLVerification();
+    const ccstd::string &getSSLVerification();
 
     /**
      * Add a get request to task queue
@@ -141,29 +141,29 @@ private:
 private: // NOLINT(readability-redundant-access-specifiers)
     bool _isInited;
 
-    int        _timeoutForConnect;
+    int _timeoutForConnect;
     std::mutex _timeoutForConnectMutex;
 
-    int        _timeoutForRead;
+    int _timeoutForRead;
     std::mutex _timeoutForReadMutex;
 
-    int        _threadCount;
+    int _threadCount;
     std::mutex _threadCountMutex;
 
     std::weak_ptr<Scheduler> _scheduler;
-    std::mutex               _schedulerMutex;
+    std::mutex _schedulerMutex;
 
-    Vector<HttpRequest *> _requestQueue;
-    std::mutex            _requestQueueMutex;
+    RefVector<HttpRequest *> _requestQueue;
+    std::mutex _requestQueueMutex;
 
-    Vector<HttpResponse *> _responseQueue;
-    std::mutex             _responseQueueMutex;
+    RefVector<HttpResponse *> _responseQueue;
+    std::mutex _responseQueueMutex;
 
-    std::string _cookieFilename;
-    std::mutex  _cookieFileMutex;
+    ccstd::string _cookieFilename;
+    std::mutex _cookieFileMutex;
 
-    std::string _sslCaFilename;
-    std::mutex  _sslCaFileMutex;
+    ccstd::string _sslCaFilename;
+    std::mutex _sslCaFileMutex;
 
     HttpCookie *_cookie;
 

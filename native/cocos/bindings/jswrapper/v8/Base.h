@@ -34,17 +34,16 @@
 
 #include "v8.h"
 
-#include <assert.h>
 #include <string.h>  // Resolves that memset, memcpy aren't found while APP_PLATFORM >= 22 on Android
 #include <algorithm> // for std::find
 #include <chrono>
 #include <functional>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "../PrivateObject.h"
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
 
 #include "HelperMacros.h"
 
 namespace se {
-using V8FinalizeFunc = void (*)(void *nativeObj);
-}
+using V8FinalizeFunc = void (*)(Object *seObj);
+} // namespace se

@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 namespace cc {
 
-static std::vector<char> __silenceData;
+static ccstd::vector<char> __silenceData;
 
 #define AUDIO_PLAYER_BUFFER_COUNT (2)
 

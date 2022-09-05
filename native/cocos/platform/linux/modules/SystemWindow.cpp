@@ -40,7 +40,6 @@
 namespace cc {
 SystemWindow::SystemWindow(IEventDispatch *delegate)
 : _sdl(std::make_unique<SDLHelper>(delegate)) {
-
 }
 
 SystemWindow::~SystemWindow() {
@@ -61,7 +60,7 @@ void SystemWindow::swapWindow() {
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
     _sdl->createWindow(title, w, h, flags);
-    _width  = w;
+    _width = w;
     _height = h;
     return true;
 }
@@ -71,13 +70,27 @@ bool SystemWindow::createWindow(const char *title,
                                 int h, int flags) {
     // Create window
     _sdl->createWindow(title, x, y, w, h, flags);
-    _width  = w;
+    _width = w;
     _height = h;
     return true;
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
-    return _sdl->getWindowHandler();
+void SystemWindow::closeWindow() {
+    #ifndef CC_SERVER_MODE
+    auto windowHandle = getSDLWindowHandle();
+
+    SDL_Event et;
+    et.type = SDL_QUIT;
+    auto posted = SDL_PushEvent(&et);
+#endif
+}
+
+uintptr_t SystemWindow::getWindowHandle() const {
+    return _sdl->getWindowHandle();
+}
+
+SDL_Window* SystemWindow::getSDLWindowHandle() const {
+    return _sdl->getSDLWindowHandle();
 }
 
 uintptr_t SystemWindow::getDisplay() const {
@@ -88,7 +101,7 @@ void SystemWindow::setCursorEnabled(bool value) {
     _sdl->setCursorEnabled(value);
 }
 
-void SystemWindow::copyTextToClipboard(const std::string &text) {
+void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     //TODO
 }
 

@@ -27,27 +27,26 @@
 #import <AppKit/AppKit.h>
 #include "platform/mac/AppDelegate.h"
 
-
 namespace {
 
 }
 
 namespace cc {
 
-SystemWindow::SystemWindow() = default;
+SystemWindow::SystemWindow(IEventDispatch *delegate) {}
 
 SystemWindow::~SystemWindow() = default;
 
-bool SystemWindow::createWindow(const char* title,
+bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    if(_isWindowCreated) {
+    if (_isWindowCreated) {
         return true;
     }
     _isWindowCreated = true;
-    _width                = w;
-    _height               = h;
+    _width = w;
+    _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
-    NSString *   aString  = [NSString stringWithUTF8String:title];
+    NSString *aString = [NSString stringWithUTF8String:title];
     [delegate createLeftBottomWindow:aString width:w height:h];
     return true;
 }
@@ -55,18 +54,23 @@ bool SystemWindow::createWindow(const char* title,
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    if(_isWindowCreated) {
+    if (_isWindowCreated) {
         return true;
     }
     _isWindowCreated = true;
-    _width                = w;
-    _height               = h;
+    _width = w;
+    _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
-    NSString *   aString  = [NSString stringWithUTF8String:title];
+    NSString *aString = [NSString stringWithUTF8String:title];
     [delegate createWindow:aString xPos:x yPos:y width:w height:h];
     return true;
 }
-
+void SystemWindow::closeWindow() {
+    id window = [[[NSApplication sharedApplication] delegate] getWindow];
+    if (window) {
+        [window close];
+    }
+}
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
@@ -77,7 +81,7 @@ void SystemWindow::copyTextToClipboard(const std::string &text) {
     [pasteboard setString:tmp forType:NSPasteboardTypeString];
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
+uintptr_t SystemWindow::getWindowHandle() const {
     NSView *view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
     return reinterpret_cast<uintptr_t>(view);
 }
@@ -86,4 +90,4 @@ SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(_width), static_cast<float>(_height)};
 }
 
-}
+} // namespace cc

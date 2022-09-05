@@ -23,7 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
+#include <boost/align/align_up.hpp>
+#include <cstring>
+#include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
 
@@ -66,20 +68,18 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
         return false;
     }
 
-    _api        = _actor->getGfxAPI();
+    _api = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
-    _queue      = CC_NEW(QueueAgent(_actor->getQueue()));
-    _queryPool  = CC_NEW(QueryPoolAgent(_actor->getQueryPool()));
-    _cmdBuff    = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer()));
-    _renderer   = _actor->getRenderer();
-    _vendor     = _actor->getVendor();
-    _caps       = _actor->_caps;
+    _queue = ccnew QueueAgent(_actor->getQueue());
+    _queryPool = ccnew QueryPoolAgent(_actor->getQueryPool());
+    _cmdBuff = ccnew CommandBufferAgent(_actor->getCommandBuffer());
+    _renderer = _actor->getRenderer();
+    _vendor = _actor->getVendor();
+    _caps = _actor->_caps;
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    // NOTE: C++17 is required when enable alignment
-    // TODO(PatriceJiang): replace with: _mainMessageQueue = CC_NEW(MessageQueue);
-    _mainMessageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue)); //NOLINT
+    _mainMessageQueue = ccnew MessageQueue;
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
@@ -90,36 +90,40 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 }
 
 void DeviceAgent::doDestroy() {
-    ENQUEUE_MESSAGE_1(
-        _mainMessageQueue, DeviceDestroy,
-        actor, _actor,
-        {
-            actor->destroy();
-        });
+    if (!_mainMessageQueue) {
+        _actor->destroy();
+    } else {
+        ENQUEUE_MESSAGE_1(
+            _mainMessageQueue, DeviceDestroy,
+            actor, _actor,
+            {
+                actor->destroy();
+            });
+    }
 
     if (_cmdBuff) {
         static_cast<CommandBufferAgent *>(_cmdBuff)->destroyAgent();
         static_cast<CommandBufferAgent *>(_cmdBuff)->_actor = nullptr;
-        CC_DELETE(_cmdBuff);
+        delete _cmdBuff;
         _cmdBuff = nullptr;
     }
     if (_queryPool) {
         static_cast<QueryPoolAgent *>(_queryPool)->_actor = nullptr;
-        CC_DELETE(_queryPool);
+        delete _queryPool;
         _queryPool = nullptr;
     }
     if (_queue) {
         static_cast<QueueAgent *>(_queue)->_actor = nullptr;
-        CC_DELETE(_queue);
+        delete _queue;
         _queue = nullptr;
     }
 
-    _mainMessageQueue->terminateConsumerThread();
+    if (_mainMessageQueue) {
+        _mainMessageQueue->terminateConsumerThread();
 
-    // NOTE: C++17 required when enable alignment
-    // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
-    _CC_DELETE_T_ALIGN(_mainMessageQueue, MessageQueue, alignof(MessageQueue)); // NOLINT
-    _mainMessageQueue = nullptr;
+        delete _mainMessageQueue;
+        _mainMessageQueue = nullptr;
+    }
 }
 
 void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -141,9 +145,6 @@ void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void DeviceAgent::present() {
-    if (!cc::gfx::Device::getInstance()->isRendererAvailable()) {
-        return;
-    }
     ENQUEUE_MESSAGE_2(
         _mainMessageQueue, DevicePresent,
         actor, _actor,
@@ -196,72 +197,72 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
 
 CommandBuffer *DeviceAgent::createCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
     CommandBuffer *actor = _actor->createCommandBuffer(info, true);
-    return CC_NEW(CommandBufferAgent(actor));
+    return ccnew CommandBufferAgent(actor);
 }
 
 Queue *DeviceAgent::createQueue() {
     Queue *actor = _actor->createQueue();
-    return CC_NEW(QueueAgent(actor));
+    return ccnew QueueAgent(actor);
 }
 
 QueryPool *DeviceAgent::createQueryPool() {
     QueryPool *actor = _actor->createQueryPool();
-    return CC_NEW(QueryPoolAgent(actor));
+    return ccnew QueryPoolAgent(actor);
 }
 
 Swapchain *DeviceAgent::createSwapchain() {
     Swapchain *actor = _actor->createSwapchain();
-    return CC_NEW(SwapchainAgent(actor));
+    return ccnew SwapchainAgent(actor);
 }
 
 Buffer *DeviceAgent::createBuffer() {
     Buffer *actor = _actor->createBuffer();
-    return CC_NEW(BufferAgent(actor));
+    return ccnew BufferAgent(actor);
 }
 
 Texture *DeviceAgent::createTexture() {
     Texture *actor = _actor->createTexture();
-    return CC_NEW(TextureAgent(actor));
+    return ccnew TextureAgent(actor);
 }
 
 Shader *DeviceAgent::createShader() {
     Shader *actor = _actor->createShader();
-    return CC_NEW(ShaderAgent(actor));
+    return ccnew ShaderAgent(actor);
 }
 
 InputAssembler *DeviceAgent::createInputAssembler() {
     InputAssembler *actor = _actor->createInputAssembler();
-    return CC_NEW(InputAssemblerAgent(actor));
+    return ccnew InputAssemblerAgent(actor);
 }
 
 RenderPass *DeviceAgent::createRenderPass() {
     RenderPass *actor = _actor->createRenderPass();
-    return CC_NEW(RenderPassAgent(actor));
+    return ccnew RenderPassAgent(actor);
 }
 
 Framebuffer *DeviceAgent::createFramebuffer() {
     Framebuffer *actor = _actor->createFramebuffer();
-    return CC_NEW(FramebufferAgent(actor));
+    return ccnew FramebufferAgent(actor);
 }
 
 DescriptorSet *DeviceAgent::createDescriptorSet() {
     DescriptorSet *actor = _actor->createDescriptorSet();
-    return CC_NEW(DescriptorSetAgent(actor));
+    return ccnew DescriptorSetAgent(actor);
 }
 
 DescriptorSetLayout *DeviceAgent::createDescriptorSetLayout() {
     DescriptorSetLayout *actor = _actor->createDescriptorSetLayout();
-    return CC_NEW(DescriptorSetLayoutAgent(actor));
+    return ccnew DescriptorSetLayoutAgent(actor);
 }
 
 PipelineLayout *DeviceAgent::createPipelineLayout() {
     PipelineLayout *actor = _actor->createPipelineLayout();
-    return CC_NEW(PipelineLayoutAgent(actor));
+    return ccnew PipelineLayoutAgent(actor);
 }
 
 PipelineState *DeviceAgent::createPipelineState() {
     PipelineState *actor = _actor->createPipelineState();
-    return CC_NEW(PipelineStateAgent(actor));
+    return ccnew PipelineStateAgent(actor);
 }
 
 Sampler *DeviceAgent::getSampler(const SamplerInfo &info) {
@@ -282,30 +283,56 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
     for (uint32_t i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    uint32_t totalSize = sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount;
+
+    Format format = texture->getFormat();
+    constexpr uint32_t alignment = 16;
+
+    size_t totalSize = boost::alignment::align_up(sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount, alignment);
     for (uint32_t i = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
 
-        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
-        totalSize += size * region.texSubres.layerCount;
+        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, region.texExtent.depth);
+        totalSize += boost::alignment::align_up(size, alignment) * region.texSubres.layerCount;
     }
 
-    //TODO(PatriceJiang): in C++17 replace with:*allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
-    auto *allocator = _CC_NEW_T_ALIGN(ThreadSafeLinearAllocator(totalSize), alignof(ThreadSafeLinearAllocator));
+    auto *allocator = ccnew ThreadSafeLinearAllocator(totalSize, alignment);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
     const auto **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
+    const auto blockHeight = formatAlignment(format).second;
     for (uint32_t i = 0U, n = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
+        uint32_t width = region.texExtent.width;
+        uint32_t height = region.texExtent.height;
+        uint32_t depth = region.texExtent.depth;
 
-        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint32_t rowStride = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        uint32_t heightStride = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+
+        uint32_t rowStrideSize = formatSize(format, rowStride, 1, 1);
+        uint32_t sliceStrideSize = formatSize(format, rowStride, heightStride, 1);
+        uint32_t destRowStrideSize = formatSize(format, width, 1, 1);
+        uint32_t size = formatSize(format, width, height, depth);
+
         for (uint32_t l = 0; l < region.texSubres.layerCount; l++) {
-            auto *buffer = allocator->allocate<uint8_t>(size);
-            memcpy(buffer, buffers[n], size);
+            auto *buffer = allocator->allocate<uint8_t>(size, alignment);
+            uint32_t destOffset = 0;
+            uint32_t buffOffset = 0;
+            for (uint32_t d = 0; d < depth; d++) {
+                buffOffset = region.buffOffset + sliceStrideSize * d;
+                for (uint32_t h = 0; h < height; h += blockHeight) {
+                    memcpy(buffer + destOffset, buffers[n] + buffOffset, destRowStrideSize);
+                    destOffset += destRowStrideSize;
+                    buffOffset += rowStrideSize;
+                }
+            }
             actorBuffers[n++] = buffer;
         }
+        actorRegions[i].buffOffset = 0;
+        actorRegions[i].buffStride = 0;
+        actorRegions[i].buffTexHeight = 0;
     }
 
     ENQUEUE_MESSAGE_6(
@@ -318,8 +345,7 @@ void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const 
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
-            if (allocator) _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
+            delete allocator;
         });
 }
 
@@ -379,8 +405,8 @@ void DeviceAgent::getQueryPoolResults(QueryPool *queryPool) {
             actor->getQueryPoolResults(queryPool);
         });
 
-    auto *                      actorQueryPoolAgent = static_cast<QueryPoolAgent *>(actorQueryPool);
-    auto *                      queryPoolAgent      = static_cast<QueryPoolAgent *>(queryPool);
+    auto *actorQueryPoolAgent = static_cast<QueryPoolAgent *>(actorQueryPool);
+    auto *queryPoolAgent = static_cast<QueryPoolAgent *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolAgent->_mutex);
     queryPoolAgent->_results = actorQueryPoolAgent->_results;
 }

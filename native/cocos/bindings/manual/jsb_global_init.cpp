@@ -26,7 +26,7 @@
 // clang-format off
 #include "base/Macros.h"
 // clang-format: off
-#include <string>
+#include "base/std/container/string.h"
 #include "uv.h"
 // clang-format on
 
@@ -34,7 +34,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "base/CoreStd.h"
 #include "base/Scheduler.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
@@ -45,22 +44,21 @@
 #include <chrono>
 #include <regex>
 #include <sstream>
-#include <vector>
 
 using namespace cc; //NOLINT
 
 se::Object *__jsbObj = nullptr; //NOLINT
-se::Object *__glObj  = nullptr; //NOLINT
+se::Object *__glObj = nullptr;  //NOLINT
 
 static std::basic_string<unsigned char> xxteaKey;
 
-void jsb_set_xxtea_key(const std::string &key) { //NOLINT
+void jsb_set_xxtea_key(const ccstd::string &key) { //NOLINT
     xxteaKey.assign(key.begin(), key.end());
 }
 
 static const char *BYTE_CODE_FILE_EXT = ".jsc"; //NOLINT
 
-static std::string removeFileExt(const std::string &filePath) {
+static ccstd::string removeFileExt(const ccstd::string &filePath) {
     size_t pos = filePath.rfind('.');
     if (0 < pos) {
         return filePath.substr(0, pos);
@@ -70,12 +68,29 @@ static std::string removeFileExt(const std::string &filePath) {
 
 static int selectPort(int port) {
     struct sockaddr_in addr;
-    static uv_tcp_t    server;
-    uv_loop_t *        loop      = uv_loop_new();
-    int                tryTimes  = 200;
-    int                startPort = port;
+    static uv_tcp_t server;
+    uv_loop_t loop;
+    uv_loop_init(&loop);
+    int tryTimes = 200;
+    int startPort = port;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    constexpr int localPortMin = 37000; // query from /proc/sys/net/ipv4/ip_local_port_range
+    if (startPort < localPortMin) {
+        uv_interface_address_t *info = nullptr;
+        int count = 0;
+
+        uv_interface_addresses(&info, &count);
+        if (count == 0) {
+            SE_LOGE("Failed to accquire interfaces, error: %s\n Re-select port after 37000", strerror(errno));
+            startPort = localPortMin + port;
+        }
+        if (info) {
+            uv_free_interface_addresses(info, count);
+        }
+    }
+#endif
     while (tryTimes-- > 0) {
-        uv_tcp_init(loop, &server);
+        uv_tcp_init(&loop, &server);
         uv_ip4_addr("0.0.0.0", startPort, &addr);
         uv_tcp_bind(&server, reinterpret_cast<const struct sockaddr *>(&addr), 0);
         int r = uv_listen(reinterpret_cast<uv_stream_t *>(&server), 5, nullptr);
@@ -87,7 +102,7 @@ static int selectPort(int port) {
             break;
         }
     }
-    uv_loop_close(loop);
+    uv_loop_close(&loop);
     return startPort;
 }
 
@@ -95,17 +110,17 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
     static se::ScriptEngine::FileOperationDelegate delegate;
     if (!delegate.isValid()) {
-        delegate.onGetDataFromFile = [](const std::string &path, const std::function<void(const uint8_t *, size_t)> &readCallback) -> void {
-            assert(!path.empty());
+        delegate.onGetDataFromFile = [](const ccstd::string &path, const std::function<void(const uint8_t *, size_t)> &readCallback) -> void {
+            CC_ASSERT(!path.empty());
 
             Data fileData;
 
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
-                size_t   dataLen = 0;
-                uint8_t *data    = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
+                uint32_t dataLen = 0;
+                uint8_t *data = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
                                               const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
 
@@ -116,7 +131,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 if (ZipUtils::isGZipBuffer(data, dataLen)) {
                     uint8_t *unpackedData;
-                    ssize_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
+                    uint32_t unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
 
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
@@ -138,10 +153,10 @@ void jsb_init_file_operation_delegate() { //NOLINT
             readCallback(fileData.getBytes(), fileData.getSize());
         };
 
-        delegate.onGetStringFromFile = [](const std::string &path) -> std::string {
-            assert(!path.empty());
+        delegate.onGetStringFromFile = [](const ccstd::string &path) -> ccstd::string {
+            CC_ASSERT(!path.empty());
 
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+            ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
@@ -157,19 +172,19 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 if (ZipUtils::isGZipBuffer(data, dataLen)) {
                     uint8_t *unpackedData;
-                    ssize_t  unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
+                    uint32_t unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
                     if (unpackedData == nullptr) {
                         SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
                         return "";
                     }
 
-                    std::string ret(reinterpret_cast<const char *>(unpackedData), unpackedLen);
+                    ccstd::string ret(reinterpret_cast<const char *>(unpackedData), unpackedLen);
                     free(unpackedData);
                     free(data);
 
                     return ret;
                 }
-                std::string ret(reinterpret_cast<const char *>(data), dataLen);
+                ccstd::string ret(reinterpret_cast<const char *>(data), dataLen);
                 free(data);
                 return ret;
             }
@@ -181,27 +196,30 @@ void jsb_init_file_operation_delegate() { //NOLINT
             return "";
         };
 
-        delegate.onGetFullPath = [](const std::string &path) -> std::string {
-            assert(!path.empty());
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
+        delegate.onGetFullPath = [](const ccstd::string &path) -> ccstd::string {
+            CC_ASSERT(!path.empty());
+            ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
             if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
                 return FileUtils::getInstance()->fullPathForFilename(byteCodePath);
             }
             return FileUtils::getInstance()->fullPathForFilename(path);
         };
 
-        delegate.onCheckFileExist = [](const std::string &path) -> bool {
-            assert(!path.empty());
+        delegate.onCheckFileExist = [](const ccstd::string &path) -> bool {
+            CC_ASSERT(!path.empty());
             return FileUtils::getInstance()->isFileExist(path);
         };
 
-        assert(delegate.isValid());
+        CC_ASSERT(delegate.isValid());
 
+        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
+    } else {
+        // Games may be restarted in the same process and run in different threads. Android may restart from recent task list.
         se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
     }
 }
 
-bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) { //NOLINT
+bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) { //NOLINT
     if (debuggerServerAddr.empty() || port == 0) {
         return false;
     }
@@ -209,16 +227,17 @@ bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, b
     port = static_cast<uint32_t>(selectPort(static_cast<int>(port)));
 
     auto *se = se::ScriptEngine::getInstance();
-    se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
-
-    // For debugger main loop
-    class SimpleRunLoop {
-    public:
-        void update(float dt) { //NOLINT
-            se::ScriptEngine::getInstance()->mainLoopUpdate();
-        }
-    };
-    //    static SimpleRunLoop runLoop;
-    //cjh IDEA:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
+    if (se != nullptr) {
+        se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
+    } else {
+        // NOTE: jsb_enable_debugger may be invoked before se::ScriptEngine is initialized,
+        // So cache the debugger information in global and use it in se::ScriptEngine::start.
+        // This strategy keeps the compatibility of se::ScriptEngine::enableDebugger.
+        se::ScriptEngine::DebuggerInfo debuggerInfo;
+        debuggerInfo.serverAddr = debuggerServerAddr;
+        debuggerInfo.port = port;
+        debuggerInfo.isWait = isWaitForConnect;
+        se::ScriptEngine::_setDebuggerInfo(debuggerInfo);
+    }
     return true;
 }

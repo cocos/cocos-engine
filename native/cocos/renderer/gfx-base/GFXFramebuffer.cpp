@@ -23,9 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXFramebuffer.h"
+#include "GFXRenderPass.h"
 #include "GFXTexture.h"
 #include "base/Utils.h"
 
@@ -38,13 +37,13 @@ Framebuffer::Framebuffer()
 
 Framebuffer::~Framebuffer() = default;
 
-size_t Framebuffer::computeHash(const FramebufferInfo &info) {
+ccstd::hash_t Framebuffer::computeHash(const FramebufferInfo &info) {
     return Hasher<FramebufferInfo>()(info);
 }
 
 void Framebuffer::initialize(const FramebufferInfo &info) {
-    _renderPass          = info.renderPass;
-    _colorTextures       = info.colorTextures;
+    _renderPass = info.renderPass;
+    _colorTextures = info.colorTextures;
     _depthStencilTexture = info.depthStencilTexture;
 
     doInit(info);

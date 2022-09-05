@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <array>
 #include "GFXBuffer.h"
 #include "GFXCommandBuffer.h"
 #include "GFXDescriptorSet.h"
@@ -41,6 +40,9 @@
 #include "GFXShader.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
+#include "base/RefCounted.h"
+#include "base/std/container/array.h"
+#include "states/GFXBufferBarrier.h"
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
@@ -48,7 +50,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL Device : public Object {
+class CC_DLL Device : public RefCounted {
 public:
     static Device *getInstance();
 
@@ -58,55 +60,56 @@ public:
     void destroy();
 
     virtual void acquire(Swapchain *const *swapchains, uint32_t count) = 0;
-    virtual void present()                                             = 0;
+    virtual void present() = 0;
 
     virtual void flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) {}
 
     virtual MemoryStatus &getMemoryStatus() { return _memoryStatus; }
-    virtual uint32_t      getNumDrawCalls() const { return _numDrawCalls; }
-    virtual uint32_t      getNumInstances() const { return _numInstances; }
-    virtual uint32_t      getNumTris() const { return _numTriangles; }
+    virtual uint32_t getNumDrawCalls() const { return _numDrawCalls; }
+    virtual uint32_t getNumInstances() const { return _numInstances; }
+    virtual uint32_t getNumTris() const { return _numTriangles; }
 
-    inline CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info);
-    inline Queue *              createQueue(const QueueInfo &info);
-    inline QueryPool *          createQueryPool(const QueryPoolInfo &info);
-    inline Swapchain *          createSwapchain(const SwapchainInfo &info);
-    inline Buffer *             createBuffer(const BufferInfo &info);
-    inline Buffer *             createBuffer(const BufferViewInfo &info);
-    inline Texture *            createTexture(const TextureInfo &info);
-    inline Texture *            createTexture(const TextureViewInfo &info);
-    inline Shader *             createShader(const ShaderInfo &info);
-    inline InputAssembler *     createInputAssembler(const InputAssemblerInfo &info);
-    inline RenderPass *         createRenderPass(const RenderPassInfo &info);
-    inline Framebuffer *        createFramebuffer(const FramebufferInfo &info);
-    inline DescriptorSet *      createDescriptorSet(const DescriptorSetInfo &info);
+    inline CommandBuffer *createCommandBuffer(const CommandBufferInfo &info);
+    inline Queue *createQueue(const QueueInfo &info);
+    inline QueryPool *createQueryPool(const QueryPoolInfo &info);
+    inline Swapchain *createSwapchain(const SwapchainInfo &info);
+    inline Buffer *createBuffer(const BufferInfo &info);
+    inline Buffer *createBuffer(const BufferViewInfo &info);
+    inline Texture *createTexture(const TextureInfo &info);
+    inline Texture *createTexture(const TextureViewInfo &info);
+    inline Shader *createShader(const ShaderInfo &info);
+    inline InputAssembler *createInputAssembler(const InputAssemblerInfo &info);
+    inline RenderPass *createRenderPass(const RenderPassInfo &info);
+    inline Framebuffer *createFramebuffer(const FramebufferInfo &info);
+    inline DescriptorSet *createDescriptorSet(const DescriptorSetInfo &info);
     inline DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info);
-    inline PipelineLayout *     createPipelineLayout(const PipelineLayoutInfo &info);
-    inline PipelineState *      createPipelineState(const PipelineStateInfo &info);
+    inline PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info);
+    inline PipelineState *createPipelineState(const PipelineStateInfo &info);
 
-    virtual Sampler *       getSampler(const SamplerInfo &info);
+    virtual Sampler *getSampler(const SamplerInfo &info);
     virtual GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info);
     virtual TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info);
+    virtual BufferBarrier *getBufferBarrier(const BufferBarrierInfo &info);
 
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) = 0;
-    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count)        = 0;
-    virtual void getQueryPoolResults(QueryPool *queryPool)                                                                           = 0;
+    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) = 0;
+    virtual void getQueryPoolResults(QueryPool *queryPool) = 0;
 
     inline void copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
-    inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
-    inline void acquire(const vector<Swapchain *> &swapchains);
+    inline void flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs);
+    inline void acquire(const ccstd::vector<Swapchain *> &swapchains);
 
-    inline Queue *           getQueue() const { return _queue; }
-    inline QueryPool *       getQueryPool() const { return _queryPool; }
-    inline CommandBuffer *   getCommandBuffer() const { return _cmdBuff; }
+    inline Queue *getQueue() const { return _queue; }
+    inline QueryPool *getQueryPool() const { return _queryPool; }
+    inline CommandBuffer *getCommandBuffer() const { return _cmdBuff; }
     inline const DeviceCaps &getCapabilities() const { return _caps; }
-    inline API               getGfxAPI() const { return _api; }
-    inline const String &    getDeviceName() const { return _deviceName; }
-    inline const String &    getRenderer() const { return _renderer; }
-    inline const String &    getVendor() const { return _vendor; }
-    inline bool              hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
-    inline FormatFeature     getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
+    inline API getGfxAPI() const { return _api; }
+    inline const ccstd::string &getDeviceName() const { return _deviceName; }
+    inline const ccstd::string &getRenderer() const { return _renderer; }
+    inline const ccstd::string &getVendor() const { return _vendor; }
+    inline bool hasFeature(Feature feature) const { return _features[toNumber(feature)]; }
+    inline FormatFeature getFormatFeatures(Format format) const { return _formatFeatures[toNumber(format)]; }
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
@@ -115,9 +118,8 @@ public:
     template <typename ExecuteMethod>
     void registerOnAcquireCallback(ExecuteMethod &&execute);
 
-    inline bool isRendererAvailable() const { return _rendererAvailable; }
-
-    inline void setRendererAvailable(bool available) { _rendererAvailable = available; }
+    inline void setOptions(const DeviceOptions &opts) { _options = opts; }
+    inline const DeviceOptions &getOptions() const { return _options; }
 
 protected:
     static Device *instance;
@@ -132,60 +134,62 @@ protected:
     void createSurface(void *windowHandle);
 
     virtual bool doInit(const DeviceInfo &info) = 0;
-    virtual void doDestroy()                    = 0;
+    virtual void doDestroy() = 0;
 
-    virtual CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
-    virtual Queue *              createQueue()                                                     = 0;
-    virtual QueryPool *          createQueryPool()                                                 = 0;
-    virtual Swapchain *          createSwapchain()                                                 = 0;
-    virtual Buffer *             createBuffer()                                                    = 0;
-    virtual Texture *            createTexture()                                                   = 0;
-    virtual Shader *             createShader()                                                    = 0;
-    virtual InputAssembler *     createInputAssembler()                                            = 0;
-    virtual RenderPass *         createRenderPass()                                                = 0;
-    virtual Framebuffer *        createFramebuffer()                                               = 0;
-    virtual DescriptorSet *      createDescriptorSet()                                             = 0;
-    virtual DescriptorSetLayout *createDescriptorSetLayout()                                       = 0;
-    virtual PipelineLayout *     createPipelineLayout()                                            = 0;
-    virtual PipelineState *      createPipelineState()                                             = 0;
+    virtual CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
+    virtual Queue *createQueue() = 0;
+    virtual QueryPool *createQueryPool() = 0;
+    virtual Swapchain *createSwapchain() = 0;
+    virtual Buffer *createBuffer() = 0;
+    virtual Texture *createTexture() = 0;
+    virtual Shader *createShader() = 0;
+    virtual InputAssembler *createInputAssembler() = 0;
+    virtual RenderPass *createRenderPass() = 0;
+    virtual Framebuffer *createFramebuffer() = 0;
+    virtual DescriptorSet *createDescriptorSet() = 0;
+    virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
+    virtual PipelineLayout *createPipelineLayout() = 0;
+    virtual PipelineState *createPipelineState() = 0;
 
-    virtual Sampler *       createSampler(const SamplerInfo &info) { return CC_NEW(Sampler(info)); }
-    virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return CC_NEW(GeneralBarrier(info)); }
-    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return CC_NEW(TextureBarrier(info)); }
+    virtual Sampler *createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
+    virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return ccnew GeneralBarrier(info); }
+    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return ccnew TextureBarrier(info); }
+    virtual BufferBarrier *createBufferBarrier(const BufferBarrierInfo &info) { return ccnew BufferBarrier(info); }
 
     // For context switching between threads
     virtual void bindContext(bool bound) {}
 
-    String             _deviceName;
-    String             _renderer;
-    String             _vendor;
-    String             _version;
-    API                _api{API::UNKNOWN};
-    DeviceCaps         _caps;
+    ccstd::string _deviceName;
+    ccstd::string _renderer;
+    ccstd::string _vendor;
+    ccstd::string _version;
+    API _api{API::UNKNOWN};
+    DeviceCaps _caps;
     BindingMappingInfo _bindingMappingInfo;
+    DeviceOptions _options;
 
     bool _multithreadedCommandRecording{true};
 
-    std::array<bool, static_cast<size_t>(Feature::COUNT)>         _features;
-    std::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
+    ccstd::array<bool, static_cast<size_t>(Feature::COUNT)> _features;
+    ccstd::array<FormatFeature, static_cast<size_t>(Format::COUNT)> _formatFeatures;
 
-    Queue *        _queue{nullptr};
-    QueryPool *    _queryPool{nullptr};
+    Queue *_queue{nullptr};
+    QueryPool *_queryPool{nullptr};
     CommandBuffer *_cmdBuff{nullptr};
-    Executable *   _onAcquire{nullptr};
+    Executable *_onAcquire{nullptr};
 
-    uint32_t     _numDrawCalls{0U};
-    uint32_t     _numInstances{0U};
-    uint32_t     _numTriangles{0U};
+    uint32_t _numDrawCalls{0U};
+    uint32_t _numInstances{0U};
+    uint32_t _numTriangles{0U};
     MemoryStatus _memoryStatus;
 
-    unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>>                      _samplers;
-    unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
-    unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
+    ccstd::unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>> _samplers;
+    ccstd::unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
+    ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
+    ccstd::unordered_map<BufferBarrierInfo, BufferBarrier *, Hasher<BufferBarrierInfo>> _bufferBarriers;
 
 private:
-    vector<Swapchain *> _swapchains;
-    bool                _rendererAvailable{false};
+    ccstd::vector<Swapchain *> _swapchains; // weak reference
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -212,13 +216,6 @@ Swapchain *Device::createSwapchain(const SwapchainInfo &info) {
     Swapchain *res = createSwapchain();
     res->initialize(info);
     _swapchains.push_back(res);
-#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
-    if (res->getWindowHandle()) {
-        setRendererAvailable(true);
-    }
-#else
-    setRendererAvailable(true);
-#endif
     return res;
 }
 
@@ -302,17 +299,17 @@ void Device::copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const Bu
     copyTextureToBuffers(src, buffers.data(), regions.data(), utils::toUint(regions.size()));
 }
 
-void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {
+void Device::flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs) {
     flushCommands(cmdBuffs.data(), utils::toUint(cmdBuffs.size()));
 }
 
-void Device::acquire(const vector<Swapchain *> &swapchains) {
+void Device::acquire(const ccstd::vector<Swapchain *> &swapchains) {
     acquire(swapchains.data(), utils::toUint(swapchains.size()));
 }
 
 template <typename ExecuteMethod>
 void Device::registerOnAcquireCallback(ExecuteMethod &&execute) {
-    _onAcquire = CC_NEW(CallbackExecutable<ExecuteMethod>(std::forward<ExecuteMethod>(execute)));
+    _onAcquire = ccnew CallbackExecutable<ExecuteMethod>(std::forward<ExecuteMethod>(execute));
 }
 
 } // namespace gfx

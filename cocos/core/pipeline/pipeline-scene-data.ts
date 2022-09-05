@@ -19,7 +19,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Fog } from '../renderer/scene/fog';
 import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
@@ -28,31 +27,14 @@ import { Octree } from '../renderer/scene/octree';
 import { IRenderObject } from './define';
 import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
-import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';
-import { NativePass, NativePipelineSharedSceneData } from '../renderer';
-import { PipelineEventType } from './pipeline-event';
+import { CSMLayers } from './shadow/csm-layers';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
 export class PipelineSceneData {
-    private _init (): void {
-        if (JSB) {
-            this._nativeObj = new NativePipelineSharedSceneData();
-            this._nativeObj.fog = this.fog.native;
-            this._nativeObj.ambient = this.ambient.native;
-            this._nativeObj.skybox = this.skybox.native;
-            this._nativeObj.shadow = this.shadows.native;
-            this._nativeObj.octree = this.octree.native;
-        }
-    }
-
-    public get native (): NativePipelineSharedSceneData {
-        return this._nativeObj!;
-    }
-
     /**
       * @en Is open HDR.
       * @zh 是否开启 HDR。
@@ -64,28 +46,27 @@ export class PipelineSceneData {
 
     public set isHDR (val: boolean) {
         this._isHDR = val;
-        if (JSB) {
-            this._nativeObj!.isHDR = val;
-        }
     }
     public get shadingScale () {
         return this._shadingScale;
     }
 
     public set shadingScale (val: number) {
-        if (this._shadingScale !== val) {
-            this._shadingScale = val;
-            if (JSB) {
-                this._nativeObj!.shadingScale = val;
-            }
-            this._pipeline.emit(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, val);
-        }
+        this._shadingScale = val;
+    }
+
+    public get csmSupported () {
+        return this._csmSupported;
+    }
+    public set csmSupported (val: boolean) {
+        this._csmSupported = val;
     }
 
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+    public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
 
     /**
@@ -99,12 +80,8 @@ export class PipelineSceneData {
       * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
       */
     public renderObjects: IRenderObject[] = [];
-    public castShadowObjects: IRenderObject[] = [];
-    public dirShadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
-    protected declare _pipeline: RenderPipeline;
-    protected declare _nativeObj: NativePipelineSharedSceneData | null;
     protected _geometryRendererMaterials: Material[] = [];
     protected _geometryRendererPasses: Pass[] = [];
     protected _geometryRendererShaders: Shader[] = [];
@@ -115,15 +92,14 @@ export class PipelineSceneData {
     protected _occlusionQueryShader: Shader | null = null;
     protected _isHDR = true;
     protected _shadingScale = 1.0;
+    protected _csmSupported = true;
 
     constructor () {
-        this._init();
-        this.shadingScale = 1.0;
+        this._shadingScale = 1.0;
     }
 
-    public activate (device: Device, pipeline: RenderPipeline) {
+    public activate (device: Device) {
         this._device = device;
-        this._pipeline = pipeline;
 
         this.initGeometryRendererMaterials();
         this.initOcclusionQuery();
@@ -136,26 +112,13 @@ export class PipelineSceneData {
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
             this._geometryRendererMaterials[tech] = new Material();
             this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
-            this._geometryRendererMaterials[tech].initialize({ effectName: 'geometry-renderer', technique: tech });
+            this._geometryRendererMaterials[tech].initialize({ effectName: 'builtin-geometry-renderer', technique: tech });
 
             for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
                 this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
                 this._geometryRendererShaders[offset] = this._geometryRendererMaterials[tech].passes[pass].getShaderVariant()!;
                 offset++;
             }
-        }
-
-        if (JSB) {
-            const nativePasses: NativePass[] = [];
-            const nativeShaders: Shader[] = [];
-
-            for (let pass = 0; pass < this._geometryRendererPasses.length; ++pass) {
-                nativePasses.push(this._geometryRendererPasses[pass].native);
-                nativeShaders.push(this._geometryRendererShaders[pass]);
-            }
-
-            this._nativeObj!.geometryRendererPasses = nativePasses;
-            this._nativeObj!.geometryRendererShaders = nativeShaders;
         }
     }
 
@@ -170,39 +133,33 @@ export class PipelineSceneData {
     public initOcclusionQuery () {
         if (!this._occlusionQueryInputAssembler) {
             this._occlusionQueryInputAssembler = this._createOcclusionQueryIA();
-
-            if (JSB) {
-                this._nativeObj!.occlusionQueryInputAssembler = this._occlusionQueryInputAssembler;
-            }
         }
 
         if (!this._occlusionQueryMaterial) {
             const mat = new Material();
             mat._uuid = 'default-occlusion-query-material';
-            mat.initialize({ effectName: 'occlusion-query' });
+            mat.initialize({ effectName: 'builtin-occlusion-query' });
             this._occlusionQueryMaterial = mat;
-            this._occlusionQueryShader = mat.passes[0].getShaderVariant();
-
-            if (JSB) {
-                this._nativeObj!.occlusionQueryPass = this._occlusionQueryMaterial.passes[0].native;
-                this._nativeObj!.occlusionQueryShader = this._occlusionQueryShader;
+            if (mat.passes.length > 0) {
+                this._occlusionQueryShader = mat.passes[0].getShaderVariant();
             }
         }
     }
 
     public getOcclusionQueryPass (): Pass | null {
-        return this._occlusionQueryMaterial!.passes[0];
+        if (this._occlusionQueryMaterial && this._occlusionQueryMaterial.passes.length > 0) {
+            return this._occlusionQueryMaterial.passes[0];
+        }
+
+        return null;
     }
 
-    public onGlobalPipelineStateChanged () {
+    public updatePipelineSceneData () {
     }
 
     public destroy () {
-        this.ambient.destroy();
-        this.skybox.destroy();
-        this.fog.destroy();
         this.shadows.destroy();
-        this.octree.destroy();
+        this.csmLayers.destroy();
         this.validPunctualLights.length = 0;
         this._occlusionQueryInputAssembler?.destroy();
         this._occlusionQueryInputAssembler = null;
@@ -210,9 +167,6 @@ export class PipelineSceneData {
         this._occlusionQueryVertexBuffer = null;
         this._occlusionQueryIndicesBuffer?.destroy();
         this._occlusionQueryIndicesBuffer = null;
-        if (JSB) {
-            this._nativeObj = null;
-        }
     }
 
     private _createOcclusionQueryIA () {

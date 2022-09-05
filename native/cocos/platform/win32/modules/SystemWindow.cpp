@@ -24,19 +24,18 @@
 ****************************************************************************/
 
 #include "platform/win32/modules/SystemWindow.h"
-
-#include "base/Log.h"
-// SDL headers
+#include <Windows.h>
 #include <functional>
+#include "base/Log.h"
 #include "bindings/event/EventDispatcher.h"
 #include "platform/IEventDispatch.h"
-#include "platform/win32/WindowsPlatform.h"
 #include "platform/SDLHelper.h"
+#include "platform/win32/WindowsPlatform.h"
+#include "sdl2/SDL_clipboard.h"
 
 namespace cc {
 SystemWindow::SystemWindow(IEventDispatch *delegate)
 : _sdl(std::make_unique<SDLHelper>(delegate)) {
-
 }
 
 SystemWindow::~SystemWindow() {
@@ -57,7 +56,7 @@ void SystemWindow::swapWindow() {
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
     _sdl->createWindow(title, w, h, flags);
-    _width  = w;
+    _width = w;
     _height = h;
     return true;
 }
@@ -66,21 +65,26 @@ bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
     _sdl->createWindow(title, x, y, w, h, flags);
-    _width  = w;
+    _width = w;
     _height = h;
     return true;
 }
-
-uintptr_t SystemWindow::getWindowHandler() const {
-    return _sdl->getWindowHandler();
+void SystemWindow::closeWindow() {
+    HWND windowHandle = reinterpret_cast<HWND>(getWindowHandle());
+    if (windowHandle != 0) {
+        ::SendMessageA(windowHandle, WM_CLOSE, 0, 0);
+    }
+}
+uintptr_t SystemWindow::getWindowHandle() const {
+    return _sdl->getWindowHandle();
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
     _sdl->setCursorEnabled(value);
 }
 
-void SystemWindow::copyTextToClipboard(const std::string &text) {
-    //TODO
+void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
+    SDL_SetClipboardText(text.c_str());
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {

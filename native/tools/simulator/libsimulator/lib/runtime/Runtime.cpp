@@ -31,8 +31,9 @@ THE SOFTWARE.
 
 #include "cocos/base/Log.h"
 #include "cocos/platform/FileUtils.h"
+#include "cocos/base/memory/Memory.h"
 
-#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MACOS))
     #include "DeviceEx.h"
     #include "network/CCHTTPRequest.h"
     #include "xxhash/xxhash.h"
@@ -118,12 +119,12 @@ void RuntimeEngine::setupRuntime() {
     // get project type fron config.json
     updateConfigParser();
     auto entryFile = ConfigParser::getInstance()->getEntryFile();
-#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MACOS)
     ConfigParser::getInstance()->readConfig();
     entryFile = ConfigParser::getInstance()->getEntryFile();
 #endif
     _launchEvent = "js";
-    _runtime = _runtimes[kRuntimeEngineJs];
+    _runtime     = _runtimes[kRuntimeEngineJs];
 }
 
 void RuntimeEngine::setProjectConfig(const ProjectConfig &config) {
@@ -136,7 +137,7 @@ const ProjectConfig &RuntimeEngine::getProjectConfig() {
 }
 
 void RuntimeEngine::setProjectPath(const std::string &workPath) {
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MACOS)
     vector<std::string> searchPathArray = cc::FileUtils::getInstance()->getSearchPaths();
 
     if (workPath.empty()) {
@@ -150,20 +151,20 @@ void RuntimeEngine::setProjectPath(const std::string &workPath) {
                     nEnd = i;
             }
             szAppDir[nEnd] = 0;
-            int iLen = 2 * wcslen((wchar_t *)szAppDir);
-            char *chRtn = new char[iLen + 1];
+            int   iLen     = 2 * wcslen((wchar_t *)szAppDir);
+            char *chRtn    = new char[iLen + 1];
             wcstombs(chRtn, (wchar_t *)szAppDir, iLen + 1);
             std::string strPath = chRtn;
             delete[] chRtn;
-            chRtn = NULL;
+            chRtn                 = NULL;
             char fuldir[MAX_PATH] = {0};
             _fullpath(fuldir, strPath.c_str(), MAX_PATH);
             appPath = fuldir;
         }
-    #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #elif (CC_PLATFORM == CC_PLATFORM_MACOS)
         appPath.append("/../../../");
     #endif
-        appPath = replaceAll(appPath, "\\", "/");
+        appPath       = replaceAll(appPath, "\\", "/");
         g_projectPath = appPath;
     } else {
         g_projectPath = workPath;
@@ -189,8 +190,7 @@ void RuntimeEngine::startScript(const std::string &args) {
 }
 
 void RuntimeEngine::start() {
-
-#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MACOS)
     _project.setDebuggerType(kCCRuntimeDebuggerCodeIDE);
 #endif
 
@@ -215,7 +215,7 @@ void RuntimeEngine::start() {
     }
 
     setupRuntime();
-    //startScript("jsb-adapter/jsb-builtin.js");
+    //startScript("jsb-adapter/web-adapter.js");
     //startScript("");
 }
 
@@ -250,7 +250,7 @@ RuntimeProtocol *RuntimeEngine::getRuntime() {
 
 void RuntimeEngine::updateConfigParser() {
     // set entry file
-    auto parser = ConfigParser::getInstance();
+    auto   parser = ConfigParser::getInstance();
     string entryFile(_project.getScriptFileRealPath());
     if (entryFile.find(_project.getProjectDir()) != string::npos) {
         entryFile.erase(0, _project.getProjectDir().length());
@@ -269,11 +269,11 @@ void RuntimeEngine::trackEvent(const std::string &eventName) {
         return;
     }
 
-#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MACOS))
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     const char *platform = "win";
-    #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     const char *platform = "mac";
     #else
     const char *platform = "UNKNOWN";
@@ -282,7 +282,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName) {
     char cidBuf[64] = {0};
     auto guid = player::DeviceEx::getInstance()->getUserGUID();
     snprintf(cidBuf, sizeof(cidBuf), "%x", XXH32(guid.c_str(), (int)guid.length(), 0));
-    auto request = cc::extra::HTTPRequest::createWithUrl(NULL,
+    IntrusivePtr<HTTPRequest> request = cc::extra::HTTPRequest::createWithUrl(NULL,
                                                      "http://www.google-analytics.com/collect",
                                                      kCCHTTPRequestMethodPOST);
     request->addPOSTValue("v", "1");
@@ -298,7 +298,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName) {
 
     request->start();
     */
-#endif // ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#endif // ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MACOS))
 }
 
 void RuntimeEngine::trackLaunchEvent() {

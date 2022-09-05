@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #pragma once
-#include "base/CoreStd.h"
-#include "scene/Camera.h"
 #include "scene/Model.h"
 
 namespace cc {
+namespace scene {
+class Camera;
+}
 namespace gfx {
 class Device;
 class RenderPass;
@@ -41,10 +42,10 @@ class InstanceBuffer;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
 
-class CC_DLL PlanarShadowQueue : public Object {
+class CC_DLL PlanarShadowQueue final {
 public:
     explicit PlanarShadowQueue(RenderPipeline *pipeline);
-    ~PlanarShadowQueue() override = default;
+    ~PlanarShadowQueue();
 
     void clear();
     void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
@@ -52,10 +53,14 @@ public:
     void destroy();
 
 private:
-    RenderPipeline *                  _pipeline       = nullptr;
-    RenderInstancedQueue *            _instancedQueue = nullptr;
-    std::vector<const scene::Model *> _castModels;
-    std::vector<const scene::Model *> _pendingModels;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    // manage memory manually
+    RenderInstancedQueue *_instancedQueue{nullptr};
+    // weak reference
+    ccstd::vector<const scene::Model *> _castModels;
+    // weak reference
+    ccstd::vector<const scene::Model *> _pendingModels;
 };
 } // namespace pipeline
 } // namespace cc

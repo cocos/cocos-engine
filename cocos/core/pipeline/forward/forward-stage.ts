@@ -148,6 +148,7 @@ export class ForwardStage extends RenderStage {
             }
         }
 
+        this._instancedQueue.sort();
         this._renderQueues.forEach(renderQueueSortFunc);
 
         const cmdBuff = pipeline.commandBuffers[0];
@@ -180,7 +181,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
-        this._pipeline.geometryRenderer.render(renderPass, cmdBuff);
+        camera.geometryRenderer?.render(renderPass, cmdBuff, pipeline.pipelineSceneData);
         this._uiPhase.render(camera, renderPass);
         renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, camera);
         cmdBuff.endRenderPass();

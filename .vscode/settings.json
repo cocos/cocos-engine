@@ -19,6 +19,6 @@
         "source.fixAll": true,
     },
     "files.associations": {
-        "chrono": "cpp"
+        "iterator": "cpp"
     },
 }

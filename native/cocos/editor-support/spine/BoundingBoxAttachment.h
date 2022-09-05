@@ -34,14 +34,14 @@
 #include <spine/SpineObject.h>
 
 namespace spine {
-	/// Attachment that has a polygon for bounds checking.
-	class SP_API BoundingBoxAttachment : public VertexAttachment {
-		RTTI_DECL
+/// Attachment that has a polygon for bounds checking.
+class SP_API BoundingBoxAttachment : public VertexAttachment {
+    RTTI_DECL
 
-		explicit BoundingBoxAttachment(const String& name);
+    explicit BoundingBoxAttachment(const String& name);
 
-		virtual Attachment* copy();
-	};
-}
+    virtual Attachment* copy();
+};
+} // namespace spine
 
 #endif /* Spine_BoundingBoxAttachment_h */

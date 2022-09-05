@@ -23,12 +23,10 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { AABB } from '../../geometry';
 import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { NativeSphereLight } from '../native-scene';
 
 /**
  * @en The sphere light representation in the render scene, it will light up a spherical area in the scene.
@@ -36,18 +34,6 @@ import { NativeSphereLight } from '../native-scene';
  * @zh 渲染场景中的球面光抽象，可以照亮场景中的一个球形区域，目前还不支持生成阴影。
  */
 export class SphereLight extends Light {
-    protected _init (): void {
-        super._init();
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setPosition(this._pos);
-            (this._nativeObj! as NativeSphereLight).setAABB(this._aabb.native);
-        }
-    }
-
-    protected _destroy (): void {
-        super._destroy();
-    }
-
     /**
      * @en The world position of the light source
      * @zh 光源中心点的世界坐标
@@ -62,9 +48,6 @@ export class SphereLight extends Light {
      */
     set size (size: number) {
         this._size = size;
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setSize(size);
-        }
     }
 
     get size (): number {
@@ -77,9 +60,6 @@ export class SphereLight extends Light {
      */
     set range (range: number) {
         this._range = range;
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setRange(range);
-        }
 
         this._needUpdate = true;
     }
@@ -118,10 +98,6 @@ export class SphereLight extends Light {
     }
     set luminanceHDR (value: number) {
         this._luminanceHDR = value;
-
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setLuminanceHDR(value);
-        }
     }
 
     /**
@@ -130,10 +106,6 @@ export class SphereLight extends Light {
      */
     set luminanceLDR (value: number) {
         this._luminanceLDR = value;
-
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setLuminanceLDR(value);
-        }
     }
 
     /**

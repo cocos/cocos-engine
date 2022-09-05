@@ -1,6 +1,15 @@
 name: <Native> Linter
 
-on: pull_request
+on:
+  pull_request:
+    paths:
+    - 'templates/**'
+    - 'native/**'
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   # Set the job key. The key is displayed as the job name
@@ -9,6 +18,8 @@ jobs:
     # Name the Job
     name: ClangTidy Android
     # Set the type of machine to run on
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
 
     steps:
@@ -26,7 +37,7 @@ jobs:
           python -m pip install PyYAML==5.4.1 Cheetah3
       - name: Download external
         run: |
-          EXT_VERSION=`grep version native/external-config.json  |awk -F'"' '{print $4}'`
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
       - uses: nttld/setup-ndk@v1
         id: setup-ndk

@@ -24,8 +24,11 @@
  */
 
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { Component } from '../../core/components/component';
 import { clampf } from '../../core/utils/misc';
+import { UIRenderer } from '../framework/ui-renderer';
+import { Node } from '../../core/scene-graph';
 
 /**
  * @en
@@ -63,6 +66,46 @@ export class UIOpacity extends Component {
         value = clampf(value, 0, 255);
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
+
+        this.setEntityLocalOpacityDirtyRecursively(true);
+    }
+
+    private setEntityLocalOpacityDirtyRecursively (dirty: boolean) {
+        if (JSB) {
+            // const render = this.node._uiProps.uiComp as UIRenderer;
+            // if (render) {
+            //     render.setEntityOpacity(this.node._uiProps.localOpacity);
+            // }
+            // UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
+
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, dirty, 1);
+        }
+    }
+
+    // for UIOpacity
+    public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        const uiOp = node.getComponent<UIOpacity>(UIOpacity);
+        let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
+
+        if (render && render.color) { // exclude UIMeshRenderer which has not color
+            render.renderEntity.colorDirty = dirty;
+            render.renderEntity.color = render.color;// necessity to be considering
+            if (uiOp) {
+                render.renderEntity.localOpacity = interruptOpacity * uiOp.opacity / 255;
+            } else {
+                // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
+                render.renderEntity.localOpacity = interruptOpacity;
+            }
+            interruptOpacity = 1;
+        } else if (uiOp) {
+            // there is a just UIOpacity but no UIRenderer on the node.
+            interruptOpacity = uiOp.opacity / 255;
+        }
+
+        for (let i = 0; i < node.children.length; i++) {
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(node.children[i], dirty || (interruptOpacity < 1), interruptOpacity);
+        }
     }
 
     @serializable
@@ -70,9 +113,11 @@ export class UIOpacity extends Component {
 
     public onEnable () {
         this.node._uiProps.localOpacity = this._opacity / 255;
+        this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
     public onDisable () {
         this.node._uiProps.localOpacity = 1;
+        this.setEntityLocalOpacityDirtyRecursively(true);
     }
 }

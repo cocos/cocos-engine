@@ -298,7 +298,7 @@ Object* Object::createArrayObject(size_t length) {
     return obj;
 }
 
-Object* Object::createArrayBufferObject(void* data, size_t byteLength) {
+Object* Object::createArrayBufferObject(const void* data, size_t byteLength) {
     napi_value  result;
     napi_status status;
     void*       retData;

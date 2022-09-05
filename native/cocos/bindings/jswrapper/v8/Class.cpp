@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,6 +25,10 @@
 ****************************************************************************/
 
 #include "Class.h"
+#include <initializer_list>
+#include "Value.h"
+#include "base/Macros.h"
+#include "v8/HelperMacros.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
@@ -32,13 +36,30 @@
     #include "ScriptEngine.h"
     #include "Utils.h"
 
+namespace {
+inline v8::Local<v8::Value> createExternal(v8::Isolate *isolate, void *data) {
+    if (data) {
+        return v8::External::New(isolate, data);
+    }
+    return {};
+}
+} // namespace
+
 namespace se {
 // ------------------------------------------------------- Object
 
 namespace {
-//        std::unordered_map<std::string, Class *> __clsMap;
-v8::Isolate *        __isolate = nullptr;
-std::vector<Class *> __allClasses;
+//        ccstd::unordered_map<ccstd::string, Class *> __clsMap;
+v8::Isolate *__isolate = nullptr;    // NOLINT
+ccstd::vector<Class *> __allClasses; // NOLINT
+
+void invalidConstructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    v8::Local<v8::Object> thisObj = args.This();
+    v8::Local<v8::String> constructorName = thisObj->GetConstructorName();
+    v8::String::Utf8Value strConstructorName{args.GetIsolate(), constructorName};
+    SE_ASSERT(false, "%s 's constructor is not public!", *strConstructorName); // NOLINT(misc-static-assert)
+}
+
 } // namespace
 
 Class::Class()
@@ -51,36 +72,51 @@ Class::Class()
     __allClasses.push_back(this);
 }
 
-Class::~Class() {
-}
+Class::~Class() = default;
 
 /* static */
-Class *Class::create(const std::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
-    Class *cls = new Class();
-    if (cls != nullptr && !cls->init(clsName, parent, parentProto, ctor)) {
+Class *Class::create(const ccstd::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
+    auto *cls = ccnew Class();
+    if (cls != nullptr && !cls->init(clsName, parent, parentProto, ctor, data)) {
         delete cls;
         cls = nullptr;
     }
     return cls;
 }
 
-bool Class::init(const std::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor) {
-    _name = clsName;
+Class *Class::create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
+    se::AutoHandleScope scope;
+    se::Object *currentParent = parent;
+    se::Value tmp;
+    for (auto i = 0; i < classPath.size() - 1; i++) {
+        bool ok = currentParent->getProperty(*(classPath.begin() + i), &tmp);
+        CC_ASSERT(ok); // class or namespace in path is not defined
+        currentParent = tmp.toObject();
+    }
+    return create(*(classPath.end() - 1), currentParent, parentProto, ctor, data);
+}
 
+bool Class::init(const ccstd::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
+    _name = clsName;
     _parent = parent;
-    if (_parent != nullptr)
+    if (_parent != nullptr) {
         _parent->incRef();
+    }
 
     _parentProto = parentProto;
-    if (_parentProto != nullptr)
+    if (_parentProto != nullptr) {
         _parentProto->incRef();
+    }
 
     _ctor = ctor;
 
-    _ctorTemplate.Reset(__isolate, v8::FunctionTemplate::New(__isolate, _ctor));
+    v8::FunctionCallback ctorToSet = _ctor != nullptr ? _ctor : invalidConstructor;
+
+    _ctorTemplate.Reset(__isolate, v8::FunctionTemplate::New(__isolate, ctorToSet, createExternal(__isolate, data)));
     v8::MaybeLocal<v8::String> jsNameVal = v8::String::NewFromUtf8(__isolate, _name.c_str(), v8::NewStringType::kNormal);
-    if (jsNameVal.IsEmpty())
+    if (jsNameVal.IsEmpty()) {
         return false;
+    }
 
     _ctorTemplate.Get(__isolate)->SetClassName(jsNameVal.ToLocalChecked());
     _ctorTemplate.Get(__isolate)->InstanceTemplate()->SetInternalFieldCount(1);
@@ -96,12 +132,12 @@ void Class::destroy() {
 }
 
 void Class::cleanup() {
-    for (auto cls : __allClasses) {
+    for (auto *cls : __allClasses) {
         cls->destroy();
     }
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {
-        for (auto cls : __allClasses) {
+        for (auto *cls : __allClasses) {
             delete cls;
         }
         __allClasses.clear();
@@ -121,27 +157,32 @@ bool Class::install() {
         _ctorTemplate.Get(__isolate)->Inherit(_parentProto->_getClass()->_ctorTemplate.Get(__isolate));
     }
 
-    v8::Local<v8::Context>       context = __isolate->GetCurrentContext();
-    v8::MaybeLocal<v8::Function> ctor    = _ctorTemplate.Get(__isolate)->GetFunction(context);
-    if (ctor.IsEmpty())
+    v8::Local<v8::Context> context = __isolate->GetCurrentContext();
+    v8::MaybeLocal<v8::Function> ctor = _ctorTemplate.Get(__isolate)->GetFunction(context);
+    if (ctor.IsEmpty()) {
         return false;
+    }
 
-    v8::Local<v8::Function>    ctorChecked = ctor.ToLocalChecked();
-    v8::MaybeLocal<v8::String> name        = v8::String::NewFromUtf8(__isolate, _name.c_str(), v8::NewStringType::kNormal);
-    if (name.IsEmpty())
+    v8::Local<v8::Function> ctorChecked = ctor.ToLocalChecked();
+    v8::MaybeLocal<v8::String> name = v8::String::NewFromUtf8(__isolate, _name.c_str(), v8::NewStringType::kNormal);
+    if (name.IsEmpty()) {
         return false;
+    }
 
     v8::Maybe<bool> result = _parent->_getJSObject()->Set(context, name.ToLocalChecked(), ctorChecked);
-    if (result.IsNothing())
+    if (result.IsNothing()) {
         return false;
+    }
 
     v8::MaybeLocal<v8::String> prototypeName = v8::String::NewFromUtf8(__isolate, "prototype", v8::NewStringType::kNormal);
-    if (prototypeName.IsEmpty())
+    if (prototypeName.IsEmpty()) {
         return false;
+    }
 
     v8::MaybeLocal<v8::Value> prototypeObj = ctorChecked->Get(context, prototypeName.ToLocalChecked());
-    if (prototypeObj.IsEmpty())
+    if (prototypeObj.IsEmpty()) {
         return false;
+    }
 
     if (_createProto) {
         // Proto object is released in Class::destroy.
@@ -151,45 +192,57 @@ bool Class::install() {
     return true;
 }
 
-bool Class::defineFunction(const char *name, v8::FunctionCallback func) {
+bool Class::defineFunction(const char *name, v8::FunctionCallback func, void *data) {
     v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
-    if (jsName.IsEmpty())
+    if (jsName.IsEmpty()) {
         return false;
-    _ctorTemplate.Get(__isolate)->PrototypeTemplate()->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func));
+    }
+    _ctorTemplate.Get(__isolate)->PrototypeTemplate()->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func, createExternal(__isolate, data)));
     return true;
 }
 
-bool Class::defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter) {
+bool Class::defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data) {
     v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
-    if (jsName.IsEmpty())
+    if (jsName.IsEmpty()) {
         return false;
-    _ctorTemplate.Get(__isolate)->PrototypeTemplate()->SetAccessor(jsName.ToLocalChecked(), getter, setter);
+    }
+    _ctorTemplate.Get(__isolate)->PrototypeTemplate()->SetAccessor(jsName.ToLocalChecked(), getter, setter, createExternal(__isolate, data));
     return true;
 }
 
-bool Class::defineStaticFunction(const char *name, v8::FunctionCallback func) {
+bool Class::defineProperty(const std::initializer_list<const char *> &names, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data) {
+    bool ret = true;
+    for (const auto *name : names) {
+        ret &= defineProperty(name, getter, setter, data);
+    }
+    return ret;
+}
+
+bool Class::defineStaticFunction(const char *name, v8::FunctionCallback func, void *data) {
     v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
-    if (jsName.IsEmpty())
+    if (jsName.IsEmpty()) {
         return false;
-    _ctorTemplate.Get(__isolate)->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func));
+    }
+    _ctorTemplate.Get(__isolate)->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func, createExternal(__isolate, data)));
     return true;
 }
 
-bool Class::defineStaticProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter) {
+bool Class::defineStaticProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data) {
     v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
-    if (jsName.IsEmpty())
+    if (jsName.IsEmpty()) {
         return false;
-    _ctorTemplate.Get(__isolate)->SetNativeDataProperty(jsName.ToLocalChecked(), getter, setter);
+    }
+    _ctorTemplate.Get(__isolate)->SetNativeDataProperty(jsName.ToLocalChecked(), getter, setter, createExternal(__isolate, data));
     return true;
 }
 
 bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
-    assert(finalizeFunc != nullptr);
+    CC_ASSERT(finalizeFunc != nullptr);
     _finalizeFunc = finalizeFunc;
     return true;
 }
 
-//    v8::Local<v8::Object> Class::_createJSObject(const std::string &clsName, Class** outCls)
+//    v8::Local<v8::Object> Class::_createJSObject(const ccstd::string &clsName, Class** outCls)
 //    {
 //        auto iter = __clsMap.find(clsName);
 //        if (iter == __clsMap.end())
@@ -202,9 +255,9 @@ bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
 //        return _createJSObjectWithClass(iter->second);
 //    }
 
-v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) {
+v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) { //NOLINT
     v8::MaybeLocal<v8::Object> ret = cls->_ctorTemplate.Get(__isolate)->InstanceTemplate()->NewInstance(__isolate->GetCurrentContext());
-    assert(!ret.IsEmpty());
+    CC_ASSERT(!ret.IsEmpty());
     return ret.ToLocalChecked();
 }
 
@@ -212,7 +265,7 @@ Object *Class::getProto() const {
     return _proto;
 }
 
-V8FinalizeFunc Class::_getFinalizeFunction() const {
+V8FinalizeFunc Class::_getFinalizeFunction() const { //NOLINT
     return _finalizeFunc;
 }
 

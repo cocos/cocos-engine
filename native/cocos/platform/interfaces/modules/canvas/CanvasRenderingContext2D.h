@@ -33,7 +33,7 @@ class CC_DLL CanvasGradient : public ICanvasGradient {
 public:
     CanvasGradient();
     ~CanvasGradient() override; // NOLINT(performance-trivially-destructible)
-    void addColorStop(float offset, const std::string &color) override;
+    void addColorStop(float offset, const ccstd::string &color) override;
 };
 
 class CC_DLL CanvasRenderingContext2D : public ICanvasRenderingContext2D {
@@ -46,11 +46,11 @@ public:
     void clearRect(float x, float y, float width, float height) override;
     void fillRect(float x, float y, float width, float height) override;
 
-    void             fillText(const std::string &text, float x, float y, float maxWidth) override;
-    void             strokeText(const std::string &text, float x, float y, float maxWidth) override;
-    Size             measureText(const std::string &text) override;
+    void fillText(const ccstd::string &text, float x, float y, float maxWidth) override;
+    void strokeText(const ccstd::string &text, float x, float y, float maxWidth) override;
+    Size measureText(const ccstd::string &text) override;
     ICanvasGradient *createLinearGradient(float x0, float y0, float x1, float y1) override;
-    void             save() override;
+    void save() override;
     // Paths
     void beginPath() override;
     void closePath() override;
@@ -69,14 +69,14 @@ public:
     void setWidth(float width) override;
     void setHeight(float height) override;
     void setLineWidth(float lineWidth) override;
-    void setLineJoin(const std::string &lineJoin) override;
-    void setLineCap(const std::string &lineCap) override;
-    void setFont(const std::string &font) override;
-    void setTextAlign(const std::string &textAlign) override;
-    void setTextBaseline(const std::string &textBaseline) override;
-    void setFillStyle(const std::string &fillStyle) override;
-    void setStrokeStyle(const std::string &strokeStyle) override;
-    void setGlobalCompositeOperation(const std::string &globalCompositeOperation) override;
+    void setLineJoin(const ccstd::string &lineJoin) override;
+    void setLineCap(const ccstd::string &lineCap) override;
+    void setFont(const ccstd::string &font) override;
+    void setTextAlign(const ccstd::string &textAlign) override;
+    void setTextBaseline(const ccstd::string &textBaseline) override;
+    void setFillStyle(const ccstd::string &fillStyle) override;
+    void setStrokeStyle(const ccstd::string &strokeStyle) override;
+    void setGlobalCompositeOperation(const ccstd::string &globalCompositeOperation) override;
 
     // fill image data into Context2D
     void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
@@ -93,26 +93,26 @@ private:
     void recreateBufferIfNeeded() override;
 
 public:
-    float _width  = 0.0F;
+    float _width = 0.0F;
     float _height = 0.0F;
 
     // Line styles
-    float       _lineWidth = 1.0F;
-    std::string _lineJoin  = "miter";
-    std::string _lineCap   = "butt";
+    float _lineWidth = 1.0F;
+    ccstd::string _lineJoin = "miter";
+    ccstd::string _lineCap = "butt";
 
     // Text styles
-    std::string _font         = "10px sans-serif";
-    std::string _textAlign    = "start";
-    std::string _textBaseline = "alphabetic";
+    ccstd::string _font = "10px sans-serif";
+    ccstd::string _textAlign = "start";
+    ccstd::string _textBaseline = "alphabetic";
 
     // Fill and stroke styles
-    std::string _fillStyle = "#000";
+    ccstd::string _fillStyle = "#000";
 
-    std::string _strokeStyle = "#000";
+    ccstd::string _strokeStyle = "#000";
 
     // Compositing
-    std::string _globalCompositeOperation = "source-over";
+    ccstd::string _globalCompositeOperation = "source-over";
 
 private:
     ICanvasRenderingContext2D::Delegate *_delegate;

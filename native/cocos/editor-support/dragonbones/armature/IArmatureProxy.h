@@ -40,8 +40,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class IArmatureProxy : public IEventDispatcher
-{
+class IArmatureProxy : public IEventDispatcher {
     ABSTRACT_CLASS(IArmatureProxy);
 
 public:
@@ -83,7 +82,7 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    virtual void dispose(bool disposeProxy) = 0;
+    virtual void dispose() = 0;
     /**
      * - The armature.
      * @version DragonBones 4.5
@@ -106,7 +105,7 @@ public:
      * @language zh_CN
      */
     virtual Animation* getAnimation() const = 0;
-    
+
     /**
      * - Gets render order
      * @version Cocos Creator 2.3

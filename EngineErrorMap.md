@@ -1837,6 +1837,13 @@ We don't currently support conversion of \`CubicSplineQuatValue\`.
 
 Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
 
+### 3937
+Previous error occurred when instantiating animation clip %s on node %s.
+
+### 3938
+
+'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
+
 ### 4000
 
 <!-- DEPRECATED -->
@@ -2459,6 +2466,10 @@ cc.ParticleSystem: not allowing create to be invoked twice with different partic
 ### 6034
 
 cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak
+
+### 6035
+
+cc.ParticleSystem: change material failed, please use proper particle material
 
 ### 6100
 
@@ -3083,7 +3094,7 @@ Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too 
 
 ### 9005
 
-BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 * 9 * 4 / 1024 = 2304KB)
+BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 *9* 4 / 1024 = 2304KB)
 
 ### 9006
 
@@ -3225,7 +3236,23 @@ Pool.destroy no longer take a function as parameter, Please specify destruct fun
 
 ### 14200
 
+Can not update a static mesh.
+
+### 14201
+
+The primitiveIndex is out of range.
+
+### 14300
+
 Can not keep world transform due to the zero scaling of parent node
+
+### 14400
+
+Spline error: less than 2 knots.
+
+### 14401
+
+Spline error: less than 4 knots or not a multiple of 4.
 
 <!-- Rendering algorithm reserved: 15000 - 16000 -->
 
@@ -3240,3 +3267,31 @@ Can not find environment map, disable IBL lighting
 ### 15002
 
 Diffuse map resource is missing, please change environment lighting type to regenerate resource
+
+### 15003
+
+The shadow visible distance is so small that CSM stratification is not effective, Please change the value of shadowDistance so that it is 10 times greater than 0.1
+
+### 15004
+
+The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade.
+
+### 16000
+
+'%s' is deprecated since v%s.
+
+### 16001
+
+'%s' is deprecated since v%s, please use '%s' instead.
+
+### 16002
+
+'%s' is removed since v%s.
+
+### 16003
+
+'%s' is removed since v%s, please use '%s' instead.
+
+### 16101
+
+The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html

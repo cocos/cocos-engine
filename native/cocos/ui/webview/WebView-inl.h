@@ -25,9 +25,10 @@
 ****************************************************************************/
 
 #include "WebView.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     #include "WebViewImpl-ios.h"
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     #include "WebViewImpl-java.h"
@@ -38,7 +39,7 @@ static_assert(false, "WebView only supported on iOS & Android");
 namespace cc {
 
 WebView::WebView()
-: _impl(new WebViewImpl(this)),
+: _impl(ccnew WebViewImpl(this)),
   _onJSCallback(nullptr),
   _onShouldStartLoading(nullptr),
   _onDidFinishLoading(nullptr),
@@ -50,84 +51,122 @@ WebView::~WebView() {
 }
 
 WebView *WebView::create() {
-    auto webView = new (std::nothrow) WebView();
+    auto webView = ccnew WebView();
     if (webView) {
-        webView->autorelease();
         return webView;
     }
-    CC_SAFE_DELETE(webView);
     return nullptr;
 }
 
-void WebView::setJavascriptInterfaceScheme(const std::string &scheme) {
-    _impl->setJavascriptInterfaceScheme(scheme);
+void WebView::destroy() {
+    CC_SAFE_DESTROY(_impl);
 }
 
-void WebView::loadData(const cc::Data &   data,
-                       const std::string &MIMEType,
-                       const std::string &encoding,
-                       const std::string &baseURL) {
-    _impl->loadData(data, MIMEType, encoding, baseURL);
+void WebView::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
+    if (_impl != nullptr) {
+        _impl->setJavascriptInterfaceScheme(scheme);
+    }
 }
 
-void WebView::loadHTMLString(const std::string &string, const std::string &baseURL) {
-    _impl->loadHTMLString(string, baseURL);
+void WebView::loadData(const cc::Data &data,
+                       const ccstd::string &MIMEType,
+                       const ccstd::string &encoding,
+                       const ccstd::string &baseURL) {
+    if (_impl != nullptr) {
+        _impl->loadData(data, MIMEType, encoding, baseURL);
+    }
 }
 
-void WebView::loadURL(const std::string &url) {
-    _impl->loadURL(url);
+void WebView::loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL) {
+    if (_impl != nullptr) {
+        _impl->loadHTMLString(string, baseURL);
+    }
 }
 
-void WebView::loadFile(const std::string &fileName) {
-    _impl->loadFile(fileName);
+void WebView::loadURL(const ccstd::string &url) {
+    if (_impl != nullptr) {
+        _impl->loadURL(url);
+    }
+}
+
+void WebView::loadFile(const ccstd::string &fileName) {
+    if (_impl != nullptr) {
+        _impl->loadFile(fileName);
+    }
 }
 
 void WebView::stopLoading() {
-    _impl->stopLoading();
+    if (_impl != nullptr) {
+        _impl->stopLoading();
+    }
 }
 
 void WebView::reload() {
-    _impl->reload();
+    if (_impl != nullptr) {
+        _impl->reload();
+    }
 }
 
 bool WebView::canGoBack() {
-    return _impl->canGoBack();
+    if (_impl != nullptr) {
+        return _impl->canGoBack();
+    }
+    return false;
 }
 
 bool WebView::canGoForward() {
-    return _impl->canGoForward();
+    if (_impl != nullptr) {
+        return _impl->canGoForward();
+    }
+    return false;
 }
 
 void WebView::goBack() {
-    _impl->goBack();
+    if (_impl != nullptr) {
+        _impl->goBack();
+    }
 }
 
 void WebView::goForward() {
-    _impl->goForward();
+    if (_impl != nullptr) {
+        _impl->goForward();
+    }
 }
 
-void WebView::evaluateJS(const std::string &js) {
-    _impl->evaluateJS(js);
+void WebView::evaluateJS(const ccstd::string &js) {
+    if (_impl != nullptr) {
+        _impl->evaluateJS(js);
+    }
 }
 
 void WebView::setScalesPageToFit(bool scalesPageToFit) {
-    _impl->setScalesPageToFit(scalesPageToFit);
+    if (_impl != nullptr) {
+        _impl->setScalesPageToFit(scalesPageToFit);
+    }
 }
 
 void WebView::setVisible(bool visible) {
-    _impl->setVisible(visible);
+    if (_impl != nullptr) {
+        _impl->setVisible(visible);
+    }
 }
 
 void WebView::setFrame(float x, float y, float width, float height) {
-    _impl->setFrame(x, y, width, height);
+    if (_impl != nullptr) {
+        _impl->setFrame(x, y, width, height);
+    }
 }
 
 void WebView::setBounces(bool bounces) {
-    _impl->setBounces(bounces);
+    if (_impl != nullptr) {
+        _impl->setBounces(bounces);
+    }
 }
 
 void WebView::setBackgroundTransparent(bool isTransparent) {
-    _impl->setBackgroundTransparent(isTransparent);
+    if (_impl != nullptr) {
+        _impl->setBackgroundTransparent(isTransparent);
+    }
 }
 
 void WebView::setOnDidFailLoading(const ccWebViewCallback &callback) {
@@ -139,7 +178,7 @@ void WebView::setOnDidFinishLoading(const ccWebViewCallback &callback) {
 }
 
 void WebView::setOnShouldStartLoading(
-    const std::function<bool(WebView *sender, const std::string &url)> &callback) {
+    const std::function<bool(WebView *sender, const ccstd::string &url)> &callback) {
     _onShouldStartLoading = callback;
 }
 
@@ -148,8 +187,8 @@ void WebView::setOnJSCallback(const ccWebViewCallback &callback) {
 }
 
 std::function<bool(WebView
-                       *              sender,
-                   const std::string &url)>
+                       *sender,
+                   const ccstd::string &url)>
 
 WebView::getOnShouldStartLoading() const {
     return _onShouldStartLoading;

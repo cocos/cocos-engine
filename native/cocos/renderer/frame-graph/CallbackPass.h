@@ -32,9 +32,9 @@ namespace framegraph {
 
 class Executable {
 public:
-    Executable() noexcept              = default;
-    virtual ~Executable()              = default;
-    Executable(const Executable &)     = delete;
+    Executable() noexcept = default;
+    virtual ~Executable() = default;
+    Executable(const Executable &) = delete;
     Executable(Executable &&) noexcept = delete;
     Executable &operator=(const Executable &) = delete;
     Executable &operator=(Executable &&) noexcept = delete;
@@ -50,12 +50,12 @@ public:
     explicit CallbackPass(ExecuteMethod &execute) noexcept;
     explicit CallbackPass(ExecuteMethod &&execute) noexcept;
 
-    void               execute(const DevicePassResourceTable &resourceTable) noexcept override;
+    void execute(const DevicePassResourceTable &resourceTable) noexcept override;
     inline const Data &getData() const noexcept { return _data; }
-    inline Data &      getData() noexcept { return _data; }
+    inline Data &getData() noexcept { return _data; }
 
 private:
-    Data          _data;
+    Data _data;
     ExecuteMethod _execute;
 };
 

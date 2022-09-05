@@ -38,8 +38,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class Constraint : public BaseObject
-{
+class Constraint : public BaseObject {
     ABSTRACT_CLASS(Constraint)
 
 protected:
@@ -75,16 +74,14 @@ public:
     virtual void update() = 0;
     virtual void invalidUpdate() = 0;
 
-    inline const std::string& getName() 
-    {
+    inline const std::string& getName() {
         return _constraintData->name;
     }
 };
 /**
  * @internal
  */
-class IKConstraint : public Constraint
-{
+class IKConstraint : public Constraint {
     BIND_CLASS_TYPE_A(IKConstraint);
 
 public:
@@ -98,7 +95,7 @@ public:
      * @internal
      */
     float _weight;
-    
+
 private:
     bool _scaleEnabled;
 

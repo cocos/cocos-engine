@@ -1,15 +1,15 @@
 {
-  "ver": "1.0.23",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "9cb543ba-d152-4809-8a44-8e7bd5712123",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
-      "ver": "1.0.21",
+      "ver": "1.0.22",
       "importer": "texture",
       "uuid": "9cb543ba-d152-4809-8a44-8e7bd5712123@6c48a",
       "imported": true,
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9cb543ba-d152-4809-8a44-8e7bd5712123"
+        "imageUuidOrDatabaseUri": "9cb543ba-d152-4809-8a44-8e7bd5712123",
+        "visible": true
       },
       "displayName": "directional-light",
       "id": "6c48a",

@@ -29,59 +29,71 @@
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "PipelineUBO.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
+#include "SceneCulling.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
+#include "scene/Camera.h"
+#include "scene/DirectionalLight.h"
+#include "scene/Shadow.h"
 #include "scene/SpotLight.h"
+#include "shadow/CSMLayers.h"
 
 namespace cc {
 namespace pipeline {
+
 ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
-    _pipeline       = pipeline;
-    _buffer         = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
-    _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _batchedQueue   = CC_NEW(RenderBatchedQueue);
+    _pipeline = pipeline;
+    _instancedQueue = ccnew RenderInstancedQueue;
+    _batchedQueue = ccnew RenderBatchedQueue;
 }
 
-void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer) {
+ShadowMapBatchedQueue::~ShadowMapBatchedQueue() = default;
+
+void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer, uint32_t level) {
     clear();
 
-    const PipelineSceneData *sceneData  = _pipeline->getPipelineSceneData();
-    const scene::Shadow *    shadowInfo = sceneData->getSharedData()->shadow;
-    if (light && shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
-        const RenderObjectList &dirShadowObjects  = sceneData->getDirShadowObjects();
-        const RenderObjectList &castShadowObjects = sceneData->getCastShadowObjects();
-
+    const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
+    const scene::Shadows *shadowInfo = sceneData->getShadows();
+    const CSMLayers *csmLayers = sceneData->getCSMLayers();
+    if (light && shadowInfo->isEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
         switch (light->getType()) {
             case scene::LightType::DIRECTIONAL: {
-                for (const auto ro : dirShadowObjects) {
-                    const auto *model = ro.model;
-                    add(model);
+                const auto *dirLight = static_cast<const scene::DirectionalLight *>(light);
+                if (shadowInfo->isEnabled() && shadowInfo->getType() == scene::ShadowType::SHADOW_MAP) {
+                    if (dirLight->isShadowEnabled()) {
+                        ShadowTransformInfo *layer;
+                        if (dirLight->isShadowFixedArea()) {
+                            layer = csmLayers->getSpecialLayer();
+                        } else {
+                            layer = csmLayers->getLayers()[level];
+                        }
+                        shadowCulling(_pipeline, camera, layer);
+                        const RenderObjectList &dirShadowObjects = layer->getShadowObjects();
+                        for (const auto &ro : dirShadowObjects) {
+                            add(ro.model);
+                        }
+                    }
                 }
             } break;
-
             case scene::LightType::SPOT: {
-                const auto *spotLight     = static_cast<const scene::SpotLight *>(light);
-                const Mat4  matShadowView = light->getNode()->getWorldMatrix().getInversed();
-                Mat4        matShadowProj;
-                Mat4::createPerspective(spotLight->getSpotAngle(), 1.0F, 0.001F, spotLight->getRange(), &matShadowProj);
-                const Mat4  matShadowViewProj = matShadowProj * matShadowView;
-                scene::AABB ab;
-                for (const auto ro : castShadowObjects) {
-                    const auto *model = ro.model;
-                    if (!model->getEnabled() || !model->getCastShadow() || !model->getNode()) {
-                        continue;
-                    }
-
-                    if (model->getWorldBounds()) {
-                        model->getWorldBounds()->transform(matShadowViewProj, &ab);
-                        if (ab.aabbFrustum(camera->frustum)) {
-                            add(model);
+                const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+                const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
+                if (spotLight->isShadowEnabled()) {
+                    geometry::AABB ab;
+                    for (const auto &ro : castShadowObjects) {
+                        const auto *model = ro.model;
+                        if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
+                            continue;
+                        }
+                        if (model->getWorldBounds()) {
+                            if (model->getWorldBounds()->aabbFrustum(spotLight->getFrustum())) {
+                                add(model);
+                            }
                         }
                     }
                 }
@@ -111,22 +123,21 @@ void ShadowMapBatchedQueue::clear() {
 }
 
 void ShadowMapBatchedQueue::add(const scene::Model *model) {
-    // this assumes light pass index is the same for all subModels
-    const auto shadowPassIdx = getShadowPassIndex(model);
-    if (shadowPassIdx == -1) {
-        return;
-    }
+    for (const auto &subModel : model->getSubModels()) {
+        const auto shadowPassIdx = getShadowPassIndex(subModel);
+        if (shadowPassIdx == -1) {
+            continue;
+        }
 
-    for (auto *subModel : model->getSubModels()) {
-        const auto *pass           = subModel->getPass(shadowPassIdx);
-        const auto  batchingScheme = pass->getBatchingScheme();
+        const auto *pass = subModel->getPass(shadowPassIdx);
+        const auto batchingScheme = pass->getBatchingScheme();
 
         if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
-            auto *instancedBuffer = InstancedBuffer::get(subModel->getPass(shadowPassIdx));
+            auto *instancedBuffer = subModel->getPass(shadowPassIdx)->getInstancedBuffer();
             instancedBuffer->merge(model, subModel, shadowPassIdx);
             _instancedQueue->add(instancedBuffer);
         } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
-            auto *batchedBuffer = BatchedBuffer::get(subModel->getPass(shadowPassIdx));
+            auto *batchedBuffer = subModel->getPass(shadowPassIdx)->getBatchedBuffer();
             batchedBuffer->merge(subModel, shadowPassIdx, model);
             _batchedQueue->add(batchedBuffer);
         } else { // standard draw
@@ -143,10 +154,10 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
 
     for (size_t i = 0; i < _subModels.size(); i++) {
         const auto *const subModel = _subModels[i];
-        auto *const       shader   = _shaders[i];
-        const auto *      pass     = _passes[i];
-        auto *const       ia       = subModel->getInputAssembler();
-        auto *const       pso      = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
+        auto *const shader = _shaders[i];
+        const auto *pass = _passes[i];
+        auto *const ia = subModel->getInputAssembler();
+        auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
         cmdBuffer->bindPipelineState(pso);
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
@@ -160,19 +171,15 @@ void ShadowMapBatchedQueue::destroy() {
     CC_SAFE_DELETE(_batchedQueue)
 
     CC_SAFE_DELETE(_instancedQueue)
-
-    _buffer = nullptr;
 }
 
-int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {
-    for (const scene::SubModel *subModel : model->getSubModels()) {
-        int i = 0;
-        for (const scene::Pass *pass : subModel->getPasses()) {
-            if (pass->getPhase() == _phaseID) {
-                return i;
-            }
-            ++i;
+int ShadowMapBatchedQueue::getShadowPassIndex(const scene::SubModel *subModel) const {
+    int i = 0;
+    for (const auto &pass : subModel->getPasses()) {
+        if (pass->getPhase() == _phaseID) {
+            return i;
         }
+        ++i;
     }
     return -1;
 }

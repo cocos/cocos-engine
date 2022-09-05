@@ -1,7 +1,7 @@
 #if __VERSION__ < 300
-    #define CC_SURFACES_VARING_MODIFIER varying
+    #pragma define CC_SURFACES_VARING_MODIFIER varying
 #else
-    #define CC_SURFACES_VARING_MODIFIER out
+    #pragma define CC_SURFACES_VARING_MODIFIER out
 #endif
 
 #include <shading-entries/data-structures/vs-fs>
@@ -22,22 +22,19 @@
   #define VSOutput_mirrorNormal v_tangent.w
 #endif
 
-#if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
+#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
   #define VSOutput_texcoord1 v_uv1
 #endif
 
-#if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
+#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
   #define VSOutput_lightMapUV v_luv
 #endif
 
 #if CC_RECEIVE_SHADOW
-  #define VSOutput_shadowPos v_shadowPos
-  #if CC_SURFACES_USE_INSTANCING
-    #define VSOutput_shadowBias v_shadowBias
-  #endif
+  #define VSOutput_shadowBias v_shadowBias
 #endif
 
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
   #define VSOutput_fogFactor v_fogFactor
 #endif
 

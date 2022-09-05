@@ -216,11 +216,11 @@ void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
         OH_Drawing_SetTextStyleFontStyle(_textStyle, FONT_STYLE_NORMAL);
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     _textAlign = align;
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 
@@ -270,19 +270,19 @@ std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point po
     auto typography = createTypography(text);
     Size textSize {static_cast<float>(OH_Drawing_TypographyGetMaxIntrinsicWidth(typography->get())),
                    static_cast<float>(OH_Drawing_TypographyGetHeight(typography->get()))};
-    if (_textAlign == CanvasTextAlign::CENTER) {
+    if (_textAlign == TextAlign::CENTER) {
         point[0] -= textSize[0] / 2.0f;
-    } else if (_textAlign == CanvasTextAlign::RIGHT) {
+    } else if (_textAlign == TextAlign::RIGHT) {
         point[0] -= textSize[0];
     }
     double alphabeticBaseLine = OH_Drawing_TypographyGetAlphabeticBaseline(typography->get());
-    if (_textBaseLine == CanvasTextBaseline::TOP) {
+    if (_textBaseLine == TextBaseline::TOP) {
         //point[1] += -alphabeticBaseLine;
-    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
+    } else if (_textBaseLine == TextBaseline::MIDDLE) {
         point[1] += -textSize[1] / 2.0f;
-    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
+    } else if (_textBaseLine == TextBaseline::BOTTOM) {
         point[1] += -textSize[1];
-    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
+    } else if (_textBaseLine == TextBaseline::ALPHABETIC) {
         //GetTextMetrics(_DC, &_tm);
         //point[1] -= _tm.tmAscent;
         point[1] -= alphabeticBaseLine;

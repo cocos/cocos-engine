@@ -26,7 +26,6 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { RenderableComponent } from '../components/renderable-component';
 import { Texture, Type } from '../gfx';
 import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
@@ -36,6 +35,7 @@ import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
 import { Vec4 } from '../math';
 import { SRGBToLinear } from '../pipeline/pipeline-funcs';
+import { Renderer } from '../components/renderer';
 
 const v4_1 = new Vec4();
 
@@ -177,7 +177,7 @@ export class Material extends Asset {
      * @en The owner render component
      * @zh 该材质所归属的渲染组件
      */
-    get owner (): RenderableComponent | null {
+    get owner (): Renderer | null {
         return null;
     }
 
@@ -479,7 +479,7 @@ export class Material extends Asset {
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         this.initialize({
-            effectName: 'unlit',
+            effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
             technique: 0,
         });

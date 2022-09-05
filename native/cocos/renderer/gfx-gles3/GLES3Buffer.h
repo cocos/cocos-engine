@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES3GPUBuffer;
+struct GLES3GPUBuffer;
 
 class CC_GLES3_API GLES3Buffer final : public Buffer {
 public:

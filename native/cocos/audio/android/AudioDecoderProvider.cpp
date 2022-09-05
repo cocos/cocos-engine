@@ -26,38 +26,39 @@
 #define LOG_TAG "AudioDecoderProvider"
 
 #include "audio/android/AudioDecoderProvider.h"
-#include "audio/android/AudioDecoderSLES.h"
-#include "audio/android/AudioDecoderOgg.h"
 #include "audio/android/AudioDecoderMp3.h"
+#include "audio/android/AudioDecoderOgg.h"
+#include "audio/android/AudioDecoderSLES.h"
 #include "audio/android/AudioDecoderWav.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
 namespace cc {
 
-AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
+AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
     AudioDecoder *decoder = nullptr;
-    std::string extension = FileUtils::getInstance()->getFileExtension(url);
+    ccstd::string extension = FileUtils::getInstance()->getFileExtension(url);
     ALOGV("url:%s, extension:%s", url.c_str(), extension.c_str());
     if (extension == ".ogg") {
-        decoder = new AudioDecoderOgg();
+        decoder = ccnew AudioDecoderOgg();
         if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
     } else if (extension == ".mp3") {
-        decoder = new AudioDecoderMp3();
+        decoder = ccnew AudioDecoderMp3();
         if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
     } else if (extension == ".wav") {
-        decoder = new AudioDecoderWav();
+        decoder = ccnew AudioDecoderWav();
         if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
     } else {
-        auto slesDecoder = new AudioDecoderSLES();
+        auto slesDecoder = ccnew AudioDecoderSLES();
         if (slesDecoder->init(engineItf, url, bufferSizeInFrames, sampleRate, fdGetterCallback)) {
             decoder = slesDecoder;
         } else {

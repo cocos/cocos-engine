@@ -36,6 +36,7 @@
 #include "GLES3QueryPool.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Texture.h"
+#include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 
 namespace cc {
@@ -64,14 +65,14 @@ void GLES3PrimaryCommandBuffer::end() {
 void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
-    GLES3GPURenderPass * gpuRenderPass  = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
+    GLES3GPURenderPass *gpuRenderPass = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
     GLES3GPUFramebuffer *gpuFramebuffer = static_cast<GLES3Framebuffer *>(fbo)->gpuFBO();
 
     cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
                                 &renderArea, colors, depth, stencil);
 
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor  = renderArea;
+    _curDynamicStates.scissor = renderArea;
 }
 
 void GLES3PrimaryCommandBuffer::endRenderPass() {
@@ -84,6 +85,7 @@ void GLES3PrimaryCommandBuffer::nextSubpass() {
 }
 
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(GLES3PrimaryCommandBufferDraw);
     if (_isStateInvalid) {
         bindStates();
     }
@@ -196,11 +198,11 @@ void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
 
 void GLES3PrimaryCommandBuffer::bindStates() {
     if (_curGPUPipelineState) {
-        vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-        vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        ccstd::vector<uint32_t> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U, len = dynamicOffsetOffsets.size() - 1; i < len; i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-            //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
+            // CC_ASSERT(_curDynamicOffsets[i].size() >= count);
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint32_t));
         }
@@ -228,11 +230,36 @@ void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
     cmdFuncGLES3Dispatch(GLES3Device::getInstance(), gpuInfo);
 }
 
-void GLES3PrimaryCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint32_t /*textureBarrierCount*/) {
-    if (!barrier) return;
+void GLES3PrimaryCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const * /*buffers*/, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const * /*textures*/, uint32_t textureBarrierCount) {
+    if (!barrier && !bufferBarrierCount && !textureBarrierCount) return;
 
-    const auto *gpuBarrier = static_cast<const GLES3GeneralBarrier *>(barrier)->gpuBarrier();
-    cmdFuncGLES3MemoryBarrier(GLES3Device::getInstance(), gpuBarrier->glBarriers, gpuBarrier->glBarriersByRegion);
+    GLuint glBarriers{0};
+    GLuint glBarriersByRegion{0};
+
+    if (barrier) {
+        GLES3GPUGeneralBarrier genBarrier = *(static_cast<const GLES3GeneralBarrier *>(barrier)->gpuBarrier());
+        glBarriers |= genBarrier.glBarriers;
+        glBarriersByRegion |= genBarrier.glBarriersByRegion;
+    }
+
+    auto fullfill = [&glBarriers, &glBarriersByRegion](auto *barriers, uint32_t count) {
+        for (size_t i = 0; i < count; ++i) {
+            GLES3GPUGeneralBarrier barrier{
+                barriers[i]->getInfo().prevAccesses,
+                barriers[i]->getInfo().nextAccesses,
+                0,
+                0,
+            };
+            completeBarrier(&barrier);
+            glBarriers |= barrier.glBarriers;
+            glBarriersByRegion |= barrier.glBarriersByRegion;
+        }
+    };
+
+    fullfill(bufferBarriers, bufferBarrierCount);
+    fullfill(textureBarriers, textureBarrierCount);
+
+    cmdFuncGLES3MemoryBarrier(GLES3Device::getInstance(), glBarriers, glBarriersByRegion);
 }
 
 } // namespace gfx

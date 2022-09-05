@@ -23,21 +23,28 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <boost/functional/hash.hpp>
-
+#include "RenderPipeline.h"
 #include "BatchedBuffer.h"
-#include "GeometryRenderer.h"
+#if CC_USE_GEOMETRY_RENDERER
+    #include "GeometryRenderer.h"
+#endif
+#include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
+#include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
+#include "PipelineUBO.h"
 #include "RenderFlow.h"
 #include "RenderPipeline.h"
+#include "base/StringUtil.h"
+#include "base/std/hash/hash.h"
 #include "frame-graph/FrameGraph.h"
-#include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDescriptorSet.h"
-#include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXTexture.h"
 #include "helper/Utils.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "profiler/DebugRenderer.h"
+#endif
+#include "scene/Camera.h"
+#include "scene/Skybox.h"
 
 namespace cc {
 namespace pipeline {
@@ -57,9 +64,8 @@ RenderPipeline::RenderPipeline()
 : _device(gfx::Device::getInstance()) {
     RenderPipeline::instance = this;
 
-    _globalDSManager   = new GlobalDSManager();
-    _pipelineUBO       = new PipelineUBO();
-    _pipelineSceneData = new PipelineSceneData();
+    _globalDSManager = ccnew GlobalDSManager();
+    _pipelineUBO = ccnew PipelineUBO();
 }
 
 RenderPipeline::~RenderPipeline() {
@@ -68,20 +74,23 @@ RenderPipeline::~RenderPipeline() {
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
     _flows = info.flows;
-    _tag   = info.tag;
+    _tag = info.tag;
+    _isResourceOwner = false;
     return true;
 }
 
 bool RenderPipeline::isEnvmapEnabled() const {
-    return _pipelineSceneData->getSharedData()->skybox->useIBL;
+    return _pipelineSceneData->getSkybox()->isUseIBL();
 }
 
 bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
-    _globalDSManager->activate(_device, this);
+    _globalDSManager->activate(_device);
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
-    _pipelineSceneData->activate(_device, this);
-    _geometryRenderer->activate(_device, this);
+    _pipelineSceneData->activate(_device);
+#if CC_USE_DEBUG_RENDERER
+    CC_DEBUG_RENDERER->activate(_device);
+#endif
 
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
@@ -95,7 +104,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     return true;
 }
 
-void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
+void RenderPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *const flow : _flows) {
         for (auto *camera : cameras) {
             flow->render(camera);
@@ -105,31 +114,63 @@ void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
     RenderPipeline::framegraphGC();
 }
 
+void RenderPipeline::onGlobalPipelineStateChanged() {
+    // do nothing
+}
+
 void RenderPipeline::destroyQuadInputAssembler() {
-    CC_SAFE_DESTROY(_quadIB);
+    CC_SAFE_DESTROY_AND_DELETE(_quadIB);
 
     for (auto *node : _quadVB) {
-        CC_SAFE_DESTROY(node);
+        CC_SAFE_DESTROY_AND_DELETE(node);
     }
 
     for (auto node : _quadIA) {
-        CC_SAFE_DESTROY(node.second);
+        CC_SAFE_DESTROY_AND_DELETE(node.second);
     }
     _quadVB.clear();
     _quadIA.clear();
 }
 
-void RenderPipeline::destroy() {
-    for (auto *flow : _flows) {
-        flow->destroy();
+#if CC_USE_GEOMETRY_RENDERER
+void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *> &cameras) {
+    if (_geometryRenderer) {
+        return;
+    }
+
+    // Query the first camera rendering to swapchain.
+    for (const auto *camera : cameras) {
+        if (camera && camera->getWindow() && camera->getWindow()->getSwapchain()) {
+            const_cast<scene::Camera *>(camera)->initGeometryRenderer();
+            _geometryRenderer = camera->getGeometryRenderer();
+            return;
+        }
+    }
+}
+#endif
+
+bool RenderPipeline::destroy() {
+    if (_isResourceOwner) {
+        for (auto *flow : _flows) {
+            CC_SAFE_DESTROY_AND_DELETE(flow);
+        }
+    } else {
+        for (auto *flow : _flows) {
+            CC_SAFE_DESTROY(flow);
+        }
     }
     _flows.clear();
 
+#if CC_USE_GEOMETRY_RENDERER
+    _geometryRenderer = nullptr;
+#endif
     _descriptorSet = nullptr;
-    CC_SAFE_DESTROY(_globalDSManager);
-    CC_SAFE_DESTROY(_pipelineUBO);
-    CC_SAFE_DESTROY(_pipelineSceneData);
-    _geometryRenderer->destroy();
+    CC_SAFE_DESTROY_AND_DELETE(_globalDSManager);
+    CC_SAFE_DESTROY_AND_DELETE(_pipelineUBO);
+    CC_SAFE_DESTROY_NULL(_pipelineSceneData);
+#if CC_USE_DEBUG_RENDERER
+    CC_DEBUG_RENDERER->destroy();
+#endif
 
     for (auto *const queryPool : _queryPools) {
         queryPool->destroy();
@@ -142,25 +183,24 @@ void RenderPipeline::destroy() {
     _commandBuffers.clear();
 
     PipelineStateManager::destroyAll();
-    BatchedBuffer::destroyBatchedBuffer();
-    InstancedBuffer::destroyInstancedBuffer();
     framegraph::FrameGraph::gc(0);
+
+    return Super::destroy();
 }
 
 gfx::Color RenderPipeline::getClearcolor(scene::Camera *camera) const {
-    auto *const sceneData  = getPipelineSceneData();
-    auto *const sharedData = sceneData->getSharedData();
-    gfx::Color  clearColor{0.0, 0.0, 0.0, 1.0F};
-    if (camera->clearFlag & static_cast<uint>(gfx::ClearFlagBit::COLOR)) {
-        clearColor = camera->clearColor;
+    auto *const sceneData = getPipelineSceneData();
+    gfx::Color clearColor{0.0F, 0.0F, 0.0F, 1.0F};
+    if (static_cast<uint32_t>(camera->getClearFlag()) & static_cast<uint32_t>(gfx::ClearFlagBit::COLOR)) {
+        clearColor = camera->getClearColor();
     }
 
-    clearColor.w = 0;
+    clearColor.w = 0.F;
     return clearColor;
 }
 
 void RenderPipeline::updateQuadVertexData(const Vec4 &viewport, gfx::Buffer *buffer) {
-    float vbData[16] = {0};
+    float vbData[16] = {0.F};
     genQuadVertexData(viewport, vbData);
     buffer->update(vbData, sizeof(vbData));
 }
@@ -180,7 +220,7 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderAr
         return iter->second;
     }
 
-    gfx::Buffer *        vb = nullptr;
+    gfx::Buffer *vb = nullptr;
     gfx::InputAssembler *ia = nullptr;
     createQuadInputAssembler(_quadIB, &vb, &ia);
     _quadVB.push_back(vb);
@@ -193,8 +233,8 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderAr
 
 bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA) {
     // step 1 create vertex buffer
-    uint vbStride = sizeof(float) * 4;
-    uint vbSize   = vbStride * 4;
+    uint32_t vbStride = sizeof(float) * 4;
+    uint32_t vbSize = vbStride * 4;
 
     if (*quadVB == nullptr) {
         *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -207,47 +247,56 @@ bool RenderPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer *
     info.attributes.push_back({"a_texCoord", gfx::Format::RG32F});
     info.vertexBuffers.push_back(*quadVB);
     info.indexBuffer = quadIB;
-    *quadIA          = _device->createInputAssembler(info);
+    *quadIA = _device->createInputAssembler(info);
     return (*quadIA) != nullptr;
 }
 
-void RenderPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
+void RenderPipeline::ensureEnoughSize(const ccstd::vector<scene::Camera *> &cameras) {
     for (auto *camera : cameras) {
-        _width  = std::max(camera->window->getWidth(), _width);
-        _height = std::max(camera->window->getHeight(), _height);
+        _width = std::max(camera->getWindow()->getWidth(), _width);
+        _height = std::max(camera->getWindow()->getHeight(), _height);
     }
 }
 
 gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
-    auto             scale{_pipelineSceneData->getSharedData()->shadingScale};
+    auto scale{_pipelineSceneData->getShadingScale()};
     const gfx::Rect &rect = getRenderArea(camera);
     return {
-        static_cast<int>(rect.x * scale),
-        static_cast<int>(rect.y * scale),
-        static_cast<uint>(rect.width * scale),
-        static_cast<uint>(rect.height * scale)};
+        static_cast<int>(static_cast<float>(rect.x) * scale),
+        static_cast<int>(static_cast<float>(rect.y) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.width) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.height) * scale)};
 }
 
 gfx::Rect RenderPipeline::getScissor(scene::Camera *camera) {
-    auto             scale{_pipelineSceneData->getSharedData()->shadingScale};
+    auto scale{_pipelineSceneData->getShadingScale()};
     const gfx::Rect &rect = getRenderArea(camera);
     return {
-        static_cast<int>(rect.x * scale),
-        static_cast<int>(rect.y * scale),
-        static_cast<uint>(rect.width * scale),
-        static_cast<uint>(rect.height * scale)};
+        static_cast<int>(static_cast<float>(rect.x) * scale),
+        static_cast<int>(static_cast<float>(rect.y) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.width) * scale),
+        static_cast<uint32_t>(static_cast<float>(rect.height) * scale)};
 }
 
 gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
-    float w{static_cast<float>(camera->window->getWidth())};
-    float h{static_cast<float>(camera->window->getHeight())};
+    float w{static_cast<float>(camera->getWindow()->getWidth())};
+    float h{static_cast<float>(camera->getWindow()->getHeight())};
 
+    const auto &vp = camera->getViewport();
     return {
-        static_cast<int>(camera->viewPort.x * w),
-        static_cast<int>(camera->viewPort.y * h),
-        static_cast<uint>(camera->viewPort.z * w),
-        static_cast<uint>(camera->viewPort.w * h),
+        static_cast<int32_t>(vp.x * w),
+        static_cast<int32_t>(vp.y * h),
+        static_cast<uint32_t>(vp.z * w),
+        static_cast<uint32_t>(vp.w * h),
     };
+}
+
+float RenderPipeline::getShadingScale() const {
+    return _pipelineSceneData->getShadingScale();
+}
+
+void RenderPipeline::setShadingScale(float scale) {
+    _pipelineSceneData->setShadingScale(scale);
 }
 
 void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float *vbData) {
@@ -258,27 +307,23 @@ void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float *vbData) {
     if (_device->getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }
-    int n       = 0;
-    vbData[n++] = -1.0;
-    vbData[n++] = -1.0;
+    int n = 0;
+    vbData[n++] = -1.0F;
+    vbData[n++] = -1.0F;
     vbData[n++] = minX; // uv
     vbData[n++] = maxY;
-    vbData[n++] = 1.0;
-    vbData[n++] = -1.0;
+    vbData[n++] = 1.0F;
+    vbData[n++] = -1.0F;
     vbData[n++] = maxX;
     vbData[n++] = maxY;
-    vbData[n++] = -1.0;
-    vbData[n++] = 1.0;
+    vbData[n++] = -1.0F;
+    vbData[n++] = 1.0F;
     vbData[n++] = minX;
     vbData[n++] = minY;
-    vbData[n++] = 1.0;
-    vbData[n++] = 1.0;
+    vbData[n++] = 1.0F;
+    vbData[n++] = 1.0F;
     vbData[n++] = maxX;
     vbData[n++] = minY;
-}
-
-void RenderPipeline::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data) {
-    _pipelineSceneData->setPipelineSharedSceneData(data);
 }
 
 void RenderPipeline::generateConstantMacros() {
@@ -291,15 +336,19 @@ void RenderPipeline::generateConstantMacros() {
 #define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
 #define CC_PLATFORM_ANDROID_AND_WEBGL 0
 #define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
+#define CC_JOINT_UNIFORM_CAPACITY %d
         )",
         hasAnyFlags(_device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
         _clusterEnabled ? 1 : 0,
         _device->getCapabilities().maxVertexUniformVectors,
         _device->getCapabilities().maxFragmentUniformVectors,
-        _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
+        _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT),
+        SkinningJointCapacity::jointUniformCapacity);
 }
 
-RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {
+gfx::DescriptorSetLayout *RenderPipeline::getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
+
+RenderStage *RenderPipeline::getRenderstageByName(const ccstd::string &name) const {
     for (auto *flow : _flows) {
         auto *val = flow->getRenderstageByName(name);
         if (val) {
@@ -310,7 +359,7 @@ RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {
 }
 
 bool RenderPipeline::isOccluded(const scene::Camera *camera, const scene::SubModel *subModel) {
-    auto *model      = subModel->getOwner();
+    auto *model = subModel->getOwner();
     auto *worldBound = model->getWorldBounds();
 
     // assume visible if there is no worldBound.
@@ -319,7 +368,7 @@ bool RenderPipeline::isOccluded(const scene::Camera *camera, const scene::SubMod
     }
 
     // assume visible if camera is inside of worldBound.
-    if (worldBound->contain(camera->position)) {
+    if (worldBound->contain(camera->getPosition())) {
         return false;
     }
 
@@ -334,7 +383,7 @@ bool RenderPipeline::isOccluded(const scene::Camera *camera, const scene::SubMod
 }
 
 void RenderPipeline::framegraphGC() {
-    static uint64_t           frameCount{0U};
+    static uint64_t frameCount{0U};
     static constexpr uint32_t INTERVAL_IN_SECONDS = 30;
     if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
         framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);

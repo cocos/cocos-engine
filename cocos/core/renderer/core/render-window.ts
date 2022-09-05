@@ -31,7 +31,6 @@ import {
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
-import { NativeRenderWindow } from '../native-scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -91,13 +90,6 @@ export class RenderWindow {
         return this._cameras;
     }
 
-    /**
-     * @private
-     */
-    public static registerCreateFunc (root: Root) {
-        root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
-    }
-
     protected _title = '';
     protected _width = 1;
     protected _height = 1;
@@ -109,17 +101,17 @@ export class RenderWindow {
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
     protected _framebuffer: Framebuffer | null = null;
-    private declare _nativeObj: NativeRenderWindow | null;
 
-    get native () {
-        return this._nativeObj;
+    /**
+     * @private
+     */
+    public static registerCreateFunc (root: Root) {
+        root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
 
     private constructor (root: Root) {}
 
     public initialize (device: Device, info: IRenderWindowInfo): boolean {
-        this._init();
-
         if (info.title !== undefined) {
             this._title = info.title;
         }
@@ -133,7 +125,7 @@ export class RenderWindow {
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
         if (info.swapchain) {
-            this._setSwapchain(info.swapchain);
+            this._swapchain = info.swapchain;
             this._colorTextures.push(info.swapchain.colorTexture);
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
@@ -154,14 +146,14 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
+                this._hasOffScreenAttachments = true;
             }
         }
-
-        this._setFrameBuffer(device.createFramebuffer(new FramebufferInfo(
+        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
             this._renderPass,
             this._colorTextures,
             this._depthStencilTexture,
-        )));
+        ));
 
         return true;
     }
@@ -186,8 +178,6 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-
-        this._destroy();
     }
 
     /**
@@ -226,6 +216,12 @@ export class RenderWindow {
         }
     }
 
+    /**
+     * @en Extract all render cameras attached to the render window to the output cameras list
+     * @zh 将所有挂载到当前渲染窗口的摄像机存储到输出列表参数中
+     * @param cameras @en The output cameras list, should be empty before invoke this function
+     *                @zh 输出相机列表参数，传入时应该为空
+     */
     public extractRenderCameras (cameras: Camera[]) {
         for (let j = 0; j < this._cameras.length; j++) {
             const camera = this._cameras[j];
@@ -237,9 +233,9 @@ export class RenderWindow {
     }
 
     /**
-     * @zh
-     * 添加渲染相机
-     * @param camera 渲染相机
+     * @en Attach a new camera to the render window
+     * @zh 添加渲染相机
+     * @param camera @en The camera to attach @zh 要挂载的相机
      */
     public attachCamera (camera: Camera) {
         for (let i = 0; i < this._cameras.length; i++) {
@@ -252,9 +248,9 @@ export class RenderWindow {
     }
 
     /**
-     * @zh
-     * 移除渲染相机
-     * @param camera 相机
+     * @en Detach a camera from the render window
+     * @zh 移除场景中的渲染相机
+     * @param camera @en The camera to detach @zh 要移除的相机
      */
     public detachCamera (camera: Camera) {
         for (let i = 0; i < this._cameras.length; ++i) {
@@ -266,42 +262,18 @@ export class RenderWindow {
     }
 
     /**
-     * @zh
-     * 销毁全部渲染相机
+     * @en Clear all attached cameras
+     * @zh 清空全部渲染相机
      */
     public clearCameras () {
         this._cameras.length = 0;
     }
 
+    /**
+     * @en Sort all attached cameras with priority
+     * @zh 按照优先级对所有挂载的相机排序
+     */
     public sortCameras () {
         this._cameras.sort((a: Camera, b: Camera) => a.priority - b.priority);
-    }
-
-    // ====================== Native Specific ====================== //
-
-    private _init () {
-        if (JSB) {
-            this._nativeObj = new NativeRenderWindow();
-        }
-    }
-
-    private _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    private _setSwapchain (val: Swapchain) {
-        this._swapchain = val;
-        if (JSB) {
-            this._nativeObj!.swapchain = val;
-        }
-    }
-
-    private _setFrameBuffer (val: Framebuffer) {
-        this._framebuffer = val;
-        if (JSB) {
-            this._nativeObj!.frameBuffer = val;
-        }
     }
 }

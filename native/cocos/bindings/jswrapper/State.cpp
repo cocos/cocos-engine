@@ -29,39 +29,33 @@
 
 namespace se {
 
-State::State()
-: _nativeThisObject(nullptr),
-  _thisObject(nullptr),
-  _args(nullptr) {
-}
-
-State::~State() {
-    SAFE_DEC_REF(_thisObject);
-}
-
-State::State(void *nativeThisObject)
-: _nativeThisObject(nativeThisObject),
-  _thisObject(nullptr),
-  _args(nullptr) {
-}
-
-State::State(void *nativeThisObject, const ValueArray &args)
-: _nativeThisObject(nativeThisObject),
-  _thisObject(nullptr),
-  _args(&args) {
+State::State(Object *thisObject)
+: _thisObject(thisObject) {
+    if (_thisObject != nullptr) {
+        _thisObject->incRef();
+    }
 }
 
 State::State(Object *thisObject, const ValueArray &args)
-: _nativeThisObject(nullptr),
-  _thisObject(thisObject),
+: _thisObject(thisObject),
   _args(&args) {
     if (_thisObject != nullptr) {
         _thisObject->incRef();
     }
 }
 
+State::~State() {
+    SAFE_DEC_REF(_thisObject);
+}
+
 void *State::nativeThisObject() const {
-    return _nativeThisObject;
+    return _thisObject != nullptr ? _thisObject->getPrivateData() : nullptr;
+}
+
+Object *State::thisObject() {
+    // _nativeThisObject in Static method will be nullptr
+    //        assert(_thisObject != nullptr);
+    return _thisObject;
 }
 
 const ValueArray &State::args() const {
@@ -69,15 +63,6 @@ const ValueArray &State::args() const {
         return *(_args);
     }
     return EmptyValueArray;
-}
-
-Object *State::thisObject() {
-    if (nullptr == _thisObject && nullptr != _nativeThisObject) {
-        _thisObject = se::Object::getObjectWithPtr(_nativeThisObject);
-    }
-    // _nativeThisObject in Static method will be nullptr
-    //        assert(_thisObject != nullptr);
-    return _thisObject;
 }
 
 Value &State::rval() {

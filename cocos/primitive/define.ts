@@ -184,3 +184,146 @@ export interface IGeometry {
      */
     doubleSided?: boolean;
 }
+
+/**
+ * @en
+ * The definition of the dynamic geometry, this struct can build a dynamic mesh.
+ * @zh
+ * 几何体信息。
+ */
+export interface IDynamicGeometry {
+    /**
+     * @en
+     * Vertex positions: 3 float components.
+     * @zh
+     * 顶点位置：3个float分量。
+     */
+    positions: Float32Array;
+
+    /**
+     * @en
+     * Vertex normals: 3 float components.
+     * @zh
+     * 顶点法线：3个float分量。
+     */
+    normals?: Float32Array;
+
+    /**
+     * @en
+     * Texture coordinates: 2 float components.
+     * @zh
+     * 纹理坐标：2个float分量。
+     */
+    uvs?: Float32Array;
+
+    /**
+     * @en
+     * Vertex Tangents: 4 float components.
+     * @zh
+     * 顶点切线：4个float分量。
+     */
+    tangents?: Float32Array;
+
+    /**
+     * @en
+     * Vertex colors: 4 float components.
+     * @zh
+     * 顶点颜色：4个float分量。
+     */
+    colors?: Float32Array;
+
+    /**
+     * @en
+     * Custom attributes
+     * @zh
+     * 定制属性列表。
+     */
+    customAttributes?: {
+        attr: Attribute,
+        values: Float32Array,
+    }[];
+
+    /**
+     * @en
+     * Min position.
+     * @zh
+     * 最小位置。
+     */
+    minPos?: {
+        x: number;
+        y: number;
+        z: number;
+    };
+
+    /**
+     * @en
+     * Max position.
+     * @zh
+     * 最大位置。
+     */
+    maxPos?: {
+        x: number;
+        y: number;
+        z: number;
+    };
+
+    /**
+     * @en
+     * 16 bits Geometry indices, if one needs indexed-draw.
+     * @zh
+     * 16位几何索引，当使用索引绘制时。
+     */
+    indices16?: Uint16Array;
+
+    /**
+     * @en
+     * 32 bits Geometry indices, if one needs indexed-draw.
+     * @zh
+     * 32位几何索引，当使用索引绘制时。
+     */
+    indices32?: Uint32Array;
+
+    /**
+     * @en
+     * Topology of the geometry vertices. Default is TRIANGLE_LIST.
+     * @zh
+     * 几何顶点的拓扑图元。默认值是TRIANGLE_LIST。
+     */
+    primitiveMode?: PrimitiveMode;
+
+    /**
+     * @en
+     * whether rays casting from the back face of this geometry could collide with it
+     * @zh
+     * 是否是双面，用于判断来自于几何体背面的射线检测。
+     */
+    doubleSided?: boolean;
+}
+
+export interface ICreateMeshOptions {
+    /**
+     * @en calculate mesh's aabb or not
+     * @zh 是否计算模型的包围盒。
+     */
+    calculateBounds?: boolean;
+}
+
+export interface ICreateDynamicMeshOptions {
+    /**
+     * @en max sub mesh count
+     * @zh 最大子模型个数。
+     */
+    maxSubMeshes: number;
+
+    /**
+     * @en max sub mesh vertex count
+     * @zh 子模型最大顶点个数。
+     */
+    maxSubMeshVertices: number;
+
+    /**
+     * @en max sub mesh index count
+     * @zh 子模型最大索引个数。
+     */
+    maxSubMeshIndices: number;
+}

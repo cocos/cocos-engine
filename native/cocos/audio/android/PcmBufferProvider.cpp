@@ -60,9 +60,10 @@ status_t PcmBufferProvider::getNextBuffer(Buffer *buffer,
         buffer->frameCount = _numFrames - _nextFrame;
     }
 
-    ALOGVV("getNextBuffer() requested %zu frames out of %zu frames available,"
-           " and returned %zu frames",
-           requestedFrames, (size_t)(_numFrames - _nextFrame), buffer->frameCount);
+    ALOGVV(
+        "getNextBuffer() requested %zu frames out of %zu frames available,"
+        " and returned %zu frames",
+        requestedFrames, (size_t)(_numFrames - _nextFrame), buffer->frameCount);
 
     _unrel = buffer->frameCount;
     if (buffer->frameCount > 0) {
@@ -76,15 +77,17 @@ status_t PcmBufferProvider::getNextBuffer(Buffer *buffer,
 
 void PcmBufferProvider::releaseBuffer(Buffer *buffer) {
     if (buffer->frameCount > _unrel) {
-        ALOGVV("ERROR releaseBuffer() released %zu frames but only %zu available "
-               "to release",
-               buffer->frameCount, _unrel);
+        ALOGVV(
+            "ERROR releaseBuffer() released %zu frames but only %zu available "
+            "to release",
+            buffer->frameCount, _unrel);
         _nextFrame += _unrel;
         _unrel = 0;
     } else {
-        ALOGVV("releaseBuffer() released %zu frames out of %zu frames available "
-               "to release",
-               buffer->frameCount, _unrel);
+        ALOGVV(
+            "releaseBuffer() released %zu frames out of %zu frames available "
+            "to release",
+            buffer->frameCount, _unrel);
         _nextFrame += buffer->frameCount;
         _unrel -= buffer->frameCount;
     }

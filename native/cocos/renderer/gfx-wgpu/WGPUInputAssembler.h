@@ -37,16 +37,16 @@ public:
     CCWGPUInputAssembler();
     ~CCWGPUInputAssembler() = default;
 
-    inline CCWGPUInputAssemblerObject* gpuInputAssemblerObject() { return _gpuInputAssemblerObj; }
+    inline CCWGPUInputAssemblerObject *gpuInputAssemblerObject() { return _gpuInputAssemblerObj; }
 
     // ems export
-    void update(const DrawInfo& info);
+    void update(const DrawInfo &info);
 
 protected:
-    void doInit(const InputAssemblerInfo& info) override;
+    void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;
 
-    CCWGPUInputAssemblerObject* _gpuInputAssemblerObj = nullptr;
+    CCWGPUInputAssemblerObject *_gpuInputAssemblerObj = nullptr;
 };
 
 } // namespace gfx

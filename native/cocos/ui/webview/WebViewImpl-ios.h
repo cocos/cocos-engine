@@ -38,24 +38,26 @@ class Data;
 
 class WebView;
 
-class WebViewImpl {
+class WebViewImpl final {
 public:
-    WebViewImpl(WebView *webView);
+    explicit WebViewImpl(WebView *webView);
 
-    virtual ~WebViewImpl();
+    ~WebViewImpl();
 
-    void setJavascriptInterfaceScheme(const std::string &scheme);
+    void destroy();
 
-    void loadData(const cc::Data &   data,
-                  const std::string &MIMEType,
-                  const std::string &encoding,
-                  const std::string &baseURL);
+    void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
-    void loadHTMLString(const std::string &string, const std::string &baseURL);
+    void loadData(const cc::Data &data,
+                  const ccstd::string &MIMEType,
+                  const ccstd::string &encoding,
+                  const ccstd::string &baseURL);
 
-    void loadURL(const std::string &url);
+    void loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL);
 
-    void loadFile(const std::string &fileName);
+    void loadURL(const ccstd::string &url);
+
+    void loadFile(const ccstd::string &fileName);
 
     void stopLoading();
 
@@ -69,13 +71,13 @@ public:
 
     void goForward();
 
-    void evaluateJS(const std::string &js);
+    void evaluateJS(const ccstd::string &js);
 
     void setScalesPageToFit(const bool scalesPageToFit);
 
-    virtual void setVisible(bool visible);
+    void setVisible(bool visible);
 
-    virtual void setFrame(float x, float y, float width, float height);
+    void setFrame(float x, float y, float width, float height);
 
     void setBounces(bool bounces);
 
@@ -83,7 +85,7 @@ public:
 
 private:
     UIWebViewWrapper *_uiWebViewWrapper;
-    WebView *         _webView;
+    WebView *_webView;
 };
 } //namespace cc
 

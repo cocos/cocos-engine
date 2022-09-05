@@ -27,7 +27,7 @@
 import { ccclass, editable, type, displayOrder, menu,
     executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Color, Vec2 } from '../core/math';
 import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
@@ -43,6 +43,7 @@ import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 import { builtinResMgr } from '../core';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * Image formats
@@ -169,7 +170,7 @@ function getParticleComponents (node): ParticleSystem2D[] {
 @menu('Effects/ParticleSystem2D')
 @playOnFocus
 @executeInEditMode
-export class ParticleSystem2D extends Renderable2D {
+export class ParticleSystem2D extends UIRenderer {
     static EmitterMode = EmitterMode;
     static PositionType = PositionType;
     static readonly DURATION_INFINITY = DURATION_INFINITY;
@@ -187,7 +188,7 @@ export class ParticleSystem2D extends Renderable2D {
         return this._custom;
     }
     public set custom (value) {
-        if (EDITOR && !value && !this._file) {
+        if (EDITOR && !legacyCC.GAME_VIEW && !value && !this._file) {
             warnID(6000);
             return;
         }
@@ -822,7 +823,7 @@ export class ParticleSystem2D extends Renderable2D {
         }
 
         // auto play
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this.playOnLoad) {
                 this.resetSystem();
             }
@@ -835,9 +836,10 @@ export class ParticleSystem2D extends Renderable2D {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-
         if (this._assembler && this._assembler.createData) {
             this._simulator.renderData = this._assembler.createData(this);
+            this._simulator.renderData.particleInitRenderDrawInfo(this.renderEntity); // 确保 renderEntity 和 renderData 都是 simulator 上的
+            this._simulator.initDrawInfo();
         }
     }
 
@@ -880,7 +882,7 @@ export class ParticleSystem2D extends Renderable2D {
     public resetSystem () {
         this._stopped = false;
         this._simulator.reset();
-        this._renderFlag = this._canRender();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -1144,7 +1146,7 @@ export class ParticleSystem2D extends Renderable2D {
                 this._syncAspect();
                 this._updateMaterial();
                 this._stopped = false;
-                this._renderFlag = this._canRender();
+                this.markForUpdateRenderData();
             }
         } else {
             this.resetSystem();
@@ -1170,7 +1172,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _finishedSimulation () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
                 this.resetSystem();
             }
@@ -1178,7 +1180,7 @@ export class ParticleSystem2D extends Renderable2D {
         }
         this.resetSystem();
         this.stopSystem();
-        this._renderFlag = this._canRender();
+        this.markForUpdateRenderData();
         if (this.autoRemoveOnFinish && this._stopped) {
             this.node.destroy();
         }

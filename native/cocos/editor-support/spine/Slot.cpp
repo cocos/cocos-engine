@@ -28,7 +28,7 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/Slot.h>
@@ -40,76 +40,75 @@
 
 using namespace spine;
 
-Slot::Slot(SlotData &data, Bone &bone) :
-		_data(data),
-		_bone(bone),
-		_skeleton(bone.getSkeleton()),
-		_color(1, 1, 1, 1),
-		_darkColor(0, 0, 0, 0),
-		_hasDarkColor(data.hasDarkColor()),
-		_attachment(NULL),
-		_attachmentTime(0) {
-	setToSetupPose();
+Slot::Slot(SlotData &data, Bone &bone) : _data(data),
+                                         _bone(bone),
+                                         _skeleton(bone.getSkeleton()),
+                                         _color(1, 1, 1, 1),
+                                         _darkColor(0, 0, 0, 0),
+                                         _hasDarkColor(data.hasDarkColor()),
+                                         _attachment(NULL),
+                                         _attachmentTime(0) {
+    setToSetupPose();
 }
 
 void Slot::setToSetupPose() {
-	_color.set(_data.getColor());
+    _color.set(_data.getColor());
 
-	const String &attachmentName = _data.getAttachmentName();
-	if (attachmentName.length() > 0) {
-		_attachment = NULL;
-		setAttachment(_skeleton.getAttachment(_data.getIndex(), attachmentName));
-	} else {
-		setAttachment(NULL);
-	}
+    const String &attachmentName = _data.getAttachmentName();
+    if (attachmentName.length() > 0) {
+        _attachment = NULL;
+        setAttachment(_skeleton.getAttachment(_data.getIndex(), attachmentName));
+    } else {
+        setAttachment(NULL);
+    }
 }
 
 SlotData &Slot::getData() {
-	return _data;
+    return _data;
 }
 
 Bone &Slot::getBone() {
-	return _bone;
+    return _bone;
 }
 
 Skeleton &Slot::getSkeleton() {
-	return _skeleton;
+    return _skeleton;
 }
 
 Color &Slot::getColor() {
-	return _color;
+    return _color;
 }
 
 Color &Slot::getDarkColor() {
-	return _darkColor;
+    return _darkColor;
 }
 
 bool Slot::hasDarkColor() {
-	return _hasDarkColor;
+    return _hasDarkColor;
 }
 
 Attachment *Slot::getAttachment() {
-	return _attachment;
+    return _attachment;
 }
 
 void Slot::setAttachment(Attachment *inValue) {
-	if (_attachment == inValue) {
-		return;
-	}
+    if (_attachment == inValue) {
+        return;
+    }
 
-	_attachment = inValue;
-	_attachmentTime = _skeleton.getTime();
-	_deform.clear();
+    _attachment = inValue;
+    _attachmentTime = _skeleton.getTime();
+    _deform.clear();
 }
 
 float Slot::getAttachmentTime() {
-	return _skeleton.getTime() - _attachmentTime;
+    return _skeleton.getTime() - _attachmentTime;
 }
 
 void Slot::setAttachmentTime(float inValue) {
-	_attachmentTime = _skeleton.getTime() - inValue;
+    _attachmentTime = _skeleton.getTime() - inValue;
 }
 
 Vector<float> &Slot::getDeform() {
-	return _deform;
+    return _deform;
 }

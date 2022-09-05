@@ -25,7 +25,7 @@
 
 #import "../gfx-base/GFXDef-common.h"
 #import "MTLSwapchain.h"
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
     #import <AppKit/NSView.h>
 #else
     #import <UIKit/UIView.h>
@@ -38,12 +38,12 @@ namespace cc {
 namespace gfx {
 
 namespace {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    using CCView = NSView;
+#if CC_PLATFORM == CC_PLATFORM_MACOS
+using CCView = NSView;
 #else
-    using CCView = UIView;
+using CCView = UIView;
 #endif
-};
+}; // namespace
 
 CCMTLSwapchain::CCMTLSwapchain() {
 }
@@ -52,12 +52,19 @@ CCMTLSwapchain::~CCMTLSwapchain() {
     destroy();
 }
 
-void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
-    _gpuSwapchainObj = CC_NEW(CCMTLGPUSwapChainObject);
+void CCMTLSwapchain::doInit(const SwapchainInfo& info) {
+    _gpuSwapchainObj = ccnew CCMTLGPUSwapChainObject;
 
     //----------------------acquire layer-----------------------------------
-    auto* view = (CCView*)info.windowHandle;
+#if CC_EDITOR
+    CAMetalLayer* layer = (CAMetalLayer*)info.windowHandle;
+    if (!layer.device) {
+        layer.device = MTLCreateSystemDefaultDevice();
+    }
+#else
+    auto *view = (CCView *)info.windowHandle;
     CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+#endif
 
     if (layer.pixelFormat == MTLPixelFormatInvalid) {
         layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -66,7 +73,7 @@ void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
     //setDisplaySyncEnabled : physic device refresh rate.
     //setPresentsWithTransaction : Core Animation transactions update rate.
     auto syncModeFunc = [&](BOOL sync, BOOL transaction) {
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_MACOS
         [layer setDisplaySyncEnabled:sync];
 #endif
         [layer setPresentsWithTransaction:transaction];
@@ -86,26 +93,26 @@ void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
     }
     _gpuSwapchainObj->mtlLayer = layer;
 
-//    MTLPixelFormatBGRA8Unorm
-//    MTLPixelFormatBGRA8Unorm_sRGB
-//    MTLPixelFormatRGBA16Float
-//    MTLPixelFormatRGB10A2Unorm (macOS only)
-//    MTLPixelFormatBGR10A2Unorm (macOS only)
-//    MTLPixelFormatBGRA10_XR
-//    MTLPixelFormatBGRA10_XR_sRGB
-//    MTLPixelFormatBGR10_XR
-//    MTLPixelFormatBGR10_XR_sRGB
-    Format colorFmt        = Format::BGRA8;
+    //    MTLPixelFormatBGRA8Unorm
+    //    MTLPixelFormatBGRA8Unorm_sRGB
+    //    MTLPixelFormatRGBA16Float
+    //    MTLPixelFormatRGB10A2Unorm (macOS only)
+    //    MTLPixelFormatBGR10A2Unorm (macOS only)
+    //    MTLPixelFormatBGRA10_XR
+    //    MTLPixelFormatBGRA10_XR_sRGB
+    //    MTLPixelFormatBGR10_XR
+    //    MTLPixelFormatBGR10_XR_sRGB
+    Format colorFmt = Format::BGRA8;
     Format depthStencilFmt = Format::DEPTH_STENCIL;
 
-    _colorTexture = CC_NEW(CCMTLTexture);
-    _depthStencilTexture = CC_NEW(CCMTLTexture);
+    _colorTexture = ccnew CCMTLTexture;
+    _depthStencilTexture = ccnew CCMTLTexture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = colorFmt;
-    textureInfo.width     = info.width;
-    textureInfo.height    = info.height;
+    textureInfo.format = colorFmt;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = depthStencilFmt;
@@ -114,26 +121,21 @@ void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
     CCMTLDevice::getInstance()->registerSwapchain(this);
 }
 
-void CCMTLSwapchain::doDestroy(){
+void CCMTLSwapchain::doDestroy() {
     CCMTLDevice::getInstance()->unRegisterSwapchain(this);
-    if(_gpuSwapchainObj) {
+    if (_gpuSwapchainObj) {
         _gpuSwapchainObj->currentDrawable = nil;
         _gpuSwapchainObj->mtlLayer = nil;
 
         CC_SAFE_DELETE(_gpuSwapchainObj);
     }
 
-    if(_colorTexture) {
-        CC_SAFE_DESTROY(_colorTexture);
-    }
-
-    if(_depthStencilTexture) {
-        CC_SAFE_DESTROY(_depthStencilTexture);
-    }
+    CC_SAFE_DESTROY_NULL(_colorTexture);
+    CC_SAFE_DESTROY_NULL(_depthStencilTexture);
 }
 
 void CCMTLSwapchain::doDestroySurface() {
-    if(_gpuSwapchainObj) {
+    if (_gpuSwapchainObj) {
         _gpuSwapchainObj->currentDrawable = nil;
         _gpuSwapchainObj->mtlLayer = nil;
     }
@@ -145,11 +147,11 @@ void CCMTLSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 }
 
 CCMTLTexture* CCMTLSwapchain::colorTexture() {
-    return static_cast<CCMTLTexture*>(_colorTexture);
+    return static_cast<CCMTLTexture*>(_colorTexture.get());
 }
 
 CCMTLTexture* CCMTLSwapchain::depthStencilTexture() {
-    return static_cast<CCMTLTexture*>(_depthStencilTexture);
+    return static_cast<CCMTLTexture*>(_depthStencilTexture.get());
 }
 
 id<CAMetalDrawable> CCMTLSwapchain::currentDrawable() {
@@ -158,20 +160,19 @@ id<CAMetalDrawable> CCMTLSwapchain::currentDrawable() {
 
 void CCMTLSwapchain::release() {
     _gpuSwapchainObj->currentDrawable = nil;
-    static_cast<CCMTLTexture*>(_colorTexture)->update();
+    static_cast<CCMTLTexture*>(_colorTexture.get())->update();
 }
 
 void CCMTLSwapchain::acquire() {
     // hang on here if next drawable not available
-    while(!_gpuSwapchainObj->currentDrawable) {
-        _gpuSwapchainObj->currentDrawable = [_gpuSwapchainObj->mtlLayer nextDrawable] ;
-        static_cast<CCMTLTexture*>(_colorTexture)->update();
+    while (!_gpuSwapchainObj->currentDrawable) {
+        _gpuSwapchainObj->currentDrawable = [_gpuSwapchainObj->mtlLayer nextDrawable];
+        static_cast<CCMTLTexture*>(_colorTexture.get())->update();
     }
 }
 
-void CCMTLSwapchain::doCreateSurface(void *windowHandle) {
-
+void CCMTLSwapchain::doCreateSurface(void* windowHandle) {
 }
 
-}
-}
+} // namespace gfx
+} // namespace cc

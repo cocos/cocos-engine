@@ -39,11 +39,7 @@ int Screen::getDPI() const {
     static int dpi = -1;
 
     if (dpi == -1) {
-        float scale = 1.0f;
-
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
-            scale = [[UIScreen mainScreen] scale];
-        }
+        float scale = [[UIScreen mainScreen] scale];
 
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
             dpi = 132 * scale;
@@ -83,7 +79,7 @@ Screen::Orientation Screen::getDeviceOrientation() const {
             orientation = Orientation::PORTRAIT;
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
             break;
     }
 
@@ -103,18 +99,17 @@ Vec4 Screen::getSafeAreaEdge() const {
 
 bool Screen::isDisplayStats() {
     se::AutoHandleScope hs;
-    se::Value           ret;
-    char                commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::Value ret;
+    char commandBuf[100] = "cc.debug.isDisplayStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
 void Screen::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
-    char                commandBuf[100] = {0};
+    char commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
-
 
 } // namespace cc

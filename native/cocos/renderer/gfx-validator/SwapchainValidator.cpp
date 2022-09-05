@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "SwapchainValidator.h"
 #include "ValidationUtils.h"
 #include "gfx-base/GFXDef.h"
@@ -36,41 +34,38 @@ namespace gfx {
 
 SwapchainValidator::SwapchainValidator(Swapchain *actor)
 : Agent<Swapchain>(actor) {
-    _typedID            = actor->getTypedID();
+    _typedID = actor->getTypedID();
     _preRotationEnabled = static_cast<SwapchainValidator *>(actor)->_preRotationEnabled;
 }
 
 SwapchainValidator::~SwapchainValidator() {
-    CC_SAFE_DELETE(_depthStencilTexture);
-    CC_SAFE_DELETE(_colorTexture);
-
     DeviceResourceTracker<Swapchain>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 
 void SwapchainValidator::doInit(const SwapchainInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     /////////// execute ///////////
 
     _actor->initialize(info);
 
-    auto *colorTexture = CC_NEW(TextureValidator(_actor->getColorTexture()));
+    auto *colorTexture = ccnew TextureValidator(_actor->getColorTexture());
     colorTexture->renounceOwnership();
     _colorTexture = colorTexture;
-    DeviceResourceTracker<Texture>::push(_colorTexture);
+    DeviceResourceTracker<Texture>::push(_colorTexture.get());
 
-    auto *depthStencilTexture = CC_NEW(TextureValidator(_actor->getDepthStencilTexture()));
+    auto *depthStencilTexture = ccnew TextureValidator(_actor->getDepthStencilTexture());
     depthStencilTexture->renounceOwnership();
     _depthStencilTexture = depthStencilTexture;
-    DeviceResourceTracker<Texture>::push(_depthStencilTexture);
+    DeviceResourceTracker<Texture>::push(_depthStencilTexture.get());
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = _actor->getColorTexture()->getFormat();
-    textureInfo.width     = _actor->getWidth();
-    textureInfo.height    = _actor->getHeight();
+    textureInfo.format = _actor->getColorTexture()->getFormat();
+    textureInfo.width = _actor->getWidth();
+    textureInfo.height = _actor->getHeight();
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = _actor->getDepthStencilTexture()->getFormat();
@@ -80,37 +75,36 @@ void SwapchainValidator::doInit(const SwapchainInfo &info) {
 }
 
 void SwapchainValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////
-
-    CC_SAFE_DELETE(_depthStencilTexture);
-    CC_SAFE_DELETE(_colorTexture);
+    _depthStencilTexture = nullptr;
+    _colorTexture = nullptr;
 
     _actor->destroy();
 }
 
 void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     _actor->resize(width, height, transform);
 
-    auto *colorTexture        = static_cast<TextureValidator *>(_colorTexture);
-    auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture);
+    auto *colorTexture = static_cast<TextureValidator *>(_colorTexture.get());
+    auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture.get());
     colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
     colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
-    _transform                                                     = _actor->getSurfaceTransform();
+    _transform = _actor->getSurfaceTransform();
 }
 
 void SwapchainValidator::doDestroySurface() {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     _actor->destroySurface();
 }
 
 void SwapchainValidator::doCreateSurface(void *windowHandle) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
     _actor->createSurface(windowHandle);
 }

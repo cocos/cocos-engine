@@ -25,31 +25,35 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include "platform/android/FileUtils-android.h"
+#include <android/log.h>
+#include <sys/stat.h>
+#include <cstdlib>
+#include "android/asset_manager.h"
+#include "android/asset_manager_jni.h"
+#include "base/Log.h"
+#include "base/ZipUtils.h"
+#include "base/memory/Memory.h"
+#include "platform/java/jni/JniHelper.h"
+#include "platform/java/jni/JniImp.h"
 
-    #include "platform/android/FileUtils-android.h"
-    #include <sys/stat.h>
-    #include <cstdlib>
-    #include "android/asset_manager.h"
-    #include "android/asset_manager_jni.h"
-    #include "base/Log.h"
-    #include "base/ZipUtils.h"
-    #include "platform/java/jni/JniHelper.h"
-    #include "platform/java/jni/JniImp.h"
+#define LOG_TAG   "FileUtils-android.cpp"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
-    #define LOG_TAG   "FileUtils-android.cpp"
-    #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define ASSETS_FOLDER_NAME "@assets/"
 
-    #define ASSETS_FOLDER_NAME "@assets/"
-
-    #ifndef JCLS_HELPER
-        #define JCLS_HELPER "com/cocos/lib/CocosHelper"
-    #endif
+#ifndef JCLS_HELPER
+    #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+#endif
 
 namespace cc {
 
 AAssetManager *FileUtilsAndroid::assetmanager = nullptr;
-ZipFile *      FileUtilsAndroid::obbfile      = nullptr;
+ZipFile *FileUtilsAndroid::obbfile = nullptr;
+
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsAndroid();
+}
 
 void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     if (nullptr == a) {
@@ -60,39 +64,26 @@ void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     cc::FileUtilsAndroid::assetmanager = a;
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsAndroid();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtilsAndroid::FileUtilsAndroid() {
+    init();
 }
 
-FileUtilsAndroid::FileUtilsAndroid() = default;
-
 FileUtilsAndroid::~FileUtilsAndroid() {
-    if (obbfile) {
-        delete obbfile;
-        obbfile = nullptr;
-    }
+    CC_SAFE_DELETE(obbfile);
 }
 
 bool FileUtilsAndroid::init() {
     _defaultResRootPath = ASSETS_FOLDER_NAME;
 
-    std::string assetsPath(getObbFilePathJNI());
-    if (assetsPath.find("/obb/") != std::string::npos) {
-        obbfile = new ZipFile(assetsPath);
+    ccstd::string assetsPath(getObbFilePathJNI());
+    if (assetsPath.find("/obb/") != ccstd::string::npos) {
+        obbfile = ccnew ZipFile(assetsPath);
     }
 
     return FileUtils::init();
 }
 
-bool FileUtilsAndroid::isFileExistInternal(const std::string &strFilePath) const {
+bool FileUtilsAndroid::isFileExistInternal(const ccstd::string &strFilePath) const {
     if (strFilePath.empty()) {
         return false;
     }
@@ -126,12 +117,12 @@ bool FileUtilsAndroid::isFileExistInternal(const std::string &strFilePath) const
     return bFound;
 }
 
-bool FileUtilsAndroid::isDirectoryExistInternal(const std::string &testDirPath) const {
+bool FileUtilsAndroid::isDirectoryExistInternal(const ccstd::string &testDirPath) const {
     if (testDirPath.empty()) {
         return false;
     }
 
-    std::string dirPath = testDirPath;
+    ccstd::string dirPath = testDirPath;
     if (dirPath[dirPath.length() - 1] == '/') {
         dirPath[dirPath.length() - 1] = '\0';
     }
@@ -163,7 +154,7 @@ bool FileUtilsAndroid::isDirectoryExistInternal(const std::string &testDirPath) 
     return false;
 }
 
-bool FileUtilsAndroid::isAbsolutePath(const std::string &strPath) const {
+bool FileUtilsAndroid::isAbsolutePath(const ccstd::string &strPath) const {
     // On Android, there are two situations for full path.
     // 1) Files in APK, e.g. assets/path/path/file.png
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
@@ -171,12 +162,12 @@ bool FileUtilsAndroid::isAbsolutePath(const std::string &strPath) const {
     return strPath[0] == '/' || strPath.find(ASSETS_FOLDER_NAME) == 0;
 }
 
-FileUtils::Status FileUtilsAndroid::getContents(const std::string &filename, ResizableBuffer *buffer) {
+FileUtils::Status FileUtilsAndroid::getContents(const ccstd::string &filename, ResizableBuffer *buffer) {
     if (filename.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
 
-    std::string fullPath = fullPathForFilename(filename);
+    ccstd::string fullPath = fullPathForFilename(filename);
     if (fullPath.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
@@ -185,8 +176,8 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string &filename, Res
         return FileUtils::getContents(fullPath, buffer);
     }
 
-    std::string relativePath;
-    size_t      position = fullPath.find(ASSETS_FOLDER_NAME);
+    ccstd::string relativePath;
+    size_t position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
         relativePath += fullPath.substr(strlen(ASSETS_FOLDER_NAME));
@@ -227,11 +218,11 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string &filename, Res
     return FileUtils::Status::OK;
 }
 
-std::string FileUtilsAndroid::getWritablePath() const {
+ccstd::string FileUtilsAndroid::getWritablePath() const {
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
-    std::string dir;
-    std::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getWritablePath");
+    ccstd::string dir;
+    ccstd::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getWritablePath");
 
     if (tmp.length() > 0) {
         dir.append(tmp).append("/");
@@ -241,5 +232,3 @@ std::string FileUtilsAndroid::getWritablePath() const {
 }
 
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_ANDROID

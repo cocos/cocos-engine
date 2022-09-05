@@ -433,7 +433,7 @@ static WGPUBufferUsageFlags toWGPUBufferUsage(BufferUsageBit usage) {
     return res;
 }
 
-static WGPUColor toWGPUColor(const Color& color) {
+static WGPUColor toWGPUColor(const Color &color) {
     return WGPUColor{color.x, color.y, color.z, color.w};
 }
 

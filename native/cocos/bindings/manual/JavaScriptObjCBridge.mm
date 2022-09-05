@@ -24,12 +24,11 @@
 ****************************************************************************/
 
 #include "JavaScriptObjCBridge.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 
-
-#include <string>
-#include <vector>
+#include "base/std/container/string.h"
 #include <iostream>
 
 #import <Foundation/Foundation.h>
@@ -41,7 +40,7 @@ se::Value static objc_to_seval(id objcVal) {
 
     if ([objcVal isKindOfClass:[NSNumber class]]) {
         NSNumber *number = (NSNumber *)objcVal;
-        std::string numberType = [number objCType];
+        ccstd::string numberType = [number objCType];
         if (numberType == @encode(BOOL) || numberType == @encode(bool)) {
             ret.setBoolean([number boolValue]);
         } else if (numberType == @encode(int) || numberType == @encode(long) || numberType == @encode(short) || numberType == @encode(unsigned int) || numberType == @encode(unsigned long) || numberType == @encode(unsigned short) || numberType == @encode(float) || numberType == @encode(double) || numberType == @encode(char) || numberType == @encode(unsigned char)) {
@@ -74,8 +73,8 @@ public:
     class CallInfo {
     public:
         CallInfo(const char *className, const char *methodName)
-                : _className(className),
-                  _methodName(methodName) {}
+        : _className(className),
+          _methodName(methodName) {}
 
         ~CallInfo() {}
 
@@ -84,27 +83,29 @@ public:
         }
 
         bool execute(const se::ValueArray &argv, se::Value &rval);
+
     private:
         int _error{JSO_ERR_OK};
-        std::string _className;
-        std::string _methodName;
+        ccstd::string _className;
+        ccstd::string _methodName;
     };
 };
 
-using JsCallback = std::function<void(const std::string&, const std::string&)>;
+using JsCallback = std::function<void(const ccstd::string &, const ccstd::string &)>;
 
-class ScriptNativeBridge{
+class ScriptNativeBridge {
 public:
-    void callByNative(const std::string& arg0, const std::string& arg1);
-    inline void setCallback(const JsCallback& cb){
+    void callByNative(const ccstd::string &arg0, const ccstd::string &arg1);
+    inline void setCallback(const JsCallback &cb) {
         _callback = cb;
     }
-    static ScriptNativeBridge* bridgeCxxInstance;
+    static ScriptNativeBridge *bridgeCxxInstance;
     se::Value jsCb;
+
 private:
     JsCallback _callback{nullptr}; // NOLINT(readability-identifier-naming)
 };
-ScriptNativeBridge* ScriptNativeBridge::bridgeCxxInstance{nullptr};
+ScriptNativeBridge *ScriptNativeBridge::bridgeCxxInstance{nullptr};
 bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Value &rval) {
     NSString *className = [NSString stringWithCString:_className.c_str() encoding:NSUTF8StringEncoding];
     NSString *methodName = [NSString stringWithCString:_methodName.c_str() encoding:NSUTF8StringEncoding];
@@ -145,7 +146,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
         [invocation setSelector:methodSel];
 
         for (int i = 2; i < argc; ++i) {
-            std::string argumentType = [methodSig getArgumentTypeAtIndex:i];
+            ccstd::string argumentType = [methodSig getArgumentTypeAtIndex:i];
             const se::Value &arg = argv[i];
 
             /* - (void)setArgument:(void *)argumentLocation atIndex:(NSInteger)idx;
@@ -220,7 +221,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
         }
 
         NSUInteger returnLength = [methodSig methodReturnLength];
-        std::string returnType = [methodSig methodReturnType];
+        ccstd::string returnType = [methodSig methodReturnType];
         [invocation invoke];
 
         if (returnLength > 0) {
@@ -287,22 +288,19 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
     return true;
 }
 
-
-void ScriptNativeBridge::callByNative(const std::string& arg0, const std::string& arg1){
+void ScriptNativeBridge::callByNative(const ccstd::string &arg0, const ccstd::string &arg1) {
     _callback(arg0, arg1);
 }
 
 se::Class *__jsb_JavaScriptObjCBridge_class = nullptr;
 
 static bool JavaScriptObjCBridge_finalize(se::State &s) {
-    JavaScriptObjCBridge *cobj = (JavaScriptObjCBridge *)s.nativeThisObject();
-    delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JavaScriptObjCBridge_finalize)
 
 static bool JavaScriptObjCBridge_constructor(se::State &s) {
-    JavaScriptObjCBridge *cobj = new (std::nothrow) JavaScriptObjCBridge();
+    JavaScriptObjCBridge *cobj = ccnew JavaScriptObjCBridge();
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
@@ -314,11 +312,11 @@ static bool JavaScriptObjCBridge_callStaticMethod(se::State &s) {
 
     if (argc >= 2) {
         bool ok = false;
-        std::string clsName, methodName;
-        ok = seval_to_std_string(args[0], &clsName);
+        ccstd::string clsName, methodName;
+        ok = sevalue_to_native(args[0], &clsName);
         SE_PRECONDITION2(ok, false, "Converting class name failed!");
 
-        ok = seval_to_std_string(args[1], &methodName);
+        ok = sevalue_to_native(args[1], &methodName);
         SE_PRECONDITION2(ok, false, "Converting method name failed!");
 
         JavaScriptObjCBridge::CallInfo call(clsName.c_str(), methodName.c_str());
@@ -336,52 +334,51 @@ static bool JavaScriptObjCBridge_callStaticMethod(se::State &s) {
 }
 SE_BIND_FUNC(JavaScriptObjCBridge_callStaticMethod)
 
-static bool ScriptNativeBridge_getCallback(se::State &s){
+static bool ScriptNativeBridge_getCallback(se::State &s) {
     ScriptNativeBridge *cobj = (ScriptNativeBridge *)s.nativeThisObject();
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
     s.rval() = cobj->jsCb;
     SE_HOLD_RETURN_VALUE(cobj->jsCb, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(ScriptNativeBridge_getCallback)
 
-static bool ScriptNativeBridge_setCallback(se::State &s){ //NOLINT(readability-identifier-naming)
+static bool ScriptNativeBridge_setCallback(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
     const auto &args = s.args();
     se::Value jsFunc = args[0];
     cobj->jsCb = jsFunc;
-    if(jsFunc.isNullOrUndefined())
-    {
+    if (jsFunc.isNullOrUndefined()) {
         cobj->setCallback(nullptr);
-    }
-    else{
-        assert(jsFunc.isObject() && jsFunc.toObject()->isFunction());
+    } else {
+        CC_ASSERT(jsFunc.isObject() && jsFunc.toObject()->isFunction());
         s.thisObject()->attachObject(jsFunc.toObject());
-        cobj->setCallback([jsFunc](const std::string& arg0, const std::string& arg1){
+        cobj->setCallback([jsFunc](const ccstd::string &arg0, const ccstd::string &arg1) {
             se::AutoHandleScope hs;
             se::ValueArray args;
             args.push_back(se::Value(arg0));
-            if(!arg1.empty()) {
+            if (!arg1.empty()) {
                 args.push_back(se::Value(arg1));
             }
             jsFunc.toObject()->call(args, nullptr);
         });
     }
     return true;
-}SE_BIND_PROP_SET(ScriptNativeBridge_setCallback)
+}
+SE_BIND_PROP_SET(ScriptNativeBridge_setCallback)
 
 static bool ScriptNativeBridge_sendToNative(se::State &s) { //NOLINT
     const auto &args = s.args();
     int argc = (int)args.size();
     if (argc >= 1 && argc < 3) {
-        bool        ok = false;
-        std::string arg0;
-        ok = seval_to_std_string(args[0], &arg0);
+        bool ok = false;
+        ccstd::string arg0;
+        ok = sevalue_to_native(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "Converting first argument failed!");
-        std::string arg1;
+        ccstd::string arg1;
         if (argc == 2) {
-            ok = seval_to_std_string(args[1], &arg1);
+            ok = sevalue_to_native(args[1], &arg1);
             SE_PRECONDITION2(ok, false, "Converting second argument failed!");
         }
         ok = callPlatformStringMethod(arg0, arg1);
@@ -392,7 +389,6 @@ static bool ScriptNativeBridge_sendToNative(se::State &s) { //NOLINT
     return false;
 }
 SE_BIND_FUNC(ScriptNativeBridge_sendToNative)
-
 
 bool register_javascript_objc_bridge(se::Object *obj) {
     se::Class *cls = se::Class::create("JavaScriptObjCBridge", obj, nullptr, _SE(JavaScriptObjCBridge_constructor));
@@ -407,21 +403,17 @@ bool register_javascript_objc_bridge(se::Object *obj) {
     return true;
 }
 
-
-
 se::Class *__jsb_ScriptNativeBridge_class = nullptr; // NOLINT
 
 static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-identifier-naming)
-    auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
-    delete cobj;
+    //bridgeCxxInstance is an se object which will be deleted in se holder.
     ScriptNativeBridge::bridgeCxxInstance = nullptr;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(ScriptNativeBridge_finalize)
 
 static bool ScriptNativeBridge_constructor(se::State &s) { //NOLINT(readability-identifier-naming)
-    auto *cobj = new (std::nothrow) ScriptNativeBridge();
+    auto *cobj = ccnew ScriptNativeBridge();
     s.thisObject()->setPrivateData(cobj);
     ScriptNativeBridge::bridgeCxxInstance = cobj;
     return true;
@@ -440,6 +432,6 @@ bool register_script_native_bridge(se::Object *obj) { //NOLINT(readability-ident
 
     return true;
 }
-void callScript(const std::string& arg0, const std::string& arg1){
+void callScript(const ccstd::string &arg0, const ccstd::string &arg1) {
     ScriptNativeBridge::bridgeCxxInstance->callByNative(arg0, arg1);
 }

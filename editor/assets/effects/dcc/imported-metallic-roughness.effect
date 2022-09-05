@@ -12,11 +12,11 @@ CCEffect %{
         mainTexture:          { value: grey, target: albedoMap, editor: { displayName: BaseColorMap } }
         baseWeightMap:        { value: grey }
         albedoScale:          { value: 1.0, editor: { displayName: BaseWeight } }
-        roughness:            { value: 1.0 }
+        roughness:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughnessMap:         { value: grey }
-        metallic:             { value: 1.0 }
+        metallic:             { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallicMap:          { value: grey }
-        occlusion:            { value: 1.0 }
+        occlusion:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusionMap:         { value: white }
         emissiveScale:        { value: 1.0, editor: { displayName: Emissive } }
         emissiveScaleMap:     { value: grey, editor: { displayName: EmissiveMap } }
@@ -57,6 +57,8 @@ CCEffect %{
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        alphaSource:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSourceMap: { value: grey, editor: { parent: USE_OPACITY_MAP } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -94,13 +96,13 @@ CCProgram shared-ubos %{
 
 CCProgram standard-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-fog-vs>
-  #include <cc-shadow-map-vs>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
@@ -126,7 +128,7 @@ CCProgram standard-vs %{
   #endif
 
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-vs>
+    #include <legacy/lightingmap-vs>
   #endif
 
   void main () {
@@ -183,12 +185,12 @@ CCProgram standard-vs %{
 
 CCProgram standard-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <shared-ubos>
-  #include <cc-fog-fs>
-  #include <standard-surface-entry>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-fs>
+    #include <legacy/lightingmap-fs>
   #endif
 
   in vec3 v_position;
@@ -381,12 +383,12 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <decode-base>
-  #include <decode-base>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <legacy/decode-base>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-shadow>
+  #include <builtin/uniforms/cc-shadow>
 
   #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
@@ -396,7 +398,7 @@ CCProgram shadow-caster-vs %{
   out vec2 v_uv1;
   out vec4 v_worldPos;
 
-  out float v_clip_depth;
+  out highp vec2 v_clip_depth;
 
   vec4 vert () {
     StandardVertInput In;
@@ -413,7 +415,7 @@ CCProgram shadow-caster-vs %{
       v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
     #endif
 
-    v_clip_depth = clipPos.z / clipPos.w * 0.5 + 0.5;
+    v_clip_depth = clipPos.zw;
 
     return clipPos;
   }
@@ -422,46 +424,61 @@ CCProgram shadow-caster-vs %{
 CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
-  #include <packing>
-  #include <cc-shadow-map-base>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
 
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec4 v_worldPos;
-  in float v_clip_depth;
+  in highp vec2 v_clip_depth;
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
 
-  #if USE_ALPHA_TEST
-    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
+  #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
+
+  #if USE_OPACITY_MAP
+    #pragma define-meta ALPHA_SOURCE_CHANNEL options([r, g, b, a])
+    uniform sampler2D alphaSourceMap;
   #endif
 
   vec4 frag () {
-    vec4 baseColor = albedo;
-
-    #if USE_ALBEDO_MAP
-      baseColor *= texture(albedoMap, ALBEDO_UV);
-    #endif
-
     #if USE_ALPHA_TEST
-      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+      float alpha = albedo.a;
+      #if USE_ALBEDO_MAP
+        alpha = texture(albedoMap, TEXTURE_UV).a;
+      #endif
+      #if ALPHA_SOURCE_IS_OPACITY
+        #if USE_OPACITY_MAP
+          alpha = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+        #else
+          alpha = 1.0 - alphaSource;
+        #endif
+      #else
+        #if USE_OPACITY_MAP
+          alpha = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+        #else
+          alpha = alphaSource;
+        #endif
+      #endif
+      if (alpha < albedoScaleAndCutoff.w) discard;
     #endif
 
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
     // spot use linear
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
-      if (cc_shadowNFLSInfo.z > 0.000001) {
-        return vec4(CCGetLinearDepth(v_worldPos.xyz), 1.0, 1.0, 1.0);
-      }
+      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
+      #endif
     }
 
-    if (cc_shadowLPNNInfo.y > 0.000001) {
-      return packDepthToRGBA(v_clip_depth);
-    }
-
-    return vec4(v_clip_depth, 1.0, 1.0, 1.0);
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+      return packDepthToRGBA(clipDepth);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
   }
 }%

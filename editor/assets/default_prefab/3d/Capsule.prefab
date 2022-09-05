@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "",
+    "_name": "Capsule",
     "_objFlags": 0,
     "_native": "",
     "data": {

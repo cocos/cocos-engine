@@ -25,7 +25,11 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
+#include "Define.h"
+#include "base/Macros.h"
+#include "base/TypeDef.h"
+#include "base/std/container/set.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 
@@ -40,19 +44,22 @@ namespace pipeline {
 
 class InstancedBuffer;
 
-class CC_DLL RenderInstancedQueue : public Object {
+class CC_DLL RenderInstancedQueue final {
 public:
-    RenderInstancedQueue()           = default;
-    ~RenderInstancedQueue() override = default;
-
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, gfx::DescriptorSet *ds = nullptr, uint offset = 0);
+    RenderInstancedQueue() = default;
+    ~RenderInstancedQueue() = default;
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                             gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0, const ccstd::vector<uint32_t> *dynamicOffsets = nullptr);
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
+    void sort();
     void clear();
     bool empty() { return _queues.empty(); }
 
 private:
-    unordered_set<InstancedBuffer *> _queues;
+    // `InstancedBuffer *`: weak reference
+    ccstd::set<InstancedBuffer *> _queues;
+    ccstd::vector<InstancedBuffer *> _renderQueues;
 };
 
 } // namespace pipeline

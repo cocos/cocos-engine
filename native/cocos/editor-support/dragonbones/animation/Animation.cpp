@@ -9,15 +9,12 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-void Animation::_onClear()
-{
-    for (const auto animationState : _animationStates)
-    {
+void Animation::_onClear() {
+    for (const auto animationState : _animationStates) {
         animationState->returnToPool();
     }
 
-    if (_animationConfig != nullptr) 
-    {
+    if (_animationConfig != nullptr) {
         _animationConfig->returnToPool();
     }
 
@@ -33,43 +30,34 @@ void Animation::_onClear()
     _lastAnimationState = nullptr;
 }
 
-void Animation::_fadeOut(AnimationConfig* animationConfig)
-{
-    switch (animationConfig->fadeOutMode)
-    {
+void Animation::_fadeOut(AnimationConfig* animationConfig) {
+    switch (animationConfig->fadeOutMode) {
         case AnimationFadeOutMode::SameLayer:
-            for (const auto animationState : _animationStates)
-            {
-                if (animationState->layer == (unsigned)animationConfig->layer)
-                {
+            for (const auto animationState : _animationStates) {
+                if (animationState->layer == (unsigned)animationConfig->layer) {
                     animationState->fadeOut(animationConfig->fadeOutTime, animationConfig->pauseFadeOut);
                 }
             }
             break;
 
         case AnimationFadeOutMode::SameGroup:
-            for (const auto animationState : _animationStates)
-            {
-                if (animationState->group == animationConfig->group)
-                {
+            for (const auto animationState : _animationStates) {
+                if (animationState->group == animationConfig->group) {
                     animationState->fadeOut(animationConfig->fadeOutTime, animationConfig->pauseFadeOut);
                 }
             }
             break;
 
         case AnimationFadeOutMode::SameLayerAndGroup:
-            for (const auto animationState : _animationStates)
-            {
-                if (animationState->layer == (unsigned)animationConfig->layer && animationState->group == animationConfig->group)
-                {
+            for (const auto animationState : _animationStates) {
+                if (animationState->layer == (unsigned)animationConfig->layer && animationState->group == animationConfig->group) {
                     animationState->fadeOut(animationConfig->fadeOutTime, animationConfig->pauseFadeOut);
                 }
             }
             break;
 
         case AnimationFadeOutMode::All:
-            for (const auto animationState : _animationStates)
-            {
+            for (const auto animationState : _animationStates) {
                 animationState->fadeOut(animationConfig->fadeOutTime, animationConfig->pauseFadeOut);
             }
             break;
@@ -81,8 +69,7 @@ void Animation::_fadeOut(AnimationConfig* animationConfig)
     }
 }
 
-void Animation::init(Armature* armature)
-{
+void Animation::init(Armature* armature) {
     if (_armature != nullptr) {
         return;
     }
@@ -91,60 +78,46 @@ void Animation::init(Armature* armature)
     _animationConfig = BaseObject::borrowObject<AnimationConfig>();
 }
 
-void Animation::advanceTime(float passedTime)
-{
-    if (passedTime < 0.0f)
-    {
+void Animation::advanceTime(float passedTime) {
+    if (passedTime < 0.0f) {
         passedTime = -passedTime;
     }
 
     if (_armature->inheritAnimation && _armature->_parent != nullptr) // Inherit parent animation timeScale.
-    { 
-        _inheritTimeScale = _armature->_parent->_armature->getAnimation()->_inheritTimeScale * timeScale;
-    }
-    else 
     {
+        _inheritTimeScale = _armature->_parent->_armature->getAnimation()->_inheritTimeScale * timeScale;
+    } else {
         _inheritTimeScale = timeScale;
     }
 
-    if (_inheritTimeScale != 1.0f) 
-    {
+    if (_inheritTimeScale != 1.0f) {
         passedTime *= _inheritTimeScale;
     }
 
     const auto animationStateCount = _animationStates.size();
-    if (animationStateCount == 1)
-    {
+    if (animationStateCount == 1) {
         const auto animationState = _animationStates[0];
-        if (animationState->_fadeState > 0 && animationState->_subFadeState > 0)
-        {
+        if (animationState->_fadeState > 0 && animationState->_subFadeState > 0) {
             _armature->_dragonBones->bufferObject(animationState);
             _animationStates.clear();
             _lastAnimationState = nullptr;
-        }
-        else
-        {
+        } else {
             const auto animationData = animationState->_animationData;
             const auto cacheFrameRate = animationData->cacheFrameRate;
             if (_animationDirty && cacheFrameRate > 0.0f) // Update cachedFrameIndices.
             {
                 _animationDirty = false;
 
-                for (const auto bone : _armature->getBones())
-                {
+                for (const auto bone : _armature->getBones()) {
                     bone->_cachedFrameIndices = animationData->getBoneCachedFrameIndices(bone->getName());
                 }
 
-                for (const auto slot : _armature->getSlots())
-                {
+                for (const auto slot : _armature->getSlots()) {
                     const auto rawDisplayDatas = slot->getRawDisplayDatas();
-                    if (rawDisplayDatas != nullptr && !(*rawDisplayDatas).empty()) 
-                    {
+                    if (rawDisplayDatas != nullptr && !(*rawDisplayDatas).empty()) {
                         const auto rawDsplayData = (*rawDisplayDatas)[0];
-                        if (rawDsplayData != nullptr) 
-                        {
-                            if (rawDsplayData->parent == _armature->getArmatureData()->defaultSkin)
-                            {
+                        if (rawDsplayData != nullptr) {
+                            if (rawDsplayData->parent == _armature->getArmatureData()->defaultSkin) {
                                 slot->_cachedFrameIndices = animationData->getSlotCachedFrameIndices(slot->getName());
                                 continue;
                             }
@@ -157,54 +130,40 @@ void Animation::advanceTime(float passedTime)
 
             animationState->advanceTime(passedTime, cacheFrameRate);
         }
-    }
-    else if (animationStateCount > 1)
-    {
-        for (std::size_t i = 0, r = 0; i < animationStateCount; ++i)
-        {
+    } else if (animationStateCount > 1) {
+        for (std::size_t i = 0, r = 0; i < animationStateCount; ++i) {
             const auto animationState = _animationStates[i];
-            if (animationState->_fadeState > 0 && animationState->_subFadeState > 0)
-            {
+            if (animationState->_fadeState > 0 && animationState->_subFadeState > 0) {
                 r++;
                 _armature->_dragonBones->bufferObject(animationState);
                 _animationDirty = true;
-                if (_lastAnimationState == animationState)
-                {
+                if (_lastAnimationState == animationState) {
                     _lastAnimationState = nullptr;
                 }
-            }
-            else
-            {
-                if (r > 0)
-                {
+            } else {
+                if (r > 0) {
                     _animationStates[i - r] = animationState;
                 }
 
                 animationState->advanceTime(passedTime, 0.0f);
             }
 
-            if (i == animationStateCount - 1 && r > 0)
-            {
+            if (i == animationStateCount - 1 && r > 0) {
                 _animationStates.resize(animationStateCount - r);
-                if (_lastAnimationState == nullptr && !_animationStates.empty()) 
-                {
+                if (_lastAnimationState == nullptr && !_animationStates.empty()) {
                     _lastAnimationState = _animationStates[_animationStates.size() - 1];
                 }
             }
         }
 
         _armature->_cacheFrameIndex = -1;
-    }
-    else 
-    {
+    } else {
         _armature->_cacheFrameIndex = -1;
     }
 }
 
-void Animation::reset()
-{
-    for (const auto animationState : _animationStates)
-    {
+void Animation::reset() {
+    for (const auto animationState : _animationStates) {
         animationState->returnToPool();
     }
 
@@ -214,113 +173,84 @@ void Animation::reset()
     _lastAnimationState = nullptr;
 }
 
-void Animation::stop(const std::string& animationName)
-{
-    if (!animationName.empty())
-    {
+void Animation::stop(const std::string& animationName) {
+    if (!animationName.empty()) {
         const auto animationState = getState(animationName);
-        if (animationState != nullptr)
-        {
+        if (animationState != nullptr) {
             animationState->stop();
         }
-    }
-    else
-    {
+    } else {
         for (const auto animationState : _animationStates) {
             animationState->stop();
         }
     }
 }
 
-AnimationState* Animation::playConfig(AnimationConfig* animationConfig)
-{
+AnimationState* Animation::playConfig(AnimationConfig* animationConfig) {
     const auto& animationName = animationConfig->animation;
-    if (_animations.find(animationName) == _animations.end())
-    {
+    if (_animations.find(animationName) == _animations.end()) {
         DRAGONBONES_ASSERT(
             false,
             "Non-existent animation.\n" +
-            " DragonBones name: " + this->_armature->getArmatureData().parent->name +
-            " Armature name: " + this->_armature->name +
-            " Animation name: " + animationName
-        );
+                " DragonBones name: " + this->_armature->getArmatureData().parent->name +
+                " Armature name: " + this->_armature->name +
+                " Animation name: " + animationName);
 
         return nullptr;
     }
 
     const auto animationData = _animations[animationName];
 
-    if (animationConfig->fadeOutMode == AnimationFadeOutMode::Single) 
-    {
-        for (const auto animationState : _animationStates) 
-        {
-            if (animationState->_animationData == animationData) 
-            {
+    if (animationConfig->fadeOutMode == AnimationFadeOutMode::Single) {
+        for (const auto animationState : _animationStates) {
+            if (animationState->_animationData == animationData) {
                 return animationState;
             }
         }
     }
 
-    if (animationConfig->fadeInTime < 0.0f) 
-    {
-        if (_animationStates.empty()) 
-        {
+    if (animationConfig->fadeInTime < 0.0f) {
+        if (_animationStates.empty()) {
             animationConfig->fadeInTime = 0.0f;
-        }
-        else 
-        {
+        } else {
             animationConfig->fadeInTime = animationData->fadeInTime;
         }
     }
 
-    if (animationConfig->fadeOutTime < 0.0f) 
-    {
+    if (animationConfig->fadeOutTime < 0.0f) {
         animationConfig->fadeOutTime = animationConfig->fadeInTime;
     }
 
-    if (animationConfig->timeScale <= -100.0f) 
-    {
+    if (animationConfig->timeScale <= -100.0f) {
         animationConfig->timeScale = 1.0f / animationData->scale;
     }
 
-    if (animationData->frameCount > 1)
-    {
-        if (animationConfig->position < 0.0f) 
-        {
+    if (animationData->frameCount > 1) {
+        if (animationConfig->position < 0.0f) {
             animationConfig->position = fmod(animationConfig->position, animationData->duration);
             animationConfig->position = animationData->duration - animationConfig->position;
-        }
-        else if (animationConfig->position == animationData->duration)
-        {
+        } else if (animationConfig->position == animationData->duration) {
             animationConfig->position -= 0.000001f; // Play a little time before end.
-        }
-        else if (animationConfig->position > animationData->duration) 
-        {
+        } else if (animationConfig->position > animationData->duration) {
             animationConfig->position = fmod(animationConfig->position, animationData->duration);
         }
 
-        if (animationConfig->duration > 0.0f && animationConfig->position + animationConfig->duration > animationData->duration) 
-        {
+        if (animationConfig->duration > 0.0f && animationConfig->position + animationConfig->duration > animationData->duration) {
             animationConfig->duration = animationData->duration - animationConfig->position;
         }
 
-        if (animationConfig->playTimes < 0) 
-        {
+        if (animationConfig->playTimes < 0) {
             animationConfig->playTimes = animationData->playTimes;
         }
-    }
-    else 
-    {
+    } else {
         animationConfig->playTimes = 1;
         animationConfig->position = 0.0f;
-        if (animationConfig->duration > 0.0f) 
-        {
+        if (animationConfig->duration > 0.0f) {
             animationConfig->duration = 0.0f;
         }
     }
 
-    if (animationConfig->duration == 0.0f)
-    {
+    if (animationConfig->duration == 0.0f) {
         animationConfig->duration = -1.0f;
     }
 
@@ -331,20 +261,15 @@ AnimationState* Animation::playConfig(AnimationConfig* animationConfig)
     _animationDirty = true;
     _armature->_cacheFrameIndex = -1;
 
-    if (!_animationStates.empty())
-    {
+    if (!_animationStates.empty()) {
         auto added = false;
-        for (std::size_t i = 0, l = _animationStates.size(); i < l; ++i) 
-        {
-            if (animationState->layer > _animationStates[i]->layer) 
-            {
+        for (std::size_t i = 0, l = _animationStates.size(); i < l; ++i) {
+            if (animationState->layer > _animationStates[i]->layer) {
                 added = true;
                 auto parentInerator = std::find(_animationStates.begin(), _animationStates.end(), _animationStates[i]);
                 _animationStates.insert(parentInerator, animationState);
                 break;
-            }
-            else if (i != l - 1 && animationState->layer > _animationStates[i + 1]->layer)
-            {
+            } else if (i != l - 1 && animationState->layer > _animationStates[i + 1]->layer) {
                 added = true;
                 auto parentInerator = std::find(_animationStates.begin(), _animationStates.end(), _animationStates[i]);
                 _animationStates.insert(parentInerator + 1, animationState);
@@ -352,33 +277,27 @@ AnimationState* Animation::playConfig(AnimationConfig* animationConfig)
             }
         }
 
-        if (!added) 
-        {
+        if (!added) {
             _animationStates.push_back(animationState);
         }
-    }
-    else 
-    {
+    } else {
         _animationStates.push_back(animationState);
     }
 
     // Child armature play same name animation.
-    for (const auto slot : _armature->getSlots()) 
-    {
+    for (const auto slot : _armature->getSlots()) {
         const auto childArmature = slot->getChildArmature();
         if (
             childArmature != nullptr && childArmature->inheritAnimation &&
             childArmature->getAnimation()->hasAnimation(animationName) &&
-            childArmature->getAnimation()->getState(animationName) == nullptr
-        )
-        {
+            childArmature->getAnimation()->getState(animationName) == nullptr) {
             childArmature->getAnimation()->fadeIn(animationName); //
         }
     }
 
     if (animationConfig->fadeInTime <= 0.0f) // Blend animation state, update armature.
     {
-       _armature->advanceTime(0.0f);
+        _armature->advanceTime(0.0f);
     }
 
     _lastAnimationState = animationState;
@@ -386,33 +305,24 @@ AnimationState* Animation::playConfig(AnimationConfig* animationConfig)
     return animationState;
 }
 
-AnimationState* Animation::play(const std::string& animationName, int playTimes)
-{
+AnimationState* Animation::play(const std::string& animationName, int playTimes) {
     _animationConfig->clear();
     _animationConfig->resetToPose = true;
     _animationConfig->playTimes = playTimes;
     _animationConfig->fadeInTime = 0.0f;
     _animationConfig->animation = animationName;
 
-    if (!animationName.empty())
-    {
+    if (!animationName.empty()) {
         playConfig(_animationConfig);
-    }
-    else if (_lastAnimationState == nullptr)
-    {
+    } else if (_lastAnimationState == nullptr) {
         const auto defaultAnimation = _armature->_armatureData->defaultAnimation;
-        if (defaultAnimation != nullptr)
-        {
+        if (defaultAnimation != nullptr) {
             _animationConfig->animation = defaultAnimation->name;
             playConfig(_animationConfig);
         }
-    }
-    else if (!_lastAnimationState->isPlaying() && !_lastAnimationState->isCompleted())
-    {
+    } else if (!_lastAnimationState->isPlaying() && !_lastAnimationState->isCompleted()) {
         _lastAnimationState->play();
-    }
-    else
-    {
+    } else {
         _animationConfig->animation = _lastAnimationState->name;
         playConfig(_animationConfig);
     }
@@ -428,8 +338,7 @@ AnimationState* Animation::fadeIn(
     const std::string& animationName, float fadeInTime, int playTimes,
     int layer, const std::string& group, AnimationFadeOutMode fadeOutMode
 #endif // EGRET_WASM
-)
-{
+) {
     _animationConfig->clear();
     _animationConfig->fadeOutMode = (AnimationFadeOutMode)fadeOutMode;
     _animationConfig->playTimes = playTimes;
@@ -441,8 +350,7 @@ AnimationState* Animation::fadeIn(
     return playConfig(_animationConfig);
 }
 
-AnimationState* Animation::gotoAndPlayByTime(const std::string& animationName, float time, int playTimes)
-{
+AnimationState* Animation::gotoAndPlayByTime(const std::string& animationName, float time, int playTimes) {
     _animationConfig->clear();
     _animationConfig->resetToPose = true;
     _animationConfig->playTimes = playTimes;
@@ -453,8 +361,7 @@ AnimationState* Animation::gotoAndPlayByTime(const std::string& animationName, f
     return playConfig(_animationConfig);
 }
 
-AnimationState* Animation::gotoAndPlayByFrame(const std::string& animationName, unsigned frame, int playTimes)
-{
+AnimationState* Animation::gotoAndPlayByFrame(const std::string& animationName, unsigned frame, int playTimes) {
     _animationConfig->clear();
     _animationConfig->resetToPose = true;
     _animationConfig->playTimes = playTimes;
@@ -462,16 +369,14 @@ AnimationState* Animation::gotoAndPlayByFrame(const std::string& animationName, 
     _animationConfig->animation = animationName;
 
     const auto animationData = mapFind(_animations, animationName);
-    if (animationData != nullptr)
-    {
+    if (animationData != nullptr) {
         _animationConfig->position = animationData->duration * frame / animationData->frameCount;
     }
 
     return playConfig(_animationConfig);
 }
 
-AnimationState* Animation::gotoAndPlayByProgress(const std::string& animationName, float progress, int playTimes)
-{
+AnimationState* Animation::gotoAndPlayByProgress(const std::string& animationName, float progress, int playTimes) {
     _animationConfig->clear();
     _animationConfig->resetToPose = true;
     _animationConfig->playTimes = playTimes;
@@ -486,47 +391,38 @@ AnimationState* Animation::gotoAndPlayByProgress(const std::string& animationNam
     return playConfig(_animationConfig);
 }
 
-AnimationState* Animation::gotoAndStopByTime(const std::string& animationName, float time)
-{
+AnimationState* Animation::gotoAndStopByTime(const std::string& animationName, float time) {
     const auto animationState = gotoAndPlayByTime(animationName, time, 1);
-    if (animationState != nullptr)
-    {
+    if (animationState != nullptr) {
         animationState->stop();
     }
 
     return animationState;
 }
 
-AnimationState* Animation::gotoAndStopByFrame(const std::string& animationName, unsigned frame)
-{
+AnimationState* Animation::gotoAndStopByFrame(const std::string& animationName, unsigned frame) {
     const auto animationState = gotoAndPlayByFrame(animationName, frame, 1);
-    if (animationState != nullptr)
-    {
+    if (animationState != nullptr) {
         animationState->stop();
     }
 
     return animationState;
 }
 
-AnimationState* Animation::gotoAndStopByProgress(const std::string& animationName, float progress)
-{
+AnimationState* Animation::gotoAndStopByProgress(const std::string& animationName, float progress) {
     const auto animationState = gotoAndPlayByProgress(animationName, progress, 1);
-    if (animationState != nullptr)
-    {
+    if (animationState != nullptr) {
         animationState->stop();
     }
 
     return animationState;
 }
 
-AnimationState* Animation::getState(const std::string& animationName) const
-{
+AnimationState* Animation::getState(const std::string& animationName) const {
     int i = _animationStates.size();
-    while (i--)
-    {
+    while (i--) {
         const auto animationState = _animationStates[i];
-        if (animationState->name == animationName)
-        {
+        if (animationState->name == animationName) {
             return animationState;
         }
     }
@@ -534,17 +430,13 @@ AnimationState* Animation::getState(const std::string& animationName) const
     return nullptr;
 }
 
-bool Animation::hasAnimation(const std::string& animationName) const
-{
+bool Animation::hasAnimation(const std::string& animationName) const {
     return _animations.find(animationName) != _animations.end();
 }
 
-bool Animation::isPlaying() const
-{
-    for (const auto animationState : _animationStates)
-    {
-        if (animationState->isPlaying())
-        {
+bool Animation::isPlaying() const {
+    for (const auto animationState : _animationStates) {
+        if (animationState->isPlaying()) {
             return true;
         }
     }
@@ -552,12 +444,9 @@ bool Animation::isPlaying() const
     return false;
 }
 
-bool Animation::isCompleted() const
-{
-    for (const auto animationState : _animationStates)
-    {
-        if (!animationState->isCompleted())
-        {
+bool Animation::isCompleted() const {
+    for (const auto animationState : _animationStates) {
+        if (!animationState->isCompleted()) {
             return false;
         }
     }
@@ -565,10 +454,8 @@ bool Animation::isCompleted() const
     return !_animationStates.empty();
 }
 
-const std::string& Animation::getLastAnimationName() const
-{
-    if (_lastAnimationState != nullptr)
-    {
+const std::string& Animation::getLastAnimationName() const {
+    if (_lastAnimationState != nullptr) {
         return _lastAnimationState->name;
     }
 
@@ -576,25 +463,21 @@ const std::string& Animation::getLastAnimationName() const
     return DEFAULT_NAME;
 }
 
-void Animation::setAnimations(const std::map<std::string, AnimationData*>& value)
-{
-    if (_animations == value)
-    {
+void Animation::setAnimations(const std::map<std::string, AnimationData*>& value) {
+    if (_animations == value) {
         return;
     }
 
     _animationNames.clear();
     _animations.clear();
 
-    for (const auto& pair : value)
-    {
+    for (const auto& pair : value) {
         _animationNames.push_back(pair.first);
         _animations[pair.first] = pair.second;
     }
 }
 
-AnimationConfig* Animation::getAnimationConfig() const
-{
+AnimationConfig* Animation::getAnimationConfig() const {
     _animationConfig->clear();
     return _animationConfig;
 }

@@ -32,7 +32,9 @@
     #error WebSocket must be compiled with ARC enabled
 #endif
 
-static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
+namespace {
+ccstd::vector<cc::network::WebSocket *> websocketInstances;
+}
 
 @interface WebSocketImpl : NSObject <SRWebSocketDelegate> {
 }
@@ -41,22 +43,22 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
 //
 
 @implementation WebSocketImpl {
-    SRWebSocket *                     _ws;
-    cc::network::WebSocket *          _ccws;
+    SRWebSocket *_ws;
+    cc::network::WebSocket *_ccws;
     cc::network::WebSocket::Delegate *_delegate;
 
-    std::string _url;
-    std::string _selectedProtocol;
-    bool        _isDestroyed;
+    ccstd::string _url;
+    ccstd::string _selectedProtocol;
+    bool _isDestroyed;
 }
 
-- (id)initWithURL:(const std::string &)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cc::network::WebSocket *)ccws delegate:(const cc::network::WebSocket::Delegate &)delegate {
+- (id)initWithURL:(const ccstd::string &)url protocols:(NSArray<NSString *> *)protocols allowsUntrustedSSLCertificates:(BOOL)allowsUntrustedSSLCertificates ws:(cc::network::WebSocket *)ccws delegate:(const cc::network::WebSocket::Delegate &)delegate {
     if (self = [super init]) {
-        _ccws        = ccws;
-        _delegate    = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
-        _url         = url;
+        _ccws = ccws;
+        _delegate = const_cast<cc::network::WebSocket::Delegate *>(&delegate);
+        _url = url;
         NSURL *nsUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:_url.c_str()]];
-        _ws          = [[SRWebSocket alloc] initWithURL:nsUrl protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
+        _ws = [[SRWebSocket alloc] initWithURL:nsUrl protocols:protocols allowsUntrustedSSLCertificates:allowsUntrustedSSLCertificates];
         _ws.delegate = self;
         [_ws open];
         _isDestroyed = false;
@@ -78,7 +80,7 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
 
 - (void)close {
     _isDestroyed = true;
-    _ccws->retain();
+    _ccws->addRef();
     _delegate->onClose(_ccws);
     [_ws close];
     _ccws->release();
@@ -90,7 +92,7 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
 
 - (cc::network::WebSocket::State)getReadyState {
     cc::network::WebSocket::State ret;
-    SRReadyState                  state = _ws.readyState;
+    SRReadyState state = _ws.readyState;
     switch (state) {
         case SR_OPEN:
             ret = cc::network::WebSocket::State::OPEN;
@@ -108,11 +110,11 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
     return ret;
 }
 
-- (const std::string &)getUrl {
+- (const ccstd::string &)getUrl {
     return _url;
 }
 
-- (const std::string &)getProtocol {
+- (const ccstd::string &)getProtocol {
     return _selectedProtocol;
 }
 
@@ -148,11 +150,11 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(nonnull NSString *)string {
     if (!_isDestroyed) {
         cc::network::WebSocket::Data data;
-        data.bytes    = const_cast<char *>([string cStringUsingEncoding:NSUTF8StringEncoding]);
-        data.len      = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        data.bytes = const_cast<char *>([string cStringUsingEncoding:NSUTF8StringEncoding]);
+        data.len = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
         data.isBinary = false;
-        data.issued   = 0;
-        data.ext      = nullptr;
+        data.issued = 0;
+        data.ext = nullptr;
 
         _delegate->onMessage(_ccws, data);
     } else {
@@ -163,11 +165,11 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithData:(NSData *)nsData {
     if (!_isDestroyed) {
         cc::network::WebSocket::Data data;
-        data.bytes    = (char *)nsData.bytes;
-        data.len      = nsData.length;
+        data.bytes = (char *)nsData.bytes;
+        data.len = nsData.length;
         data.isBinary = true;
-        data.issued   = 0;
-        data.ext      = nullptr;
+        data.issued = 0;
+        data.ext = nullptr;
         _delegate->onMessage(_ccws, data);
     } else {
         NSLog(@"WebSocketImpl didReceiveMessageWithData was destroyed!");
@@ -188,45 +190,40 @@ namespace cc {
 namespace network {
 
 void WebSocket::closeAllConnections() {
-    if (__websocketInstances != nullptr) {
-        ssize_t count = __websocketInstances->size();
-        for (ssize_t i = count - 1; i >= 0; i--) {
-            WebSocket *instance = __websocketInstances->at(i);
-            instance->close();
-        }
-
-        __websocketInstances->clear();
-        delete __websocketInstances;
-        __websocketInstances = nullptr;
+    if (websocketInstances.empty()) {
+        return;
     }
+
+    for (auto iter = websocketInstances.cbegin(); iter != websocketInstances.cend(); ++iter) {
+        (*iter)->close();
+        ++iter;
+    }
+
+    websocketInstances.clear();
 }
 
-WebSocket::WebSocket()
-: _impl(nil) {
-    if (__websocketInstances == nullptr) {
-        __websocketInstances = new (std::nothrow) std::vector<WebSocket *>();
-    }
-
-    __websocketInstances->push_back(this);
+WebSocket::WebSocket() {
+    websocketInstances.push_back(this);
 }
 
 WebSocket::~WebSocket() {
     // NSLog(@"In the destructor of WebSocket-apple (%p).", this);
+    if (websocketInstances.empty()) {
+        return;
+    }
 
-    if (__websocketInstances != nullptr) {
-        auto iter = std::find(__websocketInstances->begin(), __websocketInstances->end(), this);
-        if (iter != __websocketInstances->end()) {
-            __websocketInstances->erase(iter);
-        } else {
-            NSLog(@"ERROR: WebSocket instance wasn't added to the container which saves websocket instances!");
-        }
+    auto iter = std::find(websocketInstances.begin(), websocketInstances.end(), this);
+    if (iter != websocketInstances.end()) {
+        websocketInstances.erase(iter);
+    } else {
+        NSLog(@"ERROR: WebSocket instance wasn't added to the container which saves websocket instances!");
     }
 }
 
-bool WebSocket::init(const Delegate &                delegate,
-                     const std::string &             url,
-                     const std::vector<std::string> *protocols /* = nullptr*/,
-                     const std::string &             caFilePath /* = ""*/) {
+bool WebSocket::init(const Delegate &delegate,
+                     const ccstd::string &url,
+                     const ccstd::vector<ccstd::string> *protocols /* = nullptr*/,
+                     const ccstd::string &caFilePath /* = ""*/) {
     if (url.empty())
         return false;
 
@@ -241,7 +238,7 @@ bool WebSocket::init(const Delegate &                delegate,
     return _impl != nil;
 }
 
-void WebSocket::send(const std::string &message) {
+void WebSocket::send(const ccstd::string &message) {
     if ([_impl getReadyState] == State::OPEN) {
         NSString *str = [[NSString alloc] initWithBytes:message.data() length:message.length() encoding:NSUTF8StringEncoding];
         [_impl sendString:str];
@@ -277,12 +274,12 @@ void WebSocket::closeAsync() {
     [_impl closeAsync];
 }
 
-void WebSocket::closeAsync(int code, const std::string &reason) {
+void WebSocket::closeAsync(int code, const ccstd::string &reason) {
     //lws_close_reason() replacement required
     closeAsync();
 }
 
-std::string WebSocket::getExtensions() const {
+ccstd::string WebSocket::getExtensions() const {
     //TODO websocket extensions
     return "";
 }
@@ -296,11 +293,11 @@ WebSocket::State WebSocket::getReadyState() const {
     return [_impl getReadyState];
 }
 
-const std::string &WebSocket::getUrl() const {
+const ccstd::string &WebSocket::getUrl() const {
     return [_impl getUrl];
 }
 
-const std::string &WebSocket::getProtocol() const {
+const ccstd::string &WebSocket::getProtocol() const {
     return [_impl getProtocol];
 }
 

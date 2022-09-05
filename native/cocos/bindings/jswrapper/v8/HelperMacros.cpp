@@ -31,8 +31,8 @@ namespace {
 bool cmp(const std::pair<const char *, std::tuple<int, uint64_t>> &a, const std::pair<const char *, std::tuple<int, uint64_t>> &b) {
     return std::get<1>(a.second) > std::get<1>(b.second);
 }
-unsigned int                                      __jsbInvocationCount;        // NOLINT(readability-identifier-naming)
-std::map<char const *, std::tuple<int, uint64_t>> __jsbFunctionInvokedRecords; // NOLINT(readability-identifier-naming)
+unsigned int __jsbInvocationCount;                                                         // NOLINT(readability-identifier-naming)
+ccstd::unordered_map<char const *, std::tuple<int, uint64_t>> __jsbFunctionInvokedRecords; // NOLINT(readability-identifier-naming)
 } // namespace
 
 JsbInvokeScopeT::JsbInvokeScopeT(const char *functionName) : _functionName(functionName) {
@@ -66,7 +66,7 @@ void clearRecordJSBInvoke() {
 
 void printJSBInvoke() {
 #if defined(RECORD_JSB_INVOKING)
-    static std::vector<std::pair<const char *, std::tuple<int, uint64_t>>> pairs;
+    static ccstd::vector<std::pair<const char *, std::tuple<int, uint64_t>>> pairs;
     for (const auto &it : __jsbFunctionInvokedRecords) {
         pairs.emplace_back(it); //NOLINT
     }

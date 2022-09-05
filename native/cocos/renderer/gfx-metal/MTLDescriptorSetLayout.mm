@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
-
 #include "MTLDescriptorSetLayout.h"
 #include "MTLGPUObjects.h"
 
@@ -35,14 +33,14 @@ CCMTLDescriptorSetLayout::CCMTLDescriptorSetLayout() : DescriptorSetLayout() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
-CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout () {
+CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout() {
     destroy();
 }
 
 void CCMTLDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
-    _gpuDescriptorSetLayout = CC_NEW(CCMTLGPUDescriptorSetLayout);
+    _gpuDescriptorSetLayout = ccnew CCMTLGPUDescriptorSetLayout;
 
-    _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
+    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;
@@ -50,7 +48,7 @@ void CCMTLDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
     for (size_t i = 0; i < _bindings.size(); i++) {
         const auto binding = _bindings[i];
         if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
-            for (uint j = 0; j < binding.count; j++) {
+            for (uint32_t j = 0; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
             }
         }

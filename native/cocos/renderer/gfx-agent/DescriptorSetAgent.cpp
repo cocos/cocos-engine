@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 
 #include "BufferAgent.h"
@@ -86,6 +85,17 @@ void DescriptorSetAgent::update() {
         actor, getActor(),
         {
             actor->update();
+        });
+}
+
+void DescriptorSetAgent::forceUpdate() {
+    _isDirty = false;
+    ENQUEUE_MESSAGE_1(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        DescriptorSetForceUpdate,
+        actor, getActor(),
+        {
+            actor->forceUpdate();
         });
 }
 

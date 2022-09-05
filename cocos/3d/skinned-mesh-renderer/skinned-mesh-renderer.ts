@@ -137,6 +137,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._models.length = 0;
             this._updateModels();
             this._updateCastShadow();
+            this._updateReceiveShadow();
             if (this.enabledInHierarchy) {
                 this._attachToScene();
             }

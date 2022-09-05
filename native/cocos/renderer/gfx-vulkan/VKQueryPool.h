@@ -26,14 +26,13 @@
 #pragma once
 
 #include <mutex>
-#include <vector>
 #include "VKStd.h"
 #include "gfx-base/GFXQueryPool.h"
 
 namespace cc {
 namespace gfx {
 
-class CCVKGPUQueryPool;
+struct CCVKGPUQueryPool;
 
 class CC_VULKAN_API CCVKQueryPool final : public QueryPool {
 public:
@@ -49,8 +48,8 @@ protected:
     void doInit(const QueryPoolInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUQueryPool *    _gpuQueryPool{nullptr};
-    std::vector<uint32_t> _ids;
+    CCVKGPUQueryPool *_gpuQueryPool{nullptr};
+    ccstd::vector<uint32_t> _ids;
 };
 
 } // namespace gfx

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/CoreStd.h"
-
 #include "GFXDevice.h"
 #include "GFXObject.h"
 #include "base/memory/Memory.h"
@@ -40,12 +38,18 @@ Device *Device::getInstance() {
 
 Device::Device() {
     Device::instance = this;
+    // Device instance is created and hold by TS. Native should hold it too
+    // to make sure it exists after JavaScript virtural machine is destroyed.
+    // Then will destory the Device instance in native.
+    addRef();
     _features.fill(false);
     _formatFeatures.fill(FormatFeature::NONE);
 }
 
 Device::~Device() {
     Device::instance = nullptr;
+    CC_SAFE_RELEASE(_cmdBuff);
+    CC_SAFE_RELEASE(_queue);
 }
 
 bool Device::initialize(const DeviceInfo &info) {
@@ -57,21 +61,33 @@ bool Device::initialize(const DeviceInfo &info) {
     static_assert(sizeof(void *) == 8, "pointer size assumption broken");
 #endif
 
-    return doInit(info);
+    bool result = doInit(info);
+
+    CC_SAFE_ADD_REF(_cmdBuff);
+    CC_SAFE_ADD_REF(_queue);
+    return result;
 }
 
 void Device::destroy() {
     for (auto pair : _samplers) {
         CC_SAFE_DELETE(pair.second);
     }
+    _samplers.clear();
 
     for (auto pair : _generalBarriers) {
         CC_SAFE_DELETE(pair.second);
     }
+    _generalBarriers.clear();
 
     for (auto pair : _textureBarriers) {
         CC_SAFE_DELETE(pair.second);
     }
+    _textureBarriers.clear();
+
+    for (auto pair : _bufferBarriers) {
+        CC_SAFE_DELETE(pair.second);
+    }
+    _bufferBarriers.clear();
 
     doDestroy();
 
@@ -79,8 +95,7 @@ void Device::destroy() {
 }
 
 void Device::destroySurface(void *windowHandle) {
-    setRendererAvailable(false);
-    for (auto *swapchain : _swapchains) {
+    for (const auto &swapchain : _swapchains) {
         if (swapchain->getWindowHandle() == windowHandle) {
             swapchain->destroySurface();
             break;
@@ -89,13 +104,12 @@ void Device::destroySurface(void *windowHandle) {
 }
 
 void Device::createSurface(void *windowHandle) {
-    for (auto *swapchain : _swapchains) {
+    for (const auto &swapchain : _swapchains) {
         if (!swapchain->getWindowHandle()) {
             swapchain->createSurface(windowHandle);
             break;
         }
     }
-    setRendererAvailable(true);
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {
@@ -117,6 +131,13 @@ TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
         _textureBarriers[info] = createTextureBarrier(info);
     }
     return _textureBarriers[info];
+}
+
+BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
+    if (!_bufferBarriers.count(info)) {
+        _bufferBarriers[info] = createBufferBarrier(info);
+    }
+    return _bufferBarriers[info];
 }
 
 } // namespace gfx

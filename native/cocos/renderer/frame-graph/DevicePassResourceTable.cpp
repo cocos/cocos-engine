@@ -37,9 +37,9 @@ gfx::GFXObject *DevicePassResourceTable::get(const ResourceDictionary &from, Han
     return it == from.cend() ? nullptr : it->second;
 }
 
-void DevicePassResourceTable::extract(const FrameGraph &                       graph,
-                                      const PassNode *                         passNode,
-                                      std::vector<const gfx::Texture *> const &renderTargets) noexcept {
+void DevicePassResourceTable::extract(const FrameGraph &graph,
+                                      const PassNode *passNode,
+                                      ccstd::vector<const gfx::Texture *> const &renderTargets) noexcept {
     do {
         extract(graph, passNode->_reads, _reads, false, renderTargets);
         extract(graph, passNode->_writes, _writes, true, renderTargets);
@@ -48,11 +48,11 @@ void DevicePassResourceTable::extract(const FrameGraph &                       g
     } while (passNode);
 }
 
-void DevicePassResourceTable::extract(const FrameGraph &                       graph,
-                                      std::vector<Handle> const &              from,
-                                      ResourceDictionary &                     to,
-                                      bool                                     ignoreRenderTarget,
-                                      std::vector<const gfx::Texture *> const &renderTargets) noexcept {
+void DevicePassResourceTable::extract(const FrameGraph &graph,
+                                      ccstd::vector<Handle> const &from,
+                                      ResourceDictionary &to,
+                                      bool /*ignoreRenderTarget*/,
+                                      ccstd::vector<const gfx::Texture *> const &/*renderTargets*/) noexcept {
     std::for_each(from.cbegin(), from.cend(), [&](const Handle handle) {
         if (to.find(handle) != to.cend()) {
             return;
@@ -66,19 +66,19 @@ void DevicePassResourceTable::extract(const FrameGraph &                       g
             return;
         }
 
-        if (ignoreRenderTarget) {
-            bool const isRenderTarget =
-                std::find_if(
-                    renderTargets.cbegin(),
-                    renderTargets.cend(),
-                    [&deviceResource](const gfx::Texture *const x) {
-                        return deviceResource == x;
-                    }) != renderTargets.cend();
+        //if (ignoreRenderTarget) {
+        //    bool const isRenderTarget =
+        //        std::find_if(
+        //            renderTargets.cbegin(),
+        //            renderTargets.cend(),
+        //            [&deviceResource](const gfx::Texture *const x) {
+        //                return deviceResource == x;
+        //            }) != renderTargets.cend();
 
-            if (isRenderTarget) {
-                return;
-            }
-        }
+        //    if (isRenderTarget) {
+        //        return;
+        //    }
+        //}
 
         to[handle] = deviceResource;
     });

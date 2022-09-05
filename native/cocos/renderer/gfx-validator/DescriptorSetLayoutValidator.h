@@ -44,7 +44,7 @@ protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;
 
-    vector<uint32_t> _typeCounts;
+    ccstd::vector<uint32_t> _typeCounts;
 
     bool _inited{false};
 };

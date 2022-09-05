@@ -34,7 +34,6 @@
 #include <unistd.h>
 #include <future>
 #include <thread>
-#include <vector>
 #include "base/Log.h"
 
 #include "platform/java/jni/JniHelper.h"
@@ -60,17 +59,17 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onCreateNative(JNIEn
     ResourceManager *objResourceManager = InitNativeResourceManager(env, resourceManager);
     JNI_NATIVE_GLUE()->setResourceManager(objResourceManager);
 
-    jboolean    isCopy = false;
-    std::string assetPathClone;
+    jboolean isCopy = false;
+    ccstd::string assetPathClone;
     const char *assetPathStr = env->GetStringUTFChars(assetPath, &isCopy);
-    assetPathClone           = assetPathStr;
+    assetPathClone = assetPathStr;
     if (isCopy) {
         env->ReleaseStringUTFChars(assetPath, assetPathStr);
         assetPathStr = nullptr;
     }
-    std::string moduleName{"entry"};
+    ccstd::string moduleName{"entry"};
     const char *moduleNameStr = env->GetStringUTFChars(moduleNameJ, &isCopy);
-    moduleName                = moduleNameStr;
+    moduleName = moduleNameStr;
     if (isCopy) {
         env->ReleaseStringUTFChars(moduleNameJ, moduleNameStr);
         moduleNameStr = nullptr;
@@ -86,11 +85,11 @@ Java_com_cocos_lib_CocosAbilitySlice_onSurfaceCreatedNative(JNIEnv *env, jobject
 JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosAbilitySlice_onSurfaceChangedNative(JNIEnv *env, jobject obj, jobject surface, jint width, //NOLINT JNI function name
                                                             jint height) {                                         //NOLINT JNI function name
-    JNI_NATIVE_GLUE()->setWindowHandler(GetNativeLayer(env, surface));
+    JNI_NATIVE_GLUE()->setWindowHandle(GetNativeLayer(env, surface));
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onSurfaceDestroyNative(JNIEnv *env, jobject obj) { //NOLINT JNI function name
-    JNI_NATIVE_GLUE()->setWindowHandler(nullptr);
+    JNI_NATIVE_GLUE()->setWindowHandle(nullptr);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onStartNative(JNIEnv *env, jobject obj) { //NOLINT JNI function name
@@ -117,7 +116,7 @@ Java_com_cocos_lib_CocosAbilitySlice_onWindowFocusChangedNative(JNIEnv *env, job
 
 JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosAbilitySlice_setRawfilePrefix(JNIEnv *env, jobject obj, jstring prefixJ) { //NOLINT JNI function name
-    jboolean    isCopy = false;
+    jboolean isCopy = false;
     const char *prefix = env->GetStringUTFChars(prefixJ, &isCopy);
     cc::FileUtilsOHOS::setRawfilePrefix(prefix);
     if (isCopy) {

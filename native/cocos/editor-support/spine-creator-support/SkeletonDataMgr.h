@@ -29,13 +29,13 @@
 
 #pragma once
 
-#include "base/Ref.h"
-#include "spine/SkeletonData.h"
-#include "spine/spine.h"
 #include <functional>
 #include <map>
 #include <string>
 #include <vector>
+#include "base/RefCounted.h"
+#include "spine/SkeletonData.h"
+#include "spine/spine.h"
 
 namespace spine {
 
@@ -44,7 +44,7 @@ class SkeletonDataInfo;
 /**
  * Cache skeleton data.
  */
-class SkeletonDataMgr {
+class SkeletonDataMgr final {
 public:
     static SkeletonDataMgr *getInstance() {
         if (instance == nullptr) {
@@ -61,10 +61,8 @@ public:
     }
 
     SkeletonDataMgr() = default;
+    ~SkeletonDataMgr();
 
-    virtual ~SkeletonDataMgr() {
-        _destroyCallback = nullptr;
-    }
     bool hasSkeletonData(const std::string &uuid);
     void setSkeletonData(const std::string &uuid, SkeletonData *data, Atlas *atlas, AttachmentLoader *attachmentLoader, const std::vector<int> &texturesIndex);
     // equal to 'findByUUID'
@@ -78,7 +76,7 @@ public:
     }
 
 private:
-    static SkeletonDataMgr* instance;
+    static SkeletonDataMgr *instance;
     destroyCallback _destroyCallback = nullptr;
     std::map<std::string, SkeletonDataInfo *> _dataMap;
 };

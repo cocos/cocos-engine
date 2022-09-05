@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
-import { Renderable2D } from '../framework/renderable-2d';
+import { UIRenderer } from '../framework/ui-renderer';
 import { IBatcher } from '../renderer/i-batcher';
 import { DrawBatch2D } from '../renderer/draw-batch';
 import { director, Color, warnID } from '../../core';
@@ -49,7 +49,7 @@ import { StaticVBAccessor } from '../renderer/static-vb-accessor';
 @help('i18n:cc.UIStaticBatch')
 @menu('2D/UIStaticBatch')
 @executionOrder(110)
-export class UIStaticBatch extends Renderable2D {
+export class UIStaticBatch extends UIRenderer {
     @override
     @visible(false)
     get color (): Readonly<Color> {
@@ -72,39 +72,6 @@ export class UIStaticBatch extends Renderable2D {
     protected _bufferAccessor: StaticVBAccessor | null = null;
     protected _dirty = true;
     private _uiDrawBatchList: DrawBatch2D[] = [];
-
-    public onLoad () {
-        // const ui = this._getBatcher();
-        // if (!ui) {
-        //     return;
-        // }
-
-        // const attr = vfmtPosUvColor;
-        // this._bufferAccessor = ui.switchBufferAccessor(vfmtPosUvColor);
-        // // buffer.initialize(attr, this._arrivalMaxBuffer.bind(this));
-    }
-
-    public onDestroy () {
-        // super.onDestroy();
-
-        // this._clearData();
-        // if (this._bufferAccessor) {
-        //     this._bufferAccessor.destroy();
-        //     this._bufferAccessor = null;
-        // }
-    }
-
-    public updateAssembler (render: IBatcher) {
-        // render.currIsStatic = true;
-        // if (this._dirty) {
-        //     render.setupStaticBatch(this, this._bufferAccessor!);
-        // }
-
-        // if (this._init) {
-        //     render.finishMergeBatches();
-        //     render.commitStaticBatch(this);
-        // }
-    }
 
     public postUpdateAssembler (render: IBatcher) {
         // if (this._dirty) {

@@ -39,15 +39,15 @@ public:
     CCWGPUQueue();
     ~CCWGPUQueue() = default;
 
-    void submit(CommandBuffer* const* cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
-    inline CCWGPUQueueObject* gpuQueueObject() { return _gpuQueueObject; }
+    inline CCWGPUQueueObject *gpuQueueObject() { return _gpuQueueObject; }
 
 protected:
-    void doInit(const QueueInfo& info) override;
+    void doInit(const QueueInfo &info) override;
     void doDestroy() override;
 
-    CCWGPUQueueObject* _gpuQueueObject = nullptr;
+    CCWGPUQueueObject *_gpuQueueObject = nullptr;
 };
 
 } // namespace gfx

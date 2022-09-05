@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUTexture;
+struct GLES2GPUTexture;
 
 class CC_GLES2_API GLES2Texture final : public Texture {
 public:

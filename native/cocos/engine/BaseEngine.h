@@ -51,8 +51,8 @@ public:
      @brief Get operating system interface template.
      */
     template <class T>
-    T* getInterface() const {
-        BasePlatform* platform = BasePlatform::getPlatform();
+    T *getInterface() const {
+        BasePlatform *platform = BasePlatform::getPlatform();
         return platform->getInterface<T>();
     }
     /**
@@ -94,11 +94,11 @@ public:
      */
     virtual void setPreferredFramesPerSecond(int fps) = 0;
 
-    using EventCb = std::function<void(const OSEvent&)>;
+    using EventCb = std::function<void(const OSEvent &)>;
     /**
      @brief Add listening event callback.
      */
-    virtual void addEventCallback(OSEventType evtype, const EventCb& cb) = 0;
+    virtual void addEventCallback(OSEventType evtype, const EventCb &cb) = 0;
     /**
      @brief Remove listening event callback.
      */
@@ -109,6 +109,8 @@ public:
      @brief Get engine scheduler.
      */
     virtual SchedulerPtr getScheduler() const = 0;
+
+    virtual bool isInited() const = 0;
 };
 
 } // namespace cc

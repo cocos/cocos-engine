@@ -13,7 +13,7 @@ void CCSurfacesVertexInput(out SurfacesStandardVertexIntermediate In)
 #endif
 
   In.texCoord = a_texCoord;
-#if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
+#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
   In.texCoord1 = a_texCoord1;
 #endif
 }
@@ -36,22 +36,19 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
 #endif
 
   VSOutput_texcoord = In.texCoord;
-#if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
+#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
   VSOutput_texcoord1 = In.texCoord1;
 #endif
 
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
   VSOutput_fogFactor = In.fogFactor;
 #endif
 
 #if CC_RECEIVE_SHADOW
-  VSOutput_shadowPos = In.shadowPos;
-  #if CC_SURFACES_USE_INSTANCING
-    VSOutput_shadowBias = In.shadowBias;
-  #endif
+  VSOutput_shadowBias = In.shadowBias;
 #endif
 
-#if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
+#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
   VSOutput_lightMapUV = In.lightmapUV;
 #endif
 
@@ -100,7 +97,7 @@ void CCSurfacesVertexTransformUV(inout SurfacesStandardVertexIntermediate In)
 {
   #if SAMPLE_FROM_RT
     CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord);
-    #if CC_SURFACES_USE_SECOND_UV && !CC_SURFACES_USE_LIGHT_MAP
+    #if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
       CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord1);
     #endif
   #endif
@@ -109,7 +106,7 @@ void CCSurfacesVertexTransformUV(inout SurfacesStandardVertexIntermediate In)
 // Shading
 void CCSurfacesVertexTransferFog(inout SurfacesStandardVertexIntermediate In)
 {
-#if !CC_USE_ACCURATE_FOG
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
     CC_TRANSFER_FOG_BASE(vec4(In.worldPos, 1.0), In.fogFactor);
 #endif
 }
@@ -117,12 +114,10 @@ void CCSurfacesVertexTransferFog(inout SurfacesStandardVertexIntermediate In)
 void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
 {
   #if CC_RECEIVE_SHADOW
-    In.shadowPos = cc_matLightViewProj * vec4(In.worldPos, 1.0);
-
     In.shadowBias = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
-    #if CC_SURFACES_USE_INSTANCING
-      In.shadowBias = vec2(a_localShadowBias.x + cc_shadowWHPBInfo.w, a_localShadowBias.y + cc_shadowLPNNInfo.z);
-    #elif !CC_SURFACES_USE_BATCHING
+    #if USE_INSTANCING
+      In.shadowBias += a_localShadowBias.xy;
+    #elif !USE_BATCHING
       In.shadowBias += cc_localShadowBias.xy;
     #endif
   #endif
@@ -130,8 +125,8 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
 
 void CCSurfacesVertexTransferLightMapUV(inout SurfacesStandardVertexIntermediate In)
 {
-#if CC_SURFACES_USE_LIGHT_MAP && !CC_SURFACES_USE_BATCHING && !CC_FORWARD_ADD
-  #if CC_SURFACES_USE_INSTANCING
+#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if USE_INSTANCING
     In.lightmapUV.xy = a_lightingMapUVParam.xy + a_texCoord1 * a_lightingMapUVParam.z;
     In.lightmapUV.z = a_lightingMapUVParam.w;
   #else

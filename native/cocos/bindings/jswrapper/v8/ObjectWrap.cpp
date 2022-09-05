@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,41 +44,52 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ObjectWrap.h"
+#include "Object.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
 namespace se {
 
-ObjectWrap::ObjectWrap() {
-    refs_       = 0;
-    _nativeObj  = nullptr;
-    _finalizeCb = nullptr;
+ObjectWrap::ObjectWrap() = default;
+
+ObjectWrap::~ObjectWrap() {
+    if (persistent().IsEmpty()) {
+        return;
+    }
+    //cjh            CC_ASSERT(persistent().IsNearDeath());
+    persistent().ClearWeak();
+    persistent().Reset();
 }
 
-bool ObjectWrap::init(v8::Local<v8::Object> handle) {
-    assert(persistent().IsEmpty());
+bool ObjectWrap::init(v8::Local<v8::Object> handle, Object *parent, bool registerWeak) {
+    CC_ASSERT(persistent().IsEmpty());
+    _parent = parent;
+    _registerWeakCallback = registerWeak;
     persistent().Reset(v8::Isolate::GetCurrent(), handle);
     makeWeak();
     return true;
 }
 
-void ObjectWrap::setFinalizeCallback(V8FinalizeFunc finalizeCb) {
+void ObjectWrap::setFinalizeCallback(FinalizeFunc finalizeCb) {
     _finalizeCb = finalizeCb;
 }
 
-ObjectWrap::~ObjectWrap() {
-    if (persistent().IsEmpty())
-        return;
-    //cjh            assert(persistent().IsNearDeath());
-    persistent().ClearWeak();
-    persistent().Reset();
-}
-
 /*static*/
-void *ObjectWrap::unwrap(v8::Local<v8::Object> handle) {
-    assert(!handle.IsEmpty());
-    assert(handle->InternalFieldCount() > 0);
-    return handle->GetAlignedPointerFromInternalField(0);
+void *ObjectWrap::unwrap(v8::Local<v8::Object> handle, uint32_t fieldIndex) {
+    CC_ASSERT(!handle.IsEmpty());
+    CC_ASSERT(handle->InternalFieldCount() > 0);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 1);
+    return handle->GetAlignedPointerFromInternalField(static_cast<int>(fieldIndex));
+}
+void ObjectWrap::wrap(void *nativeObj, uint32_t fieldIndex) {
+    CC_ASSERT(handle()->InternalFieldCount() > 0);
+    CC_ASSERT(fieldIndex >= 0 && fieldIndex < 1);
+    handle()->SetAlignedPointerInInternalField(static_cast<int>(fieldIndex), nativeObj);
+    if (nativeObj) {
+        persistent().SetWrapperClassId(MAGIC_CLASS_ID_JSB);
+    } else {
+        persistent().SetWrapperClassId(0);
+    }
 }
 
 v8::Local<v8::Object> ObjectWrap::handle() {
@@ -90,44 +101,56 @@ v8::Local<v8::Object> ObjectWrap::handle(v8::Isolate *isolate) {
 }
 
 v8::Persistent<v8::Object> &ObjectWrap::persistent() {
-    return handle_;
-}
-
-void ObjectWrap::wrap(void *nativeObj) {
-    assert(handle()->InternalFieldCount() > 0);
-    _nativeObj = nativeObj;
-    handle()->SetAlignedPointerInInternalField(0, nativeObj);
+    return _handle;
 }
 
 void ObjectWrap::makeWeak() {
-    persistent().SetWeak(this, weakCallback, v8::WeakCallbackType::kFinalizer);
+    // V8 offical documentation said that:
+    // kParameter will pass a void* parameter back to the callback, kInternalFields
+    // will pass the first two internal fields back to the callback,
+    // kFinalizer will pass a void* parameter back, but is invoked before the object is
+    // actually collected, so it can be resurrected. In the last case, it is not
+    // possible to request a second pass callback.
+    // enum class WeakCallbackType { kParameter, kInternalFields, kFinalizer };
+    //
+    // NOTE: We get random crashes while previewing material in editor's inspector window,
+    // the reason is that kFinalizer will trigger weak callback when some assets are
+    // still being used, jsbinding code will get a dead se::Object pointer that was
+    // freed by weak callback. According V8 documentation, kParameter is a better option.
+    if (_registerWeakCallback) {
+        persistent().SetWeak(_parent, weakCallback, v8::WeakCallbackType::kParameter);
+    } else {
+        persistent().SetWeak();
+    }
     //        persistent().MarkIndependent();
 }
 
 void ObjectWrap::ref() {
-    assert(!persistent().IsEmpty());
+    CC_ASSERT(!persistent().IsEmpty());
     persistent().ClearWeak();
-    refs_++;
+    _refs++;
 }
 
 void ObjectWrap::unref() {
-    assert(!persistent().IsEmpty());
-    assert(!persistent().IsWeak());
-    assert(refs_ > 0);
-    if (--refs_ == 0)
+    CC_ASSERT(!persistent().IsEmpty());
+    CC_ASSERT(!persistent().IsWeak());
+    CC_ASSERT(_refs > 0);
+    if (--_refs == 0) {
         makeWeak();
+    }
 }
 
 /*static*/
-void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<ObjectWrap> &data) {
-    ObjectWrap *wrap = data.GetParameter();
-    //        SE_LOGD("weakCallback: %p, nativeObj = %p, finalize: %p\n", wrap, wrap->_nativeObj, wrap->_finalizeCb);
-    assert(wrap->refs_ == 0);
-    wrap->handle_.Reset();
+void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<Object> &data) {
+    Object *seObj = data.GetParameter();
+    ObjectWrap *wrap = &seObj->_getWrap();
+
+    CC_ASSERT(wrap->_refs == 0);
+    wrap->_handle.Reset();
     if (wrap->_finalizeCb != nullptr) {
-        wrap->_finalizeCb(wrap->_nativeObj); // wrap will be destroyed in wrap->_finalizeCb, should not use any wrap object after this line.
+        wrap->_finalizeCb(seObj);
     } else {
-        assert(false);
+        CC_ASSERT(false);
     }
 }
 

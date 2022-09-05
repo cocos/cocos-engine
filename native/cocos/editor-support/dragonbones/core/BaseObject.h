@@ -39,18 +39,19 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 4.5
  * @language zh_CN
  */
-class BaseObject
-{
+class BaseObject {
 public:
-    typedef std::function<void(BaseObject*,int)> RecycleOrDestroyCallback;
+    typedef std::function<void(BaseObject*, int)> RecycleOrDestroyCallback;
+
 private:
     static unsigned _hashCode;
     static unsigned _defaultMaxCount;
     static std::map<std::size_t, unsigned> _maxCountMap;
     static std::map<std::size_t, std::vector<BaseObject*>> _poolsMap;
-    static void _returnObject(BaseObject *object);
+    static void _returnObject(BaseObject* object);
 
     static RecycleOrDestroyCallback _recycleOrDestroyCallback;
+
 public:
     static void setObjectRecycleOrDestroyCallback(const RecycleOrDestroyCallback& cb);
     /**
@@ -81,7 +82,7 @@ public:
      * @language zh_CN
      */
     static void clearPool(std::size_t classTypeIndex = 0);
-    template<typename T>
+    template <typename T>
     /**
      * - Get an instance of the specify class from object pool.
      * @param objectConstructor - The specify class.
@@ -94,15 +95,12 @@ public:
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    static T* borrowObject() 
-    {
+    static T* borrowObject() {
         const auto classTypeIndex = T::getTypeIndex();
         const auto iterator = _poolsMap.find(classTypeIndex);
-        if (iterator != _poolsMap.end())
-        {
+        if (iterator != _poolsMap.end()) {
             auto& pool = iterator->second;
-            if (!pool.empty())
-            {
+            if (!pool.empty()) {
                 const auto object = static_cast<T*>(pool.back());
                 pool.pop_back();
                 object->_isInPool = false;
@@ -114,8 +112,9 @@ public:
 
         return object;
     }
-    
+
     static std::vector<dragonBones::BaseObject*>& getAllObjects();
+
 public:
     /**
      * - A unique identification number assigned to the object.

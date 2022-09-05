@@ -32,7 +32,7 @@ CCEffect %{
  */
 CCProgram grid-vs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 a_texCoord;
   in vec3 a_position;
@@ -57,8 +57,8 @@ CCProgram grid-vs %{
 
 CCProgram grid-fs %{
   precision mediump float;
-  #include <cc-global>
-  #include <output>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output>
 
   in vec2 uv;
   in vec3 pos_w;

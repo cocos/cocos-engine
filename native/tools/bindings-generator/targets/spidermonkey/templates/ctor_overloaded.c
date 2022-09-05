@@ -48,11 +48,8 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
             #end while
         #end if
         #set $arg_list = ", ".join($arg_array)
-            ${namespaced_class_name}* cobj = new (std::nothrow) ${namespaced_class_name}($arg_list);
-            s.thisObject()->setPrivateData(cobj);
-            #if not $is_ref_class
-            se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-            #end if
+            auto *ptr = JSB_MAKE_PRIVATE_OBJECT(${namespaced_class_name},$arg_list);
+            s.thisObject()->setPrivateObject(ptr);
             return true;
         }
     } while(false);

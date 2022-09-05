@@ -306,7 +306,7 @@ public:
          *  @return A Array Buffer Object whose backing store is the same as the one pointed to data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
          */
-    static Object *createArrayBufferObject(void *data, size_t byteLength);
+    static Object *createArrayBufferObject(const void *data, size_t byteLength);
 
     /**
          *  @brief Roots an object from garbage collection.

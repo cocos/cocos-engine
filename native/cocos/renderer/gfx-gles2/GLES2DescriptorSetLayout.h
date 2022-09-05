@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUDescriptorSetLayout;
+struct GLES2GPUDescriptorSetLayout;
 
 class CC_GLES2_API GLES2DescriptorSetLayout final : public DescriptorSetLayout {
 public:

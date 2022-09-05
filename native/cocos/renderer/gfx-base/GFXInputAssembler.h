@@ -26,11 +26,12 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL InputAssembler : public GFXObject {
+class CC_DLL InputAssembler : public GFXObject, public RefCounted {
 public:
     InputAssembler();
     ~InputAssembler() override;
@@ -39,12 +40,13 @@ public:
     void destroy();
 
     inline const AttributeList &getAttributes() const { return _attributes; }
-    inline const BufferList &   getVertexBuffers() const { return _vertexBuffers; }
-    inline Buffer *             getIndexBuffer() const { return _indexBuffer; }
-    inline Buffer *             getIndirectBuffer() const { return _indirectBuffer; }
-    inline size_t               getAttributesHash() const { return _attributesHash; }
+    inline const BufferList &getVertexBuffers() const { return _vertexBuffers; }
+    inline Buffer *getIndexBuffer() const { return _indexBuffer; }
+    inline Buffer *getIndirectBuffer() const { return _indirectBuffer; }
+    inline ccstd::hash_t getAttributesHash() const { return _attributesHash; }
 
     inline const DrawInfo &getDrawInfo() const { return _drawInfo; }
+    inline void setDrawInfo(const DrawInfo &info) { _drawInfo = info; }
 
     inline void setVertexCount(uint32_t count) { _drawInfo.vertexCount = count; }
     inline void setFirstVertex(uint32_t first) { _drawInfo.firstVertex = first; }
@@ -64,16 +66,16 @@ public:
 
 protected:
     virtual void doInit(const InputAssemblerInfo &info) = 0;
-    virtual void doDestroy()                            = 0;
+    virtual void doDestroy() = 0;
 
-    size_t computeAttributesHash() const;
+    ccstd::hash_t computeAttributesHash() const;
 
     AttributeList _attributes;
-    size_t        _attributesHash = 0;
+    ccstd::hash_t _attributesHash = 0;
 
     BufferList _vertexBuffers;
-    Buffer *   _indexBuffer{nullptr};
-    Buffer *   _indirectBuffer{nullptr};
+    Buffer *_indexBuffer{nullptr};
+    Buffer *_indirectBuffer{nullptr};
 
     DrawInfo _drawInfo;
 };

@@ -128,6 +128,30 @@
             "description": "i18n:ENGINE.features.profiler.description",
             "wechatPlugin": true
         },
+        "occlusion-query": {
+            "default": [],
+            "label": "i18n:ENGINE.features.occlusion_query.label",
+            "description": "i18n:ENGINE.features.occlusion_query.description",
+            "native": "USE_OCCLUSION_QUERY",
+            "wechatPlugin": false,
+            "category": "3d"
+        },
+        "geometry-renderer": {
+            "default": [],
+            "label": "i18n:ENGINE.features.geometry_renderer.label",
+            "description": "i18n:ENGINE.features.geometry_renderer.description",
+            "native": "USE_GEOMETRY_RENDERER",
+            "wechatPlugin": true,
+            "category": "3d"
+        },
+        "debug-renderer": {
+            "default": [],
+            "label": "i18n:ENGINE.features.debug_renderer.label",
+            "description": "i18n:ENGINE.features.debug_renderer.description",
+            "native": "USE_DEBUG_RENDERER",
+            "wechatPlugin": false,
+            "category": "3d"
+        },
         "particle-2d": {
             "default": ["particle-2d"],
             "label": "i18n:ENGINE.features.particle_2d.label",
@@ -198,6 +222,12 @@
             "description": "i18n:ENGINE.features.marionette.description",
             "wechatPlugin": false,
             "category": "animation"
+        },
+        "custom-pipeline": {
+            "default": [],
+            "label": "i18n:ENGINE.features.custom_pipeline.label",
+            "description": "i18n:ENGINE.features.custom_pipeline.description",
+            "wechatPlugin": false
         }
     },
     "categories": {

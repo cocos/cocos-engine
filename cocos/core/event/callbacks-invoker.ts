@@ -27,7 +27,7 @@
 import { TEST } from 'internal:constants';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
-import { CCObject, isValid } from '../data/object';
+import { isCCObject, isValid } from '../data/object';
 import { legacyCC } from '../global-exports';
 
 const fastRemoveAt = array.fastRemoveAt;
@@ -53,7 +53,7 @@ class CallbackInfo {
 
     public check () {
         // Validation
-        if (this.target instanceof CCObject && !isValid(this.target, true)) {
+        if (isCCObject(this.target) && !isValid(this.target, true)) {
             return false;
         } else {
             return true;

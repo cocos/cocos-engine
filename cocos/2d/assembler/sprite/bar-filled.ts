@@ -35,6 +35,7 @@ import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 const FillType = Sprite.FillType;
 const matrix = new Mat4();
 const vec3_temp = new Vec3();
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
 /**
  * barFilled 组装器
@@ -48,7 +49,6 @@ export const barFilled: IAssembler = {
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
-            renderData.updateRenderData(sprite, frame);
             const vertDirty = renderData.vertDirty;
 
             if (!vertDirty) {
@@ -71,8 +71,10 @@ export const barFilled: IAssembler = {
             let fillEnd = fillStart + fillRange;
             fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-            this.updateUVs(sprite, fillStart, fillEnd);
+            this.updateColor(sprite); // need Dirty
+            this.updateUVs(sprite, fillStart, fillEnd); // need Dirty
             this.updateVertexData(sprite, fillStart, fillEnd);
+            renderData.updateRenderData(sprite, frame);
         }
     },
 
@@ -198,7 +200,11 @@ export const barFilled: IAssembler = {
         // 0-4 for local vertex
         renderData.dataLength = 4;
         renderData.resize(4, 6);
+        renderData.vertexRow = 2;
+        renderData.vertexCol = 2;
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
+        // not need
         const dataList = renderData.data;
         for (const data of dataList) {
             data.z = 0;
@@ -219,7 +225,8 @@ export const barFilled: IAssembler = {
         let offset = 0;
         for (let i = 0; i < 4; i++) {
             const local = dataList[i];
-            Vec3.transformMat4(vec3_temp, local, matrix);
+            Vec3.set(vec3_temp, local.x, local.y, 0);
+            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
             offset = i * stride;
             vData[offset] = vec3_temp.x;
             vData[offset + 1] = vec3_temp.y;
@@ -237,8 +244,8 @@ export const barFilled: IAssembler = {
 
         const bid = chunk.bufferId;
         const vid = chunk.vertexOffset;
-        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
-        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        const meshBuffer = chunk.meshBuffer;
+        const ib = chunk.meshBuffer.iData;
         let indexOffset = meshBuffer.indexOffset;
         ib[indexOffset++] = vid;
         ib[indexOffset++] = vid + 1;

@@ -276,7 +276,7 @@ export class BulletWorld implements IPhysicsWorld {
                         TriggerEventObject.type = 'onTriggerEnter';
                         this.triggerArrayMat.set(shape0.id, shape1.id, true);
                     }
-                    TriggerEventObject.impl = data.impl;
+                    TriggerEventObject.impl = data.impl; //btPersistentManifold
                     TriggerEventObject.selfCollider = collider0;
                     TriggerEventObject.otherCollider = collider1;
                     collider0.emit(TriggerEventObject.type, TriggerEventObject);
@@ -303,16 +303,18 @@ export class BulletWorld implements IPhysicsWorld {
                     }
 
                     for (let i = 0; i < data.contacts.length; i++) {
-                        const cq = data.contacts[i];
+                        const cq = data.contacts[i]; //btManifoldPoint
                         if (contactsPool.length > 0) {
-                            const c = contactsPool.pop(); c!.impl = cq;
+                            const c = contactsPool.pop();
+                            c!.impl = cq; //btManifoldPoint
                             CollisionEventObject.contacts.push(c!);
                         } else {
-                            const c = new BulletContactData(CollisionEventObject); c.impl = cq;
+                            const c = new BulletContactData(CollisionEventObject);
+                            c.impl = cq; //btManifoldPoint
                             CollisionEventObject.contacts.push(c);
                         }
                     }
-                    CollisionEventObject.impl = data.impl;
+                    CollisionEventObject.impl = data.impl; //btPersistentManifold
                     CollisionEventObject.selfCollider = collider0;
                     CollisionEventObject.otherCollider = collider1;
                     collider0.emit(CollisionEventObject.type, CollisionEventObject);
@@ -383,10 +385,10 @@ export class BulletWorld implements IPhysicsWorld {
     gatherConatactData () {
         const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
         for (let i = 0; i < numManifolds; i++) {
-            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
+            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);//btPersistentManifold
             const numContacts = bt.PersistentManifold_getNumContacts(manifold);
             for (let j = 0; j < numContacts; j++) {
-                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
+                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);//btManifoldPoint
                 const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
                 const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
                 const shape0: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
@@ -400,7 +402,7 @@ export class BulletWorld implements IPhysicsWorld {
                         item = this.contactsDic.set(shape0.id, shape1.id,
                             { shape0, shape1, contacts: [], impl: manifold });
                     }
-                    item.contacts.push(manifoldPoint);
+                    item.contacts.push(manifoldPoint);//btManifoldPoint
                 }
             }
         }

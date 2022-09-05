@@ -38,7 +38,7 @@ public:
     /**
      * @brief Get target device model.
      */
-    std::string getDeviceModel() const override;
+    ccstd::string getDeviceModel() const override;
     /**
      * @brief Get current language config.
      * @return Current language config.
@@ -48,18 +48,18 @@ public:
      * @brief Get current language iso 639-1 code.
      * @return Current language iso 639-1 code.
      */
-    std::string getCurrentLanguageCode() const override;
+    ccstd::string getCurrentLanguageCode() const override;
     /**
      * @brief Get system version.
      * @return system version.
      */
-    std::string getSystemVersion() const override;
+    ccstd::string getSystemVersion() const override;
     /**
      * @brief Open url in default browser.
      * @param String with url to open.
      * @return True if the resource located by the URL was successfully opened; otherwise false.
      */
-    bool openURL(const std::string& url) override;
+    bool openURL(const ccstd::string &url) override;
 };
 
 } // namespace cc

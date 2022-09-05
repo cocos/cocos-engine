@@ -28,7 +28,6 @@
 #include <Metal/MTLComputeCommandEncoder.h>
 #include <Metal/MTLComputePipeline.h>
 #include "MTLCommandEncoder.h"
-#include "MTLStd.h"
 #include "MTLUtils.h"
 #include "base/Macros.h"
 #include "math/Math.h"
@@ -37,15 +36,15 @@ namespace cc {
 namespace gfx {
 class CCMTLComputeCommandEncoder final : public CCMTLCommandEncoder {
 public:
-    CCMTLComputeCommandEncoder()                                   = default;
-    ~CCMTLComputeCommandEncoder()                                  = default;
+    CCMTLComputeCommandEncoder() = default;
+    ~CCMTLComputeCommandEncoder() = default;
     CCMTLComputeCommandEncoder(const CCMTLComputeCommandEncoder &) = delete;
-    CCMTLComputeCommandEncoder(CCMTLComputeCommandEncoder &&)      = delete;
+    CCMTLComputeCommandEncoder(CCMTLComputeCommandEncoder &&) = delete;
     CCMTLComputeCommandEncoder &operator=(const CCMTLComputeCommandEncoder &) = delete;
     CCMTLComputeCommandEncoder &operator=(CCMTLComputeCommandEncoder &&) = delete;
 
     void initialize(id<MTLCommandBuffer> commandBuffer) {
-        _mtlEncoder  = [[commandBuffer computeCommandEncoder] retain];
+        _mtlEncoder = [[commandBuffer computeCommandEncoder] retain];
         _initialized = true;
     }
 
@@ -60,11 +59,11 @@ public:
         _pipelineState = pipelineState;
     }
 
-    inline void setBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
+    inline void setBuffer(const id<MTLBuffer> buffer, uint32_t offset, uint32_t index) {
         [_mtlEncoder setBuffer:buffer offset:offset atIndex:index];
     }
 
-    inline void setTexture(const id<MTLTexture> texture, uint index) {
+    inline void setTexture(const id<MTLTexture> texture, uint32_t index) {
         [_mtlEncoder setTexture:texture atIndex:index];
         _resourceSize = {texture.width, texture.height, texture.depth};
     }
@@ -73,9 +72,9 @@ public:
         // GLSL -> SPIRV -> MSL
         // GLSL shader request to specify the compute thread size,
         // no such limit in Metal and have to set compute thread size explicity
-        NSUInteger w                     = _pipelineState.threadExecutionWidth;
-        NSUInteger h                     = _pipelineState.maxTotalThreadsPerThreadgroup / w;
-        MTLSize    threadsPerThreadgroup = MTLSizeMake(w, h, 1);
+        NSUInteger w = _pipelineState.threadExecutionWidth;
+        NSUInteger h = _pipelineState.maxTotalThreadsPerThreadgroup / w;
+        MTLSize threadsPerThreadgroup = MTLSizeMake(w, h, 1);
         [_mtlEncoder dispatchThreadgroups:groupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
     }
 
@@ -86,9 +85,9 @@ public:
     inline void endEncoding() {
         [_mtlEncoder endEncoding];
         [_mtlEncoder release];
-        _mtlEncoder    = nil;
+        _mtlEncoder = nil;
         _pipelineState = nil;
-        _initialized   = false;
+        _initialized = false;
     }
 
     inline id<MTLComputeCommandEncoder> const getMTLEncoder() {
@@ -96,10 +95,10 @@ public:
     }
 
 private:
-    bool                         _initialized = false;
-    MTLSize                      _resourceSize;
-    id<MTLComputeCommandEncoder> _mtlEncoder    = nil;
-    id<MTLComputePipelineState>  _pipelineState = nil;
+    bool _initialized = false;
+    MTLSize _resourceSize;
+    id<MTLComputeCommandEncoder> _mtlEncoder = nil;
+    id<MTLComputePipelineState> _pipelineState = nil;
 };
 
 } // namespace gfx
