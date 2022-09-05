@@ -27,7 +27,7 @@
 #pragma once
 
 #include "audio/android/tinysndfile.h"
-#include "audio/oalsoft/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoder.h"
 
 namespace cc {
 

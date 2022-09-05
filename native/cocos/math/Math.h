@@ -54,6 +54,8 @@ extern CC_DLL const float RAD_TO_DEG;
 extern CC_DLL const float MIN_FLOAT;
 extern CC_DLL const float MAX_FLOAT;
 
+#define CC_FLOAT_CMP_PRECISION (0.00001F)
+
 template <typename T>
 inline T sgn(T x) {
     return (x < T(0) ? T(-1) : (x > T(0) ? T(1) : T(0)));

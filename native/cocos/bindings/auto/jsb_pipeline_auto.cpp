@@ -6774,6 +6774,31 @@ bool js_register_cc_pipeline_REFLECTIONSTORAGE(se::Object* obj) {
 }
 
 
+static bool js_cc_pipeline_localDescriptorSetLayoutResizeMaxJoints(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    uint32_t arg1 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "localDescriptorSetLayoutResizeMaxJoints,1,SWIGTYPE_uint32_t"); 
+    
+    cc::pipeline::localDescriptorSetLayoutResizeMaxJoints(arg1);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_pipeline_localDescriptorSetLayoutResizeMaxJoints) 
+
 se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class = nullptr;
 se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_pipeline_RenderPipelineInfo) 
