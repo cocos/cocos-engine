@@ -163,10 +163,10 @@ void Delaunay::addProbe(int32_t vertexIndex) {
         if (tetrahedron.isInCircumSphere(probe.position)) {
             tetrahedron.invalid = true;
             
-            triangles.push_back(Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2));
-            triangles.push_back(Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3));
-            triangles.push_back(Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1));
-            triangles.push_back(Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2));
+            triangles.push_back(Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
+            triangles.push_back(Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
+            triangles.push_back(Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
+            triangles.push_back(Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
         }
     }
     
@@ -209,10 +209,10 @@ void Delaunay::computeAdjacency() {
     for (auto i = 0; i < _tetrahedrons.size(); i++) {
         const auto &tetrahedron = _tetrahedrons[i];
         
-        triangles.push_back(Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2));
-        triangles.push_back(Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3));
-        triangles.push_back(Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1));
-        triangles.push_back(Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2));
+        triangles.push_back(Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
+        triangles.push_back(Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
+        triangles.push_back(Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
+        triangles.push_back(Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
     }
     
     for (auto i = 0; i < triangles.size(); i++) {
@@ -231,18 +231,28 @@ void Delaunay::computeAdjacency() {
             auto &probe0 = _probes[triangles[i].vertex0];
             auto &probe1 = _probes[triangles[i].vertex1];
             auto &probe2 = _probes[triangles[i].vertex2];
+            auto &probe3 = _probes[triangles[i].vertex3];
             
             auto edge1 = probe1.position - probe0.position;
             auto edge2 = probe2.position - probe0.position;
             Vec3::cross(edge1, edge2, &normal);
+
+            auto edge3 = probe3.position - probe0.position;
+            auto negative = normal.dot(edge3);
+            if (negative > 0.0F) {
+                normal.negate();
+            }
 
             // accumulate weighted normal
             probe0.normal += normal;
             probe1.normal += normal;
             probe2.normal += normal;
             
-            // create an outer cell
-            Tetrahedron tetrahedron(this, triangles[i].vertex0, triangles[i].vertex1, triangles[i].vertex2);
+            // create an outer cell with normal facing out
+            auto v0 = triangles[i].vertex0;
+            auto v1 = negative > 0.0F ? triangles[i].vertex2 : triangles[i].vertex1;
+            auto v2 = negative > 0.0F ? triangles[i].vertex1 : triangles[i].vertex2;
+            Tetrahedron tetrahedron(this, v0, v1, v2);
             
             // update adjacency between tetrahedron and outer cell
             tetrahedron.neighbours[3] = triangles[i].tetrahedron;

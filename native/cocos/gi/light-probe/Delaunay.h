@@ -71,9 +71,10 @@ struct Triangle {
     int32_t vertex0{-1};
     int32_t vertex1{-1};
     int32_t vertex2{-1};
+    int32_t vertex3{-1};        // tetrahedron's last vertex index used to compute normal direction
 
-    Triangle(int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2)
-    : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1), vertex2(v2) {
+    Triangle(int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3)
+    : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
     }
     
     inline bool isSame(const Triangle &other) const {

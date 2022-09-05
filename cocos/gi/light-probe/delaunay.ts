@@ -80,13 +80,16 @@ class Triangle {
     public vertex1 = -1;
     @serializable
     public vertex2 = -1;
+    @serializable
+    public vertex3 = -1;        // tetrahedron's last vertex index used to compute normal direction
 
-    public constructor (tet: number, i: number, v0: number, v1: number, v2: number) {
+    public constructor (tet: number, i: number, v0: number, v1: number, v2: number, v3: number) {
         this.tetrahedron = tet;
         this.index = i;
         this.vertex0 = v0;
         this.vertex1 = v1;
         this.vertex2 = v2;
+        this.vertex3 = v3;
     }
 
     public isSame (other: Triangle) {
@@ -107,15 +110,19 @@ class CircumSphere {
 
     public init (p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3) {
         // calculate circumsphere of 4 points in R^3 space.
-        const mat = new Mat3(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z,
+        const mat = new Mat3(
+            p1.x - p0.x, p1.y - p0.y, p1.z - p0.z,
             p2.x - p0.x, p2.y - p0.y, p2.z - p0.z,
-            p3.x - p0.x, p3.y - p0.y, p3.z - p0.z);
+            p3.x - p0.x, p3.y - p0.y, p3.z - p0.z,
+        );
         mat.invert();
         mat.transpose();
 
-        const n = new Vec3(((p1.x + p0.x) * (p1.x - p0.x) + (p1.y + p0.y) * (p1.y - p0.y) + (p1.z + p0.z) * (p1.z - p0.z)) * 0.5,
+        const n = new Vec3(
+            ((p1.x + p0.x) * (p1.x - p0.x) + (p1.y + p0.y) * (p1.y - p0.y) + (p1.z + p0.z) * (p1.z - p0.z)) * 0.5,
             ((p2.x + p0.x) * (p2.x - p0.x) + (p2.y + p0.y) * (p2.y - p0.y) + (p2.z + p0.z) * (p2.z - p0.z)) * 0.5,
-            ((p3.x + p0.x) * (p3.x - p0.x) + (p3.y + p0.y) * (p3.y - p0.y) + (p3.z + p0.z) * (p3.z - p0.z)) * 0.5);
+            ((p3.x + p0.x) * (p3.x - p0.x) + (p3.y + p0.y) * (p3.y - p0.y) + (p3.z + p0.z) * (p3.z - p0.z)) * 0.5,
+        );
 
         Vec3.transformMat3(this.center, n, mat);
         this.radiusSquared = Vec3.squaredDistance(p0, this.center);
@@ -295,10 +302,10 @@ export class Delaunay {
             if (tetrahedron.isInCircumSphere(probe.position)) {
                 tetrahedron.invalid = true;
 
-                triangles.push(new Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2));
-                triangles.push(new Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3));
-                triangles.push(new Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1));
-                triangles.push(new Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2));
+                triangles.push(new Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
+                triangles.push(new Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
+                triangles.push(new Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
+                triangles.push(new Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
             }
         }
 
@@ -334,16 +341,17 @@ export class Delaunay {
         const normal = new Vec3(0.0, 0.0, 0.0);
         const edge1 = new Vec3(0.0, 0.0, 0.0);
         const edge2 = new Vec3(0.0, 0.0, 0.0);
+        const edge3 = new Vec3(0.0, 0.0, 0.0);
 
         const tetrahedronCount = this._tetrahedrons.length;
 
         for (let i = 0; i < this._tetrahedrons.length; i++) {
             const tetrahedron = this._tetrahedrons[i];
 
-            triangles.push(new Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2));
-            triangles.push(new Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3));
-            triangles.push(new Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1));
-            triangles.push(new Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2));
+            triangles.push(new Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
+            triangles.push(new Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
+            triangles.push(new Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
+            triangles.push(new Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
         }
 
         for (let i = 0; i < triangles.length; i++) {
@@ -362,18 +370,28 @@ export class Delaunay {
                 const probe0 = this._probes[triangles[i].vertex0];
                 const probe1 = this._probes[triangles[i].vertex1];
                 const probe2 = this._probes[triangles[i].vertex2];
+                const probe3 = this._probes[triangles[i].vertex3];
 
                 Vec3.subtract(edge1, probe1.position, probe0.position);
                 Vec3.subtract(edge2, probe2.position, probe0.position);
                 Vec3.cross(normal, edge1, edge2);
+
+                Vec3.subtract(edge3, probe3.position, probe0.position);
+                const negative = Vec3.dot(normal, edge3);
+                if (negative > 0.0) {
+                    Vec3.negate(normal, normal);
+                }
 
                 // accumulate weighted normal
                 Vec3.add(probe0.normal, probe0.normal, normal);
                 Vec3.add(probe1.normal, probe1.normal, normal);
                 Vec3.add(probe2.normal, probe2.normal, normal);
 
-                // create an outer cell
-                const tetrahedron = new Tetrahedron(this, triangles[i].vertex0, triangles[i].vertex1, triangles[i].vertex2);
+                // create an outer cell with normal facing out
+                const v0 = triangles[i].vertex0;
+                const v1 = negative > 0.0 ? triangles[i].vertex2 : triangles[i].vertex1;
+                const v2 = negative > 0.0 ? triangles[i].vertex1 : triangles[i].vertex2;
+                const tetrahedron = new Tetrahedron(this, v0, v1, v2);
 
                 // update adjacency between tetrahedron and outer cell
                 tetrahedron.neighbours[3] = triangles[i].tetrahedron;
