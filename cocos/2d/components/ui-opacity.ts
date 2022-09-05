@@ -95,14 +95,17 @@ export class UIOpacity extends Component {
         let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
 
         if (render && render.color) { // exclude UIMeshRenderer which has not color
-            render.renderEntity.colorDirty = dirty;
-            if (uiOp) {
-                render.renderEntity.localOpacity = interruptOpacity * uiOp.opacity / 255;
-            } else {
+            // we should only enter the branch on the first time when the dirty is false
+            if (!render.renderEntity.colorDirty) {
+                if (uiOp) {
+                    render.renderEntity.localOpacity = interruptOpacity * uiOp.opacity / 255;
+                } else {
                 // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
-                render.renderEntity.localOpacity = interruptOpacity;
+                    render.renderEntity.localOpacity = interruptOpacity;
+                }
+                interruptOpacity = 1;
             }
-            interruptOpacity = 1;
+            render.renderEntity.colorDirty = dirty;
         } else if (uiOp) {
             // there is a just UIOpacity but no UIRenderer on the node.
             // we should transport the interrupt opacity downward
