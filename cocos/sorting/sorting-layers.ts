@@ -20,12 +20,19 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-import { errorID } from '../platform/debug';
+import { legacyCC } from '../core/global-exports';
+import { errorID } from '../core/platform/debug';
+import { Enum } from '../core/value-types';
 
-export class SortingManager {
+const SortingLayer = {
+    DEFAULT: 0,
+};
+
+export class SortingLayers {
     private static nameMap = new Map<number, string>();
     private static indexMap = new Map<number, number>();
+
+    public static Enum = Enum(SortingLayer);
 
     public static getSortingPriority (layer = 0, order = 0): number {
         return (((layer + (1 << 15)) << 16) | (order + (1 << 15))) >>> 0;
@@ -87,4 +94,4 @@ export class SortingManager {
     }
 }
 
-legacyCC.sortingManager = SortingManager;
+legacyCC.sortingLayers = SortingLayers;

@@ -24,22 +24,16 @@
  */
 
 import { ccclass, disallowMultiple, editable, menu, range, serializable, type } from 'cc.decorator';
-import { clamp } from '../math';
-import { SortingManager } from '../scene-graph/sorting-manager';
-import { ccenum } from '../value-types/enum';
-import { Component } from './component';
-import { ModelRenderer } from './model-renderer';
+import { clamp } from '../core/math';
+import { SortingLayers } from './sorting-layers';
+import { Component } from '../core/components/component';
+import { ModelRenderer } from '../core/components/model-renderer';
 
 const MAX_INT16 = (1 << 15) - 1;
 const MIN_INT16 = -1 << 15;
 
-enum SortingLayer {
-    DEFAULT = 0,
-}
-ccenum(SortingLayer);
-
 @ccclass('cc.Sorting')
-@menu('2D/Sorting')
+@menu('Sorting/Sorting')
 @disallowMultiple
 export class Sorting extends Component {
     /**
@@ -48,12 +42,12 @@ export class Sorting extends Component {
      */
     // Todo,how to show on inspector
     @editable
-    @type(SortingLayer)
+    @type(SortingLayers.Enum)
     get sortingLayer () {
         return this._sortingLayer;
     }
     set sortingLayer (val) {
-        if (val === this._sortingLayer || !SortingManager.isLayerValid(val)) return;
+        if (val === this._sortingLayer || !SortingLayers.isLayerValid(val)) return;
         this._sortingLayer = val;
         this._updateSortingPriority();
     }
@@ -73,28 +67,36 @@ export class Sorting extends Component {
     }
 
     @serializable
-    protected _sortingLayer = SortingLayer.DEFAULT; // Actually saved id
+    protected _sortingLayer = SortingLayers.Enum.DEFAULT; // Actually saved id
     @serializable
     protected _sortingOrder = 0;
 
     private _modelRenderer: ModelRenderer | null = null;
 
-    protected onEnable () {
+    protected __preload () {
         this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelRenderer) {
             console.warn(`node '${this.node && this.node.name}' doesn't have any ModelRenderer component`);
-            return;
+        }
+    }
+
+    protected onEnable () {
+        if (!this._modelRenderer) {
+            this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
+            if (!this._modelRenderer) {
+                console.warn(`node '${this.node && this.node.name}' doesn't have any ModelRenderer component`);
+            }
         }
         this._updateSortingPriority();
     }
 
-    protected onDisable () {
+    protected onDestroy () {
         this._modelRenderer = null;
     }
 
     protected _updateSortingPriority () {
-        const sortingLayerValue = SortingManager.getLayerIndex(this._sortingLayer);
-        const sortingPriority = SortingManager.getSortingPriority(sortingLayerValue, this._sortingOrder);
+        const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
+        const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
         if (this._modelRenderer) {
             this._modelRenderer.priority = sortingPriority;
         }

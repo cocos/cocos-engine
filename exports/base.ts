@@ -55,3 +55,5 @@ export * from '../cocos/native-binding/index';
 type Constructor_<T = unknown> = Constructor<T>;
 
 export type { Constructor_ as Constructor };
+
+export * from '../cocos/sorting';

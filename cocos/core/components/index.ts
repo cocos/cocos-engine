@@ -32,6 +32,5 @@ export { Component } from './component';
 export { Camera } from './camera-component';
 export { ModelRenderer } from './model-renderer';
 export { Renderer } from './renderer';
-export { Sorting } from './sorting';
 /** deprecated */
 export * from './deprecated';
