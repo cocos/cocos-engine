@@ -313,7 +313,7 @@ export class DirectionalLight extends Light {
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         if (this._shadowEnabled) {
-            if (this._shadowFixedArea) {
+            if (this._shadowFixedArea || !pipeline.pipelineSceneData.csmSupported) {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
             } else {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = this.csmLevel > 1 ? 2 : 1;

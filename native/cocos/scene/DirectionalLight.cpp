@@ -73,7 +73,7 @@ void DirectionalLight::activate() const {
     auto *pipeline = pipeline::RenderPipeline::getInstance();
     if (pipeline) {
         if (_shadowEnabled) {
-            if (_shadowFixedArea) {
+            if (_shadowFixedArea || !pipeline->getPipelineSceneData()->getCSMSupported()) {
                 pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 1);
             } else {
                 pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", static_cast<int32_t>(_csmLevel) > 1 ? 2 : 1);
