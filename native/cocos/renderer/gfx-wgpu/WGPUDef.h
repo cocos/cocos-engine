@@ -7,29 +7,6 @@
 #include <vector>
 #include "../gfx-base/GFXDef-common.h"
 #include "../gfx-base/GFXDef.h"
-/*
-value_object<PipelineLayoutInfo>("PipelineLayoutInfo")
-    .field("setLayouts", &PipelineLayoutInfo::setLayouts);
-function("PipelineLayoutInfo", &GenInstance<PipelineLayoutInfo>::instance);
-*/
-#define CC_OBJECT(NAME) \
-    explicit operator const gfx::NAME() const { return obj; }
-#define CTOR_FROM_CCOBJECT(NAME) \
-    NAME(const gfx::NAME& other) : obj(other){};
-
-#define ENUMTYPE(ENUMNAME) \
-    std::underlying_type<gfx::ENUMNAME>::type;
-
-#define EXPORT_ENUMFIELD_BY_SEQ(r, ENUMNAME, FIELD) \
-    static constexpr ENUMTYPE(ENUMNAME) FIELD = static_cast<ENUMTYPE(ENUMNAME)>(gfx::ENUMNAME::FILED);
-
-#define EXPORT_ENUM(ENUMNAME, ...)                                                                       \
-    class ENUMNAME {                                                                                     \
-    public:                                                                                              \
-        ENUMNAME() = delete;                                                                             \
-        using type = std::underlying_type<gfx::ENUMNAME>::type;                                          \
-        BOOST_PP_SEQ_FOR_EACH(EXPORT_ENUMFIELD_BY_SEQ, ENUMNAME, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
-    }
 
 #ifdef CC_WGPU_WASM
     #define EXPORT_EMS(expr) expr
@@ -38,27 +15,28 @@ function("PipelineLayoutInfo", &GenInstance<PipelineLayoutInfo>::instance);
 #endif
 
 #ifdef CC_WGPU_DAWN
-    #define CC_WGPU_DAWN(expr) expr
+    #define EXPORT_DAWN(expr) expr
 #else
-    #define CC_WGPU_DAWN(expr)
+    #define EXPORT_DAWN(expr)
 #endif
 
 #ifdef CC_WGPU_RS
-    #define CC_WGPU_RS(expr) expr
+    #define EXPORT_RS(expr) expr
 #else
-    #define CC_WGPU_RS(expr)
+    #define EXPORT_RS(expr)
 #endif
 
 // https://github.com/emscripten-core/emscripten/issues/11070#issuecomment-717675128
 namespace emscripten {
 namespace internal {
 
+// vector<T> -> [] & [] ->vector<T>
 template <typename T, typename Allocator>
 struct BindingType<std::vector<T, Allocator>> {
     using ValBinding = BindingType<val>;
     using WireType = ValBinding::WireType;
 
-    static WireType toWireType(const std::vector<T, Allocator>& vec) {
+    static WireType toWireType(const std::vector<T, Allocator> &vec) {
         return ValBinding::toWireType(val::array(vec));
     }
 
@@ -78,6 +56,82 @@ struct TypeID<T,
 
 } // namespace internal
 } // namespace emscripten
+
+template <typename T>
+struct GenInstance {
+    static T instance() {
+        return T();
+    }
+};
+
+template <class R, class T>
+R getMemberType(R T::*);
+
+#define MEMBER_TYPE(prop) decltype(getMemberType(prop))
+
+template <typename T, typename U, typename V, typename FallBack = void>
+struct Exporter {
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
+        t.field(propName, field);
+    }
+};
+
+template <typename T, typename U, typename V>
+struct Exporter<T, U, V, typename std::enable_if<std::is_enum<U>::value>::type> {
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
+        std::function<void(V & v, std::underlying_type_t<U> u)> set = [field](V &v, std::underlying_type_t<U> u) {
+            v.*field = U{u};
+        };
+        std::function<std::underlying_type_t<U>(const V &v)> get = [field](const V &v) {
+            return static_cast<std::underlying_type_t<U>>(v.*field);
+        };
+        t.field(propName, get, set);
+    }
+};
+
+template <typename T, typename U, typename V>
+struct Exporter<T, U, V, typename std::enable_if<std::is_pointer<U>::value>::type> {
+    Exporter(T &t, const char *propName, U V::*field) {
+        static_assert(!std::is_pointer<U>::value, "Export pointer with struct, try EXPORT_STRUCT_NPOD!");
+    }
+
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert) {
+        t.field(propName, field);
+    }
+};
+
+#define PROCESS_STRUCT_MEMBERS(r, struct_name, property) \
+    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property); }
+
+#define EXPORT_STRUCT_POD(struct_name, ...)                                                                \
+    {                                                                                                      \
+        auto obj = value_object<struct_name>(#struct_name);                                                \
+        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+    }
+
+#define PROCESS_STRUCT_MEMBERS_MAY_BE_PTR(r, struct_name, property) \
+    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property, true); }
+
+#define EXPORT_STRUCT_NPOD(struct_name, ...)                                                                          \
+    {                                                                                                                 \
+        auto obj = value_object<struct_name>(#struct_name);                                                           \
+        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS_MAY_BE_PTR, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+    }
+
+#define SPECIALIZE_PTR_FOR_STRUCT(r, _, TYPE)                                                                                                                       \
+    template <>                                                                                                                                                     \
+    struct emscripten::internal::TypeID<cc::gfx::TYPE *, void> {                                                                                                    \
+        static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<emscripten::internal::AllowedRawPointer<cc::gfx::TYPE>>::get(); } \
+    };
+
+#define REGISTER_GFX_PTRS_FOR_STRUCT(...) \
+    BOOST_PP_SEQ_FOR_EACH(SPECIALIZE_PTR_FOR_STRUCT, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__));
+
+// specialize for void*
+template <>
+struct emscripten::internal::TypeID<void *, void> {
+    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<uintptr_t>::get(); }
+};
 
 namespace cc::gfx {
 
@@ -107,19 +161,19 @@ class CCWGPUTexture;
 // }
 
 template <typename T, typename TWrapper = T>
-std::vector<T> vecFromEMS(const val& vals) {
+std::vector<T> vecFromEMS(const val &vals) {
     uint32_t len = vals["length"].as<unsigned>();
     std::vector<T> res(len);
     const std::vector<val> Ts = vecFromJSArray<val>(vals);
     for (size_t i = 0; i < len; ++i) {
-        const val& t = Ts[i];
+        const val &t = Ts[i];
         res[i] = static_cast<T>(t.as<TWrapper>(allow_raw_pointers()));
     }
     return res;
 }
 
 template <typename T, typename TWrapper = T>
-val vecToEMS(const std::vector<T>& Ts) {
+val vecToEMS(const std::vector<T> &Ts) {
     auto arr = val::array();
     for (size_t i = 0; i < Ts.size(); ++i) {
         arr.set(i, TWrapper(Ts[i]));

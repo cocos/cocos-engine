@@ -26,195 +26,8 @@
 #include "states/WGPUBufferBarrier.h"
 #include "states/WGPUGeneralBarrier.h"
 #include "states/WGPUTextureBarrier.h"
-template <typename T>
-struct GenInstance {
-    static T instance() {
-        return T();
-    }
-};
 
-template <typename T, typename... Args>
-struct Instance {
-    static T ctor(Args... args) {
-        return T{std::forward<Args>(args)...};
-    }
-};
-
-template <typename T, std::size_t N, typename = std::make_index_sequence<N>>
-struct constructImpl;
-
-template <typename T, std::size_t N, std::size_t... Seq>
-struct constructImpl<T, N, std::index_sequence<Seq...>> {
-    // using type = T(*)(std::tuple_element<Seq, T>::type...);
-    using type = Instance<T, boost::pfr::tuple_element_t<Seq, T>...>;
-};
-
-template <typename T, std::size_t N, typename = std::make_index_sequence<N>>
-struct constructImplFunc;
-template <typename T, std::size_t N, std::size_t... Seq>
-struct constructImplFunc<T, N, std::index_sequence<Seq...>> {
-    // using type = T(*)(std::tuple_element<Seq, T>::type...);
-    using type = Instance<T, boost::pfr::tuple_element_t<Seq, T>...>;
-    using func = ::emscripten::constructor<boost::pfr::tuple_element_t<Seq, T>...>;
-    T &operator()(T &t) {
-        t = std::bind(t, T::template constructor<boost::pfr::tuple_element_t<Seq, T>...>)();
-        return t;
-    }
-};
-
-using boost::pfr::tuple_size_v;
-template <typename T, std::size_t IgnoreParams = 0>
-struct constructor {
-    using Indices = typename std::make_index_sequence<tuple_size_v<T> - IgnoreParams>;
-    using type = typename constructImpl<T, tuple_size_v<T> - IgnoreParams>::type;
-
-    T &operator()(T &t) {
-        return constructImplFunc(t);
-    }
-};
-
-#define NUMARGS(...) (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
-
-#define EXPORT_PROERTY_BY_SEQ(r, CLASSNAME, PROPERTY) \
-    .field(BOOST_PP_STRINGIZE(PROPERTY), &CLASSNAME::PROPERTY)
-
-#define EXPORT_FUNCTION_BY_SEQ(r, CLASSNAME, FUNCTION) \
-    .function(BOOST_PP_STRINGIZE(FUNCTION), &CLASSNAME::FUNCTION, allow_raw_pointers())
-
-#define EXPORT_CTOR_BY_SEQ(r, CLASSNAME, i, elem) \
-    function(#CLASSNAME, &constructor<CLASSNAME, i>::type::ctor);
-
-#define EXPORT_STRUCT_CTOR(CLASSNAME, SEQ)                       \
-    BOOST_PP_SEQ_FOR_EACH_I(EXPORT_CTOR_BY_SEQ, CLASSNAME, SEQ); \
-    function(#CLASSNAME, &GenInstance<CLASSNAME>::instance); // manually generate ctor without any args
-
-#define EXPORT_STRUCT(CLASSNAME, ...)                                                                       \
-    {                                                                                                       \
-        auto obj = value_object<CLASSNAME>(#CLASSNAME);                                                     \
-        obj                                                                                                 \
-            BOOST_PP_SEQ_FOR_EACH(EXPORT_PROERTY_BY_SEQ, CLASSNAME, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
-        EXPORT_STRUCT_CTOR(CLASSNAME, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__));                               \
-    }
-
-template <class R, class T>
-R getMemberType(R T::*);
-
-#define MEMBER_TYPE(prop) decltype(getMemberType(prop))
-
-template <typename T, typename U, typename V, typename FallBack = void>
-struct Exporter {
-    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
-        t.field(propName, field);
-    }
-};
-
-template <typename T, typename U, typename V>
-struct Exporter<T, U, V, typename std::enable_if<std::is_enum<U>::value>::type> {
-    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
-        std::function<void(V & v, std::underlying_type_t<U> u)> set = [field](V &v, std::underlying_type_t<U> u) {
-            v.*field = U{u};
-        };
-        std::function<std::underlying_type_t<U>(const V &v)> get = [field](const V &v) {
-            return static_cast<std::underlying_type_t<U>>(v.*field);
-        };
-        t.field(propName, get, set);
-    }
-};
-
-template <typename T, typename U, typename V>
-struct Exporter<T, U, V, typename std::enable_if<std::is_pointer<U>::value>::type> {
-    Exporter(T &t, const char *propName, U V::*field) {
-        static_assert(!std::is_pointer<U>::value, "Export pointer with struct, try EXPORT_STRUCT_NPOD!");
-    }
-
-    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert) {
-        t.field(propName, field);
-    }
-};
-
-#define PROCESS_STRUCT_MEMBERS(r, struct_name, property) \
-    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property); }
-
-#define EXPORT_STRUCT_POD(struct_name, ...)                                                                \
-    {                                                                                                      \
-        auto obj = value_object<struct_name>(#struct_name);                                                \
-        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
-    }
-
-#define PROCESS_STRUCT_MEMBERS_MAY_BE_PTR(r, struct_name, property) \
-    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property, true); }
-
-#define EXPORT_STRUCT_NPOD(struct_name, ...)                                                                          \
-    {                                                                                                                 \
-        auto obj = value_object<struct_name>(#struct_name);                                                           \
-        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS_MAY_BE_PTR, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
-    }
-
-#define SPECIALIZE_PTR_FOR_STRUCT(r, _, TYPE)                                                                                                                       \
-    template <>                                                                                                                                                     \
-    struct emscripten::internal::TypeID<cc::gfx::TYPE *, void> {                                                                                                    \
-        static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<emscripten::internal::AllowedRawPointer<cc::gfx::TYPE>>::get(); } \
-    };
-
-#define REGISTER_GFX_PTRS_FOR_STRUCT(...) \
-    BOOST_PP_SEQ_FOR_EACH(SPECIALIZE_PTR_FOR_STRUCT, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__));
-
-#if 1
-enum class TestEnum : uint32_t {
-    ZERO,
-    ONE,
-    TWO,
-    THREE,
-};
-
-struct PtInternal {
-    uint32_t value{0};
-};
-
-struct PtTest {
-    uint32_t value{0};
-    cc::gfx::CCWGPUDevice *device{nullptr};
-};
-
-struct Point2D {
-    uint32_t x;
-    uint32_t y;
-    uint32_t z;
-    uint32_t w;
-    TestEnum type;
-    TestEnum usage;
-    TestEnum flag;
-    TestEnum prop;
-    PtTest *test;
-};
-
-struct TestPoint {
-    uint32_t value;
-    Point2D pt;
-};
-
-// void printPoint(TestPoint info) {
-//     printf("point2D %u, %u, %u, %u, %u, %u, %u, %u, %u, %u\n", info.pt.x, info.pt.y, info.pt.z, info.pt.w, info.pt.type, info.pt.usage, info.pt.flag, info.pt.prop, info.pt.test->value, info.pt.test->next->value);
-// }
-
-void printPtTest(const PtTest &test) {
-    printf("%u, %s\n", test.value, test.device->getDeviceName().c_str());
-}
-
-static Point2D s_pt;
-
-void testPoint(const Point2D &pt) {
-    s_pt = pt;
-}
-#endif
-
-// specialize for void*
-template <>
-struct emscripten::internal::TypeID<void *, void> {
-    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<uintptr_t>::get(); }
-};
-
-REGISTER_GFX_PTRS_FOR_STRUCT(CCWGPUDevice, Buffer, Texture, GeneralBarrier, Queue, RenderPass, Shader, PipelineLayout, DescriptorSetLayout);
+REGISTER_GFX_PTRS_FOR_STRUCT(Device, Buffer, Texture, GeneralBarrier, Queue, RenderPass, Shader, PipelineLayout, DescriptorSetLayout);
 
 namespace cc::gfx {
 
@@ -235,18 +48,6 @@ using ::emscripten::value_object;
 using String = ccstd::string;
 using ccstd::vector;
 
-class TestClass {
-public:
-    TestClass() = default;
-    Point2D *getPt() const {
-        return _pt;
-    }
-    void setPt(Point2D *pt) {
-        _pt = pt;
-    }
-    Point2D *_pt;
-};
-
 EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     // register_vector<uint32_t>("Uint32Vector");
 
@@ -254,7 +55,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     EXPORT_STRUCT_POD(DeviceCaps, maxVertexAttributes, maxVertexUniformVectors, maxFragmentUniformVectors, maxTextureUnits, maxImageUnits, maxVertexTextureUnits, maxColorRenderTargets,
                       maxShaderStorageBufferBindings, maxShaderStorageBlockSize, maxUniformBufferBindings, maxUniformBlockSize, maxTextureSize, maxCubeMapTextureSize, uboOffsetAlignment,
                       maxComputeSharedMemorySize, maxComputeWorkGroupInvocations, maxComputeWorkGroupSize, maxComputeWorkGroupCount, supportQuery, clipSpaceMinZ, screenSpaceSignY, clipSpaceSignY);
-    EXPORT_STRUCT_NPOD(PtTest, value, device);
     EXPORT_STRUCT_POD(Offset, x, y, z);
     EXPORT_STRUCT_POD(Rect, x, y, width, height);
     EXPORT_STRUCT_POD(Extent, width, height, depth);
@@ -308,7 +108,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
                       stencilRefFront, stencilTestBack, stencilFuncBack, stencilReadMaskBack, stencilWriteMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilPassOpBack, stencilRefBack);
     EXPORT_STRUCT_POD(BlendTarget, blend, blendSrc, blendDst, blendEq, blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask);
     EXPORT_STRUCT_POD(BlendState, isA2C, isIndepend, blendColor, targets)
-    // MAYBE TODO(Zeqiang): no subpass in ts now
+    // MAYBE TODO(Zeqiang): no subpass in TS now
     EXPORT_STRUCT_NPOD(PipelineStateInfo, shader, pipelineLayout, renderPass, inputState, rasterizerState, depthStencilState, blendState, primitive, dynamicStates, bindPoint);
     EXPORT_STRUCT_NPOD(CommandBufferInfo, queue);
     EXPORT_STRUCT_POD(QueueInfo, type);
@@ -337,18 +137,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("width", &CCWGPUSwapchain::getWidth)
         .property("height", &CCWGPUSwapchain::getHeight);
 
-    // value_object<TestEnum>("TestEnum")
-    //     .field("ZERO", &TestEnum::ZERO)
-    //     .field("ONE", &TestEnum::ONE)
-    //     .field("TWO", &TestEnum::TWO)
-    //     .field("THREE", &TestEnum::THREE);
-
-    // std::function<uint32_t(const Point2D &p)> getX = [](const Point2D &p) {
-    //     return p.x;
-    // };
-    // std::function<void(Point2D & p, uint32_t x)> setX = [](Point2D &p, uint32_t x) {
-    //     p.x = x;
-    // };
     class_<Device>("Device")
         .function("initialize", &Device::initialize)
         .function("destroy", &Device::destroy, pure_virtual())
@@ -399,11 +187,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("gfxAPI", &CCWGPUDevice::getGFXAPI)
         .property("memoryStatus", &CCWGPUDevice::getMemStatus)
         .function("hasFeature", &CCWGPUDevice::hasFeature);
-
-    function("PtTest", &GenInstance<PtTest>::instance);
-
-    function("printPtTest", &printPtTest);
-    // function("testPoint", &testPoint);
 
     class_<RenderPass>("RenderPass")
         .class_function("computeHash", select_overload<ccstd::hash_t(const RenderPassInfo &)>(&RenderPass::computeHash), allow_raw_pointer<arg<0>>())
