@@ -31,11 +31,11 @@
 #include "VKRenderPass.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
-#include "platform/BasePlatform.h"
-
-#include "application/ApplicationManager.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
-
+#if CC_USE_XR
+    #include "application/ApplicationManager.h"
+    #include "platform/BasePlatform.h"
+    #include "platform/interfaces/modules/ISystemWindow.h"
+#endif
 #if CC_SWAPPY_ENABLED
     #include "platform/android/AndroidPlatform.h"
     #include "swappy/swappyVk.h"
@@ -59,8 +59,9 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
     _gpuSwapchain = ccnew CCVKGPUSwapchain;
     gpuDevice->swapchains.insert(_gpuSwapchain);
+#if CC_USE_XR
     _xr = CC_GET_XR_INTERFACE();
-
+#endif
     createVkSurface();
 
     ///////////////////// Parameter Selection /////////////////////
@@ -68,12 +69,14 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     uint32_t queueFamilyPropertiesCount = utils::toUint(gpuContext->queueFamilyProperties.size());
     _gpuSwapchain->queueFamilyPresentables.resize(queueFamilyPropertiesCount);
     for (uint32_t propertyIndex = 0U; propertyIndex < queueFamilyPropertiesCount; propertyIndex++) {
+#if CC_USE_XR
         if (_xr) {
             _gpuSwapchain->queueFamilyPresentables[propertyIndex] = true;
-        } else {
-            vkGetPhysicalDeviceSurfaceSupportKHR(gpuContext->physicalDevice, propertyIndex,
-                                                 _gpuSwapchain->vkSurface, &_gpuSwapchain->queueFamilyPresentables[propertyIndex]);
         }
+#else
+        vkGetPhysicalDeviceSurfaceSupportKHR(gpuContext->physicalDevice, propertyIndex,
+                                             _gpuSwapchain->vkSurface, &_gpuSwapchain->queueFamilyPresentables[propertyIndex]);
+#endif
     }
 
     // find other possible queues if not presentable
@@ -206,10 +209,12 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
         _gpuSwapchain->createInfo.presentMode = swapchainPresentMode;
         _gpuSwapchain->createInfo.clipped = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
     }
-    ///////////////////// Texture Creation /////////////////////
+///////////////////// Texture Creation /////////////////////
+#if CC_USE_XR
     if (_xr) {
         colorFmt = _xr->getXRSwapchainFormat();
     }
+#endif
     _colorTexture = ccnew CCVKTexture;
     _depthStencilTexture = ccnew CCVKTexture;
 
@@ -278,6 +283,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     uint32_t newWidth = width;
     uint32_t newHeight = height;
     uint32_t imageCount = 0;
+
+#if CC_USE_XR
     if (_xr) {
         newWidth = static_cast<CCVKTexture *>(_colorTexture.get())->_info.width;
         newHeight = static_cast<CCVKTexture *>(_colorTexture.get())->_info.height;
@@ -302,59 +309,60 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
         CCVKDevice::getInstance()->waitAllFences();
         CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, static_cast<uint32_t>(_transform) * 90);
-    } else {
-        if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will be set to VK_NULL_HANDLE after call doDestroySurface
-            return false;
-        }
-        auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
-        const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
-
-        VkSurfaceCapabilitiesKHR surfaceCapabilities;
-        VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceCapabilities));
-
-        // surfaceCapabilities.currentExtent seems to remain the same
-        // during any size/orientation change events on android devices
-        // so we prefer the system input (oriented size) here
-        newWidth = width ? width : surfaceCapabilities.currentExtent.width;
-        newHeight = height ? height : surfaceCapabilities.currentExtent.height;
-
-        if (_gpuSwapchain->createInfo.imageExtent.width == newWidth &&
-            _gpuSwapchain->createInfo.imageExtent.height == newHeight && _gpuSwapchain->lastPresentResult == VK_SUCCESS) {
-            return true;
-        }
-
-        if (newWidth == static_cast<uint32_t>(-1)) {
-            _gpuSwapchain->createInfo.imageExtent.width = _colorTexture->getWidth();
-            _gpuSwapchain->createInfo.imageExtent.height = _colorTexture->getHeight();
-        } else {
-            _gpuSwapchain->createInfo.imageExtent.width = newWidth;
-            _gpuSwapchain->createInfo.imageExtent.height = newHeight;
-        }
-
-        if (newWidth == 0 || newHeight == 0) {
-            _gpuSwapchain->lastPresentResult = VK_NOT_READY;
-            return false;
-        }
-
-        _gpuSwapchain->createInfo.surface = _gpuSwapchain->vkSurface;
-        _gpuSwapchain->createInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
-
-        CC_LOG_INFO("Resizing surface: %dx%d", newWidth, newHeight);
-
-        CCVKDevice::getInstance()->waitAllFences();
-
-        VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
-        VK_CHECK(vkCreateSwapchainKHR(gpuDevice->vkDevice, &_gpuSwapchain->createInfo, nullptr, &vkSwapchain));
-
-        destroySwapchain(gpuDevice);
-
-        _gpuSwapchain->vkSwapchain = vkSwapchain;
-
-        VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
-        CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
-        _gpuSwapchain->swapchainImages.resize(imageCount);
-        VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
     }
+#else
+    if (_gpuSwapchain->vkSurface == VK_NULL_HANDLE) { // vkSurface will be set to VK_NULL_HANDLE after call doDestroySurface
+        return false;
+    }
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
+
+    VkSurfaceCapabilitiesKHR surfaceCapabilities;
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceCapabilities));
+
+    // surfaceCapabilities.currentExtent seems to remain the same
+    // during any size/orientation change events on android devices
+    // so we prefer the system input (oriented size) here
+    newWidth = width ? width : surfaceCapabilities.currentExtent.width;
+    newHeight = height ? height : surfaceCapabilities.currentExtent.height;
+
+    if (_gpuSwapchain->createInfo.imageExtent.width == newWidth &&
+        _gpuSwapchain->createInfo.imageExtent.height == newHeight && _gpuSwapchain->lastPresentResult == VK_SUCCESS) {
+        return true;
+    }
+
+    if (newWidth == static_cast<uint32_t>(-1)) {
+        _gpuSwapchain->createInfo.imageExtent.width = _colorTexture->getWidth();
+        _gpuSwapchain->createInfo.imageExtent.height = _colorTexture->getHeight();
+    } else {
+        _gpuSwapchain->createInfo.imageExtent.width = newWidth;
+        _gpuSwapchain->createInfo.imageExtent.height = newHeight;
+    }
+
+    if (newWidth == 0 || newHeight == 0) {
+        _gpuSwapchain->lastPresentResult = VK_NOT_READY;
+        return false;
+    }
+
+    _gpuSwapchain->createInfo.surface = _gpuSwapchain->vkSurface;
+    _gpuSwapchain->createInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
+
+    CC_LOG_INFO("Resizing surface: %dx%d", newWidth, newHeight);
+
+    CCVKDevice::getInstance()->waitAllFences();
+
+    VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
+    VK_CHECK(vkCreateSwapchainKHR(gpuDevice->vkDevice, &_gpuSwapchain->createInfo, nullptr, &vkSwapchain));
+
+    destroySwapchain(gpuDevice);
+
+    _gpuSwapchain->vkSwapchain = vkSwapchain;
+
+    VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
+    CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
+    _gpuSwapchain->swapchainImages.resize(imageCount);
+    VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
+#endif
 
     // should skip size check, since the old swapchain has already been destroyed
     static_cast<CCVKTexture *>(_colorTexture.get())->_info.width = 1;
@@ -461,11 +469,13 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
 }
 
 void CCVKSwapchain::createVkSurface() {
+#if CC_USE_XR
     if (_xr) {
-	    // xr do not need VkSurface
+        // xr do not need VkSurface
         _gpuSwapchain->vkSurface = VK_NULL_HANDLE;
         return;
     }
+#endif
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)

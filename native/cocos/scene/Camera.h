@@ -40,8 +40,9 @@
 #include "math/Vec4.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
-#include "platform/java/modules/XRInterface.h"
-
+#if CC_USE_XR
+    #include "platform/java/modules/XRInterface.h"
+#endif
 namespace cc {
 class Node;
 
@@ -349,6 +350,7 @@ public:
 
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
+
 protected:
     void setExposure(float ev100);
 
@@ -411,8 +413,9 @@ private:
     uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
     float _exposure{0.F};
     uint32_t _clearStencil{0};
+#if CC_USE_XR
     IXRInterface *_xr{nullptr};
-
+#endif
     CC_DISALLOW_COPY_MOVE_ASSIGN(Camera);
 };
 

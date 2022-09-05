@@ -48,8 +48,8 @@
 #include "states/VKTextureBarrier.h"
 
 #include "gfx-base/SPIRVUtils.h"
-#include "profiler/Profiler.h"
 #include "platform/BasePlatform.h"
+#include "profiler/Profiler.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyVk.h"
@@ -96,10 +96,12 @@ CCVKDevice::~CCVKDevice() {
 }
 
 bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
+#if CC_USE_XR
     _xr = CC_GET_XR_INTERFACE();
     if (_xr) {
         _xr->preGFXDeviceInitialize(_api);
     }
+#endif
     _gpuContext = ccnew CCVKGPUContext;
     if (!_gpuContext->initialize()) {
         CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
@@ -108,8 +110,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     const VkPhysicalDeviceFeatures2 &deviceFeatures2 = _gpuContext->physicalDeviceFeatures2;
     const VkPhysicalDeviceFeatures &deviceFeatures = deviceFeatures2.features;
-    //const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = _gpuContext->physicalDeviceVulkan11Features;
-    //const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = _gpuContext->physicalDeviceVulkan12Features;
+    // const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = _gpuContext->physicalDeviceVulkan11Features;
+    // const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = _gpuContext->physicalDeviceVulkan12Features;
 
     ///////////////////// Device Creation /////////////////////
 
@@ -221,12 +223,14 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
             requestedVulkan11Features.pNext = &requestedVulkan12Features;
         }
     }
-
+#if CC_USE_XR
     if (_xr) {
         _gpuDevice->vkDevice = _xr->createXRVulkanDevice(&deviceCreateInfo);
-    } else {
-        VK_CHECK(vkCreateDevice(_gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
     }
+#else
+    VK_CHECK(vkCreateDevice(_gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
+#endif
+
     volkLoadDevice(_gpuDevice->vkDevice);
 
     SPIRVUtils::getInstance()->initialize(static_cast<int>(_gpuDevice->minorVersion));
@@ -484,12 +488,13 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     CC_LOG_INFO("DEVICE_LAYERS: %s", deviceLayers.c_str());
     CC_LOG_INFO("DEVICE_EXTENSIONS: %s", deviceExtensions.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
-
-    if(_xr) {
-        cc::gfx::CCVKGPUQueue* vkQueue = static_cast<cc::gfx::CCVKQueue *>(getQueue())->gpuQueue();
+#if CC_USE_XR
+    if (_xr) {
+        cc::gfx::CCVKGPUQueue *vkQueue = static_cast<cc::gfx::CCVKQueue *>(getQueue())->gpuQueue();
         _xr->setXRConfig(xr::XRConfigKey::VK_QUEUE_FAMILY_INDEX, static_cast<int>(vkQueue->queueFamilyIndex));
         _xr->postGFXDeviceInitialize(_api);
     }
+#endif
     return true;
 }
 
@@ -630,15 +635,16 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
                 continue;
             }
         }
-
-        if(_xr) {
+#if CC_USE_XR
+        if (_xr) {
             xr::XRSwapchain xrSwapchain = _xr->doGFXDeviceAcquire(_api);
             swapchain->gpuSwapchain()->curImageIndex = xrSwapchain.swapchainImageIndex;
         }
-        if(swapchain->gpuSwapchain()->vkSwapchain) {
+#endif
+        if (swapchain->gpuSwapchain()->vkSwapchain) {
             vkSwapchains.push_back(swapchain->gpuSwapchain()->vkSwapchain);
         }
-        if(swapchain->gpuSwapchain()) {
+        if (swapchain->gpuSwapchain()) {
             gpuSwapchains.push_back(swapchain->gpuSwapchain());
         }
         vkSwapchainIndices.push_back(swapchain->gpuSwapchain()->curImageIndex);
@@ -676,7 +682,11 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void CCVKDevice::present() {
     CC_PROFILE(CCVKDevicePresent);
+#if CC_USE_XR
     bool isGFXDeviceNeedsPresent = _xr ? _xr->isGFXDeviceNeedsPresent(_api) : true;
+#else
+    constexpr bool isGFXDeviceNeedsPresent = true;
+#endif
     auto *queue = static_cast<CCVKQueue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -723,9 +733,11 @@ void CCVKDevice::present() {
     gpuFencePool()->reset();
     gpuRecycleBin()->clear();
     gpuStagingBufferPool()->reset();
+#if CC_USE_XR
     if (_xr) {
         _xr->postGFXDevicePresent(_api);
     }
+#endif
 }
 
 CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex]; }

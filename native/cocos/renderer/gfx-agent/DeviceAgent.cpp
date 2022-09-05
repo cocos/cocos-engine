@@ -156,8 +156,7 @@ void DeviceAgent::present() {
                 actor->present();
             });
     }
-    return;
-#endif
+#else
     ENQUEUE_MESSAGE_2(
         _mainMessageQueue, DevicePresent,
         actor, _actor,
@@ -171,6 +170,7 @@ void DeviceAgent::present() {
     _mainMessageQueue->finishWriting();
     _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
     _frameBoundarySemaphore.wait();
+#endif
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {

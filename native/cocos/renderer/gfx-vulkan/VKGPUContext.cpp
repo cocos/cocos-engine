@@ -24,9 +24,10 @@
 ****************************************************************************/
 
 #include "VKGPUObjects.h"
-#include "application/ApplicationManager.h"
-#include "platform/java/modules/XRInterface.h"
-
+#if CC_USE_XR
+    #include "application/ApplicationManager.h"
+    #include "platform/java/modules/XRInterface.h"
+#endif
 namespace cc {
 namespace gfx {
 
@@ -55,11 +56,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
         return VK_FALSE;
     }
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-        //CC_LOG_INFO("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+        // CC_LOG_INFO("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
         return VK_FALSE;
     }
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-        //CC_LOG_DEBUG("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+        // CC_LOG_DEBUG("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
         return VK_FALSE;
     }
     CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
@@ -84,11 +85,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
         return VK_FALSE;
     }
     if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
-        //CC_LOG_INFO("%s: %s", layerPrefix, message);
+        // CC_LOG_INFO("%s: %s", layerPrefix, message);
         return VK_FALSE;
     }
     if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
-        //CC_LOG_DEBUG("%s: %s", layerPrefix, message);
+        // CC_LOG_DEBUG("%s: %s", layerPrefix, message);
         return VK_FALSE;
     }
     CC_LOG_ERROR("%s: %s", layerPrefix, message);
@@ -119,9 +120,10 @@ bool CCVKGPUContext::initialize() {
             apiVersion = VK_MAKE_VERSION(1, FORCE_MINOR_VERSION - 1, 0);
         }
     }
-
+#if CC_USE_XR
     IXRInterface *xr = CC_GET_XR_INTERFACE();
-    if(xr) apiVersion = xr->getXRVkApiVersion(apiVersion);
+    if (xr) apiVersion = xr->getXRVkApiVersion(apiVersion);
+#endif
     minorVersion = VK_VERSION_MINOR(apiVersion);
     if (minorVersion < 1) {
         requestedExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
@@ -245,17 +247,22 @@ bool CCVKGPUContext::initialize() {
     }
 #endif
 
-    // Create the Vulkan instance
-    if(xr) {
+// Create the Vulkan instance
+#if CC_USE_XR
+    if (xr) {
         xr->initializeVulkanData(vkGetInstanceProcAddr);
         vkInstance = xr->createXRVulkanInstance(instanceInfo);
-    } else {
+    }
+#else
+    {
         VkResult res = vkCreateInstance(&instanceInfo, nullptr, &vkInstance);
         if (res == VK_ERROR_LAYER_NOT_PRESENT) {
             CC_LOG_ERROR("Create Vulkan instance failed due to missing layers, aborting...");
             return false;
         }
     }
+#endif
+
     volkLoadInstanceOnly(vkInstance);
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
@@ -278,12 +285,13 @@ bool CCVKGPUContext::initialize() {
     }
 
     ccstd::vector<VkPhysicalDevice> physicalDeviceHandles(physicalDeviceCount);
-    if(xr) {
+#if CC_USE_XR
+    if (xr) {
         physicalDeviceHandles[0] = xr->getXRVulkanGraphicsDevice();
-    } else {
-        VK_CHECK(vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));
     }
-
+#else
+    VK_CHECK(vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));
+#endif
     ccstd::vector<VkPhysicalDeviceProperties> physicalDevicePropertiesList(physicalDeviceCount);
 
     uint32_t deviceIndex;

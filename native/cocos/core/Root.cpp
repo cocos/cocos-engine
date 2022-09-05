@@ -27,8 +27,10 @@
 #include "2d/renderer/Batcher2d.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
-#include "platform/BasePlatform.h"
-#include "platform/java/modules/XRInterface.h"
+#if CC_USE_XR
+    #include "platform/BasePlatform.h"
+    #include "platform/java/modules/XRInterface.h"
+#endif
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
@@ -73,8 +75,9 @@ Root::~Root() {
 
 void Root::initialize(gfx::Swapchain *swapchain) {
     _swapchain = swapchain;
+#if CC_USE_XR
     _xr = CC_GET_XR_INTERFACE();
-
+#endif
     gfx::RenderPassInfo renderPassInfo;
 
     gfx::ColorAttachment colorAttachment;
@@ -127,11 +130,13 @@ void Root::destroy() {
 void Root::resize(uint32_t width, uint32_t height) {
     for (const auto &window : _windows) {
         if (window->getSwapchain()) {
+#if CC_USE_XR
             if (_xr) {
                 // xr, window's width and height should not change by device
                 width = window->getWidth();
                 height = window->getHeight();
             }
+#endif
             window->resize(width, height);
         }
     }
@@ -408,13 +413,16 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         _fpsTime = 0.0;
     }
 
+#if CC_USE_XR
     if (_xr) {
         doXRFrameMove(totalFrames);
-    } else {
-        frameMoveBegin();
-        frameMoveProcess(true, totalFrames, _windows);
-        frameMoveEnd();
     }
+    return;
+#endif
+
+    frameMoveBegin();
+    frameMoveProcess(true, totalFrames, _windows);
+    frameMoveEnd();
 }
 
 scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {
@@ -494,6 +502,7 @@ void Root::destroyScenes() {
     _scenes.clear();
 }
 
+#if CC_USE_XR
 void Root::doXRFrameMove(int32_t totalFrames) {
     if (_xr->isRenderAllowable()) {
         bool isSceneUpdated = false;
@@ -520,9 +529,9 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             }
 
             frameMoveBegin();
-            //condition1: mainwindow has left camera && right camera,
-            //but we only need left/right camera when in left/right eye loop
-            //condition2: main camera draw twice
+            // condition1: mainwindow has left camera && right camera,
+            // but we only need left/right camera when in left/right eye loop
+            // condition2: main camera draw twice
             ccstd::vector<IntrusivePtr<scene::RenderWindow>> xrWindows;
             for (const auto &window : _windows) {
                 if (window->getSwapchain()) {
@@ -580,5 +589,6 @@ void Root::doXRFrameMove(int32_t totalFrames) {
         CC_LOG_WARNING("[XR] isRenderAllowable is false !!!");
     }
 }
+#endif
 
 } // namespace cc

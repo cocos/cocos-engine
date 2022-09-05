@@ -61,7 +61,7 @@ struct CC_DLL DebugViewConfig {
 
 class Root final {
 public:
-    static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
+    static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
     ~Root();
 
@@ -142,7 +142,7 @@ public:
 
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
-        //cjh TODO: need use model pool?
+        // cjh TODO: need use model pool?
         T *model = ccnew T();
         model->initialize();
         return model;
@@ -152,7 +152,7 @@ public:
 
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
-        //TODO(xwx): need use model pool?
+        // TODO(xwx): need use model pool?
         T *light = ccnew T();
         light->initialize();
         return light;
@@ -276,8 +276,10 @@ private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
     void frameMoveEnd();
+#if CC_USE_XR
     void doXRFrameMove(int32_t totalFrames);
-
+    IXRInterface *_xr{nullptr};
+#endif
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
     Batcher2d *_batcher{nullptr};
@@ -299,7 +301,6 @@ private:
     bool _useDeferredPipeline{false};
     bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
-    IXRInterface *_xr{nullptr};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;

@@ -76,7 +76,7 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
         if (!fps)
             SwappyGL_setSwapIntervalNS(SWAPPY_SWAP_60FPS);
         else
-            SwappyGL_setSwapIntervalNS(1000000000L / fps); //ns
+            SwappyGL_setSwapIntervalNS(1000000000L / fps); // ns
         enableSwappy &= SwappyGL_setWindow(window);
         _gpuSwapchain->swappyEnabled = enableSwappy;
     } else {
@@ -96,6 +96,7 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     #endif
 #endif
 
+#if CC_USE_XR
     IXRInterface *xr = CC_GET_XR_INTERFACE();
     EGLSurfaceType surfaceType = xr ? xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
     if (surfaceType == EGLSurfaceType::PBUFFER) {
@@ -114,6 +115,13 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     if (xr) {
         GLES3Device::getInstance()->context()->makeCurrent(_gpuSwapchain, _gpuSwapchain);
     }
+#else
+    EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
+    if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+        CC_LOG_ERROR("Create window surface failed.");
+        return;
+    }
+#endif
 
     switch (_vsyncMode) {
         case VsyncMode::OFF: _gpuSwapchain->eglSwapInterval = 0; break;
@@ -208,6 +216,7 @@ void GLES3Swapchain::doCreateSurface(void *windowHandle) {
 #endif
 
     if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+#if CC_USE_XR
         IXRInterface *xr = CC_GET_XR_INTERFACE();
         EGLSurfaceType surfaceType = xr ? xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
         if (surfaceType == EGLSurfaceType::PBUFFER) {
@@ -224,8 +233,15 @@ void GLES3Swapchain::doCreateSurface(void *windowHandle) {
                 return;
             }
         }
-    }
 
+#else
+        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
+        if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+            CC_LOG_ERROR("Recreate window surface failed.");
+            return;
+        }
+#endif
+    }
     context->makeCurrent(_gpuSwapchain, _gpuSwapchain);
 }
 

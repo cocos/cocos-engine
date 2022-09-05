@@ -82,7 +82,9 @@ Camera::Camera(gfx::Device *device)
         assignMat4(correctionMatrices[static_cast<int>(gfx::SurfaceTransform::ROTATE_180)], -1, 0, 0, 0, 0, -ySign);
         assignMat4(correctionMatrices[static_cast<int>(gfx::SurfaceTransform::ROTATE_270)], 0, -1, 0, 0, ySign, 0);
     }
+#if CC_USE_XR
     _xr = CC_GET_XR_INTERFACE();
+#endif
 }
 
 Camera::~Camera() = default;
@@ -197,7 +199,7 @@ void Camera::update(bool forceUpdate /*false*/) {
         viewProjDirty = true;
         _isProjDirty = false;
     }
-
+#if CC_USE_XR
     if (_xr) {
         xr::XREye wndXREye = _xr->getXREyeByRenderWindow(_window);
         if (wndXREye != xr::XREye::NONE && _proj == CameraProjection::PERSPECTIVE && _xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool()) {
@@ -208,7 +210,7 @@ void Camera::update(bool forceUpdate /*false*/) {
             viewProjDirty = true;
         }
     }
-
+#endif
     // view-projection
     if (viewProjDirty) {
         Mat4::multiply(_matProj, _matView, &_matViewProj);

@@ -27,8 +27,9 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXSwapchain.h"
-#include "platform/java/modules/XRInterface.h"
-
+#if CC_USE_XR
+    #include "platform/java/modules/XRInterface.h"
+#endif
 namespace cc {
 namespace gfx {
 
@@ -60,7 +61,9 @@ protected:
     void destroySwapchain(CCVKGPUDevice *gpuDevice);
 
     CCVKGPUSwapchain *_gpuSwapchain = nullptr;
+#if CC_USE_XR
     IXRInterface *_xr = nullptr;
+#endif
 };
 
 } // namespace gfx
