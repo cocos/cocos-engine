@@ -17,7 +17,9 @@ import { array } from '../../core/utils/js';
 import { move } from '../../core/algorithm/move';
 import { onAfterDeserializedTag } from '../../core/data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { StateMachineComponent } from './state-machine-component';
 import { clamp } from '../../core/math';
+import { AnimationGraphLike } from './animation-graph-like';
 
 export { State };
 
@@ -765,7 +767,7 @@ export type VariableDescription =
     | TriggerVariable;
 
 @ccclass('cc.animation.AnimationGraph')
-export class AnimationGraph extends Asset implements AnimationGraphRunTime {
+export class AnimationGraph extends AnimationGraphLike implements AnimationGraphRunTime {
     public declare readonly __brand: 'AnimationGraph';
 
     @serializable

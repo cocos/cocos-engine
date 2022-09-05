@@ -14,3 +14,4 @@ export { AnimationBlend2D } from './animation-blend-2d';
 export { VariableType } from './parametric';
 export { BindableNumber, BindableBoolean } from './parametric';
 export { AnimationMask } from './animation-mask';
+export { AnimationGraphVariant } from './animation-graph-variant';
