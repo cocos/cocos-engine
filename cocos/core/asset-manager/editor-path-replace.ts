@@ -39,7 +39,7 @@ if ((EDITOR || PREVIEW) && !TEST) {
                 const item = task.input[i];
                 if (!item.uuid || item.isNative) { continue; }
                 try {
-                    const extension = await queryExtension(item.uuid);
+                    const extension = await queryExtension(item.overrideUuid || item.uuid);
                     if (extension) {
                         item.ext = extension;
                         item.url = item.url.replace('.json', extension);

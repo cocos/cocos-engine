@@ -44,6 +44,7 @@ export interface IParticleSystemRenderer {
     attachToScene (): void;
     detachFromScene (): void;
     updateMaterialParams (): void;
+    updateVertexAttrib (): void;
     setVertexAttributes (): void;
     updateRenderMode (): void;
     onMaterialModified (index: number, material: Material): void;
@@ -132,6 +133,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
 
     public setVertexAttributes () {
         if (this._model) {
+            this.updateVertexAttrib();
             this._model.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
         }
     }
@@ -158,6 +160,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract getFreeParticle (): Particle | null;
     public abstract onMaterialModified (index: number, material: Material) : void;
     public abstract onRebuildPSO (index: number, material: Material) : void;
+    public abstract updateVertexAttrib (): void;
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
     public abstract setNewParticle (p: Particle): void;

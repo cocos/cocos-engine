@@ -21,20 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-/*
-#include "core/Director.h"
+
+//#include "core/Director.h"
 #include "core/Root.h"
-#include "core/platform/event-manager/Events.h"
-#include "core/scene-graph/SceneGraphModuleHeader.h"
+//#include "core/platform/event-manager/Events.h"
+//#include "core/scene-graph/SceneGraphModuleHeader.h"
+#include "core/scene-graph/Scene.h"
 #include "gtest/gtest.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "utils.h"
 
 using namespace cc;
-using namespace cc::event;
+//using namespace cc::event;
 using namespace cc::gfx;
-
+/*
 namespace {
 
 template <typename T>
@@ -361,3 +362,55 @@ TEST(CoreNodeEventProcessor, test_function_args) {
     delete node;
 }
 */
+
+TEST(NodeTransform, test_node_transform) {
+    IntrusivePtr<Scene> scene = new Scene("temp");
+    IntrusivePtr<Node> node = new Node();
+    node->setParent(scene);
+    node->setPosition(Vec3(10, 3.5, -2.4));
+    node->setEulerAngles(Vec3(47.5, 23, -3));
+    node->setScale(Vec3(2, 0.5, 1));
+
+    IntrusivePtr<Node> node2 = new Node();
+    node2->setPosition(Vec3(5, -10, 3));
+    node2->setEulerAngles(Vec3(0, 90, 45));
+    node2->setScale(Vec3(1, 1, 2));
+    node2->setParent(scene);
+    const Vec3 globalPosition = node2->getWorldPosition();
+
+    node2->setParent(node, true);
+    node2->updateWorldTransform();
+    EXPECT_TRUE(node2->getWorldPosition().approxEquals(globalPosition));
+    Vec3 tmpVec3;
+    Vec3::transformMat4(Vec3(0, 0, 0), node2->getWorldMatrix(), &tmpVec3);
+    EXPECT_TRUE(tmpVec3.approxEquals(Vec3(5, -10, 3)));
+    Mat4 tmp1Mat4;
+    Mat4::multiply(node->getWorldMatrix().getInversed(), node2->getWorldMatrix(), &tmp1Mat4);
+    Mat4 tmp2Mat4;
+    Mat4::fromRTS(node2->getRotation(), node2->getPosition(), node2->getScale(), &tmp2Mat4);
+    EXPECT_TRUE(tmp1Mat4.approxEquals(tmp2Mat4));
+
+    node2->setParent(scene, true);
+    node2->updateWorldTransform();
+    EXPECT_TRUE(node2->getWorldPosition().approxEquals(globalPosition));
+    Vec3::transformMat4(Vec3(0, 0, 0), node2->getWorldMatrix(), &tmpVec3);
+    EXPECT_TRUE(tmpVec3.approxEquals(Vec3(5, -10, 3)));
+    Mat4::fromRTS(node2->getRotation(), node2->getPosition(), node2->getScale(), &tmp1Mat4);
+    EXPECT_TRUE(node2->getWorldMatrix().approxEquals(tmp1Mat4));
+    const auto rot = node2->getRotation();
+    const auto scale = node2->getScale();
+    const auto pos = node2->getPosition();
+    const auto worldMat = node2->getWorldMatrix();
+
+    // set parent's scale to zero
+    node->setScale(Vec3(0, 2, 1));
+    node2->setParent(node, true);
+    node2->updateWorldTransform();
+    EXPECT_TRUE(node2->getPosition().approxEquals(pos));
+    EXPECT_TRUE(node2->getRotation().approxEquals(rot));
+    EXPECT_TRUE(node2->getScale().approxEquals(scale));
+    EXPECT_FALSE(node2->getWorldPosition().approxEquals(globalPosition));
+    EXPECT_FALSE(node2->getWorldMatrix().approxEquals(worldMat));
+    float v = node2->getWorldMatrix().determinant();
+    EXPECT_TRUE(0 <= v && v <= 6);
+}

@@ -23,9 +23,12 @@
  THE SOFTWARE.
  */
 
-import { maskAssembler as mask, maskEndAssembler as maskEnd } from './mask-assembler';
+import { deprecateModuleExportedName } from '../../core/utils/x-deprecated';
 
-export {
-    mask,
-    maskEnd,
-};
+deprecateModuleExportedName({
+    Renderable2D: {
+        newName: 'UIRenderer',
+        since: '3.6.0',
+        removed: true,
+    },
+});

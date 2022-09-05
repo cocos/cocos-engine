@@ -84,6 +84,12 @@ export class UIOpacity extends Component {
 
     // for UIOpacity
     public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
+        if (!node.isValid) {
+            // Since children might be destroyed before the parent,
+            // we should add protecting condition when executing recursion downwards.
+            return;
+        }
+
         const render = node._uiProps.uiComp as UIRenderer;
         const uiOp = node.getComponent<UIOpacity>(UIOpacity);
         let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
@@ -99,7 +105,8 @@ export class UIOpacity extends Component {
             interruptOpacity = 1;
         } else if (uiOp) {
             // there is a just UIOpacity but no UIRenderer on the node.
-            interruptOpacity = uiOp.opacity / 255;
+            // we should transport the interrupt opacity downward
+            interruptOpacity = interruptOpacity * uiOp.opacity / 255;
         }
 
         for (let i = 0; i < node.children.length; i++) {

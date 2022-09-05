@@ -1560,6 +1560,13 @@ export class Terrain extends Component {
             asset.layerBuffer[i * 4 + 3] = this._blocks[i].layers[3];
         }
 
+        this.exportLayerListToAsset(asset);
+
+        return asset;
+    }
+
+    public exportLayerListToAsset (asset: TerrainAsset) {
+        asset.layerInfos.length = 0;
         for (let i = 0; i < this._layerList.length; ++i) {
             const temp = this._layerList[i];
             if (temp && temp.detailMap && isValid(temp.detailMap)) {
@@ -1570,12 +1577,9 @@ export class Terrain extends Component {
                 layer.normalMap = temp.normalMap;
                 layer.metallic = temp.metallic;
                 layer.roughness = temp.roughness;
-
                 asset.layerInfos.push(layer);
             }
         }
-
-        return asset;
     }
 
     public getEffectAsset () {
@@ -1657,6 +1661,9 @@ export class Terrain extends Component {
         for (let i = 0; i < this._layerList.length; ++i) {
             if (this._layerList[i] === null || (this._layerList[i] && this._layerList[i]?.detailMap === null)) {
                 this._layerList[i] = layer;
+                if (this._asset) {
+                    this.exportLayerListToAsset(this._asset);
+                }
                 return i;
             }
         }
@@ -1670,6 +1677,9 @@ export class Terrain extends Component {
      */
     public setLayer (i: number, layer: TerrainLayer) {
         this._layerList[i] = layer;
+        if (this._asset) {
+            this.exportLayerListToAsset(this._asset);
+        }
     }
 
     /**
@@ -1678,6 +1688,9 @@ export class Terrain extends Component {
      */
     public removeLayer (id: number) {
         this._layerList[id] = null;
+        if (this._asset) {
+            this.exportLayerListToAsset(this._asset);
+        }
     }
 
     /**

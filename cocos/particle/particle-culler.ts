@@ -36,6 +36,7 @@ import { AABB } from '../core/geometry';
 import type { ParticleSystem } from './particle-system';
 
 const _node_mat = new Mat4();
+const _node_parent_inv = new Mat4();
 const _node_rol = new Quat();
 const _node_scale = new Vec3();
 
@@ -209,6 +210,11 @@ export class ParticleCuller {
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
 
+        if (ps.node.parent) {
+            ps.node.parent.getWorldMatrix(_node_parent_inv);
+            _node_parent_inv.invert();
+        }
+
         for (let i = 0; i < particleLst.length; ++i) {
             const p: Particle = particleLst[i];
             p.remainingLifetime -= dt;
@@ -220,6 +226,9 @@ export class ParticleCuller {
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
+                if (ps.node.parent) {
+                    this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                }
                 this._gravity = this._gravity.transformMat4(this._localMat);
 
                 p.velocity.x += this._gravity.x;

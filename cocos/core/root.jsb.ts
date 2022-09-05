@@ -5,6 +5,7 @@ import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
 import { DebugView } from './pipeline/debug-view';
 import { buildDeferredLayout, buildForwardLayout } from './pipeline/custom/effect';
+import { settings, Settings } from './settings';
 
 declare const nr: any;
 declare const jsb: any;
@@ -97,6 +98,8 @@ rootProto._ctor = function (device: Device) {
 rootProto.initialize = function (info: IRootInfo) {
     // TODO:
     this._initialize(deviceManager.swapchain);
+    const customJointTextureLayouts = settings.querySettings(Settings.Category.ANIMATION, 'customJointTextureLayouts') || [];
+    this._dataPoolMgr?.jointTexturePool.registerCustomTextureLayouts(customJointTextureLayouts);
 };
 
 rootProto.createModel = function (ModelCtor) {

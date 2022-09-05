@@ -628,5 +628,7 @@ static constexpr uint32_t CLUSTER_LIGHT_BINDING = 4;
 static constexpr uint32_t CLUSTER_LIGHT_INDEX_BINDING = 5;
 static constexpr uint32_t CLUSTER_LIGHT_GRID_BINDING = 6;
 
+void localDescriptorSetLayoutResizeMaxJoints(uint32_t maxCount);
+
 } // namespace pipeline
 } // namespace cc
