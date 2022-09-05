@@ -83,8 +83,8 @@ uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
     return 0;
 }
 
-PersistentRenderPassAndFramebuffer createRenderPassAndFramebuffer(RenderGraphVisitorContext& ctx,
-    const RasterPass& pass) {
+PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
+    RenderGraphVisitorContext& ctx, const RasterPass& pass) {
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
     gfx::RenderPassInfo rpInfo;
     uint32_t numDepthStencil = 0;
@@ -154,6 +154,11 @@ PersistentRenderPassAndFramebuffer createRenderPassAndFramebuffer(RenderGraphVis
         CC_EXPECTS(false);
     }
     data.renderPass = ctx.device->createRenderPass(rpInfo);
+    gfx::FramebufferInfo fbInfo{
+        data.renderPass,
+        // add textures
+    };
+    data.framebuffer = ctx.device->createFramebuffer(fbInfo);
     return data;
 }
 
@@ -183,7 +188,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (iter == ctx.context.renderPasses.end()) {
             bool added = false;
             std::tie(iter, added) = ctx.context.renderPasses.emplace(
-                pass, createRenderPassAndFramebuffer(ctx, pass));
+                pass, createPersistentRenderPassAndFramebuffer(ctx, pass));
             CC_ENSURES(added);
         }
         ++iter->second.refCount;
@@ -197,16 +202,40 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             data.clearDepth, data.clearStencil);
     }
     void begin(const ComputePass& pass) const {
+        preBarriers();
+        for (const auto& [name, views] : pass.computeViews) {
+            for (const auto& view : views) {
+                if (view.clearFlags != gfx::ClearFlags::NONE) {
+                    // clear resources
+                }
+            }
+        }
     }
     void begin(const CopyPass& pass) const {
+        preBarriers();
+        for (const auto& copy : pass.copyPairs) {
+        }
     }
     void begin(const MovePass& pass) const {
+        // if fully optimized, move pass should have been removed from graph
+        // here we just do copy
+        preBarriers();
+        for (const auto& copy : pass.movePairs) {
+        }
     }
     void begin(const PresentPass& pass) const {
+        preBarriers();
+        for (const auto& [name, present] : pass.presents) {
+            // do presents
+        }
     }
     void begin(const RaytracePass& pass) const {
+        // not implemented yet
+        CC_EXPECTS(false);
+        preBarriers();
     }
     void begin(const RenderQueue& pass) const {
+        
     }
     void begin(const SceneData& pass) const {
     }
@@ -218,21 +247,27 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void begin(const gfx::Viewport& pass) const {
     }
-
     void end(const RasterPass& pass) const {
         auto* cmdBuff = ctx.cmdBuff;
         cmdBuff->endRenderPass();
         postBarriers();
     }
     void end(const ComputePass& pass) const {
+        postBarriers();
     }
     void end(const CopyPass& pass) const {
+        postBarriers();
     }
     void end(const MovePass& pass) const {
+        postBarriers();
     }
     void end(const PresentPass& pass) const {
+        postBarriers();
     }
     void end(const RaytracePass& pass) const {
+        // not implemented yet
+        CC_EXPECTS(false);
+        postBarriers();
     }
     void end(const RenderQueue& pass) const {
     }
@@ -258,6 +293,12 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             });
     }
 
+    void forward_or_cross_edge(
+        const AddressableView<RenderGraph>::edge_descriptor u,
+        const AddressableView<RenderGraph>& g) {
+        
+    }
+
     void finish_vertex(
         RenderGraph::vertex_descriptor vertID,
         const AddressableView<RenderGraph>& gv) const {
@@ -270,7 +311,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
 
     RenderGraphVisitorContext& ctx;
-    
 };
 
 void executeRenderGraph(const RenderGraph& renderGraph) {
