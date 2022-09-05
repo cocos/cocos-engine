@@ -31,10 +31,10 @@
 #include "VKRenderPass.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 #if CC_USE_XR
     #include "application/ApplicationManager.h"
-    #include "platform/BasePlatform.h"
-    #include "platform/interfaces/modules/ISystemWindow.h"
 #endif
 #if CC_SWAPPY_ENABLED
     #include "platform/android/AndroidPlatform.h"
