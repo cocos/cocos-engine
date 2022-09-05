@@ -1,14 +1,14 @@
 import { BlendStateBuffer, LegacyBlendStateBuffer } from '../../../cocos/3d/skeletal-animation/skeletal-animation-blending';
 import { Node } from '../../../cocos/core';
-import { Motion, MotionEval } from '../../../cocos/core/animation/marionette/motion';
-import { createEval } from '../../../cocos/core/animation/marionette/create-eval';
-import { BindContext } from '../../../cocos/core/animation/marionette/parametric';
-import { VarInstance, Value, VariableType } from '../../../cocos/core/animation/marionette/variable';
+import { Motion, MotionEval } from '../../../cocos/animation/marionette/motion';
+import { createEval } from '../../../cocos/animation/marionette/create-eval';
+import { BindContext } from '../../../cocos/animation/marionette/parametric';
+import { VarInstance, Value, VariableType } from '../../../cocos/animation/marionette/variable';
 import { assertIsNonNullable } from '../../../cocos/core/data/utils/asserts';
 import {
     AnimationBlendEval,
-} from '../../../cocos/core/animation/marionette/animation-blend';
-import type { RuntimeID } from '../../../cocos/core/animation/marionette/graph-debug';
+} from '../../../cocos/animation/marionette/animation-blend';
+import type { RuntimeID } from '../../../cocos/animation/marionette/graph-debug';
 
 class AnimationGraphPartialPreviewer {
     constructor(root: Node) {
