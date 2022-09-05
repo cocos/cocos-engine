@@ -322,7 +322,8 @@ public:
                         xr->onRenderResume();
                     }
 
-                    auto *window = static_cast<cc::SystemWindow *>(CC_GET_SYSTEM_WINDOW(1));
+                    auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
+                    auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(1));
                     window->setWindowHandle(nativeWindow);
 
                     cc::CustomEvent event;

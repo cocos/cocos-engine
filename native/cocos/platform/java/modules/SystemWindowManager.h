@@ -45,6 +45,7 @@ public:
     const SystemWindowMap &getWindows() const override { return _windows; }
 
     ISystemWindow *getWindowFromANativeWindow(ANativeWindow *window) const;
+    bool isExternalHandleExist(void *handle) const;
 
 private:
     uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID

@@ -31,6 +31,7 @@
 #include "platform/BasePlatform.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/IScreen.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -45,7 +46,6 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-#include "platform/interfaces/modules/IScreen.h"
 
 namespace cc {
 
@@ -99,7 +99,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     if (!window) {
         return nullptr;
     }
-    
+
     auto *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
     float pixelRatio = screen->getDevicePixelRatio();
 

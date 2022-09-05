@@ -42,13 +42,20 @@ void SystemWindowManager::swapWindows() {
 }
 
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
-    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
-    if (window) {
-        window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
-        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
-        _nextWindowId++;
+    if (!info.externalHandle || !isExternalHandleExist(info.externalHandle)) {
+        ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
+        if (window) {
+            window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+            _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+            _nextWindowId++;
+        }
+        return window;
+    } else {
+        return getWindowFromANativeWindow(static_cast<ANativeWindow *>(info.externalHandle));
     }
-    return window;
+    return nullptr;
+}
+
 }
 
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
@@ -75,5 +82,15 @@ ISystemWindow *SystemWindowManager::getWindowFromANativeWindow(ANativeWindow *wi
         }
     }
     return nullptr;
+}
+
+bool SystemWindowManager::isExternalHandleExist(void *externalHandle) const {
+    for (const auto &pair : _windows) {
+        auto *handle = reinterpret_cast<void *>(pair.second->getWindowHandle());
+        if (handle == externalHandle) {
+            return true;
+        }
+    }
+    return false;
 }
 } // namespace cc

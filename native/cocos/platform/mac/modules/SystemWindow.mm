@@ -30,8 +30,10 @@
 namespace cc {
 
 SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
-    : _windowId(windowId)
-    , _externalHandle(externalHandle) {
+    : _windowId(windowId) {
+    if (externalHandle) {
+        _windowHandle = reinterpret_cast<uintptr_t>(externalHandle);
+    }
 }
 
 SystemWindow::~SystemWindow() = default;
@@ -42,7 +44,9 @@ bool SystemWindow::createWindow(const char *title,
     _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
-    [delegate createLeftBottomWindow:aString width:w height:h];
+    _window = [delegate createLeftBottomWindow:aString width:w height:h];
+    NSView *view = [_window contentView];
+    _windowHandle = reinterpret_cast<uintptr_t>(view);
     return true;
 }
 
@@ -54,6 +58,8 @@ bool SystemWindow::createWindow(const char *title,
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
     _window = [delegate createWindow:aString xPos:x yPos:y width:w height:h];
+    NSView *view = [_window contentView];
+    _windowHandle = reinterpret_cast<uintptr_t>(view);
     return true;
 }
 
@@ -77,8 +83,7 @@ void SystemWindow::copyTextToClipboard(const std::string &text) {
 
 uintptr_t SystemWindow::getWindowHandle() const {
     //NSView *view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
-    NSView *view = [_window contentView];
-    return reinterpret_cast<uintptr_t>(view);
+    return _windowHandle;
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {

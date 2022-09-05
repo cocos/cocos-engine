@@ -287,9 +287,9 @@ public:
 
     inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
 
-private:
     scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
 
+private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
     void frameMoveEnd();

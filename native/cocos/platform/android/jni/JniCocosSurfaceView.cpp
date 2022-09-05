@@ -66,9 +66,10 @@ private:
     ANativeWindow *_nativeWindow{nullptr};
 };
 
-static uint32_t getWindowIdFromWindowCache(jlong windowCacheHandle) {
-    auto *windowCache = (NativeWindowCache *)windowCacheHandle;
-    cc::ISystemWindow *window = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager)->getWindowFromANativeWindow(windowCache->getNativeWindow());
+uint32_t getWindowIdFromWindowCache(jlong windowCacheHandle) {
+    auto *windowCache = reinterpret_cast<NativeWindowCache *>(windowCacheHandle);
+    auto *windowMgr = cc::BasePlatform::getPlatform()->getInterface<cc::SystemWindowManager>();
+    cc::ISystemWindow *window = windowMgr->getWindowFromANativeWindow(windowCache->getNativeWindow());
     CC_ASSERT(window);
     return window->getWindowId();
 }
@@ -85,7 +86,7 @@ JNIEXPORT jlong Java_com_cocos_lib_CocosSurfaceView_constructNative(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_destructNative(JNIEnv */*env*/, jobject /*thiz*/, jlong handle) {//NOLINT JNI function name
-    auto *windowCache = (NativeWindowCache *)handle;
+    auto *windowCache = reinterpret_cast<NativeWindowCache *>(handle);
     CC_SAFE_DELETE(windowCache);
 }
 
@@ -106,14 +107,29 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceRedrawNeeded
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNative(JNIEnv *env, jobject /*thiz*/, jlong handle, jobject surface) { //NOLINT JNI function name
     CC_UNUSED_PARAM(env);
     auto *windowCache = (NativeWindowCache *)handle;
+    ANativeWindow *oldNativeWindow = windowCache->getNativeWindow();
     windowCache->setSurface(surface);
-
     ANativeWindow *nativeWindow = windowCache->getNativeWindow();
-    cc::ISystemWindowInfo info;
-    info.width  = ANativeWindow_getWidth(nativeWindow);
-    info.height = ANativeWindow_getHeight(nativeWindow);
-    info.externalHandle = nativeWindow;
-    CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager)->createWindow(info);
+
+    auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    auto *windowMgr = platform->getInterface<cc::SystemWindowManager>();
+    if (oldNativeWindow) {
+        auto *iSysWindow = windowMgr->getWindowFromANativeWindow(oldNativeWindow);
+        auto *sysWindow = static_cast<cc::SystemWindow *>(iSysWindow);
+        sysWindow->setWindowHandle(nativeWindow);
+
+        cc::CustomEvent event;
+        event.name = EVENT_RECREATE_WINDOW;
+        event.args->ptrVal = reinterpret_cast<void *>(sysWindow->getWindowId());
+        auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+        platform->dispatchEvent(event);
+    } else {
+        cc::ISystemWindowInfo info;
+        info.width  = ANativeWindow_getWidth(nativeWindow);
+        info.height = ANativeWindow_getHeight(nativeWindow);
+        info.externalHandle = nativeWindow;
+        cc::ISystemWindow *window = windowMgr->createWindow(info);
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNative(JNIEnv *env,//NOLINT JNI function name
@@ -138,17 +154,17 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNativ
 
         windowCache->setSurface(surface);
         ANativeWindow *newNativeWindow = windowCache->getNativeWindow();
-        //if (oldNativeWindow != newNativeWindow) {
-            auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+        if (oldNativeWindow != newNativeWindow) {
             auto *iSysWindow = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager)->getWindowFromANativeWindow(oldNativeWindow);
             auto *sysWindow = static_cast<cc::SystemWindow *>(iSysWindow);
             sysWindow->setWindowHandle(newNativeWindow);
 
             cc::CustomEvent event;
             event.name = EVENT_RECREATE_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void *>(newNativeWindow);
+            event.args->ptrVal = reinterpret_cast<void *>(sysWindow->getWindowId());
+            auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
             platform->dispatchEvent(event);
-        //}
+        }
         // Release the window we acquired earlier.
         if (oldNativeWindow != nullptr) {
             ANativeWindow_release(oldNativeWindow);
@@ -158,14 +174,15 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNativ
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceDestroyedNative(JNIEnv *env, jobject /*thiz*/, jlong handle) { //NOLINT JNI function name
     auto *windowCache = (NativeWindowCache *)handle;
+    ANativeWindow *nativeWindow = windowCache->getNativeWindow();
+
     // todo: destroy gfx surface
     auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
     cc::CustomEvent event;
     event.name = EVENT_DESTROY_WINDOW;
-    event.args->ptrVal = reinterpret_cast<void *>(windowCache->getNativeWindow());
+    event.args->ptrVal = reinterpret_cast<void *>(nativeWindow);
     platform->dispatchEvent(event);
 
-    windowCache->setSurface(nullptr);
 }
 
 // NOLINTNEXTLINE
