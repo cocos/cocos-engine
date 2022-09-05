@@ -254,8 +254,7 @@ export class RichText extends Component {
         }
 
         this._fontColor = value;
-        this._layoutDirty = true;
-        this._updateRichTextStatus();
+        this._updateTextDefaultColor();
     }
 
     /**
@@ -1026,6 +1025,21 @@ export class RichText extends Component {
                 segment.clickHandler = event.click;
                 segment.clickParam = event.param;
             }
+        }
+    }
+    
+    protected _updateTextDefaultColor () {
+        for (let i = 0; i < this._segments.length; ++i) {
+            const segment = this._segments[i];
+            const label = segment.node.getComponent(Label);
+            if (!label) {
+                continue;
+            }
+            if (this._textArray[segment.styleIndex]?.style?.color) {
+                continue;
+            }
+
+            label.color = this._fontColor;
         }
     }
 
