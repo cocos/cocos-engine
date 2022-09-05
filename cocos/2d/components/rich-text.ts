@@ -836,13 +836,13 @@ export class RichText extends Component {
             // concat previous line
             let checkStartIndex = 0;
             while (this._lineOffsetX <= this._maxWidth) {
-                const checkEndIndex = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
-                const checkString = labelString.substr(checkStartIndex, checkEndIndex);
+                const wordLen = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
+                const checkString = labelString.substr(checkStartIndex, checkStartIndex + wordLen);
                 const checkStringWidth = this._measureText(styleIndex, checkString) as number;
 
                 if (this._lineOffsetX + checkStringWidth <= this._maxWidth) {
                     this._lineOffsetX += checkStringWidth;
-                    checkStartIndex += checkEndIndex;
+                    checkStartIndex += wordLen;
                 } else {
                     if (checkStartIndex > 0) {
                         const remainingString = labelString.substr(0, checkStartIndex);
