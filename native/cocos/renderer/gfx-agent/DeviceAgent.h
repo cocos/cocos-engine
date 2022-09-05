@@ -103,6 +103,7 @@ public:
 
     void presentWait();
     void presentSignal();
+
 protected:
     static DeviceAgent *instance;
 
@@ -120,12 +121,12 @@ protected:
     uint32_t _currentIndex = 0U;
 #if CC_USE_XR
     Semaphore _frameBoundarySemaphore{0};
+    IXRInterface *_xr{nullptr};
 #else
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 #endif
 
     ccstd::unordered_set<CommandBufferAgent *> _cmdBuffRefs;
-    IXRInterface *_xr{nullptr};
 };
 
 } // namespace gfx

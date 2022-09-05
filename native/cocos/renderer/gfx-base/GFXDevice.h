@@ -46,9 +46,10 @@
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
-#include "application/ApplicationManager.h"
-#include "platform/interfaces/modules/IXRInterface.h"
-
+#if CC_USE_XR
+    #include "application/ApplicationManager.h"
+    #include "platform/java/modules/XRInterface.h"
+#endif
 namespace cc {
 namespace gfx {
 
@@ -153,7 +154,10 @@ protected:
     virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
     virtual PipelineLayout *createPipelineLayout() = 0;
     virtual PipelineState *createPipelineState() = 0;
+
+#if CC_USE_XR
     virtual Swapchain *createXRSwapchain(const SwapchainInfo &info);
+#endif
 
     virtual Sampler *createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
     virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return ccnew GeneralBarrier(info); }
@@ -192,7 +196,9 @@ protected:
     ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
     ccstd::unordered_map<BufferBarrierInfo, BufferBarrier *, Hasher<BufferBarrierInfo>> _bufferBarriers;
 
+#if CC_USE_XR
     IXRInterface *_xr{nullptr};
+#endif
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
 };
@@ -218,9 +224,11 @@ QueryPool *Device::createQueryPool(const QueryPoolInfo &info) {
 }
 
 Swapchain *Device::createSwapchain(const SwapchainInfo &info) {
+#if CC_USE_XR
     if (_xr) {
         return createXRSwapchain(info);
     }
+#endif
     Swapchain *res = createSwapchain();
     res->initialize(info);
     _swapchains.push_back(res);
