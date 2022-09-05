@@ -28,8 +28,9 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
-import { clamp, EPSILON, random } from './utils';
+import { approx, clamp, EPSILON, lerp, random } from './utils';
 import { legacyCC } from '../global-exports';
+import type { Quat } from './quat';
 
 /**
  * @en Representation of 3D vectors and points.
@@ -354,6 +355,77 @@ export class Vec3 extends ValueType {
         out.z = a.z + t * (b.z - a.z);
         return out;
     }
+
+    /**
+     * @zh 球面线性插值。多用于插值两个方向向量。
+     * @en Spherical linear interpolation. Commonly used in interpolation between directional vectors.
+     * @param out @zh 出口向量。 @en Output vector.
+     * @param from @zh 起点向量。 @en Start vector.
+     * @param to @zh 终点向量。 @en Destination vector.
+     * @param t @zh 插值参数。@en Interpolation parameter.
+     * @returns `out`
+     * @description
+     * @zh
+     * - 如果 `from`、`to` 中任何一个接近零向量，则结果就是 `from` 到 `to` 线性插值的结果；
+     *
+     * - 否则，如果 `from`、`to` 方向刚好接近相反，
+     * 则结果向量是满足以下条件的一个向量：结果向量和两个输入向量的夹角之比是 `t`，其长度是 `from` 到 `to` 的长度线性插值的结果；
+     *
+     * - 否则，结果是从标准化后的 `from` 到 标准化后的 `to`
+     * 进行球面线性插值的结果乘以 `from` 到 `to` 的长度线性插值后的长度。
+     * @en
+     * - If either `from` or `to` is close to zero vector,
+     * the result would be the (non-spherical) linear interpolation result from `from` to `to`.
+     *
+     * - Otherwise, if `from` and `to` have almost opposite directions,
+     * the result would be such a vector so that:
+     * The angle ratio between result vector and input vectors is `t`,
+     * the length of result vector is the linear interpolation of lengths from `from` to `to`.
+     *
+     * - Otherwise, the result would be the spherical linear interpolation result
+     * from normalized `from` to normalized `to`,
+     * then scaled by linear interpolation of lengths from `from` to `to`.
+     */
+    public static slerp= (() => {
+        const cacheV1 = new Vec3();
+        const cacheV2 = new Vec3();
+        const cacheV3 = new Vec3();
+        return <Out extends IVec3Like> (out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => {
+            const EPSILON = 1e-5;
+            const lenFrom = Vec3.len(from);
+            const lenTo = Vec3.len(to);
+            if (lenFrom < EPSILON || lenTo < EPSILON) {
+                return Vec3.lerp(out, from, to, t);
+            }
+            const lenLerped = lerp(lenFrom, lenTo, t);
+            const dot = Vec3.dot(from, to) / (lenFrom * lenTo);
+            if (dot > 1.0 - EPSILON) {
+                // If the directions are almost same, slerp should be close to lerp.
+                return Vec3.lerp(out, from, to, t);
+            } else if (dot < -1.0 + EPSILON) {
+                // If the directions are almost opposite,
+                // every vector that orthonormal to the directions can be the rotation axis.
+                const fromNormalized = Vec3.multiplyScalar(cacheV1, from, 1.0 / lenFrom);
+                const axis = chooseAnyPerpendicular(cacheV2, fromNormalized);
+                const angle = Math.PI * t;
+                rotateAxisAngle(cacheV3, fromNormalized, axis, angle);
+                Vec3.multiplyScalar(out, cacheV3, lenLerped);
+                return out;
+            } else {
+                // Do not have to clamp. We done it before.
+                const dotClamped = dot;
+                const theta = Math.acos(dotClamped) * t;
+                const fromNormalized = Vec3.multiplyScalar(cacheV1, from, 1.0 / lenFrom);
+                const toNormalized = Vec3.multiplyScalar(cacheV2, to, 1.0 / lenTo);
+                Vec3.scaleAndAdd(cacheV3, toNormalized, fromNormalized, -dotClamped);
+                Vec3.normalize(cacheV3, cacheV3);
+                Vec3.multiplyScalar(cacheV3, cacheV3, Math.sin(theta));
+                Vec3.scaleAndAdd(cacheV3, cacheV3, fromNormalized, Math.cos(theta));
+                Vec3.multiplyScalar(out, cacheV3, lenLerped);
+                return out;
+            }
+        };
+    })();
 
     /**
      * @en Generates a uniformly distributed random vector points from center to the surface of the unit sphere
@@ -1056,5 +1128,56 @@ export function v3 (x?: number, y?: number, z?: number): Vec3;
 export function v3 (x?: number | Vec3, y?: number, z?: number) {
     return new Vec3(x as any, y, z);
 }
+
+/**
+ * Chooses an arbitrary unit vector that is perpendicular to input.
+ */
+const chooseAnyPerpendicular = (() => {
+    const cacheV = new Vec3();
+    return (out: Vec3, v: Readonly<Vec3>) => {
+        // https://math.stackexchange.com/a/413235
+        const EPSILON = 1e-5;
+        if (!approx(v.x, 0.0, EPSILON)) {
+            // Select n = y.
+            cacheV.y = v.x;
+            cacheV.x = -v.y;
+            cacheV.z = 0.0;
+        } else if (!approx(v.y, 0.0, EPSILON)) {
+            // Select n = x.
+            cacheV.x = v.y;
+            cacheV.y = -v.x;
+            cacheV.z = 0.0;
+        } else {
+            // Select n = y.
+            cacheV.y = v.z;
+            cacheV.z = -v.y;
+            cacheV.x = 0.0;
+        }
+        Vec3.normalize(out, cacheV);
+        return out;
+    };
+})();
+
+/**
+ * Rotates `input` around `axis` for `angle` radians.
+ */
+const rotateAxisAngle = (() => {
+    // TODO: can this cause v8 hidden class problem?
+    const cacheQ = { x: 0.0, y: 0.0, z: 0.0, w: 0.0 };
+    return (out: Vec3, input: Readonly<Vec3>, axis: Readonly<Vec3>, angle: number) => {
+        // This should be equivalent to `Quat.fromAxisAngle(cacheQ, axis, angle)`.
+        // Here we duplicate the code to avoid circular reference.
+
+        const rad = angle * 0.5;
+        const s = Math.sin(rad);
+        cacheQ.x = s * axis.x;
+        cacheQ.y = s * axis.y;
+        cacheQ.z = s * axis.z;
+        cacheQ.w = Math.cos(rad);
+
+        Vec3.transformQuat(out, input, cacheQ);
+        return out;
+    };
+})();
 
 legacyCC.v3 = v3;
