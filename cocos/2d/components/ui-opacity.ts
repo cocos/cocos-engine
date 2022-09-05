@@ -67,6 +67,7 @@ export class UIOpacity extends Component {
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
 
+        this.resetOpacityDirty(this.node);
         this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
@@ -115,6 +116,18 @@ export class UIOpacity extends Component {
 
         for (let i = 0; i < node.children.length; i++) {
             UIOpacity.setEntityLocalOpacityDirtyRecursively(node.children[i], dirty || (interruptOpacity < 1), interruptOpacity);
+        }
+    }
+
+    // If this opacity changes, we should mark opacityDirty of it and its all children as false
+    // to recalculate their localOpacity and fill them in entity
+    protected resetOpacityDirty (node:Node) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        if (render && render.color) {
+            render.renderEntity.opacityDirty = false;
+        }
+        for (let i = 0; i < node.children.length; i++) {
+            this.resetOpacityDirty(node.children[i]);
         }
     }
 
