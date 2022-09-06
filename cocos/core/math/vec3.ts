@@ -1132,31 +1132,22 @@ export function v3 (x?: number | Vec3, y?: number, z?: number) {
 /**
  * Chooses an arbitrary unit vector that is perpendicular to input.
  */
-const chooseAnyPerpendicular = (() => {
-    const cacheV = new Vec3();
-    return (out: Vec3, v: Readonly<Vec3>) => {
-        // https://math.stackexchange.com/a/413235
-        const EPSILON = 1e-5;
-        if (!approx(v.x, 0.0, EPSILON)) {
-            // Select n = y.
-            cacheV.y = v.x;
-            cacheV.x = -v.y;
-            cacheV.z = 0.0;
-        } else if (!approx(v.y, 0.0, EPSILON)) {
-            // Select n = x.
-            cacheV.x = v.y;
-            cacheV.y = -v.x;
-            cacheV.z = 0.0;
-        } else {
-            // Select n = y.
-            cacheV.y = v.z;
-            cacheV.z = -v.y;
-            cacheV.x = 0.0;
-        }
-        Vec3.normalize(out, cacheV);
-        return out;
-    };
-})();
+function chooseAnyPerpendicular (out: Vec3, v: Readonly<Vec3>) {
+    // 1. Drop the component with minimal magnitude.
+    // 2. Negate one of the remain components.
+    // 3. Swap the remain components.
+    const absX = Math.abs(v.x);
+    const absY = Math.abs(v.y);
+    const absZ = Math.abs(v.z);
+    if (absX < absY && absX < absZ) {
+        Vec3.set(out, 0.0, absZ, -absY);
+    } else if (absY < absZ) {
+        Vec3.set(out, absZ, 0.0, -absX);
+    } else {
+        Vec3.set(out, absY, -absX, 0.0);
+    }
+    return Vec3.normalize(out, out);
+}
 
 /**
  * Rotates `input` around `axis` for `angle` radians.
