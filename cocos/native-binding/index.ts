@@ -1324,7 +1324,6 @@ export declare namespace native {
      * @param width : @en the width of the image @zh 图片宽度
      * @param height : @en the height of the image @zh 图片高度
      * @param filePath : @en the file path of the image @zh 图片文件路径
-     * @param callback : @en the callback function @zh 回调函数
      * @example
      * ```ts
         let renderTexture = new RenderTexture();
@@ -1341,12 +1340,11 @@ export declare namespace native {
             camera.targetTexture = null;
         });
         let pixelData = renderTexture.readPixels();
-        jsb.saveImageData(pixelData, path, width, height, filePath, (isSuccess) => {
-            if (isSuccess) {
-                console.log('save image success');
-            } else {
-                console.log('save image failed');
-        }));
+        native.saveImageData(pixelData, path, width, height, filePath).then(()=>{
+            console.log("Save image data success");
+        }).catch(()=>{
+            console.log("Fail to save image data");
+        });
      */
     export function saveImageData(data: Uint8Array, width: number, height: number, filePath: string): Promise<void>;
 }
