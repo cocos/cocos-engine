@@ -44,6 +44,7 @@ struct RenderGraphVisitorContext {
     gfx::Device* device = nullptr;
     cc::gfx::CommandBuffer* cmdBuff = nullptr;
     boost::container::pmr::memory_resource* scratch = nullptr;
+    gfx::RenderPass* currentPass = nullptr;
 };
 
 namespace {
@@ -200,6 +201,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             data.framebuffer.get(),
             scissor, data.clearColors.data(),
             data.clearDepth, data.clearStencil);
+
+        ctx.currentPass = data.renderPass.get();
     }
     void begin(const ComputePass& pass) const {
         preBarriers();
@@ -250,6 +253,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void end(const RasterPass& pass) const {
         auto* cmdBuff = ctx.cmdBuff;
         cmdBuff->endRenderPass();
+        ctx.currentPass = nullptr;
         postBarriers();
     }
     void end(const ComputePass& pass) const {
@@ -291,12 +295,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             [&](const auto& pass) {
                 begin(pass);
             });
-    }
-
-    void forward_or_cross_edge(
-        const AddressableView<RenderGraph>::edge_descriptor u,
-        const AddressableView<RenderGraph>& g) {
-        
     }
 
     void finish_vertex(
