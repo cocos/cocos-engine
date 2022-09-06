@@ -171,6 +171,7 @@ class BuiltinResMgr {
 
         // ============================
         // builtin textures
+        // type string postfix according to getStringFromType()
         // ============================
 
         // black texture

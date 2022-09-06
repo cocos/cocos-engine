@@ -117,7 +117,7 @@ export function getDefaultFromType (type: Type): readonly number[] | string {
     return defaultValues[0];
 }
 
-export function getStringFromType(type: Type): string {
+export function getStringFromType (type: Type) : string {
     switch (type) {
     case Type.SAMPLER2D:
         return '-texture';

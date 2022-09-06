@@ -102,7 +102,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
         } else {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
-            const texName = prop && prop.value ? `${prop.value as string}` + getStringFromType(prop.type) : getDefaultFromType(prop.type) as string;
+            const texName = prop && prop.value ? `${prop.value as string}${getStringFromType(prop.type)}` : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
                 warn(`Illegal texture default value: ${texName}.`);
