@@ -32,6 +32,7 @@ namespace se {
 class Class {
 public:
     static Class *create(const std::string &clsName, se::Object *parent, Object *parentProto, napi_callback ctor = nullptr);
+    static Class *create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, napi_callback ctor = nullptr);
     static napi_value    _createJSObjectWithClass(Class *cls);
     void          defineProperty(const char* name, napi_callback g, napi_callback s);
     void          defineProperty(const std::initializer_list<const char *> &names, napi_callback g, napi_callback s);

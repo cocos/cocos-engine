@@ -218,7 +218,7 @@ napi_value NapiHelper::napiWritablePathInit(napi_env env, napi_callback_info inf
     char   buffer[kMaxStringLen];
     size_t result = 0;
     NODE_API_CALL(status, env, napi_get_value_string_utf8(env, args[0], buffer, kMaxStringLen, &result));
-    FileUtils::getInstance()->setWritablePath(std::string(buffer));
+    FileUtilsOpenHarmony::_ohWritablePath = std::string(buffer);
     return nullptr;
 }
 

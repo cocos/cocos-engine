@@ -50,6 +50,18 @@ Class *Class::create(const std::string &clsName, se::Object *parent, Object *par
     return cls;
 }
 
+Class* Class::create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, napi_callback ctor) {
+    se::AutoHandleScope scope;
+    se::Object *currentParent = parent;
+    se::Value tmp;
+    for (auto i = 0; i < classPath.size() - 1; i++) {
+        bool ok = currentParent->getProperty(*(classPath.begin() + i), &tmp);
+        CC_ASSERT(ok); // class or namespace in path is not defined
+        currentParent = tmp.toObject();
+    }
+    return create(*(classPath.end() - 1), currentParent, parentProto, ctor);
+}
+
 bool Class::init(const std::string &clsName, Object *parent, Object *parentProto, napi_callback ctor) {
     _name   = clsName;
     _parent = parent;

@@ -52,6 +52,8 @@ FileUtils *createFileUtils() {
     return ccnew FileUtilsOpenHarmony();
 }
 
+std::string FileUtilsOpenHarmony::_ohWritablePath;
+
 bool FileUtilsOpenHarmony::initResourceManager(napi_env env, napi_value param) {
     _nativeResourceManager = OH_ResourceManager_InitNativeResourceManager(env, param);
     return true;
@@ -173,7 +175,7 @@ long FileUtilsOpenHarmony::getFileSize(const std::string &filepath) {
 }
 
 std::string FileUtilsOpenHarmony::getWritablePath() const {
-    return _writablePath;
+    return _ohWritablePath;
 }
 
 bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) const {
