@@ -50,12 +50,8 @@ ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) 
             _nextWindowId++;
         }
         return window;
-    } else {
-        return getWindowFromANativeWindow(static_cast<ANativeWindow *>(info.externalHandle));
     }
-    return nullptr;
-}
-
+    return getWindowFromANativeWindow(static_cast<ANativeWindow *>(info.externalHandle));
 }
 
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {

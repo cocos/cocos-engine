@@ -46,7 +46,7 @@ import java.lang.reflect.Field;
 
 public class CocosActivity extends GameActivity {
     private static final String _TAG = "CocosActivity";
-    private static final boolean _ENABLE_SUBSURFACE = true;
+    private static final boolean _ENABLE_SUBSURFACE = false;
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
     private CocosOrientationHelper mOrientationHelper = null;
