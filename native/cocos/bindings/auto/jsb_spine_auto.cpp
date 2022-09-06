@@ -35,6 +35,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4101)
+#endif
+
 /* internal SWIG method */
 #ifndef SWIGINTERN
 # define SWIGINTERN static 
@@ -23182,4 +23193,12 @@ bool register_all_spine(se::Object* obj) {
     return true;
 }
 
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 // clang-format on
