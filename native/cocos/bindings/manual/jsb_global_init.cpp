@@ -220,6 +220,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 }
 
 bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) { //NOLINT
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
     if (debuggerServerAddr.empty() || port == 0) {
         return false;
     }
@@ -239,5 +240,6 @@ bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port,
         debuggerInfo.isWait = isWaitForConnect;
         se::ScriptEngine::_setDebuggerInfo(debuggerInfo);
     }
+#endif
     return true;
 }

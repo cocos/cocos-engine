@@ -248,6 +248,23 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
     return obj;
 }
 
+Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj) {
+    //TODO impl
+    return nullptr;
+}
+
+Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset) {
+    return nullptr;
+}
+
+Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength) {
+    return nullptr;
+}
+
+Object* Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData) {
+    return nullptr;
+}
+
 bool Object::isFunction() const {
     napi_valuetype valuetype0;
     napi_status    status;
@@ -377,30 +394,27 @@ void Object::_setFinalizeCallback(napi_finalize finalizeCb) {
     _finalizeCb = finalizeCb;
 }
 
-void* Object::getPrivateData() const {
-    void*       obj;
-    napi_status status;
-    NODE_API_CALL(status, _env, napi_unwrap(_env, _objRef.getValue(_env), reinterpret_cast<void**>(&obj)));
-    return obj;
+PrivateObjectBase* Object::getPrivateObject() const {
+    return _privateObject;
 }
 
-void Object::setPrivateData(void* data) {
+void Object::setPrivateObject(PrivateObjectBase* data) {
     assert(_privateData == nullptr);
-    assert(NativePtrToObjectMap::find(data) == NativePtrToObjectMap::end());
-    NativePtrToObjectMap::emplace(data, this);
+    assert(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
 
     napi_status status;
-    _privateData = data;
-
-    napi_valuetype valType;
-    NODE_API_CALL(status, ScriptEngine::getEnv(), napi_typeof(ScriptEngine::getEnv(), _objRef.getValue(_env), &valType));
+    _privateData = data->getRaw();
+    if (data) {
+        _privateObject = data;
+        NativePtrToObjectMap::emplace(_privateObject, this);
+    }
 
     //issue https://github.com/nodejs/node/issues/23999
     auto tmpThis = _objRef.getValue(_env);
     //_objRef.deleteRef();
     napi_ref result = nullptr;
     NODE_API_CALL(status, _env,
-                  napi_wrap(_env, tmpThis, data, weakCallback,
+                  napi_wrap(_env, tmpThis, this, weakCallback,
                             (void*)this /* finalize_hint */, &result));
     //_objRef.setWeakref(_env, result);
     setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
@@ -516,30 +530,34 @@ napi_value Object::_getJSObject() const {
 
 void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /*finalize_hint*/) {
     if (finalizeHint) {
-        Object* obj = reinterpret_cast<Object*>(finalizeHint);
-
         if (nativeObject == nullptr) {
             return;
         }
-        // TODO: remove test code before releasing.
-        const char* clsName = obj->_getClass()->getName();
-        LOGI("weakCallback class name:%{public}s, ptr:%{public}p", clsName, nativeObject);
-        auto iter = NativePtrToObjectMap::find(nativeObject);
-        if (iter != NativePtrToObjectMap::end()) {
-            Object* obj = iter->second;
-            if (obj->_finalizeCb != nullptr) {
-                obj->_finalizeCb(env, nativeObject, finalizeHint);
+        void *rawPtr = reinterpret_cast<Object*>(nativeObject)->_privateData;
+        Object* seObj = reinterpret_cast<Object*>(nativeObject);
+
+        if (seObj->_clearMappingInFinalizer && rawPtr != nullptr) {
+            auto iter = NativePtrToObjectMap::find(rawPtr);
+            if (iter != NativePtrToObjectMap::end()) {
+                NativePtrToObjectMap::erase(iter);
             } else {
-                assert(obj->_getClass() != nullptr);
-                if (obj->_getClass()->_getFinalizeFunction() != nullptr) {
-                    obj->_getClass()->_getFinalizeFunction()(env, nativeObject, finalizeHint);
-                }
+                assert(false);
             }
-            obj->decRef();
-            NativePtrToObjectMap::erase(iter);
-        } else {
-            //            assert(false);
         }
+
+        // TODO: remove test code before releasing.
+        const char* clsName = seObj->_getClass()->getName();
+        LOGI("weakCallback class name:%{public}s, ptr:%{public}p", clsName, rawPtr);
+
+        if (seObj->_finalizeCb != nullptr) {
+            seObj->_finalizeCb(env, nativeObject, finalizeHint);
+        } else {
+            assert(seObj->_getClass() != nullptr);
+            if (seObj->_getClass()->_getFinalizeFunction() != nullptr) {
+                seObj->_getClass()->_getFinalizeFunction()(env, nativeObject, finalizeHint);
+            }
+        }
+        seObj->decRef();
     }
 }
 
@@ -570,21 +588,13 @@ void Object::cleanup() {
     }
 
     NativePtrToObjectMap::clear();
-    NonRefNativePtrCreatedByCtorMap::clear();
 
     if (__objectMap) {
-        std::vector<Object*> toReleaseObjects;
         for (const auto& e : *__objectMap) {
             obj = e.first;
             cls = obj->_getClass();
             obj->_rootCount = 0;
 
-            if (cls != nullptr && cls->getName() == "__PrivateData") {
-                toReleaseObjects.push_back(obj);
-            }
-        }
-        for (auto* e : toReleaseObjects) {
-            e->decRef();
         }
     }
 

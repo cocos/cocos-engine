@@ -114,6 +114,7 @@ if(OPENHARMONY) # TODO:May be removed later
     set(USE_SOCKET OFF)
     set(USE_WEBVIEW OFF)
     set(USE_EDIT_BOX OFF)
+    set(USE_WEBP OFF)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
