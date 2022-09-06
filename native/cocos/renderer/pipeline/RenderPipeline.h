@@ -142,6 +142,7 @@ public:
     inline void resetRenderQueue(bool reset) { _resetRenderQueue = reset; }
     inline bool isRenderQueueReset() const { return _resetRenderQueue; }
 
+    render::PipelineRuntime* getPipelineRuntime() const { return _pipelineRuntime; }
     void setPipelineRuntime(render::PipelineRuntime* pipelineRuntime) {
         _pipelineRuntime = pipelineRuntime;
     }
