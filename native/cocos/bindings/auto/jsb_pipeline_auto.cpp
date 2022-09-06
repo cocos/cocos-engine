@@ -7293,211 +7293,6 @@ static bool js_cc_pipeline_RenderPipeline_getMacros(se::State& s)
 }
 SE_BIND_FUNC(js_cc_pipeline_RenderPipeline_getMacros) 
 
-static bool js_cc_pipeline_RenderPipeline_getMacroString(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
-    ccstd::string *result = 0 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_getMacroString,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    result = (ccstd::string *) &((cc::pipeline::RenderPipeline const *)arg1)->getMacroString((ccstd::string const &)*arg2);
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderPipeline_getMacroString, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_RenderPipeline_getMacroString) 
-
-static bool js_cc_pipeline_RenderPipeline_getMacroInt(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
-    int32_t result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_getMacroInt,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    result = ((cc::pipeline::RenderPipeline const *)arg1)->getMacroInt((ccstd::string const &)*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderPipeline_getMacroInt, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_RenderPipeline_getMacroInt) 
-
-static bool js_cc_pipeline_RenderPipeline_getMacroBool(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
-    bool result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_getMacroBool,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    result = (bool)((cc::pipeline::RenderPipeline const *)arg1)->getMacroBool((ccstd::string const &)*arg2);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_RenderPipeline_getMacroBool) 
-
-static bool js_cc_pipeline_RenderPipeline_setMacroString(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string *arg3 = 0 ;
-    ccstd::string temp2 ;
-    ccstd::string temp3 ;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_setMacroString,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_setMacroString,3,SWIGTYPE_p_ccstd__string");
-    arg3 = &temp3;
-    
-    (arg1)->setMacroString((ccstd::string const &)*arg2,(ccstd::string const &)*arg3);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_RenderPipeline_setMacroString) 
-
-static bool js_cc_pipeline_RenderPipeline_setMacroInt(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    int32_t arg3 ;
-    ccstd::string temp2 ;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_setMacroInt,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_setMacroInt,3,SWIGTYPE_int32_t"); 
-    
-    (arg1)->setMacroInt((ccstd::string const &)*arg2,arg3);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_RenderPipeline_setMacroInt) 
-
-static bool js_cc_pipeline_RenderPipeline_setMacroBool(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::RenderPipeline *arg1 = (cc::pipeline::RenderPipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    bool arg3 ;
-    ccstd::string temp2 ;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPipeline_setMacroBool,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[1], &arg3);
-    SE_PRECONDITION2(ok, false, "RenderPipeline_setMacroBool,3,SWIGTYPE_bool"); 
-    (arg1)->setMacroBool((ccstd::string const &)*arg2,arg3);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_RenderPipeline_setMacroBool) 
-
 static bool js_cc_pipeline_RenderPipeline_setValue__SWIG_0(se::State& s)
 {
     // js_overloaded_function
@@ -8526,12 +8321,6 @@ bool js_register_cc_pipeline_RenderPipeline(se::Object* obj) {
     cls->defineFunction("getTag", _SE(js_cc_pipeline_RenderPipeline_getTag)); 
     cls->defineFunction("getGlobalBindings", _SE(js_cc_pipeline_RenderPipeline_getGlobalBindings)); 
     cls->defineFunction("getMacros", _SE(js_cc_pipeline_RenderPipeline_getMacros)); 
-    cls->defineFunction("getMacroString", _SE(js_cc_pipeline_RenderPipeline_getMacroString)); 
-    cls->defineFunction("getMacroInt", _SE(js_cc_pipeline_RenderPipeline_getMacroInt)); 
-    cls->defineFunction("getMacroBool", _SE(js_cc_pipeline_RenderPipeline_getMacroBool)); 
-    cls->defineFunction("setMacroString", _SE(js_cc_pipeline_RenderPipeline_setMacroString)); 
-    cls->defineFunction("setMacroInt", _SE(js_cc_pipeline_RenderPipeline_setMacroInt)); 
-    cls->defineFunction("setMacroBool", _SE(js_cc_pipeline_RenderPipeline_setMacroBool)); 
     cls->defineFunction("setValue", _SE(js_cc_pipeline_RenderPipeline_setValue)); 
     cls->defineFunction("getCommandBuffers", _SE(js_cc_pipeline_RenderPipeline_getCommandBuffers)); 
     cls->defineFunction("getQueryPools", _SE(js_cc_pipeline_RenderPipeline_getQueryPools)); 
@@ -9658,64 +9447,6 @@ static bool js_cc_pipeline_ForwardPipeline_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_cc_pipeline_ForwardPipeline_destroy) 
 
-static bool js_cc_pipeline_ForwardPipeline_activate(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::ForwardPipeline *arg1 = (cc::pipeline::ForwardPipeline *) NULL ;
-    cc::gfx::Swapchain *arg2 = (cc::gfx::Swapchain *) NULL ;
-    bool result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ForwardPipeline_activate,2,SWIGTYPE_p_cc__gfx__Swapchain"); 
-    result = (bool)(arg1)->activate(arg2);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_ForwardPipeline_activate) 
-
-static bool js_cc_pipeline_ForwardPipeline_render(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::ForwardPipeline *arg1 = (cc::pipeline::ForwardPipeline *) NULL ;
-    ccstd::vector< cc::scene::Camera * > *arg2 = 0 ;
-    ccstd::vector< cc::scene::Camera * > temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ForwardPipeline_render,2,SWIGTYPE_p_ccstd__vectorT_cc__scene__Camera_p_t");
-    arg2 = &temp2;
-    
-    (arg1)->render((ccstd::vector< cc::scene::Camera * > const &)*arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_ForwardPipeline_render) 
-
 static bool js_cc_pipeline_ForwardPipeline_getValidLights(se::State& s)
 {
     // js_function
@@ -9829,8 +9560,6 @@ bool js_register_cc_pipeline_ForwardPipeline(se::Object* obj) {
     
     
     cls->defineFunction("destroy", _SE(js_cc_pipeline_ForwardPipeline_destroy)); 
-    cls->defineFunction("activate", _SE(js_cc_pipeline_ForwardPipeline_activate)); 
-    cls->defineFunction("render", _SE(js_cc_pipeline_ForwardPipeline_render)); 
     cls->defineFunction("getValidLights", _SE(js_cc_pipeline_ForwardPipeline_getValidLights)); 
     cls->defineFunction("getLightBuffers", _SE(js_cc_pipeline_ForwardPipeline_getLightBuffers)); 
     cls->defineFunction("getLightIndexOffsets", _SE(js_cc_pipeline_ForwardPipeline_getLightIndexOffsets)); 
@@ -12498,86 +12227,6 @@ static bool js_cc_pipeline_DeferredPipeline_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_cc_pipeline_DeferredPipeline_destroy) 
 
-static bool js_cc_pipeline_DeferredPipeline_activate(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::DeferredPipeline *arg1 = (cc::pipeline::DeferredPipeline *) NULL ;
-    cc::gfx::Swapchain *arg2 = (cc::gfx::Swapchain *) NULL ;
-    bool result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::DeferredPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "DeferredPipeline_activate,2,SWIGTYPE_p_cc__gfx__Swapchain"); 
-    result = (bool)(arg1)->activate(arg2);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_DeferredPipeline_activate) 
-
-static bool js_cc_pipeline_DeferredPipeline_render(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::DeferredPipeline *arg1 = (cc::pipeline::DeferredPipeline *) NULL ;
-    ccstd::vector< cc::scene::Camera * > *arg2 = 0 ;
-    ccstd::vector< cc::scene::Camera * > temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::DeferredPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "DeferredPipeline_render,2,SWIGTYPE_p_ccstd__vectorT_cc__scene__Camera_p_t");
-    arg2 = &temp2;
-    
-    (arg1)->render((ccstd::vector< cc::scene::Camera * > const &)*arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_DeferredPipeline_render) 
-
-static bool js_cc_pipeline_DeferredPipeline_onGlobalPipelineStateChanged(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::pipeline::DeferredPipeline *arg1 = (cc::pipeline::DeferredPipeline *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::pipeline::DeferredPipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->onGlobalPipelineStateChanged();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_pipeline_DeferredPipeline_onGlobalPipelineStateChanged) 
-
 static bool js_cc_pipeline_DeferredPipeline_getLightsUBO(se::State& s)
 {
     // js_function
@@ -12718,9 +12367,6 @@ bool js_register_cc_pipeline_DeferredPipeline(se::Object* obj) {
     
     
     cls->defineFunction("destroy", _SE(js_cc_pipeline_DeferredPipeline_destroy)); 
-    cls->defineFunction("activate", _SE(js_cc_pipeline_DeferredPipeline_activate)); 
-    cls->defineFunction("render", _SE(js_cc_pipeline_DeferredPipeline_render)); 
-    cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_cc_pipeline_DeferredPipeline_onGlobalPipelineStateChanged)); 
     cls->defineFunction("getLightsUBO", _SE(js_cc_pipeline_DeferredPipeline_getLightsUBO)); 
     cls->defineFunction("getValidLights", _SE(js_cc_pipeline_DeferredPipeline_getValidLights)); 
     cls->defineFunction("getLightBuffers", _SE(js_cc_pipeline_DeferredPipeline_getLightBuffers)); 

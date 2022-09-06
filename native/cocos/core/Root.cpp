@@ -105,21 +105,16 @@ void Root::initialize(gfx::Swapchain *swapchain) {
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
-    CC_ASSERT(_customPipeline);
-    CC_ASSERT(_pipelineRuntime == _customPipeline.get());
-    return _customPipeline.get();
+    return dynamic_cast<render::Pipeline *>(_pipelineRuntime.get());
 }
 
 void Root::destroy() {
     destroyScenes();
 
-    _pipelineRuntime = nullptr;
-
-    if (_usesCustomPipeline && _customPipeline) {
-        _customPipeline->destroy();
-        _customPipeline.reset();
+    if (_usesCustomPipeline && _pipelineRuntime) {
+        _pipelineRuntime->destroy();
     }
-    CC_ASSERT(!_customPipeline);
+    _pipelineRuntime.reset();
 
     CC_SAFE_DESTROY_NULL(_pipeline);
 
@@ -142,6 +137,121 @@ void Root::resize(uint32_t width, uint32_t height) {
     }
 }
 
+namespace {
+
+class RenderPipelineBridge final : public render::PipelineRuntime {
+public:
+    explicit RenderPipelineBridge(pipeline::RenderPipeline *pipelineIn)
+    : pipeline(pipelineIn) {}
+
+    bool activate(gfx::Swapchain *swapchain) override {
+        return pipeline->activate(swapchain);
+    }
+    bool destroy() noexcept override {
+        return pipeline->destroy();
+    }
+    void render(const ccstd::vector<scene::Camera *> &cameras) override {
+        pipeline->render(cameras);
+    }
+    gfx::Device *getDevice() const override {
+        return pipeline->getDevice();
+    }
+    const MacroRecord &getMacros() const override {
+        return pipeline->getMacros();
+    }
+    pipeline::GlobalDSManager *getGlobalDSManager() const override {
+        return pipeline->getGlobalDSManager();
+    }
+    gfx::DescriptorSetLayout *getDescriptorSetLayout() const override {
+        return pipeline->getDescriptorSetLayout();
+    }
+    gfx::DescriptorSet *getDescriptorSet() const override {
+        return pipeline->getDescriptorSet();
+    }
+    const ccstd::vector<gfx::CommandBuffer *> &getCommandBuffers() const override {
+        return pipeline->getCommandBuffers();
+    }
+    pipeline::PipelineSceneData *getPipelineSceneData() const override {
+        return pipeline->getPipelineSceneData();
+    }
+    const ccstd::string &getConstantMacros() const override {
+        return pipeline->getConstantMacros();
+    }
+    scene::Model *getProfiler() const override {
+        return pipeline->getProfiler();
+    }
+    void setProfiler(scene::Model *profiler) override {
+        pipeline->setProfiler(profiler);
+    }
+    pipeline::GeometryRenderer *getGeometryRenderer() const override {
+        return pipeline->getGeometryRenderer();
+    }
+    float getShadingScale() const override {
+        return pipeline->getShadingScale();
+    }
+    void setShadingScale(float scale) override {
+        pipeline->setShadingScale(scale);
+    }
+    const ccstd::string &getMacroString(const ccstd::string &name) const override {
+        static const ccstd::string EMPTY_STRING;
+        const auto &macros = pipeline->getMacros();
+        auto iter = macros.find(name);
+        if (iter == macros.end()) {
+            return EMPTY_STRING;
+        }
+        return ccstd::get<ccstd::string>(iter->second);
+    }
+    int32_t getMacroInt(const ccstd::string &name) const override {
+        const auto &macros = pipeline->getMacros();
+        auto iter = macros.find(name);
+        if (iter == macros.end()) {
+            return 0;
+        }
+        return ccstd::get<int32_t>(iter->second);
+    }
+    bool getMacroBool(const ccstd::string &name) const override {
+        const auto &macros = pipeline->getMacros();
+        auto iter = macros.find(name);
+        if (iter == macros.end()) {
+            return false;
+        }
+        return ccstd::get<bool>(iter->second);
+    }
+    void setMacroString(const ccstd::string &name, const ccstd::string &value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroInt(const ccstd::string &name, int32_t value) override {
+        pipeline->setValue(name, value);
+    }
+    void setMacroBool(const ccstd::string &name, bool value) override {
+        pipeline->setValue(name, value);
+    }
+    void onGlobalPipelineStateChanged() override {
+        pipeline->onGlobalPipelineStateChanged();
+    }
+    void setValue(const ccstd::string &name, int32_t value) override {
+        pipeline->setValue(name, value);
+    }
+    void setValue(const ccstd::string &name, bool value) override {
+        pipeline->setValue(name, value);
+    }
+    bool isOcclusionQueryEnabled() const override {
+        return pipeline->isOcclusionQueryEnabled();
+    }
+
+    void resetRenderQueue(bool reset) override {
+        pipeline->resetRenderQueue(reset);
+    }
+
+    bool isRenderQueueReset() const override {
+        return pipeline->isRenderQueueReset();
+    }
+
+    pipeline::RenderPipeline *pipeline = nullptr;
+};
+
+} // namespace
+
 bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     if (!_usesCustomPipeline) {
         if (rppl != nullptr && dynamic_cast<pipeline::DeferredPipeline *>(rppl) != nullptr) {
@@ -156,6 +266,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
         }
 
         _pipeline = rppl;
+        _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
 
         // now cluster just enabled in deferred pipeline
         if (!_useDeferredPipeline || !_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {
@@ -172,16 +283,14 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             _pipeline = nullptr;
             return false;
         }
-        _pipelineRuntime = _pipeline.get();
     } else {
-        _customPipeline = std::make_unique<render::NativePipeline>(
+        _pipelineRuntime = std::make_unique<render::NativePipeline>(
             boost::container::pmr::get_default_resource());
-        if (!_customPipeline->activate(_mainWindow->getSwapchain())) {
-            _customPipeline->destroy();
-            _customPipeline.reset();
+        if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
+            _pipelineRuntime->destroy();
+            _pipelineRuntime.reset();
             return false;
         }
-        _pipelineRuntime = _customPipeline.get();
     }
 
     // TODO(minggo):

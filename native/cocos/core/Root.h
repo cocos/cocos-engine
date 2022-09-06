@@ -210,7 +210,7 @@ public:
      * @zh
      * 渲染管线
      */
-    inline render::PipelineRuntime *getPipeline() const { return _pipelineRuntime; }
+    inline render::PipelineRuntime *getPipeline() const { return _pipelineRuntime.get(); }
 
     /**
      * @zh
@@ -290,8 +290,7 @@ private:
     IntrusivePtr<scene::RenderWindow> _tempWindow;
     ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
     IntrusivePtr<pipeline::RenderPipeline> _pipeline{nullptr};
-    std::unique_ptr<render::Pipeline> _customPipeline;
-    render::PipelineRuntime* _pipelineRuntime{nullptr};
+    std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
     DebugViewConfig _debugViewConfig;

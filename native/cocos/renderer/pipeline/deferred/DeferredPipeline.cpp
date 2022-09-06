@@ -200,7 +200,7 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     return true;
 }
 
-bool DeferredPipeline::destroy() noexcept {
+bool DeferredPipeline::destroy() {
     destroyQuadInputAssembler();
 
     for (auto &it : _renderPasses) {

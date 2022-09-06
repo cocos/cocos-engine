@@ -42,7 +42,7 @@ public:
     ~ForwardPipeline() override = default;
 
     bool initialize(const RenderPipelineInfo &info) override;
-    bool destroy() noexcept override;
+    bool destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
     void render(const ccstd::vector<scene::Camera *> &cameras) override;
 

@@ -173,7 +173,7 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     return true;
 }
 
-bool ForwardPipeline::destroy() noexcept {
+bool ForwardPipeline::destroy() {
     destroyQuadInputAssembler();
     for (auto &it : _renderPasses) {
         CC_SAFE_DESTROY_AND_DELETE(it.second);
