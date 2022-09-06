@@ -35,7 +35,7 @@ namespace cc {
 class CC_DLL ISystemWindow : public OSInterface {
 public:
     using Size = cc::Vec2;
-    using WindowFlags = enum {
+    enum WindowFlags {
         /* !!! FIXME: change this to name = (1<<x). */
         CC_WINDOW_FULLSCREEN = 0x00000001,    /**< fullscreen window */
         CC_WINDOW_OPENGL = 0x00000002,        /**< window usable with OpenGL context */
