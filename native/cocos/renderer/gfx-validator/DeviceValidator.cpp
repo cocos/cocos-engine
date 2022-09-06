@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "base/Log.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #include "BufferValidator.h"
 #include "CommandBufferValidator.h"
