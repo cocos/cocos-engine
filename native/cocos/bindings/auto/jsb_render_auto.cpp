@@ -507,16 +507,15 @@ static bool js_cc_render_PipelineRuntime_commandBuffers_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::render::PipelineRuntime *arg1 = (cc::render::PipelineRuntime *) NULL ;
-    ccstd::vector< cc::gfx::CommandBuffer * > result;
+    ccstd::vector< cc::gfx::CommandBuffer * > *result = 0 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = cc_render_PipelineRuntime_commandBuffers_get(arg1);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    result = (ccstd::vector< cc::gfx::CommandBuffer * > *) &cc_render_PipelineRuntime_commandBuffers_get(arg1);
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "PipelineRuntime_commandBuffers_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
     
     
     return true;

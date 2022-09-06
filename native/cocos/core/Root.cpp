@@ -163,7 +163,7 @@ public:
     gfx::DescriptorSet *getDescriptorSet() const override {
         return pipeline->getDescriptorSet();
     }
-    ccstd::vector<gfx::CommandBuffer *> getCommandBuffers() const override {
+    const ccstd::vector<gfx::CommandBuffer *> &getCommandBuffers() const override {
         return pipeline->getCommandBuffers();
     }
     pipeline::PipelineSceneData *getPipelineSceneData() const override {

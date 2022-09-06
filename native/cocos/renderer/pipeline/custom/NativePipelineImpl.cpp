@@ -305,8 +305,8 @@ gfx::DescriptorSet *NativePipeline::getDescriptorSet() const {
     return globalDSManager->getGlobalDescriptorSet();
 }
 
-ccstd::vector<gfx::CommandBuffer *> NativePipeline::getCommandBuffers() const {
-    return { 1, device->getCommandBuffer() };
+const ccstd::vector<gfx::CommandBuffer *> &NativePipeline::getCommandBuffers() const {
+    return _commandBuffers;
 }
 
 namespace {
@@ -348,6 +348,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     // pipeline construct.
     generateConstantMacros(device, constantMacros, false);
 
+    _commandBuffers.resize(1, device->getCommandBuffer());
     return true;
 }
 
