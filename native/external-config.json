@@ -1,9 +1,9 @@
 {
-    "version": "v3d-gfx-133",
+    "version": "v3.6-oh-1",
     "from": {
         "type": "github",
         "owner": "cocos",
         "name": "cocos-engine-external",
-        "checkout": "v3d-gfx-133"
+        "checkout": "v3.6-oh-1"
     }
 }
