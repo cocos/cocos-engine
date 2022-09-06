@@ -37,6 +37,7 @@
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
+#include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/NativePipelineTypes.h"
@@ -89,6 +90,10 @@ void Root::initialize(gfx::Swapchain *  /*swapchain*/) {
 
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
+
+    uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
+    maxJoints = maxJoints < 256 ? maxJoints : 256;
+    pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
 }
 
 render::Pipeline *Root::getCustomPipeline() const {

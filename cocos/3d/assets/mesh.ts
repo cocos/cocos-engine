@@ -261,7 +261,7 @@ export class Mesh extends Asset {
      * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.minPosition]] instead
      */
-    get minPosition () {
+    get minPosition (): Readonly<Vec3> | undefined {
         return this.struct.minPosition;
     }
 
@@ -270,7 +270,7 @@ export class Mesh extends Asset {
      * @zh （各分量都）大于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.maxPosition]] instead
      */
-    get maxPosition () {
+    get maxPosition (): Readonly<Vec3> | undefined {
         return this.struct.maxPosition;
     }
 

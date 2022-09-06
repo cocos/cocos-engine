@@ -97,6 +97,10 @@ CCProgram shared-ubos %{
   };}%
 
 CCProgram macro-remapping %{
+  // if enabled, shadowed area is very dark
+  #pragma define-meta USE_COMPATIBLE_LIGHTING
+  #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING USE_COMPATIBLE_LIGHTING
+
   #pragma define-meta USE_NORMAL_MAP
   #define CC_SURFACES_USE_TANGENT_SPACE USE_NORMAL_MAP
 }%

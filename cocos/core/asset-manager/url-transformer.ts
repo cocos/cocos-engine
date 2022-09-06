@@ -23,13 +23,15 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 import { js } from '../utils/js';
 import * as path from '../utils/path';
 import Config, { IAddressableInfo, IAssetInfo } from './config';
 import { decodeUuid } from './helper';
 import RequestItem from './request-item';
-import { bundles, presets, RequestType } from './shared';
+import { assetsOverrideMap, bundles, presets, RequestType } from './shared';
 import Task from './task';
 
 const infos: IAddressableInfo[] = [];
@@ -157,6 +159,38 @@ export function parse (task: Task) {
     return null;
 }
 
+export function replaceOverrideAsset (task: Task) {
+    const input = task.output = task.input;
+    for (let i = 0; i < input.length; i++) {
+        const item = input[i] as RequestItem;
+        if (assetsOverrideMap.has(item.uuid)) {
+            const uuid = assetsOverrideMap.get(item.uuid)!;
+            if (EDITOR) {
+                // In EDITOR, there is no bundle, so just change uuid.
+                item.overrideUuid = uuid;
+                item.ext = item.isNative ? item.ext : '.json';
+                continue;
+            }
+            const bundle = bundles.find((bundle) => !!bundle.getAssetInfo(uuid));
+            if (bundle) {
+                item.overrideUuid = uuid;
+                let config = bundle.config;
+                let info = config.getAssetInfo(uuid);
+                if (info && info.redirect) {
+                    if (!bundles.has(info.redirect)) { throw new Error(`Please load bundle ${info.redirect} first`); }
+                    config = bundles.get(info.redirect)!.config;
+                    info = config.getAssetInfo(uuid);
+                }
+                item.config = config;
+                item.info = info;
+                item.ext = item.isNative ? item.ext : (info?.extension || '.json');
+            } else {
+                warnID(16201, uuid, item.uuid);
+            }
+        }
+    }
+}
+
 export function combine (task: Task) {
     const input = task.output = task.input;
     for (let i = 0; i < input.length; i++) {
@@ -172,7 +206,7 @@ export function combine (task: Task) {
             base = (config && config.importBase) ? (config.base + config.importBase) : legacyCC.assetManager.generalImportBase;
         }
 
-        const uuid = item.uuid;
+        const uuid = item.overrideUuid || item.uuid;
 
         let ver = '';
         if (item.info) {

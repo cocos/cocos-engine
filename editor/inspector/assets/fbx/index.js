@@ -149,3 +149,28 @@ exports.methods = {
         }
     },
 };
+
+
+exports.listeners = {
+    'track'(event) {
+
+        if (event.args?.length) {
+            const { prop, value } = event.args[0];
+            if (!value) { return; } // 只有被勾选的时候上报埋点
+
+            const trackMap = {
+                meshOptimizer: 'A100000',
+                'fbx.smartMaterialEnabled': 'A100001',
+                disableMeshSplit: 'A100002',
+            };
+            const trackId = trackMap[prop];
+            if (trackId) {
+                Editor.Metrics._trackEventWithTimer({
+                    category: 'importSystem',
+                    id: trackId,
+                    value: 1,
+                });
+            }
+        }
+    },
+};

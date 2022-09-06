@@ -207,7 +207,7 @@ export abstract class NativePackTool {
             }
 
             if(!fs.existsSync(srcFile)) {
-                console.error(`${f} not exists in ${commonSrc}`);
+                console.warn(`${f} not exists in ${commonSrc}`);
                 return false;
             }
 
@@ -240,7 +240,7 @@ export abstract class NativePackTool {
         let versionRange = this.tryGetCompatibilityInfo();
         const projEngineVersion = projEngineVersionObj?.version;
         if (!versionRange) {
-            console.error(`Ignore version range check`);
+            console.warn(`Ignore version range check`);
             return true;
         }
         if (projEngineVersionObj.skipCheck === true) {
@@ -306,11 +306,12 @@ export abstract class NativePackTool {
         this.validateDirectory(commonSrc, commonDst, missingDirs);
         this.validatePlatformDirectory(missingDirs);
         if (missingDirs.length > 0) {
-            console.error(`Following files are missing`);
+            console.warn(`Following files are missing`);
             for (let f of missingDirs) {
-                console.error(`  ${f}`);
+                console.warn(`  ${f}`);
             }
-            console.error(`Consider fix the problem or remove the directory`);
+            console.warn(`Consider fix the problem or remove the directory`);
+            console.warn(`To avoid this warning, set field \'skipCheck\' in cocos-version.json to true.`);
             return false;
         }
         return true;
@@ -325,12 +326,12 @@ export abstract class NativePackTool {
         try {
             if (this.validateTemplateVersion()) {
                 if (!this.skipVersionCheck && !this.validateTemplateConsistency()) {
-                    console.error(`Failed to validate "native" directory`);
+                    console.warn(`Failed to validate "native" directory`);
                 }
             }
         } catch (e) {
-            console.error(`Failed to validate native directory`);
-            console.error(e);
+            console.warn(`Failed to validate native directory`);
+            console.warn(e);
         }
     }
 

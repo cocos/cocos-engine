@@ -64,7 +64,7 @@ namespace cc {
 namespace gfx {
 
 class CC_DLL DeviceManager final {
-#if CC_USE_XR && CC_USE_VULKAN && XR_OEM_META
+#if CC_USE_XR && CC_USE_VULKAN && !XR_OEM_PICO
     static constexpr bool DETACH_DEVICE_THREAD{true};
 #elif CC_USE_XR
     static constexpr bool DETACH_DEVICE_THREAD{false};

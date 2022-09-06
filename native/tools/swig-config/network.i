@@ -78,7 +78,7 @@
 //  3. If using reference, add '&' suffix for cpp_member_variable_type to avoid generated code using value assignment
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
-%attribute_writeonly(cc::network::Downloader, std::function<void(const DownloadTask &, uint32_t, uint32_t, uint32_t)>&, onProgress, setOnProgress);
+%attribute_writeonly(cc::network::Downloader, %arg(std::function<void(const cc::network::DownloadTask &, uint32_t, uint32_t, uint32_t)>&), onProgress, setOnProgress);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'

@@ -34,11 +34,11 @@
     const game = cc.game;
     const _accessors = [];
 
-    const nativeXYZUVC = middleware.vfmtPosUvColor = 9;
-    const nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
+    const nativeXYZUVC = middleware.vfmtPosUvColor = 6;
+    const nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 7;
 
-    const vfmtPosUvColor = cc.internal.vfmtPosUvColor;
-    const vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor;
+    const vfmtPosUvColor4B = cc.internal.vfmtPosUvColor4B;
+    const vfmtPosUvTwoColor4B = cc.internal.vfmtPosUvTwoColor4B;
 
     const renderInfoLookup = middleware.RenderInfoLookup = {};
     renderInfoLookup[nativeXYZUVC] = [];
@@ -114,12 +114,16 @@
         middleware.reset();
 
         const batcher2D = director.root.batcher2D;
-        CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor);
-        CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor);
-        const skeletonSystem = cc.internal.SpineSkeletonSystem.getInstance();
-        skeletonSystem.prepareRenderData();
-        const armaSystem = cc.internal.ArmatureSystem.getInstance();
-        armaSystem.prepareRenderData();
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor4B);
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor4B);
+        if (window.dragonBones) {
+            const armaSystem = cc.internal.ArmatureSystem.getInstance();
+            armaSystem.prepareRenderData();
+        }
+        if (window.spine) {
+            const skeletonSystem = cc.internal.SpineSkeletonSystem.getInstance();
+            skeletonSystem.prepareRenderData();
+        }
     });
 
     const renderInfoMgr = middlewareMgr.getRenderInfoMgr();

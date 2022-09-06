@@ -28,7 +28,7 @@ import { SpriteFrame } from '../../assets';
 import { Mat4, Vec2 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components';
+import { Sprite, UIOpacity } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
@@ -353,7 +353,8 @@ export const radialFilled: IAssembler = {
                 // may can update color & uv here
                 // need dirty
                 this.updateWorldUVData(sprite);
-                this.updateColorLate(sprite);
+                //this.updateColorLate(sprite);
+                sprite.renderEntity.colorDirty = true;
             }
             renderData.updateRenderData(sprite, frame);
         }

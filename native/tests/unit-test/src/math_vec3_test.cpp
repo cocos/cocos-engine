@@ -155,4 +155,8 @@ TEST(mathVec3Test, test2) {
     logLabel = "test whether vec3 fromColor function";
     vec3 = cc::Vec3::fromColor(255);
     ExpectEq(vec3.z == 1, true);
+    logLabel = "test the Vec3 approx equal function";
+    cc::Vec3 a{0.123456F, 1.234567F, 2.345678F};
+    cc::Vec3 b{0.123455F, 1.234568F, 2.345679F};
+    ExpectEq(a.approxEquals(b), true);
 }

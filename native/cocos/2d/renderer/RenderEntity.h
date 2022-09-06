@@ -95,6 +95,9 @@ public:
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
 
+    inline Node* getRenderTransform() const { return _renderTransform; }
+    void setRenderTransform(Node* renderTransform);
+
     inline uint32_t getStencilStage() const { return static_cast<uint32_t>(_stencilStage); }
     inline void setStencilStage(uint32_t stage) {
         _stencilStage = static_cast<StencilStage>(stage);
@@ -136,6 +139,9 @@ private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
     // weak reference
     Node* _node{nullptr};
+
+    // weak reference
+    Node* _renderTransform{nullptr};
 
     EntityAttrLayout _entityAttrLayout;
     float _opacity{1.0F};
