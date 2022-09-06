@@ -30,8 +30,8 @@
 #include "bindings/utils/BindingUtils.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
+#include "core/data/Object.h"
 #include "core/event/EventTypesToJS.h"
-#include "core/scene-graph/BaseNode.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/NodeEnum.h"
 #include "core/scene-graph/NodeEvent.h"
@@ -57,7 +57,7 @@ using EventType = NodeEventType;
  */
 using TransformDirtyBit = TransformBit;
 
-class Node : public BaseNode {
+class Node : public CCObject {
 public:
     class UserData : public RefCounted {
     public:
@@ -67,7 +67,7 @@ public:
         UserData() = default;
     };
 
-    using Super = BaseNode;
+    using Super = CCObject;
 
     static const uint32_t TRANSFORM_ON;
 

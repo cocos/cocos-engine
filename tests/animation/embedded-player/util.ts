@@ -1,6 +1,6 @@
 import { Node } from "../../../cocos/core";
-import { addEmbeddedPlayerTag, AnimationClip } from "../../../cocos/core/animation/animation-clip";
-import { EmbeddedPlayableState } from "../../../cocos/core/animation/embedded-player/embedded-player";
+import { addEmbeddedPlayerTag, AnimationClip } from "../../../cocos/animation/animation-clip";
+import { EmbeddedPlayableState } from "../../../cocos/animation/embedded-player/embedded-player";
 import { EmbeddedPlayer } from "../../../editor/exports/embedded-player";
 
 export class EmbeddedPlayerHostMock {

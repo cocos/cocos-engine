@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Shader, RenderPass, InputAssembler, Device, PipelineState, InputState, PipelineStateInfo } from '../gfx';
+import { Shader, RenderPass, InputAssembler, Device, PipelineState, InputState, PipelineStateInfo } from '../../gfx';
 import { Pass } from '../renderer/core/pass';
 
 export class PipelineStateManager {

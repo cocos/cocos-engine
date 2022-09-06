@@ -55,16 +55,16 @@ namespace cc {
 namespace render {
 
 struct ResourceDesc {
-    ResourceDimension   dimension{ResourceDimension::BUFFER};
-    uint32_t            alignment{0};
-    uint32_t            width{0};
-    uint32_t            height{0};
-    uint16_t            depthOrArraySize{0};
-    uint16_t            mipLevels{0};
-    gfx::Format         format{gfx::Format::UNKNOWN};
-    gfx::SampleCount    sampleCount{gfx::SampleCount::ONE};
+    ResourceDimension dimension{ResourceDimension::BUFFER};
+    uint32_t alignment{0};
+    uint32_t width{0};
+    uint32_t height{0};
+    uint16_t depthOrArraySize{0};
+    uint16_t mipLevels{0};
+    gfx::Format format{gfx::Format::UNKNOWN};
+    gfx::SampleCount sampleCount{gfx::SampleCount::ONE};
     gfx::TextureFlagBit textureFlags{gfx::TextureFlagBit::NONE};
-    ResourceFlags       flags{ResourceFlags::NONE};
+    ResourceFlags flags{ResourceFlags::NONE};
 };
 
 struct ResourceTraits {
@@ -87,8 +87,8 @@ struct RenderSwapchain {
     : swapchain(swapchainIn) {}
 
     gfx::Swapchain* swapchain{nullptr};
-    uint32_t        currentID{0};
-    uint32_t        numBackBuffers{0};
+    uint32_t currentID{0};
+    uint32_t numBackBuffers{0};
 };
 
 struct ResourceStates {
@@ -120,7 +120,7 @@ struct ResourceGraph {
     ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc);
 
     ResourceGraph(ResourceGraph&& rhs) noexcept = default;
-    ResourceGraph(ResourceGraph const& rhs)     = delete;
+    ResourceGraph(ResourceGraph const& rhs) = delete;
     ResourceGraph& operator=(ResourceGraph&& rhs) = default;
     ResourceGraph& operator=(ResourceGraph const& rhs) = default;
 
@@ -218,13 +218,13 @@ struct ResourceGraph {
         Vertex(Vertex const& rhs, const allocator_type& alloc);
 
         Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs)     = delete;
+        Vertex(Vertex const& rhs) = delete;
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge>  inEdges;
-        VertexHandle                handle;
+        ccstd::pmr::vector<InEdge> inEdges;
+        VertexHandle handle;
     };
 
     struct NameTag {
@@ -240,15 +240,15 @@ struct ResourceGraph {
     ccstd::pmr::vector<Vertex> vertices;
     // Components
     ccstd::pmr::vector<ccstd::pmr::string> names;
-    ccstd::pmr::vector<ResourceDesc>       descs;
-    ccstd::pmr::vector<ResourceTraits>     traits;
-    ccstd::pmr::vector<ResourceStates>     states;
+    ccstd::pmr::vector<ResourceDesc> descs;
+    ccstd::pmr::vector<ResourceTraits> traits;
+    ccstd::pmr::vector<ResourceStates> states;
     // PolymorphicGraph
-    ccstd::pmr::vector<ManagedResource>                resources;
-    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>>      buffers;
-    ccstd::pmr::vector<IntrusivePtr<gfx::Texture>>     textures;
+    ccstd::pmr::vector<ManagedResource> resources;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> buffers;
+    ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
-    ccstd::pmr::vector<RenderSwapchain>                swapchains;
+    ccstd::pmr::vector<RenderSwapchain> swapchains;
     // UuidGraph
     PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
 };
@@ -264,11 +264,11 @@ struct RasterSubpass {
     RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc);
 
     RasterSubpass(RasterSubpass&& rhs) noexcept = default;
-    RasterSubpass(RasterSubpass const& rhs)     = delete;
+    RasterSubpass(RasterSubpass const& rhs) = delete;
     RasterSubpass& operator=(RasterSubpass&& rhs) = default;
     RasterSubpass& operator=(RasterSubpass const& rhs) = default;
 
-    PmrTransparentMap<ccstd::pmr::string, RasterView>                      rasterViews;
+    PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
@@ -287,7 +287,7 @@ struct SubpassGraph {
     SubpassGraph(SubpassGraph const& rhs, const allocator_type& alloc);
 
     SubpassGraph(SubpassGraph&& rhs) noexcept = default;
-    SubpassGraph(SubpassGraph const& rhs)     = delete;
+    SubpassGraph(SubpassGraph const& rhs) = delete;
     SubpassGraph& operator=(SubpassGraph&& rhs) = default;
     SubpassGraph& operator=(SubpassGraph const& rhs) = default;
 
@@ -374,12 +374,12 @@ struct SubpassGraph {
         Vertex(Vertex const& rhs, const allocator_type& alloc);
 
         Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs)     = delete;
+        Vertex(Vertex const& rhs) = delete;
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge>  inEdges;
+        ccstd::pmr::vector<InEdge> inEdges;
     };
 
     struct NameTag {
@@ -391,7 +391,7 @@ struct SubpassGraph {
     ccstd::pmr::vector<Vertex> vertices;
     // Components
     ccstd::pmr::vector<ccstd::pmr::string> names;
-    ccstd::pmr::vector<RasterSubpass>      subpasses;
+    ccstd::pmr::vector<RasterSubpass> subpasses;
 };
 
 struct RasterPass {
@@ -405,17 +405,17 @@ struct RasterPass {
     RasterPass(RasterPass const& rhs, const allocator_type& alloc);
 
     RasterPass(RasterPass&& rhs) noexcept = default;
-    RasterPass(RasterPass const& rhs)     = delete;
+    RasterPass(RasterPass const& rhs) = delete;
     RasterPass& operator=(RasterPass&& rhs) = default;
     RasterPass& operator=(RasterPass const& rhs) = default;
 
-    bool                                                                   isValid{false};
-    PmrTransparentMap<ccstd::pmr::string, RasterView>                      rasterViews;
+    bool isValid{false};
+    PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
-    SubpassGraph                                                           subpassGraph;
-    uint32_t                                                               width{0};
-    uint32_t                                                               height{0};
-    gfx::Viewport                                                          viewport;
+    SubpassGraph subpassGraph;
+    uint32_t width{0};
+    uint32_t height{0};
+    gfx::Viewport viewport;
 };
 
 struct ComputePass {
@@ -429,7 +429,7 @@ struct ComputePass {
     ComputePass(ComputePass const& rhs, const allocator_type& alloc);
 
     ComputePass(ComputePass&& rhs) noexcept = default;
-    ComputePass(ComputePass const& rhs)     = delete;
+    ComputePass(ComputePass const& rhs) = delete;
     ComputePass& operator=(ComputePass&& rhs) = default;
     ComputePass& operator=(ComputePass const& rhs) = default;
 
@@ -448,20 +448,20 @@ struct CopyPair {
     CopyPair(CopyPair const& rhs, const allocator_type& alloc);
 
     CopyPair(CopyPair&& rhs) noexcept = default;
-    CopyPair(CopyPair const& rhs)     = delete;
+    CopyPair(CopyPair const& rhs) = delete;
     CopyPair& operator=(CopyPair&& rhs) = default;
     CopyPair& operator=(CopyPair const& rhs) = default;
 
     ccstd::pmr::string source;
     ccstd::pmr::string target;
-    uint32_t           mipLevels{0xFFFFFFFF};
-    uint32_t           numSlices{0xFFFFFFFF};
-    uint32_t           sourceMostDetailedMip{0};
-    uint32_t           sourceFirstSlice{0};
-    uint32_t           sourcePlaneSlice{0};
-    uint32_t           targetMostDetailedMip{0};
-    uint32_t           targetFirstSlice{0};
-    uint32_t           targetPlaneSlice{0};
+    uint32_t mipLevels{0xFFFFFFFF};
+    uint32_t numSlices{0xFFFFFFFF};
+    uint32_t sourceMostDetailedMip{0};
+    uint32_t sourceFirstSlice{0};
+    uint32_t sourcePlaneSlice{0};
+    uint32_t targetMostDetailedMip{0};
+    uint32_t targetFirstSlice{0};
+    uint32_t targetPlaneSlice{0};
 };
 
 struct CopyPass {
@@ -475,7 +475,7 @@ struct CopyPass {
     CopyPass(CopyPass const& rhs, const allocator_type& alloc);
 
     CopyPass(CopyPass&& rhs) noexcept = default;
-    CopyPass(CopyPass const& rhs)     = delete;
+    CopyPass(CopyPass const& rhs) = delete;
     CopyPass& operator=(CopyPass&& rhs) = default;
     CopyPass& operator=(CopyPass const& rhs) = default;
 
@@ -494,17 +494,17 @@ struct MovePair {
     MovePair(MovePair const& rhs, const allocator_type& alloc);
 
     MovePair(MovePair&& rhs) noexcept = default;
-    MovePair(MovePair const& rhs)     = delete;
+    MovePair(MovePair const& rhs) = delete;
     MovePair& operator=(MovePair&& rhs) = default;
     MovePair& operator=(MovePair const& rhs) = default;
 
     ccstd::pmr::string source;
     ccstd::pmr::string target;
-    uint32_t           mipLevels{0xFFFFFFFF};
-    uint32_t           numSlices{0xFFFFFFFF};
-    uint32_t           targetMostDetailedMip{0};
-    uint32_t           targetFirstSlice{0};
-    uint32_t           targetPlaneSlice{0};
+    uint32_t mipLevels{0xFFFFFFFF};
+    uint32_t numSlices{0xFFFFFFFF};
+    uint32_t targetMostDetailedMip{0};
+    uint32_t targetFirstSlice{0};
+    uint32_t targetPlaneSlice{0};
 };
 
 struct MovePass {
@@ -518,7 +518,7 @@ struct MovePass {
     MovePass(MovePass const& rhs, const allocator_type& alloc);
 
     MovePass(MovePass&& rhs) noexcept = default;
-    MovePass(MovePass const& rhs)     = delete;
+    MovePass(MovePass const& rhs) = delete;
     MovePass& operator=(MovePass&& rhs) = default;
     MovePass& operator=(MovePass const& rhs) = default;
 
@@ -536,7 +536,7 @@ struct RaytracePass {
     RaytracePass(RaytracePass const& rhs, const allocator_type& alloc);
 
     RaytracePass(RaytracePass&& rhs) noexcept = default;
-    RaytracePass(RaytracePass const& rhs)     = delete;
+    RaytracePass(RaytracePass const& rhs) = delete;
     RaytracePass& operator=(RaytracePass&& rhs) = default;
     RaytracePass& operator=(RaytracePass const& rhs) = default;
 
@@ -563,13 +563,13 @@ struct ClearView {
     ClearView(ClearView const& rhs, const allocator_type& alloc);
 
     ClearView(ClearView&& rhs) noexcept = default;
-    ClearView(ClearView const& rhs)     = delete;
+    ClearView(ClearView const& rhs) = delete;
     ClearView& operator=(ClearView&& rhs) = default;
     ClearView& operator=(ClearView const& rhs) = default;
 
     ccstd::pmr::string slotName;
-    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
-    gfx::Color         clearColor;
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color clearColor;
 };
 
 struct RenderQueue {
@@ -592,14 +592,14 @@ struct SceneData {
     SceneData(SceneData const& rhs, const allocator_type& alloc);
 
     SceneData(SceneData&& rhs) noexcept = default;
-    SceneData(SceneData const& rhs)     = delete;
+    SceneData(SceneData const& rhs) = delete;
     SceneData& operator=(SceneData&& rhs) = default;
     SceneData& operator=(SceneData const& rhs) = default;
 
-    ccstd::pmr::string                     name;
-    scene::Camera*                         camera{nullptr};
-    LightInfo                              light;
-    SceneFlags                             flags{SceneFlags::NONE};
+    ccstd::pmr::string name;
+    scene::Camera* camera{nullptr};
+    LightInfo light;
+    SceneFlags flags{SceneFlags::NONE};
     ccstd::pmr::vector<ccstd::pmr::string> scenes;
 };
 
@@ -615,14 +615,14 @@ struct Dispatch {
     Dispatch(Dispatch const& rhs, const allocator_type& alloc);
 
     Dispatch(Dispatch&& rhs) noexcept = default;
-    Dispatch(Dispatch const& rhs)     = delete;
+    Dispatch(Dispatch const& rhs) = delete;
     Dispatch& operator=(Dispatch&& rhs) = default;
     Dispatch& operator=(Dispatch const& rhs) = default;
 
     ccstd::pmr::string shader;
-    uint32_t           threadGroupCountX{0};
-    uint32_t           threadGroupCountY{0};
-    uint32_t           threadGroupCountZ{0};
+    uint32_t threadGroupCountX{0};
+    uint32_t threadGroupCountY{0};
+    uint32_t threadGroupCountZ{0};
 };
 
 struct Blit {
@@ -633,8 +633,8 @@ struct Blit {
       camera(cameraIn) {}
 
     IntrusivePtr<Material> material;
-    SceneFlags             sceneFlags{SceneFlags::NONE};
-    scene::Camera*         camera{nullptr};
+    SceneFlags sceneFlags{SceneFlags::NONE};
+    scene::Camera* camera{nullptr};
 };
 
 struct Present {
@@ -658,7 +658,7 @@ struct PresentPass {
     PresentPass(PresentPass const& rhs, const allocator_type& alloc);
 
     PresentPass(PresentPass&& rhs) noexcept = default;
-    PresentPass(PresentPass const& rhs)     = delete;
+    PresentPass(PresentPass const& rhs) = delete;
     PresentPass& operator=(PresentPass&& rhs) = default;
     PresentPass& operator=(PresentPass const& rhs) = default;
 
@@ -675,14 +675,14 @@ struct RenderData {
     RenderData(RenderData&& rhs, const allocator_type& alloc);
 
     RenderData(RenderData&& rhs) noexcept = default;
-    RenderData(RenderData const& rhs)     = delete;
+    RenderData(RenderData const& rhs) = delete;
     RenderData& operator=(RenderData&& rhs) = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
-    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<uint8_t>> constants;
-    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>>   buffers;
-    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>>  textures;
-    PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>>   samplers;
+    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<char>> constants;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
+    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
+    PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>> samplers;
 };
 
 struct RenderGraph {
@@ -699,7 +699,7 @@ struct RenderGraph {
     RenderGraph(RenderGraph&& rhs, const allocator_type& alloc);
 
     RenderGraph(RenderGraph&& rhs) noexcept = default;
-    RenderGraph(RenderGraph const& rhs)     = delete;
+    RenderGraph(RenderGraph const& rhs) = delete;
     RenderGraph& operator=(RenderGraph&& rhs) = default;
     RenderGraph& operator=(RenderGraph const& rhs) = delete;
 
@@ -836,11 +836,11 @@ struct RenderGraph {
         Object(Object const& rhs, const allocator_type& alloc);
 
         Object(Object&& rhs) noexcept = default;
-        Object(Object const& rhs)     = delete;
+        Object(Object const& rhs) = delete;
         Object& operator=(Object&& rhs) = default;
         Object& operator=(Object const& rhs) = default;
 
-        ccstd::pmr::vector<ChildEdge>  children;
+        ccstd::pmr::vector<ChildEdge> children;
         ccstd::pmr::vector<ParentEdge> parents;
     };
 
@@ -855,13 +855,13 @@ struct RenderGraph {
         Vertex(Vertex const& rhs, const allocator_type& alloc);
 
         Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs)     = delete;
+        Vertex(Vertex const& rhs) = delete;
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge>  inEdges;
-        VertexHandle                handle;
+        ccstd::pmr::vector<InEdge> inEdges;
+        VertexHandle handle;
     };
 
     struct NameTag {
@@ -880,21 +880,21 @@ struct RenderGraph {
     // Components
     ccstd::pmr::vector<ccstd::pmr::string> names;
     ccstd::pmr::vector<ccstd::pmr::string> layoutNodes;
-    ccstd::pmr::vector<RenderData>         data;
-    ccstd::pmr::vector<bool>               valid;
+    ccstd::pmr::vector<RenderData> data;
+    ccstd::pmr::vector<bool> valid;
     // PolymorphicGraph
-    ccstd::pmr::vector<RasterPass>                    rasterPasses;
-    ccstd::pmr::vector<ComputePass>                   computePasses;
-    ccstd::pmr::vector<CopyPass>                      copyPasses;
-    ccstd::pmr::vector<MovePass>                      movePasses;
-    ccstd::pmr::vector<PresentPass>                   presentPasses;
-    ccstd::pmr::vector<RaytracePass>                  raytracePasses;
-    ccstd::pmr::vector<RenderQueue>                   renderQueues;
-    ccstd::pmr::vector<SceneData>                     scenes;
-    ccstd::pmr::vector<Blit>                          blits;
-    ccstd::pmr::vector<Dispatch>                      dispatches;
+    ccstd::pmr::vector<RasterPass> rasterPasses;
+    ccstd::pmr::vector<ComputePass> computePasses;
+    ccstd::pmr::vector<CopyPass> copyPasses;
+    ccstd::pmr::vector<MovePass> movePasses;
+    ccstd::pmr::vector<PresentPass> presentPasses;
+    ccstd::pmr::vector<RaytracePass> raytracePasses;
+    ccstd::pmr::vector<RenderQueue> renderQueues;
+    ccstd::pmr::vector<SceneData> scenes;
+    ccstd::pmr::vector<Blit> blits;
+    ccstd::pmr::vector<Dispatch> dispatches;
     ccstd::pmr::vector<ccstd::pmr::vector<ClearView>> clearViews;
-    ccstd::pmr::vector<gfx::Viewport>                 viewports;
+    ccstd::pmr::vector<gfx::Viewport> viewports;
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
 };

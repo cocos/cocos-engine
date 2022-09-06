@@ -32,7 +32,8 @@ import { Ray } from '../geometry';
 import { Color, Rect, toRadian, Vec3 } from '../math';
 import { CAMERA_DEFAULT_MASK } from '../pipeline/define';
 import { scene } from '../renderer';
-import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter } from '../renderer/scene/camera';
+import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
+    CameraType, TrackingType } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
@@ -40,7 +41,7 @@ import { Enum } from '../value-types';
 import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../renderer/core/render-window';
-import { ClearFlagBit } from '../gfx';
+import { ClearFlagBit } from '../../gfx';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -155,6 +156,10 @@ export class Camera extends Component {
     protected _camera: scene.Camera | null = null;
     protected _inEditorMode = false;
     protected _flows: string[] | undefined = undefined;
+    @serializable
+    protected _cameraType: CameraType = CameraType.DEFAULT;
+    @serializable
+    protected _trackingType: TrackingType = TrackingType.NO_TRACKING;
 
     /**
      * @en The render camera representation.
@@ -488,6 +493,34 @@ export class Camera extends Component {
         }
     }
 
+    get cameraType () {
+        return this._cameraType;
+    }
+
+    set cameraType (val) {
+        if (this._cameraType === val) {
+            return;
+        }
+        this._cameraType = val;
+        if (this.camera) {
+            this.camera.cameraType = val;
+        }
+    }
+
+    get trackingType () {
+        return this._trackingType;
+    }
+
+    set trackingType (val) {
+        if (this._trackingType === val) {
+            return;
+        }
+        this._trackingType = val;
+        if (this.camera) {
+            this.camera.trackingType = val;
+        }
+    }
+
     public onLoad () {
         this._createCamera();
     }
@@ -604,6 +637,8 @@ export class Camera extends Component {
                 window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow
                     : legacyCC.director.root && legacyCC.director.root.tempWindow,
                 priority: this._priority,
+                cameraType: this.cameraType,
+                trackingType: this.trackingType,
             });
 
             this._camera.setViewportInOrientedSpace(this._rect);

@@ -26,7 +26,7 @@ import { Shadows } from '../renderer/scene/shadows';
 import { Octree } from '../renderer/scene/octree';
 import { IRenderObject } from './define';
 import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
-    BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
+    BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../../gfx';
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';
 import { Pass } from '../renderer/core/pass';

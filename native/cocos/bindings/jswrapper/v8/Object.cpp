@@ -42,7 +42,7 @@
 
 namespace se {
 //NOLINTNEXTLINE
-std::unique_ptr<ccstd::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
+std::unique_ptr<ccstd::unordered_set<Object *>> __objectSet;
 
 namespace {
 v8::Isolate *__isolate = nullptr; //NOLINT
@@ -113,8 +113,8 @@ Object::~Object() {
         _obj.unref();
     }
 
-    if (__objectMap) {
-        __objectMap->erase(this);
+    if (__objectSet) {
+        __objectSet->erase(this);
     }
     delete _privateObject;
     _privateObject = nullptr;
@@ -151,7 +151,7 @@ void Object::setIsolate(v8::Isolate *isolate) {
 }
 
 void Object::setup() {
-    __objectMap = std::make_unique<ccstd::unordered_map<Object *, void *>>();
+    __objectSet = std::make_unique<ccstd::unordered_set<Object *>>();
 }
 
 void Object::cleanup() {
@@ -159,16 +159,15 @@ void Object::cleanup() {
     __isolate->VisitHandlesWithClassIds(&jsbVisitor);
     SE_ASSERT(NativePtrToObjectMap::size() == 0, "NativePtrToObjectMap should be empty!");
 
-    if (__objectMap) {
-        for (const auto &e : *__objectMap) {
-            auto *obj = e.first;
+    if (__objectSet) {
+        for (auto *obj : *__objectSet) {
             obj->_obj.persistent().Reset();
             // NOTE: Set _rootCount to 0 to avoid invoking _obj.unref in Object's destructor which may cause crash.
             obj->_rootCount = 0;
         }
     }
 
-    __objectMap.reset();
+    __objectSet.reset();
     __isolate = nullptr;
 }
 
@@ -368,9 +367,9 @@ bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
     _obj.init(obj, this, _cls != nullptr);
     _obj.setFinalizeCallback(nativeObjectFinalizeHook);
 
-    if (__objectMap) {
-        CC_ASSERT(__objectMap->find(this) == __objectMap->end());
-        __objectMap->emplace(this, nullptr);
+    if (__objectSet) {
+        CC_ASSERT(__objectSet->find(this) == __objectSet->end());
+        __objectSet->emplace(this);
     }
 
     #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID

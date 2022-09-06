@@ -197,17 +197,17 @@ struct RasterView {
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
     RasterView(RasterView&& rhs) noexcept = default;
-    RasterView(RasterView const& rhs)     = delete;
+    RasterView(RasterView const& rhs) = delete;
     RasterView& operator=(RasterView&& rhs) = default;
     RasterView& operator=(RasterView const& rhs) = default;
 
     ccstd::pmr::string slotName;
-    AccessType         accessType{AccessType::WRITE};
-    AttachmentType     attachmentType{AttachmentType::RENDER_TARGET};
-    gfx::LoadOp        loadOp{gfx::LoadOp::LOAD};
-    gfx::StoreOp       storeOp{gfx::StoreOp::STORE};
-    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
-    gfx::Color         clearColor;
+    AccessType accessType{AccessType::WRITE};
+    AttachmentType attachmentType{AttachmentType::RENDER_TARGET};
+    gfx::LoadOp loadOp{gfx::LoadOp::LOAD};
+    gfx::StoreOp storeOp{gfx::StoreOp::STORE};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color clearColor;
 };
 
 enum class ClearValueType {
@@ -226,7 +226,7 @@ struct ComputeView {
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 
     ComputeView(ComputeView&& rhs) noexcept = default;
-    ComputeView(ComputeView const& rhs)     = delete;
+    ComputeView(ComputeView const& rhs) = delete;
     ComputeView& operator=(ComputeView&& rhs) = default;
     ComputeView& operator=(ComputeView const& rhs) = default;
 
@@ -238,10 +238,10 @@ struct ComputeView {
     }
 
     ccstd::pmr::string name;
-    AccessType         accessType{AccessType::READ};
-    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::NONE};
-    gfx::Color         clearColor;
-    ClearValueType     clearValueType{ClearValueType::FLOAT_TYPE};
+    AccessType accessType{AccessType::READ};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
+    gfx::Color clearColor;
+    ClearValueType clearValueType{ClearValueType::FLOAT_TYPE};
 };
 
 struct LightInfo {
@@ -251,7 +251,7 @@ struct LightInfo {
       level(levelIn) {}
 
     IntrusivePtr<scene::Light> light;
-    uint32_t                   level{0};
+    uint32_t level{0};
 };
 
 } // namespace render

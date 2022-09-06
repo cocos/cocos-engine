@@ -171,7 +171,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         }
         sources.push('}');
     }
-    if (legacyCC.js.isChildClassOf(klass, legacyCC._BaseNode) || legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
+    if (legacyCC.js.isChildClassOf(klass, legacyCC.Node) || legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
         // @ts-expect-error 2341
         if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
             const mayUsedInPersistRoot = js.isChildClassOf(klass, legacyCC.Node);
@@ -194,7 +194,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
-    const shouldCopyId = js.isChildClassOf(klass, legacyCC._BaseNode) || js.isChildClassOf(klass, legacyCC.Component);
+    const shouldCopyId = js.isChildClassOf(klass, legacyCC.Node) || js.isChildClassOf(klass, legacyCC.Component);
     let shouldCopyRawData = false;
 
     const simpleProps: string[] = [];

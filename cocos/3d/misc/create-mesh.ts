@@ -24,7 +24,7 @@
  */
 
 import { Mesh } from '../assets/mesh';
-import { AttributeName, Format, FormatInfos, PrimitiveMode, Attribute } from '../../core/gfx';
+import { AttributeName, Format, FormatInfos, PrimitiveMode, Attribute } from '../../gfx';
 import { Vec3 } from '../../core/math';
 import { IGeometry, IDynamicGeometry, ICreateMeshOptions, ICreateDynamicMeshOptions } from '../../primitive/define';
 import { writeBuffer } from './buffer';

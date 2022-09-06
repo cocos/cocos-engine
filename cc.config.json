@@ -53,9 +53,12 @@
                 "14da1725-c4c2-42b4-ab08-ee0aeb6898b3",
                 "081cab31-dccd-428e-8652-f2404cc81c47",
                 "78e0584a-4343-4727-8f37-e14e65c2a2db" 
-            ] 
+            ]
         },
-        "particle-2d": { "modules": [ "particle-2d" ] },
+        "particle-2d": { 
+            "modules": [ "particle-2d" ],
+            "dependentModules": [ "2d" ]
+        },
         "physics-framework": { "modules": [ "physics-framework" ] },
         "physics-cannon": { "modules": [ "physics-cannon", "physics-framework" ] ,
             "dependentAssets": [ "ba21476f-2866-4f81-9c4d-6e359316e448" ]},
@@ -93,21 +96,29 @@
         },
         "audio": { "modules": [ "audio" ] },
         "video": { "modules": [ "video" ] },
+        "xr": { "modules": [ "xr" ] },
         "terrain": { 
             "modules": [ "terrain" ], 
             "dependentAssets": [ "1d08ef62-a503-4ce2-8b9a-46c90873f7d3" ] 
         },
         "webview": { "modules": [ "webview" ] },
         "tween": { "modules": [ "tween" ] },
-        "tiled-map": { "modules": [ "tiled-map" ] },
+        "tiled-map": { 
+            "modules": [ "tiled-map" ],
+            "dependentModules": [ "2d" ]
+        },
         "spine": { 
             "modules": [ "spine" ], 
             "dependentAssets":[ 
                 "c27215d8-6835-4b68-bfbb-bdeac6100c04",
                 "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
-            ] 
+            ],
+            "dependentModules": [ "2d" ]
         },
-        "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "dragon-bones": { 
+            "modules": [ "dragon-bones" ],
+            "dependentModules": [ "2d" ]
+        },
         "marionette": {
             "modules": [],
             "intrinsicFlags": {
@@ -157,12 +168,11 @@
                 "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",
                 "cocos/core/renderer/scene/index.ts": "cocos/core/renderer/scene/index.jsb.ts",
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d.jsb.ts",
-                "cocos/core/gfx/base/pipeline-state.ts": "cocos/core/gfx/base/pipeline-state.jsb.ts",
-                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
+                "cocos/gfx/base/pipeline-state.ts": "cocos/gfx/base/pipeline-state.jsb.ts",
+                "cocos/gfx/index.ts": "cocos/gfx/index.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
-                "cocos/core/scene-graph/base-node.ts": "cocos/core/scene-graph/base-node.jsb.ts",
                 "cocos/core/scene-graph/node.ts": "cocos/core/scene-graph/node.jsb.ts",
                 "cocos/core/scene-graph/scene.ts": "cocos/core/scene-graph/scene.jsb.ts",
                 "cocos/core/scene-graph/scene-globals.ts": "cocos/core/scene-graph/scene-globals.jsb.ts",
@@ -254,7 +264,7 @@
             "test": "!context.buildTimeConstants.MARIONETTE",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/core/animation/marionette/runtime-exports.ts": "cocos/core/animation/marionette/index-empty.ts"
+                "cocos/animation/marionette/runtime-exports.ts": "cocos/animation/marionette/index-empty.ts"
             }
         }
     ],

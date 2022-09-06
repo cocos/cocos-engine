@@ -32,28 +32,5 @@ class Value;
 } // namespace se
 
 SE_DECLARE_FINALIZE_FUNC(WebSocketServer_finalize);
-SE_DECLARE_FUNC(WebSocketServer_constructor);
-SE_DECLARE_FUNC(WebSocketServer_listen);
-SE_DECLARE_FUNC(WebSocketServer_close);
-SE_DECLARE_FUNC(WebSocketServer_onconnection);
-SE_DECLARE_FUNC(WebSocketServer_onclose);
-SE_DECLARE_FUNC(WebSocketServer_connections);
-SE_DECLARE_FUNC(WebSocketServer_Connection_constructor);
-
-SE_DECLARE_FUNC(WebSocketServer_Connection_finalize);
-SE_DECLARE_FUNC(WebSocketServer_Connection_close);
-SE_DECLARE_FUNC(WebSocketServer_Connection_send);
-
-SE_DECLARE_FUNC(WebSocketServer_Connection_ontext);
-SE_DECLARE_FUNC(WebSocketServer_Connection_onbinary);
-SE_DECLARE_FUNC(WebSocketServer_Connection_onconnect);
-SE_DECLARE_FUNC(WebSocketServer_Connection_onerror);
-SE_DECLARE_FUNC(WebSocketServer_Connection_onclose);
-SE_DECLARE_FUNC(WebSocketServer_Connection_ondata);
-
-SE_DECLARE_FUNC(WebSocketServer_Connection_headers);
-SE_DECLARE_FUNC(WebSocketServer_Connection_protocols);
-SE_DECLARE_FUNC(WebSocketServer_Connection_protocol);
-SE_DECLARE_FUNC(WebSocketServer_Connection_readyState);
 
 bool register_all_websocket_server(se::Object *obj);

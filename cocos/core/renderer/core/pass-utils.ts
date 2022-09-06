@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Type } from '../../gfx';
+import { Type } from '../../../gfx';
 import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like } from '../../math';
 
 const typeMask    = 0xfc000000; //  6 bits => 64 types

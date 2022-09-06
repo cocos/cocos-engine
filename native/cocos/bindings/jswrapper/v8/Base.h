@@ -41,6 +41,7 @@
 #include "../PrivateObject.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
+#include "base/std/container/unordered_set.h"
 
 #include "HelperMacros.h"
 

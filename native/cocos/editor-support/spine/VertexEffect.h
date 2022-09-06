@@ -41,7 +41,7 @@ class Color;
 class SP_API VertexEffect : public SpineObject {
 public:
     virtual void begin(Skeleton &skeleton) = 0;
-    virtual void transform(float &x, float &y, float &u, float &v, Color &light, Color &dark) = 0;
+    virtual void transform(float &x, float &y) = 0;
     virtual void end() = 0;
 };
 
@@ -50,7 +50,7 @@ public:
     JitterVertexEffect(float jitterX, float jitterY);
 
     void begin(Skeleton &skeleton);
-    void transform(float &x, float &y, float &u, float &v, Color &light, Color &dark);
+    void transform(float &x, float &y);
     void end();
 
     void setJitterX(float jitterX);
@@ -69,7 +69,7 @@ public:
     SwirlVertexEffect(float radius, Interpolation &interpolation);
 
     void begin(Skeleton &skeleton);
-    void transform(float &x, float &y, float &u, float &v, Color &light, Color &dark);
+    void transform(float &x, float &y);
     void end();
 
     void setCenterX(float centerX);

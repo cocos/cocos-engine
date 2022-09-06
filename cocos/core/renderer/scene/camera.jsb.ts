@@ -24,7 +24,7 @@
  */
 import { Ray } from '../../geometry';
 import { RenderWindow } from '../core/render-window';
-import { ClearFlagBit } from '../../gfx';
+import { ClearFlagBit } from '../../../gfx';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../scene-graph/utils.jsb';
 import { Mat4, Vec3 } from '../../math';
 
@@ -89,6 +89,20 @@ export enum CameraShutter {
     D4000,
 }
 
+export enum CameraType {
+    DEFAULT = -1,
+    LEFT_EYE = 0,
+    RIGHT_EYE = 1,
+    MAIN = 2,
+}
+
+export enum TrackingType {
+    NO_TRACKING = 0,
+    POSITION_AND_ROTATION = 1,
+    POSITION = 2,
+    ROTATION = 3,
+}
+
 export interface ICameraInfo {
     name: string;
     node: Node;
@@ -97,6 +111,8 @@ export interface ICameraInfo {
     window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
+    cameraType?: CameraType;
+    trackingType?: TrackingType;
 }
 
 export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;

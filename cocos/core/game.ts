@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -34,7 +34,7 @@ import { EventTarget } from './event';
 import { AsyncDelegate } from './event/async-delegate';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { deviceManager } from './gfx';
+import { deviceManager } from '../gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { legacyCC, VERSION } from './global-exports';
@@ -686,6 +686,17 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.timeEnd('Init Base');
                 }
+
+                if (sys.isXR) {
+                    // XrEntry must not be destroyed
+                    xr.entry = xr.XrEntry.getInstance();
+
+                    const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
+                    const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+                    xr.entry.setMultisamplesRTT(xrMSAA);
+                    xr.entry.setRenderingScale(xrRenderingScale);
+                }
+
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })

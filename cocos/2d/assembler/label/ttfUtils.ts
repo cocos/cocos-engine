@@ -33,9 +33,8 @@ import { ISharedLabelData, LetterRenderTexture } from './font-utils';
 import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
-import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { BlendFactor } from '../../../core/gfx';
+import { BlendFactor } from '../../../gfx';
 import { WrapMode } from '../../../core/assets/asset-enum';
 
 const Overflow = Label.Overflow;
@@ -120,6 +119,7 @@ export const ttfUtils =  {
             this.updateUVs(comp); // Empty
             comp.renderData.vertDirty = false;
             // comp.markForUpdateRenderData(false);
+            comp.contentWidth = _nodeContentSize.width;
 
             _context = null;
             _canvas = null;

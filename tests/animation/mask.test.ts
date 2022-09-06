@@ -1,8 +1,8 @@
-import { AnimationState } from '../../cocos/core/animation/animation-state';
-import { AnimationClip } from '../../cocos/core/animation/animation-clip';
-import { AnimationMask } from '../../cocos/core/animation/marionette/animation-mask';
+import { AnimationState } from '../../cocos/animation/animation-state';
+import { AnimationClip } from '../../cocos/animation/animation-clip';
+import { AnimationMask } from '../../cocos/animation/marionette/animation-mask';
 import { Node } from '../../cocos/core/scene-graph/node';
-import { HierarchyPath } from '../../cocos/core/animation/target-path';
+import { HierarchyPath } from '../../cocos/animation/target-path';
 
 describe('Skeleton Mask', () => {
     test('Apply mask', () => {

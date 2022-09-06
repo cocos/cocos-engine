@@ -1,4 +1,4 @@
-import { API, } from '../../gfx';
+import { API, } from '../../../gfx';
 import { legacyCC } from '../../global-exports';
 
 export interface ITemplateInfo {

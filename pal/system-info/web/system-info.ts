@@ -1,7 +1,6 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import legacyCC from '../../../predefine';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {
@@ -18,6 +17,7 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly isXR: boolean;
     private _battery?: any;
     private _featureMap: IFeatureMap;
 
@@ -142,6 +142,8 @@ class SystemInfo extends EventTarget {
         }
         this.browserVersion = tmp ? tmp[4] : '';
 
+        this.isXR = false;
+
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');
         const supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
@@ -189,6 +191,10 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_MOUSE]: supportMouse,
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
+            // @ts-expect-error undefined webkitGetGamepads
+            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
+            [Feature.EVENT_HANDLE]: this.isXR,
+            [Feature.EVENT_HMD]: this.isXR,
         };
 
         this._registerEvent();

@@ -33,11 +33,10 @@ import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
-import { getAttributeStride, vfmtPosUvColor, vfmtPosUvTwoColor } from './vertex-format';
-import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
+import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
+import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../gfx';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
-import { StencilManager } from './stencil-manager';
 import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
 import { assert } from '../../core';
@@ -227,9 +226,7 @@ export class BaseRenderData {
  */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
-        const rd = new RenderData(vertexFormat);
-        rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
-        rd._vertexFormat = vertexFormat;
+        const rd = new RenderData(vertexFormat, accessor);
         if (!accessor) {
             const batcher = director.root!.batcher2D;
             accessor = batcher.switchBufferAccessor(rd._vertexFormat);

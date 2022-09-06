@@ -36,6 +36,9 @@
 #endif
 
 // varying-undependent macros
+#ifndef CC_SURFACES_FLIP_UV
+  #define CC_SURFACES_FLIP_UV 0
+#endif
 #ifndef CC_SURFACES_USE_TWO_SIDED
   #define CC_SURFACES_USE_TWO_SIDED 0
 #endif

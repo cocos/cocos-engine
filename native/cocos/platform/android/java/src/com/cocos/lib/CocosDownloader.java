@@ -104,7 +104,7 @@ public class CocosDownloader {
                     .dispatcher(dispatcher)
                     .followRedirects(true)
                     .followSslRedirects(true)
-                    .callTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                    .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .build();
         } else {
             downloader._httpClient = new OkHttpClient().newBuilder()
@@ -157,6 +157,17 @@ public class CocosDownloader {
                         if (tempFile.isDirectory()) break;
 
                         File parent = tempFile.getParentFile();
+                        if (parent == null) {
+                            String errStr = "Invalid path " + path + " : The current path is inaccessible.";
+                            Log.e("CocosDownloader", errStr);
+                            CocosHelper.runOnGameThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
+                                }
+                            });
+                            break;
+                        }
                         if (!parent.isDirectory() && !parent.mkdirs()) break;
 
                         finalFile = new File(path);

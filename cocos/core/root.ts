@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { DEV, HTML5, TEST } from 'internal:constants';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
 import { DebugView } from './pipeline/debug-view';
@@ -36,8 +35,8 @@ import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
-import { warn, warnID } from './platform/debug';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from '../gfx';
+import { warnID } from './platform/debug';
 import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { IPipelineEvent } from './pipeline/pipeline-event';

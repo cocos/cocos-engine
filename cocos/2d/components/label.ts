@@ -37,7 +37,7 @@ import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { legacyCC } from '../../core/global-exports';
-import { BlendFactor } from '../../core/gfx';
+import { BlendFactor } from '../../gfx';
 import { Color } from '../../core';
 
 const tempColor = Color.WHITE.clone();
@@ -675,6 +675,22 @@ export class Label extends UIRenderer {
     protected _assemblerData: ISharedLabelData | null = null;
     protected _fontAtlas: FontAtlas | null = null;
     protected _letterTexture: LetterRenderTexture | null = null;
+
+    protected _contentWidth = 0;
+
+    /**
+     * @engineInternal
+     */
+    get contentWidth () {
+        return this._contentWidth;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set contentWidth (val) {
+        this._contentWidth = val;
+    }
 
     constructor () {
         super();

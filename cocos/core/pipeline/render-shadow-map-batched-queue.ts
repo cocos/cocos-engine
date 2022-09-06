@@ -25,7 +25,7 @@
 
 import { SubModel } from '../renderer/scene/submodel';
 import { SetIndex } from './define';
-import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
+import { Device, RenderPass, Shader, CommandBuffer } from '../../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';

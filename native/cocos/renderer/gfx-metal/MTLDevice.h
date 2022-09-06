@@ -67,7 +67,7 @@ public:
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
-    void onPresentCompleted();
+    void onPresentCompleted(uint32_t index);
 
     inline void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     inline void *getMTLDevice() const { return _mtlDevice; }

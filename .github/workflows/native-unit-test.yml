@@ -1,4 +1,4 @@
-name: <Native> Run Tests
+name: <Native> Run Unit Tests
 
 on:
   pull_request:

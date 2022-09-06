@@ -159,10 +159,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
     vec3 R = normalize(reflect(-V, N));
 
+    vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
     #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
-      vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6);
+      vec3 env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6);
     #else
-      vec4 envmap = fragTextureLod(cc_environment, R, s.roughness * (cc_ambientGround.w - 1.0));
+      vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
 
       #if CC_USE_IBL == IBL_RGBE
         vec3 env = unpackRGBE(envmap);

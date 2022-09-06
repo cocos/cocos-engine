@@ -24,7 +24,7 @@
  */
 
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
-    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
+    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../../gfx';
 import { Light } from '../renderer/scene';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
 
@@ -82,6 +82,13 @@ export class GlobalDSManager {
         this._linearSampler = this._device.getSampler(_samplerLinearInfo);
         this._pointSampler = this._device.getSampler(_samplerPointInfo);
 
+        const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
+
+        this._globalDescriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+    }
+
+    regenLayout () {
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
 

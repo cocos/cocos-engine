@@ -76,11 +76,6 @@ extern se::Object *__jsb_cc_Layers_proto; // NOLINT
 extern se::Class * __jsb_cc_Layers_class; // NOLINT
 
 
-JSB_REGISTER_OBJECT_TYPE(cc::BaseNode);
-extern se::Object *__jsb_cc_BaseNode_proto; // NOLINT
-extern se::Class * __jsb_cc_BaseNode_class; // NOLINT
-
-
 JSB_REGISTER_OBJECT_TYPE(cc::Node::UserData);
 extern se::Object *__jsb_cc_Node_UserData_proto; // NOLINT
 extern se::Class * __jsb_cc_Node_UserData_class; // NOLINT

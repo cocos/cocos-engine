@@ -27,7 +27,7 @@ import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { RenderPass, Device, CommandBuffer } from '../gfx';
+import { RenderPass, Device, CommandBuffer } from '../../gfx';
 import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
 import { getPhaseID } from './pass-phase';
 
