@@ -45,7 +45,6 @@
 #include "renderer/pipeline/shadow/ShadowStage.h"
 #include "renderer/pipeline/shadow/CSMLayers.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "renderer/pipeline/InstancedBuffer.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/deferred/MainFlow.h"
 #include "renderer/pipeline/deferred/GbufferStage.h"
@@ -493,20 +492,6 @@ extern se::Class * __jsb_cc_pipeline_CSMLayers_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GlobalDSManager);
 extern se::Object *__jsb_cc_pipeline_GlobalDSManager_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_GlobalDSManager_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedItem);
-extern se::Object *__jsb_cc_pipeline_InstancedItem_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_InstancedItem_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::pipeline::InstancedItem * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
-extern se::Object *__jsb_cc_pipeline_InstancedBuffer_proto; // NOLINT
-extern se::Class * __jsb_cc_pipeline_InstancedBuffer_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);

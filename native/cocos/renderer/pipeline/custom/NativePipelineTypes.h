@@ -264,6 +264,95 @@ struct PersistentRenderPassAndFramebuffer {
     int32_t refCount{1};
 };
 
+struct RenderElem {
+    uint32_t priority{0};
+    float depth{0};
+    uint32_t haderID{0};
+    uint32_t assIndex{0};
+    const scene::SubModel* subModel{nullptr};
+};
+
+struct RenderElemQueue {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {queue.get_allocator().resource()};
+    }
+
+    RenderElemQueue(const allocator_type& alloc) noexcept; // NOLINT
+    RenderElemQueue(RenderElemQueue&& rhs) = delete;
+    RenderElemQueue(RenderElemQueue const& rhs) = delete;
+    RenderElemQueue& operator=(RenderElemQueue&& rhs) = delete;
+    RenderElemQueue& operator=(RenderElemQueue const& rhs) = delete;
+
+    ccstd::pmr::vector<RenderElem> queue;
+};
+
+struct RenderInstance {
+    uint32_t count{0};
+    uint32_t capacity{0};
+    gfx::Buffer* vertexBuffer{nullptr};
+    uint8_t* data{nullptr};
+    gfx::InputAssembler* inputAssembler{nullptr};
+    uint32_t stride{0};
+    gfx::Shader* shader{nullptr};
+    gfx::DescriptorSet* descriptorSet{nullptr};
+    gfx::Texture* lightmap{nullptr};
+};
+
+struct RenderInstanceBatch {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {instances.get_allocator().resource()};
+    }
+
+    RenderInstanceBatch(const allocator_type& alloc) noexcept; // NOLINT
+    RenderInstanceBatch(RenderInstanceBatch&& rhs) = delete;
+    RenderInstanceBatch(RenderInstanceBatch const& rhs) = delete;
+    RenderInstanceBatch& operator=(RenderInstanceBatch&& rhs) = delete;
+    RenderInstanceBatch& operator=(RenderInstanceBatch const& rhs) = delete;
+
+    ccstd::pmr::vector<RenderInstance> instances;
+    ccstd::pmr::vector<uint32_t> bufferOffsets;
+    const scene::Pass* pass{nullptr};
+    gfx::Device* device{nullptr};
+};
+
+class DefaultSceneVisitor final : public SceneVisitor {
+public:
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {name.get_allocator().resource()};
+    }
+
+    DefaultSceneVisitor(const allocator_type& alloc) noexcept; // NOLINT
+
+    const pipeline::PipelineSceneData* getPipelineSceneData() const override;
+
+    void setViewport(const gfx::Viewport &vp) override;
+    void setScissor(const gfx::Rect &rect) override;
+    void bindPipelineState(gfx::PipelineState* pso) override;
+    void bindDescriptorSet(uint32_t set, gfx::DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) override;
+    void bindInputAssembler(gfx::InputAssembler *ia) override;
+    void updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) override;
+    void draw(const gfx::DrawInfo &info) override;
+
+    ccstd::pmr::string name;
+};
+
+class DefaultForwardLightingTransversal final : public SceneTransversal {
+public:
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {name.get_allocator().resource()};
+    }
+
+    DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept; // NOLINT
+
+    SceneTask* transverse(SceneVisitor *visitor) const override;
+
+    ccstd::pmr::string name;
+};
+
 struct RenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT

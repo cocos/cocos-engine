@@ -54,6 +54,19 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearStencil(rhs.clearStencil),
   refCount(rhs.refCount) {}
 
+RenderElemQueue::RenderElemQueue(const allocator_type& alloc) noexcept
+: queue(alloc) {}
+
+RenderInstanceBatch::RenderInstanceBatch(const allocator_type& alloc) noexcept
+: instances(alloc),
+  bufferOffsets(alloc) {}
+
+DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
+: name(alloc) {}
+
+DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept
+: name(alloc) {}
+
 RenderContext::RenderContext(const allocator_type& alloc) noexcept
 : renderPasses(alloc) {}
 

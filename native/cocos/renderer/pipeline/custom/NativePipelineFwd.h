@@ -47,6 +47,12 @@ class NativeMovePassBuilder;
 class NativeCopyPassBuilder;
 class NativeSceneTransversal;
 struct PersistentRenderPassAndFramebuffer;
+struct RenderElem;
+struct RenderElemQueue;
+struct RenderInstance;
+struct RenderInstanceBatch;
+class DefaultSceneVisitor;
+class DefaultForwardLightingTransversal;
 struct RenderContext;
 class NativePipeline;
 
