@@ -65,7 +65,8 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     EXPORT_STRUCT_POD(Viewport, left, top, width, height, minDepth, maxDepth);
     EXPORT_STRUCT_POD(Color, x, y, z, w);
     EXPORT_STRUCT_POD(BindingMappingInfo, maxBlockCounts, maxSamplerTextureCounts, maxSamplerCounts, maxTextureCounts, maxBufferCounts, maxImageCounts, maxSubpassInputCounts, setIndices);
-    EXPORT_STRUCT_NPOD(SwapchainInfo, windowHandle, vsyncMode, width, height);
+    // SwapchainInfo ignore windowHandle
+    EXPORT_STRUCT_NPOD(SwapchainInfo, vsyncMode, width, height);
     EXPORT_STRUCT_POD(DeviceInfo, bindingMappingInfo);
     EXPORT_STRUCT_POD(BufferInfo, usage, memUsage, size, stride, flags);
     EXPORT_STRUCT_NPOD(BufferViewInfo, buffer, offset, range);

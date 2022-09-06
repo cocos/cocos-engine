@@ -91,7 +91,18 @@ CCWGPUDevice::CCWGPUDevice() : Device() {
     _caps.clipSpaceMinZ = 0.0F;
     _caps.screenSpaceSignY = -1.0F;
     _caps.clipSpaceSignY = 1.0F;
+
+    // Sept 6th 2022: ems getLimits not implemented
     _caps.uboOffsetAlignment = 256;
+    _caps.uboOffsetAlignment = 256;
+    _caps.maxVertexUniformVectors = 256;
+    _caps.maxFragmentUniformVectors = 256;
+
+    _caps.maxComputeSharedMemorySize = 32768;
+    _caps.maxComputeWorkGroupInvocations = 256;
+    _caps.maxComputeWorkGroupSize = {65535, 65535, 65535};
+    _caps.maxComputeWorkGroupCount = {256, 256, 64};
+
     instance = this;
 }
 
@@ -122,8 +133,8 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
         .type = CommandBufferType::PRIMARY,
     };
     _cmdBuff = this->Device::createCommandBuffer(cmdInfo);
-
-    _gpuDeviceObj->instance.wgpuInstance = wgpuCreateInstance({});
+    // Sept 6th 2022: not implemented by emscripten
+    // _gpuDeviceObj->instance.wgpuInstance = wgpuCreateInstance({});
 
 #ifdef CC_WGPU_WASM
     WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
@@ -135,6 +146,7 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj->instance.wgpuSurface = wgpuInstanceCreateSurface(nullptr, &surfDesc);
 
 #elif defined(CC_WGPU_DAWN)
+    _gpuDeviceObj->instance.wgpuInstance = wgpuCreateInstance({});
     WGPUSurfaceDescriptor sufaceDesc = {
         .label = "DAWNSurface",
     };
@@ -413,8 +425,8 @@ void CCWGPUDevice::debug() {
 void CCWGPUDevice::initConfigs() {
     WGPUAdapterProperties props;
     wgpuAdapterGetProperties(_gpuDeviceObj->instance.wgpuAdapter, &props);
-    _deviceName = props.name;
-    _vendor = props.driverDescription;
+    // _deviceName = props.name;
+    // _vendor = props.driverDescription;
 
     const auto &adapterName = getAdapterTypeName(props.adapterType);
     const auto &backendName = getBackendTypeName(props.backendType);
@@ -509,13 +521,7 @@ void CCWGPUDevice::initLimits() {
     _caps.maxComputeWorkGroupInvocations = limits.maxComputeInvocationsPerWorkgroup;
     _caps.maxComputeWorkGroupSize = {limits.maxComputeWorkgroupsPerDimension, limits.maxComputeWorkgroupsPerDimension, limits.maxComputeWorkgroupsPerDimension};
     _caps.maxComputeWorkGroupCount = {limits.maxComputeWorkgroupSizeX, limits.maxComputeWorkgroupSizeY, limits.maxComputeWorkgroupSizeZ};
-#else
-    _caps.uboOffsetAlignment = 256;
 
-    _caps.maxComputeSharedMemorySize = 32768;
-    _caps.maxComputeWorkGroupInvocations = 256;
-    _caps.maxComputeWorkGroupSize = {65535, 65535, 65535};
-    _caps.maxComputeWorkGroupCount = {256, 256, 64};
 #endif
 }
 
