@@ -22,10 +22,17 @@
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { errorID } from '../core/platform/debug';
+import { Settings, settings } from '../core/settings';
 import { Enum } from '../core/value-types';
 
+interface SortingItem {
+    id: number;
+    name: string;
+    index: number;
+}
+
 const SortingLayer = {
-    DEFAULT: 0,
+    default: 0,
 };
 
 export class SortingLayers {
@@ -85,6 +92,22 @@ export class SortingLayers {
             errorID(2105);
             return false;
         }
+    }
+
+    public static init () {
+        const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
+        if (!sortingLayers) return;
+        const LayerEnum: any = {};
+        for (let i = 0; i < sortingLayers.length; i++) {
+            const layer = sortingLayers[i];
+            SortingLayers.setLayer(layer.id, layer.name, layer.index);
+            if (SortingLayers.Enum[layer.name]) {
+                delete SortingLayers.Enum[layer.name];
+            }
+            LayerEnum[layer.name] = layer.id;
+        }
+        Object.assign(SortingLayers.Enum, LayerEnum);
+        Enum.update(SortingLayers.Enum);
     }
 
     // Editor Function to init config
