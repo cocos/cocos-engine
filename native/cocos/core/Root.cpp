@@ -27,7 +27,7 @@
 #include "2d/renderer/Batcher2d.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
-#include "platform/BasePlatform.h"
+#include "application/ApplicationManager.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
