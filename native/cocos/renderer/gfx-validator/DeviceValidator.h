@@ -29,6 +29,7 @@
 #include "gfx-base/GFXDevice.h"
 
 namespace cc {
+class IXRInterface;
 namespace gfx {
 
 class CC_DLL DeviceValidator final : public Agent<Device> {
@@ -106,6 +107,7 @@ protected:
 
     bool _recording{false};
     uint64_t _currentFrame{1U};
+    IXRInterface *_xr{nullptr};
 };
 
 } // namespace gfx

@@ -49,7 +49,8 @@
 
 #include "gfx-base/SPIRVUtils.h"
 #include "profiler/Profiler.h"
-#include "platform/BasePlatform.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyVk.h"
@@ -812,6 +813,9 @@ QueryPool *CCVKDevice::createQueryPool() {
 }
 
 Swapchain *CCVKDevice::createSwapchain() {
+    if (_xr) {
+        _xr->createXRSwapchains();
+    }
     return ccnew CCVKSwapchain;
 }
 
