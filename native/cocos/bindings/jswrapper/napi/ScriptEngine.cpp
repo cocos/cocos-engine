@@ -95,7 +95,6 @@ bool ScriptEngine::init() {
 
     Object::setup();
     NativePtrToObjectMap::init();
-    NonRefNativePtrCreatedByCtorMap::init();
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_global(ScriptEngine::getEnv(), &result));
     _globalObj = Object::_createJSObject(ScriptEngine::getEnv(), result, nullptr);
     _globalObj->root();
@@ -174,7 +173,6 @@ void ScriptEngine::cleanup() {
 
     _isInCleanup = false;
     NativePtrToObjectMap::destroy();
-    NonRefNativePtrCreatedByCtorMap::destroy();
     SE_LOGD("ScriptEngine::cleanup end ...\n");
 }
 
@@ -269,5 +267,14 @@ void ScriptEngine::_setNeedCallConstructor(bool need) {
 
 bool ScriptEngine::_needCallConstructor() {
     return _isneedCallConstructor;
+}
+
+bool callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval = nullptr) {
+    return true;
+}
+
+void ScriptEngine::handlePromiseExceptions() {
+    //TODO not impl
+    return;
 }
 }; // namespace se

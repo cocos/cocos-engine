@@ -271,7 +271,15 @@ public:
      */
     bool _needCallConstructor();
 
-     void _setGarbageCollecting(bool isGarbageCollecting); //NOLINT(readability-identifier-naming)
+    /**
+     * @brief Fast version of call script function, faster than Object::call
+     */
+    bool callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval = nullptr);
+
+    void _setGarbageCollecting(bool isGarbageCollecting); // NOLINT(readability-identifier-naming)
+
+    void handlePromiseExceptions();
+
 private:
     ScriptEngine();
     ~ScriptEngine();

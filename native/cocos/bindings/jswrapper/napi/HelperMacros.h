@@ -58,13 +58,13 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 #define SE_QUOTEME(x)             SE_QUOTEME_(x)
 #define SE_REPORT_ERROR(fmt, ...) SE_LOGE("[ERROR] (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
 
-#define SE_BIND_PROP_GET(funcName)                                                                    \
-    napi_value funcName##Registry(napi_env env, napi_callback_info info) {                            \
-        napi_value  _this;                                                                            \
+#define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                                      \
+    napi_value funcName##postFix##Registry(napi_env env, napi_callback_info info) {                            \
+        napi_value _this;                                                                             \
         napi_status status;                                                                           \
         NODE_API_CALL(status, env,                                                                    \
                       napi_get_cb_info(env, info, nullptr, nullptr, &_this, nullptr));                \
-        void *obj;                                                                                    \
+        se::Object *obj;                                                                              \
         napi_unwrap(env, _this, reinterpret_cast<void **>(&obj));                                     \
         se::State state(obj);                                                                         \
         bool ret = funcName(state);                                                                   \
@@ -77,8 +77,11 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         return retVal;                                                                                \
     }
 
-#define SE_BIND_PROP_SET(funcName)                                                                    \
-    napi_value funcName##Registry(napi_env env, napi_callback_info info) {                            \
+#define SE_BIND_PROP_GET(funcName)         SE_BIND_PROP_GET_IMPL(funcName, )
+#define SE_BIND_FUNC_AS_PROP_GET(funcName) SE_BIND_PROP_GET_IMPL(funcName, _asGetter)
+
+#define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                                                    \
+    napi_value funcName##postFix##Registry(napi_env env, napi_callback_info info) {                            \
         napi_status status;                                                                           \
         size_t      argc = 1;                                                                         \
         napi_value  args[1];                                                                          \
@@ -89,7 +92,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         se::ValueArray args2;                                                                         \
         args2.reserve(10);                                                                            \
         args2.push_back(std::move(data));                                                             \
-        void *nativeThisObject;                                                                       \
+        se::Object *nativeThisObject;                                                                       \
         napi_unwrap(env, _this, reinterpret_cast<void **>(&nativeThisObject));                        \
         se::State state(nativeThisObject, args2);                                                     \
         bool      ret = funcName(state);                                                              \
@@ -98,6 +101,9 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         }                                                                                             \
         return nullptr;                                                                               \
     }
+
+#define SE_BIND_PROP_SET(funcName)         SE_BIND_PROP_SET_IMPL(funcName, )
+#define SE_BIND_FUNC_AS_PROP_SET(funcName) SE_BIND_PROP_SET_IMPL(funcName, _asSetter)
 
 #define SE_DECLARE_FUNC(funcName) \
     napi_value funcName##Registry(napi_env env, napi_callback_info info)
@@ -113,7 +119,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         size_t     argc = 10;                                                                           \
         napi_value args[10];                                                                            \
         NODE_API_CALL(status, env, napi_get_cb_info(env, info, &argc, args, &_this, NULL));             \
-        void *nativeThisObject = nullptr;                                                               \
+        se::Object *nativeThisObject = nullptr;                                                         \
         status                 = napi_unwrap(env, _this, reinterpret_cast<void **>(&nativeThisObject)); \
         se::internal::jsToSeArgs(argc, args, &seArgs);                                                  \
         se::State state(nativeThisObject, seArgs);                                                      \
@@ -126,6 +132,20 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         if (se::internal::setReturnValue(state.rval(), retVal))                                         \
             return retVal;                                                                              \
         return nullptr;                                                                                 \
+    }
+
+#define SE_BIND_FUNC_FAST(funcName)                                                                      \
+    napi_value funcName##Registry(napi_env env, napi_callback_info info) {                               \
+        napi_status status;                                                                              \
+        napi_value _this;                                                                                \
+        size_t argc = 10;                                                                                \
+        napi_value args[10];                                                                             \
+        se::Object *nativeThisObject = nullptr;                                                          \
+        NODE_API_CALL(status, env, napi_get_cb_info(env, info, &argc, args, &_this, NULL));              \
+        status = napi_unwrap(env, _this, reinterpret_cast<void **>(&nativeThisObject));                  \
+        auto *nativeObject = nativeThisObject != nullptr ? nativeThisObject->getPrivateData() : nullptr; \
+        funcName(nativeObject);                                                                          \
+        return nullptr;                                                                                  \
     }
 
 #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                       \
@@ -169,7 +189,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
         if (nativeObject == nullptr) {                                                                \
             return;                                                                                   \
         }                                                                                             \
-        se::State state(nativeObject);                                                                \
+        se::State state(reinterpret_cast<se::Object *>(nativeObject));                                                                \
         bool      ret = funcName(state);                                                              \
         if (!ret) {                                                                                   \
             SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", #funcName, __FILE__, __LINE__); \

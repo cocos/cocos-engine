@@ -75,6 +75,12 @@ void Class::defineProperty(const char* name, napi_callback g, napi_callback s) {
     _properties.push_back({name, nullptr, nullptr, g, s, 0, napi_default_jsproperty, 0});
 }
 
+void Class::defineProperty(const std::initializer_list<const char *> &names, napi_callback g, napi_callback s) {
+    for (const auto *name : names) {
+        defineProperty(name, g, s);
+    }
+}
+
 void Class::defineStaticProperty(const char* name, napi_callback g, napi_callback s) {
     _properties.push_back({name, nullptr, nullptr, g, s, 0, napi_static, 0});
 }

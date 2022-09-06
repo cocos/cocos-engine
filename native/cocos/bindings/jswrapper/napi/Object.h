@@ -30,6 +30,8 @@
 #include "../config.h"
 #include "CommonHeader.h"
 #include "HelperMacros.h"
+#include "../PrivateObject.h"
+#include "base/std/container/unordered_map.h"
 
 namespace se {
 class Class;
@@ -136,29 +138,53 @@ public:
          */
     bool getProperty(const char *name, Value *data);
 
+    inline bool getProperty(const char *name, Value *data, bool cachePropertyName) {
+        return getProperty(name, data);
+    }
+
     inline bool getProperty(const std::string &name, Value *value) {
         return getProperty(name.c_str(), value);
     }
 
-    /**
-         *  @brief Sets a pointer to private data on an object.
-         *  @param[in] data A void* to set as the object's private data.
-         *  @note This method will associate private data with se::Object by std::unordered_map::emplace.
-         *        It's used for search a se::Object via a void* private data.
-         */
-    void setPrivateData(void *data);
+    void setPrivateObject(PrivateObjectBase *data);
+    PrivateObjectBase *getPrivateObject() const;
 
     /**
-         *  @brief Gets an object's private data.
-         *  @return A void* that is the object's private data, if the object has private data, otherwise nullptr.
-         */
-    void *getPrivateData() const;
+     *  @brief Gets an object's private data.
+     *  @return A void* that is the object's private data, if the object has private data, otherwise nullptr.
+     */
+    inline void *getPrivateData() const {
+        return _privateData;
+    }
+
+    /**
+     *  @brief Sets a pointer to private data on an object.
+     *  @param[in] data A void* to set as the object's private data.
+     *  @note This method will associate private data with se::Object by ccstd::unordered_map::emplace.
+     *        It's used for search a se::Object via a void* private data.
+     */
+    template <typename T>
+    inline void setPrivateData(T *data) {
+        static_assert(!std::is_void<T>::value, "void * is not allowed for private data");
+        setPrivateObject(se::make_shared_private_object(data));
+    }
+
+    template <typename T>
+    inline T *getTypedPrivateData() const {
+        return reinterpret_cast<T *>(getPrivateData());
+    }
 
     /**
          *  @brief Clears private data of an object.
          *  @param clearMapping Whether to clear the mapping of native object & se::Object.
          */
     void clearPrivateData(bool clearMapping = true);
+
+
+    /**
+     * @brief Sets whether to clear the mapping of native object & se::Object in finalizer
+     */
+    void setClearMappingInFinalizer(bool v) { _clearMappingInFinalizer = v; }
 
     /**
          *  @brief Tests whether an object is an array.
@@ -232,6 +258,12 @@ public:
          */
     static Object *createTypedArray(TypedArrayType type, const void *data, size_t byteLength);
 
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset);
+    static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength);
+
+    using BufferContentsFreeFunc = void (*)(void *contents, size_t byteLength, void *userData);
+    static Object *createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData = nullptr);
     /**
          *  @brief Tests whether an object can be called as a function.
          *  @return true if object can be called as a function, otherwise false.
@@ -369,7 +401,9 @@ private:
 private:
     ObjectRef     _objRef;
     napi_finalize _finalizeCb  = nullptr;
-    void *        _privateData = nullptr;
+    bool _clearMappingInFinalizer = true;
+    void *_privateData = nullptr;
+    PrivateObjectBase *_privateObject = nullptr;
     napi_env      _env         = nullptr;
     Class *       _cls         = nullptr;
     uint32_t      _rootCount   = 0;
