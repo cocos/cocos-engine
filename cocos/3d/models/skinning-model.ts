@@ -35,7 +35,7 @@ import { Node } from '../../core/scene-graph/node';
 import { ModelType } from '../../core/renderer/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
+import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../animation/skeletal-animation-utils';
 import { IMacroPatch, BatchingSchemes, Pass } from '../../core/renderer';
 import { warnID } from '../../core/platform/debug';
 import { ImageAsset, Texture2D, director } from '../../core';

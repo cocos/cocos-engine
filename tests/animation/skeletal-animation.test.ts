@@ -2,8 +2,8 @@
 import { SkeletalAnimationState } from '../../cocos/3d/skeletal-animation/skeletal-animation-state';
 import { SkeletalAnimation } from '../../cocos/3d/skeletal-animation/skeletal-animation';
 import { CCObject, director, game, Node, Scene } from '../../cocos/core';
-import { AnimationClip } from '../../cocos/core/animation/animation-clip';
-import { VectorTrack } from '../../cocos/core/animation/animation';
+import { AnimationClip } from '../../cocos/animation/animation-clip';
+import { VectorTrack } from '../../cocos/animation/animation';
 import { JointAnimationInfo } from '../../cocos/3d/skeletal-animation/skeletal-animation-utils';
 import { SkinnedMeshRenderer } from '../../cocos/3d/skinned-mesh-renderer';
 
