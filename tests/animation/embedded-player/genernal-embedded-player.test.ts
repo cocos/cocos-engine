@@ -1,7 +1,5 @@
 import { Node } from "../../../cocos/core";
-import { addEmbeddedPlayerTag, AnimationClip } from "../../../cocos/core/animation/animation-clip";
-import { AnimationState } from "../../../cocos/core/animation/animation-state";
-import { EmbeddedPlayer, EmbeddedPlayable, EmbeddedPlayableState } from "../../../cocos/core/animation/embedded-player/embedded-player";
+import { EmbeddedPlayer, EmbeddedPlayable, EmbeddedPlayableState } from "../../../cocos/animation/embedded-player/embedded-player";
 import { AnimationClipHostEmbeddedPlayerMock } from "./util";
 
 describe('General embedded player test', () => {

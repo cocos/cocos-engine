@@ -59,12 +59,12 @@ void CCSlot::adjustTriangles(const unsigned vertexCount, const unsigned indicesC
         if (triangles.verts) {
             delete[] triangles.verts;
         }
-        triangles.verts = new middleware::V2F_T2F_C4F[vertexCount];
+        triangles.verts = new middleware::V3F_T2F_C4B[vertexCount];
 
         if (worldVerts) {
             delete[] worldVerts;
         }
-        worldVerts = new middleware::V2F_T2F_C4F[vertexCount];
+        worldVerts = new middleware::V3F_T2F_C4B[vertexCount];
     }
     triangles.vertCount = vertexCount;
 
@@ -153,7 +153,7 @@ void CCSlot::_updateFrame() {
                     const auto y = floatArray[vertexOffset + i + 1];
                     auto u = floatArray[uvOffset + i];
                     auto v = floatArray[uvOffset + i + 1];
-                    middleware::V2F_T2F_C4F &vertexData = vertices[iH];
+                    middleware::V3F_T2F_C4B &vertexData = vertices[iH];
                     vertexData.vertex.x = x;
                     vertexData.vertex.y = -y;
 
@@ -228,7 +228,7 @@ void CCSlot::_updateFrame() {
                 vertexIndices[5] = 2;
             }
 
-            memcpy(worldVerts, triangles.verts, triangles.vertCount * sizeof(middleware::V2F_T2F_C4F));
+            memcpy(worldVerts, triangles.verts, triangles.vertCount * sizeof(middleware::V3F_T2F_C4B));
 
             _visibleDirty = true;
             _blendModeDirty = true; // Relpace texture will override blendMode and color.

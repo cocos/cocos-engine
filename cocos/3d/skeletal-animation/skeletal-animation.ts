@@ -30,16 +30,16 @@ import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4 } from '../../core/math';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../core/scene-graph/node';
-import { AnimationClip } from '../../core/animation/animation-clip';
-import { Animation } from '../../core/animation/animation-component';
+import { AnimationClip } from '../../animation/animation-clip';
+import { Animation } from '../../animation/animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
-import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
-import type { AnimationState } from '../../core/animation/animation-state';
+import type { AnimationState } from '../../animation/animation-state';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { getGlobalAnimationManager } from '../../core/animation/global-animation-manager';
+import { getGlobalAnimationManager } from '../../animation/global-animation-manager';
 
 /**
  * @en The socket to synchronize transform from skeletal joint to target node.

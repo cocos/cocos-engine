@@ -141,8 +141,6 @@
 %attribute(cc::Mesh, cc::Uint8Array&, data, getData);
 %attribute(cc::Mesh, cc::Uint8Array&, _data, getData);
 %attribute(cc::Mesh, cc::Mesh::JointBufferIndicesType&, jointBufferIndices, getJointBufferIndices);
-%attribute(cc::Mesh, cc::Vec3&, maxPosition, getMaxPosition);
-%attribute(cc::Mesh, cc::Vec3&, minPosition, getMinPosition);
 %attribute(cc::Mesh, cc::Mesh::RenderingSubMeshList&, renderingSubMeshes, getRenderingSubMeshes);
 %attribute(cc::Mesh, uint32_t, subMeshCount, getSubMeshCount);
 %attribute(cc::Mesh, cc::ArrayBuffer*, _nativeAsset, getAssetData, setAssetData);

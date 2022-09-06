@@ -44,11 +44,11 @@ void JitterVertexEffect::begin(Skeleton &skeleton) {
     SP_UNUSED(skeleton);
 }
 
-void JitterVertexEffect::transform(float &x, float &y, float &u, float &v, Color &light, Color &dark) {
-    SP_UNUSED(u);
-    SP_UNUSED(v);
-    SP_UNUSED(light);
-    SP_UNUSED(dark);
+void JitterVertexEffect::transform(float &x, float &y) {
+    // SP_UNUSED(u);
+    // SP_UNUSED(v);
+    // SP_UNUSED(light);
+    // SP_UNUSED(dark);
     float jitterX = _jitterX;
     float jitterY = _jitterY;
     x += MathUtil::randomTriangular(-jitterX, jitterX);
@@ -88,11 +88,11 @@ void SwirlVertexEffect::begin(Skeleton &skeleton) {
     _worldY = skeleton.getY() + _centerY;
 }
 
-void SwirlVertexEffect::transform(float &positionX, float &positionY, float &u, float &v, Color &light, Color &dark) {
-    SP_UNUSED(u);
-    SP_UNUSED(v);
-    SP_UNUSED(light);
-    SP_UNUSED(dark);
+void SwirlVertexEffect::transform(float &positionX, float &positionY) {
+    // SP_UNUSED(u);
+    // SP_UNUSED(v);
+    // SP_UNUSED(light);
+    // SP_UNUSED(dark);
 
     float x = positionX - _worldX;
     float y = positionY - _worldY;

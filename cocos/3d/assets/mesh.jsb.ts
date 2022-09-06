@@ -24,7 +24,10 @@
 */
 import { ccclass, serializable } from 'cc.decorator';
 import { legacyCC } from '../../core/global-exports';
+import { Vec3 } from '../../core/math';
 import '../../core/assets/asset';
+
+declare const jsb: any;
 
 export declare namespace Mesh {
     export interface IBufferView {
@@ -43,6 +46,50 @@ export declare namespace Mesh {
 export type Mesh = jsb.Mesh;
 export const Mesh = jsb.Mesh;
 
+const IStructProto: any = jsb.Mesh.IStruct.prototype;
+
+Object.defineProperty(IStructProto, 'minPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMinPosition();
+        if (r) {
+            if (!this._minPositionCache) {
+                this._minPositionCache = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._minPositionCache.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._minPositionCache = undefined;
+        }
+        return this._minPositionCache;
+    },
+    set (v) {
+        this.setMinPosition(v);
+    }
+});
+
+Object.defineProperty(IStructProto, 'maxPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMaxPosition();
+        if (r) {
+            if (!this._maxPositionCache) {
+                this._maxPositionCache = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._maxPositionCache.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._maxPositionCache = undefined;
+        }
+        return this._maxPositionCache;
+    },
+    set (v) {
+        this.setMaxPosition(v);
+    }
+});
+
 const meshAssetProto: any = jsb.Mesh.prototype;
 
 meshAssetProto.createNode = null!;
@@ -54,6 +101,8 @@ meshAssetProto._ctor = function () {
         vertexBundles: [],
         primitives: [],
     };
+    this._minPosition = undefined;
+    this._maxPosition = undefined;
 };
 
 Object.defineProperty(meshAssetProto, 'struct', {
@@ -61,6 +110,42 @@ Object.defineProperty(meshAssetProto, 'struct', {
     enumerable: true,
     get () {
         return this.getStruct();
+    }
+});
+
+Object.defineProperty(meshAssetProto, 'minPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMinPosition();
+        if (r) {
+            if (!this._minPosition) {
+                this._minPosition = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._minPosition.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._minPosition = undefined;
+        }
+        return this._minPosition;
+    }
+});
+
+Object.defineProperty(meshAssetProto, 'maxPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMaxPosition();
+        if (r) {
+            if (!this._maxPosition) {
+                this._maxPosition = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._maxPosition.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._maxPosition = undefined;
+        }
+        return this._maxPosition;
     }
 });
 

@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "Object.h"
 #include "PrivateObject.h"
 #include "Value.h"
 
@@ -42,25 +43,37 @@ public:
          *  @brief Gets void* pointer of `this` object's private data.
          *  @return A void* pointer of `this` object's private data.
          */
-    void *nativeThisObject() const;
+    inline void *nativeThisObject() const {
+        return _thisObject != nullptr ? _thisObject->getPrivateData() : nullptr;
+    }
 
     /**
          *  @brief Gets the arguments of native binding functions or accesstors.
          *  @return The arguments of native binding functions or accesstors.
          */
-    const ValueArray &args() const;
+    inline const ValueArray &args() const {
+        return _args != nullptr ? (*_args) : EmptyValueArray;
+    }
 
     /**
          *  @brief Gets the JavaScript `this` object wrapped in se::Object.
          *  @return The JavaScript `this` object wrapped in se::Object.
          */
-    Object *thisObject();
+    inline Object *thisObject() const {
+        return _thisObject;
+    }
 
     /**
          *  @brief Gets the return value reference. Used for setting return value for a function.
          *  @return The return value reference.
          */
-    Value &rval();
+    inline const Value &rval() const {
+        return _retVal;
+    }
+
+    inline Value &rval() {
+        return _retVal;
+    }
 
     // Private API used in wrapper
     /**

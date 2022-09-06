@@ -168,12 +168,16 @@ public:
          * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
          */
         ccstd::optional<Vec3> minPosition;
+        inline const ccstd::optional<Vec3> &getMinPosition() const { return minPosition; } // For JSB binding only
+        inline void setMinPosition(const ccstd::optional<Vec3> &v) { minPosition = v; }    // For JSB binding only
 
         /**
          * @en The maximum position of all vertices in the mesh
          * @zh （各分量都）大于等于此网格任何顶点位置的最小位置。
          */
         ccstd::optional<Vec3> maxPosition;
+        inline const ccstd::optional<Vec3> &getMaxPosition() const { return maxPosition; } // For JSB binding only
+        inline void setMaxPosition(const ccstd::optional<Vec3> &v) { maxPosition = v; }    // For JSB binding only
 
         /**
          * @en The joint index map list.
@@ -235,14 +239,14 @@ public:
      * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.minPosition]] instead
      */
-    const Vec3 &getMinPosition() const;
+    const Vec3 *getMinPosition() const;
 
     /**
      * @en The maximum position of all vertices in the mesh
      * @zh （各分量都）大于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.maxPosition]] instead
      */
-    const Vec3 &getMaxPosition() const;
+    const Vec3 *getMaxPosition() const;
 
     /**
      * @en The struct of the mesh

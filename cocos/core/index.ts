@@ -25,7 +25,7 @@
 */
 
 import { legacyCC, VERSION } from './global-exports';
-
+import * as easing from './easing/easing';
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
@@ -35,6 +35,7 @@ import './deprecated';
 
 legacyCC.math = math;
 legacyCC.geometry = geometry;
+legacyCC.easing = easing;
 
 export { math, memop, geometry, VERSION };
 
@@ -60,3 +61,6 @@ export * from './curves';
 export * from './settings';
 
 export * from './pipeline/custom/builtin-pipelines';
+
+export * from './curves/bezier';
+export { easing };

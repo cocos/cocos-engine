@@ -1,8 +1,8 @@
 import { LegacyBlendStateBuffer } from "../../cocos/3d/skeletal-animation/skeletal-animation-blending";
 import { Node, Vec3 } from "../../cocos/core";
-import { AnimationClip, AnimationState } from "../../cocos/core/animation";
-import { VectorTrack } from "../../cocos/core/animation/animation";
-import { WrappedInfo } from "../../cocos/core/animation/types";
+import { AnimationClip, AnimationState } from "../../cocos/animation";
+import { VectorTrack } from "../../cocos/animation/animation";
+import { WrappedInfo } from "../../cocos/animation/types";
 
 describe('Animation state', () => {
     test('Zero duration animation clip', () => {

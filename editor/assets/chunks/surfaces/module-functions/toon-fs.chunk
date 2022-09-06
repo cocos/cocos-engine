@@ -114,10 +114,24 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 #else
   float lightmapCoef = 0.0;
     
+#if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
   color.xyz += (
     mix(lightingResult.directDiffuse, lightingResult.lightmapColor, lightmapCoef) * lightingResult.diffuseColorWithLighting
     + lightingResult.directSpecular * lightingResult.specularColorWithLighting)
-    * lightingResult.shadow;
+    * lightingResult.shadow
+    ;
+#else
+  // shadowed area equals to back lighting area
+  LightingIntermediateData lightingData;
+  lightingData.NoL = -1.0;
+  vec3 backLightingDiffuse, backLightingSpecular;
+  CCSurfacesLightingCalculateColorWithLighting(backLightingDiffuse, backLightingSpecular, surfaceData, lightingData);
+
+  color.xyz +=
+    mix(lightingResult.directDiffuse, lightingResult.lightmapColor, lightmapCoef) * mix(backLightingDiffuse, lightingResult.diffuseColorWithLighting, lightingResult.shadow)
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.shadow
+    ;
+#endif
 
   color.xyz += lightingResult.emissive;
 #endif
