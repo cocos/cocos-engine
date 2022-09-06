@@ -121,9 +121,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(jsb_register_global_variables);
     se->addRegisterCallback(register_all_engine);
     se->addRegisterCallback(register_all_cocos_manual);
-#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later
     se->addRegisterCallback(register_platform_bindings);
-#endif
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(register_all_gfx_manual);
 #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later

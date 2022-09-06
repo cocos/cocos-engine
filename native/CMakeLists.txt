@@ -2542,7 +2542,9 @@ if(ANDROID)
                     cocos/bindings/manual/JavaScriptJavaBridge.h
     )
 elseif(OPENHARMONY)
-
+    cocos_source_files(
+        cocos/bindings/manual/jsb_platform_openharmony.cpp
+    )
 elseif(OHOS)
     cocos_source_files(
         cocos/bindings/manual/jsb_platform_ohos.cpp
