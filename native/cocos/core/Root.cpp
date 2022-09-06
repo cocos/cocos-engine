@@ -267,6 +267,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         _pipeline = rppl;
         _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
+        rppl->setPipelineRuntime(_pipelineRuntime.get());
 
         // now cluster just enabled in deferred pipeline
         if (!_useDeferredPipeline || !_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {

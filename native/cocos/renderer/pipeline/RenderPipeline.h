@@ -45,6 +45,9 @@ namespace scene {
 class Camera;
 class SubModel;
 } // namespace scene
+namespace render {
+class PipelineRuntime;
+} // namespace render
 namespace pipeline {
 
 class PipelineUBO;
@@ -139,6 +142,10 @@ public:
     inline void resetRenderQueue(bool reset) { _resetRenderQueue = reset; }
     inline bool isRenderQueueReset() const { return _resetRenderQueue; }
 
+    void setPipelineRuntime(render::PipelineRuntime* pipelineRuntime) {
+        _pipelineRuntime = pipelineRuntime;
+    }
+
 protected:
     static RenderPipeline *instance;
 
@@ -193,6 +200,8 @@ protected:
     bool _occlusionQueryEnabled{false};
 
     bool _resetRenderQueue{true};
+
+    render::PipelineRuntime* _pipelineRuntime{nullptr};
 };
 
 } // namespace pipeline
