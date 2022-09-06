@@ -31,9 +31,9 @@
 #include "VKRenderPass.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
-#include "platform/BasePlatform.h"
 
 #include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 #if CC_SWAPPY_ENABLED
@@ -55,11 +55,14 @@ CCVKSwapchain::~CCVKSwapchain() {
 }
 
 void CCVKSwapchain::doInit(const SwapchainInfo &info) {
+    _xr = CC_GET_XR_INTERFACE();
+    if (_xr) {
+        _xr->updateXRSwapchainTypedID(getTypedID());
+    }
     auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
     _gpuSwapchain = ccnew CCVKGPUSwapchain;
     gpuDevice->swapchains.insert(_gpuSwapchain);
-    _xr = CC_GET_XR_INTERFACE();
 
     createVkSurface();
 
@@ -207,8 +210,12 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
         _gpuSwapchain->createInfo.clipped = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
     }
     ///////////////////// Texture Creation /////////////////////
+    auto width = static_cast<int32_t>(info.width);
+    auto height = static_cast<int32_t>(info.height);
     if (_xr) {
         colorFmt = _xr->getXRSwapchainFormat();
+        width = _xr->getXRConfig(xr::XRConfigKey::SWAPCHAIN_WIDTH).getInt();
+        height = _xr->getXRConfig(xr::XRConfigKey::SWAPCHAIN_HEIGHT).getInt();
     }
     _colorTexture = ccnew CCVKTexture;
     _depthStencilTexture = ccnew CCVKTexture;
@@ -216,8 +223,8 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
     textureInfo.format = colorFmt;
-    textureInfo.width = info.width;
-    textureInfo.height = info.height;
+    textureInfo.width = width;
+    textureInfo.height = height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = depthStencilFmt;
