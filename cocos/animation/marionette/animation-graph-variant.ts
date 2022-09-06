@@ -44,6 +44,14 @@ export class AnimationGraphVariant extends AnimationGraphLike implements Animati
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ClipOverrideMap`)
 class ClipOverrideMap implements ReadonlyClipOverrideMap {
+    get size () {
+        return this._entries.length;
+    }
+
+    public [Symbol.iterator] () {
+        return this._entries[Symbol.iterator]();
+    }
+
     public has (original: AnimationClip) {
         return !!this._entries.find(({ original: o }) => o === original);
     }
@@ -69,6 +77,10 @@ class ClipOverrideMap implements ReadonlyClipOverrideMap {
         removeIf(this._entries, ({ original: o }) => o === original);
     }
 
+    public clear () {
+        this._entries.length = 0;
+    }
+
     @serializable
     private _entries: AnimationGraphOverrideEntry[] = [];
 }
@@ -76,8 +88,8 @@ class ClipOverrideMap implements ReadonlyClipOverrideMap {
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationGraphOverrideEntry`)
 class AnimationGraphOverrideEntry {
     @serializable
-    public original!: AnimationClip;
+    public original: AnimationClip = null!;
 
     @serializable
-    public substitution!: AnimationClip;
+    public substitution: AnimationClip = null!;
 }
