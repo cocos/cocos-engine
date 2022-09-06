@@ -105,7 +105,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     EXPORT_STRUCT_NPOD(PipelineLayoutInfo, setLayouts);
     EXPORT_STRUCT_POD(InputState, attributes);
     EXPORT_STRUCT_POD(RasterizerState, isDiscard, polygonMode, shadeModel, cullMode, isFrontFaceCCW, depthBiasEnabled, depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
-    EXPORT_STRUCT_POD(DepthStencilState, depthTest, depthWrite, depthFunc, stencilTestFront, stencilReadMaskFront, stencilWriteMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilPassOpFront,
+    EXPORT_STRUCT_POD(DepthStencilState, depthTest, depthWrite, depthFunc, stencilTestFront, stencilFuncFront, stencilReadMaskFront, stencilWriteMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilPassOpFront,
                       stencilRefFront, stencilTestBack, stencilFuncBack, stencilReadMaskBack, stencilWriteMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilPassOpBack, stencilRefBack);
     EXPORT_STRUCT_POD(BlendTarget, blend, blendSrc, blendDst, blendEq, blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask);
     EXPORT_STRUCT_POD(BlendState, isA2C, isIndepend, blendColor, targets)

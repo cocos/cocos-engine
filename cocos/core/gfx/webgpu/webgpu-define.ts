@@ -53,19 +53,6 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         });
         console.log(adapter);
 
-        const printPoint = gfx.printPoint;
-        const prTest2 = new gfx.PtTest();
-        prTest2.value = 22;
-
-        // const ptTest0 = { value: 10, next: undefined };
-        // const ptTest = { value: 10, next: ptTest0 };
-        // const pt2D = { x: 1, y: 2, z: 3, w: 4, type: TestEnum.ZERO, usage: TestEnum.ONE, flag: TestEnum.TWO, prop: TestEnum.THREE, test: prTest2 };
-        // const ptTeeee = { value: 5, pt: pt2D };
-        // // printPoint(ptTeeee);
-        const printPtTest = gfx.printPtTest;
-        prTest2.device = this;
-        printPtTest(prTest2);
-
         originDeviceInitializeFunc.call(this, info);
 
         // const queueInfo = new QueueInfo(QueueType.GRAPHICS);
