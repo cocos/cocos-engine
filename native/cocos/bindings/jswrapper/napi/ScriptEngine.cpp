@@ -269,12 +269,21 @@ bool ScriptEngine::_needCallConstructor() {
     return _isneedCallConstructor;
 }
 
-bool callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval = nullptr) {
+bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval) {
     return true;
 }
 
 void ScriptEngine::handlePromiseExceptions() {
     //TODO not impl
     return;
+}
+
+void ScriptEngine::mainLoopUpdate() {
+    // empty implementation
+}
+
+void ScriptEngine::throwException(const std::string &errorMessage) {
+    napi_status status;
+    NODE_API_CALL_RETURN_VOID(getEnv(), napi_throw_error(getEnv(), nullptr, errorMessage.c_str()));
 }
 }; // namespace se

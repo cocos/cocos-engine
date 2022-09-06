@@ -2130,14 +2130,17 @@ cocos_source_files(
 ######## auto
 if(NOT OPENHARMONY)# TODO:May be removed later
 cocos_source_files(
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
+                            cocos/bindings/auto/jsb_network_auto.h
+)
+endif()# TODO:May be removed later
+cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
                             cocos/bindings/auto/jsb_cocos_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_extension_auto.cpp
                             cocos/bindings/auto/jsb_extension_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gfx_auto.cpp
                             cocos/bindings/auto/jsb_gfx_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
-                            cocos/bindings/auto/jsb_network_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_pipeline_auto.cpp
                             cocos/bindings/auto/jsb_pipeline_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
@@ -2151,18 +2154,7 @@ cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
                             cocos/bindings/auto/jsb_2d_auto.h
 )
-elseif(OPENHARMONY)# TODO:May be removed later
-    cocos_source_files(
-        NO_WERROR    cocos/bindings/auto/jsb_gfx_auto.cpp
-                     cocos/bindings/auto/jsb_gfx_auto.h
-        NO_WERROR    cocos/bindings/auto/jsb_pipeline_auto.cpp
-                     cocos/bindings/auto/jsb_pipeline_auto.h
-        NO_WERROR    cocos/bindings/auto/jsb_scene_auto.cpp
-                     cocos/bindings/auto/jsb_scene_auto.h
-        NO_WERROR    cocos/bindings/auto/jsb_cocos_auto.cpp
-                     cocos/bindings/auto/jsb_cocos_auto.h
-   )
-endif()
+
 
 if(USE_AUDIO)
     cocos_source_files(

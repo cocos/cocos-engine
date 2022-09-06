@@ -9,7 +9,7 @@ endmacro()
 macro(cc_openharmony_after_target target_name)
     
     target_link_libraries(${target_name}
-        cocos2d
+        ${ENGINE_NAME}
     )
     target_include_directories(${target_name} PRIVATE
         ${CC_PROJECT_DIR}/../common/Classes

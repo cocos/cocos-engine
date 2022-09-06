@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <unistd.h>
+#include "base/memory/Memory.h"
 
 #include "cocos/base/Log.h"
 
@@ -46,6 +47,10 @@
 namespace cc {
 
 NativeResourceManager* FileUtilsOpenHarmony::_nativeResourceManager = nullptr;
+
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsOpenHarmony();
+}
 
 bool FileUtilsOpenHarmony::initResourceManager(napi_env env, napi_value param) {
     _nativeResourceManager = OH_ResourceManager_InitNativeResourceManager(env, param);
@@ -122,18 +127,6 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
     }
     OH_ResourceManager_CloseRawFile(rawFile);
     return FileUtils::Status::OK;
-}
-
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsOpenHarmony();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
-        }
-    }
-    return FileUtils::sharedFileUtils;
 }
 
 FileUtilsOpenHarmony::~FileUtilsOpenHarmony() {
