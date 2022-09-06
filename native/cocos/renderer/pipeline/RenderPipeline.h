@@ -34,6 +34,7 @@
 #include "frame-graph/Handle.h"
 #include "renderer/core/PassUtils.h"
 #include "scene/Model.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 namespace gfx {
@@ -57,7 +58,7 @@ struct CC_DLL RenderPipelineInfo {
     RenderFlowList flows;
 };
 
-class CC_DLL RenderPipeline : public Asset {
+class CC_DLL RenderPipeline : public Asset, public render::PipelineRuntime {
 public:
     using Super = Asset;
     static RenderPipeline *getInstance();
@@ -70,31 +71,43 @@ public:
     RenderPipeline();
     ~RenderPipeline() override;
 
-    virtual bool activate(gfx::Swapchain *swapchain);
-    bool destroy() override;
+    bool activate(gfx::Swapchain *swapchain) override;
+    bool destroy() noexcept override;
     virtual bool initialize(const RenderPipelineInfo &info);
-    virtual void render(const ccstd::vector<scene::Camera *> &cameras);
-    virtual void onGlobalPipelineStateChanged();
+    void render(const ccstd::vector<scene::Camera *> &cameras) override;
+    void onGlobalPipelineStateChanged() override;
 
     inline const RenderFlowList &getFlows() const { return _flows; }
     inline uint32_t getTag() const { return _tag; }
     inline const ccstd::unordered_map<ccstd::string, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
-    inline const MacroRecord &getMacros() const { return _macros; }
-    inline void setValue(const ccstd::string &name, int32_t value) { _macros[name] = value; }
-    inline void setValue(const ccstd::string &name, bool value) { _macros[name] = value; }
+    inline const MacroRecord &getMacros() const override { return _macros; }
+    const ccstd::string& getMacroString(const ccstd::string& name) const override;
+    int32_t getMacroInt(const ccstd::string& name) const override;
+    bool getMacroBool(const ccstd::string& name) const override;
+    void setMacroString(const ccstd::string& name, const ccstd::string& value) override {
+        setValue(name, value);
+    }
+    void setMacroInt(const ccstd::string& name, int32_t value) override {
+        setValue(name, value);
+    }
+    void setMacroBool(const ccstd::string& name, bool value) override {
+        setValue(name, value);
+    }
+    inline void setValue(const ccstd::string &name, int32_t value) override { _macros[name] = value; }
+    inline void setValue(const ccstd::string &name, bool value) override { _macros[name] = value; }
     inline void setValue(const ccstd::string &name, const ccstd::string &value) { _macros[name] = value; }
-    inline GlobalDSManager *getGlobalDSManager() const { return _globalDSManager; }
-    inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
-    gfx::DescriptorSetLayout *getDescriptorSetLayout() const;
-    inline PipelineSceneData *getPipelineSceneData() const { return _pipelineSceneData; }
-    inline const gfx::CommandBufferList &getCommandBuffers() const { return _commandBuffers; }
+    inline GlobalDSManager *getGlobalDSManager() const override { return _globalDSManager; }
+    inline gfx::DescriptorSet *getDescriptorSet() const override { return _descriptorSet; }
+    gfx::DescriptorSetLayout *getDescriptorSetLayout() const override;
+    inline PipelineSceneData *getPipelineSceneData() const override { return _pipelineSceneData; }
+    inline const gfx::CommandBufferList &getCommandBuffers() const override { return _commandBuffers; }
     inline const gfx::QueryPoolList &getQueryPools() const { return _queryPools; }
     inline PipelineUBO *getPipelineUBO() const { return _pipelineUBO; }
-    inline const ccstd::string &getConstantMacros() const { return _constantMacros; }
-    inline gfx::Device *getDevice() const { return _device; }
+    inline const ccstd::string &getConstantMacros() const override { return _constantMacros; }
+    inline gfx::Device *getDevice() const override { return _device; }
     RenderStage *getRenderstageByName(const ccstd::string &name) const;
     bool isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
-    bool isOcclusionQueryEnabled() const {
+    bool isOcclusionQueryEnabled() const override {
 #if CC_USE_OCCLUSION_QUERY
         return _occlusionQueryEnabled && _device->getCapabilities().supportQuery;
 #else
@@ -116,11 +129,11 @@ public:
     void ensureEnoughSize(const ccstd::vector<scene::Camera *> &cameras);
     bool createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA);
 
-    float getShadingScale() const;
-    void setShadingScale(float scale);
+    float getShadingScale() const override;
+    void setShadingScale(float scale) override;
 
-    inline scene::Model *getProfiler() const { return _profiler; }
-    inline void setProfiler(scene::Model *value) { _profiler = value; }
+    inline scene::Model *getProfiler() const override { return _profiler; }
+    inline void setProfiler(scene::Model *value) override { _profiler = value; }
 
     inline bool isClusterEnabled() const { return _clusterEnabled; }
     inline void setClusterEnabled(bool enable) { _clusterEnabled = enable; }
@@ -128,7 +141,7 @@ public:
     inline bool isBloomEnabled() const { return _bloomEnabled; }
     inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
 
-    inline GeometryRenderer *getGeometryRenderer() const {
+    inline GeometryRenderer *getGeometryRenderer() const override {
 #if CC_USE_GEOMETRY_RENDERER
         return _geometryRenderer;
 #else
@@ -136,8 +149,8 @@ public:
 #endif
     }
 
-    inline void resetRenderQueue(bool reset) { _resetRenderQueue = reset; }
-    inline bool isRenderQueueReset() const { return _resetRenderQueue; }
+    inline void resetRenderQueue(bool reset) override { _resetRenderQueue = reset; }
+    inline bool isRenderQueueReset() const override { return _resetRenderQueue; }
 
 protected:
     static RenderPipeline *instance;

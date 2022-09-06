@@ -148,7 +148,7 @@ void RenderPipeline::updateGeometryRenderer(const ccstd::vector<scene::Camera *>
 }
 #endif
 
-bool RenderPipeline::destroy() {
+bool RenderPipeline::destroy() noexcept {
     for (auto const &flow : _flows) {
         CC_SAFE_DESTROY(flow);
     }
@@ -381,6 +381,32 @@ void RenderPipeline::framegraphGC() {
     if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
         framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);
     }
+}
+
+const ccstd::string &RenderPipeline::getMacroString(const ccstd::string &name) const {
+    static const ccstd::string EMPTY_STRING;
+    const auto &macros = getMacros();
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return EMPTY_STRING;
+    }
+    return ccstd::get<ccstd::string>(iter->second);
+}
+int32_t RenderPipeline::getMacroInt(const ccstd::string &name) const {
+    const auto &macros = getMacros();
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return 0;
+    }
+    return ccstd::get<int32_t>(iter->second);
+}
+bool RenderPipeline::getMacroBool(const ccstd::string &name) const {
+    const auto &macros = getMacros();
+    auto iter = macros.find(name);
+    if (iter == macros.end()) {
+        return false;
+    }
+    return ccstd::get<bool>(iter->second);
 }
 
 } // namespace pipeline

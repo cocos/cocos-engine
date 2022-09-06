@@ -45,7 +45,7 @@ public:
     ~DeferredPipeline() override;
 
     bool initialize(const RenderPipelineInfo &info) override;
-    bool destroy() override;
+    bool destroy() noexcept override;
     bool activate(gfx::Swapchain *swapchain) override;
     void render(const ccstd::vector<scene::Camera *> &cameras) override;
     void onGlobalPipelineStateChanged() override;
