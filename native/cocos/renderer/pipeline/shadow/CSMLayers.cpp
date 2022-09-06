@@ -31,8 +31,8 @@
 namespace cc {
 namespace pipeline {
 
-float ShadowTransformInfo::_maxLayerPosz(0.0F);
-float ShadowTransformInfo::_maxLayerFarPlane(0.0F);
+float ShadowTransformInfo::_maxLayerPosz{0.0F};
+float ShadowTransformInfo::_maxLayerFarPlane{0.0F};
 
 ShadowTransformInfo::ShadowTransformInfo(uint32_t level) : _level(level) {
     _validFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
