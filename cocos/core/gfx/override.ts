@@ -1,26 +1,25 @@
-/* eslint-disable import/no-mutable-exports */
 import { WEBGPU } from 'internal:constants';
 import { gfx, promiseForWebGPUInstantiation } from '../../webgpu/instantiated';
 
-export let Device: any;
-export let WebGPUDevice: any;
-export let Queue: any;
-export let Swapchain: any;
-export let Buffer: any;
-export let Texture: any;
-export let Shader: any;
-export let Sampler: any;
-export let InputAssembler: any;
-export let RenderPass: any;
-export let Framebuffer: any;
-export let DescriptorSet: any;
-export let DescriptorSetLayout: any;
-export let PipelineLayout: any;
-export let PipelineState: any;
-export let CommandBuffer: any;
-export let GeneralBarrier: any;
-export let TextureBarrier: any;
-export let BufferBarrier: any;
+export let Device = undefined;
+export let WebGPUDevice = undefined;
+export let Queue = undefined;
+export let Swapchain = undefined;
+export let Buffer = undefined;
+export let Texture = undefined;
+export let Shader = undefined;
+export let Sampler = undefined;
+export let InputAssembler = undefined;
+export let RenderPass = undefined;
+export let Framebuffer = undefined;
+export let DescriptorSet = undefined;
+export let DescriptorSetLayout = undefined;
+export let PipelineLayout = undefined;
+export let PipelineState = undefined;
+export let CommandBuffer = undefined;
+export let GeneralBarrier = undefined;
+export let TextureBarrier = undefined;
+export let BufferBarrier = undefined;
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
     Device = gfx.CCWGPUDevice;

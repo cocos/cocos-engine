@@ -53,7 +53,36 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         });
         console.log(adapter);
 
+        const printPoint = gfx.printPoint;
+        const prTest2 = new gfx.PtTest();
+        prTest2.value = 22;
+
+        // const ptTest0 = { value: 10, next: undefined };
+        // const ptTest = { value: 10, next: ptTest0 };
+        // const pt2D = { x: 1, y: 2, z: 3, w: 4, type: TestEnum.ZERO, usage: TestEnum.ONE, flag: TestEnum.TWO, prop: TestEnum.THREE, test: prTest2 };
+        // const ptTeeee = { value: 5, pt: pt2D };
+        // // printPoint(ptTeeee);
+        const printPtTest = gfx.printPtTest;
+        prTest2.device = this;
+        printPtTest(prTest2);
+
         originDeviceInitializeFunc.call(this, info);
+
+        // const queueInfo = new QueueInfo(QueueType.GRAPHICS);
+        // this._queue = new Queue();
+        // this._queue.initialize(queueInfo);
+
+        // const cmdBufferInfo = new CommandBufferInfo(this._queue, CommandBufferType.PRIMARY);
+        // this._cmdBuff = new WebGPUCommandBuffer();
+        // (this._cmdBuff as WebGPUCommandBuffer).device = this;
+        // this._cmdBuff.initialize(cmdBufferInfo);
+
+        // this._caps.uboOffsetAlignment = 256;
+        // this._caps.clipSpaceMinZ = 0;
+        // this._caps.screenSpaceSignY = -1;
+        // this._caps.clipSpaceSignY = 1;
+        // WebGPUDeviceManager.setInstance(this);
+
         return true;
     };
 

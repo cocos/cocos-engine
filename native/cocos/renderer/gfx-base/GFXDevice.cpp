@@ -61,9 +61,7 @@ bool Device::initialize(const DeviceInfo &info) {
     static_assert(sizeof(void *) == 8, "pointer size assumption broken");
 #endif
 
-#if CC_USE_XR
     _xr = CC_GET_XR_INTERFACE();
-#endif
     bool result = doInit(info);
 
     CC_SAFE_ADD_REF(_cmdBuff);
@@ -143,7 +141,7 @@ BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
     return _bufferBarriers[info];
 }
 
-#if CC_USE_XR
+
 Swapchain *Device::createXRSwapchain(const SwapchainInfo &info) {
     _xr->createXRSwapchains();
     int swapChainWidth = _xr->getXRConfig(xr::XRConfigKey::SWAPCHAIN_WIDTH).getInt();
@@ -158,7 +156,6 @@ Swapchain *Device::createXRSwapchain(const SwapchainInfo &info) {
     _swapchains.push_back(res);
     return res;
 }
-#endif
 
 } // namespace gfx
 } // namespace cc

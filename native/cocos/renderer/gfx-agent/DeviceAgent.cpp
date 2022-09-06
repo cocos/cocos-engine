@@ -67,9 +67,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     if (!_actor->initialize(info)) {
         return false;
     }
-#if CC_USE_XR
     _xr = CC_GET_XR_INTERFACE();
-#endif
     _api = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
     _queue = ccnew QueueAgent(_actor->getQueue());
@@ -147,7 +145,6 @@ void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void DeviceAgent::present() {
-#if CC_USE_XR
     if (_xr) {
         ENQUEUE_MESSAGE_1(
             _mainMessageQueue, DevicePresent,
@@ -155,22 +152,21 @@ void DeviceAgent::present() {
             {
                 actor->present();
             });
-    }
-    return;
-#endif
-    ENQUEUE_MESSAGE_2(
-        _mainMessageQueue, DevicePresent,
-        actor, _actor,
-        frameBoundarySemaphore, &_frameBoundarySemaphore,
-        {
-            actor->present();
-            frameBoundarySemaphore->signal();
-        });
+    } else {
+        ENQUEUE_MESSAGE_2(
+            _mainMessageQueue, DevicePresent,
+            actor, _actor,
+            frameBoundarySemaphore, &_frameBoundarySemaphore,
+            {
+                actor->present();
+                frameBoundarySemaphore->signal();
+            });
 
-    MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
-    _mainMessageQueue->finishWriting();
-    _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
-    _frameBoundarySemaphore.wait();
+        MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
+        _mainMessageQueue->finishWriting();
+        _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
+        _frameBoundarySemaphore.wait();
+    }
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {
