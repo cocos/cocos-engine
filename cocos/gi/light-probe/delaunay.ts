@@ -23,12 +23,13 @@
  THE SOFTWARE.
  */
 
-import { serializable } from 'cc.decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { Mat3 } from '../../core/math/mat3';
 import { EPSILON } from '../../core/math/utils';
 import { Vec3 } from '../../core/math/vec3';
 import { warnID } from '../../core/platform/debug';
 
+@ccclass('cc.Vertex')
 export class Vertex {
     @serializable
     public position = new Vec3(0, 0, 0);
@@ -102,6 +103,7 @@ class Triangle {
     }
 }
 
+@ccclass('cc.CircumSphere')
 class CircumSphere {
     @serializable
     public center = new Vec3(0, 0, 0);
@@ -132,6 +134,8 @@ class CircumSphere {
 /**
  * inner tetrahedron or outer cell structure
  */
+
+@ccclass('cc.Tetrahedron')
 export class Tetrahedron {
     @serializable
     public invalid = false;

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { serializable } from 'cc.decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
 import { LightProbeQuality } from './sh';
 import { PolynomialSolver } from './polynomial-solver';
@@ -31,6 +31,7 @@ import { LightProbeInfo } from '../../core/scene-graph/scene-globals';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
 
+@ccclass('cc.LightProbesData')
 export class LightProbesData {
     public build (points: Vec3[]) {
         const delaunay = new Delaunay();
