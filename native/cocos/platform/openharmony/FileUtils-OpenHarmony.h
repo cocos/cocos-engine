@@ -60,6 +60,9 @@ public:
     bool renameFile(const std::string &oldfullpath, const std::string &newfullpath) override;
     bool removeFile(const std::string &filepath) override;
     bool removeDirectory(const std::string &dirPath) override;
+
+    static std::string _ohWritablePath;
+
 private:
     bool isFileExistInternal(const std::string &strFilePath) const override;
 

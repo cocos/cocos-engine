@@ -403,10 +403,10 @@ void Object::setPrivateObject(PrivateObjectBase* data) {
     assert(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
 
     napi_status status;
-    _privateData = data->getRaw();
     if (data) {
+        _privateData = data->getRaw();
         _privateObject = data;
-        NativePtrToObjectMap::emplace(_privateObject, this);
+        NativePtrToObjectMap::emplace(_privateData, this);
     }
 
     //issue https://github.com/nodejs/node/issues/23999
