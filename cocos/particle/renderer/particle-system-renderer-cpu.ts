@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute, FormatInfo, FormatInfos } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random, EPSILON } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -400,7 +400,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
-                if (Math.abs(gravityFactor) > 0.000001) {
+                if (Math.abs(gravityFactor) > EPSILON) {
                     if (ps.node.parent) {
                         this._gravity = this._gravity.transformMat4(_tempParentInverse);
                     }
