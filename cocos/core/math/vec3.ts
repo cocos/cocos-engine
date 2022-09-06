@@ -1133,18 +1133,19 @@ export function v3 (x?: number | Vec3, y?: number, z?: number) {
  * Chooses an arbitrary unit vector that is perpendicular to input.
  */
 function chooseAnyPerpendicular (out: Vec3, v: Readonly<Vec3>) {
+    const { x, y, z } = v;
     // 1. Drop the component with minimal magnitude.
     // 2. Negate one of the remain components.
     // 3. Swap the remain components.
-    const absX = Math.abs(v.x);
-    const absY = Math.abs(v.y);
-    const absZ = Math.abs(v.z);
+    const absX = Math.abs(x);
+    const absY = Math.abs(y);
+    const absZ = Math.abs(z);
     if (absX < absY && absX < absZ) {
-        Vec3.set(out, 0.0, absZ, -absY);
+        Vec3.set(out, 0.0, z, -y);
     } else if (absY < absZ) {
-        Vec3.set(out, absZ, 0.0, -absX);
+        Vec3.set(out, z, 0.0, -x);
     } else {
-        Vec3.set(out, absY, -absX, 0.0);
+        Vec3.set(out, y, -x, 0.0);
     }
     return Vec3.normalize(out, out);
 }
