@@ -226,14 +226,16 @@ export class ParticleCuller {
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
-                if (ps.node.parent) {
-                    this._gravity = this._gravity.transformMat4(_node_parent_inv);
-                }
-                this._gravity = this._gravity.transformMat4(this._localMat);
+                if (Math.abs(gravityFactor) > 0.000001) {
+                    if (ps.node.parent) {
+                        this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                    }
+                    this._gravity = this._gravity.transformMat4(this._localMat);
 
-                p.velocity.x += this._gravity.x;
-                p.velocity.y += this._gravity.y;
-                p.velocity.z += this._gravity.z;
+                    p.velocity.x += this._gravity.x;
+                    p.velocity.y += this._gravity.y;
+                    p.velocity.z += this._gravity.z;
+                }
             } else {
                 // apply gravity.
                 p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
