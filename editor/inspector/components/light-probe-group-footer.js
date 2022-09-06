@@ -25,7 +25,10 @@ exports.$ = {
 
 exports.update = async function(dump) {
     const panel = this;
-    panel.dump = dump;
+
+    if (dump) {
+        panel.dump = dump;
+    }
 
     panel.sceneProbeMode = await Editor.Message.request('scene', 'query-light-probe-edit-mode');
     if (panel.sceneProbeMode) {
