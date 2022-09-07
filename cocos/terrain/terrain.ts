@@ -24,12 +24,12 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { builtinResMgr } from '../core/builtin';
+import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../core/components/model-renderer';
-import { EffectAsset, Texture2D } from '../core/assets';
-import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
-import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
+import { EffectAsset, Texture2D } from '../asset/assets';
+import { Filter, PixelFormat, WrapMode } from '../asset/assets/asset-enum';
+import { Material } from '../asset/assets/material';
+import { RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';

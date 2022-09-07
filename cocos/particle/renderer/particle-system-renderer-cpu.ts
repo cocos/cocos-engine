@@ -24,8 +24,8 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr } from '../../core/builtin';
-import { Material } from '../../core/assets';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
 import { RecyclePool } from '../../core/memop';

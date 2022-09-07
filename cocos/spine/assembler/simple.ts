@@ -32,11 +32,12 @@ import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
 import { getAttributeStride, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
-import { Color, director, Node, Texture2D } from '../../core';
+import { Color, director } from '../../core';
 import { BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
+import { Texture2D } from '../../../typedoc-index.js';
 
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
 const _slotColor = new Color(0, 0, 255, 255);

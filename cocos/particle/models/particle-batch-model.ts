@@ -31,7 +31,7 @@ import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMo
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
-import { Material, RenderingSubMesh } from '../../core/assets';
+import { Material, RenderingSubMesh } from '../../asset/assets';
 
 const _uvs = [
     0, 0, // bottom-left

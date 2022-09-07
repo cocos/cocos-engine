@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Material } from '../../core/assets/material';
+import { Material } from '../../asset/assets/material';
 import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../gfx';
 import { Node } from '../../core/scene-graph';
 import { Model } from '../../core/renderer/scene/model';

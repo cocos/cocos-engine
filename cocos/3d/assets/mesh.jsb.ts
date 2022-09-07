@@ -25,7 +25,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math';
-import '../../core/assets/asset';
 
 declare const jsb: any;
 

@@ -45,7 +45,6 @@ export * from './value-types';
 export * from './utils';
 export * from './data';
 export * from './event';
-export * from './assets';
 export * from './platform';
 export * from './game';
 export { Root } from './root';
@@ -53,10 +52,8 @@ export * from './scheduler';
 export * from './director';
 
 export * from './pipeline';
-export * from './asset-manager';
 export * from './scene-graph';
 export * from './components';
-export * from './builtin';
 export * from './curves';
 export * from './settings';
 

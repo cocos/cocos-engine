@@ -28,7 +28,7 @@ import { IRenderObject } from './define';
 import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../../gfx';
 import { Light } from '../renderer/scene/light';
-import { Material } from '../assets';
+import { Material } from '../../asset/assets';
 import { Pass } from '../renderer/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 

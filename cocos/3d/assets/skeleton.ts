@@ -28,7 +28,7 @@ import { CCString } from '../../core/data/utils/attribute';
 import { Mat4 } from '../../core/math';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { Asset } from '../../core/assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { legacyCC } from '../../core/global-exports';
 
 /**
