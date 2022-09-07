@@ -327,6 +327,52 @@ struct RenderInstancePack {
     ccstd::pmr::vector<RenderInstance> instances;
 };
 
+struct RenderBatch {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {vertexBuffers.get_allocator().resource()};
+    }
+
+    RenderBatch(const allocator_type& alloc) noexcept; // NOLINT
+    RenderBatch(RenderBatch&& rhs, const allocator_type& alloc);
+
+    RenderBatch(RenderBatch&& rhs) noexcept = default;
+    RenderBatch(RenderBatch const& rhs) = delete;
+    RenderBatch& operator=(RenderBatch&& rhs) = default;
+    RenderBatch& operator=(RenderBatch const& rhs) = delete;
+
+    ccstd::pmr::vector<gfx::Buffer*> vertexBuffers;
+    ccstd::pmr::vector<uint8_t*> vertexBufferData;
+    gfx::Buffer* indexBuffer{nullptr};
+    float* indexBufferData{nullptr};
+    uint32_t vertexBufferCount{0};
+    uint32_t mergeCount{0};
+    gfx::InputAssembler* inputAssembler{nullptr};
+    ccstd::pmr::vector<uint8_t> uniformBufferData;
+    gfx::Buffer* uniformBuffer{nullptr};
+    gfx::DescriptorSet* descriptorSet{nullptr};
+    const scene::Pass* scenePass{nullptr};
+    gfx::Shader* shader{nullptr};
+};
+
+struct RenderBatchPack {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {batches.get_allocator().resource()};
+    }
+
+    RenderBatchPack(const allocator_type& alloc) noexcept; // NOLINT
+    RenderBatchPack(RenderBatchPack&& rhs, const allocator_type& alloc);
+
+    RenderBatchPack(RenderBatchPack&& rhs) noexcept = default;
+    RenderBatchPack(RenderBatchPack const& rhs) = delete;
+    RenderBatchPack& operator=(RenderBatchPack&& rhs) = default;
+    RenderBatchPack& operator=(RenderBatchPack const& rhs) = delete;
+
+    ccstd::pmr::vector<PmrUniquePtr<RenderBatch>> batches;
+    ccstd::pmr::vector<uint32_t> bufferOffset;
+};
+
 struct NativeRenderQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -342,6 +388,7 @@ struct NativeRenderQueue {
     NativeRenderQueue& operator=(NativeRenderQueue const& rhs) = delete;
 
     ccstd::pmr::vector<ScenePass> scenePassQueue;
+    ccstd::pmr::vector<RenderBatchPack> batchingQueue;
     ccstd::pmr::vector<uint32_t> instancingQueue;
     PmrFlatMap<ScenePassHandle, PmrUniquePtr<RenderInstancePack>> instancePacks;
 };

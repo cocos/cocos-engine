@@ -52,6 +52,8 @@ struct ScenePass;
 struct ScenePassQueue;
 struct RenderInstance;
 struct RenderInstancePack;
+struct RenderBatch;
+struct RenderBatchPack;
 struct NativeRenderQueue;
 class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;
