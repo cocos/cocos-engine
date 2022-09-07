@@ -171,6 +171,7 @@ class BuiltinResMgr {
 
         // ============================
         // builtin textures
+        // type string postfix according to getStringFromType()
         // ============================
 
         // black texture
@@ -187,7 +188,7 @@ class BuiltinResMgr {
         emptyTexture.image = emptyImgAsset;
         resources[emptyTexture._uuid] = emptyTexture;
 
-        // black texture
+        // black cube texture
         const blackCubeTexture = new TextureCube();
         blackCubeTexture._uuid = 'black-cube-texture';
         blackCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
@@ -207,6 +208,20 @@ class BuiltinResMgr {
         greyTexture._uuid = 'grey-texture';
         greyTexture.image = greyImgAsset;
         resources[greyTexture._uuid] = greyTexture;
+
+        // grey cube texture
+        const greyCubeTexture = new TextureCube();
+        greyCubeTexture._uuid = 'grey-cube-texture';
+        greyCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        greyCubeTexture.image = {
+            front: new ImageAsset(greyMemImageSource),
+            back: new ImageAsset(greyMemImageSource),
+            left: new ImageAsset(greyMemImageSource),
+            right: new ImageAsset(greyMemImageSource),
+            top: new ImageAsset(greyMemImageSource),
+            bottom: new ImageAsset(greyMemImageSource),
+        };
+        resources[greyCubeTexture._uuid] = greyCubeTexture;
 
         // white texture
         const whiteImgAsset = new ImageAsset(whiteMemImageSource);
