@@ -29,11 +29,12 @@ import { IAssembler } from '../../2d/renderer/base';
 import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledRenderData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
-import { Texture2D, Node, director, Director } from '../../core';
+import { Node, director, Director } from '../../core';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { RenderData } from '../../2d/renderer/render-data';
 import { RenderDrawInfoType } from '../../2d/renderer/render-draw-info';
+import { Texture2D } from '../../asset/assets';
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
 

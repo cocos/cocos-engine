@@ -25,15 +25,15 @@
 
 import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
-import { TextureBase } from '../../assets/texture-base';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
+import { TextureBase } from '../../../asset/assets/texture-base';
+import { builtinResMgr } from '../../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
 } from '../../../gfx';
-import { EffectAsset } from '../../assets/effect-asset';
+import { EffectAsset } from '../../../asset/assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
 import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,

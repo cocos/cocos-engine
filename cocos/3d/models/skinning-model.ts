@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { Material } from '../../core/assets/material';
-import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
+import { Material } from '../../asset/assets/material';
+import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
@@ -38,8 +38,9 @@ import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../animation/skeletal-animation-utils';
 import { IMacroPatch, BatchingSchemes, Pass } from '../../core/renderer';
 import { warnID } from '../../core/platform/debug';
-import { ImageAsset, Texture2D, director } from '../../core';
-import { PixelFormat } from '../../core/assets/asset-enum';
+import { director } from '../../core';
+import { PixelFormat } from '../../asset/assets/asset-enum';
+import { Texture2D, ImageAsset } from '../../asset/assets';
 
 const uniformPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },

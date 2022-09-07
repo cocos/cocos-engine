@@ -25,7 +25,7 @@
 
 import { EDITOR, PREVIEW } from 'internal:constants';
 import * as easing from './easing/easing';
-import { Material } from './assets/material';
+import { Material } from '../asset/assets/material';
 import { clamp01 } from './math/utils';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,

@@ -1,5 +1,5 @@
-import { assetManager, loader } from "../../cocos/core/asset-manager";
-import { ImageAsset } from "../../cocos/core/assets/image-asset";
+import { assetManager, loader } from "../../cocos/asset/asset-manager";
+import { ImageAsset } from "../../cocos/asset/assets/image-asset";
 
 describe('Loader', () => {
     const assetDir = './tests/fixtures';

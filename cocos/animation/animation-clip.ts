@@ -25,7 +25,7 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Asset } from '../core/assets/asset';
+import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { errorID, warnID } from '../core/platform/debug';
 import { binarySearchEpsilon } from '../core/algorithm/binary-search';

@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EffectAsset } from '../../assets/effect-asset';
+import { EffectAsset } from '../../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
 import { PipelineRuntime } from '../../pipeline/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';

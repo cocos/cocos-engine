@@ -24,13 +24,14 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Asset, CCString, Enum, Node, Texture2D, errorID } from '../core';
+import { CCString, Enum, Node } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import { SkeletonTexture } from './skeleton-texture';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { legacyCC } from '../core/global-exports';
+import { Texture2D, Asset } from '../asset/assets';
 
 /**
  * @en The skeleton data of spine.

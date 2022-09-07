@@ -26,7 +26,7 @@
 
 import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { Script } from '../assets/scripts';
+import { Script } from '../../asset/assets/scripts';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';

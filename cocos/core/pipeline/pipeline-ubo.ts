@@ -34,8 +34,8 @@ import { CSMLevel, PCFType, Shadows, ShadowType } from '../renderer/scene/shadow
 import { Light, LightType } from '../renderer/scene/light';
 import { DirectionalLight, SpotLight } from '../renderer/scene';
 import { RenderWindow } from '../renderer/core/render-window';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
-import { Texture2D } from '../assets';
+import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+import { Texture2D } from '../../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
 
 const _matShadowView = new Mat4();
