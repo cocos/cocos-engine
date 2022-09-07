@@ -28,6 +28,50 @@
 
 // https://github.com/emscripten-core/emscripten/issues/11070#issuecomment-717675128
 namespace emscripten {
+
+template <typename T, typename TWrapper = T>
+std::vector<T> vecFromEMS(const val &vals) {
+    uint32_t len = vals["length"].as<unsigned>();
+    std::vector<T> res(len);
+    const std::vector<val> Ts = vecFromJSArray<val>(vals);
+    for (size_t i = 0; i < len; ++i) {
+        const val &t = Ts[i];
+        res[i] = static_cast<T>(t.as<TWrapper>(allow_raw_pointers()));
+    }
+    return res;
+}
+
+template <typename T, typename TWrapper = T>
+val vecToEMS(const std::vector<T> &Ts) {
+    auto arr = val::array();
+    for (size_t i = 0; i < Ts.size(); ++i) {
+        arr.set(i, TWrapper(Ts[i]));
+    }
+    return arr;
+}
+
+// template <typename T, typename std::enable_if<std::is_pointer<T>::value, bool>::type = true>
+// std::vector<T> ptrVecFromEMS(const val& vals) {
+//     uint32_t               len = vals["length"].as<unsigned>();
+//     std::vector<T>         res(len);
+//     const std::vector<val> Ts = vecFromJSArray<val>(vals);
+//     for (size_t i = 0; i < len; ++i) {
+//         const val& t = Ts[i];
+//         t.as<Texture*>(emscripten::allow_raw_pointers());
+//         res[i] = reinterpret_cast<T>(t.as<int>());
+//     }
+//     return res;
+// }
+
+template <typename T, typename std::enable_if<std::is_pointer<T>::value, bool>::type = true>
+val ptrVecToEMS(const std::vector<T> &Ts) {
+    auto arr = val::array();
+    for (size_t i = 0; i < Ts.size(); ++i) {
+        arr.set(i, Ts[i]);
+    }
+    return arr;
+}
+
 namespace internal {
 
 // vector<T> -> [] & [] ->vector<T>
@@ -37,7 +81,7 @@ struct BindingType<std::vector<T, Allocator>> {
     using WireType = ValBinding::WireType;
 
     static WireType toWireType(const std::vector<T, Allocator> &vec) {
-        return ValBinding::toWireType(val::array(vec));
+        return ValBinding::toWireType(vecToEMS(vec));
     }
 
     static std::vector<T, Allocator> fromWireType(WireType value) {
@@ -120,7 +164,11 @@ struct Exporter<T, U, V, typename std::enable_if<std::is_pointer<U>::value>::typ
 
 #define SPECIALIZE_PTR_FOR_STRUCT(r, _, TYPE)                                                                                                                       \
     template <>                                                                                                                                                     \
-    struct emscripten::internal::TypeID<cc::gfx::TYPE *, void> {                                                                                                    \
+    struct emscripten::internal::TypeID<std::remove_cv<cc::gfx::TYPE>::type *, void> {                                                                              \
+        static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<emscripten::internal::AllowedRawPointer<cc::gfx::TYPE>>::get(); } \
+    };                                                                                                                                                              \
+    template <>                                                                                                                                                     \
+    struct emscripten::internal::TypeID<const std::remove_cv<cc::gfx::TYPE>::type *, void> {                                                                        \
         static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<emscripten::internal::AllowedRawPointer<cc::gfx::TYPE>>::get(); } \
     };
 
@@ -133,19 +181,16 @@ struct emscripten::internal::TypeID<void *, void> {
     static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<uintptr_t>::get(); }
 };
 
+template <typename T>
+struct emscripten::internal::TypeID<T, typename std::enable_if<std::is_enum<T>::value>::type> {
+    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<typename std::underlying_type<T>::type>::get(); }
+};
+
 namespace cc::gfx {
 
 using ::emscripten::allow_raw_pointers;
 using ::emscripten::convertJSArrayToNumberVector;
 using ::emscripten::val;
-
-using String = ccstd::string;
-
-class CCWGPUInputAssembler;
-class CCWGPUBuffer;
-class CCWGPUCommandBuffer;
-class CCWGPUDescriptorSetLayout;
-class CCWGPUTexture;
 
 // template <typename T, typename std::enable_if<std::is_pointer<T>::value, bool>::type = true>
 // std::vector<T> ptrVecFromEMS(const val& vals) {
@@ -159,27 +204,6 @@ class CCWGPUTexture;
 //     }
 //     return res;
 // }
-
-template <typename T, typename TWrapper = T>
-std::vector<T> vecFromEMS(const val &vals) {
-    uint32_t len = vals["length"].as<unsigned>();
-    std::vector<T> res(len);
-    const std::vector<val> Ts = vecFromJSArray<val>(vals);
-    for (size_t i = 0; i < len; ++i) {
-        const val &t = Ts[i];
-        res[i] = static_cast<T>(t.as<TWrapper>(allow_raw_pointers()));
-    }
-    return res;
-}
-
-template <typename T, typename TWrapper = T>
-val vecToEMS(const std::vector<T> &Ts) {
-    auto arr = val::array();
-    for (size_t i = 0; i < Ts.size(); ++i) {
-        arr.set(i, TWrapper(Ts[i]));
-    }
-    return arr;
-}
 
 template <typename T, typename EnumFallBack = void>
 struct GetType {

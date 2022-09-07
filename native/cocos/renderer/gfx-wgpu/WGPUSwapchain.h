@@ -42,18 +42,10 @@ public:
 
     inline CCWGPUSwapchainObject *gpuSwapchainObject() { return _gpuSwapchainObj; }
 
-    CCWGPUTexture *getColorTexture();
-
     inline void setColorTexture(Texture *tex) { _colorTexture = tex; }
-
-    CCWGPUTexture *getDepthStencilTexture();
-
     inline void setDepthStencilTexture(Texture *tex) { _depthStencilTexture = tex; }
 
     void update();
-
-    // ems export
-    uint32_t getTransform() const { return static_cast<uint32_t>(_transform); }
 
 protected:
     CCWGPUSwapchain() = delete;

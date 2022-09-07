@@ -83,7 +83,6 @@ public:
 
     void reset();
 
-    inline uint32_t getCommandBufferType() const { return static_cast<uint32_t>(_type); };
     void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const std::vector<uint32_t> &dynamicOffsets) {
         bindDescriptorSet(set, descriptorSet, dynamicOffsets.size(), dynamicOffsets.data());
     }

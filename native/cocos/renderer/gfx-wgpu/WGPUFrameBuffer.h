@@ -43,8 +43,9 @@ public:
 
     using Framebuffer::initialize;
 
-    EXPORT_EMS(
-        void initialize(const emscripten::val &info);)
+    inline void setRenderPass(RenderPass *rp) { _renderPass = rp; }
+    inline void setColorTextures(const TextureList &colors) { _colorTextures = colors; }
+    inline void setDepthStencilTexture(Texture *dsTex) { _depthStencilTexture = dsTex; }
 
 protected:
     void doInit(const FramebufferInfo &info) override;

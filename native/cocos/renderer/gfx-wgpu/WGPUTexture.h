@@ -58,11 +58,11 @@ public:
     inline uint32_t getDepth() const { return _info.depth; };
     inline uint32_t getLayerCount() const { return _info.layerCount; };
     inline uint32_t getLevelCount() const { return _info.levelCount; };
-    inline uint32_t getTextureType() const { return static_cast<uint32_t>(_info.type); };
-    inline uint32_t getTextureUsage() const { return static_cast<uint32_t>(_info.usage); };
-    inline uint32_t getTextureFormat() const { return static_cast<uint32_t>(_info.format); };
-    inline uint32_t getTextureSamples() const { return static_cast<uint32_t>(_info.samples); };
-    inline uint32_t getTextureFlags() const { return static_cast<uint32_t>(_info.flags); };
+    inline auto getTextureType() const { return _info.type; };
+    inline auto getTextureUsage() const { return _info.usage; };
+    inline auto getTextureFormat() const { return _info.format; };
+    inline auto getTextureSamples() const { return _info.samples; };
+    inline auto getTextureFlags() const { return _info.flags; };
 
 protected:
     void doInit(const TextureInfo &info) override;

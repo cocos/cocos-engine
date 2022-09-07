@@ -126,14 +126,6 @@ void CCWGPUSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform
     _depthStencilTexture->resize(height, height);
 }
 
-CCWGPUTexture *CCWGPUSwapchain::getColorTexture() {
-    return static_cast<CCWGPUTexture *>(_colorTexture.get());
-}
-
-CCWGPUTexture *CCWGPUSwapchain::getDepthStencilTexture() {
-    return static_cast<CCWGPUTexture *>(_depthStencilTexture.get());
-}
-
 void CCWGPUSwapchain::update() {
     auto swapchainView = static_cast<CCWGPUTexture *>(_colorTexture.get())->gpuTextureObject()->selfView;
     wgpuTextureViewRelease(swapchainView);

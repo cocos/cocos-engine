@@ -53,18 +53,6 @@ public:
     static CCWGPUBuffer *defaultUniformBuffer();
     static CCWGPUBuffer *defaultStorageBuffer();
 
-    uint32_t getBufferUsage() const {
-        return static_cast<uint32_t>(_usage);
-    }
-
-    uint32_t getBufferMemUsage() const {
-        return static_cast<uint32_t>(_memUsage);
-    }
-
-    uint32_t getBufferFlags() const {
-        return static_cast<uint32_t>(_flags);
-    }
-
     void update(const void *buffer, uint32_t size) override;
 
     EXPORT_EMS(

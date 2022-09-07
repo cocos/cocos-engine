@@ -370,15 +370,7 @@ export class SubModel {
 
         // update draw info
         const drawInfo = this._subMesh.drawInfo;
-        if (this._inputAssembler && drawInfo) {
-            this._inputAssembler.drawInfo.vertexCount = drawInfo.vertexCount;
-            this._inputAssembler.drawInfo.firstVertex = drawInfo.firstVertex;
-            this._inputAssembler.drawInfo.indexCount = drawInfo.indexCount;
-            this._inputAssembler.drawInfo.firstIndex = drawInfo.firstIndex;
-            this._inputAssembler.drawInfo.vertexOffset = drawInfo.vertexOffset;
-            this._inputAssembler.drawInfo.instanceCount = drawInfo.instanceCount;
-            this._inputAssembler.drawInfo.firstInstance = drawInfo.firstInstance;
-        }
+        this._inputAssembler!.drawInfo.copy(drawInfo!);
     }
 
     protected _flushPassInfo (): void {

@@ -121,7 +121,7 @@ public:
         Shader * createShader(const ShaderInfo &info, const emscripten::val &spirvVal);
         void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const std::vector<BufferTextureCopy> &regions);)
 
-    void initFormatFeatures();
+    void initFeatures();
     void initLimits();
     void initConfigs();
 
