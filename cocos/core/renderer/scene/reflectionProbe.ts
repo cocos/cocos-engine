@@ -22,48 +22,22 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { RenderTexture } from '../../assets/render-texture';
+import { Camera } from '../../components/camera-component';
+import { Component } from '../../components/component';
+import { Director, director } from '../../director';
 
-import {
-    CanvasPool,
-    graphicsAssembler,
-    labelAssembler,
-    spriteAssembler,
-    earcut,
-} from './assembler';
-import { RenderData, MeshRenderData } from './renderer/render-data';
-import { MeshBuffer } from './renderer/mesh-buffer';
-import { StencilManager } from './renderer/stencil-manager';
-import { legacyCC } from '../core/global-exports';
-import './event';
-
-import './renderer/batcher-2d';
-
-import { ReflectionProbeManager } from '../core/reflectionProbeManager';
-
-export * from './assets';
-export * from './framework';
-export * from './components';
-export * from './renderer/render-data';
-export * from './renderer/base';
-export * from './renderer/deprecated';
-export * from './utils';
-
-export {
-    MeshBuffer,
-    StencilManager,
-    CanvasPool,
-    spriteAssembler,
-    labelAssembler,
-    graphicsAssembler,
-    earcut,
-    ReflectionProbeManager,
-};
-
-legacyCC.UI = {
-    MeshBuffer,
-    spriteAssembler,
-    graphicsAssembler,
-    labelAssembler,
-    RenderData,
-    MeshRenderData,
-};
+export class ReflectionProbe extends Component {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    public startCapture (camera: Camera, callback:Function) {
+        const rt = new RenderTexture();
+        rt.reset({ width: camera.camera.width, height: camera.camera.width });
+        camera.targetTexture = rt;
+        const width = camera.camera.width;
+        const height = camera.camera.height;
+        director.once(Director.EVENT_END_FRAME, () => {
+            const pixelData = rt.readPixels();
+            callback(pixelData, width, height, pixelData);
+        });
+    }
+}

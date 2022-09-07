@@ -42,7 +42,7 @@ export interface IRenderTextureCreateInfo {
 }
 
 const _colorAttachment = new ColorAttachment();
-_colorAttachment.format = Format.RGBA32F;
+_colorAttachment.format = Format.RGBA8;
 const _depthStencilAttachment = new DepthStencilAttachment();
 _depthStencilAttachment.format = Format.DEPTH_STENCIL;
 const passInfo = new RenderPassInfo([_colorAttachment], _depthStencilAttachment);
@@ -211,7 +211,7 @@ export class RenderTexture extends TextureBase {
      * @param height @en The pixel height @zh 像素高度
      * @param buffer @en The buffer to hold pixel data @zh 像素缓存
      */
-    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Float32Array) : Float32Array | null {
+    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array) : Uint8Array | null {
         width = width || this.width;
         height = height || this.height;
         const gfxTexture = this.getGFXTexture();
@@ -221,7 +221,7 @@ export class RenderTexture extends TextureBase {
         }
         const needSize = 4 * width * height;
         if (buffer === undefined) {
-            buffer = new Float32Array(needSize);
+            buffer = new Uint8Array(needSize);
         } else if (buffer.length < needSize) {
             errorID(7607, needSize);
             return null;
