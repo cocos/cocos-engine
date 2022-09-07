@@ -89,8 +89,6 @@ exports.listeners = {
                     },
                 });
             }
-
-            Editor.Message.send('scene', 'snapshot');
         } catch (error) {
             console.error(error);
         }
@@ -99,6 +97,9 @@ exports.listeners = {
         const panel = this;
 
         panel.snapshotLock = false;
+
+        // 配合 change-dump 事后发起快照，同时使得 ui-num-input 连续变动后只留一个操作数
+        Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
         const panel = this;
