@@ -55,7 +55,7 @@ struct RenderInstancePack;
 struct NativeRenderQueue;
 class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;
-struct RenderContext;
+struct NativeRenderContext;
 class NativePipeline;
 
 } // namespace render

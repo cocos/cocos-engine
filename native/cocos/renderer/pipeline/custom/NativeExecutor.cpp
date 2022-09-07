@@ -19,7 +19,7 @@ namespace render {
 
 struct RenderGraphVisitorContext {
     RenderGraphVisitorContext(
-        RenderContext& contextIn,
+        NativeRenderContext& contextIn,
         const RenderGraph& gIn,
         const ResourceGraph& resgIn,
         const FrameGraphDispatcher& fgdIn,
@@ -36,7 +36,7 @@ struct RenderGraphVisitorContext {
       cmdBuff(cmdBuffIn),
       scratch(scratchIn) {}
 
-    RenderContext& context;
+    NativeRenderContext& context;
     const RenderGraph& g;
     const ResourceGraph& resg;
     const FrameGraphDispatcher& fgd;

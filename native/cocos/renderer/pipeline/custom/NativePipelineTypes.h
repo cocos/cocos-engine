@@ -382,17 +382,17 @@ public:
     ccstd::pmr::string name;
 };
 
-struct RenderContext {
+struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {renderPasses.get_allocator().resource()};
     }
 
-    RenderContext(const allocator_type& alloc) noexcept; // NOLINT
-    RenderContext(RenderContext&& rhs) = delete;
-    RenderContext(RenderContext const& rhs) = delete;
-    RenderContext& operator=(RenderContext&& rhs) = delete;
-    RenderContext& operator=(RenderContext const& rhs) = delete;
+    NativeRenderContext(const allocator_type& alloc) noexcept; // NOLINT
+    NativeRenderContext(NativeRenderContext&& rhs) = delete;
+    NativeRenderContext(NativeRenderContext const& rhs) = delete;
+    NativeRenderContext& operator=(NativeRenderContext&& rhs) = delete;
+    NativeRenderContext& operator=(NativeRenderContext const& rhs) = delete;
 
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
     ccstd::pmr::vector<PmrUniquePtr<NativeRenderQueue>> freeRenderQueues;

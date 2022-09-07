@@ -79,7 +79,7 @@ DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept
 : name(alloc) {}
 
-RenderContext::RenderContext(const allocator_type& alloc) noexcept
+NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
 : renderPasses(alloc),
   freeRenderQueues(alloc),
   freeInstancePacks(alloc) {}
