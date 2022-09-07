@@ -16999,79 +16999,6 @@ static bool js_cc_scene_Pass_update(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Pass_update) 
 
-static bool js_cc_scene_Pass_getBatchedBuffer__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
-    int32_t arg2 ;
-    cc::pipeline::BatchedBuffer *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pass_getBatchedBuffer,2,SWIGTYPE_int32_t"); 
-    
-    result = (cc::pipeline::BatchedBuffer *)(arg1)->getBatchedBuffer(arg2);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Pass_getBatchedBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-
-static bool js_cc_scene_Pass_getBatchedBuffer__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::scene::Pass *arg1 = (cc::scene::Pass *) NULL ;
-    cc::pipeline::BatchedBuffer *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::pipeline::BatchedBuffer *)(arg1)->getBatchedBuffer();
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Pass_getBatchedBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-
-static bool js_cc_scene_Pass_getBatchedBuffer(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_scene_Pass_getBatchedBuffer__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 0) {
-        ok = js_cc_scene_Pass_getBatchedBuffer__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_scene_Pass_getBatchedBuffer) 
-
 static bool js_cc_scene_Pass_destroy(se::State& s)
 {
     // js_function
@@ -18027,7 +17954,6 @@ bool js_register_cc_scene_Pass(se::Object* obj) {
     cls->defineFunction("setDynamicState", _SE(js_cc_scene_Pass_setDynamicState)); 
     cls->defineFunction("overridePipelineStates", _SE(js_cc_scene_Pass_overridePipelineStates)); 
     cls->defineFunction("update", _SE(js_cc_scene_Pass_update)); 
-    cls->defineFunction("getBatchedBuffer", _SE(js_cc_scene_Pass_getBatchedBuffer)); 
     cls->defineFunction("destroy", _SE(js_cc_scene_Pass_destroy)); 
     cls->defineFunction("resetUniform", _SE(js_cc_scene_Pass_resetUniform)); 
     cls->defineFunction("resetTexture", _SE(js_cc_scene_Pass_resetTexture)); 
