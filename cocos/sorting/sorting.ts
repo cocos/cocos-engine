@@ -67,7 +67,7 @@ export class Sorting extends Component {
     }
 
     @serializable
-    protected _sortingLayer = SortingLayers.Enum.DEFAULT; // Actually saved id
+    protected _sortingLayer = SortingLayers.Enum.default; // Actually saved id
     @serializable
     protected _sortingOrder = 0;
 

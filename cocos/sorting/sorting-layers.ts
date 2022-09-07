@@ -19,7 +19,6 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { errorID } from '../core/platform/debug';
 import { Settings, settings } from '../core/settings';
@@ -97,17 +96,16 @@ export class SortingLayers {
     public static init () {
         const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
         if (!sortingLayers) return;
-        const LayerEnum: any = {};
+        const oldItem = Object.keys(SortingLayers.Enum);
+        for (let i = 0; i < oldItem.length; i++) {
+            delete SortingLayers.Enum[oldItem[i]];
+        }
         for (let i = 0; i < sortingLayers.length; i++) {
             const layer = sortingLayers[i];
             SortingLayers.setLayer(layer.id, layer.name, layer.index);
-            if (SortingLayers.Enum[layer.name]) {
-                delete SortingLayers.Enum[layer.name];
-            }
-            LayerEnum[layer.name] = layer.id;
+            SortingLayers.Enum[layer.name] = layer.id;
         }
-        Object.assign(SortingLayers.Enum, LayerEnum);
-        Enum.update(SortingLayers.Enum);
+        Enum.update(SortingLayers.Enum); // 顺序不对
     }
 
     // Editor Function to init config
