@@ -54,12 +54,24 @@ PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(Persisten
   clearStencil(rhs.clearStencil),
   refCount(rhs.refCount) {}
 
-RenderElemQueue::RenderElemQueue(const allocator_type& alloc) noexcept
+ScenePassQueue::ScenePassQueue(const allocator_type& alloc) noexcept
 : queue(alloc) {}
 
-RenderInstanceBatch::RenderInstanceBatch(const allocator_type& alloc) noexcept
-: instances(alloc),
-  bufferOffsets(alloc) {}
+RenderInstancePack::RenderInstancePack(const allocator_type& alloc) noexcept
+: instances(alloc) {}
+
+RenderInstancePack::RenderInstancePack(RenderInstancePack&& rhs, const allocator_type& alloc)
+: instances(std::move(rhs.instances), alloc) {}
+
+NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
+: scenePassQueue(alloc),
+  instancingQueue(alloc),
+  instancePacks(alloc) {}
+
+NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
+: scenePassQueue(std::move(rhs.scenePassQueue), alloc),
+  instancingQueue(std::move(rhs.instancingQueue), alloc),
+  instancePacks(std::move(rhs.instancePacks), alloc) {}
 
 DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 : name(alloc) {}
@@ -68,13 +80,9 @@ DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const alloc
 : name(alloc) {}
 
 RenderContext::RenderContext(const allocator_type& alloc) noexcept
-: renderPasses(alloc) {}
-
-RenderContext::RenderContext(RenderContext&& rhs, const allocator_type& alloc)
-: renderPasses(std::move(rhs.renderPasses), alloc) {}
-
-RenderContext::RenderContext(RenderContext const& rhs, const allocator_type& alloc)
-: renderPasses(rhs.renderPasses, alloc) {}
+: renderPasses(alloc),
+  freeRenderQueues(alloc),
+  freeInstancePacks(alloc) {}
 
 } // namespace render
 
