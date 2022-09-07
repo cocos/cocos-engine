@@ -346,6 +346,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
         _gpuSwapchain->createInfo.surface = _gpuSwapchain->vkSurface;
         _gpuSwapchain->createInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
+        ++_generation;
 
         CC_LOG_INFO("Resizing surface: %dx%d", newWidth, newHeight);
 
@@ -417,14 +418,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
 void CCVKSwapchain::destroySwapchain(CCVKGPUDevice *gpuDevice) {
     if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
-        for (auto &it : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-            FramebufferList &list = it.second;
-            for (VkFramebuffer framebuffer : list) {
-                vkDestroyFramebuffer(gpuDevice->vkDevice, framebuffer, nullptr);
-            }
-            list.clear();
-        }
-
         _gpuSwapchain->swapchainImages.clear();
 
 #if CC_SWAPPY_ENABLED

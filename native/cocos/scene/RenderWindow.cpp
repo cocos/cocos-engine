@@ -120,14 +120,7 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
         _height = height;
     }
 
-    if (_frameBuffer != nullptr) {
-        _frameBuffer->destroy();
-        _frameBuffer->initialize({
-            _renderPass,
-            _colorTextures.get(),
-            _depthStencilTexture,
-        });
-    }
+    updateFramebuffer();
 
     for (Camera *camera : _cameras) {
         camera->resize(width, height);
@@ -140,6 +133,31 @@ void RenderWindow::extractRenderCameras(ccstd::vector<Camera *> &cameras) {
             camera->update();
             cameras.emplace_back(camera);
         }
+    }
+}
+
+void RenderWindow::onNativeWindowDestroy(void *hWnd) {
+    if (_swapchain != nullptr && _swapchain->getWindowHandle() == hWnd) {
+        _swapchain->destroySurface();
+    }
+}
+
+void RenderWindow::onNativeWindowResume(void *hWnd) {
+    if (_swapchain == nullptr || _swapchain->getWindowHandle() != nullptr) {
+        return;
+    }
+    _swapchain->createSurface(hWnd);
+    updateFramebuffer();
+}
+
+void RenderWindow::updateFramebuffer() {
+    if (_frameBuffer != nullptr) {
+        _frameBuffer->destroy();
+        _frameBuffer->initialize({
+            _renderPass,
+            _colorTextures.get(),
+            _depthStencilTexture,
+        });
     }
 }
 

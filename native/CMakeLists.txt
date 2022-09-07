@@ -1084,6 +1084,7 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXSwapchain.h
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
+                 cocos/renderer/gfx-base/GFXDeviceObject.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
@@ -1611,6 +1612,9 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKGPUContext.cpp
                      cocos/renderer/gfx-vulkan/VKGPUObjects.h
                      cocos/renderer/gfx-vulkan/VKInputAssembler.cpp
+                     cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
+                     cocos/renderer/gfx-vulkan/VKGPUInputAssemblerHub.h
+                     cocos/renderer/gfx-vulkan/VKGPUInputAssemblerHub.cpp
                      cocos/renderer/gfx-vulkan/VKInputAssembler.h
                      cocos/renderer/gfx-vulkan/VKDescriptorSet.cpp
                      cocos/renderer/gfx-vulkan/VKDescriptorSet.h
@@ -2952,7 +2956,7 @@ if(MSVC)
     file(GLOB V8_DLLS
         ${CWD}/external/win64/libs/v8/Release/*.dll
     )
-    
+
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll

@@ -94,7 +94,7 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuf
             if (gpuFBO->isOffscreen) {
                 inheritanceInfo.framebuffer = gpuFBO->vkFramebuffer;
             } else {
-                inheritanceInfo.framebuffer = gpuFBO->swapchain->vkSwapchainFramebufferListMap[gpuFBO][gpuFBO->swapchain->curImageIndex];
+                inheritanceInfo.framebuffer = gpuFBO->vkFrameBuffers[gpuFBO->swapchain->curImageIndex];
             }
         }
         beginInfo.pInheritanceInfo = &inheritanceInfo;
@@ -143,7 +143,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     _curGPURenderPass = static_cast<CCVKRenderPass *>(renderPass)->gpuRenderPass();
     VkFramebuffer framebuffer{_curGPUFBO->vkFramebuffer};
     if (!_curGPUFBO->isOffscreen) {
-        framebuffer = _curGPUFBO->swapchain->vkSwapchainFramebufferListMap[_curGPUFBO][_curGPUFBO->swapchain->curImageIndex];
+        framebuffer = _curGPUFBO->vkFrameBuffers[_curGPUFBO->swapchain->curImageIndex];
     }
 
     ccstd::vector<VkClearValue> &clearValues = _curGPURenderPass->clearValues;
@@ -382,7 +382,7 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
 
-    const auto *gpuIndirectBuffer = _curGPUInputAssember->gpuIndirectBuffer;
+    const auto *gpuIndirectBuffer = _curGPUInputAssember->gpuIndirectBuffer.get();
 
     if (gpuIndirectBuffer) {
         uint32_t drawInfoCount = gpuIndirectBuffer->range / gpuIndirectBuffer->gpuBuffer->stride;
@@ -572,7 +572,7 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
 void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     CCVKDevice *device = CCVKDevice::getInstance();
     CCVKGPUDevice *gpuDevice = device->gpuDevice();
-    CCVKGPUPipelineLayout *pipelineLayout = _curGPUPipelineState->gpuPipelineLayout;
+    const CCVKGPUPipelineLayout *pipelineLayout = _curGPUPipelineState->gpuPipelineLayout;
     ccstd::vector<uint32_t> &dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
     uint32_t descriptorSetCount = utils::toUint(pipelineLayout->setLayouts.size());
     _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
@@ -735,7 +735,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                             splitBufferBarriers.data(), splitImageBarriers.size(), splitImageBarriers.data());
 
             for (size_t i = 0; i < textureBarrierCount; ++i) {
-                auto event = _barrierEvents.at(textures[i]);
+                VkEvent event = _barrierEvents.at(textures[i]);
                 const auto *ccBarrier = static_cast<const CCVKTextureBarrier *const>(textureBarriers[i]);
                 const auto *gpuBarrier = ccBarrier->gpuBarrier();
                 vkCmdResetEvent(_gpuCommandBuffer->vkCommandBuffer, event, gpuBarrier->dstStageMask);
@@ -744,7 +744,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             }
 
             for (size_t i = 0; i < bufferBarrierCount; ++i) {
-                auto event = _barrierEvents.at(buffers[i]);
+                VkEvent event = _barrierEvents.at(buffers[i]);
                 const auto *ccBarrier = static_cast<const CCVKBufferBarrier *const>(bufferBarriers[i]);
                 const auto *gpuBarrier = ccBarrier->gpuBarrier();
                 vkCmdResetEvent(_gpuCommandBuffer->vkCommandBuffer, event, gpuBarrier->dstStageMask);

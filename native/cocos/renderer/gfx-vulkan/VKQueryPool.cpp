@@ -49,11 +49,12 @@ void CCVKQueryPool::doInit(const QueryPoolInfo & /*info*/) {
 }
 
 void CCVKQueryPool::doDestroy() {
-    if (_gpuQueryPool) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuQueryPool);
-        _gpuQueryPool = nullptr;
-    }
+    _gpuQueryPool = nullptr;
 }
+
+void CCVKGPUQueryPool::shutdown() {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
+};
 
 } // namespace gfx
 } // namespace cc

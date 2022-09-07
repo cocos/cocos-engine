@@ -34,7 +34,6 @@
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
-#include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/Define.h"
@@ -47,6 +46,8 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/event/CustomEventTypes.h"
 
 namespace cc {
 
@@ -87,7 +88,7 @@ void Root::initialize(gfx::Swapchain *  /*swapchain*/) {
     }
     _curRenderWindow = _mainRenderWindow;
     _xr = CC_GET_XR_INTERFACE();
-
+    addWindowEventListener();
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 
@@ -151,7 +152,7 @@ cc::scene::RenderWindow *Root::createRenderWindowFromSystemWindow(uint32_t windo
 
 void Root::destroy() {
     destroyScenes();
-
+    removeWindowEventListener();
     if (_usesCustomPipeline && _pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
@@ -634,6 +635,25 @@ void Root::doXRFrameMove(int32_t totalFrames) {
     } else {
         CC_LOG_WARNING("[XR] isRenderAllowable is false !!!");
     }
+}
+
+void Root::addWindowEventListener() {
+    _windowDestroyEventId = EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &e) -> void {
+        for (const auto &window : _windows) {
+            window->onNativeWindowDestroy(e.args->ptrVal);
+        }
+    });
+
+    _windowResumeEventId = EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &e) -> void {
+        for (const auto &window : _windows) {
+            window->onNativeWindowResume(e.args->ptrVal);
+        }
+    });
+}
+
+void Root::removeWindowEventListener() const {
+    EventDispatcher::removeCustomEventListener(EVENT_DESTROY_WINDOW, _windowDestroyEventId);
+    EventDispatcher::removeCustomEventListener(EVENT_RECREATE_WINDOW, _windowResumeEventId);
 }
 
 } // namespace cc
