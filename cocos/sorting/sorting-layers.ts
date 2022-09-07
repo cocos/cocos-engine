@@ -19,6 +19,8 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
+import { director } from '../core';
 import { legacyCC } from '../core/global-exports';
 import { errorID } from '../core/platform/debug';
 import { Settings, settings } from '../core/settings';
@@ -27,7 +29,7 @@ import { Enum } from '../core/value-types';
 interface SortingItem {
     id: number;
     name: string;
-    index: number;
+    value: number;
 }
 
 const SortingLayer = {
@@ -96,22 +98,41 @@ export class SortingLayers {
     public static init () {
         const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
         if (!sortingLayers) return;
-        const oldItem = Object.keys(SortingLayers.Enum);
-        for (let i = 0; i < oldItem.length; i++) {
-            delete SortingLayers.Enum[oldItem[i]];
-        }
+        SortingLayers.resetState();
         for (let i = 0; i < sortingLayers.length; i++) {
             const layer = sortingLayers[i];
-            SortingLayers.setLayer(layer.id, layer.name, layer.index);
+            SortingLayers.setLayer(layer.id, layer.name, layer.value);
             SortingLayers.Enum[layer.name] = layer.id;
         }
         Enum.update(SortingLayers.Enum); // 顺序不对
+
+        if (EDITOR) {
+            const scene = director.getScene();
+            if (!scene) {
+                return;
+            }
+            scene.walk((node) => {
+                const sort = node.getComponent('cc.Sorting');
+                if (sort) {
+                    sort._updateSortingPriority();
+                }
+            });
+        }
     }
 
     // Editor Function to init config
     public static setLayer (layer, layerName, layerIndex) {
         this.nameMap.set(layer, layerName);
         this.indexMap.set(layer, layerIndex);
+    }
+
+    private static resetState () {
+        const oldItem = Object.keys(SortingLayers.Enum);
+        for (let i = 0; i < oldItem.length; i++) {
+            delete SortingLayers.Enum[oldItem[i]];
+        }
+        SortingLayers.indexMap.clear();
+        SortingLayers.nameMap.clear();
     }
 }
 
