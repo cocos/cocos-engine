@@ -35,7 +35,7 @@ import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTyp
 } from '../../gfx';
 import { EffectAsset } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
-import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType,
+import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
@@ -429,7 +429,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];
         const value = info && info.value;
-        const texName = value ? `${value as string}-texture` : getDefaultFromType(type) as string;
+        const texName = value ? `${value as string}${getStringFromType(type)}` : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerInfo = info && info.samplerHash !== undefined

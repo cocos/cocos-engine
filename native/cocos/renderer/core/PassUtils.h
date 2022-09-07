@@ -95,6 +95,7 @@ extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;
  */
 const ccstd::vector<float> &getDefaultFloatArrayFromType(gfx::Type type);
 const ccstd::string &getDefaultStringFromType(gfx::Type type);
+const ccstd::string &getStringFromType(gfx::Type type);
 
 /**
  * @en Combination of preprocess macros
