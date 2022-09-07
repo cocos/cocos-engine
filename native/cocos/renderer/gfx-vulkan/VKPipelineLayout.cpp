@@ -57,9 +57,12 @@ void CCVKPipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
 }
 
 void CCVKPipelineLayout::doDestroy() {
-    if (_gpuPipelineLayout) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuPipelineLayout);
-        _gpuPipelineLayout = nullptr;
+    _gpuPipelineLayout = nullptr;
+}
+
+void CCVKGPUPipelineLayout::shutdown() {
+    if (vkPipelineLayout != VK_NULL_HANDLE) {
+        vkDestroyPipelineLayout(CCVKDevice::getInstance()->gpuDevice()->vkDevice, vkPipelineLayout, nullptr);
     }
 }
 

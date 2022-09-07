@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "VKBuffer.h"
-#include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
+#include "VKGPUInputAssemblerHub.h"
 #include "profiler/Profiler.h"
 
 namespace cc {
@@ -42,23 +42,12 @@ CCVKBuffer::~CCVKBuffer() {
 
 void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
     _gpuBuffer = ccnew CCVKGPUBuffer;
-    _gpuBuffer->usage = _usage;
-    _gpuBuffer->memUsage = _memUsage;
     _gpuBuffer->size = _size;
-    _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
-
-    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        const size_t drawInfoCount = _size / sizeof(DrawInfo);
-        _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
-        _gpuBuffer->indirectCmds.resize(drawInfoCount);
-    }
-
-    cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), _gpuBuffer);
-    CCVKDevice::getInstance()->getMemoryStatus().bufferSize += _size;
-    CC_PROFILE_MEMORY_INC(Buffer, _size);
+    createBuffer();
 
     _gpuBufferView = ccnew CCVKGPUBufferView;
+    _gpuBufferView->range = _size;
     createBufferView();
 }
 
@@ -66,62 +55,69 @@ void CCVKBuffer::doInit(const BufferViewInfo &info) {
     auto *buffer = static_cast<CCVKBuffer *>(info.buffer);
     _gpuBuffer = buffer->gpuBuffer();
     _gpuBufferView = ccnew CCVKGPUBufferView;
+    _gpuBufferView->range = _size;
     createBufferView();
+}
+
+void CCVKBuffer::createBuffer() {
+    _gpuBuffer->usage = _usage;
+    _gpuBuffer->memUsage = _memUsage;
+    _gpuBuffer->stride = _stride;
+    _gpuBuffer->init();
 }
 
 void CCVKBuffer::createBufferView() {
     _gpuBufferView->gpuBuffer = _gpuBuffer;
     _gpuBufferView->offset = _offset;
-    _gpuBufferView->range = _size;
-    if (_gpuBufferView->gpuBuffer->vkBuffer) {
-        CCVKDevice::getInstance()->gpuDescriptorHub()->update(_gpuBufferView);
-    }
 }
 
 void CCVKBuffer::doDestroy() {
-    if (_gpuBufferView) {
-        CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuBufferView);
-        delete _gpuBufferView;
-        _gpuBufferView = nullptr;
-    }
-
-    if (_gpuBuffer) {
-        if (!_isBufferView) {
-            CCVKDevice::getInstance()->gpuBufferHub()->erase(_gpuBuffer);
-            CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
-            CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuBuffer);
-            delete _gpuBuffer;
-            CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
-            CC_PROFILE_MEMORY_DEC(Buffer, _size);
-        }
-        _gpuBuffer = nullptr;
-    }
+    _gpuBufferView = nullptr;
+    _gpuBuffer = nullptr;
 }
 
 void CCVKBuffer::doResize(uint32_t size, uint32_t count) {
-    CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
-    CC_PROFILE_MEMORY_DEC(Buffer, _size);
-    CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
-
+    _gpuBuffer = ccnew CCVKGPUBuffer();
     _gpuBuffer->size = size;
     _gpuBuffer->count = count;
-    cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), _gpuBuffer);
+    createBuffer();
 
+    auto oldBufferView = _gpuBufferView;
+    _gpuBufferView = ccnew CCVKGPUBufferView();
     _gpuBufferView->range = size;
-    CCVKDevice::getInstance()->gpuDescriptorHub()->update(_gpuBuffer);
-
-    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        const size_t drawInfoCount = _size / sizeof(DrawInfo);
-        _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
-        _gpuBuffer->indirectCmds.resize(drawInfoCount);
-    }
-    CCVKDevice::getInstance()->getMemoryStatus().bufferSize += size;
-    CC_PROFILE_MEMORY_INC(Buffer, size);
+    createBufferView();
+    CCVKDevice::getInstance()->gpuDescriptorHub()->update(oldBufferView, _gpuBufferView);
+    CCVKDevice::getInstance()->gpuIAHub()->update(oldBufferView, _gpuBufferView);
 }
 
 void CCVKBuffer::update(const void *buffer, uint32_t size) {
     CC_PROFILE(CCVKBufferUpdate);
     cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
+}
+
+void CCVKGPUBuffer::shutdown() {
+    CCVKDevice::getInstance()->gpuBarrierManager()->cancel(this);
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
+    CCVKDevice::getInstance()->gpuBufferHub()->erase(this);
+
+    CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= size;
+    CC_PROFILE_MEMORY_DEC(Buffer, size);
+}
+
+void CCVKGPUBuffer::init() {
+    if (hasFlag(usage, BufferUsageBit::INDIRECT)) {
+        const size_t drawInfoCount = size / sizeof(DrawInfo);
+        indexedIndirectCmds.resize(drawInfoCount);
+        indirectCmds.resize(drawInfoCount);
+    }
+
+    cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), this);
+    CCVKDevice::getInstance()->getMemoryStatus().bufferSize += size;
+    CC_PROFILE_MEMORY_INC(Buffer, size);
+}
+
+void CCVKGPUBufferView::shutdown() {
+    CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(this);
 }
 
 } // namespace gfx

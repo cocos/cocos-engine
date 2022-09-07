@@ -221,11 +221,7 @@ void cmdFuncCCVKCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTex
         }
     } else if (gpuTextureView->gpuTexture->vkImage) {
         createFn(gpuTextureView->gpuTexture->vkImage, &gpuTextureView->vkImageView);
-    } else {
-        return;
     }
-
-    device->gpuDescriptorHub()->update(gpuTextureView);
 }
 
 void cmdFuncCCVKCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
@@ -285,7 +281,6 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
                              &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
 
     gpuBuffer->mappedData = reinterpret_cast<uint8_t *>(res.pMappedData);
-    gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
 
     // add special access types directly from usage
     if (hasFlag(gpuBuffer->usage, BufferUsageBit::VERTEX)) gpuBuffer->renderAccessTypes.push_back(THSVS_ACCESS_VERTEX_BUFFER);
@@ -787,7 +782,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
 
     uint32_t swapchainImageIndices = 0;
     for (size_t i = 0U; i < colorViewCount; ++i) {
-        CCVKGPUTextureView *texView = gpuFramebuffer->gpuColorViews[i];
+        const CCVKGPUTextureView *texView = gpuFramebuffer->gpuColorViews[i];
         if (texView->gpuTexture->swapchain) {
             gpuFramebuffer->swapchain = texView->gpuTexture->swapchain;
             swapchainImageIndices |= (1 << i);
@@ -818,25 +813,13 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         createInfo.layers = 1;
         VK_CHECK(vkCreateFramebuffer(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuFramebuffer->vkFramebuffer));
     } else {
-        // swapchain-related framebuffers need special treatments: rebuild is needed
-        // whenever a user-specified attachment or swapchain itself is changed
-
-        FramebufferListMap &fboListMap = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap;
-        auto fboListMapIter = fboListMap.find(gpuFramebuffer);
-        if (fboListMapIter != fboListMap.end() && !fboListMapIter->second.empty()) {
-            return;
-        }
-        size_t swapchainImageCount = gpuFramebuffer->swapchain->swapchainImages.size();
-        if (fboListMapIter != fboListMap.end()) {
-            fboListMapIter->second.resize(swapchainImageCount);
-        } else {
-            fboListMap.emplace(std::piecewise_construct, std::forward_as_tuple(gpuFramebuffer), std::forward_as_tuple(swapchainImageCount));
-        }
+        size_t swapChainImageCount = gpuFramebuffer->swapchain->swapchainImages.size();
+        gpuFramebuffer->vkFrameBuffers.resize(swapChainImageCount);
         createInfo.renderPass = gpuFramebuffer->gpuRenderPass->vkRenderPass;
         createInfo.attachmentCount = utils::toUint(attachments.size());
         createInfo.pAttachments = attachments.data();
         createInfo.layers = 1;
-        for (size_t i = 0U; i < swapchainImageCount; ++i) {
+        for (size_t i = 0U; i < swapChainImageCount; ++i) {
             for (size_t j = 0U; j < colorViewCount; ++j) {
                 if (swapchainImageIndices & (1 << j)) {
                     attachments[j] = gpuFramebuffer->gpuColorViews[j]->swapchainVkImageViews[i];
@@ -845,7 +828,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
             if (swapchainImageIndices & (1 << colorViewCount)) {
                 attachments[colorViewCount] = gpuFramebuffer->gpuDepthStencilView->swapchainVkImageViews[i];
             }
-            VK_CHECK(vkCreateFramebuffer(device->gpuDevice()->vkDevice, &createInfo, nullptr, &fboListMap[gpuFramebuffer][i]));
+            VK_CHECK(vkCreateFramebuffer(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuFramebuffer->vkFrameBuffers[i]));
         }
     }
 }
@@ -888,7 +871,7 @@ void cmdFuncCCVKCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
     CCVKGPUDescriptorSetPool *pool = gpuDevice->getDescriptorSetPool(gpuDescriptorSetLayout->id);
     pool->link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
 
-    gpuDescriptorSetLayout->defaultDescriptorSet = pool->request(0);
+    gpuDescriptorSetLayout->defaultDescriptorSet = pool->request();
 
     if (gpuDevice->useDescriptorUpdateTemplate && bindingCount) {
         const ccstd::vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
@@ -1221,13 +1204,11 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         }
     }
 
-    CCVKGPUBuffer stagingBuffer;
-    stagingBuffer.size = sizeToUpload;
-    device->gpuStagingBufferPool()->alloc(&stagingBuffer);
-    memcpy(stagingBuffer.mappedData, dataToUpload, sizeToUpload);
+    IntrusivePtr<CCVKGPUBufferView> stagingBuffer = device->gpuStagingBufferPool()->alloc(sizeToUpload);
+    memcpy(stagingBuffer->mappedData(), dataToUpload, sizeToUpload);
 
     VkBufferCopy region{
-        stagingBuffer.startOffset,
+        stagingBuffer->offset,
         gpuBuffer->getStartOffset(backBufferIndex),
         sizeToUpload,
     };
@@ -1244,7 +1225,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
                                  0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
         }
 #endif
-        vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
+        vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer->gpuBuffer->vkBuffer, gpuBuffer->vkBuffer, 1, &region);
     };
 
     if (cmdBuffer) {
@@ -1257,7 +1238,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     device->gpuBarrierManager()->checkIn(gpuBuffer);
 }
 
-void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, CCVKGPUTexture *gpuTexture,
+void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, const CCVKGPUTexture *gpuTexture,
                                      const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     ccstd::vector<ThsvsAccessType> &curTypes = gpuTexture->currentAccessTypes;
 
@@ -1354,25 +1335,24 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
                     heightOffset = static_cast<int32_t>(h);
                     stepHeight = std::min(chunkHeight, extent.height - h);
 
-                    CCVKGPUBuffer stagingBuffer;
-                    stagingBuffer.size = rowPitchSize * (stepHeight / blockSize.second);
-                    device->gpuStagingBufferPool()->alloc(&stagingBuffer, offsetAlignment);
+                    uint32_t stagingBufferSize = rowPitchSize * (stepHeight / blockSize.second);
+                    IntrusivePtr<CCVKGPUBufferView> stagingBuffer = device->gpuStagingBufferPool()->alloc(stagingBufferSize, offsetAlignment);
 
                     for (uint32_t j = 0; j < stepHeight; j += blockSize.second) {
-                        memcpy(stagingBuffer.mappedData + destOffset, buffers[idx] + buffOffset, destRowSize);
+                        memcpy(stagingBuffer->mappedData() + destOffset, buffers[idx] + buffOffset, destRowSize);
                         destOffset += rowPitchSize;
                         buffOffset += buffStrideSize;
                     }
 
                     VkBufferImageCopy stagingRegion;
-                    stagingRegion.bufferOffset = stagingBuffer.startOffset;
+                    stagingRegion.bufferOffset = stagingBuffer->offset;
                     stagingRegion.bufferRowLength = rowPitch;
                     stagingRegion.bufferImageHeight = stepHeight;
                     stagingRegion.imageSubresource = {gpuTexture->aspectMask, mipLevel, l + baseLayer, 1};
                     stagingRegion.imageOffset = {offset.x, offset.y + heightOffset, offset.z + static_cast<int>(depth)};
                     stagingRegion.imageExtent = {destWidth, std::min(stepHeight, destHeight - heightOffset), 1};
 
-                    vkCmdCopyBufferToImage(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuTexture->vkImage,
+                    vkCmdCopyBufferToImage(gpuCommandBuffer->vkCommandBuffer, stagingBuffer->gpuBuffer->vkBuffer, gpuTexture->vkImage,
                                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &stagingRegion);
                 }
             }
@@ -1433,7 +1413,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     device->gpuBarrierManager()->checkIn(gpuTexture);
 }
 
-void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer,
+void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, const CCVKGPUTexture *srcTexture, const CCVKGPUBufferView *destBufferView,
                                      const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     ccstd::vector<ThsvsAccessType> &curTypes = srcTexture->currentAccessTypes;
 
@@ -1459,7 +1439,7 @@ void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcText
     for (size_t i = 0U; i < count; ++i) {
         const BufferTextureCopy &region = regions[i];
         VkBufferImageCopy &stagingRegion = stagingRegions[i];
-        stagingRegion.bufferOffset = destBuffer->startOffset + offset;
+        stagingRegion.bufferOffset = destBufferView->offset + offset;
         stagingRegion.bufferRowLength = region.buffStride;
         stagingRegion.bufferImageHeight = region.buffTexHeight;
         stagingRegion.imageSubresource = {srcTexture->aspectMask, region.texSubres.mipLevel, region.texSubres.baseArrayLayer, region.texSubres.layerCount};
@@ -1473,74 +1453,11 @@ void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcText
         offset += regionSize;
     }
     vkCmdCopyImageToBuffer(gpuCommandBuffer->vkCommandBuffer, srcTexture->vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           destBuffer->vkBuffer, utils::toUint(stagingRegions.size()), stagingRegions.data());
+                           destBufferView->gpuBuffer->vkBuffer, utils::toUint(stagingRegions.size()), stagingRegions.data());
 
     curTypes.assign({THSVS_ACCESS_TRANSFER_READ});
     srcTexture->transferAccess = THSVS_ACCESS_TRANSFER_READ;
     device->gpuBarrierManager()->checkIn(srcTexture);
-}
-
-void cmdFuncCCVKDestroyQueryPool(CCVKGPUDevice *gpuDevice, CCVKGPUQueryPool *gpuQueryPool) {
-    if (gpuQueryPool->vkPool != VK_NULL_HANDLE) {
-        vkDestroyQueryPool(gpuDevice->vkDevice, gpuQueryPool->vkPool, nullptr);
-        gpuQueryPool->vkPool = VK_NULL_HANDLE;
-    }
-}
-
-void cmdFuncCCVKDestroyRenderPass(CCVKGPUDevice *gpuDevice, CCVKGPURenderPass *gpuRenderPass) {
-    if (gpuRenderPass->vkRenderPass != VK_NULL_HANDLE) {
-        vkDestroyRenderPass(gpuDevice->vkDevice, gpuRenderPass->vkRenderPass, nullptr);
-        gpuRenderPass->vkRenderPass = VK_NULL_HANDLE;
-    }
-}
-
-void cmdFuncCCVKDestroySampler(CCVKGPUDevice *gpuDevice, CCVKGPUSampler *gpuSampler) {
-    if (gpuSampler->vkSampler != VK_NULL_HANDLE) {
-        vkDestroySampler(gpuDevice->vkDevice, gpuSampler->vkSampler, nullptr);
-        gpuSampler->vkSampler = VK_NULL_HANDLE;
-    }
-}
-
-void cmdFuncCCVKDestroyShader(CCVKGPUDevice *gpuDevice, CCVKGPUShader *gpuShader) {
-    for (CCVKGPUShaderStage &stage : gpuShader->gpuStages) {
-        vkDestroyShaderModule(gpuDevice->vkDevice, stage.vkShader, nullptr);
-        stage.vkShader = VK_NULL_HANDLE;
-    }
-}
-
-void cmdFuncCCVKDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
-    if (gpuDescriptorSetLayout->defaultDescriptorSet != VK_NULL_HANDLE) {
-        gpuDevice->getDescriptorSetPool(gpuDescriptorSetLayout->id)->yield(gpuDescriptorSetLayout->defaultDescriptorSet, 0);
-        gpuDescriptorSetLayout->defaultDescriptorSet = VK_NULL_HANDLE;
-    }
-
-    if (gpuDescriptorSetLayout->vkDescriptorUpdateTemplate != VK_NULL_HANDLE) {
-        if (gpuDevice->minorVersion > 0) {
-            vkDestroyDescriptorUpdateTemplate(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
-        } else {
-            vkDestroyDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
-        }
-        gpuDescriptorSetLayout->vkDescriptorUpdateTemplate = VK_NULL_HANDLE;
-    }
-
-    if (gpuDescriptorSetLayout->vkDescriptorSetLayout != VK_NULL_HANDLE) {
-        vkDestroyDescriptorSetLayout(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorSetLayout, nullptr);
-        gpuDescriptorSetLayout->vkDescriptorSetLayout = VK_NULL_HANDLE;
-    }
-}
-
-void cmdFuncCCVKDestroyPipelineLayout(CCVKGPUDevice *gpuDevice, CCVKGPUPipelineLayout *gpuPipelineLayout) {
-    if (gpuPipelineLayout->vkPipelineLayout != VK_NULL_HANDLE) {
-        vkDestroyPipelineLayout(gpuDevice->vkDevice, gpuPipelineLayout->vkPipelineLayout, nullptr);
-        gpuPipelineLayout->vkPipelineLayout = VK_NULL_HANDLE;
-    }
-}
-
-void cmdFuncCCVKDestroyPipelineState(CCVKGPUDevice *gpuDevice, CCVKGPUPipelineState *gpuPipelineState) {
-    if (gpuPipelineState->vkPipeline != VK_NULL_HANDLE) {
-        vkDestroyPipeline(gpuDevice->vkDevice, gpuPipelineState->vkPipeline, nullptr);
-        gpuPipelineState->vkPipeline = VK_NULL_HANDLE;
-    }
 }
 
 void cmdFuncCCVKImageMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsImageBarrier &imageBarrier) {
@@ -1560,92 +1477,6 @@ const CCVKGPUGeneralBarrier *CCVKGPURenderPass::getBarrier(size_t index, CCVKGPU
         return colorAttachments[index].barrier ? static_cast<CCVKGeneralBarrier *>(colorAttachments[index].barrier)->gpuBarrier() : &gpuDevice->defaultColorBarrier;
     }
     return depthStencilAttachment.barrier ? static_cast<CCVKGeneralBarrier *>(depthStencilAttachment.barrier)->gpuBarrier() : &gpuDevice->defaultDepthStencilBarrier;
-}
-
-void CCVKGPURecycleBin::clear() {
-    for (uint32_t i = 0U; i < _count; ++i) {
-        Resource &res = _resources[i];
-        switch (res.type) {
-            case RecycledType::BUFFER:
-                if (res.buffer.vkBuffer) {
-                    vmaDestroyBuffer(_device->memoryAllocator, res.buffer.vkBuffer, res.buffer.vmaAllocation);
-                    res.buffer.vkBuffer = VK_NULL_HANDLE;
-                    res.buffer.vmaAllocation = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::TEXTURE:
-                if (res.image.vkImage) {
-                    vmaDestroyImage(_device->memoryAllocator, res.image.vkImage, res.image.vmaAllocation);
-                    res.image.vkImage = VK_NULL_HANDLE;
-                    res.image.vmaAllocation = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::TEXTURE_VIEW:
-                if (res.vkImageView) {
-                    vkDestroyImageView(_device->vkDevice, res.vkImageView, nullptr);
-                    res.vkImageView = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::FRAMEBUFFER:
-                if (res.vkFramebuffer) {
-                    vkDestroyFramebuffer(_device->vkDevice, res.vkFramebuffer, nullptr);
-                    res.vkFramebuffer = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::QUERY_POOL:
-                if (res.gpuQueryPool) {
-                    cmdFuncCCVKDestroyQueryPool(_device, res.gpuQueryPool);
-                    delete res.gpuQueryPool;
-                    res.gpuQueryPool = nullptr;
-                }
-                break;
-            case RecycledType::RENDER_PASS:
-                if (res.gpuRenderPass) {
-                    cmdFuncCCVKDestroyRenderPass(_device, res.gpuRenderPass);
-                    delete res.gpuRenderPass;
-                    res.gpuRenderPass = nullptr;
-                }
-                break;
-            case RecycledType::SAMPLER:
-                if (res.gpuSampler) {
-                    cmdFuncCCVKDestroySampler(_device, res.gpuSampler);
-                    delete res.gpuSampler;
-                    res.gpuSampler = nullptr;
-                }
-                break;
-            case RecycledType::SHADER:
-                if (res.gpuShader) {
-                    cmdFuncCCVKDestroyShader(_device, res.gpuShader);
-                    delete res.gpuShader;
-                    res.gpuShader = nullptr;
-                }
-                break;
-            case RecycledType::DESCRIPTOR_SET_LAYOUT:
-                if (res.gpuDescriptorSetLayout) {
-                    cmdFuncCCVKDestroyDescriptorSetLayout(_device, res.gpuDescriptorSetLayout);
-                    delete res.gpuDescriptorSetLayout;
-                    res.gpuDescriptorSetLayout = nullptr;
-                }
-                break;
-            case RecycledType::PIPELINE_LAYOUT:
-                if (res.gpuPipelineLayout) {
-                    cmdFuncCCVKDestroyPipelineLayout(_device, res.gpuPipelineLayout);
-                    delete res.gpuPipelineLayout;
-                    res.gpuPipelineLayout = nullptr;
-                }
-                break;
-            case RecycledType::PIPELINE_STATE:
-                if (res.gpuPipelineState) {
-                    cmdFuncCCVKDestroyPipelineState(_device, res.gpuPipelineState);
-                    delete res.gpuPipelineState;
-                    res.gpuPipelineState = nullptr;
-                }
-                break;
-            default: break;
-        }
-        res.type = RecycledType::UNKNOWN;
-    }
-    _count = 0;
 }
 
 VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const {
@@ -1687,7 +1518,7 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
     prevAccesses.clear();
     nextAccesses.clear();
 
-    for (CCVKGPUBuffer *gpuBuffer : _buffersToBeChecked) {
+    for (const CCVKGPUBuffer *gpuBuffer : _buffersToBeChecked) {
         ccstd::vector<ThsvsAccessType> &render = gpuBuffer->renderAccessTypes;
         if (gpuBuffer->transferAccess == THSVS_ACCESS_NONE) continue;
         if (std::find(prevAccesses.begin(), prevAccesses.end(), gpuBuffer->transferAccess) == prevAccesses.end()) {
@@ -1723,7 +1554,7 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
     imageBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     imageBarrier.prevAccessCount = 1;
 
-    for (CCVKGPUTexture *gpuTexture : _texturesToBeChecked) {
+    for (const CCVKGPUTexture *gpuTexture : _texturesToBeChecked) {
         ccstd::vector<ThsvsAccessType> &render = gpuTexture->renderAccessTypes;
         if (gpuTexture->transferAccess == THSVS_ACCESS_NONE || render.empty()) continue;
         ccstd::vector<ThsvsAccessType> &current = gpuTexture->currentAccessTypes;
@@ -1786,14 +1617,6 @@ void CCVKGPUBufferHub::flush(CCVKGPUTransportHub *transportHub) {
     }
 
     buffers.clear();
-}
-
-void CCVKGPUFramebufferHub::update(CCVKGPUTexture *texture) {
-    auto &pool = _framebuffers[texture];
-    for (auto *framebuffer : pool) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(framebuffer);
-        cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), framebuffer);
-    }
 }
 
 } // namespace gfx

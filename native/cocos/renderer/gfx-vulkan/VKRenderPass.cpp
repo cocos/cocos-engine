@@ -73,11 +73,12 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
 }
 
 void CCVKRenderPass::doDestroy() {
-    if (_gpuRenderPass) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuRenderPass);
-        _gpuRenderPass = nullptr;
-    }
+    _gpuRenderPass = nullptr;
 }
+
+void CCVKGPURenderPass::shutdown() {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
+};
 
 } // namespace gfx
 } // namespace cc

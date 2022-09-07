@@ -58,9 +58,27 @@ void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
 }
 
 void CCVKDescriptorSetLayout::doDestroy() {
-    if (_gpuDescriptorSetLayout) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuDescriptorSetLayout);
-        _gpuDescriptorSetLayout = nullptr;
+    _gpuDescriptorSetLayout = nullptr;
+}
+
+void CCVKGPUDescriptorSetLayout::shutdown() {
+    if (defaultDescriptorSet != VK_NULL_HANDLE) {
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(id, defaultDescriptorSet);
+    }
+
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    if (vkDescriptorUpdateTemplate != VK_NULL_HANDLE) {
+        if (gpuDevice->minorVersion > 0) {
+            vkDestroyDescriptorUpdateTemplate(gpuDevice->vkDevice, vkDescriptorUpdateTemplate, nullptr);
+        } else {
+            vkDestroyDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, vkDescriptorUpdateTemplate, nullptr);
+        }
+        vkDescriptorUpdateTemplate = VK_NULL_HANDLE;
+    }
+
+    if (vkDescriptorSetLayout != VK_NULL_HANDLE) {
+        vkDestroyDescriptorSetLayout(gpuDevice->vkDevice, vkDescriptorSetLayout, nullptr);
+        vkDescriptorSetLayout = VK_NULL_HANDLE;
     }
 }
 

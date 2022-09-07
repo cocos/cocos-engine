@@ -68,6 +68,7 @@ protected:
 
     static ccstd::hash_t computeHash(const Texture *texture);
     static void initialize(const SwapchainTextureInfo &info, Texture *out);
+    static void updateTextureInfo(const SwapchainTextureInfo &info, Texture *out);
     virtual void doInit(const SwapchainTextureInfo &info) = 0;
 
     TextureInfo _info;

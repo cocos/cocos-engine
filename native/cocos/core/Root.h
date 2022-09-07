@@ -278,6 +278,8 @@ private:
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
     void frameMoveEnd();
     void doXRFrameMove(int32_t totalFrames);
+    void addWindowEventListener();
+    void removeWindowEventListener() const;
 
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
@@ -301,6 +303,8 @@ private:
     bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
     IXRInterface *_xr{nullptr};
+    uint32_t _windowDestroyEventId{0};
+    uint32_t _windowResumeEventId{0};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;
