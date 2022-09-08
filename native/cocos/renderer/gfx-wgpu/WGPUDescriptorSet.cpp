@@ -168,7 +168,10 @@ ccstd::hash_t CCWGPUDescriptorSet::hash() const {
 }
 
 void CCWGPUDescriptorSet::doDestroy() {
-    delete _gpuBindGroupObj;
+    if (_gpuBindGroupObj) {
+        delete _gpuBindGroupObj;
+        _gpuBindGroupObj = nullptr;
+    }
 }
 
 void CCWGPUDescriptorSet::update() {

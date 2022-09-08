@@ -54,6 +54,7 @@ void CCWGPUQueue::doDestroy() {
             wgpuQueueRelease(_gpuQueueObject->wgpuQueue);
         }
         delete _gpuQueueObject;
+        _gpuQueueObject = nullptr;
     }
 }
 

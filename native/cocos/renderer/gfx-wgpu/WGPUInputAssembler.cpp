@@ -41,6 +41,10 @@ void CCWGPUInputAssembler::doInit(const InputAssemblerInfo &info) {
 }
 
 void CCWGPUInputAssembler::doDestroy() {
+    if (_gpuInputAssemblerObj) {
+        delete _gpuInputAssemblerObj;
+        _gpuInputAssemblerObj = nullptr;
+    }
 }
 
 } // namespace gfx

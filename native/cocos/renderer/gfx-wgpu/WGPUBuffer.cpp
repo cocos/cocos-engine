@@ -88,11 +88,12 @@ void CCWGPUBuffer::doInit(const BufferViewInfo &info) {
 
 void CCWGPUBuffer::doDestroy() {
     if (_gpuBufferObject) {
-        if (_gpuBufferObject->wgpuBuffer) {
+        if (_gpuBufferObject->wgpuBuffer && !_isBufferView) {
             CCWGPUDevice::getInstance()->moveToTrash(_gpuBufferObject->wgpuBuffer);
             CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
         }
         delete _gpuBufferObject;
+        _gpuBufferObject = nullptr;
     }
     _internalChanged = true;
 }

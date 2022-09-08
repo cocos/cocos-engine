@@ -72,7 +72,8 @@ void CCWGPUCommandBuffer::doDestroy() {
                 delete pair.second;
             }
         }
-        CC_SAFE_DELETE(_gpuCommandBufferObj);
+        delete _gpuCommandBufferObj;
+        _gpuCommandBufferObj = nullptr;
     }
 }
 

@@ -111,14 +111,16 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
 }
 
 void CCWGPUSwapchain::doDestroy() {
-    // wgpuSurfaceRelease(_gpuSwapchainObj->wgpuSurface);
-    // wgpuSwapChainRelease(_gpuSwapchainObj->wgpuSwapChain);
+    wgpuSwapChainRelease(_gpuSwapchainObj->wgpuSwapChain);
 
     CCWGPUDevice::getInstance()->unRegisterSwapchain(this);
 
-    delete _gpuSwapchainObj->swapchainColor;
-    delete _gpuSwapchainObj->swapchainDepthStencil;
-    delete _gpuSwapchainObj;
+    if (_gpuSwapchainObj) {
+        delete _gpuSwapchainObj->swapchainColor;
+        delete _gpuSwapchainObj->swapchainDepthStencil;
+        delete _gpuSwapchainObj;
+        _gpuSwapchainObj = nullptr;
+    }
 }
 
 void CCWGPUSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {

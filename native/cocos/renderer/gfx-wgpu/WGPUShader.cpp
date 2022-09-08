@@ -190,6 +190,7 @@ void CCWGPUShader::doDestroy() {
             wgpuShaderModuleRelease(_gpuShaderObject->wgpuShaderComputeModule);
         }
         delete _gpuShaderObject;
+        _gpuShaderObject = nullptr;
     }
 }
 

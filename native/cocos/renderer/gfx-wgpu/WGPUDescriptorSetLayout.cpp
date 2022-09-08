@@ -345,7 +345,10 @@ void *CCWGPUDescriptorSetLayout::defaultBindGroupLayout() {
 }
 
 void CCWGPUDescriptorSetLayout::doDestroy() {
-    delete _gpuLayoutEntryObj;
+    if (_gpuLayoutEntryObj) {
+        delete _gpuLayoutEntryObj;
+        _gpuLayoutEntryObj = nullptr;
+    }
 }
 
 } // namespace gfx

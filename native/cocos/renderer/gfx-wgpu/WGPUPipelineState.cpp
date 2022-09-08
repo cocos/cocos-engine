@@ -418,6 +418,7 @@ void CCWGPUPipelineState::doDestroy() {
         }
 
         delete _gpuPipelineStateObj;
+        _gpuPipelineStateObj = nullptr;
     }
 }
 

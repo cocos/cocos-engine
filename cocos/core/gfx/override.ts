@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable import/no-mutable-exports */
 import { WEBGPU } from 'internal:constants';
 import { gfx, promiseForWebGPUInstantiation } from '../../webgpu/instantiated';
@@ -42,4 +43,14 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     GeneralBarrier = gfx.WGPUGeneralBarrier;
     TextureBarrier = gfx.WGPUTextureBarrier;
     BufferBarrier = gfx.WGPUBufferBarrier;
+
+    // immutable excluded
+    [Device, Queue, Swapchain, Buffer, Texture, Shader, InputAssembler, RenderPass, Framebuffer, DescriptorSet,
+        DescriptorSetLayout, PipelineState, CommandBuffer].forEach((ele) => {
+        const oldDestroy = ele.prototype.destroy;
+        ele.prototype.destroy = function () {
+            oldDestroy.call(this);
+            this.delete();
+        };
+    });
 });

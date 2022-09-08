@@ -173,7 +173,49 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
 
 void CCWGPUDevice::doDestroy() {
     if (_gpuDeviceObj) {
+        if (_gpuDeviceObj->defaultResources.uniformBuffer) {
+            delete _gpuDeviceObj->defaultResources.uniformBuffer;
+        }
+        if (_gpuDeviceObj->defaultResources.storageBuffer) {
+            delete _gpuDeviceObj->defaultResources.storageBuffer;
+        }
+        if (_gpuDeviceObj->defaultResources.commonTexture) {
+            delete _gpuDeviceObj->defaultResources.commonTexture;
+        }
+        if (_gpuDeviceObj->defaultResources.storageTexture) {
+            delete _gpuDeviceObj->defaultResources.storageTexture;
+        }
+        if (_gpuDeviceObj->defaultResources.filterableSampler) {
+            delete _gpuDeviceObj->defaultResources.filterableSampler;
+        }
+        if (_gpuDeviceObj->defaultResources.unfilterableSampler) {
+            delete _gpuDeviceObj->defaultResources.unfilterableSampler;
+        }
+
+        for (size_t i = 0; i < CC_WGPU_MAX_FRAME_COUNT; ++i) {
+            _recycleBin[i].bufferBin.purge();
+            _recycleBin[i].textureBin.purge();
+            _recycleBin[i].queryBin.purge();
+        }
+
+        if (_gpuDeviceObj->wgpuQueue) {
+            wgpuQueueRelease(_gpuDeviceObj->wgpuQueue);
+        }
+        if (_gpuDeviceObj->instance.wgpuSurface) {
+            wgpuSurfaceRelease(_gpuDeviceObj->instance.wgpuSurface);
+        }
+        if (_gpuDeviceObj->instance.wgpuInstance) {
+            wgpuInstanceRelease(_gpuDeviceObj->instance.wgpuInstance);
+        }
+        if (_gpuDeviceObj->instance.wgpuAdapter) {
+            wgpuAdapterRelease(_gpuDeviceObj->instance.wgpuAdapter);
+        }
+        if (_gpuDeviceObj->wgpuDevice) {
+            wgpuDeviceRelease(_gpuDeviceObj->wgpuDevice);
+        }
+
         delete _gpuDeviceObj;
+        _gpuDeviceObj = nullptr;
     }
 }
 
