@@ -26,8 +26,8 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { Texture2D } from '../../core/assets';
-import { Material } from '../../core/assets/material';
+import { Texture2D } from '../../asset/assets';
+import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Vec4 } from '../../core/math';
 import { scene } from '../../core/renderer';
@@ -35,7 +35,7 @@ import { MorphModel } from '../models/morph-model';
 import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Enum } from '../../core/value-types';
-import { builtinResMgr } from '../../core/builtin';
+import { builtinResMgr } from '../../asset/asset-manager';
 import { ModelRenderer } from '../../core/components/model-renderer';
 import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { legacyCC } from '../../core/global-exports';
@@ -398,7 +398,8 @@ export class MeshRenderer extends ModelRenderer {
 
     public onGeometryChanged () {
         if (this._model && this._mesh) {
-            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            const meshStruct = this._mesh.struct;
+            this._model.createBoundingShape(meshStruct.minPosition, meshStruct.maxPosition);
             this._model.updateWorldBound();
             this._model.onGeometryChanged();
         }
@@ -514,7 +515,8 @@ export class MeshRenderer extends ModelRenderer {
 
         if (this._model) {
             if (this._mesh) {
-                this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+                const meshStruct = this._mesh.struct;
+                this._model.createBoundingShape(meshStruct.minPosition, meshStruct.maxPosition);
             }
             // Initialize lighting map before model initializing
             // because the lighting map will influence the model's shader

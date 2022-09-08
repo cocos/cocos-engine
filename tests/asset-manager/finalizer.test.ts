@@ -1,8 +1,8 @@
 import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
 import { Sprite } from "../../cocos/2d/components/sprite";
-import { assetManager, loader } from "../../cocos/core/asset-manager";
-import releaseManager from "../../cocos/core/asset-manager/release-manager";
-import { Texture2D } from "../../cocos/core/assets/texture-2d";
+import { assetManager, loader } from "../../cocos/asset/asset-manager";
+import releaseManager from "../../cocos/asset/asset-manager/release-manager";
+import { Texture2D } from "../../cocos/asset/assets/texture-2d";
 import { isValid } from "../../cocos/core/data/object";
 import { Scene, Node } from "../../cocos/core/scene-graph";
 

@@ -25,13 +25,13 @@ THE SOFTWARE.
 
 #pragma once
 
+#include <condition_variable>
+#include <memory>
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
+#include "audio/include/AudioDef.h"
 #include "base/std/container/unordered_map.h"
-
-#include <condition_variable>
-#include <memory>
 
 namespace cc {
 // Manage PcmAudioPlayer& UrlAudioPlayer
@@ -51,12 +51,13 @@ public:
                         ICallerThreadUtils *callerThreadUtils);
 
     virtual ~AudioPlayerProvider();
-
+    bool isFileCached(const ccstd::string &audioFilePath);
     IAudioPlayer *getAudioPlayer(const ccstd::string &audioFilePath);
-
+    bool getPcmHeader(const ccstd::string &audioFilePath, PCMHeader &header);
+    bool getPcmData(const ccstd::string &audioFilePath, PcmData &data);
     using PreloadCallback = std::function<void(bool, PcmData)>;
-    void preloadEffect(const ccstd::string &audioFilePath, const PreloadCallback &cb);
-
+    void preloadEffect(const ccstd::string &audioFilePath, const PreloadCallback &callback);
+    void registerPcmData(const ccstd::string &audioFilePath, PcmData &data);
     float getDurationFromFile(const ccstd::string &filePath);
     void clearPcmCache(const ccstd::string &audioFilePath);
 
@@ -85,13 +86,12 @@ private:
 
     UrlAudioPlayer *createUrlAudioPlayer(const AudioFileInfo &info);
 
-    void preloadEffect(const AudioFileInfo &info, const PreloadCallback &cb, bool isPreloadInPlay2d);
+    void preloadEffect(const AudioFileInfo &info, const PreloadCallback &callback, bool isPreloadInPlay2d);
 
     AudioFileInfo getFileInfo(const ccstd::string &audioFilePath);
 
     bool isSmallFile(const AudioFileInfo &info);
 
-private:
     SLEngineItf _engineItf;
     SLObjectItf _outputMixObject;
     int _deviceSampleRate;

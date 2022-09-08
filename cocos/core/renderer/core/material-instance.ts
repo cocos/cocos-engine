@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Material } from '../../assets/material';
+import { Material } from '../../../asset/assets/material';
 import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
 import { PassOverrides } from './pass';

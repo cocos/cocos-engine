@@ -29,7 +29,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Material } from '../../assets';
+import { Material } from '../../../asset/assets';
 import { Camera } from '../../renderer/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../../gfx';

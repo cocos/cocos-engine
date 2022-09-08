@@ -235,8 +235,8 @@ void ArmatureCache::renderAnimationFrame(AnimationData *animationData) {
     std::size_t frameIndex = animationData->getFrameCount();
     _frameData = animationData->buildFrameData(frameIndex);
 
-    _preColor = Color4F(-1.0F, -1.0F, -1.0F, -1.0F);
-    _color = Color4F(1.0F, 1.0F, 1.0F, 1.0F);
+    _preColor = Color4B(0, 0, 0, 0);
+    _color = Color4B(255, 255, 255, 255);
 
     _preBlendMode = -1;
     _preTextureIndex = -1;
@@ -273,8 +273,8 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
     const auto &slots = armature->getSlots();
     CCSlot *slot = nullptr;
     // range [0.0, 1.0]
-    Color4F preColor(-1.0F, -1.0F, -1.0F, -1.0F);
-    Color4F color;
+    Color4B preColor(0, 0, 0, 0);
+    Color4B color;
     middleware::Texture2D *texture = nullptr;
 
     auto flush = [&]() {
@@ -340,7 +340,7 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
 
-        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4F);
+        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
@@ -349,10 +349,10 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         }
 
         // Calculation vertex color.
-        color.a = static_cast<float>(slot->color.a) * parentOpacity / 255.0F;
-        color.r = static_cast<float>(slot->color.r) / 255.0F;
-        color.g = static_cast<float>(slot->color.g) / 255.0F;
-        color.b = static_cast<float>(slot->color.b) / 255.0F;
+        color.a = static_cast<uint8_t>(slot->color.a * parentOpacity);
+        color.r = static_cast<uint8_t>(slot->color.r);
+        color.g = static_cast<uint8_t>(slot->color.g);
+        color.b = static_cast<uint8_t>(slot->color.b);
 
         if (preColor != color) {
             preColor = color;
@@ -367,11 +367,11 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
 
         // Transform component matrix to global matrix
         middleware::Triangles &triangles = slot->triangles;
-        middleware::V2F_T2F_C4F *worldTriangles = slot->worldVerts;
+        middleware::V3F_T2F_C4B *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4F *vertex = triangles.verts + v;
-            middleware::V2F_T2F_C4F *worldVertex = worldTriangles + v;
+            middleware::V3F_T2F_C4B *vertex = triangles.verts + v;
+            middleware::V3F_T2F_C4B *worldVertex = worldTriangles + v;
 
             vertex->vertex.z = 0; //reset for z value
             worldVertex->vertex.transformMat4(vertex->vertex, *worldMatrix);

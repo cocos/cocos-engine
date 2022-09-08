@@ -38,7 +38,7 @@ import { DeferredStagePriority } from '../enum';
 import { MainFlow } from './main-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
-import { Material } from '../../assets/material';
+import { Material } from '../../../asset/assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';

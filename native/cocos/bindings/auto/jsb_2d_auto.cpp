@@ -35,6 +35,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4101)
+#endif
+
 /* internal SWIG method */
 #ifndef SWIGINTERN
 # define SWIGINTERN static 
@@ -273,44 +284,6 @@ static bool js_cc_MeshBufferLayout_dirtyMark_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_MeshBufferLayout_dirtyMark_get) 
 
-static bool js_cc_MeshBufferLayout_floatsPerVertex_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::MeshBufferLayout *arg1 = (cc::MeshBufferLayout *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::MeshBufferLayout>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->floatsPerVertex, s.thisObject());
-    SE_PRECONDITION2(ok, false, "MeshBufferLayout_floatsPerVertex_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_MeshBufferLayout_floatsPerVertex_set) 
-
-static bool js_cc_MeshBufferLayout_floatsPerVertex_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::MeshBufferLayout *arg1 = (cc::MeshBufferLayout *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::MeshBufferLayout>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->floatsPerVertex, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "MeshBufferLayout_floatsPerVertex_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->floatsPerVertex, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_MeshBufferLayout_floatsPerVertex_get) 
-
 // js_ctor
 static bool js_new_cc_MeshBufferLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -372,12 +345,6 @@ bool sevalue_to_native(const se::Value &from, cc::MeshBufferLayout * to, se::Obj
     }
     
     
-    json->getProperty("floatsPerVertex", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->floatsPerVertex), ctx);
-    }
-    
-    
     return ok;
 }
 
@@ -389,7 +356,6 @@ bool js_register_cc_MeshBufferLayout(se::Object* obj) {
     cls->defineProperty("vertexOffset", _SE(js_cc_MeshBufferLayout_vertexOffset_get), _SE(js_cc_MeshBufferLayout_vertexOffset_set)); 
     cls->defineProperty("indexOffset", _SE(js_cc_MeshBufferLayout_indexOffset_get), _SE(js_cc_MeshBufferLayout_indexOffset_set)); 
     cls->defineProperty("dirtyMark", _SE(js_cc_MeshBufferLayout_dirtyMark_get), _SE(js_cc_MeshBufferLayout_dirtyMark_set)); 
-    cls->defineProperty("floatsPerVertex", _SE(js_cc_MeshBufferLayout_floatsPerVertex_get), _SE(js_cc_MeshBufferLayout_floatsPerVertex_set)); 
     
     
     
@@ -445,10 +411,10 @@ static bool js_cc_UIMeshBuffer_initialize(se::State& s)
     size_t argc = args.size();
     cc::UIMeshBuffer *arg1 = (cc::UIMeshBuffer *) NULL ;
     cc::gfx::Device *arg2 = (cc::gfx::Device *) NULL ;
-    ccstd::vector< cc::gfx::Attribute * > *arg3 = 0 ;
+    ccstd::vector< cc::gfx::Attribute > *arg3 = 0 ;
     uint32_t arg4 ;
     uint32_t arg5 ;
-    ccstd::vector< cc::gfx::Attribute * > temp3 ;
+    ccstd::vector< cc::gfx::Attribute > temp3 ;
     
     if(argc != 4) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -461,7 +427,7 @@ static bool js_cc_UIMeshBuffer_initialize(se::State& s)
     SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,2,SWIGTYPE_p_cc__gfx__Device"); 
     // %typemap(in) SWIGTYPE&&
     ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,3,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_p_t");
+    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,3,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
     arg3 = &temp3;
     
     
@@ -474,7 +440,7 @@ static bool js_cc_UIMeshBuffer_initialize(se::State& s)
     ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
     SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,5,SWIGTYPE_uint32_t"); 
     
-    (arg1)->initialize(arg2,(ccstd::vector< cc::gfx::Attribute * > &&)*arg3,arg4,arg5);
+    (arg1)->initialize(arg2,(ccstd::vector< cc::gfx::Attribute > &&)*arg3,arg4,arg5);
     
     
     return true;
@@ -3098,6 +3064,59 @@ static bool js_cc_RenderEntity_setUseLocal(se::State& s)
 }
 SE_BIND_FUNC(js_cc_RenderEntity_setUseLocal) 
 
+static bool js_cc_RenderEntity_getRenderTransform(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
+    cc::Node *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::Node *)((cc::RenderEntity const *)arg1)->getRenderTransform();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderEntity_getRenderTransform, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_RenderEntity_getRenderTransform) 
+
+static bool js_cc_RenderEntity_setRenderTransform(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderEntity_setRenderTransform,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->setRenderTransform(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_RenderEntity_setRenderTransform) 
+
 static bool js_cc_RenderEntity_getStaticRenderDrawInfo(se::State& s)
 {
     // js_function
@@ -3516,6 +3535,8 @@ bool js_register_cc_RenderEntity(se::Object* obj) {
     cls->defineFunction("getIsMaskInverted", _SE(js_cc_RenderEntity_getIsMaskInverted)); 
     cls->defineFunction("getUseLocal", _SE(js_cc_RenderEntity_getUseLocal)); 
     cls->defineFunction("setUseLocal", _SE(js_cc_RenderEntity_setUseLocal)); 
+    cls->defineFunction("getRenderTransform", _SE(js_cc_RenderEntity_getRenderTransform)); 
+    cls->defineFunction("setRenderTransform", _SE(js_cc_RenderEntity_setRenderTransform)); 
     cls->defineFunction("getStaticRenderDrawInfo", _SE(js_cc_RenderEntity_getStaticRenderDrawInfo)); 
     cls->defineFunction("getStaticRenderDrawInfos", _SE(js_cc_RenderEntity_getStaticRenderDrawInfos)); 
     cls->defineFunction("getEntitySharedBufferForJS", _SE(js_cc_RenderEntity_getEntitySharedBufferForJS)); 
@@ -4191,4 +4212,12 @@ bool register_all_native2d(se::Object* obj) {
     return true;
 }
 
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 // clang-format on

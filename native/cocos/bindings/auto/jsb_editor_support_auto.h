@@ -75,22 +75,22 @@ template<>
 bool sevalue_to_native(const se::Value &from, cc::middleware::Tex2F * to, se::Object *ctx);
 
 
-JSB_REGISTER_OBJECT_TYPE(cc::middleware::V2F_T2F_C4F);
-extern se::Object *__jsb_cc_middleware_V2F_T2F_C4F_proto; // NOLINT
-extern se::Class * __jsb_cc_middleware_V2F_T2F_C4F_class; // NOLINT
+JSB_REGISTER_OBJECT_TYPE(cc::middleware::V3F_T2F_C4B);
+extern se::Object *__jsb_cc_middleware_V3F_T2F_C4B_proto; // NOLINT
+extern se::Class * __jsb_cc_middleware_V3F_T2F_C4B_class; // NOLINT
 
 
 template<>
-bool sevalue_to_native(const se::Value &from, cc::middleware::V2F_T2F_C4F * to, se::Object *ctx);
+bool sevalue_to_native(const se::Value &from, cc::middleware::V3F_T2F_C4B * to, se::Object *ctx);
 
 
-JSB_REGISTER_OBJECT_TYPE(cc::middleware::V2F_T2F_C4F_C4F);
-extern se::Object *__jsb_cc_middleware_V2F_T2F_C4F_C4F_proto; // NOLINT
-extern se::Class * __jsb_cc_middleware_V2F_T2F_C4F_C4F_class; // NOLINT
+JSB_REGISTER_OBJECT_TYPE(cc::middleware::V3F_T2F_C4B_C4B);
+extern se::Object *__jsb_cc_middleware_V3F_T2F_C4B_C4B_proto; // NOLINT
+extern se::Class * __jsb_cc_middleware_V3F_T2F_C4B_C4B_class; // NOLINT
 
 
 template<>
-bool sevalue_to_native(const se::Value &from, cc::middleware::V2F_T2F_C4F_C4F * to, se::Object *ctx);
+bool sevalue_to_native(const se::Value &from, cc::middleware::V3F_T2F_C4B_C4B * to, se::Object *ctx);
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::middleware::Triangles);

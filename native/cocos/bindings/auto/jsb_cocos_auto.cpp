@@ -35,6 +35,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4101)
+#endif
+
 /* internal SWIG method */
 #ifndef SWIGINTERN
 # define SWIGINTERN static 
@@ -5263,6 +5274,87 @@ static bool js_cc_Vec2_smooth(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Vec2_smooth) 
 
+static bool js_cc_Vec2_approxEquals__SWIG_0(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
+    cc::Vec2 *arg2 = 0 ;
+    float arg3 ;
+    cc::Vec2 temp2 ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Vec2_approxEquals,2,SWIGTYPE_p_cc__Vec2");
+    arg2 = &temp2;
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "Vec2_approxEquals,3,SWIGTYPE_float"); 
+    result = (bool)((cc::Vec2 const *)arg1)->approxEquals((cc::Vec2 const &)*arg2,arg3);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+
+static bool js_cc_Vec2_approxEquals__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
+    cc::Vec2 *arg2 = 0 ;
+    cc::Vec2 temp2 ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Vec2_approxEquals,2,SWIGTYPE_p_cc__Vec2");
+    arg2 = &temp2;
+    
+    result = (bool)((cc::Vec2 const *)arg1)->approxEquals((cc::Vec2 const &)*arg2);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+
+static bool js_cc_Vec2_approxEquals(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_Vec2_approxEquals__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_Vec2_approxEquals__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_Vec2_approxEquals) 
+
 static bool js_cc_Vec2_setPoint(se::State& s)
 {
     // js_function
@@ -6741,6 +6833,7 @@ bool js_register_cc_Vec2(se::Object* obj) {
     cls->defineFunction("set", _SE(js_cc_Vec2_set)); 
     cls->defineFunction("setZero", _SE(js_cc_Vec2_setZero)); 
     cls->defineFunction("smooth", _SE(js_cc_Vec2_smooth)); 
+    cls->defineFunction("approxEquals", _SE(js_cc_Vec2_approxEquals)); 
     cls->defineFunction("setPoint", _SE(js_cc_Vec2_setPoint)); 
     cls->defineFunction("equals", _SE(js_cc_Vec2_equals)); 
     cls->defineFunction("fuzzyEquals", _SE(js_cc_Vec2_fuzzyEquals)); 
@@ -7976,4 +8069,12 @@ bool register_all_engine(se::Object* obj) {
     return true;
 }
 
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 // clang-format on

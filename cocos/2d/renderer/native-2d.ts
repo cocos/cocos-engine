@@ -1,4 +1,4 @@
-import { Material } from '../../core/assets';
+import { Material } from '../../asset/assets';
 import { Attribute, Device, Sampler, Texture } from '../../gfx';
 import { Node } from '../../core/scene-graph';
 import { Model } from '../../core/renderer/scene';
@@ -50,6 +50,9 @@ export declare class NativeRenderEntity {
 
     get node(): Node | null;
     set node(node: Node | null);
+
+    get renderTransform(): Node | null;
+    set renderTransform(node: Node | null);
 
     get stencilStage(): number;
     set stencilStage(stage: number);

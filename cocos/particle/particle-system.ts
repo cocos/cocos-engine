@@ -28,7 +28,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { Renderer } from '../core/components/renderer';
 import { ModelRenderer } from '../core/components/model-renderer';
-import { Material } from '../core/assets/material';
+import { Material } from '../asset/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { scene } from '../core/renderer';
@@ -795,7 +795,9 @@ export class ParticleSystem extends ModelRenderer {
         // HACK, TODO
         this.renderer.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
-        if (this._trailModule) this._trailModule.onInit(this);
+        if (this._trailModule && !this.renderer.useGPU) {
+            this._trailModule.onInit(this);
+        }
         this.bindModule();
         this._resetPosition();
 
@@ -996,7 +998,6 @@ export class ParticleSystem extends ModelRenderer {
                 this._trailModule._detachFromScene();
             }
         }
-        
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();

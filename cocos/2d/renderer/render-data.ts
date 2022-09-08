@@ -25,8 +25,8 @@
 
 import { DEBUG, JSB } from 'internal:constants';
 import { director } from '../../core/director';
-import { Material } from '../../core/assets/material';
-import { TextureBase } from '../../core/assets/texture-base';
+import { Material } from '../../asset/assets/material';
+import { TextureBase } from '../../asset/assets/texture-base';
 import { Color } from '../../core/math';
 import { Pool, RecyclePool } from '../../core/memop';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
@@ -226,9 +226,7 @@ export class BaseRenderData {
  */
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
-        const rd = new RenderData(vertexFormat);
-        rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
-        rd._vertexFormat = vertexFormat;
+        const rd = new RenderData(vertexFormat, accessor);
         if (!accessor) {
             const batcher = director.root!.batcher2D;
             accessor = batcher.switchBufferAccessor(rd._vertexFormat);

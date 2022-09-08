@@ -30,8 +30,8 @@ import {
 } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
-import { builtinResMgr } from '../../core/builtin';
-import { Material } from '../../core/assets';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material } from '../../asset/assets';
 import { BlendFactor } from '../../gfx';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
@@ -214,6 +214,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
+     * @internal
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -423,6 +424,9 @@ export class UIRenderer extends Renderer {
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
+        if (this.stencilStage === Stage.ENTER_LEVEL || this.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
+            this.getMaterialInstance(0)!.recompileShaders({ USE_ALPHA_TEST: true });
+        }
         this._updateBlendFunc();
     }
 

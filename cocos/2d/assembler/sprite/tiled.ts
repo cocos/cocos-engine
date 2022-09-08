@@ -102,7 +102,7 @@ export const tiled: IAssembler = {
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
         if (renderData.vertexCount !== row * col * 4) {
-            if (sprite.renderEntity) { sprite.renderEntity.colorDirty = true; }
+            sprite.renderEntity.colorDirty = true;
         }
         // update data property
         renderData.resize(row * col * 4, row * col * 6);

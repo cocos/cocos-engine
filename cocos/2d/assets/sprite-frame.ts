@@ -28,11 +28,11 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { Mat4, Rect, Size, Vec2, Vec3, Vec4 } from '../../core/math';
-import { Asset } from '../../core/assets/asset';
-import { TextureBase } from '../../core/assets/texture-base';
+import { Asset } from '../../asset/assets/asset';
+import { TextureBase } from '../../asset/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
-import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
-import { Texture2D } from '../../core/assets/texture-2d';
+import { ImageAsset, ImageSource } from '../../asset/assets/image-asset';
+import { Texture2D } from '../../asset/assets/texture-2d';
 import { errorID, warnID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';

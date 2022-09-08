@@ -24,7 +24,7 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { Asset } from '../../core/assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { BufferBlob } from '../misc/buffer-blob';
@@ -34,7 +34,7 @@ import { legacyCC } from '../../core/global-exports';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { sys } from '../../core/platform/sys';
 import { warnID } from '../../core/platform/debug';
-import { RenderingSubMesh } from '../../core/assets';
+import { RenderingSubMesh } from '../../asset/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
     FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager,
@@ -261,7 +261,7 @@ export class Mesh extends Asset {
      * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.minPosition]] instead
      */
-    get minPosition () {
+    get minPosition (): Readonly<Vec3> | undefined {
         return this.struct.minPosition;
     }
 
@@ -270,7 +270,7 @@ export class Mesh extends Asset {
      * @zh （各分量都）大于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.maxPosition]] instead
      */
-    get maxPosition () {
+    get maxPosition (): Readonly<Vec3> | undefined {
         return this.struct.maxPosition;
     }
 

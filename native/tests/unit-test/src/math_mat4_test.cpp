@@ -260,4 +260,10 @@ TEST(mathMat4Test, test5) {
     cc::Mat4 matTranspose(11, 21, 31, 2, 12, 22, 32, 4, 13, 23, 33, 5, 0, 0, 0, 1);
     matTranspose.transpose();
     ExpectEq(matTranspose.m[1] == 21 && matTranspose.m[4] == 12 && matTranspose.m[7] == 4, true);
+
+    // approxEqual
+    logLabel = "test the mat4 approx equal function";
+    cc::Mat4 a{1.111223F, 0.123454F, 0.384183F, 1.111222F, 3.123455F, 4.384183F, 5.111223F, 6.123455F, 2.384183F, 3.111224F, 4.123455F, 5.384183F, 6.111224F, 7.123456F, 8.384183F, 9.111224F};
+    cc::Mat4 b{1.111224F, 0.123455F, 0.384182F, 1.111223F, 3.123456F, 4.384184F, 5.111224F, 6.123456F, 2.384182F, 3.111223F, 4.123456F, 5.384184F, 6.111223F, 7.123455F, 8.384184F, 9.111223F};
+    ExpectEq(a.approxEquals(b), true);
 }

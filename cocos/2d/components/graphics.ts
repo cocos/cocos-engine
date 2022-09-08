@@ -26,7 +26,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { builtinResMgr } from '../../core/builtin';
+import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
@@ -35,7 +35,7 @@ import { IAssembler } from '../renderer/base';
 import { IBatcher } from '../renderer/i-batcher';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { RenderingSubMesh } from '../../core/assets';
+import { RenderingSubMesh } from '../../asset/assets';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit, deviceManager } from '../../gfx';
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
@@ -273,15 +273,6 @@ export class Graphics extends UIRenderer {
             this.model.node = this.model.transform = this.node;
         }
         this._flushAssembler();
-    }
-
-    // hack for mask
-    protected _postRender (render: IBatcher) {
-        if (!this._postAssembler) {
-            return;
-        }
-
-        render.commitComp(this, null, null, this._postAssembler, null);
     }
 
     public onEnable () {

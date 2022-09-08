@@ -35,6 +35,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4101)
+#endif
+
 /* internal SWIG method */
 #ifndef SWIGINTERN
 # define SWIGINTERN static 
@@ -63,30 +74,30 @@ static bool js_new_cc_middleware_Color4B__SWIG_0(se::State& s) // NOLINT(readabi
     // js_overloaded_ctor
     const auto& args = s.args();
     CC_UNUSED bool ok = true;
-    uint32_t arg1 ;
-    uint32_t arg2 ;
-    uint32_t arg3 ;
-    uint32_t arg4 ;
+    uint8_t arg1 ;
+    uint8_t arg2 ;
+    uint8_t arg3 ;
+    uint8_t arg4 ;
     cc::middleware::Color4B *result;
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color4B,1,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "new_Color4B,1,SWIGTYPE_uint8_t"); 
     
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[1], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color4B,2,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "new_Color4B,2,SWIGTYPE_uint8_t"); 
     
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[2], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color4B,3,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "new_Color4B,3,SWIGTYPE_uint8_t"); 
     
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[3], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color4B,4,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "new_Color4B,4,SWIGTYPE_uint8_t"); 
     
     result = (cc::middleware::Color4B *)new cc::middleware::Color4B(arg1,arg2,arg3,arg4);
     
@@ -155,7 +166,7 @@ static bool js_cc_middleware_Color4B_r_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->r, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color4B_r_set,2,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "Color4B_r_set,2,SWIGTYPE_uint8_t"); 
     
     
     
@@ -193,7 +204,7 @@ static bool js_cc_middleware_Color4B_g_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->g, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color4B_g_set,2,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "Color4B_g_set,2,SWIGTYPE_uint8_t"); 
     
     
     
@@ -231,7 +242,7 @@ static bool js_cc_middleware_Color4B_b_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->b, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color4B_b_set,2,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "Color4B_b_set,2,SWIGTYPE_uint8_t"); 
     
     
     
@@ -269,7 +280,7 @@ static bool js_cc_middleware_Color4B_a_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->a, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color4B_a_set,2,SWIGTYPE_uint32_t"); 
+    SE_PRECONDITION2(ok, false, "Color4B_a_set,2,SWIGTYPE_uint8_t"); 
     
     
     
@@ -842,154 +853,154 @@ bool js_register_cc_middleware_Tex2F(se::Object* obj) {
 }
 
 
-se::Class* __jsb_cc_middleware_V2F_T2F_C4F_class = nullptr;
-se::Object* __jsb_cc_middleware_V2F_T2F_C4F_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_middleware_V2F_T2F_C4F) 
+se::Class* __jsb_cc_middleware_V3F_T2F_C4B_class = nullptr;
+se::Object* __jsb_cc_middleware_V3F_T2F_C4B_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_middleware_V3F_T2F_C4B) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_vertex_set(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_vertex_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    cc::middleware::V2F_T2F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B *arg1 = (cc::middleware::V3F_T2F_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->vertex, s.thisObject());
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_vertex_set,2,SWIGTYPE_cc__Vec3"); 
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_vertex_set,2,SWIGTYPE_cc__Vec3"); 
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_middleware_V2F_T2F_C4F_vertex_set) 
+SE_BIND_PROP_SET(js_cc_middleware_V3F_T2F_C4B_vertex_set) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_vertex_get(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_vertex_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::middleware::V2F_T2F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B *arg1 = (cc::middleware::V3F_T2F_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(arg1->vertex, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_vertex_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_vertex_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->vertex, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_middleware_V2F_T2F_C4F_vertex_get) 
+SE_BIND_PROP_GET(js_cc_middleware_V3F_T2F_C4B_vertex_get) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_texCoord_set(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_texCoord_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    cc::middleware::V2F_T2F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B *arg1 = (cc::middleware::V3F_T2F_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->texCoord, s.thisObject());
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_texCoord_set,2,SWIGTYPE_cc__middleware__Tex2F"); 
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_texCoord_set,2,SWIGTYPE_cc__middleware__Tex2F"); 
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_middleware_V2F_T2F_C4F_texCoord_set) 
+SE_BIND_PROP_SET(js_cc_middleware_V3F_T2F_C4B_texCoord_set) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_texCoord_get(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_texCoord_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::middleware::V2F_T2F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B *arg1 = (cc::middleware::V3F_T2F_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(arg1->texCoord, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_texCoord_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_texCoord_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->texCoord, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_middleware_V2F_T2F_C4F_texCoord_get) 
+SE_BIND_PROP_GET(js_cc_middleware_V3F_T2F_C4B_texCoord_get) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_color_set(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_color_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    cc::middleware::V2F_T2F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B *arg1 = (cc::middleware::V3F_T2F_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->color, s.thisObject());
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_color_set,2,SWIGTYPE_cc__middleware__Color4F"); 
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_color_set,2,SWIGTYPE_cc__middleware__Color4B"); 
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_middleware_V2F_T2F_C4F_color_set) 
+SE_BIND_PROP_SET(js_cc_middleware_V3F_T2F_C4B_color_set) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_color_get(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_color_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::middleware::V2F_T2F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B *arg1 = (cc::middleware::V3F_T2F_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(arg1->color, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_color_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_color_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->color, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_middleware_V2F_T2F_C4F_color_get) 
+SE_BIND_PROP_GET(js_cc_middleware_V3F_T2F_C4B_color_get) 
 
 // js_ctor
-static bool js_new_cc_middleware_V2F_T2F_C4F(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_new_cc_middleware_V3F_T2F_C4B(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
     
-    cc::middleware::V2F_T2F_C4F *result;
-    result = (cc::middleware::V2F_T2F_C4F *)new cc::middleware::V2F_T2F_C4F();
+    cc::middleware::V3F_T2F_C4B *result;
+    result = (cc::middleware::V3F_T2F_C4B *)new cc::middleware::V3F_T2F_C4B();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
-SE_BIND_CTOR(js_new_cc_middleware_V2F_T2F_C4F, __jsb_cc_middleware_V2F_T2F_C4F_class, js_delete_cc_middleware_V2F_T2F_C4F)
+SE_BIND_CTOR(js_new_cc_middleware_V3F_T2F_C4B, __jsb_cc_middleware_V3F_T2F_C4B_class, js_delete_cc_middleware_V3F_T2F_C4B)
 
-static bool js_delete_cc_middleware_V2F_T2F_C4F(se::State& s)
+static bool js_delete_cc_middleware_V3F_T2F_C4B(se::State& s)
 {
     // js_dtoroverride
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_delete_cc_middleware_V2F_T2F_C4F) 
+SE_BIND_FINALIZE_FUNC(js_delete_cc_middleware_V3F_T2F_C4B) 
 
 template<>
-bool sevalue_to_native(const se::Value &from, cc::middleware::V2F_T2F_C4F * to, se::Object *ctx)
+bool sevalue_to_native(const se::Value &from, cc::middleware::V3F_T2F_C4B * to, se::Object *ctx)
 {
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::middleware::V2F_T2F_C4F*>(json->getPrivateData());
+    auto* data = reinterpret_cast<cc::middleware::V3F_T2F_C4B*>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
@@ -1019,216 +1030,216 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::V2F_T2F_C4F * to, 
 }
 
 
-bool js_register_cc_middleware_V2F_T2F_C4F(se::Object* obj) {
-    auto* cls = se::Class::create("V2F_T2F_C4F", obj, nullptr, _SE(js_new_cc_middleware_V2F_T2F_C4F)); 
+bool js_register_cc_middleware_V3F_T2F_C4B(se::Object* obj) {
+    auto* cls = se::Class::create("V3F_T2F_C4B", obj, nullptr, _SE(js_new_cc_middleware_V3F_T2F_C4B)); 
     
-    cls->defineProperty("vertex", _SE(js_cc_middleware_V2F_T2F_C4F_vertex_get), _SE(js_cc_middleware_V2F_T2F_C4F_vertex_set)); 
-    cls->defineProperty("texCoord", _SE(js_cc_middleware_V2F_T2F_C4F_texCoord_get), _SE(js_cc_middleware_V2F_T2F_C4F_texCoord_set)); 
-    cls->defineProperty("color", _SE(js_cc_middleware_V2F_T2F_C4F_color_get), _SE(js_cc_middleware_V2F_T2F_C4F_color_set)); 
-    
-    
+    cls->defineProperty("vertex", _SE(js_cc_middleware_V3F_T2F_C4B_vertex_get), _SE(js_cc_middleware_V3F_T2F_C4B_vertex_set)); 
+    cls->defineProperty("texCoord", _SE(js_cc_middleware_V3F_T2F_C4B_texCoord_get), _SE(js_cc_middleware_V3F_T2F_C4B_texCoord_set)); 
+    cls->defineProperty("color", _SE(js_cc_middleware_V3F_T2F_C4B_color_get), _SE(js_cc_middleware_V3F_T2F_C4B_color_set)); 
     
     
     
-    cls->defineFinalizeFunction(_SE(js_delete_cc_middleware_V2F_T2F_C4F));
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_middleware_V3F_T2F_C4B));
     
     
     cls->install();
-    JSBClassType::registerClass<cc::middleware::V2F_T2F_C4F>(cls);
+    JSBClassType::registerClass<cc::middleware::V3F_T2F_C4B>(cls);
     
-    __jsb_cc_middleware_V2F_T2F_C4F_proto = cls->getProto();
-    __jsb_cc_middleware_V2F_T2F_C4F_class = cls;
+    __jsb_cc_middleware_V3F_T2F_C4B_proto = cls->getProto();
+    __jsb_cc_middleware_V3F_T2F_C4B_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
 
-se::Class* __jsb_cc_middleware_V2F_T2F_C4F_C4F_class = nullptr;
-se::Object* __jsb_cc_middleware_V2F_T2F_C4F_C4F_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_middleware_V2F_T2F_C4F_C4F) 
+se::Class* __jsb_cc_middleware_V3F_T2F_C4B_C4B_class = nullptr;
+se::Object* __jsb_cc_middleware_V3F_T2F_C4B_C4B_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_middleware_V3F_T2F_C4B_C4B) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_vertex_set(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_vertex_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->vertex, s.thisObject());
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_vertex_set,2,SWIGTYPE_cc__Vec3"); 
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_vertex_set,2,SWIGTYPE_cc__Vec3"); 
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_middleware_V2F_T2F_C4F_C4F_vertex_set) 
+SE_BIND_PROP_SET(js_cc_middleware_V3F_T2F_C4B_C4B_vertex_set) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_vertex_get(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_vertex_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(arg1->vertex, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_vertex_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_vertex_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->vertex, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_middleware_V2F_T2F_C4F_C4F_vertex_get) 
+SE_BIND_PROP_GET(js_cc_middleware_V3F_T2F_C4B_C4B_vertex_get) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_texCoord_set(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->texCoord, s.thisObject());
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_texCoord_set,2,SWIGTYPE_cc__middleware__Tex2F"); 
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_texCoord_set,2,SWIGTYPE_cc__middleware__Tex2F"); 
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_middleware_V2F_T2F_C4F_C4F_texCoord_set) 
+SE_BIND_PROP_SET(js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_set) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_texCoord_get(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(arg1->texCoord, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_texCoord_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_texCoord_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->texCoord, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_middleware_V2F_T2F_C4F_C4F_texCoord_get) 
+SE_BIND_PROP_GET(js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_get) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_color_set(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_color_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->color, s.thisObject());
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_color_set,2,SWIGTYPE_cc__middleware__Color4F"); 
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_color_set,2,SWIGTYPE_cc__middleware__Color4B"); 
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_middleware_V2F_T2F_C4F_C4F_color_set) 
+SE_BIND_PROP_SET(js_cc_middleware_V3F_T2F_C4B_C4B_color_set) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_color_get(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_color_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(arg1->color, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_color_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_color_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->color, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_middleware_V2F_T2F_C4F_C4F_color_get) 
+SE_BIND_PROP_GET(js_cc_middleware_V3F_T2F_C4B_C4B_color_get) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_color2_set(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_color2_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->color2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_color2_set,2,SWIGTYPE_cc__middleware__Color4F"); 
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_color2_set,2,SWIGTYPE_cc__middleware__Color4B"); 
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_middleware_V2F_T2F_C4F_C4F_color2_set) 
+SE_BIND_PROP_SET(js_cc_middleware_V3F_T2F_C4B_C4B_color2_set) 
 
-static bool js_cc_middleware_V2F_T2F_C4F_C4F_color2_get(se::State& s)
+static bool js_cc_middleware_V3F_T2F_C4B_C4B_color2_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::middleware::V2F_T2F_C4F_C4F *arg1 = (cc::middleware::V2F_T2F_C4F_C4F *) NULL ;
+    cc::middleware::V3F_T2F_C4B_C4B *arg1 = (cc::middleware::V3F_T2F_C4B_C4B *) NULL ;
     
-    arg1 = SE_THIS_OBJECT<cc::middleware::V2F_T2F_C4F_C4F>(s);
+    arg1 = SE_THIS_OBJECT<cc::middleware::V3F_T2F_C4B_C4B>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(arg1->color2, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "V2F_T2F_C4F_C4F_color2_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "V3F_T2F_C4B_C4B_color2_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->color2, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_middleware_V2F_T2F_C4F_C4F_color2_get) 
+SE_BIND_PROP_GET(js_cc_middleware_V3F_T2F_C4B_C4B_color2_get) 
 
 // js_ctor
-static bool js_new_cc_middleware_V2F_T2F_C4F_C4F(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_new_cc_middleware_V3F_T2F_C4B_C4B(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
     
-    cc::middleware::V2F_T2F_C4F_C4F *result;
-    result = (cc::middleware::V2F_T2F_C4F_C4F *)new cc::middleware::V2F_T2F_C4F_C4F();
+    cc::middleware::V3F_T2F_C4B_C4B *result;
+    result = (cc::middleware::V3F_T2F_C4B_C4B *)new cc::middleware::V3F_T2F_C4B_C4B();
     
     
     auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
     s.thisObject()->setPrivateObject(ptr);
     return true;
 }
-SE_BIND_CTOR(js_new_cc_middleware_V2F_T2F_C4F_C4F, __jsb_cc_middleware_V2F_T2F_C4F_C4F_class, js_delete_cc_middleware_V2F_T2F_C4F_C4F)
+SE_BIND_CTOR(js_new_cc_middleware_V3F_T2F_C4B_C4B, __jsb_cc_middleware_V3F_T2F_C4B_C4B_class, js_delete_cc_middleware_V3F_T2F_C4B_C4B)
 
-static bool js_delete_cc_middleware_V2F_T2F_C4F_C4F(se::State& s)
+static bool js_delete_cc_middleware_V3F_T2F_C4B_C4B(se::State& s)
 {
     // js_dtoroverride
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_delete_cc_middleware_V2F_T2F_C4F_C4F) 
+SE_BIND_FINALIZE_FUNC(js_delete_cc_middleware_V3F_T2F_C4B_C4B) 
 
 template<>
-bool sevalue_to_native(const se::Value &from, cc::middleware::V2F_T2F_C4F_C4F * to, se::Object *ctx)
+bool sevalue_to_native(const se::Value &from, cc::middleware::V3F_T2F_C4B_C4B * to, se::Object *ctx)
 {
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::middleware::V2F_T2F_C4F_C4F*>(json->getPrivateData());
+    auto* data = reinterpret_cast<cc::middleware::V3F_T2F_C4B_C4B*>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
@@ -1264,26 +1275,26 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::V2F_T2F_C4F_C4F * 
 }
 
 
-bool js_register_cc_middleware_V2F_T2F_C4F_C4F(se::Object* obj) {
-    auto* cls = se::Class::create("V2F_T2F_C4F_C4F", obj, nullptr, _SE(js_new_cc_middleware_V2F_T2F_C4F_C4F)); 
+bool js_register_cc_middleware_V3F_T2F_C4B_C4B(se::Object* obj) {
+    auto* cls = se::Class::create("V3F_T2F_C4B_C4B", obj, nullptr, _SE(js_new_cc_middleware_V3F_T2F_C4B_C4B)); 
     
-    cls->defineProperty("vertex", _SE(js_cc_middleware_V2F_T2F_C4F_C4F_vertex_get), _SE(js_cc_middleware_V2F_T2F_C4F_C4F_vertex_set)); 
-    cls->defineProperty("texCoord", _SE(js_cc_middleware_V2F_T2F_C4F_C4F_texCoord_get), _SE(js_cc_middleware_V2F_T2F_C4F_C4F_texCoord_set)); 
-    cls->defineProperty("color", _SE(js_cc_middleware_V2F_T2F_C4F_C4F_color_get), _SE(js_cc_middleware_V2F_T2F_C4F_C4F_color_set)); 
-    cls->defineProperty("color2", _SE(js_cc_middleware_V2F_T2F_C4F_C4F_color2_get), _SE(js_cc_middleware_V2F_T2F_C4F_C4F_color2_set)); 
-    
-    
+    cls->defineProperty("vertex", _SE(js_cc_middleware_V3F_T2F_C4B_C4B_vertex_get), _SE(js_cc_middleware_V3F_T2F_C4B_C4B_vertex_set)); 
+    cls->defineProperty("texCoord", _SE(js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_get), _SE(js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_set)); 
+    cls->defineProperty("color", _SE(js_cc_middleware_V3F_T2F_C4B_C4B_color_get), _SE(js_cc_middleware_V3F_T2F_C4B_C4B_color_set)); 
+    cls->defineProperty("color2", _SE(js_cc_middleware_V3F_T2F_C4B_C4B_color2_get), _SE(js_cc_middleware_V3F_T2F_C4B_C4B_color2_set)); 
     
     
     
-    cls->defineFinalizeFunction(_SE(js_delete_cc_middleware_V2F_T2F_C4F_C4F));
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_middleware_V3F_T2F_C4B_C4B));
     
     
     cls->install();
-    JSBClassType::registerClass<cc::middleware::V2F_T2F_C4F_C4F>(cls);
+    JSBClassType::registerClass<cc::middleware::V3F_T2F_C4B_C4B>(cls);
     
-    __jsb_cc_middleware_V2F_T2F_C4F_C4F_proto = cls->getProto();
-    __jsb_cc_middleware_V2F_T2F_C4F_C4F_class = cls;
+    __jsb_cc_middleware_V3F_T2F_C4B_C4B_proto = cls->getProto();
+    __jsb_cc_middleware_V3F_T2F_C4B_C4B_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -1304,7 +1315,7 @@ static bool js_cc_middleware_Triangles_verts_set(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg1->verts, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Triangles_verts_set,2,SWIGTYPE_p_cc__middleware__V2F_T2F_C4F"); 
+    SE_PRECONDITION2(ok, false, "Triangles_verts_set,2,SWIGTYPE_p_cc__middleware__V3F_T2F_C4B"); 
     
     
     return true;
@@ -1536,7 +1547,7 @@ static bool js_cc_middleware_TwoColorTriangles_verts_set(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg1->verts, s.thisObject());
-    SE_PRECONDITION2(ok, false, "TwoColorTriangles_verts_set,2,SWIGTYPE_p_cc__middleware__V2F_T2F_C4F_C4F"); 
+    SE_PRECONDITION2(ok, false, "TwoColorTriangles_verts_set,2,SWIGTYPE_p_cc__middleware__V3F_T2F_C4B_C4B"); 
     
     
     return true;
@@ -3282,8 +3293,8 @@ bool register_all_editor_support(se::Object* obj) {
     js_register_cc_middleware_Color4B(ns); 
     js_register_cc_middleware_Color4F(ns); 
     js_register_cc_middleware_Tex2F(ns); 
-    js_register_cc_middleware_V2F_T2F_C4F(ns); 
-    js_register_cc_middleware_V2F_T2F_C4F_C4F(ns); 
+    js_register_cc_middleware_V3F_T2F_C4B(ns); 
+    js_register_cc_middleware_V3F_T2F_C4B_C4B(ns); 
     js_register_cc_middleware_Triangles(ns); 
     js_register_cc_middleware_TwoColorTriangles(ns); 
     js_register_cc_middleware_Texture2D(ns); 
@@ -3300,4 +3311,12 @@ bool register_all_editor_support(se::Object* obj) {
     return true;
 }
 
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 // clang-format on

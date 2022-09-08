@@ -25,9 +25,9 @@
 
 import { EDITOR } from 'internal:constants';
 import {
-    ccclass, type, displayOrder, displayName, serializable, disallowMultiple,
+    ccclass, type, displayOrder, displayName, disallowMultiple,
 } from 'cc.decorator';
-import { Material } from '../assets/material';
+import { Material } from '../../asset/assets/material';
 import { Component } from './component';
 import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/material-instance';
 import { warnID } from '../platform/debug';

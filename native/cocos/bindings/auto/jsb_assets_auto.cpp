@@ -35,6 +35,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4101)
+#endif
+
 /* internal SWIG method */
 #ifndef SWIGINTERN
 # define SWIGINTERN static 
@@ -126,12 +137,6 @@
   
 
 #define cc_Mesh_jointBufferIndices_get(self_) self_->getJointBufferIndices()
-  
-
-#define cc_Mesh_maxPosition_get(self_) self_->getMaxPosition()
-  
-
-#define cc_Mesh_minPosition_get(self_) self_->getMinPosition()
   
 
 #define cc_Mesh_renderingSubMeshes_get(self_) self_->getRenderingSubMeshes()
@@ -24773,6 +24778,62 @@ static bool js_cc_Mesh_IStruct_minPosition_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_Mesh_IStruct_minPosition_get) 
 
+static bool js_cc_Mesh_IStruct_getMinPosition(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Mesh::IStruct *arg1 = (cc::Mesh::IStruct *) NULL ;
+    ccstd::optional< cc::Vec3 > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::optional< cc::Vec3 > *) &((cc::Mesh::IStruct const *)arg1)->getMinPosition();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Mesh_IStruct_getMinPosition, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Mesh_IStruct_getMinPosition) 
+
+static bool js_cc_Mesh_IStruct_setMinPosition(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Mesh::IStruct *arg1 = (cc::Mesh::IStruct *) NULL ;
+    ccstd::optional< cc::Vec3 > *arg2 = 0 ;
+    ccstd::optional< cc::Vec3 > temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Mesh_IStruct_setMinPosition,2,SWIGTYPE_p_ccstd__optionalT_cc__Vec3_t");
+    arg2 = &temp2;
+    
+    (arg1)->setMinPosition((ccstd::optional< cc::Vec3 > const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Mesh_IStruct_setMinPosition) 
+
 static bool js_cc_Mesh_IStruct_maxPosition_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -24810,6 +24871,62 @@ static bool js_cc_Mesh_IStruct_maxPosition_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_Mesh_IStruct_maxPosition_get) 
+
+static bool js_cc_Mesh_IStruct_getMaxPosition(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Mesh::IStruct *arg1 = (cc::Mesh::IStruct *) NULL ;
+    ccstd::optional< cc::Vec3 > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::optional< cc::Vec3 > *) &((cc::Mesh::IStruct const *)arg1)->getMaxPosition();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Mesh_IStruct_getMaxPosition, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Mesh_IStruct_getMaxPosition) 
+
+static bool js_cc_Mesh_IStruct_setMaxPosition(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Mesh::IStruct *arg1 = (cc::Mesh::IStruct *) NULL ;
+    ccstd::optional< cc::Vec3 > *arg2 = 0 ;
+    ccstd::optional< cc::Vec3 > temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Mesh::IStruct>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Mesh_IStruct_setMaxPosition,2,SWIGTYPE_p_ccstd__optionalT_cc__Vec3_t");
+    arg2 = &temp2;
+    
+    (arg1)->setMaxPosition((ccstd::optional< cc::Vec3 > const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Mesh_IStruct_setMaxPosition) 
 
 static bool js_cc_Mesh_IStruct_jointMaps_set(se::State& s)
 {
@@ -25019,6 +25136,10 @@ bool js_register_cc_Mesh_IStruct(se::Object* obj) {
     cls->defineProperty("morph", _SE(js_cc_Mesh_IStruct_morph_get), _SE(js_cc_Mesh_IStruct_morph_set)); 
     cls->defineProperty("dynamic", _SE(js_cc_Mesh_IStruct_dynamic_get), _SE(js_cc_Mesh_IStruct_dynamic_set)); 
     
+    cls->defineFunction("getMinPosition", _SE(js_cc_Mesh_IStruct_getMinPosition)); 
+    cls->defineFunction("setMinPosition", _SE(js_cc_Mesh_IStruct_setMinPosition)); 
+    cls->defineFunction("getMaxPosition", _SE(js_cc_Mesh_IStruct_getMaxPosition)); 
+    cls->defineFunction("setMaxPosition", _SE(js_cc_Mesh_IStruct_setMaxPosition)); 
     
     
     
@@ -25215,6 +25336,60 @@ static bool js_delete_cc_Mesh(se::State& s)
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_Mesh) 
+
+static bool js_cc_Mesh_getMinPosition(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Mesh *arg1 = (cc::Mesh *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Mesh>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::Vec3 *)((cc::Mesh const *)arg1)->getMinPosition();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Mesh_getMinPosition, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Mesh_getMinPosition) 
+
+static bool js_cc_Mesh_getMaxPosition(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Mesh *arg1 = (cc::Mesh *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::Mesh>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::Vec3 *)((cc::Mesh const *)arg1)->getMaxPosition();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Mesh_getMaxPosition, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_Mesh_getMaxPosition) 
 
 static bool js_cc_Mesh_getStruct(se::State& s)
 {
@@ -25993,44 +26168,6 @@ static bool js_cc_Mesh_jointBufferIndices_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_Mesh_jointBufferIndices_get) 
 
-static bool js_cc_Mesh_maxPosition_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Mesh *arg1 = (cc::Mesh *) NULL ;
-    cc::Vec3 *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Mesh>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::Vec3 *) &cc_Mesh_maxPosition_get(arg1);
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Mesh_maxPosition_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Mesh_maxPosition_get) 
-
-static bool js_cc_Mesh_minPosition_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Mesh *arg1 = (cc::Mesh *) NULL ;
-    cc::Vec3 *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Mesh>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::Vec3 *) &cc_Mesh_minPosition_get(arg1);
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Mesh_minPosition_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Mesh_minPosition_get) 
-
 static bool js_cc_Mesh_renderingSubMeshes_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -26192,14 +26329,14 @@ bool js_register_cc_Mesh(se::Object* obj) {
     cls->defineProperty("data", _SE(js_cc_Mesh_data_get), nullptr); 
     cls->defineProperty("_data", _SE(js_cc_Mesh__data_get), nullptr); 
     cls->defineProperty("jointBufferIndices", _SE(js_cc_Mesh_jointBufferIndices_get), nullptr); 
-    cls->defineProperty("maxPosition", _SE(js_cc_Mesh_maxPosition_get), nullptr); 
-    cls->defineProperty("minPosition", _SE(js_cc_Mesh_minPosition_get), nullptr); 
     cls->defineProperty("renderingSubMeshes", _SE(js_cc_Mesh_renderingSubMeshes_get), nullptr); 
     cls->defineProperty("subMeshCount", _SE(js_cc_Mesh_subMeshCount_get), nullptr); 
     cls->defineProperty("_nativeAsset", _SE(js_cc_Mesh__nativeAsset_get), _SE(js_cc_Mesh__nativeAsset_set)); 
     cls->defineProperty("_allowDataAccess", _SE(js_cc_Mesh__allowDataAccess_get), _SE(js_cc_Mesh__allowDataAccess_set)); 
     cls->defineProperty("allowDataAccess", _SE(js_cc_Mesh_allowDataAccess_get), _SE(js_cc_Mesh_allowDataAccess_set)); 
     
+    cls->defineFunction("getMinPosition", _SE(js_cc_Mesh_getMinPosition)); 
+    cls->defineFunction("getMaxPosition", _SE(js_cc_Mesh_getMaxPosition)); 
     cls->defineFunction("getStruct", _SE(js_cc_Mesh_getStruct)); 
     cls->defineFunction("setStruct", _SE(js_cc_Mesh_setStruct)); 
     cls->defineFunction("setData", _SE(js_cc_Mesh_setData)); 
@@ -27442,4 +27579,12 @@ bool register_all_assets(se::Object* obj) {
     return true;
 }
 
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 // clang-format on

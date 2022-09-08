@@ -24,9 +24,9 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr } from '../../core/builtin';
-import { Material } from '../../core/assets';
-import { AttributeName, Format, Attribute } from '../../gfx';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material } from '../../asset/assets';
+import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
@@ -568,6 +568,28 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
+    public updateVertexAttrib () {
+        if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
+            return;
+        }
+        if (this._renderInfo!.mesh) {
+            const format = this._renderInfo!.mesh.readAttributeFormat(0, AttributeName.ATTR_COLOR);
+            if (format) {
+                let type = Format.RGBA8;
+                for (let i = 0; i < FormatInfos.length; ++i) {
+                    if (FormatInfos[i].name === format.name) {
+                        type = i;
+                        break;
+                    }
+                }
+                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+            } else { // mesh without vertex color
+                const type = Format.RGBA8;
+                this._vertAttrs[7] = new Attribute(AttributeName.ATTR_COLOR1, type, true, !this._useInstance ? 0 : 1);
+            }
+        }
+    }
+
     private _setVertexAttrib () {
         if (!this._useInstance) {
             switch (this._renderInfo!.renderMode) {
@@ -608,10 +630,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (shareMaterial != null) {
             const effectName = shareMaterial._effectAsset._name;
             this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
-            // reset material
-            if (effectName.indexOf('builtin-particle') === -1 || effectName.indexOf('builtin-particle-gpu') !== -1) {
-                ps.setMaterial(null, 0);
-            }
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {

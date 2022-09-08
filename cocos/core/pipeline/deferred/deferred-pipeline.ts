@@ -29,8 +29,8 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
-import { Texture2D } from '../../assets/texture-2d';
+import { builtinResMgr } from '../../../asset/asset-manager/builtin-res-mgr';
+import { Texture2D } from '../../../asset/assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputAssemblerData } from '../render-pipeline';
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';

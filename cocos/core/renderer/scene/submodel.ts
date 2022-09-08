@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
+import { RenderingSubMesh } from '../../../asset/assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,

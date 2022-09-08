@@ -25,7 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
-import { RenderTexture } from '../assets/render-texture';
+import { RenderTexture } from '../../asset/assets/render-texture';
 import { UITransform } from '../../2d/framework';
 import { Component } from './component';
 import { Ray } from '../geometry';

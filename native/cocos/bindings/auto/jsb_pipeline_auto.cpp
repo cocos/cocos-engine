@@ -35,6 +35,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4101)
+#endif
+
 /* internal SWIG method */
 #ifndef SWIGINTERN
 # define SWIGINTERN static 
@@ -6773,6 +6784,31 @@ bool js_register_cc_pipeline_REFLECTIONSTORAGE(se::Object* obj) {
     return true;
 }
 
+
+static bool js_cc_pipeline_localDescriptorSetLayoutResizeMaxJoints(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    uint32_t arg1 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "localDescriptorSetLayoutResizeMaxJoints,1,SWIGTYPE_uint32_t"); 
+    
+    cc::pipeline::localDescriptorSetLayoutResizeMaxJoints(arg1);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_pipeline_localDescriptorSetLayoutResizeMaxJoints) 
 
 se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class = nullptr;
 se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto = nullptr;
@@ -21533,4 +21569,12 @@ bool register_all_pipeline(se::Object* obj) {
     return true;
 }
 
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 // clang-format on

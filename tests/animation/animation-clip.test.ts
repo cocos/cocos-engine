@@ -1,6 +1,6 @@
-import { js, Node, Component, Vec3, RealKeyframeValue } from '../../cocos/core';
-import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/core/animation';
-import { ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, VectorTrack } from '../../cocos/core/animation/animation';
+import { js, Node, Component, Vec3 } from '../../cocos/core';
+import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/animation';
+import { ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, VectorTrack } from '../../cocos/animation/animation';
 import { ccclass } from 'cc.decorator';
 import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
 

@@ -1,10 +1,7 @@
 import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from './native-2d';
-import { Batcher2D } from './batcher-2d';
-import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
-import { color, Color, director, Material, Node } from '../../core';
-import { EmitLocation } from '../../particle/enum';
+import { Color, Node } from '../../core';
 import { Stage } from './stencil-manager';
 
 export enum RenderEntityType {
@@ -27,7 +24,7 @@ export enum RenderEntityUInt8SharedBufferView {
     count,
 }
 
-export enum RenderEntityBoolSharedBufferView{
+export enum RenderEntityBoolSharedBufferView {
     colorDirty,
     enabled,
     useLocal,
@@ -48,13 +45,14 @@ export class RenderEntity {
     private _dynamicDrawInfoArr: RenderDrawInfo[] = [];
 
     protected _node: Node | null = null;
+    protected _renderTransform: Node | null = null;
     protected _stencilStage: Stage = Stage.DISABLED;
     protected _useLocal = false;
     protected _maskMode = MaskMode.NONE;
 
     protected declare _floatSharedBuffer: Float32Array;
     protected declare _uint8SharedBuffer: Uint8Array;
-    protected declare _boolSharedBuffer:Uint8Array;
+    protected declare _boolSharedBuffer: Uint8Array;
 
     private declare _nativeObj: NativeRenderEntity;
     get nativeObj () {
@@ -195,6 +193,15 @@ export class RenderEntity {
             }
         }
         this._node = node;
+    }
+
+    setRenderTransform (renderTransform: Node | null) {
+        if (JSB) {
+            if (this._renderTransform !== renderTransform) {
+                this._nativeObj.renderTransform = renderTransform;
+            }
+        }
+        this._renderTransform = renderTransform;
     }
 
     setStencilStage (stage: Stage) {

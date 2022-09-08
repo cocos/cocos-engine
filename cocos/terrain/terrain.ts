@@ -24,12 +24,12 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { builtinResMgr } from '../core/builtin';
+import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../core/components/model-renderer';
-import { EffectAsset, Texture2D } from '../core/assets';
-import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
-import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
+import { EffectAsset, Texture2D } from '../asset/assets';
+import { Filter, PixelFormat, WrapMode } from '../asset/assets/asset-enum';
+import { Material } from '../asset/assets/material';
+import { RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
@@ -1559,6 +1559,13 @@ export class Terrain extends Component {
             asset.layerBuffer[i * 4 + 3] = this._blocks[i].layers[3];
         }
 
+        this.exportLayerListToAsset(asset);
+
+        return asset;
+    }
+
+    public exportLayerListToAsset (asset: TerrainAsset) {
+        asset.layerInfos.length = 0;
         for (let i = 0; i < this._layerList.length; ++i) {
             const temp = this._layerList[i];
             if (temp && temp.detailMap && isValid(temp.detailMap)) {
@@ -1569,12 +1576,9 @@ export class Terrain extends Component {
                 layer.normalMap = temp.normalMap;
                 layer.metallic = temp.metallic;
                 layer.roughness = temp.roughness;
-
                 asset.layerInfos.push(layer);
             }
         }
-
-        return asset;
     }
 
     public getEffectAsset () {
@@ -1656,6 +1660,9 @@ export class Terrain extends Component {
         for (let i = 0; i < this._layerList.length; ++i) {
             if (this._layerList[i] === null || (this._layerList[i] && this._layerList[i]?.detailMap === null)) {
                 this._layerList[i] = layer;
+                if (this._asset) {
+                    this.exportLayerListToAsset(this._asset);
+                }
                 return i;
             }
         }
@@ -1669,6 +1676,9 @@ export class Terrain extends Component {
      */
     public setLayer (i: number, layer: TerrainLayer) {
         this._layerList[i] = layer;
+        if (this._asset) {
+            this.exportLayerListToAsset(this._asset);
+        }
     }
 
     /**
@@ -1677,6 +1687,9 @@ export class Terrain extends Component {
      */
     public removeLayer (id: number) {
         this._layerList[id] = null;
+        if (this._asset) {
+            this.exportLayerListToAsset(this._asset);
+        }
     }
 
     /**

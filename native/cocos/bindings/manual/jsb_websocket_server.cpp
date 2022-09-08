@@ -39,7 +39,7 @@ template <typename T>
 std::shared_ptr<T> sharedPtrObj(se::State &s) {
     auto *privateObj = s.thisObject()->getPrivateObject();
     assert(privateObj->isSharedPtr());
-    return static_cast<se::SharedPrivateObject<T> *>(privateObj)->getData();
+    return static_cast<se::SharedPtrPrivateObject<T> *>(privateObj)->getData();
 }
 } // namespace
 
@@ -188,7 +188,7 @@ static bool WebSocketServer_onconnection(se::State &s) { // NOLINT(readability-i
         se::Object *obj = se::Object::createObjectWithClass(__jsb_WebSocketServer_Connection_class);
         // a connection is dead only if no reference & closed!
         obj->root();
-        obj->setPrivateObject(se::shared_private_object(conn));
+        obj->setPrivateObject(se::shared_ptr_private_object(conn));
 
         conn->setData(obj);
         std::weak_ptr<cc::network::WebSocketServerConnection> connWeak = conn;
