@@ -31,7 +31,7 @@ import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
 import { AABB } from '../../core/geometry';
 import { legacyCC } from '../../core/global-exports';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
 import { sys } from '../../core/platform/sys';
 import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../asset/assets';

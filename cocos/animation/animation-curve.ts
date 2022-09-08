@@ -28,7 +28,7 @@ import { lerp, Quat } from '../core/math';
 import { errorID } from '../core/platform/debug';
 import { ValueType } from '../core/value-types';
 import { bezierByTime, BezierControlPoints } from '../core/curves/bezier';
-import * as easing from '../core/easing/easing';
+import * as easing from '../core/algorithm/easing';
 import { ILerpable, isLerpable } from './types';
 import { legacyCC } from '../core/global-exports';
 import type * as legacy from './legacy-clip-data';

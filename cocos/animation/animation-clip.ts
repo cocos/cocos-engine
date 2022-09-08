@@ -29,7 +29,7 @@ import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { errorID, warnID } from '../core/platform/debug';
 import { binarySearchEpsilon } from '../core/algorithm/binary-search';
-import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../core/algorithm/murmurhash2_gc';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode, WrapModeMask } from './types';
 import { legacyCC } from '../core/global-exports';
