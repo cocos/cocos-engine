@@ -8,7 +8,7 @@
 #include "Pmr.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
-#include "gfx-base/GFXDef-common.h"
+#include "gfx-base/GFXBarrier.h"
 #include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/NativePipelineFwd.h"
 #include "pipeline/custom/RenderCommonFwd.h"
@@ -163,18 +163,90 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     return data;
 }
 
+gfx::BufferBarrierInfo getBufferBarrier(
+    const ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
+    const cc::render::Barrier& barrier) {
+    uint32_t offset = 0;
+    uint32_t size = 0;
+    gfx::BufferUsage usage = gfx::BufferUsage::NONE;
+    gfx::MemoryUsage memUsage = gfx::MemoryUsage::NONE;
+    visitObject(
+        resID, resg,
+        [&](const ManagedResource& res) {
+            // TODO(zhouzhenglong): get offset and size
+        },
+        [&](const IntrusivePtr<gfx::Buffer>& buf) {
+            size = buf->getSize();
+            usage = buf->getUsage();
+            memUsage = buf->getMemUsage();
+        },
+        [&](const auto& texLike) {
+            // noop
+        });
+
+    return {
+        gfx::getAccesFlags(
+            usage, memUsage,
+            barrier.beginStatus.visibility,
+            barrier.beginStatus.access,
+            barrier.beginStatus.passType),
+        gfx::getAccesFlags(
+            usage, memUsage,
+            barrier.endStatus.visibility,
+            barrier.endStatus.access,
+            barrier.endStatus.passType),
+        barrier.type,
+        offset, size};
+}
+
 } // namespace
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
-    void preBarriers() const {
+    void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
+        const auto& node = ctx.barrierMap.at(vertID + 1);
+        const auto& resg = ctx.resg;
+        ccstd::pmr::vector<const gfx::Buffer*> buffers(ctx.scratch);
+        ccstd::pmr::vector<const gfx::BufferBarrier*> bufferBarriers(ctx.scratch);
+        ccstd::pmr::vector<const gfx::Texture*> textures(ctx.scratch);
+        ccstd::pmr::vector<const gfx::TextureBarrier*> textureBarriers(ctx.scratch);
 
+        auto sz = node.blockBarrier.frontBarriers.size();
+        buffers.reserve(sz);
+        bufferBarriers.reserve(sz);
+        textures.reserve(sz);
+        textureBarriers.reserve(sz);
+
+        for (const auto& barrier : node.blockBarrier.frontBarriers) {
+            const auto resID = barrier.resourceID;
+            const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
+            const auto& resource = get(ResourceGraph::DescTag{}, resg, resID);
+            switch (desc.dimension) {
+                case ResourceDimension::BUFFER: {
+                    gfx::BufferBarrierInfo info = getBufferBarrier(resg, resID, barrier);
+                    const auto* bufferBarrier = ctx.device->getBufferBarrier(info);
+                    bufferBarriers.emplace_back(bufferBarrier);
+                    break;
+                }
+                case ResourceDimension::TEXTURE1D:
+                case ResourceDimension::TEXTURE2D:
+                case ResourceDimension::TEXTURE3D:
+                default:
+                    break;
+            }
+        }
+
+        CC_EXPECTS(buffers.size() == bufferBarriers.size());
+        CC_EXPECTS(textures.size() == textureBarriers.size());
+
+        ctx.cmdBuff->pipelineBarrier(
+            nullptr,
+            bufferBarriers.data(), buffers.data(), static_cast<uint32_t>(bufferBarriers.size()),
+            textureBarriers.data(), textures.data(), static_cast<uint32_t>(textureBarriers.size()));
     }
-    void postBarriers() const {
-
+    void rearBarriers(RenderGraph::vertex_descriptor vertID) const {
     }
 
     void begin(const RasterPass& pass) const {
-        preBarriers();
         // viewport
         auto vp = pass.viewport;
         if (vp.width == 0 && vp.height == 0) {
@@ -205,7 +277,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = data.renderPass.get();
     }
     void begin(const ComputePass& pass) const {
-        preBarriers();
         for (const auto& [name, views] : pass.computeViews) {
             for (const auto& view : views) {
                 if (view.clearFlags != gfx::ClearFlags::NONE) {
@@ -215,19 +286,16 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
     }
     void begin(const CopyPass& pass) const {
-        preBarriers();
         for (const auto& copy : pass.copyPairs) {
         }
     }
     void begin(const MovePass& pass) const {
         // if fully optimized, move pass should have been removed from graph
         // here we just do copy
-        preBarriers();
         for (const auto& copy : pass.movePairs) {
         }
     }
     void begin(const PresentPass& pass) const {
-        preBarriers();
         for (const auto& [name, present] : pass.presents) {
             // do presents
         }
@@ -235,10 +303,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void begin(const RaytracePass& pass) const {
         // not implemented yet
         CC_EXPECTS(false);
-        preBarriers();
     }
     void begin(const RenderQueue& pass) const {
-        
     }
     void begin(const SceneData& pass) const {
     }
@@ -254,24 +320,18 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto* cmdBuff = ctx.cmdBuff;
         cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;
-        postBarriers();
     }
     void end(const ComputePass& pass) const {
-        postBarriers();
     }
     void end(const CopyPass& pass) const {
-        postBarriers();
     }
     void end(const MovePass& pass) const {
-        postBarriers();
     }
     void end(const PresentPass& pass) const {
-        postBarriers();
     }
     void end(const RaytracePass& pass) const {
         // not implemented yet
         CC_EXPECTS(false);
-        postBarriers();
     }
     void end(const RenderQueue& pass) const {
     }
@@ -312,7 +372,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 };
 
 void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
-    FrameGraphDispatcher fgd(ppl.resourceGraph, rg,
+    FrameGraphDispatcher fgd(
+        ppl.resourceGraph, rg,
         ppl.layoutGraph, &ppl.unsyncPool, &ppl.unsyncPool);
     fgd.enableMemoryAliasing(false);
     fgd.enablePassReorder(false);
