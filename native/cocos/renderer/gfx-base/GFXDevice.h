@@ -124,6 +124,7 @@ public:
 
 protected:
     static Device *instance;
+    static bool SUPPORT_DETACH_DEVICE_THREAD;
 
     friend class DeviceAgent;
     friend class DeviceValidator;

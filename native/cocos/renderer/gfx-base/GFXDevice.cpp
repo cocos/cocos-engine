@@ -31,6 +31,7 @@ namespace cc {
 namespace gfx {
 
 Device *Device::instance = nullptr;
+bool Device::SUPPORT_DETACH_DEVICE_THREAD = true;
 
 Device *Device::getInstance() {
     return Device::instance;
