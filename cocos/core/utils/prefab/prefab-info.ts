@@ -139,6 +139,9 @@ export class PrefabInstance {
     @type([TargetInfo])
     public removedComponents: TargetInfo[] = [];
 
+    @serializable
+    public ids: string[] = [];
+
     public targetMap: Record<string, any | Node | Component> = {};
 
     /**

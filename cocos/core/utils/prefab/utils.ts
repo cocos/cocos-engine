@@ -436,6 +436,7 @@ export function expandNestedPrefabInstanceNode (node: BaseNode) {
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
+            applyPrefabInstanceIds(instanceNode);
         });
     }
 }
@@ -451,5 +452,32 @@ export function applyNodeAndComponentId (node: Node, rootId: string) {
         // @ts-expect-error private member access
         child._id = `${rootId}${child._prefab?.fileId}`;
         applyNodeAndComponentId(child, rootId);
+    }
+}
+
+export function applyPrefabInstanceIds (node: Node) {
+    // @ts-expect-error private member access
+    const prefab = node._prefab;
+    if (prefab?.instance?.ids) {
+        const ids:string[] = prefab.instance.ids;
+        const idsLength:number = ids.length;
+        if (idsLength <= 0) return;
+        let index = 0;
+        let childrenCount = 0;
+        let matched = true;
+        node.walk((child) => {
+            childrenCount++;
+            matched = index < idsLength;
+            // @ts-expect-error private member access
+            child._id = matched ? ids[index++] : child._id;
+            child.components.forEach((component) => {
+                childrenCount++;
+                matched = index < idsLength;
+                component._id = matched ? ids[index++] : component._id;
+            });
+        });
+        if (!matched) {
+            console.warn(`node:${node.name} applyPrefabInstanceIds failed:${childrenCount} id expected,only have ${idsLength}`);
+        }
     }
 }
