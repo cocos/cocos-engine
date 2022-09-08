@@ -57,23 +57,23 @@ exports.style = `
         text-align: center;
         cursor: pointer;
         display: inline-block;
-        background-color: var(--color-normal-fill-emphasis);
+        background-color: var(--color-normal-fill-normal);
         color: var(--color-default-contrast-emphasis);
-        border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
+        border: calc(var(--size-normal-border) * 1px) solid var(--color-default-border-weaker);
     }
     .asset-effect > .codes .tabs > .tab:first-child  {
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-        border-right: 1px solid var(--color-normal-fill-emphasis);
+        border-top-left-radius: calc(var(--size-normal-radius) * 1px);
+        border-bottom-left-radius: calc(var(--size-normal-radius) * 1px);
+        border-right: none;
     }
     .asset-effect > .codes .tabs > .tab:last-child  {
-        border-top-right-radius: 4px;
-        border-bottom-right-radius: 4px;
-        border-left: 1px solid var(--color-normal-fill-emphasis);
+        border-top-right-radius: calc(var(--size-normal-radius) * 1px);
+        border-bottom-right-radius: calc(var(--size-normal-radius) * 1px);
+        border-left: none;
     }
     .asset-effect > .codes .tabs > .tab[active="true"]  {
-        background-color: var(--color-normal-fill);
-        color: var(--color-focus-fill-emphasis);
+        background-color: var(--color-default-border-weaker);
+        color: var(--color-default-contrast-normal);
     }
     .asset-effect > .codes ui-code  {
         max-height: 400px;
