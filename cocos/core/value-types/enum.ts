@@ -155,6 +155,30 @@ function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerato
     return enums;
 }
 
+/**
+ * Update the enumerators from the enum type by compareFunction.
+ * @param enumType @en The enum type defined from [[Enum]] @zh 从[[Enum]]定义的枚举类型。
+ * @return {Object[]}
+ */
+Enum.sortList = <EnumT extends {}> (enumType: EnumT, compareFn: (a, b) => number): readonly Enum.Enumerator<EnumT>[] => {
+    assertIsEnum(enumType);
+    if (!Array.isArray(enumType.__enums__)) {
+        return [];
+    }
+    const enums: any[] = enumType.__enums__ || [];
+    enums.length = 0;
+
+    for (const name in enumType) {
+        const v = enumType[name];
+        if (Number.isInteger(v)) {
+            enums.push({ name, value: v });
+        }
+    }
+    enums.sort(compareFn);
+    enumType.__enums__ = enums;
+    return enums;
+};
+
 if (DEV) {
     // check key order in object literal
     const _TestEnum = Enum({

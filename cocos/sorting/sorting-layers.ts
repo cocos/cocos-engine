@@ -42,10 +42,18 @@ export class SortingLayers {
 
     public static Enum = Enum(SortingLayer);
 
+    /**
+     * @zh 计算排序优先级
+     * @en Calculate sorting priority
+     */
     public static getSortingPriority (layer = 0, order = 0): number {
         return (((layer + (1 << 15)) << 16) | (order + (1 << 15))) >>> 0;
     }
 
+    /**
+     * @zh 获取 Layer 顺序索引
+     * @en Get Layer index by id
+     */
     public static getLayerIndex (layer = 0): number {
         let index = 0;
         if (this.indexMap.has(layer)) {
@@ -56,12 +64,19 @@ export class SortingLayers {
         return index;
     }
 
+    /**
+     * @zh 通过 Layer 名字获取 Layer 顺序索引值
+     * @en Get Layer index by name
+     */
     public static getLayerIndexByName (name: string): number {
         const id = this.getLayerByName(name);
         return this.getLayerIndex(id);
     }
 
-    // ID To Name
+    /**
+     * @zh 获取 Layer 名字
+     * @en Get Layer name by id
+     */
     public static getLayerName (layer = 0): string {
         let name = '';
         if (this.nameMap.has(layer)) {
@@ -72,7 +87,10 @@ export class SortingLayers {
         return name;
     }
 
-    // Name To ID
+    /**
+     * @zh 通过 Layer 名字获取 Layer id 值
+     * @en Get Layer id by name
+     */
     public static getLayerByName (name: string): number {
         const count = this.nameMap.size;
         const keyIterator = this.nameMap.keys();
@@ -85,6 +103,10 @@ export class SortingLayers {
         return 0;
     }
 
+    /**
+     * @zh 检查 Layer id 有效性
+     * @en Check Layer id validity
+     */
     public static isLayerValid (id: number): boolean {
         // check valid
         if (this.indexMap.has(id)) {
@@ -95,6 +117,9 @@ export class SortingLayers {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     public static init () {
         const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
         if (!sortingLayers) return;
@@ -104,7 +129,8 @@ export class SortingLayers {
             SortingLayers.setLayer(layer.id, layer.name, layer.value);
             SortingLayers.Enum[layer.name] = layer.id;
         }
-        Enum.update(SortingLayers.Enum); // 顺序不对
+        Enum.update(SortingLayers.Enum);
+        Enum.sortList(SortingLayers.Enum, (a, b) => SortingLayers.getLayerIndex(a.number) - SortingLayers.getLayerIndex(b.number));
 
         if (EDITOR) {
             const scene = director.getScene();
@@ -114,21 +140,28 @@ export class SortingLayers {
             scene.walk((node) => {
                 const sort = node.getComponent('cc.Sorting');
                 if (sort) {
+                    // @ts-expect-error private method
                     sort._updateSortingPriority();
                 }
             });
         }
     }
 
-    // Editor Function to init config
+    /**
+     * @engineInternal
+     */
     public static setLayer (layer, layerName, layerIndex) {
         this.nameMap.set(layer, layerName);
         this.indexMap.set(layer, layerIndex);
     }
 
+    /**
+     * @engineInternal
+     */
     private static resetState () {
         const oldItem = Object.keys(SortingLayers.Enum);
         for (let i = 0; i < oldItem.length; i++) {
+            delete SortingLayers.Enum[SortingLayers.Enum[oldItem[i]]];
             delete SortingLayers.Enum[oldItem[i]];
         }
         SortingLayers.indexMap.clear();

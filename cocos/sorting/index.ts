@@ -23,5 +23,5 @@
  THE SOFTWARE.
 */
 
-export { SortingLayers } from './sorting-layers'; // 是否导出？
+export { SortingLayers } from './sorting-layers';
 export { Sorting } from  './sorting';

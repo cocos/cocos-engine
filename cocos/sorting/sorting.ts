@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, disallowMultiple, editable, menu, range, serializable, type } from 'cc.decorator';
+import { ccclass, disallowMultiple, editable, executeInEditMode, menu, range, serializable, type } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { SortingLayers } from './sorting-layers';
 import { Component } from '../core/components/component';
@@ -35,6 +35,7 @@ const MIN_INT16 = -1 << 15;
 @ccclass('cc.Sorting')
 @menu('Sorting/Sorting')
 @disallowMultiple
+@executeInEditMode
 export class Sorting extends Component {
     /**
      * @zh 组件所属排序层 id，影响组件的渲染排序。
