@@ -68,6 +68,8 @@ class CC_DLL Quaternion {
     friend class Transform;
 
 public:
+    using ValueType = float;
+
     /**
      * The x-value of the quaternion's vector component.
      */
@@ -367,6 +369,13 @@ public:
      */
     static void squad(const Quaternion &q1, const Quaternion &q2, const Quaternion &s1, const Quaternion &s2, float t, Quaternion *dst);
 
+    /*
+     * Returns if the two quaternions are strictly equal.
+     */
+    inline bool operator==(const Quaternion &other) const {
+        return this->x == other.x && this->y == other.y && this->z == other.z && this->w == other.w;
+    }
+
     /**
      * Calculates the quaternion product of this quaternion with the given quaternion.
      *
@@ -431,6 +440,24 @@ private:
 
     static void slerpForSquad(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst);
 };
+
+/**
+ * Quaterion linear interpolation.
+ */
+inline Quaternion lerp(const Quaternion& from, const Quaternion& to, Quaternion::ValueType t) {
+    Quaternion result;
+    Quaternion::lerp(from, to, t, &result);
+    return result;
+}
+
+/**
+ * Quaterion spherical interpolation.
+ */
+inline Quaternion slerp(const Quaternion &from, const Quaternion &to, Quaternion::ValueType t) {
+    Quaternion result;
+    Quaternion::slerp(from, to, t, &result);
+    return result;
+}
 
 NS_CC_MATH_END
 /**

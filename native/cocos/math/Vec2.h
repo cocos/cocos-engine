@@ -48,6 +48,8 @@ class Mat4;
  */
 class CC_DLL Vec2 {
 public:
+    using ValueType = float;
+
     /**
      * The x coordinate.
      */
@@ -697,6 +699,13 @@ public:
 inline const Vec2 operator*(float x, const Vec2 &v);
 
 using Point = Vec2;
+
+/**
+ * Vector linear interpolation.
+ */
+inline Vec2 lerp(const Vec2& from, const Vec2& to, Vec2::ValueType t) {
+    return from.lerp(to, t);
+}
 
 NS_CC_MATH_END
 

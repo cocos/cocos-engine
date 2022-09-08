@@ -44,6 +44,8 @@ class Mat4;
  */
 class CC_DLL Vec4 {
 public:
+    using ValueType = float;
+
 #ifdef __SSE__
     union {
         struct {
@@ -466,6 +468,15 @@ public:
  * @return The scaled vector.
  */
 inline const Vec4 operator*(float x, const Vec4 &v);
+
+/**
+ * Vector linear interpolation.
+ */
+inline Vec4 lerp(const Vec4 &from, const Vec4 &to, Vec4::ValueType t) {
+    Vec4 result;
+    Vec4::lerp(from, to, t, &result);
+    return result;
+}
 
 NS_CC_MATH_END
 /**
