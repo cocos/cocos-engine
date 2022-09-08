@@ -68,18 +68,22 @@ uint8_t getRasterViewPassOutputSlot(const RasterView& view) {
 }
 
 uint32_t getRasterPassInputCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
 uint32_t getRasterPassOutputCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
 uint32_t getRasterPassResolveCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
 uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
@@ -220,6 +224,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
 
     void end(const RasterPass& pass) const {
+        std::ignore = pass;
         auto* cmdBuff = ctx.cmdBuff;
         cmdBuff->endRenderPass();
         postBarriers();
