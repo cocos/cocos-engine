@@ -515,6 +515,7 @@ private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;
 
 public:
+    boost::container::pmr::unsynchronized_pool_resource unsyncPool;
     gfx::Device* device{nullptr};
     gfx::Swapchain* swapchain{nullptr};
     MacroRecord macros;

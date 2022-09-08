@@ -342,7 +342,7 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
@@ -367,7 +367,7 @@ struct FrameGraphDispatcher {
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
-    RenderGraph& graph;
+    const RenderGraph& graph;
     LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;

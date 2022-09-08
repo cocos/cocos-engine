@@ -311,8 +311,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     RenderGraphVisitorContext& ctx;
 };
 
-void executeRenderGraph(const RenderGraph& renderGraph) {
-    
+void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
+    FrameGraphDispatcher fgd(ppl.resourceGraph, rg,
+        ppl.layoutGraph, &ppl.unsyncPool, &ppl.unsyncPool);
+    fgd.enableMemoryAliasing(false);
+    fgd.enablePassReorder(false);
+    fgd.setParalellWeight(0);
+    fgd.run();
 }
 
 } // namespace render
