@@ -9,6 +9,7 @@
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "gfx-base/GFXBarrier.h"
+#include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/NativePipelineFwd.h"
 #include "pipeline/custom/RenderCommonFwd.h"
@@ -69,18 +70,22 @@ uint8_t getRasterViewPassOutputSlot(const RasterView& view) {
 }
 
 uint32_t getRasterPassInputCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
 uint32_t getRasterPassOutputCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
 uint32_t getRasterPassResolveCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
 uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
+    std::ignore = pass;
     return 0;
 }
 
@@ -199,24 +204,56 @@ gfx::BufferBarrierInfo getBufferBarrier(
         offset, size};
 }
 
+gfx::TextureBarrierInfo getTextureBarrier(
+    const ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
+    const cc::render::Barrier& barrier) {
+    gfx::TextureUsage usage = gfx::TextureUsage::NONE;
+    visitObject(
+        resID, resg,
+        [&](const ManagedResource& res) {
+            // TODO(zhouzhenglong): get offset and size
+        },
+        [&](const IntrusivePtr<gfx::Texture>& tex) {
+            usage = tex->getInfo().usage;
+        },
+        [&](const auto& texLike) {
+            // noop
+        });
+
+    const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
+
+    return {
+        gfx::getAccesFlags(
+            usage,
+            barrier.beginStatus.visibility,
+            barrier.beginStatus.access,
+            barrier.beginStatus.passType),
+        gfx::getAccesFlags(
+            usage,
+            barrier.endStatus.visibility,
+            barrier.endStatus.access,
+            barrier.endStatus.passType),
+        barrier.type,
+        0,
+        desc.mipLevels};
+}
+
 } // namespace
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
-    void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
-        const auto& node = ctx.barrierMap.at(vertID + 1);
+    void submitBarriers(const std::vector<Barrier>& barriers) const {
         const auto& resg = ctx.resg;
+        auto sz = barriers.size();
         ccstd::pmr::vector<const gfx::Buffer*> buffers(ctx.scratch);
         ccstd::pmr::vector<const gfx::BufferBarrier*> bufferBarriers(ctx.scratch);
         ccstd::pmr::vector<const gfx::Texture*> textures(ctx.scratch);
         ccstd::pmr::vector<const gfx::TextureBarrier*> textureBarriers(ctx.scratch);
-
-        auto sz = node.blockBarrier.frontBarriers.size();
         buffers.reserve(sz);
         bufferBarriers.reserve(sz);
         textures.reserve(sz);
         textureBarriers.reserve(sz);
 
-        for (const auto& barrier : node.blockBarrier.frontBarriers) {
+        for (const auto& barrier : barriers) {
             const auto resID = barrier.resourceID;
             const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
             const auto& resource = get(ResourceGraph::DescTag{}, resg, resID);
@@ -224,14 +261,20 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 case ResourceDimension::BUFFER: {
                     gfx::BufferBarrierInfo info = getBufferBarrier(resg, resID, barrier);
                     const auto* bufferBarrier = ctx.device->getBufferBarrier(info);
+                    buffers.emplace_back(nullptr);
                     bufferBarriers.emplace_back(bufferBarrier);
                     break;
                 }
                 case ResourceDimension::TEXTURE1D:
                 case ResourceDimension::TEXTURE2D:
                 case ResourceDimension::TEXTURE3D:
-                default:
+                default: {
+                    gfx::TextureBarrierInfo info = getTextureBarrier(resg, resID, barrier);
+                    const auto* textureBarrier = ctx.device->getTextureBarrier(info);
+                    textures.emplace_back(nullptr);
+                    textureBarriers.emplace_back(textureBarrier);
                     break;
+                }
             }
         }
 
@@ -243,7 +286,15 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             bufferBarriers.data(), buffers.data(), static_cast<uint32_t>(bufferBarriers.size()),
             textureBarriers.data(), textures.data(), static_cast<uint32_t>(textureBarriers.size()));
     }
+
+    void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
+        const auto& node = ctx.barrierMap.at(vertID + 1);
+        submitBarriers(node.blockBarrier.frontBarriers);
+    }
+
     void rearBarriers(RenderGraph::vertex_descriptor vertID) const {
+        const auto& node = ctx.barrierMap.at(vertID + 1);
+        submitBarriers(node.blockBarrier.rearBarriers);
     }
 
     void begin(const RasterPass& pass) const {
@@ -277,6 +328,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = data.renderPass.get();
     }
     void begin(const ComputePass& pass) const {
+        std::ignore = pass;
         for (const auto& [name, views] : pass.computeViews) {
             for (const auto& view : views) {
                 if (view.clearFlags != gfx::ClearFlags::NONE) {
@@ -286,21 +338,25 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
     }
     void begin(const CopyPass& pass) const {
+        std::ignore = pass;
         for (const auto& copy : pass.copyPairs) {
         }
     }
     void begin(const MovePass& pass) const {
+        std::ignore = pass;
         // if fully optimized, move pass should have been removed from graph
         // here we just do copy
         for (const auto& copy : pass.movePairs) {
         }
     }
     void begin(const PresentPass& pass) const {
+        std::ignore = pass;
         for (const auto& [name, present] : pass.presents) {
             // do presents
         }
     }
     void begin(const RaytracePass& pass) const {
+        std::ignore = pass;
         // not implemented yet
         CC_EXPECTS(false);
     }
@@ -317,6 +373,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void begin(const gfx::Viewport& pass) const {
     }
     void end(const RasterPass& pass) const {
+        std::ignore = pass;
         auto* cmdBuff = ctx.cmdBuff;
         cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;
@@ -330,6 +387,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void end(const PresentPass& pass) const {
     }
     void end(const RaytracePass& pass) const {
+        std::ignore = pass;
         // not implemented yet
         CC_EXPECTS(false);
     }
@@ -352,8 +410,32 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         std::ignore = gv;
         visitObject(
             vertID, ctx.g,
-            [&](const auto& pass) {
+            [&](const RasterPass& pass) {
+                frontBarriers(vertID);
                 begin(pass);
+            },
+            [&](const ComputePass& pass) {
+                frontBarriers(vertID);
+                begin(pass);
+            },
+            [&](const CopyPass& pass) {
+                frontBarriers(vertID);
+                begin(pass);
+            },
+            [&](const MovePass& pass) {
+                frontBarriers(vertID);
+                begin(pass);
+            },
+            [&](const PresentPass& pass) {
+                frontBarriers(vertID);
+                begin(pass);
+            },
+            [&](const RaytracePass& pass) {
+                frontBarriers(vertID);
+                begin(pass);
+            },
+            [&](const auto& queue) {
+                begin(queue);
             });
     }
 
@@ -363,8 +445,32 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         std::ignore = gv;
         visitObject(
             vertID, ctx.g,
-            [&](const auto& pass) {
+            [&](const RasterPass& pass) {
                 end(pass);
+                rearBarriers(vertID);
+            },
+            [&](const ComputePass& pass) {
+                end(pass);
+                rearBarriers(vertID);
+            },
+            [&](const CopyPass& pass) {
+                end(pass);
+                rearBarriers(vertID);
+            },
+            [&](const MovePass& pass) {
+                end(pass);
+                rearBarriers(vertID);
+            },
+            [&](const PresentPass& pass) {
+                end(pass);
+                rearBarriers(vertID);
+            },
+            [&](const RaytracePass& pass) {
+                end(pass);
+                rearBarriers(vertID);
+            },
+            [&](const auto& queue) {
+                end(queue);
             });
     }
 
