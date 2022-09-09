@@ -1,4 +1,4 @@
-import { director, Node, Scene, Vec3 } from "../../cocos/core";
+import { director, Node, Scene } from "../../cocos/core";
 import { legacyCC } from "../../cocos/core/global-exports";
 import { ParticleSystem } from "../../exports/particle";
 

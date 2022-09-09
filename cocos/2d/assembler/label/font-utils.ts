@@ -25,8 +25,8 @@
 
 import { FontAtlas } from '../../assets/bitmap-font';
 import { Color } from '../../../core/math';
-import { ImageAsset, Texture2D } from '../../../core/assets';
-import { PixelFormat } from '../../../core/assets/asset-enum';
+import { ImageAsset, Texture2D } from '../../../asset/assets';
+import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../core/director';

@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { EffectAsset } from '../../assets/effect-asset';
+import { EffectAsset } from '../../../asset/assets/effect-asset';
 import { MaterialInstance } from './material-instance';
 import { BatchingSchemes, Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';

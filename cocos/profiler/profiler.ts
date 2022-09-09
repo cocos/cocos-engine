@@ -27,7 +27,7 @@
 import { TEST, EDITOR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
-import { Material } from '../core/assets/material';
+import { Material } from '../asset/assets/material';
 import { Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy, Swapchain, deviceManager } from '../gfx';
 import { Layers } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';

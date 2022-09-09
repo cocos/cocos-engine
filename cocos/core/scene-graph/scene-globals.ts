@@ -23,7 +23,7 @@
 import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
     editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
 import { BAIDU } from 'internal:constants';
-import { TextureCube } from '../assets/texture-cube';
+import { TextureCube } from '../../asset/assets/texture-cube';
 import { CCFloat, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
@@ -35,7 +35,7 @@ import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Root } from '../root';
 import { warnID } from '../platform/debug';
-import { Material } from '../assets/material';
+import { Material } from '../../asset/assets/material';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();

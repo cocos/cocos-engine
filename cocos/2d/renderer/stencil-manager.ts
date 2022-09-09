@@ -24,7 +24,7 @@
 */
 
 import { ComparisonFunc, StencilOp, DepthStencilState } from '../../gfx';
-import { Material } from '../../core';
+import { Material } from '../../asset/assets';
 import { UIRenderer } from '../framework/ui-renderer';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 

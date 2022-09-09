@@ -1,4 +1,4 @@
-import downloader from '../../cocos/core/asset-manager/downloader';
+import downloader from '../../cocos/asset/asset-manager/downloader';
 import * as fs from 'fs';
 import { PNG } from 'pngjs';
 

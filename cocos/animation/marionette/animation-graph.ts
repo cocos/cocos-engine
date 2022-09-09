@@ -4,7 +4,7 @@ import { remove, removeIf } from '../../core/utils/array';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
-import { Asset } from '../../core/assets';
+import { Asset } from '../../asset/assets';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
 import { TriggerResetMode, Value, VariableType } from './variable';
 import { InvalidTransitionError } from './errors';

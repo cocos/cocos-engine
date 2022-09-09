@@ -28,8 +28,8 @@ import { EDITOR } from 'internal:constants';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
-import { Texture2D } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { Texture2D } from '../../asset/assets';
+import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { legacyCC } from '../../core/global-exports';
 
 const SerializableTable = EDITOR && [

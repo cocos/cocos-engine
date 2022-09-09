@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
 import { Mesh } from '../../3d';
-import { Material, Texture2D } from '../../core/assets';
+import { Material, Texture2D } from '../../asset/assets';
 import { AlignmentSpace, RenderMode } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';

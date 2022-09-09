@@ -24,7 +24,7 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { Material } from '../../assets/material';
+import { Material } from '../../../asset/assets/material';
 import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';

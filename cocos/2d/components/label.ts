@@ -28,14 +28,14 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, mu
 import { BYTEDANCE, EDITOR, JSB } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
-import { ImageAsset, Texture2D } from '../../core/assets';
+import { ImageAsset, Texture2D } from '../../asset/assets';
 import { ccenum } from '../../core/value-types/enum';
 import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
-import { TextureBase } from '../../core/assets/texture-base';
-import { PixelFormat } from '../../core/assets/asset-enum';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { PixelFormat } from '../../asset/assets/asset-enum';
 import { legacyCC } from '../../core/global-exports';
 import { BlendFactor } from '../../gfx';
 import { Color } from '../../core';
