@@ -328,7 +328,7 @@ public:
 
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
-                    event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
+                    event.args->ptrVal = reinterpret_cast<void *>(1);
                     _androidPlatform->dispatchEvent(event);
                 }
                 break;
