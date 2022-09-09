@@ -36,7 +36,7 @@ import { CCFloat, CCInteger } from '../data';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { Enum } from '../value-types';
 import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../data/decorators';
-import { EnvironmentLightingType } from '../renderer/scene';
+import { EnvironmentLightingType } from '../../render-scene/scene';
 import { Material } from '../../asset/assets/material';
 
 /**
