@@ -35,7 +35,7 @@ import { warn } from '../../core/platform/debug';
 import { Morph, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { log2, nextPow2 } from '../../core/math/bits';
-import { IMacroPatch } from '../../core/renderer';
+import { IMacroPatch } from '../../render-scene';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 

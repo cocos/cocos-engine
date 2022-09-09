@@ -28,7 +28,7 @@ import { Material } from '../../asset/assets';
 import { Color, ModelRenderer, Vec2 } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings } from '../../core/pipeline/define';
-import { Model } from '../../core/renderer/scene';
+import { Model } from '../../render-scene/scene';
 import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';

@@ -31,7 +31,7 @@ import { Material } from '../../asset/assets';
 import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
 import { legacyCC } from '../../core/global-exports';
-import { Pass } from '../../core/renderer';
+import { Pass } from '../../render-scene';
 
 export interface IParticleSystemRenderer {
     onInit (ps: Component): void;

@@ -24,10 +24,10 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs } from 'cc.decorator';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { legacyCC } from '../../core/global-exports';
-import { Camera } from '../../core/renderer/scene';
+import { Camera } from '../../render-scene/scene';
 import { Root } from '../../core/root';
 
 /**

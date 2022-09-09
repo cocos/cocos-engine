@@ -24,13 +24,13 @@
  */
 
 import { intersect, Sphere } from '../geometry';
-import { Model } from '../renderer/scene/model';
-import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
+import { Model } from '../../render-scene/scene/model';
+import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
 import { Vec3 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
+import { ShadowType, CSMOptimizationMode } from '../../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 

@@ -34,7 +34,7 @@ import { Node } from '../core/scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
-import { Pass } from '../core/renderer';
+import { Pass } from '../render-scene';
 import { preTransforms } from '../core/math/mat4';
 import { Root } from '../core/root';
 import { PipelineRuntime } from '../core/pipeline/custom/pipeline';

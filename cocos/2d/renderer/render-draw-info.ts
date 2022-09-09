@@ -3,7 +3,7 @@ import { IRenderData } from './render-data';
 import { NativeRenderDrawInfo } from './native-2d';
 import { Node } from '../../core';
 import { Sampler, Texture } from '../../gfx';
-import { Model } from '../../core/renderer/scene';
+import { Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets';
 
 export enum AttrUInt8ArrayView {

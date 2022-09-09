@@ -19,7 +19,7 @@
  THE SOFTWARE.
  */
 
-import { DirectionalLight, Camera, Shadows, CSMLevel, CSMOptimizationMode } from '../../renderer/scene';
+import { DirectionalLight, Camera, Shadows, CSMLevel, CSMOptimizationMode } from '../../../render-scene/scene';
 import { Mat4, Vec3, Vec2, Vec4 } from '../../math';
 import { Frustum, AABB } from '../../geometry';
 import { IRenderObject } from '../define';

@@ -35,10 +35,10 @@ import { RenderPass, LoadOp, StoreOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
-import { PCFType, ShadowType } from '../../renderer/scene/shadows';
-import { Light, LightType } from '../../renderer/scene/light';
-import { Camera } from '../../renderer/scene';
-import { SpotLight } from '../../renderer/scene/spot-light';
+import { PCFType, ShadowType } from '../../../render-scene/scene/shadows';
+import { Light, LightType } from '../../../render-scene/scene/light';
+import { Camera } from '../../../render-scene/scene';
+import { SpotLight } from '../../../render-scene/scene/spot-light';
 
 const _validLights: Light[] = [];
 

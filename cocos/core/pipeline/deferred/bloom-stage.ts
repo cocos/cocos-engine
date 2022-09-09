@@ -28,7 +28,7 @@
  */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { SetIndex } from '../define';
 import { RenderFlow, RenderPipeline } from '..';
 import { Material } from '../../../asset/assets/material';
