@@ -4,6 +4,7 @@
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
 #include <vector>
 #include "../gfx-base/GFXDef-common.h"
 #include "../gfx-base/GFXDef.h"

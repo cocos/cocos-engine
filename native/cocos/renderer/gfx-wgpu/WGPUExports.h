@@ -1,10 +1,4 @@
 #pragma once
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/at_c.hpp>
-#include <boost/fusion/include/for_each.hpp>
-#include <boost/preprocessor/cat.hpp>
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/stringize.hpp>
 #include "WGPUBuffer.h"
 #include "WGPUCommandBuffer.h"
 #include "WGPUDef.h"
