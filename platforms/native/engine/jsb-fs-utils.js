@@ -23,9 +23,11 @@ let jsb_downloader = null;
 const downloading = new cc.AssetManager.Cache();
 let tempDir = '';
 
-jsb.Downloader.prototype._ctor = function () {
-    this.__nativeRefs = {};
-};
+if(window.oh) {
+    jsb.Downloader.prototype._ctor = function () {
+        this.__nativeRefs = {};
+    };
+}
 
 var fsUtils = {
 
