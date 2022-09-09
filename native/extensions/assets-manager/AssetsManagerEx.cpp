@@ -579,7 +579,7 @@ void AssetsManagerEx::downloadVersion() {
         _updateState = State::DOWNLOADING_VERSION;
         // Download version file asynchronously
 		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
-        _downloader->createDownloadFileTask(versionUrl, _tempVersionPath, VERSION_ID);
+        _downloader->createDownloadTask(versionUrl, _tempVersionPath, VERSION_ID);
 		#endif
     }
     // No version file found
@@ -624,7 +624,7 @@ void AssetsManagerEx::downloadManifest() {
         _updateState = State::DOWNLOADING_MANIFEST;
         // Download version file asynchronously
 		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
-        _downloader->createDownloadFileTask(manifestUrl, _tempManifestPath, MANIFEST_ID);
+        _downloader->createDownloadTask(manifestUrl, _tempManifestPath, MANIFEST_ID);
 		#endif
     }
     // No manifest file found
@@ -1136,7 +1136,7 @@ void AssetsManagerEx::queueDowload() {
         DownloadUnit &unit = _downloadUnits[key];
         _fileUtils->createDirectory(basename(unit.storagePath));
 		#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)// TODO(qgh):May be removed later
-        _downloader->createDownloadFileTask(unit.srcUrl, unit.storagePath, unit.customId);
+        _downloader->createDownloadTask(unit.srcUrl, unit.storagePath, unit.customId);
 		#endif
 
         _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::DOWNLOADING);

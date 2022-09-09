@@ -432,7 +432,6 @@ bool register_all_dragonbones_manual(se::Object *obj) {
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
         //ccstd::string typeName = typeid(*obj).name();
 #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO:May be removed later
-        se::Object* seObj = nullptr;
         if (!se::NativePtrToObjectMap::isValid()) {
             return;
         }
