@@ -288,7 +288,7 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
         uint32_t bytesPerRow = pxSize * regions[i].texExtent.width;
         // it's buffer data layout
         WGPUTextureDataLayout texDataLayout = {
-            .offset = 0,
+            .offset = regions[i].buffOffset,
             .bytesPerRow = bytesPerRow,
             .rowsPerImage = regions[i].texExtent.height,
         };
@@ -313,21 +313,6 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
             .aspect = WGPUTextureAspect_All,
         };
         wgpuQueueWriteTexture(_gpuDeviceObj->wgpuQueue, &imageCopyTexture, buffers[i], bufferSize, &texDataLayout, &extent);
-
-        // //genMipmap manually when level 0 updated.
-        // const TextureInfo& texInfo = dst->getInfo();
-        // if (hasFlag(texInfo.flags, TextureFlagBit::GEN_MIPMAP) && regions[i].texSubres.mipLevel == 0) {
-        //     for(size_t j = 1; j < texInfo.levelCount; j++) {
-        //         imageCopyTexture.mipLevel = j;
-        //         extent = {
-        //             .width              = (uint32_t)(regions[i].texExtent.width / float(std::pow(2, j))),
-        //             .height             = (uint32_t)(regions[i].texExtent.height / float(std::pow(2, j))),
-        //             .depthOrArrayLayers = regions[i].texExtent.depth,
-        //         };
-
-        //         wgpuQueueWriteTexture(_gpuDeviceObj->wgpuQueue, &imageCopyTexture, buffers[i], bufferSize, &texDataLayout, &extent);
-        //     }
-        // }
     }
 }
 
