@@ -31,12 +31,12 @@
 // clang-format off
 #pragma once
 #include <boost/utility/string_view.hpp>
+#include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 #include "cocos/renderer/pipeline/custom/PathUtils.h"
-#include "cocos/renderer/pipeline/custom/invoke.hpp"
 
 namespace cc {
 
@@ -1271,7 +1271,7 @@ addVertex(Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& g, Layout
 
 template <class Tuple>
 void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraph &g, LayoutGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.stages.size())};
@@ -1282,7 +1282,7 @@ void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraph &g, LayoutGr
 
 template <class Tuple>
 void addVertexImpl(RenderPhaseTag /*tag*/, Tuple &&val, LayoutGraph &g, LayoutGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.phases.size())};
@@ -1299,13 +1299,13 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& 
     g.vertices.emplace_back();
     auto& vert = g.vertices.back();
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.names.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.descriptors.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -1973,7 +1973,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, Layou
 
 template <class Tuple>
 void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.stages.size())};
@@ -1984,7 +1984,7 @@ void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraphData &g, Layo
 
 template <class Tuple>
 void addVertexImpl(RenderPhaseTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.phases.size())};
@@ -2001,19 +2001,19 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& v
     g.vertices.emplace_back();
     auto& vert = g.vertices.back();
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.names.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.updateFrequencies.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component1>(c1));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.layouts.emplace_back(std::forward<decltype(args)>(args)...);
         },
