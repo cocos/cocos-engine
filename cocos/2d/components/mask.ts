@@ -30,7 +30,7 @@ import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { NodeEventType, Component } from '../../core';
+import { NodeEventType, Component, warnID } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
@@ -467,30 +467,30 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     get customMaterial () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this._sprite) {
             return this._sprite.customMaterial;
         }
         return null;
     }
     set customMaterial (val) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
-        if (this._sprite) {
-            this._sprite.customMaterial = val;
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.customMaterial = val;
         }
     }
     /**
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     get color () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.color;
         }
         return null;
     }
     set color (value) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp && value) {
             this.subComp.color = value;
         }
@@ -499,7 +499,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public markForUpdateRenderData (enable = true) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.markForUpdateRenderData(enable);
         }
@@ -508,20 +508,20 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public requestRenderData (any) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
     }
     /**
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public destroyRenderData () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
     }
 
     /**
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public updateRenderer () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.updateRenderer();
         }
@@ -531,19 +531,19 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public fillBuffers (render: any) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
     }
     /**
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public postUpdateAssembler (render: any) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
     }
     /**
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public setNodeDirty () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.setNodeDirty();
         }
@@ -552,7 +552,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public setTextureDirty () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.setTextureDirty();
         }
@@ -561,7 +561,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     get sharedMaterial () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.sharedMaterial;
         }
@@ -571,14 +571,14 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     get sharedMaterials () {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.sharedMaterials;
         }
         return null;
     }
     set sharedMaterials (val) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp && val) {
             this.subComp.sharedMaterials = val;
         }
@@ -587,14 +587,14 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     get material (): any {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.material;
         }
         return null;
     }
     set material (val: any) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.material = val;
         }
@@ -603,14 +603,14 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     get materials (): (any)[] {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.materials;
         }
         return [null];
     }
     set materials (val: (any)[]) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.materials = val;
         }
@@ -619,7 +619,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public getMaterial (idx: number): any {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.getMaterial(idx);
         }
@@ -629,7 +629,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public setMaterial (material: any, index: number) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.setMaterial(material, index);
         }
@@ -638,7 +638,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public getMaterialInstance (idx: number): any {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.getMaterialInstance(idx);
         }
@@ -648,7 +648,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public setMaterialInstance (matInst: any, index: number) {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             this.subComp.setMaterialInstance(matInst, index);
         }
@@ -657,7 +657,7 @@ export class Mask extends Component {
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
     public getRenderMaterial (index: number): any {
-        console.warn('Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation');
+        warnID(9007);
         if (this.subComp) {
             return this.subComp.getRenderMaterial(index);
         }
