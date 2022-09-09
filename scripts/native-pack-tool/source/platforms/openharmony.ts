@@ -89,17 +89,42 @@ export class OpenHarmonyPackTool extends NativePackTool {
     }
     // --------------- run ------------------//
     async run(): Promise<boolean> {
-
+        this.initEnv();
+        const sdkPath = process.env['OHOS_SDK_HOME'];
+        if (!sdkPath) {
+            return false;
+        }
+        const hdc = this.findHDCTool(sdkPath);
+        const hdcCwd = ps.dirname(hdc);
+        const hdcExe = "hdc_std";
+        const projectDir = this.paths.platformTemplateDirInPrj;
+        const packageName = this.params.platformParams.packageName;
+        const configJson = fs.readJSONSync(ps.join(projectDir, 'entry/src/main/config.json'));
+        const moduleId = configJson.module.package + configJson.module.mainAbility;
+        const hapFile = this.selectHapFile(projectDir);
+        console.debug(`Start run hap ${hapFile} ...`);
+        console.debug(`${hdc} uninstall ${packageName}`);
+        await cchelper.runCmd(
+            hdcExe, ['uninstall', packageName], false, hdcCwd);
+        console.debug(`${hdc} install -r ${hapFile}`);
+        await cchelper.runCmd(
+            hdcExe,['install', '-r', hapFile], false, hdcCwd);
+        console.debug(`${hdc} shell aa start -a ${moduleId} -b ${packageName}`);
+        await cchelper.runCmd(
+            hdcExe, ['shell', 'aa', 'start', '-a', moduleId, '-b', packageName], false, hdcCwd);
         return true;
     }
 
-    private selectHap(projectDir: string, outputMode: string): string {
-        const outputDir =
-            ps.join(projectDir, `entry/build/outputs/hap/${outputMode}`);
-        return ps.join(outputDir, this.selectHapFile(outputDir, outputMode));
+    findHDCTool(sdkPath: string): string {
+        const versionList = fs.readdirSync(ps.join(sdkPath, 'toolchains'));
+        if (!versionList.length) {
+            throw new Error('Please install hdc_std tool fist, doc: https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/subsystems/subsys-toolchain-hdc-guide.md')
+        }
+        return ps.join(sdkPath, 'toolchains', versionList[0], 'hdc_std');
     }
 
-    private selectHapFile(outputDir: string, outputMode: string): string {
+    private selectHapFile(projectDir: string): string {
+        const outputDir = ps.join(projectDir, 'entry/build/default/outputs/default');
         if (!fs.existsSync(outputDir)) {
             throw new Error(`directory ${outputDir} does not exist!`);
         }
@@ -107,13 +132,15 @@ export class OpenHarmonyPackTool extends NativePackTool {
         if (hapFiles.length === 0) {
             throw new Error(`no hap found in ${outputDir}`);
         } else if (hapFiles.length === 1) {
-            return hapFiles[0];
+            return ps.join(outputDir, hapFiles[0]);
         }
+        // 优先使用签名后的 hap 文件
         const opt1 = hapFiles.filter(
-            x => x.endsWith('-signed.hap') && x.startsWith(`entry-${outputMode}-`));
-        const opt2 = hapFiles.filter(x => x.startsWith(`entry-${outputMode}`));
-        return opt1.length > 0 ? opt1[0] :
+            x => x.endsWith('-signed.hap'));
+        const opt2 = hapFiles.filter(x => x.endsWith('-unsigned.hap'));
+        const hapName = opt1.length > 0 ? opt1[0] :
             (opt2.length > 0 ? opt2[0] : hapFiles[0]);
+        return ps.join(outputDir, hapName);
     }
 
     get hdcPath(): string | null {
