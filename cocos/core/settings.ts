@@ -74,6 +74,10 @@ export class Settings {
             }
         }
         if (!path) return Promise.resolve();
+        if (window.oh) {
+            window._CCSettings = require('../src/settings.json');
+            return Promise.resolve();
+        }
         return new Promise((resolve, reject) => {
             if (!HTML5 && !path.startsWith('http')) {
                 const result = fsUtils.readJsonSync(path);

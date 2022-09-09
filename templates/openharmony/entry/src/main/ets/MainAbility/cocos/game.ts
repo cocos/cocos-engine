@@ -63,7 +63,7 @@ export function launchEngine (): Promise<void> {
             // @ts-ignore
             window.oh.loadModule = loadModule;
             try {
-                require("./jsb-adapter/jsb-builtin.js");
+                require("./jsb-adapter/web-adapter.js");
             } catch (e) {
                 console.error('error in builtin ', e.stack, e.message);
             }
@@ -77,36 +77,17 @@ export function launchEngine (): Promise<void> {
                     loadModule(urlNoSchema);
                 },
             });
-            System.import('./src/<%= applicationUrl%>').then(({ createApplication }) => {
-                console.info('imported createApplication', createApplication)
-                return createApplication({
-                    loadJsListFile: (url: string) => loadModule(url),
-                    fetchWasm: (url: string) => url,
-                }).then((application) => {
-                    return onTouch().then(() => {
-                        application.import('cc').then((cc) => {
-                            require('./jsb-adapter/jsb-engine.js');
-                            cc.macro.CLEANUP_IMAGE_CACHE = false;
-                        }).then(() => {
-                            return application.start({
-                                // @ts-ignore
-                                settings: window._CCSettings,
-                                findCanvas: () => {
-                                    // @ts-ignore
-                                    var container = document.createElement('div');
-                                    // @ts-ignore
-                                    var frame = document.documentElement;
-                                    // @ts-ignore
-                                    var canvas = window.__canvas;
-                                    // @ts-ignore
-                                    return { frame, canvas, container };
-                                },
-                            });
-                        }).catch(e => {
-                            console.log('error in importing cc ' + e.stack)
-                        });
-
-                    })
+            System.import('./src/<%= applicationUrl%>').then(({ Application }) => {
+                return new Application();
+            }).then((application) => {
+                System.import('cc').then((cc) => {
+                    require('./jsb-adapter/engine-adapter.js');
+                    cc.macro.CLEANUP_IMAGE_CACHE = false;
+                    return application.init(cc);
+                }).then(() => {
+                    return application.start();
+                }).catch(e => {
+                    console.log('error in importing cc ' + e.stack)
                 });
             }).catch((e: any) => {
                 console.error('imported failed', e.message, e.stack)
