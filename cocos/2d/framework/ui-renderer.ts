@@ -47,6 +47,7 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { assert, director } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import { UIOpacity } from '../components';
 
 // hack
 ccenum(BlendFactor);
@@ -300,6 +301,8 @@ export class UIRenderer extends Renderer {
         this._colorDirty();
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
+
+        UIOpacity.executeRecursionOnEnable(this.node);
     }
 
     // For Redo, Undo

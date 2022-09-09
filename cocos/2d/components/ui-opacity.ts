@@ -71,6 +71,8 @@ export class UIOpacity extends Component {
         this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
+    public interruptParentOpacity = 1;
+
     private setEntityLocalOpacityDirtyRecursively (dirty: boolean) {
         if (JSB) {
             // const render = this.node._uiProps.uiComp as UIRenderer;
@@ -79,7 +81,8 @@ export class UIOpacity extends Component {
             // }
             // UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
 
-            UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, dirty, 1);
+            // The third parameter should be cached interruptOpacity instead of 1
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, dirty, this.interruptParentOpacity);
         }
     }
 
@@ -97,9 +100,11 @@ export class UIOpacity extends Component {
 
         if (render && render.color) { // exclude UIMeshRenderer which has not color
             render.renderEntity.colorDirty = dirty;
+
             // we should only enter the branch on THE FIRST TIME when the opacityDirty is false
             if (!render.renderEntity.opacityDirty) {
                 if (uiOp) {
+                    uiOp.interruptParentOpacity = interruptOpacity;
                     render.renderEntity.localOpacity = interruptOpacity * uiOp.opacity / 255;
                 } else {
                     // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
@@ -111,6 +116,7 @@ export class UIOpacity extends Component {
         } else if (uiOp) {
             // there is a just UIOpacity but no UIRenderer on the node.
             // we should transport the interrupt opacity downward
+            uiOp.interruptParentOpacity = interruptOpacity;
             interruptOpacity = interruptOpacity * uiOp.opacity / 255;
         }
 
@@ -131,12 +137,35 @@ export class UIOpacity extends Component {
         }
     }
 
+    private executeRecursionOnEnable () {
+        UIOpacity.executeRecursionOnEnable(this.node);
+    }
+
+    public static executeRecursionOnEnable (node:Node) {
+        let rootUIOp = node.getComponent<UIOpacity>(UIOpacity);
+        let parent = node.parent;
+        while (parent) {
+            const temp = parent.getComponent<UIOpacity>(UIOpacity);
+            if (temp) {
+                rootUIOp = temp;
+            }
+            parent = parent.parent;
+        }
+        if (rootUIOp) {
+            //rootUIOp.resetOpacityDirty(rootUIOp.node);
+            rootUIOp.setEntityLocalOpacityDirtyRecursively(true);
+        }
+    }
+
     @serializable
     protected _opacity = 255;
 
     public onEnable () {
         this.node._uiProps.localOpacity = this._opacity / 255;
-        this.setEntityLocalOpacityDirtyRecursively(true);
+
+        //this.setEntityLocalOpacityDirtyRecursively(true);
+        // calculate interruptParentOpacity upwards recursively
+        this.executeRecursionOnEnable();
     }
 
     public onDisable () {
