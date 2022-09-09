@@ -30,7 +30,6 @@
 #include "gfx-base/GFXDevice.h"
 
 namespace cc {
-class IXRInterface;
 namespace gfx {
 
 class CCVKTexture;
@@ -154,8 +153,6 @@ protected:
 
     ccstd::vector<const char *> _layers;
     ccstd::vector<const char *> _extensions;
-
-    IXRInterface *_xr{nullptr};
 };
 
 } // namespace gfx

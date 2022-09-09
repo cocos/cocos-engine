@@ -25,7 +25,7 @@
 
 #include "VKGPUObjects.h"
 #include "application/ApplicationManager.h"
-#include "platform/interfaces/modules/IXRInterface.h"
+#include "platform/java/modules/XRInterface.h"
 
 namespace cc {
 namespace gfx {

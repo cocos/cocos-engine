@@ -29,7 +29,6 @@
 #include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
-class IXRInterface;
 namespace gfx {
 
 struct GLES3GPUSwapchain;
@@ -49,7 +48,6 @@ protected:
     void doCreateSurface(void *windowHandle) override;
 
     GLES3GPUSwapchain *_gpuSwapchain{nullptr};
-    IXRInterface *_xr{nullptr};
 };
 
 } // namespace gfx

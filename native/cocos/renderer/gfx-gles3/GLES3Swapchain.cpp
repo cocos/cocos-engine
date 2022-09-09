@@ -23,9 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "application/ApplicationManager.h"
-#include "platform/interfaces/modules/IXRInterface.h"
-
 #include "GLES3Swapchain.h"
 #include "GLES3Device.h"
 #include "GLES3GPUObjects.h"
@@ -55,12 +52,6 @@ GLES3Swapchain::~GLES3Swapchain() {
 }
 
 void GLES3Swapchain::doInit(const SwapchainInfo &info) {
-    _xr = CC_GET_XR_INTERFACE();
-    if (_xr) {
-        _xr->updateXRSwapchainTypedID(getTypedID());
-    }
-    auto width = static_cast<int32_t>(info.width);
-    auto height = static_cast<int32_t>(info.height);
     const auto *context = GLES3Device::getInstance()->context();
     _gpuSwapchain = ccnew GLES3GPUSwapchain;
 #if CC_PLATFORM == CC_PLATFORM_LINUX
@@ -94,10 +85,8 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
 
     #endif
 
-    if (_xr) {
-        width = _xr->getXRConfig(xr::XRConfigKey::SWAPCHAIN_WIDTH).getInt();
-        height = _xr->getXRConfig(xr::XRConfigKey::SWAPCHAIN_HEIGHT).getInt();
-    }
+    auto width = static_cast<int32_t>(info.width);
+    auto height = static_cast<int32_t>(info.height);
 
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
@@ -107,7 +96,8 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     #endif
 #endif
 
-    EGLSurfaceType surfaceType = _xr ? _xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
+    IXRInterface *xr = CC_GET_XR_INTERFACE();
+    EGLSurfaceType surfaceType = xr ? xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
     if (surfaceType == EGLSurfaceType::PBUFFER) {
         EGLint pbufferAttribs[]{
             EGL_WIDTH, 1,
@@ -121,7 +111,7 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
             return;
         }
     }
-    if (_xr) {
+    if (xr) {
         GLES3Device::getInstance()->context()->makeCurrent(_gpuSwapchain, _gpuSwapchain);
     }
 
@@ -142,8 +132,8 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
     textureInfo.format = Format::RGBA8;
-    textureInfo.width = width;
-    textureInfo.height = height;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = Format::DEPTH_STENCIL;

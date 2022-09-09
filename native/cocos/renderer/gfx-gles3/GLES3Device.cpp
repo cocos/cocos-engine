@@ -523,9 +523,6 @@ QueryPool *GLES3Device::createQueryPool() {
 }
 
 Swapchain *GLES3Device::createSwapchain() {
-    if (_xr) {
-        _xr->createXRSwapchains();
-    }
     return ccnew GLES3Swapchain;
 }
 
