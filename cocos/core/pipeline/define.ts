@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { Pass } from '../renderer/core/pass';
-import { Model } from '../renderer/scene/model';
-import { SubModel } from '../renderer/scene/submodel';
+import { Pass } from '../../render-scene/core/pass';
+import { Model } from '../../render-scene/scene/model';
+import { SubModel } from '../../render-scene/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,

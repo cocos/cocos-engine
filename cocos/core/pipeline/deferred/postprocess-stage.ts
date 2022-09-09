@@ -27,7 +27,7 @@
  * @category pipeline
  */
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { SetIndex, UBOLocal } from '../define';
 import { Color, Rect, PipelineState, ClearFlagBit, DescriptorSetInfo, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';

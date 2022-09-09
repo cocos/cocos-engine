@@ -24,7 +24,7 @@
  */
 
 import { Shader, RenderPass, InputAssembler, Device, PipelineState, InputState, PipelineStateInfo } from '../../gfx';
-import { Pass } from '../renderer/core/pass';
+import { Pass } from '../../render-scene/core/pass';
 
 export class PipelineStateManager {
     private static _PSOHashMap: Map<number, PipelineState> = new Map<number, PipelineState>();

@@ -28,7 +28,7 @@ import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
 import { RenderFlow } from './render-flow';
 import { RenderQueueDesc } from './pipeline-serialization';
-import { Camera } from '../renderer/scene';
+import { Camera } from '../../render-scene/scene';
 
 /**
  * @en The render stage information descriptor

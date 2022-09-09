@@ -29,7 +29,7 @@ import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
     Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../gfx';
 import { Color } from '../../core/math/color';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../asset/assets';
 

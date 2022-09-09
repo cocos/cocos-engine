@@ -29,8 +29,8 @@ import { Root } from '../../core/root';
 import { BlendState, DepthStencilState, RasterizerState,
     DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager } from '../../gfx';
 import { RenderPassStage } from '../../core/pipeline/define';
-import { MacroRecord } from '../../core/renderer/core/pass-utils';
-import { programLib } from '../../core/renderer/core/program-lib';
+import { MacroRecord } from '../../render-scene/core/pass-utils';
+import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';

@@ -30,19 +30,19 @@
  */
 /* eslint-disable max-len */
 import { Material } from '../../../asset/assets';
-import { Camera } from '../../renderer/scene/camera';
+import { Camera } from '../../../render-scene/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../math';
-import { MacroRecord } from '../../renderer/core/pass-utils';
+import { MacroRecord } from '../../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
 import { CopyPair, MovePair } from './render-graph';
-import { RenderScene } from '../../renderer/core/render-scene';
-import { RenderWindow } from '../../renderer/core/render-window';
-import { Model } from '../../renderer/scene';
+import { RenderScene } from '../../../render-scene/core/render-scene';
+import { RenderWindow } from '../../../render-scene/core/render-window';
+import { Model } from '../../../render-scene/scene';
 
 export abstract class PipelineRuntime {
     public abstract activate(swapchain: Swapchain): boolean;

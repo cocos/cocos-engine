@@ -30,7 +30,7 @@ import { Texture2D } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Vec4 } from '../../core/math';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../core/root';
 import { TransformBit } from '../../core/scene-graph/node-enum';

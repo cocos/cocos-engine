@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 import { Frustum, intersect } from '../../geometry';
-import { Mat4, Vec3 } from '../../math';
-import { RenderScene } from '../../renderer';
-import { Camera, DirectionalLight, Model, Shadows, ShadowType, SKYBOX_FLAG, SubModel } from '../../renderer/scene';
+import { Vec3 } from '../../math';
+import { RenderScene } from '../../../render-scene';
+import { Camera, Model, ShadowType, SKYBOX_FLAG } from '../../../render-scene/scene';
 import { IRenderObject, IRenderPass, UBOShadow } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
