@@ -107,7 +107,7 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     }
 
     _pipelineUBO->updateGlobalUBO(cameras[0]);
-    _pipelineUBO->updateMultiCameraUBO(cameras);
+    _pipelineUBO->updateMultiCameraUBO(_descriptorSet, cameras);
     ensureEnoughSize(cameras);
     decideProfilerCamera(cameras);
 

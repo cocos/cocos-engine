@@ -441,7 +441,13 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline) {
     _ubos.push_back(_cameraBuffer);
     _cameraUBOs.resize(_alignedCameraUBOSize / sizeof(float));
 
-    descriptorSet->bindBuffer(UBOCamera::BINDING, _cameraBuffer);
+    _cameraBufferView = _device->createBuffer({
+        _cameraBuffer,
+        0,
+        UBOCamera::SIZE,
+    });
+    descriptorSet->bindBuffer(UBOCamera::BINDING, _cameraBufferView);
+    _ubos.push_back(_cameraBufferView);
 
     auto *shadowUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
@@ -490,13 +496,25 @@ void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
     cmdBuffer->updateBuffer(_cameraBuffer, _cameraUBOs.data());
 }
 
-void PipelineUBO::updateMultiCameraUBO(const ccstd::vector<scene::Camera *> &cameras) {
+void PipelineUBO::updateMultiCameraUBO(gfx::DescriptorSet *globalDS, const ccstd::vector<scene::Camera *> &cameras) {
     const auto cameraCount = cameras.size();
     const auto totalUboSize = static_cast<uint32_t>(_alignedCameraUBOSize * cameraCount);
 
     if (_cameraBuffer->getSize() < totalUboSize) {
         _cameraBuffer->resize(totalUboSize);
         _cameraUBOs.resize(totalUboSize / sizeof(float));
+
+        if (_cameraBufferView != nullptr) {
+            _ubos.erase(std::remove(_ubos.begin(), _ubos.end(), _cameraBufferView), _ubos.end());
+            CC_SAFE_DESTROY_AND_DELETE(_cameraBufferView);
+        }
+        _cameraBufferView = _device->createBuffer({
+            _cameraBuffer,
+            0,
+            UBOCamera::SIZE,
+        });
+        globalDS->bindBuffer(UBOCamera::BINDING, _cameraBufferView);
+        _ubos.push_back(_cameraBufferView);
     }
 
     for (uint32_t cameraIdx = 0; cameraIdx < cameraCount; ++cameraIdx) {
