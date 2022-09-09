@@ -325,18 +325,19 @@ export class Slider extends Component {
         }
     }
 
-    protected _xrHandleProgress(point: Vec3) {
+    protected _xrHandleProgress (point: Vec3) {
         if (!this._touchHandle) {
             const uiTrans = this.node._uiProps.uiTransformComp!;
+            uiTrans.convertToNodeSpaceAR(point, _tempPos);
             if (this.direction === Direction.Horizontal) {
-                this.progress = clamp01(0.5 + (point.x - this.node.worldPosition.x) / (uiTrans.width * this.node.worldScale.x));
+                this.progress = clamp01(0.5 + (_tempPos.x - this.node.position.x) / uiTrans.width);
             } else {
-                this.progress = clamp01(0.5 + (point.y - this.node.worldPosition.y) / (uiTrans.height * this.node.worldScale.y));
+                this.progress = clamp01(0.5 + (_tempPos.y - this.node.position.y) / uiTrans.height);
             }
         }
     }
 
-    protected _xrClick(event: XrUIPressEvent) {
+    protected _xrClick (event: XrUIPressEvent) {
         if (!this._handle) {
             return;
         }
@@ -345,12 +346,12 @@ export class Slider extends Component {
         this._emitSlideEvent();
     }
 
-    protected _xrUnClick() {
+    protected _xrUnClick () {
         this._dragging = false;
         this._touchHandle = false;
     }
 
-    protected _xrHoverStay(event: XrUIPressEvent) {
+    protected _xrHoverStay (event: XrUIPressEvent) {
         if (!this._dragging) {
             return;
         }
