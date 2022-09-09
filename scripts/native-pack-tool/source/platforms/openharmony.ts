@@ -24,6 +24,10 @@ export interface OHOSParam {
 export class OpenHarmonyPackTool extends NativePackTool {
     params!: CocosParams<OHOSParam>;
 
+    initEnv() {
+        this.setEnv('OHOS_SDK_HOME', this.params.platformParams.sdkPath);
+    }
+
     async create() {
         await this.copyCommonTemplate();
         await this.copyPlatformTemplate();
@@ -32,6 +36,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
         const ohosProjDir = this.paths.platformTemplateDirInPrj;
         const cocosXRoot = ps.normalize(Paths.nativeRoot);
         const platformParams = this.params.platformParams;
+        const assetsDir = this.paths.buildAssetsDir;
         // local.properties
         await cchelper.replaceInFile([
             { reg: '^sdk\\.dir.*', text: `sdk.dir=${platformParams.sdkPath}` },
@@ -43,6 +48,11 @@ export class OpenHarmonyPackTool extends NativePackTool {
             { reg: '={DCOMMON_DIR}', text: `=${cchelper.fixPath(process.env.COMMON_DIR || '')}` },
             { reg: /"compileSdkVersion": *,/, text: `"compileSdkVersion": ${platformParams.apiLevel},}` },
         ], ps.join(ohosProjDir, 'entry/build-profile.json5'));
+
+        // 拷贝 jsb-adapter 到 entry/src/main/ets/MainAbility/cocos/jsb-adapter
+        const mainDir = ps.join(ohosProjDir, 'entry/src/main');
+        await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/engine-adapter.js'), "", ps.join(mainDir, 'ets/MainAbility/cocos/jsb-adapter/engine-adapter.js'));
+        await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/web-adapter.js'), "", ps.join(mainDir, 'ets/MainAbility/cocos/jsb-adapter/web-adapter.js'));
 
         const cfgFile = ps.join(ohosProjDir, 'entry/src/main/config.json');
         const configJSON = fs.readJSONSync(cfgFile);
@@ -65,6 +75,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
     }
 
     async make() {
+        this.initEnv();
         const ohosProjDir = this.paths.platformTemplateDirInPrj;
         if (!fs.existsSync(ps.join(ohosProjDir, 'node_modules'))) {
             console.debug(`Start install project ${ohosProjDir}`);
