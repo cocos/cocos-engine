@@ -81,7 +81,7 @@ void CCVKShader::doDestroy() {
 }
 
 void CCVKGPUShader::shutdown() {
-    auto gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     for (const CCVKGPUShaderStage &stage : gpuStages) {
         vkDestroyShaderModule(gpuDevice->vkDevice, stage.vkShader, nullptr);
     }

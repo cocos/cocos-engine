@@ -52,7 +52,7 @@ void CCVKGPURecycleBin::collect(const cc::gfx::CCVKGPUTextureView *textureView) 
         res.vkImageView = view;
     };
     collectHandleFn(textureView->vkImageView);
-    for (auto& swapChainView : textureView->swapchainVkImageViews) {
+    for (const auto& swapChainView : textureView->swapchainVkImageViews) {
         collectHandleFn(swapChainView);
     }
 }
@@ -64,13 +64,13 @@ void CCVKGPURecycleBin::collect(const CCVKGPUFramebuffer *frameBuffer) {
         res.vkFramebuffer = fbo;
     };
     collectHandleFn(frameBuffer->vkFramebuffer);
-    for (auto& fbo : frameBuffer->vkFrameBuffers) {
+    for (const auto& fbo : frameBuffer->vkFrameBuffers) {
         collectHandleFn(fbo);
     }
 }
 
 void CCVKGPURecycleBin::collect(const CCVKGPUDescriptorSet *set) {
-    for (auto& instance : set->instances) {
+    for (const auto& instance : set->instances) {
         collect(set->layoutID, instance.vkDescriptorSet);
     }
 }
