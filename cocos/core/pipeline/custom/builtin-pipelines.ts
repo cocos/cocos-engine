@@ -1,4 +1,4 @@
-import { Material } from '../../assets';
+import { Material } from '../../../asset/assets';
 import { intersect, Sphere } from '../../geometry';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { macro } from '../../platform';

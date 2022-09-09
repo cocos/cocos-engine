@@ -1,5 +1,5 @@
 import { legacyCC } from '../../global-exports';
-import { EffectAsset } from '../../assets';
+import { EffectAsset } from '../../../asset/assets';
 import { CollectVisitor, WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
 import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue } from './layout-graph';

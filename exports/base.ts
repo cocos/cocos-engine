@@ -37,6 +37,9 @@ export * from '../cocos/core';
 
 export { gfx };
 
+export * from '../cocos/asset/assets';
+export * from '../cocos/asset/asset-manager';
+
 export { renderer };
 legacyCC.renderer = renderer;
 

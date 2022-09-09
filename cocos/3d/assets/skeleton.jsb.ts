@@ -27,7 +27,7 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4 } from '../../core/math';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { Asset } from '../../core/assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { legacyCC } from '../../core/global-exports';
 
 export const Skeleton = jsb.Skeleton;

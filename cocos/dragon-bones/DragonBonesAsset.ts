@@ -24,7 +24,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Asset } from '../core/assets';
+import { Asset } from '../asset/assets';
 import { ccclass, serializable } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { Enum, Node } from '../core';
