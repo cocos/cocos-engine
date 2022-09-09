@@ -447,7 +447,9 @@ export class Mask extends Component {
             this.subComp.stencilStage = Stage.DISABLED;
             // @ts-expect-error Mask hack
             this.subComp.updateMaterial();
-            this.subComp.enabled = false;
+            if (this.node.activeInHierarchy) {
+                this.subComp.enabled = false;
+            }
         }
     }
 
