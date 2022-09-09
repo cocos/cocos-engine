@@ -325,7 +325,7 @@ export class Slider extends Component {
         }
     }
 
-    protected _xrHandleProgress(point: Vec3) {
+    protected _xrHandleProgress (point: Vec3) {
         if (!this._touchHandle) {
             const uiTrans = this.node._uiProps.uiTransformComp!;
             uiTrans.convertToNodeSpaceAR(point, _tempPos);
@@ -337,7 +337,7 @@ export class Slider extends Component {
         }
     }
 
-    protected _xrClick(event: XrUIPressEvent) {
+    protected _xrClick (event: XrUIPressEvent) {
         if (!this._handle) {
             return;
         }
@@ -346,12 +346,12 @@ export class Slider extends Component {
         this._emitSlideEvent();
     }
 
-    protected _xrUnClick() {
+    protected _xrUnClick () {
         this._dragging = false;
         this._touchHandle = false;
     }
 
-    protected _xrHoverStay(event: XrUIPressEvent) {
+    protected _xrHoverStay (event: XrUIPressEvent) {
         if (!this._dragging) {
             return;
         }
