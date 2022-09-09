@@ -543,8 +543,6 @@ module.exports = {
         horizontal_align: 'Horizontal alignment',
         vertical_align: 'Vertical alignment',
         font_size: 'Font size, in points',
-        font: 'Custom TTF font of RichText',
-        font_family: 'Custom System font of RichText',
         font: 'Custom TTF font of Rich Text',
         font_family: 'Custom System font of Rich Text',
         use_system_font: 'Using system font',
