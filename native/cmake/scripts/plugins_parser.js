@@ -176,7 +176,7 @@ function add_search_path_suffix(dir, platform) {
     } else if (platform.match(/^win/i)) {
         return [`${dir}/windows/x86_64`, `${dir}/windows`];
     } else if (platform.match(/^iphonesimulator/i)) {
-        return [`${dir}/windows/iphonesimulator`, `${dir}/ios`];
+        return [`${dir}/iphonesimulator`, `${dir}/ios`];
     } else if (platform.match(/^ios/i)) {
         return [`${dir}/ios`];
     } else if (platform.match(/^mac/i) || platform.match(/^darwin/i)) {

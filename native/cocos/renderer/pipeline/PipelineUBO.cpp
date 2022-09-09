@@ -293,6 +293,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;
     const auto cap = pipeline->getDevice()->getCapabilities();
+    const bool csmSupported = sceneData->getCSMSupported();
 
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL: {
@@ -305,7 +306,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                     Mat4 matShadowView;
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
-                    if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1) {
+                    if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1 || !csmSupported) {
                         matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                         matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                         matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();

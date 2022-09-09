@@ -40,9 +40,9 @@
 #include "math/Vec4.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
-#include "platform/java/modules/XRInterface.h"
 
 namespace cc {
+class IXRInterface;
 class Node;
 
 namespace pipeline {
