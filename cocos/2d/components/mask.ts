@@ -468,8 +468,8 @@ export class Mask extends Component {
      */
     get customMaterial () {
         warnID(9007);
-        if (this._sprite) {
-            return this._sprite.customMaterial;
+        if (this.subComp) {
+            return this.subComp.customMaterial;
         }
         return null;
     }
