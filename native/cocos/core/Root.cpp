@@ -142,6 +142,13 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     return createWindow(windowInfo);
 }
 
+cc::scene::RenderWindow *Root::createRenderWindowFromSystemWindow(uint32_t windowId) {
+    if (windowId == 0) {
+        return nullptr;
+    }
+    return createRenderWindowFromSystemWindow(CC_GET_SYSTEM_WINDOW(windowId));
+}
+
 void Root::destroy() {
     destroyScenes();
 

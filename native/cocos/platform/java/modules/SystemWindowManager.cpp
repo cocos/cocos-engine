@@ -81,12 +81,12 @@ ISystemWindow *SystemWindowManager::getWindowFromANativeWindow(ANativeWindow *wi
 }
 
 bool SystemWindowManager::isExternalHandleExist(void *externalHandle) const {
-    for (const auto &pair : _windows) {
+    return std::any_of(_windows.begin(), _windows.end(), [externalHandle](const auto &pair) {
         auto *handle = reinterpret_cast<void *>(pair.second->getWindowHandle());
         if (handle == externalHandle) {
             return true;
         }
-    }
-    return false;
+        return false;
+    });
 }
 } // namespace cc

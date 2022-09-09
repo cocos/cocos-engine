@@ -129,7 +129,7 @@ public:
      * @param info 系统窗口描述信息
      * @return 新创建的系统窗口 ID
      */
-    uint32_t createSystemWindow(const cc::ISystemWindowInfo &info);
+    static uint32_t createSystemWindow(const cc::ISystemWindowInfo &info);
 
     /**
      * @zh
@@ -287,6 +287,7 @@ public:
 
     inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
 
+    scene::RenderWindow *createRenderWindowFromSystemWindow(uint32_t windowId);
     scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
 
 private:
