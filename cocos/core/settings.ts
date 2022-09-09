@@ -75,7 +75,7 @@ export class Settings {
         }
         if (!path) return Promise.resolve();
         if (window.oh) {
-            window._CCSettings = require('../src/settings.json');
+            this._settings = require('../settings.json');
             return Promise.resolve();
         }
         return new Promise((resolve, reject) => {
