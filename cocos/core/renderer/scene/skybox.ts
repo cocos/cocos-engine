@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../../builtin';
-import { Material } from '../../assets/material';
+import { builtinResMgr } from '../../../asset/asset-manager/builtin-res-mgr';
+import { Material } from '../../../asset/assets/material';
 import { Mesh } from '../../../3d/assets/mesh';
-import { TextureCube } from '../../assets/texture-cube';
+import { TextureCube } from '../../../asset/assets/texture-cube';
 import { UNIFORM_ENVIRONMENT_BINDING, UNIFORM_DIFFUSEMAP_BINDING } from '../../pipeline/define';
 import { MaterialInstance } from '../core/material-instance';
 import { Model } from './model';

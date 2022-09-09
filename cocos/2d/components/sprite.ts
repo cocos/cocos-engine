@@ -33,9 +33,9 @@ import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
-import { PixelFormat } from '../../core/assets/asset-enum';
-import { TextureBase } from '../../core/assets/texture-base';
-import { Material, RenderTexture } from '../../core';
+import { PixelFormat } from '../../asset/assets/asset-enum';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { Material, RenderTexture } from '../../asset/assets';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { legacyCC } from '../../core/global-exports';
 

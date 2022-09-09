@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { Asset } from '../../core/assets';
+import { Asset } from '../../asset/assets';
 
 /**
  * @en

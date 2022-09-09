@@ -1,4 +1,4 @@
-import { Material } from '../../core/assets';
+import { Material } from '../../asset/assets';
 import { Attribute, Device, Sampler, Texture } from '../../gfx';
 import { Node } from '../../core/scene-graph';
 import { Model } from '../../core/renderer/scene';

@@ -24,11 +24,11 @@
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
-import { Material, Texture2D } from '../core/assets';
+import { Material, Texture2D } from '../asset/assets';
 import { Component } from '../core/components';
 import { Vec3, Vec2, Vec4 } from '../core/math';
 import { LineModel } from './models/line-model';
-import { builtinResMgr } from '../core/builtin';
+import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import { legacyCC } from '../core/global-exports';
@@ -74,11 +74,11 @@ export class Line extends Component {
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
-    get material() {
+    get material () {
         return this._material;
     }
 
-    set material(val) {
+    set material (val) {
         this._material = val;
     }
 

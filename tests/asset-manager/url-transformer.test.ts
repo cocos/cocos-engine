@@ -1,7 +1,7 @@
-import { assetManager, loader, resources, url } from "../../cocos/core/asset-manager";
-import Bundle from "../../cocos/core/asset-manager/bundle";
-import { transform } from "../../cocos/core/asset-manager/helper";
-import { BuiltinBundleName } from "../../cocos/core/asset-manager/shared";
+import { assetManager, loader, resources, url } from "../../cocos/asset/asset-manager";
+import Bundle from "../../cocos/asset/asset-manager/bundle";
+import { transform } from "../../cocos/asset/asset-manager/helper";
+import { BuiltinBundleName } from "../../cocos/asset/asset-manager/shared";
 
 describe('url-transform', () => {
     test('transform url', function () {

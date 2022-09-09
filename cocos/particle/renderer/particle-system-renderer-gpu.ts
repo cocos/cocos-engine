@@ -24,9 +24,8 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr } from '../../core/builtin';
-import { Material } from '../../core/assets';
-import { Texture2D } from '../../core';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material, Texture2D } from '../../asset/assets';
 import { Component } from '../../core/components';
 import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';

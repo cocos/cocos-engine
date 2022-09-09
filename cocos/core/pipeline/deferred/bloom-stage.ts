@@ -31,7 +31,7 @@ import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
 import { RenderFlow, RenderPipeline } from '..';
-import { Material } from '../../assets/material';
+import { Material } from '../../../asset/assets/material';
 import { BufferInfo, BufferUsageBit, ClearFlagBit, Color, MemoryUsageBit, PipelineState, Rect, Buffer } from '../../../gfx';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { IRenderStageInfo, RenderStage } from '../render-stage';

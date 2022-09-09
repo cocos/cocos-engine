@@ -1,4 +1,4 @@
-import dependUtil from "../../cocos/core/asset-manager/depend-util";
+import dependUtil from "../../cocos/asset/asset-manager/depend-util";
 import { AudioClip } from '../../cocos/audio';
 import { js } from "../../cocos/core/utils/js";
 

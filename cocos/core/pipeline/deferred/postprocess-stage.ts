@@ -32,7 +32,7 @@ import { SetIndex, UBOLocal } from '../define';
 import { Color, Rect, PipelineState, ClearFlagBit, DescriptorSetInfo, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from '../enum';
-import { Material } from '../../assets/material';
+import { Material } from '../../../asset/assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
