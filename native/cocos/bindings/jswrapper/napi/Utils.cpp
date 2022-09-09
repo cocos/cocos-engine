@@ -41,6 +41,7 @@ void jsToSeValue(const target_value& value, Value* v) {
     bool    bRet      = false;
     bool    lossless  = false;
     size_t  len       = 0;
+    void*   privateObjPtr = nullptr;
     void*   nativePtr = nullptr;
     Object* obj       = nullptr;
 
@@ -99,8 +100,11 @@ void jsToSeValue(const target_value& value, Value* v) {
             break;
         case napi_valuetype::napi_object:
         case napi_valuetype::napi_function:
-            status = napi_unwrap(ScriptEngine::getEnv(), value, &nativePtr);
-            if ((status == napi_ok) && nativePtr) {
+            status = napi_unwrap(ScriptEngine::getEnv(), value, &privateObjPtr);
+            if ((status == napi_ok) && privateObjPtr) {
+                nativePtr = reinterpret_cast<Object*>(privateObjPtr)->getPrivateData();
+            }
+            if (nativePtr) {
                 obj = Object::getObjectWithPtr(nativePtr);
             }
             if (obj == nullptr) {
