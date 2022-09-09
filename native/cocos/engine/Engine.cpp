@@ -367,13 +367,14 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
         ev.type == WindowEvent::Type::RESTORED) {
         emit(static_cast<int>(ON_RESUME));
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::EventDispatcher::dispatchRecreateWindowEvent();
+        ISystemWindow *window = CC_GET_SYSTEM_WINDOW(ev.windowId);
+        cc::EventDispatcher::dispatchRecreateWindowEvent(window);
 #endif
         cc::EventDispatcher::dispatchEnterForegroundEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
-        cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
+        cc::EventDispatcher::dispatchResizeEvent(ev);
         auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
         CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
@@ -382,7 +383,8 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
                ev.type == WindowEvent::Type::MINIMIZED) {
         emit(static_cast<int>(ON_PAUSE));
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::EventDispatcher::dispatchDestroyWindowEvent();
+        ISystemWindow *window = CC_GET_SYSTEM_WINDOW(ev.windowId);
+        cc::EventDispatcher::dispatchDestroyWindowEvent(window);
 #endif
         cc::EventDispatcher::dispatchEnterBackgroundEvent();
         isHandled = true;

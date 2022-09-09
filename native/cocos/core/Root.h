@@ -78,7 +78,7 @@ public:
      * @param width 屏幕宽度
      * @param height 屏幕高度
      */
-    void resize(uint32_t width, uint32_t height);
+    void resize(uint32_t windowId, uint32_t width, uint32_t height);
 
     bool setRenderPipeline(pipeline::RenderPipeline *rppl = nullptr);
     void onGlobalPipelineStateChanged();

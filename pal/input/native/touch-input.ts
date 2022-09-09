@@ -9,9 +9,11 @@ import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class TouchInputSource {
     private _eventTarget: EventTarget = new EventTarget();
+    private _windowManager = null;
 
     constructor () {
         this._registerEvent();
+        this._windowManager = jsb.ISystemWindowManager.getInstance();
     }
 
     private _registerEvent () {
@@ -25,7 +27,7 @@ export class TouchInputSource {
         return (changedTouches: TouchList, windowId: number) => {
             const handleTouches: Touch[] = [];
             const length = changedTouches.length;
-            const windowSize = screenAdapter.windowSize;
+            const windowSize = this._windowManager.getWindow(windowId).getViewSize();
             for (let i = 0; i < length; ++i) {
                 const changedTouch = changedTouches[i];
                 const touchID = changedTouch.identifier;
@@ -54,7 +56,7 @@ export class TouchInputSource {
     private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
         const dpr = screenAdapter.devicePixelRatio;
         const x = touch.clientX * dpr;
-        const y = windowSize.height - touch.clientY * dpr;
+        const y = windowSize.y - touch.clientY * dpr;
         return new Vec2(x, y);
     }
 

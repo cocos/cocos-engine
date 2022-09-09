@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
+import { JSB, NATIVE } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { error, getError } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
-import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
+import { BindingMappingInfo, DeviceInfo, SwapchainInfo, SystemWindowInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
 import { screen } from '../core/platform/screen';

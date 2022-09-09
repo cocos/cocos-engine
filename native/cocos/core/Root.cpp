@@ -170,15 +170,18 @@ void Root::destroy() {
     //    this.dataPoolManager.clear();
 }
 
-void Root::resize(uint32_t width, uint32_t height) {
+void Root::resize(uint32_t windowId, uint32_t width, uint32_t height) {
     for (const auto &window : _renderWindows) {
-        if (window->getSwapchain()) {
-            if (_xr) {
-                // xr, window's width and height should not change by device
-                width = window->getWidth();
-                height = window->getHeight();
+        auto *swapchain = window->getSwapchain();
+        if (swapchain) {
+            if (swapchain->getWindowId() == windowId) {
+                if (_xr) {
+                    // xr, window's width and height should not change by device
+                    width = window->getWidth();
+                    height = window->getHeight();
+                }
+                window->resize(width, height);
             }
-            window->resize(width, height);
         }
     }
 }

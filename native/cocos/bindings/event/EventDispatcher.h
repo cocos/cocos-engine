@@ -37,6 +37,8 @@ class Value;
 
 namespace cc {
 
+class ISystemWindow;
+
 enum class OSEventType {
     KEYBOARD_OSEVENT = 0,
     TOUCH_OSEVENT = 1,
@@ -328,6 +330,7 @@ public:
     static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
+    static void dispatchResizeEvent(const WindowEvent& windowEvent);
     static void dispatchOrientationChangeEvent(int orientation);
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
@@ -335,7 +338,9 @@ public:
     static void dispatchRestartVM();
     static void dispatchCloseEvent();
     static void dispatchDestroyWindowEvent();
+    static void dispatchDestroyWindowEvent(cc::ISystemWindow *window);
     static void dispatchRecreateWindowEvent();
+    static void dispatchRecreateWindowEvent(cc::ISystemWindow *window);
     static void dispatchSceneLoadEvent();
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;

@@ -319,6 +319,9 @@ void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
         }
     }
 #endif
+    if (swapchain->eglSurface == EGL_NO_SURFACE) {
+        return;
+    }
     if (_eglCurrentInterval != swapchain->eglSwapInterval) {
         if (!eglSwapInterval(eglDisplay, swapchain->eglSwapInterval)) {
             CC_LOG_ERROR("eglSwapInterval() - FAILED.");
@@ -326,6 +329,7 @@ void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
 
         _eglCurrentInterval = swapchain->eglSwapInterval;
     }
+    makeCurrent(swapchain, swapchain);
     EGL_CHECK(eglSwapBuffers(eglDisplay, swapchain->eglSurface));
 }
 

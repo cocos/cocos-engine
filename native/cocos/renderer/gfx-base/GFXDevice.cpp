@@ -26,6 +26,8 @@
 #include "GFXDevice.h"
 #include "GFXObject.h"
 #include "base/memory/Memory.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 namespace gfx {
@@ -105,9 +107,11 @@ void Device::destroySurface(void *windowHandle) {
 }
 
 void Device::createSurface(void *windowHandle) {
+    auto windowId = reinterpret_cast<uintptr_t>(windowHandle);
     for (const auto &swapchain : _swapchains) {
-        if (!swapchain->getWindowHandle()) {
-            swapchain->createSurface(windowHandle);
+        if (swapchain->getWindowId() == windowId) {
+            auto *window = CC_GET_SYSTEM_WINDOW(windowId);
+            swapchain->createSurface(reinterpret_cast<void *>(window->getWindowHandle()));
             break;
         }
     }

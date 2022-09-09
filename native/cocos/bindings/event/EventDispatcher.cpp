@@ -192,7 +192,6 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
         case MouseEvent::Type::DOWN:
             eventName = EVENT_MOUSE_DOWN;
             jsFunctionName = "onMouseDown";
-            //CC_LOG_DEBUG("windowId: %d", mouseEvent.windowId);
             break;
         case MouseEvent::Type::MOVE:
             eventName = EVENT_MOUSE_MOVE;
@@ -244,6 +243,8 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
     jsKeyboardEventObj->setProperty("shiftKey", se::Value(keyboardEvent.shiftKeyActive));
     jsKeyboardEventObj->setProperty("repeat", se::Value(keyboardEvent.action == KeyboardEvent::Action::REPEAT));
     jsKeyboardEventObj->setProperty("keyCode", se::Value(keyboardEvent.key));
+    jsKeyboardEventObj->setProperty("windowId", se::Value(keyboardEvent.windowId));
+
     se::ValueArray args;
     args.emplace_back(se::Value(jsKeyboardEventObj));
     EventDispatcher::doDispatchJsEvent(eventName, args);
@@ -327,8 +328,26 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
         jsResizeEventObj->root();
     }
 
+    jsResizeEventObj->setProperty("windowId", se::Value(width));
     jsResizeEventObj->setProperty("width", se::Value(width));
     jsResizeEventObj->setProperty("height", se::Value(height));
+
+    se::ValueArray args;
+    args.emplace_back(se::Value(jsResizeEventObj));
+    EventDispatcher::doDispatchJsEvent("onResize", args);
+    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 0);
+}
+
+void EventDispatcher::dispatchResizeEvent(const WindowEvent &windowEvent) {
+    se::AutoHandleScope scope;
+    if (!jsResizeEventObj) {
+        jsResizeEventObj = se::Object::createPlainObject();
+        jsResizeEventObj->root();
+    }
+
+    jsResizeEventObj->setProperty("windowId", se::Value(windowEvent.windowId));
+    jsResizeEventObj->setProperty("width", se::Value(windowEvent.width));
+    jsResizeEventObj->setProperty("height", se::Value(windowEvent.height));
 
     se::ValueArray args;
     args.emplace_back(se::Value(jsResizeEventObj));
@@ -394,10 +413,28 @@ void EventDispatcher::dispatchDestroyWindowEvent() {
 #endif
 }
 
+
+void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, reinterpret_cast<void *>(window->getWindowHandle()));
+#else
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
+#endif
+}
+
 void EventDispatcher::dispatchRecreateWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
                                          reinterpret_cast<void *>(CC_GET_MAIN_SYSTEM_WINDOW()->getWindowHandle()));
+#else
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
+#endif
+}
+
+
+void EventDispatcher::dispatchRecreateWindowEvent(cc::ISystemWindow *window) {
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, reinterpret_cast<void *>(window->getWindowId()));
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif

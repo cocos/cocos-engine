@@ -113,12 +113,19 @@ declare namespace jsb {
         shiftKey: boolean;
         repeat: boolean;
         keyCode: number;
+        windowId: number;
     }
     type KeyboardEventCallback = (keyboardEvent: KeyboardEvent) => void;
     export let onKeyDown: KeyboardEventCallback | undefined;
     export let onKeyUp: KeyboardEventCallback| undefined;
 
-    export let onResize: (size: {width: number, height: number}) => void | undefined;
+    export interface WindowEvent {
+        windowId: number;
+        width: number;
+        height: number;
+    }
+
+    export let onResize: (event: WindowEvent) => void | undefined;
     export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type
     export let onResume: () => void | undefined;
     export let onPause: () => void | undefined;

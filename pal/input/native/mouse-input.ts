@@ -9,16 +9,19 @@ export class MouseInputSource {
     private _eventTarget: EventTarget = new EventTarget();
     private _preMousePos: Vec2 = new Vec2();
     private _isPressed = false;
+    private _windowManager = null;
 
     constructor () {
         this._registerEvent();
+        this._windowManager = jsb.ISystemWindowManager.getInstance();
     }
 
     private _getLocation (event: jsb.MouseEvent): Vec2 {
-        const windowSize = screenAdapter.windowSize;
+        const window = this._windowManager.getWindow(event.windowId);
+        const windowSize = window.getViewSize();
         const dpr = screenAdapter.devicePixelRatio;
         const x = event.x * dpr;
-        const y = windowSize.height - event.y * dpr;
+        const y = windowSize.y - event.y * dpr;
         return new Vec2(x, y);
     }
 
