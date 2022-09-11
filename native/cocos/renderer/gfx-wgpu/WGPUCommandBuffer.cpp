@@ -621,61 +621,112 @@ void CCWGPUCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Te
         WGPUCommandEncoder cmdEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
     }
 
+    Format dstFormat = texture->getFormat();
     auto wgpuDevice = CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice;
+    auto *ccTexture = static_cast<CCWGPUTexture *>(texture);
+    auto blockSize = formatAlignment(dstFormat);
+
+    if (ccTexture->isTextureView()) {
+        ccTexture = static_cast<CCWGPUTexture *>(ccTexture->getViewInfo().texture);
+    }
+
     for (size_t i = 0; i < count; i++) {
-        WGPUOrigin3D origin = {
-            .x = static_cast<uint32_t>(regions[i].texOffset.x),
-            .y = static_cast<uint32_t>(regions[i].texOffset.y),
-            .z = static_cast<uint32_t>(regions[i].texOffset.z),
+        const auto &region = regions[i];
+        auto bufferPixelWidth = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        auto bufferPixelHeight = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+        auto bytesPerRow = formatSize(dstFormat, region.texExtent.width, 1, 1);
+        auto bufferBytesPerRow = formatSize(dstFormat, bufferPixelWidth, 1, 1);
+        auto bufferBytesPerImageSlice = formatSize(dstFormat, bufferPixelWidth, bufferPixelHeight, 1);
+        auto bufferBytesPerImageLayer = formatSize(dstFormat, bufferPixelWidth, bufferPixelHeight, region.texExtent.depth);
+        auto targetWidth = region.texExtent.width == 0 ? 0 : utils::alignTo(region.texExtent.width, blockSize.first);
+        auto targetHeight = region.texExtent.height == 0 ? 0 : utils::alignTo(region.texExtent.height, blockSize.second);
+
+        // it's buffer data layout
+        WGPUTextureDataLayout texDataLayout = {
+            .offset = 0, // we always create a non-offset staging buffer or give interface a non-offset buffer address
+            .bytesPerRow = bufferBytesPerRow,
+            .rowsPerImage = bufferPixelHeight,
         };
 
-        auto *ccTexture = static_cast<CCWGPUTexture *>(texture);
-        if (ccTexture->isTextureView()) {
-            ccTexture = static_cast<CCWGPUTexture *>(ccTexture->getViewInfo().texture);
+        bool compactInWidth = bufferPixelWidth == region.texExtent.width;
+        for (size_t l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; ++l) {
+            for (size_t d = region.texOffset.z; d < region.texExtent.depth + region.texOffset.z; ++d) {
+                if (compactInWidth) {
+                    auto *srcData = buffers[i] + region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer + (d - region.texOffset.z) * bufferBytesPerImageSlice;
+                    WGPUImageCopyTexture imageCopyTexture = {
+                        .texture = ccTexture->gpuTextureObject()->wgpuTexture,
+                        .mipLevel = region.texSubres.mipLevel,
+                        .origin = WGPUOrigin3D{
+                            static_cast<uint32_t>(region.texOffset.x),
+                            static_cast<uint32_t>(region.texOffset.y),
+                            static_cast<uint32_t>(d)},
+                        .aspect = WGPUTextureAspect_All,
+                    };
+
+                    WGPUExtent3D extent = {
+                        .width = targetWidth,
+                        .height = targetHeight,
+                        .depthOrArrayLayers = 1,
+                    };
+
+                    WGPUBufferDescriptor bufferDesc = {
+                        .usage = WGPUBufferUsage_CopySrc,
+                        .size = bufferBytesPerImageSlice,
+                        .mappedAtCreation = true,
+                    };
+
+                    auto stagingBuffer = wgpuDeviceCreateBuffer(wgpuDevice, &bufferDesc);
+                    auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, bufferBytesPerImageSlice);
+                    memcpy(mappedBuffer, buffers[i], bufferBytesPerImageSlice);
+                    wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
+
+                    WGPUImageCopyBuffer imageCopyBuffer = {
+                        .layout = texDataLayout,
+                        .buffer = stagingBuffer,
+                    };
+                    wgpuCommandEncoderCopyBufferToTexture(encoder, &imageCopyBuffer, &imageCopyTexture, &extent);
+                    CCWGPUDevice::getInstance()->moveToTrash(stagingBuffer);
+                } else {
+                    for (size_t h = region.texOffset.y; h < region.texExtent.height + region.texOffset.y; h += blockSize.second) {
+                        auto *srcData = buffers[i] + region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer + (d - region.texOffset.z) * bufferBytesPerImageSlice +
+                                        (h - region.texOffset.y) / blockSize.second * bufferBytesPerRow;
+                        WGPUImageCopyTexture imageCopyTexture = {
+                            .texture = ccTexture->gpuTextureObject()->wgpuTexture,
+                            .mipLevel = region.texSubres.mipLevel,
+                            .origin = WGPUOrigin3D{
+                                static_cast<uint32_t>(region.texOffset.x),
+                                static_cast<uint32_t>(h),
+                                static_cast<uint32_t>(d)},
+                            .aspect = WGPUTextureAspect_All,
+                        };
+
+                        WGPUExtent3D extent = {
+                            .width = targetWidth,
+                            .height = blockSize.second,
+                            .depthOrArrayLayers = 1,
+                        };
+
+                        WGPUBufferDescriptor bufferDesc = {
+                            .usage = WGPUBufferUsage_CopySrc,
+                            .size = bytesPerRow,
+                            .mappedAtCreation = true,
+                        };
+
+                        auto stagingBuffer = wgpuDeviceCreateBuffer(wgpuDevice, &bufferDesc);
+                        auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, bytesPerRow);
+                        memcpy(mappedBuffer, buffers[i], bytesPerRow);
+                        wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
+
+                        WGPUImageCopyBuffer imageCopyBuffer = {
+                            .layout = texDataLayout,
+                            .buffer = stagingBuffer,
+                        };
+                        wgpuCommandEncoderCopyBufferToTexture(encoder, &imageCopyBuffer, &imageCopyTexture, &extent);
+                        CCWGPUDevice::getInstance()->moveToTrash(stagingBuffer);
+                    }
+                }
+            }
         }
-        WGPUImageCopyTexture imageCopyTexture = {
-            .texture = ccTexture->gpuTextureObject()->wgpuTexture,
-            .mipLevel = regions[i].texSubres.mipLevel,
-            .origin = origin,
-            .aspect = WGPUTextureAspect_All,
-        };
-
-        auto *ccTex = static_cast<CCWGPUTexture *>(texture);
-        uint32_t width = regions[i].texExtent.width;
-        uint32_t height = regions[i].texExtent.height;
-        uint32_t depth = regions[i].texExtent.depth;
-        uint32_t bytesPerRow = GFX_FORMAT_INFOS[static_cast<uint32_t>(ccTex->getFormat())].size * width;
-        uint32_t dataSize = bytesPerRow * height * depth;
-
-        WGPUTextureDataLayout texLayout = {
-            .offset = regions[i].buffOffset,
-            .bytesPerRow = bytesPerRow,
-            .rowsPerImage = height,
-        };
-
-        WGPUExtent3D extent = {
-            .width = width,
-            .height = height,
-            .depthOrArrayLayers = depth,
-        };
-
-        WGPUBufferDescriptor bufferDesc = {
-            .usage = WGPUBufferUsage_CopySrc,
-            .size = dataSize,
-            .mappedAtCreation = true,
-        };
-
-        auto stagingBuffer = wgpuDeviceCreateBuffer(wgpuDevice, &bufferDesc);
-        auto *mappedBuffer = wgpuBufferGetMappedRange(stagingBuffer, 0, dataSize);
-        memcpy(mappedBuffer, data, size);
-        wgpuBufferUnmap(static_cast<WGPUBuffer>(stagingBuffer));
-
-        WGPUImageCopyBuffer imageCopyBuffer = {
-            .layout = texLayout,
-            .buffer = stagingBuffer,
-        };
-        wgpuCommandEncoderCopyBufferToTexture(encoder, &imageCopyBuffer, &imageCopyTexture, &extent);
-        CCWGPUDevice::getInstance()->moveToTrash(stagingBuffer);
     }
 
     if (!_gpuCommandBufferObj->wgpuCommandEncoder) {
