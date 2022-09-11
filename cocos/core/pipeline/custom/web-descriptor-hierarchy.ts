@@ -24,7 +24,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-import { EffectAsset } from '../../assets';
+import { EffectAsset } from '../../../asset/assets';
 import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../../gfx';
 import { ParameterType, UpdateFrequency } from './types';

@@ -1,6 +1,6 @@
 import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
-import { ImageAsset } from "../../cocos/core";
-import { AssetManager, assetManager, loader, resources } from "../../cocos/core/asset-manager";
+import { ImageAsset } from "../../cocos/asset/assets";
+import { AssetManager, assetManager, loader, resources } from "../../cocos/asset/asset-manager";
 import { js } from "../../cocos/core/utils/js";
 import { TestSprite } from "./common-class";
 

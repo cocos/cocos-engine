@@ -24,12 +24,11 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3, builtinResMgr, RecyclePool, game, Enum } from '../../core';
+import { Vec3, RecyclePool, game, Enum } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
-
 import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix, IPhysicsMaterial } from './physics-config';
@@ -38,6 +37,7 @@ import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
 import { Settings, settings } from '../../core/settings';
+import { builtinResMgr } from '../../asset/asset-manager';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 

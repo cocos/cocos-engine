@@ -28,7 +28,7 @@ import {
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import type { AnimationClip } from '../../animation/animation-clip';
-import { Material } from '../../core/assets';
+import { Material } from '../../asset/assets';
 import { Skeleton } from '../assets/skeleton';
 import { Node } from '../../core/scene-graph/node';
 import { MeshRenderer } from '../framework/mesh-renderer';

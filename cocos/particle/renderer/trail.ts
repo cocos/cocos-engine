@@ -24,14 +24,14 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
-import { Material } from '../../core/assets/material';
-import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
+import { Material } from '../../asset/assets/material';
+import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
     Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';

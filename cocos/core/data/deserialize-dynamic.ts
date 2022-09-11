@@ -35,12 +35,11 @@ import { Details } from './deserialize';
 import { Platform } from '../../../pal/system-info/enum-type';
 import { sys } from '../platform/sys';
 import { error } from '../platform/debug';
-import { CustomSerializable, DeserializationContext, deserializeTag, SerializationContext, SerializationInput } from './custom-serializable';
+import { CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from './custom-serializable';
 import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
-import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
-import { Asset } from '..';
+import { Asset } from '../../asset/assets';
 
 function compileObjectTypeJit (
     sources: string[],

@@ -31,9 +31,9 @@ import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { Swapchain, RenderPass } from '../../../gfx';
-import { builtinResMgr } from '../../builtin';
-import { Texture2D } from '../../assets/texture-2d';
-import { Camera } from '../../renderer/scene';
+import { builtinResMgr } from '../../../asset/asset-manager/builtin-res-mgr';
+import { Texture2D } from '../../../asset/assets/texture-2d';
+import { Camera } from '../../../render-scene/scene';
 import { errorID } from '../../platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
 

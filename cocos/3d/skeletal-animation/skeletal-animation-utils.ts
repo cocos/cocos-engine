@@ -35,7 +35,7 @@ import { BufferUsageBit, Format, FormatInfos,
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
-import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
+import { ITextureBufferHandle, TextureBufferPool } from '../../render-scene/core/texture-buffer-pool';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 // change here and cc-skinning.chunk to use other skinning algorithms

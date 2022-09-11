@@ -28,7 +28,7 @@
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
-import { SceneAsset } from './assets/scene-asset';
+import { SceneAsset } from '../asset/assets/scene-asset';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event';

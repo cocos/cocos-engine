@@ -27,9 +27,9 @@ import { AABB, intersect } from '../geometry';
 import { SetIndex } from './define';
 import { CommandBuffer, Device, RenderPass } from '../../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Model, Camera } from '../renderer/scene';
+import { Model, Camera } from '../../render-scene/scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { ShadowType } from '../renderer/scene/shadows';
+import { ShadowType } from '../../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 

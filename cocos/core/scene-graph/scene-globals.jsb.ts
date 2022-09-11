@@ -33,11 +33,11 @@ import {
 } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { CCFloat, CCInteger } from '../data';
-import { TextureCube } from '../assets/texture-cube';
+import { TextureCube } from '../../asset/assets/texture-cube';
 import { Enum } from '../value-types';
 import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../data/decorators';
-import { EnvironmentLightingType } from '../renderer/scene';
-import { Material } from '../assets/material';
+import { EnvironmentLightingType } from '../../render-scene/scene';
+import { Material } from '../../asset/assets/material';
 
 /**
  * @zh

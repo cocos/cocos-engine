@@ -26,16 +26,16 @@
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
     supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../gfx';
-import { Camera } from '../renderer/scene/camera';
+import { Camera } from '../../render-scene/scene/camera';
 import { Mat4, Vec3, Vec4, Color, toRadian } from '../math';
 import { PipelineRuntime } from './custom/pipeline';
 import { legacyCC } from '../global-exports';
-import { CSMLevel, PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
-import { Light, LightType } from '../renderer/scene/light';
-import { DirectionalLight, SpotLight } from '../renderer/scene';
-import { RenderWindow } from '../renderer/core/render-window';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
-import { Texture2D } from '../assets';
+import { CSMLevel, PCFType, Shadows, ShadowType } from '../../render-scene/scene/shadows';
+import { Light, LightType } from '../../render-scene/scene/light';
+import { DirectionalLight, SpotLight } from '../../render-scene/scene';
+import { RenderWindow } from '../../render-scene/core/render-window';
+import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+import { Texture2D } from '../../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
 
 const _matShadowView = new Mat4();

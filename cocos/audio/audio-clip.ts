@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, override } from 'cc.decorator';
 import { AudioPlayer } from 'pal/audio';
-import { Asset } from '../core/assets/asset';
+import { Asset } from '../asset/assets/asset';
 import { legacyCC } from '../core/global-exports';
 import { AudioState, AudioType } from '../../pal/audio/type';
 

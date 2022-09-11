@@ -37,10 +37,10 @@ import { Sphere } from './sphere';
 import { Triangle } from './triangle';
 import { PrimitiveMode } from '../../gfx';
 import { Mesh } from '../../3d/assets/mesh';
-import { IBArray, RenderingSubMesh } from '../assets/rendering-sub-mesh';
+import { IBArray, RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
-import { scene } from '../renderer';
+import { scene } from '../../render-scene';
 
 /**
  * @en

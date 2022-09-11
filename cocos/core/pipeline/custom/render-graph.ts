@@ -30,8 +30,8 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { Material } from '../../assets';
-import { Camera } from '../../renderer/scene/camera';
+import { Material } from '../../../asset/assets';
+import { Camera } from '../../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../../gfx';
 import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 

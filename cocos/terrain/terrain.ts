@@ -24,20 +24,20 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { builtinResMgr } from '../core/builtin';
+import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../core/components/model-renderer';
-import { EffectAsset, Texture2D } from '../core/assets';
-import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
-import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
+import { EffectAsset, Texture2D } from '../asset/assets';
+import { Filter, PixelFormat, WrapMode } from '../asset/assets/asset-enum';
+import { Material } from '../asset/assets/material';
+import { RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager } from '../gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
-import { MacroRecord } from '../core/renderer/core/pass-utils';
-import { Pass, scene } from '../core/renderer';
-import { Camera } from '../core/renderer/scene/camera';
+import { MacroRecord } from '../render-scene/core/pass-utils';
+import { Pass, scene } from '../render-scene';
+import { Camera } from '../render-scene/scene/camera';
 import { Root } from '../core/root';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';

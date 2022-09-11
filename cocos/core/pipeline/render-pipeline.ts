@@ -26,17 +26,17 @@
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { systemInfo } from 'pal/system-info';
 import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
-import { Asset } from '../assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
     DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler,
     InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
     Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager,
 } from '../../gfx';
 import { legacyCC } from '../global-exports';
-import { MacroRecord } from '../renderer/core/pass-utils';
-import { RenderWindow } from '../renderer/core/render-window';
-import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Model } from '../renderer/scene/model';
+import { MacroRecord } from '../../render-scene/core/pass-utils';
+import { RenderWindow } from '../../render-scene/core/render-window';
+import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
+import { Model } from '../../render-scene/scene/model';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
