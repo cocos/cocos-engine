@@ -26,7 +26,7 @@
 import { RenderPass } from '../../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
-import { Camera } from '../renderer/scene/camera';
+import { Camera } from '../../render-scene/scene/camera';
 import { RenderPipeline } from './render-pipeline';
 import { getPhaseID } from './pass-phase';
 

@@ -33,7 +33,7 @@ import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPO
 import { Swapchain, RenderPass } from '../../../gfx';
 import { builtinResMgr } from '../../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../../asset/assets/texture-2d';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { errorID } from '../../platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
 

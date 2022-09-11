@@ -29,7 +29,7 @@ import {
 } from 'cc.decorator';
 import { Material } from '../../asset/assets/material';
 import { Component } from './component';
-import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/material-instance';
+import { IMaterialInstanceInfo, MaterialInstance } from '../../render-scene/core/material-instance';
 import { warnID } from '../platform/debug';
 
 const _matInsInfo: IMaterialInstanceInfo = {

@@ -26,11 +26,11 @@
 import { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
     menu, tooltip, serializable, formerlySerializedAs, visible } from 'cc.decorator';
 import { toRadian } from '../../core/math';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { legacyCC } from '../../core/global-exports';
 import { Root } from '../../core/root';
-import { Camera, PCFType, ShadowType } from '../../core/renderer/scene';
+import { Camera, PCFType, ShadowType } from '../../render-scene/scene';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
 

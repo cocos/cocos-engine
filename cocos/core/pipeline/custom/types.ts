@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import { ClearFlagBit, Color, LoadOp, StoreOp } from '../../../gfx';
-import { Light } from '../../renderer/scene';
+import { Light } from '../../../render-scene/scene';
 
 export const enum UpdateFrequency {
     PER_INSTANCE,

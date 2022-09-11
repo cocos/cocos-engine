@@ -31,16 +31,16 @@ import { Component } from './component';
 import { Ray } from '../geometry';
 import { Color, Rect, toRadian, Vec3 } from '../math';
 import { CAMERA_DEFAULT_MASK } from '../pipeline/define';
-import { scene } from '../renderer';
+import { scene } from '../../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
-    CameraType, TrackingType } from '../renderer/scene/camera';
+    CameraType, TrackingType } from '../../render-scene/scene/camera';
 import { Root } from '../root';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
 import { Enum } from '../value-types';
 import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../global-exports';
-import { RenderWindow } from '../renderer/core/render-window';
+import { RenderWindow } from '../../render-scene/core/render-window';
 import { ClearFlagBit } from '../../gfx';
 
 const _temp_vec3_1 = new Vec3();
