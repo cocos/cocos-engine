@@ -738,7 +738,7 @@ static bool js_cc_ISystemWindowManager_getInstance_static(se::State &s) { // NOL
     const auto &args = s.args();
 
     CC_UNUSED bool ok = true;
-    cc::ISystemWindowManager *instance = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
+    auto *instance = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
     ok &= nativevalue_to_se(instance, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "js_cc_ISystemWindowManager_getInstance Failed");
 

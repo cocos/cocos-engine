@@ -173,15 +173,13 @@ void Root::destroy() {
 void Root::resize(uint32_t windowId, uint32_t width, uint32_t height) {
     for (const auto &window : _renderWindows) {
         auto *swapchain = window->getSwapchain();
-        if (swapchain) {
-            if (swapchain->getWindowId() == windowId) {
-                if (_xr) {
-                    // xr, window's width and height should not change by device
-                    width = window->getWidth();
-                    height = window->getHeight();
-                }
-                window->resize(width, height);
+        if (swapchain && (swapchain->getWindowId() == windowId)) {
+            if (_xr) {
+                // xr, window's width and height should not change by device
+                width = window->getWidth();
+                height = window->getHeight();
             }
+            window->resize(width, height);
         }
     }
 }

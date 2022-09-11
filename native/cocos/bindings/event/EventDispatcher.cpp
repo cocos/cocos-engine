@@ -50,7 +50,7 @@ uint32_t EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {
     return inited && se::ScriptEngine::getInstance()->isValid();
-};
+}
 
 void EventDispatcher::init() {
     inited = true;
@@ -418,6 +418,7 @@ void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, reinterpret_cast<void *>(window->getWindowHandle()));
 #else
+    CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 #endif
 }
@@ -431,11 +432,12 @@ void EventDispatcher::dispatchRecreateWindowEvent() {
 #endif
 }
 
-
 void EventDispatcher::dispatchRecreateWindowEvent(cc::ISystemWindow *window) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, reinterpret_cast<void *>(window->getWindowId()));
+    auto windowId = static_cast<uintptr_t>(window->getWindowId());
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, reinterpret_cast<void *>(windowId));
 #else
+    CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif
 }

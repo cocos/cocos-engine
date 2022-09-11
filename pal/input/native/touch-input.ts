@@ -7,9 +7,11 @@ import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
+declare const jsb: any;
+
 export class TouchInputSource {
     private _eventTarget: EventTarget = new EventTarget();
-    private _windowManager = null;
+    private _windowManager: any;
 
     constructor () {
         this._registerEvent();

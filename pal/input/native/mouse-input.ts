@@ -5,11 +5,13 @@ import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
+declare const jsb: any;
+
 export class MouseInputSource {
     private _eventTarget: EventTarget = new EventTarget();
     private _preMousePos: Vec2 = new Vec2();
     private _isPressed = false;
-    private _windowManager = null;
+    private _windowManager: any;
 
     constructor () {
         this._registerEvent();
