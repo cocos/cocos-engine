@@ -53,35 +53,26 @@ export class TouchInputSource {
 
     private _registerEvent () {
         // IDEA: need to register on window ?
-        this._canvas?.addEventListener('touchstart', this._createCallback(InputEventType.TOUCH_START));
-        this._canvas?.addEventListener('touchmove', this._createCallback(InputEventType.TOUCH_MOVE));
-        this._canvas?.addEventListener('touchend', this._createCallback(InputEventType.TOUCH_END));
-        this._canvas?.addEventListener('touchcancel', this._createCallback(InputEventType.TOUCH_CANCEL));
+        this._canvas?.addEventListener('pointerdown', this._createCallback(InputEventType.TOUCH_START));
+        this._canvas?.addEventListener('pointermove', this._createCallback(InputEventType.TOUCH_MOVE));
+        this._canvas?.addEventListener('pointerup', this._createCallback(InputEventType.TOUCH_END));
+        this._canvas?.addEventListener('pointercancel', this._createCallback(InputEventType.TOUCH_CANCEL));
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (event: TouchEvent) => {
+        return (event: PointerEvent) => {
             const canvasRect = this._getCanvasRect();
             const handleTouches: Touch[] = [];
-            const length = event.changedTouches.length;
-            for (let i = 0; i < length; ++i) {
-                const changedTouch = event.changedTouches[i];
-                const touchID = changedTouch.identifier;
-                if (touchID === null) {
-                    continue;
-                }
-                const location = this._getLocation(changedTouch, canvasRect);
-                const touch = touchManager.getTouch(touchID, location.x, location.y);
-                if (!touch) {
-                    continue;
-                }
+            const location = this._getLocation(event, canvasRect);
+            const touch = touchManager.getTouch(event.pointerId, location.x, location.y);
+            if (touch) {
                 if (eventType === InputEventType.TOUCH_END || eventType === InputEventType.TOUCH_CANCEL) {
-                    touchManager.releaseTouch(touchID);
+                    touchManager.releaseTouch(event.pointerId);
                 }
                 handleTouches.push(touch);
             }
             event.stopPropagation();
-            if (event.target === this._canvas) {
+            if (event.target === this._canvas || InputEventType.TOUCH_MOVE) {
                 event.preventDefault();
             }
             if (eventType === InputEventType.TOUCH_START) {
@@ -104,12 +95,11 @@ export class TouchInputSource {
         return new Rect(0, 0, 0, 0);
     }
 
-    private _getLocation (touch: globalThis.Touch, canvasRect: Rect): Vec2 {
+    private _getLocation (touch: PointerEvent, canvasRect: Rect): Vec2 {
         // webxr has been converted to screen coordinates via camera
         if (globalThis.__globalXR.ar && globalThis.__globalXR.ar.isWebXR()) {
             return new Vec2(touch.clientX, touch.clientY);
         }
-
         let x = touch.clientX - canvasRect.x;
         let y = canvasRect.y + canvasRect.height - touch.clientY;
         if (screenAdapter.isFrameRotated) {

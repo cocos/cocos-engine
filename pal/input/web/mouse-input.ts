@@ -93,17 +93,18 @@ export class MouseInputSource {
 
     private _registerEvent () {
         // register mouse down event
-        window.addEventListener('mousedown', () => {
+        window.addEventListener('pointerdown', () => {
             this._isPressed = true;
         });
-        this._canvas?.addEventListener('mousedown', this._handleMouseDown);
+        this._canvas?.addEventListener('pointerdown', this._createCallback(InputEventType.MOUSE_DOWN));
 
         // register mouse move event
-        this._canvas?.addEventListener('mousemove', this._handleMouseMove);
+        this._canvas?.addEventListener('pointermove', this._createCallback(InputEventType.MOUSE_MOVE));
 
         // register mouse up event
-        window.addEventListener('mouseup', this._handleMouseUp);
-        this._canvas?.addEventListener('mouseup', this._handleMouseUp);
+        const handleMouseUp = this._createCallback(InputEventType.MOUSE_UP);
+        window.addEventListener('pointerup', handleMouseUp);
+        this._canvas?.addEventListener('pointerup', handleMouseUp);
 
         // register wheel event
         this._canvas?.addEventListener('wheel', this._handleMouseWheel.bind(this));
