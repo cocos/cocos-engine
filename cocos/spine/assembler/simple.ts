@@ -310,7 +310,7 @@ function updateChunkForClip (clippedVertices: number[], clippedTriangles: number
     if (_actualVCount > rd.vertexCount) {
         rd.resizeAndCopy(_actualVCount, _actualICount > rd.indexCount ? _actualICount : rd.indexCount);
         _vbuf = rd.chunk.vb;
-        _vUintBuf = new Uint32Array(_vbuf.buffer, 4 * _perVertexSize * rd.chunk.vertexOffset, _vbuf.length);
+        _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
         updateIBuf = true;
     }
     if (_actualICount > _ibuf.length) {
@@ -342,7 +342,7 @@ function fillVertices (skeletonColor: spine.Color,
     _finalColor.b = _tempb * slotColor.b;
 
     if (slot.darkColor == null) {
-        _darkColor.set(0, 0, 0, 0);
+        _darkColor.set(0, 0, 0, 1);
     } else {
         _darkColor.r = slot.darkColor.r * _tempr;
         _darkColor.g = slot.darkColor.g * _tempg;
@@ -495,7 +495,7 @@ function fillVertices (skeletonColor: spine.Color,
 function realTimeTraverse (batcher: Batcher2D) {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
-    _vUintBuf = new Uint32Array(rd.chunk.vb.buffer, 4 * _perVertexSize * rd.chunk.vertexOffset, _vbuf.length);
+    _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
     _ibuf = rd.indices!;
     _actualVCount = _comp!.maxVertexCount;
     _actualICount = _comp!.maxIndexCount;
