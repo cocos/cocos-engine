@@ -408,6 +408,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 9004, "Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes" },
 { 9005, "BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 *9* 4 / 1024 = 2304KB)" },
 { 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
+{ 9007, "Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation." },
 { 9100, "texture size exceeds current device limits %d/%d" },
 { 9201, "Cannot access game frame or container." },
 { 9202, "Setting window size is not supported." },
