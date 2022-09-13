@@ -20,7 +20,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { director } from '../core';
+import { director } from '../core/director';
 import { legacyCC } from '../core/global-exports';
 import { errorID } from '../core/platform/debug';
 import { Settings, settings } from '../core/settings';
@@ -36,10 +36,20 @@ const SortingLayer = {
     default: 0,
 };
 
+/**
+ * @zh 排序层管理器，用于在 sorting 组件中帮助用户进行对象分组并进行层级排序。
+ * 在sorting组件中，layer 的排序优先级高于 sortingOrder。
+ * @en Sorting layers manager, Used in the sorting component to help the user group objects and perform layer sorting.
+ * In the sorting component, layer has higher sorting priority than sortingOrder.
+ * */
 export class SortingLayers {
     private static nameMap = new Map<number, string>();
     private static indexMap = new Map<number, number>();
 
+    /**
+     * @en All sortinglayers in an Enum
+     * @zh 以 Enum 形式存在的所有排序层列表
+     */
     public static Enum = Enum(SortingLayer);
 
     /**
