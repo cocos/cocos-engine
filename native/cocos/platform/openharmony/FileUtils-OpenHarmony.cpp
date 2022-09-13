@@ -94,13 +94,11 @@ FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &
 }
 
 FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename, ResizableBuffer *buffer) {
-    CC_LOG_ERROR("read path1 : %s", filename.c_str());
     if (filename.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
 
     std::string fullPath = fullPathForFilename(filename);
-    CC_LOG_ERROR("read path2 : %s", fullPath.c_str());
     if (fullPath.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
@@ -116,7 +114,6 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
 
     RawFile *rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, fullPath.c_str());
     if (nullptr == rawFile) {
-         CC_LOG_ERROR("open fail : %s", fullPath.c_str());
         return FileUtils::Status::OPEN_FAILED;
     }
 
@@ -135,7 +132,6 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
         return FileUtils::Status::READ_FAILED;
     }
     OH_ResourceManager_CloseRawFile(rawFile);
-    CC_LOG_ERROR("read success ");
     return FileUtils::Status::OK;
 }
 
