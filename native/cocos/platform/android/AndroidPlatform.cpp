@@ -261,7 +261,7 @@ public:
     }
 
     bool cookGameActivityKeyEvent(GameActivityKeyEvent *keyEvent) {
-        for (auto &action : INPUT_KEY_ACTIONS) {
+        for (const auto &action : INPUT_KEY_ACTIONS) {
             if (action.buttonMask != keyEvent->keyCode) {
                 continue;
             }
