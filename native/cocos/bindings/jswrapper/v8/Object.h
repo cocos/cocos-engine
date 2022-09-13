@@ -95,7 +95,7 @@ public:
 
 private:
     template <typename Ty>
-    static constexpr TypedArrayType getTypedArrayType() {
+    static constexpr TypedArrayType _getTypedArrayType() {
         if constexpr (std::is_same_v<Ty, float>) {
             static_assert(sizeof(float) == 4);
             return TypedArrayType::FLOAT32;
@@ -135,8 +135,8 @@ public:
     static Object *createTypedArray(TypedArrayType type, const void *data, size_t byteLength);
 
     template <typename Ty>
-    static inline std::enable_if_t<getTypedArrayType<Ty>() != TypedArrayType::NONE, Object> *createTypedArray(const Ty *data, std::size_t length) {
-        return createTypedArray(getTypedArrayType<Ty>(), reinterpret_cast<const void *>(data), length * sizeof(Ty));
+    static inline std::enable_if_t<_getTypedArrayType<Ty>() != TypedArrayType::NONE, Object> *createTypedArray(const Ty *data, std::size_t length) {
+        return createTypedArray(_getTypedArrayType<Ty>(), reinterpret_cast<const void *>(data), length * sizeof(Ty));
     }
 
     /**
@@ -210,20 +210,9 @@ public:
      * @param An utf-8 string containing the property's name.
      * @returns The property's value if object has the property, otherwise the undefined value.
      */
-    Value operator[](const char *name) {
+    Value operator[](std::string_view name) {
         auto result = Value{Value::Undefined};
-        getProperty(name, &result);
-        return result;
-    }
-
-    /**
-     * @brief Gets the element(property) from this object.
-     * @param Index to the element.
-     * @returns The element's value if object has the property, otherwise the undefined value.
-     */
-    Value operator[](std::uint32_t index) {
-        auto result = Value{Value::Undefined};
-        getArrayElement(index, &result);
+        getProperty(name.data(), &result);
         return result;
     }
 
@@ -327,6 +316,15 @@ public:
      *  @return true if succeed, otherwise false.
      */
     bool getTypedArrayData(uint8_t **ptr, size_t *length) const;
+
+    template <typename Ty>
+    std::enable_if_t<_getTypedArrayType<Ty>() != TypedArrayType::NONE, bool> getTypedArrayData(Ty **ptr, std::size_t *length) const {
+        std::size_t byteLength = 0;
+        CC_ASSERT(this->getTypedArrayType() == _getTypedArrayType<Ty>() || "Mismatched typed array type.");
+        auto result = getTypedArrayData(reinterpret_cast<std::uint8_t **>(ptr), byteLength);
+        (*length) = byteLength / sizeof(Ty);
+        return result;
+    }
 
     /**
      *  @brief Tests whether an object is an array buffer object.
