@@ -249,20 +249,90 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
 }
 
 Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj) {
-    //TODO impl
-    return nullptr;
+    return Object::createTypedArrayWithBuffer(type, obj, 0);
 }
 
 Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset) {
-    return nullptr;
+    size_t byteLength{0};
+    uint8_t *skip{nullptr};
+
+    if (obj->getArrayBufferData(&skip, &byteLength)) {
+        return Object::createTypedArrayWithBuffer(type, obj, offset, byteLength - offset);
+    }
+
+    CC_ASSERT(false);
 }
 
 Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength) {
-    return nullptr;
+    if (type == TypedArrayType::NONE) {
+        SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
+        return nullptr;
+    }
+
+    if (type == TypedArrayType::UINT8_CLAMPED) {
+        SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
+        return nullptr;
+    }
+
+    CC_ASSERT(obj->isArrayBuffer());
+    napi_status status;
+    napi_value outputBuffer = obj->_getJSObject();
+    napi_typedarray_type napiType;
+
+    size_t sizeOfEle = 0;
+    switch (type) {
+        case TypedArrayType::INT8:
+            napiType  = napi_int8_array;
+            sizeOfEle = 1;
+            break;
+        case TypedArrayType::UINT8:
+            napiType  = napi_uint8_array;
+            sizeOfEle = 1;
+            break;
+        case TypedArrayType::INT16:
+            napiType  = napi_int8_array;
+            sizeOfEle = 2;
+        case TypedArrayType::UINT16:
+            napiType  = napi_uint8_array;
+            sizeOfEle = 2;
+            break;
+        case TypedArrayType::INT32:
+            napiType  = napi_int32_array;
+            sizeOfEle = 4;
+        case TypedArrayType::UINT32:
+            napiType  = napi_uint32_array;
+            sizeOfEle = 4;
+        case TypedArrayType::FLOAT32:
+            napiType  = napi_float32_array;
+            sizeOfEle = 4;
+            break;
+        case TypedArrayType::FLOAT64:
+            napiType  = napi_float64_array;
+            sizeOfEle = 8;
+            break;
+        default:
+            assert(false); // Should never go here.
+            break;
+    }
+    size_t     eleCounts = byteLength / sizeOfEle;
+    napi_value outputArray;
+    NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_typedarray(ScriptEngine::getEnv(), napiType, eleCounts, outputBuffer, offset, &outputArray));
+
+    return Object::_createJSObject(ScriptEngine::getEnv(), outputArray, nullptr);
 }
 
 Object* Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData) {
-    return nullptr;
+    napi_status status;
+    napi_value result;
+    NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_external_arraybuffer(ScriptEngine::getEnv(), contents, byteLength, [](napi_env env,
+                              void* finalize_data,
+                              void* finalize_hint){
+                                //if (freeFunc) {
+                                    //freeFunc(contents, byteLength, freeUserData);
+                                //}
+                              },freeUserData, &result));
+    Object* obj = Object::_createJSObject(ScriptEngine::getEnv(), result, nullptr);
+    return obj;
 }
 
 bool Object::isFunction() const {
