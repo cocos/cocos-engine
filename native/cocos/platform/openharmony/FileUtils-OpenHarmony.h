@@ -39,7 +39,7 @@ namespace cc {
 
 class CC_DLL FileUtilsOpenHarmony : public FileUtils {
 public:
-    //        FileUtilsOpenHarmony();
+    FileUtilsOpenHarmony();
      ~FileUtilsOpenHarmony() override;
     static bool initResourceManager(napi_env env, napi_value info);
 

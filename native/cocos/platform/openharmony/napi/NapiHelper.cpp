@@ -94,6 +94,7 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
         case NATIVE_RENDER_API: {
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("nativeEngineInit", NapiHelper::napiNativeEngineInit),
+                DECLARE_NAPI_FUNCTION("nativeEngineStart", NapiHelper::napiNativeEngineStart),
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         } break;
@@ -164,19 +165,20 @@ napi_value NapiHelper::napiOnCreate(napi_env env, napi_callback_info info) {
 }
 
 napi_value NapiHelper::napiOnShow(napi_env env, napi_callback_info info) {
-    //TODO (oahcy) fix crash when press home button
-    //OpenHarmonyPlatform::getInstance()->onShowNative();
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_SHOW, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
     return nullptr;
 }
 
 napi_value NapiHelper::napiOnHide(napi_env env, napi_callback_info info) {
-    //TODO (oahcy) fix crash when press home button
-    //OpenHarmonyPlatform::getInstance()->onHideNative();
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_HIDE, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
     return nullptr;
 }
 
 napi_value NapiHelper::napiOnDestroy(napi_env env, napi_callback_info info) {
-    OpenHarmonyPlatform::getInstance()->onDestroyNative();
+    cc::WorkerMessageData data{cc::MessageType::WM_APP_DESTROY, nullptr, nullptr};
+    OpenHarmonyPlatform::getInstance()->enqueue(data);
     return nullptr;
 }
 
@@ -188,9 +190,14 @@ napi_value NapiHelper::napiOnPageHide(napi_env env, napi_callback_info info) {
     return nullptr;
 }
 
-napi_value NapiHelper::napiNativeEngineInit(napi_env env, napi_callback_info info){
+napi_value NapiHelper::napiNativeEngineInit(napi_env env, napi_callback_info info) {
     se::ScriptEngine::setEnv(env);
     OpenHarmonyPlatform::getInstance()->run(0, nullptr);
+    return nullptr;
+}
+
+napi_value NapiHelper::napiNativeEngineStart(napi_env env, napi_callback_info info) {
+    OpenHarmonyPlatform::getInstance()->requestVSync();
     return nullptr;
 }
 

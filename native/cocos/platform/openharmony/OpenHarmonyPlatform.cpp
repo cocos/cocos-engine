@@ -105,6 +105,7 @@ OpenHarmonyPlatform* OpenHarmonyPlatform::getInstance() {
 
 int32_t OpenHarmonyPlatform::run(int argc, const char** argv) {
     UniversalPlatform::run(argc, argv);
+    /*
     if (_workerLoop) {
         // Todo: Starting the timer in this way is inaccurate and will be fixed later.
         uv_timer_init(_workerLoop, &_timerHandle);
@@ -112,6 +113,7 @@ int32_t OpenHarmonyPlatform::run(int argc, const char** argv) {
         // 1000ms / 60fps = 16 ms/fps
         uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 16, true);
     }
+    */
     return 0;
 }
 
@@ -141,24 +143,45 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
     void*             window          = nullptr;
     WorkerMessageData msgData;
     OpenHarmonyPlatform* platform = OpenHarmonyPlatform::getInstance();
-    if(!platform->dequeue(reinterpret_cast<WorkerMessageData*>(&msgData))) {
-        // Queue has no data
-        return;
-    }
 
-    OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
-    CC_ASSERT(nativexcomponet != nullptr);
+    while (true) {
+        //loop until all msg dispatch
+        if (!platform->dequeue(reinterpret_cast<WorkerMessageData*>(&msgData))) {
+            // Queue has no data
+            break;
+        }
 
-    if(msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
-        platform->onSurfaceCreated(nativexcomponet, msgData.window);
-    } else if(msgData.type == MessageType::WM_XCOMPONENT_TOUCH_EVENT) {
-        platform->dispatchTouchEvent(nativexcomponet, msgData.window);
-    } else if(msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CHANGED) {
-        platform->onSurfaceChanged(nativexcomponet, msgData.window);
-    } else if(msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
-        platform->onSurfaceDestroyed(nativexcomponet, msgData.window);
-    } else {
-        CC_LOG_WARNING("Unknown message data");
+        if ((msgData.type >= MessageType::WM_XCOMPONENT_SURFACE_CREATED) && (msgData.type <= MessageType::WM_XCOMPONENT_SURFACE_DESTROY)) {
+            OH_NativeXComponent* nativexcomponet = reinterpret_cast<OH_NativeXComponent*>(msgData.data);
+            CC_ASSERT(nativexcomponet != nullptr);
+
+            if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
+                platform->onSurfaceCreated(nativexcomponet, msgData.window);
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_TOUCH_EVENT) {
+                platform->dispatchTouchEvent(nativexcomponet, msgData.window);
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CHANGED) {
+                platform->onSurfaceChanged(nativexcomponet, msgData.window);
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_DESTROY) {
+                platform->onSurfaceDestroyed(nativexcomponet, msgData.window);
+            } else {
+                CC_ASSERT(false);
+            }
+            continue;
+        }
+
+        if (msgData.type == MessageType::WM_APP_SHOW) {
+            platform->onShowNative();
+        } else if (msgData.type == MessageType::WM_APP_HIDE) {
+            platform->onHideNative();
+        } else if (msgData.type == MessageType::WM_APP_DESTROY) {
+            platform->onDestroyNative();
+        }
+        if(msgData.type == MessageType::WM_VSYNC) {
+            platform->runTask();
+        }
+        //    CC_ASSERT(false);
+        //}
+
     }
 }
 
@@ -190,6 +213,19 @@ void OpenHarmonyPlatform::workerInit(napi_env env, uv_loop_t* loop) {
     if (_workerLoop) {
         uv_async_init(_workerLoop, &_messageSignal, reinterpret_cast<uv_async_cb>(OpenHarmonyPlatform::onMessageCallback));
     }
+}
+
+void OpenHarmonyPlatform::requestVSync() {
+    //CC_LOG_ERROR("OpenHarmonyPlatform::requestVSync1");
+    //OH_NativeVSync_RequestFrame(OpenHarmonyPlatform::getInstance()->_nativeVSync, OnVSync, nullptr);
+     if (_workerLoop) {
+    //     // Todo: Starting the timer in this way is inaccurate and will be fixed later.
+         uv_timer_init(_workerLoop, &_timerHandle);
+    //     // 1s = 1000ms = 60fps;
+    //     // 1000ms / 60fps = 16 ms/fps
+         uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 16, true);
+     }
+    //CC_LOG_ERROR("OpenHarmonyPlatform::requestVSync2");
 }
 
 int32_t OpenHarmonyPlatform::loop() {
