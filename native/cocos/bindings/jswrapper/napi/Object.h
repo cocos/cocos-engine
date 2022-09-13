@@ -116,6 +116,15 @@ public:
         FLOAT64
     };
 
+    using BufferContentsFreeFunc = void (*)(void *contents, size_t byteLength, void *userData);
+
+    struct ExternalArrayBufferCallbackParams {
+        BufferContentsFreeFunc func{nullptr};
+        void *contents{nullptr};
+        size_t byteLength{0};
+        void *userData{0};
+        };
+
     Object();
     ~Object();
     /**
@@ -262,7 +271,6 @@ public:
     static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset);
     static Object *createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength);
 
-    using BufferContentsFreeFunc = void (*)(void *contents, size_t byteLength, void *userData);
     static Object *createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData = nullptr);
     /**
          *  @brief Tests whether an object can be called as a function.
