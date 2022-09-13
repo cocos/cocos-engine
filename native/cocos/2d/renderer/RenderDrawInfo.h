@@ -124,6 +124,9 @@ public:
         _material = material;
     }
 
+    inline void setMeshBuffer(UIMeshBuffer* meshBuffer) {
+        _meshBuffer = meshBuffer;
+    }
     inline UIMeshBuffer* getMeshBuffer() const {
         return _meshBuffer;
     }

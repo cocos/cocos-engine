@@ -43,6 +43,7 @@ using UIMeshBufferMap = ccstd::unordered_map<uint16_t, UIMeshBufferArray>;
 
 class Batcher2d final {
 public:
+    static Batcher2d* getInstance(Root* root = nullptr);
     Batcher2d();
     explicit Batcher2d(Root* root);
     ~Batcher2d();

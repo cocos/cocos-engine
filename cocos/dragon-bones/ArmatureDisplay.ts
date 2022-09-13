@@ -27,7 +27,7 @@ import { EDITOR, JSB } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, builtinResMgr, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
@@ -572,20 +572,28 @@ export class ArmatureDisplay extends UIRenderer {
         super.destroyRenderData();
     }
 
+    private getMaterialTemplate () : Material {
+        let material = this.customMaterial;
+        if (material === null) {
+            material = builtinResMgr.get<Material>('default-spine-material');
+        }
+        return material;
+    }
+
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
         const key = `${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
             return inst;
         }
-        const material = this.getMaterial(0)!;
+        const material = this.getMaterialTemplate();
         const matInfo = {
             parent: material,
             subModelIdx: 0,
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
+        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: true });
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {

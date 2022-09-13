@@ -302,7 +302,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     onGlobalPipelineStateChanged();
 
     if (_batcher == nullptr) {
-        _batcher = ccnew Batcher2d(this);
+        _batcher = Batcher2d::getInstance(this);
         if (!_batcher->initialize()) {
             destroy();
             return false;

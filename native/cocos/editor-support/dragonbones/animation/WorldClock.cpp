@@ -96,21 +96,21 @@ void WorldClock::render() {
     for (const auto animatable : _animatebles) {
         if (animatable != nullptr) {
             animatable->render();
-            auto renderOrder = animatable->getRenderOrder();
-            if (maxRenderOrder > renderOrder) {
-                isOrderDirty = true;
-            } else {
-                maxRenderOrder = renderOrder;
-            }
+            //auto renderOrder = animatable->getRenderOrder();
+            //if (maxRenderOrder > renderOrder) {
+            //    isOrderDirty = true;
+            //} else {
+            //    maxRenderOrder = renderOrder;
+            //}
         }
     }
 
-    if (isOrderDirty) {
-        std::sort(_animatebles.begin(), _animatebles.end(), [](IAnimatable* it1, IAnimatable* it2) {
-            if (!it1 || !it2) return false;
-            return it1->getRenderOrder() < it2->getRenderOrder();
-        });
-    }
+    //if (isOrderDirty) {
+    //    std::sort(_animatebles.begin(), _animatebles.end(), [](IAnimatable* it1, IAnimatable* it2) {
+    //        if (!it1 || !it2) return false;
+    //        return it1->getRenderOrder() < it2->getRenderOrder();
+    //    });
+    //}
 }
 
 void WorldClock::clear() {

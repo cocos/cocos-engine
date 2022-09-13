@@ -145,6 +145,11 @@ public:
     void initWithBinaryFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
     virtual void initialize();
+ 
+    void *requestDrawInfo(int idx);
+    void *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(void *material) { _material = material;};
+    void setRenderEntity(void* entity) { _entity = entity;};
 
 protected:
     void setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData);
@@ -176,6 +181,11 @@ protected:
     cc::middleware::IOTypedArray *_debugBuffer = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
     cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
+
+    void *_entity = nullptr;
+    std::vector<void *> _drawInfoArray;
+    void *_material = nullptr;
+    std::map<uint32_t, void*> _materialCaches;
 };
 
 } // namespace spine

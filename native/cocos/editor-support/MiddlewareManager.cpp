@@ -26,6 +26,7 @@
 #include "MiddlewareManager.h"
 #include <algorithm>
 #include "SeApi.h"
+#include "2d/renderer/Batcher2d.h"
 
 MIDDLEWARE_BEGIN
 
@@ -141,6 +142,18 @@ void MiddlewareManager::render(float dt) {
             buffer->uploadIB();
             buffer->uploadVB();
         }
+
+        uint16_t accID = 65534;
+        Batcher2d *bath2d = Batcher2d::getInstance();
+        if (it.first == 7) {
+            accID = 65535;
+        }
+        ccstd::vector<UIMeshBuffer *> uiMeshArray;
+        auto uiBufArray = buffer->uiMeshBuffers();
+        for (auto &item : uiBufArray) {
+            uiMeshArray.push_back((UIMeshBuffer *)item);
+        }
+        bath2d->syncMeshBuffersToNative(accID, std::move(uiMeshArray));
     }
 
     clearRemoveList();

@@ -168,14 +168,18 @@ public:
      * @return root display,if this diplay is root,then return itself.
      */
     CCArmatureDisplay *getRootDisplay();
-
+    void *requestDrawInfo(int idx);
+    void *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(void *material) { _material = material;};
+    void setRenderEntity(void* entity) { _entity = entity;};
 private:
     std::map<std::string, bool> _listenerIDMap;
     int _preBlendMode = -1;
-    int _preTextureIndex = -1;
-    int _curTextureIndex = -1;
     int _curBlendSrc = -1;
     int _curBlendDst = -1;
+    void *_preTexture = nullptr;
+    void *_curTexture = nullptr;
+    void *_curDrawInfo = nullptr;
 
     int _preISegWritePos = -1;
     int _curISegLen = 0;
@@ -197,6 +201,11 @@ private:
     cc::middleware::IOTypedArray *_debugBuffer = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
     cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
+
+    void *_entity = nullptr;
+    std::vector<void *> _drawInfoArray;
+    void *_material = nullptr;
+    std::map<uint32_t, void*> _materialCaches;
 };
 
 DRAGONBONES_NAMESPACE_END
