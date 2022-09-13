@@ -27,25 +27,6 @@
 #include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
-static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4F {
-    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR2, gfx::Format::RGBA32F},
-};
-
-static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B {
-    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
-};
-
-static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B_C4B {
-    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
-};
 
 static uint32_t getAttributesStride(ccstd::vector<gfx::Attribute>& attrs) {
     uint32_t stride = 0;
