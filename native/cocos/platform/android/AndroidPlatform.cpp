@@ -85,23 +85,22 @@ struct InputAction {
 };
 
 static const InputAction PADDLEBOAT_ACTIONS[INPUT_ACTION_COUNT] = {
-        {PADDLEBOAT_BUTTON_A,          static_cast<int>(KeyCode::ENTER)},
-        {PADDLEBOAT_BUTTON_B,          static_cast<int>(KeyCode::ESCAPE)},
-        {PADDLEBOAT_BUTTON_DPAD_UP,    static_cast<int>(KeyCode::DPAD_UP)},
-        {PADDLEBOAT_BUTTON_DPAD_LEFT,  static_cast<int>(KeyCode::DPAD_LEFT)},
-        {PADDLEBOAT_BUTTON_DPAD_DOWN,  static_cast<int>(KeyCode::DPAD_DOWN)},
-        {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)}
-};
+    {PADDLEBOAT_BUTTON_A, static_cast<int>(KeyCode::ENTER)},
+    {PADDLEBOAT_BUTTON_B, static_cast<int>(KeyCode::ESCAPE)},
+    {PADDLEBOAT_BUTTON_DPAD_UP, static_cast<int>(KeyCode::DPAD_UP)},
+    {PADDLEBOAT_BUTTON_DPAD_LEFT, static_cast<int>(KeyCode::DPAD_LEFT)},
+    {PADDLEBOAT_BUTTON_DPAD_DOWN, static_cast<int>(KeyCode::DPAD_DOWN)},
+    {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)}};
 
 static const InputAction INPUT_KEY_ACTIONS[] = {
-        {AKEYCODE_BACK,        static_cast<int>(KeyCode::MOBILE_BACK)},
-        {AKEYCODE_ENTER,       static_cast<int>(KeyCode::ENTER)},
-        {AKEYCODE_MENU,        static_cast<int>(KeyCode::ALT_LEFT)},
-        {AKEYCODE_DPAD_UP,     static_cast<int>(KeyCode::DPAD_UP)},
-        {AKEYCODE_DPAD_DOWN,   static_cast<int>(KeyCode::DPAD_DOWN)},
-        {AKEYCODE_DPAD_LEFT,   static_cast<int>(KeyCode::DPAD_LEFT)},
-        {AKEYCODE_DPAD_RIGHT,  static_cast<int>(KeyCode::DPAD_RIGHT)},
-        {AKEYCODE_DPAD_CENTER, static_cast<int>(KeyCode::DPAD_CENTER)},
+    {AKEYCODE_BACK, static_cast<int>(KeyCode::MOBILE_BACK)},
+    {AKEYCODE_ENTER, static_cast<int>(KeyCode::ENTER)},
+    {AKEYCODE_MENU, static_cast<int>(KeyCode::ALT_LEFT)},
+    {AKEYCODE_DPAD_UP, static_cast<int>(KeyCode::DPAD_UP)},
+    {AKEYCODE_DPAD_DOWN, static_cast<int>(KeyCode::DPAD_DOWN)},
+    {AKEYCODE_DPAD_LEFT, static_cast<int>(KeyCode::DPAD_LEFT)},
+    {AKEYCODE_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)},
+    {AKEYCODE_DPAD_CENTER, static_cast<int>(KeyCode::DPAD_CENTER)},
 };
 
 static bool keyState[INPUT_ACTION_COUNT] = {false};
