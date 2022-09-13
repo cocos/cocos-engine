@@ -51,7 +51,6 @@ import { assert } from './platform/debug';
 import { IBundleOptions } from './asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { promiseForWebGPUInstantiation } from '../webgpu/instantiated';
 
 /**
  * @zh
@@ -85,7 +84,7 @@ export interface IGameConfig {
      * You can pass in parameters in game.init or override them in the [game.onPostBaseInitDelegate] event callback.
      * Note: you need to specify this option in the application.js template or add a delegate callback.
      */
-    overrideSettings : Partial<{ [ k in Settings.Category[keyof Settings.Category] ]: Record<string, any> }>
+    overrideSettings: Partial<{ [k in Settings.Category[keyof Settings.Category]]: Record<string, any> }>
 
     /**
      * @zh
@@ -603,8 +602,8 @@ export class Game extends EventTarget {
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if ((this._engineInited && type === Game.EVENT_ENGINE_INITED)
-        || (this._inited && type === Game.EVENT_GAME_INITED)
-        || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
+            || (this._inited && type === Game.EVENT_GAME_INITED)
+            || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
             callback.call(target);
         }
         return this.eventTargetOn(type, callback, target, once);
@@ -1042,7 +1041,3 @@ legacyCC.Game = Game;
  * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
  */
 export const game = legacyCC.game = new Game();
-
-if (WEBGPU) {
-    game.onPreInfrastructureInitDelegate.add(() => promiseForWebGPUInstantiation);
-}

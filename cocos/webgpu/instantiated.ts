@@ -27,8 +27,8 @@
 import { WEBGPU } from 'internal:constants';
 import webgpuUrl from 'url:native/external/emscripten/webgpu/webgpu_wasm.wasm';
 import glslangUrl from 'url:native/external/emscripten/webgpu/glslang.wasm';
-import wasmDevice from '../../native/external/emscripten/webgpu/webgpu_wasm.js';
-import glslangLoader from '../../native/external/emscripten/webgpu/glslang.js';
+import wasmDevice from './webgpu_wasm.js';
+import glslangLoader from './glslang.js';
 import { legacyCC } from '../core/global-exports';
 
 export const glslalgWasmModule: any = {
@@ -78,3 +78,12 @@ export const promiseForWebGPUInstantiation = (() => {
     }
     return Promise.resolve();
 })();
+
+if (WEBGPU) {
+    const intervalId = setInterval(() => {
+        if (legacyCC.game) {
+            legacyCC.game.onPreInfrastructureInitDelegate.add(() => promiseForWebGPUInstantiation);
+            clearInterval(intervalId);
+        }
+    }, 10);
+}
