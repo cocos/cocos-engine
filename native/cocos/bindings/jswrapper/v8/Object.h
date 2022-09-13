@@ -47,7 +47,6 @@
     #define JSB_TRACK_OBJECT_CREATION 0
 
 namespace se {
-
 class Class;
 class ScriptEngine;
 
@@ -94,6 +93,36 @@ public:
         FLOAT64
     };
 
+private:
+    template <typename Ty>
+    static constexpr TypedArrayType getTypedArrayType() {
+        if constexpr (std::is_same_v<Ty, float>) {
+            static_assert(sizeof(float) == 4);
+            return TypedArrayType::FLOAT32;
+        } else if constexpr (std::is_same_v<Ty, double>) {
+            static_assert(sizeof(double) == 8);
+            return TypedArrayType::FLOAT64;
+        } else if constexpr (std::is_same_v<Ty, std::int32_t>) {
+            return TypedArrayType::INT32;
+        } else if constexpr (std::is_same_v<Ty, std::uint32_t>) {
+            return TypedArrayType::UINT32;
+        } else if constexpr (std::is_same_v<Ty, std::int16_t>) {
+            return TypedArrayType::INT16;
+        } else if constexpr (std::is_same_v<Ty, std::uint16_t>) {
+            return TypedArrayType::UINT16;
+        } else if constexpr (std::is_same_v<Ty, std::int8_t>) {
+            return TypedArrayType::INT8;
+        } else if constexpr (std::is_same_v<Ty, std::uint8_t>) {
+            return TypedArrayType::UINT8;
+        } else {
+            static_assert(!sizeof(Ty *),
+                          "The parameter passed to createTypedArray() is illegal, "
+                          "only pointers to specific arithmetic type are allowed.");
+            return TypedArrayType::NONE;
+        }
+    }
+
+public:
     /**
          *  @brief Creates a JavaScript Typed Array Object with specified format from an existing pointer,
                    if provide a null pointer,then will create a empty JavaScript Typed Array Object.
@@ -104,6 +133,11 @@ public:
          *  @note The return value (non-null) has to be released manually.
          */
     static Object *createTypedArray(TypedArrayType type, const void *data, size_t byteLength);
+
+    template <typename Ty>
+    static inline std::enable_if_t<getTypedArrayType<Ty>() != TypedArrayType::NONE, Object> *createTypedArray(const Ty *data, std::size_t length) {
+        return createTypedArray(getTypedArrayType<Ty>(), reinterpret_cast<const void *>(data), length * sizeof(Ty));
+    }
 
     /**
          *  @brief Creates a JavaScript Typed Array Object with a se::Object, which is a ArrayBuffer,
@@ -169,6 +203,28 @@ public:
 
     inline bool getProperty(const ccstd::string &name, Value *value) {
         return getProperty(name.c_str(), value);
+    }
+
+    /**
+     * @brief Gets the property from this object.
+     * @param An utf-8 string containing the property's name.
+     * @returns The property's value if object has the property, otherwise the undefined value.
+     */
+    Value operator[](const char *name) {
+        auto result = Value{Value::Undefined};
+        getProperty(name, &result);
+        return result;
+    }
+
+    /**
+     * @brief Gets the element(property) from this object.
+     * @param Index to the element.
+     * @returns The element's value if object has the property, otherwise the undefined value.
+     */
+    Value operator[](std::uint32_t index) {
+        auto result = Value{Value::Undefined};
+        getArrayElement(index, &result);
+        return result;
     }
 
     /**
@@ -308,9 +364,9 @@ public:
      *  @brief Sets a pointer to private data on an object and use smart pointer to hold it.
      *
      *  If the pointer is an instance of `cc::RefCounted`, an `cc::IntrusivePtr` will be created to hold
-     *  the reference to the object, otherwise a `std::shared_ptr` object will be used. 
+     *  the reference to the object, otherwise a `std::shared_ptr` object will be used.
      *  When the JS object is freed by GC, the corresponding smart pointer `IntrusivePtr/shared_ptr` will also be destroyed.
-     * 
+     *
      *  If you do not want the pointer to be released by GC, you can call `setRawPrivateData`.
      *
      *  @param[in] data A void* to set as the object's private data.
@@ -349,8 +405,8 @@ public:
      * @brief Set pointer to the private data on an object and will not use smart pointer to hold it.
      *
      * @tparam T
-     * @param data 
-     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.  
+     * @param data
+     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.
      */
     template <typename T>
     inline void setRawPrivateData(T *data, bool tryDestroyInGC = false) {
