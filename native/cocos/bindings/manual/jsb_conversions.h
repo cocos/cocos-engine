@@ -508,7 +508,7 @@ template <typename T>
 struct is_jsb_object : std::false_type {}; // NOLINT(readability-identifier-naming)
 
 template <typename T>
-constexpr bool is_jsb_object_v = is_jsb_object<typename std::remove_const<T>::type>::value; // NOLINT
+constexpr bool is_jsb_object_v = is_jsb_object<typename std::remove_cv_t<typename std::remove_reference_t<T>>>::value; // NOLINT
 
 #define JSB_REGISTER_OBJECT_TYPE(T) \
     template <>                     \
