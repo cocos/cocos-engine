@@ -30,6 +30,7 @@
 #include "Utils.h"
 #include "CommonHeader.h"
 #include <napi/native_api.h>
+#include "base/std/container/array.h"
 
 namespace se {
 ScriptEngine *gSriptEngineInstance = nullptr;
@@ -270,11 +271,25 @@ bool ScriptEngine::_needCallConstructor() {
 }
 
 bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval) {
+    Value objFunc;
+    if (!targetObj->getProperty(funcName, &objFunc)) {
+        return false;
+    }
+
+    ValueArray argv;
+
+    for (size_t i = 0; i < argc; ++i) {
+        argv.push_back(args[i]);
+    }
+
+    objFunc.toObject()->call(argv, targetObj, rval);
+
     return true;
 }
 
 void ScriptEngine::handlePromiseExceptions() {
-    //TODO not impl
+    //not impl
+    assert(true);
     return;
 }
 
