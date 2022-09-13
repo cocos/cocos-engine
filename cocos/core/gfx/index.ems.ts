@@ -56,7 +56,7 @@ polyfillCC.CommandBuffer = gfx.CCWGPUCommandBuffer;
 polyfillCC.Queue = gfx.CCWGPUQueue;
 legacyCC.gfx = polyfillCC;
 
-export * from './override';
+export * from './webgpu/override';
 export * from './webgpu/webgpu-define'
 
 export const WGPU_WASM = true;

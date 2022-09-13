@@ -31,7 +31,7 @@ import { WEBGPU } from 'internal:constants';
 import { gfx, webgpuAdapter, glslalgWasmModule, promiseForWebGPUInstantiation } from '../../../webgpu/instantiated';
 import {
     Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer,
-} from '../override';
+} from './override';
 import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo,
 } from '../base/define';

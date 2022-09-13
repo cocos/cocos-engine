@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable import/no-mutable-exports */
 import { WEBGPU } from 'internal:constants';
-import { gfx, promiseForWebGPUInstantiation } from '../../webgpu/instantiated';
+import { gfx, promiseForWebGPUInstantiation } from '../../../webgpu/instantiated';
 
 export let Device: any;
 export let WebGPUDevice: any;
@@ -47,10 +47,10 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     // immutable excluded
     [Device, Queue, Swapchain, Buffer, Texture, Shader, InputAssembler, RenderPass, Framebuffer, DescriptorSet,
         DescriptorSetLayout, PipelineState, CommandBuffer].forEach((ele) => {
-        const oldDestroy = ele.prototype.destroy;
-        ele.prototype.destroy = function () {
-            oldDestroy.call(this);
-            this.delete();
-        };
-    });
+            const oldDestroy = ele.prototype.destroy;
+            ele.prototype.destroy = function () {
+                oldDestroy.call(this);
+                this.delete();
+            };
+        });
 });

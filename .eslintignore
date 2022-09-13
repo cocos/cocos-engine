@@ -1,1 +1,3 @@
 *.jsb.ts
+*.ems.ts
+webgpu/*
