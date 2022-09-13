@@ -6,7 +6,7 @@ import {
     ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo, MemoryAccessBit,
 } from '../../cocos/gfx/base/define';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/core/pipeline/define';
-import { murmurhash2_32_gc } from '../../cocos/core/utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../cocos/core/algorithm/murmurhash2_gc';
 import { Sampler } from '../../cocos/gfx/base/states/sampler';
 
 const typeMap: Record<string, Type | string> = {};
