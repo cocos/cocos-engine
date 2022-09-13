@@ -54,6 +54,9 @@ public:
 
     int32_t run(int argc, const char** argv) override;
     int32_t loop() override;
+
+    void requestVSync();
+    
     void enqueue(const WorkerMessageData& data);
     bool dequeue(WorkerMessageData* data);
 

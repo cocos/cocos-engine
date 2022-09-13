@@ -48,6 +48,7 @@ public:
     static napi_value napiWorkerInit(napi_env env, napi_callback_info info);
     static napi_value napiASend(napi_env env, napi_callback_info info);
     static napi_value napiNativeEngineInit(napi_env env, napi_callback_info info);
+    static napi_value napiNativeEngineStart(napi_env env, napi_callback_info info);
 
     static napi_value napiWritablePathInit(napi_env env, napi_callback_info info);
     static napi_value napiResourceManagerInit(napi_env env, napi_callback_info info);
