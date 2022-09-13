@@ -319,7 +319,7 @@ var ComponentScheduler = cc.Class({
             var array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 let comp = array[iterator.i];
-                if (comp._enabled) {
+                if (comp._enabled && !(comp._objFlags & IsOnEnableCalled)) {
                     callOnEnableInTryCatch(comp);
                     var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
                     if (!deactivatedDuringOnEnable) {
@@ -332,7 +332,7 @@ var ComponentScheduler = cc.Class({
             var array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 let comp = array[iterator.i];
-                if (comp._enabled) {
+                if (comp._enabled && !(comp._objFlags & IsOnEnableCalled)) {
                     comp.onEnable();
                     var deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
                     if (!deactivatedDuringOnEnable) {
