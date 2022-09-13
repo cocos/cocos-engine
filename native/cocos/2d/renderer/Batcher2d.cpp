@@ -32,6 +32,17 @@
 #include "scene/Pass.h"
 
 namespace cc {
+
+static Batcher2d* batcher2DInstance {nullptr};
+
+Batcher2d* Batcher2d::getInstance(Root* root) {
+    if (batcher2DInstance) {
+        return batcher2DInstance;
+    }
+    batcher2DInstance = ccnew Batcher2d(root);
+    return batcher2DInstance;
+}
+
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
 
@@ -279,6 +290,7 @@ CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInf
 
     UIMeshBuffer* currMeshBuffer = drawInfo->getMeshBuffer();
     currMeshBuffer->setDirty(true);
+    _currMeshBuffer = currMeshBuffer;
     gfx::InputAssembler* ia = currMeshBuffer->requireFreeIA(getDevice());
     ia->setFirstIndex(drawInfo->getIndexOffset());
     ia->setIndexCount(drawInfo->getIbCount());
@@ -295,12 +307,13 @@ CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInf
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
-    if (entity->getUseLocal()) {
-        drawInfo->updateLocalDescriptorSet(node, pass->getLocalSetLayout());
-        curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
-    } else {
-        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
-    }
+    // if (entity->getUseLocal()) {
+    //     drawInfo->updateLocalDescriptorSet(node, pass->getLocalSetLayout());
+    //     curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
+    // } else {
+    //     curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+    // }
+    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
     _batches.push_back(curdrawBatch);
 }
 
@@ -466,30 +479,8 @@ void Batcher2d::uploadBuffers() {
         meshRenderData->uploadBuffers();
     }
 
-    size_t i = 0;
-    size_t ii = 0;
     for (auto& map : _meshBuffersMap) {
         for (auto& buffer : map.second) {
-#if CC_USE_MIDDLEWARE
-            // set vData and iData With Middleware buffer.
-            if (buffer->getUseLinkData()) {
-                int nativeFormat = 6;
-                size_t index = i;
-                if (buffer->getAttributes().size() == 3) {
-                    i++;
-                } else {
-                    nativeFormat = 7;
-                    index = ii;
-                    ii++;
-                }
-                auto* middleWare = middleware::MiddlewareManager::getInstance();
-                auto* middleBuffer = middleWare->getMeshBuffer(nativeFormat);
-                auto* srcIBuf = middleBuffer->getIBFromBufferArray(index);
-                auto* srcVBuf = middleBuffer->getVBFromBufferArray(index);
-                buffer->setVData(reinterpret_cast<float*>(srcVBuf));
-                buffer->setIData(reinterpret_cast<uint16_t*>(srcIBuf));
-            }
-#endif
             buffer->uploadBuffers();
             buffer->reset();
         }

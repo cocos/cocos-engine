@@ -1335,6 +1335,14 @@ export class Skeleton extends UIRenderer {
         super.destroyRenderData();
     }
 
+    private getMaterialTemplate () : Material {
+        let material = this.customMaterial;
+        if (material === null) {
+            material = builtinResMgr.get<Material>('default-spine-material');
+        }
+        return material;
+    }
+
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
         let inst = this._materialCache[key];
@@ -1342,19 +1350,11 @@ export class Skeleton extends UIRenderer {
             return inst;
         }
 
-        let material = this.customMaterial;
-        if (material === null) {
-            material = builtinResMgr.get<Material>('default-spine-material');
-        }
+        const material = this.getMaterialTemplate();
 
         let useTwoColor = false;
-        switch (type) {
-        case SpineMaterialType.TWO_COLORED:
+        if (type === SpineMaterialType.TWO_COLORED) {
             useTwoColor = true;
-            break;
-        case SpineMaterialType.COLORED_TEXTURED:
-        default:
-            break;
         }
         const matInfo = {
             parent: material,

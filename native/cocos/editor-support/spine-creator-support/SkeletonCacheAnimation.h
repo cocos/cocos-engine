@@ -100,7 +100,10 @@ public:
 		 * format |render order|world matrix|
          */
     se_object_ptr getParamsBuffer() const;
-
+    void *requestDrawInfo(int idx);
+    void *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(void *material) { _material = material;};
+    void setRenderEntity(void* entity) { _entity = entity;};
 private:
     float _timeScale = 1;
     bool _paused = false;
@@ -134,5 +137,9 @@ private:
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
     cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
+    void *_entity = nullptr;
+    std::vector<void *> _drawInfoArray;
+    void *_material = nullptr;
+    std::map<uint32_t, void*> _materialCaches;
 };
 } // namespace spine

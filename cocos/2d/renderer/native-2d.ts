@@ -74,7 +74,7 @@ export declare class NativeUIMeshBuffer {
 
     syncSharedBufferToNative(data: TypedArray);
 
-    initialize(device: Device, attrs: Attribute[], vFloatCount: number, iCount: number);
+    initialize(attrs: Attribute[]);
     reset();
     destroy();
     setDirty();

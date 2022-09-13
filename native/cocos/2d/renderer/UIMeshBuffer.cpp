@@ -49,9 +49,12 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* /*device*/,ccstd::vector<gfx::Attribute> &&attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
+void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute> &&attrs, bool needCreateLayout) {
     _attributes = attrs;
     _vertexFormatBytes = getAttributesStride(attrs);
+    if (needCreateLayout) {
+        _meshBufferLayout = new MeshBufferLayout();
+    }
 }
 
 void UIMeshBuffer::reset() {

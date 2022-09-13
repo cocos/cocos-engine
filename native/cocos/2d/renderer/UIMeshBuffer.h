@@ -47,7 +47,7 @@ public:
     inline uint16_t* getIData() const { return _iData; }
     void setIData(uint16_t* iData);
 
-    void initialize(gfx::Device* device, ccstd::vector<gfx::Attribute>&& attrs, uint32_t vFloatCount, uint32_t iCount);
+    void initialize(ccstd::vector<gfx::Attribute>&& attrs, bool needCreateLayout = false);
     void reset();
     void destroy();
     void setDirty();

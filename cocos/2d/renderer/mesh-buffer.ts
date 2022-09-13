@@ -193,7 +193,7 @@ export class MeshBuffer {
         // Initialize the first ia
         this._iaPool.push(this.createNewIA(device));
         if (JSB) {
-            this._nativeObj.initialize(device, attrs, vFloatCount, iCount);
+            this._nativeObj.initialize(attrs);
         }
     }
 
