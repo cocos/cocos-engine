@@ -26,7 +26,6 @@
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type,
 } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
 import type { AnimationClip } from '../../core/animation/animation-clip';
 import { Material } from '../../core/assets';
 import { Skeleton } from '../assets/skeleton';
@@ -105,9 +104,6 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     public onLoad () {
         super.onLoad();
-        if (EDITOR) {
-            this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsRotationLocked | legacyCC.Object.Flags.IsScaleLocked;
-        }
         this._tryBindAnimation();
     }
 
