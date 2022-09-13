@@ -324,13 +324,27 @@ Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
 Object* Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData) {
     napi_status status;
     napi_value result;
-    NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_external_arraybuffer(ScriptEngine::getEnv(), contents, byteLength, [](napi_env env,
-                              void* finalize_data,
-                              void* finalize_hint){
-                                //if (freeFunc) {
-                                    //freeFunc(contents, byteLength, freeUserData);
-                                //}
-                              },freeUserData, &result));
+    if (freeFunc) {
+        struct ExternalArrayBufferCallbackParams* param = new (struct ExternalArrayBufferCallbackParams);
+        param->func = freeFunc;
+        param->contents = contents;
+        param->byteLength = byteLength;
+        param->userData = freeUserData;
+        NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_external_arraybuffer(
+                                                          ScriptEngine::getEnv(), contents, byteLength, [](napi_env env, void* finalize_data, void* finalize_hint) {
+                                                              if (finalize_hint) {
+                                                                  struct ExternalArrayBufferCallbackParams* param = reinterpret_cast<struct ExternalArrayBufferCallbackParams *>(finalize_hint);
+                                                                  param->func(param->contents, param->byteLength, param->userData);
+                                                                  delete param;
+                                                              }
+                                                          },
+                                                          reinterpret_cast<void*>(param), &result));
+    } else {
+        NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_external_arraybuffer(
+                                                          ScriptEngine::getEnv(), contents, byteLength, nullptr,
+                                                          freeUserData, &result));
+    }
+
     Object* obj = Object::_createJSObject(ScriptEngine::getEnv(), result, nullptr);
     return obj;
 }
