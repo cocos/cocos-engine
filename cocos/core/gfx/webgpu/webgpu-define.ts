@@ -33,7 +33,7 @@ import {
     Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer,
 } from '../override';
 import {
-    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo,
+    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo,
 } from '../base/define';
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
