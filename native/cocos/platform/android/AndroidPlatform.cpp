@@ -62,7 +62,6 @@
     }
 
 #define INPUT_ACTION_COUNT 6
-#define INPUT_KEYEVENT_COUNT 8
 
 // Interval time per frame, in milliseconds
 #define LOW_FREQUENCY_TIME_INTERVAL 50
@@ -94,7 +93,7 @@ static const InputAction PADDLEBOAT_ACTIONS[INPUT_ACTION_COUNT] = {
         {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)}
 };
 
-static const InputAction INPUT_KEY_ACTIONS[INPUT_KEYEVENT_COUNT] = {
+static const InputAction INPUT_KEY_ACTIONS[] = {
         {AKEYCODE_BACK,        static_cast<int>(KeyCode::MOBILE_BACK)},
         {AKEYCODE_ENTER,       static_cast<int>(KeyCode::ENTER)},
         {AKEYCODE_MENU,        static_cast<int>(KeyCode::ALT_LEFT)},
@@ -262,13 +261,13 @@ public:
     }
 
     bool cookGameActivityKeyEvent(GameActivityKeyEvent *keyEvent) {
-        for (int i = 0; i < INPUT_KEYEVENT_COUNT; i++) {
-            if (INPUT_KEY_ACTIONS[i].buttonMask != keyEvent->keyCode) {
+        for (auto &action : INPUT_KEY_ACTIONS) {
+            if (action.buttonMask != keyEvent->keyCode) {
                 continue;
             }
             keyboardEvent.action = 0 == keyEvent->action ? cc::KeyboardEvent::Action::PRESS
                                                          : cc::KeyboardEvent::Action::RELEASE;
-            keyboardEvent.key = INPUT_KEY_ACTIONS[i].actionCode;
+            keyboardEvent.key = action.actionCode;
             _androidPlatform->dispatchEvent(keyboardEvent);
             return true;
         }
