@@ -350,12 +350,12 @@ void XMLHttpRequest::getHeader(const ccstd::string &header) {
         http_field = header.substr(0, found_header_field);
         http_value = header.substr(found_header_field + 1, header.length());
 
-        // Get rid of all \n
+        // trim \n at the end of the string
         if (!http_value.empty() && http_value[http_value.size() - 1] == '\n') {
             http_value.erase(http_value.size() - 1);
         }
 
-        // Get rid of leading space (header is field: value format)
+        // trim leading space (header is field: value format)
         if (!http_value.empty() && http_value[0] == ' ') {
             http_value.erase(0, 1);
         }

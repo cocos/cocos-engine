@@ -150,7 +150,7 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
             unsigned long length = header.size();
             ccstd::string field = header.substr(0, i);
             ccstd::string value = header.substr(i + 1);
-            // trim all \n
+            // trim \n at the end of the string
             if (!value.empty() && value[value.size() - 1] == '\n') {
                 value.erase(value.size() - 1);
             }

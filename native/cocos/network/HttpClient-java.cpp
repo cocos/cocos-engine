@@ -124,13 +124,13 @@ public:
             /* append custom headers one by one */
             for (auto &header : headers) {
                 uint32_t len = header.length();
-                uint32_t pos = header.find(':');
-                if (std::string::npos == pos || pos >= len) {
+                ccstd::string::size_type pos = header.find(':');
+                if (ccstd::string::npos == pos || pos >= len) {
                     continue;
                 }
                 ccstd::string str1 = header.substr(0, pos);
                 ccstd::string str2 = header.substr(pos + 1);
-                // trim all \n
+                // trim \n at the end of the string
                 if (!str2.empty() && str2[str2.size() - 1] == '\n') {
                     str2.erase(str2.size() - 1);
                 }
