@@ -636,16 +636,10 @@ export class TerrainBlock {
         }
     }
 
-    /**
-     * @engineInternal
-     */
     public _getBrushMaterial () {
         return this._renderable ? this._renderable._brushMaterial : null;
     }
 
-    /**
-     * @engineInternal
-     */
     public _getBrushPass () {
         return this._renderable ? this._renderable._brushPass : null;
     }
