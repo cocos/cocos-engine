@@ -183,7 +183,6 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         const AttributeList &attrs = _shader->getAttributes();
         uint64_t offset[256] = {0};
         // ccstd::vector<WGPUVertexAttribute> wgpuAttrs;
-        bool isInstance = attrs.empty() ? false : attrs[0].isInstanced;
 
         for (size_t i = 0; i < _inputState.attributes.size(); ++i) {
             const auto &attr = _inputState.attributes[i];
@@ -200,6 +199,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 };
                 wgpuAttrsVec[attr.stream].push_back(attrInfo);
                 offset[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
+                vbLayouts[attr.stream].stepMode = attr.isInstanced ? WGPUVertexStepMode_Instance : WGPUVertexStepMode_Vertex;
             } else {
                 // all none-input attr are put in 1st buffer layout with offset = 0;
                 Format format = attr.format;
@@ -247,12 +247,9 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
 
         // std::set<uint32_t> locSet;
         for (size_t i = 0; i < wgpuAttrsVec.size(); ++i) {
-            vbLayouts[i] = {
-                .arrayStride = offset[i],
-                .stepMode = isInstance ? WGPUVertexStepMode_Instance : WGPUVertexStepMode_Vertex,
-                .attributeCount = static_cast<uint32_t>(wgpuAttrsVec[i].size()),
-                .attributes = wgpuAttrsVec[i].data(),
-            };
+            vbLayouts[i].arrayStride = offset[i];
+            vbLayouts[i].attributeCount = static_cast<uint32_t>(wgpuAttrsVec[i].size());
+            vbLayouts[i].attributes = wgpuAttrsVec[i].data();
             // for (size_t j = 0; j < wgpuAttrsVec[i].size(); ++j) {
             //     printf("wg %d, %llu, %d\n", wgpuAttrsVec[i][j].shaderLocation, wgpuAttrsVec[i][j].offset, wgpuAttrsVec[i][j].format);
 

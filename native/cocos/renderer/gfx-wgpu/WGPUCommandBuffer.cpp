@@ -284,8 +284,6 @@ void CCWGPUCommandBuffer::bindStates() {
 
     ccstd::set<uint8_t> setInUse;
 
-    // printf("ppl binding %p\n", pipelineState);
-
     auto *pipelineLayout = static_cast<CCWGPUPipelineLayout *>(pipelineState->layout());
     const auto &setLayouts = pipelineLayout->getSetLayouts();
     bool pipelineLayoutChanged = false;
@@ -307,9 +305,7 @@ void CCWGPUCommandBuffer::bindStates() {
                         } else {
                             dynOffsets[j] = descriptorSets[i].dynamicOffsets[givenOffsetIndex++];
                         }
-                        // printf("dynOffsets[%zu] = %d\n", j, dynOffsets[j]);
                     }
-                    // printf("set %d %p\n", i, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup);
                     wgpuRenderPassEncoderSetBindGroup(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                                       i,
                                                       descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
@@ -325,7 +321,6 @@ void CCWGPUCommandBuffer::bindStates() {
                                                       descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup,
                                                       descriptorSets[i].dynamicOffsetCount,
                                                       descriptorSets[i].dynamicOffsets);
-                    // printf("set2 %d %p\n", i, descriptorSets[i].descriptorSet->gpuBindGroupObject()->bindgroup);
                 }
                 setInUse.insert(i);
             } else {
@@ -335,7 +330,6 @@ void CCWGPUCommandBuffer::bindStates() {
                                                   static_cast<WGPUBindGroup>(CCWGPUDescriptorSet::defaultBindGroup()),
                                                   0,
                                                   nullptr);
-                // printf("default %d %p\n", i, CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
             }
         }
 
@@ -346,7 +340,6 @@ void CCWGPUCommandBuffer::bindStates() {
                                                   static_cast<WGPUBindGroup>(CCWGPUDescriptorSet::defaultBindGroup()),
                                                   0,
                                                   nullptr);
-                // printf("default %d %p\n", i, CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
             }
         }
 
@@ -362,26 +355,8 @@ void CCWGPUCommandBuffer::bindStates() {
 
         pipelineState->check(_renderPass, 1);
         pipelineState->prepare(setInUse);
-        // printf("ppshn: %s\n", static_cast<CCWGPUShader *>(pipelineState->getShader())->gpuShaderObject()->name.c_str());
 
         const auto &pplLayout = static_cast<const CCWGPUPipelineLayout *>(pipelineState->ppl());
-        // for (size_t i = 0; i < pplLayout->layouts().size(); ++i) {
-        //     // printf("bgl in ppl: %p\n", pplLayout->layouts()[i]);
-        //     if (pplLayout->layouts()[i] != wgpuLayouts[i]) {
-        //         printf("oooooooooooops %d %p %p\n", i, pplLayout->layouts()[i], wgpuLayouts[i]);
-        //         if (setInUse.find(i) != setInUse.end()) {
-        //             printf("setlayout %p, %p\n", pplLayout->cclayouts()[i], descriptorSets[i].descriptorSet->ccbgl());
-
-        //             auto *lytInPpl = static_cast<CCWGPUDescriptorSetLayout *>(pplLayout->cclayouts()[i]);
-        //             auto *lytInSet = static_cast<CCWGPUDescriptorSetLayout *>(descriptorSets[i].descriptorSet->ccbgl());
-        //             printf("hash %d, %d\n", lytInPpl->getHash(), lytInSet->getHash());
-        //             lytInPpl->print();
-        //             lytInSet->print();
-        //         } else
-        //             printf("set %d not in use\n");
-        //         // static_cast<CCWGPUDescriptorSetLayout *>(pplLayout->getSetLayouts()[i])->print();
-        //     }
-        // }
 
         // pipeline state
         wgpuRenderPassEncoderSetPipeline(_gpuCommandBufferObj->wgpuRenderPassEncoder,
@@ -446,10 +421,7 @@ void CCWGPUCommandBuffer::bindStates() {
         for (size_t i = 0; i < textures.size(); i++) {
             rtWidth = rtWidth > textures[i]->getWidth() ? textures[i]->getWidth() : rtWidth;
             rtHeight = rtHeight > textures[i]->getHeight() ? textures[i]->getHeight() : rtHeight;
-            // printf("w, h %d %d\n", textures[i]->getWidth(), textures[i]->getHeight());
         }
-
-        // printf("minrt %u, %u\n", rtWidth, rtHeight);
 
         const Viewport &vp = _gpuCommandBufferObj->stateCache.viewport;
         uint32_t left = vp.left > 0 ? vp.left : 0;
@@ -460,7 +432,6 @@ void CCWGPUCommandBuffer::bindStates() {
 
         uint32_t height = vp.top > 0 ? vp.height : vp.height + vp.top;
         height = top + height > rtHeight ? rtHeight - top : height;
-        // printf("vp %u, %u, %u, %u\n", left, top, width, height);
         wgpuRenderPassEncoderSetViewport(_gpuCommandBufferObj->wgpuRenderPassEncoder, left, top, width, height, vp.minDepth, vp.maxDepth);
 
         const Rect &rect = _gpuCommandBufferObj->stateCache.rect;
@@ -470,7 +441,6 @@ void CCWGPUCommandBuffer::bindStates() {
         width = left + width > rtWidth ? rtWidth - left : width;
         height = rect.y > 0 ? rect.height : rect.height + rect.y;
         height = top + height > rtHeight ? rtHeight - top : height;
-        // printf("sc %u, %u, %u, %u\n", left, top, width, height);
         wgpuRenderPassEncoderSetScissorRect(_gpuCommandBufferObj->wgpuRenderPassEncoder, left, top, width, height);
 
         wgpuRenderPassEncoderSetStencilReference(_gpuCommandBufferObj->wgpuRenderPassEncoder, pipelineState->getDepthStencilState().stencilRefFront);
@@ -504,9 +474,6 @@ void CCWGPUCommandBuffer::nextSubpass() {
 
 void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
     bindStates();
-    // if (info.indexCount == 7140 || info.vertexCount == 7140) {
-    //     printf("draw 7140\n");
-    // }
 
     auto *ia = static_cast<CCWGPUInputAssembler *>(_gpuCommandBufferObj->stateCache.inputAssembler);
     if (ia->getIndirectBuffer()) {
