@@ -700,6 +700,7 @@ export class Game extends EventTarget {
                     console.time('Init Infrastructure');
                 }
                 macro.init();
+                this._initXR();
                 const adapter = findCanvas();
                 if (adapter) {
                     this.canvas = adapter.canvas;
@@ -712,7 +713,6 @@ export class Game extends EventTarget {
                 assetManager.init();
                 builtinResMgr.init();
                 Layers.init();
-                this._initXR();
                 this.initPacer();
                 if (DEBUG) {
                     console.timeEnd('Init Infrastructure');
