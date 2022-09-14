@@ -177,7 +177,7 @@ gfx::BufferBarrierInfo getBufferBarrier(
     gfx::MemoryUsage memUsage = gfx::MemoryUsage::NONE;
     visitObject(
         resID, resg,
-        [&](const ManagedResource& res) {
+        [&](const ManagedBuffer& res) {
             // TODO(zhouzhenglong): get offset and size
         },
         [&](const IntrusivePtr<gfx::Buffer>& buf) {
@@ -210,7 +210,7 @@ gfx::TextureBarrierInfo getTextureBarrier(
     gfx::TextureUsage usage = gfx::TextureUsage::NONE;
     visitObject(
         resID, resg,
-        [&](const ManagedResource& res) {
+        [&](const ManagedTexture& res) {
             // TODO(zhouzhenglong): get offset and size
         },
         [&](const IntrusivePtr<gfx::Texture>& tex) {
@@ -327,7 +327,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
         ctx.currentPass = data.renderPass.get();
     }
-    void begin(const ComputePass& pass) const {
+    void begin(const ComputePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         for (const auto& [name, views] : pass.computeViews) {
             for (const auto& view : views) {
@@ -337,25 +337,25 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             }
         }
     }
-    void begin(const CopyPass& pass) const {
+    void begin(const CopyPass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         for (const auto& copy : pass.copyPairs) {
         }
     }
-    void begin(const MovePass& pass) const {
+    void begin(const MovePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         // if fully optimized, move pass should have been removed from graph
         // here we just do copy
         for (const auto& copy : pass.movePairs) {
         }
     }
-    void begin(const PresentPass& pass) const {
+    void begin(const PresentPass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         for (const auto& [name, present] : pass.presents) {
             // do presents
         }
     }
-    void begin(const RaytracePass& pass) const {
+    void begin(const RaytracePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         // not implemented yet
         CC_EXPECTS(false);
@@ -386,7 +386,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void end(const PresentPass& pass) const {
     }
-    void end(const RaytracePass& pass) const {
+    void end(const RaytracePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         // not implemented yet
         CC_EXPECTS(false);
