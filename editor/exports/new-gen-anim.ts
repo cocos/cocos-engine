@@ -28,3 +28,14 @@ export type {
     MotionPreviewerTimelineStats,
     TransitionPreviewerTimelineStats,
 } from '../src/marionette/preview';
+
+export {
+    cloneState,
+    turnMotionStateIntoSubStateMachine,
+} from '../src/marionette/state-machine-operation';
+
+export {
+    visitAnimationClips,
+    visitAnimationClipsInController,
+    visitAnimationGraphEditorExtras,
+} from '../src/marionette/visit';

@@ -40,6 +40,7 @@ export class AnimationBlendDirect extends AnimationBlend {
 
     public clone () {
         const that = new AnimationBlendDirect();
+        this.assign(that);
         that._items = this._items.map((item) => item?.clone() ?? null);
         return that;
     }

@@ -6,6 +6,8 @@ import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
 import { remove } from '../../core/utils/array';
 import { instantiate } from '../../core/data/instantiate';
+import { editorExtrasTag } from '../../core/data';
+import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
 
 export const outgoingsSymbol = Symbol('[[Outgoing transitions]]');
 
@@ -24,6 +26,11 @@ export class State extends EditorExtendable implements OwnedBy<Layer | StateMach
 
     constructor () {
         super();
+    }
+
+    public assign (that: State) {
+        that.name = this.name;
+        that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
     }
 }
 
@@ -52,6 +59,11 @@ export class InteractiveState extends State {
             return instantiated;
         });
         return instantiatedComponents;
+    }
+
+    public assign (that: InteractiveState) {
+        super.assign(that);
+        that._components = this.instantiateComponents();
     }
 
     @serializable

@@ -63,6 +63,7 @@ export class AnimationBlend2D extends AnimationBlend {
 
     public clone () {
         const that = new AnimationBlend2D();
+        this.assign(that);
         that._items = this._items.map((item) => item?.clone() ?? null);
         that.paramX = this.paramX.clone();
         that.paramY = this.paramY.clone();
