@@ -307,6 +307,6 @@ export class LightInfo {
         this.light = light;
         this.level = level;
     }
-    /*object*/ light: Light | null;
+    /*refcount*/ light: Light | null;
     level: number;
 }

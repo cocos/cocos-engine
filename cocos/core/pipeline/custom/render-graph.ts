@@ -59,7 +59,7 @@ export class RenderSwapchain {
     constructor (swapchain: Swapchain | null) {
         this.swapchain = swapchain;
     }
-    swapchain: Swapchain | null;
+    /*pointer*/ swapchain: Swapchain | null;
     currentID = 0;
     numBackBuffers = 0;
 }
@@ -72,7 +72,7 @@ export class ManagedBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
     }
-    /*object*/ buffer: Buffer | null;
+    /*refcount*/ buffer: Buffer | null;
     refCount = 0;
 }
 
@@ -80,7 +80,7 @@ export class ManagedTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
     }
-    /*object*/ texture: Texture | null;
+    /*refcount*/ texture: Texture | null;
     refCount = 0;
 }
 
@@ -1028,7 +1028,7 @@ export class SceneData {
         this.flags = flags;
     }
     name: string;
-    camera: Camera | null = null;
+    /*pointer*/ camera: Camera | null = null;
     readonly light: LightInfo;
     flags: SceneFlags;
     readonly scenes: string[] = [];
@@ -1053,9 +1053,9 @@ export class Blit {
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
-    /*object*/ material: Material | null;
+    /*refcount*/ material: Material | null;
     sceneFlags: SceneFlags;
-    camera: Camera | null;
+    /*pointer*/ camera: Camera | null;
 }
 
 export class Present {
