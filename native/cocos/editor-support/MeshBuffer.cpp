@@ -146,7 +146,7 @@ void MeshBuffer::addUIMeshBuffer() {
 
 void MeshBuffer::cleanUIMeshBuffer() {
     for(auto &buf : _uiMeshBufferArr) {
-        delete buf;
+        delete (UIMeshBuffer*)buf;
     }
     _uiMeshBufferArr.clear();
 }
