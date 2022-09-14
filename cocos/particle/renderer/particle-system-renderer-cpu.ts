@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute, FormatInfo, FormatInfos } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random, EPSILON, approx } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -43,6 +43,7 @@ import { legacyCC } from '../../core/global-exports';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
+const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
 const _node_euler = new Vec3();
 
@@ -375,8 +376,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         if (ps.node.parent) {
-            ps.node.parent.getWorldMatrix(_tempWorldTrans);
-            _tempWorldTrans.invert();
+            ps.node.parent.getWorldMatrix(_tempParentInverse);
+            _tempParentInverse.invert();
         }
 
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -399,14 +400,16 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
-                if (ps.node.parent) {
-                    this._gravity = this._gravity.transformMat4(_tempWorldTrans);
-                }
-                this._gravity = this._gravity.transformMat4(this._localMat);
+                if (!approx(gravityFactor, 0.0, EPSILON)) {
+                    if (ps.node.parent) {
+                        this._gravity = this._gravity.transformMat4(_tempParentInverse);
+                    }
+                    this._gravity = this._gravity.transformMat4(this._localMat);
 
-                p.velocity.x += this._gravity.x;
-                p.velocity.y += this._gravity.y;
-                p.velocity.z += this._gravity.z;
+                    p.velocity.x += this._gravity.x;
+                    p.velocity.y += this._gravity.y;
+                    p.velocity.z += this._gravity.z;
+                }
             } else {
                 // apply gravity.
                 p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;

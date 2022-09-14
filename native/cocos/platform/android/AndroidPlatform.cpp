@@ -517,9 +517,8 @@ int AndroidPlatform::init() {
             _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
             _isLowFrequencyLoopEnabled = true;
             IXRInterface *xr = getInterface<IXRInterface>();
-            bool isXRInstanceCreated = xr && xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool();
-            if (!isXRInstanceCreated) {
-                // xr will not sleep,  -1 we will block forever waiting for events.
+            if (xr && !xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool()) {
+                // xr will sleep,  -1 we will block forever waiting for events.
                 _loopTimeOut = -1;
                 _isLowFrequencyLoopEnabled = false;
             }

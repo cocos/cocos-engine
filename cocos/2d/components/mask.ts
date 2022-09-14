@@ -30,8 +30,7 @@ import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { SpriteFrame } from '../assets/sprite-frame';
-import { NodeEventType, Component } from '../../core';
+import { NodeEventType, Component, warnID } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
@@ -461,6 +460,208 @@ export class Mask extends Component {
             this._graphics.destroy();
             this._graphics = null;
         }
+    }
+
+    // deprecated interface
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get customMaterial () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.customMaterial;
+        }
+        return null;
+    }
+    set customMaterial (val) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.customMaterial = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get color () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.color;
+        }
+        return null;
+    }
+    set color (value) {
+        warnID(9007);
+        if (this.subComp && value) {
+            this.subComp.color = value;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public markForUpdateRenderData (enable = true) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.markForUpdateRenderData(enable);
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public requestRenderData (any) {
+        warnID(9007);
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public destroyRenderData () {
+        warnID(9007);
+    }
+
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public updateRenderer () {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.updateRenderer();
+        }
+    }
+
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public fillBuffers (render: any) {
+        warnID(9007);
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public postUpdateAssembler (render: any) {
+        warnID(9007);
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setNodeDirty () {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setNodeDirty();
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setTextureDirty () {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setTextureDirty();
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get sharedMaterial () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.sharedMaterial;
+        }
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get sharedMaterials () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.sharedMaterials;
+        }
+        return null;
+    }
+    set sharedMaterials (val) {
+        warnID(9007);
+        if (this.subComp && val) {
+            this.subComp.sharedMaterials = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get material (): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.material;
+        }
+        return null;
+    }
+    set material (val: any) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.material = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get materials (): (any)[] {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.materials;
+        }
+        return [null];
+    }
+    set materials (val: (any)[]) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.materials = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getMaterial (idx: number): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.getMaterial(idx);
+        }
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setMaterial (material: any, index: number) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setMaterial(material, index);
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getMaterialInstance (idx: number): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.getMaterialInstance(idx);
+        }
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setMaterialInstance (matInst: any, index: number) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setMaterialInstance(matInst, index);
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getRenderMaterial (index: number): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.getRenderMaterial(index);
+        }
+        return null;
     }
 }
 

@@ -3104,6 +3104,10 @@ BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT 
 
 QuadRenderData is removed, please use MeshRenderData instead.
 
+### 9007
+
+Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation.
+
 ### 9100
 
 texture size exceeds current device limits %d/%d

@@ -28,6 +28,8 @@
 #include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #include "BufferAgent.h"
 #include "CommandBufferAgent.h"
