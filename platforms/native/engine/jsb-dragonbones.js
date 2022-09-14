@@ -700,6 +700,13 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
+    armatureDisplayProto._updateBatch = function () {
+        if (this.nativeDisplay) {
+            this.nativeDisplay.setBatchEnabled(this.enableBatch);
+            this.markForUpdateRenderData();
+        }
+    };
+
     //////////////////////////////////////////
     // assembler
     const assembler = cc.internal.DragonBonesAssembler;

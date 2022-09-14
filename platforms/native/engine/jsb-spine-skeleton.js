@@ -276,6 +276,14 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
+    skeleton._updateBatch = function () {
+        if (this._nativeSkeleton) {
+            this._renderEntity.setUseLocal(!this.enableBatch);
+            this._nativeSkeleton.setBatchEnabled(this.enableBatch);
+            this.markForUpdateRenderData();
+        }
+    };
+
     skeleton.setSkeletonData = function (skeletonData) {
         if (skeletonData.width != null && skeletonData.height != null) {
             const uiTrans = this.node._uiProps.uiTransformComp;
@@ -328,6 +336,7 @@ const cacheManager = require('./jsb-cache-manager');
         nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
         const materialTemplate = this.getMaterialTemplate();
         nativeSkeleton.setMaterial(materialTemplate);
+        this._renderEntity.setUseLocal(!this.enableBatch);
         nativeSkeleton.setRenderEntity(this._renderEntity.nativeObj);
 
         this._skeleton = nativeSkeleton.getSkeleton();

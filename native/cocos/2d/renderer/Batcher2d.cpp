@@ -307,13 +307,12 @@ CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInf
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->fillPass(_currMaterial, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
-    // if (entity->getUseLocal()) {
-    //     drawInfo->updateLocalDescriptorSet(node, pass->getLocalSetLayout());
-    //     curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
-    // } else {
-    //     curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
-    // }
-    curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+    if (entity->getUseLocal()) {
+        drawInfo->updateLocalDescriptorSet(node, pass->getLocalSetLayout());
+        curdrawBatch->setDescriptorSet(drawInfo->getLocalDes());
+    } else {
+        curdrawBatch->setDescriptorSet(getDescriptorSet(_currTexture, _currSampler, pass->getLocalSetLayout()));
+    }
     _batches.push_back(curdrawBatch);
 }
 

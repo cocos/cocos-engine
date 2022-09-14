@@ -319,10 +319,12 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
             vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);
         }
         // batch handle
-        cc::Vec3 *point = nullptr;
-        for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
-            point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
-            point->transformMat4(*point, nodeWorldMat);
+        if (_batch) {
+            cc::Vec3 *point = nullptr;
+            for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
+                point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
+                point->transformMat4(*point, nodeWorldMat);
+            }
         }
         // handle vertex color
         if (needColor) {
@@ -443,8 +445,10 @@ void SkeletonCacheAnimation::setColor(float r, float g, float b, float a) {
 }
 
 void SkeletonCacheAnimation::setBatchEnabled(bool enabled) {
-    // disable switch batch mode, force to enable batch, it may be changed in future version
-    // _batch = enabled;
+    if (_batch != enabled) {
+        _materialCaches.clear();
+        _batch = enabled;
+    }
 }
 
 void SkeletonCacheAnimation::setOpacityModifyRGB(bool value) {
@@ -597,7 +601,7 @@ void *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_t blendD
         BlendTargetInfoList targetList {targetInfo};
         stateInfo.targets = targetList;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", false}};
+        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_batch}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = (void*)materialInstance;
     }
