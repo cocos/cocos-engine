@@ -196,6 +196,10 @@ class TerrainRenderable extends ModelRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _currentMaterialLayers = 0;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    public _lightmap: Texture2D|null = null;
 
     public destroy () {
         // this._invalidMaterial();
@@ -578,9 +582,9 @@ export class TerrainBlock {
                 mtl.setProperty('metallic', metallic);
             }
 
-            if (this.lightmap !== null) {
-                mtl.setProperty('lightMap', this.lightmap);
-                mtl.setProperty('lightMapUVParam', this.lightmapUVParam);
+            if (this._renderable._model && this.lightmap != this._renderable._lightmap) {
+                this._renderable._lightmap = this.lightmap;
+                this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
             }
         }
     }
