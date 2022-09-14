@@ -68,6 +68,22 @@ export class ResourceStates {
     states: AccessFlagBit = AccessFlagBit.NONE;
 }
 
+export class ManagedBuffer {
+    constructor (buffer: Buffer | null = null) {
+        this.buffer = buffer;
+    }
+    /*object*/ buffer: Buffer | null;
+    refCount = 0;
+}
+
+export class ManagedTexture {
+    constructor (texture: Texture | null = null) {
+        this.texture = texture;
+    }
+    /*object*/ texture: Texture | null;
+    refCount = 0;
+}
+
 export class ManagedResource {
     unused = 0;
 }

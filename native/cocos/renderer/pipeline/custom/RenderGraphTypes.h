@@ -96,6 +96,24 @@ struct ResourceStates {
     gfx::AccessFlagBit states{gfx::AccessFlagBit::NONE};
 };
 
+struct ManagedBuffer {
+    ManagedBuffer() = default;
+    ManagedBuffer(IntrusivePtr<gfx::Buffer> bufferIn) noexcept // NOLINT
+    : buffer(std::move(bufferIn)) {}
+
+    IntrusivePtr<gfx::Buffer> buffer;
+    uint32_t refCount{0};
+};
+
+struct ManagedTexture {
+    ManagedTexture() = default;
+    ManagedTexture(IntrusivePtr<gfx::Texture> textureIn) noexcept // NOLINT
+    : texture(std::move(textureIn)) {}
+
+    IntrusivePtr<gfx::Texture> texture;
+    uint32_t refCount{0};
+};
+
 struct ManagedResource {
     uint32_t unused{0};
 };
