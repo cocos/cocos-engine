@@ -564,8 +564,7 @@ void XMLHttpRequest::setHttpRequestHeader() {
     ccstd::vector<ccstd::string> headers;
 
     for (auto &it : _requestHeader) {
-        ccstd::string header = it.first + ": " + it.second;
-        headers.emplace_back(header);
+        headers.emplace_back(it.first + ": " + it.second);
     }
 
     if (!headers.empty()) {
