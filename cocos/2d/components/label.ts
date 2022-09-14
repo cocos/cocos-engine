@@ -316,7 +316,7 @@ export class Label extends UIRenderer {
      * 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
      */
     @displayOrder(8)
-    @visible(function (this: Label) { return !this._isSystemFontUsed; })
+    @visible(function (this: Label) { return this._isSystemFontUsed; })
     @tooltip('i18n:label.font_family')
     get fontFamily () {
         return this._fontFamily;
