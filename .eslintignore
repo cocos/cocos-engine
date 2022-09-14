@@ -1,4 +1,4 @@
 *.jsb.ts
 **/*.ems.ts
-./cocos/core/gfx/webgpu/**/*
-./cocos/webgpu/**/*
+cocos/core/gfx/webgpu/**/*
+cocos/webgpu/**/*

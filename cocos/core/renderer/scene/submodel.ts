@@ -370,7 +370,9 @@ export class SubModel {
 
         // update draw info
         const drawInfo = this._subMesh.drawInfo;
-        this._inputAssembler!.drawInfo.copy(drawInfo!);
+        if (this._inputAssembler && drawInfo) {
+            this._inputAssembler.drawInfo.copy(drawInfo);
+        }
     }
 
     protected _flushPassInfo (): void {
