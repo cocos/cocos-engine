@@ -686,17 +686,6 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.timeEnd('Init Base');
                 }
-
-                if (sys.isXR) {
-                    // XrEntry must not be destroyed
-                    xr.entry = xr.XrEntry.getInstance();
-
-                    const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
-                    const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
-                    xr.entry.setMultisamplesRTT(xrMSAA);
-                    xr.entry.setRenderingScale(xrRenderingScale);
-                }
-
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })
@@ -711,6 +700,7 @@ export class Game extends EventTarget {
                     console.time('Init Infrastructure');
                 }
                 macro.init();
+                this._initXR();
                 const adapter = findCanvas();
                 if (adapter) {
                     this.canvas = adapter.canvas;
@@ -803,6 +793,18 @@ export class Game extends EventTarget {
                 this._inited = true;
                 this._safeEmit(Game.EVENT_GAME_INITED);
             });
+    }
+
+    private _initXR () {
+        if (sys.isXR) {
+            // XrEntry must not be destroyed
+            xr.entry = xr.XrEntry.getInstance();
+
+            const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
+            const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+            xr.entry.setMultisamplesRTT(xrMSAA);
+            xr.entry.setRenderingScale(xrRenderingScale);
+        }
     }
 
     private _compatibleWithOldParams (config: IGameConfig) {
