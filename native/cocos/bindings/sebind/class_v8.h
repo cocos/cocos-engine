@@ -51,7 +51,8 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     using context_type = typename class_<T>::Context;
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope handleScope(isolate);
-    std::optional<bool> ret;
+    int ctorInvokeTimes{0};
+    bool constructed{false};
     bool needDeleteValueArray{false};
     se::ValueArray &args = se::gValueArrayPool.get(v8args.Length(), needDeleteValueArray);
     se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
@@ -67,18 +68,23 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     assert(!self->constructors.empty());
     for (auto &ctor : self->constructors) {
         if (ctor->argCount == -1 || ctor->argCount == args.size()) {
-            ret = ctor->construct(state);
-            if (ret) break;
+            ctorInvokeTimes++;
+            constructed = ctor->construct(state);
+            if (constructed) break;
         }
     }
 
-    if (!ret.has_value()) {
+    if (ctorInvokeTimes == 0) {
         SE_LOGE("[ERROR] Failed match constructor for class %s, %d args, location: %s:%d\n", self->className.c_str(),
                 static_cast<int>(args.size()), __FILE__, __LINE__);
-    } else if (!ret.value()) {
+    }
+
+    if (!constructed) {
         SE_LOGE("[ERROR] Failed to invoke %s, location: %s:%d\n", "constructor", __FILE__, __LINE__);
     }
-    assert(ret); // construction failure is not allowed.
+
+    assert(constructed); // construction failure is not allowed.
+
     if (!self->finalizeCallbacks.empty()) {
         state.thisObject()->getPrivateObject()->finalizerData = self;
     }

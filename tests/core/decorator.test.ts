@@ -222,4 +222,14 @@ describe(`Decorators`, () => {
         expect(CCClass.Attr.attr(Foo, 'noInitButHasObjectTypeSpecified')).not.toHaveProperty('default');
         expect(CCClass.Attr.attr(Foo, 'noInitButHasPrimitiveTypeSpecified')).not.toHaveProperty('default');
     });
+
+    test('tooltip', () => {
+        @ccclass('Tooltip')
+        class Tooltip {
+            @tooltip('i18n:model.shadow_normal_bias')
+            public boo = true;
+        }
+
+        expect(CCClass.Attr.attr(Tooltip, 'boo').tooltip).toBe('i18n:ENGINE.model.shadow_normal_bias');
+    });
 });
