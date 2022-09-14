@@ -28,7 +28,7 @@
 #include "application/ApplicationManager.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
-#include "platform/BasePlatform.h"
+#include "application/ApplicationManager.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/interfaces/modules/IScreen.h"

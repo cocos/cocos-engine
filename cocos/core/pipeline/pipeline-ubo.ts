@@ -308,6 +308,7 @@ export class PipelineUBO {
         const sv = shadowBufferView;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         const cap = pipeline.device.capabilities;
+        const csmSupported = sceneData.csmSupported;
 
         switch (light.type) {
         case LightType.DIRECTIONAL: {
@@ -320,7 +321,7 @@ export class PipelineUBO {
                     let matShadowProj;
                     let matShadowViewProj;
                     let levelCount = 0;
-                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
+                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1 || !csmSupported) {
                         matShadowView = csmLayers.specialLayer.matShadowView;
                         matShadowProj = csmLayers.specialLayer.matShadowProj;
                         matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;

@@ -30,7 +30,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { deviceManager, Type } from '../../gfx';
 import { Pass } from '../../render-scene/core/pass';
-import { getDefaultFromType } from '../../render-scene/core/pass-utils';
+import { getDefaultFromType, getStringFromType } from '../../render-scene/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
 import { warn } from '../../core/platform/debug';
 
@@ -101,7 +101,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
         } else {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
-            const texName = prop && prop.value ? `${prop.value as string}-texture` : getDefaultFromType(prop.type) as string;
+            const texName = prop && prop.value ? `${prop.value as string}${getStringFromType(prop.type)}` : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
                 warn(`Illegal texture default value: ${texName}.`);

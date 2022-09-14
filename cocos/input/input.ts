@@ -268,7 +268,7 @@ export class Input {
             return;
         }
         const changedTouches = [touch];
-        const eventTouch = new EventTouch(changedTouches, false, eventType, changedTouches);
+        const eventTouch = new EventTouch(changedTouches, false, eventType, (eventType === InputEventType.TOUCH_END ? [] : changedTouches));
         eventTouch.windowId = eventMouse.windowId;
         
         if (eventType === InputEventType.TOUCH_END) {

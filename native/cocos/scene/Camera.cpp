@@ -33,7 +33,8 @@
 #if CC_USE_GEOMETRY_RENDERER
     #include "renderer/pipeline/GeometryRenderer.h"
 #endif
-#include "platform/BasePlatform.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 namespace cc {
 namespace scene {

@@ -48,6 +48,7 @@ enum class XRVendor {
     HUAWEIVR,
     PICO,
     ROKID,
+    SEED,
 };
 
 enum class XRConfigKey {

@@ -43,6 +43,7 @@
 #include "renderer/pipeline/Define.h"
 
 namespace cc {
+class IXRInterface;
 class Node;
 
 namespace pipeline {
