@@ -3303,3 +3303,7 @@ The effect('%s') you are looking for does not exist, please confirm the effect n
 ### 16201
 
 The asset replacing failed, can not found override asset('%s') for '%s' 
+
+### 16301
+
+node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first

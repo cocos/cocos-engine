@@ -28,6 +28,7 @@ import { clamp } from '../core/math';
 import { SortingLayers } from './sorting-layers';
 import { Component } from '../core/components/component';
 import { ModelRenderer } from '../core/components/model-renderer';
+import { warnID } from '../core/platform/debug';
 
 const MAX_INT16 = (1 << 15) - 1;
 const MIN_INT16 = -1 << 15;
@@ -83,7 +84,7 @@ export class Sorting extends Component {
     protected __preload () {
         this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelRenderer) {
-            console.warn(`node '${this.node && this.node.name}' doesn't have any ModelRenderer component, it will not work`);
+            warnID(16301, this.node.name);
         }
         this._updateSortingPriority();
     }
