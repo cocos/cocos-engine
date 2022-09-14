@@ -28,7 +28,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import type { ImageSource }  from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
-import { TEST } from 'internal:constants';
+import { TEST, EDITOR } from 'internal:constants';
 import { Settings, settings } from '../settings';
 import releaseManager from '../asset-manager/release-manager';
 
@@ -118,7 +118,8 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                     assets.forEach((asset) => {
                         resources[asset.name] = asset;
                         const url = asset.nativeUrl;
-                        releaseManager.addIgnoredAsset(asset);
+                        // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
+                        if (!EDITOR || legacyCC.GAME_VIEW) releaseManager.addIgnoredAsset(asset);
                         this.addAsset(asset.name, asset);
                         if (asset instanceof legacyCC.Material) {
                             this._materialsToBeCompiled.push(asset);
