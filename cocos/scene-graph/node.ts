@@ -31,7 +31,7 @@ import { legacyCC } from '../core/global-exports';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
 import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
-import { NodeSpace, TransformBit } from './node-enum';
+import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { errorID, warnID, error, log, getError } from '../core/platform/debug';
 import { Component } from './component';
@@ -1465,6 +1465,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _lscale = new Vec3(1, 1, 1);
 
     @serializable
+    protected _mobility = MobilityMode.Static;
+
+    @serializable
     protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
     // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
@@ -1669,6 +1672,16 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     get right (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.RIGHT, this.worldRotation);
+    }
+
+    @editable
+    @type(MobilityMode)
+    set mobility (m) {
+        this._mobility = m;
+    }
+
+    get mobility () {
+        return this._mobility;
     }
 
     /**
