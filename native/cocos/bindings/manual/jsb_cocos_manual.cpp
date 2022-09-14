@@ -32,6 +32,7 @@
 
 #include "storage/local-storage/LocalStorage.h"
 #include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration, readability-identifier-naming)
 

@@ -207,7 +207,7 @@ public:
 
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
-            touchEvent.windowId = 1; // must be main window here
+            touchEvent.windowId = ISystemWindow::mainWindowId; // must be main window here
 
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
@@ -323,12 +323,12 @@ public:
                     }
 
                     auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
-                    auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(1));
+                    auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
                     window->setWindowHandle(nativeWindow);
 
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
-                    event.args->ptrVal = reinterpret_cast<void *>(1);
+                    event.args->ptrVal = reinterpret_cast<void *>(ISystemWindow::mainWindowId);
                     _androidPlatform->dispatchEvent(event);
                 }
                 break;

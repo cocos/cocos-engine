@@ -81,7 +81,7 @@ void Root::initialize(gfx::Swapchain *  /*swapchain*/) {
     for (const auto &pair : windows) {
         auto *window = pair.second.get();
         scene::RenderWindow *renderWindow = createRenderWindowFromSystemWindow(window);
-        if (!_mainRenderWindow) {
+        if (!_mainRenderWindow && (window->getWindowId() == ISystemWindow::mainWindowId)) {
             _mainRenderWindow = renderWindow;
         }
     }

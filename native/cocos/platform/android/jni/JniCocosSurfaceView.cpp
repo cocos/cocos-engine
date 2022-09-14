@@ -106,7 +106,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceRedrawNeeded
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNative(JNIEnv *env, jobject /*thiz*/, jlong handle, jobject surface) { //NOLINT JNI function name
     CC_UNUSED_PARAM(env);
-    auto *windowCache = (NativeWindowCache *)handle;
+    auto *windowCache = reinterpret_cast<NativeWindowCache *>(handle);
     ANativeWindow *oldNativeWindow = windowCache->getNativeWindow();
     windowCache->setSurface(surface);
     ANativeWindow *nativeWindow = windowCache->getNativeWindow();

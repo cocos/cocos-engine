@@ -319,6 +319,9 @@ void GLES3GPUContext::present(const GLES3GPUSwapchain *swapchain) {
         }
     }
 #endif
+    // For an example, 2 windows changed to background will cause the eglSurface of both destroyed,
+    // and then make one of them foreground, and the other window's eglSurface will stays EGL_NO_SURFACE.
+    // But in GLES3Device::present it iterates all swapchains, and now the second window containing the invalid surface exists.
     if (swapchain->eglSurface == EGL_NO_SURFACE) {
         return;
     }

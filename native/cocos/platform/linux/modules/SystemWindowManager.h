@@ -52,6 +52,6 @@ private:
     uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
 
     SystemWindowMap _windows;
-    IEventDispatch *_eventDispatcher = nullptr;
+    IEventDispatch *_eventDispatcher{nullptr};
 };
 }
