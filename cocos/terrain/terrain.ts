@@ -1507,8 +1507,8 @@ export class Terrain extends Component {
         // build layer buffer
         this._rebuildLayerBuffer(info);
 
-        // build heights
-        this._rebuildHeights(info);
+        // build heights and normals
+        const heightsChanged = this._rebuildHeights(info);
 
         // build weights
         this._rebuildWeights(info);
@@ -1520,9 +1520,13 @@ export class Terrain extends Component {
         this._weightMapSize = info.weightMapSize;
         this._lightMapSize = info.lightMapSize;
 
-        // build blocks
-        this._buildNormals();
+        // build normals if heights changed
+        if (heightsChanged) {
+            this._normals = new Float32Array(this.heights.length * 3);
+            this._buildNormals();
+        }
 
+        // build blocks
         for (let j = 0; j < this._blockCount[1]; ++j) {
             for (let i = 0; i < this._blockCount[0]; ++i) {
                 this._blocks.push(new TerrainBlock(this, i, j));
