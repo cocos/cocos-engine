@@ -35,6 +35,7 @@ parentPort.onmessage = function(e) {
             }).catch(e => {
                 console.error('launch CC engien failed');
             });
+            renderContext.nativeEngineStart();
             break;
         default:
             console.error("cocos worker: message type unknown")

@@ -97,7 +97,7 @@ if(NOT USE_SOCKET)
     set(USE_WEBSOCKET_SERVER OFF)
 endif()
 
-if(OHOS)
+if(OPENHARMONY AND OHOS)
     set(CC_USE_GLES2 OFF)
 endif()
 
