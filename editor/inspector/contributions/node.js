@@ -89,8 +89,6 @@ exports.listeners = {
                     },
                 });
             }
-
-            Editor.Message.send('scene', 'snapshot');
         } catch (error) {
             console.error(error);
         }
@@ -99,6 +97,9 @@ exports.listeners = {
         const panel = this;
 
         panel.snapshotLock = false;
+
+        // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
+        Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
         const panel = this;

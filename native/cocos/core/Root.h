@@ -36,6 +36,7 @@
 #include "scene/SphereLight.h"
 
 namespace cc {
+class IXRInterface;
 namespace scene {
 class Camera;
 class DrawBatch2D;

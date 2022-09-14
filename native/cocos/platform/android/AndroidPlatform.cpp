@@ -91,6 +91,18 @@ static const InputAction PADDLEBOAT_ACTIONS[INPUT_ACTION_COUNT] = {
     {PADDLEBOAT_BUTTON_DPAD_LEFT, static_cast<int>(KeyCode::DPAD_LEFT)},
     {PADDLEBOAT_BUTTON_DPAD_DOWN, static_cast<int>(KeyCode::DPAD_DOWN)},
     {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)}};
+
+static const InputAction INPUT_KEY_ACTIONS[] = {
+    {AKEYCODE_BACK, static_cast<int>(KeyCode::MOBILE_BACK)},
+    {AKEYCODE_ENTER, static_cast<int>(KeyCode::ENTER)},
+    {AKEYCODE_MENU, static_cast<int>(KeyCode::ALT_LEFT)},
+    {AKEYCODE_DPAD_UP, static_cast<int>(KeyCode::DPAD_UP)},
+    {AKEYCODE_DPAD_DOWN, static_cast<int>(KeyCode::DPAD_DOWN)},
+    {AKEYCODE_DPAD_LEFT, static_cast<int>(KeyCode::DPAD_LEFT)},
+    {AKEYCODE_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)},
+    {AKEYCODE_DPAD_CENTER, static_cast<int>(KeyCode::DPAD_CENTER)},
+};
+
 static bool keyState[INPUT_ACTION_COUNT] = {false};
 
 extern void gameControllerStatusCallback(int32_t controllerIndex,
@@ -248,10 +260,13 @@ public:
     }
 
     bool cookGameActivityKeyEvent(GameActivityKeyEvent *keyEvent) {
-        if (keyEvent->keyCode == AKEYCODE_BACK && 0 == keyEvent->action) {
-            // back key was pressed
-            keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
-            keyboardEvent.key = static_cast<int>(KeyCode::MOBILE_BACK);
+        for (const auto &action : INPUT_KEY_ACTIONS) {
+            if (action.buttonMask != keyEvent->keyCode) {
+                continue;
+            }
+            keyboardEvent.action = 0 == keyEvent->action ? cc::KeyboardEvent::Action::PRESS
+                                                         : cc::KeyboardEvent::Action::RELEASE;
+            keyboardEvent.key = action.actionCode;
             _androidPlatform->dispatchEvent(keyboardEvent);
             return true;
         }
@@ -517,9 +532,8 @@ int AndroidPlatform::init() {
             _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
             _isLowFrequencyLoopEnabled = true;
             IXRInterface *xr = getInterface<IXRInterface>();
-            bool isXRInstanceCreated = xr && xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool();
-            if (!isXRInstanceCreated) {
-                // xr will not sleep,  -1 we will block forever waiting for events.
+            if (xr && !xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool()) {
+                // xr will sleep,  -1 we will block forever waiting for events.
                 _loopTimeOut = -1;
                 _isLowFrequencyLoopEnabled = false;
             }

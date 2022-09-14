@@ -261,7 +261,8 @@ enum class KeyCode {
     DPAD_UP = 1003,
     DPAD_LEFT = 1000,
     DPAD_DOWN = 1004,
-    DPAD_RIGHT = 1001
+    DPAD_RIGHT = 1001,
+    DPAD_CENTER = 1005
 };
 
 class KeyboardEvent : public OSEvent {

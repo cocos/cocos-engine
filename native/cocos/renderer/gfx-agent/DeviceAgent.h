@@ -31,7 +31,7 @@
 #include "gfx-base/GFXDevice.h"
 
 namespace cc {
-
+class IXRInterface;
 class MessageQueue;
 
 namespace gfx {

@@ -48,7 +48,8 @@
 #include "states/VKTextureBarrier.h"
 
 #include "gfx-base/SPIRVUtils.h"
-#include "platform/BasePlatform.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 #include "profiler/Profiler.h"
 
 #if CC_SWAPPY_ENABLED
@@ -812,6 +813,9 @@ QueryPool *CCVKDevice::createQueryPool() {
 }
 
 Swapchain *CCVKDevice::createSwapchain() {
+    if (_xr) {
+        _xr->createXRSwapchains();
+    }
     return ccnew CCVKSwapchain;
 }
 
