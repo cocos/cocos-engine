@@ -26,6 +26,7 @@
 #include "GFXDevice.h"
 #include "GFXObject.h"
 #include "base/memory/Memory.h"
+#include "platform/BasePlatform.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 
