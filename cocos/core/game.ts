@@ -51,7 +51,6 @@ import { assert } from './platform/debug';
 import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { SortingLayers } from '../sorting/sorting-layers';
 
 /**
  * @zh
@@ -724,7 +723,6 @@ export class Game extends EventTarget {
                 assetManager.init();
                 builtinResMgr.init();
                 Layers.init();
-                SortingLayers.init();
                 this.initPacer();
                 if (DEBUG) {
                     console.timeEnd('Init Infrastructure');

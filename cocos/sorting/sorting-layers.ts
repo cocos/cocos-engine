@@ -21,7 +21,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { director } from '../core/director';
-import { legacyCC } from '../core/global-exports';
+import { Game, game } from '../core/game';
 import { errorID } from '../core/platform/debug';
 import { Settings, settings } from '../core/settings';
 import { Enum } from '../core/value-types';
@@ -35,6 +35,10 @@ interface SortingItem {
 const SortingLayer = {
     default: 0,
 };
+
+game.on(Game.EVENT_POST_SUBSYSTEM_INIT, () => {
+    SortingLayers.init();
+});
 
 /**
  * @zh 排序层管理器，用于在 sorting 组件中帮助用户进行对象分组并进行层级排序。
@@ -140,7 +144,7 @@ export class SortingLayers {
             SortingLayers.Enum[layer.name] = layer.id;
         }
         Enum.update(SortingLayers.Enum);
-        Enum.sortList(SortingLayers.Enum, (a, b) => SortingLayers.getLayerIndex(a.number) - SortingLayers.getLayerIndex(b.number));
+        Enum.sortList(SortingLayers.Enum, (a, b) => SortingLayers.getLayerIndex(a.value) - SortingLayers.getLayerIndex(b.value));
 
         if (EDITOR) {
             const scene = director.getScene();
@@ -178,5 +182,3 @@ export class SortingLayers {
         SortingLayers.nameMap.clear();
     }
 }
-
-legacyCC.sortingLayers = SortingLayers;
