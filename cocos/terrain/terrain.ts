@@ -582,15 +582,14 @@ export class TerrainBlock {
                 mtl.setProperty('metallic', metallic);
             }
 
-            if (this._renderable._model && this.lightmap != this._renderable._lightmap) {
+            if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
                 this._renderable._lightmap = this.lightmap;
                 this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
             }
         }
     }
 
-    public _buildLodInfo()
-    {
+    public _buildLodInfo() {
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         this._buildVertexData(vertexData);
         // update lod
