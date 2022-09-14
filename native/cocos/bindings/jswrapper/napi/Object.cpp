@@ -625,7 +625,7 @@ void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /
             if (iter != NativePtrToObjectMap::end()) {
                 NativePtrToObjectMap::erase(iter);
             } else {
-                assert(false);
+                CC_LOG_ERROR("not find ptr in NativePtrToObjectMap");
             }
         }
 
@@ -691,7 +691,20 @@ Object* Object::createJSONObject(const std::string& jsonStr) {
 }
 
 void Object::clearPrivateData(bool clearMapping) {
-    //TODO(qgh)：fix later
+    if (_privateObject != nullptr) {
+        napi_status status;
+        void* result = nullptr;
+        auto tmpThis = _objRef.getValue(_env);
+        NODE_API_CALL(status, _env, napi_remove_wrap(_env, tmpThis, &result));
+
+        if (clearMapping) {
+            NativePtrToObjectMap::erase(_privateData);
+        }
+
+        delete _privateObject;
+        _privateObject = nullptr;
+        _privateData = nullptr;
+    }
 }
 
 } // namespace se
