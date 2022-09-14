@@ -83,28 +83,15 @@ export class Sorting extends Component {
     protected __preload () {
         this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
         if (!this._modelRenderer) {
-            console.warn(`node '${this.node && this.node.name}' doesn't have any ModelRenderer component`);
-        }
-    }
-
-    protected onEnable () {
-        if (!this._modelRenderer) {
-            this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
-            if (!this._modelRenderer) {
-                console.warn(`node '${this.node && this.node.name}' doesn't have any ModelRenderer component`);
-            }
+            console.warn(`node '${this.node && this.node.name}' doesn't have any ModelRenderer component, it will not work`);
         }
         this._updateSortingPriority();
-    }
-
-    protected onDestroy () {
-        this._modelRenderer = null;
     }
 
     protected _updateSortingPriority () {
         const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
         const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
-        if (this._modelRenderer) {
+        if (this._modelRenderer && this._modelRenderer.isValid) {
             this._modelRenderer.priority = sortingPriority;
         }
     }
