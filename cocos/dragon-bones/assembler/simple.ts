@@ -442,7 +442,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
         _handleVal |= NEED_COLOR;
     }
 
-    let worldMat: Mat4 | undefined;
+    const worldMat = comp.node.getWorldMatrix();
 
     _vertexFloatCount = 0;
     _vertexOffset = 0;

@@ -145,8 +145,7 @@ public:
     }
 
     void setBatchEnabled(bool enabled) {
-        // disable switch batch mode, force to enable batch, it may be changed in future version
-        // _batch = enabled;
+        _batch = enabled;
     }
 
     void setAttachEnabled(bool enabled) {
@@ -189,6 +188,7 @@ private:
 
     bool _useAttach = false;
     bool _premultipliedAlpha = false;
+    bool _batch = false;
 
     // NOTE: We bind Vec2 to make JS deserialization works, we need to return const reference in convertToRootSpace method,
     // because returning Vec2 JSB object on stack to JS will let JS get mess data.

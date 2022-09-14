@@ -443,6 +443,20 @@ export class Skeleton extends UIRenderer {
             this._updateUseTint();
         }
     }
+    /*
+     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+    */
+    @editable
+    @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
+    get enableBatch () { return this._enableBatch; }
+    set enableBatch (value) {
+        if (value !== this._enableBatch) {
+            this._enableBatch = value;
+            this._updateBatch();
+        }
+    }
+
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
@@ -466,6 +480,7 @@ export class Skeleton extends UIRenderer {
     }
 
     get socketNodes () { return this._socketNodes; }
+
     // Frame cache
     /**
      * @internal
@@ -601,6 +616,9 @@ export class Skeleton extends UIRenderer {
     @visible(false)
     @serializable
     protected defaultAnimation = '';
+
+    @serializable
+    protected _enableBatch = false;
 
     @serializable
     protected _sockets: SpineSocket[] = [];
@@ -1351,11 +1369,6 @@ export class Skeleton extends UIRenderer {
         }
 
         const material = this.getMaterialTemplate();
-
-        let useTwoColor = false;
-        if (type === SpineMaterialType.TWO_COLORED) {
-            useTwoColor = true;
-        }
         const matInfo = {
             parent: material,
             subModelIdx: 0,
@@ -1376,7 +1389,12 @@ export class Skeleton extends UIRenderer {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
+        let useTwoColor = false;
+        if (type === SpineMaterialType.TWO_COLORED) {
+            useTwoColor = true;
+        }
+        const useLocal = !this._enableBatch;
+        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: useLocal });
         return inst;
     }
 
@@ -1557,11 +1575,7 @@ export class Skeleton extends UIRenderer {
     }
     // if change use batch mode, just clear material cache
     protected _updateBatch () {
-        // let baseMaterial = this.getMaterial(0);
-        // if (baseMaterial) {
-        //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        // }
-        // this._materialCache = {};
+        this._cleanMaterialCache();
         this.markForUpdateRenderData();
     }
 

@@ -391,6 +391,20 @@ export class ArmatureDisplay extends UIRenderer {
         this._updateDebugDraw();
     }
 
+    /*
+     * @en Enabled batch model, if mesh is complex, do not enable batch, or will lower performance.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的龙骨动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+    */
+    @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
+    @editable
+    get enableBatch () { return this._enableBatch; }
+    set enableBatch (value) {
+        if (value !== this._enableBatch) {
+            this._enableBatch = value;
+            this._updateBatch();
+        }
+    }
+
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
@@ -445,6 +459,10 @@ export class ArmatureDisplay extends UIRenderer {
 
     @serializable
     protected _debugBones = false;
+
+    @serializable
+    protected _enableBatch = false;
+
     /* protected */ _debugDraw: Graphics | null = null;
 
     // DragonBones data store key.
@@ -592,8 +610,9 @@ export class ArmatureDisplay extends UIRenderer {
             subModelIdx: 0,
             owner: this,
         };
+
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: true });
+        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: false });
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -878,6 +897,10 @@ export class ArmatureDisplay extends UIRenderer {
         } else if (this._debugDraw) {
             this._debugDraw.node.parent = null;
         }
+        this.markForUpdateRenderData();
+    }
+
+    protected _updateBatch () {
         this.markForUpdateRenderData();
     }
 
@@ -1348,7 +1371,7 @@ export class ArmatureDisplay extends UIRenderer {
 
     protected createRenderEntity () {
         const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
-        renderEntity.setUseLocal(true);
+        renderEntity.setUseLocal(false);
         return renderEntity;
     }
 

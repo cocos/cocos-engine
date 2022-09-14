@@ -727,11 +727,13 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         if (preTexture != curTexture || preBlendMode != slot->getData().getBlendMode() || isFull) {
             flush();
         }
-        uint8_t *vbBuffer = vb.getCurBuffer();
-        cc::Vec3 *point = nullptr;
-        for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
-            point = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
-            point->transformMat4(*point, nodeWorldMat);
+        if (_batch) {
+            uint8_t *vbBuffer = vb.getCurBuffer();
+            cc::Vec3 *point = nullptr;
+            for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
+                point = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
+                point->transformMat4(*point, nodeWorldMat);
+            }
         }
         auto vertexOffset = vb.getCurPos() / vbs;
         if (vbSize > 0 && ibSize > 0) {
@@ -961,8 +963,10 @@ void SkeletonRenderer::setColor(float r, float g, float b, float a) {
 }
 
 void SkeletonRenderer::setBatchEnabled(bool enabled) {
-    // disable switch batch mode, force to enable batch, it may be changed in future version
-    // _batch = enabled;
+    if (enabled != _batch) {
+        _materialCaches.clear();
+        _batch = enabled;
+    }
 }
 
 void SkeletonRenderer::setDebugBonesEnabled(bool enabled) {
@@ -1044,7 +1048,7 @@ void *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
         BlendTargetInfoList targetList {targetInfo};
         stateInfo.targets = targetList;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", false}};
+        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_batch}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = (void*)materialInstance;
     }
