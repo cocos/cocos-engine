@@ -24,12 +24,12 @@
  */
 
 import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
-    InputAssemblerInfo, Attribute, Buffer, BufferInfo, Shader } from '../gfx';
+    InputAssemblerInfo, Attribute, Buffer, BufferInfo, Shader } from '../../gfx';
 import { Mat4 } from '../math';
-import { SubModel } from '../renderer/scene/submodel';
+import { SubModel } from '../../render-scene/scene/submodel';
 import { UBOLocalBatched } from './define';
-import { Pass } from '../renderer';
-import { Model } from '../renderer/scene';
+import { Pass } from '../../render-scene';
+import { Model } from '../../render-scene/scene';
 
 export interface IBatchedItem {
     vbs: Buffer[];

@@ -29,9 +29,9 @@
 #include "audio/oalsoft/AudioPlayer.h"
 #include <cstdlib>
 #include <cstring>
-#include "audio/oalsoft/AudioCache.h"
 #include "audio/common/decoder/AudioDecoder.h"
 #include "audio/common/decoder/AudioDecoderManager.h"
+#include "audio/oalsoft/AudioCache.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"
 

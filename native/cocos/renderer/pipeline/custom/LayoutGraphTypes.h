@@ -69,23 +69,23 @@ struct Descriptor {
     : type(typeIn) {}
 
     gfx::Type type{gfx::Type::UNKNOWN};
-    uint32_t  count{1};
+    uint32_t count{1};
 };
 
 struct DescriptorBlock {
-    ccstd::map<ccstd::string, Descriptor>        descriptors;
+    ccstd::map<ccstd::string, Descriptor> descriptors;
     ccstd::map<ccstd::string, gfx::UniformBlock> uniformBlocks;
-    uint32_t                                     capacity{0};
-    uint32_t                                     count{0};
+    uint32_t capacity{0};
+    uint32_t count{0};
 };
 
 struct DescriptorBlockFlattened {
-    ccstd::vector<ccstd::string>     descriptorNames;
-    ccstd::vector<ccstd::string>     uniformBlockNames;
-    ccstd::vector<Descriptor>        descriptors;
+    ccstd::vector<ccstd::string> descriptorNames;
+    ccstd::vector<ccstd::string> uniformBlockNames;
+    ccstd::vector<Descriptor> descriptors;
     ccstd::vector<gfx::UniformBlock> uniformBlocks;
-    uint32_t                         capacity{0};
-    uint32_t                         count{0};
+    uint32_t capacity{0};
+    uint32_t count{0};
 };
 
 struct DescriptorBlockIndex {
@@ -96,9 +96,9 @@ struct DescriptorBlockIndex {
       descriptorType(descriptorTypeIn),
       visibility(visibilityIn) {}
 
-    UpdateFrequency         updateFrequency{UpdateFrequency::PER_INSTANCE};
-    ParameterType           parameterType{ParameterType::CONSTANTS};
-    DescriptorTypeOrder     descriptorType{DescriptorTypeOrder::UNIFORM_BUFFER};
+    UpdateFrequency updateFrequency{UpdateFrequency::PER_INSTANCE};
+    ParameterType parameterType{ParameterType::CONSTANTS};
+    DescriptorTypeOrder descriptorType{DescriptorTypeOrder::UNIFORM_BUFFER};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
 };
 
@@ -118,7 +118,7 @@ struct DescriptorDB {
     DescriptorDB(DescriptorDB const& rhs, const allocator_type& alloc);
 
     DescriptorDB(DescriptorDB&& rhs) noexcept = default;
-    DescriptorDB(DescriptorDB const& rhs)     = delete;
+    DescriptorDB(DescriptorDB const& rhs) = delete;
     DescriptorDB& operator=(DescriptorDB&& rhs) = default;
     DescriptorDB& operator=(DescriptorDB const& rhs) = default;
 
@@ -139,7 +139,7 @@ struct RenderPhase {
     RenderPhase(RenderPhase const& rhs, const allocator_type& alloc);
 
     RenderPhase(RenderPhase&& rhs) noexcept = default;
-    RenderPhase(RenderPhase const& rhs)     = delete;
+    RenderPhase(RenderPhase const& rhs) = delete;
     RenderPhase& operator=(RenderPhase&& rhs) = default;
     RenderPhase& operator=(RenderPhase const& rhs) = default;
 
@@ -161,7 +161,7 @@ struct LayoutGraph {
     LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc);
 
     LayoutGraph(LayoutGraph&& rhs) noexcept = default;
-    LayoutGraph(LayoutGraph const& rhs)     = delete;
+    LayoutGraph(LayoutGraph const& rhs) = delete;
     LayoutGraph& operator=(LayoutGraph&& rhs) = default;
     LayoutGraph& operator=(LayoutGraph const& rhs) = default;
 
@@ -288,13 +288,13 @@ struct LayoutGraph {
         Vertex(Vertex const& rhs, const allocator_type& alloc);
 
         Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs)     = delete;
+        Vertex(Vertex const& rhs) = delete;
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge>  inEdges;
-        VertexHandle                handle;
+        ccstd::pmr::vector<InEdge> inEdges;
+        VertexHandle handle;
     };
 
     struct NameTag {
@@ -306,9 +306,9 @@ struct LayoutGraph {
     ccstd::pmr::vector<Vertex> vertices;
     // Components
     ccstd::pmr::vector<ccstd::pmr::string> names;
-    ccstd::pmr::vector<DescriptorDB>       descriptors;
+    ccstd::pmr::vector<DescriptorDB> descriptors;
     // PolymorphicGraph
-    ccstd::pmr::vector<uint32_t>    stages;
+    ccstd::pmr::vector<uint32_t> stages;
     ccstd::pmr::vector<RenderPhase> phases;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
@@ -323,8 +323,8 @@ struct UniformData {
 
     UniformID uniformID{0xFFFFFFFF};
     gfx::Type uniformType{gfx::Type::UNKNOWN};
-    uint32_t  offset{0};
-    uint32_t  size{0};
+    uint32_t offset{0};
+    uint32_t size{0};
 };
 
 struct UniformBlockData {
@@ -338,11 +338,11 @@ struct UniformBlockData {
     UniformBlockData(UniformBlockData const& rhs, const allocator_type& alloc);
 
     UniformBlockData(UniformBlockData&& rhs) noexcept = default;
-    UniformBlockData(UniformBlockData const& rhs)     = delete;
+    UniformBlockData(UniformBlockData const& rhs) = delete;
     UniformBlockData& operator=(UniformBlockData&& rhs) = default;
     UniformBlockData& operator=(UniformBlockData const& rhs) = default;
 
-    uint32_t                        bufferSize{0};
+    uint32_t bufferSize{0};
     ccstd::pmr::vector<UniformData> uniforms;
 };
 
@@ -368,7 +368,7 @@ struct DescriptorData {
       count(countIn) {}
 
     NameLocalID descriptorID;
-    uint32_t    count{1};
+    uint32_t count{1};
 };
 
 struct DescriptorBlockData {
@@ -383,14 +383,14 @@ struct DescriptorBlockData {
     DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc);
 
     DescriptorBlockData(DescriptorBlockData&& rhs) noexcept = default;
-    DescriptorBlockData(DescriptorBlockData const& rhs)     = delete;
+    DescriptorBlockData(DescriptorBlockData const& rhs) = delete;
     DescriptorBlockData& operator=(DescriptorBlockData&& rhs) = default;
     DescriptorBlockData& operator=(DescriptorBlockData const& rhs) = default;
 
-    DescriptorTypeOrder                type{DescriptorTypeOrder::UNIFORM_BUFFER};
-    gfx::ShaderStageFlagBit            visibility{gfx::ShaderStageFlagBit::NONE};
-    uint32_t                           offset{0};
-    uint32_t                           capacity{0};
+    DescriptorTypeOrder type{DescriptorTypeOrder::UNIFORM_BUFFER};
+    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
+    uint32_t offset{0};
+    uint32_t capacity{0};
     ccstd::pmr::vector<DescriptorData> descriptors;
 };
 
@@ -405,13 +405,13 @@ struct DescriptorSetLayoutData {
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
-    DescriptorSetLayoutData(DescriptorSetLayoutData const& rhs)     = delete;
+    DescriptorSetLayoutData(DescriptorSetLayoutData const& rhs) = delete;
     DescriptorSetLayoutData& operator=(DescriptorSetLayoutData&& rhs) = default;
     DescriptorSetLayoutData& operator=(DescriptorSetLayoutData const& rhs) = delete;
 
-    uint32_t                                                  slot{0xFFFFFFFF};
-    uint32_t                                                  capacity{0};
-    ccstd::pmr::vector<DescriptorBlockData>                   descriptorBlocks;
+    uint32_t slot{0xFFFFFFFF};
+    uint32_t capacity{0};
+    ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
     ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
 };
 
@@ -426,13 +426,14 @@ struct DescriptorSetData {
     DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc);
 
     DescriptorSetData(DescriptorSetData&& rhs) noexcept = default;
-    DescriptorSetData(DescriptorSetData const& rhs)     = delete;
+    DescriptorSetData(DescriptorSetData const& rhs) = delete;
     DescriptorSetData& operator=(DescriptorSetData&& rhs) = default;
     DescriptorSetData& operator=(DescriptorSetData const& rhs) = delete;
 
-    DescriptorSetLayoutData                descriptorSetLayoutData;
+    DescriptorSetLayoutData descriptorSetLayoutData;
+    gfx::DescriptorSetLayoutInfo descriptorSetLayoutInfo;
     IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayout;
-    IntrusivePtr<gfx::DescriptorSet>       descriptorSet;
+    IntrusivePtr<gfx::DescriptorSet> descriptorSet;
 };
 
 struct PipelineLayoutData {
@@ -445,7 +446,7 @@ struct PipelineLayoutData {
     PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc);
 
     PipelineLayoutData(PipelineLayoutData&& rhs) noexcept = default;
-    PipelineLayoutData(PipelineLayoutData const& rhs)     = delete;
+    PipelineLayoutData(PipelineLayoutData const& rhs) = delete;
     PipelineLayoutData& operator=(PipelineLayoutData&& rhs) = default;
     PipelineLayoutData& operator=(PipelineLayoutData const& rhs) = delete;
 
@@ -462,7 +463,7 @@ struct ShaderProgramData {
     ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc);
 
     ShaderProgramData(ShaderProgramData&& rhs) noexcept = default;
-    ShaderProgramData(ShaderProgramData const& rhs)     = delete;
+    ShaderProgramData(ShaderProgramData const& rhs) = delete;
     ShaderProgramData& operator=(ShaderProgramData&& rhs) = default;
     ShaderProgramData& operator=(ShaderProgramData const& rhs) = delete;
 
@@ -479,7 +480,7 @@ struct RenderStageData {
     RenderStageData(RenderStageData&& rhs, const allocator_type& alloc);
 
     RenderStageData(RenderStageData&& rhs) noexcept = default;
-    RenderStageData(RenderStageData const& rhs)     = delete;
+    RenderStageData(RenderStageData const& rhs) = delete;
     RenderStageData& operator=(RenderStageData&& rhs) = default;
     RenderStageData& operator=(RenderStageData const& rhs) = delete;
 
@@ -496,12 +497,12 @@ struct RenderPhaseData {
     RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& alloc);
 
     RenderPhaseData(RenderPhaseData&& rhs) noexcept = default;
-    RenderPhaseData(RenderPhaseData const& rhs)     = delete;
+    RenderPhaseData(RenderPhaseData const& rhs) = delete;
     RenderPhaseData& operator=(RenderPhaseData&& rhs) = default;
     RenderPhaseData& operator=(RenderPhaseData const& rhs) = delete;
 
-    ccstd::pmr::string                              rootSignature;
-    ccstd::pmr::vector<ShaderProgramData>           shaderPrograms;
+    ccstd::pmr::string rootSignature;
+    ccstd::pmr::vector<ShaderProgramData> shaderPrograms;
     PmrTransparentMap<ccstd::pmr::string, uint32_t> shaderIndex;
 };
 
@@ -519,7 +520,7 @@ struct LayoutGraphData {
     LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc);
 
     LayoutGraphData(LayoutGraphData&& rhs) noexcept = default;
-    LayoutGraphData(LayoutGraphData const& rhs)     = delete;
+    LayoutGraphData(LayoutGraphData const& rhs) = delete;
     LayoutGraphData& operator=(LayoutGraphData&& rhs) = default;
     LayoutGraphData& operator=(LayoutGraphData const& rhs) = delete;
 
@@ -646,13 +647,13 @@ struct LayoutGraphData {
         Vertex(Vertex const& rhs, const allocator_type& alloc);
 
         Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs)     = delete;
+        Vertex(Vertex const& rhs) = delete;
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge>  inEdges;
-        VertexHandle                handle;
+        ccstd::pmr::vector<InEdge> inEdges;
+        VertexHandle handle;
     };
 
     struct NameTag {
@@ -666,16 +667,16 @@ struct LayoutGraphData {
     ccstd::pmr::vector<Vertex> vertices;
     // Components
     ccstd::pmr::vector<ccstd::pmr::string> names;
-    ccstd::pmr::vector<UpdateFrequency>    updateFrequencies;
+    ccstd::pmr::vector<UpdateFrequency> updateFrequencies;
     ccstd::pmr::vector<PipelineLayoutData> layouts;
     // PolymorphicGraph
     ccstd::pmr::vector<RenderStageData> stages;
     ccstd::pmr::vector<RenderPhaseData> phases;
     // Members
-    ccstd::pmr::vector<ccstd::pmr::string>      valueNames;
+    ccstd::pmr::vector<ccstd::pmr::string> valueNames;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
-    PmrFlatMap<ccstd::pmr::string, uint32_t>    shaderLayoutIndex;
+    PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

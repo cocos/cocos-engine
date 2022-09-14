@@ -33,8 +33,8 @@
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
-#include "scene/RenderScene.h"
 #include "scene/Camera.h"
+#include "scene/RenderScene.h"
 
 namespace cc {
 namespace pipeline {

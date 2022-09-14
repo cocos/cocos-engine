@@ -575,7 +575,7 @@ void NativePipeline::resetRenderQueue(bool reset) {
 }
 
 bool NativePipeline::isRenderQueueReset() const {
-    return true;    
+    return true;
 }
 
 } // namespace render

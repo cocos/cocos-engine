@@ -31,39 +31,34 @@
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
 import { assert } from '../..';
-import { AABB } from '../../geometry/aabb';
 import intersect from '../../geometry/intersect';
 import { Sphere } from '../../geometry/sphere';
-import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, ClearFlagBit, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer,
-    FramebufferInfo, GeneralBarrierInfo, InputAssemblerInfo, LoadOp, MemoryUsageBit, PipelineState, Rect, RenderPass, RenderPassInfo, SamplerInfo, Shader, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
-    TextureType, TextureUsageBit, Viewport } from '../../gfx';
+import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer,
+    FramebufferInfo, GeneralBarrierInfo, InputAssemblerInfo, LoadOp, MemoryUsageBit, PipelineState, Rect, RenderPass, RenderPassInfo, Sampler, SamplerInfo, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
+    TextureType, TextureUsageBit, Viewport } from '../../../gfx';
 import { legacyCC } from '../../global-exports';
-import { Mat4 } from '../../math/mat4';
 import { Vec3 } from '../../math/vec3';
 import { Vec4 } from '../../math/vec4';
-import { BatchingSchemes, Pass } from '../../renderer';
-import { DirectionalLight, SpotLight } from '../../renderer/scene';
-import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
-import { Light, LightType } from '../../renderer/scene/light';
-import { Model } from '../../renderer/scene/model';
-import { CSMLevel, CSMOptimizationMode, ShadowType } from '../../renderer/scene/shadows';
-import { SubModel } from '../../renderer/scene/submodel';
+import { BatchingSchemes } from '../../../render-scene';
+import { DirectionalLight } from '../../../render-scene/scene';
+import { Camera } from '../../../render-scene/scene/camera';
+import { LightType } from '../../../render-scene/scene/light';
+import { CSMLevel, ShadowType } from '../../../render-scene/scene/shadows';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
-import { RenderPassStage, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
+import { SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
-import { ShadowLayerVolume } from '../shadow/csm-layers';
-import { LayoutGraph, LayoutGraphData, LayoutGraphDataVisitor, LayoutGraphVisitor, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData } from './layout-graph';
+import { LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { Pipeline, SceneVisitor } from './pipeline';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
-    RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
+    RasterPass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { AttachmentType, ComputeView, QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
-import { stringify, parse } from './utils';
+import { stringify } from './utils';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { renderProfiler } from '../pipeline-funcs';
@@ -395,6 +390,9 @@ class DeviceRenderQueue {
     set renderPhase (val) { this._renderPhase = val; }
     private _sceneVisitor: WebSceneVisitor;
     private _blitDesc: BlitDesc | null = null;
+    private _queueId = -1;
+    set queueId (val) { this._queueId = val; }
+    get queueId () { return this._queueId; }
     constructor (devicePass: DeviceRenderPass) {
         this._devicePass = devicePass;
         this._sceneVisitor = new WebSceneVisitor(this._devicePass.context.commandBuffer,
@@ -713,8 +711,12 @@ class DeviceRenderPass {
             :  new Rect(0, 0, tex.width, tex.height);
         cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderArea,
             this.clearColor, this.clearDepth, this.clearStencil);
+        const stageId = this.context.layoutGraph.locateChild(this.context.layoutGraph.nullVertex(), 'default');
+        assert(stageId !== 0xFFFFFFFF);
+        const layout = this.context.layoutGraph.getLayout(stageId);
+        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
-            this._context.pipeline.globalDSManager.globalDescriptorSet);
+            layoutData!.descriptorSet!);
         for (const queue of this._deviceQueues) {
             queue.record();
         }
@@ -756,6 +758,7 @@ class GraphScene {
     scene: SceneData | null = null;
     blit: Blit | null = null;
     dispatch: Dispatch | null = null;
+    sceneID = -1;
 }
 class DevicePreSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
@@ -907,11 +910,60 @@ class DevicePreSceneTask extends WebSceneTask {
             && this.graphScene.scene!.flags & SceneFlags.SHADOW_CASTER;
     }
 
-    protected _updateUbo (camera: Camera) {
-        const ubo = this._currentQueue.devicePass.context.ubo;
-        ubo.updateGlobalUBO(camera.window);
-        ubo.updateCameraUBO(camera);
-        ubo.updateShadowUBO(camera);
+    private _bindDescriptor (context: ExecutorContext, descId: number, value) {
+        const layoutData = this._getGlobalDescData(context)!;
+        // find descriptor binding
+        for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
+            for (let i = 0; i !== block.descriptors.length; ++i) {
+                if (descId === block.descriptors[i].descriptorID) {
+                    if (value instanceof Buffer) layoutData.descriptorSet!.bindBuffer(block.offset + i, value);
+                    else if (value instanceof Texture) layoutData.descriptorSet!.bindTexture(block.offset + i, value);
+                    else if (value instanceof Sampler) layoutData.descriptorSet!.bindSampler(block.offset + i, value);
+                }
+            }
+        }
+    }
+
+    private _getGlobalDescData (context: ExecutorContext) {
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
+        assert(stageId !== 0xFFFFFFFF);
+        const layout = context.layoutGraph.getLayout(stageId);
+        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
+        return layoutData;
+    }
+
+    protected _updateGlobal (context: ExecutorContext, data: RenderData) {
+        const constants = data.constants;
+        const samplers = data.samplers;
+        const textures = data.textures;
+        const device = context.root.device;
+        for (const [key, value] of constants) {
+            const buffer = device.createBuffer(new BufferInfo(BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                value.length * 4,
+                value.length * 4));
+            buffer.update(new Float32Array(value));
+            this._bindDescriptor(context, key, buffer);
+        }
+        for (const [key, value] of textures) {
+            this._bindDescriptor(context, key, value);
+        }
+        for (const [key, value] of samplers) {
+            this._bindDescriptor(context, key, value);
+        }
+        this._getGlobalDescData(context).descriptorSet!.update();
+    }
+    protected _updateUbo () {
+        const devicePass = this._currentQueue.devicePass;
+        const context = devicePass.context;
+        const rasterId = devicePass.rasterPassInfo.id;
+        const passRenderData = context.renderGraph.getData(rasterId);
+        // CCGlobal
+        this._updateGlobal(context, passRenderData);
+        // CCCamera, CCShadow, CCCSM
+        const queueId = this._currentQueue.queueId;
+        const queueRenderData = context.renderGraph.getData(queueId)!;
+        this._updateGlobal(context, queueRenderData);
     }
 
     public submit () {
@@ -919,7 +971,7 @@ class DevicePreSceneTask extends WebSceneTask {
         const ubo = context.ubo;
         if (this.graphScene.blit) {
             const blitCam = this.graphScene.blit.camera;
-            if (blitCam) this._updateUbo(blitCam);
+            if (blitCam) this._updateUbo();
             this._currentQueue.blitDesc!.update();
             return;
         }
@@ -928,7 +980,7 @@ class DevicePreSceneTask extends WebSceneTask {
                 this.graphScene.scene!.light.light!, this.graphScene.scene!.light.level);
             return;
         }
-        this._updateUbo(this.camera!);
+        this._updateUbo();
 
         this._uploadInstanceBuffers();
         this._uploadBatchedBuffers();
@@ -1302,6 +1354,7 @@ class PassVisitor implements RenderGraphVisitor {
     queue (value: RenderQueue) {
         const deviceQueue = new DeviceRenderQueue(this._currPass!);
         deviceQueue.queueHint = value.hint;
+        deviceQueue.queueId = this._queueID;
         this._currQueue = deviceQueue;
         this._currPass!.addQueue(deviceQueue);
         const rg = this._context.renderGraph;
@@ -1322,6 +1375,7 @@ class PassVisitor implements RenderGraphVisitor {
     scene (value: SceneData) {
         const graphScene = new GraphScene();
         graphScene.scene = value;
+        graphScene.sceneID = this._sceneID;
         this._currQueue!.addSceneTask(graphScene);
     }
     blit (value: Blit) {

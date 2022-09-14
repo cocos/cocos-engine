@@ -36,7 +36,6 @@ SharedBufferManager::~SharedBufferManager() {
     CC_SAFE_DELETE(_buffer);
 }
 
-
 void SharedBufferManager::init() {
     if (!_buffer) {
         _buffer = new IOTypedArray(_arrayType, INIT_RENDER_INFO_BUFFER_SIZE);

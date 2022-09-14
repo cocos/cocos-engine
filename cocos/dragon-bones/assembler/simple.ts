@@ -24,11 +24,10 @@
  */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, Node, Texture2D, director } from '../../core';
-import { BlendFactor } from '../../core/gfx';
-import { TextureBase } from '../../core/assets/texture-base';
+import { Color, Mat4, Node, director } from '../../core';
+import { BlendFactor } from '../../gfx';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
-import { MaterialInstance } from '../../core/renderer/core/material-instance';
+import { MaterialInstance } from '../../render-scene/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame } from '../ArmatureCache';
@@ -37,6 +36,8 @@ import { CCSlot } from '../CCSlot';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
+import { Texture2D } from '../../asset/assets';
+import { TextureBase } from '../../asset/assets/texture-base';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;

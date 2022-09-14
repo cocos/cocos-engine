@@ -28,19 +28,17 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
-import { ClearFlagBit, Color, Rect } from '../../gfx';
+import { ClearFlagBit, Color, Rect } from '../../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from '../enum';
-import { InstancedBuffer } from '../instanced-buffer';
-import { BatchedBuffer } from '../batched-buffer';
-import { BatchingSchemes } from '../../renderer/core/pass';
+import { BatchingSchemes } from '../../../render-scene/core/pass';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { MainFlow } from './main-flow';

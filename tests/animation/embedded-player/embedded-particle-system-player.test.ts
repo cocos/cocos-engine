@@ -1,6 +1,6 @@
-import { Node, warn } from "../../../cocos/core";
-import { EmbeddedPlayer } from "../../../cocos/core/animation/embedded-player/embedded-player";
-import { EmbeddedParticleSystemPlayable } from "../../../cocos/core/animation/embedded-player/embedded-particle-system-player";
+import { Node } from "../../../cocos/core";
+import { EmbeddedPlayer } from "../../../cocos/animation/embedded-player/embedded-player";
+import { EmbeddedParticleSystemPlayable } from "../../../cocos/animation/embedded-player/embedded-particle-system-player";
 import { EmbeddedPlayerHostMock } from "./util";
 import { ParticleSystem } from "../../../cocos/particle";
 import { captureWarns } from "../../utils/log-capture";

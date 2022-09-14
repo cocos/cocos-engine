@@ -69,11 +69,10 @@ namespace render {
 class PipelineRuntime {
 public:
     PipelineRuntime() noexcept = default;
-    PipelineRuntime(PipelineRuntime&& rhs)      = delete;
+    PipelineRuntime(PipelineRuntime&& rhs) = delete;
     PipelineRuntime(PipelineRuntime const& rhs) = delete;
     PipelineRuntime& operator=(PipelineRuntime&& rhs) = delete;
     PipelineRuntime& operator=(PipelineRuntime const& rhs) = delete;
-
     virtual ~PipelineRuntime() noexcept = default;
 
     virtual bool activate(gfx::Swapchain * swapchain) = 0;
@@ -117,11 +116,10 @@ public:
 class Setter {
 public:
     Setter() noexcept = default;
-    Setter(Setter&& rhs)      = delete;
+    Setter(Setter&& rhs) = delete;
     Setter(Setter const& rhs) = delete;
     Setter& operator=(Setter&& rhs) = delete;
     Setter& operator=(Setter const& rhs) = delete;
-
     virtual ~Setter() noexcept = default;
 
     virtual void setMat4(const ccstd::string& name, const cc::Mat4& mat) = 0;
@@ -192,11 +190,10 @@ public:
 class MovePassBuilder {
 public:
     MovePassBuilder() noexcept = default;
-    MovePassBuilder(MovePassBuilder&& rhs)      = delete;
+    MovePassBuilder(MovePassBuilder&& rhs) = delete;
     MovePassBuilder(MovePassBuilder const& rhs) = delete;
     MovePassBuilder& operator=(MovePassBuilder&& rhs) = delete;
     MovePassBuilder& operator=(MovePassBuilder const& rhs) = delete;
-
     virtual ~MovePassBuilder() noexcept = default;
 
     virtual void addPair(const MovePair& pair) = 0;
@@ -205,11 +202,10 @@ public:
 class CopyPassBuilder {
 public:
     CopyPassBuilder() noexcept = default;
-    CopyPassBuilder(CopyPassBuilder&& rhs)      = delete;
+    CopyPassBuilder(CopyPassBuilder&& rhs) = delete;
     CopyPassBuilder(CopyPassBuilder const& rhs) = delete;
     CopyPassBuilder& operator=(CopyPassBuilder&& rhs) = delete;
     CopyPassBuilder& operator=(CopyPassBuilder const& rhs) = delete;
-
     virtual ~CopyPassBuilder() noexcept = default;
 
     virtual void addPair(const CopyPair& pair) = 0;
@@ -218,11 +214,10 @@ public:
 class SceneVisitor {
 public:
     SceneVisitor() noexcept = default;
-    SceneVisitor(SceneVisitor&& rhs)      = delete;
+    SceneVisitor(SceneVisitor&& rhs) = delete;
     SceneVisitor(SceneVisitor const& rhs) = delete;
     SceneVisitor& operator=(SceneVisitor&& rhs) = delete;
     SceneVisitor& operator=(SceneVisitor const& rhs) = delete;
-
     virtual ~SceneVisitor() noexcept = default;
 
     virtual const pipeline::PipelineSceneData* getPipelineSceneData() const = 0;
@@ -239,11 +234,10 @@ public:
 class SceneTask {
 public:
     SceneTask() noexcept = default;
-    SceneTask(SceneTask&& rhs)      = delete;
+    SceneTask(SceneTask&& rhs) = delete;
     SceneTask(SceneTask const& rhs) = delete;
     SceneTask& operator=(SceneTask&& rhs) = delete;
     SceneTask& operator=(SceneTask const& rhs) = delete;
-
     virtual ~SceneTask() noexcept = default;
 
     virtual TaskType getTaskType() const noexcept = 0;
@@ -255,11 +249,10 @@ public:
 class SceneTransversal {
 public:
     SceneTransversal() noexcept = default;
-    SceneTransversal(SceneTransversal&& rhs)      = delete;
+    SceneTransversal(SceneTransversal&& rhs) = delete;
     SceneTransversal(SceneTransversal const& rhs) = delete;
     SceneTransversal& operator=(SceneTransversal&& rhs) = delete;
     SceneTransversal& operator=(SceneTransversal const& rhs) = delete;
-
     virtual ~SceneTransversal() noexcept = default;
 
     virtual SceneTask* transverse(SceneVisitor *visitor) const = 0;
@@ -268,11 +261,10 @@ public:
 class LayoutGraphBuilder {
 public:
     LayoutGraphBuilder() noexcept = default;
-    LayoutGraphBuilder(LayoutGraphBuilder&& rhs)      = delete;
+    LayoutGraphBuilder(LayoutGraphBuilder&& rhs) = delete;
     LayoutGraphBuilder(LayoutGraphBuilder const& rhs) = delete;
     LayoutGraphBuilder& operator=(LayoutGraphBuilder&& rhs) = delete;
     LayoutGraphBuilder& operator=(LayoutGraphBuilder const& rhs) = delete;
-
     virtual ~LayoutGraphBuilder() noexcept = default;
 
     virtual void clear() = 0;
@@ -314,11 +306,10 @@ public:
 class PipelineBuilder {
 public:
     PipelineBuilder() noexcept = default;
-    PipelineBuilder(PipelineBuilder&& rhs)      = delete;
+    PipelineBuilder(PipelineBuilder&& rhs) = delete;
     PipelineBuilder(PipelineBuilder const& rhs) = delete;
     PipelineBuilder& operator=(PipelineBuilder&& rhs) = delete;
     PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
-
     virtual ~PipelineBuilder() noexcept = default;
 
     virtual void setup(const ccstd::vector<scene::Camera*>& cameras, Pipeline* pipeline) = 0;

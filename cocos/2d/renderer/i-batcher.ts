@@ -1,9 +1,9 @@
-import { CachedArray, Material, Node } from '../../core';
-import { TextureBase } from '../../core/assets/texture-base';
-import { Device } from '../../core/gfx';
-import { Attribute } from '../../core/gfx/base/define';
-import { Camera } from '../../core/renderer/scene/camera';
-import { Model } from '../../core/renderer/scene/model';
+import { CachedArray, Node } from '../../core';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { Device } from '../../gfx';
+import { Attribute } from '../../gfx/base/define';
+import { Camera } from '../../render-scene/scene/camera';
+import { Model } from '../../render-scene/scene/model';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
 import { UIRenderer, RenderRoot2D } from '../framework';
@@ -11,6 +11,7 @@ import { StaticVBAccessor } from './static-vb-accessor';
 import { DrawBatch2D } from './draw-batch';
 import { BaseRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
+import { Material } from '../../asset/assets';
 
 export interface IBatcher {
     currBufferAccessor: StaticVBAccessor;

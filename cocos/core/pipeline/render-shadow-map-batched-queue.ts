@@ -23,19 +23,19 @@
  THE SOFTWARE.
  */
 
-import { SubModel } from '../renderer/scene/submodel';
+import { SubModel } from '../../render-scene/scene/submodel';
 import { SetIndex } from './define';
-import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
+import { Device, RenderPass, Shader, CommandBuffer } from '../../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Pass, BatchingSchemes } from '../renderer/core/pass';
+import { Pass, BatchingSchemes } from '../../render-scene/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
-import { ShadowType } from '../renderer/scene/shadows';
-import { Light, LightType } from '../renderer/scene/light';
+import { ShadowType } from '../../render-scene/scene/shadows';
+import { Light, LightType } from '../../render-scene/scene/light';
 import { intersect } from '../geometry';
-import { Model } from '../renderer/scene/model';
-import { Camera, DirectionalLight, SpotLight } from '../renderer/scene';
+import { Model } from '../../render-scene/scene/model';
+import { Camera, DirectionalLight, SpotLight } from '../../render-scene/scene';
 import { shadowCulling } from './scene-culling';
 import { PipelineRuntime } from './custom/pipeline';
 

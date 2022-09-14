@@ -38,6 +38,7 @@
 #include "math/Mat4.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
+#include "platform/java/modules/XRInterface.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
 
@@ -349,6 +350,7 @@ public:
 
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
+
 protected:
     void setExposure(float ev100);
 

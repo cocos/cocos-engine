@@ -26,14 +26,14 @@ import { EDITOR } from 'internal:constants';
 import {
     ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable,
 } from 'cc.decorator';
-import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
-import { Filter, PixelFormat } from '../../core/assets/asset-enum';
-import { Material } from '../../core/assets/material';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
+import { Filter, PixelFormat } from '../../asset/assets/asset-enum';
+import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { Texture2D } from '../../core/assets/texture-2d';
+import { Texture2D } from '../../asset/assets/texture-2d';
 import { CCString } from '../../core/data/utils/attribute';
-import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy } from '../../core/gfx';
+import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy } from '../../gfx';
 import { Mat4, Vec2, Vec3 } from '../../core/math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';

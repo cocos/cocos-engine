@@ -27,7 +27,7 @@ import { ccclass, tooltip, range, slide, type, displayOrder, serializable, edita
 import { Component } from '../../core/components/component';
 import { Color, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import { Root } from '../../core/root';
 import { legacyCC } from '../../core/global-exports';
 

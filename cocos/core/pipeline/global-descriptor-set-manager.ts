@@ -24,8 +24,8 @@
  */
 
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
-    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
-import { Light } from '../renderer/scene';
+    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../../gfx';
+import { Light } from '../../render-scene/scene';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
 
 const _samplerLinearInfo = new SamplerInfo(

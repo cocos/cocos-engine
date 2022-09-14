@@ -1,7 +1,7 @@
-import { PixelFormat } from '../../../core/assets/asset-enum';
-import { ImageAsset } from '../../../core/assets/image-asset';
-import { Texture2D } from '../../../core/assets/texture-2d';
-import { BufferTextureCopy } from '../../../core/gfx';
+import { PixelFormat } from '../../../asset/assets/asset-enum';
+import { ImageAsset } from '../../../asset/assets/image-asset';
+import { Texture2D } from '../../../asset/assets/texture-2d';
+import { BufferTextureCopy } from '../../../gfx';
 import { legacyCC } from '../../../core/global-exports';
 import { SpriteFrame } from '../../assets/sprite-frame';
 

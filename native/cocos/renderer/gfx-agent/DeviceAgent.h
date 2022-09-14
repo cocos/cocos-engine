@@ -103,6 +103,7 @@ public:
 
     void presentWait();
     void presentSignal();
+
 protected:
     static DeviceAgent *instance;
 

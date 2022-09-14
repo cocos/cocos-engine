@@ -27,11 +27,11 @@
 
 #include <iostream>
 #include "base/std/container/array.h"
+#include "gfx-base/GFXDef-common.h"
 #include "math/Vec2.h"
 #include "platform/interfaces/OSInterface.h"
-#include "gfx-base/GFXDef-common.h"
 #if CC_USE_VULKAN
-#include "vulkan/vulkan_core.h"
+    #include "vulkan/vulkan_core.h"
 #endif
 #include "XRCommon.h"
 namespace cc {
@@ -124,7 +124,7 @@ public:
      * @param gfxApi
      * @return
      */
-    virtual const xr::XRSwapchain& doGFXDeviceAcquire(gfx::API gfxApi) = 0;
+    virtual const xr::XRSwapchain &doGFXDeviceAcquire(gfx::API gfxApi) = 0;
     /**
      * @en call when gfx device present
      * @zh GFX设备是否需要展示操作
@@ -146,7 +146,7 @@ public:
      * @zh 获取XR交换链列表
      * @return
      */
-    virtual const std::vector<cc::xr::XRSwapchain>& getXRSwapchains() = 0;
+    virtual const std::vector<cc::xr::XRSwapchain> &getXRSwapchains() = 0;
     /**
      * @en get xr swapchain's format
      * @zh 获取XR交换链格式
@@ -300,13 +300,13 @@ public:
      * @param window
      * @return
      */
-    virtual xr::XREye getXREyeByRenderWindow(void* window) = 0;
+    virtual xr::XREye getXREyeByRenderWindow(void *window) = 0;
     /**
      * @en bind renderwindow with xr eye
      * @zh 建立RenderWindow与XREye的对应关系
      * @param window
      * @param eye
      */
-    virtual void bindXREyeWithRenderWindow(void* window, xr::XREye eye) = 0;
+    virtual void bindXREyeWithRenderWindow(void *window, xr::XREye eye) = 0;
 };
 } // namespace cc

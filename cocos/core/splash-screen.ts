@@ -23,15 +23,15 @@
  THE SOFTWARE.
  */
 
-import { EDITOR, NATIVE, PREVIEW } from 'internal:constants';
-import * as easing from './easing/easing';
-import { Material } from './assets/material';
+import { EDITOR, PREVIEW } from 'internal:constants';
+import * as easing from './algorithm/easing';
+import { Material } from '../asset/assets/material';
 import { clamp01 } from './math/utils';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
     MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform, Swapchain,
-} from './gfx';
+} from '../gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { SetIndex } from './pipeline/define';

@@ -31,7 +31,7 @@ namespace cc {
 static uint32_t getAttributesStride(ccstd::vector<gfx::Attribute>& attrs) {
     uint32_t stride = 0;
     for (auto& attr : attrs) {
-        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+        const auto& info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
         stride += info.size;
     }
     return stride;
@@ -49,7 +49,7 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* /*device*/,ccstd::vector<gfx::Attribute> &&attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
+void UIMeshBuffer::initialize(gfx::Device* /*device*/, ccstd::vector<gfx::Attribute>&& attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
     _attributes = attrs;
     _vertexFormatBytes = getAttributesStride(attrs);
 }

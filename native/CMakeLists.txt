@@ -849,7 +849,7 @@ if(USE_SOCKET)
     )
 endif()
 
-if(NOT IOS AND USE_WEBSOCKET_SERVER)
+if(USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/network/WebSocketServer.h
                      cocos/network/WebSocketServer.cpp
@@ -1735,8 +1735,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXDistance.cpp
     )
     cocos_source_files(
-        cocos/bindings/auto/jsb_physics_auto.cpp
-        cocos/bindings/auto/jsb_physics_auto.h
+        NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp
+                            cocos/bindings/auto/jsb_physics_auto.h
     )
 endif()
 
@@ -1959,7 +1959,6 @@ cocos_source_files(
     cocos/core/scene-graph/Layers.h
     cocos/core/scene-graph/Node.cpp
     cocos/core/scene-graph/Node.h
-    cocos/core/scene-graph/BaseNode.h
     # cocos/core/scene-graph/ComponentScheduler.h
     # cocos/core/scene-graph/ComponentScheduler.cpp
     # cocos/core/scene-graph/NodeActivator.cpp
@@ -2453,7 +2452,7 @@ if(USE_SOCKET)
     )
 endif()
 
-if(NOT IOS AND USE_WEBSOCKET_SERVER)
+if(USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/bindings/manual/jsb_websocket_server.cpp
                      cocos/bindings/manual/jsb_websocket_server.h

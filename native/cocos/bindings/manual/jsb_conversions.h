@@ -323,14 +323,13 @@ bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, T> *r
     return true;
 }
 
-template<typename T>
+template <typename T>
 void cc_tmp_set_private_data(se::Object *obj, T *v) { // NOLINT(readability-identifier-naming)
-    if constexpr (std::is_base_of_v<cc::RefCounted,T>) {
+    if constexpr (std::is_base_of_v<cc::RefCounted, T>) {
         obj->setPrivateData(v);
-    }else{
+    } else {
         obj->setRawPrivateData(v);
     }
-
 }
 
 inline void cc_tmp_set_private_data(se::Object *obj, cc::gfx::Sampler *v) { // NOLINT(readability-identifier-naming)
@@ -856,7 +855,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 ///
 
 template <typename... Args>
-bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args); // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &&...args); // NOLINT(readability-identifier-naming)
 
 template <typename R>
 inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, se::Object *self) { // NOLINT(readability-identifier-naming)
@@ -1213,7 +1212,7 @@ inline bool nativevalue_to_se(const ccstd::vector<T> *from, se::Value &to, se::O
 }
 
 template <typename T>
-inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::Object *ctx) {  // NOLINT
+inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::Object *ctx) { // NOLINT
     return nativevalue_to_se(*from, to, ctx);
 }
 

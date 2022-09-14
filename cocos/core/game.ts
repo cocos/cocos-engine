@@ -24,17 +24,17 @@
  THE SOFTWARE.
 */
 
-import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
-import assetManager, { IAssetManagerOptions } from './asset-manager/asset-manager';
+import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { AsyncDelegate } from './event/async-delegate';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { deviceManager } from './gfx';
+import { deviceManager } from '../gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { legacyCC, VERSION } from './global-exports';
@@ -43,12 +43,12 @@ import { RenderPipeline } from './pipeline/render-pipeline';
 import { Layers, Node } from './scene-graph';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
-import { builtinResMgr } from './builtin/builtin-res-mgr';
+import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Settings, settings } from './settings';
 import { Director, director } from './director';
 import { bindingMappingInfo } from './pipeline/define';
 import { assert } from './platform/debug';
-import { IBundleOptions } from './asset-manager/shared';
+import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 

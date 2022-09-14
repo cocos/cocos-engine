@@ -24,12 +24,12 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Camera, Model } from '../../core/renderer/scene';
+import { Camera, Model } from '../../render-scene/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
-import { Material } from '../../core/assets/material';
+import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
-    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../core/gfx';
+    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
 import { Pool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
@@ -39,20 +39,20 @@ import { DrawBatch2D } from './draw-batch';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
-import { TextureBase } from '../../core/assets/texture-base';
-import { Mat4, Vec3 } from '../../core/math';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
-import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
+import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
-import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
+import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
-import { NativeBatcher2d, NativeRenderDrawInfo, NativeUIMeshBuffer } from './native-2d';
+import { NativeBatcher2d, NativeUIMeshBuffer } from './native-2d';
 import { MeshBuffer } from './mesh-buffer';
-import { scene } from '../../core/renderer';
-import { builtinResMgr, RenderingSubMesh } from '../../core';
-import { Mask } from '../components/mask';
+import { scene } from '../../render-scene';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { RenderingSubMesh } from '../../asset/assets';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();

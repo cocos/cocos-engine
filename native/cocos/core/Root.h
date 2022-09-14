@@ -141,6 +141,7 @@ public:
      */
     void destroyScenes();
 
+#ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
         //cjh TODO: need use model pool?
@@ -148,9 +149,11 @@ public:
         model->initialize();
         return model;
     }
+#endif
 
     void destroyModel(scene::Model *model);
 
+#ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
         //TODO(xwx): need use model pool?
@@ -158,6 +161,7 @@ public:
         light->initialize();
         return light;
     }
+#endif
 
     void destroyLight(scene::Light *light);
 

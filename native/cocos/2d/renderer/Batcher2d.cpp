@@ -57,7 +57,7 @@ Batcher2d::~Batcher2d() { // NOLINT
     }
     _attributes.clear();
 
-    if(_maskClearModel != nullptr) {
+    if (_maskClearModel != nullptr) {
         Root::getInstance()->destroyModel(_maskClearModel);
         _maskClearModel = nullptr;
     }
@@ -67,7 +67,6 @@ Batcher2d::~Batcher2d() { // NOLINT
     }
     _maskClearMtl = nullptr;
     _maskAttributes.clear();
-
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -251,7 +250,7 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
         _batches.push_back(curdrawBatch);
     }
 
-    if(isMask) {
+    if (isMask) {
         _stencilManager->enableMask();
     }
 }
@@ -530,7 +529,7 @@ void Batcher2d::reset() {
     // stencilManager
 }
 
-void Batcher2d::insertMaskBatch(RenderEntity* entity){
+void Batcher2d::insertMaskBatch(RenderEntity* entity) {
     generateBatch(_currEntity, _currDrawInfo);
     resetRenderStates();
     createClearModel();
@@ -541,7 +540,7 @@ void Batcher2d::insertMaskBatch(RenderEntity* entity){
 
     gfx::DepthStencilState* depthStencil = nullptr;
     ccstd::hash_t dssHash = 0;
-    if(_maskClearMtl != nullptr){
+    if (_maskClearMtl != nullptr) {
         depthStencil = _stencilManager->getDepthStencilState(stage, _maskClearMtl);
         dssHash = _stencilManager->getStencilHash(stage);
     }
@@ -572,7 +571,7 @@ void Batcher2d::createClearModel() {
         _maskClearMtl = BuiltinResMgr::getInstance()->get<Material>(ccstd::string("default-clear-stencil"));
 
         _maskClearModel = Root::getInstance()->createModel<scene::Model>();
-        uint32_t stride = 12;// vfmt
+        uint32_t stride = 12; // vfmt
 
         auto* vertexBuffer = _device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,

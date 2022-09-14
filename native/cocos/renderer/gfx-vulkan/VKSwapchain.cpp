@@ -469,7 +469,7 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
 
 void CCVKSwapchain::createVkSurface() {
     if (_xr) {
-	    // xr do not need VkSurface
+        // xr do not need VkSurface
         _gpuSwapchain->vkSurface = VK_NULL_HANDLE;
         return;
     }

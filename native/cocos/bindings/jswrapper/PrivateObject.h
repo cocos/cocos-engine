@@ -88,16 +88,22 @@ public:
     SharedPtrPrivateObject() = default;
     explicit SharedPtrPrivateObject(const std::shared_ptr<T> &ptr) : _data(ptr) {}
     explicit SharedPtrPrivateObject(std::shared_ptr<T> &&ptr) : _data(std::move(ptr)) {}
-    inline const std::shared_ptr<T>& getData() const {
+    inline const std::shared_ptr<T> &getData() const {
         return _data;
     }
 
-    inline std::shared_ptr<T>& getData() {
+    inline std::shared_ptr<T> &getData() {
         return _data;
     }
     constexpr bool isSharedPtr() const override { return true; }
 
-    void *getRaw() const override { return _data.get(); }
+    void *getRaw() const override {
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_data.get()));
+        } else {
+            return reinterpret_cast<void *>(_data.get());
+        }
+    }
 
 private:
     std::shared_ptr<T> _data{nullptr};
@@ -111,11 +117,15 @@ public:
     explicit CCIntrusivePtrPrivateObject(cc::IntrusivePtr<T> &&p) : _ptr(std::move(p)) {}
     ~CCIntrusivePtrPrivateObject() override = default;
 
-    inline const cc::IntrusivePtr<T>& getData() const { return _ptr; }
-    inline cc::IntrusivePtr<T>& getData() { return _ptr; }
+    inline const cc::IntrusivePtr<T> &getData() const { return _ptr; }
+    inline cc::IntrusivePtr<T> &getData() { return _ptr; }
 
     inline void *getRaw() const override {
-        return _ptr.get();
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr.get()));
+        } else {
+            return reinterpret_cast<void *>(_ptr.get());
+        }
     }
     inline bool isCCIntrusivePtr() const override { return true; }
 
@@ -157,7 +167,11 @@ public:
 
     void *getRaw() const override {
         // CC_ASSERT(_validate);
-        return _ptr;
+        if constexpr (std::is_const_v<T>) {
+            return reinterpret_cast<void *>(const_cast<std::remove_const_t<T> *>(_ptr));
+        } else {
+            return reinterpret_cast<void *>(_ptr);
+        }
     }
 
 private:

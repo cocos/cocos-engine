@@ -1,10 +1,10 @@
 import { legacyCC } from '../../global-exports';
-import { EffectAsset } from '../../assets';
+import { EffectAsset } from '../../../asset/assets';
 import { CollectVisitor, WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
-import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphData, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue } from './layout-graph';
 import { LayoutGraphBuilder, Pipeline } from './pipeline';
-import { DescriptorType, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorType, ShaderStageFlagBit, Type, UniformBlock } from '../../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
 import { depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 
@@ -70,7 +70,7 @@ function rebuildLayoutGraph (): void {
     const lgData = ppl.layoutGraphBuilder;
     lgData.clear();
 
-    const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true);
+    const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true, true);
 
     for (const n in effects) {
         const e: EffectAsset = effects[n];
@@ -203,7 +203,7 @@ export function buildForwardLayout (ppl: Pipeline) {
     if (bFromGlobalDescriptorSet) {
         buildForwardLayoutFromGlobal(ppl, lg);
     } else {
-        const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true);
+        const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
         lg.mergeDescriptors(defaultID);
     }
 
@@ -233,7 +233,7 @@ export class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor>
 
 export function buildDeferredLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
-    const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true);
+    const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
     lg.mergeDescriptors(defaultID);
     const geometryPassID = lg.addRenderStage('Geometry', DeferredStage.GEOMETRY);
     const lightingPassID = lg.addRenderStage('Lighting', DeferredStage.LIGHTING);

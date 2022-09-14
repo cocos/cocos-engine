@@ -49,7 +49,7 @@ namespace cc {
  */
 class ProfilerBlock {
 public:
-    ProfilerBlock(ProfilerBlock *parent, const std::string_view& name)
+    ProfilerBlock(ProfilerBlock *parent, const std::string_view &name)
     : _parent(parent), _name(name) {}
     ~ProfilerBlock();
 

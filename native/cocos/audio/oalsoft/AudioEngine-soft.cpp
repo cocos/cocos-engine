@@ -51,8 +51,8 @@
     #include "AL/alext.h"
 #endif
 #include "application/ApplicationManager.h"
-#include "audio/include/AudioEngine.h"
 #include "audio/common/decoder/AudioDecoderManager.h"
+#include "audio/include/AudioEngine.h"
 #include "base/Scheduler.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
@@ -444,7 +444,7 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
 
     do {
         if (!player->_ready) {
-            std::lock_guard<std::mutex> lck(player->_play2dMutex);// To prevent the race condition
+            std::lock_guard<std::mutex> lck(player->_play2dMutex); // To prevent the race condition
             player->_timeDirty = true;
             player->_currTime = time;
             break;
@@ -563,7 +563,7 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return header;
     }
-    
+
     AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
     if (decoder == nullptr) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
@@ -599,12 +599,12 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
         }
     }
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    
+
     if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return pcmData;
     }
-    
+
     AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
     if (decoder == nullptr) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);

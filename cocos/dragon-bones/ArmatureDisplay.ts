@@ -23,13 +23,13 @@
  THE SOFTWARE.
  */
 
-import { EDITOR, JSB } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
-import { BlendFactor } from '../core/gfx';
+import { BlendFactor } from '../gfx';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
@@ -38,13 +38,13 @@ import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
-import { MaterialInstance } from '../core/renderer/core/material-instance';
+import { MaterialInstance } from '../render-scene/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 import { ArmatureSystem } from './ArmatureSystem';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
-import { director } from '../core/director';
+import { Material, Texture2D } from '../asset/assets';
 
 enum DefaultArmaturesEnum {
     default = -1,

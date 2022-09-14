@@ -255,7 +255,7 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
     if (controllerEvent.type == ControllerEvent::Type::HANDLE) {
         eventName = "onHandleInput";
     }
-    uint32_t    controllerIndex = 0;
+    uint32_t controllerIndex = 0;
     jsControllerEventArray->setProperty("length", se::Value(static_cast<uint32_t>(controllerEvent.controllerInfos.size())));
 
     for (const auto &controller : controllerEvent.controllerInfos) {
@@ -264,7 +264,7 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
 
         se::HandleObject jsButtonInfoList{se::Object::createArrayObject(static_cast<uint32_t>(controller->buttonInfos.size()))};
 
-        uint32_t buttonIndex       = 0;
+        uint32_t buttonIndex = 0;
         for (const auto &buttonInfo : controller->buttonInfos) {
             se::HandleObject jsButtonInfo{se::Object::createPlainObject()};
             jsButtonInfo->setProperty("code", se::Value(static_cast<uint32_t>(buttonInfo.key)));

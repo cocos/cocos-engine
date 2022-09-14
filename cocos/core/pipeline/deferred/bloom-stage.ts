@@ -28,15 +28,14 @@
  */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { SetIndex } from '../define';
 import { RenderFlow, RenderPipeline } from '..';
-import { Material } from '../../assets/material';
-import { BufferInfo, BufferUsageBit, ClearFlagBit, Color, MemoryUsageBit, PipelineState, Rect } from '../../gfx';
+import { Material } from '../../../asset/assets/material';
+import { BufferInfo, BufferUsageBit, ClearFlagBit, Color, MemoryUsageBit, PipelineState, Rect, Buffer } from '../../../gfx';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from '../enum';
-import { gfx } from '../..';
 import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { BLOOM_COMBINEPASS_INDEX, BLOOM_DOWNSAMPLEPASS_INDEX, BLOOM_PREFILTERPASS_INDEX,
     BLOOM_UPSAMPLEPASS_INDEX,
@@ -75,7 +74,7 @@ export class BloomStage extends RenderStage {
     private _bloomMaterial: Material | null = null;
 
     private _renderArea = new Rect();
-    private _bloomUBO: gfx.Buffer[] = [];
+    private _bloomUBO: Buffer[] = [];
 
     constructor () {
         super();

@@ -24,10 +24,9 @@
  */
 
 import { CCClass } from '../data/class';
-import { clamp, inverseLerp, pingPong, repeat } from '../math/utils';
-import { WrapModeMask } from '../animation/types';
-import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue } from '../curves';
-import { ccclass, serializable } from '../data/decorators';
+import { clamp, pingPong, repeat } from '../math/utils';
+import { WrapModeMask } from '../../animation/types';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode } from '../curves';
 
 const LOOK_FORWARD = 3;
 

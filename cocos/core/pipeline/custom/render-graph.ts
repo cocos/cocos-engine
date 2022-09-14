@@ -30,9 +30,9 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { Material } from '../../assets';
-import { Camera } from '../../renderer/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { Material } from '../../../asset/assets';
+import { Camera } from '../../../render-scene/scene/camera';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../../gfx';
 import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {
@@ -1056,7 +1056,7 @@ export class PresentPass {
 }
 
 export class RenderData {
-    readonly constants: Map<number, Uint8Array> = new Map<number, Uint8Array>();
+    readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
     readonly samplers: Map<number, Sampler | null> = new Map<number, Sampler | null>();

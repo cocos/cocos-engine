@@ -26,10 +26,9 @@
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
-import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
-import { RenderScene } from '../renderer/core/render-scene';
-import { BaseNode } from './base-node';
+import { RenderScene } from '../../render-scene/core/render-scene';
+import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
@@ -37,14 +36,14 @@ import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../utils/p
 
 /**
  * @en
- * Scene is a subclass of [[BaseNode]], composed by nodes, representing the root of a runnable environment in the game.
+ * Scene is a subclass of [[Node]], composed by nodes, representing the root of a runnable environment in the game.
  * It's managed by [[Director]] and user can switch from a scene to another using [[Director.loadScene]]
  * @zh
- * Scene 是 [[BaseNode]] 的子类，由节点所构成，代表着游戏中可运行的某一个整体环境。
+ * Scene 是 [[Node]] 的子类，由节点所构成，代表着游戏中可运行的某一个整体环境。
  * 它由 [[Director]] 管理，用户可以使用 [[Director.loadScene]] 来切换场景
  */
 @ccclass('cc.Scene')
-export class Scene extends BaseNode {
+export class Scene extends Node {
     /**
      * @en The renderer scene, normally user don't need to use it
      * @zh 渲染层场景，一般情况下用户不需要关心它
@@ -82,23 +81,6 @@ export class Scene extends BaseNode {
     protected _inited: boolean;
 
     protected _prefabSyncedInLiveReload = false;
-
-    // support Node access parent data from Scene
-    protected _pos = Vec3.ZERO;
-
-    protected _rot = Quat.IDENTITY;
-
-    protected _scale = Vec3.ONE;
-
-    protected _mat = Mat4.IDENTITY;
-
-    protected _dirtyFlags = 0;
-
-    protected _lpos = Vec3.ZERO;
-
-    protected _lrot = Quat.IDENTITY;
-
-    protected _lscale = Vec3.ONE;
 
     protected _updateScene () {
         this._scene = this;
@@ -153,152 +135,20 @@ export class Scene extends BaseNode {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
+    public _onPostActivated (active: boolean) {
+
+    }
+
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
-        super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
     }
-
-    // transform helpers
-
-    /**
-     * @en
-     * Refer to [[Node.getPosition]]
-     * @zh
-     * 参考 [[Node.getPosition]]
-     */
-    public getPosition (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
-
-    /**
-     * @en
-     * Refer to [[Node.getRotation]]
-     * @zh
-     * 参考 [[Node.getRotation]]
-     */
-    public getRotation (out?: Quat): Quat { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
-
-    /**
-     * @en
-     * Refer to [[Node.getScale]]
-     * @zh
-     * 参考 [[Node.getScale]]
-     */
-    public getScale (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
-
-    /**
-     * @en
-     * Refer to [[Node.getWorldPosition]]
-     * @zh
-     * 参考 [[Node.getWorldPosition]]
-     */
-    public getWorldPosition (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
-
-    /**
-     * @en
-     * Refer to [[Node.getWorldRotation]]
-     * @zh
-     * 参考 [[Node.getWorldRotation]]
-     */
-    public getWorldRotation (out?: Quat) { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
-
-    /**
-     * @en
-     * Refer to [[Node.getWorldScale]]
-     * @zh
-     * 参考 [[Node.getWorldScale]]
-     */
-    public getWorldScale (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
-
-    /**
-     * @en
-     * Refer to [[Node.getWorldMatrix]]
-     * @zh
-     * 参考 [[Node.getWorldMatrix]]
-     */
-    public getWorldMatrix (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
-
-    /**
-     * @en
-     * Refer to [[Node.getWorldRS]]
-     * @zh
-     * 参考 [[Node.getWorldRS]]
-     */
-    public getWorldRS (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
-
-    /**
-     * @en
-     * Refer to [[Node.getWorldRT]]
-     * @zh
-     * 参考 [[Node.getWorldRT]]
-     */
-    public getWorldRT (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
-
-    /**
-     * @en
-     * Refer to [[Node.position]]
-     * @zh
-     * 参考 [[Node.position]]
-     */
-    public get position (): Readonly<Vec3> { return Vec3.ZERO; }
-
-    /**
-     * @en
-     * Refer to [[Node.worldPosition]]
-     * @zh
-     * 参考 [[Node.worldPosition]]
-     */
-    public get worldPosition (): Readonly<Vec3> { return Vec3.ZERO; }
-
-    /**
-     * @en
-     * Refer to [[Node.rotation]]
-     * @zh
-     * 参考 [[Node.rotation]]
-     */
-    public get rotation (): Readonly<Quat> { return Quat.IDENTITY; }
-
-    /**
-     * @en
-     * Refer to [[Node.worldRotation]]
-     * @zh
-     * 参考 [[Node.worldRotation]]
-     */
-    public get worldRotation (): Readonly<Quat> { return Quat.IDENTITY; }
-
-    /**
-     * @en
-     * Refer to [[Node.scale]]
-     * @zh
-     * 参考 [[Node.scale]]
-     */
-    public get scale (): Readonly<Vec3> { return Vec3.ONE; }
-
-    /**
-     * @en
-     * Refer to [[Node.worldScale]]
-     * @zh
-     * 参考 [[Node.worldScale]]
-     */
-    public get worldScale (): Readonly<Vec3> { return Vec3.ONE; }
-
-    /**
-     * @en
-     * Refer to [[Node.eulerAngles]]
-     * @zh
-     * 参考 [[Node.eulerAngles]]
-     */
-    public get eulerAngles (): Readonly<Vec3> { return Vec3.ZERO; }
-
-    /**
-     * @en
-     * Refer to [[Node.worldMatrix]]
-     * @zh
-     * 参考 [[Node.worldMatrix]]
-     */
-    public get worldMatrix (): Readonly<Mat4> { return Mat4.IDENTITY; }
 
     /**
      * @en
@@ -324,14 +174,14 @@ export class Scene extends BaseNode {
             this._inited = true;
         }
         // static method can't use this as parameter type
-        this.walk(BaseNode._setScene);
+        this.walk(Node._setScene);
     }
 
     protected _activate (active: boolean) {
         active = (active !== false);
         if (EDITOR) {
             // register all nodes to editor
-            // @ts-expect-error Polyfilled functions in base-node-dev.ts
+            // @ts-expect-error Polyfilled functions in node-dev.ts
             this._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);

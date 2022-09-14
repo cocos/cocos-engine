@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
-import { Pass } from '../renderer';
-import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
+import { Pass } from '../../render-scene';
+import { IInstancedAttributeBlock, SubModel } from '../../render-scene/scene';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
-    Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
+    Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../../gfx';
 
 export interface IInstancedItem {
     count: number;

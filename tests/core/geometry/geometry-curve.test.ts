@@ -1,4 +1,4 @@
-import { WrapModeMask } from '../../../cocos/core/animation/types';
+import { WrapModeMask } from '../../../cocos/animation/types';
 import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode } from '../../../cocos/core/curves';
 import { AnimationCurve, Keyframe } from '../../../cocos/core/geometry/curve';
 

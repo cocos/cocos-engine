@@ -133,9 +133,9 @@ private:
             vbBuffer[offset++] = entity->getOpacity();
         }
     }
-    
+
     void insertMaskBatch(RenderEntity* entity);
-    void createClearModel ();
+    void createClearModel();
 
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout);
 

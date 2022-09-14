@@ -24,21 +24,20 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr } from '../../core/builtin';
-import { Material } from '../../core/assets';
-import { Texture2D } from '../../core';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material, Texture2D } from '../../asset/assets';
 import { Component } from '../../core/components';
-import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../core/gfx';
+import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
-import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
-import { MacroRecord } from '../../core/renderer/core/pass-utils';
+import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
+import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
 import { Particle, IParticleModule } from '../particle';
 import { packGradientRange } from '../animator/gradient-range';
-import { Pass } from '../../core/renderer/core/pass';
+import { Pass } from '../../render-scene/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { Camera } from '../../core/renderer/scene/camera';
+import { Camera } from '../../render-scene/scene/camera';
 import { legacyCC } from '../../core/global-exports';
 
 const _tempWorldTrans = new Mat4();
