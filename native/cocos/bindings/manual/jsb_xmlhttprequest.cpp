@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,13 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-//
-//  jsb_XMLHttpRequest.cpp
-//  cocos2d_js_bindings
-//
-//  Created by James Chen on 5/15/17.
-//
-//
 #include "jsb_xmlhttprequest.h"
 #include <algorithm>
 #include <functional>
@@ -357,12 +350,12 @@ void XMLHttpRequest::getHeader(const ccstd::string &header) {
         http_field = header.substr(0, found_header_field);
         http_value = header.substr(found_header_field + 1, header.length());
 
-        // Get rid of all \n
+        // trim \n at the end of the string
         if (!http_value.empty() && http_value[http_value.size() - 1] == '\n') {
             http_value.erase(http_value.size() - 1);
         }
 
-        // Get rid of leading space (header is field: value format)
+        // trim leading space (header is field: value format)
         if (!http_value.empty() && http_value[0] == ' ') {
             http_value.erase(0, 1);
         }
@@ -544,15 +537,15 @@ void XMLHttpRequest::setRequestHeader(const ccstd::string &key, const ccstd::str
 }
 
 ccstd::string XMLHttpRequest::getAllResponseHeaders() const {
-    std::stringstream responseheaders;
-    ccstd::string responseheader;
+    std::stringstream responseHeaders;
+    ccstd::string responseHeader;
 
     for (const auto &it : _httpHeader) {
-        responseheaders << it.first << ": " << it.second << "\n";
+        responseHeaders << it.first << ": " << it.second << "\n";
     }
 
-    responseheader = responseheaders.str();
-    return responseheader;
+    responseHeader = responseHeaders.str();
+    return responseHeader;
 }
 
 ccstd::string XMLHttpRequest::getResponseHeader(const ccstd::string &key) const {
@@ -568,26 +561,14 @@ ccstd::string XMLHttpRequest::getResponseHeader(const ccstd::string &key) const 
 }
 
 void XMLHttpRequest::setHttpRequestHeader() {
-    ccstd::vector<ccstd::string> header;
+    ccstd::vector<ccstd::string> headers;
 
     for (auto &it : _requestHeader) {
-        const char *first = it.first.c_str();
-        const char *second = it.second.c_str();
-        size_t len = sizeof(char) * (strlen(first) + 3 + strlen(second));
-        char *test = static_cast<char *>(malloc(len));
-        memset(test, 0, len);
-
-        strcpy(test, first);
-        strcpy(test + strlen(first), ": ");
-        strcpy(test + strlen(first) + 2, second);
-
-        header.emplace_back(test);
-
-        free(test);
+        headers.emplace_back(it.first + ": " + it.second);
     }
 
-    if (!header.empty()) {
-        _httpRequest->setHeaders(header);
+    if (!headers.empty()) {
+        _httpRequest->setHeaders(headers);
     }
 }
 

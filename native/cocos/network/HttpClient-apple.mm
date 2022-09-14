@@ -149,7 +149,15 @@ static int processTask(HttpClient *client, HttpRequest *request, NSString *reque
             unsigned long i = header.find(':', 0);
             unsigned long length = header.size();
             ccstd::string field = header.substr(0, i);
-            ccstd::string value = header.substr(i + 1, length - i);
+            ccstd::string value = header.substr(i + 1);
+            // trim \n at the end of the string
+            if (!value.empty() && value[value.size() - 1] == '\n') {
+                value.erase(value.size() - 1);
+            }
+            // trim leading space (header is field: value format)
+            if (!value.empty() && value[0] == ' ') {
+                value.erase(0, 1);
+            }
             NSString *headerField = [NSString stringWithUTF8String:field.c_str()];
             NSString *headerValue = [NSString stringWithUTF8String:value.c_str()];
             [nsrequest setValue:headerValue forHTTPHeaderField:headerField];
