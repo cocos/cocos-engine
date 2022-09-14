@@ -795,7 +795,7 @@ export class Game extends EventTarget {
             });
     }
 
-    private _initXR() {
+    private _initXR () {
         if (sys.isXR) {
             // XrEntry must not be destroyed
             xr.entry = xr.XrEntry.getInstance();
