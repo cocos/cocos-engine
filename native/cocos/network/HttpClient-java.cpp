@@ -125,11 +125,11 @@ public:
             for (auto &header : headers) {
                 uint32_t len = header.length();
                 uint32_t pos = header.find(':');
-                if (-1 == pos || pos >= len) {
+                if (std::string::npos == pos || pos >= len) {
                     continue;
                 }
                 ccstd::string str1 = header.substr(0, pos);
-                ccstd::string str2 = header.substr(pos + 1, len - pos - 1);
+                ccstd::string str2 = header.substr(pos + 2);
                 addRequestHeader(str1.c_str(), str2.c_str());
             }
         }
