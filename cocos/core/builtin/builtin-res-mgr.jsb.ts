@@ -118,6 +118,7 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                     assets.forEach((asset) => {
                         resources[asset.name] = asset;
                         const url = asset.nativeUrl;
+                        // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
                         if (!EDITOR || legacyCC.GAME_VIEW) releaseManager.addIgnoredAsset(asset);
                         this.addAsset(asset.name, asset);
                         if (asset instanceof legacyCC.Material) {
