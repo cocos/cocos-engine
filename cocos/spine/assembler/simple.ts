@@ -28,7 +28,7 @@ import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
-import { MaterialInstance } from '../../core/renderer';
+import { MaterialInstance } from '../../render-scene';
 import { SkeletonTexture } from '../skeleton-texture';
 import { getAttributeStride, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';

@@ -39,11 +39,11 @@ import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferVie
 import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math/vec3';
 import { Vec4 } from '../../math/vec4';
-import { BatchingSchemes } from '../../renderer';
-import { DirectionalLight } from '../../renderer/scene';
-import { Camera } from '../../renderer/scene/camera';
-import { LightType } from '../../renderer/scene/light';
-import { CSMLevel, ShadowType } from '../../renderer/scene/shadows';
+import { BatchingSchemes } from '../../../render-scene';
+import { DirectionalLight } from '../../../render-scene/scene';
+import { Camera } from '../../../render-scene/scene/camera';
+import { LightType } from '../../../render-scene/scene/light';
+import { CSMLevel, ShadowType } from '../../../render-scene/scene/shadows';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
 import { SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';

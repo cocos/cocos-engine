@@ -25,11 +25,10 @@
 */
 
 import { legacyCC, VERSION } from './global-exports';
-import * as easing from './easing/easing';
+import * as easing from './algorithm/easing';
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
-
 import './splash-screen';
 import './deprecated';
 
@@ -50,7 +49,7 @@ export * from './game';
 export { Root } from './root';
 export * from './scheduler';
 export * from './director';
-
+export * from './algorithm/murmurhash2_gc';
 export * from './pipeline';
 export * from './scene-graph';
 export * from './components';

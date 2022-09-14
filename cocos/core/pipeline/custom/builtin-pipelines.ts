@@ -2,7 +2,7 @@ import { Material } from '../../../asset/assets';
 import { intersect, Sphere } from '../../geometry';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { macro } from '../../platform';
-import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../renderer/scene';
+import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';

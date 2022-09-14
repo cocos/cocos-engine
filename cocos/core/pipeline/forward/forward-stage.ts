@@ -33,13 +33,13 @@ import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { ForwardStagePriority } from '../enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { BatchingSchemes } from '../../renderer/core/pass';
+import { BatchingSchemes } from '../../../render-scene/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from '../ui-phase';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { renderProfiler } from '../pipeline-funcs';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];

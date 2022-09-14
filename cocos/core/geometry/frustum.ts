@@ -24,7 +24,7 @@
  */
 
 import { Mat4, Vec3 } from '../math';
-import { Camera } from '../renderer/scene';
+import { Camera } from '../../render-scene/scene';
 import enums from './enums';
 import { Plane } from './plane';
 import { AABB } from './aabb';

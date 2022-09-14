@@ -30,7 +30,7 @@ import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import { IAssembler } from '../renderer/base';
 import { IBatcher } from '../renderer/i-batcher';
 import { LineCap, LineJoin } from '../assembler/graphics/types';

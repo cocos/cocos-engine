@@ -28,7 +28,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { PIPELINE_FLOW_MAIN } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from '../enum';

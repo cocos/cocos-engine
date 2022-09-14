@@ -28,7 +28,7 @@ import { EDITOR, TEST } from 'internal:constants';
 import { clamp } from '../../core/math/utils';
 import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
-import { RenderWindow, IRenderWindowInfo } from '../../core/renderer/core/render-window';
+import { RenderWindow, IRenderWindowInfo } from '../../render-scene/core/render-window';
 import { Root } from '../../core/root';
 import { TextureBase } from './texture-base';
 import { BufferTextureCopy } from '../../gfx/base/define';

@@ -29,7 +29,8 @@ import '../predefine';
 
 // tslint:disable-next-line: ordered-imports
 import '../cocos/core/legacy';
-import * as renderer from '../cocos/core/renderer';
+//TODO(PP): should rename it to render-scene
+import * as renderer from '../cocos/render-scene';
 import * as gfx from '../cocos/gfx';
 
 // LOAD ENGINE CORE

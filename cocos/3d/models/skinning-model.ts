@@ -32,11 +32,11 @@ import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attr
 import { Mat4, Vec3 } from '../../core/math';
 import { UBOSkinning, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph/node';
-import { ModelType } from '../../core/renderer/scene/model';
+import { ModelType } from '../../render-scene/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../animation/skeletal-animation-utils';
-import { IMacroPatch, BatchingSchemes, Pass } from '../../core/renderer';
+import { IMacroPatch, BatchingSchemes, Pass } from '../../render-scene';
 import { warnID } from '../../core/platform/debug';
 import { director } from '../../core';
 import { PixelFormat } from '../../asset/assets/asset-enum';

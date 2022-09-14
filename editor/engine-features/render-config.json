@@ -192,6 +192,13 @@
             "description": "i18n:ENGINE.features.tween.description",
             "wechatPlugin": true
         },
+        "websocket-server": {
+            "default": [],
+            "label": "i18n:ENGINE.features.websocket_server.label",
+            "description": "i18n:ENGINE.features.websocket_server.description",
+            "native": "USE_WEBSOCKET_SERVER",
+            "wechatPlugin": false
+        },
         "terrain": {
             "default": ["terrain"],
             "label": "i18n:ENGINE.features.terrain.label",

@@ -33,10 +33,10 @@ import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlag
     Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager,
 } from '../../gfx';
 import { legacyCC } from '../global-exports';
-import { MacroRecord } from '../renderer/core/pass-utils';
-import { RenderWindow } from '../renderer/core/render-window';
-import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Model } from '../renderer/scene/model';
+import { MacroRecord } from '../../render-scene/core/pass-utils';
+import { RenderWindow } from '../../render-scene/core/render-window';
+import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
+import { Model } from '../../render-scene/scene/model';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';

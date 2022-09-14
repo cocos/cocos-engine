@@ -28,7 +28,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../../../render-scene/scene';
 import { UBODeferredLight, SetIndex, UBOForwardLight, UBOLocal } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet,
@@ -46,7 +46,7 @@ import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { UIPhase } from '../ui-phase';
-import { Pass } from '../../renderer/core/pass';
+import { Pass } from '../../../render-scene/core/pass';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 

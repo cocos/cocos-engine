@@ -35,7 +35,7 @@ import { displayName, displayOrder, editable, override, serializable, tooltip, t
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { Graphics } from '../2d/components/graphics';
-import { MaterialInstance } from '../core/renderer';
+import { MaterialInstance } from '../render-scene';
 import { js } from '../core/utils/js';
 import { BlendFactor, BlendOp } from '../gfx';
 import { legacyCC } from '../core/global-exports';

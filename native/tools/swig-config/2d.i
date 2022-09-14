@@ -53,8 +53,6 @@
 %ignore cc::UIMeshBuffer::setIndexOffset;
 %ignore cc::UIMeshBuffer::getDirty;
 %ignore cc::UIMeshBuffer::setDirty;
-%ignore cc::UIMeshBuffer::getFloatsPerVertex;
-%ignore cc::UIMeshBuffer::setFloatsPerVertex;
 %ignore cc::UIMeshBuffer::getAttributes;
 
 %ignore cc::RenderDrawInfo::getBatcher;
