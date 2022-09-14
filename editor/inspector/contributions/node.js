@@ -98,7 +98,7 @@ exports.listeners = {
 
         panel.snapshotLock = false;
 
-        // 配合 change-dump 事后发起快照，同时使得 ui-num-input 连续变动后只留一个操作数
+        // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
         Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
