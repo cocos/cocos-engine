@@ -102,7 +102,7 @@ struct ManagedBuffer {
     : buffer(std::move(bufferIn)) {}
 
     IntrusivePtr<gfx::Buffer> buffer;
-    uint32_t refCount{0};
+    uint64_t fenceValue{0};
 };
 
 struct ManagedTexture {
@@ -111,7 +111,7 @@ struct ManagedTexture {
     : texture(std::move(textureIn)) {}
 
     IntrusivePtr<gfx::Texture> texture;
-    uint32_t refCount{0};
+    uint64_t fenceValue{0};
 };
 
 struct ManagedBufferTag {};
@@ -220,6 +220,9 @@ struct ResourceGraph {
         impl::ValueHandle<FramebufferTag, vertex_descriptor>,
         impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
 
+    void mount(vertex_descriptor vertID, ccstd::pmr::vector<vertex_descriptor>& mounted);
+    void unmount(uint64_t completedFenceValue);
+
     // ContinuousContainer
     void reserve(vertices_size_type sz);
 
@@ -269,6 +272,8 @@ struct ResourceGraph {
     ccstd::pmr::vector<RenderSwapchain> swapchains;
     // UuidGraph
     PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
+    // Members
+    uint64_t nextFenceValue{1};
 };
 
 struct RasterSubpass {

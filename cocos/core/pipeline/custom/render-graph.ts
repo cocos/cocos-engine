@@ -73,7 +73,7 @@ export class ManagedBuffer {
         this.buffer = buffer;
     }
     /*refcount*/ buffer: Buffer | null;
-    refCount = 0;
+    fenceValue = 0;
 }
 
 export class ManagedTexture {
@@ -81,7 +81,7 @@ export class ManagedTexture {
         this.texture = texture;
     }
     /*refcount*/ texture: Texture | null;
-    refCount = 0;
+    fenceValue = 0;
 }
 
 //=================================================================
@@ -290,6 +290,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
+        // Members
+        this.nextFenceValue = 1;
         // UuidGraph
         this._valueIndex.clear();
         // ComponentGraph
@@ -636,6 +638,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _traits: ResourceTraits[] = [];
     readonly _states: ResourceStates[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
+    nextFenceValue = 1;
 }
 
 export class RasterSubpass {
