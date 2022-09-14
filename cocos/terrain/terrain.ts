@@ -589,6 +589,9 @@ export class TerrainBlock {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     public _buildLodInfo() {
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         this._buildVertexData(vertexData);
@@ -598,6 +601,9 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
+    /**
+     * @engineInternal
+     */
     public _updateLevel (camPos: Vec3) {
         const maxLevel = TERRAIN_LOD_LEVELS - 1;
 
@@ -630,10 +636,16 @@ export class TerrainBlock {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     public _getBrushMaterial () {
         return this._renderable ? this._renderable._brushMaterial : null;
     }
 
+    /**
+     * @engineInternal
+     */
     public _getBrushPass () {
         return this._renderable ? this._renderable._brushPass : null;
     }
