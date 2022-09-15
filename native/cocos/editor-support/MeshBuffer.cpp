@@ -95,7 +95,7 @@ void MeshBuffer::uploadVB() {
     rVB->writeBytes(reinterpret_cast<const char *>(_vb.getBuffer()), _vb.length());
     UIMeshBuffer *uiMeshBuffer = (UIMeshBuffer *)_uiMeshBufferArr[_bufferPos];
     uiMeshBuffer->setVData((float*)rVB->getBuffer());
-    uiMeshBuffer->setByteOffset(_vb.length());
+    uiMeshBuffer->setByteOffset(static_cast<uint32_t>(_vb.length()));
 }
 
 void MeshBuffer::uploadIB() {
