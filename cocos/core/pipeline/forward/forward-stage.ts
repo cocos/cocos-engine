@@ -92,6 +92,20 @@ export class ForwardStage extends RenderStage {
         this._uiPhase = new UIPhase();
     }
 
+    public addRenderInstancedQueue (queue: RenderInstancedQueue) {
+        if (this.additiveInstanceQueues.includes(queue)) {
+            return;
+        }
+        this.additiveInstanceQueues.push(queue);
+    }
+
+    public removeRenderInstancedQueue (queue: RenderInstancedQueue) {
+        const index = this.additiveInstanceQueues.indexOf(queue);
+        if (index > -1) {
+            this.additiveInstanceQueues.splice(index, 1);
+        }
+    }
+
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         if (info.renderQueues) {
@@ -179,7 +193,7 @@ export class ForwardStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
-        
+
         for (let i = 0; i < this.additiveInstanceQueues.length; i++) {
             this.additiveInstanceQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }
