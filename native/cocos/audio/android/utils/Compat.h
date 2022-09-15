@@ -17,11 +17,13 @@
 #ifndef COCOS_LIB_UTILS_COMPAT_H
 #define COCOS_LIB_UTILS_COMPAT_H
 
-#include <unistd.h>
 
-#include <SLES/OpenSLES.h>
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include <unistd.h>
+#include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
 #include <SLES/OpenSLES_OpenHarmony.h>
 #include <SLES/OpenSLES_Platform.h>
@@ -91,16 +93,6 @@ static inline ssize_t pwrite64(int fd, const void *buf, size_t nbytes, off64_t o
     #define OS_PATH_SEPARATOR '\\'
 #else
     #define OS_PATH_SEPARATOR '/'
-#endif
-
-#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-#ifdef	__cplusplus
-# define __BEGIN_DECLS	extern "C" {
-# define __END_DECLS	}
-#else
-# define __BEGIN_DECLS
-# define __END_DECLS
-#endif
 #endif
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID

@@ -156,10 +156,10 @@ void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float
     if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
-    uint8_t r = static_cast<uint8_t>(_fillStyle[0] * 255.0f);
-    uint8_t g = static_cast<uint8_t>(_fillStyle[1] * 255.0f);
-    uint8_t b = static_cast<uint8_t>(_fillStyle[2] * 255.0f);
-    uint8_t a = static_cast<uint8_t>(_fillStyle[3] * 255.0f);
+    uint8_t r = static_cast<uint8_t>(_fillStyle[0]);
+    uint8_t g = static_cast<uint8_t>(_fillStyle[1]);
+    uint8_t b = static_cast<uint8_t>(_fillStyle[2]);
+    uint8_t a = static_cast<uint8_t>(_fillStyle[3]);
 
     // OH_Drawing_Path* path = OH_Drawing_PathCreate();
     // OH_Drawing_PathMoveTo(path, x, y);
@@ -225,12 +225,12 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
 }
 
 void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    _fillStyle = {r, g, b, a};
-    OH_Drawing_SetTextStyleColor(_textStyle, OH_Drawing_ColorSetArgb(a * 255.0f, r * 255.0f, g * 255.0f, b * 255.0f));
+    _fillStyle = {r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F};
+    OH_Drawing_SetTextStyleColor(_textStyle, OH_Drawing_ColorSetArgb(a, r, g, b));
 }
 
 void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-    _strokeStyle = {r, g, b, a};
+_strokeStyle = {r / 255.0F, g / 255.0F, b / 255.0F, a / 255.0F};
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {

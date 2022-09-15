@@ -42,7 +42,7 @@ const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
 
 static bool JSB_loadFont(se::State &s) {
     // TODO(qgh):Currently it does not support loading OpenHarmony fonts, it may be supported in the future
-    return false;
+    return true;
 }
 SE_BIND_FUNC(JSB_loadFont)
 
