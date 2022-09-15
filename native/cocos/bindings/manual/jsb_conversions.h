@@ -1337,8 +1337,6 @@ inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::O
         if CC_CONSTEXPR (!std::is_pointer<T>::value && is_jsb_object_v<T>) {
             auto *pFrom = ccnew T(from[i]);
             nativevalue_to_se(pFrom, tmp, ctx);
-            tmp.toObject()->clearPrivateData();
-            tmp.toObject()->setPrivateData(pFrom);
         } else {
             nativevalue_to_se(from[i], tmp, ctx);
         }
