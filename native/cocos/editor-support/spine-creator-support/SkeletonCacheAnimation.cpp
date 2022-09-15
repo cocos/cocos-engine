@@ -304,6 +304,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         // fill new blend src and dst
         Material *material = (Material *)requestMaterial(curBlendSrc, curBlendDst);
         curDrawInfo->setMaterial(material);
+        curDrawInfo->setDataHash(((uint32_t)curBlendSrc << 16) | ((uint32_t)curBlendDst));
 
         // fill vertex buffer
         vb.checkSpace(vertexBytes, true);

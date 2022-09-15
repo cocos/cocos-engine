@@ -73,6 +73,7 @@ public:
     void handleIADraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
+    void generateBatchForIA(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 
 private:
