@@ -305,12 +305,8 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
-                        contentRender.__panels__[i].addEventListener('change', (event) => {
+                        contentRender.__panels__[i].addEventListener('change', () => {
                             Elements.header.isDirty.call(panel);
-
-                            if (!event || !event.args || !event.args[0] || event.args[0].snapshot !== false) {
-                                panel.history && panel.history.snapshot(panel);
-                            }
                         });
                         contentRender.__panels__[i].addEventListener('snapshot', () => {
                             panel.history && panel.history.snapshot(panel);

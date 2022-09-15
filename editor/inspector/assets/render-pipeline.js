@@ -15,7 +15,7 @@ exports.methods = {
         }
 
         this.pipeline = record;
-        await this.change({ snapshot: false });
+        await this.change();
 
         return true;
     },
@@ -37,12 +37,21 @@ exports.methods = {
         this.dirtyData.uuid = '';
     },
 
-    async change(state) {
+    async change() {
         this.pipeline = await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
 
         this.updateInterface();
         this.setDirtyData();
-        this.dispatch('change', state);
+        this.dispatch('change');
+
+        if (this.getNewestDataSnapshot) {
+            this.getNewestDataSnapshot = false;
+            this.dispatch('snapshot');
+        }
+    },
+
+    confirm() {
+        this.getNewestDataSnapshot = true;
     },
 
     updateInterface() {
@@ -89,6 +98,7 @@ exports.$ = {
 
 exports.ready = function() {
     this.$.container.addEventListener('change-dump', this.change.bind(this));
+    this.$.container.addEventListener('confirm-dump', this.confirm.bind(this));
 
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {

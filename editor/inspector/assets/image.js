@@ -92,6 +92,8 @@ const Elements = {
                 panel.updatePanel(spriteFrameChange);
                 // need to be dispatched after updatePanel
                 panel.dispatch('change');
+
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -119,6 +121,7 @@ const Elements = {
                     meta.userData.flipVertical = event.target.value;
                 });
                 panel.dispatch('change');
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -130,43 +133,22 @@ const Elements = {
             panel.updateReadonly(panel.$.flipVerticalCheckbox);
         },
     },
-    // bakeOfflineMipmaps: {
-    //     ready() {
-    //         const panel = this;
-
-    //         panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
-    //             panel.metaList.forEach((meta) => {
-    //                 meta.userData.bakeOfflineMipmaps = event.target.value;
-    //             });
-    //             panel.dispatch('change');
-    //         });
-    //     },
-    //     update() {
-    //         const panel = this;
-
-    //         panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
-
-    //         panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
-    //         panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
-    //     },
-    // },
-
     fixAlphaTransparencyArtifacts: {
         ready() {
             const panel = this;
+
             panel.$.fixAlphaTransparencyArtifactsCheckbox.addEventListener('change', (event) => {
                 panel.metaList.forEach((meta) => {
                     meta.userData.fixAlphaTransparencyArtifacts = event.target.value;
                 });
                 panel.dispatch('change');
+                panel.dispatch('snapshot');
             });
         },
         update() {
             const panel = this;
 
-            /** @type {HTMLElement} */
             const fixAlphaTransparencyArtifactsCheckbox = panel.$.fixAlphaTransparencyArtifactsCheckbox;
-            /** @type {HTMLElement} */
             const fixATAProp = panel.$.fixATAProp;
             fixAlphaTransparencyArtifactsCheckbox.value = panel.meta.userData.fixAlphaTransparencyArtifacts;
             const bannedTypes = ['normal map'];
@@ -189,6 +171,7 @@ const Elements = {
                     meta.userData.isRGBE = event.target.value;
                 });
                 panel.dispatch('change');
+                panel.dispatch('snapshot');
             });
         },
         update() {

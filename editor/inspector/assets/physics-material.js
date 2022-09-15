@@ -15,7 +15,7 @@ exports.methods = {
         }
 
         this.physicsMaterial = record;
-        await this.change({ snapshot: false });
+        await this.change();
         return true;
     },
 
@@ -36,12 +36,21 @@ exports.methods = {
         this.dirtyData.uuid = '';
     },
 
-    async change(state) {
+    async change() {
         this.physicsMaterial = await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
 
         this.updateInterface();
         this.setDirtyData();
-        this.dispatch('change', state);
+        this.dispatch('change');
+
+        if (this.getNewestDataSnapshot) {
+            this.getNewestDataSnapshot = false;
+            this.dispatch('snapshot');
+        }
+    },
+
+    confirm() {
+        this.getNewestDataSnapshot = true;
     },
 
     updateInterface() {
@@ -56,7 +65,6 @@ exports.methods = {
             if (!this.$[key]) {
                 this.$[key] = document.createElement('ui-prop');
                 this.$[key].setAttribute('type', 'dump');
-                this.$[key].addEventListener('change-dump', this.change.bind(this));
                 this.$.container.appendChild(this.$[key]);
             }
 
@@ -91,6 +99,9 @@ exports.$ = {
 };
 
 exports.ready = function() {
+    this.$.container.addEventListener('change-dump', this.change.bind(this));
+    this.$.container.addEventListener('confirm-dump', this.confirm.bind(this));
+
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
