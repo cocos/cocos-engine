@@ -136,12 +136,13 @@ CCProgram surface-vertex %{
 
 CCProgram surface-fragment %{
   #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
-  #pragma define-meta DCC_APP_NAME range([0, 4])
+  #pragma define-meta DCC_APP_NAME range([0, 5])
   #define DCC_APP_OTHERS 0
-  #define DCC_APP_AUTODESK 1
+  #define DCC_APP_MAX 1
   #define DCC_APP_BLENDER 2
   #define DCC_APP_CINEMA4D 3
   #define DCC_APP_GLTF 4
+  #define DCC_APP_MAYA 5
 
   #if USE_SHININESS_MAP
     uniform sampler2D shininessExponentMap;
@@ -159,6 +160,7 @@ CCProgram surface-fragment %{
   #endif
   #if USE_TRANSPARENCY_MAP
     uniform sampler2D transparencyMap;
+    #pragma define-meta TRANSPARENCY_MAP_CHANNEL options([a, r, g, b])
   #endif
  
   #if USE_EMISSIVE_MAP
@@ -185,11 +187,11 @@ CCProgram surface-fragment %{
     #if DCC_APP_NAME == DCC_APP_BLENDER
       // 2-100
       float glossiness = clamp(sqrt(shininessExp) * 0.1/*/10.0*/, 0.0, 0.95); // glossiness=1 may leads to specular disappear
-    #elif DCC_APP_NAME == DCC_APP_AUTODESK
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
       // 2-1024
       float l2 = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
       float glossiness = pow(l2, 0.5);
-    #else // DCC_APP_NAME == DCC_APP_CINEMA4D、DCC_APP_GLTF、DCC_APP_OTHERS
+    #else // DCC_APP_NAME == DCC_APP_CINEMA4D / DCC_APP_GLTF / DCC_APP_OTHERS
       // 2-1024
       float glossiness = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
     #endif
@@ -201,9 +203,9 @@ CCProgram surface-fragment %{
       float specularIntensityMultiplier = mix(1.0, 5.0, roughness);
     #elif DCC_APP_NAME == DCC_APP_CINEMA4D
       float specularIntensityMultiplier = mix(1.0, 50.0, roughness);
-    #elif DCC_APP_NAME == DCC_APP_AUTODESK
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
       float specularIntensityMultiplier = mix(1.0, 20.0, roughness);
-    #else // DCC_APP_NAME == DCC_APP_GLTF、DCC_APP_OTHERS
+    #else // DCC_APP_NAME == DCC_APP_GLTF / DCC_APP_OTHERS
       float specularIntensityMultiplier = 1.0;
     #endif
       return specularIntensityMultiplier;
@@ -232,7 +234,10 @@ CCProgram surface-fragment %{
           alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
         #endif
         #if USE_TRANSPARENCY_MAP
-          alpha = texture(transparencyMap, TEXTURE_UV).a;
+          alpha = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+          #if DCC_APP_NAME == DCC_APP_MAYA
+            alpha = 1.0 - alpha;
+          #endif
         #endif
         if (alpha < alphaThreshold) discard;
       #endif
@@ -280,7 +285,10 @@ CCProgram surface-fragment %{
       baseColor.rgb *= diffuseFactor;
 
       #if USE_TRANSPARENCY_MAP
-        baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
+        baseColor.a = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+        #if DCC_APP_NAME == DCC_APP_MAYA
+          baseColor.a = 1.0 - baseColor.a;
+        #endif
       #endif
 
       #if USE_ALPHA_TEST
