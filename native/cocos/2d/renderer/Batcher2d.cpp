@@ -33,16 +33,6 @@
 
 namespace cc {
 
-static Batcher2d* batcher2DInstance {nullptr};
-
-Batcher2d* Batcher2d::getInstance(Root* root) {
-    if (batcher2DInstance) {
-        return batcher2DInstance;
-    }
-    batcher2DInstance = ccnew Batcher2d(root);
-    return batcher2DInstance;
-}
-
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
 

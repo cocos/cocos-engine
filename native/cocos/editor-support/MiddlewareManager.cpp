@@ -27,6 +27,7 @@
 #include <algorithm>
 #include "SeApi.h"
 #include "2d/renderer/Batcher2d.h"
+#include "core/Root.h"
 
 MIDDLEWARE_BEGIN
 
@@ -144,8 +145,8 @@ void MiddlewareManager::render(float dt) {
         }
 
         uint16_t accID = 65534;
-        Batcher2d *bath2d = Batcher2d::getInstance();
-        if (it.first == 7) {
+        auto* batch2d = Root::getInstance()->getBatcher2D();
+        if (it.first == VF_XYZUVCC) {
             accID = 65535;
         }
         ccstd::vector<UIMeshBuffer *> uiMeshArray;
@@ -153,7 +154,7 @@ void MiddlewareManager::render(float dt) {
         for (auto &item : uiBufArray) {
             uiMeshArray.push_back((UIMeshBuffer *)item);
         }
-        bath2d->syncMeshBuffersToNative(accID, std::move(uiMeshArray));
+        batch2d->syncMeshBuffersToNative(accID, std::move(uiMeshArray));
     }
 
     clearRemoveList();
