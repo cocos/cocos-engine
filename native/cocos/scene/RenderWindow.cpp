@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,6 +24,9 @@
  ****************************************************************************/
 
 #include "scene/RenderWindow.h"
+#include "BasePlatform.h"
+#include "interfaces/modules/ISystemWindowManager.h"
+#include "interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/Device.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXFramebuffer.h"
@@ -136,14 +139,17 @@ void RenderWindow::extractRenderCameras(ccstd::vector<Camera *> &cameras) {
     }
 }
 
-void RenderWindow::onNativeWindowDestroy(void *hWnd) {
-    if (_swapchain != nullptr && _swapchain->getWindowHandle() == hWnd) {
+void RenderWindow::onNativeWindowDestroy(uint32_t windowId) {
+    if (_swapchain != nullptr && _swapchain->getWindowId() == windowId) {
         _swapchain->destroySurface();
     }
 }
 
-void RenderWindow::onNativeWindowResume(void *hWnd) {
-    if (_swapchain == nullptr || _swapchain->getWindowHandle() != nullptr) {
+void RenderWindow::onNativeWindowResume(uint32_t windowId) {
+    auto *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
+    auto *hWnd = reinterpret_cast<void *>(windowMgr->getWindow(windowId)->getWindowHandle());
+
+    if (_swapchain == nullptr || _swapchain->getWindowId() != 0) {
         return;
     }
     _swapchain->createSurface(hWnd);

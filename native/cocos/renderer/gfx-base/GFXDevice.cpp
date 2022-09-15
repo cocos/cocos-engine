@@ -98,27 +98,6 @@ void Device::destroy() {
     CC_SAFE_DELETE(_onAcquire);
 }
 
-void Device::destroySurface(void *windowHandle) {
-    for (const auto &swapchain : _swapchains) {
-        if (swapchain->getWindowHandle() == windowHandle) {
-            swapchain->destroySurface();
-            break;
-        }
-    }
-}
-
-void Device::createSurface(void *windowHandle) {
-    auto windowId = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(windowHandle));
-    for (const auto &swapchain : _swapchains) {
-        if (swapchain->getWindowId() == windowId) {
-            auto *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
-            auto *window = windowMgr->getWindow(windowId);
-            swapchain->createSurface(reinterpret_cast<void *>(window->getWindowHandle()));
-            break;
-        }
-    }
-}
-
 Sampler *Device::getSampler(const SamplerInfo &info) {
     if (!_samplers.count(info)) {
         _samplers[info] = createSampler(info);
