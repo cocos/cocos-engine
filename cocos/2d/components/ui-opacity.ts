@@ -29,6 +29,7 @@ import { Component } from '../../core/components/component';
 import { clampf } from '../../core/utils/misc';
 import { UIRenderer } from '../framework/ui-renderer';
 import { Node } from '../../core/scene-graph';
+import { uiRendererManager } from '../framework/ui-renderer-manager';
 
 /**
  * @en
@@ -67,8 +68,9 @@ export class UIOpacity extends Component {
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
 
-        this.resetOpacityDirty(this.node);
-        this.setEntityLocalOpacityDirtyRecursively(true);
+        // this.resetOpacityDirty(this.node);
+        // this.setEntityLocalOpacityDirtyRecursively(true);
+        UIOpacity.markDirtyRendererInChildren(this.node);
     }
 
     public interruptParentOpacity = 1;
@@ -165,11 +167,23 @@ export class UIOpacity extends Component {
 
         //this.setEntityLocalOpacityDirtyRecursively(true);
         // calculate interruptParentOpacity upwards recursively
-        this.executeRecursionOnEnable();
+        //this.executeRecursionOnEnable();
+        UIOpacity.markDirtyRendererInChildren(this.node);
     }
 
     public onDisable () {
         this.node._uiProps.localOpacity = 1;
         this.setEntityLocalOpacityDirtyRecursively(true);
+    }
+
+    // restructure
+    protected static markDirtyRendererInChildren (node:Node) {
+        const render = node._uiProps.uiComp as UIRenderer;
+        if (render && render.color) {
+            uiRendererManager.markDirtyRenderer(render);
+        }
+        for (let i = 0; i < node.children.length; i++) {
+            UIOpacity.markDirtyRendererInChildren(node.children[i]);
+        }
     }
 }

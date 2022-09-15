@@ -39,6 +39,8 @@ import { director } from '../../core/director';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
 import { assert } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import { UIOpacity } from './ui-opacity';
+import { Node } from '../../core/scene-graph';
 
 /**
  * @en
@@ -74,8 +76,11 @@ export class UIMeshRenderer extends Component {
     private declare _UIModelNativeProxy: NativeUIModelProxy;
     protected declare _renderEntity : RenderEntity;
     private modelCount = 0;
+
     public _dirtyVersion = -1;
     public _internalId = -1;
+    public _opacityDirtyVersion = -1;
+    public _opacityInternalId = -1;
 
     public __preload () {
         this.node._uiProps.uiComp = this;
@@ -148,6 +153,19 @@ export class UIMeshRenderer extends Component {
         if (this.enabled) {
             this._render(render);
         }
+    }
+
+    public updateRendererOpacity () {
+        let finalLocalOpacity = 1;
+        let recursionNode :Node|null = this.node;
+        while (recursionNode) {
+            const op =  this.getComponent<UIOpacity>(UIOpacity);
+            if (op) {
+                finalLocalOpacity *= op.opacity / 255;
+            }
+            recursionNode = recursionNode.parent;
+        }
+        this._renderEntity.localOpacity = finalLocalOpacity;
     }
 
     // Native updateAssembler

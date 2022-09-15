@@ -43,6 +43,7 @@ import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID, debug } from './platform/debug';
 import { containerManager } from './memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
+import { uiRendererOpacityManager } from '../2d/framework/ui-renderer-opacity-manager';
 import { deviceManager } from './gfx';
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -721,6 +722,7 @@ export class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             uiRendererManager.updateAllDirtyRenderers();
+            uiRendererOpacityManager.updateAllDirtyOpacityRenderers();
             this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
