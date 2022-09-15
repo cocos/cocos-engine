@@ -552,6 +552,7 @@ export class StateMachine extends EditorExtendable {
             }
             globalTransitions[lastPlaceholder] = adjusting;
         }
+        // eslint-disable-next-line no-lone-blocks
         { // 2. Adjust the order in outgoing array.
             move(outgoings, iAdjusting, iNew);
         }
