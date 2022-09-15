@@ -32,9 +32,9 @@ import {
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
     MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform, Swapchain,
 } from '../gfx';
-import { PipelineStateManager } from './pipeline';
+import { PipelineStateManager } from '../rendering';
 import { legacyCC } from './global-exports';
-import { SetIndex } from './pipeline/define';
+import { SetIndex } from '../rendering/define';
 import { Mat4, Vec2 } from './math';
 import { Settings, settings } from './settings';
 import { sys } from './platform/sys';

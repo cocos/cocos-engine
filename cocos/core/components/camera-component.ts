@@ -30,7 +30,7 @@ import { UITransform } from '../../2d/framework';
 import { Component } from './component';
 import { Ray } from '../geometry';
 import { Color, Rect, toRadian, Vec3 } from '../math';
-import { CAMERA_DEFAULT_MASK } from '../pipeline/define';
+import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { scene } from '../../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
     CameraType, TrackingType } from '../../render-scene/scene/camera';

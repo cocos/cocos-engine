@@ -27,7 +27,7 @@
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
 import { DEBUG, JSB } from 'internal:constants';
 import { ModelRenderer } from '../../core/components/model-renderer';
-import { RenderPriority } from '../../core/pipeline/define';
+import { RenderPriority } from '../../rendering/define';
 import { IBatcher } from '../renderer/i-batcher';
 import { Stage } from '../renderer/stencil-manager';
 import { Component } from '../../core/components';

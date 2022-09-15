@@ -27,7 +27,7 @@ import { Enum } from '../../core/value-types';
 import { Color, Vec4 } from '../../core/math';
 import { legacyCC } from '../../core/global-exports';
 import { FogInfo } from '../../core/scene-graph/scene-globals';
-import { SRGBToLinear } from '../../core/pipeline/pipeline-funcs';
+import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 
 const _v4 = new Vec4();
 

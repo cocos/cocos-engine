@@ -34,7 +34,7 @@ import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-util
 import { Color } from '../../core/math/color';
 import { warnID } from '../../core/platform/debug';
 import { Vec4 } from '../../core/math';
-import { SRGBToLinear } from '../../core/pipeline/pipeline-funcs';
+import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../core/components/renderer';
 
 const v4_1 = new Vec4();
