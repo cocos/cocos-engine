@@ -476,11 +476,14 @@ export class MeshRenderer extends ModelRenderer {
         if (JSB) {
             (this.model as any)._setInstancedAttribute(name, value);
         } else {
-            const { attributes, views } = this.model.instancedAttributes;
-            for (let i = 0; i < attributes.length; i++) {
-                if (attributes[i].name === name) {
-                    views[i].set(value);
-                    break;
+            const attributeValues = Array.from(this.model.instancedAttributes.values());
+            for (let i = 0; i < attributeValues.length; ++i) {
+                const { attributes, views } = attributeValues[i];
+                for (let i = 0; i < attributes.length; i++) {
+                    if (attributes[i].name === name) {
+                        views[i].set(value);
+                        break;
+                    }
                 }
             }
         }

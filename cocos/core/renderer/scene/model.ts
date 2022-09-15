@@ -159,14 +159,6 @@ export class Model {
     }
 
     /**
-     * @en Whether GPU instancing is enabled for the current model
-     * @zh 是否开启实例化渲染
-     */
-    get isInstancingEnabled () {
-        return this._instMatWorldIdx >= 0;
-    }
-
-    /**
      * @en Model level shadow bias
      * @zh 阴影偏移值
      */
@@ -297,10 +289,20 @@ export class Model {
     public isDynamicBatching = false;
 
     /**
-     * @en The instance attributes
-     * @zh 实例化属性
+     * @en The instance attributes, access by pass
+     * @zh 实例化属性，通过pass获取
      */
-    public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
+    public getInstancedAttributes (pass: Pass): IInstancedAttributeBlock {
+        if (!this._instancedAttributes.has(pass)) {
+            this._instancedAttributes.set(pass, { buffer: null!, views: [], attributes: [] });
+        }
+        return this._instancedAttributes.get(pass) as IInstancedAttributeBlock;
+    }
+
+    get instancedAttributes () {
+        return this._instancedAttributes;
+    }
+    protected _instancedAttributes: Map<Pass, IInstancedAttributeBlock> = new Map<Pass, IInstancedAttributeBlock>();
 
     /**
      * @en The world axis-aligned bounding box
@@ -375,10 +377,10 @@ export class Model {
     protected _localBuffer: Buffer | null = null;
 
     /**
-     * @en Instance matrix id
-     * @zh 实例矩阵索引
+     * @en Instance matrix id, access by pass
+     * @zh 实例矩阵索引，通过pass获取
      */
-    private _instMatWorldIdx = -1;
+    private _instMatWorldIdx: Map<Pass, number> = new Map<Pass, number>();
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
@@ -558,11 +560,18 @@ export class Model {
 
         // @ts-expect-error using private members here for efficiency
         const worldMatrix = this.transform._mat;
-        const idx = this._instMatWorldIdx;
-        if (idx >= 0) {
-            const attrs = this.instancedAttributes.views;
-            uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
-        } else if (this._localBuffer) {
+        let hasNonInstancingPass = false;
+        for (let i = 0; i < subModels.length; i++) {
+            const pass = subModels[i].passes[0];
+            const idx = this._instMatWorldIdx.get(pass) as number;
+            if (idx >= 0) {
+                const attrs = this.getInstancedAttributes(pass).views;
+                uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+        if (hasNonInstancingPass && this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
 
@@ -751,22 +760,24 @@ export class Model {
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
 
-    protected _getInstancedAttributeIndex (name: string) {
-        const { attributes } = this.instancedAttributes;
+    protected _getInstancedAttributeIndex (pass: Pass, name: string) {
+        const { attributes } = this.getInstancedAttributes(pass);
         for (let i = 0; i < attributes.length; i++) {
             if (attributes[i].name === name) { return i; }
         }
         return -1;
     }
 
-    private _setInstMatWorldIdx (idx: number) {
-        this._instMatWorldIdx = idx;
+    private _setInstMatWorldIdx (pass: Pass, idx: number) {
+        this._instMatWorldIdx.set(pass, idx);
     }
 
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+        // initialize instMatWorldIdx
+        this._setInstMatWorldIdx(pass, -1);
         if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
         // free old data
 
@@ -777,7 +788,7 @@ export class Model {
             size += FormatInfos[attribute.format].size;
         }
 
-        const attrs = this.instancedAttributes;
+        const attrs = this.getInstancedAttributes(pass);
         attrs.buffer = new Uint8Array(size);
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
@@ -798,7 +809,7 @@ export class Model {
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
-        this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
+        this._setInstMatWorldIdx(pass, this._getInstancedAttributeIndex(pass, INST_MAT_WORLD));
         this._localDataUpdated = true;
     }
 

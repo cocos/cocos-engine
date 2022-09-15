@@ -135,7 +135,7 @@ export class ForwardStage extends RenderStage {
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = pass.getInstancedBuffer();
-                        instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
+                        instancedBuffer.merge(subModel, ro.model.getInstancedAttributes(pass), p);
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = pass.getBatchedBuffer();
@@ -179,7 +179,7 @@ export class ForwardStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
-        
+
         for (let i = 0; i < this.additiveInstanceQueues.length; i++) {
             this.additiveInstanceQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }

@@ -69,7 +69,7 @@ export class BakedSkinningModel extends MorphModel {
     private _skeleton: Skeleton | null = null;
     private _mesh: Mesh | null = null;
     private _dataPoolManager: DataPoolManager;
-    private _instAnimInfoIdx = -1;
+    private _instAnimInfoIdx: Map<Pass, number> = new Map<Pass, number>();
 
     constructor () {
         super();
@@ -129,11 +129,23 @@ export class BakedSkinningModel extends MorphModel {
         super.updateUBOs(stamp);
 
         const info = this._jointsMedium.animInfo;
-        const idx = this._instAnimInfoIdx;
-        if (idx >= 0) {
-            const view = this.instancedAttributes.views[idx];
-            view[0] = info.data[0];
-        } else if (info.dirty) {
+
+        let hasNonInstancingPass = false;
+        for (let i = 0; i < this.subModels.length; i++) {
+            const pass = this.subModels[i].passes[0];
+            const mapValue = this._instAnimInfoIdx.get(pass);
+            let idx = -1;
+            if (mapValue) {
+                idx = mapValue;
+            }
+            if (idx >= 0) {
+                const view = this.getInstancedAttributes(pass).views[idx];
+                view[0] = info.data[0];
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+        if (hasNonInstancingPass && info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
         }
@@ -167,7 +179,7 @@ export class BakedSkinningModel extends MorphModel {
         } else {
             texture = resMgr.jointTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform);
             this._jointsMedium.boundsInfo = null;
-	        this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
+            this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }
         this._applyJointTexture(texture);
     }
@@ -206,18 +218,21 @@ export class BakedSkinningModel extends MorphModel {
 
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
         super._updateInstancedAttributes(attributes, pass);
-        this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
+        this._instAnimInfoIdx.set(pass, this._getInstancedAttributeIndex(pass, INST_JOINT_ANIM_INFO));
         this.updateInstancedJointTextureInfo();
     }
 
     private updateInstancedJointTextureInfo () {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
-        const idx = this._instAnimInfoIdx;
-        if (idx >= 0) { // update instancing data too
-            const view = this.instancedAttributes.views[idx];
-            view[0] = animInfo.data[0];
-            view[1] = jointTextureInfo[1];
-            view[2] = jointTextureInfo[2];
+        const keys = Array.from(this._instAnimInfoIdx.keys());
+        for (let i = 0; i < keys.length; ++i) {
+            const idx = this._instAnimInfoIdx.get(keys[i])!;
+            if (idx >= 0) { // update instancing data too
+                const view = this.instancedAttributes.get(keys[i])!.views[idx];
+                view[0] = animInfo.data[0];
+                view[1] = jointTextureInfo[1];
+                view[2] = jointTextureInfo[2];
+            }
         }
     }
 }
