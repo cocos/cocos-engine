@@ -619,19 +619,21 @@ void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /
         }
         void *rawPtr = reinterpret_cast<Object*>(nativeObject)->_privateData;
         Object* seObj = reinterpret_cast<Object*>(nativeObject);
-
+        if (seObj->_onCleaingPrivateData) { //called by cleanPrivateData, not release seObj;
+            return;
+        }
         if (seObj->_clearMappingInFinalizer && rawPtr != nullptr) {
             auto iter = NativePtrToObjectMap::find(rawPtr);
             if (iter != NativePtrToObjectMap::end()) {
                 NativePtrToObjectMap::erase(iter);
             } else {
-                CC_LOG_ERROR("not find ptr in NativePtrToObjectMap");
+                CC_LOG_INFO("not find ptr in NativePtrToObjectMap");
             }
         }
 
         // TODO: remove test code before releasing.
         const char* clsName = seObj->_getClass()->getName();
-        LOGI("weakCallback class name:%{public}s, ptr:%{public}p", clsName, rawPtr);
+        CC_LOG_INFO("weakCallback class name:%s, ptr:%p", clsName, rawPtr);
 
         if (seObj->_finalizeCb != nullptr) {
             seObj->_finalizeCb(env, nativeObject, finalizeHint);
@@ -695,15 +697,15 @@ void Object::clearPrivateData(bool clearMapping) {
         napi_status status;
         void* result = nullptr;
         auto tmpThis = _objRef.getValue(_env);
-        NODE_API_CALL(status, _env, napi_remove_wrap(_env, tmpThis, &result));
-
+        _onCleaingPrivateData = true;
         if (clearMapping) {
             NativePtrToObjectMap::erase(_privateData);
         }
-
+        NODE_API_CALL(status, _env, napi_remove_wrap(_env, tmpThis, &result));
         delete _privateObject;
         _privateObject = nullptr;
         _privateData = nullptr;
+        _onCleaingPrivateData = false;
     }
 }
 
