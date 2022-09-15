@@ -108,9 +108,28 @@ export function getDefaultFromType (type: Type): readonly number[] | string {
         return 'default-texture';
     case Type.SAMPLER_CUBE:
         return 'default-cube-texture';
+    case Type.SAMPLER2D_ARRAY:
+        return 'default-array-texture';
+    case Type.SAMPLER3D:
+        return 'default-3d-texture';
     default:
     }
     return defaultValues[0];
+}
+
+export function getStringFromType (type: Type) : string {
+    switch (type) {
+    case Type.SAMPLER2D:
+        return '-texture';
+    case Type.SAMPLER_CUBE:
+        return '-cube-texture';
+    case Type.SAMPLER2D_ARRAY:
+        return '-array-texture';
+    case Type.SAMPLER3D:
+        return '-3d-texture';
+    default:
+        return '-unknown';
+    }
 }
 
 /**

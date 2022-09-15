@@ -197,7 +197,7 @@ export const displayName: (text: string) => LegacyPropertyDecorator = !DEV
  */
 export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
-    : setPropertyStashVar1WithImplicitVisible('tooltip');
+    : setPropertyStashWithImplicitI18n('tooltip');
 
 /**
  * @en
@@ -346,4 +346,20 @@ function setPropertyStashVar1WithImplicitVisible<TKey extends keyof PropertyStas
 
 function setImplicitVisible (propertyStash: PropertyStash) {
     propertyStash.__internalFlags |= PropertyStashInternalFlag.IMPLICIT_VISIBLE;
+}
+
+function setPropertyStashWithImplicitI18n<TKey extends keyof PropertyStash> (
+    key: TKey,
+) {
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptor) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+        const prefix = 'i18n:';
+        if (value.startsWith(prefix)) {
+            const extensionPrefix = 'ENGINE.';
+            propertyStash[key] = `${prefix}${extensionPrefix}${value.substring(prefix.length)}`;
+        } else {
+            propertyStash[key] = value;
+        }
+        setImplicitVisible(propertyStash);
+    };
 }

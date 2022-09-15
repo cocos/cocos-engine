@@ -3104,6 +3104,10 @@ BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT 
 
 QuadRenderData is removed, please use MeshRenderData instead.
 
+### 9007
+
+Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation.
+
 ### 9100
 
 texture size exceeds current device limits %d/%d
@@ -3303,3 +3307,7 @@ The effect('%s') you are looking for does not exist, please confirm the effect n
 ### 16201
 
 The asset replacing failed, can not found override asset('%s') for '%s' 
+
+### 16301
+
+node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first
