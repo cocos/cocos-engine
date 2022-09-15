@@ -24,41 +24,62 @@
 ****************************************************************************/
 
 #pragma once
-#include <iostream>
-#include "bindings/event/EventDispatcher.h"
-
-struct SDL_Window;
-class OSEvent;
-union SDL_Event;
-struct SDL_WindowEvent;
+#include "platform/interfaces/OSInterface.h"
 
 namespace cc {
-class IEventDispatch;
+class ISystemWindow;
+class OSEvent;
 
-class SDLHelper {
-    friend class SystemWindowManager;
-
-public:
-    SDLHelper();
-    ~SDLHelper();
-
-    static int init();
-    static void swapWindow(SDL_Window* window);
-
-    static SDL_Window* createWindow(const char* title,
-                      int w, int h, int flags);
-    static SDL_Window* createWindow(const char* title,
-                      int x, int y, int w,
-                      int h, int flags);
-
-    static uintptr_t getWindowHandle(SDL_Window* window);
-#if (CC_PLATFORM == CC_PLATFORM_LINUX)
-    static uintptr_t getDisplay(SDL_Window* window);
-#endif
-    static void setCursorEnabled(bool value);
-
-private:
-    static void dispatchSDLEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_Event& sdlEvent, bool* quit);
-    static void dispatchWindowEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_WindowEvent& wevent);
+struct ISystemWindowInfo {
+    ccstd::string title;
+    int32_t x{-1};
+    int32_t y{-1};
+    int32_t width{-1};
+    int32_t height{-1};
+    int32_t flags{-1};
+    void *externalHandle{nullptr};
 };
-} // namespace cc
+
+// key: window id
+using SystemWindowMap = ccstd::unordered_map<uint32_t, std::shared_ptr<ISystemWindow>>;
+
+/**
+ * Responsible for creating, finding ISystemWindow object and message handling
+ */
+class ISystemWindowManager : public OSInterface {
+public:
+    /**
+     * Initialize the NativeWindow environment
+     * @return 0 Succeed -1 Failed
+     */
+    virtual int init() = 0;
+
+    /**
+     * Process messages at the PAL layer
+     */
+    virtual void processEvent(bool *quit) = 0;
+
+    /**
+     * Swap window back buffer
+     */
+    virtual void swapWindows() = 0;
+
+    /**
+     * Create an ISystemWindow object
+     * @param info window description
+     * @return The created ISystemWindow object，if failed then return nullptr
+     */
+    virtual ISystemWindow *createWindow(const ISystemWindowInfo &info) = 0;
+
+    /**
+     * Find an ISystemWindow object
+     * @param windowId unique ID of window
+     */
+    virtual ISystemWindow *getWindow(uint32_t windowId) const = 0;
+
+    /**
+     * Retrive all windows
+     */
+    virtual const SystemWindowMap &getWindows() const = 0;
+};
+}

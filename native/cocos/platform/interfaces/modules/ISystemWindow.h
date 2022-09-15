@@ -34,8 +34,10 @@ namespace cc {
 
 class CC_DLL ISystemWindow : public OSInterface {
 public:
+    static const uint32_t mainWindowId = 1;
+
     using Size = cc::Vec2;
-    using WindowFlags = enum {
+    enum WindowFlags {
         /* !!! FIXME: change this to name = (1<<x). */
         CC_WINDOW_FULLSCREEN = 0x00000001,    /**< fullscreen window */
         CC_WINDOW_OPENGL = 0x00000002,        /**< window usable with OpenGL context */
@@ -87,6 +89,12 @@ public:
                               int w, int h, int flags) {
         return true;
     }
+
+    /**
+     * Get the window's unique ID
+     */
+    virtual uint32_t getWindowId() const = 0;
+
     virtual void closeWindow() {}
     virtual uintptr_t getWindowHandle() const = 0;
     virtual Size getViewSize() const = 0;

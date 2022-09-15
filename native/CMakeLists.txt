@@ -531,6 +531,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/ISystem.cpp
     cocos/platform/interfaces/modules/ISystem.h
     cocos/platform/interfaces/modules/ISystemWindow.h
+    cocos/platform/interfaces/modules/ISystemWindowManager.h
     cocos/platform/interfaces/modules/IVibrator.h
     cocos/platform/interfaces/modules/XRCommon.h
     cocos/platform/interfaces/modules/IXRInterface.h
@@ -597,6 +598,8 @@ if(WINDOWS)
             cocos/platform/win32/modules/Screen.h
             cocos/platform/win32/modules/SystemWindow.cpp
             cocos/platform/win32/modules/SystemWindow.h
+            cocos/platform/win32/modules/SystemWindowManager.cpp
+            cocos/platform/win32/modules/SystemWindowManager.h
         )
     endif()
 elseif(ANDROID OR OHOS)
@@ -615,6 +618,8 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/CommonSystem.h
         cocos/platform/java/modules/SystemWindow.cpp
         cocos/platform/java/modules/SystemWindow.h
+        cocos/platform/java/modules/SystemWindowManager.cpp
+        cocos/platform/java/modules/SystemWindowManager.h
         cocos/platform/java/modules/XRInterface.cpp
         cocos/platform/java/modules/XRInterface.h
     )
@@ -660,6 +665,8 @@ elseif(MACOSX)
                                  cocos/platform/mac/modules/Screen.h
                                  cocos/platform/mac/modules/SystemWindow.mm
                                  cocos/platform/mac/modules/SystemWindow.h
+                                 cocos/platform/mac/modules/SystemWindowManager.mm
+                                 cocos/platform/mac/modules/SystemWindowManager.h
         )
     endif()
 elseif(IOS)
@@ -678,6 +685,8 @@ elseif(IOS)
                             cocos/platform/ios/modules/System.h
                             cocos/platform/ios/modules/SystemWindow.mm
                             cocos/platform/ios/modules/SystemWindow.h
+                            cocos/platform/ios/modules/SystemWindowManager.mm
+                            cocos/platform/ios/modules/SystemWindowManager.h
    )
 elseif(LINUX)
     cocos_source_files(
@@ -705,6 +714,8 @@ elseif(LINUX)
             cocos/platform/linux/modules/Screen.h
             cocos/platform/linux/modules/SystemWindow.cpp
             cocos/platform/linux/modules/SystemWindow.h
+            cocos/platform/linux/modules/SystemWindowManager.cpp
+            cocos/platform/linux/modules/SystemWindowManager.h
         )
     endif()
 endif()
@@ -955,6 +966,7 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
+        ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
         ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.cpp

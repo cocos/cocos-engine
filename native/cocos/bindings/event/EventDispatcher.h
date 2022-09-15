@@ -37,6 +37,8 @@ class Value;
 
 namespace cc {
 
+class ISystemWindow;
+
 enum class OSEventType {
     KEYBOARD_OSEVENT = 0,
     TOUCH_OSEVENT = 1,
@@ -87,6 +89,7 @@ public:
     Type type = Type::UNKNOWN;
     int width = 0;
     int height = 0;
+    uint32_t windowId = 0;
 };
 // Touch event related
 
@@ -115,6 +118,7 @@ public:
 
     ccstd::vector<TouchInfo> touches;
     Type type = Type::UNKNOWN;
+    uint32_t windowId = 0;
 };
 
 enum class StickKeyCode {
@@ -194,6 +198,7 @@ public:
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
     uint16_t button = 0;
     Type type = Type::UNKNOWN;
+    uint32_t windowId = 0;
 };
 
 enum class KeyCode {
@@ -275,6 +280,7 @@ public:
         UNKNOWN
     };
 
+    uint32_t windowId = 0;
     int key = -1;
     Action action = Action::UNKNOWN;
     bool altKeyActive = false;
@@ -325,6 +331,7 @@ public:
     static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
+    static void dispatchResizeEvent(const WindowEvent& windowEvent);
     static void dispatchOrientationChangeEvent(int orientation);
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
@@ -332,7 +339,9 @@ public:
     static void dispatchRestartVM();
     static void dispatchCloseEvent();
     static void dispatchDestroyWindowEvent();
+    static void dispatchDestroyWindowEvent(cc::ISystemWindow *window);
     static void dispatchRecreateWindowEvent();
+    static void dispatchRecreateWindowEvent(cc::ISystemWindow *window);
     static void dispatchSceneLoadEvent();
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;

@@ -29,6 +29,8 @@
 
 namespace cc {
 class SystemWindow;
+class SystemWindowManager;
+
 class CC_DLL LinuxPlatform : public UniversalPlatform {
 public:
     LinuxPlatform();
@@ -43,8 +45,11 @@ public:
 
     int32_t loop() override;
 
+    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
+
 private:
     bool _quit{false};
+    std::shared_ptr<SystemWindowManager> _windowManager{nullptr};
     std::shared_ptr<SystemWindow> _window{nullptr};
 };
 
