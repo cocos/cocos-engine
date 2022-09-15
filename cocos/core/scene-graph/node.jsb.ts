@@ -324,6 +324,14 @@ nodeProto.targetOff = function (target: string | unknown) {
     }
 };
 
+nodeProto.pauseSystemEvents = function pauseSystemEvents (recursive: boolean): void {
+    this._eventProcessor.setEnabled(false, recursive);
+};
+
+nodeProto.resumeSystemEvents = function resumeSystemEvents (recursive: boolean): void {
+    this._eventProcessor.setEnabled(true, recursive);
+};
+
 nodeProto._removeComponent = function (component: Component) {
     if (!component) {
         errorID(3814);
