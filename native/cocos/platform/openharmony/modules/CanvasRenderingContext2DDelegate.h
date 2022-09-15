@@ -45,10 +45,10 @@ namespace cc {
 
 class CanvasRenderingContext2DDelegate : public ICanvasRenderingContext2D::Delegate {
 public:
-    using Point   = std::array<float, 2>;
-    using Vec2    = std::array<float, 2>;
-    using Size    = std::array<float, 2>;
-    using Color4F = std::array<float, 4>;
+    using Point   = ccstd::array<float, 2>;
+    using Vec2    = ccstd::array<float, 2>;
+    using Size    = ccstd::array<float, 2>;
+    using Color4F = ccstd::array<uint8_t, 4>;
     using TextAlign = ICanvasRenderingContext2D::TextAlign;
     using TextBaseline = ICanvasRenderingContext2D::TextBaseline;
     
@@ -65,35 +65,39 @@ public:
     void            restoreContext() override;
     void            clearRect(float /*x*/, float /*y*/, float w, float h) override;
     void            fillRect(float x, float y, float w, float h) override;
-    void            fillText(const std::string &text, float x, float y, float /*maxWidth*/) override;
-    void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const;
-    Size            measureText(const std::string &text) override;
-    void            updateFont(const std::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
+    void            fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) override;
+    void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const;
+    Size            measureText(const ccstd::string &text) override;
+    void            updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
     void            setTextAlign(TextAlign align) override;
     void            setTextBaseline(TextBaseline baseline) override;
-    void            setFillStyle(float r, float g, float b, float a) override;
-    void            setStrokeStyle(float r, float g, float b, float a) override;
+    void            setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
+    void            setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
     void            setLineWidth(float lineWidth) override;
     const cc::Data &getDataRef() const override;
     void            fill() override;
-    void            setLineCap(const std::string &lineCap) override;
-    void            setLineJoin(const std::string &lineCap) override;
+    void            setLineCap(const ccstd::string &lineCap) override;
+    void            setLineJoin(const ccstd::string &lineCap) override;
     void            fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) override;
-    void            strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
+    void            strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void            rect(float x, float y, float w, float h) override;
+    void            setShadowBlur(float blur)override{}
+    void            setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override{}
+    void            setShadowOffsetX(float offsetX) override{}
+    void            setShadowOffsetY(float offsetY) override{}
     void            updateData() override;
 private:
-    static wchar_t *     utf8ToUtf16(const std::string &str, int *pRetLen = nullptr);
+    static wchar_t *     utf8ToUtf16(const ccstd::string &str, int *pRetLen = nullptr);
     void                 removeCustomFont();
-    int                  drawText(const std::string &text, int x, int y);
+    int                  drawText(const ccstd::string &text, int x, int y);
     Size                 sizeWithText(const wchar_t *pszText, int nLen);
     void                 prepareBitmap(int nWidth, int nHeight);
     void                 deleteBitmap();
     void                 fillTextureData();
-    std::array<float, 2> convertDrawPoint(Point point, const std::string &text);
+    ccstd::array<float, 2> convertDrawPoint(Point point, const ccstd::string &text);
 
     class ScopedTypography;
-    std::unique_ptr<ScopedTypography> createTypography(const std::string &text);
+    std::unique_ptr<ScopedTypography> createTypography(const ccstd::string &text);
 public:
     int          _screen{0};
 
@@ -113,14 +117,14 @@ private:
     OH_Drawing_FontCollection* _fontCollection{nullptr};
     OH_Drawing_TextStyle* _textStyle{nullptr};
     cc::Data    _imageData;
-    std::string _curFontPath;
+    ccstd::string _curFontPath;
     int         _savedDC{0};
     float       _lineWidth{0.0F};
     float       _bufferWidth{0.0F};
     float       _bufferHeight{0.0F};
     int32_t     _bufferSize{0};
 
-    std::string        _fontName;
+    ccstd::string      _fontName;
     int                _fontSize{0};
     Size               _textSize;
     TextAlign          _textAlign{TextAlign::CENTER};

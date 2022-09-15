@@ -88,7 +88,7 @@ IScreen::Orientation Device::getDeviceOrientation() {
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getDeviceOrientation();
 }
 
-std::string Device::getDeviceModel() {
+ccstd::string Device::getDeviceModel() {
     CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystem) != nullptr);
     return CC_GET_PLATFORM_INTERFACE(ISystem)->getDeviceModel();
 }

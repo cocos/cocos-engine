@@ -96,7 +96,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
         channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
     }
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    // TODO(hack): 1 channel must be set, there is a problem with dual channels
+    // TODO(qgh): 1 channel must be set, there is a problem with dual channels in OpenHarmony
     numChannels = 1;
 #endif
     SLDataFormat_PCM formatPcm = {
@@ -113,7 +113,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
         SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
         AUDIO_PLAYER_BUFFER_COUNT};
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-	SLDataLocator_BufferQueue locBufQueue = {SL_DATALOCATOR_BUFFERQUEUE, AUDIO_PLAYER_BUFFER_COUNT};
+    SLDataLocator_BufferQueue locBufQueue = {SL_DATALOCATOR_BUFFERQUEUE, AUDIO_PLAYER_BUFFER_COUNT};
 #endif
     SLDataSource source = {&locBufQueue, &formatPcm};
 

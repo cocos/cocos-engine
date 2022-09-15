@@ -177,6 +177,68 @@ public:
         static_assert(!std::is_void<T>::value, "void * is not allowed for private data");
         setPrivateObject(se::make_shared_private_object(data));
     }
+    /**
+     * @brief Use a InstrusivePtr to hold private data on the se::Object.
+     *
+     * @tparam T
+     * @param data A intrusive pointer object
+     */
+    template <typename T>
+    inline void setPrivateData(const cc::IntrusivePtr<T> &data) {
+        CC_ASSERT(false);
+        //setPrivateObject(se::ccintrusive_ptr_private_object(data));
+    }
+
+    /**
+     * @brief Use a std::shared_ptr to hold private data on the se::Object.
+     *
+     * @tparam T
+     * @param data A shared_ptr object
+     */
+    template <typename T>
+    inline void setPrivateData(const std::shared_ptr<T> &data) {
+        CC_ASSERT(false);
+        //setPrivateObject(se::shared_ptr_private_object(data));
+    }
+    /**
+     *  @brief Sets a pointer to private data on an object.
+     *  @param[in] data A void* to set as the object's private data.
+     *  @note This method will associate private data with se::Object by ccstd::unordered_map::emplace.
+     *        It's used for search a se::Object via a void* private data.
+     */
+    template <typename T>
+    inline void setRawPrivateData(T *data) {
+        CC_ASSERT(false);
+     //    static_assert(!std::is_void<T>::value, "void * is not allowed for private data");
+     //    setPrivateObject(se::make_shared_private_object(data));
+    }
+
+    /**
+     * @brief Get the underlying private data as std::shared_ptr
+     *
+     * @tparam T
+     * @return std::shared_ptr<T>
+     */
+    template <typename T>
+    inline std::shared_ptr<T> getPrivateSharedPtr() const {
+        CC_ASSERT(false);
+     //    assert(_privateObject->isSharedPtr());
+     //    return static_cast<se::SharedPtrPrivateObject<T> *>(_privateObject)->getData();
+    }
+
+     /**
+     * @brief Get the underlying private data as InstrusivePtr
+     *
+     * @tparam T
+     * @return cc::IntrusivePtr<T>
+     */
+    template <typename T>
+    inline cc::IntrusivePtr<T> getPrivateInstrusivePtr() const {
+          CC_ASSERT(false);
+     //    assert(_privateObject->isCCIntrusivePtr());
+     //    return static_cast<se::CCIntrusivePtrPrivateObject<T> *>(_privateObject)->getData();
+    }
+
 
     template <typename T>
     inline T *getTypedPrivateData() const {

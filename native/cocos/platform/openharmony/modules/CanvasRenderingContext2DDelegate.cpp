@@ -171,7 +171,7 @@ void CanvasRenderingContext2DDelegate::fillRect(float x, float y, float w, float
     OH_Drawing_CanvasClear(_canvas, OH_Drawing_ColorSetArgb(a, r, g, b));
 }
 
-void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x, float y, float /*maxWidth*/) {
+void CanvasRenderingContext2DDelegate::fillText(const ccstd::string &text, float x, float y, float /*maxWidth*/) {
     if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
     }
@@ -180,16 +180,16 @@ void CanvasRenderingContext2DDelegate::fillText(const std::string &text, float x
     drawText(text, (int)offsetPoint[0], (int)offsetPoint[1]);
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
 }
 
-CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const std::string &text) {
+CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measureText(const ccstd::string &text) {
     auto typography = createTypography(text);
-    return std::array<float, 2>{static_cast<float>(OH_Drawing_TypographyGetMaxIntrinsicWidth(typography->get())),
+    return ccstd::array<float, 2>{static_cast<float>(OH_Drawing_TypographyGetMaxIntrinsicWidth(typography->get())),
                                 static_cast<float>(OH_Drawing_TypographyGetHeight(typography->get()))};
 }
 
-void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
+void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
                                                   float              fontSize,
                                                   bool               bold,
                                                   bool               italic,
@@ -197,7 +197,7 @@ void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
                                                   bool /* smallCaps */) {
     _fontName = fontName;
     _fontSize = static_cast<int>(fontSize);
-    std::string fontPath;
+    ccstd::string fontPath;
     if (!_fontName.empty()) {
         const char* fontFamilies[1];
         fontFamilies[0] = fontName.c_str();
@@ -224,12 +224,12 @@ void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     _textBaseLine = baseline;
 }
 
-void CanvasRenderingContext2DDelegate::setFillStyle(float r, float g, float b, float a) {
+void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     _fillStyle = {r, g, b, a};
     OH_Drawing_SetTextStyleColor(_textStyle, OH_Drawing_ColorSetArgb(a * 255.0f, r * 255.0f, g * 255.0f, b * 255.0f));
 }
 
-void CanvasRenderingContext2DDelegate::setStrokeStyle(float r, float g, float b, float a) {
+void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     _strokeStyle = {r, g, b, a};
 }
 
@@ -247,14 +247,14 @@ void CanvasRenderingContext2DDelegate::removeCustomFont() {
 }
 
 // x, y offset value
-int CanvasRenderingContext2DDelegate::drawText(const std::string &text, int x, int y) {
+int CanvasRenderingContext2DDelegate::drawText(const ccstd::string &text, int x, int y) {
     auto typography = createTypography(text);
     OH_Drawing_TypographyPaint(typography->get(), _canvas, x, y);
     return 0;
 }
 
 CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::sizeWithText(const wchar_t *pszText, int nLen) {
-    return std::array<float, 2>{0.0F, 0.0F};
+    return ccstd::array<float, 2>{0.0F, 0.0F};
 }
 
 void CanvasRenderingContext2DDelegate::prepareBitmap(int nWidth, int nHeight) {
@@ -266,7 +266,7 @@ void CanvasRenderingContext2DDelegate::deleteBitmap() {
 void CanvasRenderingContext2DDelegate::fillTextureData() {
 }
 
-std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const std::string &text) {
+ccstd::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point point, const ccstd::string &text) {
     auto typography = createTypography(text);
     Size textSize {static_cast<float>(OH_Drawing_TypographyGetMaxIntrinsicWidth(typography->get())),
                    static_cast<float>(OH_Drawing_TypographyGetHeight(typography->get()))};
@@ -290,7 +290,7 @@ std::array<float, 2> CanvasRenderingContext2DDelegate::convertDrawPoint(Point po
     return point;
 }
 
-std::unique_ptr<CanvasRenderingContext2DDelegate::ScopedTypography> CanvasRenderingContext2DDelegate::createTypography(const std::string &text) {
+std::unique_ptr<CanvasRenderingContext2DDelegate::ScopedTypography> CanvasRenderingContext2DDelegate::createTypography(const ccstd::string &text) {
     OH_Drawing_TypographyHandlerPushTextStyle(_typographyCreate, _textStyle);
     OH_Drawing_TypographyHandlerAddText(_typographyCreate, text.c_str());
     OH_Drawing_TypographyHandlerPopTextStyle(_typographyCreate);
@@ -303,10 +303,10 @@ std::unique_ptr<CanvasRenderingContext2DDelegate::ScopedTypography> CanvasRender
 void CanvasRenderingContext2DDelegate::fill() {
 }
 
-void CanvasRenderingContext2DDelegate::setLineCap(const std::string &lineCap) {
+void CanvasRenderingContext2DDelegate::setLineCap(const ccstd::string &lineCap) {
 }
 
-void CanvasRenderingContext2DDelegate::setLineJoin(const std::string &lineJoin) {
+void CanvasRenderingContext2DDelegate::setLineJoin(const ccstd::string &lineJoin) {
 }
 
 void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData */,
@@ -316,7 +316,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data & /* imageData *
                                                      float /* offsetY */) {
 }
 
-void CanvasRenderingContext2DDelegate::strokeText(const std::string & /* text */,
+void CanvasRenderingContext2DDelegate::strokeText(const ccstd::string & /* text */,
                                                   float /* x */,
                                                   float /* y */,
                                                   float /* maxWidth */) {

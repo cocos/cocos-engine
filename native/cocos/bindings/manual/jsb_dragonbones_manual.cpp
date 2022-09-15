@@ -431,7 +431,6 @@ bool register_all_dragonbones_manual(se::Object *obj) {
 
     dragonBones::BaseObject::setObjectRecycleOrDestroyCallback([](dragonBones::BaseObject *obj, int type) {
         //ccstd::string typeName = typeid(*obj).name();
-#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO:May be removed later
         if (!se::NativePtrToObjectMap::isValid()) {
             return;
         }
@@ -447,7 +446,6 @@ bool register_all_dragonbones_manual(se::Object *obj) {
             // the same address.
             se::NativePtrToObjectMap::erase(iter);
         }
-#endif
     });
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {

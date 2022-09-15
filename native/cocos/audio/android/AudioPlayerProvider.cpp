@@ -379,7 +379,7 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
 
 bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info) { //NOLINT(readability-convert-member-functions-to-static)
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    // todo
+    // TODO(qgh): OpenHarmony system does not support this function yet
     return true;
 #endif
     //REFINE: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
