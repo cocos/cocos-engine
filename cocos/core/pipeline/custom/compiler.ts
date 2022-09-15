@@ -24,76 +24,42 @@
 ****************************************************************************/
 import { Buffer, Framebuffer, Texture, Viewport } from '../../../gfx';
 import { assert } from '../../platform/debug';
+import { VectorGraphColorMap } from './effect';
+import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass,
-    PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphValue, RenderGraphVisitor,
+    PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { AccessType, RasterView, ResourceResidency } from './types';
 
 class PassVisitor implements RenderGraphVisitor {
+    public queueID = 0xFFFFFFFF;
+    public sceneID = 0xFFFFFFFF;
     public passID = 0xFFFFFFFF;
     // output resourcetexture id
     public resID = 0xFFFFFFFF;
+    public context: CompilerContext;
     private _currPass: RasterPass | null = null;
-    private readonly _context: CompilerContext;
-    protected _queueID = 0xFFFFFFFF;
-    protected _sceneID = 0xFFFFFFFF;
     constructor (context: CompilerContext) {
-        this._context = context;
+        this.context = context;
     }
-    clear (value: ClearView[]): unknown {
-        throw new Error('Method not implemented.');
+    protected _isRaster (u: number): boolean {
+        return !!this.context.renderGraph.tryGetRaster(u);
     }
-    viewport (value: Viewport): unknown {
-        throw new Error('Method not implemented.');
+    protected _isQueue (u: number): boolean {
+        return !!this.context.renderGraph.tryGetQueue(u);
     }
-    raster (pass: RasterPass) {
-        // Since the pass is valid, there is no need to continue traversing.
-        if (pass.isValid) {
-            return;
-        }
-        this._currPass = pass;
-        const rg = this._context.renderGraph;
-        for (const q of rg.children(this.passID)) {
-            const queueID = q.target as number;
-            assert(rg.holds(RenderGraphValue.Queue, queueID));
-            this._queueID = queueID;
-            rg.visitVertex(this, queueID);
-        }
-    }
-    compute (pass: ComputePass) {
-    }
-    copy (pass: CopyPass) {
-
-    }
-    move (pass: MovePass) {
-
-    }
-    present (pass: PresentPass) {
-
-    }
-    raytrace (pass: RaytracePass) {
-
-    }
-    queue (value: RenderQueue) {
-        // It is possible that the pass has already been found in the first for loop
-        if (this._currPass!.isValid) {
-            return;
-        }
-        const rg = this._context.renderGraph;
-        for (const s of rg.children(this._queueID)) {
-            const sceneID = s.target as number;
-            this._sceneID = sceneID;
-            rg.visitVertex(this, sceneID);
-        }
+    protected _isScene (u: number): boolean {
+        return !!this.context.renderGraph.tryGetScene(u);
     }
     private _fetchValidPass () {
-        if (this._currPass!.isValid) {
+        const rg = this.context.renderGraph;
+        if (rg.getValid(this.sceneID)) {
             return;
         }
         const outputId = this.resID;
-        const outputName = this._context.resourceGraph.vertexName(outputId);
+        const outputName = this.context.resourceGraph.vertexName(outputId);
         const readViews: Map<string, RasterView> = new Map();
         const pass = this._currPass!;
 
@@ -101,21 +67,23 @@ class PassVisitor implements RenderGraphVisitor {
             // find the pass
             if (readName === outputName
                 && raster.accessType !== AccessType.READ) {
-                assert(!pass.isValid, 'The same pass cannot output multiple resources with the same name at the same time');
-                pass.isValid = true;
+                assert(!rg.getValid(this.sceneID), 'The same pass cannot output multiple resources with the same name at the same time');
+                rg.setValid(this.passID, true);
+                rg.setValid(this.queueID, true);
+                rg.setValid(this.sceneID, true);
                 continue;
             }
             if (raster.accessType !== AccessType.WRITE) {
                 readViews.set(readName, raster);
             }
         }
-        if (pass.isValid) {
+        if (rg.getValid(this.sceneID)) {
             let resVisitor;
             let resourceGraph;
             let vertID;
             for (const [rasterName, raster] of readViews) {
-                resVisitor = new ResourceVisitor(this._context);
-                resourceGraph = this._context.resourceGraph;
+                resVisitor = new ResourceVisitor(this.context);
+                resourceGraph = this.context.resourceGraph;
                 vertID = resourceGraph.find(rasterName);
                 if (vertID !== 0xFFFFFFFF) {
                     resVisitor.resID = vertID;
@@ -123,8 +91,8 @@ class PassVisitor implements RenderGraphVisitor {
                 }
             }
             for (const [computeName, cViews] of pass.computeViews) {
-                resVisitor = new ResourceVisitor(this._context);
-                resourceGraph = this._context.resourceGraph;
+                resVisitor = new ResourceVisitor(this.context);
+                resourceGraph = this.context.resourceGraph;
                 vertID = resourceGraph.find(computeName);
                 if (vertID !== 0xFFFFFFFF) {
                     resVisitor.resID = vertID;
@@ -133,13 +101,59 @@ class PassVisitor implements RenderGraphVisitor {
             }
         }
     }
+    applyID (id: number, resId: number): void {
+        this.resID = resId;
+        if (this._isRaster(id)) {
+            this.passID = id;
+        } else if (this._isQueue(id)) {
+            this.queueID = id;
+        } else if (this._isScene(id)) {
+            this.sceneID = id;
+        }
+    }
+    raster (pass: RasterPass): unknown {
+        const rg = this.context.renderGraph;
+        // Since the pass is valid, there is no need to continue traversing.
+        if (rg.getValid(this.passID)) {
+            return;
+        }
+        this._currPass = pass;
+    }
+    compute (value: ComputePass) {}
+    copy (value: CopyPass) {}
+    move (value: MovePass) {}
+    present (value: PresentPass) {}
+    raytrace (value: RaytracePass) {}
+    queue (value: RenderQueue) {}
     scene (value: SceneData) {
         this._fetchValidPass();
     }
     blit (value: Blit) {
         this._fetchValidPass();
     }
-    dispatch (value: Dispatch) {
+    dispatch (value: Dispatch) {}
+    clear (value: ClearView[]) {}
+    viewport (value: Viewport) {}
+}
+
+class PassManagerVisitor extends DefaultVisitor {
+    private _colorMap: VectorGraphColorMap;
+    private _graphView: ReferenceGraphView<RenderGraph>;
+    private _passVisitor: PassVisitor;
+    public resId = 0xFFFFFFFF;
+    constructor (context: CompilerContext, resId: number) {
+        super();
+        this.resId = resId;
+        this._passVisitor = new PassVisitor(context);
+        this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
+        this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
+    }
+    get graphView () { return this._graphView; }
+    get colorMap () { return this._colorMap; }
+    discoverVertex (u: number, gv: ReferenceGraphView<RenderGraph>) {
+        const g = gv.g;
+        this._passVisitor.applyID(u, this.resId);
+        g.visitVertex(this._passVisitor, u);
     }
 }
 
@@ -156,17 +170,8 @@ class ResourceVisitor implements ResourceGraphVisitor {
     }
 
     dependency () {
-        // const resName = this._context.resourceGraph.vertexName(this.resID);
-        const rg = this._context.renderGraph;
-        const passVisitor = new PassVisitor(this._context);
-        for (const vertID of rg.vertices()) {
-            if (rg.numParents(vertID) === 0) {
-                // vertex has no parents, must be pass
-                passVisitor.passID = vertID;
-                passVisitor.resID = this.resID;
-                rg.visitVertex(passVisitor, vertID);
-            }
-        }
+        const visitor = new PassManagerVisitor(this._context, this.resID);
+        depthFirstSearch(visitor.graphView, visitor, visitor.colorMap);
     }
 
     persistentTexture (value: Texture) {
@@ -213,15 +218,29 @@ export class Compiler {
             rg,
             this._layoutGraph,
         );
-        const resVisitor = new ResourceVisitor(context);
-        for (const vertID of this._resourceGraph.vertices()) {
-            const traits = this._resourceGraph.getTraits(vertID);
-            if (traits.residency === ResourceResidency.MANAGED
+        const visitor = new ResourceManagerVisitor(context);
+        depthFirstSearch(this._resourceGraph, visitor, visitor.colorMap);
+    }
+}
+
+export class ResourceManagerVisitor extends DefaultVisitor {
+    private _colorMap: VectorGraphColorMap;
+    private _resourceGraph: ResourceGraph;
+    private _resVisitor: ResourceVisitor;
+    constructor (context: CompilerContext) {
+        super();
+        this._colorMap = new VectorGraphColorMap(context.resourceGraph.numVertices());
+        this._resourceGraph = context.resourceGraph;
+        this._resVisitor = new ResourceVisitor(context);
+    }
+    get colorMap () { return this._colorMap; }
+    discoverVertex (u: number, gv: ResourceGraph) {
+        const traits = this._resourceGraph.getTraits(u);
+        if (traits.residency === ResourceResidency.MANAGED
                 || traits.residency === ResourceResidency.MEMORYLESS) {
-                continue;
-            }
-            resVisitor.resID = vertID;
-            this._resourceGraph.visitVertex(resVisitor, vertID);
+            return;
         }
+        this._resVisitor.resID = u;
+        this._resourceGraph.visitVertex(this._resVisitor, u);
     }
 }
