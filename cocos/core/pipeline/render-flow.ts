@@ -23,15 +23,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { RenderStage } from './render-stage';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { Camera } from '../renderer/scene';
+import { Camera } from '../../render-scene/scene';
 
 /**
  * @en Render flow information descriptor

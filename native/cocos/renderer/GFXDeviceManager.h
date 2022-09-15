@@ -58,6 +58,7 @@
 #endif
 
 #include "gfx-empty/EmptyDevice.h"
+#include "renderer/pipeline/Define.h"
 
 namespace cc {
 namespace gfx {
@@ -68,6 +69,11 @@ class CC_DLL DeviceManager final {
     static constexpr bool FORCE_ENABLE_VALIDATION{false};
 
 public:
+    static Device *create() {
+        DeviceInfo deviceInfo{pipeline::bindingMappingInfo};
+        return DeviceManager::create(deviceInfo);
+    }
+
     static Device *create(const DeviceInfo &info) {
         if (Device::instance) return Device::instance;
 
@@ -78,6 +84,9 @@ public:
 #endif
 
 #ifdef CC_USE_VULKAN
+    #if XR_OEM_PICO
+        Device::isSupportDetachDeviceThread = false;
+    #endif
         if (tryCreate<CCVKDevice>(info, &device)) return device;
 #endif
 
@@ -86,6 +95,9 @@ public:
 #endif
 
 #ifdef CC_USE_GLES3
+    #if CC_USE_XR
+        Device::isSupportDetachDeviceThread = false;
+    #endif
         if (tryCreate<GLES3Device>(info, &device)) return device;
 #endif
 
@@ -98,23 +110,8 @@ public:
         return nullptr;
     }
 
-    static void destroy() {
-        CC_SAFE_DESTROY_AND_DELETE(Device::instance);
-    }
-
-    static void addSurfaceEventListener() {
-        Device *device = Device::instance;
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
-            device->destroySurface(e.args->ptrVal);
-        });
-
-        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
-            device->createSurface(e.args->ptrVal);
-        });
-    }
-
-    static constexpr bool isDetachDeviceThread() {
-        return DETACH_DEVICE_THREAD;
+    static bool isDetachDeviceThread() {
+        return DETACH_DEVICE_THREAD && Device::isSupportDetachDeviceThread;
     }
 
     static ccstd::string getGFXName() {
@@ -137,22 +134,33 @@ public:
     }
 
 private:
+    static void addSurfaceEventListener() {
+        Device *device = Device::instance;
+        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
+            device->destroySurface(e.args->ptrVal);
+        });
+
+        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
+            device->createSurface(e.args->ptrVal);
+        });
+    }
+
     template <typename DeviceCtor, typename Enable = std::enable_if_t<std::is_base_of<Device, DeviceCtor>::value>>
     static bool tryCreate(const DeviceInfo &info, Device **pDevice) {
-        Device *device = CC_NEW(DeviceCtor);
+        Device *device = ccnew DeviceCtor;
 
-        if (DETACH_DEVICE_THREAD) {
-            CC_DELETE(device);
-            device = CC_NEW(gfx::DeviceAgent(device));
+        if (isDetachDeviceThread()) {
+            device = ccnew gfx::DeviceAgent(device);
         }
 
+#if !defined(CC_SERVER_MODE)
         if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
-            CC_DELETE(device);
-            device = CC_NEW(gfx::DeviceValidator(device));
+            device = ccnew gfx::DeviceValidator(device);
         }
+#endif
 
         if (!device->initialize(info)) {
-            CC_DELETE(device);
+            CC_SAFE_DELETE(device);
             return false;
         }
 

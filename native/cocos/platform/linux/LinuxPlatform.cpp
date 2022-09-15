@@ -33,10 +33,19 @@
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
 #include "modules/Network.h"
-#include "modules/Screen.h"
 #include "modules/System.h"
-#include "modules/SystemWindow.h"
 #include "modules/Vibrator.h"
+
+#if defined(CC_SERVER_MODE)
+    #include "platform/empty/modules/Screen.h"
+    #include "platform/empty/modules/SystemWindow.h"
+#else
+    #include "modules/Screen.h"
+    #include "modules/SystemWindow.h"
+    #include "modules/SystemWindowManager.h"
+#endif
+
+#include "base/memory/Memory.h"
 
 namespace {
 
@@ -55,14 +64,18 @@ int32_t LinuxPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    _window = std::make_shared<SystemWindow>(this);
-    registerInterface(_window);
+    _windowManager = std::make_shared<SystemWindowManager>(this);
+    registerInterface(_windowManager);
     registerInterface(std::make_shared<Vibrator>());
-    return _window->init();
+    return _windowManager->init();
+}
+
+ISystemWindow *LinuxPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 static long getCurrentMillSecond() {
-    long           lLastTime;
+    long lLastTime;
     struct timeval stCurrentTime;
 
     gettimeofday(&stCurrentTime, NULL);
@@ -71,26 +84,26 @@ static long getCurrentMillSecond() {
 }
 
 int32_t LinuxPlatform::loop() {
-    long lastTime        = 0L;
-    long curTime         = 0L;
+    long lastTime = 0L;
+    long curTime = 0L;
     long desiredInterval = 0L;
-    long actualInterval  = 0L;
+    long actualInterval = 0L;
     onResume();
     while (!_quit) {
-        curTime         = getCurrentMillSecond();
-		desiredInterval = static_cast<long>(1000.0 / getFps());
-        _window->pollEvent(&_quit);
+        curTime = getCurrentMillSecond();
+        desiredInterval = static_cast<long>(1000.0 / getFps());
+        _windowManager->processEvent(&_quit);
         actualInterval = curTime - lastTime;
         if (actualInterval >= desiredInterval) {
             lastTime = getCurrentMillSecond();
             runTask();
-            _window->swapWindow();
+            _windowManager->swapWindows();
         } else {
             usleep((desiredInterval - curTime + lastTime) * 1000);
         }
     }
 
-    onDestory();
+    onDestroy();
     return 0;
 }
 

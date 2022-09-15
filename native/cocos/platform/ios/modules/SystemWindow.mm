@@ -26,25 +26,28 @@
 #include "platform/ios/modules/SystemWindow.h"
 #import <UIKit/UIKit.h>
 
-
-namespace {
-
-}
-
 namespace cc {
 
-SystemWindow::~SystemWindow() = default;
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
+    : _windowId(windowId)
+    , _externalHandle(externalHandle) {
+}
 
+SystemWindow::~SystemWindow() = default;
 
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
 void SystemWindow::copyTextToClipboard(const std::string& text) {
     UIPasteboard* pasteboard = [UIPasteboard generalPasteboard];
-    pasteboard.string        = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
+    pasteboard.string = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
 }
-
-uintptr_t SystemWindow::getWindowHandler() const {
+void SystemWindow::closeWindow() {
+    // Force quit as there's no API to exit UIApplication
+    cc::EventDispatcher::dispatchCloseEvent();
+    exit(0);
+}
+uintptr_t SystemWindow::getWindowHandle() const {
     return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
 }
 
@@ -53,5 +56,4 @@ SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(bounds.size.width), static_cast<float>(bounds.size.height)};
 }
 
-
-}
+} // namespace cc

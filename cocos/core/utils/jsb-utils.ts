@@ -110,26 +110,25 @@ export function updateChildrenForDeserialize (node: Node) {
     if (!node) {
         return;
     }
+
     // @ts-expect-error: jsb related codes.
-    node._setChildren(node._children);
+    const children = node._children;
+    if (!children) {
+        return;
+    }
+
+    const len = children.length;
+    if (!len) {
+        return;
+    }
+
     // @ts-expect-error: jsb related codes.
-    for (let i = 0, len = node._children.length; i < len; ++i) {
-        // @ts-expect-error: jsb related codes.
-        const child = node._children[i];
-        // jsb.registerNativeRef(node, child);
+    node._setChildren(children);
+
+    for (let i = 0; i < len; ++i) {
+        const child = children[i];
         updateChildrenForDeserialize(child);
     }
-    // Object.defineProperty(node, '_children', {
-    //     enumerable: true,
-    //     configurable: true,
-    //     get () {
-    //         return this.getChildren();
-    //     },
-    //     set (v) {
-    //         this._setChildren(v);
-    //     },
-    // });
-    // node._isChildrenRedefined = true;
 }
 
 // export function updateChildren (node: Node) {
@@ -159,3 +158,13 @@ export function updateChildrenForDeserialize (node: Node) {
 //     });
 //     node._isChildrenRedefined = true;
 // }
+type EventType = string | number;
+export function ExtraEventMethods () {}
+
+ExtraEventMethods.prototype.once = function once <Callback extends (...any) => void> (type: EventType, callback: Callback, target?: any) {
+    return this.on(type, callback, target, true) as Callback;
+};
+
+ExtraEventMethods.prototype.targetOff = function targetOff (typeOrTarget: any) {
+    this.removeAll(typeOrTarget);
+};

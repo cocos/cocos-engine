@@ -47,7 +47,7 @@ protected:
     void doDestroy() override;
 
     CCWGPURenderPassObject *_renderPassObject = nullptr;
-    CCWGPURenderPassHelper *_rpHelper         = nullptr;
+    CCWGPURenderPassHelper *_rpHelper = nullptr;
 };
 
 inline CCWGPURenderPass *getThis(CCWGPURenderPass *that) {

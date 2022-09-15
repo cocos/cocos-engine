@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <sys/types.h>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -39,10 +40,10 @@
 #elif CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     #include <AL/al.h>
 #endif
-#include "audio/oalsoft/AudioMacros.h"
+#include "audio/include/AudioMacros.h"
 #include "base/Macros.h"
 #include "base/std/container/vector.h"
-
+#define INVALID_AL_BUFFER_ID 0xFFFFFFFF
 namespace cc {
 class AudioEngineImpl;
 class AudioPlayer;
@@ -63,6 +64,9 @@ public:
 
     void addLoadCallback(const std::function<void(bool)> &callback);
 
+    uint32_t getChannelCount() const { return _channelCount; }
+    bool isStreaming() const { return _isStreaming; }
+
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };
     void readDataTask(unsigned int selfId);
@@ -72,26 +76,30 @@ protected:
     void invokingLoadCallbacks();
 
     //pcm data related stuff
-    ALenum   _format;
-    ALsizei  _sampleRate;
-    float    _duration;
-    uint32_t _totalFrames;
-    uint32_t _framesRead;
+    ALenum _format{-1};
+    ALsizei _sampleRate{-1};
+    float _duration{0.0F};
+    uint32_t _totalFrames{0};
+    uint32_t _framesRead{0};
+    uint32_t _bytesPerFrame{0};
+
+    bool _isStreaming{false};
+    uint32_t _channelCount{1};
 
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
-    ALuint _alBufferId;
-    char * _pcmData;
+    ALuint _alBufferId{INVALID_AL_BUFFER_ID};
+    char *_pcmData{nullptr};
 
     /*Queue buffer related stuff
      *  Streaming in OpenAL when sizeInBytes greater then PCMDATA_CACHEMAXSIZE
      */
-    char *   _queBuffers[QUEUEBUFFER_NUM];
-    ALsizei  _queBufferSize[QUEUEBUFFER_NUM];
-    uint32_t _queBufferFrames;
+    char *_queBuffers[QUEUEBUFFER_NUM];
+    ALsizei _queBufferSize[QUEUEBUFFER_NUM];
+    uint32_t _queBufferFrames{0};
 
-    std::mutex                           _playCallbackMutex;
+    std::mutex _playCallbackMutex;
     ccstd::vector<std::function<void()>> _playCallbacks;
 
     // loadCallbacks doesn't need mutex since it's invoked only in Cocos thread.
@@ -99,13 +107,13 @@ protected:
 
     std::mutex _readDataTaskMutex;
 
-    State _state;
+    State _state{State::INITIAL};
 
     std::shared_ptr<bool> _isDestroyed;
-    ccstd::string         _fileFullPath;
-    unsigned int          _id;
-    bool                  _isLoadingFinished;
-    bool                  _isSkipReadDataTask;
+    ccstd::string _fileFullPath;
+    unsigned int _id;
+    bool _isLoadingFinished{false};
+    bool _isSkipReadDataTask{false};
 
     friend class AudioEngineImpl;
     friend class AudioPlayer;

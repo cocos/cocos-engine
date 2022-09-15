@@ -23,27 +23,22 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { systemInfo } from 'pal/system-info';
 import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
-import { Asset } from '../assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
     DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler,
     InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
-    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo,
-} from '../gfx';
+    Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager,
+} from '../../gfx';
 import { legacyCC } from '../global-exports';
-import { MacroRecord } from '../renderer/core/pass-utils';
-import { RenderWindow } from '../renderer/core/render-window';
-import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Model } from '../renderer/scene/model';
-import { Root } from '../root';
+import { MacroRecord } from '../../render-scene/core/pass-utils';
+import { RenderWindow } from '../../render-scene/core/render-window';
+import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
+import { Model } from '../../render-scene/scene/model';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
@@ -51,6 +46,7 @@ import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pip
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
+import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
 
 /**
@@ -226,6 +222,13 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         return this._profiler;
     }
 
+    /**
+     * @deprecated since v3.6, please use camera.geometryRenderer instead.
+     */
+    get geometryRenderer () {
+        return this._geometryRenderer;
+    }
+
     set clusterEnabled (value) {
         this._clusterEnabled = value;
     }
@@ -250,6 +253,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
     protected _profiler: Model | null = null;
+    protected _geometryRenderer: GeometryRenderer | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
     protected _pipelineRenderData: PipelineRenderData | null = null;
     protected _renderPasses = new Map<ClearFlags, RenderPass>();
@@ -381,6 +385,42 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         }
     }
 
+    public getMacroString (name: string): string {
+        const str = this._macros[name];
+        if (str === undefined) {
+            return '';
+        }
+        return str as string;
+    }
+
+    public getMacroInt (name: string): number {
+        const value = this._macros[name];
+        if (value === undefined) {
+            return 0;
+        }
+        return value as number;
+    }
+
+    public getMacroBool (name: string): boolean {
+        const value = this._macros[name];
+        if (value === undefined) {
+            return false;
+        }
+        return value as boolean;
+    }
+
+    public setMacroString (name: string, value: string): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroInt (name: string, value: number): void {
+        this._macros[name] = value;
+    }
+
+    public setMacroBool (name: string, value: boolean): void {
+        this._macros[name] = value;
+    }
+
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
@@ -388,14 +428,14 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * after deferred pipeline can handle multiple swapchains
      */
     public activate (swapchain: Swapchain): boolean {
-        const root = legacyCC.director.root as Root;
-        this._device = root.device;
+        this._device = deviceManager.gfxDevice;
         this._generateConstantMacros();
         this._globalDSManager = new GlobalDSManager(this._device);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
         // update global defines in advance here for deferred pipeline may tryCompile shaders.
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._macros.CC_USE_DEBUG_VIEW = 0;
         this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device);
 
@@ -417,6 +457,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         if (cameras.length === 0) {
             return;
         }
+        this.updateGeometryRenderer(cameras); // for capability
         this._commandBuffers[0].begin();
         this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
@@ -668,7 +709,27 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
+
+        const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
+        str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
+
         this._constantMacros = str;
+    }
+
+    protected updateGeometryRenderer (cameras: Camera[]) {
+        if (this._geometryRenderer) {
+            return;
+        }
+
+        // Query the first camera rendering to swapchain.
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera && camera.window && camera.window.swapchain) {
+                camera.initGeometryRenderer();
+                this._geometryRenderer = camera.geometryRenderer;
+                return;
+            }
+        }
     }
 
     public generateBloomRenderData () {

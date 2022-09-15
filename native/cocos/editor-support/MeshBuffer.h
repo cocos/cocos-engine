@@ -48,6 +48,16 @@ public:
         return _ibArr[bufferPos]->getTypeArray();
     }
 
+    uint8_t *getVBFromBufferArray(std::size_t index) {
+        if (_vbArr.size() <= index) return nullptr;
+        return _vbArr[index]->getBuffer();
+    }
+
+    uint8_t *getIBFromBufferArray(std::size_t index) {
+        if (_ibArr.size() <= index) return nullptr;
+        return _ibArr[index]->getBuffer();
+    }
+
     std::size_t getVBTypedArrayLength(std::size_t bufferPos) {
         if (_vbArr.size() <= bufferPos) return 0;
         return _vbArr[bufferPos]->length();
@@ -86,10 +96,10 @@ private:
 
     ccstd::vector<IOTypedArray *> _ibArr;
     ccstd::vector<IOTypedArray *> _vbArr;
-    std::size_t                   _bufferPos = 0;
-    IOBuffer                      _vb;
-    IOBuffer                      _ib;
-    int                           _vertexFormat = 0;
+    std::size_t _bufferPos = 0;
+    IOBuffer _vb;
+    IOBuffer _ib;
+    int _vertexFormat = 0;
 };
 
 MIDDLEWARE_END

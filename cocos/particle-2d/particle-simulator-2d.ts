@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
-
 import { Vec2, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
@@ -466,6 +461,10 @@ export class Simulator {
             }
         }
 
+        this.renderData.material = this.sys.getRenderMaterial(0); // hack
+        this.renderData.frame = this.sys._renderSpriteFrame; // hack
+        renderData.setRenderDrawInfoAttributes();
+
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
             this.finished = true;
             psys._finishedSimulation();
@@ -486,5 +485,10 @@ export class Simulator {
             buffer[offset++] = vId + 3;
             buffer[offset++] = vId + 2;
         }
+    }
+
+    public initDrawInfo () {
+        const renderData = this.renderData;
+        renderData.setRenderDrawInfoAttributes();
     }
 }

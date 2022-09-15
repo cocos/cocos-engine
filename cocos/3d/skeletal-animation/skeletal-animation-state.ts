@@ -23,20 +23,15 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
+import { JSB } from 'internal:constants';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
 import { Node } from '../../core/scene-graph/node';
-import type { AnimationClip } from '../../core/animation/animation-clip';
-import { AnimationState } from '../../core/animation/animation-state';
+import type { AnimationClip } from '../../animation/animation-clip';
+import { AnimationState } from '../../animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../../core/global-exports';
-import { JSB } from '../../core/default-constants';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
@@ -52,6 +47,10 @@ interface ISocketData {
     frames: ITransform[];
 }
 
+/**
+ * @en The animation state for skeletal animations.
+ * @zh 骨骼动画的动画状态控制对象。
+ */
 export class SkeletalAnimationState extends AnimationState {
     protected _frames = 1;
 
@@ -98,12 +97,19 @@ export class SkeletalAnimationState extends AnimationState {
             this.duration = this.clip.duration;
             if (!this._curvesInited) {
                 this._curveLoaded = false;
-                super.initialize(this._targetNode!);
+                super.initialize(this._targetNode!
+                    );
                 this._curvesInited = true;
             }
         }
     }
 
+    /**
+     * @en Rebuild animation curves and register the socket transforms per frame to the sockets. It will replace the internal sockets list.
+     * @zh 为所有指定挂点更新动画曲线运算结果，并存储所有挂点的逐帧变换矩阵。这个方法会用传入的挂点更新取代内部挂点列表。
+     * @param sockets @en The sockets need update @zh 需要重建的挂点列表
+     * @returns void
+     */
     public rebuildSocketCurves (sockets: Socket[]) {
         this._sockets.length = 0;
         if (!this._targetNode) { return; }

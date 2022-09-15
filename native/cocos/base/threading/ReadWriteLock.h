@@ -25,23 +25,13 @@
 
 #pragma once
 
-// clang-format off
-#include "base/Macros.h"
-// clang-format on
-
-#include <uv.h>
-#include <functional>
+#include <shared_mutex>
 
 namespace cc {
 
 class ReadWriteLock final {
 public:
-    ReadWriteLock() {
-        uv_rwlock_init(&_lock);
-    };
-    ~ReadWriteLock() {
-        uv_rwlock_destroy(&_lock);
-    }
+    ReadWriteLock() = default;
 
     template <typename Function, typename... Args>
     auto lockRead(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...));
@@ -50,32 +40,18 @@ public:
     auto lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...));
 
 private:
-    uv_rwlock_t _lock;
-
-    struct Defer final {
-        explicit Defer(std::function<void()> &&f) : fn(f) {}
-        ~Defer() {
-            fn();
-        }
-        std::function<void()> fn;
-    };
+    std::shared_mutex _mutex;
 };
 
 template <typename Function, typename... Args>
 auto ReadWriteLock::lockRead(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
-    uv_rwlock_rdlock(&_lock);
-    auto defer = Defer([&]() {
-        uv_rwlock_rdunlock(&_lock);
-    });
+    std::shared_lock<std::shared_mutex> lock(_mutex);
     return func(std::forward<Args>(args)...);
 }
 
 template <typename Function, typename... Args>
 auto ReadWriteLock::lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
-    uv_rwlock_wrlock(&_lock);
-    auto defer = Defer([&]() {
-        uv_rwlock_wrunlock(&_lock);
-    });
+    std::lock_guard<std::shared_mutex> lock(_mutex);
     return func(std::forward<Args>(args)...);
 }
 

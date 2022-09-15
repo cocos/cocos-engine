@@ -19,17 +19,18 @@
  THE SOFTWARE.
  */
 
-import { Fog } from '../renderer/scene/fog';
-import { Ambient } from '../renderer/scene/ambient';
-import { Skybox } from '../renderer/scene/skybox';
-import { Shadows } from '../renderer/scene/shadows';
-import { Octree } from '../renderer/scene/octree';
+import { Fog } from '../../render-scene/scene/fog';
+import { Ambient } from '../../render-scene/scene/ambient';
+import { Skybox } from '../../render-scene/scene/skybox';
+import { Shadows } from '../../render-scene/scene/shadows';
+import { Octree } from '../../render-scene/scene/octree';
 import { IRenderObject } from './define';
 import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
-    BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
-import { Light } from '../renderer/scene/light';
-import { Material } from '../assets';
-import { Pass } from '../renderer/core/pass';
+    BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../../gfx';
+import { Light } from '../../render-scene/scene/light';
+import { Material } from '../../asset/assets';
+import { Pass } from '../../render-scene/core/pass';
+import { CSMLayers } from './shadow/csm-layers';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -54,10 +55,18 @@ export class PipelineSceneData {
         this._shadingScale = val;
     }
 
+    public get csmSupported () {
+        return this._csmSupported;
+    }
+    public set csmSupported (val: boolean) {
+        this._csmSupported = val;
+    }
+
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+    public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
 
     /**
@@ -71,8 +80,6 @@ export class PipelineSceneData {
       * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
       */
     public renderObjects: IRenderObject[] = [];
-    public castShadowObjects: IRenderObject[] = [];
-    public dirShadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
     protected _geometryRendererMaterials: Material[] = [];
@@ -85,6 +92,7 @@ export class PipelineSceneData {
     protected _occlusionQueryShader: Shader | null = null;
     protected _isHDR = true;
     protected _shadingScale = 1.0;
+    protected _csmSupported = true;
 
     constructor () {
         this._shadingScale = 1.0;
@@ -104,7 +112,7 @@ export class PipelineSceneData {
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
             this._geometryRendererMaterials[tech] = new Material();
             this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
-            this._geometryRendererMaterials[tech].initialize({ effectName: 'geometry-renderer', technique: tech });
+            this._geometryRendererMaterials[tech].initialize({ effectName: 'builtin-geometry-renderer', technique: tech });
 
             for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
                 this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
@@ -130,14 +138,16 @@ export class PipelineSceneData {
         if (!this._occlusionQueryMaterial) {
             const mat = new Material();
             mat._uuid = 'default-occlusion-query-material';
-            mat.initialize({ effectName: 'occlusion-query' });
+            mat.initialize({ effectName: 'builtin-occlusion-query' });
             this._occlusionQueryMaterial = mat;
-            this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+            if (mat.passes.length > 0) {
+                this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+            }
         }
     }
 
     public getOcclusionQueryPass (): Pass | null {
-        if (this._occlusionQueryMaterial) {
+        if (this._occlusionQueryMaterial && this._occlusionQueryMaterial.passes.length > 0) {
             return this._occlusionQueryMaterial.passes[0];
         }
 
@@ -149,6 +159,7 @@ export class PipelineSceneData {
 
     public destroy () {
         this.shadows.destroy();
+        this.csmLayers.destroy();
         this.validPunctualLights.length = 0;
         this._occlusionQueryInputAssembler?.destroy();
         this._occlusionQueryInputAssembler = null;

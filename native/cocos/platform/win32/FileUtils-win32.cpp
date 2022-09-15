@@ -25,20 +25,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #include "platform/win32/FileUtils-win32.h"
-    #include <Shlobj.h>
-    #include <cstdlib>
-    #include <regex>
-    #include <sstream>
-    #include "base/Log.h"
-    #include "platform/win32/Utils-win32.h"
+#include "platform/win32/FileUtils-win32.h"
+#include <Shlobj.h>
+#include <cstdlib>
+#include <regex>
+#include <sstream>
+#include "base/Log.h"
+#include "base/memory/Memory.h"
+#include "platform/win32/Utils-win32.h"
 
 using namespace std;
 
 namespace cc {
 
-    #define CC_MAX_PATH 512
+#define CC_MAX_PATH 512
 
 // The root path of resources, the character encoding is UTF-8.
 // UTF-8 is the only encoding supported by cocos2d-x API.
@@ -47,7 +47,7 @@ static ccstd::string s_resourcePath = "";
 // D:\aaa\bbb\ccc\ddd\abc.txt --> D:/aaa/bbb/ccc/ddd/abc.txt
 static inline ccstd::string convertPathFormatToUnixStyle(const ccstd::string &path) {
     ccstd::string ret = path;
-    size_t        len = ret.length();
+    size_t len = ret.length();
     for (size_t i = 0; i < len; ++i) {
         if (ret[i] == '\\') {
             ret[i] = '/';
@@ -66,25 +66,18 @@ static void _checkPath() {
         WCHAR *pUtf16DirEnd = wcsrchr(pUtf16ExePath, L'\\');
 
         char utf8ExeDir[CC_MAX_PATH] = {0};
-        int  nNum                    = WideCharToMultiByte(CP_UTF8, 0, pUtf16ExePath, static_cast<int>(pUtf16DirEnd - pUtf16ExePath + 1), utf8ExeDir, sizeof(utf8ExeDir), nullptr, nullptr);
+        int nNum = WideCharToMultiByte(CP_UTF8, 0, pUtf16ExePath, static_cast<int>(pUtf16DirEnd - pUtf16ExePath + 1), utf8ExeDir, sizeof(utf8ExeDir), nullptr, nullptr);
 
         s_resourcePath = convertPathFormatToUnixStyle(utf8ExeDir);
     }
 }
 
-FileUtils *FileUtils::getInstance() {
-    if (FileUtils::sharedFileUtils == nullptr) {
-        FileUtils::sharedFileUtils = new FileUtilsWin32();
-        if (!FileUtils::sharedFileUtils->init()) {
-            delete FileUtils::sharedFileUtils;
-            FileUtils::sharedFileUtils = nullptr;
-            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsWin32");
-        }
-    }
-    return FileUtils::sharedFileUtils;
+FileUtils *createFileUtils() {
+    return ccnew FileUtilsWin32();
 }
 
 FileUtilsWin32::FileUtilsWin32() {
+    init();
 }
 
 bool FileUtilsWin32::init() {
@@ -113,7 +106,7 @@ long FileUtilsWin32::getFileSize(const ccstd::string &filepath) {
     }
     LARGE_INTEGER size;
     size.HighPart = fad.nFileSizeHigh;
-    size.LowPart  = fad.nFileSizeLow;
+    size.LowPart = fad.nFileSizeLow;
     return (long)size.QuadPart;
 }
 
@@ -152,7 +145,7 @@ FileUtils::Status FileUtilsWin32::getContents(const ccstd::string &filename, Res
         return FileUtils::Status::OPEN_FAILED;
 
     DWORD hi;
-    auto  size = ::GetFileSize(fileHandle, &hi);
+    auto size = ::GetFileSize(fileHandle, &hi);
     if (hi > 0) {
         ::CloseHandle(fileHandle);
         return FileUtils::Status::TOO_LARGE;
@@ -164,8 +157,8 @@ FileUtils::Status FileUtilsWin32::getContents(const ccstd::string &filename, Res
     }
 
     buffer->resize(size);
-    DWORD sizeRead  = 0;
-    BOOL  successed = ::ReadFile(fileHandle, buffer->buffer(), size, &sizeRead, nullptr);
+    DWORD sizeRead = 0;
+    BOOL successed = ::ReadFile(fileHandle, buffer->buffer(), size, &sizeRead, nullptr);
     ::CloseHandle(fileHandle);
 
     if (!successed) {
@@ -177,7 +170,7 @@ FileUtils::Status FileUtilsWin32::getContents(const ccstd::string &filename, Res
 }
 
 ccstd::string FileUtilsWin32::getPathForFilename(const ccstd::string &filename, const ccstd::string &searchPath) const {
-    ccstd::string unixFileName   = convertPathFormatToUnixStyle(filename);
+    ccstd::string unixFileName = convertPathFormatToUnixStyle(filename);
     ccstd::string unixSearchPath = convertPathFormatToUnixStyle(searchPath);
 
     return FileUtils::getPathForFilename(unixFileName, unixSearchPath);
@@ -185,7 +178,7 @@ ccstd::string FileUtilsWin32::getPathForFilename(const ccstd::string &filename, 
 
 ccstd::string FileUtilsWin32::getFullPathForDirectoryAndFilename(const ccstd::string &strDirectory, const ccstd::string &strFilename) const {
     ccstd::string unixDirectory = convertPathFormatToUnixStyle(strDirectory);
-    ccstd::string unixFilename  = convertPathFormatToUnixStyle(strFilename);
+    ccstd::string unixFilename = convertPathFormatToUnixStyle(strFilename);
 
     return FileUtils::getFullPathForDirectoryAndFilename(unixDirectory, unixFilename);
 }
@@ -202,7 +195,7 @@ string FileUtilsWin32::getWritablePath() const {
     // Debug app uses executable directory; Non-debug app uses local app data directory
     //#ifndef _DEBUG
     // Get filename of executable only, e.g. MyGame.exe
-    WCHAR * base_name = wcsrchr(full_path, '\\');
+    WCHAR *base_name = wcsrchr(full_path, '\\');
     wstring retPath;
     if (base_name) {
         WCHAR app_data_path[CC_MAX_PATH + 1];
@@ -239,8 +232,8 @@ string FileUtilsWin32::getWritablePath() const {
 }
 
 bool FileUtilsWin32::renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) {
-    CCASSERT(!oldfullpath.empty(), "Invalid path");
-    CCASSERT(!newfullpath.empty(), "Invalid path");
+    CC_ASSERT(!oldfullpath.empty());
+    CC_ASSERT(!newfullpath.empty());
 
     std::wstring _wNew = StringUtf8ToWideChar(newfullpath);
     std::wstring _wOld = StringUtf8ToWideChar(oldfullpath);
@@ -260,11 +253,11 @@ bool FileUtilsWin32::renameFile(const ccstd::string &oldfullpath, const ccstd::s
 }
 
 bool FileUtilsWin32::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
-    CCASSERT(!path.empty(), "Invalid path");
+    CC_ASSERT(!path.empty());
     ccstd::string oldPath = path + oldname;
     ccstd::string newPath = path + name;
 
-    std::regex    pat("\\/");
+    std::regex pat("\\/");
     ccstd::string _old = std::regex_replace(oldPath, pat, "\\");
     ccstd::string _new = std::regex_replace(newPath, pat, "\\");
 
@@ -272,7 +265,7 @@ bool FileUtilsWin32::renameFile(const ccstd::string &path, const ccstd::string &
 }
 
 bool FileUtilsWin32::createDirectory(const ccstd::string &dirPath) {
-    CCASSERT(!dirPath.empty(), "Invalid path");
+    CC_ASSERT(!dirPath.empty());
 
     if (isDirectoryExist(dirPath))
         return true;
@@ -280,9 +273,9 @@ bool FileUtilsWin32::createDirectory(const ccstd::string &dirPath) {
     std::wstring path = StringUtf8ToWideChar(dirPath);
 
     // Split the path
-    size_t                      start = 0;
-    size_t                      found = path.find_first_of(L"/\\", start);
-    std::wstring                subpath;
+    size_t start = 0;
+    size_t found = path.find_first_of(L"/\\", start);
+    std::wstring subpath;
     ccstd::vector<std::wstring> dirs;
 
     if (found != std::wstring::npos) {
@@ -320,7 +313,7 @@ bool FileUtilsWin32::createDirectory(const ccstd::string &dirPath) {
 }
 
 bool FileUtilsWin32::removeFile(const ccstd::string &filepath) {
-    std::regex    pat("\\/");
+    std::regex pat("\\/");
     ccstd::string win32path = std::regex_replace(filepath, pat, "\\");
 
     if (DeleteFile(StringUtf8ToWideChar(win32path).c_str())) {
@@ -332,11 +325,11 @@ bool FileUtilsWin32::removeFile(const ccstd::string &filepath) {
 }
 
 bool FileUtilsWin32::removeDirectory(const ccstd::string &dirPath) {
-    std::wstring    wpath = StringUtf8ToWideChar(dirPath);
-    std::wstring    files = wpath + L"*.*";
+    std::wstring wpath = StringUtf8ToWideChar(dirPath);
+    std::wstring files = wpath + L"*.*";
     WIN32_FIND_DATA wfd;
-    HANDLE          search = FindFirstFileEx(files.c_str(), FindExInfoStandard, &wfd, FindExSearchNameMatch, NULL, 0);
-    bool            ret    = true;
+    HANDLE search = FindFirstFileEx(files.c_str(), FindExInfoStandard, &wfd, FindExSearchNameMatch, NULL, 0);
+    bool ret = true;
     if (search != INVALID_HANDLE_VALUE) {
         BOOL find = true;
         while (find) {
@@ -363,5 +356,3 @@ bool FileUtilsWin32::removeDirectory(const ccstd::string &dirPath) {
 }
 
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #pragma once
-// index buffer init capacity
-#define INIT_INDEX_BUFFER_SIZE 1024000
+// index buffer init capacity 8 * vertex size
+#define INIT_INDEX_BUFFER_SIZE 524280
 // max vertex buffer size
 #define MAX_VERTEX_BUFFER_SIZE 65535
 // render info int capacity
@@ -53,5 +53,5 @@
 #endif
 
 // R G B A �ֱ�ռ��32λ
-#define VF_XYZUVC  9
-#define VF_XYZUVCC 13
+#define VF_XYZUVC  6
+#define VF_XYZUVCC 7

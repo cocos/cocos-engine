@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { PhysicsSystem } from './physics-system';
 import { replaceProperty, removeProperty } from '../../core/utils/x-deprecated';
 import { BoxCollider } from './components/colliders/box-collider';

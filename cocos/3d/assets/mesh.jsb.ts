@@ -23,8 +23,10 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import { _applyDecoratedDescriptor } from '../../core/data/utils/decorator-jsb-utils';
 import { legacyCC } from '../../core/global-exports';
+import { Vec3 } from '../../core/math';
+
+declare const jsb: any;
 
 export declare namespace Mesh {
     export interface IBufferView {
@@ -43,42 +45,63 @@ export declare namespace Mesh {
 export type Mesh = jsb.Mesh;
 export const Mesh = jsb.Mesh;
 
+const IStructProto: any = jsb.Mesh.IStruct.prototype;
+
+Object.defineProperty(IStructProto, 'minPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMinPosition();
+        if (r) {
+            if (!this._minPositionCache) {
+                this._minPositionCache = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._minPositionCache.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._minPositionCache = undefined;
+        }
+        return this._minPositionCache;
+    },
+    set (v) {
+        this.setMinPosition(v);
+    }
+});
+
+Object.defineProperty(IStructProto, 'maxPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMaxPosition();
+        if (r) {
+            if (!this._maxPositionCache) {
+                this._maxPositionCache = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._maxPositionCache.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._maxPositionCache = undefined;
+        }
+        return this._maxPositionCache;
+    },
+    set (v) {
+        this.setMaxPosition(v);
+    }
+});
+
 const meshAssetProto: any = jsb.Mesh.prototype;
 
 meshAssetProto.createNode = null!;
-
-const clsDecorator = ccclass('cc.Mesh');
-
-const _class2$V = Mesh;
-
-const _descriptor$M = _applyDecoratedDescriptor(_class2$V.prototype, '_struct', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return {
-            vertexBundles: [],
-            primitives: [],
-        };
-    },
-});
-const _descriptor2$y = _applyDecoratedDescriptor(_class2$V.prototype, '_hash', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
+const originOnLoaded = meshAssetProto.onLoaded;
 
 meshAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
-    // _initializerDefineProperty(_this, "_struct", _descriptor$M, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_hash", _descriptor2$y, _assertThisInitialized(_this));
     this._struct = {
         vertexBundles: [],
         primitives: [],
     };
+    this._minPosition = undefined;
+    this._maxPosition = undefined;
 };
 
 Object.defineProperty(meshAssetProto, 'struct', {
@@ -89,12 +112,57 @@ Object.defineProperty(meshAssetProto, 'struct', {
     }
 });
 
+Object.defineProperty(meshAssetProto, 'minPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMinPosition();
+        if (r) {
+            if (!this._minPosition) {
+                this._minPosition = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._minPosition.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._minPosition = undefined;
+        }
+        return this._minPosition;
+    }
+});
+
+Object.defineProperty(meshAssetProto, 'maxPosition', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        const r = this.getMaxPosition();
+        if (r) {
+            if (!this._maxPosition) {
+                this._maxPosition = new Vec3(r.x, r.y, r.z);
+            } else {
+                this._maxPosition.set(r.x, r.y, r.z);
+            }
+        } else {
+            this._maxPosition = undefined;
+        }
+        return this._maxPosition;
+    }
+});
+
 meshAssetProto.onLoaded = function () {
-    this.setStruct(this._struct);
+    // might be undefined
+    if (this._struct != undefined) {
+        this.setStruct(this._struct);
+    }
     // Set to null to release memory in JS
     this._struct = null;
+    originOnLoaded.apply(this);
 };
 
-clsDecorator(Mesh);
-
 legacyCC.Mesh = jsb.Mesh;
+
+// handle meta data, it is generated automatically
+const MeshProto = Mesh.prototype;
+serializable(MeshProto, '_struct');
+serializable(MeshProto, '_hash');
+serializable(MeshProto, '_allowDataAccess');
+ccclass('cc.Mesh')(Mesh);

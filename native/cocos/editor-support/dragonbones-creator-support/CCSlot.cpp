@@ -59,12 +59,12 @@ void CCSlot::adjustTriangles(const unsigned vertexCount, const unsigned indicesC
         if (triangles.verts) {
             delete[] triangles.verts;
         }
-        triangles.verts = new middleware::V2F_T2F_C4F[vertexCount];
+        triangles.verts = new middleware::V3F_T2F_C4B[vertexCount];
 
         if (worldVerts) {
             delete[] worldVerts;
         }
-        worldVerts = new middleware::V2F_T2F_C4F[vertexCount];
+        worldVerts = new middleware::V3F_T2F_C4B[vertexCount];
     }
     triangles.vertCount = vertexCount;
 
@@ -142,10 +142,10 @@ void CCSlot::_updateFrame() {
                 auto vertices = triangles.verts;
                 auto vertexIndices = triangles.indices;
 
-                boundsRect.origin.x = 999999.0f;
-                boundsRect.origin.y = 999999.0f;
-                boundsRect.size.width = -999999.0f;
-                boundsRect.size.height = -999999.0f;
+                boundsRect.x = 999999.0f;
+                boundsRect.y = 999999.0f;
+                boundsRect.width = -999999.0f;
+                boundsRect.height = -999999.0f;
 
                 for (std::size_t i = 0, l = vertexCount * 2; i < l; i += 2) {
                     const auto iH = i / 2;
@@ -153,7 +153,7 @@ void CCSlot::_updateFrame() {
                     const auto y = floatArray[vertexOffset + i + 1];
                     auto u = floatArray[uvOffset + i];
                     auto v = floatArray[uvOffset + i + 1];
-                    middleware::V2F_T2F_C4F &vertexData = vertices[iH];
+                    middleware::V3F_T2F_C4B &vertexData = vertices[iH];
                     vertexData.vertex.x = x;
                     vertexData.vertex.y = -y;
 
@@ -167,25 +167,25 @@ void CCSlot::_updateFrame() {
 
                     vertexData.color = cc::middleware::Color4B::WHITE;
 
-                    if (boundsRect.origin.x > x) {
-                        boundsRect.origin.x = x;
+                    if (boundsRect.x > x) {
+                        boundsRect.x = x;
                     }
 
-                    if (boundsRect.size.width < x) {
-                        boundsRect.size.width = x;
+                    if (boundsRect.width < x) {
+                        boundsRect.width = x;
                     }
 
-                    if (boundsRect.origin.y > -y) {
-                        boundsRect.origin.y = -y;
+                    if (boundsRect.y > -y) {
+                        boundsRect.y = -y;
                     }
 
-                    if (boundsRect.size.height < -y) {
-                        boundsRect.size.height = -y;
+                    if (boundsRect.height < -y) {
+                        boundsRect.height = -y;
                     }
                 }
 
-                boundsRect.size.width -= boundsRect.origin.x;
-                boundsRect.size.height -= boundsRect.origin.y;
+                boundsRect.width -= boundsRect.x;
+                boundsRect.height -= boundsRect.y;
 
                 for (std::size_t i = 0; i < triangleCount * 3; ++i) {
                     vertexIndices[i] = intArray[currentVerticesData->offset + (unsigned)BinaryOffset::MeshVertexIndices + i];
@@ -228,7 +228,7 @@ void CCSlot::_updateFrame() {
                 vertexIndices[5] = 2;
             }
 
-            memcpy(worldVerts, triangles.verts, triangles.vertCount * sizeof(middleware::V2F_T2F_C4F));
+            memcpy(worldVerts, triangles.verts, triangles.vertCount * sizeof(middleware::V3F_T2F_C4B));
 
             _visibleDirty = true;
             _blendModeDirty = true; // Relpace texture will override blendMode and color.
@@ -250,10 +250,10 @@ void CCSlot::_updateMesh() {
     const auto textureData = static_cast<CCTextureData *>(_textureData);
     const auto vertices = triangles.verts;
 
-    boundsRect.origin.x = 999999.0f;
-    boundsRect.origin.y = 999999.0f;
-    boundsRect.size.width = -999999.0f;
-    boundsRect.size.height = -999999.0f;
+    boundsRect.x = 999999.0f;
+    boundsRect.y = 999999.0f;
+    boundsRect.width = -999999.0f;
+    boundsRect.height = -999999.0f;
 
     if (!textureData) {
         return;
@@ -305,20 +305,20 @@ void CCSlot::_updateMesh() {
             vertexPosition.x = xG;
             vertexPosition.y = -yG;
 
-            if (boundsRect.origin.x > xG) {
-                boundsRect.origin.x = xG;
+            if (boundsRect.x > xG) {
+                boundsRect.x = xG;
             }
 
-            if (boundsRect.size.width < xG) {
-                boundsRect.size.width = xG;
+            if (boundsRect.width < xG) {
+                boundsRect.width = xG;
             }
 
-            if (boundsRect.origin.y > -yG) {
-                boundsRect.origin.y = -yG;
+            if (boundsRect.y > -yG) {
+                boundsRect.y = -yG;
             }
 
-            if (boundsRect.size.height < -yG) {
-                boundsRect.size.height = -yG;
+            if (boundsRect.height < -yG) {
+                boundsRect.height = -yG;
             }
         }
     } else if (hasFFD) {
@@ -347,26 +347,26 @@ void CCSlot::_updateMesh() {
             vertexPosition.x = xG;
             vertexPosition.y = -yG;
 
-            if (boundsRect.origin.x > xG) {
-                boundsRect.origin.x = xG;
+            if (boundsRect.x > xG) {
+                boundsRect.x = xG;
             }
 
-            if (boundsRect.size.width < xG) {
-                boundsRect.size.width = xG;
+            if (boundsRect.width < xG) {
+                boundsRect.width = xG;
             }
 
-            if (boundsRect.origin.y > -yG) {
-                boundsRect.origin.y = -yG;
+            if (boundsRect.y > -yG) {
+                boundsRect.y = -yG;
             }
 
-            if (boundsRect.size.height < -yG) {
-                boundsRect.size.height = -yG;
+            if (boundsRect.height < -yG) {
+                boundsRect.height = -yG;
             }
         }
     }
 
-    boundsRect.size.width -= boundsRect.origin.x;
-    boundsRect.size.height -= boundsRect.origin.y;
+    boundsRect.width -= boundsRect.x;
+    boundsRect.height -= boundsRect.y;
 
     if (weightData != nullptr) {
         _identityTransform();

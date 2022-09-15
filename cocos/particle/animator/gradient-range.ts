@@ -23,15 +23,14 @@
  THE SOFTWARE.
  */
 
-
-
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
-import { Texture2D } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { Texture2D } from '../../asset/assets';
+import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
+import { legacyCC } from '../../core/global-exports';
 
 const SerializableTable = EDITOR && [
     ['_mode', 'color'],
@@ -60,7 +59,7 @@ export default class GradientRange {
     }
 
     set mode (m) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             if (m === Mode.RandomColor) {
                 if (this.gradient.colorKeys.length === 0) {
                     this.gradient.colorKeys.push(new ColorKey());
@@ -139,9 +138,9 @@ export default class GradientRange {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props: any): any {
+    public _onBeforeSerialize (props: any) {
         return SerializableTable[this._mode];
     }
 }
@@ -172,10 +171,13 @@ function evaluateHeight (gr: GradientRange) {
         return 1;
     }
 }
-export function packGradientRange (samples: number, gr: GradientRange) {
+export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange) {
     const height = evaluateHeight(gr);
-    const data = new Uint8Array(samples * height * 4);
-    const interval = 1.0 / (samples - 1);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Uint8Array(samples * height * 4);
+    }
+    const interval = 1.0 / (samples);
     let offset = 0;
 
     for (let h = 0; h < height; h++) {
@@ -189,11 +191,16 @@ export function packGradientRange (samples: number, gr: GradientRange) {
         }
     }
 
-    const texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA8888);
-    texture.setFilters(Filter.LINEAR, Filter.LINEAR);
-    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-    texture.uploadData(data);
+    if (tex === null || samples !== tex.width || height !== tex.height) {
+        if (tex) {
+            tex.destroy();
+        }
+        tex = new Texture2D();
+        tex.create(samples, height, PixelFormat.RGBA8888);
+        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+        tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
+    }
+    tex.uploadData(data);
 
-    return texture;
+    return { texture: tex, texdata: data };
 }

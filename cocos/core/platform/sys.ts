@@ -24,18 +24,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { WECHAT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
+import { Vec2 } from '../math/vec2';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
-import { Vec2 } from '../math';
 import { screen } from './screen';
 
 export declare namespace sys {
@@ -51,7 +47,6 @@ export declare namespace sys {
 /**
  * @en A set of system related variables
  * @zh 一系列系统相关环境变量
- * @main
  */
 export const sys = {
     Feature,
@@ -59,7 +54,7 @@ export const sys = {
     /**
      * @en
      * Returns if the specified platform related feature is supported.
-     * @zn
+     * @zh
      * 返回指定的平台相关的特性是否支持。
      */
     hasFeature (feature: sys.Feature): boolean {
@@ -186,6 +181,12 @@ export const sys = {
     browserVersion: systemInfo.browserVersion,
 
     /**
+     * @en Whether the running platform is xr app
+     * @zh 指示运行平台是否是XR平台
+     */
+    isXR: systemInfo.isXR,
+
+    /**
      * @en Indicate the real pixel resolution of the whole game window
      * @zh 指示游戏窗口的像素分辨率
      *
@@ -284,6 +285,39 @@ export const sys = {
     },
 
     /**
+     * @internal
+     */
+    init () {
+        try {
+            let localStorage: Storage | null = sys.localStorage = window.localStorage;
+            localStorage.setItem('storage', '');
+            localStorage.removeItem('storage');
+            localStorage = null;
+        } catch (e) {
+            const warn = function () {
+                warnID(5200);
+            };
+            this.localStorage = {
+                // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
+                getItem: warn,
+                setItem: warn,
+                clear: warn,
+                removeItem: warn,
+            };
+        }
+
+        if (WECHAT) {
+            // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+            this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
+            && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
+        } else {
+            // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+            this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
+            && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
+        }
+    },
+
+    /**
      * @en Get the current time in milliseconds
      * @zh 获取当前时间（毫秒为单位）
      */
@@ -329,35 +363,5 @@ export const sys = {
         return new Rect(x, y, width, height);
     },
 };
-
-(function initSys () {
-    try {
-        let localStorage: Storage | null = sys.localStorage = window.localStorage;
-        localStorage.setItem('storage', '');
-        localStorage.removeItem('storage');
-        localStorage = null;
-    } catch (e) {
-        const warn = function () {
-            warnID(5200);
-        };
-        sys.localStorage = {
-            // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
-            getItem: warn,
-            setItem: warn,
-            clear: warn,
-            removeItem: warn,
-        };
-    }
-
-    if (WECHAT) {
-        // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
-        && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
-    } else {
-        // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
-        && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
-    }
-}());
 
 legacyCC.sys = sys;

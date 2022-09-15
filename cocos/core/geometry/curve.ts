@@ -23,16 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
-
 import { CCClass } from '../data/class';
-import { clamp, inverseLerp, pingPong, repeat } from '../math/utils';
-import { WrapModeMask } from '../animation/types';
-import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue } from '../curves';
-import { ccclass, serializable } from '../data/decorators';
+import { clamp, pingPong, repeat } from '../math/utils';
+import { WrapModeMask } from '../../animation/types';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode } from '../curves';
 
 const LOOK_FORWARD = 3;
 
@@ -120,7 +114,7 @@ export class AnimationCurve {
 
     /**
      * For internal usage only.
-     * @legacyPublic
+     * @internal
      */
     get _internalCurve () {
         return this._curve;
@@ -157,9 +151,9 @@ export class AnimationCurve {
 
     /**
      * @en
-     * Loop mode [[WrapMode]] when the sampling time exceeds the left end.
+     * Loop mode [[AnimationClip.WrapMode]] when the sampling time exceeds the left end.
      * @zh
-     * 当采样时间超出左端时采用的循环模式[[WrapMode]]。
+     * 当采样时间超出左端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
     get preWrapMode () {
         return toLegacyWrapMode(this._curve.preExtrapolation);
@@ -171,9 +165,9 @@ export class AnimationCurve {
 
     /**
      * @en
-     * Cycle mode [[WrapMode]] when the sampling time exceeds the right end.
+     * Cycle mode [[AnimationClip.WrapMode]] when the sampling time exceeds the right end.
      * @zh
-     * 当采样时间超出右端时采用的循环模式[[WrapMode]]。
+     * 当采样时间超出右端时采用的循环模式[[AnimationClip.WrapMode]]。
      */
     get postWrapMode () {
         return toLegacyWrapMode(this._curve.postExtrapolation);
@@ -186,8 +180,9 @@ export class AnimationCurve {
     private cachedKey: OptimizedKey;
 
     /**
-     * 构造函数。
-     * @param keyFrames 关键帧。
+     * @en Construct a curve with key frames
+     * @zh 通过关键帧构造一条曲线。
+     * @param keyFrames @zh 关键帧 @en Key frames
      */
     constructor (keyFrames: Keyframe[] | null | RealCurve = null) {
         if (keyFrames instanceof RealCurve) {
@@ -219,7 +214,7 @@ export class AnimationCurve {
      * Add a keyframe.
      * @zh
      * 添加一个关键帧。
-     * @param keyFrame 关键帧。
+     * @param keyFrame @en A keyframe. @zh 关键帧。
      */
     public addKey (keyFrame: Keyframe | null) {
         if (!keyFrame) {
@@ -247,7 +242,7 @@ export class AnimationCurve {
      * Calculate the curve interpolation at a given point in time.
      * @zh
      * 计算给定时间点的曲线插值。
-     * @param time 时间。
+     * @param time @en The time. @zh 时间。
      */
     public evaluate (time: number) {
         const { cachedKey, _curve: curve } = this;

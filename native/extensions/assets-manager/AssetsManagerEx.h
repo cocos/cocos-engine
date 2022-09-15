@@ -24,8 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __AssetsManagerEx__
-#define __AssetsManagerEx__
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -66,12 +65,12 @@ public:
         FAIL_TO_UPDATE
     };
 
-    const static std::string VERSION_ID;
-    const static std::string MANIFEST_ID;
+    static const std::string VERSION_ID;
+    static const std::string MANIFEST_ID;
 
     using VersionCompareHandle = std::function<int(const std::string &, const std::string &)>;
-    using VerifyCallback       = std::function<bool(const std::string &, Manifest::Asset)>;
-    using EventCallback        = std::function<void(EventAssetsManagerEx *)>;
+    using VerifyCallback = std::function<bool(const std::string &, Manifest::Asset)>;
+    using EventCallback = std::function<void(EventAssetsManagerEx *)>;
 
     /** @brief Create function for creating a new AssetsManagerEx
      @param manifestUrl   The url for the local manifest file
@@ -267,9 +266,9 @@ protected:
      * @lua NA
      */
     virtual void onError(const network::DownloadTask &task,
-                         int                          errorCode,
-                         int                          errorCodeInternal,
-                         const std::string &          errorStr);
+                         int errorCode,
+                         int errorCodeInternal,
+                         const std::string &errorStr);
 
     /** @brief  Call back function for recording downloading percent of the current asset,
      the progression will then be reported to user's listener registed in addUpdateProgressEventListener
@@ -411,5 +410,3 @@ private:
 };
 
 NS_CC_EXT_END
-
-#endif /* defined(__AssetsManagerEx__) */

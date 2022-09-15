@@ -1,0 +1,302 @@
+// used for replacing cc-shadow-map-base.chunk
+#include <builtin/uniforms/cc-shadow>
+#if CC_SUPPORT_CASCADED_SHADOW_MAP
+  #include <builtin/uniforms/cc-csm>
+#endif
+#include <common/common-define>
+#include <common/math/coordinates>
+
+#pragma define SHADOWMAP_FORMAT_RGBA8 1
+#pragma define SHADOWMAP_FORMAT_FLOAT 0
+
+#pragma define CC_DIR_LIGHT_SHADOW_NONE 0
+#pragma define CC_DIR_LIGHT_SHADOW_UNIFORM 1
+#pragma define CC_DIR_LIGHT_SHADOW_CASCADED 2
+#pragma define CC_DIR_LIGHT_SHADOW_VARIANCE 3
+
+#pragma define CC_SHADOW_NONE 0
+#pragma define CC_SHADOW_PLANAR 1
+#pragma define CC_SHADOW_MAP 2
+
+float CCGetLinearDepth(vec3 worldPos, float viewSpaceBias) {
+	vec4 viewPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
+  viewPos.z += viewSpaceBias;
+	return GetLinearDepthFromViewSpace(viewPos.xyz, cc_shadowNFLSInfo.x, cc_shadowNFLSInfo.y);
+}
+
+float CCGetLinearDepth(vec3 worldPos) {
+	return CCGetLinearDepth(worldPos, 0.0);
+}
+
+#if CC_RECEIVE_SHADOW
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-shadow-map>
+
+  #include <common/data/packing>
+  #include <common/shadow/native-pcf>
+  
+
+  //////////////////////////////////////////////////////////Helper Functions
+  // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
+  #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
+  
+  bool GetShadowNDCPos(out vec3 shadowNDCPos, vec4 shadowPosWithDepthBias)
+  {
+  	shadowNDCPos = shadowPosWithDepthBias.xyz / shadowPosWithDepthBias.w * 0.5 + 0.5;
+  	if (shadowNDCPos.x < 0.0 || shadowNDCPos.x > 1.0 ||
+  		shadowNDCPos.y < 0.0 || shadowNDCPos.y > 1.0 ||
+  		shadowNDCPos.z < 0.0 || shadowNDCPos.z > 1.0) {
+  		return false;
+  	}
+  	CC_HANDLE_NDC_SAMPLE_FLIP(shadowNDCPos.xy);
+  	return true;
+  }
+
+  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias, vec3 matViewDir0, vec3 matViewDir1, vec3 matViewDir2, vec2 projScaleXY)
+  {
+    vec4 newShadowPos = shadowPos;
+    if (normalBias > EPSILON_LOWP)
+    {
+      vec3 viewNormal = vec3(dot(matViewDir0, worldNormal), dot(matViewDir1, worldNormal), dot(matViewDir2, worldNormal));
+      if (viewNormal.z < 0.1)
+        newShadowPos.xy += viewNormal.xy * projScaleXY * normalBias * clamp(viewNormal.z, 0.001, 0.1);
+    }
+    return newShadowPos; 
+  }
+  
+  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias, mat4 matLightView, vec2 projScaleXY)
+  {
+  	vec4 newShadowPos = shadowPos;
+  	if (normalBias > EPSILON_LOWP)
+  	{
+  		vec4 viewNormal = matLightView * vec4(worldNormal, 0.0);
+  		if (viewNormal.z < 0.1)
+  			newShadowPos.xy += viewNormal.xy * projScaleXY * normalBias * clamp(viewNormal.z, 0.001, 0.1);
+  	}
+  	return newShadowPos;
+  }
+  
+  vec4 ApplyShadowDepthBias_Perspective(vec4 shadowPos, float viewspaceDepthBias)
+  {
+  	// Recover the coord in view space: cc_matLightInvProj * shadowPos
+  	vec3 viewSpacePos;
+  	viewSpacePos.xy = shadowPos.xy * cc_shadowProjInfo.zw;
+  	viewSpacePos.z = shadowPos.z * cc_shadowInvProjDepthInfo.x + shadowPos.w * cc_shadowInvProjDepthInfo.y;
+  
+  	// Apply bias
+  	viewSpacePos.xyz += cc_shadowProjDepthInfo.z * normalize(viewSpacePos.xyz) * viewspaceDepthBias;
+  
+  	// Reconstuct clipspace: cc_matLightProj * viewSpacePos
+  	vec4 clipSpacePos;
+  	clipSpacePos.xy = viewSpacePos.xy * cc_shadowProjInfo.xy;
+  	clipSpacePos.zw = viewSpacePos.z * cc_shadowProjDepthInfo.xz + vec2(cc_shadowProjDepthInfo.y, 0.0);
+  
+  	// enabled linear depth?
+  	#if CC_SHADOWMAP_USE_LINEAR_DEPTH
+  		clipSpacePos.z = GetLinearDepthFromViewSpace(viewSpacePos.xyz, cc_shadowNFLSInfo.x, cc_shadowNFLSInfo.y);
+  		clipSpacePos.z = (clipSpacePos.z * 2.0 - 1.0) * clipSpacePos.w;
+  	#endif
+  
+  	return clipSpacePos;
+  }
+  
+  // (projScaleZ, projBiasZ) = cc_shadowProjDepthInfo.xy
+  vec4 ApplyShadowDepthBias_Orthographic(vec4 shadowPos, float viewspaceDepthBias, float projScaleZ, float projBiasZ)
+  {
+  	float coeffA = projScaleZ;
+  	float coeffB = projBiasZ;
+  
+  	// Recover the Z distance in view space:
+  	float viewSpacePos_z = (shadowPos.z - coeffB) / coeffA;
+  
+  	// Apply bias
+  	viewSpacePos_z += viewspaceDepthBias;
+  
+  	// Reconstuct clipspace
+  	vec4 result = shadowPos;
+  	result.z = viewSpacePos_z * coeffA + coeffB;
+  	return result;
+  }
+
+  vec4 ApplyShadowDepthBias_PerspectiveLinearDepth(vec4 shadowPos, float viewspaceDepthBias, vec3 worldPos)
+  {
+    // reverse operation for GetShadowNDCPos
+    shadowPos.z = CCGetLinearDepth(worldPos, viewspaceDepthBias) * 2.0 - 1.0;
+    shadowPos.z *= shadowPos.w;
+    return shadowPos;
+  }
+
+  //////////////////////////////////////////////////////////Directional Light Shadow
+  float CCGetDirLightShadowFactorHard (vec4 shadowPosWithDepthBias) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorHard(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+  }
+  
+  float CCGetDirLightShadowFactorSoft (vec4 shadowPosWithDepthBias) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+  }
+  
+  float CCGetDirLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+  }
+  
+  float CCGetDirLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+  }
+  
+  
+  //////////////////////////////////////////////////////////Spot Light Shadow
+  float CCGetSpotLightShadowFactorHard (vec4 shadowPosWithDepthBias, vec3 worldPos) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorHard(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+  }
+  
+  float CCGetSpotLightShadowFactorSoft (vec4 shadowPosWithDepthBias, vec3 worldPos) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+  }
+  
+  float CCGetSpotLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+  }
+  
+  float CCGetSpotLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
+	  vec3 shadowNDCPos;
+	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
+		  return 1.0;
+	  }
+    return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+  }
+
+
+  //////////////////////////////////////////////////////////Main Functions
+  float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos, vec2 shadowBias)
+  {
+    float pcf = cc_shadowWHPBInfo.z;
+    vec4 pos = vec4(1.0);
+    #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+      pos = ApplyShadowDepthBias_PerspectiveLinearDepth(shadowPos, shadowBias.x, worldPos);
+    #else
+      pos = ApplyShadowDepthBias_Perspective(shadowPos, shadowBias.x);
+    #endif
+
+    if (pcf > 2.9) {
+      return CCGetSpotLightShadowFactorSoft5X(pos, worldPos);
+    }else if (pcf > 1.9) {
+      return CCGetSpotLightShadowFactorSoft3X(pos, worldPos);
+    }else if (pcf > 0.9) { 
+      return CCGetSpotLightShadowFactorSoft(pos, worldPos);
+    }else { 
+      return CCGetSpotLightShadowFactorHard(pos, worldPos);
+    }
+  }
+  
+  float CCShadowFactorBase(vec4 shadowPos, vec3 N, vec2 shadowBias)
+  {
+    vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N, shadowBias.y, cc_matLightView, cc_shadowProjInfo.xy);
+    pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
+  
+    float realtimeShadow = 1.0;
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
+      realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
+    #endif
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_3X
+      realtimeShadow =  CCGetDirLightShadowFactorSoft3X(pos);
+    #endif
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT
+      realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
+    #endif
+    #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_HARD
+      realtimeShadow = CCGetDirLightShadowFactorHard(pos); 
+    #endif
+
+    return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+  }
+  
+  #if CC_SUPPORT_CASCADED_SHADOW_MAP
+    int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos) {
+      int layer = -1;
+      highp float layerThreshold = cc_csmViewDir0[0].w;
+      for (int i = 0; i < NUMCASCADES; i++) {
+        vec4 shadowPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
+        vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+        if (clipPos.x >= (0.0 + layerThreshold) && clipPos.x <= (1.0 - layerThreshold) &&
+            clipPos.y >= (0.0 + layerThreshold) && clipPos.y <= (1.0 - layerThreshold) &&
+            clipPos.z >= 0.0 && clipPos.z <= 1.0 && layer < 0) {
+          csmPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
+          csmPos.xy = csmPos.xy * cc_csmAtlas[i].xy + cc_csmAtlas[i].zw;
+          shadowProjDepthInfo = cc_csmProjDepthInfo[i];
+          shadowProjInfo = cc_csmProjInfo[i];
+          shadowViewDir0 = cc_csmViewDir0[i].xyz;
+          shadowViewDir1 = cc_csmViewDir1[i].xyz;
+          shadowViewDir2 = cc_csmViewDir2[i].xyz;
+          layer = i;
+        }
+      }
+      return layer;
+    }
+
+    float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
+    {
+      vec4 csmPos = vec4(1.0);
+      vec4 shadowProjDepthInfo, shadowProjInfo;
+      vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
+      int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+      if (level < 0) { return 1.0; }
+
+      vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
+      pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
+
+      float realtimeShadow = 1.0;
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
+        realtimeShadow = CCGetDirLightShadowFactorSoft5X(pos);
+      #endif
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_3X
+        realtimeShadow = CCGetDirLightShadowFactorSoft3X(pos);
+      #endif
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT
+        realtimeShadow = CCGetDirLightShadowFactorSoft(pos);
+      #endif
+      #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_HARD
+        realtimeShadow = CCGetDirLightShadowFactorHard(pos);
+      #endif
+
+      return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+    }
+  #else
+    int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos) {
+      return -1;
+    }
+
+    float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias) {
+      vec4 shadowPos = cc_matLightViewProj * vec4(worldPos, 1.0);
+      return CCShadowFactorBase(shadowPos, N, shadowBias);
+    }
+  #endif
+
+#endif

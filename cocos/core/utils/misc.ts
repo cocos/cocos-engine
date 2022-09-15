@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 /* eslint-disable no-new-func */
 
 import { EDITOR, DEV } from 'internal:constants';
@@ -45,6 +43,7 @@ for (let i = 0; i < 64; ++i) { values[BASE64_KEYS.charCodeAt(i)] = i; }
 export const BASE64_VALUES = values;
 
 /**
+ * @engineInternal
  * @param ctor
  * @param sameNameGetSets
  * @param diffNameGetSets
@@ -159,15 +158,18 @@ export function isPlainEmptyObj_DEV (obj) {
 }
 
 /**
- * @en Clamp a value between from and to.
+ * @en Clamp a value between from and to. </br>
+ * if the original value is larger than max_inclusive, return max_inclusive. </br>
+ * if the original value is smaller than min_inclusive, return min_inclusive. </br>
+ * else return the original value.
  * @zh 限定浮点数的最大最小值。<br/>
  * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
  * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
  * 否则返回自身。
- * @param value 目标值
- * @param min_inclusive 最小值
- * @param max_inclusive 最大值
- * @return {Number}
+ * @param value @en Original value @zh 初始值
+ * @param min_inclusive @en Minimum value in between @zh 最小值
+ * @param max_inclusive @en Maximum value in between @zh 最大值
+ * @return {Number} @en The value clamped @zh 目标值
  * @example
  * var v1 = clampf(20, 0, 20); // 20;
  * var v2 = clampf(-1, 0, 20); //  0;
@@ -185,8 +187,8 @@ export function clampf (value: number, min_inclusive: number, max_inclusive: num
 /**
  * @en converts degrees to radians
  * @zh 角度转弧度
- * @param angle 角度
- * @return {Number}
+ * @param angle @en The degree to convert @zh 角度
+ * @return {Number} The radian. @zh 弧度
  */
 export function degreesToRadians (angle: number) {
     return angle * macro.RAD;
@@ -195,8 +197,8 @@ export function degreesToRadians (angle: number) {
 /**
  * @en converts radians to degrees
  * @zh 弧度转角度
- * @param angle 弧度
- * @return {Number}
+ * @param angle @en The radian to convert @zh 弧度
+ * @return {Number} @en The degree @zh 角度
  */
 export function radiansToDegrees (angle) {
     return angle * macro.DEG;

@@ -27,7 +27,9 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 #include <functional>
+#include "audio/include/AudioDef.h"
 #include "audio/include/Export.h"
 #include "base/Macros.h"
 #include "base/std/container/list.h"
@@ -315,6 +317,23 @@ public:
      */
     static bool isEnabled();
 
+    /**
+     * @brief Get the PCMHeader of audio
+     * 
+     * @param url The file url of an audio. same as filePath
+     * @return PCMHeader of audio
+     */
+    static PCMHeader getPCMHeader(const char *url);
+
+    /**
+     * @brief Get the Buffer object
+     * 
+     * @param channelID as there might be several channels at same time, select one to get buffer. 
+     * Start from 0
+     * @return PCM datas behave as a ccstd::vector<char>. You can check byte length in PCMHeader.
+     */
+    static ccstd::vector<uint8_t> getOriginalPCMBuffer(const char *url, uint32_t channelID);
+
 protected:
     static void addTask(const std::function<void()> &task);
     static void remove(int audioID);
@@ -334,11 +353,11 @@ protected:
 
     struct AudioInfo {
         const ccstd::string *filePath;
-        ProfileHelper *      profileHelper;
+        ProfileHelper *profileHelper;
 
-        float      volume;
-        bool       loop;
-        float      duration;
+        float volume;
+        bool loop;
+        float duration;
         AudioState state;
 
         AudioInfo();
@@ -372,9 +391,9 @@ protected:
     static bool sIsEnabled;
 
 private:
-    static float              sVolumeFactor;
-    static uint32_t           sOnPauseListenerID;
-    static uint32_t           sOnResumeListenerID;
+    static float sVolumeFactor;
+    static uint32_t sOnPauseListenerID;
+    static uint32_t sOnResumeListenerID;
     static ccstd::vector<int> sBreakAudioID;
 
     static void onEnterBackground(const CustomEvent &);

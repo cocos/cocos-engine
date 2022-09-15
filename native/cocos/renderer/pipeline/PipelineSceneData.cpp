@@ -41,55 +41,62 @@ namespace cc {
 namespace pipeline {
 
 PipelineSceneData::PipelineSceneData() {
-    _fog     = new scene::Fog(); // cjh how to delete?
-    _ambient = new scene::Ambient();
-    _skybox  = new scene::Skybox();
-    _shadow  = new scene::Shadows();
-    _octree  = new scene::Octree();
+    _fog = ccnew scene::Fog();
+    _ambient = ccnew scene::Ambient();
+    _skybox = ccnew scene::Skybox();
+    _shadow = ccnew scene::Shadows();
+    _csmLayers = ccnew CSMLayers();
+    _octree = ccnew scene::Octree();
 }
 
 PipelineSceneData::~PipelineSceneData() {
-    CC_SAFE_DELETE(_fog); // cjh correct ?
+    CC_SAFE_DELETE(_fog);
     CC_SAFE_DELETE(_ambient);
     CC_SAFE_DELETE(_skybox);
     CC_SAFE_DELETE(_shadow);
     CC_SAFE_DELETE(_octree);
+    CC_SAFE_DELETE(_csmLayers);
 }
 
 void PipelineSceneData::activate(gfx::Device *device) {
     _device = device;
+
+#if CC_USE_GEOMETRY_RENDERER
     initGeometryRenderer();
+#endif
+
+#if CC_USE_DEBUG_RENDERER
     initDebugRenderer();
+#endif
+
+#if CC_USE_OCCLUSION_QUERY
     initOcclusionQuery();
+#endif
 }
 
 void PipelineSceneData::destroy() {
-    for (auto &pair : _shadowFrameBufferMap) {
-        pair.second->destroy();
-        delete pair.second;
-    }
-
     _shadowFrameBufferMap.clear();
     _validPunctualLights.clear();
 
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryInputAssembler);
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryVertexBuffer);
-    CC_SAFE_DESTROY_AND_DELETE(_occlusionQueryIndicesBuffer);
+    _occlusionQueryInputAssembler = nullptr;
+    _occlusionQueryVertexBuffer = nullptr;
+    _occlusionQueryIndicesBuffer = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
-    if (!_occlusionQueryInputAssembler) {
-        _occlusionQueryInputAssembler = createOcclusionQueryIA();
-    }
+    CC_ASSERT(!_occlusionQueryInputAssembler);
+    _occlusionQueryInputAssembler = createOcclusionQueryIA();
 
     if (!_occlusionQueryMaterial) {
-        _occlusionQueryMaterial = new Material();
+        _occlusionQueryMaterial = ccnew Material();
         _occlusionQueryMaterial->setUuid("default-occlusion-query-material");
         IMaterialInfo info;
-        info.effectName = "occlusion-query";
+        info.effectName = "builtin-occlusion-query";
         _occlusionQueryMaterial->initialize(info);
-        _occlusionQueryPass   = (*_occlusionQueryMaterial->getPasses())[0];
-        _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
+        if (!_occlusionQueryMaterial->getPasses()->empty()) {
+            _occlusionQueryPass = (*_occlusionQueryMaterial->getPasses())[0];
+            _occlusionQueryShader = _occlusionQueryPass->getShaderVariant();
+        }
     }
 }
 
@@ -99,15 +106,15 @@ void PipelineSceneData::initGeometryRenderer() {
     _geometryRendererShaders.reserve(GEOMETRY_RENDERER_TECHNIQUE_COUNT);
 
     for (uint32_t tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
-        _geometryRendererMaterials[tech] = new Material();
+        _geometryRendererMaterials[tech] = ccnew Material();
 
         std::stringstream ss;
         ss << "geometry-renderer-material-" << tech;
         _geometryRendererMaterials[tech]->setUuid(ss.str());
 
         IMaterialInfo materialInfo;
-        materialInfo.effectName = "geometry-renderer";
-        materialInfo.technique  = tech;
+        materialInfo.effectName = "builtin-geometry-renderer";
+        materialInfo.technique = tech;
         _geometryRendererMaterials[tech]->initialize(materialInfo);
 
         const auto &passes = _geometryRendererMaterials[tech]->getPasses().get();
@@ -120,30 +127,21 @@ void PipelineSceneData::initGeometryRenderer() {
 
 void PipelineSceneData::initDebugRenderer() {
     if (!_debugRendererMaterial) {
-        _debugRendererMaterial = new Material();
+        _debugRendererMaterial = ccnew Material();
         _debugRendererMaterial->setUuid("default-debug-renderer-material");
         IMaterialInfo info;
-        info.effectName = "debug-renderer";
+        info.effectName = "builtin-debug-renderer";
         _debugRendererMaterial->initialize(info);
-        _debugRendererPass   = (*_debugRendererMaterial->getPasses())[0];
+        _debugRendererPass = (*_debugRendererMaterial->getPasses())[0];
         _debugRendererShader = _debugRendererPass->getShaderVariant();
     }
-}
-
-scene::Pass *PipelineSceneData::getOcclusionQueryPass() {
-    if (_occlusionQueryMaterial) {
-        const auto &passes = *_occlusionQueryMaterial->getPasses();
-        return passes[0].get();
-    }
-
-    return nullptr;
 }
 
 gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     // create vertex buffer
     const float vertices[] = {-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1};
-    uint32_t    vbStride   = sizeof(float) * 3;
-    uint32_t    vbSize     = vbStride * 8;
+    uint32_t vbStride = sizeof(float) * 3;
+    uint32_t vbSize = vbStride * 8;
 
     _occlusionQueryVertexBuffer = _device->createBuffer(gfx::BufferInfo{
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
@@ -151,9 +149,9 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     _occlusionQueryVertexBuffer->update(vertices);
 
     // create index buffer
-    const uint16_t indices[]     = {0, 2, 1, 1, 2, 3, 4, 5, 6, 5, 7, 6, 1, 3, 7, 1, 7, 5, 0, 4, 6, 0, 6, 2, 0, 1, 5, 0, 5, 4, 2, 6, 7, 2, 7, 3};
-    uint32_t       ibStride      = sizeof(uint16_t);
-    uint32_t       ibSize        = ibStride * 36;
+    const uint16_t indices[] = {0, 2, 1, 1, 2, 3, 4, 5, 6, 5, 7, 6, 1, 3, 7, 1, 7, 5, 0, 4, 6, 0, 6, 2, 0, 1, 5, 0, 5, 4, 2, 6, 7, 2, 7, 3};
+    uint32_t ibStride = sizeof(uint16_t);
+    uint32_t ibSize = ibStride * 36;
     _occlusionQueryIndicesBuffer = _device->createBuffer(gfx::BufferInfo{
         gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});

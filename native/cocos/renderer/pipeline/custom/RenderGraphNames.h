@@ -48,30 +48,6 @@ inline const char* getName(const PersistentTextureTag& /*v*/) noexcept { return 
 inline const char* getName(const FramebufferTag& /*v*/) noexcept { return "Framebuffer"; }
 inline const char* getName(const SwapchainTag& /*v*/) noexcept { return "Swapchain"; }
 inline const char* getName(const ResourceGraph& /*v*/) noexcept { return "ResourceGraph"; }
-inline const char* getName(AttachmentType e) noexcept {
-    switch (e) {
-        case AttachmentType::RENDER_TARGET: return "RENDER_TARGET";
-        case AttachmentType::DEPTH_STENCIL: return "DEPTH_STENCIL";
-    }
-    return "";
-}
-inline const char* getName(AccessType e) noexcept {
-    switch (e) {
-        case AccessType::READ: return "READ";
-        case AccessType::READ_WRITE: return "READ_WRITE";
-        case AccessType::WRITE: return "WRITE";
-    }
-    return "";
-}
-inline const char* getName(const RasterView& /*v*/) noexcept { return "RasterView"; }
-inline const char* getName(ClearValueType e) noexcept {
-    switch (e) {
-        case ClearValueType::FLOAT_TYPE: return "FLOAT_TYPE";
-        case ClearValueType::INT_TYPE: return "INT_TYPE";
-    }
-    return "";
-}
-inline const char* getName(const ComputeView& /*v*/) noexcept { return "ComputeView"; }
 inline const char* getName(const RasterSubpass& /*v*/) noexcept { return "RasterSubpass"; }
 inline const char* getName(const SubpassGraph& /*v*/) noexcept { return "SubpassGraph"; }
 inline const char* getName(const RasterPass& /*v*/) noexcept { return "RasterPass"; }
@@ -86,6 +62,9 @@ inline const char* getName(const SceneTag& /*v*/) noexcept { return "Scene"; }
 inline const char* getName(const DispatchTag& /*v*/) noexcept { return "Dispatch"; }
 inline const char* getName(const BlitTag& /*v*/) noexcept { return "Blit"; }
 inline const char* getName(const PresentTag& /*v*/) noexcept { return "Present"; }
+inline const char* getName(const ClearTag& /*v*/) noexcept { return "Clear"; }
+inline const char* getName(const ViewportTag& /*v*/) noexcept { return "Viewport"; }
+inline const char* getName(const ClearView& /*v*/) noexcept { return "ClearView"; }
 inline const char* getName(const RenderQueue& /*v*/) noexcept { return "RenderQueue"; }
 inline const char* getName(const SceneData& /*v*/) noexcept { return "SceneData"; }
 inline const char* getName(const Dispatch& /*v*/) noexcept { return "Dispatch"; }

@@ -1,15 +1,38 @@
-/**
- * @packageDocumentation
- * @module dragonBones
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { BoneType, BinaryOffset, Slot } from '@cocos/dragonbones-js';
-import { Color, Mat4, Texture2D } from '../core';
+import { Texture2D } from '../asset/assets';
+import { Color, Mat4 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureData } from './CCTextureData';
 
 // @skipLibCheck
-
+/**
+* @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
+*/
 @ccclass('dragonBones.CCSlot')
 export class CCSlot extends Slot {
     static toString () {
@@ -17,28 +40,39 @@ export class CCSlot extends Slot {
     }
 
     /**
-     * @legacyPublic
+     * @en Vertices in local coordinate system.
+     * @zh 局部坐标顶点数据
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _localVertices: number[];
 
     /**
-     * @legacyPublic
+     * @en Indices array of vertex data
+     * @zh 顶点数组索引
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _indices: number[];
 
     /**
-     * @legacyPublic
+     * @en Local transformation matrix
+     * @zh 局部坐标系变换矩阵
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _matrix: Mat4;
 
     /**
-     * @legacyPublic
+     * @en World transformation matrix
+     * @zh 世界坐标系变换矩阵
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _worldMatrix: Mat4;
+
     protected _worldMatrixDirty: boolean;
 
     /**
-     * @legacyPublic
+     * @en Color setting on a slot
+     * @zh 设置在 Slot 上的颜色
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _color: Color;
 

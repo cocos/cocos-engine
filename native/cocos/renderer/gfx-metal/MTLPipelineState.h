@@ -42,7 +42,7 @@ public:
     explicit CCMTLPipelineState();
     ~CCMTLPipelineState();
     CCMTLPipelineState(const CCMTLPipelineState &) = delete;
-    CCMTLPipelineState(CCMTLPipelineState &&)      = delete;
+    CCMTLPipelineState(CCMTLPipelineState &&) = delete;
     CCMTLPipelineState &operator=(const CCMTLPipelineState &) = delete;
     CCMTLPipelineState &operator=(CCMTLPipelineState &&) = delete;
 
@@ -64,11 +64,11 @@ protected:
     void setBlendStates(MTLRenderPipelineDescriptor *);
     bool createMTLRenderPipeline(MTLRenderPipelineDescriptor *);
 
-    bool                        _renderPipelineReady    = false;
-    id<MTLRenderPipelineState>  _mtlRenderPipelineState = nil;
-    id<MTLDepthStencilState>    _mtlDepthStencilState   = nil;
-    id<MTLComputePipelineState> _mtlComputePipeline     = nil;
-    CCMTLGPUPipelineState *     _GPUPipelineState       = nullptr;
+    bool _renderPipelineReady = false;
+    id<MTLRenderPipelineState> _mtlRenderPipelineState = nil;
+    id<MTLDepthStencilState> _mtlDepthStencilState = nil;
+    id<MTLComputePipelineState> _mtlComputePipeline = nil;
+    CCMTLGPUPipelineState *_GPUPipelineState = nullptr;
 };
 
 } // namespace gfx

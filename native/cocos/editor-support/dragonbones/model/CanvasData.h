@@ -30,8 +30,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class CanvasData : public BaseObject
-{
+class CanvasData : public BaseObject {
     BIND_CLASS_TYPE_A(CanvasData);
 
 public:

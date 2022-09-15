@@ -49,5 +49,3 @@ export default function (parent: Node, steps = 300) {
     parent.destroyAllChildren();
     parent.removeAllChildren();
 }
-
-

@@ -24,17 +24,11 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, disallowMultiple, executeInEditMode,
     executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../core/components/camera-component';
 import { Widget } from '../../ui/widget';
-import { game } from '../../core/game';
 import { Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
 import { legacyCC } from '../../core/global-exports';
@@ -82,7 +76,7 @@ export class Canvas extends RenderRoot2D {
      * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
      * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
      *
-     * @deprecated since v3.0, please use [[cameraComponent.priority]] to control overlapping between cameras.
+     * @deprecated since v3.0, please use [[Camera.priority]] to control overlapping between cameras.
      */
     get renderMode () {
         return this._renderMode;

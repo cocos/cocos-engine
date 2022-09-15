@@ -26,12 +26,22 @@
 #import "platform/ios/AppDelegateBridge.h"
 #include "platform/ios/IOSPlatform.h"
 #include "platform/interfaces/modules/IScreen.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 @implementation AppDelegateBridge
 cc::IOSPlatform *_platform = nullptr;
 - (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     _platform = dynamic_cast<cc::IOSPlatform *>(cc::BasePlatform::getPlatform());
-    CCASSERT(_platform != nullptr, "Platform pointer can't be null");
+    CC_ASSERT(_platform != nullptr);
+    
+    // Create main system window
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+    cc::ISystemWindowInfo info;
+    info.width  = static_cast<int32_t>(bounds.size.width);
+    info.height = static_cast<int32_t>(bounds.size.height);
+    auto *windowMgr = _platform->getInterface<cc::ISystemWindowManager>();
+    windowMgr->createWindow(info);
+    
     _platform->loop();
 }
 
@@ -45,7 +55,7 @@ cc::IOSPlatform *_platform = nullptr;
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     _platform->onClose();
-    _platform->onDestory();
+    _platform->onDestroy();
     _platform = nullptr;
 }
 
@@ -55,14 +65,13 @@ cc::IOSPlatform *_platform = nullptr;
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
     cc::DeviceEvent ev;
-    ev.type = cc::DeviceEvent::Type::DEVICE_MEMORY;
+    ev.type = cc::DeviceEvent::Type::MEMORY;
     _platform->dispatchEvent(ev);
 }
 
-
 - (float)getPixelRatio {
-    cc::BasePlatform* platform = cc::BasePlatform::getPlatform();
-    cc::IScreen* screenIntf = platform->getInterface<cc::IScreen>();
+    cc::BasePlatform *platform = cc::BasePlatform::getPlatform();
+    cc::IScreen *screenIntf = platform->getInterface<cc::IScreen>();
     return (float)screenIntf->getDevicePixelRatio();
 }
 
@@ -88,14 +97,15 @@ cc::IOSPlatform *_platform = nullptr;
             break;
     }
     cc::DeviceEvent ev;
-    cc::BasePlatform* platform = cc::BasePlatform::getPlatform();
-    cc::IScreen* screenIntf = platform->getInterface<cc::IScreen>();
-    ev.type           = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
+    cc::BasePlatform *platform = cc::BasePlatform::getPlatform();
+    cc::IScreen *screenIntf = platform->getInterface<cc::IScreen>();
+    ev.type = cc::DeviceEvent::Type::ORIENTATION;
     ev.args[0].intVal = static_cast<int>(screenIntf->getDeviceOrientation());
     _platform->dispatchEvent(ev);
 
     float pixelRatio = screenIntf->getDevicePixelRatio();
     cc::WindowEvent resizeEv;
+    resizeEv.windowId = 1;
     resizeEv.type = cc::WindowEvent::Type::RESIZED;
     resizeEv.width = size.width * pixelRatio;
     resizeEv.height = size.height * pixelRatio;
@@ -104,15 +114,15 @@ cc::IOSPlatform *_platform = nullptr;
 
 - (void)dispatchTouchEvent:(cc::TouchEvent::Type)type touches:(NSSet *)touches withEvent:(UIEvent *)event {
     cc::TouchEvent touchEvent;
+    touchEvent.windowId = 1;
     touchEvent.type = type;
     for (UITouch *touch in touches) {
         touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
                                       static_cast<float>([touch locationInView:[touch view]].y),
                                       static_cast<int>((intptr_t)touch)});
     }
-    _platform->dispatchEvent(touchEvent);
+    _platform->dispatchTouchEvent(touchEvent);
     touchEvent.touches.clear();
 }
 
 @end
-

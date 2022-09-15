@@ -35,16 +35,16 @@ RenderStage::RenderStage()
 RenderStage::~RenderStage() = default;
 
 bool RenderStage::initialize(const RenderStageInfo &info) {
-    _name     = info.name;
+    _name = info.name;
     _priority = info.priority;
-    _tag      = info.tag;
+    _tag = info.tag;
 
     return true;
 }
 
 void RenderStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     _pipeline = pipeline;
-    _flow     = flow;
+    _flow = flow;
 }
 
 void RenderStage::destroy() {

@@ -26,11 +26,12 @@
 #pragma once
 
 #include "GLES3Std.h"
-#include "base/Any.h"
+#include "base/std/any.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
 namespace cc {
+class IXRInterface;
 namespace gfx {
 
 class GLES3GPUContext;
@@ -70,16 +71,26 @@ public:
 
     inline const GLESBindingMapping &bindingMappings() const { return _bindingMappings; }
 
-    inline GLES3GPUContext *            context() const { return _gpuContext; }
-    inline GLES3GPUStateCache *         stateCache() const { return _gpuStateCache; }
-    inline GLES3GPUFramebufferHub *     framebufferHub() const { return _gpuFramebufferHub; }
-    inline GLES3GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
+    inline GLES3GPUContext *context() const { return _gpuContext; }
+    inline GLES3GPUStateCache *stateCache() const { return _gpuStateCache; }
+    inline GLES3GPUFramebufferHub *framebufferHub() const { return _gpuFramebufferHub; }
+    inline GLES3GPUConstantRegistry *constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const ccstd::string &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
             return ext.find(extension) != ccstd::string::npos;
         });
+    }
+
+    inline uint8_t *getStagingBuffer(uint32_t size = 0) {
+        if (size > _stagingBufferSize) {
+            CC_FREE(_stagingBuffer);
+            _stagingBuffer = static_cast<uint8_t *>(CC_MALLOC(size));
+            _stagingBufferSize = size;
+        }
+
+        return _stagingBuffer;
     }
 
     inline bool isTextureExclusive(const Format &format) { return _textureExclusive[static_cast<size_t>(format)]; };
@@ -91,24 +102,24 @@ protected:
 
     GLES3Device();
 
-    bool                 doInit(const DeviceInfo &info) override;
-    void                 doDestroy() override;
-    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Queue *              createQueue() override;
-    QueryPool *          createQueryPool() override;
-    Swapchain *          createSwapchain() override;
-    Buffer *             createBuffer() override;
-    Texture *            createTexture() override;
-    Shader *             createShader() override;
-    InputAssembler *     createInputAssembler() override;
-    RenderPass *         createRenderPass() override;
-    Framebuffer *        createFramebuffer() override;
-    DescriptorSet *      createDescriptorSet() override;
+    bool doInit(const DeviceInfo &info) override;
+    void doDestroy() override;
+    CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *createQueue() override;
+    QueryPool *createQueryPool() override;
+    Swapchain *createSwapchain() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout *     createPipelineLayout() override;
-    PipelineState *      createPipelineState() override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
 
-    Sampler *       createSampler(const SamplerInfo &info) override;
+    Sampler *createSampler(const SamplerInfo &info) override;
     GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
@@ -119,10 +130,10 @@ protected:
 
     void initFormatFeature();
 
-    GLES3GPUContext *            _gpuContext{nullptr};
-    GLES3GPUStateCache *         _gpuStateCache{nullptr};
-    GLES3GPUFramebufferHub *     _gpuFramebufferHub{nullptr};
-    GLES3GPUConstantRegistry *   _gpuConstantRegistry{nullptr};
+    GLES3GPUContext *_gpuContext{nullptr};
+    GLES3GPUStateCache *_gpuStateCache{nullptr};
+    GLES3GPUFramebufferHub *_gpuFramebufferHub{nullptr};
+    GLES3GPUConstantRegistry *_gpuConstantRegistry{nullptr};
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 
     ccstd::vector<GLES3GPUSwapchain *> _swapchains;
@@ -132,6 +143,11 @@ protected:
     ccstd::vector<ccstd::string> _extensions;
 
     ccstd::array<bool, static_cast<size_t>(Format::COUNT)> _textureExclusive;
+
+    uint8_t *_stagingBuffer{nullptr};
+    uint32_t _stagingBufferSize{0};
+
+    IXRInterface *_xr{nullptr};
 };
 
 } // namespace gfx

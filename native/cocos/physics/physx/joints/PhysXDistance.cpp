@@ -31,9 +31,6 @@
 namespace cc {
 namespace physics {
 
-PhysXDistance::PhysXDistance() : _mPivotA(physx::PxZero),
-                                 _mPivotB(physx::PxZero) {}
-
 void PhysXDistance::onComponentSet() {
     _mJoint = PxDistanceJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
 }
@@ -59,7 +56,7 @@ void PhysXDistance::updateScale1() {
 void PhysXDistance::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
-    auto *             node0 = _mSharedBody->getNode();
+    auto *node0 = _mSharedBody->getNode();
     node0->updateWorldTransform();
     pose0.p = _mPivotA * node0->getWorldScale();
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, pose0);

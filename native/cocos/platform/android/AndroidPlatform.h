@@ -25,24 +25,49 @@
 
 #pragma once
 
+#include "base/Timer.h"
 #include "platform/UniversalPlatform.h"
 
+struct android_app;
+
 namespace cc {
-class JniNativeGlue;
+class GameInputProxy;
+
 class CC_DLL AndroidPlatform : public UniversalPlatform {
 public:
-    AndroidPlatform();
+    AndroidPlatform() = default;
+
+    ~AndroidPlatform() override;
+
     int init() override;
-    void    pollEvent() override;
+
+    void pollEvent() override;
+
     int32_t run(int argc, const char **argv) override;
-    int     getSdkVersion() const override;
+
+    int getSdkVersion() const override;
+
     int32_t loop() override;
-    void*   getActivity();
-    void*   getEnv();
+
+    void *getActivity();
+
+    static void *getEnv();
+
+    void onDestroy() override;
+
+    inline void setAndroidApp(android_app *app) {
+        _app = app;
+    }
+
+    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:
-    void waitWindowInitialized();
+    bool _isLowFrequencyLoopEnabled{false};
+    utils::Timer _lowFrequencyTimer;
+    int _loopTimeOut{-1};
+    GameInputProxy *_inputProxy{nullptr};
+    android_app *_app{nullptr};
 
-    JniNativeGlue *_jniNativeGlue;
+    friend class GameInputProxy;
 };
 } // namespace cc

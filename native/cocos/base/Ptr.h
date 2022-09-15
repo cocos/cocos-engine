@@ -37,13 +37,13 @@
 //   };
 //
 //   void some_function() {
-//     IntrusivePtr<MyFoo> foo = new MyFoo();
+//     IntrusivePtr<MyFoo> foo = ccnew MyFoo();
 //     foo->Method(param);
 //     // `foo` is released when this function returns
 //   }
 //
 //   void some_other_function() {
-//     IntrusivePtr<MyFoo> foo = new MyFoo();
+//     IntrusivePtr<MyFoo> foo = ccnew MyFoo();
 //     ...
 //     foo = nullptr;  // explicitly releases `foo`
 //     ...
@@ -56,7 +56,7 @@
 // references between the two objects, like so:
 //
 //   {
-//     IntrusivePtr<MyFoo> a = new MyFoo();
+//     IntrusivePtr<MyFoo> a = ccnew MyFoo();
 //     IntrusivePtr<MyFoo> b;
 //
 //     b.swap(a);
@@ -67,7 +67,7 @@
 // object, simply use the assignment operator:
 //
 //   {
-//     IntrusivePtr<MyFoo> a = new MyFoo();
+//     IntrusivePtr<MyFoo> a = ccnew MyFoo();
 //     IntrusivePtr<MyFoo> b;
 //
 //     b = a;
@@ -123,21 +123,14 @@ public:
     }
 
     T *get() const { return _ptr; }
-       operator T *() const { return _ptr; } // NOLINT
+    operator T *() const { return _ptr; } // NOLINT
     T &operator*() const { return *_ptr; }
     T *operator->() const { return _ptr; }
 
     // As reference count is 1 after creating a RefCounted object, so do not have to
     // invoke p->addRef();
     IntrusivePtr<T> &operator=(T *p) {
-        // AddRef first so that self assignment should work
-        if (p) {
-            p->addRef();
-        }
-        if (_ptr) {
-            _ptr->release();
-        }
-        _ptr = p;
+        reset(p);
         return *this;
     }
 
@@ -177,10 +170,28 @@ public:
         return _ptr != r;
     }
 
+    void reset() noexcept {
+        if (_ptr) {
+            _ptr->release();
+        }
+        _ptr = nullptr;
+    }
+
+    void reset(T *p) {
+        // AddRef first so that self assignment should work
+        if (p) {
+            p->addRef();
+        }
+        if (_ptr) {
+            _ptr->release();
+        }
+        _ptr = p;
+    }
+
     void swap(T **pp) noexcept {
         T *p = _ptr;
         _ptr = *pp;
-        *pp  = p;
+        *pp = p;
     }
 
     void swap(IntrusivePtr<T> &r) noexcept { swap(&r._ptr); }
@@ -193,7 +204,7 @@ private:
     // calling Release() once on the object when no longer using it.
     T *release() {
         T *retVal = _ptr;
-        _ptr      = nullptr;
+        _ptr = nullptr;
         return retVal;
     }
 

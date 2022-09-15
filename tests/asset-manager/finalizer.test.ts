@@ -1,8 +1,8 @@
 import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
 import { Sprite } from "../../cocos/2d/components/sprite";
-import { assetManager, loader } from "../../cocos/core/asset-manager";
-import releaseManager from "../../cocos/core/asset-manager/release-manager";
-import { Texture2D } from "../../cocos/core/assets/texture-2d";
+import { assetManager, loader } from "../../cocos/asset/asset-manager";
+import releaseManager from "../../cocos/asset/asset-manager/release-manager";
+import { Texture2D } from "../../cocos/asset/assets/texture-2d";
 import { isValid } from "../../cocos/core/data/object";
 import { Scene, Node } from "../../cocos/core/scene-graph";
 
@@ -276,6 +276,21 @@ describe('releaseManager', () => {
         // @ts-expect-error set private property
         releaseManager._freeAssets();
         expect(assetManager.assets.count).toBe(0);
+    });
+
+    test('Dont destroy', function () {
+        const tex = new Texture2D();
+        tex._uuid = 'TestDontDestroy';
+        releaseManager.addIgnoredAsset(tex);
+        assetManager.assets.add('TestDontDestroy', tex);
+        expect(isValid(tex, true)).toBeTruthy();
+        // @ts-ignore
+        releaseManager._free(tex, false);
+        expect(assetManager.assets.count).toBe(1);
+        expect(isValid(tex, true)).toBeTruthy();
+        assetManager.releaseAsset(tex);
+        expect(assetManager.assets.count).toBe(1);
+        expect(isValid(tex, true)).toBeTruthy();
     });
 
 });

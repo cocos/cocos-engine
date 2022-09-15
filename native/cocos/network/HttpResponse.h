@@ -70,18 +70,6 @@ public:
         }
     }
 
-    /**
-     * Override autorelease method to prevent developers from calling it.
-     * If this method is called , it would trigger CCASSERT.
-     * @return cc::Ref* always return nullptr.
-     */
-    cc::RefCounted *autorelease() {
-        CCASSERT(false,
-                 "HttpResponse is used between network thread and ui thread \
-                        therefore, autorelease is forbidden here");
-        return nullptr;
-    }
-
     // getters, will be called by users
 
     /**
@@ -205,13 +193,13 @@ protected:
     bool initWithRequest(HttpRequest *request);
 
     // properties
-    HttpRequest *       _pHttpRequest;       /// the corresponding HttpRequest pointer who leads to this response
-    bool                _succeed;            /// to indicate if the http request is successful simply
-    ccstd::vector<char> _responseData;       /// the returned raw data. You can also dump it as a string
-    ccstd::vector<char> _responseHeader;     /// the returned raw header data. You can also dump it as a string
-    long                _responseCode;       /// the status code returned from libcurl, e.g. 200, 404
-    ccstd::string       _errorBuffer;        /// if _responseCode != 200, please read _errorBuffer to find the reason
-    ccstd::string       _responseDataString; // the returned raw data. You can also dump it as a string
+    HttpRequest *_pHttpRequest;          /// the corresponding HttpRequest pointer who leads to this response
+    bool _succeed;                       /// to indicate if the http request is successful simply
+    ccstd::vector<char> _responseData;   /// the returned raw data. You can also dump it as a string
+    ccstd::vector<char> _responseHeader; /// the returned raw header data. You can also dump it as a string
+    long _responseCode;                  /// the status code returned from libcurl, e.g. 200, 404
+    ccstd::string _errorBuffer;          /// if _responseCode != 200, please read _errorBuffer to find the reason
+    ccstd::string _responseDataString;   // the returned raw data. You can also dump it as a string
 };
 
 } // namespace network

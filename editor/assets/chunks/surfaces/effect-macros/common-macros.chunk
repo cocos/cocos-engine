@@ -1,0 +1,61 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+#pragma define-meta USE_INSTANCING editor(elevated: true)
+#pragma define-meta USE_BATCHING editor(elevated: true)
+// these two macros must be non-const
+// use #pragma define to rename a macro with editor flag
+//#pragma define CC_SURFACES_USE_INSTANCING USE_INSTANCING
+//#pragma define CC_SURFACES_USE_BATCHING USE_BATCHING
+
+
+
+// all material->internal macros
+// varying-dependent macros
+#ifndef CC_SURFACES_USE_SECOND_UV
+  #define CC_SURFACES_USE_SECOND_UV 0
+#endif
+#ifndef CC_SURFACES_USE_TANGENT_SPACE
+  #define CC_SURFACES_USE_TANGENT_SPACE 0
+#endif
+#ifndef CC_SURFACES_USE_VERTEX_COLOR
+  #define CC_SURFACES_USE_VERTEX_COLOR 0
+#endif
+#ifndef CC_SURFACES_TRANSFER_LOCAL_POS
+  #define CC_SURFACES_TRANSFER_LOCAL_POS 0
+#endif
+
+// Can force CC_SURFACES_USE_LIGHT_MAP to 0, can not force to 1
+#if CC_USE_LIGHTMAP
+  #ifndef CC_SURFACES_USE_LIGHT_MAP
+    #define CC_SURFACES_USE_LIGHT_MAP 1
+  #endif
+#else
+  #ifndef CC_SURFACES_USE_LIGHT_MAP
+    #define CC_SURFACES_USE_LIGHT_MAP 0
+  #endif
+#endif
+
+// varying-undependent macros
+#ifndef CC_SURFACES_FLIP_UV
+  #define CC_SURFACES_FLIP_UV 0
+#endif
+#ifndef CC_SURFACES_USE_TWO_SIDED
+  #define CC_SURFACES_USE_TWO_SIDED 0
+#endif
+#ifndef CC_SURFACES_USE_REFLECTION_DENOISE
+  #define CC_SURFACES_USE_REFLECTION_DENOISE 0
+#endif
+#ifndef CC_SURFACES_LIGHTING_ANISOTROPIC
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC 0
+#endif
+#ifndef CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 0
+#endif
+#ifndef CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
+  #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING 0
+#endif
+
+// render-to-color-map can disable functionality to avoid error data map
+#ifndef CC_SURFACES_ENABLE_DEBUG_VIEW
+  #define CC_SURFACES_ENABLE_DEBUG_VIEW 1
+#endif

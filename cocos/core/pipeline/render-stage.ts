@@ -23,17 +23,12 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { ccclass, displayOrder, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
 import { RenderFlow } from './render-flow';
 import { RenderQueueDesc } from './pipeline-serialization';
-import { Camera } from '../renderer/scene';
+import { Camera } from '../../render-scene/scene';
 
 /**
  * @en The render stage information descriptor
@@ -47,10 +42,10 @@ export interface IRenderStageInfo {
 }
 
 /**
- * @en The render stage actually renders render objects to the output window or other GFX [[FrameBuffer]].
+ * @en The render stage actually renders render objects to the output window or other GFX [[gfx.Framebuffer]].
  * Typically, a render stage collects render objects it's responsible for, clear the camera,
  * record and execute command buffer, and at last present the render result.
- * @zh 渲染阶段是实质上的渲染执行者，它负责收集渲染数据并执行渲染将渲染结果输出到屏幕或其他 GFX [[FrameBuffer]] 中。
+ * @zh 渲染阶段是实质上的渲染执行者，它负责收集渲染数据并执行渲染将渲染结果输出到屏幕或其他 GFX [[gfx.Framebuffer]] 中。
  * 典型的渲染阶段会收集它所管理的渲染对象，按照 [[Camera]] 的清除标记进行清屏，记录并执行渲染指令缓存，并最终呈现渲染结果。
  */
 @ccclass('RenderStage')

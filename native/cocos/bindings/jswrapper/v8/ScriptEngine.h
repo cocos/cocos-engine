@@ -83,7 +83,11 @@ public:
     /**
      *  @brief Destroys the instance of script engine.
      */
+    CC_DEPRECATED(3.6.0)
     static void destroyInstance();
+
+    ScriptEngine();
+    ~ScriptEngine();
 
     /**
      *  @brief Gets the global object of JavaScript VM.
@@ -171,12 +175,12 @@ public:
     /**
      *  @brief Executes a utf-8 string buffer which contains JavaScript code.
      *  @param[in] script A utf-8 string buffer, if it isn't null-terminated, parameter `length` should be assigned and > 0.
-     *  @param[in] length The length of parameter `scriptStr`, it will be set to string length internally if passing < 0 and parameter `scriptStr` is null-terminated.
+     *  @param[in] length The length of parameter `scriptStr`, it will be set to string length internally if passing 0 and parameter `scriptStr` is null-terminated.
      *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
      *  @param[in] fileName A string containing a URL for the script's source file. This is used by debuggers and when reporting exceptions. Pass NULL if you do not care to include source file information.
      *  @return true if succeed, otherwise false.
      */
-    bool evalString(const char *script, ssize_t length = -1, Value *ret = nullptr, const char *fileName = nullptr);
+    bool evalString(const char *script, uint32_t length = 0, Value *ret = nullptr, const char *fileName = nullptr);
 
     /**
      *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.
@@ -332,22 +336,32 @@ public:
         VMStringPool();
         ~VMStringPool();
         v8::MaybeLocal<v8::String> get(v8::Isolate *isolate, const char *name);
-        void                       clear();
+        void clear();
 
     private:
         ccstd::unordered_map<ccstd::string, v8::Persistent<v8::String> *> _vmStringPoolMap;
     };
 
-    inline VMStringPool &  _getStringPool() { return _stringPool; }         // NOLINT(readability-identifier-naming)
-    void                   _retainScriptObject(void *owner, void *target);  // NOLINT(readability-identifier-naming)
-    void                   _releaseScriptObject(void *owner, void *target); // NOLINT(readability-identifier-naming)
-    v8::Local<v8::Context> _getContext() const;                             // NOLINT(readability-identifier-naming)
-    void                   _setGarbageCollecting(bool isGarbageCollecting); // NOLINT(readability-identifier-naming)
+    inline VMStringPool &_getStringPool() { return _stringPool; } // NOLINT(readability-identifier-naming)
+    void _retainScriptObject(void *owner, void *target);          // NOLINT(readability-identifier-naming)
+    void _releaseScriptObject(void *owner, void *target);         // NOLINT(readability-identifier-naming)
+    v8::Local<v8::Context> _getContext() const;                   // NOLINT(readability-identifier-naming)
+    void _setGarbageCollecting(bool isGarbageCollecting);         // NOLINT(readability-identifier-naming)
 
+    struct DebuggerInfo {
+        ccstd::string serverAddr;
+        uint32_t port{0};
+        bool isWait{false};
+        inline bool isValid() const { return !serverAddr.empty() && port != 0; }
+        inline void reset() {
+            serverAddr.clear();
+            port = 0;
+            isWait = false;
+        }
+    };
+    static void _setDebuggerInfo(const DebuggerInfo &info); // NOLINT(readability-identifier-naming)
     //
 private:
-    ScriptEngine();
-    ~ScriptEngine();
     static void privateDataFinalize(PrivateObjectBase *privateObj);
     static void onFatalErrorCallback(const char *location, const char *message);
     static void onOOMErrorCallback(const char *location, bool isHeapOom);
@@ -372,27 +386,31 @@ private:
     // Push promise and exception msg to _promiseArray
     void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
 
+    static ScriptEngine *instance;
+
+    static DebuggerInfo debuggerInfo;
+
     ccstd::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, ccstd::vector<PromiseExceptionMsg>>> _promiseArray;
 
     std::chrono::steady_clock::time_point _startTime;
-    ccstd::vector<RegisterCallback>       _registerCallbackArray;
-    ccstd::vector<RegisterCallback>       _permRegisterCallbackArray;
-    ccstd::vector<std::function<void()>>  _beforeInitHookArray;
-    ccstd::vector<std::function<void()>>  _afterInitHookArray;
-    ccstd::vector<std::function<void()>>  _beforeCleanupHookArray;
-    ccstd::vector<std::function<void()>>  _afterCleanupHookArray;
+    ccstd::vector<RegisterCallback> _registerCallbackArray;
+    ccstd::vector<RegisterCallback> _permRegisterCallbackArray;
+    ccstd::vector<std::function<void()>> _beforeInitHookArray;
+    ccstd::vector<std::function<void()>> _afterInitHookArray;
+    ccstd::vector<std::function<void()>> _beforeCleanupHookArray;
+    ccstd::vector<std::function<void()>> _afterCleanupHookArray;
 
     v8::Persistent<v8::Context> _context;
 
-    v8::Isolate *    _isolate;
+    v8::Isolate *_isolate;
     v8::HandleScope *_handleScope;
-    Object *         _globalObj;
-    Value            _gcFuncValue;
-    Object *         _gcFunc = nullptr;
+    Object *_globalObj;
+    Value _gcFuncValue;
+    Object *_gcFunc = nullptr;
 
     FileOperationDelegate _fileOperationDelegate;
-    ExceptionCallback     _nativeExceptionCallback = nullptr;
-    ExceptionCallback     _jsExceptionCallback     = nullptr;
+    ExceptionCallback _nativeExceptionCallback = nullptr;
+    ExceptionCallback _jsExceptionCallback = nullptr;
 
     #if SE_ENABLE_INSPECTOR
     node::Environment *_env;
@@ -401,10 +419,10 @@ private:
     VMStringPool _stringPool;
 
     std::thread::id _engineThreadId;
-    ccstd::string   _lastStackTrace;
-    ccstd::string   _debuggerServerAddr;
-    uint32_t        _debuggerServerPort;
-    bool            _isWaitForConnect;
+    ccstd::string _lastStackTrace;
+    ccstd::string _debuggerServerAddr;
+    uint32_t _debuggerServerPort;
+    bool _isWaitForConnect;
 
     uint32_t _vmId;
 

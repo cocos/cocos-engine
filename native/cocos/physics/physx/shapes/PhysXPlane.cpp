@@ -54,8 +54,8 @@ void PhysXPlane::updateScale() {
 }
 
 void PhysXPlane::updateCenter() {
-    auto *             node = getSharedBody().getNode();
-    auto &             geo  = getPxGeometry<physx::PxPlaneGeometry>();
+    auto* node = getSharedBody().getNode();
+    auto& geo = getPxGeometry<physx::PxPlaneGeometry>();
     physx::PxTransform local;
     pxSetFromTwoVectors(local.q, physx::PxVec3{1.F, 0.F, 0.F}, _mNormal);
     local.p = _mNormal * _mConstant + _mCenter;

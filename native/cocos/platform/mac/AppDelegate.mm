@@ -30,7 +30,6 @@
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "platform/mac/MacPlatform.h"
 
-
 @interface AppDelegate () {
     NSWindow* _window;
     //    Game*     _game;
@@ -41,42 +40,51 @@
 @implementation AppDelegate
 
 - (void)createLeftBottomWindow:(NSString*)title width:(int)w height:(int)h {
-    [self createWindow :title xPos:0 yPos:0 width:w height:h];
+    [self createWindow:title xPos:0 yPos:0 width:w height:h];
 }
 
-- (void)createWindow:(NSString*)title xPos:(int)x yPos:(int)y width:(int)w height:(int)h {
-    _window.title = title;
-    NSRect rect   = NSMakeRect(x, y, w, h);
-    _window       = [[NSWindow alloc] initWithContentRect:rect
+- (NSWindow*)createWindow:(NSString*)title xPos:(int)x yPos:(int)y width:(int)w height:(int)h {
+    //_window.title = title;
+    NSRect rect = NSMakeRect(x, y, w, h);
+    NSWindow* window = [[NSWindow alloc] initWithContentRect:rect
                                           styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                                             backing:NSBackingStoreBuffered
                                               defer:NO];
-    if (!_window) {
+    if (!window) {
         NSLog(@"Failed to allocated the window.");
-        return;
+        return nullptr;
     }
+    
     ViewController* viewController = [[ViewController alloc] initWithSize:rect];
-    _window.contentViewController  = viewController;
-    _window.contentView            = viewController.view;
-    [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
-    [_window makeKeyAndOrderFront:nil];
+    window.contentViewController = viewController;
+    window.contentView = viewController.view;
+    [viewController release];
+    viewController = nil;
+    
+    window.title = title;
+    [window.contentView setWantsBestResolutionOpenGLSurface:YES];
+    [window makeKeyAndOrderFront:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowWillMiniaturizeNotification)
                                                  name:NSWindowWillMiniaturizeNotification
-                                               object:_window];
+                                               object:window];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowDidDeminiaturizeNotification)
                                                  name:NSWindowDidDeminiaturizeNotification
-                                               object:_window];
+                                               object:window];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowWillCloseNotification)
                                                  name:NSWindowWillCloseNotification
-                                               object:_window];
+                                               object:window];
+    if (!_window) {
+        _window = window;
+    }
+    return window;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
     _platform = dynamic_cast<cc::MacPlatform*>(cc::BasePlatform::getPlatform());
-    CCASSERT(_platform != nullptr, "Platform pointer can't be null");
+    CC_ASSERT(_platform != nullptr);
     _platform->loop();
 }
 
@@ -100,7 +108,7 @@
     //    delete _game;
     //FIXME: will crash if relase it here.
     // [_window release];
-    _platform->onDestory();
+    _platform->onDestroy();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication {

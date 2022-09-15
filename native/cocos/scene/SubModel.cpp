@@ -41,8 +41,7 @@ SubModel::SubModel() {
     _id = generateId();
 }
 
-const static uint32_t  MAX_PASS_COUNT = 8;
-gfx::DescriptorSetInfo dsInfo         = gfx::DescriptorSetInfo();
+const static uint32_t MAX_PASS_COUNT = 8;
 
 void SubModel::update() {
     const auto &passes = *_passes;
@@ -50,7 +49,10 @@ void SubModel::update() {
         pass->update();
     }
     _descriptorSet->update();
-    _worldBoundDescriptorSet->update();
+
+    if (_worldBoundDescriptorSet) {
+        _worldBoundDescriptorSet->update();
+    }
 }
 
 void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses) {
@@ -69,12 +71,13 @@ void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>
     // DS layout might change too
     if (_descriptorSet) {
         _descriptorSet->destroy();
-        dsInfo.layout  = passes[0]->getLocalSetLayout();
+        gfx::DescriptorSetInfo dsInfo;
+        dsInfo.layout = passes[0]->getLocalSetLayout();
         _descriptorSet = _device->createDescriptorSet(dsInfo);
     }
 }
 
-gfx::Shader *SubModel::getShader(uint index) const {
+gfx::Shader *SubModel::getShader(uint32_t index) const {
     if (index >= _shaders.size()) {
         return nullptr;
     }
@@ -82,7 +85,7 @@ gfx::Shader *SubModel::getShader(uint index) const {
     return _shaders[index];
 }
 
-Pass *SubModel::getPass(uint index) const {
+Pass *SubModel::getPass(uint32_t index) const {
     auto &passes = *_passes;
     if (index >= passes.size()) {
         return nullptr;
@@ -93,19 +96,23 @@ Pass *SubModel::getPass(uint index) const {
 
 void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses, const ccstd::vector<IMacroPatch> &patches) {
     _device = Root::getInstance()->getDevice();
-    if (!pPasses->empty()) {
-        dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
+    CC_ASSERT(!pPasses->empty());
+    gfx::DescriptorSetInfo dsInfo;
+    dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
+    _inputAssembler = _device->createInputAssembler(subMesh->getIaInfo());
+    _descriptorSet = _device->createDescriptorSet(dsInfo);
+
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *occlusionPass = pipeline->getPipelineSceneData()->getOcclusionQueryPass();
+    if (occlusionPass) {
+        cc::gfx::DescriptorSetInfo occlusionDSInfo;
+        occlusionDSInfo.layout = occlusionPass->getLocalSetLayout();
+        _worldBoundDescriptorSet = _device->createDescriptorSet(occlusionDSInfo);
     }
-    _inputAssembler                          = _device->createInputAssembler(subMesh->getIaInfo());
-    _descriptorSet                           = _device->createDescriptorSet(dsInfo);
-    const auto *               pipeline      = Root::getInstance()->getPipeline();
-    const auto *               occlusionPass = pipeline->getPipelineSceneData()->getOcclusionQueryPass();
-    cc::gfx::DescriptorSetInfo occlusionDSInfo;
-    occlusionDSInfo.layout   = occlusionPass->getLocalSetLayout();
-    _worldBoundDescriptorSet = _device->createDescriptorSet(occlusionDSInfo);
-    _subMesh                 = subMesh;
-    _patches                 = patches;
-    _passes                  = pPasses;
+
+    _subMesh = subMesh;
+    _patches = patches;
+    _passes = pPasses;
 
     flushPassInfo();
 
@@ -117,15 +124,15 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
 
     // initialize resources for reflection material
     if (passes[0]->getPhase() == pipeline::getPhaseID("reflection")) {
-        const auto *   mainWindow = Root::getInstance()->getMainWindow();
-        uint32_t       texWidth   = mainWindow->getWidth();
-        uint32_t       texHeight  = mainWindow->getHeight();
-        const uint32_t minSize    = 512;
+        const auto *mainWindow = Root::getInstance()->getMainWindow();
+        uint32_t texWidth = mainWindow->getWidth();
+        uint32_t texHeight = mainWindow->getHeight();
+        const uint32_t minSize = 512;
         if (texHeight < texWidth) {
-            texWidth  = minSize * texWidth / texHeight;
+            texWidth = minSize * texWidth / texHeight;
             texHeight = minSize;
         } else {
-            texWidth  = minSize;
+            texWidth = minSize;
             texHeight = minSize * texHeight / texWidth;
         }
         _reflectionTex = _device->createTexture(gfx::TextureInfo{
@@ -147,7 +154,7 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
         };
         _reflectionSampler = _device->getSampler(samplerInfo);
         _descriptorSet->bindSampler(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionSampler);
-        _descriptorSet->bindTexture(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionTex);
+        _descriptorSet->bindTexture(pipeline::REFLECTIONSTORAGE::BINDING, _reflectionTex);
     }
 }
 
@@ -155,8 +162,8 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
 // This is a temporary solution
 // It should not be written in a fixed way, or modified by the user
 void SubModel::initPlanarShadowShader() {
-    const auto *pipeline   = Root::getInstance()->getPipeline();
-    Shadows *   shadowInfo = pipeline->getPipelineSceneData()->getShadows();
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    Shadows *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
     if (shadowInfo != nullptr) {
         _planarShader = shadowInfo->getPlanarShader(_patches);
     } else {
@@ -168,8 +175,8 @@ void SubModel::initPlanarShadowShader() {
 // This is a temporary solution
 // It should not be written in a fixed way, or modified by the user
 void SubModel::initPlanarShadowInstanceShader() {
-    const auto *pipeline   = Root::getInstance()->getPipeline();
-    Shadows *   shadowInfo = pipeline->getPipelineSceneData()->getShadows();
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    Shadows *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
     if (shadowInfo != nullptr) {
         _planarInstanceShader = shadowInfo->getPlanarInstanceShader(_patches);
     } else {
@@ -206,7 +213,7 @@ void SubModel::onPipelineStateChanged() {
 }
 
 void SubModel::onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches) {
-    _patches           = patches;
+    _patches = patches;
     const auto &passes = *_passes;
     if (passes.empty()) return;
     for (Pass *pass : passes) {
@@ -236,7 +243,7 @@ void SubModel::flushPassInfo() {
         _shaders.clear();
     }
     _shaders.resize(passes.size());
-    for (uint i = 0; i < passes.size(); ++i) {
+    for (size_t i = 0; i < passes.size(); ++i) {
         _shaders[i] = passes[i]->getShaderVariant(_patches);
     }
 }

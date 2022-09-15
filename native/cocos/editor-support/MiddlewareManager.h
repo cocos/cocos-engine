@@ -39,10 +39,10 @@ MIDDLEWARE_BEGIN
  */
 class IMiddleware {
 public:
-    IMiddleware()                           = default;
-    virtual ~IMiddleware()                  = default;
-    virtual void     update(float dt)       = 0;
-    virtual void     render(float dt)       = 0;
+    IMiddleware() = default;
+    virtual ~IMiddleware() = default;
+    virtual void update(float dt) = 0;
+    virtual void render(float dt) = 0;
     virtual uint32_t getRenderOrder() const = 0;
 };
 
@@ -100,9 +100,9 @@ public:
 
     se_object_ptr getVBTypedArray(int format, int bufferPos);
     se_object_ptr getIBTypedArray(int format, int bufferPos);
-    std::size_t   getBufferCount(int format);
-    std::size_t   getVBTypedArrayLength(int format, std::size_t bufferPos);
-    std::size_t   getIBTypedArrayLength(int format, std::size_t bufferPos);
+    std::size_t getBufferCount(int format);
+    std::size_t getVBTypedArrayLength(int format, std::size_t bufferPos);
+    std::size_t getIBTypedArrayLength(int format, std::size_t bufferPos);
 
     SharedBufferManager *getRenderInfoMgr();
     SharedBufferManager *getAttachInfoMgr();
@@ -112,14 +112,14 @@ public:
 
     // If manager is traversing _updateMap, will set the flag untill traverse is finished.
     bool isRendering = false;
-    bool isUpdating  = false;
+    bool isUpdating = false;
 
 private:
     void clearRemoveList();
 
     ccstd::vector<IMiddleware *> _updateList;
     ccstd::vector<IMiddleware *> _removeList;
-    std::map<int, MeshBuffer *>  _mbMap;
+    std::map<int, MeshBuffer *> _mbMap;
 
     SharedBufferManager _renderInfo;
     SharedBufferManager _attachInfo;

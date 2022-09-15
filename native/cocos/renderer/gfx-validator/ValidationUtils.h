@@ -41,18 +41,18 @@ ccstd::string getStacktraceJS();
 namespace gfx {
 
 struct RenderPassSnapshot {
-    RenderPass *         renderPass  = nullptr;
-    Framebuffer *        framebuffer = nullptr;
-    Rect                 renderArea;
+    RenderPass *renderPass = nullptr;
+    Framebuffer *framebuffer = nullptr;
+    Rect renderArea;
     ccstd::vector<Color> clearColors;
-    float                clearDepth   = 1.F;
-    uint32_t             clearStencil = 0U;
+    float clearDepth = 1.F;
+    uint32_t clearStencil = 0U;
 };
 
 struct DrawcallSnapshot {
-    PipelineState *                        pipelineState;
-    InputAssembler *                       inputAssembler;
-    ccstd::vector<DescriptorSet *>         descriptorSets;
+    PipelineState *pipelineState;
+    InputAssembler *inputAssembler;
+    ccstd::vector<DescriptorSet *> descriptorSets;
     ccstd::vector<ccstd::vector<uint32_t>> dynamicOffsets;
 };
 
@@ -66,8 +66,8 @@ public:
     void clear();
 
     static ccstd::vector<uint32_t> serialize(const CommandRecorder &recorder);
-    static CommandRecorder         deserialize(const ccstd::vector<uint32_t> &bytes);
-    static bool                    compare(const CommandRecorder &test, const CommandRecorder &baseline);
+    static CommandRecorder deserialize(const ccstd::vector<uint32_t> &bytes);
+    static bool compare(const CommandRecorder &test, const CommandRecorder &baseline);
 
 private:
     enum class CommandType {
@@ -77,36 +77,36 @@ private:
     };
 
     struct RenderPassCommand {
-        ColorAttachmentList    colorAttachments;
+        ColorAttachmentList colorAttachments;
         DepthStencilAttachment depthStencilAttachment;
 
-        Rect                 renderArea;
+        Rect renderArea;
         ccstd::vector<Color> clearColors;
-        float                clearDepth   = 1.F;
-        uint32_t             clearStencil = 0U;
+        float clearDepth = 1.F;
+        uint32_t clearStencil = 0U;
     };
 
     struct DrawcallCommand {
-        InputState        inputState;
-        RasterizerState   rasterizerState;
+        InputState inputState;
+        RasterizerState rasterizerState;
         DepthStencilState depthStencilState;
-        BlendState        blendState;
-        PrimitiveMode     primitive     = PrimitiveMode::TRIANGLE_LIST;
+        BlendState blendState;
+        PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
         DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
-        PipelineBindPoint bindPoint     = PipelineBindPoint::GRAPHICS;
+        PipelineBindPoint bindPoint = PipelineBindPoint::GRAPHICS;
 
         DrawInfo drawInfo;
 
         ccstd::vector<DescriptorSet *> descriptorSets;
-        ccstd::vector<uint32_t>        dynamicOffsets;
+        ccstd::vector<uint32_t> dynamicOffsets;
     };
 
-    ccstd::vector<CommandType>       _commands;
+    ccstd::vector<CommandType> _commands;
     ccstd::vector<RenderPassCommand> _renderPassCommands;
-    ccstd::vector<DrawcallCommand>   _drawcallCommands;
+    ccstd::vector<DrawcallCommand> _drawcallCommands;
 
     struct BufferData {
-        BufferInfo             info;
+        BufferInfo info;
         ccstd::vector<uint8_t> data;
     };
     ccstd::unordered_map<uint32_t, BufferData> _bufferMap;
@@ -131,7 +131,7 @@ public:
 
 private:
     struct ResourceRecord {
-        Resource *    resource = nullptr;
+        Resource *resource = nullptr;
         ccstd::string initStack;
     };
 
@@ -157,7 +157,7 @@ DeviceResourceTracker<Resource, Enable>::push(T *resource) {
 
 template <typename Resource, typename Enable>
 void DeviceResourceTracker<Resource, Enable>::erase(Resource *resource) {
-    CCASSERT(!resources.empty(), "Deleted twice?");
+    CC_ASSERT(!resources.empty());
 
     resources.erase(std::remove_if(resources.begin(), resources.end(),
                                    [resource](const auto &record) { return record.resource == resource; }));
@@ -170,7 +170,7 @@ void DeviceResourceTracker<Resource, Enable>::checkEmpty() {
     // and look up the resource initialization stacktrace in `resources[i].initStack`.
     // Note: capturing stacktrace is a painfully time-consuming process,
     // so better to uncomment the exact type of resource that is leaking rather than toggle them all at once.
-    CCASSERT(resources.empty(), "Resource leaked");
+    CC_ASSERT(resources.empty()); // Resource leaked.
 }
 
 //template <> struct RecordStacktrace<CommandBuffer> : std::true_type {};

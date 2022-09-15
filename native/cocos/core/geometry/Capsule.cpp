@@ -5,10 +5,10 @@ namespace geometry {
 
 void Capsule::transform(const Mat4 &m, const Vec3 & /*pos*/, const Quaternion &rot, const Vec3 &scale, Capsule *out) const {
     const auto maxComponent = mathutils::absMaxComponent(scale);
-    out->radius             = this->radius * std::abs(maxComponent);
+    out->radius = this->radius * std::abs(maxComponent);
 
     const auto halfTotalWorldHeight = (this->halfHeight + this->radius) * std::abs(scale.y);
-    auto       halfWorldHeight      = halfTotalWorldHeight - out->radius;
+    auto halfWorldHeight = halfTotalWorldHeight - out->radius;
     if (halfWorldHeight < 0) halfWorldHeight = 0;
     out->halfHeight = halfWorldHeight;
 
@@ -40,7 +40,7 @@ void Capsule::updateLocalCenter() {
             ellipseCenter1 = {0, 0, -halfHeight};
             break;
         default:
-            assert(false);
+            CC_ASSERT(false);
     }
 }
 } // namespace geometry

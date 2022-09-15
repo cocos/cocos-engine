@@ -23,21 +23,16 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
-import { Material, Texture2D } from '../core/assets';
+import { Material, Texture2D } from '../asset/assets';
 import { Component } from '../core/components';
 import { Vec3, Vec2, Vec4 } from '../core/math';
 import { LineModel } from './models/line-model';
-import { builtinResMgr } from '../core/builtin';
+import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import { legacyCC } from '../core/global-exports';
-import { IMaterialInstanceInfo, MaterialInstance } from '../core/renderer/core/material-instance';
+import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -72,9 +67,20 @@ export class Line extends Component {
             this._materialInstance.setProperty('mainTexture', val);
         }
     }
-
+    @serializable
     private _material: Material | null = null;
     private _materialInstance: MaterialInstance | null = null;
+
+    @type(Material)
+    @displayOrder(1)
+    @tooltip('i18n:line.material')
+    get material () {
+        return this._material;
+    }
+
+    set material (val) {
+        this._material = val;
+    }
 
     @serializable
     private _worldSpace = false;
@@ -103,7 +109,8 @@ export class Line extends Component {
     private _positions = [];
 
     /**
-     * 每段折线的拐点坐标。
+     * @en Inflection point positions of each polyline
+     * @zh 每段折线的拐点坐标。
      */
     @type([Vec3])
     @displayOrder(2)
@@ -217,6 +224,8 @@ export class Line extends Component {
         if (this._material === null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
+        }
+        if (this._material) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
             _matInsInfo.parent = this._material;
             _matInsInfo.subModelIdx = 0;

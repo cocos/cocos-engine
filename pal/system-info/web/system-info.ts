@@ -17,6 +17,7 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly isXR: boolean;
     private _battery?: any;
     private _featureMap: IFeatureMap;
 
@@ -141,6 +142,8 @@ class SystemInfo extends EventTarget {
         }
         this.browserVersion = tmp ? tmp[4] : '';
 
+        this.isXR = false;
+
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');
         const supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
@@ -156,6 +159,15 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
+        if (this.browserType === BrowserType.SAFARI) {
+            const result = / version\/(\d+)/.exec(ua)?.[1];
+            if (typeof result === 'string') {
+                if (Number.parseInt(result) >= 14) {
+                    // safari 14+ support webp, but canvas.toDataURL is not supported by default
+                    supportWebp = true;
+                }
+            }
+        }
         let supportImageBitmap = false;
         if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
             _tmpCanvas1.width = _tmpCanvas1.height = 2;
@@ -165,8 +177,8 @@ class SystemInfo extends EventTarget {
             }).catch((err) => {});
         }
 
-        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined);
-        const supportMouse = !EDITOR && document.documentElement.onmouseup !== undefined;
+        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
+        const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: supportImageBitmap,
@@ -175,10 +187,14 @@ class SystemInfo extends EventTarget {
             [Feature.SAFE_AREA]: false,
 
             [Feature.INPUT_TOUCH]: supportTouch,
-            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined || EDITOR,
             [Feature.EVENT_MOUSE]: supportMouse,
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
+            // @ts-expect-error undefined webkitGetGamepads
+            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
+            [Feature.EVENT_HANDLE]: this.isXR,
+            [Feature.EVENT_HMD]: this.isXR,
         };
 
         this._registerEvent();

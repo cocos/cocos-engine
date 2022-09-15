@@ -60,7 +60,7 @@ inline
 
 ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
-Value Value::Null      = Value(Type::Null);      //NOLINT(readability-identifier-naming)
+Value Value::Null = Value(Type::Null);           //NOLINT(readability-identifier-naming)
 Value Value::Undefined = Value(Type::Undefined); //NOLINT(readability-identifier-naming)
 
 Value::Value()
@@ -244,9 +244,9 @@ Value &Value::operator=(Value &&v) noexcept {
                     }
                     _u._object->decRef();
                 }
-                _u._object        = v._u._object;
-                _autoRootUnroot   = v._autoRootUnroot;
-                v._u._object      = nullptr; // Reset to nullptr here to avoid 'release' operation in v.reset(Type::Undefined) since it's a move operation here.
+                _u._object = v._u._object;
+                _autoRootUnroot = v._autoRootUnroot;
+                v._u._object = nullptr; // Reset to nullptr here to avoid 'release' operation in v.reset(Type::Undefined) since it's a move operation here.
                 v._autoRootUnroot = false;
             } break;
             default:
@@ -365,6 +365,11 @@ void Value::setString(const ccstd::string &v) {
     *_u._string = v;
 }
 
+void Value::setString(const std::string_view &v) {
+    reset(Type::String);
+    _u._string->assign(v.data(), 0, v.length());
+}
+
 void Value::setObject(Object *object, bool autoRootUnroot /* = false*/) {
     if (object == nullptr) {
         reset(Type::Null);
@@ -390,7 +395,7 @@ void Value::setObject(Object *object, bool autoRootUnroot /* = false*/) {
             }
             _u._object->decRef();
         }
-        _u._object      = object;
+        _u._object = object;
         _autoRootUnroot = autoRootUnroot;
     } else {
         _autoRootUnroot = autoRootUnroot;
@@ -429,12 +434,12 @@ uint32_t Value::toUint32() const {
 }
 
 int64_t Value::toInt64() const {
-    assert(isBigInt() || isNumber());
+    CC_ASSERT(isBigInt() || isNumber());
     return _type == Type::BigInt ? _u._bigint : CONVERT_TO_TYPE(int64_t);
 }
 
 uint64_t Value::toUint64() const {
-    assert(isBigInt() || isNumber());
+    CC_ASSERT(isBigInt() || isNumber());
     return _type == Type::BigInt ? static_cast<uint64_t>(_u._bigint) : CONVERT_TO_TYPE(uint64_t);
 }
 
@@ -443,7 +448,7 @@ float Value::toFloat() const {
 }
 
 double Value::toDouble() const {
-    assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || _type == Type::String);
+    CC_ASSERT(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt || _type == Type::String);
     if (LIKELY(_type == Type::Number)) {
         return _u._number;
     }
@@ -460,12 +465,12 @@ double Value::toDouble() const {
 }
 
 bool Value::toBoolean() const {
-    assert(_type == Type::Boolean);
+    CC_ASSERT(_type == Type::Boolean);
     return _u._boolean;
 }
 
 const ccstd::string &Value::toString() const {
-    assert(_type == Type::String);
+    CC_ASSERT(_type == Type::String);
     return *_u._string;
 }
 
@@ -488,7 +493,7 @@ ccstd::string Value::toStringForce() const {
     } else if (_type == Type::Undefined) {
         ss << "undefined";
     } else {
-        assert(false);
+        CC_ASSERT(false);
         ss << "[[BadValueType]]";
     }
     return ss.str();
@@ -525,7 +530,7 @@ void Value::reset(Type type) {
 
         switch (type) {
             case Type::String:
-                _u._string = new ccstd::string();
+                _u._string = ccnew ccstd::string();
                 break;
             default:
                 break;

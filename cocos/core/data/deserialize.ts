@@ -23,19 +23,16 @@
  THE SOFTWARE.
 */
 
-
-
-import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB, DEV } from 'internal:constants';
+import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ValueType } from '../value-types';
 import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '../math';
-import { warnID, errorID, getError } from '../platform/debug';
+import { errorID, getError } from '../platform/debug';
 import * as js from '../utils/js';
 
 import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
-import { Asset } from '../assets/asset';
+import { Asset } from '../../asset/assets/asset';
 
-import { deserializeTag } from './custom-serializable';
 import type { CCON } from './ccon';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
@@ -536,20 +533,32 @@ interface ICustomClass {
  */
 export class Details {
     /**
-     * the obj list whose field needs to load asset by uuid
+     * @en
+     * the object list whose field needs to load asset by uuid
+     * @zh
+     * 对象列表，其中每个对象有属性需要通过 uuid 进行资源加载
      */
     uuidObjList: IFileData[File.DependObjs] | null = null;
     /**
+     * @en
      * the corresponding field name which referenced to the asset
+     * @zh
+     * 引用着资源的字段名称
      */
     uuidPropList: IFileData[File.DependKeys] | null = null;
     /**
+     * @en
      * list of the depends assets' uuid
+     * @zh
+     * 依赖资源的 uuid 列表
      */
     uuidList: IFileData[File.DependUuidIndices] | null = null;
 
     /**
+     * @en
      * list of the depends assets' type
+     * @zh
+     * 依赖的资源类型列表
      */
     uuidTypeList: string[] = [];
 
@@ -558,7 +567,11 @@ export class Details {
     }, 5);
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public declare assignAssetsBy: Function;
+    public declare assignAssetsBy: (getter: (uuid: string, options: {
+        type: Constructor<Asset>;
+        owner: Record<string, unknown>;
+        prop: string;
+    }) => Asset) => void;
 
     /**
      * @method init
@@ -619,13 +632,22 @@ Details.pool.get = function () {
     return this._get() || new Details();
 };
 if (EDITOR || TEST) {
-    Details.prototype.assignAssetsBy = function (getter: (uuid: string, type: Constructor<Asset>) => any) {
+    Details.prototype.assignAssetsBy = function (getter: (uuid: string, options: {
+        type: Constructor<Asset>;
+        owner: Record<string, unknown>;
+        prop: string;
+    }) => any) {
         for (let i = 0, len = this.uuidList!.length; i < len; i++) {
-            const obj = this.uuidObjList![i];
-            const prop = this.uuidPropList![i];
+            const obj = this.uuidObjList![i] as Record<string, unknown>;
+            const prop = this.uuidPropList![i] as string;
             const uuid = this.uuidList![i];
             const type = this.uuidTypeList[i];
-            obj[prop] = getter(uuid as string, js._getClassById(type) as Constructor<Asset> || Asset);
+            const _type = js.getClassById(type) as Constructor<Asset> || Asset;
+            obj[prop] = getter(uuid as string, {
+                type: _type,
+                owner: obj,
+                prop,
+            });
         }
     };
 }
@@ -918,7 +940,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
 }
 
 function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass) {
-    const classFinder = customFinder || js._getClassById;
+    const classFinder = customFinder || js.getClassById;
     const classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
         const klassLayout = classes[i];

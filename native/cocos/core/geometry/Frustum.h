@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "base/memory/Memory.h"
 #include "base/std/container/array.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Enums.h"
@@ -45,49 +46,49 @@ public:
      * Create a ortho frustum.
      * @zh
      * 创建一个正交视锥体。
-     * @param out 正交视锥体。
-     * @param width 正交视锥体的宽度。
-     * @param height 正交视锥体的高度。
-     * @param near 正交视锥体的近平面值。
-     * @param far 正交视锥体的远平面值。
-     * @param transform 正交视锥体的变换矩阵。
-     * @return {Frustum} frustum.
+     * @param out @en The result orthogonal frustum. @zh 输出的正交视锥体。
+     * @param width @en The width of the frustum. @zh 正交视锥体的宽度。
+     * @param height @en The height of the frustum. @zh 正交视锥体的高度。
+     * @param near @en The near plane of the frustum. @zh 正交视锥体的近平面值。
+     * @param far @en The far plane of the frustum. @zh 正交视锥体的远平面值。
+     * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
+     * @return @en The out object @zh 返回正交视锥体.
      */
     static void createOrtho(Frustum *out, float width,
-                            float       height,
-                            float       near,
-                            float       far,
+                            float height,
+                            float near,
+                            float far,
                             const Mat4 &transform);
     /**
      * @en Create a frustum from an AABB box.
      * @zh 从 AABB 包围盒中创建一个视锥体。
-     * @param out 视锥体。
-     * @param aabb AABB 包围盒。
-     * @return {Frustum} frustum.
+     * @param out @en The result frustum @zh 输出的视锥体对象。
+     * @param aabb @en The AABB bounding box of the frustum @zh AABB 包围盒。
+     * @return @en The out object @zh 返回视锥体.
      */
     static Frustum *createFromAABB(Frustum *out, const AABB &aabb);
 
     /**
-     * @en create a new frustum.
+     * @en Calculate the splitted frustum.
      * @zh 创建一个新的截锥体。
-     * @param out 返回新截锥体
-     * @param camera 相机参数
-     * @param m 变换矩阵
-     * @param start 分割开始位置
-     * @param end 分割末尾位置
-     * @return {Frustum} 返回新截锥体.
+     * @param out @en The output frustum @zh 输出的新截锥体
+     * @param camera @en The camera of the frustum @zh 相机参数
+     * @param m @en The transform matrix @zh 变换矩阵
+     * @param start @en The split start position @zh 分割开始位置
+     * @param end @en The split end position @zh 分割末尾位置
+     * @return @en The out object @zh 返回新截锥体.
      */
     static Frustum *split(Frustum *out, const scene::Camera &camera, const Mat4 &m, float start, float end);
 
     /**
      * @en
-     * create a new frustum.
+     * Create a ccnew frustum.
      * @zh
      * 创建一个新的截锥体。
-     * @return {Frustum} frustum.
+     * @return @en An empty frustum. @zh 一个空截椎体
      */
     static Frustum *create() {
-        return new Frustum();
+        return ccnew Frustum();
     }
 
     /**
@@ -95,16 +96,22 @@ public:
      * Clone a frustum.
      * @zh
      * 克隆一个截锥体。
+     * @param f @en The frustum to clone from @zh 用于克隆的截锥体
+     * @return @en The cloned frustum @zh 克隆出的新截锥体
      */
     static Frustum *clone(const Frustum &f) {
-        return Frustum::copy(new Frustum(), f);
+        return Frustum::copy(ccnew Frustum(), f);
     }
 
     /**
      * @en
      * Copy the values from one frustum to another.
      * @zh
-     * 从一个截锥体拷贝到另一个截锥体。
+     * 从一个视锥体拷贝到另一个视锥体。
+     * @param out @en The result frustum @zh 用于存储拷贝数据的截锥体
+     * @param f @en The frustum to copy from @zh 用于克隆的截锥体
+     * @return @en The out object @zh 传入的 out 对象
+
      */
     static Frustum *copy(Frustum *out, const Frustum &f) {
         out->setType(f.getType());
@@ -115,29 +122,14 @@ public:
         return out;
     }
 
-    /**
-     * @en
-     * Set whether to use accurate intersection testing function on this frustum.
-     * @zh
-     * 设置是否在此截锥体上使用精确的相交测试函数。
-     */
-    void setAccurate(bool accurate) {
-        setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);
-    }
+    Frustum();
+    Frustum(const Frustum &rhs);
+    Frustum(Frustum &&rhs) = delete;
+    ~Frustum() override;
 
-    Frustum() {
-        setType(ShapeEnum::SHAPE_FRUSTUM);
-        for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
-            planes[i] = new Plane();
-            planes[i]->addRef();
-        }
-    }
-
-    ~Frustum() override {
-        for (auto *plane : planes) {
-            plane->release();
-        }
-    }
+    // Can remove these operator override functions if not using Plane* in planes array.
+    Frustum &operator=(const Frustum &rhs);
+    Frustum &operator=(Frustum &&rhs) = delete;
 
     /**
      * @en
@@ -148,17 +140,26 @@ public:
      */
     void transform(const Mat4 &);
 
-    ccstd::array<Vec3, 8>    vertices;
-    ccstd::array<Plane *, 6> planes;
-    void                     createOrtho(float width, float height, float near, float far, const Mat4 &transform);
-    void                     split(float start, float end, float aspect, float fov, const Mat4 &transform);
-    void                     updatePlanes();
-    void                     update(const Mat4 &m, const Mat4 &inv);
-    Frustum                  clone() const {
-        Frustum tmp;
-        copy(&tmp, *this);
-        return tmp;
+    void createOrtho(float width, float height, float near, float far, const Mat4 &transform);
+    void split(float start, float end, float aspect, float fov, const Mat4 &transform);
+    void updatePlanes();
+    void update(const Mat4 &m, const Mat4 &inv);
+
+    /**
+     * @en
+     * Set whether to use accurate intersection testing function on this frustum.
+     * @zh
+     * 设置是否在此截锥体上使用精确的相交测试函数。
+     */
+    inline void setAccurate(bool accurate) {
+        setType(accurate ? ShapeEnum::SHAPE_FRUSTUM_ACCURATE : ShapeEnum::SHAPE_FRUSTUM);
     }
+
+    ccstd::array<Vec3, 8> vertices;
+    ccstd::array<Plane *, 6> planes;
+
+private:
+    void init();
 };
 
 } // namespace geometry

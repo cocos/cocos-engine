@@ -24,22 +24,17 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/data
- */
-
-import { DEV } from 'internal:constants';
+import { DEV, JSB } from 'internal:constants';
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
-import { CCObject } from './object';
+import { CCObject, isCCObject } from './object';
 import { js } from '../utils/js';
 import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
-import { Prefab } from '../assets/prefab';
+import { Prefab } from '../../asset/assets/prefab';
 import { Node } from '../scene-graph/node';
-import { JSB } from '../default-constants';
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
+import { isCCClassOrFastDefined } from './class';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -107,15 +102,8 @@ export function instantiate (original: any, internalForce?: boolean) {
     }
 
     let clone;
-    let isCCObject = original instanceof CCObject;
-    if (JSB) {
-        if (!isCCObject) {
-            // @ts-expect-error: jsb related codes.
-            isCCObject = original instanceof jsb.CCObject;
-        }
-    }
 
-    if (isCCObject) {
+    if (isCCObject(original)) {
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
             clone = original._instantiate(null, true);
@@ -213,7 +201,7 @@ function enumerateObject (obj, clone, parent) {
     js.value(obj, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
-    if (legacyCC.Class._isCCClass(klass)) {
+    if (isCCClassOrFastDefined(klass)) {
         enumerateCCClass(klass, obj, clone, parent);
     } else {
         // primitive javascript object
@@ -237,7 +225,7 @@ function enumerateObject (obj, clone, parent) {
             }
         }
     }
-    if (obj instanceof CCObject) {
+    if (isCCObject(obj)) {
         clone._objFlags &= PersistentMask;
     }
 }
@@ -290,15 +278,15 @@ function instantiateObj (obj, parent) {
     }
 
     const ctor = obj.constructor;
-    if (legacyCC.Class._isCCClass(ctor)) {
+    if (isCCClassOrFastDefined(ctor)) {
         if (parent) {
             if (parent instanceof legacyCC.Component) {
-                if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
+                if (obj instanceof legacyCC.Node || obj instanceof legacyCC.Component) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return obj;
                 }
-            } else if (parent instanceof legacyCC._BaseNode) {
-                if (obj instanceof legacyCC._BaseNode) {
+            } else if (parent instanceof legacyCC.Node) {
+                if (obj instanceof legacyCC.Node) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

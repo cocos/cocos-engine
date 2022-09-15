@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 export enum CommonStagePriority {
     BLOOM = 18,
     POST_PROCESS = 19,

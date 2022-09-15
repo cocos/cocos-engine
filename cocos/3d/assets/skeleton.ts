@@ -23,17 +23,12 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, type, serializable } from 'cc.decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4 } from '../../core/math';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { Asset } from '../../core/assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { legacyCC } from '../../core/global-exports';
 
 /**
@@ -119,6 +114,11 @@ export class Skeleton extends Asset {
         return super.destroy();
     }
 
+    /**
+     * @en Check whether the skeleton is validate which means it has both joints and bindposes data.
+     * @zh 检查当前骨骼对象是否是有效的，取决于它是否包含关节路径和绑定姿势数据。
+     * @returns @en Whether the skeleton is valid or not @zh 此骨骼是否有效
+     */
     public validate () {
         return this.joints.length > 0 && this.bindposes.length > 0;
     }

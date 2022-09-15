@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BulletShape } from './bullet-shape';
 import { ConeCollider } from '../../../../exports/physics-framework';
 import { ICylinderShape } from '../../spec/i-physics-shape';

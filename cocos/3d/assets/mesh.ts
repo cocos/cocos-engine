@@ -23,29 +23,25 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, serializable } from 'cc.decorator';
-import { Asset } from '../../core/assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
 import { AABB } from '../../core/geometry';
 import { legacyCC } from '../../core/global-exports';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
 import { sys } from '../../core/platform/sys';
 import { warnID } from '../../core/platform/debug';
-import { RenderingSubMesh } from '../../core/assets';
+import { RenderingSubMesh } from '../../asset/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
-    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo,
-} from '../../core/gfx';
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager,
+} from '../../gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
-import { Morph, MorphRendering, createMorphRendering } from './morph';
+import { Morph } from './morph';
+import { MorphRendering, createMorphRendering } from './morph-rendering';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -73,6 +69,7 @@ export declare namespace Mesh {
         /**
          * @en The actual value for all vertex attributes.
          * You must use DataView to access the data.
+         * Because there is no guarantee that the starting offsets of all properties are byte aligned as required by TypedArray.
          * @zh 所有顶点属性的实际数据块。
          * 你必须使用 DataView 来读取数据。
          * 因为不能保证所有属性的起始偏移都按 TypedArray 要求的字节对齐。
@@ -117,6 +114,10 @@ export declare namespace Mesh {
         jointMapIndex?: number;
     }
 
+    /**
+     * @en dynamic info used to create dyanmic mesh
+     * @zh 动态信息，用于创建动态网格
+     */
     export interface IDynamicInfo {
         /**
          * @en max submesh count
@@ -137,6 +138,10 @@ export declare namespace Mesh {
         maxSubMeshIndices: number;
     }
 
+    /**
+     * @en dynamic struct
+     * @zh 动态结构体
+     */
     export interface IDynamicStruct {
         /**
           * @en dynamic mesh info
@@ -200,6 +205,10 @@ export declare namespace Mesh {
         dynamic?: IDynamicStruct;
     }
 
+    /**
+     * @en The create info of the mesh
+     * @zh 网格创建信息
+     */
     export interface ICreateInfo {
         /**
          * @en Mesh structure
@@ -220,13 +229,15 @@ const v3_2 = new Vec3();
 const globalEmptyMeshBuffer = new Uint8Array();
 
 /**
- * @en Mesh asset
- * @zh 网格资源。
+ * @en A representation of a mesh asset
+ * A mesh can contain multiple sub-mesh resources. The mesh mainly provides data such as vertices and indices for model instances.
+ * @zh 代表一个网格资源
+ * 一个网格可包含多个子网格资源，网格主要为模型实例提供顶点，索引等数据
  */
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _nativeAsset (): ArrayBuffer {
         return this._data.buffer;
@@ -250,7 +261,7 @@ export class Mesh extends Asset {
      * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.minPosition]] instead
      */
-    get minPosition () {
+    get minPosition (): Readonly<Vec3> | undefined {
         return this.struct.minPosition;
     }
 
@@ -259,7 +270,7 @@ export class Mesh extends Asset {
      * @zh （各分量都）大于等于此网格任何顶点位置的最大位置。
      * @deprecated Please use [[struct.maxPosition]] instead
      */
-    get maxPosition () {
+    get maxPosition (): Readonly<Vec3> | undefined {
         return this.struct.maxPosition;
     }
 
@@ -290,7 +301,8 @@ export class Mesh extends Asset {
     }
 
     /**
-     * The index of the joint buffer of all sub meshes in the joint map buffers
+     * @en The index of the joint buffer of all sub meshes in the joint map buffers
+     * @zh 所有子网格的关节索引集合
      */
     get jointBufferIndices () {
         if (this._jointBufferIndices) { return this._jointBufferIndices; }
@@ -306,6 +318,10 @@ export class Mesh extends Asset {
         return this._renderingSubMeshes!;
     }
 
+    /**
+     * @en morph rendering data
+     * @zh 变形渲染数据
+     */
     public morphRendering: MorphRendering | null = null;
 
     @serializable
@@ -321,6 +337,11 @@ export class Mesh extends Asset {
 
     private _initialized = false;
 
+    @serializable
+    private _allowDataAccess = true;
+
+    private _isMeshDataUploaded = false;
+
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
 
     private _boneSpaceBounds: Map<number, (AABB | null)[]> = new Map();
@@ -331,10 +352,18 @@ export class Mesh extends Asset {
         super();
     }
 
+    /**
+     * @en complete loading callback
+     * @zh 加载完成回调
+     */
     public onLoaded () {
         this.initialize();
     }
 
+    /**
+     * @en mesh init
+     * @zh 网格初始化函数
+     */
     public initialize () {
         if (this._initialized) {
             return;
@@ -343,10 +372,10 @@ export class Mesh extends Asset {
         this._initialized = true;
 
         if (this._struct.dynamic) {
-            const device: Device = legacyCC.director.root.device;
+            const device: Device = deviceManager.gfxDevice;
             const vertexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
-    
+
             for (let i = 0; i < this._struct.vertexBundles.length; i++) {
                 const vertexBundle = this._struct.vertexBundles[i];
                 const vertexBuffer = device.createBuffer(new BufferInfo(
@@ -355,15 +384,15 @@ export class Mesh extends Asset {
                     vertexBundle.view.length,
                     vertexBundle.view.stride,
                 ));
-    
+
                 vertexBuffers.push(vertexBuffer);
             }
-    
+
             for (let i = 0; i < this._struct.primitives.length; i++) {
                 const primitive = this._struct.primitives[i];
                 const indexView = primitive.indexView;
                 let indexBuffer: Buffer | null = null;
-    
+
                 if (indexView) {
                     indexBuffer = device.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
@@ -372,13 +401,13 @@ export class Mesh extends Asset {
                         indexView.stride,
                     ));
                 }
-    
+
                 const subVBs: Buffer[] = [];
                 for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
                     const idx = primitive.vertexBundelIndices[k];
                     subVBs.push(vertexBuffers[idx]);
                 }
-    
+
                 const attributes: Attribute[] = [];
                 for (let k = 0; k < primitive.vertexBundelIndices.length; k++) {
                     const idx = primitive.vertexBundelIndices[k];
@@ -389,34 +418,34 @@ export class Mesh extends Asset {
                         attributes.push(attribute);
                     }
                 }
-    
+
                 const subMesh = new RenderingSubMesh(subVBs, attributes, primitive.primitiveMode, indexBuffer);
                 subMesh.drawInfo = new DrawInfo();
                 subMesh.mesh = this;
                 subMesh.subMeshIdx = i;
-    
+
                 subMeshes.push(subMesh);
             }
-    
+
             this._renderingSubMeshes = subMeshes;
         } else {
             const { buffer } = this._data;
-            const gfxDevice: Device = legacyCC.director.root.device;
+            const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
             const indexBuffers: Buffer[] = [];
             const subMeshes: RenderingSubMesh[] = [];
-    
+
             for (let i = 0; i < this._struct.primitives.length; i++) {
                 const prim = this._struct.primitives[i];
                 if (prim.vertexBundelIndices.length === 0) {
                     continue;
                 }
-    
+
                 let indexBuffer: Buffer | null = null;
                 let ib: any = null;
                 if (prim.indexView) {
                     const idxView = prim.indexView;
-    
+
                     let dstStride = idxView.stride;
                     let dstSize = idxView.length;
                     if (dstStride === 4 && !gfxDevice.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
@@ -429,7 +458,7 @@ export class Mesh extends Asset {
                             dstSize >>= 1;
                         }
                     }
-    
+
                     indexBuffer = gfxDevice.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX,
                         MemoryUsageBit.DEVICE,
@@ -437,16 +466,16 @@ export class Mesh extends Asset {
                         dstStride,
                     ));
                     indexBuffers.push(indexBuffer);
-    
+
                     ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
                     if (idxView.stride !== dstStride) {
                         ib = getIndexStrideCtor(dstStride).from(ib);
                     }
                     indexBuffer.update(ib);
                 }
-    
+
                 const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
-    
+
                 const gfxAttributes: Attribute[] = [];
                 if (prim.vertexBundelIndices.length > 0) {
                     const idx = prim.vertexBundelIndices[0];
@@ -457,26 +486,31 @@ export class Mesh extends Asset {
                         gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isNormalized, attr.stream, attr.isInstanced, attr.location);
                     }
                 }
-    
+
                 const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
                 subMesh.mesh = this; subMesh.subMeshIdx = i;
-    
+
                 subMeshes.push(subMesh);
             }
-    
+
             this._renderingSubMeshes = subMeshes;
-    
+
             if (this._struct.morph) {
                 this.morphRendering = createMorphRendering(this, gfxDevice);
             }
-        } 
+
+            this._isMeshDataUploaded = true;
+            if (!this._allowDataAccess) {
+                this.releaseData();
+            }
+        }
     }
 
     /**
      * @en update dynamic sub mesh geometry
      * @zh 更新动态子网格的几何数据
-     * @param primitiveIndex: sub mesh index
-     * @param geometry: sub mesh geometry data
+     * @param primitiveIndex @en sub mesh index @zh 子网格索引
+     * @param geometry @en sub mesh geometry data @zh 子网格几何数据
      */
     public updateSubMesh (primitiveIndex: number, geometry: IDynamicGeometry) {
         if (!this._struct.dynamic) {
@@ -611,14 +645,15 @@ export class Mesh extends Asset {
             }
             this._renderingSubMeshes = null;
             this._initialized = false;
+            this._isMeshDataUploaded = false;
         }
     }
 
     /**
      * @en Reset the struct and data of the mesh
      * @zh 重置此网格的结构和数据。
-     * @param struct The new struct
-     * @param data The new data
+     * @param struct @en The new struct @zh 新结构
+     * @param data @en The new data @zh 新数据
      * @deprecated Will be removed in v3.0.0, please use [[reset]] instead
      */
     public assign (struct: Mesh.IStruct, data: Uint8Array) {
@@ -631,7 +666,7 @@ export class Mesh extends Asset {
     /**
      * @en Reset the mesh with mesh creation information
      * @zh 重置此网格。
-     * @param info Mesh creation information including struct and data
+     * @param info @en Mesh creation information including struct and data @zh 网格创建信息，包含结构及数据
      */
     public reset (info: Mesh.ICreateInfo) {
         this.destroyRenderingMesh();
@@ -641,9 +676,10 @@ export class Mesh extends Asset {
     }
 
     /**
-     * @en Get [[AABB]] bounds in the skeleton's bone space
-     * @zh 获取骨骼变换空间内下的 [[AABB]] 包围盒
-     * @param skeleton
+     * @en Get [[geometry.AABB]] bounds in the skeleton's bone space
+     * @zh 获取骨骼变换空间内下的 [[geometry.AABB]] 包围盒
+     * @param skeleton @en skeleton data @zh 骨骼信息
+     * @param skeleton @en skeleton data @zh 骨骼信息
      */
     public getBoneSpaceBounds (skeleton: Skeleton) {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
@@ -688,10 +724,10 @@ export class Mesh extends Asset {
     /**
      * @en Merge the given mesh into the current mesh
      * @zh 合并指定的网格到此网格中。
-     * @param mesh The mesh to be merged
-     * @param worldMatrix The world matrix of the given mesh
-     * @param [validate=false] Whether to validate the mesh
-     * @returns Check the mesh state and return the validation result.
+     * @param mesh @en The mesh to be merged @zh 要合并的网格
+     * @param worldMatrix @en The world matrix of the given mesh @zh 给定网格的模型变换矩阵
+     * @param validate @en Whether to validate the mesh @zh 是否验证网格顶点布局
+     * @returns @en whether the merging was successful or not @zh 返回合并成功与否
      */
     public merge (mesh: Mesh, worldMatrix?: Mat4, validate?: boolean): boolean {
         if (validate) {
@@ -1003,7 +1039,7 @@ export class Mesh extends Asset {
      * 两个子网格布局一致，当且仅当：
      *  - 它们具有相同的图元类型并且引用相同数量、相同索引的顶点块；并且，
      *  - 要么都需要索引绘制，要么都不需要索引绘制。
-     * @param mesh The other mesh to be validated
+     * @param mesh @en The other mesh to be validated @zh 待验证的网格
      */
     public validateMergingMesh (mesh: Mesh) {
         // dynamic mesh is not allowed to merge.
@@ -1064,10 +1100,10 @@ export class Mesh extends Asset {
     /**
      * @en Read the requested attribute of the given sub mesh
      * @zh 读取子网格的指定属性。
-     * @param primitiveIndex Sub mesh index
-     * @param attributeName Attribute name
-     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all data of the attribute,
-     * the array type will match the data type of the attribute.
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @param attributeName @en Attribute name @zh 属性名称
+     * @returns @en Return null if not found or can't read, otherwise, will create a large enough typed array to contain all data of the attribute,
+     * the array type will match the data type of the attribute. @zh 读取失败返回 null， 否则返回对应的类型数组
      */
     public readAttribute (primitiveIndex: number, attributeName: AttributeName): TypedArray | null {
         let result: TypedArray | null = null;
@@ -1105,12 +1141,12 @@ export class Mesh extends Asset {
     /**
      * @en Read the requested attribute of the given sub mesh and fill into the given buffer.
      * @zh 读取子网格的指定属性到目标缓冲区中。
-     * @param primitiveIndex Sub mesh index
-     * @param attributeName Attribute name
-     * @param buffer The target array buffer
-     * @param stride Byte distance between two attributes in the target buffer
-     * @param offset The offset of the first attribute in the target buffer
-     * @returns Return false if failed to access attribute, return true otherwise.
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @param attributeName @en Attribute name @zh 属性名称
+     * @param buffer @en The target array buffer @zh 目标缓冲区
+     * @param stride @en attribute stride @zh 属性跨距
+     * @param offset @en The offset of the first attribute in the target buffer @zh 第一个属性在目标缓冲区的偏移
+     * @returns @en false if failed to access attribute, true otherwise @zh 是否成功拷贝
      */
     public copyAttribute (primitiveIndex: number, attributeName: AttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
         let written = false;
@@ -1158,9 +1194,9 @@ export class Mesh extends Asset {
     /**
      * @en Read the indices data of the given sub mesh
      * @zh 读取子网格的索引数据。
-     * @param primitiveIndex Sub mesh index
-     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all indices data,
-     * the array type will use the corresponding stride size.
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @returns @en Return null if not found or can't read, otherwise, will create a large enough typed array to contain all indices data,
+     * the array type will use the corresponding stride size. @zh 读取失败返回 null，否则返回索引数据
      */
     public readIndices (primitiveIndex: number) {
         if (primitiveIndex >= this._struct.primitives.length) {
@@ -1178,9 +1214,9 @@ export class Mesh extends Asset {
     /**
      * @en Read the indices data of the given sub mesh and fill into the given array
      * @zh 读取子网格的索引数据到目标数组中。
-     * @param primitiveIndex Sub mesh index
-     * @param outputArray The target output array
-     * @returns Return false if failed to access the indices data, return true otherwise.
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @param outputArray @en The target output array @zh 目标索引数组
+     * @returns @en Return false if failed to access the indices data, return true otherwise. @zh 拷贝失败返回 false， 否则返回 true
      */
     public copyIndices (primitiveIndex: number, outputArray: number[] | ArrayBufferView): boolean {
         if (primitiveIndex >= this._struct.primitives.length) {
@@ -1197,6 +1233,24 @@ export class Mesh extends Asset {
             outputArray[i] = reader(primitive.indexView.offset + FormatInfos[indexFormat].size * i);
         }
         return true;
+    }
+
+    /**
+     * @en Read the format by attributeName of submesh
+     * @zh 根据属性名读取子网格的属性信息。
+     * @param primitiveIndex @en Sub mesh index @zh 子网格索引
+     * @param attributeName @en Attribute name @zh 属性名称
+     * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
+     */
+    public readAttributeFormat (primitiveIndex: number, attributeName: AttributeName): FormatInfo | null {
+        let result: FormatInfo | null = null;
+
+        this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
+            const format = vertexBundle.attributes[iAttribute].format;
+            result = FormatInfos[format];
+        });
+
+        return result;
     }
 
     private _accessAttribute (
@@ -1234,6 +1288,11 @@ export class Mesh extends Asset {
         });
     }
 
+    /**
+     * @en default init
+     * @zh 默认初始化
+     * @param uuid @en asset uuid @zh 资源 uuid
+     */
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         this.reset({
@@ -1243,6 +1302,31 @@ export class Mesh extends Asset {
             },
             data: globalEmptyMeshBuffer,
         });
+    }
+
+    /**
+     * @en Set whether the data of this mesh could be accessed (read or wrote), it could be used only for static mesh
+     * @zh 设置此网格的数据是否可被存取，此接口只针对静态网格资源生效
+     * @param allowDataAccess @en Indicate whether the data of this mesh could be accessed (read or wrote) @zh 是否允许存取网格数据
+     */
+    public set allowDataAccess (allowDataAccess: boolean) {
+        this._allowDataAccess = allowDataAccess;
+        if (this._isMeshDataUploaded && !this._allowDataAccess) {
+            this.releaseData();
+        }
+    }
+
+    /**
+     * @en Get whether the data of this mesh could be read or wrote
+     * @zh 获取此网格的数据是否可被存取
+     * @return @en whether the data of this mesh could be accessed (read or wrote) @zh 此网格的数据是否可被存取
+     */
+    public get allowDataAccess () {
+        return this._allowDataAccess;
+    }
+
+    private releaseData () {
+        this._data = globalEmptyMeshBuffer;
     }
 }
 legacyCC.Mesh = Mesh;

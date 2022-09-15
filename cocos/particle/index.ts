@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { Billboard } from './billboard';
 import { Line } from './line';
 import { ParticleSystem } from './particle-system';

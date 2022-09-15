@@ -22,9 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./jsb-reflection.js');
-require('./jsb-bridge.js');
-require('./jsb-bridge-wrapper.js');
 require('./jsb-assets-manager.js');
 
 require('./jsb-game.js');
@@ -36,6 +33,5 @@ require('./jsb-editbox.js');
 require('./jsb-editor-support.js');
 require('./jsb-spine-skeleton.js');
 require('./jsb-dragonbones.js');
-require('./jsb-object.js');
 
 if (cc.physics && cc.physics.PhysicsSystem.PHYSICS_PHYSX) { require('./jsb-physics.js'); }

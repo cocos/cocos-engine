@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable max-len */
 /* eslint-disable no-tabs */
 

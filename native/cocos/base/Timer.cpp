@@ -40,7 +40,7 @@ void Timer::reset() {
 
 int64_t Timer::getMicroseconds() const {
     auto currentTime = Clock::now();
-    auto duration    = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - _startTime).count();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - _startTime).count();
     if (duration < 0) {
         duration = 0;
     }
@@ -50,7 +50,7 @@ int64_t Timer::getMicroseconds() const {
 
 int64_t Timer::getMilliseconds() const {
     auto currentTime = Clock::now();
-    auto duration    = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - _startTime).count();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - _startTime).count();
     if (duration < 0) {
         duration = 0;
     }

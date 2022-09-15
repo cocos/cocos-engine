@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass } from 'cc.decorator';
 import { BitmapFont } from './bitmap-font';
 import { legacyCC } from '../../core/global-exports';

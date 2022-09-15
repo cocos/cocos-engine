@@ -29,6 +29,8 @@
 #include "MiddlewareMacro.h"
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
 #define POOL_DEBUG 0
 
@@ -49,22 +51,13 @@ const static std::size_t MAX_POOL_SIZE = 50;
 TypedArrayPool *TypedArrayPool::instance = nullptr;
 
 TypedArrayPool::TypedArrayPool() {
-    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
+    cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [this](const CustomEvent &) {
+        clearPool();
+    });
 }
 
 TypedArrayPool::~TypedArrayPool() {
     clearPool();
-}
-
-void TypedArrayPool::afterCleanupHandle() {
-    this->_allowPush = false;
-    clearPool();
-    se::ScriptEngine::getInstance()->addAfterInitHook([this] { afterInitHandle(); });
-}
-
-void TypedArrayPool::afterInitHandle() {
-    this->_allowPush = true;
-    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
 }
 
 void TypedArrayPool::clearPool() {
@@ -105,7 +98,7 @@ void TypedArrayPool::dump() {
 }
 
 se::Object *TypedArrayPool::pop(arrayType type, std::size_t size) {
-    auto     fitSize    = static_cast<std::size_t>(std::ceil(static_cast<float>(size) / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
+    auto fitSize = static_cast<std::size_t>(std::ceil(static_cast<float>(size) / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
     objPool *objPoolPtr = getObjPool(type, fitSize);
 
     if (!objPoolPtr->empty()) {
@@ -117,25 +110,25 @@ se::Object *TypedArrayPool::pop(arrayType type, std::size_t size) {
 
     POOL_LOG("TypedArrayPool:pop result:empty,type:%d,fitSize:%lu,objSize:%lu\n", (int)type, fitSize, objPoolPtr->size());
     se::AutoHandleScope hs;
-    auto *              typeArray = se::Object::createTypedArray(type, nullptr, fitSize);
+    auto *typeArray = se::Object::createTypedArray(type, nullptr, fitSize);
     typeArray->root();
     return typeArray;
 }
 
 TypedArrayPool::objPool *TypedArrayPool::getObjPool(arrayType type, std::size_t fitSize) {
-    auto    it        = _pool.find(type);
+    auto it = _pool.find(type);
     fitMap *fitMapPtr = nullptr;
     if (it == _pool.end()) {
-        fitMapPtr   = new fitMap();
+        fitMapPtr = new fitMap();
         _pool[type] = fitMapPtr;
     } else {
         fitMapPtr = it->second;
     }
 
-    auto     itPool     = fitMapPtr->find(fitSize);
+    auto itPool = fitMapPtr->find(fitSize);
     objPool *objPoolPtr = nullptr;
     if (itPool == fitMapPtr->end()) {
-        objPoolPtr            = new objPool();
+        objPoolPtr = new objPool();
         (*fitMapPtr)[fitSize] = objPoolPtr;
     } else {
         objPoolPtr = itPool->second;
@@ -157,7 +150,7 @@ void TypedArrayPool::push(arrayType type, std::size_t arrayCapacity, se::Object 
     }
 
     objPool *objPoolPtr = getObjPool(type, arrayCapacity);
-    auto     it         = std::find(objPoolPtr->begin(), objPoolPtr->end(), object);
+    auto it = std::find(objPoolPtr->begin(), objPoolPtr->end(), object);
     if (it != objPoolPtr->end()) {
         POOL_LOG("TypedArrayPool:push result:repeat\n");
         return;

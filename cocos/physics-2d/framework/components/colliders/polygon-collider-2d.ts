@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
+
 
 import { ccclass, property, menu } from '../../../../core/data/class-decorator';
 import { Component, Vec2, Size } from '../../../../core';

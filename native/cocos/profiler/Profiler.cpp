@@ -24,7 +24,9 @@
  ****************************************************************************/
 
 #include "Profiler.h"
-#include "DebugRenderer.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "DebugRenderer.h"
+#endif
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/Macros.h"
@@ -35,6 +37,7 @@
 #include "platform/FileUtils.h"
 #include "platform/interfaces/modules/Device.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
@@ -47,23 +50,23 @@ namespace cc {
  */
 class ProfilerBlock {
 public:
-    ProfilerBlock(ProfilerBlock *parent, ccstd::string name)
-    : _parent(parent), _name(std::move(name)) {}
+    ProfilerBlock(ProfilerBlock *parent, const std::string_view &name)
+    : _parent(parent), _name(name) {}
     ~ProfilerBlock();
 
-    inline void    begin() { _timer.reset(); }
-    inline void    end() { _item += _timer.getMicroseconds(); }
-    ProfilerBlock *getOrCreateChild(const ccstd::string &name);
-    void           onFrameBegin();
-    void           onFrameEnd();
-    void           doIntervalUpdate();
+    inline void begin() { _timer.reset(); }
+    inline void end() { _item += _timer.getMicroseconds(); }
+    ProfilerBlock *getOrCreateChild(const std::string_view &name);
+    void onFrameBegin();
+    void onFrameEnd();
+    void doIntervalUpdate();
 
 private:
-    ProfilerBlock *              _parent{nullptr};
+    ProfilerBlock *_parent{nullptr};
     std::vector<ProfilerBlock *> _children;
-    utils::Timer                 _timer;
-    ccstd::string                _name;
-    TimeCounter                  _item;
+    utils::Timer _timer;
+    ccstd::string _name;
+    TimeCounter _item;
 
     friend class Profiler;
 };
@@ -72,18 +75,17 @@ ProfilerBlock::~ProfilerBlock() {
     for (auto *child : _children) {
         CC_SAFE_DELETE(child);
     }
-
     _children.clear();
 }
 
-ProfilerBlock *ProfilerBlock::getOrCreateChild(const ccstd::string &name) {
+ProfilerBlock *ProfilerBlock::getOrCreateChild(const std::string_view &name) {
     for (auto *child : _children) {
         if (child->_name == name) {
             return child;
         }
     }
 
-    auto *child = new ProfilerBlock(this, name);
+    auto *child = ccnew ProfilerBlock(this, name);
     _children.push_back(child);
 
     return child;
@@ -115,7 +117,7 @@ void ProfilerBlock::doIntervalUpdate() { //NOLINT(misc-no-recursion)
 
 struct ProfilerBlockDepth {
     ProfilerBlock *block{nullptr};
-    uint32_t       depth{0U};
+    uint32_t depth{0U};
 };
 
 /**
@@ -123,29 +125,21 @@ struct ProfilerBlockDepth {
  */
 Profiler *Profiler::instance = nullptr;
 Profiler *Profiler::getInstance() {
-    if (!instance) {
-        instance = new Profiler();
-    }
-
     return instance;
-}
-
-void Profiler::destroyInstance() {
-    if (instance) {
-        delete instance;
-        instance = nullptr;
-    }
 }
 
 Profiler::Profiler() {
     _mainThreadId = std::this_thread::get_id();
-    _root         = new ProfilerBlock(nullptr, "MainThread");
-    _current      = _root;
+    _root = ccnew ProfilerBlock(nullptr, "MainThread");
+    _current = _root;
+
+    Profiler::instance = this;
 }
 
 Profiler::~Profiler() {
     CC_SAFE_DELETE(_root);
     _current = nullptr;
+    Profiler::instance = nullptr;
 }
 
 void Profiler::setEnable(ShowOption option, bool b) {
@@ -171,7 +165,7 @@ void Profiler::beginFrame() {
 }
 
 void Profiler::endFrame() {
-    CCASSERT(_current == _root, "Call stack data is not matched.");
+    CC_ASSERT(_current == _root); // Call stack data is not matched.
 
     _root->end();
     _root->onFrameEnd();
@@ -197,21 +191,21 @@ void Profiler::update() {
 }
 
 void Profiler::doIntervalUpdate() {
-    const auto *pipeline  = Root::getInstance()->getPipeline();
-    const auto *root      = Root::getInstance();
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *root = Root::getInstance();
     const auto *sceneData = pipeline->getPipelineSceneData();
-    const auto *shadows   = sceneData->getShadows();
-    const auto *window    = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
-    const auto  viewSize  = window->getViewSize() * Device::getDevicePixelRatio();
+    const auto *shadows = sceneData->getShadows();
+    const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
+    const auto viewSize = window->getViewSize() * Device::getDevicePixelRatio();
 
-    _coreStats.fps            = root->getFps();
-    _coreStats.frameTime      = root->getFrameTime() * 1000.0F;
-    _coreStats.gfx            = gfx::DeviceManager::getGFXName();
-    _coreStats.multiThread    = gfx::DeviceManager::isDetachDeviceThread();
+    _coreStats.fps = root->getFps();
+    _coreStats.frameTime = root->getFrameTime() * 1000.0F;
+    _coreStats.gfx = gfx::DeviceManager::getGFXName();
+    _coreStats.multiThread = gfx::DeviceManager::isDetachDeviceThread();
     _coreStats.occlusionQuery = pipeline->isOcclusionQueryEnabled();
-    _coreStats.shadowMap      = shadows != nullptr && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP;
-    _coreStats.screenWidth    = static_cast<uint32_t>(viewSize.x);
-    _coreStats.screenHeight   = static_cast<uint32_t>(viewSize.y);
+    _coreStats.shadowMap = shadows != nullptr && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP;
+    _coreStats.screenWidth = static_cast<uint32_t>(viewSize.x);
+    _coreStats.screenHeight = static_cast<uint32_t>(viewSize.y);
 }
 
 void Profiler::doFrameUpdate() {
@@ -227,19 +221,20 @@ void Profiler::doFrameUpdate() {
 }
 
 void Profiler::printStats() {
-    auto *      renderer    = CC_DEBUG_RENDERER;
-    const auto *window      = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
-    const auto  viewSize    = window->getViewSize() * Device::getDevicePixelRatio();
-    const auto  width       = viewSize.x;
-    const auto  lineHeight  = renderer->getLineHeight();
-    const auto  columnWidth = width / 12.0F; // divide column numbers
-    const auto  leftOffset  = width * 0.01F;
-    float       lines       = 1.0F;
-    float       leftLines   = 1.0F;
-    float       rightLines  = 1.0F;
+#if CC_USE_DEBUG_RENDERER
+    auto *renderer = CC_DEBUG_RENDERER;
+    const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
+    const auto viewSize = window->getViewSize() * Device::getDevicePixelRatio();
+    const auto width = viewSize.x;
+    const auto lineHeight = renderer->getLineHeight();
+    const auto columnWidth = width / 12.0F; // divide column numbers
+    const auto leftOffset = width * 0.01F;
+    float lines = 1.0F;
+    float leftLines = 1.0F;
+    float rightLines = 1.0F;
 
-    const DebugTextInfo coreInfo     = {{1.0F, 0.0F, 0.0F, 1.0F}, true, false, true, 1U, {0.0F, 0.0F, 0.0F, 1.0F}, 1.0F};
-    const DebugTextInfo titleInfo    = {{1.0F, 1.0F, 0.0F, 1.0F}, true, false, true, 1U, {0.0F, 0.0F, 0.0F, 1.0F}, 1.0F};
+    const DebugTextInfo coreInfo = {{1.0F, 0.0F, 0.0F, 1.0F}, true, false, true, 1U, {0.0F, 0.0F, 0.0F, 1.0F}, 1.0F};
+    const DebugTextInfo titleInfo = {{1.0F, 1.0F, 0.0F, 1.0F}, true, false, true, 1U, {0.0F, 0.0F, 0.0F, 1.0F}, 1.0F};
     const DebugTextInfo textInfos[2] = {
         {{1.0F, 1.0F, 1.0F, 1.0F}, false, false, true, 1U, {0.0F, 0.0F, 0.0F, 1.0F}, 1.0F},
         {{0.8F, 0.8F, 0.8F, 1.0F}, false, false, true, 1U, {0.0F, 0.0F, 0.0F, 1.0F}, 1.0F},
@@ -247,7 +242,7 @@ void Profiler::printStats() {
 
     if (isEnabled(ShowOption::CORE_STATS)) {
         float coreOffset = columnWidth * 2.0F;
-        auto  coreStats  = StringUtil::format(
+        auto coreStats = StringUtil::format(
             "FPS: %u    "
             "Frame: %.1fms    "
             "GFX: %s    "
@@ -272,9 +267,9 @@ void Profiler::printStats() {
     }
 
     if (isEnabled(ShowOption::OBJECT_STATS)) {
-        leftLines            = lines;
-        float yOffset        = lineHeight * leftLines;
-        float countOffset    = columnWidth * 2;
+        leftLines = lines;
+        float yOffset = lineHeight * leftLines;
+        float countOffset = columnWidth * 2;
         float totalMaxOffset = columnWidth * 3;
 
         renderer->addText("ObjectStats", {leftOffset, yOffset}, titleInfo);
@@ -284,7 +279,7 @@ void Profiler::printStats() {
 
         for (auto &iter : _objectStats.renders) {
             auto &item = iter.second;
-            yOffset    = lineHeight * leftLines;
+            yOffset = lineHeight * leftLines;
 
             renderer->addText(iter.first, {leftOffset, yOffset}, textInfos[0]);
             renderer->addText(StringUtil::format("%u", item.lastTotal), {countOffset, yOffset}, textInfos[0]);
@@ -294,7 +289,7 @@ void Profiler::printStats() {
 
         for (auto &iter : _objectStats.objects) {
             auto &item = iter.second;
-            yOffset    = lineHeight * leftLines;
+            yOffset = lineHeight * leftLines;
 
             renderer->addText(iter.first, {leftOffset, yOffset}, textInfos[0]);
             renderer->addText(StringUtil::format("%u", item.lastTotal), {countOffset, yOffset}, textInfos[0]);
@@ -306,11 +301,11 @@ void Profiler::printStats() {
     }
 
     if (isEnabled(ShowOption::MEMORY_STATS)) {
-        rightLines           = lines;
-        float yOffset        = lineHeight * rightLines;
-        float memoryOffset   = width * 0.5F;
-        float totalOffset    = memoryOffset + columnWidth * 2;
-        float countOffset    = memoryOffset + columnWidth * 3;
+        rightLines = lines;
+        float yOffset = lineHeight * rightLines;
+        float memoryOffset = width * 0.5F;
+        float totalOffset = memoryOffset + columnWidth * 2;
+        float countOffset = memoryOffset + columnWidth * 3;
         float totalMaxOffset = memoryOffset + columnWidth * 4;
 
         renderer->addText("MemoryStats", {memoryOffset, yOffset}, titleInfo);
@@ -327,7 +322,7 @@ void Profiler::printStats() {
 
         for (auto &iter : memories) {
             auto &item = iter.second;
-            yOffset    = lineHeight * rightLines;
+            yOffset = lineHeight * rightLines;
 
             renderer->addText(iter.first, {memoryOffset, yOffset}, textInfos[0]);
             renderer->addText(StatsUtil::formatBytes(item.total), {totalOffset, yOffset}, textInfos[0]);
@@ -340,15 +335,15 @@ void Profiler::printStats() {
     }
 
     if (isEnabled(ShowOption::PERFORMANCE_STATS)) {
-        lines                    = std::max(leftLines, rightLines);
-        float yOffset            = lineHeight * lines;
-        float frameTimeOffset    = columnWidth * 4;
-        float frameMaxOffset     = columnWidth * 5;
-        float frameCountOffset   = columnWidth * 6;
+        lines = std::max(leftLines, rightLines);
+        float yOffset = lineHeight * lines;
+        float frameTimeOffset = columnWidth * 4;
+        float frameMaxOffset = columnWidth * 5;
+        float frameCountOffset = columnWidth * 6;
         float frameAgerageOffset = columnWidth * 7;
-        float totalTimeOffset    = columnWidth * 8;
-        float totalMaxOffset     = columnWidth * 9;
-        float totalCountOffset   = columnWidth * 10;
+        float totalTimeOffset = columnWidth * 8;
+        float totalMaxOffset = columnWidth * 9;
+        float totalCountOffset = columnWidth * 10;
         float totalAgerageOffset = columnWidth * 11;
 
         renderer->addText("PerformanceStats", {leftOffset, yOffset}, titleInfo);
@@ -369,9 +364,9 @@ void Profiler::printStats() {
 
         uint32_t colorIndex = 0;
         for (auto &iter : blocks) {
-            yOffset           = lineHeight * lines;
+            yOffset = lineHeight * lines;
             const auto *block = iter.block;
-            const auto &item  = block->_item;
+            const auto &item = block->_item;
 
             uint64_t frameAverageDisplay = item.frameCountDisplay ? item.frameTimeDisplay / item.frameCountDisplay : 0U;
             uint64_t totalAverageDisplay = item.totalCountDisplay ? item.totalTimeDisplay / item.totalCountDisplay : 0U;
@@ -391,9 +386,10 @@ void Profiler::printStats() {
 
         lines += 0.5F;
     }
+#endif
 }
 
-void Profiler::beginBlock(const ccstd::string &name) {
+void Profiler::beginBlock(const std::string_view &name) {
     if (isMainThread()) {
         _current = _current->getOrCreateChild(name);
         _current->begin();

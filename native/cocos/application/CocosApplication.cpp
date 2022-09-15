@@ -35,25 +35,39 @@
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/engine/BaseEngine.h"
 #include "cocos/platform/interfaces/modules/IScreen.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
+#include "ApplicationManager.h"
 
 namespace cc {
 
 CocosApplication::CocosApplication() {
-    _engine      = BaseEngine::createEngine();
-    _systemWidow = _engine->getInterface<ISystemWindow>();
-    CCASSERT(_systemWidow != nullptr, "Invalid interface pointer");
+    _engine = BaseEngine::createEngine();
 }
 
 CocosApplication::~CocosApplication() {
-    _engine->off(BaseEngine::ON_RESUME);
-    _engine->off(BaseEngine::ON_PAUSE);
-    _engine->off(BaseEngine::ON_CLOSE);
+    unregisterAllEngineEvents();
+}
+
+void CocosApplication::unregisterAllEngineEvents() {
+    if (_engine != nullptr) {
+        _engine->offAll(BaseEngine::ON_START);
+        _engine->offAll(BaseEngine::ON_RESUME);
+        _engine->offAll(BaseEngine::ON_PAUSE);
+        _engine->offAll(BaseEngine::ON_CLOSE);
+    }
 }
 
 int CocosApplication::init() {
     if (_engine->init()) {
         return -1;
     }
+    unregisterAllEngineEvents();
+
+    _engine->on(BaseEngine::ON_START, [this]() {
+        this->onStart();
+    });
+
+    _systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
 
     _engine->on(BaseEngine::ON_RESUME, [this]() {
         this->onResume();
@@ -77,10 +91,10 @@ int CocosApplication::init() {
 
     se->start();
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    auto     logicSize  = _systemWidow->getViewSize();
-    IScreen *screen     = _engine->getInterface<IScreen>();
-    float    pixelRatio = screen->getDevicePixelRatio();
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
+    auto logicSize = _systemWindow->getViewSize();
+    IScreen *screen = _engine->getInterface<IScreen>();
+    float pixelRatio = screen->getDevicePixelRatio();
     cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
 #endif
     return 0;
@@ -103,13 +117,17 @@ void CocosApplication::resume() {
 void CocosApplication::restart() {
     _engine->restart();
 }
-
+// IMPORTANT!!The method `onClose` is a function to be listen close event, while `close` is a jsb binding method mean to close the whole application.
 void CocosApplication::close() {
-    _engine->close();
+    _systemWindow->closeWindow();
 }
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
+}
+
+void CocosApplication::onStart() {
+    // TODO(cc): Handling engine start events
 }
 
 void CocosApplication::onPause() {
@@ -121,14 +139,12 @@ void CocosApplication::onResume() {
 }
 
 void CocosApplication::onClose() {
-    // TODO(cc): Handling close events
+    _engine->close();
 }
 
 void CocosApplication::setDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect) {
-#if defined(CC_DEBUG) && (CC_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger(serverAddr, port, isWaitForConnect);
-#endif
 }
 
 void CocosApplication::runScript(const ccstd::string &filePath) {
@@ -143,16 +159,16 @@ void CocosApplication::handleException(const char *location, const char *message
 void CocosApplication::setXXTeaKey(const ccstd::string &key) {
     jsb_set_xxtea_key(key);
 }
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
 void CocosApplication::createWindow(const char *title, int32_t w,
                                     int32_t h, int32_t flags) {
-    _systemWidow->createWindow(title, w, h, flags);
+    _systemWindow->createWindow(title, w, h, flags);
 }
 
 void CocosApplication::createWindow(const char *title,
                                     int32_t x, int32_t y, int32_t w,
                                     int32_t h, int32_t flags) {
-    _systemWidow->createWindow(title, x, y, w, h, flags);
+    _systemWindow->createWindow(title, x, y, w, h, flags);
 }
 #endif
 

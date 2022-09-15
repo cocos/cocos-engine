@@ -48,7 +48,7 @@ public:
 
 protected:
     virtual void doInit(const QueueInfo &info) = 0;
-    virtual void doDestroy()                   = 0;
+    virtual void doDestroy() = 0;
 
     QueueType _type = QueueType::GRAPHICS;
 };

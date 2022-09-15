@@ -29,8 +29,8 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
-import { Texture2D } from '../../assets/texture-2d';
+import { builtinResMgr } from '../../../asset/asset-manager/builtin-res-mgr';
+import { Texture2D } from '../../../asset/assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputAssemblerData } from '../render-pipeline';
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
@@ -38,9 +38,9 @@ import { ShadowFlow } from '../shadow/shadow-flow';
 import { Format, StoreOp,
     ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, Texture, AccessFlagBit, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
-import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { Camera } from '../../renderer/scene';
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../../gfx';
+import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
+import { Camera } from '../../../render-scene/scene';
 import { errorID } from '../../platform/debug';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { PipelineEventType } from '../pipeline-event';
@@ -140,8 +140,8 @@ export class DeferredPipeline extends RenderPipeline {
         const sampler = this.globalDSManager.pointSampler;
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, sampler);
         this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-        this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, sampler);
-        this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this._descriptorSet.bindSampler(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, sampler);
+        this._descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
 
         let inputAssemblerDataOffscreen = new PipelineInputAssemblerData();
@@ -227,7 +227,7 @@ export class DeferredPipeline extends RenderPipeline {
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOCamera.BINDING).destroy();
             this._descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
-            this._descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+            this._descriptorSet.getTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING).destroy();
         }
     }
 
@@ -310,12 +310,14 @@ export class DeferredPipeline extends RenderPipeline {
             data.outputRenderTargets,
             null,
         ));
+
+        data.sampler = this.globalDSManager.pointSampler;
+
         // Listens when the attachment texture is scaled
         this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, (val: number) => {
             data.sampler = val < 1 ? this.globalDSManager.pointSampler : this.globalDSManager.linearSampler;
             this.applyFramebufferRatio(data.gbufferFrameBuffer);
             this.applyFramebufferRatio(data.outputFrameBuffer);
         });
-        data.sampler = this.globalDSManager.linearSampler;
     }
 }

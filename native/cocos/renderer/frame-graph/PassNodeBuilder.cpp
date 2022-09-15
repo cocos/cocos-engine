@@ -39,13 +39,13 @@ Handle PassNodeBuilder::read(const Handle &input) const noexcept {
 }
 
 TextureHandle PassNodeBuilder::write(const TextureHandle &output, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept {
-    const TextureHandle    handle(_passNode.write(_graph, output));
+    const TextureHandle handle(_passNode.write(_graph, output));
     RenderTargetAttachment attachment;
     attachment.textureHandle = handle;
-    attachment.desc          = attachmentDesc;
-    attachment.level         = mipmapLevel;
-    attachment.layer         = faceId;
-    attachment.index         = arrayPosition;
+    attachment.desc = attachmentDesc;
+    attachment.level = mipmapLevel;
+    attachment.layer = faceId;
+    attachment.index = arrayPosition;
     _passNode.createRenderTargetAttachment(std::forward<RenderTargetAttachment>(attachment));
 
     if (attachmentDesc.loadOp == gfx::LoadOp::LOAD) {

@@ -22,8 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef MATH_MAT3_H
-#define MATH_MAT3_H
+#pragma once
 
 #define MATRIX3_SIZE (sizeof(float) * 9)
 
@@ -92,6 +91,25 @@ public:
      * @param copy The matrix to copy.
      */
     Mat3(const Mat3 &copy);
+
+    /**
+     * 
+     * @brief Construct a new Mat 3 object with a Mat4.
+     * Copies the upper-left 3x3 values of a 4x4 matrix into a 3x3 matrix.
+     * @param m4 
+     */
+    explicit Mat3(const Mat4 &m4) {
+        fromMat4(m4, this);
+    }
+
+    /**
+    * @brief Construct a new Mat 3 object with a Quaternion
+    * Calculates a 3x3 matrix from the given quaternion.
+    * @param quat 
+    */
+    explicit Mat3(const Quaternion &quat) {
+        fromQuat(quat, this);
+    }
 
     /**
      * Destructor.
@@ -220,6 +238,11 @@ public:
      */
     static void subtract(const Mat3 &a, const Mat3 &b, Mat3 *out);
 
+    /**
+     * Determines if this matrix is approximately equal to the given matrix.
+     */
+    bool approxEquals(const Mat3 &v, float precision = CC_FLOAT_CMP_PRECISION) const;
+
     /** equals to a matrix full of zeros */
     static const Mat3 ZERO;
     /** equals to the identity matrix */
@@ -232,5 +255,3 @@ NS_CC_MATH_END
  end of base group
  @}
  */
-
-#endif

@@ -34,7 +34,7 @@ namespace gfx {
 
 SwapchainAgent::SwapchainAgent(Swapchain *actor)
 : Agent<Swapchain>(actor) {
-    _typedID            = actor->getTypedID();
+    _typedID = actor->getTypedID();
     _preRotationEnabled = static_cast<SwapchainAgent *>(actor)->_preRotationEnabled;
 }
 
@@ -58,19 +58,19 @@ void SwapchainAgent::doInit(const SwapchainInfo &info) {
 
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
 
-    auto *colorTexture = CC_NEW(TextureAgent(_actor->getColorTexture()));
+    auto *colorTexture = ccnew TextureAgent(_actor->getColorTexture());
     colorTexture->renounceOwnership();
     _colorTexture = colorTexture;
 
-    auto *depthStencilTexture = CC_NEW(TextureAgent(_actor->getDepthStencilTexture()));
+    auto *depthStencilTexture = ccnew TextureAgent(_actor->getDepthStencilTexture());
     depthStencilTexture->renounceOwnership();
     _depthStencilTexture = depthStencilTexture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = _actor->getColorTexture()->getFormat();
-    textureInfo.width     = _actor->getWidth();
-    textureInfo.height    = _actor->getHeight();
+    textureInfo.format = _actor->getColorTexture()->getFormat();
+    textureInfo.width = _actor->getWidth();
+    textureInfo.height = _actor->getHeight();
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = _actor->getDepthStencilTexture()->getFormat();
@@ -81,7 +81,7 @@ void SwapchainAgent::doInit(const SwapchainInfo &info) {
 
 void SwapchainAgent::doDestroy() {
     _depthStencilTexture = nullptr;
-    _colorTexture        = nullptr;
+    _colorTexture = nullptr;
 
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(), SwapchainDestroy,
@@ -106,7 +106,7 @@ void SwapchainAgent::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 
     mq->kickAndWait();
 
-    auto *colorTexture        = static_cast<TextureAgent *>(_colorTexture.get());
+    auto *colorTexture = static_cast<TextureAgent *>(_colorTexture.get());
     auto *depthStencilTexture = static_cast<TextureAgent *>(_depthStencilTexture.get());
     colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
     colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();

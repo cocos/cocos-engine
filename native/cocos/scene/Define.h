@@ -33,7 +33,7 @@ namespace scene {
 
 struct IMacroPatch {
     ccstd::string name;
-    MacroValue    value;
+    MacroValue value;
 };
 
 } // namespace scene

@@ -1,6 +1,6 @@
-import { AssetLibrary, loader, resources } from "../../cocos/core/asset-manager";
-import { parseLoadResArgs } from "../../cocos/core/asset-manager/utilities";
-import { ImageAsset } from "../../cocos/core/assets/image-asset";
+import { AssetLibrary, loader, resources } from "../../cocos/asset/asset-manager";
+import { parseLoadResArgs } from "../../cocos/asset/asset-manager/utilities";
+import { ImageAsset } from "../../cocos/asset/assets/image-asset";
 import { path } from "../../cocos/core/utils";
 import { js } from "../../cocos/core/utils/js";
 import { TestSprite } from "./common-class";
@@ -8,11 +8,11 @@ import { TestSprite } from "./common-class";
 describe('asset', function () {
 
     const Assets = {
-        '0000001': ['grossini/grossini', js._getClassId(ImageAsset)],
-        '123201':  ['grossini/grossini', js._getClassId(TestSprite), 1],
-        '0000000': ['grossini', js._getClassId(ImageAsset)],
-        '1232218': ['grossini', js._getClassId(TestSprite), 1],   // sprite in texture
-        '123200':  ['grossini', js._getClassId(TestSprite), 1],   // sprite in plist
+        '0000001': ['grossini/grossini', js.getClassId(ImageAsset)],
+        '123201':  ['grossini/grossini', js.getClassId(TestSprite), 1],
+        '0000000': ['grossini', js.getClassId(ImageAsset)],
+        '1232218': ['grossini', js.getClassId(TestSprite), 1],   // sprite in texture
+        '123200':  ['grossini', js.getClassId(TestSprite), 1],   // sprite in plist
     };
     const options = {
         libraryPath: './tests/fixtures/library',

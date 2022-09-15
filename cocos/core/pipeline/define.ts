@@ -23,20 +23,14 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
-import { Pass } from '../renderer/core/pass';
-import { Model } from '../renderer/scene/model';
-import { SubModel } from '../renderer/scene/submodel';
+import { Pass } from '../../render-scene/core/pass';
+import { Model } from '../../render-scene/scene/model';
+import { SubModel } from '../../render-scene/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device,
-    Feature, API, FormatFeatureBit, Format,
-} from '../gfx';
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
+    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
+} from '../../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
@@ -78,6 +72,7 @@ export interface IRenderObject {
  * @zh 渲染过程接口。
  */
 export interface IRenderPass {
+    priority: number;
     hash: number;
     depth: number;
     shaderId: number;
@@ -119,10 +114,11 @@ export enum PipelineGlobalBindings {
     UBO_GLOBAL,
     UBO_CAMERA,
     UBO_SHADOW,
+    UBO_CSM, // should reserve slot for this optional ubo
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
-    SAMPLER_SPOT_LIGHTING_MAP,
+    SAMPLER_SPOT_SHADOW_MAP,
     SAMPLER_DIFFUSEMAP,
 
     COUNT,
@@ -177,9 +173,15 @@ export const bindingMappingInfo = new BindingMappingInfo(
  */
 export class UBOGlobal {
     public static readonly TIME_OFFSET = 0;
-    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
-    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly COUNT = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
+    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+
+    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
+    public static readonly DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+
+    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -189,6 +191,11 @@ export class UBOGlobal {
         new Uniform('cc_time', Type.FLOAT4, 1),
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
+
+        new Uniform('cc_debug_view_mode', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_2', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_composite_pack_3', Type.FLOAT, 4),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
@@ -250,12 +257,11 @@ globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
 
 /**
- * @en The uniform buffer object for shadow
- * @zh 阴影 UBO。
+ * @en The uniform buffer object for 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow'
+ * @zh 这个 UBO 仅仅只给 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow' 使用
  */
 export class UBOShadow {
-    public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
-    public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    public static readonly MAT_LIGHT_VIEW_OFFSET = 0;
     public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
     public static readonly SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
     public static readonly SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
@@ -271,7 +277,6 @@ export class UBOShadow {
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOShadow.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOShadow.BINDING, UBOShadow.NAME, [
-        new Uniform('cc_matLightPlaneProj', Type.MAT4, 1),
         new Uniform('cc_matLightView', Type.MAT4, 1),
         new Uniform('cc_matLightViewProj', Type.MAT4, 1),
         new Uniform('cc_shadowInvProjDepthInfo', Type.FLOAT4, 1),
@@ -287,11 +292,45 @@ export class UBOShadow {
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
+/**
+ * @en The uniform buffer object only for dir csm shadow(level: 1 ~ 4)
+ * @zh 级联阴影使用的UBO
+ */
+export class UBOCSM {
+    public static readonly CSM_LEVEL_COUNT = 4;
+    public static readonly CSM_VIEW_DIR_0_OFFSET = 0;
+    public static readonly CSM_VIEW_DIR_1_OFFSET = UBOCSM.CSM_VIEW_DIR_0_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly CSM_VIEW_DIR_2_OFFSET = UBOCSM.CSM_VIEW_DIR_1_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly CSM_ATLAS_OFFSET = UBOCSM.CSM_VIEW_DIR_2_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly MAT_CSM_VIEW_PROJ_OFFSET = UBOCSM.CSM_ATLAS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly CSM_PROJ_DEPTH_INFO_OFFSET = UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly CSM_PROJ_INFO_OFFSET = UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly CSM_SPLITS_INFO_OFFSET = UBOCSM.CSM_PROJ_INFO_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
+    public static readonly COUNT: number = UBOCSM.CSM_SPLITS_INFO_OFFSET + 4;
+    public static readonly SIZE = UBOCSM.COUNT * 4;
+
+    public static readonly NAME = 'CCCSM';
+    public static readonly BINDING = PipelineGlobalBindings.UBO_CSM;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCSM.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCSM.BINDING, UBOCSM.NAME, [
+        new Uniform('cc_csmViewDir0', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmViewDir1', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmViewDir2', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmAtlas', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_matCSMViewProj', Type.MAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmProjDepthInfo', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmProjInfo', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
+        new Uniform('cc_csmSplitsInfo', Type.FLOAT4, 1),
+    ], 1);
+}
+globalDescriptorSetLayout.layouts[UBOCSM.NAME] = UBOCSM.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOCSM.BINDING] = UBOCSM.DESCRIPTOR;
+
 /* eslint-disable max-len */
 
 /**
  * @en The sampler for Main light shadow map
- * @zn 主光源阴影纹理采样器
+ * @zh 主光源阴影纹理采样器
  */
 const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
 export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
@@ -316,14 +355,14 @@ globalDescriptorSetLayout.bindings[UNIFORM_DIFFUSEMAP_BINDING] = UNIFORM_DIFFUSE
 
 /**
  * @en The sampler for spot light shadow map
- * @zn 聚光灯阴影纹理采样器
+ * @zh 聚光灯阴影纹理采样器
  */
-const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME = 'cc_spotLightingMap';
-export const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_SPOT_LIGHTING_MAP;
-const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
-globalDescriptorSetLayout.layouts[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT;
-globalDescriptorSetLayout.bindings[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR;
+const UNIFORM_SPOT_SHADOW_MAP_TEXTURE_NAME = 'cc_spotShadowMap';
+export const UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_SPOT_SHADOW_MAP;
+const UNIFORM_SPOT_SHADOW_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SPOT_SHADOW_MAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_SPOT_SHADOW_MAP_TEXTURE_NAME] = UNIFORM_SPOT_SHADOW_MAP_TEXTURE_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_SHADOW_MAP_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The local uniform buffer object
@@ -458,19 +497,39 @@ localDescriptorSetLayout.bindings[UBOSkinningAnimation.BINDING] = UBOSkinningAni
 
 export const INST_JOINT_ANIM_INFO = 'a_jointAnimInfo';
 export class UBOSkinning {
-    public static readonly JOINTS_OFFSET = 0;
-    public static readonly COUNT = UBOSkinning.JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
-    public static readonly SIZE = UBOSkinning.COUNT * 4;
+    private static _jointUniformCapacity = 0;
+    public static get JOINT_UNIFORM_CAPACITY () { return UBOSkinning._jointUniformCapacity; }
+    private static _count = 0;
+    public static get COUNT () { return UBOSkinning._count; }
+    private static _size = 0;
+    public static get SIZE () { return UBOSkinning._size; }
 
     public static readonly NAME = 'CCSkinning';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSkinning.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSkinning.BINDING, UBOSkinning.NAME, [
-        new Uniform('cc_joints', Type.FLOAT4, JOINT_UNIFORM_CAPACITY * 3),
+        new Uniform('cc_joints', Type.FLOAT4, 1),
     ], 1);
+
+    /**
+     * @internal This method only used init UBOSkinning configure.
+    */
+    public static initLayout (capacity: number) {
+        UBOSkinning._jointUniformCapacity = capacity;
+        UBOSkinning._count = capacity * 12;
+        UBOSkinning._size = UBOSkinning._count * 4;
+        UBOSkinning.LAYOUT.members[0].count = capacity * 3;
+    }
 }
-localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
-localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
+
+/**
+ * @internal This method only used to init localDescriptorSetLayout.layouts[UBOSkinning.NAME]
+*/
+export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number) {
+    UBOSkinning.initLayout(maxCount);
+    localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
+    localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
+}
 
 /**
  * @en The uniform buffer object for morph setting
@@ -518,6 +577,17 @@ const UNIFORM_JOINT_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_
 const UNIFORM_JOINT_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_JOINT_TEXTURE_BINDING, UNIFORM_JOINT_TEXTURE_NAME, Type.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_JOINT_TEXTURE_NAME] = UNIFORM_JOINT_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_JOINT_TEXTURE_BINDING] = UNIFORM_JOINT_TEXTURE_DESCRIPTOR;
+
+/**
+ * @en The sampler for real-time joint texture
+ * @zh 实时骨骼纹理采样器。
+ */
+const UNIFORM_REALTIME_JOINT_TEXTURE_NAME = 'cc_realtimeJoint';
+export const UNIFORM_REALTIME_JOINT_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_JOINTS;
+const UNIFORM_REALTIME_JOINT_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REALTIME_JOINT_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
+const UNIFORM_REALTIME_JOINT_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING, UNIFORM_REALTIME_JOINT_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REALTIME_JOINT_TEXTURE_NAME] = UNIFORM_REALTIME_JOINT_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REALTIME_JOINT_TEXTURE_BINDING] = UNIFORM_REALTIME_JOINT_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The sampler for morph texture of position

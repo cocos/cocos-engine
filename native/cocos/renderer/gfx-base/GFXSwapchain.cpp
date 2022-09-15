@@ -35,10 +35,13 @@ Swapchain::Swapchain()
 Swapchain::~Swapchain() = default;
 
 void Swapchain::initialize(const SwapchainInfo &info) {
-    CCASSERT(info.windowHandle, "Invalid window handle");
+#if !defined(CC_SERVER_MODE)
+    CC_ASSERT(info.windowHandle);
+#endif
 
+    _windowId = info.windowId;
     _windowHandle = info.windowHandle;
-    _vsyncMode    = info.vsyncMode;
+    _vsyncMode = info.vsyncMode;
 
     doInit(info);
 }
@@ -47,6 +50,7 @@ void Swapchain::destroy() {
     doDestroy();
 
     _windowHandle = nullptr;
+    _windowId = 0;
 }
 
 void Swapchain::resize(uint32_t width, uint32_t height, SurfaceTransform transform) {

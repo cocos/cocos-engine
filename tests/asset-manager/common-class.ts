@@ -1,9 +1,8 @@
-import { Asset } from "../../cocos/core/assets/asset"
+import { Asset } from "../../cocos/asset/assets/asset"
 import { Component } from "../../cocos/core/components";
 import { serializable, type } from "../../cocos/core/data/decorators";
 import { ccclass } from "../../cocos/core/data/decorators/ccclass";
 import { Vec2 } from "../../cocos/core/math";
-
 
 @ccclass('TestTexture')
 class TestTexture extends Asset{

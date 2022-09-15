@@ -24,14 +24,14 @@
  */
 
 import { Component } from '../../core';
-import { Attribute } from '../../core/gfx';
+import { Attribute, deviceManager, Feature } from '../../gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
-import { Material } from '../../core/assets';
+import { Material } from '../../asset/assets';
 import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
 import { legacyCC } from '../../core/global-exports';
-import { Pass } from '../../core/renderer';
+import { Pass } from '../../render-scene';
 
 export interface IParticleSystemRenderer {
     onInit (ps: Component): void;
@@ -44,6 +44,7 @@ export interface IParticleSystemRenderer {
     attachToScene (): void;
     detachFromScene (): void;
     updateMaterialParams (): void;
+    updateVertexAttrib (): void;
     setVertexAttributes (): void;
     updateRenderMode (): void;
     onMaterialModified (index: number, material: Material): void;
@@ -60,6 +61,9 @@ export interface IParticleSystemRenderer {
     updateTrailMaterial (): void;
     getDefaultTrailMaterial (): any;
     beforeRender (): void;
+    setUseInstance (value: boolean): void;
+    getUseInstance (): boolean;
+    getNoisePreview (out: number[], width: number, height: number): void;
 }
 
 export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
@@ -67,9 +71,19 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     protected _model: ParticleBatchModel | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];
+    protected _useInstance: boolean;
 
     constructor (info: ParticleSystemRenderer) {
         this._renderInfo = info;
+        if (!deviceManager.gfxDevice.hasFeature(Feature.INSTANCED_ARRAYS)) {
+            this._useInstance = false;
+        } else {
+            this._useInstance = true;
+        }
+    }
+
+    public getUseInstance (): boolean {
+        return this._useInstance;
     }
 
     public getInfo () {
@@ -119,6 +133,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
 
     public setVertexAttributes () {
         if (this._model) {
+            this.updateVertexAttrib();
             this._model.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
         }
     }
@@ -145,6 +160,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract getFreeParticle (): Particle | null;
     public abstract onMaterialModified (index: number, material: Material) : void;
     public abstract onRebuildPSO (index: number, material: Material) : void;
+    public abstract updateVertexAttrib (): void;
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
     public abstract setNewParticle (p: Particle): void;
@@ -155,4 +171,6 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateRenderData (): void;
     public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;
     public abstract beforeRender (): void;
+    public abstract setUseInstance (value: boolean): void;
+    public abstract getNoisePreview (out: number[], width: number, height: number): void;
 }

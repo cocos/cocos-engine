@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 
 import { Mesh } from '../../../3d/assets';
@@ -32,7 +30,7 @@ import { MeshCollider, PhysicsMaterial } from '../../framework';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
-import { AttributeName } from '../../../core/gfx';
+import { AttributeName } from '../../../gfx';
 import { PhysXInstance } from '../physx-instance';
 
 export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {

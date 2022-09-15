@@ -24,7 +24,6 @@
  THE SOFTWARE.
 */
 
-
 export { MeshRenderer } from './mesh-renderer';
 
 /** deprecated */

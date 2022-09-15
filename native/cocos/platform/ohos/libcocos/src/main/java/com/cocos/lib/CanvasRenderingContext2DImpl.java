@@ -129,7 +129,7 @@ public class CanvasRenderingContext2DImpl {
                 if (url.startsWith("/")) {
                     /// No error reported here, but font render incorrect.
                     //  typeface = new Font.Builder(url);
-                    /// TODO: Opt. 
+                    /// TODO: Opt.
                     /// After copying to temporary location, we can load font successfully.
                     /// I don't know why.
                     fontTmpFile = CocosHelper.copyToTempFile(url, "fontFile");
@@ -417,18 +417,18 @@ public class CanvasRenderingContext2DImpl {
         mTextBaseline = baseline;
     }
 
-    public void setFillStyle(float r, float g, float b, float a) {
-        mFillStyleR = (int) (r * 255.0f);
-        mFillStyleG = (int) (g * 255.0f);
-        mFillStyleB = (int) (b * 255.0f);
-        mFillStyleA = (int) (a * 255.0f);
+    public void setFillStyle(int r, int g, int b, int a) {
+        mFillStyleR = r;
+        mFillStyleG = g;
+        mFillStyleB = b;
+        mFillStyleA = a;
     }
 
-    public void setStrokeStyle(float r, float g, float b, float a) {
-        mStrokeStyleR = (int) (r * 255.0f);
-        mStrokeStyleG = (int) (g * 255.0f);
-        mStrokeStyleB = (int) (b * 255.0f);
-        mStrokeStyleA = (int) (a * 255.0f);
+    public void setStrokeStyle(int r, int g, int b, int a) {
+        mStrokeStyleR = r;
+        mStrokeStyleG = g;
+        mStrokeStyleB = b;
+        mStrokeStyleA = a;
     }
 
     public void setLineWidth(float lineWidth) {

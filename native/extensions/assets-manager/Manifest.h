@@ -44,15 +44,15 @@ struct DownloadUnit {
     std::string srcUrl;
     std::string storagePath;
     std::string customId;
-    float       size;
+    float size;
 };
 
 struct ManifestAsset {
     std::string md5;
     std::string path;
-    bool        compressed;
-    float       size;
-    int         downloadState;
+    bool compressed;
+    float size;
+    int downloadState;
 };
 
 using DownloadUnits = std::unordered_map<std::string, DownloadUnit>;
@@ -80,7 +80,7 @@ public:
 
     //! Object indicate the difference between two Assets
     struct AssetDiff {
-        Asset    asset;
+        Asset asset;
         DiffType type;
     };
 

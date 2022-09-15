@@ -30,21 +30,20 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
+#include "cocos/base/std/hash/hash.h"
+#include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 
 namespace cc {
 
 namespace render {
 
-enum class DescriptorIndex;
+enum class DescriptorTypeOrder;
 
-struct UniformBlockDB;
 struct Descriptor;
 struct DescriptorBlock;
+struct DescriptorBlockFlattened;
 struct DescriptorBlockIndex;
-struct DescriptorBlockIndexDx;
 struct DescriptorDB;
 struct RenderStageTag;
 struct RenderPhaseTag;
@@ -55,20 +54,28 @@ using UniformID = uint32_t;
 
 struct UniformData;
 struct UniformBlockData;
-
-using DescriptorID = uint32_t;
-
+struct NameLocalID;
 struct DescriptorData;
 struct DescriptorBlockData;
-struct DescriptorTableData;
+struct DescriptorSetLayoutData;
 struct DescriptorSetData;
 struct PipelineLayoutData;
 struct ShaderProgramData;
+struct RenderStageData;
 struct RenderPhaseData;
 struct LayoutGraphData;
 
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+template <>
+struct hash<cc::render::NameLocalID> {
+    hash_t operator()(const cc::render::NameLocalID& val) const noexcept;
+};
+
+} // namespace ccstd
 
 // clang-format on

@@ -222,7 +222,10 @@ export class ActionInterval extends FiniteTimeAction {
     }
 
     /**
+     * @en
      * Get this action speed.
+     * @zh
+     * 返回此动作速度
      * @return {Number}
      */
     getSpeed (): number {
@@ -230,7 +233,10 @@ export class ActionInterval extends FiniteTimeAction {
     }
 
     /**
+     * @en
      * Set this action speed.
+     * @zh
+     * 设置此动作速度
      * @param {Number} speed
      * @returns {ActionInterval}
      */

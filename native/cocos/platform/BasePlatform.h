@@ -38,6 +38,7 @@
 namespace cc {
 
 class OSInterface;
+class ISystemWindow;
 
 class CC_DLL BasePlatform {
 public:
@@ -49,7 +50,7 @@ public:
     /**
      * @brief Get default system platform.
      */
-    static BasePlatform* getPlatform();
+    static BasePlatform *getPlatform();
     /**
      * @brief Initialize system platform.
      */
@@ -57,7 +58,7 @@ public:
     /**
      * @brief Run system platform.
      */
-    virtual int32_t run(int argc, const char** argv) = 0;
+    virtual int32_t run(int argc, const char **argv) = 0;
     /**
      * @brief Main business logic.
      */
@@ -78,9 +79,15 @@ public:
     /**
      * @brief Set event handling callback function.
      */
-    using HandleEventCallback = std::function<bool(const OSEvent&)>;
+    using HandleEventCallback = std::function<bool(const OSEvent &)>;
 
     virtual void setHandleEventCallback(HandleEventCallback cb) = 0;
+
+    /**
+     * @brief Set touch event handling callback function.
+     */
+    using HandleTouchEventCallback = std::function<bool(const TouchEvent &)>;
+    virtual void setHandleTouchEventCallback(HandleTouchEventCallback cb) = 0;
 
     /**
      * @brief Set default event handling callback function.
@@ -89,7 +96,7 @@ public:
     /**
      * @brief Default event handling.
      */
-    virtual void handleDefaultEvent(const OSEvent& ev) = 0;
+    virtual void handleDefaultEvent(const OSEvent &ev) = 0;
     /**
      * @brief Get the SDK version for Android.Other systems also have sdk versions, 
               but they are not currently used.
@@ -101,8 +108,8 @@ public:
      * @param task : Tasks running in platform threads
      * @param fps : Task call frequency
      */
-    using ThreadCallback                                         = std::function<void(void)>;
-    virtual void runInPlatformThread(const ThreadCallback& task) = 0;
+    using ThreadCallback = std::function<void(void)>;
+    virtual void runInPlatformThread(const ThreadCallback &task) = 0;
     /**
      * @brief Get task call frequency.
      */
@@ -116,23 +123,34 @@ public:
      * @brief Get target system interface(Non thread safe.).
      */
     template <class T>
-    std::enable_if_t<std::is_base_of<OSInterface, T>::value, T*>
+    std::enable_if_t<std::is_base_of<OSInterface, T>::value, T *>
     getInterface() const {
-        for (const auto& it : _osInterfaces) {
-            T* intf = dynamic_cast<T*>(it.get());
+        for (const auto &it : _osInterfaces) {
+            T *intf = dynamic_cast<T *>(it.get());
             if (intf) {
                 return intf;
             }
         }
-        CCASSERT(false, "Interface does not exist");
+        return nullptr;
+    }
+
+    template <class T>
+    std::enable_if_t<std::is_base_of<OSInterface, T>::value, T *>
+    getInterface() {
+        for (const auto &it : _osInterfaces) {
+            T *intf = dynamic_cast<T *>(it.get());
+            if (intf) {
+                return intf;
+            }
+        }
         return nullptr;
     }
 
     /**
      * @brief Registration system interface.
      */
-    bool registerInterface(const OSInterface::Ptr& osInterface) {
-        CCASSERT(osInterface != nullptr, "Invalid interface pointer");
+    bool registerInterface(const OSInterface::Ptr &osInterface) {
+        CC_ASSERT(osInterface != nullptr);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Duplicate registration interface");
@@ -144,8 +162,8 @@ public:
     /**
      * @brief Unregistration system interface.
      */
-    void unregisterInterface(const OSInterface::Ptr& osInterface) {
-        CCASSERT(osInterface != nullptr, "Invalid interface pointer");
+    void unregisterInterface(const OSInterface::Ptr &osInterface) {
+        CC_ASSERT(osInterface != nullptr);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Interface is not registrated");
@@ -154,7 +172,16 @@ public:
         _osInterfaces.erase(it);
     }
 
+    void unregisterAllInterfaces() {
+        _osInterfaces.clear();
+    }
+
+    virtual ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) = 0;
+
 private:
+    static BasePlatform *createDefaultPlatform();
+
+    static BasePlatform *_currentPlatform; // NOLINT(readability-identifier-naming)
     std::vector<OSInterface::Ptr> _osInterfaces;
     CC_DISALLOW_COPY_MOVE_ASSIGN(BasePlatform);
 };
@@ -162,11 +189,10 @@ private:
 
 #define START_PLATFORM(argc, argv)                                    \
     do {                                                              \
-        cc::BasePlatform* platform = cc::BasePlatform::getPlatform(); \
+        cc::BasePlatform *platform = cc::BasePlatform::getPlatform(); \
         if (platform->init()) {                                       \
             CC_LOG_FATAL("Platform initialization failed");           \
             return -1;                                                \
         }                                                             \
         return platform->run(argc, argv);                             \
     } while (0)
-

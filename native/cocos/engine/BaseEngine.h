@@ -29,8 +29,8 @@
 
 #include "base/Scheduler.h"
 #include "base/TypeDef.h"
-#include "platform/BasePlatform.h"
 #include "core/event/CallbacksInvoker.h"
+#include "platform/BasePlatform.h"
 
 namespace cc {
 
@@ -109,6 +109,8 @@ public:
      @brief Get engine scheduler.
      */
     virtual SchedulerPtr getScheduler() const = 0;
+
+    virtual bool isInited() const = 0;
 };
 
 } // namespace cc

@@ -49,13 +49,17 @@ public:
 
     void clear();
     void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, uint32_t subpassID = 0);
     void destroy();
 
 private:
-    RenderPipeline *                    _pipeline       = nullptr;
-    RenderInstancedQueue *              _instancedQueue = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    // manage memory manually
+    RenderInstancedQueue *_instancedQueue{nullptr};
+    // weak reference
     ccstd::vector<const scene::Model *> _castModels;
+    // weak reference
     ccstd::vector<const scene::Model *> _pendingModels;
 };
 } // namespace pipeline

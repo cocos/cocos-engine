@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { UITransform } from '../../2d/framework';
@@ -43,9 +38,9 @@ import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../core/platform/sys';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 
 const LEFT_PADDING = 2;
 
@@ -62,6 +57,8 @@ enum EventType {
     EDITING_DID_ENDED = 'editing-did-ended',
     TEXT_CHANGED = 'text-changed',
     EDITING_RETURN = 'editing-return',
+    XR_EDITING_DID_BEGAN = 'xr-editing-did-began',
+    XR_EDITING_DID_ENDED = 'xr-editing-did-ended',
 }
 /**
  * @en
@@ -364,11 +361,11 @@ export class EditBox extends Component {
     public editingReturn: ComponentEventHandler[] = [];
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _impl: EditBoxImplBase | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _background: Sprite | null = null;
 
@@ -472,7 +469,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
@@ -480,7 +477,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
@@ -488,7 +485,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
@@ -498,7 +495,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
@@ -506,7 +503,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _showLabels () {
         this._isLabelVisible = true;
@@ -514,7 +511,7 @@ export class EditBox extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _hideLabels () {
         this._isLabelVisible = false;
@@ -622,7 +619,6 @@ export class EditBox extends Component {
         const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
         transform!.setAnchorPoint(0, 1);
         if (this._inputMode === InputMode.ANY) {
-            placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
             placeholderLabel.enableWrapText = true;
         } else {
             placeholderLabel.enableWrapText = false;
@@ -698,11 +694,17 @@ export class EditBox extends Component {
     protected _registerEvent () {
         this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+
+        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
+        this.node.on(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
     }
 
     protected _unregisterEvent () {
         this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+
+        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
+        this.node.off(XrKeyboardEventType.XR_KEYBOARD_INPUT, this._xrKeyBoardInput, this);
     }
 
     private _onBackgroundSpriteFrameChanged () {
@@ -742,9 +744,6 @@ export class EditBox extends Component {
             placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
             placeholderLabel.lineHeight = size.height;
             placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
-            if (this._inputMode === InputMode.ANY) {
-                placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
-            }
             placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY;
         }
     }
@@ -767,6 +766,14 @@ export class EditBox extends Component {
         }
 
         this._syncSize();
+    }
+
+    protected _xrUnClick() {
+        this.node.emit(EventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
+    }
+
+    protected _xrKeyBoardInput(str: string) {
+        this.string = str;
     }
 }
 

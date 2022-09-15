@@ -23,13 +23,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../core/components/component';
@@ -38,12 +33,13 @@ import { Sprite } from '../2d/components/sprite';
 import { Node } from '../core/scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
 import { SpriteFrame } from '../2d/assets';
-import { ImageAsset } from '../core/assets/image-asset';
+import { ImageAsset } from '../asset/assets/image-asset';
 import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
-import { CCObject, Texture2D } from '../core';
+import { CCObject } from '../core';
+import { Texture2D } from '../asset/assets';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -156,8 +152,22 @@ export class SubContextView extends Component {
     private _initSharedCanvas () {
         if (this._openDataContext) {
             const sharedCanvas = this._openDataContext.canvas;
-            sharedCanvas.width = this._designResolutionSize.width;
-            sharedCanvas.height = this._designResolutionSize.height;
+            let designWidth = this._designResolutionSize.width;
+            let designHeight = this._designResolutionSize.height;
+            if (WECHAT) {
+                // HACK: on WeChat platform, at least one side of the width and height of sharedCanvas is greater than 513
+                // When the sharedCanvas is smaller than this size, the rendering doesn't work.
+                const minimumSize = 513;
+                if (designWidth <= minimumSize && designHeight <= minimumSize) {
+                    const scaleWidth = minimumSize / designWidth;
+                    const scaleHeight = minimumSize / designHeight;
+                    const targetScale = scaleWidth < scaleHeight ? scaleWidth : scaleHeight;
+                    designWidth *= targetScale;
+                    designHeight *= targetScale;
+                }
+            }
+            sharedCanvas.width = designWidth;
+            sharedCanvas.height = designHeight;
         }
     }
 

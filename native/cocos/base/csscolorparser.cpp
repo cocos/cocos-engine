@@ -60,7 +60,7 @@ namespace CSSColorParser {
 // http://www.w3.org/TR/css3-color/
 struct NamedColor {
     const char *name;
-    Color       color;
+    Color color;
 };
 
 const ccstd::vector<NamedColor> NAMED_COLORS = {
@@ -269,8 +269,8 @@ float cssHueToRgb(float m1, float m2, float h) {
 
 ccstd::vector<ccstd::string> split(const ccstd::string &s, char delim) {
     ccstd::vector<ccstd::string> elems;
-    std::stringstream            ss(s);
-    ccstd::string                item;
+    std::stringstream ss(s);
+    ccstd::string item;
     while (std::getline(ss, item, delim)) {
         elems.push_back(item);
     }
@@ -324,7 +324,7 @@ Color parse(const ccstd::string &cssStr) {
     size_t op = str.find_first_of('(');
     size_t ep = str.find_first_of(')');
     if (op != ccstd::string::npos && ep + 1 == str.length()) {
-        const ccstd::string                fname = str.substr(0, op);
+        const ccstd::string fname = str.substr(0, op);
         const ccstd::vector<ccstd::string> params =
             split(str.substr(op + 1, ep - (op + 1)), ',');
 

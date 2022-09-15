@@ -50,23 +50,23 @@ void forEachFace(const ITextureCubeMipmap &mipmap, const ForEachFaceCallback &ca
 
 /* static */
 TextureCube *TextureCube::fromTexture2DArray(const ccstd::vector<Texture2D *> &textures) {
-    size_t                            nMipmaps = textures.size() / 6;
+    size_t nMipmaps = textures.size() / 6;
     ccstd::vector<ITextureCubeMipmap> mipmaps;
     mipmaps.reserve(nMipmaps);
     for (size_t i = 0; i < nMipmaps; i++) {
         size_t x = i * 6;
 
         ITextureCubeMipmap mipmap;
-        mipmap.front  = textures[x + static_cast<uint32_t>(FaceIndex::FRONT)]->getImage(),
-        mipmap.back   = textures[x + static_cast<uint32_t>(FaceIndex::BACK)]->getImage(),
-        mipmap.left   = textures[x + static_cast<uint32_t>(FaceIndex::LEFT)]->getImage(),
-        mipmap.right  = textures[x + static_cast<uint32_t>(FaceIndex::RIGHT)]->getImage(),
-        mipmap.top    = textures[x + static_cast<uint32_t>(FaceIndex::TOP)]->getImage(),
+        mipmap.front = textures[x + static_cast<uint32_t>(FaceIndex::FRONT)]->getImage(),
+        mipmap.back = textures[x + static_cast<uint32_t>(FaceIndex::BACK)]->getImage(),
+        mipmap.left = textures[x + static_cast<uint32_t>(FaceIndex::LEFT)]->getImage(),
+        mipmap.right = textures[x + static_cast<uint32_t>(FaceIndex::RIGHT)]->getImage(),
+        mipmap.top = textures[x + static_cast<uint32_t>(FaceIndex::TOP)]->getImage(),
         mipmap.bottom = textures[x + static_cast<uint32_t>(FaceIndex::BOTTOM)]->getImage(),
 
         mipmaps.emplace_back(mipmap);
     }
-    auto *out = new TextureCube();
+    auto *out = ccnew TextureCube();
     out->setMipmaps(mipmaps);
     return out;
 }
@@ -80,14 +80,12 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
         ImageAsset *imageAsset = _mipmaps[0].front;
-        reset({
-            imageAsset->getWidth(),
-            imageAsset->getHeight(),
-            imageAsset->getFormat(),
-            static_cast<uint32_t>(_mipmaps.size()),
-            _baseLevel,
-            _maxLevel
-        });
+        reset({imageAsset->getWidth(),
+               imageAsset->getHeight(),
+               imageAsset->getFormat(),
+               static_cast<uint32_t>(_mipmaps.size()),
+               _baseLevel,
+               _maxLevel});
 
         for (size_t level = 0, len = _mipmaps.size(); level < len; ++level) {
             forEachFace(_mipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
@@ -96,13 +94,68 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
         }
 
     } else {
-        reset({
-            0,
-            0,
-            cc::nullopt,
-            static_cast<uint32_t>(_mipmaps.size()),
-            _baseLevel,
-            _maxLevel
+        reset({0,
+               0,
+               ccstd::nullopt,
+               static_cast<uint32_t>(_mipmaps.size()),
+               _baseLevel,
+               _maxLevel});
+    }
+}
+
+void TextureCube::setMipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
+    if (value.layout.empty()) {
+        return;
+    }
+    _mipmapAtlas = value;
+    const ITextureCubeMipmap &atlas = _mipmapAtlas.atlas;
+    const ccstd::vector<MipmapAtlasLayoutInfo> &layouts = _mipmapAtlas.layout;
+    setMipmapLevel(static_cast<uint32_t>(layouts.size()));
+
+    const MipmapAtlasLayoutInfo &lv0Layout = layouts[0];
+    const ImageAsset *imageAsset = atlas.front;
+
+    reset({lv0Layout.width,
+           lv0Layout.height,
+           imageAsset->getFormat(),
+           static_cast<uint32_t>(layouts.size()),
+           _baseLevel,
+           _maxLevel});
+
+    const uint32_t pixelSize = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(imageAsset->getFormat())].size;
+
+    for (size_t level = 0; level < layouts.size(); level++) {
+        const MipmapAtlasLayoutInfo &layoutInfo = layouts[level];
+        uint32_t currentSize = layoutInfo.width * layoutInfo.height * pixelSize;
+
+        //Upload 6 sides by level
+        forEachFace(atlas, [this, currentSize, lv0Layout, layoutInfo, level, pixelSize](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
+            auto *buffer = ccnew uint8_t[currentSize];
+            memset(buffer, 0, currentSize);
+            const uint8_t *data = face->getData();
+            //Splitting Atlas
+            if (level == 0) {
+                memcpy(buffer, data, currentSize);
+            } else {
+                uint32_t bufferOffset = 0;
+                uint32_t dateOffset = lv0Layout.width * lv0Layout.height * pixelSize;
+                uint32_t leftOffset = layoutInfo.left * pixelSize;
+                for (size_t j = 0; j < layoutInfo.height; j++) {
+                    memcpy(buffer + bufferOffset, data + dateOffset + leftOffset, layoutInfo.width * pixelSize);
+                    bufferOffset += layoutInfo.width * pixelSize;
+                    dateOffset += lv0Layout.width * pixelSize;
+                }
+            }
+            auto *tempAsset = ccnew ImageAsset();
+            tempAsset->addRef();
+            auto *arrayBuffer = ccnew ArrayBuffer(buffer, static_cast<uint32_t>(currentSize));
+            IMemoryImageSource source{arrayBuffer, face->isCompressed(), layoutInfo.width, layoutInfo.height, face->getFormat()};
+            tempAsset->setNativeAsset(source);
+
+            assignImage(tempAsset, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
+            CC_SAFE_DELETE_ARRAY(buffer);
+            tempAsset->release();
+            tempAsset = nullptr;
         });
     }
 }
@@ -111,20 +164,28 @@ void TextureCube::setMipmapsForJS(const ccstd::vector<ITextureCubeMipmap> &value
     _mipmaps = value;
 }
 
-void TextureCube::setImage(const ITextureCubeMipmap &value) {
-    _mipmaps.clear();
-    _mipmaps.emplace_back(value);
+void TextureCube::setMipmapAtlasForJS(const TextureCubeMipmapAtlasInfo &value) {
+    _mipmapAtlas = value;
 }
+
+void TextureCube::setImage(const ITextureCubeMipmap *value) {
+    if (value != nullptr) {
+        setMipmaps({*value});
+    } else {
+        setMipmaps({});
+    }
+}
+
 void TextureCube::reset(const ITextureCubeCreateInfo &info) {
-    _width  = info.width;
+    _width = info.width;
     _height = info.height;
     setGFXFormat(info.format);
-    
+
     uint32_t mipLevels = info.mipmapLevel.has_value() ? info.mipmapLevel.value() : 1;
     setMipmapLevel(mipLevels);
-    
+
     uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
-    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : mipLevels - 1;
+    uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
     setMipRange(minLod, maxLod);
 
     tryReset();
@@ -132,6 +193,7 @@ void TextureCube::reset(const ITextureCubeCreateInfo &info) {
 
 void TextureCube::releaseTexture() {
     _mipmaps.clear();
+    _mipmapAtlas.layout.clear();
 }
 
 void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
@@ -151,8 +213,16 @@ void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
     }
 }
 
+bool TextureCube::isUsingOfflineMipmaps() {
+    return _mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP;
+}
+
 void TextureCube::initialize() {
-    setMipmaps(_mipmaps);
+    if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
+        setMipmapAtlas(_mipmapAtlas);
+    } else {
+        setMipmaps(_mipmaps);
+    }
 }
 
 void TextureCube::onLoaded() {
@@ -161,10 +231,11 @@ void TextureCube::onLoaded() {
 
 bool TextureCube::destroy() {
     _mipmaps.clear();
+    _mipmapAtlas.layout.clear();
     return Super::destroy();
 }
 
-cc::any TextureCube::serialize(const cc::any & /*ctxForExporting*/) {
+ccstd::any TextureCube::serialize(const ccstd::any & /*ctxForExporting*/) {
     //cjh TODO:    if (EDITOR || TEST) {
     //        return {
     //            base: super._serialize(ctxForExporting),
@@ -189,28 +260,29 @@ cc::any TextureCube::serialize(const cc::any & /*ctxForExporting*/) {
     return nullptr;
 }
 
-void TextureCube::deserialize(const cc::any &serializedData, const cc::any &handle) {
-    const auto *data = cc::any_cast<ITextureCubeSerializeData>(&serializedData);
+void TextureCube::deserialize(const ccstd::any &serializedData, const ccstd::any &handle) {
+    const auto *data = ccstd::any_cast<TextureCubeSerializeData>(&serializedData);
     if (data == nullptr) {
         return;
     }
     Super::deserialize(data->base, handle);
     isRGBE = data->rgbe;
+    _mipmapMode = data->mipmapMode;
 
     _mipmaps.resize(data->mipmaps.size());
     for (size_t i = 0; i < data->mipmaps.size(); ++i) {
         // Prevent resource load failed
         ITextureCubeMipmap mipmap;
-        mipmap.front  = new ImageAsset(),
-        mipmap.back   = new ImageAsset(),
-        mipmap.left   = new ImageAsset(),
-        mipmap.right  = new ImageAsset(),
-        mipmap.top    = new ImageAsset(),
-        mipmap.bottom = new ImageAsset();
-        _mipmaps[i]   = mipmap;
+        mipmap.front = ccnew ImageAsset(),
+        mipmap.back = ccnew ImageAsset(),
+        mipmap.left = ccnew ImageAsset(),
+        mipmap.right = ccnew ImageAsset(),
+        mipmap.top = ccnew ImageAsset(),
+        mipmap.bottom = ccnew ImageAsset();
+        _mipmaps[i] = mipmap;
         //        auto* mipmap = data->mipmaps[i];
 
-        //cjh TODO: what's handle.result??        const imageAssetClassId = js._getClassId(ImageAsset);
+        //cjh TODO: what's handle.result??        const imageAssetClassId = js.getClassId(ImageAsset);
         //
         //        handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
         //        handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
@@ -223,14 +295,14 @@ void TextureCube::deserialize(const cc::any &serializedData, const cc::any &hand
 
 gfx::TextureInfo TextureCube::getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) {
     gfx::TextureInfo texInfo;
-    texInfo.type       = gfx::TextureType::CUBE;
-    texInfo.width      = _width;
-    texInfo.height     = _height;
+    texInfo.type = gfx::TextureType::CUBE;
+    texInfo.width = _width;
+    texInfo.height = _height;
     texInfo.layerCount = 6;
-    texInfo.usage      = usage;
-    texInfo.format     = format;
+    texInfo.usage = usage;
+    texInfo.format = format;
     texInfo.levelCount = levelCount;
-    texInfo.flags      = flags;
+    texInfo.flags = flags;
     return texInfo;
 }
 
@@ -246,34 +318,38 @@ gfx::TextureViewInfo TextureCube::getGfxTextureViewCreateInfo(gfx::Texture *text
     return texViewInfo;
 }
 
-void TextureCube::initDefault(const cc::optional<ccstd::string> &uuid) {
+void TextureCube::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
 
-    auto *imageAsset = new ImageAsset();
-    imageAsset->initDefault(cc::nullopt);
+    auto *imageAsset = ccnew ImageAsset();
+    imageAsset->initDefault(ccstd::nullopt);
 
     ITextureCubeMipmap mipmap;
 
-    mipmap.front  = imageAsset;
-    mipmap.back   = imageAsset;
-    mipmap.top    = imageAsset;
+    mipmap.front = imageAsset;
+    mipmap.back = imageAsset;
+    mipmap.top = imageAsset;
     mipmap.bottom = imageAsset;
-    mipmap.left   = imageAsset;
-    mipmap.right  = imageAsset;
+    mipmap.left = imageAsset;
+    mipmap.right = imageAsset;
 
     setMipmaps({mipmap});
 }
 
 bool TextureCube::validate() const {
+    if (_mipmapMode == MipmapMode::BAKED_CONVOLUTION_MAP) {
+        if (_mipmapAtlas.layout.empty()) {
+            return false;
+        }
+        return (_mipmapAtlas.atlas.top && _mipmapAtlas.atlas.bottom && _mipmapAtlas.atlas.front && _mipmapAtlas.atlas.back && _mipmapAtlas.atlas.left && _mipmapAtlas.atlas.right);
+    }
     if (_mipmaps.empty()) {
         return false;
     }
-
     return std::all_of(_mipmaps.begin(),
                        _mipmaps.end(),
                        [&](const ITextureCubeMipmap &mipmap) {
                            return (mipmap.top && mipmap.bottom && mipmap.front && mipmap.back && mipmap.left && mipmap.right);
                        });
 }
-
 } // namespace cc

@@ -23,26 +23,21 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module terrain
- */
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { JSB } from 'internal:constants';
-import { builtinResMgr } from '../core/builtin';
-import { RenderableComponent } from '../core/components/renderable-component';
-import { EffectAsset, Texture2D } from '../core/assets';
-import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
-import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
+import { builtinResMgr } from '../asset/asset-manager';
+import { ModelRenderer } from '../core/components/model-renderer';
+import { EffectAsset, Texture2D } from '../asset/assets';
+import { Filter, PixelFormat, WrapMode } from '../asset/assets/asset-enum';
+import { Material } from '../asset/assets/material';
+import { RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager } from '../gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
-import { MacroRecord } from '../core/renderer/core/pass-utils';
-import { Pass, scene } from '../core/renderer';
-import { Camera } from '../core/renderer/scene/camera';
+import { MacroRecord } from '../render-scene/core/pass-utils';
+import { Pass, scene } from '../render-scene';
+import { Camera } from '../render-scene/scene/camera';
 import { Root } from '../core/root';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
@@ -50,7 +45,7 @@ import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCFloat, CCInteger, Node, PipelineEventType } from '../core';
+import { CCBoolean, CCFloat, Node, PipelineEventType } from '../core';
 
 /**
  * @en Terrain info
@@ -98,7 +93,6 @@ export class TerrainInfo {
         const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
         sz.height = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
-
         return sz;
     }
 
@@ -110,7 +104,6 @@ export class TerrainInfo {
         const _tileCount = [0, 0];
         _tileCount[0] = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
         _tileCount[1] = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY;
-
         return _tileCount;
     }
 
@@ -122,7 +115,6 @@ export class TerrainInfo {
         const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
         _vertexCount[1] += 1;
-
         return _vertexCount;
     }
 }
@@ -178,29 +170,29 @@ export class TerrainLayer {
  * @en Terrain renderable
  * @zh 地形渲染组件
  */
-class TerrainRenderable extends RenderableComponent {
+class TerrainRenderable extends ModelRenderer {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _model: scene.Model | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _meshData: RenderingSubMesh | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _brushPass: Pass | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _brushMaterial: Material | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _currentMaterial: Material | null = null;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _currentMaterialLayers = 0;
 
@@ -215,7 +207,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _destroyModel () {
         // this._invalidMaterial();
@@ -226,7 +218,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _invalidMaterial () {
         if (this._currentMaterial == null) {
@@ -243,7 +235,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateMaterial (block: TerrainBlock, init: boolean) {
         if (this._meshData == null || this._model == null) {
@@ -289,7 +281,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onMaterialModified (idx: number, mtl: Material|null) {
         if (this._model == null) {
@@ -397,7 +389,7 @@ export class TerrainBlock {
         ];
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
-            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
+            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer(), null, false);
         this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
         this._renderable._model.node = this._renderable._model.transform = this._node;
@@ -412,11 +404,12 @@ export class TerrainBlock {
         // reset material
         this._updateMaterial(true);
 
-        // update lod
-        this._updateLodBuffer(vertexData);
-
-        // update index buffer
-        this._updateIndexBuffer();
+        if (this._terrain.lodEnable) {
+            // update lod
+            this._updateLodBuffer(vertexData);
+            // update index buffer
+            this._updateIndexBuffer();
+        }
     }
 
     public rebuild () {
@@ -695,8 +688,8 @@ export class TerrainBlock {
     }
 
     /**
-     * @en 地形块的可见性
-     * @zh block visible
+     * @zh 地形块的可见性
+     * @en The visibility of the block
      */
     set visible (val) {
         if (this._renderable._model !== null) {
@@ -792,7 +785,7 @@ export class TerrainBlock {
     public _getMaterialDefines (nlayers: number): MacroRecord {
         return {
             LAYERS: nlayers + 1,
-            USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            CC_USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
             USE_NORMALMAP: this._terrain.useNormalMap ? 1 : 0,
             USE_PBR: this._terrain.usePBR ? 1 : 0,
             // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
@@ -869,7 +862,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (info: TerrainBlockLightmapInfo) {
         this._lightmapInfo = info;
@@ -877,7 +870,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLod () {
         const key = new TerrainLodKey();
@@ -928,7 +921,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetLod () {
         const key = new TerrainLodKey();
@@ -947,7 +940,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateIndexBuffer () {
         if (this._renderable._meshData === null) {
@@ -1166,12 +1159,13 @@ export class Terrain extends Component {
     protected _lightMapSize = 128;
     protected _heights: Uint16Array = new Uint16Array();
     protected _weights: Uint8Array = new Uint8Array();
-    protected _normals: number[] = [];
+    protected _normals: Float32Array = new Float32Array();
     protected _layerList: (TerrainLayer|null)[] = [];
     protected _layerBuffer: number[] = [];
     protected _blocks: TerrainBlock[] = [];
-    protected _lod: TerrainLod = new TerrainLod();
+    protected _lod: TerrainLod|null = null;
     protected _sharedIndexBuffer: Buffer|null = null;
+    protected _sharedLodIndexBuffer: Buffer|null = null;
 
     constructor () {
         super();
@@ -1209,7 +1203,7 @@ export class Terrain extends Component {
                 this._lightMapSize = 128;
                 this._heights = new Uint16Array();
                 this._weights = new Uint8Array();
-                this._normals = [];
+                this._normals = new Float32Array();
                 this._layerBuffer = [];
                 this._blocks = [];
 
@@ -1221,7 +1215,7 @@ export class Terrain extends Component {
             }
 
             // Ensure device is created
-            if (legacyCC.director.root.device) {
+            if (deviceManager.gfxDevice) {
                 // rebuild
                 this._buildImp();
             }
@@ -1229,7 +1223,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public get _asset () {
         return this.__asset;
@@ -1315,6 +1309,11 @@ export class Terrain extends Component {
 
     set lodEnable (val) {
         this._lodEnable = val;
+
+        if (this._lodEnable && this._lod === null) {
+            this._lod = new TerrainLod();
+        }
+
         if (!this._lodEnable) {
             for (let i = 0; i < this._blocks.length; i++) {
                 this._blocks[i]._resetLod();
@@ -1462,6 +1461,9 @@ export class Terrain extends Component {
         }
         this._blocks = [];
 
+        // reset lightmap
+        this._resetLightmap(false);
+
         // build layer buffer
         this._rebuildLayerBuffer(info);
 
@@ -1557,6 +1559,13 @@ export class Terrain extends Component {
             asset.layerBuffer[i * 4 + 3] = this._blocks[i].layers[3];
         }
 
+        this.exportLayerListToAsset(asset);
+
+        return asset;
+    }
+
+    public exportLayerListToAsset (asset: TerrainAsset) {
+        asset.layerInfos.length = 0;
         for (let i = 0; i < this._layerList.length; ++i) {
             const temp = this._layerList[i];
             if (temp && temp.detailMap && isValid(temp.detailMap)) {
@@ -1567,17 +1576,14 @@ export class Terrain extends Component {
                 layer.normalMap = temp.normalMap;
                 layer.metallic = temp.metallic;
                 layer.roughness = temp.roughness;
-
                 asset.layerInfos.push(layer);
             }
         }
-
-        return asset;
     }
 
     public getEffectAsset () {
         if (this._effectAsset === null) {
-            return legacyCC.EffectAsset.get('terrain') as EffectAsset;
+            return legacyCC.EffectAsset.get('builtin-terrain') as EffectAsset;
         }
 
         return this._effectAsset;
@@ -1630,7 +1636,7 @@ export class Terrain extends Component {
     }
 
     public onUpdateFromCamera (cam: Camera): void {
-        if (!this.lodEnable) {
+        if (!this.lodEnable || this._sharedLodIndexBuffer == null) {
             return;
         }
         if (cam.scene !== this._getRenderScene()) {
@@ -1654,6 +1660,9 @@ export class Terrain extends Component {
         for (let i = 0; i < this._layerList.length; ++i) {
             if (this._layerList[i] === null || (this._layerList[i] && this._layerList[i]?.detailMap === null)) {
                 this._layerList[i] = layer;
+                if (this._asset) {
+                    this.exportLayerListToAsset(this._asset);
+                }
                 return i;
             }
         }
@@ -1667,6 +1676,9 @@ export class Terrain extends Component {
      */
     public setLayer (i: number, layer: TerrainLayer) {
         this._layerList[i] = layer;
+        if (this._asset) {
+            this.exportLayerListToAsset(this._asset);
+        }
     }
 
     /**
@@ -1675,6 +1687,9 @@ export class Terrain extends Component {
      */
     public removeLayer (id: number) {
         this._layerList[id] = null;
+        if (this._asset) {
+            this.exportLayerListToAsset(this._asset);
+        }
     }
 
     /**
@@ -1778,7 +1793,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setNormal (i: number, j: number, n: Vec3) {
         const index = j * this.vertexCount[0] + i;
@@ -2091,33 +2106,88 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
      */
-    public _getSharedIndexBuffer () {
-        if (this._sharedIndexBuffer == null) {
-            // initialize shared index buffer
-            const gfxDevice = legacyCC.director.root.device as Device;
-            this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+    public _createSharedIndexBuffer () {
+        // initialize shared index buffer
+        const gfxDevice = deviceManager.gfxDevice;
+
+        if (this._lod !== null) {
+            const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
                 Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
                 Uint16Array.BYTES_PER_ELEMENT,
             ));
-            this._sharedIndexBuffer.update(this._lod._indexBuffer);
+            gfxBuffer.update(this._lod._indexBuffer);
+            return gfxBuffer;
+        } else {
+            const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
+
+            let index = 0;
+            for (let j = 0; j < TERRAIN_BLOCK_TILE_COMPLEXITY; ++j) {
+                for (let i = 0; i < TERRAIN_BLOCK_TILE_COMPLEXITY; ++i) {
+                    const a = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
+                    const b = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
+                    const c = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
+                    const d = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
+
+                    // face 1
+                    indexData[index++] = a;
+                    indexData[index++] = c;
+                    indexData[index++] = b;
+                    // face 2
+                    indexData[index++] = b;
+                    indexData[index++] = c;
+                    indexData[index++] = d;
+                }
+            }
+
+            const gfxBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                Uint16Array.BYTES_PER_ELEMENT * indexData.length,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            gfxBuffer.update(indexData);
+            return gfxBuffer;
+        }
+    }
+
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    public _getSharedIndexBuffer () {
+        if (this._sharedIndexBuffer !== null) {
+            return this._sharedIndexBuffer;
         }
 
-        return this._sharedIndexBuffer;
+        if (this._sharedLodIndexBuffer !== null) {
+            return this._sharedLodIndexBuffer;
+        }
+
+        if (this._lod !== null) {
+            this._sharedLodIndexBuffer = this._createSharedIndexBuffer();
+            return this._sharedLodIndexBuffer;
+        } else {
+            this._sharedIndexBuffer = this._createSharedIndexBuffer();
+            return this._sharedIndexBuffer;
+        }
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getIndexData (key: TerrainLodKey) {
-        return this._lod.getIndexData(key);
+        if (this._sharedLodIndexBuffer !== null && this._lod !== null) {
+            return this._lod.getIndexData(key);
+        }
+
+        return null;
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetLightmap (enble: boolean) {
         this._lightmapInfos.length = 0;
@@ -2129,7 +2199,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this._lightmapInfos[blockId].texture = tex;
@@ -2141,7 +2211,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _getLightmapInfo (i: number, j: number) {
         const index = j * this._blockCount[0] + i;
@@ -2149,7 +2219,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calcNormal (x: number, z: number) {
         let flip = 1;
@@ -2184,7 +2254,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _buildNormals () {
         let index = 0;
@@ -2206,7 +2276,7 @@ export class Terrain extends Component {
         }
 
         const terrainAsset = this.__asset;
-        if (this._buitinAsset != terrainAsset) {
+        if (this._buitinAsset !== terrainAsset) {
             this._buitinAsset = terrainAsset;
         }
 
@@ -2216,6 +2286,7 @@ export class Terrain extends Component {
             this._weightMapSize = terrainAsset.weightMapSize;
             this._lightMapSize = terrainAsset.lightMapSize;
             this._heights = terrainAsset.heights;
+            this._normals = terrainAsset.normals;
             this._weights = terrainAsset.weights;
             this._layerBuffer = terrainAsset.layerBuffer;
 
@@ -2267,16 +2338,17 @@ export class Terrain extends Component {
         const vertexCount = this.vertexCount[0] * this.vertexCount[1];
         if (this._heights === null || this._heights.length !== vertexCount) {
             this._heights = new Uint16Array(vertexCount);
-            this._normals = new Array<number>(vertexCount * 3);
-
+            this._normals = new Float32Array(vertexCount * 3);
             for (let i = 0; i < vertexCount; ++i) {
                 this._heights[i] = TERRAIN_HEIGHT_BASE;
                 this._normals[i * 3 + 0] = 0;
                 this._normals[i * 3 + 1] = 1;
                 this._normals[i * 3 + 2] = 0;
             }
-        } else {
-            this._normals = new Array<number>(vertexCount * 3);
+        }
+
+        if (this._normals === null || this._normals.length !== vertexCount * 3) {
+            this._normals = new Float32Array(vertexCount * 3);
             this._buildNormals();
         }
 

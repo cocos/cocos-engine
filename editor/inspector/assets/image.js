@@ -12,10 +12,10 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.image.flipVertical" tooltip="i18n:ENGINE.assets.image.flipVerticalTip"></ui-label>
         <ui-checkbox slot="content" class="flipVertical-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-prop>
+    <!--ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.image.bakeOfflineMipmaps" tooltip="i18n:ENGINE.assets.image.bakeOfflineMipmapsTip"></ui-label>
         <ui-checkbox slot="content" class="bakeOfflineMipmaps-checkbox"></ui-checkbox>
-    </ui-prop>
+    </ui-prop-->
     <ui-prop  class="fixATAProp">
         <ui-label slot="label" value="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifacts" tooltip="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifactsTip"></ui-label>
         <ui-checkbox slot="content" class="fixAlphaTransparencyArtifacts-checkbox"></ui-checkbox>
@@ -26,8 +26,13 @@ exports.template = `
     </ui-prop>
 
     <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
-        <ui-label class="sub-panel-name" slot="header"></ui-label>
-        <ui-panel class="sub-panel"></ui-panel>
+        <ui-label slot="header"></ui-label>
+        <ui-panel></ui-panel>
+    </ui-section>
+
+    <ui-section expand class="sub-texture-panel-section" cache-expand="image-sub-panel-section" hidden>
+        <ui-label slot="header"></ui-label>
+        <ui-panel></ui-panel>
     </ui-section>
 </div>
 `;
@@ -45,9 +50,8 @@ exports.style = `
 `;
 
 exports.$ = {
-    panel: '.sub-panel',
     panelSection: '.sub-panel-section',
-    panelName: '.sub-panel-name',
+    texturePanelSection: '.sub-texture-panel-section',
 
     container: '.asset-image',
     typeSelect: '.type-select',
@@ -57,7 +61,7 @@ exports.$ = {
     isRGBEProp: '.isRGBE-prop',
     isRGBECheckbox: '.isRGBE-checkbox',
 
-    bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
+    // bakeOfflineMipmapsCheckbox: '.bakeOfflineMipmaps-checkbox',
 };
 
 /**
@@ -69,14 +73,25 @@ const Elements = {
             const panel = this;
 
             panel.$.typeSelect.addEventListener('change', (event) => {
+                // metaList take the type of the first asset selected to solve
+                let spriteFrameChange;
+                if (panel.meta.userData.type === 'sprite-frame') {
+                    spriteFrameChange = 'spriteFrameToOthers';
+                } else if (event.target.value === 'sprite-frame') {
+                    spriteFrameChange = 'othersToSpriteFrame';
+                }
+
                 panel.metaList.forEach((meta) => {
                     meta.userData.type = event.target.value;
                 });
-                panel.dispatch('change');
 
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
                 Elements.fixAlphaTransparencyArtifacts.update.call(panel);
+                // imageAssets type change to spriteFrame, update mipmaps
+                panel.updatePanel(spriteFrameChange);
+                // need to be dispatched after updatePanel
+                panel.dispatch('change');
             });
         },
         update() {
@@ -115,26 +130,26 @@ const Elements = {
             panel.updateReadonly(panel.$.flipVerticalCheckbox);
         },
     },
-    bakeOfflineMipmaps: {
-        ready() {
-            const panel = this;
+    // bakeOfflineMipmaps: {
+    //     ready() {
+    //         const panel = this;
 
-            panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
-                panel.metaList.forEach((meta) => {
-                    meta.userData.bakeOfflineMipmaps = event.target.value;
-                });
-                panel.dispatch('change');
-            });
-        },
-        update() {
-            const panel = this;
+    //         panel.$.bakeOfflineMipmapsCheckbox.addEventListener('change', (event) => {
+    //             panel.metaList.forEach((meta) => {
+    //                 meta.userData.bakeOfflineMipmaps = event.target.value;
+    //             });
+    //             panel.dispatch('change');
+    //         });
+    //     },
+    //     update() {
+    //         const panel = this;
 
-            panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
+    //         panel.$.bakeOfflineMipmapsCheckbox.value = panel.meta.userData.bakeOfflineMipmaps;
 
-            panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
-            panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
-        },
-    },
+    //         panel.updateInvalid(panel.$.bakeOfflineMipmapsCheckbox, 'bakeOfflineMipmaps');
+    //         panel.updateReadonly(panel.$.bakeOfflineMipmapsCheckbox);
+    //     },
+    // },
 
     fixAlphaTransparencyArtifacts: {
         ready() {
@@ -142,7 +157,6 @@ const Elements = {
             panel.$.fixAlphaTransparencyArtifactsCheckbox.addEventListener('change', (event) => {
                 panel.metaList.forEach((meta) => {
                     meta.userData.fixAlphaTransparencyArtifacts = event.target.value;
-
                 });
                 panel.dispatch('change');
             });
@@ -164,7 +178,6 @@ const Elements = {
             } else {
                 fixATAProp.style.display = 'none';
             }
-
         },
     },
     isRGBE: {
@@ -226,7 +239,10 @@ exports.ready = function() {
             element.ready.call(this);
         }
     }
-    this.$.panel.addEventListener('change', () => {
+    this.$.panelSection.addEventListener('change', () => {
+        this.dispatch('change');
+    });
+    this.$.texturePanelSection.addEventListener('change', () => {
         this.dispatch('change');
     });
 };
@@ -252,7 +268,7 @@ exports.methods = {
         }
     },
 
-    async updatePanel() {
+    _updatePanel($section, type, spriteFrameChange) {
         const assetList = [];
         const metaList = [];
 
@@ -264,7 +280,7 @@ exports.methods = {
             'texture cube': 'erp-texture-cube',
         };
 
-        const imageImporter = imageTypeToImporter[this.meta.userData.type];
+        const imageImporter = imageTypeToImporter[type];
 
         this.assetList.forEach((asset) => {
             if (!asset) {
@@ -298,6 +314,13 @@ exports.methods = {
                 }
 
                 if (subMeta.importer === imageImporter) {
+                    if (spriteFrameChange === 'othersToSpriteFrame') {
+                        // imageAsset 类型切换到 spriteFrame，禁用 mipmaps
+                        subMeta.userData.mipfilter = 'none';
+                    } else if (spriteFrameChange === 'spriteFrameToOthers' && subMeta.userData.mipfilter === 'none') {
+                        // imageAsset 类型从 spriteFrame 切换到其他，原来没启用的话 mipmaps 默认 nearest
+                        subMeta.userData.mipfilter = 'nearest';
+                    }
                     metaList.push(subMeta);
                     break;
                 }
@@ -305,15 +328,30 @@ exports.methods = {
         });
 
         if (!assetList.length || !metaList.length) {
-            this.$.panelSection.style.display = 'none';
+            $section.style.display = 'none';
             return;
         } else {
-            this.$.panelSection.style.display = 'block';
+            $section.style.display = 'block';
         }
 
         const asset = assetList[0];
-        this.$.panelName.setAttribute('value', this.meta.userData.type);
-        this.$.panel.setAttribute('src', path.join(__dirname, `./${asset.importer}.js`));
-        this.$.panel.update(assetList, metaList);
+        const $label = $section.querySelector('ui-label');
+        $label.setAttribute('value', type);
+        const $panel = $section.querySelector('ui-panel');
+        $panel.setAttribute('src', path.join(__dirname, `./${asset.importer}.js`));
+        $panel.update(assetList, metaList);
+    },
+
+    /**
+     * 更新属性 panel
+     * @param {*} spriteFrameChange imageAsset 类型是否切换和 spriteFrame 是否有关
+     */
+    updatePanel(spriteFrameChange) {
+        this._updatePanel(this.$.panelSection, this.meta.userData.type, spriteFrameChange);
+        if (this.meta.userData.type === 'sprite-frame') {
+            this._updatePanel(this.$.texturePanelSection, 'texture', spriteFrameChange);
+        } else {
+            this.$.texturePanelSection.style.display = 'none';
+        }
     },
 };

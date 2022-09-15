@@ -39,21 +39,21 @@ ccstd::string alphabet{"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123
 int doBase64Decode(const unsigned char *input, unsigned int inputLen, unsigned char *output, unsigned int *outputLen) {
     static ccstd::vector<char> inalphabet(256);
     static ccstd::vector<char> decoder(256);
-    int                        i;
-    int                        bits;
-    int                        c = 0;
-    int                        charCount;
-    int                        errors    = 0;
-    unsigned int               inputIdx  = 0;
-    unsigned int               outputIdx = 0;
-    int                        length    = static_cast<int>(alphabet.length());
+    int i;
+    int bits;
+    int c = 0;
+    int charCount;
+    int errors = 0;
+    unsigned int inputIdx = 0;
+    unsigned int outputIdx = 0;
+    int length = static_cast<int>(alphabet.length());
     for (i = length - 1; i >= 0; i--) {
         inalphabet[alphabet[i]] = 1;
-        decoder[alphabet[i]]    = i;
+        decoder[alphabet[i]] = i;
     }
 
     charCount = 0;
-    bits      = 0;
+    bits = 0;
     for (inputIdx = 0; inputIdx < inputLen; inputIdx++) {
         c = input[inputIdx];
         if (c == '=') {
@@ -70,8 +70,8 @@ int doBase64Decode(const unsigned char *input, unsigned int inputLen, unsigned c
             output[outputIdx++] = (bits >> 16);
             output[outputIdx++] = ((bits >> 8) & 0xff);
             output[outputIdx++] = (bits & 0xff);
-            bits                = 0;
-            charCount           = 0;
+            bits = 0;
+            charCount = 0;
         } else {
             bits <<= 6;
         }
@@ -110,11 +110,11 @@ int doBase64Decode(const unsigned char *input, unsigned int inputLen, unsigned c
 void doBase64Encode(const unsigned char *input, unsigned int inputLen, char *output) {
     unsigned int charCount;
     unsigned int bits;
-    unsigned int inputIdx  = 0;
+    unsigned int inputIdx = 0;
     unsigned int outputIdx = 0;
 
     charCount = 0;
-    bits      = 0;
+    bits = 0;
     for (inputIdx = 0; inputIdx < inputLen; inputIdx++) {
         bits |= input[inputIdx];
 
@@ -124,8 +124,8 @@ void doBase64Encode(const unsigned char *input, unsigned int inputLen, char *out
             output[outputIdx++] = alphabet[(bits >> 12) & 0x3f];
             output[outputIdx++] = alphabet[(bits >> 6) & 0x3f];
             output[outputIdx++] = alphabet[bits & 0x3f];
-            bits                = 0;
-            charCount           = 0;
+            bits = 0;
+            charCount = 0;
         } else {
             bits <<= 8;
         }
@@ -159,7 +159,7 @@ int base64Decode(const unsigned char *in, unsigned int inLength, unsigned char *
 
         if (ret > 0) {
             free(*out);
-            *out      = nullptr;
+            *out = nullptr;
             outLength = 0;
         }
     }

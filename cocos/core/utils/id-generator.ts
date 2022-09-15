@@ -23,22 +23,25 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 import { EDITOR } from 'internal:constants';
 
 const NonUuidMark = '.';
 
 /**
+ * @en
  * ID generator for runtime.
+ *
+ * @zh
+ * 运行时 ID 生成器
  */
 export default class IDGenerator {
-    /*
+    /**
+    * @en
     * The global id generator might have a conflict problem once every 365 days,
     * if the game runs at 60 FPS and each frame 4760273 counts of new id are requested.
+    *
+    * @zh
+    * 全局的 id 生成器，如果游戏以 60 FPS 运行，每帧获取 4760273 个新 id, 则可能在 365 天后发生冲突。
     */
     public static global = new IDGenerator('global');
 
@@ -47,7 +50,10 @@ export default class IDGenerator {
     public prefix: string;
 
     /**
-     * @param [category] You can specify a unique category to avoid id collision with other instance of IdGenerator.
+     * @en Construct a new id generator
+     * @zh 构造一个新的 id 生成器
+     *
+     * @param [category] @en You can specify a unique category to avoid id collision with other instance of IdGenerator. @zh 你能指定一个唯一的标识用于避免与其他 id 生成器冲突
      */
     constructor (category?: string) {
         // Tnit with a random id to emphasize that the returns id should not be stored in persistence data.

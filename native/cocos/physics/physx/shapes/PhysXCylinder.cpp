@@ -35,7 +35,9 @@ namespace physics {
 
 PhysXCylinder::PhysXCylinder() : _mMesh(nullptr){};
 
-void PhysXCylinder::setConvex(uintptr_t handle) {
+void PhysXCylinder::setConvex(uint32_t objectID) {
+    uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
+    if (handle == 0) return;
     if (reinterpret_cast<uintptr_t>(_mMesh) == handle) return;
     _mMesh = reinterpret_cast<physx::PxConvexMesh *>(handle);
     if (_mShape) {
@@ -54,8 +56,8 @@ void PhysXCylinder::onComponentSet() {
 }
 
 void PhysXCylinder::setCylinder(float r, float h, EAxisDirection d) {
-    _mData.radius    = r;
-    _mData.height    = h;
+    _mData.radius = r;
+    _mData.height = h;
     _mData.direction = d;
     updateGeometry();
 }
@@ -63,7 +65,7 @@ void PhysXCylinder::setCylinder(float r, float h, EAxisDirection d) {
 void PhysXCylinder::updateGeometry() {
     if (!_mShape) return;
     static physx::PxMeshScale scale;
-    auto *                    node = getSharedBody().getNode();
+    auto *node = getSharedBody().getNode();
     node->updateWorldTransform();
     pxSetVec3Ext(scale.scale, node->getWorldScale());
     scale.scale.y *= std::max(0.0001F, _mData.height / 2);

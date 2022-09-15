@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
-
-
 import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { legacyCC } from './global-exports';
-import { SubModel } from './renderer/scene/submodel';
+import { SubModel } from '../render-scene/scene/submodel';
 import { Root } from './root';
 import { game } from './game';
 import System from './components/system';

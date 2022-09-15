@@ -1,13 +1,14 @@
 #include "core/geometry/Ray.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace geometry {
 Ray *Ray::create(float ox, float oy, float oz, float dx, float dy, float dz) {
-    return new Ray{ox, oy, oz, dx, dy, dz};
+    return ccnew Ray{ox, oy, oz, dx, dy, dz};
 }
 
 Ray *Ray::clone(const Ray &a) {
-    return new Ray{
+    return ccnew Ray{
         a.o.x, a.o.y, a.o.z,
         a.d.x, a.d.y, a.d.z};
 }

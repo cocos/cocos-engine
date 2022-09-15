@@ -30,21 +30,45 @@
  */
 /* eslint-disable max-len */
 import * as impl from './graph';
-import { ShaderStageFlagBit, Type, Uniform } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../../gfx';
 import { ParameterType, UpdateFrequency } from './types';
+import { ccclass } from '../../data/decorators';
 
-export const enum DescriptorIndex {
-    UNIFORM_BLOCK,
+export const enum DescriptorTypeOrder {
+    UNIFORM_BUFFER,
+    DYNAMIC_UNIFORM_BUFFER,
     SAMPLER_TEXTURE,
     SAMPLER,
     TEXTURE,
     STORAGE_BUFFER,
-    STORAGE_TEXTURE,
-    SUBPASS_INPUT,
+    DYNAMIC_STORAGE_BUFFER,
+    STORAGE_IMAGE,
+    INPUT_ATTACHMENT,
 }
 
-export class UniformBlockDB {
-    readonly values: Map<string, Uniform> = new Map<string, Uniform>();
+export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
+    switch (e) {
+    case DescriptorTypeOrder.UNIFORM_BUFFER:
+        return 'UNIFORM_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+        return 'DYNAMIC_UNIFORM_BUFFER';
+    case DescriptorTypeOrder.SAMPLER_TEXTURE:
+        return 'SAMPLER_TEXTURE';
+    case DescriptorTypeOrder.SAMPLER:
+        return 'SAMPLER';
+    case DescriptorTypeOrder.TEXTURE:
+        return 'TEXTURE';
+    case DescriptorTypeOrder.STORAGE_BUFFER:
+        return 'STORAGE_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+        return 'DYNAMIC_STORAGE_BUFFER';
+    case DescriptorTypeOrder.STORAGE_IMAGE:
+        return 'STORAGE_IMAGE';
+    case DescriptorTypeOrder.INPUT_ATTACHMENT:
+        return 'INPUT_ATTACHMENT';
+    default:
+        return '';
+    }
 }
 
 export class Descriptor {
@@ -57,15 +81,23 @@ export class Descriptor {
 
 export class DescriptorBlock {
     readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
-    readonly uniformBlocks: Map<string, UniformBlockDB> = new Map<string, UniformBlockDB>();
-    readonly merged: Map<Type, Descriptor> = new Map<Type, Descriptor>();
+    readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
     capacity = 0;
-    start = 0;
+    count = 0;
+}
+
+@ccclass('cc.DescriptorBlockFlattened')
+export class DescriptorBlockFlattened {
+    readonly descriptorNames: string[] = [];
+    readonly uniformBlockNames: string[] = [];
+    readonly descriptors: Descriptor[] = [];
+    readonly uniformBlocks: UniformBlock[] = [];
+    capacity = 0;
     count = 0;
 }
 
 export class DescriptorBlockIndex {
-    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
+    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
         this.updateFrequency = updateFrequency;
         this.parameterType = parameterType;
         this.descriptorType = descriptorType;
@@ -73,21 +105,8 @@ export class DescriptorBlockIndex {
     }
     updateFrequency: UpdateFrequency;
     parameterType: ParameterType;
-    descriptorType: DescriptorIndex;
+    descriptorType: DescriptorTypeOrder;
     visibility: ShaderStageFlagBit;
-}
-
-export class DescriptorBlockIndexDx {
-    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, descriptorType: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK) {
-        this.updateFrequency = updateFrequency;
-        this.parameterType = parameterType;
-        this.visibility = visibility;
-        this.descriptorType = descriptorType;
-    }
-    updateFrequency: UpdateFrequency;
-    parameterType: ParameterType;
-    visibility: ShaderStageFlagBit;
-    descriptorType: DescriptorIndex;
 }
 
 export class DescriptorDB {
@@ -105,6 +124,14 @@ export class RenderPhase {
 export const enum LayoutGraphValue {
     RenderStage,
     RenderPhase,
+}
+
+export function getLayoutGraphValueName (e: LayoutGraphValue): string {
+    switch (e) {
+    case LayoutGraphValue.RenderStage: return 'RenderStage';
+    case LayoutGraphValue.RenderPhase: return 'RenderPhase';
+    default: return '';
+    }
 }
 
 interface LayoutGraphValueType {
@@ -250,6 +277,13 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // ComponentGraph
+        this._names.length = 0;
+        this._descriptors.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphValue> (
         id: LayoutGraphValue,
         object: LayoutGraphValueType[T],
@@ -610,38 +644,47 @@ export class UniformBlockData {
 }
 
 export class DescriptorData {
-    constructor (descriptorID = 0xFFFFFFFF, type: Type = Type.UNKNOWN) {
+    constructor (descriptorID = 0) {
         this.descriptorID = descriptorID;
-        this.type = type;
     }
     descriptorID: number;
-    type: Type;
     count = 1;
 }
 
 export class DescriptorBlockData {
-    constructor (type: DescriptorIndex = DescriptorIndex.UNIFORM_BLOCK, capacity = 0) {
+    constructor (type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, capacity = 0) {
         this.type = type;
+        this.visibility = visibility;
         this.capacity = capacity;
     }
-    type: DescriptorIndex;
+    type: DescriptorTypeOrder;
+    visibility: ShaderStageFlagBit;
+    offset = 0;
     capacity: number;
     readonly descriptors: DescriptorData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlockData> = new Map<number, UniformBlockData>();
 }
 
-export class DescriptorTableData {
-    constructor (tableID = 0xFFFFFFFF, capacity = 0) {
-        this.tableID = tableID;
+export class DescriptorSetLayoutData {
+    constructor (slot = 0xFFFFFFFF, capacity = 0) {
+        this.slot = slot;
         this.capacity = capacity;
     }
-    tableID: number;
+    slot: number;
     capacity: number;
     readonly descriptorBlocks: DescriptorBlockData[] = [];
+    readonly uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
 }
 
 export class DescriptorSetData {
-    readonly tables: Map<ShaderStageFlagBit, DescriptorTableData> = new Map<ShaderStageFlagBit, DescriptorTableData>();
+    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout | null, descriptorSet: DescriptorSet | null) {
+        this.descriptorSetLayoutData = descriptorSetLayoutData;
+        this.descriptorSetLayout = descriptorSetLayout;
+        this.descriptorSet = descriptorSet;
+    }
+    readonly descriptorSetLayoutData: DescriptorSetLayoutData;
+    readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
+    /*object*/ descriptorSetLayout: DescriptorSetLayout | null;
+    /*object*/ descriptorSet: DescriptorSet | null;
 }
 
 export class PipelineLayoutData {
@@ -650,6 +693,10 @@ export class PipelineLayoutData {
 
 export class ShaderProgramData {
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
+}
+
+export class RenderStageData {
+    readonly descriptorVisibility: Map<number, ShaderStageFlagBit> = new Map<number, ShaderStageFlagBit>();
 }
 
 export class RenderPhaseData {
@@ -667,17 +714,25 @@ export const enum LayoutGraphDataValue {
     RenderPhase,
 }
 
+export function getLayoutGraphDataValueName (e: LayoutGraphDataValue): string {
+    switch (e) {
+    case LayoutGraphDataValue.RenderStage: return 'RenderStage';
+    case LayoutGraphDataValue.RenderPhase: return 'RenderPhase';
+    default: return '';
+    }
+}
+
 interface LayoutGraphDataValueType {
-    [LayoutGraphDataValue.RenderStage]: number
+    [LayoutGraphDataValue.RenderStage]: RenderStageData
     [LayoutGraphDataValue.RenderPhase]: RenderPhaseData
 }
 
 export interface LayoutGraphDataVisitor {
-    renderStage(value: number): unknown;
+    renderStage(value: RenderStageData): unknown;
     renderPhase(value: RenderPhaseData): unknown;
 }
 
-type LayoutGraphDataObject = number | RenderPhaseData;
+type LayoutGraphDataObject = RenderStageData | RenderPhaseData;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -749,6 +804,7 @@ interface LayoutGraphDataComponentPropertyMap {
 
 //-----------------------------------------------------------------
 // LayoutGraphData Implementation
+@ccclass('cc.LayoutGraphData')
 export class LayoutGraphData implements impl.BidirectionalGraph
 , impl.AdjacencyGraph
 , impl.VertexListGraph
@@ -823,6 +879,19 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableGraph
+    clear (): void {
+        // Members
+        this.valueNames.length = 0;
+        this.attributeIndex.clear();
+        this.constantIndex.clear();
+        this.shaderLayoutIndex.clear();
+        // ComponentGraph
+        this._names.length = 0;
+        this._updateFrequencies.length = 0;
+        this._layouts.length = 0;
+        // Graph Vertices
+        this._vertices.length = 0;
+    }
     addVertex<T extends LayoutGraphDataValue> (
         id: LayoutGraphDataValue,
         object: LayoutGraphDataValueType[T],
@@ -994,6 +1063,9 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     getUpdate (v: number): UpdateFrequency {
         return this._updateFrequencies[v];
     }
+    setUpdate (v: number, value: UpdateFrequency) {
+        this._updateFrequencies[v] = value;
+    }
     getLayout (v: number): PipelineLayoutData {
         return this._layouts[v];
     }
@@ -1026,16 +1098,16 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         const vert = this._vertices[v];
         switch (vert._id) {
         case LayoutGraphDataValue.RenderStage:
-            return visitor.renderStage(vert._object as number);
+            return visitor.renderStage(vert._object as RenderStageData);
         case LayoutGraphDataValue.RenderPhase:
             return visitor.renderPhase(vert._object as RenderPhaseData);
         default:
             throw Error('polymorphic type not found');
         }
     }
-    getRenderStage (v: number): number {
+    getRenderStage (v: number): RenderStageData {
         if (this._vertices[v]._id === LayoutGraphDataValue.RenderStage) {
-            return this._vertices[v]._object as number;
+            return this._vertices[v]._object as RenderStageData;
         } else {
             throw Error('value id not match');
         }
@@ -1047,9 +1119,9 @@ export class LayoutGraphData implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetRenderStage (v: number): number | null {
+    tryGetRenderStage (v: number): RenderStageData | null {
         if (this._vertices[v]._id === LayoutGraphDataValue.RenderStage) {
-            return this._vertices[v]._object as number;
+            return this._vertices[v]._object as RenderStageData;
         } else {
             return null;
         }
@@ -1176,4 +1248,8 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly _names: string[] = [];
     readonly _updateFrequencies: UpdateFrequency[] = [];
     readonly _layouts: PipelineLayoutData[] = [];
+    readonly valueNames: string[] = [];
+    readonly attributeIndex: Map<string, number> = new Map<string, number>();
+    readonly constantIndex: Map<string, number> = new Map<string, number>();
+    readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
 }

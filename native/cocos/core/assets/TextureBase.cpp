@@ -32,7 +32,7 @@
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
 
-#include "boost/container_hash/hash.hpp"
+#include "base/std/hash/hash.h"
 
 namespace cc {
 
@@ -42,23 +42,23 @@ IDGenerator idGenerator("Tex");
 
 TextureBase::TextureBase() {
     // Id for generate hash in material
-    _id              = idGenerator.getNewId();
-    _gfxDevice       = getGFXDevice();
-    std::size_t seed = 666;
-    boost::hash_range(seed, _id.begin(), _id.end());
-    _textureHash = static_cast<uint32_t>(seed);
+    _id = idGenerator.getNewId();
+    _gfxDevice = getGFXDevice();
+    ccstd::hash_t seed = 666;
+    ccstd::hash_range(seed, _id.begin(), _id.end());
+    _textureHash = seed;
 }
 
 TextureBase::~TextureBase() = default;
 
 void TextureBase::setWrapMode(WrapMode wrapS, WrapMode wrapT, WrapMode wrapR) {
-    _wrapS                = wrapS;
+    _wrapS = wrapS;
     _samplerInfo.addressU = static_cast<gfx::Address>(wrapS),
 
-    _wrapT                = wrapT;
+    _wrapT = wrapT;
     _samplerInfo.addressV = static_cast<gfx::Address>(wrapT),
 
-    _wrapR                = wrapR;
+    _wrapR = wrapR;
     _samplerInfo.addressW = static_cast<gfx::Address>(wrapR);
 
     if (_gfxDevice != nullptr) {
@@ -73,9 +73,9 @@ void TextureBase::setWrapMode(WrapMode wrapS, WrapMode wrapT) {
 }
 
 void TextureBase::setFilters(Filter minFilter, Filter magFilter) {
-    _minFilter             = minFilter;
+    _minFilter = minFilter;
     _samplerInfo.minFilter = static_cast<gfx::Filter>(minFilter);
-    _magFilter             = magFilter;
+    _magFilter = magFilter;
     _samplerInfo.magFilter = static_cast<gfx::Filter>(magFilter);
 
     if (_gfxDevice != nullptr) {
@@ -86,7 +86,7 @@ void TextureBase::setFilters(Filter minFilter, Filter magFilter) {
 }
 
 void TextureBase::setMipFilter(Filter mipFilter) {
-    _mipFilter             = mipFilter;
+    _mipFilter = mipFilter;
     _samplerInfo.mipFilter = static_cast<gfx::Filter>(mipFilter);
 
     if (_gfxDevice != nullptr) {
@@ -97,7 +97,7 @@ void TextureBase::setMipFilter(Filter mipFilter) {
 }
 
 void TextureBase::setAnisotropy(uint32_t anisotropy) {
-    _anisotropy                = anisotropy;
+    _anisotropy = anisotropy;
     _samplerInfo.maxAnisotropy = anisotropy;
 
     if (_gfxDevice != nullptr) {
@@ -126,7 +126,7 @@ gfx::Sampler *TextureBase::getGFXSampler() const {
     return _gfxSampler;
 }
 
-cc::any TextureBase::serialize(const cc::any & /*ctxForExporting*/) {
+ccstd::any TextureBase::serialize(const ccstd::any & /*ctxForExporting*/) {
     //cjh TODO:    if (EDITOR || TEST) {
     //        return `${this._minFilter},${this._magFilter},${
     //            this._wrapS},${this._wrapT},${
@@ -135,13 +135,13 @@ cc::any TextureBase::serialize(const cc::any & /*ctxForExporting*/) {
     return ccstd::string("");
 }
 
-void TextureBase::deserialize(const cc::any &serializedData, const cc::any & /*handle*/) {
-    const auto *pData = cc::any_cast<const ccstd::string>(&serializedData);
+void TextureBase::deserialize(const ccstd::any &serializedData, const ccstd::any & /*handle*/) {
+    const auto *pData = ccstd::any_cast<const ccstd::string>(&serializedData);
     if (pData == nullptr) {
         return;
     }
-    const ccstd::string &data   = *pData;
-    auto                 fields = StringUtil::split(data, ",");
+    const ccstd::string &data = *pData;
+    auto fields = StringUtil::split(data, ",");
     fields.insert(fields.begin(), "");
 
     if (fields.size() >= 5) {
@@ -165,7 +165,7 @@ gfx::Format TextureBase::getGFXFormat() const {
     return getGFXPixelFormat(_format);
 }
 
-void TextureBase::setGFXFormat(const cc::optional<PixelFormat> &format) {
+void TextureBase::setGFXFormat(const ccstd::optional<PixelFormat> &format) {
     _format = format.has_value() ? format.value() : PixelFormat::RGBA8888;
 }
 

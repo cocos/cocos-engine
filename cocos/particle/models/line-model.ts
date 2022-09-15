@@ -23,17 +23,15 @@
  THE SOFTWARE.
  */
 
-
-
-import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
+import { JSB } from 'internal:constants';
+import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
-    AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
+    AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
 import { Vec3 } from '../../core/math';
-import { scene } from '../../core/renderer';
+import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
-import { Material } from '../../core/assets';
-import { JSB } from '../../core/default-constants';
+import { Material } from '../../asset/assets';
 
 const _vertex_attrs = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F), // xyz:position

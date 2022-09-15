@@ -40,34 +40,36 @@
 #include "base/Log.h"
 #include "base/Scheduler.h"
 #include "base/UTF8.h"
+#include "base/memory/Memory.h"
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
 
+#include "audio/android/AudioDecoder.h"
+#include "audio/android/AudioDecoderProvider.h"
 #include "audio/android/AudioPlayerProvider.h"
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/cutils/log.h"
-
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 
 using namespace cc; //NOLINT
 
 // Audio focus values synchronized with which in cocos/platform/android/java/src/com/cocos/lib/CocosNativeActivity.java
 namespace {
-AudioEngineImpl *gAudioImpl         = nullptr;
-int              outputSampleRate   = 44100;
-int              bufferSizeInFrames = 192;
+AudioEngineImpl *gAudioImpl = nullptr;
+int outputSampleRate = 44100;
+int bufferSizeInFrames = 192;
 
 void getAudioInfo() {
-    JNIEnv *  env         = JniHelper::getEnv();
-    jclass    audioSystem = env->FindClass("android/media/AudioSystem");
-    jmethodID method      = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
-    outputSampleRate      = env->CallStaticIntMethod(audioSystem, method);
-    method                = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
-    bufferSizeInFrames    = env->CallStaticIntMethod(audioSystem, method);
+    JNIEnv *env = JniHelper::getEnv();
+    jclass audioSystem = env->FindClass("android/media/AudioSystem");
+    jmethodID method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
+    outputSampleRate = env->CallStaticIntMethod(audioSystem, method);
+    method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
+    bufferSizeInFrames = env->CallStaticIntMethod(audioSystem, method);
 }
 } // namespace
 
@@ -96,8 +98,8 @@ static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         int64_t startV;
         int64_t lenV;
-        fd      = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
-        *start  = static_cast<off_t>(startV);
+        fd = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
+        *start = static_cast<off_t>(startV);
         *length = static_cast<off_t>(lenV);
     }
     if (fd <= 0) {
@@ -169,8 +171,8 @@ bool AudioEngineImpl::init() {
 
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
-        const SLboolean     outputMixReqs[] = {};
-        result                              = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
+        const SLboolean outputMixReqs[] = {};
+        result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
         if (SL_RESULT_SUCCESS != result) {
             CC_LOG_ERROR("create output mix fail");
             break;
@@ -183,7 +185,7 @@ bool AudioEngineImpl::init() {
             break;
         }
 
-        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
+        _audioPlayerProvider = ccnew AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
 
         ret = true;
     } while (false);
@@ -394,4 +396,87 @@ void AudioEngineImpl::onResume() {
     if (_audioPlayerProvider != nullptr) {
         _audioPlayerProvider->resume();
     }
+}
+
+PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
+    PCMHeader header{};
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return header;
+    }
+    if (_audioPlayerProvider->getPcmHeader(url, header)) {
+        CC_LOG_DEBUG("file %s pcm data already cached", url);
+        return header;
+    }
+
+    AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return header;
+    }
+    if (!decoder->start()) {
+        CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+        return header;
+    }
+    // Ready to decode
+    do {
+        PcmData data = decoder->getResult();
+        header.bytesPerFrame = data.bitsPerSample / 8;
+        header.channelCount = data.numChannels;
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = data.sampleRate;
+        header.totalFrames = data.numFrames;
+    } while (false);
+
+    AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    return header;
+}
+
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    ccstd::vector<uint8_t> pcmData;
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return pcmData;
+    }
+    PcmData data;
+    if (_audioPlayerProvider->getPcmData(url, data)) {
+        CC_LOG_DEBUG("file %s pcm data already cached", url);
+    } else {
+        AudioDecoder *decoder = AudioDecoderProvider::createAudioDecoder(_engineEngine, fileFullPath, bufferSizeInFrames, outputSampleRate, fdGetter);
+        if (decoder == nullptr) {
+            CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+            return pcmData;
+        }
+        if (!decoder->start()) {
+            CC_LOG_DEBUG("[Audio Decoder] Decode failed %s", url);
+            return pcmData;
+        }
+        data = decoder->getResult();
+        _audioPlayerProvider->registerPcmData(url, data);
+        AudioDecoderProvider::destroyAudioDecoder(&decoder);
+    }
+    do {
+        const uint32_t channelCount = data.numChannels;
+        if (channelID >= channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", channelCount, channelID);
+            break;
+        }
+        // bytesPerSample  = bitsPerSample / 8, according to 1 byte = 8 bits
+        const uint32_t bytesPerFrame = data.numChannels * data.bitsPerSample / 8;
+        const uint32_t numFrames = data.numFrames;
+        const uint32_t bytesPerChannelInFrame = bytesPerFrame / channelCount;
+
+        pcmData.resize(bytesPerChannelInFrame * numFrames);
+        uint8_t *p = pcmData.data();
+        char *tmpBuf = data.pcmBuffer->data(); // shared ptr
+        for (int itr = 0; itr < numFrames; itr++) {
+            memcpy(p, tmpBuf + itr * bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+            p += bytesPerChannelInFrame;
+        }
+    } while (false);
+
+    return pcmData;
 }

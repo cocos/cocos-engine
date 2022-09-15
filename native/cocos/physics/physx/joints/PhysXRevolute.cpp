@@ -31,10 +31,6 @@
 namespace cc {
 namespace physics {
 
-PhysXRevolute::PhysXRevolute() : _mPivotA(physx::PxZero),
-                                 _mPivotB(physx::PxZero),
-                                 _mAxis(physx::PxZero) {}
-
 void PhysXRevolute::onComponentSet() {
     _mJoint = PxRevoluteJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
 }
@@ -65,7 +61,7 @@ void PhysXRevolute::updateScale1() {
 void PhysXRevolute::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
-    auto *             node0 = _mSharedBody->getNode();
+    auto *node0 = _mSharedBody->getNode();
     node0->updateWorldTransform();
     pose0.p = _mPivotA * node0->getWorldScale();
     pxSetFromTwoVectors(pose0.q, physx::PxVec3{1.F, 0.F, 0.F}, _mAxis);

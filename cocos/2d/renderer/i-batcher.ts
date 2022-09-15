@@ -1,16 +1,17 @@
-import { CachedArray, Material, Node } from '../../core';
-import { TextureBase } from '../../core/assets/texture-base';
-import { Device } from '../../core/gfx';
-import { Attribute } from '../../core/gfx/base/define';
-import { Camera } from '../../core/renderer/scene/camera';
-import { Model } from '../../core/renderer/scene/model';
+import { CachedArray, Node } from '../../core';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { Device } from '../../gfx';
+import { Attribute } from '../../gfx/base/define';
+import { Camera } from '../../render-scene/scene/camera';
+import { Model } from '../../render-scene/scene/model';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
-import { Renderable2D, RenderRoot2D } from '../framework';
+import { UIRenderer, RenderRoot2D } from '../framework';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { DrawBatch2D } from './draw-batch';
 import { BaseRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
+import { Material } from '../../asset/assets';
 
 export interface IBatcher {
     currBufferAccessor: StaticVBAccessor;
@@ -38,15 +39,15 @@ export interface IBatcher {
 
     switchBufferAccessor (attributes?: Attribute[]): StaticVBAccessor;
 
-    commitComp (comp: Renderable2D, renderData: BaseRenderData|null, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
-    commitModel (comp: UIMeshRenderer | Renderable2D, model: Model | null, mat: Material | null);
+    commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
+    commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null);
 
     setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor);
     endStaticBatch ();
     commitStaticBatch (comp: UIStaticBatch);
 
-    autoMergeBatches (renderComp?: Renderable2D);
-    forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D);
+    autoMergeBatches (renderComp?: UIRenderer);
+    forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: UIRenderer);
     finishMergeBatches ();
     flushMaterial (mat: Material);
 

@@ -38,15 +38,17 @@ class Data;
 
 class WebView;
 
-class WebViewImpl {
+class WebViewImpl final {
 public:
-    WebViewImpl(WebView *webView);
+    explicit WebViewImpl(WebView *webView);
 
-    virtual ~WebViewImpl();
+    ~WebViewImpl();
+
+    void destroy();
 
     void setJavascriptInterfaceScheme(const ccstd::string &scheme);
 
-    void loadData(const cc::Data &     data,
+    void loadData(const cc::Data &data,
                   const ccstd::string &MIMEType,
                   const ccstd::string &encoding,
                   const ccstd::string &baseURL);
@@ -73,9 +75,9 @@ public:
 
     void setScalesPageToFit(const bool scalesPageToFit);
 
-    virtual void setVisible(bool visible);
+    void setVisible(bool visible);
 
-    virtual void setFrame(float x, float y, float width, float height);
+    void setFrame(float x, float y, float width, float height);
 
     void setBounces(bool bounces);
 
@@ -83,7 +85,7 @@ public:
 
 private:
     UIWebViewWrapper *_uiWebViewWrapper;
-    WebView *         _webView;
+    WebView *_webView;
 };
 } //namespace cc
 

@@ -1163,3 +1163,6 @@
 
 /***/ })
 /******/ ]);
+
+require('../../../common/xmldom/dom-parser');
+require('./unify');

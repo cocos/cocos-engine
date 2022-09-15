@@ -23,12 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
-import { Color, Mat4, Vec3 } from '../../../core/math';
+import {  Mat4 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
@@ -38,8 +33,8 @@ import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const FillType = Sprite.FillType;
-const matrix = new Mat4();
-const vec3_temp = new Vec3();
+const m = new Mat4();
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
 
 /**
  * barFilled 组装器
@@ -53,7 +48,6 @@ export const barFilled: IAssembler = {
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
-            renderData.updateRenderData(sprite, frame);
             const vertDirty = renderData.vertDirty;
 
             if (!vertDirty) {
@@ -76,8 +70,9 @@ export const barFilled: IAssembler = {
             let fillEnd = fillStart + fillRange;
             fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-            this.updateUVs(sprite, fillStart, fillEnd);
+            this.updateUVs(sprite, fillStart, fillEnd); // need Dirty
             this.updateVertexData(sprite, fillStart, fillEnd);
+            renderData.updateRenderData(sprite, frame);
         }
     },
 
@@ -203,7 +198,11 @@ export const barFilled: IAssembler = {
         // 0-4 for local vertex
         renderData.dataLength = 4;
         renderData.resize(4, 6);
+        renderData.vertexRow = 2;
+        renderData.vertexCol = 2;
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
+        // not need
         const dataList = renderData.data;
         for (const data of dataList) {
             data.z = 0;
@@ -214,7 +213,7 @@ export const barFilled: IAssembler = {
 
     updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
         const node = sprite.node;
-        node.getWorldMatrix(matrix);
+        node.getWorldMatrix(m);
 
         const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
@@ -224,11 +223,15 @@ export const barFilled: IAssembler = {
         let offset = 0;
         for (let i = 0; i < 4; i++) {
             const local = dataList[i];
-            Vec3.transformMat4(vec3_temp, local, matrix);
+            const x = local.x;
+            const y = local.y;
+            let rhw = m.m03 * x + m.m07 * y + m.m15;
+            rhw = rhw ? Math.abs(1 / rhw) : 1;
+
             offset = i * stride;
-            vData[offset] = vec3_temp.x;
-            vData[offset + 1] = vec3_temp.y;
-            vData[offset + 2] = vec3_temp.z;
+            vData[offset] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+            vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+            vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
         }
     },
 

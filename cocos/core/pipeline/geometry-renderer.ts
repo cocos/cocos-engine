@@ -24,6 +24,7 @@
  */
 
 import { AABB } from '../geometry/aabb';
+import { Spline } from '../geometry/spline';
 import { Color } from '../math/color';
 import { Mat4 } from '../math/mat4';
 import { Vec3 } from '../math/vec3';
@@ -32,12 +33,12 @@ import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit,
     CommandBuffer, Device, DrawInfo, Format, InputAssembler,
-    InputAssemblerInfo, MemoryUsageBit, RenderPass } from '../gfx';
+    InputAssemblerInfo, MemoryUsageBit, RenderPass } from '../../gfx';
 import { warnID } from '../platform/debug';
 import { Frustum } from '../geometry/frustum';
 import { toRadian } from '../math/utils';
-import { Camera } from '../renderer/scene/camera';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { legacyCC } from '../global-exports';
 
 const _min = new Vec3();
 const _max = new Vec3();
@@ -60,7 +61,7 @@ const GEOMETRY_NO_DEPTH_TEST_PASS_NUM = 1;
 const GEOMETRY_DEPTH_TEST_PASS_NUM    = 2;
 const GEOMETRY_VERTICES_PER_LINE      = 2;
 const GEOMETRY_VERTICES_PER_TRIANGLE  = 3;
-const GEOMETRY_MAX_LINES              = 100000;
+const GEOMETRY_MAX_LINES              = 30000;
 const GEOMETRY_MAX_DASHED_LINES       = 10000;
 const GEOMETRY_MAX_TRIANGLES          = 10000;
 
@@ -72,27 +73,27 @@ enum GeometryType {
 
 class GeometryVertexBuffer {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _maxVertices = 0;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _vertexCount = 0;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _stride = 0;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _vertices!: Float32Array;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _buffer!: Buffer;
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _inputAssembler!: InputAssembler;
 
@@ -101,12 +102,12 @@ class GeometryVertexBuffer {
         this._vertexCount = 0;
         this._stride = stride;
         this._vertices = new Float32Array(maxVertices * stride / Float32Array.BYTES_PER_ELEMENT);
-        this._buffer = device.createBuffer(new BufferInfo(BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST, 
+        this._buffer = device.createBuffer(new BufferInfo(BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE, maxVertices * stride, stride));
         this._inputAssembler = device.createInputAssembler(new InputAssemblerInfo(attributes, [this._buffer], null));
     }
 
-    public getCount() { return Math.min(this._vertexCount, this._maxVertices); }
+    public getCount () { return Math.min(this._vertexCount, this._maxVertices); }
     public empty (): boolean { return this._vertexCount === 0; }
     public reset () { this._vertexCount = 0; }
 
@@ -185,8 +186,6 @@ export class GeometryRenderer {
     }
 
     public render (renderPass: RenderPass, cmdBuff: CommandBuffer, sceneData: PipelineSceneData) {
-        this.update();
-
         const passes = sceneData.geometryRendererPasses;
         const shaders = sceneData.geometryRendererShaders;
 
@@ -263,6 +262,18 @@ export class GeometryRenderer {
             this._buffers.dashedLines[i].destroy();
             this._buffers.triangles[i].destroy();
         }
+    }
+
+    public empty () {
+        for (let i = 0; i < GEOMETRY_DEPTH_TYPE_COUNT; i++) {
+            if (!this._buffers.lines[i].empty()
+                || !this._buffers.dashedLines[i].empty()
+                || !this._buffers.triangles[i].empty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public update () {
@@ -897,6 +908,25 @@ export class GeometryRenderer {
         }
     }
 
+    public addSpline (spline: Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true) {
+        const numPoints = segments + 1;
+        const points = spline.getPoints(numPoints, index);
+
+        for (let i = 0; i < segments; i++) {
+            this.addLine(points[i], points[i + 1], color, depthTest);
+        }
+
+        if (knotSize > 0.0 && index === 0xffffffff) {
+            const crossColor = new Color(255 - color.r, 255 - color.g, 255 - color.b, color.a);
+            const numKnots = spline.getKnotCount();
+            const knots = spline.knots;
+
+            for (let i = 0; i < numKnots; i++) {
+                this.addCross(knots[i], knotSize, crossColor, depthTest);
+            }
+        }
+    }
+
     public addMesh (center: Vec3, vertices: Array<Vec3>, color: Color, depthTest = true, useTransform = false, transform = new Mat4()) {
         for (let i = 0; i < vertices.length; i += 3) {
             const v0 = new Vec3(center.x + vertices[i].x, center.y + vertices[i].y, center.z + vertices[i].z);
@@ -934,3 +964,5 @@ export class GeometryRenderer {
         }
     }
 }
+
+legacyCC.internal.GeometryRenderer = GeometryRenderer;

@@ -1,12 +1,12 @@
 import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import { Prefab } from '../../assets';
+import { Prefab } from '../../../asset/assets';
 import { CCObject } from '../../data';
 import { Component } from '../../components';
 import { Node } from '../../scene-graph';
 
-function compareStringArray (array1: string[]|undefined, array2: string[]|undefined) {
+function compareStringArray (array1: string[] | undefined, array2: string[] | undefined) {
     if (!array1 || !array2) {
         return false;
     }
@@ -28,20 +28,20 @@ export class TargetInfo {
 export class TargetOverrideInfo {
     @serializable
     @type(CCObject)
-    public source: Component|Node|null = null;
+    public source: Component | Node | null = null;
     // if owner is in a prefab, use TargetInfo to index it
     @serializable
     @type(TargetInfo)
-    public sourceInfo: TargetInfo|null = null;
+    public sourceInfo: TargetInfo | null = null;
     @serializable
     public propertyPath: string[] = [];
     @serializable
     @type(Node)
-    public target: Node|null = null;
+    public target: Node | null = null;
     // if target is in a prefab, use TargetInfo to index it
     @serializable
     @type(TargetInfo)
-    public targetInfo: TargetInfo|null = null;
+    public targetInfo: TargetInfo | null = null;
 }
 
 @ccclass('cc.CompPrefabInfo')
@@ -56,7 +56,7 @@ export class CompPrefabInfo {
 export class PropertyOverrideInfo {
     @serializable
     @type(TargetInfo)
-    public targetInfo: TargetInfo|null = null;
+    public targetInfo: TargetInfo | null = null;
     @serializable
     public propertyPath: string[] = [];
     @serializable
@@ -66,7 +66,7 @@ export class PropertyOverrideInfo {
     public isTarget (localID: string[], propPath: string[]) {
         if (EDITOR) {
             return compareStringArray(this.targetInfo?.localID, localID)
-            && compareStringArray(this.propertyPath, propPath);
+                && compareStringArray(this.propertyPath, propPath);
         }
     }
 }
@@ -75,7 +75,7 @@ export class PropertyOverrideInfo {
 export class MountedChildrenInfo {
     @serializable
     @type(TargetInfo)
-    public targetInfo: TargetInfo|null = null;
+    public targetInfo: TargetInfo | null = null;
     @serializable
     @type([Node])
     public nodes: Node[] = [];
@@ -92,7 +92,7 @@ export class MountedChildrenInfo {
 export class MountedComponentsInfo {
     @serializable
     @type(TargetInfo)
-    public targetInfo: TargetInfo|null = null;
+    public targetInfo: TargetInfo | null = null;
     @serializable
     @type([Component])
     public components: Component[] = [];
@@ -107,6 +107,7 @@ export class MountedComponentsInfo {
 
 /**
  * Prefab实例类
+ * @internal
  */
 @ccclass('cc.PrefabInstance')
 export class PrefabInstance {
@@ -139,6 +140,12 @@ export class PrefabInstance {
     public removedComponents: TargetInfo[] = [];
 
     public targetMap: Record<string, any | Node | Component> = {};
+
+    /**
+     * make sure prefab instance expand only once
+     * @internal
+     */
+    public expanded = false;
 
     // eslint-disable-next-line consistent-return
     public findPropertyOverride (localID: string[], propPath: string[]) {

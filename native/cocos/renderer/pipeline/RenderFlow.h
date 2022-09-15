@@ -26,6 +26,8 @@
 #pragma once
 
 #include "Define.h"
+#include "RenderStage.h"
+#include "base/RefCounted.h"
 
 namespace cc {
 namespace scene {
@@ -37,16 +39,16 @@ class RenderPipeline;
 class RenderStage;
 
 struct CC_DLL RenderFlowInfo {
-    ccstd::string   name;
-    uint            priority = 0;
-    uint            tag      = 0;
+    ccstd::string name;
+    uint32_t priority = 0;
+    uint32_t tag = 0;
     RenderStageList stages;
 };
 
-class CC_DLL RenderFlow {
+class CC_DLL RenderFlow : public RefCounted {
 public:
     RenderFlow();
-    virtual ~RenderFlow();
+    ~RenderFlow() override;
 
     virtual bool initialize(const RenderFlowInfo &info);
     virtual void activate(RenderPipeline *pipeline);
@@ -54,16 +56,18 @@ public:
     virtual void destroy();
 
     inline const ccstd::string &getName() const { return _name; }
-    inline uint                 getPriority() const { return _priority; }
-    inline uint                 getTag() const { return _tag; }
-    RenderStage *               getRenderstageByName(const ccstd::string &name) const;
+    inline uint32_t getPriority() const { return _priority; }
+    inline uint32_t getTag() const { return _tag; }
+    RenderStage *getRenderstageByName(const ccstd::string &name) const;
 
 protected:
     RenderStageList _stages;
-    ccstd::string   _name;
-    RenderPipeline *_pipeline = nullptr;
-    uint            _priority = 0;
-    uint            _tag      = 0;
+    ccstd::string _name;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    uint32_t _priority{0};
+    uint32_t _tag{0};
+    bool _isResourceOwner{false};
 };
 
 } // namespace pipeline

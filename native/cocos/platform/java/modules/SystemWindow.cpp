@@ -29,6 +29,11 @@
 #include <unistd.h>
 #include <functional>
 #include <thread>
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #include <android/native_window.h>
+#endif
+
+#include "BasePlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "platform/java/jni/JniImp.h"
@@ -39,6 +44,11 @@ namespace {
 } // namespace
 
 namespace cc {
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
+: _windowHandle(externalHandle)
+, _windowId(windowId)
+{
+}
 
 void SystemWindow::setCursorEnabled(bool value) {
 }
@@ -47,14 +57,38 @@ void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
     copyTextToClipboardJNI(text);
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
+void SystemWindow::setWindowHandle(void *handle) {
+    _windowHandle = handle;
+}
+
+uintptr_t SystemWindow::getWindowHandle() const {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    CC_ASSERT(_windowHandle);
+    return reinterpret_cast<uintptr_t>(_windowHandle);
+#else
     return reinterpret_cast<uintptr_t>(
-        JNI_NATIVE_GLUE()->getWindowHandler());
+        JNI_NATIVE_GLUE()->getWindowHandle());
+#endif
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    CC_ASSERT(_windowHandle);
+    auto *nativeWindow = static_cast<ANativeWindow *>(_windowHandle);
+    return Size{static_cast<float>(ANativeWindow_getWidth(nativeWindow)),
+                static_cast<float>(ANativeWindow_getHeight(nativeWindow))};
+#else
     return Size{static_cast<float>(JNI_NATIVE_GLUE()->getWidth()),
                 static_cast<float>(JNI_NATIVE_GLUE()->getHeight())};
+#endif
+}
+void SystemWindow::closeWindow() {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    finishActivity();
+#else
+    cc::EventDispatcher::dispatchCloseEvent();
+    exit(0); //TODO(cc): better exit for ohos
+#endif
 }
 
 } // namespace cc

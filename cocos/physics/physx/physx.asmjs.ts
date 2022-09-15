@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /**
  * export PhysX from internal module
  */

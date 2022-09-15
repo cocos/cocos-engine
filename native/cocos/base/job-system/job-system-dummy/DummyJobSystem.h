@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "cocos/base/Macros.h"
-#include "cocos/base/TypeDef.h"
+#include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 
@@ -41,7 +41,7 @@ private:
 public:
     static DummyJobSystem *getInstance() {
         if (!instance) {
-            instance = new DummyJobSystem;
+            instance = ccnew DummyJobSystem;
         }
         return instance;
     }
@@ -52,12 +52,12 @@ public:
     }
 
     DummyJobSystem() noexcept = default;
-    explicit DummyJobSystem(uint /*threadCount*/) noexcept {}
+    explicit DummyJobSystem(uint32_t /*threadCount*/) noexcept {}
 
-    inline uint threadCount() const { return THREAD_COUNT; } //NOLINT
+    inline uint32_t threadCount() const { return THREAD_COUNT; } //NOLINT
 
 private:
-    static constexpr uint THREAD_COUNT = 1U; //always one
+    static constexpr uint32_t THREAD_COUNT = 1U; //always one
 };
 
 } // namespace cc

@@ -2,13 +2,13 @@ import { assertIsNonNullable, assertIsTrue } from './utils/asserts';
 
 /**
  * Tag to define the custom serialization method.
- * @legacyPublic
+ * @internal
  */
 export const serializeTag = Symbol('[[Serialize]]');
 
 /**
  * Tag to define the custom deserialization method.
- * @legacyPublic
+ * @internal
  */
 export const deserializeTag = Symbol('[[Deserialize]]');
 
@@ -52,7 +52,7 @@ export interface SerializationOutput {
 
 export type SerializationContext = {
     /**
-     * The root value passed to serialization procedure.
+     * The main serializing asset or root node in the scene/prefab passed to serialization procedure.
      */
     root: unknown;
 
@@ -82,7 +82,7 @@ export interface CustomSerializable {
 
 /**
  * Enables the custom serialize/deserialize method only if the (de)serialize procedure is targeting CCON.
- * @legacyPublic
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export const enableIfCCON: MethodDecorator = <T>(
     // eslint-disable-next-line @typescript-eslint/ban-types

@@ -26,7 +26,7 @@
 #include "primitive/Transform.h"
 
 namespace cc {
-IGeometry translate(IGeometry &geometry, const cc::optional<Vec3> &offset) {
+IGeometry translate(IGeometry &geometry, const ccstd::optional<Vec3> &offset) {
     const float x = offset.has_value() ? offset->x : 0;
     const float y = offset.has_value() ? offset->y : 0;
     const float z = offset.has_value() ? offset->z : 0;
@@ -57,7 +57,7 @@ IGeometry translate(IGeometry &geometry, const cc::optional<Vec3> &offset) {
     return geometry;
 }
 
-IGeometry scale(IGeometry &geometry, const cc::optional<Vec3> &value) {
+IGeometry scale(IGeometry &geometry, const ccstd::optional<Vec3> &value) {
     const float x = value.has_value() ? value->x : 0;
     const float y = value.has_value() ? value->y : 0;
     const float z = value.has_value() ? value->z : 0;
@@ -101,8 +101,8 @@ IGeometry wireframed(IGeometry &geometry) {
     }
 
     // const offsets = [ [ 0, 1 ], [ 1, 2 ], [ 2, 0 ] ];
-    ccstd::vector<ccstd::vector<uint32_t>>   offsets{{0, 1}, {1, 2}, {2, 0}};
-    ccstd::vector<uint32_t>                  lines;
+    ccstd::vector<ccstd::vector<uint32_t>> offsets{{0, 1}, {1, 2}, {2, 0}};
+    ccstd::vector<uint32_t> lines;
     ccstd::unordered_map<uint32_t, uint32_t> lineIDs;
     for (uint32_t i = 0; i < indices->size(); i += 3) {
         for (uint32_t k = 0; k < 3; ++k) {
@@ -119,7 +119,7 @@ IGeometry wireframed(IGeometry &geometry) {
         }
     }
 
-    geometry.indices       = lines;
+    geometry.indices = lines;
     geometry.primitiveMode = gfx::PrimitiveMode::LINE_LIST;
 
     return geometry;

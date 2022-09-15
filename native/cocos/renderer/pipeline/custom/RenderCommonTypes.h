@@ -30,7 +30,12 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/Ptr.h"
+#include "cocos/base/std/container/string.h"
+#include "cocos/base/std/hash/hash.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
+#include "cocos/scene/Light.h"
 
 namespace cc {
 
@@ -124,8 +129,176 @@ enum class TaskType {
     ASYNC,
 };
 
+enum class SceneFlags : uint32_t {
+    NONE = 0,
+    OPAQUE_OBJECT = 1,
+    CUTOUT_OBJECT = 2,
+    TRANSPARENT_OBJECT = 4,
+    SHADOW_CASTER = 8,
+    UI = 16,
+    DEFAULT_LIGHTING = 32,
+    VOLUMETRIC_LIGHTING = 64,
+    CLUSTERED_LIGHTING = 128,
+    PLANAR_SHADOW = 256,
+    GEOMETRY = 512,
+    PROFILER = 1024,
+    ALL = 0xFFFFFFFF,
+};
+
+constexpr SceneFlags operator|(const SceneFlags lhs, const SceneFlags rhs) noexcept {
+    return static_cast<SceneFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+
+constexpr SceneFlags operator&(const SceneFlags lhs, const SceneFlags rhs) noexcept {
+    return static_cast<SceneFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}
+
+constexpr SceneFlags& operator|=(SceneFlags& lhs, const SceneFlags rhs) noexcept {
+    return lhs = lhs | rhs;
+}
+
+constexpr SceneFlags& operator&=(SceneFlags& lhs, const SceneFlags rhs) noexcept {
+    return lhs = lhs & rhs;
+}
+
+constexpr bool operator!(SceneFlags e) noexcept {
+    return e == static_cast<SceneFlags>(0);
+}
+
+constexpr bool any(SceneFlags e) noexcept {
+    return !!e;
+}
+
+enum class LightingMode : uint32_t {
+    NONE,
+    DEFAULT,
+    CLUSTERED,
+};
+
+enum class AttachmentType {
+    RENDER_TARGET,
+    DEPTH_STENCIL,
+};
+
+enum class AccessType {
+    READ,
+    READ_WRITE,
+    WRITE,
+};
+
+struct RasterView {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {slotName.get_allocator().resource()};
+    }
+
+    RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(RasterView&& rhs, const allocator_type& alloc);
+    RasterView(RasterView const& rhs, const allocator_type& alloc);
+
+    RasterView(RasterView&& rhs) noexcept = default;
+    RasterView(RasterView const& rhs) = delete;
+    RasterView& operator=(RasterView&& rhs) = default;
+    RasterView& operator=(RasterView const& rhs) = default;
+
+    ccstd::pmr::string slotName;
+    AccessType accessType{AccessType::WRITE};
+    AttachmentType attachmentType{AttachmentType::RENDER_TARGET};
+    gfx::LoadOp loadOp{gfx::LoadOp::LOAD};
+    gfx::StoreOp storeOp{gfx::StoreOp::STORE};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color clearColor;
+};
+
+inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {
+    return std::forward_as_tuple(lhs.slotName, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags) ==
+           std::forward_as_tuple(rhs.slotName, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags);
+}
+
+inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+enum class ClearValueType {
+    FLOAT_TYPE,
+    INT_TYPE,
+};
+
+struct ComputeView {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {name.get_allocator().resource()};
+    }
+
+    ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    ComputeView(ComputeView&& rhs, const allocator_type& alloc);
+    ComputeView(ComputeView const& rhs, const allocator_type& alloc);
+
+    ComputeView(ComputeView&& rhs) noexcept = default;
+    ComputeView(ComputeView const& rhs) = delete;
+    ComputeView& operator=(ComputeView&& rhs) = default;
+    ComputeView& operator=(ComputeView const& rhs) = default;
+
+    bool isRead() const {
+        return accessType != AccessType::WRITE;
+    }
+    bool isWrite() const {
+        return accessType != AccessType::READ;
+    }
+
+    ccstd::pmr::string name;
+    AccessType accessType{AccessType::READ};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
+    gfx::Color clearColor;
+    ClearValueType clearValueType{ClearValueType::FLOAT_TYPE};
+};
+
+inline bool operator==(const ComputeView& lhs, const ComputeView& rhs) noexcept {
+    return std::forward_as_tuple(lhs.name, lhs.accessType, lhs.clearFlags, lhs.clearValueType) ==
+           std::forward_as_tuple(rhs.name, rhs.accessType, rhs.clearFlags, rhs.clearValueType);
+}
+
+inline bool operator!=(const ComputeView& lhs, const ComputeView& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+struct LightInfo {
+    LightInfo() = default;
+    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
+    : light(std::move(lightIn)),
+      level(levelIn) {}
+
+    IntrusivePtr<scene::Light> light;
+    uint32_t level{0};
+};
+
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+inline hash_t hash<cc::render::RasterView>::operator()(const cc::render::RasterView& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.slotName);
+    hash_combine(seed, val.accessType);
+    hash_combine(seed, val.attachmentType);
+    hash_combine(seed, val.loadOp);
+    hash_combine(seed, val.storeOp);
+    hash_combine(seed, val.clearFlags);
+    return seed;
+}
+
+inline hash_t hash<cc::render::ComputeView>::operator()(const cc::render::ComputeView& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.name);
+    hash_combine(seed, val.accessType);
+    hash_combine(seed, val.clearFlags);
+    hash_combine(seed, val.clearValueType);
+    return seed;
+}
+
+} // namespace ccstd
 
 // clang-format on

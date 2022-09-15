@@ -23,6 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
+
 #include "GLES3Swapchain.h"
 #include "GLES3Device.h"
 #include "GLES3GPUObjects.h"
@@ -52,8 +55,14 @@ GLES3Swapchain::~GLES3Swapchain() {
 }
 
 void GLES3Swapchain::doInit(const SwapchainInfo &info) {
+    _xr = CC_GET_XR_INTERFACE();
+    if (_xr) {
+        _xr->updateXRSwapchainTypedID(getTypedID());
+    }
+    auto width = static_cast<int32_t>(info.width);
+    auto height = static_cast<int32_t>(info.height);
     const auto *context = GLES3Device::getInstance()->context();
-    _gpuSwapchain       = CC_NEW(GLES3GPUSwapchain);
+    _gpuSwapchain = ccnew GLES3GPUSwapchain;
 #if CC_PLATFORM == CC_PLATFORM_LINUX
     auto window = reinterpret_cast<EGLNativeWindowType>(info.windowHandle);
 #else
@@ -68,9 +77,9 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     }
 
     #if CC_SWAPPY_ENABLED
-    bool  enableSwappy = true;
-    auto* platform     = static_cast<AndroidPlatform*>(cc::BasePlatform::getPlatform());
-    enableSwappy &= SwappyGL_init(static_cast<JNIEnv*>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
+    bool enableSwappy = true;
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    enableSwappy &= SwappyGL_init(static_cast<JNIEnv *>(platform->getEnv()), static_cast<jobject>(platform->getActivity()));
     int32_t fps = cc::BasePlatform::getPlatform()->getFps();
     if (enableSwappy) {
         if (!fps)
@@ -85,8 +94,10 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
 
     #endif
 
-    auto width  = static_cast<int32_t>(info.width);
-    auto height = static_cast<int32_t>(info.height);
+    if (_xr) {
+        width = _xr->getXRConfig(xr::XRConfigKey::SWAPCHAIN_WIDTH).getInt();
+        height = _xr->getXRConfig(xr::XRConfigKey::SWAPCHAIN_HEIGHT).getInt();
+    }
 
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
@@ -96,10 +107,22 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
     #endif
 #endif
 
-    EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
-    if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
-        CC_LOG_ERROR("Create window surface failed.");
-        return;
+    EGLSurfaceType surfaceType = _xr ? _xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
+    if (surfaceType == EGLSurfaceType::PBUFFER) {
+        EGLint pbufferAttribs[]{
+            EGL_WIDTH, 1,
+            EGL_HEIGHT, 1,
+            EGL_NONE};
+        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreatePbufferSurface(context->eglDisplay, context->eglConfig, pbufferAttribs));
+    } else if (surfaceType == EGLSurfaceType::WINDOW) {
+        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
+        if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+            CC_LOG_ERROR("Create window surface failed.");
+            return;
+        }
+    }
+    if (_xr) {
+        GLES3Device::getInstance()->context()->makeCurrent(_gpuSwapchain, _gpuSwapchain);
     }
 
     switch (_vsyncMode) {
@@ -113,14 +136,14 @@ void GLES3Swapchain::doInit(const SwapchainInfo &info) {
 
     ///////////////////// Texture Creation /////////////////////
 
-    _colorTexture        = CC_NEW(GLES3Texture);
-    _depthStencilTexture = CC_NEW(GLES3Texture);
+    _colorTexture = ccnew GLES3Texture;
+    _depthStencilTexture = ccnew GLES3Texture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
-    textureInfo.format    = Format::RGBA8;
-    textureInfo.width     = info.width;
-    textureInfo.height    = info.height;
+    textureInfo.format = Format::RGBA8;
+    textureInfo.width = width;
+    textureInfo.height = height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = Format::DEPTH_STENCIL;
@@ -176,7 +199,7 @@ void GLES3Swapchain::doCreateSurface(void *windowHandle) {
         return;
     }
 
-    auto width  = static_cast<int>(_colorTexture->getWidth());
+    auto width = static_cast<int>(_colorTexture->getWidth());
     auto height = static_cast<int>(_colorTexture->getHeight());
     CC_UNUSED_PARAM(width);
     CC_UNUSED_PARAM(height);
@@ -195,10 +218,21 @@ void GLES3Swapchain::doCreateSurface(void *windowHandle) {
 #endif
 
     if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
-        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
-        if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
-            CC_LOG_ERROR("Recreate window surface failed.");
-            return;
+        IXRInterface *xr = CC_GET_XR_INTERFACE();
+        EGLSurfaceType surfaceType = xr ? xr->acquireEGLSurfaceType(getTypedID()) : EGLSurfaceType::WINDOW;
+        if (surfaceType == EGLSurfaceType::PBUFFER) {
+            EGLint pbufferAttribs[]{
+                EGL_WIDTH, 1,
+                EGL_HEIGHT, 1,
+                EGL_NONE};
+            EGL_CHECK(_gpuSwapchain->eglSurface = eglCreatePbufferSurface(context->eglDisplay, context->eglConfig, pbufferAttribs));
+        } else if (surfaceType == EGLSurfaceType::WINDOW) {
+            EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
+
+            if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+                CC_LOG_ERROR("Recreate window surface failed.");
+                return;
+            }
         }
     }
 

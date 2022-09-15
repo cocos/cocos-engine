@@ -23,25 +23,17 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, type, serializable } from 'cc.decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4 } from '../../core/math';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { Asset } from '../../core/assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { legacyCC } from '../../core/global-exports';
-import { _applyDecoratedDescriptor } from '../../core/data/utils/decorator-jsb-utils';
 
 export const Skeleton = jsb.Skeleton;
 export type Skeleton = jsb.Skeleton;
 legacyCC.Skeleton = Skeleton;
 const skeletonProto: any = Skeleton.prototype;
-
-const skeletonDecorator = ccclass('cc.Skeleton');
 
 Object.defineProperty(skeletonProto, 'bindposes', {
     enumerable: true,
@@ -55,35 +47,6 @@ Object.defineProperty(skeletonProto, 'bindposes', {
     },
 });
 
-const _dec2$1 = type([CCString]);
-const _dec3$1 = type([Mat4]);
-
-const _descriptor$2 = _applyDecoratedDescriptor(skeletonProto, '_joints', [_dec2$1], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
-const _descriptor2$2 = _applyDecoratedDescriptor(skeletonProto, '_bindposes', [_dec3$1], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return [];
-    },
-});
-
-const _descriptor3$1 = _applyDecoratedDescriptor(skeletonProto, '_hash', [serializable], {
-    configurable: true,
-    enumerable: true,
-    writable: true,
-    initializer: function initializer () {
-        return 0;
-    },
-});
 
 skeletonProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
@@ -101,4 +64,9 @@ skeletonProto.onLoaded = function () {
     oldSkeletonProtoOnLoaded.call(this);
 };
 
-skeletonDecorator(Skeleton);
+// handle meta data, it is generated automatically
+const SkeletonProto = Skeleton.prototype;
+type([CCString])(SkeletonProto, '_joints');
+type([Mat4])(SkeletonProto, '_bindposes');
+serializable(SkeletonProto, '_hash');
+ccclass('cc.Skeleton')(Skeleton);

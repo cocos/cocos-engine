@@ -1,16 +1,37 @@
-/**
- * @packageDocumentation
- * @module spine
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { EDITOR } from 'internal:constants';
-import { Asset, CCString, Enum, Node, Texture2D, errorID } from '../core';
+import { CCString, Enum, Node } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import { SkeletonTexture } from './skeleton-texture';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { legacyCC } from '../core/global-exports';
+import { Texture2D, Asset } from '../asset/assets';
 
 /**
  * @en The skeleton data of spine.
@@ -21,7 +42,9 @@ import { legacyCC } from '../core/global-exports';
 @ccclass('sp.SkeletonData')
 export class SkeletonData extends Asset {
     /**
-     * @legacyPublic
+     * @en See http://en.esotericsoftware.com/spine-json-format
+     * @zh 可查看 Spine 官方文档 http://zh.esotericsoftware.com/spine-json-format
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _skeletonJson: spine.SkeletonJson | null = null;
@@ -67,6 +90,8 @@ export class SkeletonData extends Asset {
     }
 
     /**
+     * @en Texture array
+     * @zh 纹理数组
      * @property {Texture2D[]} textures
      */
 
@@ -98,7 +123,7 @@ export class SkeletonData extends Asset {
     public scale = 1;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _nativeAsset (): ArrayBuffer {
         return this._buffer!;
@@ -141,14 +166,14 @@ export class SkeletonData extends Asset {
     public reset () {
         this._skeletonCache = null;
         this._atlasCache = null;
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
         }
     }
 
     public resetEnums () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
         }

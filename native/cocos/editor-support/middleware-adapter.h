@@ -34,16 +34,16 @@
 MIDDLEWARE_BEGIN
 
 struct Color4B {
-    Color4B(uint32_t r, uint32_t g, uint32_t b, uint32_t a);
+    Color4B(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     Color4B();
-    bool     operator==(const Color4B &right) const;
-    bool     operator!=(const Color4B &right) const;
+    bool operator==(const Color4B &right) const;
+    bool operator!=(const Color4B &right) const;
     Color4B &operator=(const Color4B &right);
 
-    uint32_t r = 0;
-    uint32_t g = 0;
-    uint32_t b = 0;
-    uint32_t a = 0;
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    uint8_t a = 0;
 
     static const Color4B WHITE;
 };
@@ -53,8 +53,8 @@ struct Color4F {
     Color4F();
     bool operator==(const Color4F &right) const;
     bool operator!=(const Color4F &right) const;
-    Color4F& operator=(const Color4B &right);
-    
+    Color4F &operator=(const Color4B &right);
+
     float r = 0.0F;
     float g = 0.0F;
     float b = 0.0F;
@@ -74,7 +74,7 @@ struct Tex2F {
 /**
  *  Vertex Format with x y z u v color.
  */
-struct V2F_T2F_C4F { //NOLINT
+struct V3F_T2F_C4B { //NOLINT
     // vertices (3F)
     cc::Vec3 vertex;
 
@@ -82,13 +82,13 @@ struct V2F_T2F_C4F { //NOLINT
     Tex2F texCoord;
 
     // colors (4F)
-    Color4F color;
+    Color4B color;
 };
 
 /**
  *  Vertex Format with x y u v color1 color2.
  */
-struct V2F_T2F_C4F_C4F { // NOLINT
+struct V3F_T2F_C4B_C4B { // NOLINT
     // vertices (3F)
     cc::Vec3 vertex;
 
@@ -96,15 +96,15 @@ struct V2F_T2F_C4F_C4F { // NOLINT
     Tex2F texCoord;
 
     // colors (4F)
-    Color4F color;
+    Color4B color;
 
     // colors (4F)
-    Color4F color2;
+    Color4B color2;
 };
 
 struct Triangles {
     /**Vertex data pointer.*/
-    V2F_T2F_C4F *verts = nullptr;
+    V3F_T2F_C4B *verts = nullptr;
     /**Index data pointer.*/
     unsigned short *indices = nullptr; // NOLINT
     /**The number of vertices.*/
@@ -115,7 +115,7 @@ struct Triangles {
 
 struct TwoColorTriangles {
     /**Vertex data pointer.*/
-    V2F_T2F_C4F_C4F *verts = nullptr;
+    V3F_T2F_C4B_C4B *verts = nullptr;
     /**Index data pointer.*/
     unsigned short *indices = nullptr; //NOLINT
     /**The number of vertices.*/
@@ -134,7 +134,7 @@ public:
     /**
      Extension to set the Min / Mag filter
      */
-    using TexParams = struct _TexParams { // NOLINT
+    struct TexParams { // NOLINT
         uint32_t minFilter;
         uint32_t magFilter;
         uint32_t wrapS;
@@ -144,7 +144,7 @@ public:
     /**
      * set texture param callback
      */
-    using texParamCallback = std::function<void (int32_t, uint32_t, uint32_t, uint32_t, uint32_t)>;
+    using texParamCallback = std::function<void(int32_t, uint32_t, uint32_t, uint32_t, uint32_t)>;
 
     /** Sets the min filter, mag filter, wrap s and wrap t texture parameters.
      If the texture size is NPOT (non power of 2), then in can only use GL_CLAMP_TO_EDGE in GL_TEXTURE_WRAP_{S,T}.
@@ -227,11 +227,11 @@ public:
     void setTexture(Texture2D *pobTexture);
 
 protected:
-    cc::Vec2   _anchorPoint;
-    cc::Rect   _rectInPixels;
-    bool       _rotated = false;
-    cc::Vec2   _offsetInPixels;
-    cc::Size   _originalSizeInPixels;
+    cc::Vec2 _anchorPoint;
+    cc::Rect _rectInPixels;
+    bool _rotated = false;
+    cc::Vec2 _offsetInPixels;
+    cc::Size _originalSizeInPixels;
     Texture2D *_texture = nullptr;
 };
 MIDDLEWARE_END

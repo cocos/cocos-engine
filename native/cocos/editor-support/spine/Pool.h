@@ -30,45 +30,45 @@
 #ifndef Spine_Pool_h
 #define Spine_Pool_h
 
-#include <spine/Extension.h>
-#include <spine/Vector.h>
 #include <spine/ContainerUtil.h>
+#include <spine/Extension.h>
 #include <spine/SpineObject.h>
+#include <spine/Vector.h>
 
 namespace spine {
-template<typename T>
+template <typename T>
 class SP_API Pool : public SpineObject {
 public:
-	Pool() {
-	}
+    Pool() {
+    }
 
-	~Pool() {
-		ContainerUtil::cleanUpVectorOfPointers(_objects);
-	}
+    ~Pool() {
+        ContainerUtil::cleanUpVectorOfPointers(_objects);
+    }
 
-	T *obtain() {
-		if (_objects.size() > 0) {
-			T **object = &_objects[_objects.size() - 1];
-			T *ret = *object;
-			_objects.removeAt(_objects.size() - 1);
+    T *obtain() {
+        if (_objects.size() > 0) {
+            T **object = &_objects[_objects.size() - 1];
+            T *ret = *object;
+            _objects.removeAt(_objects.size() - 1);
 
-			return ret;
-		} else {
-			T *ret = new(__FILE__, __LINE__) T();
+            return ret;
+        } else {
+            T *ret = new (__FILE__, __LINE__) T();
 
-			return ret;
-		}
-	}
+            return ret;
+        }
+    }
 
-	void free(T *object) {
-		if (!_objects.contains(object)) {
-			_objects.add(object);
-		}
-	}
+    void free(T *object) {
+        if (!_objects.contains(object)) {
+            _objects.add(object);
+        }
+    }
 
 private:
-	Vector<T *> _objects;
+    Vector<T *> _objects;
 };
-}
+} // namespace spine
 
 #endif /* Spine_Pool_h */

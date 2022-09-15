@@ -106,7 +106,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
-const ccstd::string                         INST_MAT_WORLD = "a_matWorld0";
+const ccstd::string INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
 namespace cc {
@@ -121,10 +121,10 @@ Model::~Model() = default;
 void Model::initialize() {
     if (_inited) return;
     _receiveShadow = true;
-    _castShadow    = false;
-    _enabled       = true;
-    _visFlags      = Layers::Enum::NONE;
-    _inited        = true;
+    _castShadow = false;
+    _enabled = true;
+    _visFlags = Layers::Enum::NONE;
+    _inited = true;
     _localData.reset(pipeline::UBOLocal::COUNT);
 }
 
@@ -137,18 +137,18 @@ void Model::destroy() {
     CC_SAFE_DESTROY_NULL(_localBuffer);
     CC_SAFE_DESTROY_NULL(_worldBoundBuffer);
 
-    _worldBounds       = nullptr;
-    _modelBounds       = nullptr;
-    _inited            = false;
-    _localDataUpdated  = true;
-    _transform         = nullptr;
-    _node              = nullptr;
+    _worldBounds = nullptr;
+    _modelBounds = nullptr;
+    _inited = false;
+    _localDataUpdated = true;
+    _transform = nullptr;
+    _node = nullptr;
     _isDynamicBatching = false;
 }
 
 void Model::uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3) {
     uint32_t copyBytes = sizeof(float) * 3;
-    auto *   buffer    = const_cast<uint8_t *>(v1.buffer()->getData());
+    auto *buffer = const_cast<uint8_t *>(v1.buffer()->getData());
 
     uint8_t *dst = buffer + v1.byteOffset();
     memcpy(dst, mat.m, copyBytes);
@@ -179,9 +179,7 @@ void Model::updateTransform(uint32_t stamp) {
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
-        }
-        if (_scene) {
-            _scene->updateOctree(this);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -193,6 +191,7 @@ void Model::updateWorldBound() {
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
+            _worldBoundsDirty = true;
         }
     }
 }
@@ -203,13 +202,15 @@ void Model::updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
             geometry::AABB::fromPoints(min, max, _modelBounds);
             _modelBounds->transform(node->getWorldMatrix(), _worldBounds);
+            _worldBoundsDirty = true;
         }
     }
 }
 
 void Model::updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb) {
-    _worldBounds->center      = aabb->center;
+    _worldBounds->center = aabb->center;
     _worldBounds->halfExtents = aabb->halfExtents;
+    _worldBoundsDirty = true;
 }
 
 void Model::updateUBOs(uint32_t stamp) {
@@ -232,12 +233,12 @@ void Model::updateUBOs(uint32_t stamp) {
     _localDataUpdated = false;
     getTransform()->updateWorldTransform();
     const auto &worldMatrix = getTransform()->getWorldMatrix();
-    Mat4        mat4;
-    int         idx = _instMatWorldIdx;
+    int idx = _instMatWorldIdx;
     if (idx >= 0) {
-        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock()->views;
-        uploadMat4AsVec4x3(worldMatrix, cc::get<Float32Array>(attrs[idx]), cc::get<Float32Array>(attrs[idx + 1]), cc::get<Float32Array>(attrs[idx + 2]));
+        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock().views;
+        uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
     } else if (_localBuffer) {
+        Mat4 mat4;
         mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
@@ -250,37 +251,45 @@ void Model::updateUBOs(uint32_t stamp) {
     }
 }
 
+void Model::updateOctree() {
+    if (_scene && _worldBoundsDirty) {
+        _worldBoundsDirty = false;
+        _scene->updateOctree(this);
+    }
+}
+
 void Model::updateWorldBoundUBOs() {
     if (_worldBoundBuffer) {
         ccstd::array<float, pipeline::UBOWorldBound::COUNT> worldBoundBufferView;
-        const Vec3 &                                        center      = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
-        const Vec3 &                                        halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
-        const Vec4                                          worldBoundCenter{center.x, center.y, center.z, 0.0F};
-        const Vec4                                          worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
+        const Vec3 &center = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
+        const Vec3 &halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
+        const Vec4 worldBoundCenter{center.x, center.y, center.z, 0.0F};
+        const Vec4 worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
         memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_CENTER, &worldBoundCenter.x, sizeof(Vec4));
         memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_HALF_EXTENTS, &worldBoundHalfExtents.x, sizeof(Vec4));
         _worldBoundBuffer->update(worldBoundBufferView.data(), pipeline::UBOWorldBound::SIZE);
     }
 }
 
-void Model::createBoundingShape(const cc::optional<Vec3> &minPos, const cc::optional<Vec3> &maxPos) {
+void Model::createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos) {
     if (!minPos.has_value() || !maxPos.has_value()) {
         return;
     }
 
     if (!_modelBounds) {
-        _modelBounds = new geometry::AABB();
+        _modelBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _modelBounds);
 
     if (!_worldBounds) {
-        _worldBounds = new geometry::AABB();
+        _worldBounds = ccnew geometry::AABB();
     }
     geometry::AABB::fromPoints(minPos.value(), maxPos.value(), _worldBounds);
+    _worldBoundsDirty = true;
 }
 
 SubModel *Model::createSubModel() {
-    return new SubModel();
+    return ccnew SubModel();
 }
 
 void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Material *mat) {
@@ -292,7 +301,7 @@ void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Materia
 
     if (_subModels[idx] == nullptr) {
         _subModels[idx] = createSubModel();
-        isNewSubModel   = true;
+        isNewSubModel = true;
     } else {
         CC_SAFE_DESTROY(_subModels[idx]);
     }
@@ -334,11 +343,16 @@ void Model::onGeometryChanged() {
     }
 }
 
+void Model::initLightingmap(Texture2D *texture, const Vec4 &uvParam) {
+    _lightmap = texture;
+    _lightmapUVParam = uvParam;
+}
+
 void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     vec4ToFloat32Array(uvParam, _localData, pipeline::UBOLocal::LIGHTINGMAP_UVPARAM); //TODO(xwx): toArray not implemented in Math
     _localDataUpdated = true;
-    _lightmap         = texture;
-    _lightmapUVParam  = uvParam;
+    _lightmap = texture;
+    _lightmapUVParam = uvParam;
 
     if (texture == nullptr) {
         texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
@@ -357,24 +371,21 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
-ccstd::vector<IMacroPatch> &Model::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &_macroPatches);
+            ccstd::vector<IMacroPatch> macroPatches;
+            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &macroPatches);
             _isCalledFromJS = false;
-            return _macroPatches;
+            return macroPatches;
         }
     }
 
     if (_receiveShadow) {
-        for (const auto &patch : SHADOW_MAP_PATCHES) {
-            _macroPatches.emplace_back(patch);
-        }
-    } else {
-        _macroPatches.clear();
+        return SHADOW_MAP_PATCHES;
     }
 
-    return _macroPatches;
+    return {};
 }
 
 void Model::updateAttributesAndBinding(index_t subModelIndex) {
@@ -384,7 +395,9 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     updateLocalDescriptors(subModelIndex, subModel->getDescriptorSet());
 
     initWorldBoundDescriptors(subModelIndex);
-    updateWorldBoundDescriptors(subModelIndex, subModel->getWorldBoundDescriptorSet());
+    if (subModel->getWorldBoundDescriptorSet()) {
+        updateWorldBoundDescriptors(subModelIndex, subModel->getWorldBoundDescriptorSet());
+    }
 
     gfx::Shader *shader = subModel->getPasses()[0]->getShaderVariant(subModel->getPatches());
     updateInstancedAttributes(shader->getAttributes(), subModel->getPasses()[0]);
@@ -417,23 +430,26 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
         if (!attribute.isInstanced) continue;
         size += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)].size;
     }
-    auto &attrs  = _instanceAttributeBlock;
+    auto &attrs = _instanceAttributeBlock;
     attrs.buffer = Uint8Array(size);
     attrs.views.clear();
     attrs.attributes.clear();
+    attrs.views.reserve(attributes.size());
+    attrs.attributes.reserve(attributes.size());
+
     uint32_t offset = 0;
 
     for (const gfx::Attribute &attribute : attributes) {
         if (!attribute.isInstanced) continue;
         gfx::Attribute attr;
-        attr.format       = attribute.format;
-        attr.name         = attribute.name;
+        attr.format = attribute.format;
+        attr.name = attribute.name;
         attr.isNormalized = attribute.isNormalized;
-        attr.location     = attribute.location;
+        attr.location = attribute.location;
         attrs.attributes.emplace_back(attr);
-        const auto &info          = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
-        auto *      buffer        = attrs.buffer.buffer();
-        auto        typeViewArray = getTypedArrayConstructor(info, buffer, offset, info.count);
+        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+        auto *buffer = attrs.buffer.buffer();
+        auto typeViewArray = getTypedArrayConstructor(info, buffer, offset, info.count);
         attrs.views.emplace_back(typeViewArray);
         offset += info.size;
     }
@@ -494,7 +510,7 @@ void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSe
     }
 }
 void Model::setInstancedAttributesViewData(index_t viewIdx, index_t arrIdx, float value) {
-    cc::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
+    ccstd::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
 }
 
 void Model::updateLocalShadowBias() {
@@ -502,7 +518,38 @@ void Model::updateLocalShadowBias() {
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1] = _shadowNormalBias;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
     _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
-    _localDataUpdated                                     = true;
+    _localDataUpdated = true;
+}
+
+void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
+    const auto &attributes = getInstancedAttributeBlock().attributes;
+    auto &views = getInstancedAttributeBlock().views;
+
+    for (size_t i = 0, len = attributes.size(); i < len; ++i) {
+        const auto &attribute = attributes[i];
+        if (attribute.name == name) {
+            const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+            switch (info.type) {
+                case gfx::FormatType::NONE:
+                case gfx::FormatType::UNORM:
+                case gfx::FormatType::SNORM:
+                case gfx::FormatType::UINT:
+                case gfx::FormatType::INT: {
+                    CC_ASSERT(false); // NOLINT
+                } break;
+                case gfx::FormatType::FLOAT:
+                case gfx::FormatType::UFLOAT: {
+                    CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
+                    auto &view = ccstd::get<Float32Array>(views[i]);
+                    auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
+                    CC_ASSERT(byteLength <= view.byteLength());
+                    memcpy(dstData, value, byteLength);
+                } break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 } // namespace scene

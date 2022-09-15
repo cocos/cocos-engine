@@ -1,11 +1,31 @@
-/**
- * @packageDocumentation
- * @module spine
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
-import { Texture2D } from '../core';
+import { Texture2D } from '../asset/assets';
 // Permit max cache time, unit is second.
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -31,7 +51,7 @@ const PerVertexSize = 6;
 // x y u v r1 g1 b1 a1 r2 g2 b2 a2
 const PerClipVertexSize = 12;
 // x y z / u v / r g b a/ r g b a
-const ExportVertexSize = 13;
+const ExportVertexSize = 7;
 
 let _vfCount = 0;
 let _indexCount = 0;
@@ -100,7 +120,7 @@ export class AnimationCache {
     public maxIndexCount = 0;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _privateMode = false;
     protected _inited = false;
@@ -387,13 +407,14 @@ export class AnimationCache {
         if (!vertices || vertices.length < copyOutVerticeSize) {
             vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
+        const intVbuf = new Uint32Array(vertices.buffer);
         for (let i = 0, j = 0; i < copyOutVerticeSize;) {
             vertices[i] = _vertices[j++]; // x
             vertices[i + 1] = _vertices[j++]; // y
             vertices[i + 3] = _vertices[j++]; // u
             vertices[i + 4] = _vertices[j++]; // v
-            this._setVerticeColor(_vertices[j++], vertices, i + 5);
-            this._setVerticeColor(_vertices[j++], vertices, i + 9);
+            intVbuf[i + 5] = _vertices[j++];
+            intVbuf[i + 6] = _vertices[j++];
             i += ExportVertexSize;
         }
 
@@ -579,12 +600,12 @@ export class AnimationCache {
         clipper.clipEnd();
     }
 
-    private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
-        buffer[offset] = (colorI32 & 0xff) / 255.0;
-        buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
-        buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
-        buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
-    }
+    // private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
+    //     buffer[offset] = (colorI32 & 0xff) / 255.0;
+    //     buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
+    //     buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
+    //     buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
+    // }
 }
 
 class SkeletonCache {

@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
-
-import { PrimitiveMode } from '../core/gfx';
+import { PrimitiveMode } from '../gfx';
 import { IGeometry } from './define';
 
 /**

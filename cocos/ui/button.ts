@@ -24,16 +24,11 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
-import { UITransform, Renderable2D } from '../2d/framework';
+import { UITransform, UIRenderer } from '../2d/framework';
 import { EventMouse, EventTouch } from '../input/types';
 import { Color, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
@@ -43,6 +38,7 @@ import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const _tempColor = new Color();
 
@@ -643,7 +639,7 @@ export class Button extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            const renderComp = target._uiProps.uiComp as Renderable2D;
+            const renderComp = target._uiProps.uiComp as UIRenderer;
             Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
             if (renderComp) {
                 renderComp.color = _tempColor;
@@ -680,7 +676,7 @@ export class Button extends Component {
         }
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
-            const renderComp = target.getComponent(Renderable2D);
+            const renderComp = target.getComponent(UIRenderer);
             if (renderComp) {
                 renderComp.color = this._normalColor;
             }
@@ -698,6 +694,11 @@ export class Button extends Component {
 
         this.node.on(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
         this.node.on(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+
+        this.node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.on(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+        this.node.on(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
     }
 
     protected _registerTargetEvent (target) {
@@ -716,6 +717,11 @@ export class Button extends Component {
 
         this.node.off(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
         this.node.off(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+
+        this.node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.off(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+        this.node.off(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
     }
 
     protected _unregisterTargetEvent (target) {
@@ -919,7 +925,7 @@ export class Button extends Component {
     protected _updateColorTransition (state: string) {
         const color = this[`${state}Color`];
 
-        const renderComp = this.target?.getComponent(Renderable2D);
+        const renderComp = this.target?.getComponent(UIRenderer);
         if (!renderComp) {
             return;
         }
@@ -983,6 +989,38 @@ export class Button extends Component {
         } else if (transition === Transition.SCALE) {
             this._updateScaleTransition(state);
         }
+    }
+
+    private _xrHoverEnter() {
+        this._onMouseMoveIn();
+        this._updateState();
+    }
+
+    private _xrHoverExit() {
+        this._onMouseMoveOut();
+        if (this._pressed) {
+            this._pressed = false;
+            this._updateState();
+        }
+    }
+
+    private _xrClick() {
+        if (!this._interactable || !this.enabledInHierarchy) { return; }
+        this._pressed = true;
+        this._updateState();
+    }
+
+    private _xrUnClick() {
+        if (!this._interactable || !this.enabledInHierarchy) {
+            return;
+        }
+
+        if (this._pressed) {
+            ComponentEventHandler.emitEvents(this.clickEvents, this);
+            this.node.emit(EventType.CLICK, this);
+        }
+        this._pressed = false;
+        this._updateState();
     }
 }
 

@@ -26,16 +26,18 @@
 
 #include "audio/include/AudioEngine.h"
 #include <condition_variable>
+#include <cstdint>
 #include <mutex>
 #include <thread>
 #include "base/Log.h"
 #include "base/Utils.h"
+#include "base/memory/Memory.h"
 #include "base/std/container/queue.h"
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "audio/android/AudioEngine-inl.h"
-#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     #include "audio/apple/AudioEngine-inl.h"
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS
     #include "audio/oalsoft/AudioEngine-soft.h"
@@ -53,27 +55,27 @@
     #undef ERROR
 #endif // ERROR
 
-using namespace cc; //NOLINT
+namespace cc {
 
-const int   AudioEngine::INVALID_AUDIO_ID = -1;
-const float AudioEngine::TIME_UNKNOWN     = -1.0F;
+const int AudioEngine::INVALID_AUDIO_ID = -1;
+const float AudioEngine::TIME_UNKNOWN = -1.0F;
 
 //audio file path,audio IDs
 ccstd::unordered_map<ccstd::string, ccstd::list<int>> AudioEngine::sAudioPathIDMap;
 //profileName,ProfileHelper
 ccstd::unordered_map<ccstd::string, AudioEngine::ProfileHelper> AudioEngine::sAudioPathProfileHelperMap;
-unsigned int                                                    AudioEngine::sMaxInstances         = MAX_AUDIOINSTANCES;
-AudioEngine::ProfileHelper *                                    AudioEngine::sDefaultProfileHelper = nullptr;
-ccstd::unordered_map<int, AudioEngine::AudioInfo>               AudioEngine::sAudioIDInfoMap;
-AudioEngineImpl *                                               AudioEngine::sAudioEngineImpl = nullptr;
+unsigned int AudioEngine::sMaxInstances = MAX_AUDIOINSTANCES;
+AudioEngine::ProfileHelper *AudioEngine::sDefaultProfileHelper = nullptr;
+ccstd::unordered_map<int, AudioEngine::AudioInfo> AudioEngine::sAudioIDInfoMap;
+AudioEngineImpl *AudioEngine::sAudioEngineImpl = nullptr;
 
-float              AudioEngine::sVolumeFactor       = 1.0F;
-uint32_t           AudioEngine::sOnPauseListenerID  = 0;
-uint32_t           AudioEngine::sOnResumeListenerID = 0;
+float AudioEngine::sVolumeFactor = 1.0F;
+uint32_t AudioEngine::sOnPauseListenerID = 0;
+uint32_t AudioEngine::sOnResumeListenerID = 0;
 ccstd::vector<int> AudioEngine::sBreakAudioID;
 
 AudioEngine::AudioEngineThreadPool *AudioEngine::sThreadPool = nullptr;
-bool                                AudioEngine::sIsEnabled  = true;
+bool AudioEngine::sIsEnabled = true;
 
 AudioEngine::AudioInfo::AudioInfo()
 : filePath(nullptr),
@@ -134,12 +136,12 @@ private:
         }
     }
 
-    ccstd::vector<std::thread>          _workers;
+    ccstd::vector<std::thread> _workers;
     ccstd::queue<std::function<void()>> _taskQueue;
 
-    std::mutex              _queueMutex;
+    std::mutex _queueMutex;
     std::condition_variable _taskCondition;
-    bool                    _stop{};
+    bool _stop{};
 };
 
 void AudioEngine::end() {
@@ -169,19 +171,19 @@ void AudioEngine::end() {
 
 bool AudioEngine::lazyInit() {
     if (sAudioEngineImpl == nullptr) {
-        sAudioEngineImpl = new (std::nothrow) AudioEngineImpl();
+        sAudioEngineImpl = ccnew AudioEngineImpl();
         if (!sAudioEngineImpl || !sAudioEngineImpl->init()) {
             delete sAudioEngineImpl;
             sAudioEngineImpl = nullptr;
             return false;
         }
-        sOnPauseListenerID  = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, AudioEngine::onEnterBackground);
+        sOnPauseListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, AudioEngine::onEnterBackground);
         sOnResumeListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_FOREGROUND, AudioEngine::onEnterForeground);
     }
 
 #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     if (sAudioEngineImpl && sThreadPool == nullptr) {
-        sThreadPool = new (std::nothrow) AudioEngineThreadPool();
+        sThreadPool = ccnew AudioEngineThreadPool();
     }
 #endif
 
@@ -207,7 +209,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
         auto *profileHelper = sDefaultProfileHelper;
         if (profile && profile != &profileHelper->profile) {
             CC_ASSERT(!profile->name.empty());
-            profileHelper          = &sAudioPathProfileHelperMap[profile->name];
+            profileHelper = &sAudioPathProfileHelperMap[profile->name];
             profileHelper->profile = *profile;
         }
 
@@ -222,7 +224,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             }
             if (profileHelper->profile.minDelay > TIME_DELAY_PRECISION) {
                 auto currTime = std::chrono::high_resolution_clock::now();
-                auto delay    = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(currTime - profileHelper->lastPlayTime).count()) / 1000000.0;
+                auto delay = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(currTime - profileHelper->lastPlayTime).count()) / 1000000.0;
                 if (profileHelper->lastPlayTime.time_since_epoch().count() != 0 && delay <= profileHelper->profile.minDelay) {
                     CC_LOG_INFO("Fail to play %s cause by limited minimum delay", filePath.c_str());
                     break;
@@ -241,10 +243,11 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             sAudioPathIDMap[filePath].push_back(ret);
             auto it = sAudioPathIDMap.find(filePath);
 
-            auto &audioRef    = sAudioIDInfoMap[ret];
-            audioRef.volume   = volume;
-            audioRef.loop     = loop;
+            auto &audioRef = sAudioIDInfoMap[ret];
+            audioRef.volume = volume;
+            audioRef.loop = loop;
             audioRef.filePath = &it->first;
+            audioRef.state = AudioState::PLAYING;
 
             if (profileHelper) {
                 profileHelper->lastPlayTime = std::chrono::high_resolution_clock::now();
@@ -530,7 +533,7 @@ AudioProfile *AudioEngine::getProfile(int audioID) {
 
 AudioProfile *AudioEngine::getDefaultProfile() {
     if (sDefaultProfileHelper == nullptr) {
-        sDefaultProfileHelper = new (std::nothrow) ProfileHelper();
+        sDefaultProfileHelper = ccnew ProfileHelper();
     }
 
     return &sDefaultProfileHelper->profile;
@@ -589,3 +592,13 @@ void AudioEngine::setEnabled(bool isEnabled) {
 bool AudioEngine::isEnabled() {
     return sIsEnabled;
 }
+
+PCMHeader AudioEngine::getPCMHeader(const char *url) {
+    lazyInit();
+    return sAudioEngineImpl->getPCMHeader(url);
+}
+ccstd::vector<uint8_t> AudioEngine::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    lazyInit();
+    return sAudioEngineImpl->getOriginalPCMBuffer(url, channelID);
+}
+} // namespace cc

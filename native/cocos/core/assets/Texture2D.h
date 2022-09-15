@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/Ptr.h"
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 #include "core/assets/Asset.h"
 #include "core/assets/AssetEnum.h"
 #include "core/assets/SimpleTexture.h"
@@ -34,7 +34,7 @@
 namespace cc {
 
 struct ITexture2DSerializeData {
-    ccstd::string                base;
+    ccstd::string base;
     ccstd::vector<ccstd::string> mipmaps;
 };
 
@@ -60,29 +60,28 @@ struct ITexture2DCreateInfo {
      * @zh 像素格式。
      * @default PixelFormat.RGBA8888
      */
-    cc::optional<PixelFormat> format;
+    ccstd::optional<PixelFormat> format;
 
     /**
      * @en The mipmap level count
      * @zh mipmap 层级。
      * @default 1
      */
-    cc::optional<uint32_t> mipmapLevel;
-    
+    ccstd::optional<uint32_t> mipmapLevel;
+
     /**
      * @en The selected base mipmap level
      * @zh 选择使用的最小 mipmap 层级。
      * @default 1
      */
-    cc::optional<uint32_t> baseLevel;
-    
+    ccstd::optional<uint32_t> baseLevel;
+
     /**
      * @en The selected maximum mipmap level
      * @zh 选择使用的最大 mipmap 层级。
      * @default 1
      */
-    cc::optional<uint32_t> maxLevel;
-
+    ccstd::optional<uint32_t> maxLevel;
 };
 
 /**
@@ -156,19 +155,11 @@ public:
 
      * @deprecated since v1.0 please use [[reset]] instead
      */
-    void create(uint32_t width, uint32_t height, PixelFormat format = PixelFormat::RGBA8888, uint32_t mipmapLevel = 1, uint32_t baseLevel = 0, uint32_t maxLevel = 0);
+    void create(uint32_t width, uint32_t height, PixelFormat format = PixelFormat::RGBA8888, uint32_t mipmapLevel = 1, uint32_t baseLevel = 0, uint32_t maxLevel = 1000);
 
     ccstd::string toString() const override;
 
     void updateMipmaps(uint32_t firstLevel, uint32_t count) override;
-
-    /**
-     * @en If the level 0 mipmap image is a HTML element, then return it, otherwise return null.
-     * @zh 若此贴图 0 级 Mipmap 的图像资源的实际源存在并为 HTML 元素则返回它，否则返回 `null`。
-     * @returns HTML element or `null`
-     * @deprecated Please use [[image.data]] instead
-     */
-    HTMLElement *getHtmlElementObj();
 
     /**
      * @en Destroy the current 2d texture, clear up all mipmap levels and the related GPU resources.
@@ -195,18 +186,18 @@ public:
     /**
      * @return
      */
-    cc::any serialize(const cc::any &ctxForExporting) override;
+    ccstd::any serialize(const ccstd::any &ctxForExporting) override;
 
     /**
      *
      * @param data
      */
-    void deserialize(const cc::any &serializedData, const cc::any &handle) override;
+    void deserialize(const ccstd::any &serializedData, const ccstd::any &handle) override;
 
     gfx::TextureInfo getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) override;
     gfx::TextureViewInfo getGfxTextureViewCreateInfo(gfx::Texture *texture, gfx::Format format, uint32_t baseLevel, uint32_t levelCount) override;
 
-    void initDefault(const cc::optional<ccstd::string> &uuid) override;
+    void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
 
     bool validate() const override;
 

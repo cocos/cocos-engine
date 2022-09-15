@@ -87,11 +87,11 @@ public:
      */
     struct Data {
         Data() = default;
-        char *  bytes{nullptr};
-        ssize_t len{0}, issued{0};
-        bool    isBinary{false};
-        void *  ext{nullptr};
-        ssize_t getRemain() const { return std::max(static_cast<ssize_t>(0), len - issued); }
+        char *bytes{nullptr};
+        uint32_t len{0}, issued{0};
+        bool isBinary{false};
+        void *ext{nullptr};
+        uint32_t getRemain() const { return std::max(static_cast<uint32_t>(0), len - issued); }
     };
 
     /**
@@ -126,7 +126,7 @@ public:
         /**
          * This function to be called after the client connection complete a handshake with the remote server.
          * This means that the WebSocket connection is ready to send and receive data.
-         * 
+         *
          * @param ws The WebSocket object connected
          */
         virtual void onOpen(WebSocket *ws) = 0;
@@ -142,7 +142,7 @@ public:
          *
          * @param ws The WebSocket object connected.
          */
-        virtual void onClose(WebSocket *ws) = 0;
+        virtual void onClose(WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) = 0;
         /**
          * This function is to be called in the following cases:
          * 1. client connection is failed.
@@ -166,14 +166,14 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate &                    delegate,
-              const ccstd::string &               url,
-              const ccstd::vector<ccstd::string> *protocols  = nullptr,
-              const ccstd::string &               caFilePath = "");
+    bool init(const Delegate &delegate,
+              const ccstd::string &url,
+              const ccstd::vector<ccstd::string> *protocols = nullptr,
+              const ccstd::string &caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.
-     *  
+     *
      *  @param message string data.
      *  @lua sendstring
      */
@@ -181,7 +181,7 @@ public:
 
     /**
      *  @brief Sends binary data to websocket server.
-     *  
+     *
      *  @param binaryMsg binary string data.
      *  @param len the size of binary string data.
      *  @lua sendstring
@@ -197,7 +197,7 @@ public:
     /**
      *  @brief Closes the connection to server asynchronously.
      *  @note It's an asynchronous method, it just notifies websocket thread to exit and returns directly,
-     *        If using 'closeAsync' to close websocket connection, 
+     *        If using 'closeAsync' to close websocket connection,
      *        be careful of not using destructed variables in the callback of 'onClose'.
      */
     void closeAsync();
@@ -241,7 +241,7 @@ public:
     Delegate *getDelegate() const;
 
 private:
-    WebSocketImpl *_impl;
+    WebSocketImpl *_impl{nullptr};
 };
 
 } // namespace network

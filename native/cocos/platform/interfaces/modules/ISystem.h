@@ -71,10 +71,10 @@ public:
     virtual OSType getOSType() const = 0;
 
     //
-    virtual ccstd::string getDeviceModel() const         = 0;
-    virtual LanguageType  getCurrentLanguage() const     = 0;
+    virtual ccstd::string getDeviceModel() const = 0;
+    virtual LanguageType getCurrentLanguage() const = 0;
     virtual ccstd::string getCurrentLanguageCode() const = 0;
-    virtual ccstd::string getSystemVersion() const       = 0;
+    virtual ccstd::string getSystemVersion() const = 0;
 
     virtual ccstd::string getCurrentLanguageToString();
 

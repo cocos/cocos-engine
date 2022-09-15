@@ -1,0 +1,32 @@
+void main()
+{
+  SurfacesStandardVertexIntermediate In;
+
+  // Local Space
+  CCSurfacesVertexInput(In);
+  CCSurfacesVertexAnimation(In);
+  In.position.xyz = SurfacesVertexModifyLocalPos(In);
+
+  // World Space
+  CCSurfacesVertexWorldTransform(In);
+  In.worldPos = SurfacesVertexModifyWorldPos(In);
+
+  // Clip Space
+  In.clipPos = cc_matProj * cc_matView * vec4(In.worldPos, 1.0);
+  In.clipPos = SurfacesVertexModifyClipPos(In);
+
+  // Other Surfaces Function
+  SurfacesVertexModifyUV(In);
+
+  vec3 viewDirect = normalize(cc_cameraPos.xyz - In.worldPos);
+  In.worldNormal.w = dot(In.worldNormal.xyz, viewDirect) < 0.0 ? -1.0 : 1.0;
+  In.worldNormal.xyz = SurfacesVertexModifyWorldNormal(In);
+
+  // Other Data
+  CCSurfacesVertexTransformUV(In);  
+  CCSurfacesVertexTransferFog(In);
+  CCSurfacesVertexTransferShadow(In);
+  CCSurfacesVertexTransferLightMapUV(In);
+
+  CCSurfacesVertexOutput(In);
+}

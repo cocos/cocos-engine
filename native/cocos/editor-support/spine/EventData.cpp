@@ -28,74 +28,72 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/EventData.h>
 
 #include <assert.h>
 
-spine::EventData::EventData(const spine::String &name) :
-		_name(name),
-		_intValue(0),
-		_floatValue(0),
-		_stringValue(),
-		_audioPath(),
-		_volume(1),
-		_balance(0) {
-	assert(_name.length() > 0);
+spine::EventData::EventData(const spine::String &name) : _name(name),
+                                                         _intValue(0),
+                                                         _floatValue(0),
+                                                         _stringValue(),
+                                                         _audioPath(),
+                                                         _volume(1),
+                                                         _balance(0) {
+    assert(_name.length() > 0);
 }
 
 /// The name of the event, which is unique within the skeleton.
 const spine::String &spine::EventData::getName() const {
-	return _name;
+    return _name;
 }
 
 int spine::EventData::getIntValue() {
-	return _intValue;
+    return _intValue;
 }
 
 void spine::EventData::setIntValue(int inValue) {
-	_intValue = inValue;
+    _intValue = inValue;
 }
 
 float spine::EventData::getFloatValue() {
-	return _floatValue;
+    return _floatValue;
 }
 
 void spine::EventData::setFloatValue(float inValue) {
-	_floatValue = inValue;
+    _floatValue = inValue;
 }
 
 const spine::String &spine::EventData::getStringValue() {
-	return _stringValue;
+    return _stringValue;
 }
 
 void spine::EventData::setStringValue(const spine::String &inValue) {
-	this->_stringValue = inValue;
+    this->_stringValue = inValue;
 }
 
 const spine::String &spine::EventData::getAudioPath() {
-	return _audioPath;
+    return _audioPath;
 }
 
 void spine::EventData::setAudioPath(const spine::String &inValue) {
-	_audioPath = inValue;
+    _audioPath = inValue;
 }
 
-
 float spine::EventData::getVolume() {
-	return _volume;
+    return _volume;
 }
 
 void spine::EventData::setVolume(float inValue) {
-	_volume = inValue;
+    _volume = inValue;
 }
 
 float spine::EventData::getBalance() {
-	return _balance;
+    return _balance;
 }
 
 void spine::EventData::setBalance(float inValue) {
-	_balance = inValue;
+    _balance = inValue;
 }

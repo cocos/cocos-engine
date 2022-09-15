@@ -47,6 +47,6 @@ struct ICircleOptions : public IGeometryOptions {
  * 生成一个圆，其半径是单位1，中心点在原点。
  * @param options 参数选项。
  */
-IGeometry circle(cc::optional<ICircleOptions> &options);
+IGeometry circle(ccstd::optional<ICircleOptions> &options);
 
 } // namespace cc

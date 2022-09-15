@@ -23,13 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module pipeline
- */
-
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
-    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
+    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../../gfx';
+import { Light } from '../../render-scene/scene';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
 
 const _samplerLinearInfo = new SamplerInfo(
@@ -52,7 +48,7 @@ const _samplerPointInfo = new SamplerInfo(
 
 export class GlobalDSManager {
     private _device: Device;
-    private _descriptorSetMap: Map<number, DescriptorSet> = new Map();
+    private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
     private _globalDescriptorSet: DescriptorSet;
     private _descriptorSetLayout: DescriptorSetLayout;
     private _linearSampler: Sampler;
@@ -86,6 +82,13 @@ export class GlobalDSManager {
         this._linearSampler = this._device.getSampler(_samplerLinearInfo);
         this._pointSampler = this._device.getSampler(_samplerPointInfo);
 
+        const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
+
+        this._globalDescriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+    }
+
+    regenLayout () {
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
 
@@ -164,14 +167,14 @@ export class GlobalDSManager {
      * @param idx Specify index creation
      * @return descriptorSet
      */
-    public getOrCreateDescriptorSet (idx: number) {
+    public getOrCreateDescriptorSet (light: Light) {
         const device = this._device;
 
         // The global descriptorSet is managed by the pipeline and binds the buffer
-        if (!this._descriptorSetMap.has(idx)) {
+        if (!this._descriptorSetMap.has(light)) {
             const globalDescriptorSet = this._globalDescriptorSet;
             const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
-            this._descriptorSetMap.set(idx, descriptorSet);
+            this._descriptorSetMap.set(light, descriptorSet);
 
             // Create & Sync ALL UBO Buffer, Texture, Sampler
             for (let i = PipelineGlobalBindings.UBO_GLOBAL; i < PipelineGlobalBindings.COUNT; i++) {
@@ -191,7 +194,7 @@ export class GlobalDSManager {
             descriptorSet.update();
         }
 
-        return this._descriptorSetMap.get(idx);
+        return this._descriptorSetMap.get(light);
     }
 
     public destroy () {

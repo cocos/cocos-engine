@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module event
- */
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
@@ -34,7 +30,7 @@ import { NodeEventType } from '../../core/scene-graph/node-event';
  * @en The event type supported by SystemEvent and Node events
  * @zh SystemEvent 支持的事件类型以及节点事件类型
  *
- * @deprecated since v3.3, please use SystemEvent.EventType instead
+ * @deprecated since v3.3.0, please use Input.EventType instead
  */
 export enum SystemEventType {
     /**
@@ -104,7 +100,7 @@ export enum SystemEventType {
      * @en
      * The event type for mouse wheel events
      *
-     * @zh 手指开始触摸事件
+     * @zh 当滚动鼠标滚轮或操作其它类似输入设备时会触发滚轮事件。
      */
     MOUSE_WHEEL = 'mouse-wheel',
 
@@ -377,6 +373,35 @@ export enum InputEventType {
      * 重力感应
      */
     DEVICEMOTION = 'devicemotion',
+
+    /**
+     * @en The event type for gamepad input
+     * @zh 手柄输入事件
+     */
+    GAMEPAD_INPUT = 'gamepad-input',
+    /**
+     * @en The event type for gamepad device change, including gamepad connecting and disconnecting
+     * @zh 手柄设备改变时触发的事件，包括手柄连接，手柄断开连接
+     */
+    GAMEPAD_CHANGE = 'gamepad-change',
+
+    /**
+     * @en The event type for 6DOF handle input
+     * @zh 6DOF手柄输入事件
+     */
+    HANDLE_INPUT = 'handle-input',
+
+    /**
+     * @en The event type for handle pose input
+     * @zh 手柄姿态输入事件
+     */
+    HANDLE_POSE_INPUT = 'handle-pose-input',
+
+    /**
+     * @en The event type for hmd pose input
+     * @zh 头戴显示器姿态输入事件
+     */
+    HMD_POSE_INPUT = 'hmd-pose-input'
 }
 
 export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType | string;

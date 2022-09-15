@@ -25,12 +25,15 @@
 
 #pragma once
 
+#include "3d/assets/Mesh.h"
 #include "base/Macros.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "core/Root.h"
 #include "core/assets/TextureCube.h"
+
 namespace cc {
+
 namespace pipeline {
 class GlobalDSManager;
 }
@@ -94,7 +97,7 @@ public:
     bool isApplyDiffuseMap() const {
         return EnvironmentLightingType::DIFFUSEMAP_WITH_REFLECTION == _envLightingType;
     }
-    void                    setEnvLightingType(EnvironmentLightingType val);
+    void setEnvLightingType(EnvironmentLightingType val);
     EnvironmentLightingType getEnvLightingType() const {
         return _envLightingType;
     }
@@ -105,7 +108,7 @@ public:
      */
     // @editable
     // @tooltip('i18n:skybox.enabled')
-    void        setEnabled(bool val);
+    void setEnabled(bool val);
     inline bool isEnabled() const { return _enabled; }
 
     /**
@@ -114,7 +117,7 @@ public:
      */
     // @editable
     // @tooltip('i18n:skybox.useIBL')
-    void        setUseIBL(bool val) const;
+    void setUseIBL(bool val) const;
     inline bool isUseIBL() const {
         return EnvironmentLightingType::HEMISPHERE_DIFFUSE != _envLightingType;
     }
@@ -134,7 +137,7 @@ public:
     // @editable
     // @type(TextureCube)
     // @tooltip('i18n:skybox.envmap')
-    void         setEnvmap(TextureCube *val);
+    void setEnvmap(TextureCube *val);
     TextureCube *getEnvmap() const;
 
     inline void setEnvmapForJS(TextureCube *val) {
@@ -157,8 +160,10 @@ public:
     // @editable
     // @readOnly
     // @type(TextureCube)
-    void         setDiffuseMap(TextureCube *val);
+    void setDiffuseMap(TextureCube *val);
     TextureCube *getDiffuseMap() const;
+
+    void setReflectionMap(TextureCube *val);
 
     void activate(Skybox *resource);
 
@@ -177,17 +182,21 @@ public:
     // @serializable
     // @type(TextureCube)
     TextureCube *_diffuseMapLDR{nullptr};
+    TextureCube *_reflectionHDR{nullptr};
+    TextureCube *_reflectionLDR{nullptr};
     // @serializable
     bool _enabled{false};
     // @serializable
-    bool                    _useHDR{true};
+    bool _useHDR{true};
     EnvironmentLightingType _envLightingType{EnvironmentLightingType::HEMISPHERE_DIFFUSE};
-    Skybox *                _resource{nullptr};
+    IntrusivePtr<Material> _editableMaterial;
+    float _rotationAngle{0.F};
+    Skybox *_resource{nullptr};
 };
 
 class Skybox final {
 public:
-    Skybox()  = default;
+    Skybox() = default;
     ~Skybox() = default;
 
     void initialize(const SkyboxInfo &skyboxInfo);
@@ -195,6 +204,8 @@ public:
     void setEnvMaps(TextureCube *envmapHDR, TextureCube *envmapLDR);
 
     void setDiffuseMaps(TextureCube *diffuseMapHDR, TextureCube *diffuseMapLDR);
+
+    void setReflectionMaps(TextureCube *reflectionHDR, TextureCube *reflectionLDR);
 
     void activate();
 
@@ -219,10 +230,7 @@ public:
      * @zh 是否启用HDR？
      */
     inline bool isUseHDR() const { return _useHDR; }
-    inline void setUseHDR(bool val) {
-        _useHDR = val;
-        setEnvMaps(_envmapHDR, _envmapLDR);
-    }
+    void setUseHDR(bool val);
 
     /**
      * @en Whether use environment lighting
@@ -249,7 +257,7 @@ public:
      * @zh 使用的立方体贴图
      */
     TextureCube *getEnvmap() const;
-    void         setEnvmap(TextureCube *val);
+    void setEnvmap(TextureCube *val);
 
     /**
      * @en Whether enable RGBE data support in skybox shader
@@ -258,28 +266,51 @@ public:
     bool isRGBE() const;
 
     /**
+     * @en Whether to use offline baked convolutional maps
+     * @zh 是否使用离线烘焙的卷积图？
+     */
+    bool isUsingConvolutionMap() const;
+
+    /**
      * @en The texture cube used diffuse convolution map
      * @zh 使用的漫反射卷积图
      */
     TextureCube *getDiffuseMap() const;
-    void         setDiffuseMap(TextureCube *val);
+    void setDiffuseMap(TextureCube *val);
+    void setSkyboxMaterial(Material *skyboxMat);
+    /**
+     * @en Set skybox rotate angle
+     * @zh 设置天空盒旋转角度
+     * @param angle  @en rotation angle @zh 旋转角度
+     */
+    void setRotationAngle(float angle);
+    float getRotationAngle() const { return _rotationAngle; };
+
+    TextureCube *getReflectionMap() const;
 
 private:
     void updatePipeline() const;
     void updateGlobalBinding();
+    void updateSubModes() const;
 
-    IntrusivePtr<TextureCube>  _envmapLDR;
-    IntrusivePtr<TextureCube>  _envmapHDR;
-    IntrusivePtr<TextureCube>  _diffuseMapLDR;
-    IntrusivePtr<TextureCube>  _diffuseMapHDR;
+    IntrusivePtr<TextureCube> _envmapLDR;
+    IntrusivePtr<TextureCube> _envmapHDR;
+    IntrusivePtr<TextureCube> _diffuseMapLDR;
+    IntrusivePtr<TextureCube> _diffuseMapHDR;
+    IntrusivePtr<TextureCube> _reflectionHDR;
+    IntrusivePtr<TextureCube> _reflectionLDR;
     pipeline::GlobalDSManager *_globalDSManager{nullptr};
-    IntrusivePtr<Model>        _model;
-    IntrusivePtr<TextureCube>  _default;
-    bool                       _enabled{false};
-    bool                       _useIBL{false};
-    bool                       _useHDR{true};
-    bool                       _useDiffuseMap{false};
-
+    IntrusivePtr<Model> _model;
+    IntrusivePtr<Mesh> _mesh;
+    IntrusivePtr<Material> _material;
+    IntrusivePtr<TextureCube> _default;
+    bool _enabled{false};
+    bool _useIBL{false};
+    bool _useHDR{true};
+    bool _useDiffuseMap{false};
+    bool _activated{false};
+    IntrusivePtr<Material> _editableMaterial;
+    float _rotationAngle{0.F};
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);
 };
 

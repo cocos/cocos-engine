@@ -23,11 +23,8 @@
  THE SOFTWARE.
  */
 
-
-
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
-import { BaseNode } from './base-node';
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import { Layers } from './layers';
 import { Node } from './node';
@@ -37,32 +34,19 @@ import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
 import { SceneGlobals } from './scene-globals';
-import { JSB } from '../default-constants';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
 import { NodeUIProperties } from './node-ui-properties';
 
-if (JSB) {
-    replaceProperty(Node.prototype, 'Node', [
-        {
-            name: 'childrenCount',
-            newName: 'children.length',
-            customGetter (this: Node) {
-                return this.children.length;
-            },
+replaceProperty(Node.prototype, 'Node', [
+    {
+        name: 'childrenCount',
+        newName: 'children.length',
+        customGetter (this: Node) {
+            return this.children.length;
         },
-    ]);
-} else {
-    replaceProperty(BaseNode.prototype, 'BaseNode', [
-        {
-            name: 'childrenCount',
-            newName: 'children.length',
-            customGetter (this: BaseNode) {
-                return this.children.length;
-            },
-        },
-    ]);
-}
+    },
+]);
 
 replaceProperty(Node.prototype, 'Node', [
     {
@@ -205,6 +189,10 @@ replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
         name: 'normal',
         newName: 'planeDirection',
     },
+    {
+        name: 'size',
+        newName: 'shadowMapSize',
+    },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [
@@ -313,6 +301,10 @@ removeProperty(Layers.BitMask, 'Layers.BitMask', [
 const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 const DontSave = CCObject.Flags.DontSave;
 
+/**
+ * @internal
+ * @deprecated since v3.5
+ */
 @ccclass('cc.PrivateNode')
 export class PrivateNode extends Node {
     constructor (name?: string) {
