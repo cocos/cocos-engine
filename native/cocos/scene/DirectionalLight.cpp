@@ -69,5 +69,21 @@ void DirectionalLight::setIlluminance(float value) {
     }
 }
 
+void DirectionalLight::activate() const {
+    auto *pipeline = pipeline::RenderPipeline::getInstance();
+    if (pipeline) {
+        if (_shadowEnabled) {
+            if (_shadowFixedArea || !pipeline->getPipelineSceneData()->getCSMSupported()) {
+                pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 1);
+            } else {
+                pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", static_cast<int32_t>(_csmLevel) > 1 ? 2 : 1);
+            }
+            pipeline->setValue("CC_DIR_SHADOW_PCF_TYPE", static_cast<int32_t>(_shadowPcf));
+        } else {
+            pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 0);
+        }
+    }
+}
+
 } // namespace scene
 } // namespace cc

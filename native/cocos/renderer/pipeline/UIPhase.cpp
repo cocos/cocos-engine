@@ -29,9 +29,9 @@
 #include "pipeline/PipelineStateManager.h"
 #include "scene/Camera.h"
 #include "scene/DrawBatch2D.h"
+#include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
-#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {

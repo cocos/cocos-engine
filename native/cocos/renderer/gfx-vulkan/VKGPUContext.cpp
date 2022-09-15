@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "VKGPUObjects.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 namespace cc {
 namespace gfx {
@@ -118,6 +120,8 @@ bool CCVKGPUContext::initialize() {
         }
     }
 
+    IXRInterface *xr = CC_GET_XR_INTERFACE();
+    if(xr) apiVersion = xr->getXRVkApiVersion(apiVersion);
     minorVersion = VK_VERSION_MINOR(apiVersion);
     if (minorVersion < 1) {
         requestedExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
@@ -242,12 +246,16 @@ bool CCVKGPUContext::initialize() {
 #endif
 
     // Create the Vulkan instance
-    VkResult res = vkCreateInstance(&instanceInfo, nullptr, &vkInstance);
-    if (res == VK_ERROR_LAYER_NOT_PRESENT) {
-        CC_LOG_ERROR("Create Vulkan instance failed due to missing layers, aborting...");
-        return false;
+    if(xr) {
+        xr->initializeVulkanData(vkGetInstanceProcAddr);
+        vkInstance = xr->createXRVulkanInstance(instanceInfo);
+    } else {
+        VkResult res = vkCreateInstance(&instanceInfo, nullptr, &vkInstance);
+        if (res == VK_ERROR_LAYER_NOT_PRESENT) {
+            CC_LOG_ERROR("Create Vulkan instance failed due to missing layers, aborting...");
+            return false;
+        }
     }
-
     volkLoadInstanceOnly(vkInstance);
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
@@ -263,14 +271,18 @@ bool CCVKGPUContext::initialize() {
 
     // Querying valid physical devices on the machine
     uint32_t physicalDeviceCount{0};
-    res = vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, nullptr);
+    VkResult res = vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, nullptr);
 
     if (res || physicalDeviceCount < 1) {
         return false;
     }
 
     ccstd::vector<VkPhysicalDevice> physicalDeviceHandles(physicalDeviceCount);
-    VK_CHECK(vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));
+    if(xr) {
+        physicalDeviceHandles[0] = xr->getXRVulkanGraphicsDevice();
+    } else {
+        VK_CHECK(vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));
+    }
 
     ccstd::vector<VkPhysicalDeviceProperties> physicalDevicePropertiesList(physicalDeviceCount);
 

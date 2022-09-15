@@ -32,7 +32,7 @@ RenderEntity::RenderEntity(RenderEntityType type) : _renderEntityType(type) {
     if (type == RenderEntityType::STATIC) {
         ccnew_placement(&_staticDrawInfos) std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>();
     } else {
-        ccnew_placement (&_dynamicDrawInfos) ccstd::vector<RenderDrawInfo*>();
+        ccnew_placement(&_dynamicDrawInfos) ccstd::vector<RenderDrawInfo*>();
     }
     _entitySharedBufferActor.initialize(&_entityAttrLayout, sizeof(EntityAttrLayout));
 }
@@ -68,7 +68,7 @@ void RenderEntity::clearDynamicRenderDrawInfos() {
 
 void RenderEntity::clearStaticRenderDrawInfos() {
     CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
-  
+
     for (uint32_t i = 0; i < _staticDrawInfoSize; i++) {
         RenderDrawInfo& drawInfo = _staticDrawInfos[i];
         drawInfo.resetDrawInfo();
@@ -84,6 +84,10 @@ void RenderEntity::setNode(Node* node) {
     if (_node) {
         _node->setUserData(this);
     }
+}
+
+void RenderEntity::setRenderTransform(Node* renderTransform) {
+    _renderTransform = renderTransform;
 }
 
 RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {

@@ -1,9 +1,8 @@
 {
-    "version": "v3.6-oh-1",
     "from": {
         "type": "github",
-        "owner": "cocos",
-        "name": "cocos-engine-external",
-        "checkout": "v3.6-oh-1"
+        "owner": "cocos-creator",
+        "name": "engine-native-external",
+        "checkout": "v3.6.1-5"
     }
 }

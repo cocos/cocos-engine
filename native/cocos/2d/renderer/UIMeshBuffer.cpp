@@ -28,6 +28,15 @@
 
 namespace cc {
 
+static uint32_t getAttributesStride(ccstd::vector<gfx::Attribute>& attrs) {
+    uint32_t stride = 0;
+    for (auto& attr : attrs) {
+        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+        stride += info.size;
+    }
+    return stride;
+}
+
 UIMeshBuffer::~UIMeshBuffer() {
     destroy();
 }
@@ -40,10 +49,9 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device*  /*device*/, ccstd::vector<gfx::Attribute*>&& attrs, uint32_t  /*vFloatCount*/, uint32_t  /*iCount*/) {
-    if (attrs.size() == 4) {
-        _attributes.push_back(gfx::Attribute{gfx::ATTR_NAME_COLOR2, gfx::Format::RGBA32F});
-    }
+void UIMeshBuffer::initialize(gfx::Device* /*device*/,ccstd::vector<gfx::Attribute> &&attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
+    _attributes = attrs;
+    _vertexFormatBytes = getAttributesStride(attrs);
 }
 
 void UIMeshBuffer::reset() {
@@ -126,7 +134,7 @@ void UIMeshBuffer::recycleIA(gfx::InputAssembler* ia) {
 
 gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
     if (_iaPool.empty()) {
-        uint32_t vbStride = _vertexFormatBytes = getFloatsPerVertex() * sizeof(float);
+        uint32_t vbStride = _vertexFormatBytes;
         uint32_t ibStride = sizeof(uint16_t);
 
         auto* vertexBuffer = device->createBuffer({
@@ -175,10 +183,6 @@ void UIMeshBuffer::setIndexOffset(uint32_t indexOffset) {
 
 void UIMeshBuffer::setDirty(bool dirty) const {
     _meshBufferLayout->dirtyMark = dirty ? 1 : 0;
-}
-
-void UIMeshBuffer::setFloatsPerVertex(uint32_t floatsPerVertex) {
-    _meshBufferLayout->floatsPerVertex = floatsPerVertex;
 }
 
 } // namespace cc

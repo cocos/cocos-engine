@@ -142,7 +142,7 @@ public:
          *
          * @param ws The WebSocket object connected.
          */
-        virtual void onClose(WebSocket *ws) = 0;
+        virtual void onClose(WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) = 0;
         /**
          * This function is to be called in the following cases:
          * 1. client connection is failed.

@@ -42,7 +42,7 @@ class Asset;
 class BuiltinResMgr final {
 public:
     static BuiltinResMgr *getInstance();
-    
+
     BuiltinResMgr();
     ~BuiltinResMgr();
 

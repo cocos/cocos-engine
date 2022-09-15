@@ -25,6 +25,7 @@
 
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/base/DeferredReleasePool.h"
+#include "cocos/bindings/auto/jsb_2d_auto.h"
 #include "cocos/bindings/auto/jsb_assets_auto.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 #include "cocos/bindings/auto/jsb_extension_auto.h"
@@ -34,7 +35,6 @@
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_render_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
-#include "cocos/bindings/auto/jsb_2d_auto.h"
 #include "cocos/bindings/dop/jsb_dop.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_assets_manual.h"
@@ -59,6 +59,10 @@
 #if CC_USE_AUDIO
     #include "cocos/bindings/auto/jsb_audio_auto.h"
     #include "cocos/bindings/manual/jsb_audio_manual.h"
+#endif
+
+#if CC_USE_XR
+    #include "cocos/bindings/auto/jsb_xr_auto.h"
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
@@ -154,7 +158,11 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_audio_manual);
 #endif
 
-#if USE_SOCKET && CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later
+#if CC_USE_XR
+    se->addRegisterCallback(register_all_xr);
+#endif
+
+#if CC_USE_SOCKET
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
 #endif

@@ -22,8 +22,8 @@
 #pragma once
 
 #include "base/TypeDef.h"
-#include "math/Mat4.h"
 #include "core/geometry/Frustum.h"
+#include "math/Mat4.h"
 #include "pipeline/Define.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
@@ -74,7 +74,9 @@ public:
     void calculateSplitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform);
 
 private:
-    RenderObjectList _shadowObjects;
+    // global set
+    static float _maxLayerPosz;
+    static float _maxLayerFarPlane;
 
     // Level is a vector, Indicates the location.range: [0 ~ 3]
     uint32_t _level{1U};
@@ -91,9 +93,7 @@ private:
     geometry::Frustum _lightViewFrustum;
     geometry::AABB _castLightViewBoundingBox;
 
-    // local set
-    float _maxLayerPosz{0.0F};
-    float _maxLayerFarPlane{0.0F};
+    RenderObjectList _shadowObjects;
 };
 
 class CSMLayerInfo : public ShadowTransformInfo {
@@ -146,15 +146,18 @@ private:
     void updateFixedArea(const scene::DirectionalLight *dirLight) const;
     void calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo);
 
-    RenderObjectList _castShadowObjects;
-    RenderObjectList _layerObjects;
-
     // LevelCount is a scalar, Indicates the number.
     uint32_t _levelCount{0U};
+
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
     ShadowTransformInfo *_specialLayer{nullptr};
-    ccstd::array<CSMLayerInfo *, 4> _layers{};
+    
     float _shadowDistance{0.0F};
+
+    ccstd::array<CSMLayerInfo *, 4> _layers{};
+
+    RenderObjectList _castShadowObjects;
+    RenderObjectList _layerObjects;
 };
 } // namespace pipeline
 } // namespace cc

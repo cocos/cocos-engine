@@ -273,7 +273,7 @@ class_<T> &class_<T>::constructor() {
 template <typename T>
 template <typename F>
 class_<T> &class_<T>::constructor(F callback) {
-    using FTYPE = intl::FunctionWrapper<F>;
+    using FTYPE = intl::StaticFunctionWrapper<F>;
     static_assert(std::is_same<typename FTYPE::return_type, T *>::value, "Function should return a instance pointer");
     using CTYPE = intl::Constructor<typename FTYPE::type>;
     auto *constructp = ccnew CTYPE();

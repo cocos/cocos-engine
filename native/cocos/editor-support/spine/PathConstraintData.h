@@ -30,13 +30,13 @@
 #ifndef Spine_PathConstraintData_h
 #define Spine_PathConstraintData_h
 
+#include <spine/ConstraintData.h>
 #include <spine/PositionMode.h>
-#include <spine/SpacingMode.h>
 #include <spine/RotateMode.h>
-#include <spine/Vector.h>
+#include <spine/SpacingMode.h>
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
-#include <spine/ConstraintData.h>
+#include <spine/Vector.h>
 
 namespace spine {
 class BoneData;

@@ -38,6 +38,7 @@ import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const _tempColor = new Color();
 
@@ -693,6 +694,11 @@ export class Button extends Component {
 
         this.node.on(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
         this.node.on(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+
+        this.node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.on(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+        this.node.on(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
     }
 
     protected _registerTargetEvent (target) {
@@ -711,6 +717,11 @@ export class Button extends Component {
 
         this.node.off(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
         this.node.off(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+
+        this.node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.off(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+        this.node.off(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
     }
 
     protected _unregisterTargetEvent (target) {
@@ -978,6 +989,38 @@ export class Button extends Component {
         } else if (transition === Transition.SCALE) {
             this._updateScaleTransition(state);
         }
+    }
+
+    private _xrHoverEnter() {
+        this._onMouseMoveIn();
+        this._updateState();
+    }
+
+    private _xrHoverExit() {
+        this._onMouseMoveOut();
+        if (this._pressed) {
+            this._pressed = false;
+            this._updateState();
+        }
+    }
+
+    private _xrClick() {
+        if (!this._interactable || !this.enabledInHierarchy) { return; }
+        this._pressed = true;
+        this._updateState();
+    }
+
+    private _xrUnClick() {
+        if (!this._interactable || !this.enabledInHierarchy) {
+            return;
+        }
+
+        if (this._pressed) {
+            ComponentEventHandler.emitEvents(this.clickEvents, this);
+            this.node.emit(EventType.CLICK, this);
+        }
+        this._pressed = false;
+        this._updateState();
     }
 }
 

@@ -1377,7 +1377,7 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
                   gpuRenderPass->statistics[i].storeSubpass != SUBPASS_EXTERNAL);
     }
 
-    ccstd::unordered_map<GFXObject*, std::pair<GLbitfield, GLbitfield>> resRecord;
+    ccstd::unordered_map<GFXObject *, std::pair<GLbitfield, GLbitfield>> resRecord;
     // if barrier deduce enabled: should deduce this from subpass & attachment access infos
     if constexpr (ENABLE_GRAPH_AUTO_BARRIER) {
         gpuRenderPass->subpassBarriers.resize(gpuRenderPass->dependencies.size());
@@ -2204,7 +2204,7 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
         bool skipStore = subpass.depthStencil == INVALID_BINDING ||
                          gpuRenderPass->statistics[subpass.depthStencil].storeSubpass != gfxStateCache.subpassIdx;
         performDepthStencilStoreOp(subpass.depthStencil, skipStore);
-        
+
         cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->subpassBarriers.back().glBarriers, gpuRenderPass->subpassBarriers.back().glBarriersByRegion);
     }
 }

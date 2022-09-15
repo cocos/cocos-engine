@@ -76,7 +76,7 @@ bool SystemWindow::createWindow(const char *title,
 }
 
 void SystemWindow::closeWindow() {
-    #ifndef CC_SERVER_MODE
+#ifndef CC_SERVER_MODE
     auto windowHandle = getSDLWindowHandle();
 
     SDL_Event et;
@@ -89,7 +89,7 @@ uintptr_t SystemWindow::getWindowHandle() const {
     return _sdl->getWindowHandle();
 }
 
-SDL_Window* SystemWindow::getSDLWindowHandle() const {
+SDL_Window *SystemWindow::getSDLWindowHandle() const {
     return _sdl->getSDLWindowHandle();
 }
 

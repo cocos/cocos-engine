@@ -49,13 +49,13 @@ namespace cc {
  */
 class ProfilerBlock {
 public:
-    ProfilerBlock(ProfilerBlock *parent, ccstd::string name)
-    : _parent(parent), _name(std::move(name)) {}
+    ProfilerBlock(ProfilerBlock *parent, const std::string_view& name)
+    : _parent(parent), _name(name) {}
     ~ProfilerBlock();
 
     inline void begin() { _timer.reset(); }
     inline void end() { _item += _timer.getMicroseconds(); }
-    ProfilerBlock *getOrCreateChild(const ccstd::string &name);
+    ProfilerBlock *getOrCreateChild(const std::string_view &name);
     void onFrameBegin();
     void onFrameEnd();
     void doIntervalUpdate();
@@ -77,7 +77,7 @@ ProfilerBlock::~ProfilerBlock() {
     _children.clear();
 }
 
-ProfilerBlock *ProfilerBlock::getOrCreateChild(const ccstd::string &name) {
+ProfilerBlock *ProfilerBlock::getOrCreateChild(const std::string_view &name) {
     for (auto *child : _children) {
         if (child->_name == name) {
             return child;
@@ -388,7 +388,7 @@ void Profiler::printStats() {
 #endif
 }
 
-void Profiler::beginBlock(const ccstd::string &name) {
+void Profiler::beginBlock(const std::string_view &name) {
     if (isMainThread()) {
         _current = _current->getOrCreateChild(name);
         _current->begin();

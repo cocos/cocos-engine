@@ -43,18 +43,27 @@ vec3 CalculateNormalFromTangentSpace(vec3 normalFromTangentSpace, float normalSt
             normalFromTangentSpace.z * normalize(normal);
 }
 
+vec3 RotationVecFromAxisY(vec3 v, float cosTheta, float sinTheta)
+{
+    vec3 result;
+    result.x = dot(v, vec3(cosTheta, 0.0, -sinTheta));
+    result.y = v.y;
+    result.z = dot(v, vec3(sinTheta, 0.0,  cosTheta));
+    return result;
+}
 
-// rotationAngle: 0-1 stand for 0-180 rotation
+// rotationAngle: radians, 0-2Pi
 void RotateTangentAndBinormal(inout vec3 tangent, inout vec3 binormal, vec3 normal, float rotationAngle)
 {
-    rotationAngle = clamp(rotationAngle, 0.0, 1.0 - EPSILON_LOWP); // 1.0 is invalid value that equals to 90 rotation (coef=0, angle>0.5)
-    float coef = fract(rotationAngle * 2.0);
-    bool isNegative = rotationAngle <= 0.5;
+    float cosTheta = cos(rotationAngle), sinTheta = sin(rotationAngle);
+    vec3 B = RotationVecFromAxisY(vec3(1.0, 0.0, 0.0), cosTheta, sinTheta);
+    vec3 T = RotationVecFromAxisY(vec3(0.0, 0.0, 1.0), cosTheta, sinTheta);
 
-    // spherical interpolating is more accuracy and linear transitions but expensive, use simple pow fix instead
-    coef = pow(coef, isNegative ? 0.75 : 1.25);
-    vec3 binormalNew = isNegative ? mix(binormal, -tangent, coef) : mix(-tangent, -binormal, coef);
-    vec3 tangentNew = isNegative ? mix(tangent, binormal, coef) : mix(binormal, -tangent, coef);
-    tangent = normalize(tangentNew);
+    vec3 tangentNew, binormalNew;
+    binormalNew = B.x * binormal + B.y * normal + B.z * tangent;
     binormal = normalize(binormalNew);
+
+    tangentNew = T.x * binormal + T.y * normal + T.z * tangent;
+    tangent = normalize(tangentNew);
+    // tangent = cross(binormal, normal);
 }

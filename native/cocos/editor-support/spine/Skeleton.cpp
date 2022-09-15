@@ -33,23 +33,23 @@
 
 #include <spine/Skeleton.h>
 
-#include <spine/SkeletonData.h>
+#include <spine/Attachment.h>
 #include <spine/Bone.h>
-#include <spine/Slot.h>
 #include <spine/IkConstraint.h>
 #include <spine/PathConstraint.h>
-#include <spine/TransformConstraint.h>
+#include <spine/SkeletonData.h>
 #include <spine/Skin.h>
-#include <spine/Attachment.h>
+#include <spine/Slot.h>
+#include <spine/TransformConstraint.h>
 
 #include <spine/BoneData.h>
-#include <spine/SlotData.h>
 #include <spine/IkConstraintData.h>
-#include <spine/TransformConstraintData.h>
-#include <spine/PathConstraintData.h>
-#include <spine/RegionAttachment.h>
 #include <spine/MeshAttachment.h>
 #include <spine/PathAttachment.h>
+#include <spine/PathConstraintData.h>
+#include <spine/RegionAttachment.h>
+#include <spine/SlotData.h>
+#include <spine/TransformConstraintData.h>
 
 #include <spine/ContainerUtil.h>
 

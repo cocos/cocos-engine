@@ -69,7 +69,7 @@ exports.listeners = {
                 }
 
                 if (setChildrenLayer) {
-                    Editor.Message.send('scene', 'set-node-and-children-layer', {
+                    await Editor.Message.request('scene', 'set-node-and-children-layer', {
                         uuid,
                         dump: {
                             value,
@@ -79,7 +79,7 @@ exports.listeners = {
                     continue;
                 }
 
-                Editor.Message.send('scene', 'set-property', {
+                await Editor.Message.request('scene', 'set-property', {
                     uuid,
                     path,
                     dump: {
@@ -97,8 +97,11 @@ exports.listeners = {
         const panel = this;
 
         panel.snapshotLock = false;
+
+        // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
+        Editor.Message.send('scene', 'snapshot');
     },
-    'create-dump'(event) {
+    async 'create-dump'(event) {
         const panel = this;
 
         const target = event.target;
@@ -117,16 +120,18 @@ exports.listeners = {
                     dump.values[i] = dump.value;
                 }
 
-                Editor.Message.send('scene', 'update-property-from-null', {
+                await Editor.Message.request('scene', 'update-property-from-null', {
                     uuid,
                     path: dump.path,
                 });
             }
+
+            Editor.Message.send('scene', 'snapshot');
         } catch (error) {
             console.error(error);
         }
     },
-    'reset-dump'(event) {
+    async 'reset-dump'(event) {
         const panel = this;
 
         const target = event.target;
@@ -145,11 +150,13 @@ exports.listeners = {
                     dump.values[i] = dump.value;
                 }
 
-                Editor.Message.send('scene', 'reset-property', {
+                await Editor.Message.request('scene', 'reset-property', {
                     uuid,
                     path: dump.path,
                 });
             }
+
+            Editor.Message.send('scene', 'snapshot');
         } catch (error) {
             console.error(error);
         }
@@ -308,9 +315,7 @@ exports.template = /* html*/`
         <div class="node-section"></div>
     </ui-section>
 
-    <section class="section-header"></section>
     <section class="section-body"></section>
-    <section class="section-footer"></section>
     <section class="section-missing"></section>
 
     <footer class="footer">
@@ -366,9 +371,7 @@ exports.$ = {
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
 
-    sectionHeader: '.section-header',
     sectionBody: '.section-body',
-    sectionFooter: '.section-footer',
     sectionMissing: '.section-missing',
     sectionAsset: '.section-asset',
 
@@ -441,12 +444,14 @@ const Elements = {
 
                 Editor.Message.send('scene', 'snapshot');
 
-                additional.forEach((o) => {
-                    const config = panel.dropConfig[o.type];
+                for (const info of additional) {
+                    const config = panel.dropConfig[info.type];
                     if (config) {
-                        Editor.Message.send(config.package, config.message, o, panel.dumps, panel.uuidList);
+                        await Editor.Message.request(config.package, config.message, info, panel.dumps, panel.uuidList);
                     }
-                });
+                }
+
+                Editor.Message.send('scene', 'snapshot');
             });
         },
         async update() {
@@ -509,7 +514,7 @@ const Elements = {
                     return;
                 }
 
-                await Editor.Message.request('scene', 'snapshot');
+                Editor.Message.send('scene', 'snapshot');
 
                 const role = button.getAttribute('role');
 
@@ -535,6 +540,8 @@ const Elements = {
                         }
                     }
                 }
+
+                Editor.Message.send('scene', 'snapshot');
             });
 
             panel.$.prefabEdit.addEventListener('click', () => {
@@ -711,22 +718,41 @@ const Elements = {
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
             // skyBox 逻辑 start
-            panel.$.sceneSkyboxBefore.innerHTML = '';
-            panel.$.sceneSkyboxAfter.innerHTML = '';
             let $sceneSkyboxContainer = panel.$.sceneSkyboxBefore;
+            const oldSkyboxProps = Object.keys(panel.$skyboxProps);
+            const newSkyboxProps = [];
+
             for (const key in panel.dump._globals.skybox.value) {
                 const dump = panel.dump._globals.skybox.value[key];
                 if (!dump.visible) {
                     continue;
                 }
-                const $prop = document.createElement('ui-prop');
-                $prop.setAttribute('type', 'dump');
-                $prop.render(dump);
-                $sceneSkyboxContainer.appendChild($prop);
+                const id = `${dump.type || dump.name}:${dump.path}`;
+                let $prop = panel.$skyboxProps[id];
+                newSkyboxProps.push(id);
+
+                if (!$prop) {
+                    $prop = document.createElement('ui-prop');
+                    $prop.setAttribute('type', 'dump');
+                    panel.$skyboxProps[id] = $prop;
+                    $sceneSkyboxContainer.appendChild($prop);
+                } else if (!$prop.isConnected || !$prop.parentElement) {
+                    $sceneSkyboxContainer.appendChild($prop);
+                }
 
                 if (dump.name === 'envmap') {
                     // envmap 之后的属性放在后面的容器
                     $sceneSkyboxContainer = panel.$.sceneSkyboxAfter;
+                }
+                $prop.render(dump);
+            }
+
+            for (const id of oldSkyboxProps) {
+                if (!newSkyboxProps.includes(id)) {
+                    const $prop = panel.$skyboxProps[id];
+                    if ($prop && $prop.parentElement) {
+                        $prop.parentElement.removeChild($prop);
+                    }
                 }
             }
 
@@ -749,6 +775,11 @@ const Elements = {
                     if (!$prop.regenerate) {
                         $prop.regenerate = Elements.scene.regenerate.bind(panel);
                         $prop.addEventListener('change-dump', $prop.regenerate);
+                    }
+
+                    if (!$prop.setReflectionConvolutionMap && $prop.dump.name === 'envmap') {
+                        $prop.setReflectionConvolutionMap = Elements.scene.setReflectionConvolutionMap.bind(panel);
+                        $prop.addEventListener('change-dump', $prop.setReflectionConvolutionMap);
                     }
                 }
             });
@@ -780,6 +811,17 @@ const Elements = {
                     name: 'inspector',
                     method: 'generateVector',
                     args: [envMapUuid],
+                });
+            }
+        },
+        async setReflectionConvolutionMap() {
+            const panel = this;
+            const envMapData = panel.dump._globals.skybox.value['envmap'];
+            if (envMapData.value && envMapData.value.uuid) {
+                await Editor.Message.request('scene', 'execute-scene-script', {
+                    name: 'inspector',
+                    method: 'setReflectionConvolutionMap',
+                    args: [envMapData.value.uuid],
                 });
             }
         },
@@ -840,6 +882,8 @@ const Elements = {
     node: {
         ready() {
             const panel = this;
+
+            panel.$skyboxProps = {};
 
             panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
 
@@ -990,20 +1034,25 @@ const Elements = {
                     sectionBody.__sections__[i] = $section;
                     sectionBody.appendChild($section);
 
-                    // 再处理内部
-                    let renderList = panel.renderMap.section[$section.__type__];
+                    // 排序
+                    const renderListHeader = panel.renderMap.header[$section.__type__] ?? [];
+                    let renderListSection = panel.renderMap.section[$section.__type__] ?? [];
+                    const renderListFooter = panel.renderMap.footer[$section.__type__] ?? [];
+
 
                     // 如果都没有渲染模板，使用默认 cc.Class 模板
-                    if (!renderList || !renderList.length) {
+                    if (!renderListSection.length) {
                         // 判断继承
                         if (Array.isArray(component.extends)) {
                             const parentClass = component.extends[0];
-                            renderList = panel.renderMap.section[parentClass];
+                            renderListSection = panel.renderMap.section[parentClass];
                         }
-                        if (!renderList) {
-                            renderList = panel.renderMap.section['cc.Class'];
+                        if (!renderListSection) {
+                            renderListSection = panel.renderMap.section['cc.Class'];
                         }
                     }
+
+                    let renderList = [...renderListHeader, ...renderListSection, ...renderListFooter];
 
                     renderList.forEach((file) => {
                         const $panel = document.createElement('ui-panel');
@@ -1201,14 +1250,17 @@ const Elements = {
                     timestamp: rawTimestamp,
                     type: 'add-component',
                     events: {
-                        confirm(name, data) {
+                        async confirm(name, data) {
                             Editor.Message.send('scene', 'snapshot');
-                            panel.uuidList.forEach((uuid) => {
-                                Editor.Message.send('scene', 'create-component', {
+
+                            for (const uuid of panel.uuidList) {
+                                await Editor.Message.request('scene', 'create-component', {
                                     uuid,
                                     component: data.cid,
                                 });
-                            });
+                            }
+
+                            Editor.Message.send('scene', 'snapshot');
                         },
                     },
                 });
@@ -1387,67 +1439,81 @@ exports.methods = {
             menu: [
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_component'),
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
 
-                        (dump.value.uuid.values || [dump.value.uuid.value]).forEach((compUuid) => {
-                            Editor.Message.send('scene', 'reset-component', {
+                        const values = dump.value.uuid.values || [dump.value.uuid.value];
+                        for (const compUuid of values) {
+                            await Editor.Message.request('scene', 'reset-component', {
                                 uuid: compUuid,
                             });
-                        });
+                        }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 { type: 'separator' },
                 {
                     label: Editor.I18n.t('ENGINE.menu.remove_component'),
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
-                        (dump.value.uuid.values || [dump.value.uuid.value]).forEach((value) => {
-                            nodeDumps.forEach((nodeDump) => {
+
+                        const values = dump.value.uuid.values || [dump.value.uuid.value];
+
+                        for (const value of values) {
+                            for (const nodeDump of nodeDumps) {
                                 const uuid = nodeDump.uuid.value;
                                 const index = nodeDump.__comps__.findIndex((dumpData) => dumpData.value.uuid.value === value);
                                 if (index !== -1) {
-                                    Editor.Message.send('scene', 'remove-array-element', {
+                                    await Editor.Message.request('scene', 'remove-array-element', {
                                         uuid,
                                         path: '__comps__',
                                         index,
                                     });
                                 }
-                            });
-                        });
+                            }
+                        }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.move_up_component'),
                     enabled: !isMultiple && index !== 0,
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
-                        Editor.Message.send('scene', 'move-array-element', {
+
+                        await Editor.Message.request('scene', 'move-array-element', {
                             uuid,
                             path: '__comps__',
                             target: index,
                             offset: -1,
                         });
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.move_down_component'),
                     enabled: !isMultiple && index !== total - 1,
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
-                        Editor.Message.send('scene', 'move-array-element', {
+
+                        await Editor.Message.request('scene', 'move-array-element', {
                             uuid,
                             path: '__comps__',
                             target: index,
                             offset: 1,
                         });
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 { type: 'separator' },
                 {
                     label: Editor.I18n.t('ENGINE.menu.copy_component'),
                     enabled: !isMultiple,
-                    async click() {
+                    click() {
                         const info = JSON.parse(JSON.stringify(dump));
                         delete info.value.__prefab;
                         Editor.Clipboard.write('_dump_component_', {
@@ -1462,19 +1528,22 @@ exports.methods = {
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
-                        (dump.value.uuid.values || [dump.value.uuid.value]).forEach((value) => {
-                            nodeDumps.forEach((nodeDump) => {
+                        const values = dump.value.uuid.values || [dump.value.uuid.value];
+                        for (const value of values) {
+                            for (const nodeDump of nodeDumps) {
                                 const uuid = nodeDump.uuid.value;
                                 const index = nodeDump.__comps__.findIndex((dumpData) => dumpData.value.uuid.value === value);
                                 if (index !== -1) {
-                                    Editor.Message.request('scene', 'set-property', {
+                                    await Editor.Message.request('scene', 'set-property', {
                                         uuid,
                                         path: nodeDump.__comps__[index].path,
                                         dump: clipboardComponentInfo.dump,
                                     });
                                 }
-                            });
-                        });
+                            }
+                        }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 { type: 'separator' },
@@ -1485,7 +1554,9 @@ exports.methods = {
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
-                        (dump.value.uuid.values || [dump.value.uuid.value]).forEach(async (dump, index) => {
+                        const values = dump.value.uuid.values || [dump.value.uuid.value];
+                        let index = 0;
+                        for (const dump of values) {
                             const uuid = uuidList[index];
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
@@ -1507,7 +1578,9 @@ exports.methods = {
                                     });
                                 }
                             }
-                        });
+
+                            index++;
+                        }
                     },
                 },
             ],
@@ -1528,14 +1601,16 @@ exports.methods = {
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node'),
                     enabled: !dump.position.readonly && !dump.rotation.readonly && !dump.scale.readonly,
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
 
                         for (const uuid of uuidList) {
-                            Editor.Message.send('scene', 'reset-node', {
+                            await Editor.Message.request('scene', 'reset-node', {
                                 uuid,
                             });
                         }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 { type: 'separator' },
@@ -1557,14 +1632,16 @@ exports.methods = {
                         Editor.Message.send('scene', 'snapshot');
 
                         for (const uuid of uuidList) {
-                            clipboardNodeInfo.attrs.forEach((attr) => {
-                                Editor.Message.send('scene', 'set-property', {
+                            for (const attr of clipboardNodeInfo.attrs) {
+                                await Editor.Message.request('scene', 'set-property', {
                                     uuid,
                                     path: attr,
                                     dump: clipboardNodeInfo.dump[attr],
                                 });
-                            });
+                            }
                         }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 { type: 'separator' },
@@ -1593,12 +1670,14 @@ exports.methods = {
 
                         if (clipboardNodeWorldTransform.data) {
                             for (const uuid of uuidList) {
-                                Editor.Message.request('scene', 'execute-scene-script', {
+                                await Editor.Message.request('scene', 'execute-scene-script', {
                                     name: 'inspector',
                                     method: 'setNodeWorldTransform',
                                     args: [uuid, clipboardNodeWorldTransform.data],
                                 });
                             }
+
+                            Editor.Message.send('scene', 'snapshot');
                         }
                     },
                 },
@@ -1609,7 +1688,7 @@ exports.methods = {
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
-                        uuidList.forEach(async (uuid) => {
+                        for (const uuid of uuidList) {
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
                                 component: clipboardComponentInfo.cid,
@@ -1630,56 +1709,64 @@ exports.methods = {
                                     });
                                 }
                             }
-                        });
+                        }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 { type: 'separator' },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_position'),
                     enabled: !dump.position.readonly && JSON.stringify(dump.position.value) !== JSON.stringify(dump.position.default),
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
 
                         for (const uuid of uuidList) {
-                            Editor.Message.send('scene', 'reset-property', {
+                            await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'position',
                             });
                         }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_rotation'),
                     enabled: !dump.rotation.readonly && JSON.stringify(dump.rotation.value) !== JSON.stringify(dump.rotation.default),
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
 
                         for (const uuid of uuidList) {
-                            Editor.Message.send('scene', 'reset-property', {
+                            await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'rotation',
                             });
                         }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
                     enabled: !dump.rotation.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
-                    click() {
+                    async click() {
                         Editor.Message.send('scene', 'snapshot');
 
                         for (const uuid of uuidList) {
-                            Editor.Message.send('scene', 'reset-property', {
+                            await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'scale',
                             });
                         }
+
+                        Editor.Message.send('scene', 'snapshot');
                     },
                 },
             ],
         });
     },
-    replaceAssetUuidInNodes(assetUuid, newAssetUuid) {
+    async replaceAssetUuidInNodes(assetUuid, newAssetUuid) {
         const panel = this;
 
         const materialUuids = panel.assets['cc.Material'];
@@ -1688,11 +1775,13 @@ exports.methods = {
         }
 
         try {
+            Editor.Message.send('scene', 'snapshot');
+
             for (const dumpPath in materialUuids[assetUuid]) {
                 const dumpData = materialUuids[assetUuid][dumpPath];
                 for (let i = 0; i < panel.uuidList.length; i++) {
                     const nodeUuid = panel.uuidList[i];
-                    Editor.Message.send('scene', 'set-property', {
+                    await Editor.Message.request('scene', 'set-property', {
                         uuid: nodeUuid,
                         path: dumpPath,
                         dump: {
@@ -1702,6 +1791,8 @@ exports.methods = {
                     });
                 }
             }
+
+            Editor.Message.send('scene', 'snapshot');
         } catch (error) {
             console.error(error);
         }

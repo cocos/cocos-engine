@@ -553,6 +553,10 @@ export class WebGL2Device extends Device {
         return this._samplers.get(hash)!;
     }
 
+    public getSwapchains (): Readonly<Swapchain[]> {
+        return [this._swapchain as Swapchain];
+    }
+
     public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {
         const hash = GeneralBarrier.computeHash(info);
         if (!this._generalBarrierss.has(hash)) {

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
@@ -29,15 +30,13 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
+import { getAttributeStride, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
 import { Color, director, Mat4, Node, Texture2D } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
-import { StaticVBAccessor, StaticVBChunk } from '../../2d/renderer/static-vb-accessor';
+import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
-
-const FLAG_TWO_COLOR = 0x01;
 
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
 const _slotColor = new Color(0, 0, 255, 255);
@@ -62,8 +61,8 @@ let _nodeR: number;
 let _nodeG: number;
 let _nodeB: number;
 let _nodeA: number;
-const _finalColor32: Float32Array = new Float32Array(4);
-const _darkColor32: Float32Array = new Float32Array(4);
+let _finalColor32: number;
+let _darkColor32: number;
 let _perVertexSize: number;
 let _perClipVertexSize: number;
 
@@ -80,14 +79,6 @@ let _tempg: number;
 let _tempb: number;
 let _inRange: boolean;
 let _mustFlush: boolean;
-let _x: number;
-let _y: number;
-let _m00: number;
-let _m04: number;
-let _m12: number;
-let _m01: number;
-let _m05: number;
-let _m13: number;
 let _r: number;
 let _g: number;
 let _b: number;
@@ -100,10 +91,10 @@ let _dg: number;
 let _db: number;
 let _da: number;
 let _comp: Skeleton | undefined;
-let _node: Node | undefined;
 let _renderData: RenderData | null;
 let _ibuf: Uint16Array;
 let _vbuf: Float32Array;
+let _vUintBuf: Uint32Array;
 let _needColor: boolean;
 let _vertexEffect: spine.VertexEffect | null = null;
 let _currentMaterial: MaterialInstance | null = null;
@@ -138,7 +129,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
 function _handleColor (color: FrameColor) {
     // temp rgb has multiply 255, so need divide 255;
     _fa = color.fa * _nodeA;
-    _multiplier = _premultipliedAlpha ? _fa * _inv255 :  1;
+    _multiplier = _premultipliedAlpha ? _fa / 255 :  1;
     _r = _nodeR * _multiplier;
     _g = _nodeG * _multiplier;
     _b = _nodeB * _multiplier;
@@ -146,32 +137,25 @@ function _handleColor (color: FrameColor) {
     _fr = color.fr * _r;
     _fg = color.fg * _g;
     _fb = color.fb * _b;
-    _finalColor32[0] = _fr * _inv255;
-    _finalColor32[1] = _fg * _inv255;
-    _finalColor32[2] = _fb * _inv255;
-    _finalColor32[3] = _fa * _inv255;
+    _finalColor32 = ((_fa << 24) >>> 0) + (_fb << 16) + (_fg << 8) + _fr;
 
     _dr = color.dr * _r;
     _dg = color.dg * _g;
     _db = color.db * _b;
-    _da =   _premultipliedAlpha ? 255 :  0;
-    _darkColor32[0] = _dr * _inv255;
-    _darkColor32[1] = _dg * _inv255;
-    _darkColor32[2] = _db * _inv255;
-    _darkColor32[3] = _da * _inv255;
+    _da = _premultipliedAlpha ? 255 : 0;
+    _darkColor32 = ((_da << 24) >>> 0) + (_db << 16) + (_dg << 8) + _dr;
 }
 
-const _tmpColor4 = new Float32Array(4);
-function _spineColorToFloat32Array4 (spineColor: spine.Color) {
-    _tmpColor4[0] = spineColor.r * _inv255;
-    _tmpColor4[1] = spineColor.g * _inv255;
-    _tmpColor4[2] = spineColor.b * _inv255;
-    _tmpColor4[3] = spineColor.a * _inv255;
-    return _tmpColor4;
+function _spineColorToUint32 (spineColor: spine.Color) {
+    return ((spineColor.a << 24) >>> 0) + (spineColor.b << 16) + (spineColor.g << 8) + spineColor.r;
+}
+function _spineRGBAToUint32 (r:number, g:number, b:number, a:number) {
+    return ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
 }
 
 function _vfmtFloatSize (useTint: boolean) {
-    return useTint ? 3 + 2 + 4 + 4 : 3 + 2 + 4;
+    const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
+    return getAttributeStride(attributes) >> 2;
 }
 
 let _accessor: StaticVBAccessor = null!;
@@ -188,7 +172,7 @@ export const simple: IAssembler = {
         if (!accessor) {
             const device = director.root!.device;
             const batcher = director.root!.batcher2D;
-            const attributes = useTint ? vfmtPosUvTwoColor : vfmtPosUvColor;
+            const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
             if (useTint) {
                 accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
@@ -226,7 +210,7 @@ export const simple: IAssembler = {
                     }
                 }
             }
-            rd = RenderData.add(useTint ? vfmtPosUvTwoColor : vfmtPosUvColor, accessor);
+            rd = RenderData.add(useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B, accessor);
             rd.resize(vCount, iCount);
             if (!rd.indices || iCount !== rd.indices.length) {
                 rd.indices = new Uint16Array(iCount);
@@ -263,9 +247,9 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     if (!comp._skeleton) return;
 
     const nodeColor = comp.color;
-    _nodeR = nodeColor.r * _inv255;
-    _nodeG = nodeColor.g * _inv255;
-    _nodeB = nodeColor.b * _inv255;
+    _nodeR = nodeColor.r / 255;
+    _nodeG = nodeColor.g / 255;
+    _nodeB = nodeColor.b / 255;
     _nodeA = comp.node._uiProps.opacity;
 
     _useTint = comp.useTint || comp.isAnimationCached();
@@ -275,7 +259,6 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     // Reuse draw list
     comp.drawList.reset();
     _comp = comp;
-    _node = comp.node;
     _renderData = comp.renderData!;
 
     _currentMaterial = null;
@@ -306,7 +289,6 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     comp.attachUtil._syncAttachedNode();
 
     // Clear temp var.
-    _node = undefined;
     _comp = undefined;
     _vertexEffect = null;
 }
@@ -328,6 +310,7 @@ function updateChunkForClip (clippedVertices: number[], clippedTriangles: number
     if (_actualVCount > rd.vertexCount) {
         rd.resizeAndCopy(_actualVCount, _actualICount > rd.indexCount ? _actualICount : rd.indexCount);
         _vbuf = rd.chunk.vb;
+        _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
         updateIBuf = true;
     }
     if (_actualICount > _ibuf.length) {
@@ -359,7 +342,7 @@ function fillVertices (skeletonColor: spine.Color,
     _finalColor.b = _tempb * slotColor.b;
 
     if (slot.darkColor == null) {
-        _darkColor.set(0.0, 0.0, 0.0, 1.0);
+        _darkColor.set(0, 0, 0, 1);
     } else {
         _darkColor.r = slot.darkColor.r * _tempr;
         _darkColor.g = slot.darkColor.g * _tempg;
@@ -369,6 +352,8 @@ function fillVertices (skeletonColor: spine.Color,
 
     if (_useTint) {
         if (!clipper.isClipping()) {
+            _finalColor32 = _spineColorToUint32(_finalColor);
+            _darkColor32 = _spineColorToUint32(_darkColor);
             if (_vertexEffect) {
                 for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
                     _tempPos.x = _vbuf[v];
@@ -382,16 +367,13 @@ function fillVertices (skeletonColor: spine.Color,
                     _vbuf[v + 3] = _tempUv.x;         // u
                     _vbuf[v + 4] = _tempUv.y;         // v
 
-                    _vbuf.set(_spineColorToFloat32Array4(_finalColor), v + 5);
-                    _vbuf.set(_spineColorToFloat32Array4(_darkColor), v + 9); // dark color
+                    _vUintBuf[v + 5] = _finalColor32;
+                    _vUintBuf[v + 6] = _darkColor32;
                 }
             } else {
-                _finalColor32.set(_spineColorToFloat32Array4(_finalColor));
-                _darkColor32.set(_spineColorToFloat32Array4(_darkColor));
-
                 for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
-                    _vbuf.set(_finalColor32, v + 5);          // light color
-                    _vbuf.set(_darkColor32, v + 9);      // dark color
+                    _vUintBuf[v + 5] = _finalColor32;          // light color
+                    _vUintBuf[v + 6] = _darkColor32;      // dark color
                 }
             }
         } else {
@@ -418,18 +400,16 @@ function fillVertices (skeletonColor: spine.Color,
                 for (let v = 0, n = clippedVertices.length, offset = _vertexFloatOffset; v < n; v += _perClipVertexSize, offset += _perVertexSize) {
                     _tempPos.x = clippedVertices[v];
                     _tempPos.y = clippedVertices[v + 1];
-                    _finalColor.set(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
                     _tempUv.x = clippedVertices[v + 6];
                     _tempUv.y = clippedVertices[v + 7];
-                    _darkColor.set(clippedVertices[v + 8], clippedVertices[v + 9], clippedVertices[v + 10], clippedVertices[v + 11]);
                     _vertexEffect.transform(_tempPos, _tempUv, _finalColor, _darkColor);
 
                     _vbuf[offset] = _tempPos.x;             // x
                     _vbuf[offset + 1] = _tempPos.y;         // y
                     _vbuf[offset + 3] = _tempUv.x;          // u
                     _vbuf[offset + 4] = _tempUv.y;          // v
-                    _vbuf.set(_spineColorToFloat32Array4(_finalColor), offset + 5);
-                    _vbuf.set(_spineColorToFloat32Array4(_darkColor), offset + 9);
+                    _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
+                    _vUintBuf[offset + 6] = _spineRGBAToUint32(clippedVertices[v + 8], clippedVertices[v + 9], clippedVertices[v + 10], clippedVertices[v + 11]);
                 }
             } else {
                 // x y r g b a u v (rr gg bb aa)
@@ -439,19 +419,13 @@ function fillVertices (skeletonColor: spine.Color,
                     _vbuf[offset + 3] = clippedVertices[v + 6];     // u
                     _vbuf[offset + 4] = clippedVertices[v + 7];     // v
 
-                    _vbuf[offset + 5] = clippedVertices[v + 2] * _inv255;
-                    _vbuf[offset + 6] = clippedVertices[v + 3] * _inv255;
-                    _vbuf[offset + 7] = clippedVertices[v + 4] * _inv255;
-                    _vbuf[offset + 8] = clippedVertices[v + 5] * _inv255;
-
-                    _vbuf[offset + 9] = clippedVertices[v + 8] * _inv255;
-                    _vbuf[offset + 10] = clippedVertices[v + 9] * _inv255;
-                    _vbuf[offset + 11] = clippedVertices[v + 10] * _inv255;
-                    _vbuf[offset + 12] = clippedVertices[v + 11] * _inv255;
+                    _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
+                    _vUintBuf[offset + 6] = _spineRGBAToUint32(clippedVertices[v + 8], clippedVertices[v + 9], clippedVertices[v + 10], clippedVertices[v + 11]);
                 }
             }
         }
     } else if (!clipper.isClipping()) {
+        _finalColor32 = _spineColorToUint32(_finalColor);
         if (_vertexEffect) {
             for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
                 _tempPos.x = _vbuf[v];
@@ -464,15 +438,11 @@ function fillVertices (skeletonColor: spine.Color,
                 _vbuf[v + 1] = _tempPos.y;        // y
                 _vbuf[v + 3] = _tempUv.x;         // u
                 _vbuf[v + 4] = _tempUv.y;         // v
-
-                _vbuf.set(_spineColorToFloat32Array4(_finalColor), v + 5);
+                _vUintBuf[v + 5] = _finalColor32;
             }
         } else {
-            _finalColor32.set(_spineColorToFloat32Array4(_finalColor));
-            _darkColor32.set(_spineColorToFloat32Array4(_darkColor));
-
             for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
-                _vbuf.set(_finalColor32, v + 5);          // light color
+                _vUintBuf[v + 5] = _finalColor32;
             }
         }
     } else {
@@ -499,17 +469,15 @@ function fillVertices (skeletonColor: spine.Color,
             for (let v = 0, n = clippedVertices.length, offset = _vertexFloatOffset; v < n; v += _perClipVertexSize, offset += _perVertexSize) {
                 _tempPos.x = clippedVertices[v];
                 _tempPos.y = clippedVertices[v + 1];
-                _finalColor.set(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
                 _tempUv.x = clippedVertices[v + 6];
                 _tempUv.y = clippedVertices[v + 7];
-                _darkColor.set(0, 0, 0, 0);
                 _vertexEffect.transform(_tempPos, _tempUv, _finalColor, _darkColor);
 
                 _vbuf[offset] = _tempPos.x;             // x
                 _vbuf[offset + 1] = _tempPos.y;         // y
                 _vbuf[offset + 3] = _tempUv.x;          // u
                 _vbuf[offset + 4] = _tempUv.y;          // v
-                _vbuf.set(_spineColorToFloat32Array4(_finalColor), offset + 5);
+                _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
             }
         } else {
             // x y r g b a u v (rr gg bb aa)
@@ -518,11 +486,7 @@ function fillVertices (skeletonColor: spine.Color,
                 _vbuf[offset + 1] = clippedVertices[v + 1];     // y
                 _vbuf[offset + 3] = clippedVertices[v + 6];     // u
                 _vbuf[offset + 4] = clippedVertices[v + 7];     // v
-
-                _vbuf[offset + 5] = clippedVertices[v + 2] * _inv255;
-                _vbuf[offset + 6] = clippedVertices[v + 3] * _inv255;
-                _vbuf[offset + 7] = clippedVertices[v + 4] * _inv255;
-                _vbuf[offset + 8] = clippedVertices[v + 5] * _inv255;
+                _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
             }
         }
     }
@@ -531,6 +495,7 @@ function fillVertices (skeletonColor: spine.Color,
 function realTimeTraverse (batcher: Batcher2D) {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
+    _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
     _ibuf = rd.indices!;
     _actualVCount = _comp!.maxVertexCount;
     _actualICount = _comp!.maxIndexCount;
@@ -820,15 +785,15 @@ function cacheTraverse () {
         if (_needColor) {
             // handle color
             // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrgbargba--xyuvcc)
-            let frameColorOffset = frameVFOffset / 13 * 6;
+            let frameColorOffset = frameVFOffset / 7 * 6;
             for (let ii = frameVFOffset, iEnd = frameVFOffset + segVFCount; ii < iEnd; ii += _perVertexSize, frameColorOffset += 6) {
                 if (frameColorOffset >= maxVFOffset) {
                     nowColor = colors[colorOffset++];
                     _handleColor(nowColor);
                     maxVFOffset = nowColor.vfOffset;
                 }
-                vbuf.set(_finalColor32, ii + 5);
-                vbuf.set(_darkColor32, ii + 9);
+                _vUintBuf[ii + 5] = _finalColor32;
+                _vUintBuf[ii + 6] = _darkColor32;
             }
         }
 

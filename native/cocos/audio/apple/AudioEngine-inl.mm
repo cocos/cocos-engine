@@ -569,6 +569,9 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
 
     do {
         if (!player->_ready) {
+            std::lock_guard<std::mutex> lck(player->_play2dMutex);// To prevent the race condition
+            player->_timeDirty = true;
+            player->_currTime = time;
             break;
         }
 
@@ -673,6 +676,17 @@ bool AudioEngineImpl::checkAudioIdValid(int audioID) {
 
 PCMHeader AudioEngineImpl::getPCMHeader(const char *url){
     PCMHeader header {};
+    auto itr = _audioCaches.find(url);
+    if (itr != _audioCaches.end() && itr->second._state == AudioCache::State::READY) {
+        CC_LOG_DEBUG("file %s found in cache, load header directly", url);
+        auto cache = &itr->second;
+        header.bytesPerFrame = cache->_bytesPerFrame;
+        header.channelCount = cache->_channelCount;
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = cache->_sampleRate;
+        header.totalFrames = cache->_totalFrames;
+        return header;
+    }
     ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
         if (fileFullPath == "") {
             CC_LOG_DEBUG("file %s does not exist or failed to load", url);
@@ -697,8 +711,22 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url){
 }
 
 ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
-    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     ccstd::vector<uint8_t> pcmData;
+    auto itr = _audioCaches.find(url);
+    if (itr != _audioCaches.end() && itr->second._state == AudioCache::State::READY) {
+        auto cache = &itr->second;
+        auto bytesPerChannelInFrame = cache->_bytesPerFrame / cache->_channelCount;
+        pcmData.resize(bytesPerChannelInFrame * cache->_totalFrames);
+        auto *p = pcmData.data();
+        if (!cache->isStreaming()) { // Cache contains a fully prepared buffer.
+            for (int itr = 0; itr < cache->_totalFrames; itr++) {
+                memcpy(p, cache->_pcmData + itr * cache->_bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+                p += bytesPerChannelInFrame;
+            }
+            return pcmData;
+        }
+    }
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return pcmData;

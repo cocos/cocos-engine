@@ -77,7 +77,6 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
     if (!_actor->initialize(info)) {
         return false;
     }
-
     _api = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
     _queue = ccnew QueueValidator(_actor->getQueue());

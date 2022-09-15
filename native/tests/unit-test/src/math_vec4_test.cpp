@@ -21,10 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
-#include "cocos/math/Vec4.h"
-#include "utils.h"
 #include <math.h>
+#include "cocos/math/Vec4.h"
+#include "gtest/gtest.h"
+#include "utils.h"
 
 TEST(mathVec4Test, test3) {
     cc::Vec4 vec4(1, 2, 3, 1);
@@ -105,4 +105,8 @@ TEST(mathVec4Test, test3) {
     logLabel = "test whether vec3 fromColor function";
     vec4 = cc::Vec4::fromColor(255);
     ExpectEq(vec4.w == 1, true);
+    logLabel = "test the Vec4 approx equal function";
+    cc::Vec4 a{0.123456F, 1.234567F, 2.345678F, 3.345679F};
+    cc::Vec4 b{0.123455F, 1.234568F, 2.345679F, 3.345678F};
+    ExpectEq(a.approxEquals(b), true);
 }

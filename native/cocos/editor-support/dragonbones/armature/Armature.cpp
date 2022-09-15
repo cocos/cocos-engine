@@ -1,13 +1,13 @@
 #include "Armature.h"
+#include "../animation/Animation.h"
+#include "../animation/WorldClock.h"
+#include "../event/EventObject.h"
 #include "../model/TextureAtlasData.h"
 #include "../model/UserData.h"
-#include "../animation/WorldClock.h"
-#include "../animation/Animation.h"
-#include "../event/EventObject.h"
-#include "IArmatureProxy.h"
 #include "Bone.h"
-#include "Slot.h"
 #include "Constraint.h"
+#include "IArmatureProxy.h"
+#include "Slot.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 

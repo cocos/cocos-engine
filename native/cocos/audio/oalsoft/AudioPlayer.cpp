@@ -26,14 +26,14 @@
 
 #define LOG_TAG "AudioPlayer"
 
+#include "audio/oalsoft/AudioPlayer.h"
 #include <cstdlib>
 #include <cstring>
-#include "audio/oalsoft/AudioPlayer.h"
 #include "audio/oalsoft/AudioCache.h"
-#include "audio/oalsoft/AudioDecoder.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
-#include "base/memory/Memory.h"
+#include "audio/common/decoder/AudioDecoder.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 
 using namespace cc; //NOLINT
 
@@ -154,6 +154,9 @@ bool AudioPlayer::play2d() {
                 CHECK_AL_ERROR_DEBUG();
             }
         } else {
+            if (_currTime > _audioCache->_duration) {
+                _currTime = 0.F; // Target current start time is invalid, reset to 0.
+            }
             alGenBuffers(3, _bufferIds);
 
             auto alError = alGetError();

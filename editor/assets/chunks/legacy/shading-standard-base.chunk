@@ -103,18 +103,28 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NL = max(dot(N, L), 0.0);
 
   float shadow = 1.0;
-  #if CC_RECEIVE_SHADOW
+  #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
-        shadow = CCCSMFactorBase(position, N, s.shadowBias);
+        #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
+          shadow = CCCSMFactorBase(position, N, s.shadowBias);
+        #endif
       } else {
-        shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+        #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
+          shadow = CCShadowFactorBase(shadowPos, N, s.shadowBias);
+        #endif
       }
     }
   #endif
 
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    vec3 finalColor = diffuse * s.lightmap.rgb * shadow;
+    vec3 lightmap = s.lightmap.rgb;
+    #if CC_USE_HDR
+        // convert from standard camera exposure parameters to current exposure value
+        // baked in LDR scene still regarded as exposured with standard camera parameters
+        lightmap.rgb *= cc_exposure.w * cc_exposure.x;
+    #endif
+    vec3 finalColor = diffuse * lightmap.rgb * shadow;
   #else
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
@@ -149,10 +159,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
     vec3 R = normalize(reflect(-V, N));
 
+    vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
     #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
-      vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6);
+      vec3 env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6);
     #else
-      vec4 envmap = fragTextureLod(cc_environment, R, s.roughness * (cc_ambientGround.w - 1.0));
+      vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
 
       #if CC_USE_IBL == IBL_RGBE
         vec3 env = unpackRGBE(envmap);

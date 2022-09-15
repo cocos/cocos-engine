@@ -73,6 +73,7 @@ public:
     inline Queue *createQueue(const QueueInfo &info);
     inline QueryPool *createQueryPool(const QueryPoolInfo &info);
     inline Swapchain *createSwapchain(const SwapchainInfo &info);
+    inline const ccstd::vector<Swapchain *> &getSwapchains() const { return _swapchains; }
     inline Buffer *createBuffer(const BufferInfo &info);
     inline Buffer *createBuffer(const BufferViewInfo &info);
     inline Texture *createTexture(const TextureInfo &info);
@@ -123,6 +124,7 @@ public:
 
 protected:
     static Device *instance;
+    static bool isSupportDetachDeviceThread;
 
     friend class DeviceAgent;
     friend class DeviceValidator;

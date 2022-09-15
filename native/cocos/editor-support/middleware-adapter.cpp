@@ -45,7 +45,7 @@ Color4F &Color4F::operator=(const Color4B &right) {
 }
 
 Color4B::Color4B() = default;
-Color4B::Color4B(uint32_t r, uint32_t g, uint32_t b, uint32_t a)
+Color4B::Color4B(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 : r(r), g(g), b(b), a(a) {}
 
 Color4B &Color4B::operator=(const Color4B &right) = default;

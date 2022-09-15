@@ -50,4 +50,11 @@ test('AnimationMask', () => {
     // Clear.
     mask.clear();
     expect(Array.from(mask.joints)).toHaveLength(0);
+
+    // Re-add joint through `addJoint` replace the former with new value
+    mask.addJoint('a', true);
+    mask.addJoint('a', false);
+    expect(getSortedJointMaskInfos()).toStrictEqual([
+        ['a', false],
+    ]);
 });

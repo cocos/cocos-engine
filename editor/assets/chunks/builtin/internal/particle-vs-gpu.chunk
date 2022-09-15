@@ -35,15 +35,15 @@ uniform TickConstants {
 in vec4 a_position_starttime; // center position,particle start time
 in vec4 a_color;
 in vec4 a_dir_life;  // xyz:particle start velocity,w:particle lifetime
-in float a_rndSeed;
 
 #if !CC_INSTANCE_PARTICLE
   in vec4 a_size_uv;  // xyz:size, w:uv_0
   in vec4 a_rotation_uv;  // xyz:rotation, w:uv_1
+  in float a_rndSeed;
 #endif
 #if CC_INSTANCE_PARTICLE
-  in vec4 a_size_fid;  // xyz:size, w:fid
-  in vec3 a_rotation;  // xyz:rotation
+  in vec4 a_size_fid;      // xyz:size, w:fid
+  in vec4 a_rotation_rnd;  // xyz:rotation, w:random
   in vec3 a_uv;
 #endif
 
@@ -178,6 +178,12 @@ vec4 toQuat(vec3 rotation) {
 }
 
 vec4 gpvs_main () {
+  #if CC_INSTANCE_PARTICLE
+    float randSeed = a_rotation_rnd.w;
+  #else
+    float randSeed = a_rndSeed;
+  #endif
+
   float activeTime = u_timeDelta.x - a_position_starttime.w;
   float normalizedTime = clamp(activeTime / a_dir_life.w, 0.0, 1.0);
 
@@ -212,7 +218,7 @@ vec4 gpvs_main () {
     } else {
       vec3 size_0 = unpackCurveData(size_over_time_tex0, timeCoord0);
       vec3 size_1 = unpackCurveData(size_over_time_tex0, timeCoord1);
-      float factor_s = pseudoRandom(a_rndSeed + SIZE_OVERTIME_RAND_OFFSET);
+      float factor_s = pseudoRandom(randSeed + SIZE_OVERTIME_RAND_OFFSET);
       size *= mix(size_0, size_1, factor_s);
     }
   #endif
@@ -227,7 +233,7 @@ vec4 gpvs_main () {
     } else {
       vec3 force_0 = unpackCurveData(force_over_time_tex0, timeCoord0);
       vec3 force_1 = unpackCurveData(force_over_time_tex0, timeCoord1);
-      float factor_f =  pseudoRandom(a_rndSeed + FORCE_OVERTIME_RAND_OFFSET);
+      float factor_f =  pseudoRandom(randSeed + FORCE_OVERTIME_RAND_OFFSET);
       forceAnim = mix(force_0, force_1, factor_f);
     }
     vec4 forceTrack = vec4(forceAnim, 0.);
@@ -247,7 +253,7 @@ vec4 gpvs_main () {
     } else {
       vec3 vectory_0 = unpackCurveData(velocity_over_time_tex0, timeCoord0, speedModifier0);
       vec3 vectory_1 = unpackCurveData(velocity_over_time_tex0, timeCoord1, speedModifier1);
-      float factor_v = pseudoRandom(a_rndSeed + VELOCITY_OVERTIME_RAND_OFFSET);
+      float factor_v = pseudoRandom(randSeed + VELOCITY_OVERTIME_RAND_OFFSET);
       velocityAnim = mix(vectory_0, vectory_1, factor_v);
       speedModifier0 = mix(speedModifier0, speedModifier1, factor_v);
     }
@@ -273,7 +279,7 @@ vec4 gpvs_main () {
     vec3 startRotation = a_rotation_uv.xyz;
   #endif
   #if CC_INSTANCE_PARTICLE
-    vec3 startRotation = a_rotation;
+    vec3 startRotation = a_rotation_rnd.xyz;
   #endif
   #if CC_RENDER_MODE != RENDER_MODE_MESH
     #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
@@ -300,7 +306,7 @@ vec4 gpvs_main () {
     } else {
       vec3 rotation_0 = unpackCurveData(rotation_over_time_tex0, timeCoord0);
       vec3 rotation_1 = unpackCurveData(rotation_over_time_tex0, timeCoord1);
-      float factor_r = pseudoRandom(a_rndSeed + ROTATION_OVERTIME_RAND_OFFSET);
+      float factor_r = pseudoRandom(randSeed + ROTATION_OVERTIME_RAND_OFFSET);
       vec3 euler = mix(rotation_0, rotation_1, factor_r) * normalizedTime * a_dir_life.w;
       #if CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_HORIZONTAL_BILLBOARD
         euler = vec3(0.0, 0.0, euler.z);
@@ -319,7 +325,7 @@ vec4 gpvs_main () {
     } else {
       vec4 color_0 = texture(color_over_time_tex0, timeCoord0);
       vec4 color_1 = texture(color_over_time_tex0, timeCoord1);
-      float factor_c = pseudoRandom(a_rndSeed + COLOR_OVERTIME_RAND_OFFSET);
+      float factor_c = pseudoRandom(randSeed + COLOR_OVERTIME_RAND_OFFSET);
       color = a_color * mix(color_0, color_1, factor_c);
     }
   #endif
@@ -376,7 +382,7 @@ vec4 gpvs_main () {
     } else {
       vec3 frameInfo0 = unpackCurveData(texture_animation_tex0, timeCoord0);
       vec3 frameInfo1 = unpackCurveData(texture_animation_tex0, timeCoord1);
-      float factor_t = pseudoRandom(a_rndSeed + TEXTURE_ANIMATION_RAND_OFFSET);
+      float factor_t = pseudoRandom(randSeed + TEXTURE_ANIMATION_RAND_OFFSET);
       frameInfo = mix(frameInfo0, frameInfo1, factor_t);
     }
     startFrame = frameInfo.x / u_anim_info.y;

@@ -27,12 +27,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "storage/local-storage/LocalStorage.h"
 #include <cstdio>
 #include <cstdlib>
 #include "base/Macros.h"
 #include "jni.h"
 #include "platform/java/jni/JniHelper.h"
+#include "storage/local-storage/LocalStorage.h"
 
 #ifndef JCLS_LOCALSTORAGE
     #define JCLS_LOCALSTORAGE "com/cocos/lib/CocosLocalStorage"

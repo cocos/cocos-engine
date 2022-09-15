@@ -80,8 +80,15 @@ public:
     inline int getWidth() const { return _width; }
     inline int getHeight() const { return _height; }
     inline ccstd::string getFilePath() const { return _filePath; }
-
     inline bool isCompressed() const { return _isCompressed; }
+
+    /**
+     @brief    Save Image data to the specified file, with specified format.
+     @param    filename        the file's absolute path, including file suffix.
+     @param    isToRGB        whether the image is saved as RGB format.
+     */
+    bool saveToFile(const std::string &filename, bool isToRGB = true);
+
 
 protected:
     bool initWithJpgData(const unsigned char *data, uint32_t dataLen);
@@ -96,6 +103,9 @@ protected:
     bool initWithETC2Data(const unsigned char *data, uint32_t dataLen);
     bool initWithASTCData(const unsigned char *data, uint32_t dataLen);
 
+    bool saveImageToPNG(const std::string& filePath, bool isToRGB = true);
+    bool saveImageToJPG(const std::string& filePath);
+    
     unsigned char *_data = nullptr;
     uint32_t _dataLen = 0;
     int _width = 0;

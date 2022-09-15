@@ -38,6 +38,7 @@
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/SpotLight.h"
+#include "scene/Skybox.h"
 
 namespace cc {
 
@@ -166,6 +167,9 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     output[UBOCamera::CAMERA_POS_OFFSET + 3] = getCombineSignY();
 
     output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 0] = static_cast<float>(camera->getSurfaceTransform());
+    const float angle = sceneData->getSkybox()->getRotationAngle();
+    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 2] = static_cast<float>(cos(mathutils::toRadian(angle)));
+    output[UBOCamera::SURFACE_TRANSFORM_OFFSET + 3] = static_cast<float>(sin(mathutils::toRadian(angle)));
 
     if (fog != nullptr) {
         const auto &colorTempRGB = fog->getColorArray();
@@ -249,9 +253,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                         const float csmAtlasOffsets[4] = {csmAtlas.x, csmAtlas.y, csmAtlas.z, csmAtlas.w};
                         memcpy(cv.data() + UBOCSM::CSM_ATLAS_OFFSET + i * 4, &csmAtlasOffsets, sizeof(csmAtlasOffsets));
 
-
                         cv[UBOCSM::CSM_SPLITS_INFO_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
-
 
                         const Mat4 &matShadowViewProj = csmLayers->getLayers()[i]->getMatShadowViewProj();
                         memcpy(cv.data() + UBOCSM::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + i * 16, matShadowViewProj.m, sizeof(matShadowViewProj));
@@ -291,6 +293,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;
     const auto cap = pipeline->getDevice()->getCapabilities();
+    const bool csmSupported = sceneData->getCSMSupported();
 
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL: {
@@ -303,7 +306,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
                     Mat4 matShadowView;
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
-                    if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1) {
+                    if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1 || !csmSupported) {
                         matShadowView = csmLayers->getSpecialLayer()->getMatShadowView();
                         matShadowProj = csmLayers->getSpecialLayer()->getMatShadowProj();
                         matShadowViewProj = csmLayers->getSpecialLayer()->getMatShadowViewProj();

@@ -67,9 +67,20 @@ export class Line extends Component {
             this._materialInstance.setProperty('mainTexture', val);
         }
     }
-
+    @serializable
     private _material: Material | null = null;
     private _materialInstance: MaterialInstance | null = null;
+
+    @type(Material)
+    @displayOrder(1)
+    @tooltip('i18n:line.material')
+    get material() {
+        return this._material;
+    }
+
+    set material(val) {
+        this._material = val;
+    }
 
     @serializable
     private _worldSpace = false;
@@ -213,6 +224,8 @@ export class Line extends Component {
         if (this._material === null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
+        }
+        if (this._material) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
             _matInsInfo.parent = this._material;
             _matInsInfo.subModelIdx = 0;

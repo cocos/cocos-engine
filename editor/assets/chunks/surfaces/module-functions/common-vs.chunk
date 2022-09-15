@@ -95,7 +95,7 @@ void CCSurfacesVertexWorldTransform(inout SurfacesStandardVertexIntermediate In)
 
 void CCSurfacesVertexTransformUV(inout SurfacesStandardVertexIntermediate In)
 {
-  #if SAMPLE_FROM_RT
+  #if CC_SURFACES_FLIP_UV
     CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord);
     #if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
       CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord1);

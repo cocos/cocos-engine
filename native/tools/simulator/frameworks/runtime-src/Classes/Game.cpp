@@ -57,15 +57,15 @@ Game::~Game() {
 int Game::init() {
     cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
     SimulatorApp::getInstance()->run();
-    int windowWidth  = SimulatorApp::getInstance()->getWidth();
+    int windowWidth = SimulatorApp::getInstance()->getWidth();
     int windowHeight = SimulatorApp::getInstance()->getHegith();
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     int windowPositionX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
     int windowPositionY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
 #elif (CC_PLATFORM == CC_PLATFORM_MACOS)
-    auto mainDisplayId   = CGMainDisplayID();
-    int  windowPositionX = (CGDisplayPixelsWide(mainDisplayId) - windowWidth) / 2;
-    int  windowPositionY = (CGDisplayPixelsHigh(mainDisplayId) - windowHeight) / 2;
+    auto mainDisplayId = CGMainDisplayID();
+    int windowPositionX = (CGDisplayPixelsWide(mainDisplayId) - windowWidth) / 2;
+    int windowPositionY = (CGDisplayPixelsHigh(mainDisplayId) - windowHeight) / 2;
 #endif
     createWindow("My game", windowPositionX, windowPositionY, SimulatorApp::getInstance()->getWidth(),
                  SimulatorApp::getInstance()->getHegith(),

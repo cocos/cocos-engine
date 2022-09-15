@@ -21,15 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
-#include "cocos/math/Vec3.h"
-#include "cocos/math/Vec4.h"
+#include <math.h>
 #include "cocos/math/Mat3.h"
 #include "cocos/math/Mat4.h"
 #include "cocos/math/Math.h"
 #include "cocos/math/Quaternion.h"
+#include "cocos/math/Vec3.h"
+#include "cocos/math/Vec4.h"
+#include "gtest/gtest.h"
 #include "utils.h"
-#include <math.h>
 
 TEST(mathQuaternionTest, test6) {
     // identity
@@ -105,4 +105,8 @@ TEST(mathQuaternionTest, test6) {
     q2.set(30, 10, 20, 1);
     cc::Quaternion::slerp(q1, q2, 0, &quat);
     ExpectEq(IsEqualF(1, quat.x) && IsEqualF(10, quat.z), true);
+    logLabel = "test the quaternion approx equal function";
+    cc::Quaternion a{0.123456F, 1.234567F, 2.345678F, 3.345679F};
+    cc::Quaternion b{0.123455F, 1.234568F, 2.345679F, 3.345678F};
+    ExpectEq(a.approxEquals(b), true);
 }

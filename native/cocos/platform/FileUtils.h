@@ -127,7 +127,7 @@ public:
      * @warning It will delete previous delegate
      */
     static void setDelegate(FileUtils *delegate);
-    
+
     /**
      *  The default constructor.
      */

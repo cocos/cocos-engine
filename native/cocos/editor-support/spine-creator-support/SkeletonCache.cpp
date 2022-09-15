@@ -28,8 +28,8 @@
  *****************************************************************************/
 
 #include "SkeletonCache.h"
-#include "spine-creator-support/AttachmentVertices.h"
 #include "base/memory/Memory.h"
+#include "spine-creator-support/AttachmentVertices.h"
 
 USING_NS_MW;        // NOLINT(google-build-using-namespace)
 using namespace cc; // NOLINT(google-build-using-namespace)
@@ -245,7 +245,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
     middleware::IOBuffer &ib = frameData->ib;
 
     // vertex size int bytes with two color
-    int vbs2 = sizeof(V2F_T2F_C4F_C4F);
+    int vbs2 = sizeof(V3F_T2F_C4B_C4B);
     // vertex size in floats with two color
     int vs2 = static_cast<int32_t>(vbs2 / sizeof(float));
 
@@ -337,9 +337,9 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F));
+            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B));
             vb.checkSpace(vbSize, true);
-            trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
+            trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                 trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
             }
@@ -367,9 +367,9 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F));
+            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B));
             vb.checkSpace(vbSize, true);
-            trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
+            trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
             for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                 trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
             }
@@ -444,9 +444,9 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
 
             trianglesTwoColor.vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
-            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F));
+            vbSize = static_cast<int32_t>(trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B));
             vb.checkSpace(vbSize, true);
-            trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
+            trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
 
             trianglesTwoColor.indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
             ibSize = static_cast<int32_t>(trianglesTwoColor.indexCount * sizeof(uint16_t));
@@ -458,7 +458,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             float *uvs = _clipper->getClippedUVs().buffer();
 
             for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                V2F_T2F_C4F_C4F *vertex = trianglesTwoColor.verts + v;
+                V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                 vertex->vertex.x = verts[vv];
                 vertex->vertex.y = verts[vv + 1];
                 vertex->texCoord.u = uvs[vv];
@@ -474,7 +474,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             }
         } else {
             for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
-                V2F_T2F_C4F_C4F *vertex = trianglesTwoColor.verts + v;
+                V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
                 vertex->color.r = color.r / 255.0F;
                 vertex->color.g = color.g / 255.0F;
                 vertex->color.b = color.b / 255.0F;

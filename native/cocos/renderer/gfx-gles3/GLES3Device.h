@@ -31,6 +31,7 @@
 #include "gfx-gles-common/GLESCommandPool.h"
 
 namespace cc {
+class IXRInterface;
 namespace gfx {
 
 class GLES3GPUContext;
@@ -145,6 +146,8 @@ protected:
 
     uint8_t *_stagingBuffer{nullptr};
     uint32_t _stagingBufferSize{0};
+
+    IXRInterface *_xr{nullptr};
 };
 
 } // namespace gfx

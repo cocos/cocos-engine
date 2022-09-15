@@ -28,6 +28,8 @@
 #include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #include "BufferAgent.h"
 #include "CommandBufferAgent.h"
@@ -67,7 +69,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     if (!_actor->initialize(info)) {
         return false;
     }
-
+    _xr = CC_GET_XR_INTERFACE();
     _api = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
     _queue = ccnew QueueAgent(_actor->getQueue());
@@ -145,19 +147,28 @@ void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void DeviceAgent::present() {
-    ENQUEUE_MESSAGE_2(
-        _mainMessageQueue, DevicePresent,
-        actor, _actor,
-        frameBoundarySemaphore, &_frameBoundarySemaphore,
-        {
-            actor->present();
-            frameBoundarySemaphore->signal();
-        });
+    if (_xr) {
+        ENQUEUE_MESSAGE_1(
+            _mainMessageQueue, DevicePresent,
+            actor, _actor,
+            {
+                actor->present();
+            });
+    } else {
+        ENQUEUE_MESSAGE_2(
+            _mainMessageQueue, DevicePresent,
+            actor, _actor,
+            frameBoundarySemaphore, &_frameBoundarySemaphore,
+            {
+                actor->present();
+                frameBoundarySemaphore->signal();
+            });
 
-    MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
-    _mainMessageQueue->finishWriting();
-    _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
-    _frameBoundarySemaphore.wait();
+        MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
+        _mainMessageQueue->finishWriting();
+        _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
+        _frameBoundarySemaphore.wait();
+    }
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {
@@ -409,6 +420,17 @@ void DeviceAgent::getQueryPoolResults(QueryPool *queryPool) {
     auto *queryPoolAgent = static_cast<QueryPoolAgent *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolAgent->_mutex);
     queryPoolAgent->_results = actorQueryPoolAgent->_results;
+}
+
+void DeviceAgent::presentSignal() {
+    _frameBoundarySemaphore.signal();
+}
+
+void DeviceAgent::presentWait() {
+    MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
+    _mainMessageQueue->finishWriting();
+    _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
+    _frameBoundarySemaphore.wait();
 }
 
 } // namespace gfx

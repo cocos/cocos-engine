@@ -52,7 +52,7 @@ public:
         if (_vbArr.size() <= index) return nullptr;
         return _vbArr[index]->getBuffer();
     }
-    
+
     uint8_t *getIBFromBufferArray(std::size_t index) {
         if (_ibArr.size() <= index) return nullptr;
         return _ibArr[index]->getBuffer();

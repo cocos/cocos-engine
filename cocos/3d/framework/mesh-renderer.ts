@@ -398,7 +398,8 @@ export class MeshRenderer extends ModelRenderer {
 
     public onGeometryChanged () {
         if (this._model && this._mesh) {
-            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            const meshStruct = this._mesh.struct;
+            this._model.createBoundingShape(meshStruct.minPosition, meshStruct.maxPosition);
             this._model.updateWorldBound();
             this._model.onGeometryChanged();
         }
@@ -514,7 +515,8 @@ export class MeshRenderer extends ModelRenderer {
 
         if (this._model) {
             if (this._mesh) {
-                this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+                const meshStruct = this._mesh.struct;
+                this._model.createBoundingShape(meshStruct.minPosition, meshStruct.maxPosition);
             }
             // Initialize lighting map before model initializing
             // because the lighting map will influence the model's shader

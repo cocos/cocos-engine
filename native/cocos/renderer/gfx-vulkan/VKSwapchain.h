@@ -29,6 +29,7 @@
 #include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
+class IXRInterface;
 namespace gfx {
 
 class CCVKDevice;
@@ -59,6 +60,7 @@ protected:
     void destroySwapchain(CCVKGPUDevice *gpuDevice);
 
     CCVKGPUSwapchain *_gpuSwapchain = nullptr;
+    IXRInterface *_xr = nullptr;
 };
 
 } // namespace gfx

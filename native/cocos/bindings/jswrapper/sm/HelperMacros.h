@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include "../config.h"
 #include "../ValueArrayPool.h"
+#include "../config.h"
 
 //#define RECORD_JSB_INVOKING
 
@@ -99,8 +99,9 @@ void printJSBInvokeAtFrame(int n);
             JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp);                                                                      \
             JS::RootedObject _thizObj(_cx);                                                                                          \
             _argv.computeThis(_cx, &_thizObj);                                                                                       \
-            se::ValueArray &args = se::gValueArrayPool.get(argc);                                                                    \
-            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                                                     \
+            bool needDeleteValueArray{false};                                                                                        \
+            se::ValueArray &args = se::gValueArrayPool.get(argc, needDeleteValueArray);                                              \
+            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};                               \
             se::internal::jsToSeArgs(_cx, argc, _argv, args);                                                                        \
             se::PrivateObjectBase *privateObject = static_cast<se::PrivateObjectBase *>(se::internal::getPrivate(_cx, _thizObj, 0)); \
             se::Object *thisObject = reinterpret_cast<se::Object *>(se::internal::getPrivate(_cx, _thizObj, 1));                     \
@@ -155,8 +156,9 @@ void printJSBInvokeAtFrame(int n);
             JsbInvokeScope(#funcName);                                                                    \
             bool ret = false;                                                                             \
             JS::CallArgs _argv = JS::CallArgsFromVp(argc, _vp);                                           \
-            se::ValueArray &args = se::gValueArrayPool.get(argc);                                         \
-            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                          \
+            bool needDeleteValueArray{false};                                                             \
+            se::ValueArray &args = se::gValueArrayPool.get(argc, needDeleteValueArray);                   \
+            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};    \
             se::internal::jsToSeArgs(_cx, argc, _argv, args);                                             \
             se::Object *thisObject = se::Object::_createJSObjectForConstructor(cls, _argv);               \
             thisObject->_setFinalizeCallback(finalizeCb##Registry);                                       \
@@ -204,8 +206,9 @@ void printJSBInvokeAtFrame(int n);
             _argv.computeThis(_cx, &_thizObj);                                                                                       \
             se::PrivateObjectBase *privateObject = static_cast<se::PrivateObjectBase *>(se::internal::getPrivate(_cx, _thizObj, 0)); \
             se::Object *thisObject = reinterpret_cast<se::Object *>(se::internal::getPrivate(_cx, _thizObj, 1));                     \
-            se::ValueArray &args = se::gValueArrayPool.get(1);                                                                       \
-            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth};                                                     \
+            bool needDeleteValueArray{false};                                                                                        \
+            se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);                                                 \
+            se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};                               \
             se::Value &data{args[0]};                                                                                                \
             se::internal::jsToSeValue(_cx, _argv[0], &data);                                                                         \
             se::State state(thisObject, privateObject, args);                                                                        \

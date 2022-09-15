@@ -25,6 +25,7 @@ conversions:
     "spine::": "sp."
     "dragonBones::": "dragonbones."
     "cc::gfx::": "gfx."
+    "cc::xr::": "xr."
     "cc::pipeline::": "nr."
     "cc::render::": "render."
     "cc::scene::": "jsb."

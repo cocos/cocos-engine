@@ -49,6 +49,8 @@
 
 #include "gfx-base/SPIRVUtils.h"
 #include "profiler/Profiler.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyVk.h"
@@ -95,6 +97,10 @@ CCVKDevice::~CCVKDevice() {
 }
 
 bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
+    _xr = CC_GET_XR_INTERFACE();
+    if (_xr) {
+        _xr->preGFXDeviceInitialize(_api);
+    }
     _gpuContext = ccnew CCVKGPUContext;
     if (!_gpuContext->initialize()) {
         CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
@@ -217,8 +223,11 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         }
     }
 
-    VK_CHECK(vkCreateDevice(_gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
-
+    if (_xr) {
+        _gpuDevice->vkDevice = _xr->createXRVulkanDevice(&deviceCreateInfo);
+    } else {
+        VK_CHECK(vkCreateDevice(_gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
+    }
     volkLoadDevice(_gpuDevice->vkDevice);
 
     SPIRVUtils::getInstance()->initialize(static_cast<int>(_gpuDevice->minorVersion));
@@ -477,6 +486,11 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     CC_LOG_INFO("DEVICE_EXTENSIONS: %s", deviceExtensions.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
+    if(_xr) {
+        cc::gfx::CCVKGPUQueue* vkQueue = static_cast<cc::gfx::CCVKQueue *>(getQueue())->gpuQueue();
+        _xr->setXRConfig(xr::XRConfigKey::VK_QUEUE_FAMILY_INDEX, static_cast<int>(vkQueue->queueFamilyIndex));
+        _xr->postGFXDeviceInitialize(_api);
+    }
     return true;
 }
 
@@ -610,14 +624,24 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     vkSwapchains.clear();
     vkAcquireBarriers.resize(count, acquireBarrier);
     vkPresentBarriers.resize(count, presentBarrier);
-
     for (uint32_t i = 0U; i < count; ++i) {
         auto *swapchain = static_cast<CCVKSwapchain *>(swapchains[i]);
         if (swapchain->gpuSwapchain()->lastPresentResult == VK_NOT_READY) {
-            if (!swapchain->checkSwapchainStatus()) continue;
+            if (!swapchain->checkSwapchainStatus()) {
+                continue;
+            }
         }
-        vkSwapchains.push_back(swapchain->gpuSwapchain()->vkSwapchain);
-        gpuSwapchains.push_back(swapchain->gpuSwapchain());
+
+        if(_xr) {
+            xr::XRSwapchain xrSwapchain = _xr->doGFXDeviceAcquire(_api);
+            swapchain->gpuSwapchain()->curImageIndex = xrSwapchain.swapchainImageIndex;
+        }
+        if(swapchain->gpuSwapchain()->vkSwapchain) {
+            vkSwapchains.push_back(swapchain->gpuSwapchain()->vkSwapchain);
+        }
+        if(swapchain->gpuSwapchain()) {
+            gpuSwapchains.push_back(swapchain->gpuSwapchain());
+        }
         vkSwapchainIndices.push_back(swapchain->gpuSwapchain()->curImageIndex);
     }
 
@@ -653,6 +677,7 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void CCVKDevice::present() {
     CC_PROFILE(CCVKDevicePresent);
+    bool isGFXDeviceNeedsPresent = _xr ? _xr->isGFXDeviceNeedsPresent(_api) : true;
     auto *queue = static_cast<CCVKQueue *>(_queue);
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
@@ -682,7 +707,7 @@ void CCVKDevice::present() {
         presentInfo.pSwapchains = vkSwapchains.data();
         presentInfo.pImageIndices = vkSwapchainIndices.data();
 
-        VkResult res = vkCCPresentFunc(queue->gpuQueue()->vkQueue, &presentInfo);
+        VkResult res = !isGFXDeviceNeedsPresent ? VK_SUCCESS : vkCCPresentFunc(queue->gpuQueue()->vkQueue, &presentInfo);
         for (auto *gpuSwapchain : gpuSwapchains) {
             gpuSwapchain->lastPresentResult = res;
         }
@@ -699,6 +724,9 @@ void CCVKDevice::present() {
     gpuFencePool()->reset();
     gpuRecycleBin()->clear();
     gpuStagingBufferPool()->reset();
+    if (_xr) {
+        _xr->postGFXDevicePresent(_api);
+    }
 }
 
 CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex]; }
@@ -785,6 +813,9 @@ QueryPool *CCVKDevice::createQueryPool() {
 }
 
 Swapchain *CCVKDevice::createSwapchain() {
+    if (_xr) {
+        _xr->createXRSwapchains();
+    }
     return ccnew CCVKSwapchain;
 }
 

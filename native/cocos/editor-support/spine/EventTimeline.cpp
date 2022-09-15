@@ -33,15 +33,15 @@
 
 #include <spine/EventTimeline.h>
 
-#include <spine/Skeleton.h>
 #include <spine/Event.h>
+#include <spine/Skeleton.h>
 
 #include <spine/Animation.h>
-#include <spine/TimelineType.h>
+#include <spine/ContainerUtil.h>
+#include <spine/EventData.h>
 #include <spine/Slot.h>
 #include <spine/SlotData.h>
-#include <spine/EventData.h>
-#include <spine/ContainerUtil.h>
+#include <spine/TimelineType.h>
 
 #include <float.h>
 

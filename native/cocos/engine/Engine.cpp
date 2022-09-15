@@ -59,8 +59,8 @@
 #include "base/Scheduler.h"
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
-#include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/UniversalPlatform.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -283,8 +283,7 @@ void Engine::tick() {
         ++_totalFrames;
 
         // iOS/macOS use its own fps limitation algorithm.
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) \
-        || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
         if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(
@@ -328,6 +327,9 @@ bool Engine::handleEvent(const OSEvent &ev) {
         isHandled = true;
     } else if (type == OSEventType::KEYBOARD_OSEVENT) {
         cc::EventDispatcher::dispatchKeyboardEvent(OSEvent::castEvent<KeyboardEvent>(ev));
+        isHandled = true;
+    } else if (type == OSEventType::CONTROLLER_OSEVENT) {
+        cc::EventDispatcher::dispatchControllerEvent(OSEvent::castEvent<ControllerEvent>(ev));
         isHandled = true;
     } else if (type == OSEventType::CUSTOM_OSEVENT) {
         cc::EventDispatcher::dispatchCustomEvent(OSEvent::castEvent<CustomEvent>(ev));

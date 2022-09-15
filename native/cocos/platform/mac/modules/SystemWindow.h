@@ -33,7 +33,7 @@ namespace cc {
 
 class SystemWindow : public ISystemWindow {
 public:
-    SystemWindow(IEventDispatch *delegate);
+    SystemWindow(IEventDispatch* delegate);
     ~SystemWindow() override;
 
     bool createWindow(const char* title,

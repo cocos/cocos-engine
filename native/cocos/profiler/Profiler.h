@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #pragma once
+#include <string_view>
 #include <thread>
 #include "GameStats.h"
 #include "base/Config.h"
@@ -74,7 +75,7 @@ private:
     void doIntervalUpdate();
     void printStats();
 
-    void beginBlock(const ccstd::string &name);
+    void beginBlock(const std::string_view &name);
     void endBlock();
     void gatherBlocks(ProfilerBlock *parent, uint32_t depth, std::vector<ProfilerBlockDepth> &outBlocks);
 
@@ -96,7 +97,7 @@ private:
  */
 class AutoProfiler {
 public:
-    AutoProfiler(Profiler *profiler, const ccstd::string &name)
+    AutoProfiler(Profiler *profiler, const std::string_view &name)
     : _profiler(profiler) {
         _profiler->beginBlock(name);
     }

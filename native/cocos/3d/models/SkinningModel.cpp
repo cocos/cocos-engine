@@ -135,7 +135,7 @@ void SkinningModel::updateTransform(uint32_t stamp) {
         Vec3::min(v3Min, v31, &v3Min);
         Vec3::max(v3Max, v32, &v3Max);
     }
-    if (_modelBounds->isValid() && _worldBounds) {
+    if (_modelBounds && _modelBounds->isValid() && _worldBounds) {
         geometry::AABB::fromPoints(v3Min, v3Max, _modelBounds);
         _modelBounds->transform(root->getWorldMatrix(), _worldBounds);
         _worldBoundsDirty = true;
@@ -158,7 +158,7 @@ void SkinningModel::updateUBOs(uint32_t stamp) {
         updateRealTimeJointTextureBuffer();
     } else {
         bIdx = 0;
-        for (gfx::Buffer* buffer : _buffers) {
+        for (gfx::Buffer *buffer : _buffers) {
             buffer->update(_dataArray[bIdx], buffer->getSize());
             bIdx++;
         }
@@ -327,13 +327,12 @@ void SkinningModel::updateRealTimeJointTextureBuffer() {
         gfx::Offset texOffset;
         gfx::Extent extent{width, height, 1};
         gfx::BufferTextureCopy region{
-           buffOffset,
-           width,
-           height,
-           texOffset,
-           extent,
-           layer
-        };
+            buffOffset,
+            width,
+            height,
+            texOffset,
+            extent,
+            layer};
         auto *device = gfx::Device::getInstance();
 
         device->copyBuffersToTexture(reinterpret_cast<const uint8_t *const *>(&buffer), texture, &region, 1);
@@ -343,10 +342,10 @@ void SkinningModel::updateRealTimeJointTextureBuffer() {
 
 void SkinningModel::releaseData() {
     if (!_dataArray.empty()) {
-        for (auto* data : _dataArray) {
+        for (auto *data : _dataArray) {
             CC_SAFE_DELETE_ARRAY(data);
         }
-    _dataArray.clear();
+        _dataArray.clear();
     }
     CC_SAFE_DELETE(_realTimeJointTexture);
     if (!_buffers.empty()) {

@@ -1,10 +1,10 @@
 #include "BaseTimelineState.h"
-#include "../model/DragonBonesData.h"
-#include "../model/ArmatureData.h"
-#include "../model/AnimationData.h"
 #include "../armature/Armature.h"
 #include "../armature/Bone.h"
 #include "../armature/Slot.h"
+#include "../model/AnimationData.h"
+#include "../model/ArmatureData.h"
+#include "../model/DragonBonesData.h"
 #include "AnimationState.h"
 #include "TimelineState.h"
 

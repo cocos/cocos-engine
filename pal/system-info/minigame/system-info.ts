@@ -44,6 +44,7 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly isXR: boolean;
     private _featureMap: IFeatureMap;
 
     constructor () {
@@ -93,6 +94,8 @@ class SystemInfo extends EventTarget {
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
 
+        this.isXR = false;
+
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');  // TODO: remove this
         let supportWebp;
@@ -115,6 +118,9 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_MOUSE]: isPCWechat,
             [Feature.EVENT_TOUCH]: true,
             [Feature.EVENT_ACCELEROMETER]: !isPCWechat,
+            [Feature.EVENT_GAMEPAD]: false,
+            [Feature.EVENT_HANDLE]: this.isXR,
+            [Feature.EVENT_HMD]: this.isXR,
         };
 
         this._registerEvent();

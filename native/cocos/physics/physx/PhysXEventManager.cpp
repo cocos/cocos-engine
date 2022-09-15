@@ -27,8 +27,8 @@
 #include <algorithm>
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
-#include "physics/physx/shapes/PhysXShape.h"
 #include "physics/physx/PhysXWorld.h"
+#include "physics/physx/shapes/PhysXShape.h"
 
 namespace cc {
 namespace physics {
@@ -108,7 +108,7 @@ void PhysXEventManager::refreshPairs() {
         if (wrapperPtrShapeA == 0 || wrapperPtrShapeB == 0)
             return;
 
-        const auto &selfIter  = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeA)->getShape())));
+        const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeA)->getShape())));
         const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeB)->getShape())));
         if (selfIter == getPxShapeMap().end() || otherIter == getPxShapeMap().end()) {
             iter = getTriggerPairs().erase(iter);

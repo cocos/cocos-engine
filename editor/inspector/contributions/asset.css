@@ -21,14 +21,15 @@
 }
 
 :host > .container > .header > .icon {
-    width: 20px;
-    font-size: 14px;
+    width: 16px;
+    font-size: 12px;
     cursor: pointer;
 }
 
 :host > .container > .header > .image {
     width: 20px;
-    height: 24px;
+    height: 20px;
+    margin-top: 2px;
     cursor: pointer;
 }
 
@@ -39,14 +40,14 @@
 
 :host > .container > .header > .name {
     flex: 1;
-    padding-left: 5px;
+    padding-left: 4px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 }
 
 :host > .container > .header > .name[readonly] {
-    opacity: 0.5;
+    opacity: 0.55;
 }
 
 :host > .container > .header > .help {
@@ -69,6 +70,7 @@
     height: 20px;
     line-height: 20px;
     margin-left: 8px;
+    margin-top: 2px;
 }
 
 :host > .container > .header[dirty] > .tiny {

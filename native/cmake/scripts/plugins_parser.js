@@ -176,7 +176,7 @@ function add_search_path_suffix(dir, platform) {
     } else if (platform.match(/^win/i)) {
         return [`${dir}/windows/x86_64`, `${dir}/windows`];
     } else if (platform.match(/^iphonesimulator/i)) {
-        return [`${dir}/windows/iphonesimulator`, `${dir}/ios`];
+        return [`${dir}/iphonesimulator`, `${dir}/ios`];
     } else if (platform.match(/^ios/i)) {
         return [`${dir}/ios`];
     } else if (platform.match(/^mac/i) || platform.match(/^darwin/i)) {
@@ -191,10 +191,11 @@ console.log(`Engine version: ${read_engine_version()}`);
 
 /// Generate Pre-AutoLoadPlugins.cmake
 
-let output_lines = ["# plugins found & enabled in search path", "", ""];
+let output_lines = ["# plugins found & enabled in search path",
+    "# To disable automatic update of this file, set SKIP_SCAN_PLUGINS to ON.",
+    ""];
 for (let plugin_dir of cc_config_json_list) {
     let load_plugins = [];
-    let plugin_search_path = {};
     try {
         let maybe_plugin_name = path.basename(plugin_dir);
         console.log(`Parsing plugin directory ${maybe_plugin_name}`);
@@ -215,7 +216,6 @@ for (let plugin_dir of cc_config_json_list) {
             continue;
         }
         const packages = parse_package_dependency(cc_plugin_json);
-        const platform_plugin_dir = path.join(plugin_dir, PLATFORM_NAME_FROM_CMAKE);
         const cc_project_dir = path.dirname(plugin_cmake_output_file);
         let project_to_plugin_dir = path.relative(cc_project_dir, plugin_dir).replace(/\\/g, '/');
         project_to_plugin_dir = `\${CC_PROJECT_DIR}/${project_to_plugin_dir}`;
@@ -237,9 +237,9 @@ for (let plugin_dir of cc_config_json_list) {
             } else {
                 output_lines.push(`find_package(${plg[0]}`);
             }
+            output_lines.push(`  REQUIRED`);
             output_lines.push(`  NAMES "${plg[0]}"`);
-            output_lines.push(`  PATHS\n${plugin_root_path_for_platform.map(x => '    "' + x + '"').join("\n")}`);
-            output_lines.push(`  NO_DEFAULT_PATH`);
+            output_lines.push(`# NO_DEFAULT_PATH`);
             output_lines.push(`)`);
         }
         if (packages.length > 0) {
@@ -268,3 +268,4 @@ if (cc_config_json_list.length == 0) {
         fs.writeFileSync(plugin_cmake_output_file, output_lines.join("\n") + "\n", { encoding: 'utf8' });
     }
 }
+process.exit(0);

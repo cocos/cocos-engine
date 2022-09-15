@@ -33,13 +33,7 @@ import { UIRenderer } from '../../framework/ui-renderer';
 import { IAssembler } from '../../renderer/base';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
-const vec3_temps: Vec3[] = [];
-for (let i = 0; i < 4; i++) {
-    vec3_temps.push(new Vec3());
-}
-
-const matrix = new Mat4();
-const vec3_temp = new Vec3();
+const m = new Mat4();
 
 let origin:IUV;
 let leftInner:IUV;
@@ -108,7 +102,7 @@ export const tiled: IAssembler = {
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
         if (renderData.vertexCount !== row * col * 4) {
-            if (sprite.renderEntity) { sprite.renderEntity.colorDirty = true; }
+            sprite.renderEntity.colorDirty = true;
         }
         // update data property
         renderData.resize(row * col * 4, row * col * 6);
@@ -199,20 +193,25 @@ export const tiled: IAssembler = {
     // only for TS
     updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk) {
         const node = sprite.node;
-        node.getWorldMatrix(matrix);
+        node.getWorldMatrix(m);
 
         const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = chunk.vb;
 
-        for (let i  = 0; i < dataList.length; i++) {
-            Vec3.set(vec3_temp, dataList[i].x, dataList[i].y, dataList[i].z);
-            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+        const length = dataList.length;
+        for (let i  = 0; i < length; i++) {
+            const x = dataList[i].x;
+            const y = dataList[i].y;
+            const z = dataList[i].z;
+            let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
+            rhw = rhw ? Math.abs(1 / rhw) : 1;
+
             const offset = i * stride;
-            vData[offset] = vec3_temp.x;
-            vData[offset + 1] = vec3_temp.y;
-            vData[offset + 2] = vec3_temp.z;
+            vData[offset] = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
+            vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
+            vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
         }
 
         this.updateWorldUVData(sprite);

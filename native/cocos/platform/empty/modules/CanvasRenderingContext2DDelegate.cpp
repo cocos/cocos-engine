@@ -32,9 +32,6 @@ namespace {
 } // namespace
 
 namespace cc {
-//static const char gdefaultFontName[] = "-*-helvetica-medium-o-*-*-24-*-*-*-*-*-iso8859-*";
-//static const char gdefaultFontName[] = "lucidasanstypewriter-bold-24";
-static const char gdefaultFontName[] = "lucidasans-24";
 
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
 }
@@ -52,8 +49,7 @@ void CanvasRenderingContext2DDelegate::closePath() {
 }
 
 void CanvasRenderingContext2DDelegate::moveTo(float x, float y) {
-    _x = x;
-    _y = y;
+    //
 }
 
 void CanvasRenderingContext2DDelegate::lineTo(float x, float y) {
@@ -96,19 +92,19 @@ void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
 }
 
 void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
-    _textBaseLine = baseline;
+    //
 }
 
-void CanvasRenderingContext2DDelegate::setFillStyle(float r, float g, float b, float a) {
-    _fillStyle = RGBA(r * 255, g * 255, b * 255, a * 255);
+void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    //
 }
 
-void CanvasRenderingContext2DDelegate::setStrokeStyle(float r, float g, float b, float a) {
-    _strokeStyle = RGBA(r * 255, g * 255, b * 255, a * 255);
+void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    //
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {
-    _lineWidth = lineWidth;
+    //
 }
 
 const cc::Data &CanvasRenderingContext2DDelegate::getDataRef() const {

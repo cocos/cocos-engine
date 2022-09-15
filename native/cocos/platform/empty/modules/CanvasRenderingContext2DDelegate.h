@@ -64,8 +64,8 @@ public:
     void updateFont(const ccstd::string &fontName, float fontSize, bool bold, bool italic, bool oblique, bool smallCaps) override;
     void setTextAlign(TextAlign align) override;
     void setTextBaseline(TextBaseline baseline) override;
-    void setFillStyle(float r, float g, float b, float a) override;
-    void setStrokeStyle(float r, float g, float b, float a) override;
+    void setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
+    void setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
     void setLineWidth(float lineWidth) override;
     const cc::Data &getDataRef() const override;
     void fill() override;
@@ -75,27 +75,13 @@ public:
     void strokeText(const ccstd::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) override;
     void rect(float x, float y, float w, float h) override;
     void updateData() override {}
+    void setShadowBlur(float blur) override {}
+    void setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override {}
+    void setShadowOffsetX(float offsetX) override {}
+    void setShadowOffsetY(float offsetY) override {}
 
 private:
-    int32_t _x{0};
-    int32_t _y{0};
-    int32_t _lineCap{0};
-    int32_t _lineJoin{0};
-
     cc::Data _imageData;
-    ccstd::string _curFontPath;
-    int _savedDC{0};
-    float _lineWidth{0.0F};
-    float _bufferWidth{0.0F};
-    float _bufferHeight{0.0F};
-
-    ccstd::string _fontName;
-    int _fontSize{0};
-    Size _textSize;
-    TextAlign _textAlign{TextAlign::CENTER};
-    TextBaseline _textBaseLine{TextBaseline::TOP};
-    unsigned long _fillStyle{0};
-    unsigned long _strokeStyle{0};
 };
 
 } // namespace cc

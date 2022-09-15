@@ -24,11 +24,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <cstdint>
-#include <cstring>
-#include <cstdlib>
 #include <algorithm>
-#include "audio/oalsoft/AudioDecoder.h"
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <mutex>
+#include "audio/common/decoder/AudioDecoder.h"
 #include "base/Log.h"
 #include "base/Utils.h"
 #include "base/std/container/vector.h"
@@ -51,7 +52,7 @@
 #endif
 #include "application/ApplicationManager.h"
 #include "audio/include/AudioEngine.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 #include "base/Scheduler.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
@@ -443,6 +444,9 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
 
     do {
         if (!player->_ready) {
+            std::lock_guard<std::mutex> lck(player->_play2dMutex);// To prevent the race condition
+            player->_timeDirty = true;
+            player->_currTime = time;
             break;
         }
 
@@ -543,19 +547,31 @@ bool AudioEngineImpl::checkAudioIdValid(int audioID) {
 
 PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
     PCMHeader header{};
-    ccstd::string _fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    if (_fileFullPath.empty()) {
+    auto itr = _audioCaches.find(url);
+    if (itr != _audioCaches.end() && itr->second._state == AudioCache::State::READY) {
+        CC_LOG_DEBUG("file %s found in cache, load header directly", url);
+        auto cache = &itr->second;
+        header.bytesPerFrame = cache->_bytesPerFrame;
+        header.channelCount = cache->_channelCount;
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = cache->_sampleRate;
+        header.totalFrames = cache->_totalFrames;
+        return header;
+    }
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return header;
     }
-    AudioDecoder *decoder = AudioDecoderManager::createDecoder(_fileFullPath.c_str());
+    
+    AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
     if (decoder == nullptr) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
         return header;
     }
     // Ready to decode
     do {
-        if (!decoder->open(_fileFullPath.c_str())) {
+        if (!decoder->open(fileFullPath.c_str())) {
             CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
             break;
         }
@@ -566,14 +582,29 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
     return header;
 }
 
-
 ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
-    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
     ccstd::vector<uint8_t> pcmData;
+    auto itr = _audioCaches.find(url);
+    if (itr != _audioCaches.end() && itr->second._state == AudioCache::State::READY) {
+        auto cache = &itr->second;
+        auto bytesPerChannelInFrame = cache->_bytesPerFrame / cache->_channelCount;
+        pcmData.resize(bytesPerChannelInFrame * cache->_totalFrames);
+        auto p = pcmData.data();
+        if (!cache->isStreaming()) { // Cache contains a fully prepared buffer.
+            for (int itr = 0; itr < cache->_totalFrames; itr++) {
+                memcpy(p, cache->_pcmData + itr * cache->_bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+                p += bytesPerChannelInFrame;
+            }
+            return pcmData;
+        }
+    }
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    
     if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return pcmData;
     }
+    
     AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
     if (decoder == nullptr) {
         CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
@@ -607,7 +638,6 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
                 p += bytesPerChannelInFrame;
             }
             remainingFrames -= framesToReadOnce;
-            
         };
         free(tmpBuf);
     } while (false);

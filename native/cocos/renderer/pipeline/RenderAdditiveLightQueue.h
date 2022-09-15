@@ -45,11 +45,11 @@ class RenderBatchedQueue;
 class ForwardPipeline;
 
 struct AdditiveLightPass {
-    const scene::SubModel *subModel{nullptr};// weak reference
-    const scene::Pass *pass{nullptr};// weak reference
-    gfx::Shader *shader{nullptr};//weak reference
+    const scene::SubModel *subModel{nullptr}; // weak reference
+    const scene::Pass *pass{nullptr};         // weak reference
+    gfx::Shader *shader{nullptr};             //weak reference
     ccstd::vector<uint32_t> dynamicOffsets;
-    ccstd::vector<const scene::Light*> lights;//light is weak reference
+    ccstd::vector<const scene::Light *> lights; //light is weak reference
 };
 
 class RenderAdditiveLightQueue final {

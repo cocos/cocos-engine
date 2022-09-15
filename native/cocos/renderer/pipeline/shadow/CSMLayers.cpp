@@ -31,7 +31,10 @@
 namespace cc {
 namespace pipeline {
 
-ShadowTransformInfo::ShadowTransformInfo(uint32_t level):_level(level) {
+float ShadowTransformInfo::_maxLayerPosz{0.0F};
+float ShadowTransformInfo::_maxLayerFarPlane{0.0F};
+
+ShadowTransformInfo::ShadowTransformInfo(uint32_t level) : _level(level) {
     _validFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
     _splitFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
     _lightViewFrustum.setType(geometry::ShapeEnum::SHAPE_FRUSTUM_ACCURATE);
@@ -54,8 +57,8 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
 
     // bounding box in light space
     geometry::AABB::fromPoints(Vec3(100000.0F, 100000.0F, 100000.0F),
-                            Vec3(-100000.0F, -100000.0F, -100000.0F),
-                            &_castLightViewBoundingBox);
+                               Vec3(-100000.0F, -100000.0F, -100000.0F),
+                               &_castLightViewBoundingBox);
     _castLightViewBoundingBox.merge(_lightViewFrustum);
     float orthoSizeWidth = 0.0F;
     float orthoSizeHeight = 0.0F;
@@ -68,7 +71,7 @@ void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, co
 
     const auto csmLevel = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ? dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
     if (csmLevel != scene::CSMLevel::LEVEL_1 && dirLight->getCSMOptimizationMode() ==
-        scene::CSMOptimizationMode::REMOVE_DUPLICATES) {
+                                                    scene::CSMOptimizationMode::REMOVE_DUPLICATES) {
         if (_level >= static_cast<uint32_t>(csmLevel) - 1U) {
             _maxLayerFarPlane = _castLightViewBoundingBox.halfExtents.z;
             _maxLayerPosz = _castLightViewBoundingBox.center.z;
@@ -129,7 +132,7 @@ void ShadowTransformInfo::calculateValidFrustumOrtho(float width, float height, 
     _validFrustum.createOrtho(width, height, nearClamp, farClamp, transform);
 }
 
-void ShadowTransformInfo::calculateSplitFrustum(float start, float end, float aspect, float fov, const Mat4& transform) {
+void ShadowTransformInfo::calculateSplitFrustum(float start, float end, float aspect, float fov, const Mat4 &transform) {
     _splitFrustum.split(start, end, aspect, fov, transform);
 }
 
@@ -172,8 +175,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 
     CC_ASSERT(dirLight);
 
-    const auto levelCount = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ?
-        static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
+    const auto levelCount = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ? static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
     CC_ASSERT(levelCount <= static_cast<uint32_t>(scene::CSMLevel::LEVEL_4));
     const float shadowDistance = dirLight->getShadowDistance();
 
@@ -225,8 +227,7 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
     constexpr float nd = 0.1F;
     const float fd = dirLight->getShadowDistance();
     const float ratio = fd / nd;
-    const auto level = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ?
-        static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
+    const auto level = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ? static_cast<uint32_t>(dirLight->getCSMLevel()) : 1U;
     const float lambda = dirLight->getCSMLayerLambda();
     _layers.at(0)->setSplitCameraNear(nd);
     for (uint32_t i = 1; i < level; ++i) {
@@ -246,16 +247,15 @@ void CSMLayers::splitFrustumLevels(scene::DirectionalLight *dirLight) {
 
 void CSMLayers::calculateCSM(const scene::Camera *camera, const scene::DirectionalLight *dirLight, const scene::Shadows *shadowInfo) {
     const Root *root = Root::getInstance();
-    const auto level = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ?
-        dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
-    const float shadowMapWidth = level !=  scene::CSMLevel::LEVEL_1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
+    const auto level = root->getPipeline()->getPipelineSceneData()->getCSMSupported() ? dirLight->getCSMLevel() : scene::CSMLevel::LEVEL_1;
+    const float shadowMapWidth = level != scene::CSMLevel::LEVEL_1 ? shadowInfo->getSize().x * 0.5F : shadowInfo->getSize().x;
 
     if (shadowMapWidth < 0.999F) {
         return;
     }
 
     const Mat4 mat4Trans = getCameraWorldMatrix(camera);
-    for (int i = static_cast<int>(level) - 1; i >=0; --i){
+    for (int i = static_cast<int>(level) - 1; i >= 0; --i) {
         auto *layer = _layers[i];
         const float nearClamp = layer->getSplitCameraNear();
         const float farClamp = layer->getSplitCameraFar();

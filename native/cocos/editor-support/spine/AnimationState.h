@@ -30,12 +30,12 @@
 #ifndef Spine_AnimationState_h
 #define Spine_AnimationState_h
 
-#include <spine/Vector.h>
-#include <spine/Pool.h>
+#include <spine/HasRendererObject.h>
 #include <spine/MixBlend.h>
+#include <spine/Pool.h>
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
-#include <spine/HasRendererObject.h>
+#include <spine/Vector.h>
 
 #ifdef SPINE_USE_STD_FUNCTION
     #include <functional>

@@ -31,10 +31,10 @@
 #define Spine_ContainerUtil_h
 
 #include <spine/Extension.h>
-#include <spine/Vector.h>
 #include <spine/HashMap.h>
 #include <spine/SpineObject.h>
 #include <spine/SpineString.h>
+#include <spine/Vector.h>
 
 #include <assert.h>
 

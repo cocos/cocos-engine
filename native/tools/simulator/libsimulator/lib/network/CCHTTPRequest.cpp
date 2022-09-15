@@ -42,8 +42,8 @@ NS_CC_EXTRA_BEGIN
 unsigned int HTTPRequest::s_id = 0;
 
 HTTPRequest *HTTPRequest::createWithUrl(HTTPRequestDelegate *delegate,
-                                        const char *         url,
-                                        int                  method) {
+                                        const char *url,
+                                        int method) {
     HTTPRequest *request = new HTTPRequest();
     request->initWithDelegate(delegate, url, method);
     request->addRef();
@@ -53,8 +53,8 @@ HTTPRequest *HTTPRequest::createWithUrl(HTTPRequestDelegate *delegate,
 
 #if CC_LUA_ENGINE_ENABLED > 0
 HTTPRequest *HTTPRequest::createWithUrlLua(LUA_FUNCTION listener,
-                                           const char * url,
-                                           int          method) {
+                                           const char *url,
+                                           int method) {
     HTTPRequest *request = new HTTPRequest();
     request->initWithListener(listener, url, method);
     request->autorelease();
@@ -185,7 +185,7 @@ void HTTPRequest::setTimeout(int timeout) {
 bool HTTPRequest::start(void) {
     CC_ASSERT(_state == kCCHTTPRequestStateIdle);
 
-    _state     = kCCHTTPRequestStateInProgress;
+    _state = kCCHTTPRequestStateInProgress;
     _curlState = kCCHTTPRequestCURLStateBusy;
     addRef();
 
@@ -320,8 +320,8 @@ void HTTPRequest::update(float dt) {
         if (_listener) {
             LuaValueDict dict;
 
-            dict["name"]    = LuaValue::stringValue("progress");
-            dict["total"]   = LuaValue::intValue((int)_dltotal);
+            dict["name"] = LuaValue::stringValue("progress");
+            dict["total"] = LuaValue::intValue((int)_dltotal);
             dict["dltotal"] = LuaValue::intValue((int)_dlnow);
             dict["request"] = LuaValue::ccobjectValue(this, "HTTPRequest");
 
@@ -414,7 +414,7 @@ void HTTPRequest::onRequest(void) {
 
     if (cookies) {
         struct curl_slist *nc = cookies;
-        stringbuf          buf;
+        stringbuf buf;
         while (nc) {
             buf.sputn(nc->data, strlen(nc->data));
             buf.sputc('\n');
@@ -433,10 +433,10 @@ void HTTPRequest::onRequest(void) {
     }
     curl_slist_free_all(chunk);
 
-    _errorCode    = code;
+    _errorCode = code;
     _errorMessage = (code == CURLE_OK) ? "" : curl_easy_strerror(code);
-    _state        = (code == CURLE_OK) ? kCCHTTPRequestStateCompleted : kCCHTTPRequestStateFailed;
-    _curlState    = kCCHTTPRequestCURLStateClosed;
+    _state = (code == CURLE_OK) ? kCCHTTPRequestStateCompleted : kCCHTTPRequestStateFailed;
+    _curlState = kCCHTTPRequestCURLStateClosed;
 }
 
 size_t HTTPRequest::onWriteData(void *buffer, size_t bytes) {
@@ -452,7 +452,7 @@ size_t HTTPRequest::onWriteData(void *buffer, size_t bytes) {
 }
 
 size_t HTTPRequest::onWriteHeader(void *buffer, size_t bytes) {
-    char *headerBuffer  = new char[bytes + 1];
+    char *headerBuffer = new char[bytes + 1];
     headerBuffer[bytes] = 0;
     memcpy(headerBuffer, buffer, bytes);
     _responseHeaders.push_back(string(headerBuffer));
@@ -462,17 +462,17 @@ size_t HTTPRequest::onWriteHeader(void *buffer, size_t bytes) {
 
 int HTTPRequest::onProgress(double dltotal, double dlnow, double ultotal, double ulnow) {
     _dltotal = dltotal;
-    _dlnow   = dlnow;
+    _dlnow = dlnow;
     _ultotal = ultotal;
-    _ulnow   = ulnow;
+    _ulnow = ulnow;
 
     return _state == kCCHTTPRequestStateCancelled ? 1 : 0;
 }
 
 void HTTPRequest::cleanup(void) {
-    _state                = kCCHTTPRequestStateCleared;
+    _state = kCCHTTPRequestStateCleared;
     _responseBufferLength = 0;
-    _responseDataLength   = 0;
+    _responseDataLength = 0;
     if (_responseBuffer) {
         free(_responseBuffer);
         _responseBuffer = NULL;

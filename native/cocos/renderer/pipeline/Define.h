@@ -26,6 +26,7 @@
 #pragma once
 
 #include <functional>
+#include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -114,8 +115,8 @@ enum class RenderFlowType : uint8_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(RenderFlowType)
 
-using RenderStageList = ccstd::vector<RenderStage *>;
-using RenderFlowList = ccstd::vector<RenderFlow *>;
+using RenderStageList = ccstd::vector<IntrusivePtr<RenderStage>>;
+using RenderFlowList = ccstd::vector<IntrusivePtr<RenderFlow>>;
 using LightList = ccstd::vector<scene::Light *>;
 using UintList = ccstd::vector<uint32_t>;
 
@@ -626,6 +627,8 @@ struct CC_DLL REFLECTIONSTORAGE {
 static constexpr uint32_t CLUSTER_LIGHT_BINDING = 4;
 static constexpr uint32_t CLUSTER_LIGHT_INDEX_BINDING = 5;
 static constexpr uint32_t CLUSTER_LIGHT_GRID_BINDING = 6;
+
+void localDescriptorSetLayoutResizeMaxJoints(uint32_t maxCount);
 
 } // namespace pipeline
 } // namespace cc
