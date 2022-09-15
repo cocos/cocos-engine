@@ -60,7 +60,7 @@ bool AudioDecoderWav::open(const char *path) {
         }
         CC_LOG_DEBUG("wav info: frames: %d, samplerate: %d, channels: %d, format: %d", info.frames, info.samplerate, info.channels, info.format);
         _pcmHeader.channelCount = info.channels;
-        _pcmHeader.bytesPerFrame = 2;                       // FIXED_16
+        _pcmHeader.bytesPerFrame = 2 * info.channels;    // FIXED_16
         _pcmHeader.dataFormat = AudioDataFormat::SIGNED_16;//FIXED,
         _pcmHeader.sampleRate = info.samplerate;
         _pcmHeader.totalFrames = info.frames;

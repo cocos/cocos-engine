@@ -27,7 +27,7 @@ import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../core/scene-graph/node';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4 } from '../core';
+import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4 } from '../core';
 import { INT_MAX } from '../core/math/bits';
 import { particleEmitZAxis } from './particle-general-function';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
@@ -226,14 +226,16 @@ export class ParticleCuller {
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
-                if (ps.node.parent) {
-                    this._gravity = this._gravity.transformMat4(_node_parent_inv);
-                }
-                this._gravity = this._gravity.transformMat4(this._localMat);
+                if (!approx(gravityFactor, 0.0, EPSILON)) {
+                    if (ps.node.parent) {
+                        this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                    }
+                    this._gravity = this._gravity.transformMat4(this._localMat);
 
-                p.velocity.x += this._gravity.x;
-                p.velocity.y += this._gravity.y;
-                p.velocity.z += this._gravity.z;
+                    p.velocity.x += this._gravity.x;
+                    p.velocity.y += this._gravity.y;
+                    p.velocity.z += this._gravity.z;
+                }
             } else {
                 // apply gravity.
                 p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;

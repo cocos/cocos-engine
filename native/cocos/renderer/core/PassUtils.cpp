@@ -263,6 +263,27 @@ const ccstd::string &getDefaultStringFromType(gfx::Type type) {
     }
 }
 
+const ccstd::string &getStringFromType(gfx::Type type) {
+    static const ccstd::string TEXTURE_2D_STR{"-texture"};
+    static const ccstd::string TEXTURE_CUBE_STR{"-cube-texture"};
+    static const ccstd::string TEXTURE_2D_ARRAY_STR{"-array-texture"};
+    static const ccstd::string TEXTURE_3D_STR{"-3d-texture"};
+    static const ccstd::string UNKNOWN_STR{"-unknown"};
+
+    switch (type) {
+        case gfx::Type::SAMPLER2D:
+            return TEXTURE_2D_STR;
+        case gfx::Type::SAMPLER_CUBE:
+            return TEXTURE_CUBE_STR;
+        case gfx::Type::SAMPLER2D_ARRAY:
+            return TEXTURE_2D_ARRAY_STR;
+        case gfx::Type::SAMPLER3D:
+            return TEXTURE_3D_STR;
+        default:
+            return UNKNOWN_STR;
+    }
+}
+
 bool overrideMacros(MacroRecord &target, const MacroRecord &source) {
     bool isDifferent = false;
     for (const auto &p : source) {

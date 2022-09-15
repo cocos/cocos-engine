@@ -109,7 +109,7 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
         if (impl.hasUnfinishedTask == YES) {
                 CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
                     coTask->downloadTask = [impl createDownloadTask:task];
-                },this , 0, 0, 0.1F, false, "DownloaderApple");
+                },this , 0, 0, 0.1F, false, task->requestURL);
             } else {
                 coTask->downloadTask = [impl createDownloadTask:task];
             }

@@ -7,7 +7,6 @@ CCEffect %{
       frag: terrain-fs
       properties: &props
         UVScale:      { value: [1, 1, 1, 1] }
-        lightMapUVParam: { value: [0, 0, 0, 0] }
         metallic:     { value: [0, 0, 0, 0] }
         roughness:    { value: [1, 1, 1, 1] }
         weightMap:    { value: black }
@@ -19,7 +18,6 @@ CCEffect %{
         normalMap1:   { value: normal }
         normalMap2:   { value: normal }
         normalMap3:   { value: normal }
-        lightMap:     { value: grey }
     - vert: terrain-vs
       frag: terrain-fs
       phase: forward-add
@@ -90,8 +88,8 @@ CCProgram terrain-vs %{
     uv2 = a_position.xz * UVScale.z;
     uv3 = a_position.xz * UVScale.w;
     #if CC_USE_LIGHTMAP
-      luv.xy = lightMapUVParam.xy + a_texCoord * lightMapUVParam.z;
-      luv.z = lightMapUVParam.w;
+      luv.xy = cc_lightingMapUVParam.xy + a_texCoord * cc_lightingMapUVParam.z;
+      luv.z = cc_lightingMapUVParam.w;
     #endif
 
     v_position = worldPos;
@@ -147,7 +145,6 @@ CCProgram terrain-fs %{
   uniform sampler2D normalMap1;
   uniform sampler2D normalMap2;
   uniform sampler2D normalMap3;
-  uniform sampler2D lightMap;
 
   void surf (out StandardSurface s) {
     #if LAYERS > 1
@@ -265,7 +262,7 @@ CCProgram terrain-fs %{
     s.emissive = vec3(0.0, 0.0, 0.0);
 
     #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-      vec4 lightColor = texture(lightMap, luv.xy);
+      vec4 lightColor = texture(cc_lightingMap, luv.xy);
       s.lightmap = lightColor.xyz * luv.z;
       s.lightmap_test = luv.z; /*lum*/
     #endif
