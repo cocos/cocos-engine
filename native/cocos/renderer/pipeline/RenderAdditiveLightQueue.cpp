@@ -253,7 +253,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 
     size_t offset = 0;
     if (validLightCount > _lightBufferCount) {
-        _firstLightBufferView->destroy();
+        CC_SAFE_DESTROY_AND_DELETE(_firstLightBufferView)
 
         _lightBufferCount = nextPow2(static_cast<uint32_t>(validLightCount));
         _lightBuffer->resize(utils::toUint(_lightBufferStride * _lightBufferCount));

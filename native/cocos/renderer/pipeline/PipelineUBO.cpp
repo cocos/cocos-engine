@@ -496,7 +496,7 @@ void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
     cmdBuffer->updateBuffer(_cameraBuffer, _cameraUBOs.data());
 }
 
-void PipelineUBO::updateMultiCameraUBO(gfx::DescriptorSet *globalDS, const ccstd::vector<scene::Camera *> &cameras) {
+void PipelineUBO::updateMultiCameraUBO(GlobalDSManager *globalDSMgr, const ccstd::vector<scene::Camera *> &cameras) {
     const auto cameraCount = cameras.size();
     const auto totalUboSize = static_cast<uint32_t>(_alignedCameraUBOSize * cameraCount);
 
@@ -513,7 +513,7 @@ void PipelineUBO::updateMultiCameraUBO(gfx::DescriptorSet *globalDS, const ccstd
             0,
             UBOCamera::SIZE,
         });
-        globalDS->bindBuffer(UBOCamera::BINDING, _cameraBufferView);
+        globalDSMgr->bindBuffer(UBOCamera::BINDING, _cameraBufferView);
         _ubos.push_back(_cameraBufferView);
     }
 

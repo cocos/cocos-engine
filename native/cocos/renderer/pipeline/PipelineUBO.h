@@ -37,6 +37,8 @@ class DirectionalLight;
 } // namespace scene
 namespace pipeline {
 class RenderPipeline;
+class GlobalDSManager;
+
 class CC_DLL PipelineUBO final {
 public:
     static void updateGlobalUBOView(const scene::Camera *camera, ccstd::array<float, UBOGlobal::COUNT> *bufferView);
@@ -54,7 +56,7 @@ public:
     void destroy();
     void updateGlobalUBO(const scene::Camera *camera);
     void updateCameraUBO(const scene::Camera *camera);
-    void updateMultiCameraUBO(gfx::DescriptorSet *globalDS, const ccstd::vector<scene::Camera *> &cameras);
+    void updateMultiCameraUBO(GlobalDSManager *globalDSMgr, const ccstd::vector<scene::Camera *> &cameras);
     void updateShadowUBO(const scene::Camera *camera);
     void updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light, uint32_t level = 0U);
     void updateShadowUBORange(uint32_t offset, const Mat4 *data);
