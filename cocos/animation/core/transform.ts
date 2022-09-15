@@ -7,6 +7,10 @@ const CACHE_VECTOR_B = new Vec3();
 const CACHE_QUAT_A = new Quat();
 const CACHE_QUAT_B = new Quat();
 
+// Can not use `Readonly<Transform>`.
+// See: https://github.com/microsoft/TypeScript/issues/50668
+type ReadonlyTransform = Transform;
+
 export class Transform {
     public static IDENTITY = Object.freeze(new Transform());
 
@@ -42,7 +46,7 @@ export class Transform {
         Vec3.copy(this._scale, value);
     }
 
-    public static clone (src: Readonly<Transform>) {
+    public static clone (src: ReadonlyTransform) {
         const transform = new Transform();
         Transform.copy(transform, src);
         return transform;
@@ -55,26 +59,26 @@ export class Transform {
         return out;
     }
 
-    public static copy (out: Transform, src: Readonly<Transform>) {
+    public static copy (out: Transform, src: ReadonlyTransform) {
         Vec3.copy(out._position, src._position);
         Quat.copy(out._rotation, src._rotation);
         Vec3.copy(out._scale, src._scale);
         return out;
     }
 
-    public static equals (a: Readonly<Transform>, b: Readonly<Transform>, epsilon?: number) {
+    public static equals (a: ReadonlyTransform, b: ReadonlyTransform, epsilon?: number) {
         return Vec3.equals(a._position, b._position, epsilon)
             && Quat.equals(a._rotation, b._rotation, epsilon)
             && Vec3.equals(a._scale, b._scale, epsilon);
     }
 
-    public static strictEquals (a: Readonly<Transform>, b: Readonly<Transform>) {
+    public static strictEquals (a: ReadonlyTransform, b: ReadonlyTransform) {
         return Vec3.strictEquals(a._position, b._position)
             && Quat.strictEquals(a._rotation, b._rotation)
             && Vec3.strictEquals(a._scale, b._scale);
     }
 
-    public static lerp (out: Transform, from: Readonly<Transform>, to: Readonly<Transform>, t: number) {
+    public static lerp (out: Transform, from: ReadonlyTransform, to: ReadonlyTransform, t: number) {
         if (t === 0.0) {
             return Transform.copy(out, from);
         }
@@ -87,7 +91,23 @@ export class Transform {
         return out;
     }
 
-    public static multiply (out: Transform, first: Readonly<Transform>, second: Readonly<Transform>) {
+    /**
+     * Associate two transforms.
+     * The result is as if the `first` transform is applied and then the `second` transform.
+     * @param out The result transform.
+     * @param first The first transform to apply.
+     * @param second The second transform to apply.
+     * @returns `out`.
+     * @note
+     * Much important things to note is that
+     * currently the following prerequisites are imposed on scales of both transforms:
+     * - The scale should be uniformed, ie. all components should be the same.
+     * - Each component of the scale shall be non-negative.
+     */
+    public static multiply (out: Transform, first: ReadonlyTransform, second: ReadonlyTransform) {
+        // May reference to https://zhuanlan.zhihu.com/p/119066087
+        // for the reason about restrictions on uniform scales.
+
         const cacheRotation = Quat.multiply(CACHE_QUAT_A, second._rotation, first._rotation);
 
         const cacheScale = Vec3.multiply(CACHE_VECTOR_A, first._scale, second._scale);
@@ -105,13 +125,23 @@ export class Transform {
     }
 
     /**
+     * Calculates the relative transitions.
+     * The result is as if `first` transform is associated by applying the result first then the `second`.
+     * @param out The result transform.
+     * @param first See description.
+     * @param second See description.
+     * @returns `out`.
+     * @note
+     * 
      * Note: if scale of second transform contains 0,
      * the result scale's corresponding component would be error.
+     * 
+     * Same restriction is applied to this method like `Transform.multiply`.
      */
     public static calculateRelative = (() => {
         const cacheInvRotation = new Quat();
         const cacheInvScale = new Vec3();
-        return (out: Transform, first: Readonly<Transform>, second: Readonly<Transform>) => {
+        return (out: Transform, first: ReadonlyTransform, second: ReadonlyTransform) => {
             const invSecondRotation = Quat.invert(cacheInvRotation, second._rotation);
             const invScale = invScaleOrZero(cacheInvScale, second._scale, EPSILON);
 
@@ -138,7 +168,7 @@ export class Transform {
         return out;
     }
 
-    public static toMatrix (out: Mat4, transform: Readonly<Transform>) {
+    public static toMatrix (out: Mat4, transform: ReadonlyTransform) {
         return Mat4.fromRTS(
             out,
             transform._rotation,

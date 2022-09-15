@@ -146,16 +146,17 @@ test('Multiply/Calculate relative', () => {
         const parentGlobal = new Transform();
         parentGlobal.position = new Vec3(1., 2., 3.);
         parentGlobal.rotation = Quat.rotateY(new Quat(), Quat.IDENTITY, toRadian(30.));
-        parentGlobal.scale = new Vec3(4., 5., 6.);
+        parentGlobal.scale = new Vec3(4., 4., 4.);
 
         const childLocal = new Transform();
         const MAGIC = 'COCOS with you';
         childLocal.position = new Vec3(MAGIC.charCodeAt(0), MAGIC.charCodeAt(1), MAGIC.charCodeAt(2));
         childLocal.rotation = Quat.rotateX(new Quat(), Quat.IDENTITY, toRadian(MAGIC.charCodeAt(3)));
-        childLocal.scale = new Vec3(MAGIC.charCodeAt(4), MAGIC.charCodeAt(5), MAGIC.charCodeAt(6));
+        childLocal.scale = new Vec3(MAGIC.charCodeAt(4), MAGIC.charCodeAt(4), MAGIC.charCodeAt(4));
 
         const childGlobal = new Transform();
         expect(Transform.multiply(childGlobal, childLocal, parentGlobal)).toBe(childGlobal);
+        expect(Transform.equals(childGlobal, multiplyInFormOfMatrix(new Transform(), childLocal, parentGlobal))).toBe(true);
         expect(Vec3.equals(
             childGlobal.scale,
             Vec3.multiply(
@@ -174,7 +175,7 @@ test('Multiply/Calculate relative', () => {
         )).toBe(true);
         expect(Vec3.equals(
             childGlobal.position,
-            new Vec3(434.0948082142295, 397, 217.14221232134435),
+            new Vec3(367.0948082142296, 318, 101.09480821422956),
         )).toBe(true);
 
         const childLocal2 = new Transform();
@@ -182,11 +183,11 @@ test('Multiply/Calculate relative', () => {
         expect(Transform.equals(childLocal, childLocal2)).toBe(true);
     }
 
-    function relativeInFormOfMatrix(out: Transform, a: Readonly<Transform>, b: Readonly<Transform>) {
-        const aMat = Transform.toMatrix(new Mat4(), a);
-        const bMat = Transform.toMatrix(new Mat4(), b);
-        const outMat = Mat4.invert(bMat, bMat);
-        Mat4.multiply(outMat, outMat, aMat);
+    function multiplyInFormOfMatrix(out: Transform, a: Readonly<Transform>, b: Readonly<Transform>) {
+        const aMat = Transform.toMatrix(new Mat4(), a as Transform);
+        const bMat = Transform.toMatrix(new Mat4(), b as Transform);
+        const outMat = new Mat4();
+        Mat4.multiply(outMat, bMat, aMat);
         return Transform.fromMatrix(out, outMat);
     }
 });
