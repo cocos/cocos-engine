@@ -89,10 +89,10 @@ export abstract class RasterQueueBuilder extends Setter {
     public abstract addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name: string): void;
     public abstract addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
     public abstract addScene(name: string, sceneFlags: SceneFlags): void;
-    public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags, name: string): void;
-    public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags, name: string): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags): void;
+    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags): void;
+    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
     public abstract clearRenderTarget(name: string, color: Color): void;
     public abstract setViewport(viewport: Viewport): void;
 }
@@ -102,10 +102,10 @@ export abstract class RasterPassBuilder extends Setter {
     public abstract addComputeView(name: string, view: ComputeView): void;
     public abstract addQueue(hint: QueueHint, name: string): RasterQueueBuilder;
     public abstract addQueue(hint: QueueHint): RasterQueueBuilder;
-    public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags, name: string): void;
-    public abstract addFullscreenQuad(material: Material, sceneFlags: SceneFlags): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags, name: string): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, sceneFlags: SceneFlags): void;
+    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags): void;
+    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
     public abstract setViewport(viewport: Viewport): void;
 }
 

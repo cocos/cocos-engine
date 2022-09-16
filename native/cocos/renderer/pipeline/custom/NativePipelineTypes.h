@@ -75,10 +75,10 @@ public:
     void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
-    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;
-    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) override;
+    void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
 
@@ -113,10 +113,10 @@ public:
     void addComputeView(const ccstd::string& name, const ComputeView& view) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& name) override;
     RasterQueueBuilder *addQueue(QueueHint hint) override;
-    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) override;
-    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) override;
+    void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
+    void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void setViewport(const gfx::Viewport &viewport) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;

@@ -1050,12 +1050,14 @@ export class Dispatch {
 }
 
 export class Blit {
-    constructor (material: Material | null, sceneFlags: SceneFlags, camera: Camera | null) {
+    constructor (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null) {
         this.material = material;
+        this.passID = passID;
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
     /*refcount*/ material: Material | null;
+    passID: number;
     sceneFlags: SceneFlags;
     /*pointer*/ camera: Camera | null;
 }

@@ -525,15 +525,15 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
         );
     }
-    addFullscreenQuad (material: Material, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
+    addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, sceneFlags, null),
+            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
             name, '', new RenderData(), false, this._vertID,
         );
     }
-    addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags) {
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags) {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, sceneFlags, camera),
+            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, camera),
             'CameraQuad', '', new RenderData(), false, this._vertID,
         );
     }
@@ -589,7 +589,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
 
-    addFullscreenQuad (material: Material, sceneFlags = SceneFlags.NONE, name = 'FullscreenQuad') {
+    addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'FullscreenQuad') {
         const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue, queue,
@@ -597,19 +597,19 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             false, this._vertID,
         );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, sceneFlags, null),
+            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
             name, '', new RenderData(), false, queueId,
         );
     }
 
-    addCameraQuad (camera: Camera, material: Material, sceneFlags: SceneFlags, name = 'CameraQuad') {
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name = 'CameraQuad') {
         const queue = new RenderQueue(QueueHint.RENDER_TRANSPARENT);
         const queueId = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue, queue,
             'Queue', '', new RenderData(), false, this._vertID,
         );
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
-            RenderGraphValue.Blit, new Blit(material, sceneFlags, camera),
+            RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, camera),
             name, '', new RenderData(), false, queueId,
         );
     }

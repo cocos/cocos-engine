@@ -1275,9 +1275,10 @@ static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_0(se::State&
     const auto& args = s.args();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::Material *arg2 = (cc::Material *) NULL ;
-    SceneFlags arg3 ;
-    ccstd::string *arg4 = 0 ;
-    ccstd::string temp4 ;
+    uint32_t arg3 ;
+    SceneFlags arg4 ;
+    ccstd::string *arg5 = 0 ;
+    ccstd::string temp5 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1287,14 +1288,19 @@ static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_0(se::State&
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,3,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,4,SWIGTYPE_SceneFlags"); 
     
     // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,4,SWIGTYPE_p_ccstd__string");
-    arg4 = &temp4;
+    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,5,SWIGTYPE_p_ccstd__string");
+    arg5 = &temp5;
     
-    (arg1)->addFullscreenQuad(arg2,arg3,(ccstd::string const &)*arg4);
+    (arg1)->addFullscreenQuad(arg2,arg3,arg4,(ccstd::string const &)*arg5);
     
     
     return true;
@@ -1308,7 +1314,8 @@ static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(se::State&
     const auto& args = s.args();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::Material *arg2 = (cc::Material *) NULL ;
-    SceneFlags arg3 ;
+    uint32_t arg3 ;
+    SceneFlags arg4 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1318,9 +1325,14 @@ static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(se::State&
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,3,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
     
-    (arg1)->addFullscreenQuad(arg2,arg3);
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,4,SWIGTYPE_SceneFlags"); 
+    
+    (arg1)->addFullscreenQuad(arg2,arg3,arg4);
     
     
     return true;
@@ -1334,13 +1346,13 @@ static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad(se::State& s)
     size_t argc = args.size();
     
     // js_function_dispatch_case
-    if (argc == 3) {
+    if (argc == 4) {
         ok = js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_0(s);
         if (ok) {
             return true; 
         }
     } // js_function_dispatch_case
-    if (argc == 2) {
+    if (argc == 3) {
         ok = js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(s);
         if (ok) {
             return true; 
@@ -1360,9 +1372,10 @@ static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_0(se::State& s)
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     cc::Material *arg3 = (cc::Material *) NULL ;
-    SceneFlags arg4 ;
-    ccstd::string *arg5 = 0 ;
-    ccstd::string temp5 ;
+    uint32_t arg4 ;
+    SceneFlags arg5 ;
+    ccstd::string *arg6 = 0 ;
+    ccstd::string temp6 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1375,14 +1388,19 @@ static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_0(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,4,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,5,SWIGTYPE_SceneFlags"); 
     
     // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,5,SWIGTYPE_p_ccstd__string");
-    arg5 = &temp5;
+    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,6,SWIGTYPE_p_ccstd__string");
+    arg6 = &temp6;
     
-    (arg1)->addCameraQuad(arg2,arg3,arg4,(ccstd::string const &)*arg5);
+    (arg1)->addCameraQuad(arg2,arg3,arg4,arg5,(ccstd::string const &)*arg6);
     
     
     return true;
@@ -1397,7 +1415,8 @@ static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(se::State& s)
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     cc::Material *arg3 = (cc::Material *) NULL ;
-    SceneFlags arg4 ;
+    uint32_t arg4 ;
+    SceneFlags arg5 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1410,9 +1429,14 @@ static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,4,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
     
-    (arg1)->addCameraQuad(arg2,arg3,arg4);
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,5,SWIGTYPE_SceneFlags"); 
+    
+    (arg1)->addCameraQuad(arg2,arg3,arg4,arg5);
     
     
     return true;
@@ -1426,13 +1450,13 @@ static bool js_cc_render_RasterQueueBuilder_addCameraQuad(se::State& s)
     size_t argc = args.size();
     
     // js_function_dispatch_case
-    if (argc == 4) {
+    if (argc == 5) {
         ok = js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_0(s);
         if (ok) {
             return true; 
         }
     } // js_function_dispatch_case
-    if (argc == 3) {
+    if (argc == 4) {
         ok = js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(s);
         if (ok) {
             return true; 
@@ -1712,9 +1736,10 @@ static bool js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_0(se::State& 
     const auto& args = s.args();
     cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
     cc::Material *arg2 = (cc::Material *) NULL ;
-    SceneFlags arg3 ;
-    ccstd::string *arg4 = 0 ;
-    ccstd::string temp4 ;
+    uint32_t arg3 ;
+    SceneFlags arg4 ;
+    ccstd::string *arg5 = 0 ;
+    ccstd::string temp5 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1724,14 +1749,19 @@ static bool js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_0(se::State& 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,3,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,4,SWIGTYPE_SceneFlags"); 
     
     // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,4,SWIGTYPE_p_ccstd__string");
-    arg4 = &temp4;
+    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,5,SWIGTYPE_p_ccstd__string");
+    arg5 = &temp5;
     
-    (arg1)->addFullscreenQuad(arg2,arg3,(ccstd::string const &)*arg4);
+    (arg1)->addFullscreenQuad(arg2,arg3,arg4,(ccstd::string const &)*arg5);
     
     
     return true;
@@ -1745,7 +1775,8 @@ static bool js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_1(se::State& 
     const auto& args = s.args();
     cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
     cc::Material *arg2 = (cc::Material *) NULL ;
-    SceneFlags arg3 ;
+    uint32_t arg3 ;
+    SceneFlags arg4 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1755,9 +1786,14 @@ static bool js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_1(se::State& 
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,3,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
     
-    (arg1)->addFullscreenQuad(arg2,arg3);
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,4,SWIGTYPE_SceneFlags"); 
+    
+    (arg1)->addFullscreenQuad(arg2,arg3,arg4);
     
     
     return true;
@@ -1771,13 +1807,13 @@ static bool js_cc_render_RasterPassBuilder_addFullscreenQuad(se::State& s)
     size_t argc = args.size();
     
     // js_function_dispatch_case
-    if (argc == 3) {
+    if (argc == 4) {
         ok = js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_0(s);
         if (ok) {
             return true; 
         }
     } // js_function_dispatch_case
-    if (argc == 2) {
+    if (argc == 3) {
         ok = js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_1(s);
         if (ok) {
             return true; 
@@ -1797,9 +1833,10 @@ static bool js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_0(se::State& s)
     cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     cc::Material *arg3 = (cc::Material *) NULL ;
-    SceneFlags arg4 ;
-    ccstd::string *arg5 = 0 ;
-    ccstd::string temp5 ;
+    uint32_t arg4 ;
+    SceneFlags arg5 ;
+    ccstd::string *arg6 = 0 ;
+    ccstd::string temp6 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1812,14 +1849,19 @@ static bool js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_0(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,4,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,5,SWIGTYPE_SceneFlags"); 
     
     // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,5,SWIGTYPE_p_ccstd__string");
-    arg5 = &temp5;
+    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,6,SWIGTYPE_p_ccstd__string");
+    arg6 = &temp6;
     
-    (arg1)->addCameraQuad(arg2,arg3,arg4,(ccstd::string const &)*arg5);
+    (arg1)->addCameraQuad(arg2,arg3,arg4,arg5,(ccstd::string const &)*arg6);
     
     
     return true;
@@ -1834,7 +1876,8 @@ static bool js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_1(se::State& s)
     cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     cc::Material *arg3 = (cc::Material *) NULL ;
-    SceneFlags arg4 ;
+    uint32_t arg4 ;
+    SceneFlags arg5 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
@@ -1847,9 +1890,14 @@ static bool js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_1(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,4,SWIGTYPE_SceneFlags"); 
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
     
-    (arg1)->addCameraQuad(arg2,arg3,arg4);
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,5,SWIGTYPE_SceneFlags"); 
+    
+    (arg1)->addCameraQuad(arg2,arg3,arg4,arg5);
     
     
     return true;
@@ -1863,13 +1911,13 @@ static bool js_cc_render_RasterPassBuilder_addCameraQuad(se::State& s)
     size_t argc = args.size();
     
     // js_function_dispatch_case
-    if (argc == 4) {
+    if (argc == 5) {
         ok = js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_0(s);
         if (ok) {
             return true; 
         }
     } // js_function_dispatch_case
-    if (argc == 3) {
+    if (argc == 4) {
         ok = js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_1(s);
         if (ok) {
             return true; 
