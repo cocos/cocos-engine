@@ -67,6 +67,8 @@ using namespace cc;
 //
 %ignore cc::scene::Pass::getBlocks;
 %ignore cc::scene::Pass::initPassFromTarget;
+%ignore cc::scene::Pass::getInstancedBuffer;
+%ignore cc::scene::Pass::getBatchedBuffer;
 
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;

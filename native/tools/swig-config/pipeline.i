@@ -16,7 +16,6 @@
 #include "renderer/pipeline/shadow/ShadowStage.h"
 #include "renderer/pipeline/shadow/CSMLayers.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "renderer/pipeline/InstancedBuffer.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/deferred/MainFlow.h"
 #include "renderer/pipeline/deferred/GbufferStage.h"
@@ -24,7 +23,6 @@
 #include "renderer/pipeline/deferred/BloomStage.h"
 #include "renderer/pipeline/deferred/PostProcessStage.h"
 #include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 %}
 
@@ -53,6 +51,8 @@ using namespace cc;
 //
 %ignore cc::pipeline::convertQueueSortFunc;
 %ignore cc::pipeline::RenderPipeline::getFrameGraph;
+%ignore cc::pipeline::RenderPipeline::setPipelineRuntime;
+%ignore cc::pipeline::RenderPipeline::getPipelineRuntime;
 %ignore cc::pipeline::PipelineSceneData::getRenderObjects;
 %ignore cc::pipeline::PipelineSceneData::setRenderObjects;
 %ignore cc::pipeline::PipelineSceneData::getShadowObjects;
@@ -207,7 +207,6 @@ using namespace cc;
 %include "renderer/pipeline/shadow/CSMLayers.h"
 
 %include "renderer/pipeline/GlobalDescriptorSetManager.h"
-%include "renderer/pipeline/InstancedBuffer.h"
 %include "renderer/pipeline/deferred/DeferredPipeline.h"
 %include "renderer/pipeline/deferred/MainFlow.h"
 %include "renderer/pipeline/deferred/GbufferStage.h"
@@ -215,6 +214,5 @@ using namespace cc;
 %include "renderer/pipeline/deferred/BloomStage.h"
 %include "renderer/pipeline/deferred/PostProcessStage.h"
 %include "renderer/pipeline/PipelineSceneData.h"
-%include "renderer/pipeline/BatchedBuffer.h"
 %include "renderer/pipeline/GeometryRenderer.h"
 

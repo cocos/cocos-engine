@@ -28,7 +28,7 @@ import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address } from '../../../gfx/index';
 import { Mat4, Quat, Vec2, Vec3, Vec4 } from '../../math';
 import { ComputeView, LightInfo, LightingMode, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Blit, ClearView, ComputePass, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
+import { Blit, ClearView, ComputePass, CopyPair, CopyPass, Dispatch, ManagedResource, ManagedTexture, MovePair, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../../render-scene/scene';
@@ -946,9 +946,9 @@ export class WebPipeline extends Pipeline {
         desc.flags = ResourceFlags.COLOR_ATTACHMENT | ResourceFlags.SAMPLED;
 
         assert(isManaged(residency));
-        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
-            ResourceGraphValue.Managed,
-            new ManagedResource(),
+        return this._resourceGraph.addVertex<ResourceGraphValue.ManagedTexture>(
+            ResourceGraphValue.ManagedTexture,
+            new ManagedTexture(),
             name, desc,
             new ResourceTraits(residency),
             new ResourceStates(),
@@ -963,9 +963,9 @@ export class WebPipeline extends Pipeline {
         desc.mipLevels = 1;
         desc.format = format;
         desc.flags = ResourceFlags.DEPTH_STENCIL_ATTACHMENT | ResourceFlags.SAMPLED;
-        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
-            ResourceGraphValue.Managed,
-            new ManagedResource(),
+        return this._resourceGraph.addVertex<ResourceGraphValue.ManagedTexture>(
+            ResourceGraphValue.ManagedTexture,
+            new ManagedTexture(),
             name, desc,
             new ResourceTraits(residency),
             new ResourceStates(),

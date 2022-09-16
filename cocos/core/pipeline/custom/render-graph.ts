@@ -59,7 +59,7 @@ export class RenderSwapchain {
     constructor (swapchain: Swapchain | null) {
         this.swapchain = swapchain;
     }
-    swapchain: Swapchain | null;
+    /*pointer*/ swapchain: Swapchain | null;
     currentID = 0;
     numBackBuffers = 0;
 }
@@ -68,8 +68,20 @@ export class ResourceStates {
     states: AccessFlagBit = AccessFlagBit.NONE;
 }
 
-export class ManagedResource {
-    unused = 0;
+export class ManagedBuffer {
+    constructor (buffer: Buffer | null = null) {
+        this.buffer = buffer;
+    }
+    /*refcount*/ buffer: Buffer | null;
+    fenceValue = 0;
+}
+
+export class ManagedTexture {
+    constructor (texture: Texture | null = null) {
+        this.texture = texture;
+    }
+    /*refcount*/ texture: Texture | null;
+    fenceValue = 0;
 }
 
 //=================================================================
@@ -77,7 +89,8 @@ export class ManagedResource {
 //=================================================================
 // PolymorphicGraph Concept
 export const enum ResourceGraphValue {
-    Managed,
+    ManagedBuffer,
+    ManagedTexture,
     PersistentBuffer,
     PersistentTexture,
     Framebuffer,
@@ -86,7 +99,8 @@ export const enum ResourceGraphValue {
 
 export function getResourceGraphValueName (e: ResourceGraphValue): string {
     switch (e) {
-    case ResourceGraphValue.Managed: return 'Managed';
+    case ResourceGraphValue.ManagedBuffer: return 'ManagedBuffer';
+    case ResourceGraphValue.ManagedTexture: return 'ManagedTexture';
     case ResourceGraphValue.PersistentBuffer: return 'PersistentBuffer';
     case ResourceGraphValue.PersistentTexture: return 'PersistentTexture';
     case ResourceGraphValue.Framebuffer: return 'Framebuffer';
@@ -96,7 +110,8 @@ export function getResourceGraphValueName (e: ResourceGraphValue): string {
 }
 
 interface ResourceGraphValueType {
-    [ResourceGraphValue.Managed]: ManagedResource
+    [ResourceGraphValue.ManagedBuffer]: ManagedBuffer
+    [ResourceGraphValue.ManagedTexture]: ManagedTexture
     [ResourceGraphValue.PersistentBuffer]: Buffer
     [ResourceGraphValue.PersistentTexture]: Texture
     [ResourceGraphValue.Framebuffer]: Framebuffer
@@ -104,14 +119,16 @@ interface ResourceGraphValueType {
 }
 
 export interface ResourceGraphVisitor {
-    managed(value: ManagedResource): unknown;
+    managedBuffer(value: ManagedBuffer): unknown;
+    managedTexture(value: ManagedTexture): unknown;
     persistentBuffer(value: Buffer): unknown;
     persistentTexture(value: Texture): unknown;
     framebuffer(value: Framebuffer): unknown;
     swapchain(value: RenderSwapchain): unknown;
 }
 
-type ResourceGraphObject = ManagedResource
+type ResourceGraphObject = ManagedBuffer
+| ManagedTexture
 | Buffer
 | Texture
 | Framebuffer
@@ -273,6 +290,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
+        // Members
+        this.nextFenceValue = 1;
         // UuidGraph
         this._valueIndex.clear();
         // ComponentGraph
@@ -498,8 +517,10 @@ export class ResourceGraph implements impl.BidirectionalGraph
     visitVertex (visitor: ResourceGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case ResourceGraphValue.Managed:
-            return visitor.managed(vert._object as ManagedResource);
+        case ResourceGraphValue.ManagedBuffer:
+            return visitor.managedBuffer(vert._object as ManagedBuffer);
+        case ResourceGraphValue.ManagedTexture:
+            return visitor.managedTexture(vert._object as ManagedTexture);
         case ResourceGraphValue.PersistentBuffer:
             return visitor.persistentBuffer(vert._object as Buffer);
         case ResourceGraphValue.PersistentTexture:
@@ -512,9 +533,16 @@ export class ResourceGraph implements impl.BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getManaged (v: number): ManagedResource {
-        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
-            return this._vertices[v]._object as ManagedResource;
+    getManagedBuffer (v: number): ManagedBuffer {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
+            return this._vertices[v]._object as ManagedBuffer;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getManagedTexture (v: number): ManagedTexture {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
+            return this._vertices[v]._object as ManagedTexture;
         } else {
             throw Error('value id not match');
         }
@@ -547,9 +575,16 @@ export class ResourceGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetManaged (v: number): ManagedResource | null {
-        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
-            return this._vertices[v]._object as ManagedResource;
+    tryGetManagedBuffer (v: number): ManagedBuffer | null {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
+            return this._vertices[v]._object as ManagedBuffer;
+        } else {
+            return null;
+        }
+    }
+    tryGetManagedTexture (v: number): ManagedTexture | null {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
+            return this._vertices[v]._object as ManagedTexture;
         } else {
             return null;
         }
@@ -603,6 +638,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _traits: ResourceTraits[] = [];
     readonly _states: ResourceStates[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
+    nextFenceValue = 1;
 }
 
 export class RasterSubpass {
@@ -1011,7 +1047,7 @@ export class SceneData {
         this.flags = flags;
     }
     name: string;
-    camera: Camera | null = null;
+    /*pointer*/ camera: Camera | null = null;
     readonly light: LightInfo;
     flags: SceneFlags;
     readonly scenes: string[] = [];
@@ -1036,9 +1072,9 @@ export class Blit {
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
-    /*object*/ material: Material | null;
+    /*refcount*/ material: Material | null;
     sceneFlags: SceneFlags;
-    camera: Camera | null;
+    /*pointer*/ camera: Camera | null;
 }
 
 export class Present {
@@ -1058,7 +1094,7 @@ export class RenderData {
     readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
-    readonly samplers: Map<number, Sampler | null> = new Map<number, Sampler | null>();
+    readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
 }
 
 //=================================================================

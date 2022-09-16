@@ -31,12 +31,12 @@
 // clang-format off
 #pragma once
 #include <boost/utility/string_view.hpp>
+#include <tuple>
 #include "cocos/renderer/pipeline/custom/FGDispatcherTypes.h"
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 #include "cocos/renderer/pipeline/custom/PathUtils.h"
-#include "cocos/renderer/pipeline/custom/invoke.hpp"
 
 namespace cc {
 
@@ -251,7 +251,7 @@ addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, 
     g.vertices.emplace_back();
 
     { // UuidGraph
-        invoke_hpp::apply(
+        std::apply(
             [&](const auto&... args) {
                 auto res = g.passIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
                 CC_ENSURES(res.second);
@@ -259,13 +259,13 @@ addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, 
             c0);
     }
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.passID.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.access.emplace_back(std::forward<decltype(args)>(args)...);
         },

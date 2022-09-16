@@ -96,11 +96,26 @@ struct ResourceStates {
     gfx::AccessFlagBit states{gfx::AccessFlagBit::NONE};
 };
 
-struct ManagedResource {
-    uint32_t unused{0};
+struct ManagedBuffer {
+    ManagedBuffer() = default;
+    ManagedBuffer(IntrusivePtr<gfx::Buffer> bufferIn) noexcept // NOLINT
+    : buffer(std::move(bufferIn)) {}
+
+    IntrusivePtr<gfx::Buffer> buffer;
+    uint64_t fenceValue{0};
 };
 
-struct ManagedTag {};
+struct ManagedTexture {
+    ManagedTexture() = default;
+    ManagedTexture(IntrusivePtr<gfx::Texture> textureIn) noexcept // NOLINT
+    : texture(std::move(textureIn)) {}
+
+    IntrusivePtr<gfx::Texture> texture;
+    uint64_t fenceValue{0};
+};
+
+struct ManagedBufferTag {};
+struct ManagedTextureTag {};
 struct PersistentBufferTag {};
 struct PersistentTextureTag {};
 struct FramebufferTag {};
@@ -194,15 +209,19 @@ struct ResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
-    using VertexValue       = ccstd::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
-    using VertexConstValue = ccstd::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
+    using VertexTag         = ccstd::variant<ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
+    using VertexValue       = ccstd::variant<ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
+    using VertexConstValue = ccstd::variant<const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
     using VertexHandle      = ccstd::variant<
-        impl::ValueHandle<ManagedTag, vertex_descriptor>,
+        impl::ValueHandle<ManagedBufferTag, vertex_descriptor>,
+        impl::ValueHandle<ManagedTextureTag, vertex_descriptor>,
         impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
         impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
         impl::ValueHandle<FramebufferTag, vertex_descriptor>,
         impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
+
+    void mount(vertex_descriptor vertID, ccstd::pmr::vector<vertex_descriptor>& mounted);
+    void unmount(uint64_t completedFenceValue);
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);
@@ -245,13 +264,16 @@ struct ResourceGraph {
     ccstd::pmr::vector<ResourceTraits> traits;
     ccstd::pmr::vector<ResourceStates> states;
     // PolymorphicGraph
-    ccstd::pmr::vector<ManagedResource> resources;
+    ccstd::pmr::vector<ManagedBuffer> managedBuffers;
+    ccstd::pmr::vector<ManagedTexture> managedTextures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> buffers;
     ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
     ccstd::pmr::vector<RenderSwapchain> swapchains;
     // UuidGraph
     PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
+    // Members
+    uint64_t nextFenceValue{1};
 };
 
 struct RasterSubpass {

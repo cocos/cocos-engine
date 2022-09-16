@@ -41,7 +41,8 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   descs(alloc),
   traits(alloc),
   states(alloc),
-  resources(alloc),
+  managedBuffers(alloc),
+  managedTextures(alloc),
   buffers(alloc),
   textures(alloc),
   framebuffers(alloc),
@@ -54,12 +55,14 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   descs(std::move(rhs.descs), alloc),
   traits(std::move(rhs.traits), alloc),
   states(std::move(rhs.states), alloc),
-  resources(std::move(rhs.resources), alloc),
+  managedBuffers(std::move(rhs.managedBuffers), alloc),
+  managedTextures(std::move(rhs.managedTextures), alloc),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
   framebuffers(std::move(rhs.framebuffers), alloc),
   swapchains(std::move(rhs.swapchains), alloc),
-  valueIndex(std::move(rhs.valueIndex), alloc) {}
+  valueIndex(std::move(rhs.valueIndex), alloc),
+  nextFenceValue(rhs.nextFenceValue) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc)
 : vertices(rhs.vertices, alloc),
@@ -67,12 +70,14 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   descs(rhs.descs, alloc),
   traits(rhs.traits, alloc),
   states(rhs.states, alloc),
-  resources(rhs.resources, alloc),
+  managedBuffers(rhs.managedBuffers, alloc),
+  managedTextures(rhs.managedTextures, alloc),
   buffers(rhs.buffers, alloc),
   textures(rhs.textures, alloc),
   framebuffers(rhs.framebuffers, alloc),
   swapchains(rhs.swapchains, alloc),
-  valueIndex(rhs.valueIndex, alloc) {}
+  valueIndex(rhs.valueIndex, alloc),
+  nextFenceValue(rhs.nextFenceValue) {}
 
 // ContinuousContainer
 void ResourceGraph::reserve(vertices_size_type sz) {

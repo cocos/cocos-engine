@@ -23,45 +23,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-/**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
-// clang-format off
-#pragma once
-#include "cocos/base/std/variant.h"
-#include "cocos/renderer/frame-graph/FrameGraph.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "RenderGraphTypes.h"
 
 namespace cc {
 
 namespace render {
 
-class NativeLayoutGraphBuilder;
-class NativeRasterQueueBuilder;
-class NativeRasterPassBuilder;
-class NativeComputeQueueBuilder;
-class NativeComputePassBuilder;
-class NativeMovePassBuilder;
-class NativeCopyPassBuilder;
-class NativeSceneTransversal;
-struct PersistentRenderPassAndFramebuffer;
-struct ScenePassHandle;
-struct ScenePass;
-struct ScenePassQueue;
-struct RenderInstance;
-struct RenderInstancePack;
-struct RenderBatch;
-struct RenderBatchPack;
-struct NativeRenderQueue;
-class DefaultSceneVisitor;
-class DefaultForwardLightingTransversal;
-struct NativeRenderContext;
-class NativePipeline;
+void ResourceGraph::mount(vertex_descriptor vertID, ccstd::pmr::vector<vertex_descriptor>& mounted) {
+
+}
+
+void ResourceGraph::unmount(uint64_t completedFenceValue) {
+
+}
 
 } // namespace render
 
 } // namespace cc
-
-// clang-format on
