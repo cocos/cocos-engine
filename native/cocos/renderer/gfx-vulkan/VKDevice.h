@@ -147,10 +147,11 @@ protected:
     CCVKGPUBufferHub *_gpuBufferHub{nullptr};
     CCVKGPUTransportHub *_gpuTransportHub{nullptr};
     CCVKGPUDescriptorHub *_gpuDescriptorHub{nullptr};
-    CCVKGPUSemaphorePool *_gpuSemaphorePool{nullptr};
-    CCVKGPUBarrierManager *_gpuBarrierManager{nullptr};
     CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub{nullptr};
     CCVKGPUInputAssemblerHub *_gpuIAHub{nullptr};
+
+    CCVKGPUSemaphorePool *_gpuSemaphorePool{nullptr};
+    CCVKGPUBarrierManager *_gpuBarrierManager{nullptr};
 
     ccstd::vector<const char *> _layers;
     ccstd::vector<const char *> _extensions;

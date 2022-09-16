@@ -1238,7 +1238,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     device->gpuBarrierManager()->checkIn(gpuBuffer);
 }
 
-void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, const CCVKGPUTexture *gpuTexture,
+void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, CCVKGPUTexture *gpuTexture,
                                      const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     ccstd::vector<ThsvsAccessType> &curTypes = gpuTexture->currentAccessTypes;
 
@@ -1413,7 +1413,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     device->gpuBarrierManager()->checkIn(gpuTexture);
 }
 
-void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, const CCVKGPUTexture *srcTexture, const CCVKGPUBufferView *destBufferView,
+void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBufferView *destBufferView,
                                      const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     ccstd::vector<ThsvsAccessType> &curTypes = srcTexture->currentAccessTypes;
 
@@ -1518,7 +1518,7 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
     prevAccesses.clear();
     nextAccesses.clear();
 
-    for (const CCVKGPUBuffer *gpuBuffer : _buffersToBeChecked) {
+    for (CCVKGPUBuffer *gpuBuffer : _buffersToBeChecked) {
         ccstd::vector<ThsvsAccessType> &render = gpuBuffer->renderAccessTypes;
         if (gpuBuffer->transferAccess == THSVS_ACCESS_NONE) continue;
         if (std::find(prevAccesses.begin(), prevAccesses.end(), gpuBuffer->transferAccess) == prevAccesses.end()) {
@@ -1554,7 +1554,7 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
     imageBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     imageBarrier.prevAccessCount = 1;
 
-    for (const CCVKGPUTexture *gpuTexture : _texturesToBeChecked) {
+    for (CCVKGPUTexture *gpuTexture : _texturesToBeChecked) {
         ccstd::vector<ThsvsAccessType> &render = gpuTexture->renderAccessTypes;
         if (gpuTexture->transferAccess == THSVS_ACCESS_NONE || render.empty()) continue;
         ccstd::vector<ThsvsAccessType> &current = gpuTexture->currentAccessTypes;

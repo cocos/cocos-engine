@@ -139,18 +139,18 @@ struct CCVKGPUTexture : public GFXDeviceObject {
     ccstd::vector<VkImage> swapchainVkImages;
     ccstd::vector<VmaAllocation> swapchainVmaAllocations;
 
-    mutable ccstd::vector<ThsvsAccessType> currentAccessTypes;
+    ccstd::vector<ThsvsAccessType> currentAccessTypes;
 
     // for barrier manager
-    mutable ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
-    mutable ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
+    ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
+    ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
 };
 
 struct CCVKGPUTextureView : public GFXDeviceObject {
     void shutdown() override;
     void init();
 
-    ConstPtr<CCVKGPUTexture> gpuTexture;
+    IntrusivePtr<CCVKGPUTexture> gpuTexture;
     TextureType type = TextureType::TEX2D;
     Format format = Format::UNKNOWN;
     uint32_t baseLevel = 0U;
@@ -204,11 +204,11 @@ struct CCVKGPUBuffer : public GFXDeviceObject {
     VkDeviceSize size = 0U;
 
     VkDeviceSize instanceSize = 0U; // per-back-buffer instance
-    mutable ccstd::vector<ThsvsAccessType> currentAccessTypes;
+    ccstd::vector<ThsvsAccessType> currentAccessTypes;
 
     // for barrier manager
-    mutable ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
-    mutable ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
+    ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
+    ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
 
     VkDeviceSize getStartOffset(uint32_t curBackBufferIndex) const {
         return instanceSize * curBackBufferIndex;
@@ -218,7 +218,7 @@ struct CCVKGPUBuffer : public GFXDeviceObject {
 struct CCVKGPUBufferView : public GFXDeviceObject {
     void shutdown() override;
 
-    ConstPtr<CCVKGPUBuffer> gpuBuffer;
+    IntrusivePtr<CCVKGPUBuffer> gpuBuffer;
     uint32_t offset = 0U;
     uint32_t range = 0U;
 
@@ -1220,11 +1220,11 @@ public:
     explicit CCVKGPUBarrierManager(CCVKGPUDevice *device)
     : _device(device) {}
 
-    void checkIn(const CCVKGPUBuffer *gpuBuffer) {
+    void checkIn(CCVKGPUBuffer *gpuBuffer) {
         _buffersToBeChecked.insert(gpuBuffer);
     }
 
-    void checkIn(const CCVKGPUTexture *gpuTexture, const ThsvsAccessType *newTypes = nullptr, uint32_t newTypeCount = 0) {
+    void checkIn(CCVKGPUTexture *gpuTexture, const ThsvsAccessType *newTypes = nullptr, uint32_t newTypeCount = 0) {
         ccstd::vector<ThsvsAccessType> &target = gpuTexture->renderAccessTypes;
         for (uint32_t i = 0U; i < newTypeCount; ++i) {
             if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
@@ -1236,12 +1236,12 @@ public:
 
     void update(CCVKGPUTransportHub *transportHub);
 
-    inline void cancel(const CCVKGPUBuffer *gpuBuffer) { _buffersToBeChecked.erase(gpuBuffer); }
-    inline void cancel(const CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
+    inline void cancel(CCVKGPUBuffer *gpuBuffer) { _buffersToBeChecked.erase(gpuBuffer); }
+    inline void cancel(CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
 
 private:
-    ccstd::unordered_set<const CCVKGPUBuffer *> _buffersToBeChecked;
-    ccstd::unordered_set<const CCVKGPUTexture *> _texturesToBeChecked;
+    ccstd::unordered_set<CCVKGPUBuffer *> _buffersToBeChecked;
+    ccstd::unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
     CCVKGPUDevice *_device = nullptr;
 };
 
