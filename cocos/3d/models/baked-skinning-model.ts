@@ -70,7 +70,7 @@ export class BakedSkinningModel extends MorphModel {
     private _skeleton: Skeleton | null = null;
     private _mesh: Mesh | null = null;
     private _dataPoolManager: DataPoolManager;
-    private _instAnimInfoIdx: Map<SubModel, number> = new Map<SubModel, number>();
+    private _instAnimInfoIdx = -1;
 
     constructor () {
         super();
@@ -134,11 +134,7 @@ export class BakedSkinningModel extends MorphModel {
         let hasNonInstancingPass = false;
         for (let i = 0; i < this._subModels.length; i++) {
             const subModel = this._subModels[i];
-            const mapValue = this._instAnimInfoIdx.get(subModel);
-            let idx = -1;
-            if (mapValue) {
-                idx = mapValue;
-            }
+            const idx = this._instAnimInfoIdx;
             if (idx >= 0) {
                 const view = this.getInstancedAttributeBlock(subModel).views[idx];
                 view[0] = info.data[0];
@@ -219,17 +215,18 @@ export class BakedSkinningModel extends MorphModel {
 
     protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
         super._updateInstancedAttributes(attributes, subModel);
-        this._instAnimInfoIdx.set(subModel, this._getInstancedAttributeIndex(subModel, INST_JOINT_ANIM_INFO));
+        this._instAnimInfoIdx = this._getInstancedAttributeIndex(subModel, INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
     }
 
     private updateInstancedJointTextureInfo () {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
-        const keys = Array.from(this._instAnimInfoIdx.keys());
-        for (let i = 0; i < keys.length; ++i) {
-            const idx = this._instAnimInfoIdx.get(keys[i])!;
+        const values = Array.from(this._instancedAttributes.values());
+        const idx = this._instAnimInfoIdx;
+        for (let i = 0; i < values.length; i++) {
             if (idx >= 0) { // update instancing data too
-                const view = this.instancedAttributes.get(keys[i])!.views[idx];
+                const view = values[i].views[idx];
+                if (!view) { continue; }
                 view[0] = animInfo.data[0];
                 view[1] = jointTextureInfo[1];
                 view[2] = jointTextureInfo[2];
