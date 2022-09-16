@@ -45,6 +45,7 @@
 #include "renderer/pipeline/shadow/ShadowStage.h"
 #include "renderer/pipeline/shadow/CSMLayers.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "renderer/pipeline/InstancedBuffer.h"
 #include "renderer/pipeline/deferred/DeferredPipeline.h"
 #include "renderer/pipeline/deferred/MainFlow.h"
 #include "renderer/pipeline/deferred/GbufferStage.h"
@@ -52,6 +53,7 @@
 #include "renderer/pipeline/deferred/BloomStage.h"
 #include "renderer/pipeline/deferred/PostProcessStage.h"
 #include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 
 
@@ -493,6 +495,20 @@ extern se::Object *__jsb_cc_pipeline_GlobalDSManager_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_GlobalDSManager_class; // NOLINT
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedItem);
+extern se::Object *__jsb_cc_pipeline_InstancedItem_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_InstancedItem_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::InstancedItem * to, se::Object *ctx);
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
+extern se::Object *__jsb_cc_pipeline_InstancedBuffer_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_InstancedBuffer_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);
 extern se::Object *__jsb_cc_pipeline_DeferredPipeline_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_DeferredPipeline_class; // NOLINT
@@ -535,6 +551,20 @@ extern se::Class * __jsb_cc_pipeline_PostProcessStage_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PipelineSceneData);
 extern se::Object *__jsb_cc_pipeline_PipelineSceneData_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_PipelineSceneData_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BatchedItem);
+extern se::Object *__jsb_cc_pipeline_BatchedItem_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_BatchedItem_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::BatchedItem * to, se::Object *ctx);
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BatchedBuffer);
+extern se::Object *__jsb_cc_pipeline_BatchedBuffer_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_BatchedBuffer_class; // NOLINT
 
 #if CC_USE_GEOMETRY_RENDERER
 
