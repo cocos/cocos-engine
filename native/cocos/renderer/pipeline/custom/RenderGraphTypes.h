@@ -37,6 +37,7 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
@@ -272,6 +273,15 @@ struct RasterSubpass {
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
+inline bool operator==(const RasterSubpass& lhs, const RasterSubpass& rhs) noexcept {
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews);
+}
+
+inline bool operator!=(const RasterSubpass& lhs, const RasterSubpass& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct SubpassGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -394,6 +404,15 @@ struct SubpassGraph {
     ccstd::pmr::vector<RasterSubpass> subpasses;
 };
 
+inline bool operator==(const SubpassGraph& lhs, const SubpassGraph& rhs) noexcept {
+    return std::forward_as_tuple(lhs.names, lhs.subpasses) ==
+           std::forward_as_tuple(rhs.names, rhs.subpasses);
+}
+
+inline bool operator!=(const SubpassGraph& lhs, const SubpassGraph& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct RasterPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -417,6 +436,15 @@ struct RasterPass {
     uint32_t height{0};
     gfx::Viewport viewport;
 };
+
+inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
+    return std::forward_as_tuple(lhs.isValid, lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.viewport) ==
+           std::forward_as_tuple(rhs.isValid, rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.viewport);
+}
+
+inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 struct ComputePass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -902,5 +930,35 @@ struct RenderGraph {
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+inline hash_t hash<cc::render::RasterSubpass>::operator()(const cc::render::RasterSubpass& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.rasterViews);
+    hash_combine(seed, val.computeViews);
+    return seed;
+}
+
+inline hash_t hash<cc::render::SubpassGraph>::operator()(const cc::render::SubpassGraph& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.names);
+    hash_combine(seed, val.subpasses);
+    return seed;
+}
+
+inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterPass& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.isValid);
+    hash_combine(seed, val.rasterViews);
+    hash_combine(seed, val.computeViews);
+    hash_combine(seed, val.subpassGraph);
+    hash_combine(seed, val.width);
+    hash_combine(seed, val.height);
+    hash_combine(seed, val.viewport);
+    return seed;
+}
+
+} // namespace ccstd
 
 // clang-format on

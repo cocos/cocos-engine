@@ -743,7 +743,6 @@ export class Skeleton extends UIRenderer {
 
         this._updateSkeletonData();
         this._updateDebugDraw();
-        this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
 

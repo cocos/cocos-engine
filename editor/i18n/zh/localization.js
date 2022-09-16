@@ -904,6 +904,10 @@ module.exports = {
             label: "自定义渲染管线（实验）",
             description: "启用自定义渲染管线。",
         },
+        websocket_server: {
+            label: "WebSocket Server",
+            description: "对原生启用 WebSocket Server。",
+        },
     },
     renderable_2d: {
         srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',

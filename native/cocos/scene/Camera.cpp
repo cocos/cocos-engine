@@ -33,7 +33,8 @@
 #if CC_USE_GEOMETRY_RENDERER
     #include "renderer/pipeline/GeometryRenderer.h"
 #endif
-#include "platform/BasePlatform.h"
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 namespace cc {
 namespace scene {
@@ -178,6 +179,9 @@ void Camera::update(bool forceUpdate /*false*/) {
     // projection matrix
     auto *swapchain = _window->getSwapchain();
     const auto &orientation = swapchain ? swapchain->getSurfaceTransform() : gfx::SurfaceTransform::IDENTITY;
+    if (swapchain) {
+        _systemWindowId = swapchain->getWindowId();
+    }
 
     if (_isProjDirty || _curTransform != orientation) {
         _curTransform = orientation;
@@ -233,6 +237,10 @@ void Camera::changeTargetWindow(RenderWindow *window) {
             resize(win->getHeight(), win->getWidth());
         } else {
             resize(win->getWidth(), win->getHeight());
+        }
+
+        if (swapchain) {
+            _systemWindowId = swapchain->getWindowId();
         }
     }
 }

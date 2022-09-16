@@ -27,9 +27,9 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXSwapchain.h"
-#include "platform/java/modules/XRInterface.h"
 
 namespace cc {
+class IXRInterface;
 namespace gfx {
 
 class CCVKDevice;
