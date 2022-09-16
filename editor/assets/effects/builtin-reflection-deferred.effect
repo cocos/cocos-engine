@@ -20,7 +20,7 @@ CCEffect %{
         mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        occlusion:      { value: 1.0, target: pbrParams.x }
+        occlusion:      { value: 0.0, target: pbrParams.x }
         roughness:      { value: 0.8, target: pbrParams.y }
         metallic:       { value: 0.6, target: pbrParams.z }
         normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
@@ -200,6 +200,7 @@ CCProgram standard-fs %{
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     vec4 pbr = pbrParams;
+    pbr.x = 1.0 - pbr.x;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, PBR_UV);
       pbr.x *= res.OCCLUSION_CHANNEL;
