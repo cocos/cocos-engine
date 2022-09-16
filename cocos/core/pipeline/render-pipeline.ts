@@ -257,7 +257,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     protected _geometryRenderer: GeometryRenderer | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
     protected _pipelineRenderData: PipelineRenderData | null = null;
-    protected _renderPasses = new Map<ClearFlags, RenderPass>();
+    protected _renderPasses = new Map<number, RenderPass>();
     protected _width = 0;
     protected _height = 0;
     protected _lastUsedRenderArea: Rect = new Rect();
@@ -311,30 +311,35 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     }
 
     public getRenderPass (clearFlags: ClearFlags, fbo: Framebuffer): RenderPass {
-        let renderPass = this._renderPasses.get(clearFlags);
+        // clearFlags <= 7, framebuffer format < 100
+        const fakeHash = (clearFlags as number) + (fbo.colorTextures[0] ? fbo.colorTextures[0]!.format * 10 : 0)
+            + (fbo.depthStencilTexture ? fbo.depthStencilTexture.format * 1000 : 0);
+        let renderPass = this._renderPasses.get(fakeHash);
         if (renderPass) { return renderPass; }
         renderPass = this.createRenderPass(clearFlags, fbo.colorTextures[0]!.format, fbo.depthStencilTexture!.format);
-        this._renderPasses.set(clearFlags, renderPass);
+        this._renderPasses.set(fakeHash, renderPass);
         return renderPass;
     }
 
-    public applyFramebufferRatio (framebuffer: Framebuffer) {
+    public newFramebufferByRatio (dyingFramebuffer: Framebuffer) {
         const sceneData = this.pipelineSceneData;
         const width = this._width * sceneData.shadingScale;
         const height = this._height * sceneData.shadingScale;
-        const colorTexArr: any = framebuffer.colorTextures;
+        const colorTexArr: any = dyingFramebuffer.colorTextures;
         for (let i = 0; i < colorTexArr.length; i++) {
             colorTexArr[i]!.resize(width, height);
         }
-        if (framebuffer.depthStencilTexture) {
-            framebuffer.depthStencilTexture.resize(width, height);
+        if (dyingFramebuffer.depthStencilTexture) {
+            dyingFramebuffer.depthStencilTexture.resize(width, height);
         }
-        framebuffer.destroy();
-        framebuffer.initialize(new FramebufferInfo(
-            framebuffer.renderPass,
+        dyingFramebuffer.destroy();
+        // move
+        const newFramebuffer = this._device.createFramebuffer(new FramebufferInfo(
+            dyingFramebuffer.renderPass,
             colorTexArr,
-            framebuffer.depthStencilTexture,
+            dyingFramebuffer.depthStencilTexture,
         ));
+        return newFramebuffer;
     }
 
     /**
