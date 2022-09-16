@@ -1,321 +1,219 @@
 #pragma once
+#include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
+#include <vector>
 #include "../gfx-base/GFXDef-common.h"
-#include "base/std/container/vector.h"
+#include "../gfx-base/GFXDef.h"
 
-namespace cc {
-namespace gfx {
+#ifdef CC_WGPU_WASM
+    #define EXPORT_EMS(expr) expr
+#else
+    #define EXPORT_EMS(expr)
+#endif
 
-//emscripten export struct with pointers.
-class TextureInfoInstance {
-public:
-    TextureInfoInstance() = default;
+#ifdef CC_WGPU_DAWN
+    #define EXPORT_DAWN(expr) expr
+#else
+    #define EXPORT_DAWN(expr)
+#endif
 
-    inline void setType(TextureType type) { info.type = type; }
-    inline void setUsage(uint32_t usageIn) {
-        TextureUsage usage = TextureUsageBit::NONE;
-        if (hasFlag(static_cast<TextureUsage>(usageIn), TextureUsageBit::TRANSFER_SRC)) {
-            usage |= TextureUsageBit::TRANSFER_SRC;
-        }
-        if (hasFlag(static_cast<TextureUsage>(usageIn), TextureUsageBit::TRANSFER_DST)) {
-            usage |= TextureUsageBit::TRANSFER_DST;
-        }
-        if (hasFlag(static_cast<TextureUsage>(usageIn), TextureUsageBit::SAMPLED)) {
-            usage |= TextureUsageBit::SAMPLED;
-        }
-        if (hasFlag(static_cast<TextureUsage>(usageIn), TextureUsageBit::STORAGE)) {
-            usage |= TextureUsageBit::STORAGE;
-        }
-        if (hasFlag(static_cast<TextureUsage>(usageIn), TextureUsageBit::COLOR_ATTACHMENT)) {
-            usage |= TextureUsageBit::COLOR_ATTACHMENT;
-        }
-        if (hasFlag(static_cast<TextureUsage>(usageIn), TextureUsageBit::DEPTH_STENCIL_ATTACHMENT)) {
-            usage |= TextureUsageBit::DEPTH_STENCIL_ATTACHMENT;
-        }
-        if (hasFlag(static_cast<TextureUsage>(usageIn), TextureUsageBit::INPUT_ATTACHMENT)) {
-            usage |= TextureUsageBit::INPUT_ATTACHMENT;
-        }
-        info.usage = usage;
+#ifdef CC_WGPU_RS
+    #define EXPORT_RS(expr) expr
+#else
+    #define EXPORT_RS(expr)
+#endif
+
+// https://github.com/emscripten-core/emscripten/issues/11070#issuecomment-717675128
+namespace emscripten {
+
+template <typename T, typename TWrapper = T>
+std::vector<T> vecFromEMS(const val &vals) {
+    uint32_t len = vals["length"].as<unsigned>();
+    std::vector<T> res(len);
+    const std::vector<val> Ts = vecFromJSArray<val>(vals);
+    for (size_t i = 0; i < len; ++i) {
+        const val &t = Ts[i];
+        res[i] = static_cast<T>(t.as<TWrapper>(allow_raw_pointers()));
     }
-    inline void setFormat(Format format) { info.format = format; }
-    inline void setWidth(uint32_t width) { info.width = width; }
-    inline void setHeight(uint32_t height) { info.height = height; }
-    inline void setFlags(uint32_t flagsIn) {
-        TextureFlags flags = TextureFlagBit::NONE;
+    return res;
+}
 
-        if (hasFlag(static_cast<TextureFlagBit>(flagsIn), TextureFlagBit::GEN_MIPMAP)) {
-            flags |= TextureFlagBit::GEN_MIPMAP;
-        }
-        if (hasFlag(static_cast<TextureFlagBit>(flagsIn), TextureFlagBit::GENERAL_LAYOUT)) {
-            flags |= TextureFlagBit::GENERAL_LAYOUT;
-        }
-
-        info.flags = flags;
+template <typename T, typename TWrapper = T>
+val vecToEMS(const std::vector<T> &Ts) {
+    auto arr = val::array();
+    for (size_t i = 0; i < Ts.size(); ++i) {
+        arr.set(i, TWrapper(Ts[i]));
     }
-    inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
-    inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
-    inline void setSamples(SampleCount sample) { info.samples = sample; }
-    inline void setDepth(uint32_t depth) { info.depth = depth; }
-    inline void setImageBuffer(intptr_t imgBuff) { info.externalRes = reinterpret_cast<void *>(imgBuff); }
+    return arr;
+}
 
-    explicit operator const TextureInfo() const { return info; }
+// template <typename T, typename std::enable_if<std::is_pointer<T>::value, bool>::type = true>
+// std::vector<T> ptrVecFromEMS(const val& vals) {
+//     uint32_t               len = vals["length"].as<unsigned>();
+//     std::vector<T>         res(len);
+//     const std::vector<val> Ts = vecFromJSArray<val>(vals);
+//     for (size_t i = 0; i < len; ++i) {
+//         const val& t = Ts[i];
+//         t.as<Texture*>(emscripten::allow_raw_pointers());
+//         res[i] = reinterpret_cast<T>(t.as<int>());
+//     }
+//     return res;
+// }
 
-private:
-    TextureInfo info;
-};
-
-class TextureViewInfoInstance {
-public:
-    TextureViewInfoInstance() = default;
-
-    inline void setTexture(Texture *tex) { info.texture = tex; }
-    inline void setType(TextureType type) { info.type = type; }
-    inline void setFormat(Format format) { info.format = format; }
-    inline void setBaseLevel(uint32_t baseLevel) { info.baseLevel = baseLevel; }
-    inline void setLevelCount(uint32_t levelCount) { info.levelCount = levelCount; }
-    inline void setBaseLayer(uint32_t baseLayer) { info.baseLayer = baseLayer; }
-    inline void setLayerCount(uint32_t layerCount) { info.layerCount = layerCount; }
-
-    explicit operator const TextureViewInfo() const { return info; }
-
-private:
-    TextureViewInfo info;
-};
-
-class SwapchainInfoInstance {
-public:
-    SwapchainInfoInstance() = default;
-
-    inline void setWindowHandle(uintptr_t hwnd) { info.windowHandle = reinterpret_cast<void *>(hwnd); }
-    inline void setVsyncMode(VsyncMode mode) { info.vsyncMode = mode; }
-    inline void setWidth(uint32_t width) { info.width = width; }
-    inline void setHeight(uint32_t height) { info.height = height; }
-
-    explicit operator const SwapchainInfo() const { return info; }
-
-private:
-    SwapchainInfo info;
-};
-
-class FramebufferInfoInstance {
-public:
-    FramebufferInfoInstance() = default;
-
-    inline void setRenderPass(RenderPass *renderPass) { info.renderPass = renderPass; }
-    inline void setColorTextures(TextureList colors) { info.colorTextures = colors; }
-    inline void setDepthStencilTexture(Texture *tex) { info.depthStencilTexture = tex; }
-
-    explicit operator const FramebufferInfo() const { return info; }
-
-private:
-    FramebufferInfo info;
-};
-
-class BufferViewInfoInstance {
-public:
-    BufferViewInfoInstance() = default;
-
-    inline void setBuffer(Buffer *buffer) { info.buffer = buffer; }
-    inline void setOffset(uint32_t offset) { info.offset = offset; }
-    inline void setRange(uint32_t range) { info.range = range; }
-
-    explicit operator const BufferViewInfo() const { return info; }
-
-private:
-    BufferViewInfo info;
-};
-
-class DescriptorSetInfoInstance {
-public:
-    DescriptorSetInfoInstance() = default;
-    inline void setDescriptorSetLayout(DescriptorSetLayout *layout) { info.layout = layout; }
-
-    explicit operator const DescriptorSetInfo() const { return info; }
-
-private:
-    DescriptorSetInfo info;
-};
-
-class PipelineStateInfoInstance {
-public:
-    inline void setShader(Shader *shader) { info.shader = shader; }
-    inline void setPipelineLayout(PipelineLayout *pipelineLayout) { info.pipelineLayout = pipelineLayout; }
-    inline void setRenderPass(RenderPass *renderPass) { info.renderPass = renderPass; }
-    inline void setInputState(InputState inputState) { info.inputState = inputState; }
-    inline void setRasterizerState(RasterizerState rasterizerState) { info.rasterizerState = rasterizerState; }
-    inline void setDepthStencilState(DepthStencilState depthStencilState) { info.depthStencilState = depthStencilState; }
-    inline void setBlendState(BlendState blendState) { info.blendState = blendState; }
-    inline void setPrimitiveMode(PrimitiveMode primitive) { info.primitive = primitive; }
-    inline void setDynamicStateFlags(DynamicStateFlagBit dynamicStates) { info.dynamicStates = dynamicStates; }
-    inline void setPipelineBindPoint(PipelineBindPoint bindPoint) { info.bindPoint = bindPoint; }
-    inline void setSubpass(uint32_t subpass) { info.subpass = subpass; }
-
-    explicit operator const PipelineStateInfo() const { return info; }
-
-private:
-    PipelineStateInfo info;
-};
-
-class InputAssemblerInfoInstance {
-public:
-    inline void setAttributes(AttributeList attributes) { info.attributes = attributes; }
-    inline void setBuffers(BufferList buffers) { info.vertexBuffers = buffers; }
-    inline void setIndexBuffer(Buffer *buffer) { info.indexBuffer = buffer; }
-    inline void setIndirectBuffer(Buffer *buffer) { info.indirectBuffer = buffer; }
-
-    explicit operator const InputAssemblerInfo() const { return info; }
-
-private:
-    InputAssemblerInfo info;
-};
-
-class CommandBufferInfoInstance {
-public:
-    inline void setQueue(Queue *q) { info.queue = q; }
-    inline void setType(CommandBufferType type) { info.type = type; }
-
-    explicit operator const CommandBufferInfo() const { return info; }
-
-private:
-    CommandBufferInfo info;
-};
-
-class DispatchInfoInstance {
-public:
-    inline void setGroupCountX(uint32_t groupCountX) { info.groupCountX = groupCountX; }
-    inline void setGroupCountY(uint32_t groupCountY) { info.groupCountY = groupCountY; }
-    inline void setGroupCountZ(uint32_t groupCountZ) { info.groupCountZ = groupCountZ; }
-    inline void setIndirectBuffer(Buffer *indirectBuffer) { info.indirectBuffer = indirectBuffer; }
-    inline void setIndirectOffset(uint32_t offset) { info.indirectOffset = offset; }
-
-    explicit operator const DispatchInfo() const { return info; }
-
-private:
-    DispatchInfo info;
-};
-
-class SPVShaderStageInstance {
-public:
-    ShaderStageFlagBit stage{ShaderStageFlagBit::NONE};
-    ccstd::vector<uint32_t> spv;
-
-    inline void setStage(ShaderStageFlagBit stageIn) { stage = stageIn; }
-    inline void setSPVData(const emscripten::val &v) { spv = emscripten::convertJSArrayToNumberVector<uint32_t>(v); }
-};
-
-class SPVShaderInfoInstance {
-public:
-    inline void setName(ccstd::string name) { info.name = name; }
-    inline void setAttributes(AttributeList attrs) { info.attributes = attrs; }
-    inline void setStages(ccstd::vector<SPVShaderStageInstance> spvStages) { stages = spvStages; }
-    inline void setBlocks(UniformBlockList blocks) { info.blocks = blocks; }
-    inline void setBuffers(UniformStorageBufferList buffers) { info.buffers = buffers; }
-    inline void setSamplerTextures(UniformSamplerTextureList list) { info.samplerTextures = list; }
-    inline void setTextures(UniformTextureList textures) { info.textures = textures; }
-    inline void setSamplers(UniformSamplerList samplers) { info.samplers = samplers; }
-    inline void setImages(UniformStorageImageList images) { info.images = images; }
-    inline void setSubpasses(UniformInputAttachmentList subpassInputs) { info.subpassInputs = subpassInputs; }
-
-    ShaderInfo info;
-    ccstd::vector<SPVShaderStageInstance> stages;
-};
-
-class DescriptorSetLayoutBindingInstance {
-public:
-    inline void setBinding(uint32_t binding) { info.binding = binding; }
-    inline void setDescriptorType(DescriptorType descriptorType) { info.descriptorType = descriptorType; }
-    inline void setCount(uint32_t count) { info.count = count; }
-    inline void setStageFlags(uint32_t stageFlags) {
-        ShaderStageFlags flag = ShaderStageFlagBit::NONE;
-        if (hasFlag(static_cast<ShaderStageFlags>(stageFlags), ShaderStageFlagBit::VERTEX)) {
-            flag |= ShaderStageFlagBit::VERTEX;
-        }
-        if (hasFlag(static_cast<ShaderStageFlags>(stageFlags), ShaderStageFlagBit::CONTROL)) {
-            flag |= ShaderStageFlagBit::CONTROL;
-        }
-        if (hasFlag(static_cast<ShaderStageFlags>(stageFlags), ShaderStageFlagBit::EVALUATION)) {
-            flag |= ShaderStageFlagBit::EVALUATION;
-        }
-        if (hasFlag(static_cast<ShaderStageFlags>(stageFlags), ShaderStageFlagBit::GEOMETRY)) {
-            flag |= ShaderStageFlagBit::GEOMETRY;
-        }
-        if (hasFlag(static_cast<ShaderStageFlags>(stageFlags), ShaderStageFlagBit::FRAGMENT)) {
-            flag |= ShaderStageFlagBit::FRAGMENT;
-        }
-        if (hasFlag(static_cast<ShaderStageFlags>(stageFlags), ShaderStageFlagBit::COMPUTE)) {
-            flag |= ShaderStageFlagBit::COMPUTE;
-        }
-        info.stageFlags = flag;
+template <typename T, typename std::enable_if<std::is_pointer<T>::value, bool>::type = true>
+val ptrVecToEMS(const std::vector<T> &Ts) {
+    auto arr = val::array();
+    for (size_t i = 0; i < Ts.size(); ++i) {
+        arr.set(i, Ts[i]);
     }
-    inline void setImmutableSamplers(SamplerList immutableSamplers) { info.immutableSamplers = immutableSamplers; }
+    return arr;
+}
 
-    explicit operator const DescriptorSetLayoutBinding() const { return info; }
+namespace internal {
 
-private:
-    DescriptorSetLayoutBinding info;
-};
+// vector<T> -> [] & [] ->vector<T>
+template <typename T, typename Allocator>
+struct BindingType<std::vector<T, Allocator>> {
+    using ValBinding = BindingType<val>;
+    using WireType = ValBinding::WireType;
 
-class DescriptorSetLayoutInfoInstance {
-public:
-    inline void setBindings(ccstd::vector<DescriptorSetLayoutBindingInstance> bindings) { info.bindings = ccstd::vector<DescriptorSetLayoutBinding>(bindings.begin(), bindings.end()); }
-
-    explicit operator const DescriptorSetLayoutInfo() const { return info; }
-
-private:
-    DescriptorSetLayoutInfo info;
-};
-
-class BufferInfoInstance {
-public:
-    inline void setUsage(uint32_t usageIn) {
-        BufferUsage usage = BufferUsageBit::NONE;
-        if (hasFlag(static_cast<BufferUsageBit>(usageIn), BufferUsageBit::TRANSFER_SRC)) {
-            usage |= BufferUsageBit::TRANSFER_SRC;
-        }
-        if (hasFlag(static_cast<BufferUsageBit>(usageIn), BufferUsageBit::TRANSFER_DST)) {
-            usage |= BufferUsageBit::TRANSFER_DST;
-        }
-        if (hasFlag(static_cast<BufferUsageBit>(usageIn), BufferUsageBit::INDEX)) {
-            usage |= BufferUsageBit::INDEX;
-        }
-        if (hasFlag(static_cast<BufferUsageBit>(usageIn), BufferUsageBit::VERTEX)) {
-            usage |= BufferUsageBit::VERTEX;
-        }
-        if (hasFlag(static_cast<BufferUsageBit>(usageIn), BufferUsageBit::UNIFORM)) {
-            usage |= BufferUsageBit::UNIFORM;
-        }
-        if (hasFlag(static_cast<BufferUsageBit>(usageIn), BufferUsageBit::STORAGE)) {
-            usage |= BufferUsageBit::STORAGE;
-        }
-        if (hasFlag(static_cast<BufferUsageBit>(usageIn), BufferUsageBit::INDIRECT)) {
-            usage |= BufferUsageBit::INDIRECT;
-        }
-
-        info.usage = usage;
-    }
-    inline void setMemUsage(uint32_t memUsageIn) {
-        MemoryUsage memUsage = MemoryUsageBit::NONE;
-        if (hasFlag(static_cast<MemoryUsageBit>(memUsageIn), MemoryUsageBit::DEVICE)) {
-            memUsage |= MemoryUsageBit::DEVICE;
-        }
-        if (hasFlag(static_cast<MemoryUsageBit>(memUsageIn), MemoryUsageBit::HOST)) {
-            memUsage |= MemoryUsageBit::HOST;
-        }
-        info.memUsage = memUsage;
-    }
-    inline void setSize(uint32_t size) { info.size = size; }
-    inline void setStride(uint32_t stride) { info.stride = stride; }
-    inline void setFlags(uint32_t flagsIn) {
-        BufferFlags flags = BufferFlagBit::NONE;
-
-        info.flags = static_cast<BufferFlagBit>(flagsIn);
+    static WireType toWireType(const std::vector<T, Allocator> &vec) {
+        return ValBinding::toWireType(vecToEMS(vec));
     }
 
-    explicit operator const BufferInfo() const { return info; }
-
-private:
-    BufferInfo info;
+    static std::vector<T, Allocator> fromWireType(WireType value) {
+        return vecFromJSArray<T>(ValBinding::fromWireType(value), allow_raw_pointers());
+    }
 };
 
-} // namespace gfx
-} // namespace cc
+template <typename T>
+struct TypeID<T,
+              typename std::enable_if_t<std::is_same<
+                  typename Canonicalized<T>::type,
+                  std::vector<typename Canonicalized<T>::type::value_type,
+                              typename Canonicalized<T>::type::allocator_type>>::value>> {
+    static constexpr TYPEID get() { return TypeID<val>::get(); }
+};
+
+} // namespace internal
+} // namespace emscripten
+
+template <typename T>
+struct GenInstance {
+    static T instance() {
+        return T();
+    }
+};
+
+template <class R, class T>
+R getMemberType(R T::*);
+
+#define MEMBER_TYPE(prop) decltype(getMemberType(prop))
+
+template <typename T, typename U, typename V, typename FallBack = void>
+struct Exporter {
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
+        t.field(propName, field);
+    }
+};
+
+template <typename T, typename U, typename V>
+struct Exporter<T, U, V, typename std::enable_if<std::is_enum<U>::value>::type> {
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert = false) {
+        std::function<void(V & v, std::underlying_type_t<U> u)> set = [field](V &v, std::underlying_type_t<U> u) {
+            v.*field = U{u};
+        };
+        std::function<std::underlying_type_t<U>(const V &v)> get = [field](const V &v) {
+            return static_cast<std::underlying_type_t<U>>(v.*field);
+        };
+        t.field(propName, get, set);
+    }
+};
+
+template <typename T, typename U, typename V>
+struct Exporter<T, U, V, typename std::enable_if<std::is_pointer<U>::value>::type> {
+    Exporter(T &t, const char *propName, U V::*field) {
+        static_assert(!std::is_pointer<U>::value, "Export pointer with struct, try EXPORT_STRUCT_NPOD!");
+    }
+
+    Exporter(T &t, const char *propName, U V::*field, bool ignorePtrAssert) {
+        t.field(propName, field);
+    }
+};
+
+#define PROCESS_STRUCT_MEMBERS(r, struct_name, property) \
+    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property); }
+
+#define EXPORT_STRUCT_POD(struct_name, ...)                                                                \
+    {                                                                                                      \
+        auto obj = value_object<struct_name>(#struct_name);                                                \
+        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+    }
+
+#define PROCESS_STRUCT_MEMBERS_MAY_BE_PTR(r, struct_name, property) \
+    { Exporter exporter(obj, BOOST_PP_STRINGIZE(property), &struct_name::property, true); }
+
+#define EXPORT_STRUCT_NPOD(struct_name, ...)                                                                          \
+    {                                                                                                                 \
+        auto obj = value_object<struct_name>(#struct_name);                                                           \
+        BOOST_PP_SEQ_FOR_EACH(PROCESS_STRUCT_MEMBERS_MAY_BE_PTR, struct_name, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+    }
+
+#define SPECIALIZE_PTR_FOR_STRUCT(r, _, TYPE)                                                                                                                       \
+    template <>                                                                                                                                                     \
+    struct emscripten::internal::TypeID<std::remove_cv<cc::gfx::TYPE>::type *, void> {                                                                              \
+        static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<emscripten::internal::AllowedRawPointer<cc::gfx::TYPE>>::get(); } \
+    };                                                                                                                                                              \
+    template <>                                                                                                                                                     \
+    struct emscripten::internal::TypeID<const std::remove_cv<cc::gfx::TYPE>::type *, void> {                                                                        \
+        static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<emscripten::internal::AllowedRawPointer<cc::gfx::TYPE>>::get(); } \
+    };
+
+#define REGISTER_GFX_PTRS_FOR_STRUCT(...) \
+    BOOST_PP_SEQ_FOR_EACH(SPECIALIZE_PTR_FOR_STRUCT, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__));
+
+// specialize for void*
+template <>
+struct emscripten::internal::TypeID<void *, void> {
+    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<uintptr_t>::get(); }
+};
+
+template <typename T>
+struct emscripten::internal::TypeID<T, typename std::enable_if<std::is_enum<T>::value>::type> {
+    static constexpr emscripten::internal::TYPEID get() { return emscripten::internal::TypeID<typename std::underlying_type<T>::type>::get(); }
+};
+
+namespace cc::gfx {
+
+using ::emscripten::allow_raw_pointers;
+using ::emscripten::convertJSArrayToNumberVector;
+using ::emscripten::val;
+
+// template <typename T, typename std::enable_if<std::is_pointer<T>::value, bool>::type = true>
+// std::vector<T> ptrVecFromEMS(const val& vals) {
+//     uint32_t               len = vals["length"].as<unsigned>();
+//     std::vector<T>         res(len);
+//     const std::vector<val> Ts = vecFromJSArray<val>(vals);
+//     for (size_t i = 0; i < len; ++i) {
+//         const val& t = Ts[i];
+//         t.as<Texture*>(emscripten::allow_raw_pointers());
+//         res[i] = reinterpret_cast<T>(t.as<int>());
+//     }
+//     return res;
+// }
+
+template <typename T, typename EnumFallBack = void>
+struct GetType {
+    using type = T;
+};
+
+template <typename T>
+struct GetType<T, typename std::enable_if<std::is_enum<T>::value>::type> {
+    using type = typename std::underlying_type<T>::type;
+};
+
+} // namespace cc::gfx

@@ -29,8 +29,10 @@
 #include "WGPUDef.h"
 #include "base/Utils.h"
 #include "base/std/container/map.h"
+#include "base/std/container/set.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
+#include "base/threading/Semaphore.h"
 #include "gfx-base/GFXDef.h"
 
 class WGPURenderPassDescriptor;
@@ -41,10 +43,10 @@ namespace cc {
 namespace gfx {
 
 constexpr uint8_t CC_WGPU_MAX_ATTACHMENTS = 16;
-
-constexpr uint8_t CC_WGPU_MAX_STREAM = 256; //not sure
-
+constexpr uint8_t CC_WGPU_MAX_STREAM = 256; // not sure
 constexpr decltype(nullptr) wgpuDefaultHandle = nullptr;
+constexpr ccstd::hash_t WGPU_HASH_SEED = 0x811C9DC5;
+constexpr uint8_t CC_WGPU_MAX_FRAME_COUNT = 3;
 
 const DescriptorType COMBINED_ST_IN_USE = DescriptorType::SAMPLER_TEXTURE | DescriptorType::INPUT_ATTACHMENT;
 
@@ -63,20 +65,27 @@ struct CCWGPUResource {
     CCWGPUTexture *commonTexture = nullptr;
     CCWGPUTexture *storageTexture = nullptr;
 
-    CCWGPUSampler *sampler = nullptr;
+    CCWGPUSampler *filterableSampler = nullptr;
+    CCWGPUSampler *unfilterableSampler = nullptr;
+};
+
+struct CCWGPUInstanceObject {
+    WGPUInstance wgpuInstance = wgpuDefaultHandle;
+    WGPUSurface wgpuSurface = wgpuDefaultHandle;
+    WGPUAdapter wgpuAdapter = wgpuDefaultHandle;
 };
 
 struct CCWGPUDeviceObject {
     WGPUDevice wgpuDevice = wgpuDefaultHandle;
     WGPUQueue wgpuQueue = wgpuDefaultHandle;
 
+    CCWGPUInstanceObject instance;
     CCWGPUResource defaultResources;
 };
 
 struct CCWGPUSwapchainObject {
     WGPUSwapChain wgpuSwapChain = wgpuDefaultHandle;
     WGPUSurface wgpuSurface = wgpuDefaultHandle;
-    WGPUInstance wgpuInstance = wgpuDefaultHandle;
 
     CCWGPUTexture *swapchainColor = nullptr;
     CCWGPUTexture *swapchainDepthStencil = nullptr;
@@ -95,14 +104,14 @@ struct CCWGPUTextureObject {
     WGPUTextureView selfView = wgpuDefaultHandle;
 };
 
-//The indirect drawIndexed parameters encoded in the buffer must be a tightly packed block
-//of five 32-bit unsigned integer values (20 bytes total), given in the same order as the arguments for drawIndexed().
-// let drawIndexedIndirectParameters = new Uint32Array(5);
-// drawIndexedIndirectParameters[0] = indexCount;
-// drawIndexedIndirectParameters[1] = instanceCount;
-// drawIndexedIndirectParameters[2] = firstIndex;
-// drawIndexedIndirectParameters[3] = baseVertex;
-// drawIndexedIndirectParameters[4] = 0; // firstInstance. Must be 0.
+// The indirect drawIndexed parameters encoded in the buffer must be a tightly packed block
+// of five 32-bit unsigned integer values (20 bytes total), given in the same order as the arguments for drawIndexed().
+//  let drawIndexedIndirectParameters = new Uint32Array(5);
+//  drawIndexedIndirectParameters[0] = indexCount;
+//  drawIndexedIndirectParameters[1] = instanceCount;
+//  drawIndexedIndirectParameters[2] = firstIndex;
+//  drawIndexedIndirectParameters[3] = baseVertex;
+//  drawIndexedIndirectParameters[4] = 0; // firstInstance. Must be 0.
 struct CCWGPUDrawIndexedIndirectObject {
     uint32_t indexCount = 0;
     uint32_t instanceCount = 0;
@@ -112,8 +121,8 @@ struct CCWGPUDrawIndexedIndirectObject {
 };
 static_assert(sizeof(CCWGPUDrawIndexedIndirectObject) == 20, "WGPU drawIndexedIndirect structure validation failed!");
 
-//The indirect draw parameters encoded in the buffer must be a tightly packed block
-//of four 32-bit unsigned integer values (16 bytes total), given in the same order as the arguments for draw().
+// The indirect draw parameters encoded in the buffer must be a tightly packed block
+// of four 32-bit unsigned integer values (16 bytes total), given in the same order as the arguments for draw().
 
 // let drawIndirectParameters = new Uint32Array(4);
 // drawIndirectParameters[0]  = vertexCount;
@@ -191,7 +200,6 @@ struct CCWGPUQueueObject {
 };
 
 struct CCWGPUDescriptorSetObject {
-    uint32_t index = 0;
     CCWGPUDescriptorSet *descriptorSet = nullptr;
     uint32_t dynamicOffsetCount = 0;
     const uint32_t *dynamicOffsets = nullptr;
@@ -227,6 +235,7 @@ struct CCWGPUStateCache {
 struct CCWGPUCommandBufferObject {
     bool renderPassBegan = false;
 
+    WGPUCommandBuffer wgpuCommandBuffer = wgpuDefaultHandle;
     WGPUCommandEncoder wgpuCommandEncoder = wgpuDefaultHandle;
     WGPURenderPassEncoder wgpuRenderPassEncoder = wgpuDefaultHandle;
     WGPUComputePassEncoder wgpuComputeEncoder = wgpuDefaultHandle;
@@ -243,6 +252,158 @@ struct CCWGPUQueryPoolObject {
     QueryType type = QueryType::OCCLUSION;
     uint32_t maxQueryObjects = 0;
     ccstd::vector<uint32_t> idPool;
+};
+
+template <typename T>
+class RecycleBin {
+public:
+    RecycleBin() = default;
+    ~RecycleBin() = default;
+    RecycleBin(const RecycleBin &) = delete;
+    RecycleBin &operator=(const RecycleBin &) = delete;
+
+    void collect(T t) {
+        _recycleBin.emplace(t);
+    }
+
+    void purge() {
+        for (auto &t : _recycleBin) {
+            purge(t);
+        }
+        _recycleBin.clear();
+    }
+
+private:
+    void purge(T t);
+
+    ccstd::set<T> _recycleBin;
+};
+
+template <>
+inline void RecycleBin<WGPUBuffer>::purge(WGPUBuffer buffer) {
+    wgpuBufferDestroy(buffer);
+    wgpuBufferRelease(buffer);
+}
+
+template <>
+inline void RecycleBin<WGPUQuerySet>::purge(WGPUQuerySet querySet) {
+    wgpuQuerySetDestroy(querySet);
+    wgpuQuerySetRelease(querySet);
+}
+
+template <>
+inline void RecycleBin<WGPUTexture>::purge(WGPUTexture texture) {
+    wgpuTextureDestroy(texture);
+    wgpuTextureRelease(texture);
+}
+
+struct CCWGPURecycleBin {
+    RecycleBin<WGPUBuffer> bufferBin;
+    RecycleBin<WGPUTexture> textureBin;
+    RecycleBin<WGPUQuerySet> queryBin;
+};
+
+namespace {
+inline void onStagingBufferMapDone(WGPUBufferMapAsyncStatus status, void *userdata) {
+    if (status == WGPUBufferMapAsyncStatus_Success) {
+        auto *semaphore = static_cast<Semaphore *>(userdata);
+        semaphore->signal();
+    }
+}
+} // namespace
+constexpr uint32_t INIT_BUFFER_SIZE = 1024 * 1024 * 1; // 1MB
+
+class CCWGPUStagingBuffer {
+    CCWGPUStagingBuffer(const CCWGPUStagingBuffer &) = delete;
+    CCWGPUStagingBuffer &operator=(const CCWGPUStagingBuffer &) = delete;
+    CCWGPUStagingBuffer() = default;
+    ~CCWGPUStagingBuffer() = default;
+
+public:
+    explicit CCWGPUStagingBuffer(WGPUDevice device, const std::function<void(WGPUBuffer)> &recycleFunc)
+    : _device(device), _size(INIT_BUFFER_SIZE), _recycleFunc(recycleFunc) {
+        WGPUBufferDescriptor desc = {
+            .label = "staging buffer",
+            .usage = WGPUBufferUsage_CopySrc | WGPUBufferUsage_MapWrite,
+            .size = _size,
+            .mappedAtCreation = true,
+        };
+        _buffer = wgpuDeviceCreateBuffer(device, &desc);
+        _mappedData = wgpuBufferGetMappedRange(_buffer, 0, _size);
+    }
+
+    uint32_t alloc(uint32_t size) {
+        // 1. what if it's still unmapped
+        if (!_mapped) {
+            Semaphore sem{0};
+            wgpuBufferMapAsync(_buffer, WGPUMapMode_Write, 0, _size, onStagingBufferMapDone, &sem);
+            sem.wait();
+            _mappedData = wgpuBufferGetMappedRange(_buffer, 0, _size);
+            _mapped = true;
+        }
+
+        const auto oldOffset = _offset;
+        if (_offset + size > _size) {
+            const auto oldBuffer = _buffer;
+            const auto oldSize = _size;
+            const auto *oldMappedData = _mappedData;
+
+            _size = utils::nextPOT(_offset + size);
+            WGPUBufferDescriptor desc = {
+                .label = "staging buffer",
+                .usage = WGPUBufferUsage_CopySrc | WGPUBufferUsage_MapWrite,
+                .size = _size,
+                .mappedAtCreation = true,
+            };
+            _buffer = wgpuDeviceCreateBuffer(_device, &desc);
+            _mappedData = wgpuBufferGetMappedRange(_buffer, 0, _size);
+            _offset = 0;
+
+            if (_mapped) {
+                memcpy(_mappedData, oldMappedData, oldSize);
+                _offset = oldOffset;
+            } else {
+                // do nothing, unmap means this buffer has flush its data to gpu
+            }
+            _recycleFunc(oldBuffer);
+        }
+        _offset += size;
+        return oldOffset;
+    }
+
+    void destroy() {
+        if (_mapped) {
+            wgpuBufferUnmap(_buffer);
+        }
+        if (_recycleFunc) {
+            _recycleFunc(_buffer);
+        }
+    }
+
+    void unmap() {
+        if (_mapped) {
+            wgpuBufferUnmap(_buffer);
+            _mapped = false;
+        }
+        _offset = 0;
+    }
+
+    void *getMappedData(uint32_t offset) {
+        return static_cast<uint8_t *>(_mappedData) + offset;
+    }
+
+    WGPUBuffer getBuffer() {
+        return _buffer;
+    }
+
+private:
+    WGPUDevice _device{wgpuDefaultHandle};
+    WGPUBuffer _buffer{wgpuDefaultHandle};
+    void *_mappedData{nullptr};
+    uint32_t _size{0};
+    uint32_t _offset{0};
+    std::function<void(WGPUBuffer)> _recycleFunc;
+    bool _mapped{false};
 };
 
 } // namespace gfx

@@ -772,6 +772,10 @@ module.exports = {
             label: "WebGL 2.0",
             description: "包含对 WebGL 2.0 图形 API 的支持。\n当 WebGL 2.0 在目标平台上不可用时会自动回退至 WebGL 1.0。",
         },
+        gfx_webgpu: {
+            label: "WebGPU",
+            description: "包含对 WebGPU 图形 API 的支持。",
+        },
         ui: {
             label: "用户界面",
             description: "用户界面支持。",
@@ -911,9 +915,9 @@ module.exports = {
         color: '渲染颜色，一般情况下会和贴图颜色相乘',
     },
     ui_transform: {
-        content_size:'内容尺寸',
-        anchor_point:'锚点位置',
-        priority:'渲染排序优先级',
+        content_size: '内容尺寸',
+        anchor_point: '锚点位置',
+        priority: '渲染排序优先级',
     },
     graphics: {
         lineWidth: '线条宽度',
@@ -962,7 +966,7 @@ module.exports = {
             simplex_vertex2: '形状的顶点 2',
             simplex_vertex3: '形状的顶点 3',
         },
-        constant_force:{
+        constant_force: {
             force: '在世界坐标系中，对刚体施加的力',
             localForce: '在本地坐标系中，对刚体施加的力',
             torque: '在世界坐标系中，对刚体施加的扭转力',
