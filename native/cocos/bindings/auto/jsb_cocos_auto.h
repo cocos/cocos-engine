@@ -42,6 +42,8 @@
 #include "core/data/JSBNativeDataHolder.h"
 #include "platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
 #include "platform/interfaces/modules/Device.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/FileUtils.h"
 #include "platform/SAXParser.h"
 #include "math/Vec2.h"
@@ -86,6 +88,25 @@ extern se::Class * __jsb_cc_CanvasRenderingContext2D_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::Device);
 extern se::Object *__jsb_cc_Device_proto; // NOLINT
 extern se::Class * __jsb_cc_Device_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::ISystemWindow);
+extern se::Object *__jsb_cc_ISystemWindow_proto; // NOLINT
+extern se::Class * __jsb_cc_ISystemWindow_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::ISystemWindowInfo);
+extern se::Object *__jsb_cc_ISystemWindowInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_ISystemWindowInfo_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::ISystemWindowInfo * to, se::Object *ctx);
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::ISystemWindowManager);
+extern se::Object *__jsb_cc_ISystemWindowManager_proto; // NOLINT
+extern se::Class * __jsb_cc_ISystemWindowManager_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::FileUtils);

@@ -26,11 +26,12 @@
 #include "platform/ios/modules/SystemWindow.h"
 #import <UIKit/UIKit.h>
 
-namespace {
-
-}
-
 namespace cc {
+
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
+    : _windowId(windowId)
+    , _externalHandle(externalHandle) {
+}
 
 SystemWindow::~SystemWindow() = default;
 

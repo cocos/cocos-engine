@@ -33,6 +33,8 @@ namespace cc {
 
 class SystemWindow : public ISystemWindow {
 public:
+    SystemWindow(uint32_t windowId, void *externalHandle);
+
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */
@@ -40,15 +42,16 @@ public:
 
     void copyTextToClipboard(const std::string &text) override;
 
-    uintptr_t getWindowHandle() const override;
-
     void setWindowHandle(void *handle);
+    uintptr_t getWindowHandle() const override;
+    uint32_t getWindowId() const override { return _windowId; }
 
     Size getViewSize() const override;
 
     void closeWindow() override;
 
 private:
+    uint32_t _windowId{0};
     void *_windowHandle{nullptr};
 };
 

@@ -35,13 +35,13 @@
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/engine/BaseEngine.h"
 #include "cocos/platform/interfaces/modules/IScreen.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
+#include "ApplicationManager.h"
 
 namespace cc {
 
 CocosApplication::CocosApplication() {
     _engine = BaseEngine::createEngine();
-    _systemWindow = _engine->getInterface<ISystemWindow>();
-    CC_ASSERT(_systemWindow != nullptr);
 }
 
 CocosApplication::~CocosApplication() {
@@ -66,6 +66,8 @@ int CocosApplication::init() {
     _engine->on(BaseEngine::ON_START, [this]() {
         this->onStart();
     });
+
+    _systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
 
     _engine->on(BaseEngine::ON_RESUME, [this]() {
         this->onResume();

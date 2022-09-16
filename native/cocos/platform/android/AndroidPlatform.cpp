@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include <thread>
-
+#include <android/native_window_jni.h>
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"
@@ -42,10 +42,13 @@
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/SystemWindowManager.h"
 #include "platform/java/modules/Vibrator.h"
 #include "platform/java/modules/XRInterface.h"
 
+#include "bindings/event/EventDispatcher.h"
 #include "paddleboat.h"
+#include "base/StringUtil.h"
 
 #define ABORT_GAME                          \
     {                                       \
@@ -216,6 +219,8 @@ public:
 
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
+            touchEvent.windowId = ISystemWindow::mainWindowId; // must be main window here
+
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
             int eventChangedIndex = -1;
@@ -305,12 +310,19 @@ public:
                 break;
             case APP_CMD_INIT_WINDOW: {
                 _hasWindow = true;
-                auto *systemWindow = _androidPlatform->getInterface<SystemWindow>();
-                systemWindow->setWindowHandle(_androidPlatform->_app->window);
+                ANativeWindow *nativeWindow = _androidPlatform->_app->window;
+
                 // We have a window!
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
                 if (!_launched) {
                     _launched = true;
+
+                    ISystemWindowInfo info;
+                    info.width  = ANativeWindow_getWidth(nativeWindow);
+                    info.height = ANativeWindow_getHeight(nativeWindow);
+                    info.externalHandle = nativeWindow;
+                    _androidPlatform->getInterface<SystemWindowManager>()->createWindow(info);
+
                     if (cocos_main(0, nullptr) != 0) {
                         CC_LOG_ERROR("AndroidPlatform: Launch game failed!");
                     } else {
@@ -324,9 +336,14 @@ public:
                     if (xr) {
                         xr->onRenderResume();
                     }
+
+                    auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
+                    auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
+                    window->setWindowHandle(nativeWindow);
+
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
-                    event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
+                    event.args->ptrVal = reinterpret_cast<void *>(ISystemWindow::mainWindowId);
                     _androidPlatform->dispatchEvent(event);
                 }
                 break;
@@ -547,7 +564,7 @@ int AndroidPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<SystemWindowManager>());
     registerInterface(std::make_shared<Vibrator>());
 
     return 0;
@@ -557,6 +574,10 @@ void AndroidPlatform::onDestroy() {
     UniversalPlatform::onDestroy();
     unregisterAllInterfaces();
     CC_SAFE_DELETE(_inputProxy)
+}
+
+cc::ISystemWindow *AndroidPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 int AndroidPlatform::getSdkVersion() const {

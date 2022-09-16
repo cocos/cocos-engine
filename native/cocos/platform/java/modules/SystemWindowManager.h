@@ -25,33 +25,30 @@
 
 #pragma once
 
-#include <memory>
-#include "platform/UniversalPlatform.h"
+#include "base/std/container/unordered_map.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+
+struct ANativeWindow;
 
 namespace cc {
-class SystemWindow;
-class SystemWindowManager;
+class ISystemWindow;
 
-class CC_DLL WindowsPlatform : public UniversalPlatform {
+class SystemWindowManager : public ISystemWindowManager {
 public:
-    WindowsPlatform();
-    /**
-     * Destructor of WindowPlatform.
-     */
-    ~WindowsPlatform() override;
-    /**
-     * Implementation of Windows platform initialization.
-     */
-    int32_t init() override;
+    SystemWindowManager();
 
-    int32_t loop() override;
+    int init() override;
+    void processEvent(bool *quit) override;
+    void swapWindows() override;
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
 
-    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
+    ISystemWindow *getWindowFromANativeWindow(ANativeWindow *window) const;
+    bool isExternalHandleExist(void *handle) const;
 
 private:
-    std::shared_ptr<SystemWindowManager> _windowManager{nullptr};
-    std::shared_ptr<SystemWindow> _window{nullptr};
-    bool _quit{false};
+    uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
+    SystemWindowMap _windows;
 };
-
 } // namespace cc

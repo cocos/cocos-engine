@@ -182,6 +182,14 @@ export class Camera {
     }
 
     /**
+     * @en The unique ID of system window which the camera will render to.
+     * @zh 相机关联的渲染窗口ID
+     */
+    get systemWindowId () {
+        return this._windowId;
+    }
+
+    /**
      * @en The render window of the camera
      * @zh 相机关联的渲染窗口
      */
@@ -579,6 +587,7 @@ export class Camera {
     private _exposure = 0;
     private _clearStencil = 0;
     private _geometryRenderer: GeometryRenderer | null = null;
+    private _windowId = 0;
     private _cameraType: CameraType = CameraType.DEFAULT;
     private _trackingType: TrackingType = TrackingType.NO_TRACKING;
 

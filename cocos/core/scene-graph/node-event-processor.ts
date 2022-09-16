@@ -487,7 +487,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.MOUSE_DOWN;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -505,7 +505,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        const hit = node._uiProps.uiTransformComp.hitTest(pos);
+        const hit = node._uiProps.uiTransformComp.hitTest(pos, event.windowId);
         if (hit) {
             if (!this.previousMouseIn) {
                 // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -541,7 +541,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.MOUSE_UP;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -559,7 +559,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.MOUSE_WHEEL;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -596,7 +596,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.TOUCH_START;
             event.bubbles = true;
             this._dispatchingTouch = event.touch;
@@ -627,8 +627,9 @@ export class NodeEventProcessor {
         }
 
         event.getLocation(pos);
+        //console.log('pos: ' + pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.TOUCH_END;
         } else {
             event.type = NodeEventType.TOUCH_CANCEL;

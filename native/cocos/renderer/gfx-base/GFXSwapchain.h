@@ -55,6 +55,7 @@ public:
     inline void destroySurface();
     inline void createSurface(void *windowHandle);
 
+    inline uint32_t getWindowId() const { return _windowId; }
     inline void *getWindowHandle() const { return _windowHandle; }
     inline VsyncMode getVSyncMode() const { return _vsyncMode; }
 
@@ -74,6 +75,7 @@ protected:
 
     static inline void initTexture(const SwapchainTextureInfo &info, Texture *texture);
 
+    uint32_t _windowId{0};
     void *_windowHandle{nullptr};
     VsyncMode _vsyncMode{VsyncMode::RELAXED};
     SurfaceTransform _transform{SurfaceTransform::IDENTITY};
