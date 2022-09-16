@@ -54,7 +54,7 @@ RenderPhase::RenderPhase(RenderPhase const& rhs, const allocator_type& alloc)
 : shaders(rhs.shaders, alloc) {}
 
 LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   names(alloc),
   descriptors(alloc),
   stages(alloc),
@@ -62,7 +62,7 @@ LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
   pathIndex(alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
-: vertices(std::move(rhs.vertices), alloc),
+: _vertices(std::move(rhs._vertices), alloc),
   names(std::move(rhs.names), alloc),
   descriptors(std::move(rhs.descriptors), alloc),
   stages(std::move(rhs.stages), alloc),
@@ -70,7 +70,7 @@ LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
-: vertices(rhs.vertices, alloc),
+: _vertices(rhs._vertices, alloc),
   names(rhs.names, alloc),
   descriptors(rhs.descriptors, alloc),
   stages(rhs.stages, alloc),
@@ -79,7 +79,7 @@ LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
 
 // ContinuousContainer
 void LayoutGraph::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     names.reserve(sz);
     descriptors.reserve(sz);
 }
@@ -191,7 +191,7 @@ RenderPhaseData::RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& al
   shaderIndex(std::move(rhs.shaderIndex), alloc) {}
 
 LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   names(alloc),
   updateFrequencies(alloc),
   layouts(alloc),
@@ -204,7 +204,7 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
-: vertices(std::move(rhs.vertices), alloc),
+: _vertices(std::move(rhs._vertices), alloc),
   names(std::move(rhs.names), alloc),
   updateFrequencies(std::move(rhs.updateFrequencies), alloc),
   layouts(std::move(rhs.layouts), alloc),
@@ -218,7 +218,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
 
 // ContinuousContainer
 void LayoutGraphData::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     names.reserve(sz);
     updateFrequencies.reserve(sz);
     layouts.reserve(sz);
