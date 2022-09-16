@@ -33,8 +33,7 @@ import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
-import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
-import { legacyCC } from '../../global-exports';
+import { IMacroPatch, BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
@@ -289,20 +288,20 @@ export class Model {
     public isDynamicBatching = false;
 
     /**
-     * @en The instance attributes, access by pass
-     * @zh 实例化属性，通过pass获取
+     * @en The instance attributes, access by subModel
+     * @zh 实例化属性，通过子模型获取
      */
-    public getInstancedAttributes (pass: Pass): IInstancedAttributeBlock {
-        if (!this._instancedAttributes.has(pass)) {
-            this._instancedAttributes.set(pass, { buffer: null!, views: [], attributes: [] });
+    public getInstancedAttributeBlock (subModel: SubModel): IInstancedAttributeBlock {
+        if (!this._instancedAttributes.has(subModel)) {
+            this._instancedAttributes.set(subModel, { buffer: null!, views: [], attributes: [] });
         }
-        return this._instancedAttributes.get(pass) as IInstancedAttributeBlock;
+        return this._instancedAttributes.get(subModel) as IInstancedAttributeBlock;
     }
 
     get instancedAttributes () {
         return this._instancedAttributes;
     }
-    protected _instancedAttributes: Map<Pass, IInstancedAttributeBlock> = new Map<Pass, IInstancedAttributeBlock>();
+    protected _instancedAttributes: Map<SubModel, IInstancedAttributeBlock> = new Map<SubModel, IInstancedAttributeBlock>();
 
     /**
      * @en The world axis-aligned bounding box
@@ -377,10 +376,10 @@ export class Model {
     protected _localBuffer: Buffer | null = null;
 
     /**
-     * @en Instance matrix id, access by pass
-     * @zh 实例矩阵索引，通过pass获取
+     * @en Instance matrix id, access by subModel
+     * @zh 实例矩阵索引，通过子模型获取
      */
-    private _instMatWorldIdx: Map<Pass, number> = new Map<Pass, number>();
+    private _instMatWorldIdx: Map<SubModel, number> = new Map<SubModel, number>();
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
@@ -562,10 +561,10 @@ export class Model {
         const worldMatrix = this.transform._mat;
         let hasNonInstancingPass = false;
         for (let i = 0; i < subModels.length; i++) {
-            const pass = subModels[i].passes[0];
-            const idx = this._instMatWorldIdx.get(pass) as number;
+            const submodel = subModels[i];
+            const idx = this._instMatWorldIdx.get(submodel) as number;
             if (idx >= 0) {
-                const attrs = this.getInstancedAttributes(pass).views;
+                const attrs = this.getInstancedAttributeBlock(submodel).views;
                 uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
             } else {
                 hasNonInstancingPass = true;
@@ -757,27 +756,28 @@ export class Model {
         }
 
         const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
-        this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
+        this._updateInstancedAttributes(shader.attributes, subModel);
     }
 
-    protected _getInstancedAttributeIndex (pass: Pass, name: string) {
-        const { attributes } = this.getInstancedAttributes(pass);
+    protected _getInstancedAttributeIndex (subModel: SubModel, name: string) {
+        const { attributes } = this.getInstancedAttributeBlock(subModel);
         for (let i = 0; i < attributes.length; i++) {
             if (attributes[i].name === name) { return i; }
         }
         return -1;
     }
 
-    private _setInstMatWorldIdx (pass: Pass, idx: number) {
-        this._instMatWorldIdx.set(pass, idx);
+    private _setInstMatWorldIdx (subModel: SubModel, idx: number) {
+        this._instMatWorldIdx.set(subModel, idx);
     }
 
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
         // initialize instMatWorldIdx
-        this._setInstMatWorldIdx(pass, -1);
+        this._setInstMatWorldIdx(subModel, -1);
+        const pass = subModel.passes[0];
         if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
         // free old data
 
@@ -788,7 +788,7 @@ export class Model {
             size += FormatInfos[attribute.format].size;
         }
 
-        const attrs = this.getInstancedAttributes(pass);
+        const attrs = this.getInstancedAttributeBlock(subModel);
         attrs.buffer = new Uint8Array(size);
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
@@ -809,7 +809,7 @@ export class Model {
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
-        this._setInstMatWorldIdx(pass, this._getInstancedAttributeIndex(pass, INST_MAT_WORLD));
+        this._setInstMatWorldIdx(subModel, this._getInstancedAttributeIndex(subModel, INST_MAT_WORLD));
         this._localDataUpdated = true;
     }
 

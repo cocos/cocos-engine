@@ -87,7 +87,7 @@ export class PlanarShadowQueue {
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
                         const buffer = pass.getInstancedBuffer();
-                        buffer.merge(subModel, model.getInstancedAttributes(pass), k);
+                        buffer.merge(subModel, model.getInstancedAttributeBlock(subModel), k);
                         this._instancedQueue.queue.add(buffer);
                     } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
                         const buffer = pass.getBatchedBuffer();

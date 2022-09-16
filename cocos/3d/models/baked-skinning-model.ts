@@ -37,6 +37,7 @@ import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-a
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
+import { SubModel } from '../../core/renderer/scene';
 
 interface IJointsInfo {
     buffer: Buffer | null;
@@ -69,7 +70,7 @@ export class BakedSkinningModel extends MorphModel {
     private _skeleton: Skeleton | null = null;
     private _mesh: Mesh | null = null;
     private _dataPoolManager: DataPoolManager;
-    private _instAnimInfoIdx: Map<Pass, number> = new Map<Pass, number>();
+    private _instAnimInfoIdx: Map<SubModel, number> = new Map<SubModel, number>();
 
     constructor () {
         super();
@@ -131,15 +132,15 @@ export class BakedSkinningModel extends MorphModel {
         const info = this._jointsMedium.animInfo;
 
         let hasNonInstancingPass = false;
-        for (let i = 0; i < this.subModels.length; i++) {
-            const pass = this.subModels[i].passes[0];
-            const mapValue = this._instAnimInfoIdx.get(pass);
+        for (let i = 0; i < this._subModels.length; i++) {
+            const subModel = this._subModels[i];
+            const mapValue = this._instAnimInfoIdx.get(subModel);
             let idx = -1;
             if (mapValue) {
                 idx = mapValue;
             }
             if (idx >= 0) {
-                const view = this.getInstancedAttributes(pass).views[idx];
+                const view = this.getInstancedAttributeBlock(subModel).views[idx];
                 view[0] = info.data[0];
             } else {
                 hasNonInstancingPass = true;
@@ -216,9 +217,9 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
-        super._updateInstancedAttributes(attributes, pass);
-        this._instAnimInfoIdx.set(pass, this._getInstancedAttributeIndex(pass, INST_JOINT_ANIM_INFO));
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
+        super._updateInstancedAttributes(attributes, subModel);
+        this._instAnimInfoIdx.set(subModel, this._getInstancedAttributeIndex(subModel, INST_JOINT_ANIM_INFO));
         this.updateInstancedJointTextureInfo();
     }
 
