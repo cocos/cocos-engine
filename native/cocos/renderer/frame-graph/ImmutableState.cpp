@@ -43,12 +43,12 @@ using gfx::TextureUsage;
 
 namespace {
 
-AccessFlags getAccesFlags(BufferUsage usage, MemoryUsage memUsage, const AccessStatus& status) noexcept {
-    return gfx::getAccesFlags(usage, memUsage, status.visibility, status.access, status.passType);
+AccessFlags getAccessFlags(BufferUsage usage, MemoryUsage memUsage, const AccessStatus& status) noexcept {
+    return gfx::getAccessFlags(usage, memUsage, status.visibility, status.access, status.passType);
 }
 
-AccessFlags getAccesFlags(TextureUsage usage, const AccessStatus& status) noexcept {
-    return gfx::getAccesFlags(usage, status.visibility, status.access, status.passType);
+AccessFlags getAccessFlags(TextureUsage usage, const AccessStatus& status) noexcept {
+    return gfx::getAccessFlags(usage, status.visibility, status.access, status.passType);
 }
 
 } // namespace
@@ -67,8 +67,8 @@ std::pair<gfx::GFXObject*, gfx::GFXObject*> getBarrier(const ResourceBarrier& ba
         auto usage = gfxBuffer->getUsage();
         auto memUsage = gfxBuffer->getMemUsage();
         gfx::BufferBarrierInfo info;
-        info.prevAccesses = getAccesFlags(usage, memUsage, barrierInfo.beginStatus);
-        info.nextAccesses = getAccesFlags(usage, memUsage, barrierInfo.endStatus);
+        info.prevAccesses = getAccessFlags(usage, memUsage, barrierInfo.beginStatus);
+        info.nextAccesses = getAccessFlags(usage, memUsage, barrierInfo.endStatus);
         info.offset = static_cast<uint32_t>(barrierInfo.bufferRange.base);
         info.size = static_cast<uint32_t>(barrierInfo.bufferRange.len);
         info.type = barrierInfo.barrierType;
@@ -85,8 +85,8 @@ std::pair<gfx::GFXObject*, gfx::GFXObject*> getBarrier(const ResourceBarrier& ba
         auto usage = gfxTexture->getInfo().usage;
         gfx::TextureBarrierInfo info;
         info.type = barrierInfo.barrierType;
-        info.prevAccesses = getAccesFlags(usage, barrierInfo.beginStatus);
-        info.nextAccesses = getAccesFlags(usage, barrierInfo.endStatus);
+        info.prevAccesses = getAccessFlags(usage, barrierInfo.beginStatus);
+        info.nextAccesses = getAccessFlags(usage, barrierInfo.endStatus);
         info.baseMipLevel = static_cast<uint32_t>(barrierInfo.mipRange.base);
         info.levelCount = static_cast<uint32_t>(barrierInfo.mipRange.len);
         info.baseSlice = static_cast<uint32_t>(barrierInfo.layerRange.base);

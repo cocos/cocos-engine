@@ -194,7 +194,7 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
 
 } // namespace
 
-AccessFlags getAccesFlags(BufferUsage usage, MemoryUsage memUsage,
+AccessFlags getAccessFlags(BufferUsage usage, MemoryUsage memUsage,
     ShaderStageFlagBit visibility,
     MemoryAccessBit access,
     PassType passType) noexcept {
@@ -229,7 +229,7 @@ AccessFlags getAccesFlags(BufferUsage usage, MemoryUsage memUsage,
     return flags;
 }
 
-AccessFlags getAccesFlags(TextureUsage usage,
+AccessFlags getAccessFlags(TextureUsage usage,
     ShaderStageFlagBit visibility,
     MemoryAccessBit access,
     PassType passType) noexcept {

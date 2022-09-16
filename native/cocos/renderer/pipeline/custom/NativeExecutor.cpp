@@ -190,12 +190,12 @@ gfx::BufferBarrierInfo getBufferBarrier(
         });
 
     return {
-        gfx::getAccesFlags(
+        gfx::getAccessFlags(
             usage, memUsage,
             barrier.beginStatus.visibility,
             barrier.beginStatus.access,
             barrier.beginStatus.passType),
-        gfx::getAccesFlags(
+        gfx::getAccessFlags(
             usage, memUsage,
             barrier.endStatus.visibility,
             barrier.endStatus.access,
@@ -223,12 +223,12 @@ gfx::TextureBarrierInfo getTextureBarrier(
     const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
 
     return {
-        gfx::getAccesFlags(
+        gfx::getAccessFlags(
             usage,
             barrier.beginStatus.visibility,
             barrier.beginStatus.access,
             barrier.beginStatus.passType),
-        gfx::getAccesFlags(
+        gfx::getAccessFlags(
             usage,
             barrier.endStatus.visibility,
             barrier.endStatus.access,
