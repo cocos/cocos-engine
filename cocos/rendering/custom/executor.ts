@@ -51,7 +51,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { Pipeline, SceneVisitor } from './pipeline';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass, PresentPass,
     RasterPass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { AttachmentType, ComputeView, QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequency } from './types';
@@ -1300,6 +1300,12 @@ class ResourceVisitor implements ResourceGraphVisitor {
     }
     managed (value: ManagedResource) {
         this.createDeviceTex(value);
+    }
+    managedBuffer(value: ManagedBuffer) {
+        // noop
+    }
+    managedTexture(value: ManagedTexture) {
+        // noop
     }
     persistentBuffer (value: Buffer) {
     }

@@ -1160,12 +1160,12 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
         }
 
         // topological sort
-        bool empty = relationGraph.vertices.empty();
+        bool empty = relationGraph._vertices.empty();
         ScoreMap scoreMap;
         std::queue<EmptyVert> vertQ;
         EmptyVerts candidates;
 
-        for (size_t i = 0; i < relationGraph.vertices.size(); ++i) {
+        for (size_t i = 0; i < relationGraph._vertices.size(); ++i) {
             if (in_degree(static_cast<uint32_t>(i), relationGraph) == 0) {
                 if (std::find(candidates.begin(), candidates.end(), i) == candidates.end()) {
                     candidates.push_back(static_cast<uint32_t>(i));
@@ -1175,7 +1175,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
 
         std::vector<EmptyVert> candidateBuffer;
         uint32_t coloredVerts = 0;
-        while (coloredVerts < relationGraph.vertices.size()) {
+        while (coloredVerts < relationGraph._vertices.size()) {
             // decreasing order, pop back from vector, push into queue, then it's ascending order.
             std::sort(candidates.begin(), candidates.end(), [&](EmptyVert lhsVert, EmptyVert rhsVert) {
                 int64_t lhsForwardScore{0};
