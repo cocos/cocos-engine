@@ -3,9 +3,10 @@ import { warnID } from './platform/debug';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from '../gfx';
-import { DebugView } from './pipeline/debug-view';
-import { buildDeferredLayout, buildForwardLayout } from './pipeline/custom/effect';
+import { DebugView } from '../rendering/debug-view';
+import { buildDeferredLayout, buildForwardLayout } from '../rendering/custom/effect';
 import { settings, Settings } from './settings';
+import { ForwardPipeline } from '../rendering';
 
 declare const nr: any;
 declare const jsb: any;
@@ -203,7 +204,7 @@ rootProto.setRenderPipeline = function (pipeline) {
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered
-            pipeline = new nr.ForwardPipeline();
+            pipeline = new ForwardPipeline();
             pipeline.init();
         }
         ppl =  oldSetPipeline.call(this, pipeline);

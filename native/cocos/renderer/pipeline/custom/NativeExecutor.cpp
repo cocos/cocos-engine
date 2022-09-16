@@ -252,7 +252,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         bufferBarriers.reserve(sz);
         textures.reserve(sz);
         textureBarriers.reserve(sz);
-
         for (const auto& barrier : barriers) {
             const auto resID = barrier.resourceID;
             const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
@@ -286,7 +285,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             bufferBarriers.data(), buffers.data(), static_cast<uint32_t>(bufferBarriers.size()),
             textureBarriers.data(), textures.data(), static_cast<uint32_t>(textureBarriers.size()));
     }
-
     void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
         const auto& node = ctx.barrierMap.at(vertID + 1);
         submitBarriers(node.blockBarrier.frontBarriers);
@@ -485,6 +483,7 @@ void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
     fgd.enablePassReorder(false);
     fgd.setParalellWeight(0);
     fgd.run();
+}
 }
 
 } // namespace render

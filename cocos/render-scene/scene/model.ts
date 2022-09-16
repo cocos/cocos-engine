@@ -37,7 +37,7 @@ import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../core/math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../core/pipeline/define';
+import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../rendering/define';
 
 const m4_1 = new Mat4();
 

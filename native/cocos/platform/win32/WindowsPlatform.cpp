@@ -41,8 +41,8 @@
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"
 #endif
-#include "modules/Vibrator.h"
 #include "base/memory/Memory.h"
+#include "modules/Vibrator.h"
 
 namespace {
 /**

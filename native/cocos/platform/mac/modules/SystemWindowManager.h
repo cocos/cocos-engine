@@ -25,9 +25,9 @@
 
 #pragma once
 
+#include <AppKit/AppKit.h>
 #include "base/std/container/unordered_map.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
-#include <AppKit/AppKit.h>
 
 struct SDL_Window;
 
@@ -46,7 +46,7 @@ public:
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
     const SystemWindowMap &getWindows() const override { return _windows; }
-    
+
     ISystemWindow *getWindowFromNSWindow(NSWindow *window) const;
 
 private:

@@ -5,7 +5,7 @@ import {
     Filter, Format, FormatInfos, FormatType, GetTypeSize, PolygonMode, PrimitiveMode,
     ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo, MemoryAccessBit,
 } from '../../cocos/gfx/base/define';
-import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/core/pipeline/define';
+import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/rendering/define';
 import { murmurhash2_32_gc } from '../../cocos/core/algorithm/murmurhash2_gc';
 import { Sampler } from '../../cocos/gfx/base/states/sampler';
 

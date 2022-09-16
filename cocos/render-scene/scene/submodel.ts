@@ -24,13 +24,13 @@
  */
 
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../core/pipeline/define';
+import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../rendering/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
     Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { errorID } from '../../core/platform/debug';
-import { getPhaseID } from '../../core/pipeline/pass-phase';
+import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../core/root';
 
 const _dsInfo = new DescriptorSetInfo(null!);

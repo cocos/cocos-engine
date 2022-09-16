@@ -27,6 +27,7 @@
 
 #include "base/Macros.h"
 
+#include "ApplicationManager.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
@@ -36,7 +37,6 @@
 #include "cocos/engine/BaseEngine.h"
 #include "cocos/platform/interfaces/modules/IScreen.h"
 #include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
-#include "ApplicationManager.h"
 
 namespace cc {
 
