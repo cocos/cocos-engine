@@ -1,10 +1,12 @@
 name: <Native> Assign Generated PR
 
-on:
-  pull_request_target:
-    types: [closed]
-    paths:
-    - 'native/cocos/bindings/auto/**'
+# on:
+  # pull_request_target:
+    # types: [closed]
+    # paths:
+    # - 'native/cocos/bindings/auto/**'
+
+on: pull_request
 
 jobs:
   auto-assign:
