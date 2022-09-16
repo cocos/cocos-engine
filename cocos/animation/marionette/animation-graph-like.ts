@@ -1,5 +1,5 @@
 import { ccclass } from 'cc.decorator';
-import { Asset } from '../../core/assets/asset';
+import { Asset } from '../../asset/assets/asset';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 /**
