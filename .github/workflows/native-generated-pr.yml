@@ -13,8 +13,7 @@ jobs:
     if: 
       (contains(github.event.pull_request.body, 'Automated PR to genbindings'))
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
+    permissions: write-all
     steps:
       - uses: actions/checkout@v2
       - name: Locate and assign issue
