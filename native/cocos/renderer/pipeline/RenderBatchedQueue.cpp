@@ -35,9 +35,6 @@ namespace cc {
 namespace pipeline {
 
 void RenderBatchedQueue::clear() {
-    for (auto *it : _queues) {
-        it->clear();
-    }
     _queues.clear();
 }
 

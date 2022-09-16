@@ -266,6 +266,9 @@ void Pass::update() {
 pipeline::InstancedBuffer *Pass::getInstancedBuffer(int32_t extraKey) {
     auto iter = _instancedBuffers.find(extraKey);
     if (iter != _instancedBuffers.end()) {
+        if (iter->second.get()) {
+            iter->second->clear();
+        }
         return iter->second.get();
     }
     auto *instancedBuffer = ccnew pipeline::InstancedBuffer(this);
@@ -276,6 +279,9 @@ pipeline::InstancedBuffer *Pass::getInstancedBuffer(int32_t extraKey) {
 pipeline::BatchedBuffer *Pass::getBatchedBuffer(int32_t extraKey) {
     auto iter = _batchedBuffers.find(extraKey);
     if (iter != _batchedBuffers.end()) {
+        if (iter->second.get()) {
+            iter->second->clear();
+        }
         return iter->second.get();
     }
     auto *batchedBuffers = ccnew pipeline::BatchedBuffer(this);
