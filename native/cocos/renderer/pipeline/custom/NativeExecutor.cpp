@@ -484,7 +484,6 @@ void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
     fgd.setParalellWeight(0);
     fgd.run();
 }
-}
 
 } // namespace render
 
