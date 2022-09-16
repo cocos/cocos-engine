@@ -31,6 +31,8 @@
 
 namespace cc {
 
+namespace render {
+
 template <class T>
 struct PmrDeallocator {
     void operator()(T* ptr) noexcept {
@@ -72,5 +74,7 @@ PmrUniquePtr<T>
 allocatePmrUniquePtr(const boost::container::pmr::polymorphic_allocator<std::byte>& alloc, Args&&... args) {
     return PmrUniquePtr<T>(newPmr<T>(alloc.resource(), std::forward<Args>(args)...));
 }
+
+} // namespace render
 
 } // namespace cc
