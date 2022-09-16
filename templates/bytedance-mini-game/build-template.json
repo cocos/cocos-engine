@@ -1,0 +1,8 @@
+{
+    "version": "1.0.0",
+    "templates": [
+        "game.ejs",
+        "game.json",
+        "project.config.json"
+    ]
+}

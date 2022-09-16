@@ -298,12 +298,9 @@ export class ShadowFlow extends RenderFlow {
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
         const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
 
-        const it = shadowFrameBufferMap.values();
-        let res = it.next();
-        while (!res.done) {
-            const frameBuffer = res.value;
+        for (const key of shadowFrameBufferMap.keys()) {
+            const frameBuffer = shadowFrameBufferMap.get(key);
             if (!frameBuffer) {
-                res = it.next();
                 continue;
             }
 
@@ -321,13 +318,12 @@ export class ShadowFlow extends RenderFlow {
 
             const shadowRenderPass = frameBuffer.renderPass;
             frameBuffer.destroy();
-            frameBuffer.initialize(new FramebufferInfo(
+            const newFrameBuffer = device.createFramebuffer(new FramebufferInfo(
                 shadowRenderPass,
                 renderTargets,
                 depth,
             ));
-
-            res = it.next();
+            shadowFrameBufferMap.set(key, newFrameBuffer);
         }
 
         shadows.shadowMapDirty = false;

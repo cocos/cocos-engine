@@ -32,14 +32,18 @@
 namespace cc {
 namespace gfx {
 
-namespace anoymous {
-CCWGPUBuffer *defaultUniformBuffer = nullptr;
-CCWGPUBuffer *defaultStorageBuffer = nullptr;
-} // namespace anoymous
+namespace {
+CCWGPUBuffer *dftUniformBuffer = nullptr;
+CCWGPUBuffer *dftStorageBuffer = nullptr;
+} // namespace
 
 using namespace emscripten;
 
-CCWGPUBuffer::CCWGPUBuffer() : wrapper<Buffer>(val::object()) {
+CCWGPUBuffer::CCWGPUBuffer() : Buffer() {
+}
+
+CCWGPUBuffer::~CCWGPUBuffer() {
+    doDestroy();
 }
 
 void CCWGPUBuffer::doInit(const BufferInfo &info) {
@@ -58,7 +62,7 @@ void CCWGPUBuffer::doInit(const BufferInfo &info) {
         .label = nullptr,
         .usage = toWGPUBufferUsage(info.usage),
         .size = _size,
-        .mappedAtCreation = false, //hasFlag(info.memUsage, MemoryUsageBit::DEVICE),
+        .mappedAtCreation = false, // hasFlag(info.memUsage, MemoryUsageBit::DEVICE),
     };
 
     _gpuBufferObject->mapped = descriptor.mappedAtCreation;
@@ -72,6 +76,7 @@ void CCWGPUBuffer::doInit(const BufferInfo &info) {
     }
 
     _gpuBufferObject->wgpuBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+    CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize += _size;
     _internalChanged = true;
 } // namespace gfx
 
@@ -83,10 +88,12 @@ void CCWGPUBuffer::doInit(const BufferViewInfo &info) {
 
 void CCWGPUBuffer::doDestroy() {
     if (_gpuBufferObject) {
-        if (_gpuBufferObject->wgpuBuffer) {
-            wgpuBufferDestroy(_gpuBufferObject->wgpuBuffer);
+        if (_gpuBufferObject->wgpuBuffer && !_isBufferView) {
+            CCWGPUDevice::getInstance()->moveToTrash(_gpuBufferObject->wgpuBuffer);
+            CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
         }
         delete _gpuBufferObject;
+        _gpuBufferObject = nullptr;
     }
     _internalChanged = true;
 }
@@ -97,8 +104,9 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
         return;
     }
     if (_gpuBufferObject->wgpuBuffer) {
-        wgpuBufferDestroy(_gpuBufferObject->wgpuBuffer);
+        CCWGPUDevice::getInstance()->moveToTrash(_gpuBufferObject->wgpuBuffer);
     }
+    CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         const size_t drawInfoCount = _size / sizeof(DrawInfo);
@@ -113,9 +121,10 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
         .label = nullptr,
         .usage = toWGPUBufferUsage(_usage),
         .size = _size,
-        .mappedAtCreation = false, //hasFlag(_memUsage, MemoryUsageBit::DEVICE),
+        .mappedAtCreation = false, // hasFlag(_memUsage, MemoryUsageBit::DEVICE),
     };
     _gpuBufferObject->wgpuBuffer = wgpuDeviceCreateBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
+    CCWGPUDevice::getInstance()->getMemoryStatus().bufferSize += _size;
 
     _internalChanged = true;
 } // namespace gfx
@@ -161,7 +170,7 @@ void CCWGPUBuffer::update(const void *buffer, uint32_t size) {
     uint32_t alignedSize = ceil(size / 4.0) * 4;
     size_t buffSize = alignedSize;
     wgpuQueueWriteBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, _gpuBufferObject->wgpuBuffer, offset, buffer, buffSize);
-    //wgpuBufferUnmap(_gpuBufferObject->wgpuBuffer);
+    // wgpuBufferUnmap(_gpuBufferObject->wgpuBuffer);
 }
 
 void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
@@ -170,7 +179,7 @@ void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
         void const *data = nullptr;
         size_t offset = _isBufferView ? _offset : 0;
         size_t buffSize = 0;
-        //if (hasFlag(_usage, BufferUsageBit::INDIRECT))
+        // if (hasFlag(_usage, BufferUsageBit::INDIRECT))
         if (drawInfos[0].indexCount) {
             auto &indexedIndirectObjs = _gpuBufferObject->indexedIndirectObjs;
             for (size_t i = 0; i < drawInfoCount; i++) {
@@ -178,7 +187,7 @@ void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
                 indexedIndirectObjs[i].instanceCount = drawInfos[i].instanceCount /*  ? drawInfos[i]->instanceCoun : 1 */;
                 indexedIndirectObjs[i].firstIndex = drawInfos[i].firstIndex;
                 indexedIndirectObjs[i].baseVertex = drawInfos[i].vertexOffset;
-                indexedIndirectObjs[i].firstInstance = 0; //check definition of indexedIndirectObj;
+                indexedIndirectObjs[i].firstInstance = 0; // check definition of indexedIndirectObj;
             }
             data = indexedIndirectObjs.data();
             buffSize = indexedIndirectObjs.size() * sizeof(CCWGPUDrawIndexedIndirectObject);
@@ -209,31 +218,31 @@ void CCWGPUBuffer::stamp() {
 }
 
 CCWGPUBuffer *CCWGPUBuffer::defaultUniformBuffer() {
-    if (!anoymous::defaultUniformBuffer) {
+    if (!dftUniformBuffer) {
         BufferInfo info = {
             .usage = BufferUsageBit::UNIFORM,
             .memUsage = MemoryUsageBit::DEVICE,
             .size = 4,
             .flags = BufferFlagBit::NONE,
         };
-        anoymous::defaultUniformBuffer = ccnew CCWGPUBuffer;
-        anoymous::defaultUniformBuffer->initialize(info);
+        dftUniformBuffer = ccnew CCWGPUBuffer;
+        dftUniformBuffer->initialize(info);
     }
-    return anoymous::defaultUniformBuffer;
+    return dftUniformBuffer;
 }
 
 CCWGPUBuffer *CCWGPUBuffer::defaultStorageBuffer() {
-    if (!anoymous::defaultStorageBuffer) {
+    if (!dftStorageBuffer) {
         BufferInfo info = {
             .usage = BufferUsageBit::STORAGE,
             .memUsage = MemoryUsageBit::DEVICE,
             .size = 4,
             .flags = BufferFlagBit::NONE,
         };
-        anoymous::defaultStorageBuffer = ccnew CCWGPUBuffer;
-        anoymous::defaultStorageBuffer->initialize(info);
+        dftStorageBuffer = ccnew CCWGPUBuffer;
+        dftStorageBuffer->initialize(info);
     }
-    return anoymous::defaultStorageBuffer;
+    return dftStorageBuffer;
 }
 
 } // namespace gfx

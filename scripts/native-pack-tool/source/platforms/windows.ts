@@ -49,7 +49,7 @@ export class WindowsPackTool extends NativePackTool {
             } else {
                 generateArgs = generateArgs.concat(await this.windowsSelectCmakeGeneratorArgs());
             }
-            
+
         }
         this.appendCmakeResDirArgs(generateArgs);
         await toolHelper.runCmake([`-S"${cchelper.fixPath(this.paths.platformTemplateDirInPrj)}"`, `-B"${cchelper.fixPath(this.paths.nativePrjDir)}"`].concat(generateArgs));
@@ -135,13 +135,12 @@ export class WindowsPackTool extends NativePackTool {
     }
 
     async run(): Promise<boolean> {
-        const destPath = ps.join(
-            this.paths.nativePrjDir, this.params.debug ? 'Debug' : 'Release',
-            `${this.params.projectName}.exe`);
-        if (!fs.existsSync(destPath)) {
-            throw new Error(`[windows run] exe file not found at ' + ${destPath}!`);
+        const executableDir = ps.join(this.paths.nativePrjDir, this.params.debug ? 'Debug' : 'Release')
+        const executableName = `${this.params.projectName}.exe`;
+        if (!fs.existsSync(ps.join(executableDir, executableName))) {
+            throw new Error(`[windows run] '${executableName}' is not found within ' + ${executableDir}!`);
         }
-        await cchelper.runCmd(destPath, [], false);
+        await cchelper.runCmd(executableName, [], false, executableDir);
         return true;
     }
 }

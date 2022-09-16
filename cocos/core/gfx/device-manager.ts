@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
@@ -23,7 +24,7 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
+import { JSB, WEBGPU } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { error, getError } from '../platform/debug';
 import { sys } from '../platform/sys';
@@ -88,6 +89,7 @@ export enum RenderType {
 /**
  * @internal
  */
+
 export class DeviceManager {
     private initialized = false;
     private _gfxDevice!: Device;
@@ -127,6 +129,9 @@ export class DeviceManager {
                 }
 
                 const deviceCtors: Constructor<Device>[] = [];
+                if (WEBGPU) {
+                    deviceCtors.push(legacyCC.WebGPUDevice);
+                }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
                     deviceCtors.push(legacyCC.WebGL2Device);
                 }
