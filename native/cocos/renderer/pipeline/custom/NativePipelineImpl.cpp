@@ -146,7 +146,7 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
     desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
 
     return addVertex(
-        ManagedTextureTag{},
+        ManagedTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{residency}),
@@ -171,7 +171,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     CC_EXPECTS(residency == ResourceResidency::MANAGED && residency == ResourceResidency::MEMORYLESS);
 
     return addVertex(
-        ManagedTextureTag{},
+        ManagedTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{residency}),

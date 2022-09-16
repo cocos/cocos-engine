@@ -46,6 +46,8 @@ struct RenderSwapchain;
 struct ResourceStates;
 struct ManagedBuffer;
 struct ManagedTexture;
+struct ManagedResource;
+struct ManagedTag;
 struct ManagedBufferTag;
 struct ManagedTextureTag;
 struct PersistentBufferTag;

@@ -114,6 +114,11 @@ struct ManagedTexture {
     uint64_t fenceValue{0};
 };
 
+struct ManagedResource {
+    uint32_t unused{0};
+};
+
+struct ManagedTag {};
 struct ManagedBufferTag {};
 struct ManagedTextureTag {};
 struct PersistentBufferTag {};
@@ -209,12 +214,11 @@ struct ResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
-    using VertexValue       = ccstd::variant<ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
-    using VertexConstValue = ccstd::variant<const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
+    using VertexTag         = ccstd::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
+    using VertexValue       = ccstd::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
+    using VertexConstValue = ccstd::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
     using VertexHandle      = ccstd::variant<
-        impl::ValueHandle<ManagedBufferTag, vertex_descriptor>,
-        impl::ValueHandle<ManagedTextureTag, vertex_descriptor>,
+        impl::ValueHandle<ManagedTag, vertex_descriptor>,
         impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
         impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
         impl::ValueHandle<FramebufferTag, vertex_descriptor>,
@@ -264,8 +268,7 @@ struct ResourceGraph {
     ccstd::pmr::vector<ResourceTraits> traits;
     ccstd::pmr::vector<ResourceStates> states;
     // PolymorphicGraph
-    ccstd::pmr::vector<ManagedBuffer> managedBuffers;
-    ccstd::pmr::vector<ManagedTexture> managedTextures;
+    ccstd::pmr::vector<ManagedResource> resources;
     ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> buffers;
     ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
@@ -450,7 +453,6 @@ struct RasterPass {
     RasterPass& operator=(RasterPass&& rhs) = default;
     RasterPass& operator=(RasterPass const& rhs) = default;
 
-    bool isValid{false};
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
     SubpassGraph subpassGraph;
@@ -460,8 +462,8 @@ struct RasterPass {
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.isValid, lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.viewport) ==
-           std::forward_as_tuple(rhs.isValid, rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.viewport);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.viewport) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.viewport);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
@@ -971,7 +973,6 @@ inline hash_t hash<cc::render::SubpassGraph>::operator()(const cc::render::Subpa
 
 inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterPass& val) const noexcept {
     hash_t seed = 0;
-    hash_combine(seed, val.isValid);
     hash_combine(seed, val.rasterViews);
     hash_combine(seed, val.computeViews);
     hash_combine(seed, val.subpassGraph);

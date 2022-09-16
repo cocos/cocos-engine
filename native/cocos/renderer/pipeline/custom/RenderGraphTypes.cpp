@@ -41,8 +41,7 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   descs(alloc),
   traits(alloc),
   states(alloc),
-  managedBuffers(alloc),
-  managedTextures(alloc),
+  resources(alloc),
   buffers(alloc),
   textures(alloc),
   framebuffers(alloc),
@@ -55,8 +54,7 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   descs(std::move(rhs.descs), alloc),
   traits(std::move(rhs.traits), alloc),
   states(std::move(rhs.states), alloc),
-  managedBuffers(std::move(rhs.managedBuffers), alloc),
-  managedTextures(std::move(rhs.managedTextures), alloc),
+  resources(std::move(rhs.resources), alloc),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
   framebuffers(std::move(rhs.framebuffers), alloc),
@@ -70,8 +68,7 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   descs(rhs.descs, alloc),
   traits(rhs.traits, alloc),
   states(rhs.states, alloc),
-  managedBuffers(rhs.managedBuffers, alloc),
-  managedTextures(rhs.managedTextures, alloc),
+  resources(rhs.resources, alloc),
   buffers(rhs.buffers, alloc),
   textures(rhs.textures, alloc),
   framebuffers(rhs.framebuffers, alloc),
@@ -154,8 +151,7 @@ RasterPass::RasterPass(const allocator_type& alloc) noexcept
   subpassGraph(alloc) {}
 
 RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
-: isValid(rhs.isValid),
-  rasterViews(std::move(rhs.rasterViews), alloc),
+: rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
   subpassGraph(std::move(rhs.subpassGraph), alloc),
   width(rhs.width),
@@ -163,8 +159,7 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   viewport(rhs.viewport) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
-: isValid(rhs.isValid),
-  rasterViews(rhs.rasterViews, alloc),
+: rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
   subpassGraph(rhs.subpassGraph, alloc),
   width(rhs.width),

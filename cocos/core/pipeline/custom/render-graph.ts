@@ -84,13 +84,16 @@ export class ManagedTexture {
     fenceValue = 0;
 }
 
+export class ManagedResource {
+    unused = 0;
+}
+
 //=================================================================
 // ResourceGraph
 //=================================================================
 // PolymorphicGraph Concept
 export const enum ResourceGraphValue {
-    ManagedBuffer,
-    ManagedTexture,
+    Managed,
     PersistentBuffer,
     PersistentTexture,
     Framebuffer,
@@ -99,8 +102,7 @@ export const enum ResourceGraphValue {
 
 export function getResourceGraphValueName (e: ResourceGraphValue): string {
     switch (e) {
-    case ResourceGraphValue.ManagedBuffer: return 'ManagedBuffer';
-    case ResourceGraphValue.ManagedTexture: return 'ManagedTexture';
+    case ResourceGraphValue.Managed: return 'Managed';
     case ResourceGraphValue.PersistentBuffer: return 'PersistentBuffer';
     case ResourceGraphValue.PersistentTexture: return 'PersistentTexture';
     case ResourceGraphValue.Framebuffer: return 'Framebuffer';
@@ -110,8 +112,7 @@ export function getResourceGraphValueName (e: ResourceGraphValue): string {
 }
 
 interface ResourceGraphValueType {
-    [ResourceGraphValue.ManagedBuffer]: ManagedBuffer
-    [ResourceGraphValue.ManagedTexture]: ManagedTexture
+    [ResourceGraphValue.Managed]: ManagedResource
     [ResourceGraphValue.PersistentBuffer]: Buffer
     [ResourceGraphValue.PersistentTexture]: Texture
     [ResourceGraphValue.Framebuffer]: Framebuffer
@@ -119,16 +120,14 @@ interface ResourceGraphValueType {
 }
 
 export interface ResourceGraphVisitor {
-    managedBuffer(value: ManagedBuffer): unknown;
-    managedTexture(value: ManagedTexture): unknown;
+    managed(value: ManagedResource): unknown;
     persistentBuffer(value: Buffer): unknown;
     persistentTexture(value: Texture): unknown;
     framebuffer(value: Framebuffer): unknown;
     swapchain(value: RenderSwapchain): unknown;
 }
 
-type ResourceGraphObject = ManagedBuffer
-| ManagedTexture
+type ResourceGraphObject = ManagedResource
 | Buffer
 | Texture
 | Framebuffer
@@ -517,10 +516,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
     visitVertex (visitor: ResourceGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
-        case ResourceGraphValue.ManagedBuffer:
-            return visitor.managedBuffer(vert._object as ManagedBuffer);
-        case ResourceGraphValue.ManagedTexture:
-            return visitor.managedTexture(vert._object as ManagedTexture);
+        case ResourceGraphValue.Managed:
+            return visitor.managed(vert._object as ManagedResource);
         case ResourceGraphValue.PersistentBuffer:
             return visitor.persistentBuffer(vert._object as Buffer);
         case ResourceGraphValue.PersistentTexture:
@@ -533,16 +530,9 @@ export class ResourceGraph implements impl.BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getManagedBuffer (v: number): ManagedBuffer {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
-            return this._vertices[v]._object as ManagedBuffer;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    getManagedTexture (v: number): ManagedTexture {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
-            return this._vertices[v]._object as ManagedTexture;
+    getManaged (v: number): ManagedResource {
+        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
+            return this._vertices[v]._object as ManagedResource;
         } else {
             throw Error('value id not match');
         }
@@ -575,16 +565,9 @@ export class ResourceGraph implements impl.BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetManagedBuffer (v: number): ManagedBuffer | null {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
-            return this._vertices[v]._object as ManagedBuffer;
-        } else {
-            return null;
-        }
-    }
-    tryGetManagedTexture (v: number): ManagedTexture | null {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
-            return this._vertices[v]._object as ManagedTexture;
+    tryGetManaged (v: number): ManagedResource | null {
+        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
+            return this._vertices[v]._object as ManagedResource;
         } else {
             return null;
         }

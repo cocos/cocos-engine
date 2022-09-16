@@ -51,7 +51,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { Pipeline, SceneVisitor } from './pipeline';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedTexture, MovePass, PresentPass,
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, PresentPass,
     RasterPass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { AttachmentType, ComputeView, QueueHint, ResourceDimension, ResourceFlags, SceneFlags, UpdateFrequency } from './types';
@@ -87,7 +87,7 @@ class DeviceTexture extends DeviceResource {
     get description () { return this._desc; }
     get trait () { return this._trait; }
     get swapchain () { return this._swapchain; }
-    constructor (name: string, tex: Texture | Framebuffer | RenderSwapchain | ManagedTexture, context: ExecutorContext) {
+    constructor (name: string, tex: Texture | Framebuffer | RenderSwapchain | ManagedResource, context: ExecutorContext) {
         super(name, context);
         const resGraph = context.resourceGraph;
         const verID = resGraph.vertex(name);
@@ -1294,17 +1294,11 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this._context = context;
         this.name = resName;
     }
-    managedBuffer (value: ManagedBuffer): unknown {
-        throw new Error('Method not implemented.');
-    }
-    managedTexture (value: ManagedTexture): unknown {
-        throw new Error('Method not implemented.');
-    }
-    createDeviceTex (value: Texture | Framebuffer | ManagedTexture | RenderSwapchain) {
+    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain) {
         const deviceTex = new DeviceTexture(this.name, value, this._context);
         this._context.deviceTextures.set(this.name, deviceTex);
     }
-    managed (value: ManagedTexture) {
+    managed (value: ManagedResource) {
         this.createDeviceTex(value);
     }
     persistentBuffer (value: Buffer) {
