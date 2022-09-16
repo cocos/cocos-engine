@@ -206,7 +206,7 @@ CCArmatureDisplay *CCArmatureDisplay::getRootDisplay() {
 
 void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity) {
     static cc::Mat4 matrixTemp;
-    cc::Mat4 nodeWorldMat = _entity->getNode()->getWorldMatrix();
+    auto &nodeWorldMat = _entity->getNode()->getWorldMatrix();
 
     // data store in buffer which 0 to 3 is render order, left data is node world matrix
     const auto &slots = armature->getSlots();
@@ -255,8 +255,8 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
 
         auto *material = requestMaterial(_curBlendSrc, _curBlendDst);
         _curDrawInfo->setMaterial(material);
-        gfx::Texture *texture = ((cc::Texture2D*)_curTexture)->getGFXTexture();
-        gfx::Sampler *sampler = ((cc::Texture2D*)_curTexture)->getGFXSampler();
+        gfx::Texture *texture = _curTexture->getGFXTexture();
+        gfx::Sampler *sampler = _curTexture->getGFXSampler();
         _curDrawInfo->setTexture(texture);
         _curDrawInfo->setSampler(sampler);
         UIMeshBuffer *uiMeshBuffer = mb->getUIMeshBuffer();
@@ -294,7 +294,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         }
 
         if (!slot->getTexture()) continue;
-        _curTexture = (cc::Texture2D*)(slot->getTexture()->getRealTexture());
+        _curTexture = static_cast<cc::Texture2D*>(slot->getTexture()->getRealTexture());
         auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         isFull |= vb.checkSpace(vbSize, true);
 
@@ -423,14 +423,14 @@ void CCArmatureDisplay::setMaterial(cc::Material *material) {
 cc::RenderDrawInfo* CCArmatureDisplay::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
-        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::IA));
+        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
         _drawInfoArray.push_back(draw);
     }
     return _drawInfoArray[idx];
 }
 
 cc::Material *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
-    uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
+    uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
             (Material*)_material,

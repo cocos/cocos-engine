@@ -67,7 +67,7 @@ public:
     void setColor(float r, float g, float b, float a);
     void setBatchEnabled(bool enabled) {
         // disable switch batch mode, force to enable batch, it may be changed in future version
-        // _batch = enabled;
+        // _enableBatch = enabled;
     }
     void setAttachEnabled(bool enabled);
 
@@ -117,7 +117,7 @@ private:
     std::map<std::string, bool> _listenerIDMap;
 
     bool _useAttach = false;
-    bool _batch = true;
+    bool _enableBatch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
 
     bool _premultipliedAlpha = false;

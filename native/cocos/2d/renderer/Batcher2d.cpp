@@ -312,7 +312,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
         case RenderDrawInfoType::MODEL:
             handleModelDraw(entity, drawInfo);
             break;
-        case RenderDrawInfoType::IA:
+        case RenderDrawInfoType::MIDDLEWARE:
             handleMiddlewareDraw(entity, drawInfo);
             break;
         case RenderDrawInfoType::SUB_NODE:
@@ -327,7 +327,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     if (drawInfo == nullptr) {
         return;
     }
-    if (drawInfo->getEnumDrawInfoType() == RenderDrawInfoType::IA) {
+    if (drawInfo->getEnumDrawInfoType() == RenderDrawInfoType::MIDDLEWARE) {
         generateBatchForIA(entity, drawInfo);
         return;
     }

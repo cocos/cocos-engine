@@ -203,7 +203,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     int vbs = _useTint ? vbs2 : vbs1;
 
     auto *paramsBuffer = _paramsBuffer->getBuffer();
-    const cc::Mat4 &nodeWorldMat = entity->getNode()->getWorldMatrix();
+    auto &nodeWorldMat = entity->getNode()->getWorldMatrix();
 
     int colorOffset = 0;
     SkeletonCache::ColorData *nowColor = colors[colorOffset++];
@@ -277,7 +277,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         curDrawInfo = requestDrawInfo(segmentCount++);
         entity->addDynamicRenderDrawInfo(curDrawInfo);
         // fill new texture index
-        curTexture = (cc::Texture2D*)(segment->getTexture()->getRealTexture());
+        curTexture = static_cast<cc::Texture2D*>(segment->getTexture()->getRealTexture());
         gfx::Texture *texture = curTexture->getGFXTexture();
         gfx::Sampler *sampler = curTexture->getGFXSampler();
         curDrawInfo->setTexture(texture);
@@ -304,7 +304,8 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         // fill new blend src and dst
         auto *material = requestMaterial(curBlendSrc, curBlendDst);
         curDrawInfo->setMaterial(material);
-        curDrawInfo->setDataHash(((uint32_t)curBlendSrc << 16) | ((uint32_t)curBlendDst));
+        auto dataHash = static_cast<uint32_t>(curBlendSrc << 16) | static_cast<uint32_t>(curBlendDst);
+        curDrawInfo->setDataHash(dataHash);
 
         // fill vertex buffer
         vb.checkSpace(vertexBytes, true);
@@ -320,7 +321,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
             vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);
         }
         // batch handle
-        if (_batch) {
+        if (_enableBatch) {
             cc::Vec3 *point = nullptr;
             for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
                 point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
@@ -446,9 +447,9 @@ void SkeletonCacheAnimation::setColor(float r, float g, float b, float a) {
 }
 
 void SkeletonCacheAnimation::setBatchEnabled(bool enabled) {
-    if (_batch != enabled) {
+    if (_enableBatch != enabled) {
         _materialCaches.clear();
-        _batch = enabled;
+        _enableBatch = enabled;
     }
 }
 
@@ -582,14 +583,14 @@ void SkeletonCacheAnimation::setMaterial(cc::Material *material) {
 cc::RenderDrawInfo* SkeletonCacheAnimation::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
-        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
+        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
         _drawInfoArray.push_back(draw);
     }
     return _drawInfoArray[idx];
 }
 
 cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
-    uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
+    uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
             (Material*)_material,
@@ -609,7 +610,7 @@ cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_
         BlendTargetInfoList targetList {targetInfo};
         stateInfo.targets = targetList;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_batch}};
+        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = materialInstance;
     }

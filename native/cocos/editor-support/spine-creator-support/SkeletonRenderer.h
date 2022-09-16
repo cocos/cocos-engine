@@ -178,7 +178,7 @@ protected:
     bool _premultipliedAlpha = false;
     SkeletonClipping *_clipper = nullptr;
     bool _useTint = false;
-    bool _batch = false;
+    bool _enableBatch = false;
     std::string _uuid;
 
     int _startSlotIndex = -1;

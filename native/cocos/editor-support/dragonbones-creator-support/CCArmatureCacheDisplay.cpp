@@ -169,7 +169,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
     middleware::IOBuffer &ib = mb->getIB();
     const auto &srcVB = frameData->vb;
     const auto &srcIB = frameData->ib;
-    const cc::Mat4 &nodeWorldMat = entity->getNode()->getWorldMatrix();
+    auto &nodeWorldMat = entity->getNode()->getWorldMatrix();
 
     int colorOffset = 0;
     ArmatureCache::ColorData *nowColor = colors[colorOffset++];
@@ -226,7 +226,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
         curDrawInfo = requestDrawInfo(segmentCount++);
         entity->addDynamicRenderDrawInfo(curDrawInfo);
         // fill new texture index
-        curTexture = (cc::Texture2D*)(segment->getTexture()->getRealTexture());
+        curTexture = static_cast<cc::Texture2D*>(segment->getTexture()->getRealTexture());
         gfx::Texture *texture = curTexture->getGFXTexture();
         gfx::Sampler *sampler = curTexture->getGFXSampler();
         curDrawInfo->setTexture(texture);
@@ -432,14 +432,14 @@ void CCArmatureCacheDisplay::setMaterial(cc::Material *material) {
 cc::RenderDrawInfo* CCArmatureCacheDisplay::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
-        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::IA));
+        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
         _drawInfoArray.push_back(draw);
     }
     return _drawInfoArray[idx];
 }
 
 cc::Material *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
-    uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
+    uint32_t key = (static_cast<uint32_t>(blendSrc) << 16) | (static_cast<uint32_t>(blendDst));
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
             (Material*)_material,

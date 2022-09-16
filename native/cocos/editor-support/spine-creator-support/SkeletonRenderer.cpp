@@ -284,7 +284,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     if (_skeleton->getColor().a == 0) {
         return;
     }
-    cc::Mat4 nodeWorldMat = entity->getNode()->getWorldMatrix();
+    auto& nodeWorldMat = entity->getNode()->getWorldMatrix();
     // color range is [0.0, 1.0]
     cc::middleware::Color4F color;
     cc::middleware::Color4F darkColor;
@@ -727,7 +727,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         if (preTexture != curTexture || preBlendMode != slot->getData().getBlendMode() || isFull) {
             flush();
         }
-        if (_batch) {
+        if (_enableBatch) {
             uint8_t *vbBuffer = vb.getCurBuffer();
             cc::Vec3 *point = nullptr;
             for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
@@ -963,9 +963,9 @@ void SkeletonRenderer::setColor(float r, float g, float b, float a) {
 }
 
 void SkeletonRenderer::setBatchEnabled(bool enabled) {
-    if (enabled != _batch) {
+    if (enabled != _enableBatch) {
         _materialCaches.clear();
-        _batch = enabled;
+        _enableBatch = enabled;
     }
 }
 
@@ -1029,14 +1029,14 @@ void SkeletonRenderer::setMaterial(cc::Material *material) {
 cc::RenderDrawInfo* SkeletonRenderer::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
-        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
+        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
         _drawInfoArray.push_back(draw);
     }
     return _drawInfoArray[idx];
 }
 
 cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
-    uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
+    uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
             (Material*)_material,
@@ -1056,7 +1056,7 @@ cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blen
         BlendTargetInfoList targetList {targetInfo};
         stateInfo.targets = targetList;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_batch}};
+        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = materialInstance;
     }

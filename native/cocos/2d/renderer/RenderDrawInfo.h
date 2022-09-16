@@ -48,7 +48,7 @@ struct Render2dLayout {
 enum class RenderDrawInfoType : uint8_t {
     COMP,
     MODEL,
-    IA,
+    MIDDLEWARE,
     SUB_NODE,
 };
 

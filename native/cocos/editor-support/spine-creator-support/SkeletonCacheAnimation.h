@@ -132,7 +132,7 @@ private:
     bool _isAniComplete = true;
     std::string _animationName;
     bool _useTint = true;
-    bool _batch = false;
+    bool _enableBatch = false;
 
     struct AniQueueData {
         std::string animationName;
