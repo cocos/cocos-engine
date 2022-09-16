@@ -216,6 +216,20 @@ inline void remove_vertex_value_impl(const ResourceGraph::VertexHandle& h, Resou
                 }
                 impl::reindexVectorHandle<ManagedTag>(g.vertices, h.value);
             },
+            [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
+                g.managedBuffers.erase(g.managedBuffers.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.managedBuffers.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ManagedBufferTag>(g.vertices, h.value);
+            },
+            [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
+                g.managedTextures.erase(g.managedTextures.begin() + std::ptrdiff_t(h.value));
+                if (h.value == g.managedTextures.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ManagedTextureTag>(g.vertices, h.value);
+            },
             [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
                 g.buffers.erase(g.buffers.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.buffers.size()) {
@@ -279,6 +293,24 @@ void addVertexImpl( // NOLINT
     vert.handle = impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.resources.size())};
     g.resources.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedBuffer>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedBuffers.size())};
+    g.managedBuffers.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedTexture>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedTextures.size())};
+    g.managedTextures.emplace_back(std::forward<ValueT>(val));
 }
 
 template <class ValueT>
@@ -349,6 +381,28 @@ void addVertexImpl(ManagedTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGr
             vert.handle = impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.resources.size())};
             g.resources.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ManagedBufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedBuffers.size())};
+            g.managedBuffers.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ManagedTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedTextures.size())};
+            g.managedTextures.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }
@@ -1329,6 +1383,12 @@ id(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             [](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
                 return h.value;
             },
+            [](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
+                return h.value;
+            },
+            [](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
+                return h.value;
+            },
             [](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
                 return h.value;
             },
@@ -1351,6 +1411,12 @@ tag(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
         overload(
             [](const impl::ValueHandle<ManagedTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{ManagedTag{}};
+            },
+            [](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>&) {
+                return ResourceGraph::VertexTag{ManagedBufferTag{}};
+            },
+            [](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>&) {
+                return ResourceGraph::VertexTag{ManagedTextureTag{}};
             },
             [](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{PersistentBufferTag{}};
@@ -1375,6 +1441,12 @@ value(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept {
             [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.resources[h.value]};
             },
+            [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexValue{&g.managedBuffers[h.value]};
+            },
+            [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexValue{&g.managedTextures[h.value]};
+            },
             [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.buffers[h.value]};
             },
@@ -1397,6 +1469,12 @@ value(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
         overload(
             [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.resources[h.value]};
+            },
+            [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexConstValue{&g.managedBuffers[h.value]};
+            },
+            [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexConstValue{&g.managedTextures[h.value]};
             },
             [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.buffers[h.value]};
@@ -1422,6 +1500,22 @@ inline bool
 holds<ManagedTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
     return ccstd::holds_alternative<
         impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds<ManagedBufferTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds<ManagedTextureTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
 }
 
@@ -1471,6 +1565,22 @@ holds_alternative<ManagedResource>(ResourceGraph::vertex_descriptor v, const Res
 
 template <>
 inline bool
+holds_alternative<ManagedBuffer>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<ManagedTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+}
+
+template <>
+inline bool
 holds_alternative<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>>(
@@ -1512,6 +1622,24 @@ get<ManagedResource>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
         impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.resources[handle.value];
+}
+
+template <>
+inline ManagedBuffer&
+get<ManagedBuffer>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedBuffers[handle.value];
+}
+
+template <>
+inline ManagedTexture&
+get<ManagedTexture>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedTextures[handle.value];
 }
 
 template <>
@@ -1564,6 +1692,24 @@ get<ManagedResource>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g)
 }
 
 template <>
+inline const ManagedBuffer&
+get<ManagedBuffer>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedBuffers[handle.value];
+}
+
+template <>
+inline const ManagedTexture&
+get<ManagedTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedTextures[handle.value];
+}
+
+template <>
 inline const IntrusivePtr<gfx::Buffer>&
 get<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = ccstd::get<
@@ -1607,6 +1753,22 @@ get(ManagedTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     return g.resources[handle.value];
 }
 
+inline ManagedBuffer&
+get(ManagedBufferTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedBuffers[handle.value];
+}
+
+inline ManagedTexture&
+get(ManagedTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedTextures[handle.value];
+}
+
 inline IntrusivePtr<gfx::Buffer>&
 get(PersistentBufferTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = ccstd::get<
@@ -1645,6 +1807,22 @@ get(ManagedTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph&
         impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>>(
         g.vertices[v].handle);
     return g.resources[handle.value];
+}
+
+inline const ManagedBuffer&
+get(ManagedBufferTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedBuffers[handle.value];
+}
+
+inline const ManagedTexture&
+get(ManagedTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
+        g.vertices[v].handle);
+    return g.managedTextures[handle.value];
 }
 
 inline const IntrusivePtr<gfx::Buffer>&
@@ -1696,6 +1874,40 @@ get_if<ManagedResource>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGrap
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.resources[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline ManagedBuffer*
+get_if<ManagedBuffer>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    ManagedBuffer* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.managedBuffers[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline ManagedTexture*
+get_if<ManagedTexture>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    ManagedTexture* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.managedTextures[pHandle->value];
     }
     return ptr;
 }
@@ -1785,6 +1997,40 @@ get_if<ManagedResource>(ResourceGraph::vertex_descriptor v, const ResourceGraph*
         &g.vertices[v].handle);
     if (pHandle) {
         ptr = &g.resources[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const ManagedBuffer*
+get_if<ManagedBuffer>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const ManagedBuffer* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.managedBuffers[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const ManagedTexture*
+get_if<ManagedTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const ManagedTexture* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>>(
+        &g.vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.managedTextures[pHandle->value];
     }
     return ptr;
 }

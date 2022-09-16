@@ -214,11 +214,13 @@ struct ResourceGraph {
     using edges_size_type = uint32_t;
 
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<ManagedTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
-    using VertexValue       = ccstd::variant<ManagedResource*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
-    using VertexConstValue = ccstd::variant<const ManagedResource*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
+    using VertexTag         = ccstd::variant<ManagedTag, ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
+    using VertexValue       = ccstd::variant<ManagedResource*, ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
+    using VertexConstValue = ccstd::variant<const ManagedResource*, const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<ManagedTag, vertex_descriptor>,
+        impl::ValueHandle<ManagedBufferTag, vertex_descriptor>,
+        impl::ValueHandle<ManagedTextureTag, vertex_descriptor>,
         impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
         impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
         impl::ValueHandle<FramebufferTag, vertex_descriptor>,
@@ -269,6 +271,8 @@ struct ResourceGraph {
     ccstd::pmr::vector<ResourceStates> states;
     // PolymorphicGraph
     ccstd::pmr::vector<ManagedResource> resources;
+    ccstd::pmr::vector<ManagedBuffer> managedBuffers;
+    ccstd::pmr::vector<ManagedTexture> managedTextures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> buffers;
     ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
