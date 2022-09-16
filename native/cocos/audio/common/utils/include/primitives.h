@@ -904,7 +904,7 @@ static inline int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a)
     if (left) {
         return a + (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
     }  
-        return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
+    return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
     
 #endif
 }

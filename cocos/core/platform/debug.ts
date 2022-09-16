@@ -216,7 +216,8 @@ export function _resetDebugSetting (mode: DebugMode) {
     if (mode !== DebugMode.ERROR) {
         if (EDITOR) {
             ccWarn = console.warn.bind(console);
-        } else if (console.warn.bind && (!sys.oh)) { //TODO : resolve openharmony warn exception.
+            // @ts-ignore
+        } else if (console.warn.bind && (!sys.oh)) { //TODO : resolve openharmony warn exception. 
             // use bind to avoid pollute call stacks
             ccWarn = console.warn.bind(console);
         } else {

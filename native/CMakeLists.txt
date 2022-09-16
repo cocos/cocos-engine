@@ -886,7 +886,8 @@ cocos_source_files(MODULE ccmath
 )
 
 ##### network
-if(NOT OPENHARMONY)# TODO:May be removed later
+# The network module of OpenHarmony is implemented in the ts layer
+if(NOT OPENHARMONY)
 cocos_source_files(
                  cocos/network/Downloader.cpp
                  cocos/network/Downloader.h

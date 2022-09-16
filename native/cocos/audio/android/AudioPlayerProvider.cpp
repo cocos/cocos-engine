@@ -71,7 +71,7 @@ static int getSystemAPILevel() {
     sSystemApiLevel = apiLevel;
     return apiLevel;
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    // TODO: On the openharmony platform, pcm streaming must be used
+    // TODO(qgh): On the openharmony platform, pcm streaming must be used
     return std::numeric_limits<int>::max();
 #endif
 }

@@ -60,7 +60,7 @@ static int toBufferSizeInBytes(int bufferSizeInFrames, int sampleSize, int chann
     return bufferSizeInFrames * sampleSize * channelCount;
 }
 
-static int BUFFER_SIZE_IN_BYTES = 0;
+static int BUFFER_SIZE_IN_BYTES = 0; // NOLINT(readability-identifier-naming)
 
 static void checkMetaData(int index, const char *key) {
     if (index != -1) {
