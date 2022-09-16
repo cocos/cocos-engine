@@ -7,26 +7,27 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       properties: &props
-        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
-        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
-        albedoScale:          { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
-        alphaThreshold:       { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
-        emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
-        emissiveMap:          { value: grey }
-        shininessExponentMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
-        shininessExponent:    { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
-        specularColor:        { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } } 
-        specularMap:          { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
-        specularFactor:       { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
-        transparencyMap:      { value: grey, editor: { displayName: TransparencyMap } } 
-        transparencyFactor:   { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
-        normalStrength:       { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
-        normalMap:            { value: normal }
-        glossiness:           { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
-        metallic:             { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
-        metallicMap:          { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
-        occlusionMap:         { value: white }
+        mainTexture:           { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
+        albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
+        emissiveMap:           { value: grey }
+        shininessExponentMap:  { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        shininessExponent:     { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        specularGlossinessMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        specularColor:         { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } } 
+        specularMap:           { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
+        specularFactor:        { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
+        normalStrength:        { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        normalMap:             { value: normal }
+        glossiness:            { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:              { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallicMap:           { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
+        occlusionMap:          { value: white }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -148,6 +149,9 @@ CCProgram surface-fragment %{
     uniform sampler2D shininessExponentMap;
     #pragma define-meta  GLOSSINESS_MAP_CHANNEL options([r,g,b,a])
   #endif
+  #if USE_SPECULAR_GLOSSINESS_MAP
+    uniform sampler2D specularGlossinessMap;
+  #endif
   #if USE_SPECULAR_MAP
     uniform sampler2D specularMap;
   #endif
@@ -213,13 +217,17 @@ CCProgram surface-fragment %{
   
   vec4 getSpecularColorAndFactor()
   {
-    vec3 inSpecular = specularColor.rgb;
+    vec3 inSpecular = specularColor.rgb * specularFactor;
+    float inFactor = 1.0; //reserved
+    #if USE_SPECULAR_GLOSSINESS_MAP
+      inSpecular = SRGBToLinear(texture(specularGlossinessMap, TEXTURE_UV).rgb);
+    #endif
     #if USE_SPECULAR_MAP
         vec4 specularTex = texture(specularMap, TEXTURE_UV);
         specularTex.rgb = SRGBToLinear(specularTex.rgb);
         inSpecular = specularTex.rgb;
     #endif
-    return vec4(inSpecular, specularFactor);
+    return vec4(inSpecular, inFactor);
   }
 
   #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
@@ -297,9 +305,13 @@ CCProgram surface-fragment %{
 
       vec4 specularColorAndFactor = getSpecularColorAndFactor();
       //glossiness
-      float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
+      float inGlossiness = 0.0, inSpecularIntensity = 1.0;
       #if HAS_EXPORTED_GLOSSINESS
-        inGlossiness = glossiness;
+        #if USE_SPECULAR_GLOSSINESS_MAP
+          inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
+        #else
+          inGlossiness = glossiness;
+        #endif
       #else
         #if USE_SHININESS_MAP
           #if GLOSSINESS_MAP_USE_SINGLE_CHANNEL

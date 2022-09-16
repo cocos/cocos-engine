@@ -278,7 +278,8 @@ CCProgram standard-fs %{
   
   vec4 getSpecularColorAndFactor()
   {
-    vec3 inSpecular = specularColor.rgb;
+    vec3 inSpecular = specularColor.rgb * specularFactor;
+    float inFactor = 1.0; //reserved
     #if USE_SPECULAR_GLOSSINESS_MAP
       inSpecular = SRGBToLinear(texture(specularGlossinessMap, TEXTURE_UV).rgb);
     #endif
@@ -287,7 +288,7 @@ CCProgram standard-fs %{
         specularTex.rgb = SRGBToLinear(specularTex.rgb);
         inSpecular = specularTex.rgb;
     #endif
-    return vec4(inSpecular, specularFactor);
+    return vec4(inSpecular, inFactor);
   }
   void surf (out StandardSurface s) {
     //diffuse
@@ -324,7 +325,7 @@ CCProgram standard-fs %{
     vec4 specularColorAndFactor = getSpecularColorAndFactor();
 
     //glossiness
-    float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
+    float inGlossiness = 0.0, inSpecularIntensity = 1.0;
     #if HAS_EXPORTED_GLOSSINESS
       #if USE_SPECULAR_GLOSSINESS_MAP
         inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
