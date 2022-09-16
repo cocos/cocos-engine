@@ -265,7 +265,7 @@ void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, c
 
 void SkeletonRenderer::render(float /*deltaTime*/) {
     if (!_skeleton) return;
-    RenderEntity *entity = (RenderEntity *)_entity;
+    auto *entity = _entity;
     entity->clearDynamicRenderDrawInfos();
     _sharedBufferOffset->reset();
     _sharedBufferOffset->clear();
@@ -338,7 +338,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         if (curDrawInfo) {
             curDrawInfo->setIbCount(curISegLen);
         }
-        curDrawInfo = (RenderDrawInfo *)requestDrawInfo(materialLen);
+        curDrawInfo = requestDrawInfo(materialLen);
         entity->addDynamicRenderDrawInfo(curDrawInfo);
         // prepare to fill new segment field
         curBlendMode = slot->getData().getBlendMode();
@@ -359,13 +359,13 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
                 curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
         }
-        Material *material = (Material *)requestMaterial(curBlendSrc, curBlendDst);
+        auto *material = requestMaterial(curBlendSrc, curBlendDst);
         curDrawInfo->setMaterial(material);
         gfx::Texture *texture = curTexture->getGFXTexture();
         gfx::Sampler *sampler = curTexture->getGFXSampler();
         curDrawInfo->setTexture(texture);
         curDrawInfo->setSampler(sampler);
-        UIMeshBuffer* uiMeshBuffer = (UIMeshBuffer*)mb->getUIMeshBuffer();
+        auto* uiMeshBuffer = mb->getUIMeshBuffer();
         curDrawInfo->setMeshBuffer(uiMeshBuffer);
         curDrawInfo->setIndexOffset(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
         curDrawInfo->setDataHash(((uint32_t)curBlendSrc << 16) | ((uint32_t)curBlendDst));
@@ -1018,16 +1018,24 @@ uint32_t SkeletonRenderer::getRenderOrder() const {
     return 0;
 }
 
-void* SkeletonRenderer::requestDrawInfo(int idx) {
-    if (_drawInfoArray.size() < idx + 1) {
-        RenderDrawInfo *draw = new RenderDrawInfo();
-        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
-        _drawInfoArray.push_back((void *)draw);
-    }
-    return (void*)_drawInfoArray[idx];
+void SkeletonRenderer::setRenderEntity(cc::RenderEntity* entity) {
+    _entity = entity;
 }
 
-void *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+void SkeletonRenderer::setMaterial(cc::Material *material) {
+    _material = material;
+}
+
+cc::RenderDrawInfo* SkeletonRenderer::requestDrawInfo(int idx) {
+    if (_drawInfoArray.size() < idx + 1) {
+        cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
+        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
+        _drawInfoArray.push_back(draw);
+    }
+    return _drawInfoArray[idx];
+}
+
+cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
@@ -1050,7 +1058,7 @@ void *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
         materialInstance->overridePipelineStates(overrides);
         const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_batch}};
         materialInstance->recompileShaders(macros);
-        _materialCaches[key] = (void*)materialInstance;
+        _materialCaches[key] = materialInstance;
     }
     return _materialCaches[key];
 }

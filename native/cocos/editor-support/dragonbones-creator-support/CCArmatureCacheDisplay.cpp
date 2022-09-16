@@ -146,7 +146,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
 
     auto *mgr = MiddlewareManager::getInstance();
     if (!mgr->isRendering) return;
-    RenderEntity *entity = (RenderEntity *)_entity;
+    auto *entity = _entity;
     entity->clearDynamicRenderDrawInfos();
 
     const auto &segments = frameData->getSegments();
@@ -223,7 +223,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
     int segmentCount = 0;
     for (auto *segment : segments) {
         vertexBytes = segment->vertexFloatCount * sizeof(float);
-        curDrawInfo = (RenderDrawInfo *)requestDrawInfo(segmentCount++);
+        curDrawInfo = requestDrawInfo(segmentCount++);
         entity->addDynamicRenderDrawInfo(curDrawInfo);
         // fill new texture index
         curTexture = (cc::Texture2D*)(segment->getTexture()->getRealTexture());
@@ -252,7 +252,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
                 break;
         }
         // fill new blend src and dst
-        Material *material = (Material *)requestMaterial(curBlendSrc, curBlendDst);
+        auto *material = requestMaterial(curBlendSrc, curBlendDst);
         curDrawInfo->setMaterial(material);
 
         // fill vertex buffer
@@ -296,7 +296,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
         srcIndexBytesOffset += indexBytes;
 
         // fill new index and vertex buffer id
-        UIMeshBuffer* uiMeshBuffer = (UIMeshBuffer*)mb->getUIMeshBuffer();
+        UIMeshBuffer* uiMeshBuffer = mb->getUIMeshBuffer();
         curDrawInfo->setMeshBuffer(uiMeshBuffer);
 
         // fill new index offset
@@ -420,16 +420,25 @@ uint32_t CCArmatureCacheDisplay::getRenderOrder() const {
     return 0;
 }
 
-void* CCArmatureCacheDisplay::requestDrawInfo(int idx) {
-    if (_drawInfoArray.size() < idx + 1) {
-        RenderDrawInfo *draw = new RenderDrawInfo();
-        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
-        _drawInfoArray.push_back((void *)draw);
-    }
-    return (void*)_drawInfoArray[idx];
+void CCArmatureCacheDisplay::setRenderEntity(cc::RenderEntity* entity) {
+    _entity = entity;
 }
 
-void *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+void CCArmatureCacheDisplay::setMaterial(cc::Material *material) {
+    _material = material;
+}
+
+
+cc::RenderDrawInfo* CCArmatureCacheDisplay::requestDrawInfo(int idx) {
+    if (_drawInfoArray.size() < idx + 1) {
+        cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
+        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::IA));
+        _drawInfoArray.push_back(draw);
+    }
+    return _drawInfoArray[idx];
+}
+
+cc::Material *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
@@ -452,7 +461,7 @@ void *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendD
         materialInstance->overridePipelineStates(overrides);
         const MacroRecord macros {{"USE_LOCAL", false}};
         materialInstance->recompileShaders(macros);
-        _materialCaches[key] = (void*)materialInstance;
+        _materialCaches[key] = materialInstance;
     }
     return _materialCaches[key];
 }

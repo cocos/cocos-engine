@@ -95,7 +95,7 @@ void CCArmatureDisplay::dbRender() {
     if (!_entity) {
         return;
     }
-    RenderEntity *entity = (RenderEntity *)_entity;
+    auto *entity = _entity;
     entity->clearDynamicRenderDrawInfos();
 
     auto *mgr = MiddlewareManager::getInstance();
@@ -122,7 +122,7 @@ void CCArmatureDisplay::dbRender() {
     // Traverse all aramture to fill vertex and index buffer.
     traverseArmature(_armature);
 
-    if (_curDrawInfo) ((RenderDrawInfo *)_curDrawInfo)->setIbCount(_curISegLen);
+    if (_curDrawInfo) _curDrawInfo->setIbCount(_curISegLen);
 
     if (_useAttach || _debugDraw) {
         const auto &bones = _armature->getBones();
@@ -206,7 +206,7 @@ CCArmatureDisplay *CCArmatureDisplay::getRootDisplay() {
 
 void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity) {
     static cc::Mat4 matrixTemp;
-    cc::Mat4 nodeWorldMat = ((RenderEntity *)_entity)->getNode()->getWorldMatrix();
+    cc::Mat4 nodeWorldMat = _entity->getNode()->getWorldMatrix();
 
     // data store in buffer which 0 to 3 is render order, left data is node world matrix
     const auto &slots = armature->getSlots();
@@ -229,12 +229,10 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
 
     auto flush = [&]() {
         // fill pre segment count field
-        if (_curDrawInfo) {
-            ((RenderDrawInfo *)_curDrawInfo)->setIbCount(_curISegLen);
-        }
-        RenderDrawInfo *curDrawInfo = (RenderDrawInfo *)requestDrawInfo(_materialLen);
-        _curDrawInfo = (void *)curDrawInfo;
-        ((RenderEntity *)_entity)->addDynamicRenderDrawInfo((RenderDrawInfo *)curDrawInfo);
+        if (_curDrawInfo) _curDrawInfo->setIbCount(_curISegLen);
+
+        _curDrawInfo = requestDrawInfo(_materialLen);
+        _entity->addDynamicRenderDrawInfo(_curDrawInfo);
         // prepare to fill new segment field
         switch (slot->_blendMode) {
             case BlendMode::Add:
@@ -255,15 +253,15 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
                 break;
         }
 
-        Material *material = (Material *)requestMaterial(_curBlendSrc, _curBlendDst);
-        curDrawInfo->setMaterial(material);
+        auto *material = requestMaterial(_curBlendSrc, _curBlendDst);
+        _curDrawInfo->setMaterial(material);
         gfx::Texture *texture = ((cc::Texture2D*)_curTexture)->getGFXTexture();
         gfx::Sampler *sampler = ((cc::Texture2D*)_curTexture)->getGFXSampler();
-        curDrawInfo->setTexture(texture);
-        curDrawInfo->setSampler(sampler);
-        UIMeshBuffer *uiMeshBuffer = (UIMeshBuffer *)mb->getUIMeshBuffer();
-        curDrawInfo->setMeshBuffer(uiMeshBuffer);
-        curDrawInfo->setIndexOffset(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
+        _curDrawInfo->setTexture(texture);
+        _curDrawInfo->setSampler(sampler);
+        UIMeshBuffer *uiMeshBuffer = mb->getUIMeshBuffer();
+        _curDrawInfo->setMeshBuffer(uiMeshBuffer);
+        _curDrawInfo->setIndexOffset(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
 
         // reset pre blend mode to current
         _preBlendMode = static_cast<int>(slot->_blendMode);
@@ -296,7 +294,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         }
 
         if (!slot->getTexture()) continue;
-        _curTexture = (slot->getTexture()->getRealTexture());
+        _curTexture = (cc::Texture2D*)(slot->getTexture()->getRealTexture());
         auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         isFull |= vb.checkSpace(vbSize, true);
 
@@ -413,16 +411,25 @@ uint32_t CCArmatureDisplay::getRenderOrder() const {
     return 0;
 }
 
-void* CCArmatureDisplay::requestDrawInfo(int idx) {
-    if (_drawInfoArray.size() < idx + 1) {
-        RenderDrawInfo *draw = new RenderDrawInfo();
-        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
-        _drawInfoArray.push_back((void *)draw);
-    }
-    return (void*)_drawInfoArray[idx];
+void CCArmatureDisplay::setRenderEntity(cc::RenderEntity* entity) {
+    _entity = entity;
 }
 
-void *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+void CCArmatureDisplay::setMaterial(cc::Material *material) {
+    _material = material;
+}
+
+
+cc::RenderDrawInfo* CCArmatureDisplay::requestDrawInfo(int idx) {
+    if (_drawInfoArray.size() < idx + 1) {
+        cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
+        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::IA));
+        _drawInfoArray.push_back(draw);
+    }
+    return _drawInfoArray[idx];
+}
+
+cc::Material *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
@@ -445,7 +452,7 @@ void *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
         materialInstance->overridePipelineStates(overrides);
         const MacroRecord macros {{"USE_LOCAL", false}};
         materialInstance->recompileShaders(macros);
-        _materialCaches[key] = (void*)materialInstance;
+        _materialCaches[key] = materialInstance;
     }
     return _materialCaches[key];
 }

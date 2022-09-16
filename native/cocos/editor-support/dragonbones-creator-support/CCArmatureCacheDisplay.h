@@ -30,6 +30,12 @@
 #include "base/RefCounted.h"
 #include "dragonbones/DragonBonesHeaders.h"
 
+namespace cc {
+class RenderEntity;
+class RenderDrawInfo;
+class Material;
+};
+
 DRAGONBONES_NAMESPACE_BEGIN
 
 class CCArmatureCacheDisplay : public cc::RefCounted, public cc::middleware::IMiddleware {
@@ -91,10 +97,12 @@ public:
 		 * format |render order|world matrix|
          */
     se_object_ptr getParamsBuffer() const;
-    void *requestDrawInfo(int idx);
-    void *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
-    void setMaterial(void *material) { _material = material;};
-    void setRenderEntity(void* entity) { _entity = entity;};
+
+    cc::RenderDrawInfo *requestDrawInfo(int idx);
+    cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(cc::Material *material);
+    void setRenderEntity(cc::RenderEntity* entity);
+
 private:
     float _timeScale = 1;
     int _curFrameIndex = -1;
@@ -120,10 +128,11 @@ private:
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
     cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
-    void *_entity = nullptr;
-    std::vector<void *> _drawInfoArray;
-    void *_material = nullptr;
-    std::map<uint32_t, void*> _materialCaches;
+
+    cc::RenderEntity *_entity = nullptr;
+    cc::Material *_material = nullptr;
+    ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
+    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
 };
 
 DRAGONBONES_NAMESPACE_END

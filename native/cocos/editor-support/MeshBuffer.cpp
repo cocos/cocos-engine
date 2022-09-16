@@ -146,9 +146,17 @@ void MeshBuffer::addUIMeshBuffer() {
 
 void MeshBuffer::cleanUIMeshBuffer() {
     for(auto &buf : _uiMeshBufferArr) {
-        delete (UIMeshBuffer*)buf;
+        delete buf;
     }
     _uiMeshBufferArr.clear();
+}
+
+cc::UIMeshBuffer *MeshBuffer::getUIMeshBuffer() {
+    return _uiMeshBufferArr[_bufferPos];
+}
+
+const ccstd::vector<cc::UIMeshBuffer *>& MeshBuffer::uiMeshBuffers() {
+    return _uiMeshBufferArr;
 }
 
 MIDDLEWARE_END

@@ -163,7 +163,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     if (!_animationData) return;
     SkeletonCache::FrameData *frameData = _animationData->getFrameData(_curFrameIndex);
     if (!frameData) return;
-    RenderEntity *entity = (RenderEntity *)_entity;
+    auto *entity = _entity;
     entity->clearDynamicRenderDrawInfos();
 
     const auto &segments = frameData->getSegments();
@@ -274,7 +274,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
             vertexBytes = srcVertexBytes;
             vertexFloats = segment->vertexFloatCount;
         }
-        curDrawInfo = (RenderDrawInfo *)requestDrawInfo(segmentCount++);
+        curDrawInfo = requestDrawInfo(segmentCount++);
         entity->addDynamicRenderDrawInfo(curDrawInfo);
         // fill new texture index
         curTexture = (cc::Texture2D*)(segment->getTexture()->getRealTexture());
@@ -302,7 +302,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
                 curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
         }
         // fill new blend src and dst
-        Material *material = (Material *)requestMaterial(curBlendSrc, curBlendDst);
+        auto *material = requestMaterial(curBlendSrc, curBlendDst);
         curDrawInfo->setMaterial(material);
         curDrawInfo->setDataHash(((uint32_t)curBlendSrc << 16) | ((uint32_t)curBlendDst));
 
@@ -367,7 +367,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         srcIndexBytesOffset += indexBytes;
 
         // fill new index and vertex buffer id
-        UIMeshBuffer* uiMeshBuffer = (UIMeshBuffer*)mb->getUIMeshBuffer();
+        UIMeshBuffer* uiMeshBuffer = mb->getUIMeshBuffer();
         curDrawInfo->setMeshBuffer(uiMeshBuffer);
 
         // fill new index offset
@@ -571,17 +571,24 @@ void SkeletonCacheAnimation::setSlotsToSetupPose() {
         _skeletonCache->setSlotsToSetupPose();
     }
 }
-
-void* SkeletonCacheAnimation::requestDrawInfo(int idx) {
-    if (_drawInfoArray.size() < idx + 1) {
-        RenderDrawInfo *draw = new RenderDrawInfo();
-        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
-        _drawInfoArray.push_back((void *)draw);
-    }
-    return (void*)_drawInfoArray[idx];
+void SkeletonCacheAnimation::setRenderEntity(cc::RenderEntity* entity) {
+    _entity = entity;
 }
 
-void *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+void SkeletonCacheAnimation::setMaterial(cc::Material *material) {
+    _material = material;
+}
+
+cc::RenderDrawInfo* SkeletonCacheAnimation::requestDrawInfo(int idx) {
+    if (_drawInfoArray.size() < idx + 1) {
+        cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
+        draw->setDrawInfoType((uint32_t)RenderDrawInfoType::IA);
+        _drawInfoArray.push_back(draw);
+    }
+    return _drawInfoArray[idx];
+}
+
+cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = ((uint32_t)blendSrc << 16) | ((uint32_t)blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
@@ -604,7 +611,7 @@ void *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_t blendD
         materialInstance->overridePipelineStates(overrides);
         const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_batch}};
         materialInstance->recompileShaders(macros);
-        _materialCaches[key] = (void*)materialInstance;
+        _materialCaches[key] = materialInstance;
     }
     return _materialCaches[key];
 }

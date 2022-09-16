@@ -257,7 +257,7 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
     }
 }
 
-CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInfo* drawInfo) {
+CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     auto layer = entity->getNode()->getLayer();
     Material* material = drawInfo->getMaterial();
     auto* texture = drawInfo->getTexture();
@@ -287,6 +287,7 @@ CC_FORCE_INLINE void Batcher2d::handleIADraw(RenderEntity* entity, RenderDrawInf
             _currDrawInfo = drawInfo;
         }
     } else {
+        generateBatch(_currEntity, _currDrawInfo);
         _currEntity = entity;
         _currDrawInfo = drawInfo;
         generateBatch(_currEntity, _currDrawInfo);
@@ -312,7 +313,7 @@ CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawI
             handleModelDraw(entity, drawInfo);
             break;
         case RenderDrawInfoType::IA:
-            handleIADraw(entity, drawInfo);
+            handleMiddlewareDraw(entity, drawInfo);
             break;
         case RenderDrawInfoType::SUB_NODE:
             handleSubNode(entity, drawInfo);

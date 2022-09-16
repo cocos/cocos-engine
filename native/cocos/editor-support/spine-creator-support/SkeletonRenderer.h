@@ -40,6 +40,12 @@
 #include "spine-creator-support/VertexEffectDelegate.h"
 #include "spine/spine.h"
 
+namespace cc {
+class RenderEntity;
+class RenderDrawInfo;
+class Material;
+};
+
 namespace spine {
 
 class AttachmentVertices;
@@ -146,10 +152,10 @@ public:
 
     virtual void initialize();
  
-    void *requestDrawInfo(int idx);
-    void *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
-    void setMaterial(void *material) { _material = material;};
-    void setRenderEntity(void* entity) { _entity = entity;};
+    cc::RenderDrawInfo *requestDrawInfo(int idx);
+    cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(cc::Material *material);
+    void setRenderEntity(cc::RenderEntity* entity);
 
 protected:
     void setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData);
@@ -183,10 +189,10 @@ protected:
     // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
     cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
 
-    void *_entity = nullptr;
-    std::vector<void *> _drawInfoArray;
-    void *_material = nullptr;
-    std::map<uint32_t, void*> _materialCaches;
+    cc::RenderEntity *_entity = nullptr;
+    cc::Material *_material = nullptr;
+    ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
+    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
 };
 
 } // namespace spine
