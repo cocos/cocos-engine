@@ -31,4 +31,40 @@
 // clang-format off
 #include "NativePipelineTypes.h"
 
+namespace cc {
+
+namespace render {
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
+: clearColors(alloc) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc)
+: renderPass(std::move(rhs.renderPass)),
+  framebuffer(std::move(rhs.framebuffer)),
+  clearColors(std::move(rhs.clearColors), alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
+: renderPass(rhs.renderPass),
+  framebuffer(rhs.framebuffer),
+  clearColors(rhs.clearColors, alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
+
+RenderContext::RenderContext(const allocator_type& alloc) noexcept
+: renderPasses(alloc) {}
+
+RenderContext::RenderContext(RenderContext&& rhs, const allocator_type& alloc)
+: renderPasses(std::move(rhs.renderPasses), alloc) {}
+
+RenderContext::RenderContext(RenderContext const& rhs, const allocator_type& alloc)
+: renderPasses(rhs.renderPasses, alloc) {}
+
+} // namespace render
+
+} // namespace cc
+
 // clang-format on

@@ -24,7 +24,6 @@
 
 package com.cocos.lib;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -35,6 +34,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -44,12 +44,15 @@ import com.google.androidgamesdk.GameActivity;
 import java.lang.reflect.Field;
 
 public class CocosActivity extends GameActivity {
-    private static final String _TAG = "CocosActivity";
+    private static final String TAG = "CocosActivity";
+    private static final boolean ENABLE_SUBSURFACE = false;
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
     private CocosOrientationHelper mOrientationHelper = null;
 
     private CocosSensorHandler mSensorHandler;
+    private CocosSurfaceView mSubsurfaceView;
+
 
 
     private native void onCreateNative(Context activity);
@@ -119,6 +122,12 @@ public class CocosActivity extends GameActivity {
         if (mVideoHelper == null) {
             mVideoHelper = new CocosVideoHelper(this, frameLayout);
         }
+        if (ENABLE_SUBSURFACE) {
+            mSubsurfaceView = new CocosSurfaceView(this);
+            mSubsurfaceView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            //mSubsurfaceView.setBackgroundColor(Color.BLUE);
+            frameLayout.addView(mSubsurfaceView, 1000, 1000);
+        }
     }
 
     public SurfaceView getSurfaceView() {
@@ -182,7 +191,7 @@ public class CocosActivity extends GameActivity {
             Bundle bundle = ai.metaData;
             String libName = bundle.getString("android.app.lib_name");
             if (TextUtils.isEmpty(libName)) {
-                Log.e(_TAG, "can not find library, please config android.app.lib_name at AndroidManifest.xml");
+                Log.e(TAG, "can not find library, please config android.app.lib_name at AndroidManifest.xml");
             }
             assert libName != null;
             System.loadLibrary(libName);

@@ -438,57 +438,6 @@ static bool js_cc_render_PipelineRuntime_onGlobalPipelineStateChanged(se::State&
 }
 SE_BIND_FUNC(js_cc_render_PipelineRuntime_onGlobalPipelineStateChanged) 
 
-static bool js_cc_render_PipelineRuntime_resetRenderQueue(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::PipelineRuntime *arg1 = (cc::render::PipelineRuntime *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "PipelineRuntime_resetRenderQueue,2,SWIGTYPE_bool"); 
-    (arg1)->resetRenderQueue(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_PipelineRuntime_resetRenderQueue) 
-
-static bool js_cc_render_PipelineRuntime_isRenderQueueReset(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::render::PipelineRuntime *arg1 = (cc::render::PipelineRuntime *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)((cc::render::PipelineRuntime const *)arg1)->isRenderQueueReset();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_render_PipelineRuntime_isRenderQueueReset) 
-
 static bool js_cc_render_PipelineRuntime_device_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -746,8 +695,6 @@ bool js_register_cc_render_PipelineRuntime(se::Object* obj) {
     cls->defineFunction("setMacroInt", _SE(js_cc_render_PipelineRuntime_setMacroInt)); 
     cls->defineFunction("setMacroBool", _SE(js_cc_render_PipelineRuntime_setMacroBool)); 
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_cc_render_PipelineRuntime_onGlobalPipelineStateChanged)); 
-    cls->defineFunction("resetRenderQueue", _SE(js_cc_render_PipelineRuntime_resetRenderQueue)); 
-    cls->defineFunction("isRenderQueueReset", _SE(js_cc_render_PipelineRuntime_isRenderQueueReset)); 
     
     
     

@@ -45,6 +45,9 @@ public:
      * @brief Start base platform initialization.
      */
     int32_t run(int argc, const char **argv) override;
+
+    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
+
     /**
      * @brief Implement the main logic of the base platform.
      */

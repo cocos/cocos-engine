@@ -241,6 +241,47 @@ public:
     const scene::RenderScene* scene{nullptr};
 };
 
+struct PersistentRenderPassAndFramebuffer {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {clearColors.get_allocator().resource()};
+    }
+
+    PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept; // NOLINT
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc);
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc);
+
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs) noexcept = default;
+    PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs) = delete;
+    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer&& rhs) = default;
+    PersistentRenderPassAndFramebuffer& operator=(PersistentRenderPassAndFramebuffer const& rhs) = default;
+
+    IntrusivePtr<gfx::RenderPass> renderPass;
+    IntrusivePtr<gfx::Framebuffer> framebuffer;
+    ccstd::pmr::vector<gfx::Color> clearColors;
+    float clearDepth{0};
+    uint8_t clearStencil{0};
+    int32_t refCount{1};
+};
+
+struct RenderContext {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {renderPasses.get_allocator().resource()};
+    }
+
+    RenderContext(const allocator_type& alloc) noexcept; // NOLINT
+    RenderContext(RenderContext&& rhs, const allocator_type& alloc);
+    RenderContext(RenderContext const& rhs, const allocator_type& alloc);
+
+    RenderContext(RenderContext&& rhs) noexcept = default;
+    RenderContext(RenderContext const& rhs) = delete;
+    RenderContext& operator=(RenderContext&& rhs) = default;
+    RenderContext& operator=(RenderContext const& rhs) = default;
+
+    ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
+};
+
 class NativePipeline final : public Pipeline {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;

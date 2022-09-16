@@ -30,6 +30,8 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
 
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "storage/local-storage/LocalStorage.h"
 
 extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration, readability-identifier-naming)
@@ -733,6 +735,25 @@ static bool register_engine_Color_manual(se::Object * /*obj*/) { // NOLINT(reada
     return true;
 }
 
+static bool js_cc_ISystemWindowManager_getInstance_static(se::State &s) { // NOLINT(readability-identifier-naming)
+    const auto &args = s.args();
+
+    CC_UNUSED bool ok = true;
+    auto *instance = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
+    ok &= nativevalue_to_se(instance, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_cc_ISystemWindowManager_getInstance Failed");
+
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_getInstance_static)
+
+static bool register_platform(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
+    se::Value constructor;
+    bool result = __jsb_cc_ISystemWindowManager_proto->getProperty("constructor", &constructor);
+    result &= constructor.toObject()->defineFunction("getInstance", _SE(js_cc_ISystemWindowManager_getInstance_static));
+    return result;
+}
+
 bool register_all_cocos_manual(se::Object *obj) { // NOLINT(readability-identifier-naming)
     register_plist_parser(obj);
     register_sys_localStorage(obj);
@@ -741,5 +762,6 @@ bool register_all_cocos_manual(se::Object *obj) { // NOLINT(readability-identifi
     register_filetuils_ext(obj);
     register_engine_Color_manual(obj);
     register_se_setExceptionCallback(obj);
+    register_platform(obj);
     return true;
 }
