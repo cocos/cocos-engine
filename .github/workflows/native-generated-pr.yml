@@ -22,8 +22,10 @@ jobs:
         run: |
           SRC_PR=`curl ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits | \
             sh -c 'node ./.github/workflows/jsonr.js [0].commit.message "\(#(\w+)\)" 1'`
-          SRC_MERGER=`curl -H "Accept: application/vnd.github+json" ${GITHUB_API_URL}/repos/cocos/cocos-engine/pulls/11063 | \
+          echo "source pr ${SRC_PR}"
+          SRC_MERGER=`curl -H "Accept: application/vnd.github+json" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${SRC_PR} | \
             sh -c 'node ./.github/workflows/jsonr.js merged_by.login'`
+          echo "source pr merger ${SRC_MERGER}"
           curl -X POST  -H "Accept: application/vnd.github+json" \
             -H "Authorization: token $REPO_TOKEN" \
             ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/assignees \
