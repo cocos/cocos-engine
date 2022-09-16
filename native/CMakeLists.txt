@@ -2483,7 +2483,7 @@ endif()
 
 ######## manual
 
-if(NOT OPENHARMONY)# TODO:May be removed later
+if(NOT OPENHARMONY)
     cocos_source_files(
 	    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
 	                 cocos/bindings/manual/jsb_network_manual.h
