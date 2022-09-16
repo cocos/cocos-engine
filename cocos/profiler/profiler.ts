@@ -37,7 +37,7 @@ import { legacyCC } from '../core/global-exports';
 import { Pass } from '../render-scene';
 import { preTransforms } from '../core/math/mat4';
 import { Root } from '../core/root';
-import { PipelineRuntime } from '../core/pipeline/custom/pipeline';
+import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director, System, sys } from '../core';
 import { Settings, settings } from '../core/settings';
 

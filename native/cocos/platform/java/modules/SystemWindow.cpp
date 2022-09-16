@@ -45,9 +45,7 @@ namespace {
 
 namespace cc {
 SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
-: _windowHandle(externalHandle)
-, _windowId(windowId)
-{
+: _windowHandle(externalHandle), _windowId(windowId) {
 }
 
 void SystemWindow::setCursorEnabled(bool value) {

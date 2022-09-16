@@ -216,8 +216,8 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
     cc::MouseEvent mouse;
     cc::KeyboardEvent keyboard;
 
-    touch.windowId    = windowId;
-    mouse.windowId    = windowId;
+    touch.windowId = windowId;
+    mouse.windowId = windowId;
     keyboard.windowId = windowId;
 
     SDL_Window *window = SDL_GetWindowFromID(sdlEvent.window.windowID);
@@ -328,7 +328,7 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
 }
 
 SDL_Window *SDLHelper::createWindow(const char *title,
-                             int w, int h, int flags) {
+                                    int w, int h, int flags) {
     SDL_Rect screenRect;
     if (SDL_GetDisplayUsableBounds(0, &screenRect) != 0) {
         return nullptr;
@@ -339,8 +339,8 @@ SDL_Window *SDLHelper::createWindow(const char *title,
 }
 
 SDL_Window *SDLHelper::createWindow(const char *title,
-                             int x, int y, int w,
-                             int h, int flags) {
+                                    int x, int y, int w,
+                                    int h, int flags) {
     // Create window
     int sdlFlags = windowFlagsToSDLWindowFlag(flags);
     SDL_Window *handle = SDL_CreateWindow(title, x, y, w, h, sdlFlags);
@@ -362,7 +362,7 @@ void SDLHelper::swapWindow(SDL_Window *window) {
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
-uintptr_t SDLHelper::getDisplay(SDL_Window* window) {
+uintptr_t SDLHelper::getDisplay(SDL_Window *window) {
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);

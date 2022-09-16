@@ -33,9 +33,9 @@
 #include "VKUtils.h"
 
 #include "application/ApplicationManager.h"
-#include "platform/interfaces/modules/IXRInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #if CC_SWAPPY_ENABLED
     #include "platform/android/AndroidPlatform.h"

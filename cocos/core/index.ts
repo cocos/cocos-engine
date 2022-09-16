@@ -50,13 +50,10 @@ export { Root } from './root';
 export * from './scheduler';
 export * from './director';
 export * from './algorithm/murmurhash2_gc';
-export * from './pipeline';
 export * from './scene-graph';
 export * from './components';
 export * from './curves';
 export * from './settings';
-
-export * from './pipeline/custom/builtin-pipelines';
 
 export * from './curves/bezier';
 export { easing };

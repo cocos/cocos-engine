@@ -54,4 +54,4 @@ private:
     SystemWindowMap _windows;
     IEventDispatch *_eventDispatcher{nullptr};
 };
-}
+} // namespace cc

@@ -306,7 +306,7 @@ gfx::DescriptorSet *NativePipeline::getDescriptorSet() const {
 }
 
 ccstd::vector<gfx::CommandBuffer *> NativePipeline::getCommandBuffers() const {
-    return { 1, device->getCommandBuffer() };
+    return {1, device->getCommandBuffer()};
 }
 
 namespace {

@@ -45,7 +45,7 @@ public:
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
     const SystemWindowMap &getWindows() const override { return _windows; }
-    
+
     ISystemWindow *getWindowFromUIWindow(UIWindow *window) const;
 
 private:

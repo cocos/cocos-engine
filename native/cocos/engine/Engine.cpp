@@ -62,7 +62,6 @@
 #include "platform/UniversalPlatform.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
-#include "platform/UniversalPlatform.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif

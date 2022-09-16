@@ -412,7 +412,6 @@ void EventDispatcher::dispatchDestroyWindowEvent() {
 #endif
 }
 
-
 void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, reinterpret_cast<void *>(window->getWindowHandle()));

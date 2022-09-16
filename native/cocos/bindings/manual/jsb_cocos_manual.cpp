@@ -30,9 +30,9 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
 
-#include "storage/local-storage/LocalStorage.h"
 #include "application/ApplicationManager.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "storage/local-storage/LocalStorage.h"
 
 extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration, readability-identifier-naming)
 

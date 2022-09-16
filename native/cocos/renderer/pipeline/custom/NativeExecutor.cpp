@@ -88,7 +88,7 @@ uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
 }
 
 PersistentRenderPassAndFramebuffer createRenderPassAndFramebuffer(RenderGraphVisitorContext& ctx,
-    const RasterPass& pass) {
+                                                                  const RasterPass& pass) {
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
     gfx::RenderPassInfo rpInfo;
     uint32_t numDepthStencil = 0;
@@ -165,10 +165,8 @@ PersistentRenderPassAndFramebuffer createRenderPassAndFramebuffer(RenderGraphVis
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
     void preBarriers() const {
-
     }
     void postBarriers() const {
-
     }
 
     void begin(const RasterPass& pass) const {
@@ -275,11 +273,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
 
     RenderGraphVisitorContext& ctx;
-    
 };
 
 void executeRenderGraph(const RenderGraph& renderGraph) {
-    
 }
 
 } // namespace render
