@@ -31,12 +31,12 @@
 // clang-format off
 #pragma once
 #include <boost/utility/string_view.hpp>
+#include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 #include "cocos/renderer/pipeline/custom/PathUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/invoke.hpp"
 
 namespace cc {
 
@@ -344,7 +344,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Va
 
 template <class Tuple>
 void addVertexImpl(ManagedTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.resources.size())};
@@ -355,7 +355,7 @@ void addVertexImpl(ManagedTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGr
 
 template <class Tuple>
 void addVertexImpl(PersistentBufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.buffers.size())};
@@ -366,7 +366,7 @@ void addVertexImpl(PersistentBufferTag /*tag*/, Tuple &&val, ResourceGraph &g, R
 
 template <class Tuple>
 void addVertexImpl(PersistentTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
@@ -377,7 +377,7 @@ void addVertexImpl(PersistentTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, 
 
 template <class Tuple>
 void addVertexImpl(FramebufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
@@ -388,7 +388,7 @@ void addVertexImpl(FramebufferTag /*tag*/, Tuple &&val, ResourceGraph &g, Resour
 
 template <class Tuple>
 void addVertexImpl(SwapchainTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>{
                 gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.swapchains.size())};
@@ -406,7 +406,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3
     auto& vert = g.vertices.back();
 
     { // UuidGraph
-        invoke_hpp::apply(
+        std::apply(
             [&](const auto&... args) {
                 auto res = g.valueIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
                 CC_ENSURES(res.second);
@@ -414,25 +414,25 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3
             c0);
     }
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.names.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.descs.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component1>(c1));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.traits.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component2>(c2));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.states.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -636,13 +636,13 @@ addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, 
 
     g.vertices.emplace_back();
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.names.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.subpasses.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -3642,7 +3642,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Va
 
 template <class Tuple>
 void addVertexImpl(RasterTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RasterTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.rasterPasses.size())};
@@ -3653,7 +3653,7 @@ void addVertexImpl(RasterTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::
 
 template <class Tuple>
 void addVertexImpl(ComputeTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.computePasses.size())};
@@ -3664,7 +3664,7 @@ void addVertexImpl(ComputeTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph:
 
 template <class Tuple>
 void addVertexImpl(CopyTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<CopyTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.copyPasses.size())};
@@ -3675,7 +3675,7 @@ void addVertexImpl(CopyTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Ve
 
 template <class Tuple>
 void addVertexImpl(MoveTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<MoveTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.movePasses.size())};
@@ -3686,7 +3686,7 @@ void addVertexImpl(MoveTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Ve
 
 template <class Tuple>
 void addVertexImpl(PresentTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<PresentTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.presentPasses.size())};
@@ -3697,7 +3697,7 @@ void addVertexImpl(PresentTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph:
 
 template <class Tuple>
 void addVertexImpl(RaytraceTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RaytraceTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.raytracePasses.size())};
@@ -3708,7 +3708,7 @@ void addVertexImpl(RaytraceTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph
 
 template <class Tuple>
 void addVertexImpl(QueueTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<QueueTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.renderQueues.size())};
@@ -3719,7 +3719,7 @@ void addVertexImpl(QueueTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::V
 
 template <class Tuple>
 void addVertexImpl(SceneTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<SceneTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.scenes.size())};
@@ -3730,7 +3730,7 @@ void addVertexImpl(SceneTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::V
 
 template <class Tuple>
 void addVertexImpl(BlitTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<BlitTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.blits.size())};
@@ -3741,7 +3741,7 @@ void addVertexImpl(BlitTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Ve
 
 template <class Tuple>
 void addVertexImpl(DispatchTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<DispatchTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.dispatches.size())};
@@ -3752,7 +3752,7 @@ void addVertexImpl(DispatchTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph
 
 template <class Tuple>
 void addVertexImpl(ClearTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<ClearTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.clearViews.size())};
@@ -3763,7 +3763,7 @@ void addVertexImpl(ClearTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::V
 
 template <class Tuple>
 void addVertexImpl(ViewportTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<ViewportTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.viewports.size())};
@@ -3782,25 +3782,25 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3
     g.vertices.emplace_back();
     auto& vert = g.vertices.back();
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.names.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.layoutNodes.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component1>(c1));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.data.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component2>(c2));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.valid.emplace_back(std::forward<decltype(args)>(args)...);
         },

@@ -683,8 +683,8 @@ export class DescriptorSetData {
     }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
     readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
-    /*object*/ descriptorSetLayout: DescriptorSetLayout | null;
-    /*object*/ descriptorSet: DescriptorSet | null;
+    /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
+    /*refcount*/ descriptorSet: DescriptorSet | null;
 }
 
 export class PipelineLayoutData {

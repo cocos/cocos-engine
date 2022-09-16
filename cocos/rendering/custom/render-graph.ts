@@ -59,13 +59,29 @@ export class RenderSwapchain {
     constructor (swapchain: Swapchain | null) {
         this.swapchain = swapchain;
     }
-    swapchain: Swapchain | null;
+    /*pointer*/ swapchain: Swapchain | null;
     currentID = 0;
     numBackBuffers = 0;
 }
 
 export class ResourceStates {
     states: AccessFlagBit = AccessFlagBit.NONE;
+}
+
+export class ManagedBuffer {
+    constructor (buffer: Buffer | null = null) {
+        this.buffer = buffer;
+    }
+    /*refcount*/ buffer: Buffer | null;
+    fenceValue = 0;
+}
+
+export class ManagedTexture {
+    constructor (texture: Texture | null = null) {
+        this.texture = texture;
+    }
+    /*refcount*/ texture: Texture | null;
+    fenceValue = 0;
 }
 
 export class ManagedResource {
@@ -273,6 +289,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
+        // Members
+        this.nextFenceValue = 1;
         // UuidGraph
         this._valueIndex.clear();
         // ComponentGraph
@@ -603,6 +621,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _traits: ResourceTraits[] = [];
     readonly _states: ResourceStates[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
+    nextFenceValue = 1;
 }
 
 export class RasterSubpass {
@@ -1011,7 +1030,7 @@ export class SceneData {
         this.flags = flags;
     }
     name: string;
-    camera: Camera | null = null;
+    /*pointer*/ camera: Camera | null = null;
     readonly light: LightInfo;
     flags: SceneFlags;
     readonly scenes: string[] = [];
@@ -1031,14 +1050,16 @@ export class Dispatch {
 }
 
 export class Blit {
-    constructor (material: Material | null, sceneFlags: SceneFlags, camera: Camera | null) {
+    constructor (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null) {
         this.material = material;
+        this.passID = passID;
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
-    /*object*/ material: Material | null;
+    /*refcount*/ material: Material | null;
+    passID: number;
     sceneFlags: SceneFlags;
-    camera: Camera | null;
+    /*pointer*/ camera: Camera | null;
 }
 
 export class Present {
@@ -1058,7 +1079,7 @@ export class RenderData {
     readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
-    readonly samplers: Map<number, Sampler | null> = new Map<number, Sampler | null>();
+    readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
 }
 
 //=================================================================
