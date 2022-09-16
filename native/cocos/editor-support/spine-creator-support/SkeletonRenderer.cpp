@@ -731,6 +731,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             cc::Vec3 *point = nullptr;
             for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
                 point = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
+                point->z = 0;
                 point->transformMat4(*point, nodeWorldMat);
             }
         }

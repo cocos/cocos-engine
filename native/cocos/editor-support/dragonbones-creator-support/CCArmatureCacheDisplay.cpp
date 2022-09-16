@@ -266,6 +266,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
 
         for (auto posIndex = 0; posIndex < segment->vertexFloatCount; posIndex += VF_XYZUVC) {
             point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
+            point->z = 0;
             point->transformMat4(*point, nodeWorldMat);
         }
         // handle vertex color

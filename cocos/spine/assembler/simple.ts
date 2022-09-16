@@ -32,7 +32,7 @@ import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
 import { getAttributeStride, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
-import { Color, director, Mat4, Node, Texture2D } from '../../core';
+import { Color, director, Mat4, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
@@ -79,14 +79,7 @@ let _tempg: number;
 let _tempb: number;
 let _inRange: boolean;
 let _mustFlush: boolean;
-let _x: number;
-let _y: number;
-let _m00: number;
-let _m04: number;
-let _m12: number;
-let _m01: number;
-let _m05: number;
-let _m13: number;
+const _tempVecPos = new Vec3(0, 0, 0);
 let _r: number;
 let _g: number;
 let _b: number;
@@ -688,17 +681,14 @@ function realTimeTraverse (worldMat: Mat4 | null) {
                 _ibuf[ii] += _vertexOffset + chunkOffset;
             }
             if (worldMat) {
-                _m00 = worldMat.m00;
-                _m04 = worldMat.m04;
-                _m12 = worldMat.m12;
-                _m01 = worldMat.m01;
-                _m05 = worldMat.m05;
-                _m13 = worldMat.m13;
                 for (let ii = _vertexFloatOffset, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
-                    _x = _vbuf[ii];
-                    _y = _vbuf[ii + 1];
-                    _vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
-                    _vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
+                    _tempVecPos.x = _vbuf[ii];
+                    _tempVecPos.y = _vbuf[ii + 1];
+                    _tempVecPos.z = 0;
+                    _tempVecPos.transformMat4(worldMat);
+                    _vbuf[ii] = _tempVecPos.x;
+                    _vbuf[ii + 1] = _tempVecPos.y;
+                    _vbuf[ii + 2] = _tempVecPos.z;
                 }
             }
         }
@@ -775,14 +765,6 @@ function cacheTraverse (worldMat: Mat4 | null) {
     const rd = _renderData!;
     const vbuf = rd.chunk.vb;
     const ibuf = rd.indices!;
-    if (worldMat) {
-        _m00 = worldMat.m00;
-        _m01 = worldMat.m01;
-        _m04 = worldMat.m04;
-        _m05 = worldMat.m05;
-        _m12 = worldMat.m12;
-        _m13 = worldMat.m13;
-    }
     for (let i = 0, n = segments.length; i < n; i++) {
         const segInfo = segments[i];
         material = _getSlotMaterial(segInfo.blendMode!);
@@ -813,13 +795,18 @@ function cacheTraverse (worldMat: Mat4 | null) {
         // Fill vertices
         segVFCount = segInfo.vfCount;
         vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), frameVFOffset);
-
-        for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
-            _x = vbuf[ii];
-            _y = vbuf[ii + 1];
-            vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
-            vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
+        if (worldMat) {
+            for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
+                _tempVecPos.x = vbuf[ii];
+                _tempVecPos.y = vbuf[ii + 1];
+                _tempVecPos.z = 0;
+                _tempVecPos.transformMat4(worldMat);
+                vbuf[ii] = _tempVecPos.x;
+                vbuf[ii + 1] = _tempVecPos.y;
+                vbuf[ii + 2] = _tempVecPos.z;
+            }
         }
+
         // Update color
         if (_needColor) {
             // handle color

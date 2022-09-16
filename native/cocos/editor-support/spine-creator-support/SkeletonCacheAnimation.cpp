@@ -323,6 +323,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
             cc::Vec3 *point = nullptr;
             for (auto posIndex = 0; posIndex < vertexFloats; posIndex += vs) {
                 point = reinterpret_cast<cc::Vec3 *>(dstVertexBuffer + posIndex);
+                point->z = 0;
                 point->transformMat4(*point, nodeWorldMat);
             }
         }
