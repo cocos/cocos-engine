@@ -49,7 +49,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
             { reg: /"compileSdkVersion": *,/, text: `"compileSdkVersion": ${platformParams.apiLevel},}` },
         ], ps.join(ohosProjDir, 'entry/build-profile.json5'));
 
-        // 拷贝 jsb-adapter 到 entry/src/main/ets/MainAbility/cocos/jsb-adapter
+        // copy jsb-adapter to entry/src/main/ets/MainAbility/cocos/jsb-adapter
         const mainDir = ps.join(ohosProjDir, 'entry/src/main');
         await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/engine-adapter.js'), "", ps.join(mainDir, 'ets/MainAbility/cocos/jsb-adapter/engine-adapter.js'));
         await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/web-adapter.js'), "", ps.join(mainDir, 'ets/MainAbility/cocos/jsb-adapter/web-adapter.js'));
@@ -134,7 +134,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
         } else if (hapFiles.length === 1) {
             return ps.join(outputDir, hapFiles[0]);
         }
-        // 优先使用签名后的 hap 文件
+        // first use signed hap
         const opt1 = hapFiles.filter(
             x => x.endsWith('-signed.hap'));
         const opt2 = hapFiles.filter(x => x.endsWith('-unsigned.hap'));
