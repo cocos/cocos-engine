@@ -368,7 +368,6 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         auto* uiMeshBuffer = mb->getUIMeshBuffer();
         curDrawInfo->setMeshBuffer(uiMeshBuffer);
         curDrawInfo->setIndexOffset(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
-        curDrawInfo->setDataHash(((uint32_t)curBlendSrc << 16) | ((uint32_t)curBlendDst));
         // reset pre blend mode to current
         preBlendMode = static_cast<int>(slot->getData().getBlendMode());
         // reset pre texture index to current

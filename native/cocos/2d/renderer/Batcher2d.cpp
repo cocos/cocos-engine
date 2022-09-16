@@ -263,15 +263,13 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
     auto* texture = drawInfo->getTexture();
     auto* sampler = drawInfo->getSampler();
     auto* meshBuffer = drawInfo->getMeshBuffer();
-    auto dataHash = drawInfo->getDataHash();
 
     // check for merge draw
     //MaterialInstance
     auto enableBatch = !entity->getUseLocal();
     if (enableBatch) {
         if (_currTexture == texture && _currMeshBuffer == meshBuffer
-            && material->getParent() == _currMaterial->getParent()
-            && dataHash == _currHash
+            && material->getHash() == _currMaterial->getHash()
             && drawInfo->getIndexOffset() >= _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount()
             && layer == _currLayer) {
             auto ibCount = _currDrawInfo->getIbCount();
@@ -282,7 +280,6 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
             _currMaterial = material;
             _currTexture = texture;
             _currMeshBuffer = meshBuffer;
-            _currHash = dataHash;
             _currEntity = entity;
             _currDrawInfo = drawInfo;
         }
