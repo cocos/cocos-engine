@@ -444,8 +444,7 @@ export class DeferredPipelineBuilder extends PipelineBuilder {
                 new Color(camera.clearDepth, camera.clearStencil, 0, 0));
             postprocessPass.addRasterView(postprocessPassRTName, postprocessPassView);
             postprocessPass.addRasterView(postprocessPassDS, postprocessPassDSView);
-            postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(
-                this._deferredData._deferredPostMaterial, 0, SceneFlags.NONE);
+            postprocessPass.addQueue(QueueHint.NONE).addFullscreenQuad(this._deferredData._deferredPostMaterial, 0, SceneFlags.NONE);
             postprocessPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
                 SceneFlags.UI | SceneFlags.PROFILER);
         }
