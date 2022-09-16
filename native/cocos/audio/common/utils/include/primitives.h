@@ -931,7 +931,6 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
     if (left) {
         return (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
     }  
-        return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    
+    return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
 #endif
 }

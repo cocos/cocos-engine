@@ -163,7 +163,7 @@ bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const {
     size_t               byteLength;
     void*                data = nullptr;
     NODE_API_CALL(status, _env, napi_get_typedarray_info(_env, _objRef.getValue(_env), &type, &byteLength, &data, &inputBuffer, &byteOffset));
-    *ptr = (uint8_t*)(data) + byteOffset;
+    *ptr = (uint8_t*)(data);
     if (length) {
         *length = byteLength;
     }

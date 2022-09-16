@@ -107,7 +107,7 @@ function createTimeoutInfo(prevFuncArgs, isRepeat) {
     return info.id;
 }
 
-if(!window.oh) {
+if(!sys.oh) {
     // In openharmony, the setTimeout function will conflict with the timer of the worker thread and cause a crash, 
     // so you need to use the default timer
     window.setTimeout = function(cb) {

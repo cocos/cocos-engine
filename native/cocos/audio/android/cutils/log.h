@@ -36,6 +36,7 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <android/log.h>
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+// TODO(qgh):May be implemented in later versions
 // #include <Hilog/log.h>
 #endif
 

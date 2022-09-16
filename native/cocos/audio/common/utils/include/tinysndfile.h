@@ -28,7 +28,6 @@
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     #include <cstdint>
 #endif
-#include "audio/android/utils/Compat.h"
 #include <cstdio>
 #include <cstdint>
 

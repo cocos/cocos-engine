@@ -104,7 +104,8 @@ export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = 
      * @returns @en The promise awaiting all async callback resolved. @zh 等待所有异步回调结束的 Promise 对象。
      */
     public dispatch (...args: Parameters<T>) {
-        if(window.oh) {
+        if(sys.oh) {
+            // TODO(qgh):OpenHarmony currently does not support arguments
             return Promise.all(this._delegates.map((func) => func(args)).filter(Boolean));
         } else {
             return Promise.all(this._delegates.map((func) => func(...arguments)).filter(Boolean));

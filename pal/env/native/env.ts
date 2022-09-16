@@ -9,8 +9,8 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 
 export function loadJsFile (path: string): Promise<void> {
     // eslint-disable-next-line import/no-dynamic-require
-    if(window.oh) {
-        window.oh.loadModule(`${path}`);
+    if(sys.oh) {
+        sys.oh.loadModule(`${path}`);
     } else {
         return require(`${path}`);
     }
