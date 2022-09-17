@@ -273,7 +273,7 @@ function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?:
 
             _vbuf[v] = _tempVecPos.x;
             _vbuf[v + 1] = _tempVecPos.y;
-            _vbuf[v + 2] = _tempVecPos.y;
+            _vbuf[v + 2] = _tempVecPos.z;
 
             _vbuf[v + 3] = vertices[vi++]; // u
             _vbuf[v + 4] = vertices[vi++]; // v
