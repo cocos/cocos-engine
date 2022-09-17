@@ -453,7 +453,6 @@ const cacheManager = require('./jsb-cache-manager');
         this._sharedBufferOffset = this._nativeDisplay.getSharedBufferOffset();
         this._sharedBufferOffset[0] = 0;
         this._useAttach = false;
-        this._renderOrder = -1;
 
     this._nativeDisplay.setOpacityModifyRGB(this.premultipliedAlpha);
 

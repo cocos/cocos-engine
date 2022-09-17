@@ -350,7 +350,6 @@ const cacheManager = require('./jsb-cache-manager');
         this._disposeListener && this.setDisposeListener(this._disposeListener);
         this._sharedBufferOffset = nativeSkeleton.getSharedBufferOffset();
         this._useAttach = false;
-        this._renderOrder = -1;
 
         this.markForUpdateRenderData();
     };

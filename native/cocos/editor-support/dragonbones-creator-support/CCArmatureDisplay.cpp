@@ -396,18 +396,7 @@ se_object_ptr CCArmatureDisplay::getSharedBufferOffset() const {
     return nullptr;
 }
 
-se_object_ptr CCArmatureDisplay::getParamsBuffer() const {
-    if (_paramsBuffer) {
-        return _paramsBuffer->getTypeArray();
-    }
-    return nullptr;
-}
-
 uint32_t CCArmatureDisplay::getRenderOrder() const {
-    if (_paramsBuffer) {
-        auto *buffer = _paramsBuffer->getBuffer();
-        return static_cast<uint32_t>(buffer[0]);
-    }
     return 0;
 }
 

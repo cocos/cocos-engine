@@ -89,15 +89,6 @@ void SkeletonRenderer::initialize() {
         _sharedBufferOffset = new cc::middleware::IOTypedArray(se::Object::TypedArrayType::UINT32, sizeof(uint32_t) * 2);
     }
 
-    if (_paramsBuffer == nullptr) {
-        // store render order(1), world matrix(16)
-        _paramsBuffer = new cc::middleware::IOTypedArray(se::Object::TypedArrayType::FLOAT32, sizeof(float) * 17);
-        // set render order to 0
-        _paramsBuffer->writeFloat32(0);
-        // set world transform to identity
-        _paramsBuffer->writeBytes(reinterpret_cast<const char *>(&cc::Mat4::IDENTITY), sizeof(float) * 16);
-    }
-
     _skeleton->setToSetupPose();
     _skeleton->updateWorldTransform();
     beginSchedule();
@@ -162,11 +153,6 @@ SkeletonRenderer::~SkeletonRenderer() {
     if (_sharedBufferOffset) {
         delete _sharedBufferOffset;
         _sharedBufferOffset = nullptr;
-    }
-
-    if (_paramsBuffer) {
-        delete _paramsBuffer;
-        _paramsBuffer = nullptr;
     }
 
     stopSchedule();
@@ -1003,18 +989,7 @@ se_object_ptr SkeletonRenderer::getSharedBufferOffset() const {
     return nullptr;
 }
 
-se_object_ptr SkeletonRenderer::getParamsBuffer() const {
-    if (_paramsBuffer) {
-        return _paramsBuffer->getTypeArray();
-    }
-    return nullptr;
-}
-
 uint32_t SkeletonRenderer::getRenderOrder() const {
-    if (_paramsBuffer) {
-        auto *buffer = _paramsBuffer->getBuffer();
-        return static_cast<uint32_t>(buffer[0]);
-    }
     return 0;
 }
 

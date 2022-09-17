@@ -35,7 +35,6 @@
     middleware.reset = function () {
         middleware.preRenderComponent = null;
         middleware.preRenderBufferIndex = 0;
-        middleware.renderOrder = 0;
         middleware.indicesStart = 0;
         middleware.resetIndicesStart = false;
     };

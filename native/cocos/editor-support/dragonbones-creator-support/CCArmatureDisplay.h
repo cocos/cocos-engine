@@ -139,11 +139,6 @@ public:
      * format |render info offset|attach info offset|
      */
     se_object_ptr getSharedBufferOffset() const;
-    /**
-     * @return js send to cpp parameters, it's a Uint32Array
-     * format |render order|world matrix|
-     */
-    se_object_ptr getParamsBuffer() const;
 
     void setColor(float r, float g, float b, float a);
 
@@ -207,8 +202,6 @@ private:
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
     cc::middleware::IOTypedArray *_debugBuffer = nullptr;
-    // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
-    cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
 
     cc::RenderEntity *_entity = nullptr;
     cc::Material *_material = nullptr;

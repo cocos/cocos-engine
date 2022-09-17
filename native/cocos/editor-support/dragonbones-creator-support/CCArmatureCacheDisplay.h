@@ -92,11 +92,6 @@ public:
      * format |render info offset|attach info offset|
      */
     se_object_ptr getSharedBufferOffset() const;
-    /**
-         * @return js send to cpp parameters, it's a Uint32Array
-		 * format |render order|world matrix|
-         */
-    se_object_ptr getParamsBuffer() const;
 
     cc::RenderDrawInfo *requestDrawInfo(int idx);
     cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
@@ -126,8 +121,6 @@ private:
     EventObject *_eventObject;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
-    // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
-    cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
 
     cc::RenderEntity *_entity = nullptr;
     cc::Material *_material = nullptr;

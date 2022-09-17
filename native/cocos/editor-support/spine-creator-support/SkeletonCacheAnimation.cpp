@@ -60,13 +60,6 @@ SkeletonCacheAnimation::SkeletonCacheAnimation(const std::string &uuid, bool isS
     // store global TypedArray begin and end offset
     _sharedBufferOffset = new IOTypedArray(se::Object::TypedArrayType::UINT32, sizeof(uint32_t) * 2);
 
-    // store render order(1), world matrix(16)
-    _paramsBuffer = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, sizeof(float) * 17);
-    // set render order to 0
-    _paramsBuffer->writeFloat32(0);
-    // set world transform to identity
-    _paramsBuffer->writeBytes(reinterpret_cast<const char *>(&cc::Mat4::IDENTITY), sizeof(float) * 16);
-
     beginSchedule();
 }
 
@@ -74,11 +67,6 @@ SkeletonCacheAnimation::~SkeletonCacheAnimation() {
     if (_sharedBufferOffset) {
         delete _sharedBufferOffset;
         _sharedBufferOffset = nullptr;
-    }
-
-    if (_paramsBuffer) {
-        delete _paramsBuffer;
-        _paramsBuffer = nullptr;
     }
 
     if (_skeletonCache) {
@@ -202,7 +190,6 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     int vs = _useTint ? vs2 : vs1;
     int vbs = _useTint ? vbs2 : vbs1;
 
-    auto *paramsBuffer = _paramsBuffer->getBuffer();
     auto &nodeWorldMat = entity->getNode()->getWorldMatrix();
 
     int colorOffset = 0;
@@ -539,18 +526,7 @@ se_object_ptr SkeletonCacheAnimation::getSharedBufferOffset() const {
     return nullptr;
 }
 
-se_object_ptr SkeletonCacheAnimation::getParamsBuffer() const {
-    if (_paramsBuffer) {
-        return _paramsBuffer->getTypeArray();
-    }
-    return nullptr;
-}
-
 uint32_t SkeletonCacheAnimation::getRenderOrder() const {
-    if (_paramsBuffer) {
-        auto *buffer = _paramsBuffer->getBuffer();
-        return static_cast<uint32_t>(buffer[0]);
-    }
     return 0;
 }
 
