@@ -1301,10 +1301,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
     managed (value: ManagedResource) {
         this.createDeviceTex(value);
     }
-    managedBuffer(value: ManagedBuffer) {
+    managedBuffer (value: ManagedBuffer) {
         // noop
     }
-    managedTexture(value: ManagedTexture) {
+    managedTexture (value: ManagedTexture) {
         // noop
     }
     persistentBuffer (value: Buffer) {
