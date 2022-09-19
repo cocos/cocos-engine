@@ -88,9 +88,9 @@ public:
         return _ib;
     }
 
-    cc::UIMeshBuffer *getUIMeshBuffer();
+    cc::UIMeshBuffer *getUIMeshBuffer() const;
 
-    const ccstd::vector<cc::UIMeshBuffer *> &uiMeshBuffers();
+    const ccstd::vector<cc::UIMeshBuffer *> &uiMeshBuffers() const;
 
     void uploadVB();
     void uploadIB();

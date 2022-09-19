@@ -127,7 +127,7 @@ void MiddlewareManager::render(float dt) {
             accID = 65535;
         }
         ccstd::vector<UIMeshBuffer *> uiMeshArray;
-        auto uiBufArray = buffer->uiMeshBuffers();
+        auto &uiBufArray = buffer->uiMeshBuffers();
         for (auto &item : uiBufArray) {
             uiMeshArray.push_back((UIMeshBuffer *)item);
         }
