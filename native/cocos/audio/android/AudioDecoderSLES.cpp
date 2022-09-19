@@ -55,7 +55,7 @@ namespace cc {
 
 //-----------------------------------------------------------------
 
-static std::mutex __SLPlayerMutex; //NOLINT(bugprone-reserved-identifier)
+static std::mutex __SLPlayerMutex; //NOLINT(bugprone-reserved-identifier, readability-identifier-naming)
 
 static int toBufferSizeInBytes(int bufferSizeInFrames, int sampleSize, int channelCount) {
     return bufferSizeInFrames * sampleSize * channelCount;
@@ -233,7 +233,7 @@ bool AudioDecoderSLES::decodeToPcm() {
     }
 
     /* Get the play interface which is implicit */
-    result = (*player)->GetInterface(player, SL_IID_PLAY, (void *)&playItf);
+    result = (*player)->GetInterface(player, SL_IID_PLAY, reinterpret_cast<void *>(&playItf));
     SL_RETURN_VAL_IF_FAILED(result, false, "GetInterface SL_IID_PLAY failed");
 
     /* Set up the player callback to get events during the decoding */
@@ -417,7 +417,7 @@ bool AudioDecoderSLES::decodeToPcm() {
     ALOGV("After destroy player ...");
 
     _result.numFrames =
-        _result.pcmBuffer->size() / _result.numChannels / (_result.bitsPerSample / 8);
+        static_cast<int>(_result.pcmBuffer->size() / _result.numChannels / (_result.bitsPerSample / 8));
 
     ccstd::string info = _result.toString();
     ALOGI("Original audio info: %s, total size: %d", info.c_str(), (int)_result.pcmBuffer->size());

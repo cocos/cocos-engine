@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <sys/types.h>
 #include <pthread.h>
 
@@ -30,7 +30,7 @@
 
 // IDEA: This is actually unity gain, which might not be max in future, expressed in U.12
 #define MAX_GAIN_INT AudioMixer::UNITY_GAIN_INT
-// clang-format off
+
 namespace cc {
 
 // ----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ public:
     static const uint32_t MAX_NUM_CHANNELS_TO_DOWNMIX = AUDIO_CHANNEL_COUNT_MAX;
 
     static const uint16_t UNITY_GAIN_INT = 0x1000;
-    static const CONSTEXPR float UNITY_GAIN_FLOAT = 1.0f;
+    static const CONSTEXPR float UNITY_GAIN_FLOAT = 1.0F;
 
     enum { // names
 
@@ -141,7 +141,7 @@ public:
 private:
     enum {
         // IDEA: this representation permits up to 8 channels
-        NEEDS_CHANNEL_COUNT__MASK = 0x00000007,
+        NEEDS_CHANNEL_COUNT__MASK = 0x00000007, // NOLINT(bugprone-reserved-identifier)
     };
 
     enum {
@@ -256,12 +256,12 @@ private:
 
         bool needsRamp() { return (volumeInc[0] | volumeInc[1] | auxInc) != 0; }
         bool setResampler(uint32_t trackSampleRate, uint32_t devSampleRate);
-        bool doesResample() const { return resampler != NULL; }
-        void resetResampler() {
-            if (resampler != NULL) resampler->reset();
+        bool doesResample() const { return resampler != nullptr; }
+        void resetResampler() const {
+            if (resampler != nullptr) resampler->reset();
         }
         void adjustVolumeRamp(bool aux, bool useFloat = false);
-        size_t getUnreleasedFrames() const { return resampler != NULL ? resampler->getUnreleasedFrames() : 0; };
+        size_t getUnreleasedFrames() const { return resampler != nullptr ? resampler->getUnreleasedFrames() : 0; };
 
         status_t prepareForDownmix();
         void unprepareForDownmix();
@@ -271,7 +271,7 @@ private:
         void reconfigureBufferProviders();
     };
 
-    typedef void (*process_hook_t)(state_t *state, int64_t pts);
+    typedef void (*process_hook_t)(state_t *state, int64_t pts); // NOLINT(modernize-use-using)
 
     // pad to 32-bytes to fill cache line
     struct state_t {
@@ -288,13 +288,13 @@ private:
     };
 
     // bitmask of allocated track names, where bit 0 corresponds to TRACK0 etc.
-    uint32_t mTrackNames;
+    uint32_t mTrackNames;// NOLINT(readability-identifier-naming)
 
     // bitmask of configured track names; ~0 if maxNumTracks == MAX_NUM_TRACKS,
     // but will have fewer bits set if maxNumTracks < MAX_NUM_TRACKS
-    const uint32_t mConfiguredNames;
+    const uint32_t mConfiguredNames;// NOLINT(readability-identifier-naming)
 
-    const uint32_t mSampleRate;
+    const uint32_t mSampleRate;// NOLINT(readability-identifier-naming)
 
     //cjh    NBLog::Writer   mDummyLog;
 public:
@@ -310,23 +310,23 @@ private:
                          audio_channel_mask_t trackChannelMask, audio_channel_mask_t mixerChannelMask);
 
     static void track__genericResample(track_t *t, int32_t *out, size_t numFrames, int32_t *temp,
-                                       int32_t *aux);
-    static void track__nop(track_t *t, int32_t *out, size_t numFrames, int32_t *temp, int32_t *aux);
+                                       int32_t *aux);// NOLINT(readability-identifier-naming)
+    static void track__nop(track_t *t, int32_t *out, size_t numFrames, int32_t *temp, int32_t *aux);// NOLINT(readability-identifier-naming)
     static void track__16BitsStereo(track_t *t, int32_t *out, size_t numFrames, int32_t *temp,
-                                    int32_t *aux);
+                                    int32_t *aux);// NOLINT(readability-identifier-naming)
     static void track__16BitsMono(track_t *t, int32_t *out, size_t numFrames, int32_t *temp,
-                                  int32_t *aux);
+                                  int32_t *aux);// NOLINT(readability-identifier-naming)
     static void volumeRampStereo(track_t *t, int32_t *out, size_t frameCount, int32_t *temp,
                                  int32_t *aux);
     static void volumeStereo(track_t *t, int32_t *out, size_t frameCount, int32_t *temp,
                              int32_t *aux);
 
-    static void process__validate(state_t *state, int64_t pts);
-    static void process__nop(state_t *state, int64_t pts);
-    static void process__genericNoResampling(state_t *state, int64_t pts);
-    static void process__genericResampling(state_t *state, int64_t pts);
+    static void process__validate(state_t *state, int64_t pts);// NOLINT(readability-identifier-naming)
+    static void process__nop(state_t *state, int64_t pts);// NOLINT(readability-identifier-naming)
+    static void process__genericNoResampling(state_t *state, int64_t pts);// NOLINT(readability-identifier-naming)
+    static void process__genericResampling(state_t *state, int64_t pts);// NOLINT(readability-identifier-naming)
     static void process__OneTrack16BitsStereoNoResampling(state_t *state,
-                                                          int64_t pts);
+                                                          int64_t pts);// NOLINT(readability-identifier-naming)
 
     static int64_t calculateOutputPTS(const track_t &t, int64_t basePTS,
                                       int outputFrameIndex);
@@ -352,15 +352,15 @@ private:
 
     // multi-format process hooks
     template <int MIXTYPE, typename TO, typename TI, typename TA>
-    static void process_NoResampleOneTrack(state_t *state, int64_t pts);
+    static void process_NoResampleOneTrack(state_t *state, int64_t pts);// NOLINT(readability-identifier-naming)
 
     // multi-format track hooks
     template <int MIXTYPE, typename TO, typename TI, typename TA>
     static void track__Resample(track_t *t, TO *out, size_t frameCount,
-                                TO *temp __unused, TA *aux);
+                                TO *temp __unused, TA *aux);// NOLINT(readability-identifier-naming)
     template <int MIXTYPE, typename TO, typename TI, typename TA>
     static void track__NoResample(track_t *t, TO *out, size_t frameCount,
-                                  TO *temp __unused, TA *aux);
+                                  TO *temp __unused, TA *aux); // NOLINT(readability-identifier-naming)
 
     static void convertMixerFormat(void *out, audio_format_t mixerOutFormat,
                                    void *in, audio_format_t mixerInFormat, size_t sampleCount);
@@ -382,6 +382,6 @@ private:
     static hook_t getTrackHook(int trackType, uint32_t channelCount,
                                audio_format_t mixerInFormat, audio_format_t mixerOutFormat);
 };
-// clang-format on
+
 // ----------------------------------------------------------------------------
 } // namespace cc

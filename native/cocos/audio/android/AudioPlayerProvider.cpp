@@ -455,7 +455,7 @@ UrlAudioPlayer *AudioPlayerProvider::createUrlAudioPlayer(
     SLuint32 locatorType = SL_DATALOCATOR_URI;
 #endif
 
-    auto     urlPlayer   = new (std::nothrow) UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
+    auto    *urlPlayer   = new (std::nothrow) UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
     bool     ret         = urlPlayer->prepare(info.url, locatorType, info.assetFd, info.start, info.length);
     if (!ret) {
         SL_SAFE_DELETE(urlPlayer);

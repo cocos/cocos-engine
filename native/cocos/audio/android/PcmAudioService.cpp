@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 namespace cc {
 
-static ccstd::vector<char> __silenceData;//NOLINT(bugprone-reserved-identifier)
+static ccstd::vector<char> __silenceData;//NOLINT(bugprone-reserved-identifier, readability-identifier-naming)
 
 #define AUDIO_PLAYER_BUFFER_COUNT (2)
 

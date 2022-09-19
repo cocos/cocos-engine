@@ -180,7 +180,7 @@ void UrlAudioPlayer::play() {
 }
 
 void UrlAudioPlayer::setVolumeToSLPlayer(float volume) {
-    int dbVolume = 2000 * log10(volume);
+    int dbVolume = static_cast<int>(2000 * log10(volume));
     if (dbVolume < SL_MILLIBEL_MIN) {
         dbVolume = SL_MILLIBEL_MIN;
     }
