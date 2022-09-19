@@ -1,0 +1,5 @@
+page {
+  background: #f7f7f7;
+  display: flex;
+  flex: 1;
+}
