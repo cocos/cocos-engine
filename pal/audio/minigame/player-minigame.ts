@@ -2,7 +2,7 @@ import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
-import { clamp, clamp01 } from '../../../cocos/core';
+import { clamp, clamp01, sys } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
 export class OneShotAudioMinigame {
@@ -75,6 +75,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
             eventTarget.emit(AudioEvent.PLAYED);
+            if (this._needSeekAfterPlay) {
+                this._needSeekAfterPlay = false;
+                this._innerAudioContext.seek(this._cacheTime);
+                this._cacheTime = 0;
+            }
         };
         innerAudioContext.onPlay(this._onPlay);
         this._onPause = () => {
@@ -211,6 +216,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
         // KNOWN ISSUES: currentTime doesn't work well
         // on Baidu: currentTime returns without numbers on decimal places
         // on WeChat iOS: we can't reset currentTime to 0 when stop audio
+        if (this._state !== AudioState.PLAYING) {
+            return this._cacheTime;
+        }
         return this._innerAudioContext.currentTime;
     }
 
@@ -225,13 +233,19 @@ export class AudioPlayerMinigame implements OperationQueueable {
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            time = clamp(time, 0, this.duration);
-            if (time === 0 && this.currentTime === 0) {
-                // skip invalid seek
-                resolve();
-            } else {
+            // time = clamp(time, 0, this.duration);
+            if (this._state === AudioState.PLAYING) {
+                time = clamp(time, 0, this.duration);
                 this._eventTarget.once(AudioEvent.SEEKED, resolve);
                 this._innerAudioContext.seek(time);
+            } else if (time === 0 && this._cacheTime === 0) {
+                // Make no sence;
+                resolve();
+            } else {
+                this._cacheTime = time;
+                this._needSeekAfterPlay = true;
+                console.log(`Call seek, current time becomes ${this._cacheTime}`);
+                resolve();
             }
         });
     }
@@ -248,6 +262,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     pause (): Promise<void> {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.PAUSED, resolve);
+            this._cacheTime = this._innerAudioContext.currentTime;
             this._innerAudioContext.pause();
         });
     }
@@ -256,6 +271,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     stop (): Promise<void> {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
+            this._cacheTime = 0;
             this._innerAudioContext.stop();
         });
     }
