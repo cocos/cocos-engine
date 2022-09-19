@@ -105,7 +105,7 @@ export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = 
      */
     public dispatch (...args: Parameters<T>) {
         // @ts-ignore
-        if(sys.oh) {
+        if(window.oh) {
             // TODO(qgh):OpenHarmony currently does not support arguments
             return Promise.all(this._delegates.map((func) => func(args)).filter(Boolean));
         } else {

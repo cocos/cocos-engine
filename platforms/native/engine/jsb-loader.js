@@ -57,9 +57,9 @@ function downloadScript (url, options, onComplete) {
 
     download(url, function (src, options, onComplete) {
         // @ts-ignore
-        if (sys.oh) {
+        if (window.oh) {
             // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
-            sys.oh.loadModule(src);
+            window.oh.loadModule(src);
         } else {
             window.require(src);
         }
@@ -449,7 +449,7 @@ cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
     // TODO: JsbDownloader is not supported for OpenHarmony for now
     // @ts-ignore
-    if (!sys.oh) {
+    if (!window.oh) {
         const jsbDownloaderMaxTasks = cc.settings.querySettings('assets', 'jsbDownloaderMaxTasks');
         const jsbDownloaderTimeout = cc.settings.querySettings('assets', 'jsbDownloaderTimeout');
         initJsbDownloader(jsbDownloaderMaxTasks, jsbDownloaderTimeout);

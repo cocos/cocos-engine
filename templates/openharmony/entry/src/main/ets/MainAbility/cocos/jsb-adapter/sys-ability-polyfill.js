@@ -1,7 +1,7 @@
 import display from '@ohos.display';
 
-let sys  = Object.create(null);
-sys.oh = {};
+
+window.oh = {};
 
 module.exports = function systemReady () {
     return new Promise(resolve => {
@@ -9,7 +9,7 @@ module.exports = function systemReady () {
             window.XMLHttpRequest = function () {}
         }
         display.getDefaultDisplay((err, data) => {
-            sys.oh.display = data;
+            window.oh.display = data;
             // TODO: impl device in js.
             //https://developer.harmonyos.com/cn/docs/documentation/doc-references/js-apis-display-0000001281001106
         });

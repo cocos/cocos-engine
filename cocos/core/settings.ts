@@ -75,7 +75,7 @@ export class Settings {
         }
         if (!path) return Promise.resolve();
         // @ts-ignore
-        if (sys.oh) {
+        if (window.oh) {
             // TODO(qgh):OpenHarmony temporarily does not support reading json that is not in the resource directory
             this._settings = require('../settings.json');
             return Promise.resolve();
