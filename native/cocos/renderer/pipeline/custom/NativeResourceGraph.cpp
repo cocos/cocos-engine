@@ -32,7 +32,8 @@ namespace cc {
 
 namespace render {
 
-void ResourceGraph::mount(vertex_descriptor vertID, ccstd::pmr::vector<vertex_descriptor>& mounted) {
+void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
+    std::ignore = device;
     auto& resg = *this;
     visitObject(
         vertID, resg,
@@ -41,13 +42,13 @@ void ResourceGraph::mount(vertex_descriptor vertID, ccstd::pmr::vector<vertex_de
         },
         [&](ManagedBuffer& buffer) {
             if (!buffer.buffer) {
-                mounted.emplace_back(vertID);
+                // do mount
             }
             buffer.fenceValue = nextFenceValue;
         },
         [&](ManagedTexture& texture) {
             if (!texture.texture) {
-                mounted.emplace_back(vertID);
+                // do mount
             }
             texture.fenceValue = nextFenceValue;
         },

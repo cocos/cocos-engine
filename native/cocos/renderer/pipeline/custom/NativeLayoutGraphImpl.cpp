@@ -23,15 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "DebugUtils.h"
+#include "GslUtils.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
+#include "LayoutGraphTypes.h"
 #include "NativePipelineGraphs.h"
+#include "Pmr.h"
+#include "Range.h"
 #include "RenderCommonNames.h"
-#include "cocos/renderer/pipeline/custom/DebugUtils.h"
-#include "cocos/renderer/pipeline/custom/GslUtils.h"
-#include "cocos/renderer/pipeline/custom/Pmr.h"
-#include "cocos/renderer/pipeline/custom/Range.h"
-#include "pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
+
 
 namespace cc {
 

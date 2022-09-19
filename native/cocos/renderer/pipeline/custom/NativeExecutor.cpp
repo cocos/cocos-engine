@@ -4,15 +4,18 @@
 #include "FGDispatcherGraphs.h"
 #include "GraphTypes.h"
 #include "GraphView.h"
+#include "GslUtils.h"
+#include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
 #include "Pmr.h"
+#include "RenderCommonFwd.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
+#include "Set.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "gfx-base/GFXBarrier.h"
 #include "gfx-base/GFXDef-common.h"
-#include "pipeline/custom/GslUtils.h"
-#include "pipeline/custom/NativePipelineFwd.h"
-#include "pipeline/custom/RenderCommonFwd.h"
+
 
 namespace cc {
 
@@ -22,7 +25,7 @@ struct RenderGraphVisitorContext {
     RenderGraphVisitorContext(
         NativeRenderContext& contextIn,
         const RenderGraph& gIn,
-        const ResourceGraph& resgIn,
+        ResourceGraph& resgIn,
         const FrameGraphDispatcher& fgdIn,
         const FrameGraphDispatcher::BarrierMap& barrierMapIn,
         gfx::Device* deviceIn,
@@ -30,7 +33,7 @@ struct RenderGraphVisitorContext {
         boost::container::pmr::memory_resource* scratchIn)
     : context(contextIn),
       g(gIn),
-      resg(resgIn),
+      resourceGraph(resgIn),
       fgd(fgdIn),
       barrierMap(barrierMapIn),
       device(deviceIn),
@@ -39,7 +42,7 @@ struct RenderGraphVisitorContext {
 
     NativeRenderContext& context;
     const RenderGraph& g;
-    const ResourceGraph& resg;
+    ResourceGraph& resourceGraph;
     const FrameGraphDispatcher& fgd;
     const FrameGraphDispatcher::BarrierMap& barrierMap;
     gfx::Device* device = nullptr;
@@ -109,8 +112,8 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         for (const auto& pair : pass.rasterViews) {
             const auto& name = pair.first;
             const auto& view = pair.second;
-            const auto resID = vertex(name, ctx.resg);
-            const auto& desc = get(ResourceGraph::DescTag{}, ctx.resg, resID);
+            const auto resID = vertex(name, ctx.resourceGraph);
+            const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
 
             if (view.attachmentType == AttachmentType::RENDER_TARGET) { // RenderTarget
                 auto& rtv = rpInfo.colorAttachments[slot];
@@ -242,7 +245,7 @@ gfx::TextureBarrierInfo getTextureBarrier(
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
     void submitBarriers(const std::vector<Barrier>& barriers) const {
-        const auto& resg = ctx.resg;
+        const auto& resg = ctx.resourceGraph;
         auto sz = barriers.size();
         ccstd::pmr::vector<const gfx::Buffer*> buffers(ctx.scratch);
         ccstd::pmr::vector<const gfx::BufferBarrier*> bufferBarriers(ctx.scratch);
@@ -402,6 +405,58 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void end(const gfx::Viewport& pass) const {
     }
 
+    void mountResources(const RasterPass& pass) const {
+        auto& resg = ctx.resourceGraph;
+        // mount managed resources
+        for (const auto& [name, view] : pass.rasterViews) {
+            auto resID = findVertex(name, resg);
+            CC_EXPECTS(resID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, resID);
+        }
+        for (const auto& [name, views] : pass.computeViews) {
+            auto resID = findVertex(name, resg);
+            CC_EXPECTS(resID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, resID);
+        }
+    }
+
+    void mountResources(const ComputePass& pass) const {
+        auto& resg = ctx.resourceGraph;
+        PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
+        for (const auto& [name, views] : pass.computeViews) {
+            auto resID = findVertex(name, resg);
+            CC_EXPECTS(resID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, resID);
+        }
+    }
+
+    void mountResources(const RaytracePass& pass) const {
+        auto& resg = ctx.resourceGraph;
+        PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
+        for (const auto& [name, views] : pass.computeViews) {
+            auto resID = findVertex(name, resg);
+            CC_EXPECTS(resID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, resID);
+        }
+    }
+
+    void mountResources(const CopyPass& pass) const {
+        auto& resg = ctx.resourceGraph;
+        PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
+        for (const auto& pair : pass.copyPairs) {
+            const auto& srcID = findVertex(pair.source, resg);
+            CC_EXPECTS(srcID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, srcID);
+            const auto& dstID = findVertex(pair.target, resg);
+            CC_EXPECTS(dstID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, dstID);
+        }
+    }
+
+    void mountResources(const MovePass& pass) const {
+        // not supported yet
+    }
+
     void discover_vertex(
         RenderGraph::vertex_descriptor vertID,
         const AddressableView<RenderGraph>& gv) const {
@@ -409,18 +464,22 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         visitObject(
             vertID, ctx.g,
             [&](const RasterPass& pass) {
+                mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass);
             },
             [&](const ComputePass& pass) {
+                mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass);
             },
             [&](const CopyPass& pass) {
+                mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass);
             },
             [&](const MovePass& pass) {
+                mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass);
             },
@@ -429,6 +488,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 begin(pass);
             },
             [&](const RaytracePass& pass) {
+                mountResources(pass);
                 frontBarriers(vertID);
                 begin(pass);
             },
@@ -476,13 +536,25 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 };
 
 void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
+    auto* scratch = &ppl.unsyncPool;
     FrameGraphDispatcher fgd(
         ppl.resourceGraph, rg,
-        ppl.layoutGraph, &ppl.unsyncPool, &ppl.unsyncPool);
+        ppl.layoutGraph, &ppl.unsyncPool, scratch);
     fgd.enableMemoryAliasing(false);
     fgd.enablePassReorder(false);
     fgd.setParalellWeight(0);
     fgd.run();
+
+    RenderGraphVisitorContext ctx(
+        ppl.nativeContext, rg, ppl.resourceGraph,
+        fgd, fgd.barrierMap,
+        ppl.device, ppl.getCommandBuffers()[0],
+        scratch);
+
+    RenderGraphVisitor visitor{{}, ctx};
+    auto colors = rg.colors(scratch);
+    AddressableView<RenderGraph> graphView(rg);
+    boost::depth_first_search(graphView, visitor, get(colors, rg));
 }
 
 } // namespace render
