@@ -41,7 +41,7 @@ struct cc::TouchEvent touchEvent;
 
 class NativeWindowCache {
 public:
-    NativeWindowCache(int windowId) :_windowId{windowId} {
+    explicit NativeWindowCache(int windowId) :_windowId{windowId} {
 
     }
 
@@ -71,7 +71,7 @@ public:
     JNIEnv *env;
 
 private:
-    int _windowId;
+    int _windowId{0};
     ANativeWindow *_nativeWindow{nullptr};
 };
 } // namespace
