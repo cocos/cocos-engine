@@ -665,6 +665,14 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
          {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
          {ResourceResidency::EXTERNAL},                                                                                                                                      \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
+        {"21",                                                                                                                                                               \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
+         {ResourceResidency::EXTERNAL},                                                                                                                                      \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
+        {"22",                                                                                                                                                               \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
+         {ResourceResidency::EXTERNAL},                                                                                                                                      \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
     };
 
 #define TEST_CASE_1                                                      \
@@ -1039,18 +1047,26 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             PassType::RASTER,                                  \
             {                                                  \
                 {{"2"}, {"7"}},                                \
+                {{"7"}, {"20"}},                               \
             },                                                 \
         },                                                     \
         {                                                      \
             PassType::RASTER,                                  \
             {                                                  \
-                {{"7"}, {"8"}},                                \
+                {{"2", "21"}, {"8"}},                          \
+                {{"8"}, {"9"}},                                \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"2"}, {"10"}},                               \
             },                                                 \
         },                                                     \
         {                                                      \
             PassType::PRESENT,                                 \
             {                                                  \
-                {{"7"}, {}},                                   \
+                {{"10"}, {}},                                  \
             },                                                 \
         },                                                     \
     };                                                         \
@@ -1086,13 +1102,20 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
         {                                                      \
             {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
             {"7", 7, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"20", 20, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
         {                                                      \
-            {"7", 7, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
             {"8", 8, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"9", 9, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"21", 21, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
         {                                                      \
-            {"7", 7, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
+        },                                                     \
+        {                                                      \
+            {"10", 10, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         },                                                     \
     };
 } // namespace render

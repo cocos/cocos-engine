@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+#include "cocos/renderer/pipeline/custom/FGDispatcherGraphs.h"
 #include "cocos/renderer/pipeline/custom/test/test.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gtest/gtest.h"
@@ -42,40 +43,42 @@ TEST(fgDispatherCulling, test13) {
 
     const auto& barrierMap = fgDispatcher.getBarriers();
     const auto& rag = fgDispatcher.resourceAccessGraph;
-    // ExpectEq(rag.vertices.size() == 4, true);
+    ExpectEq(rag.vertices.size() == 12, true);
 
-    // // head
-    // const auto& head = barrierMap.at(0);
-    // ExpectEq(head.blockBarrier.frontBarriers.empty(), true);
-    // ExpectEq(head.blockBarrier.rearBarriers.empty(), true);
+    ExpectEq(rag.leafPasses.size() == 5, true);
 
-    // // 1st node
-    // const auto& node1 = barrierMap.at(1);
-    // ExpectEq(node1.blockBarrier.frontBarriers.empty(), true);
-    // ExpectEq(node1.blockBarrier.rearBarriers.size() == 1, true);
+    // 5, 7, 8, 9, 11 are leaf passes in real, logically they may attached to present pass
+    // 5: writes to an externalRes, reserved;
+    // 7: writes no externalRes, culled
+    // 8: subpass with writing to externalRes, reserved;
+    // 9: subpass with read on externalRes, no writes to any external, culled;
+    // 11: present pass, reserved.
 
-    // ExpectEq(node1.subpassBarriers[0].frontBarriers.empty(), true);
-    // ExpectEq(node1.subpassBarriers[0].rearBarriers.size() == 3, true);
+    ExpectEq(rag.leafPasses.find(5) != rag.leafPasses.end(), true);
+    ExpectEq(rag.leafPasses.find(7) != rag.leafPasses.end(), true);
+    ExpectEq(rag.leafPasses.find(8) != rag.leafPasses.end(), true);
+    ExpectEq(rag.leafPasses.find(9) != rag.leafPasses.end(), true);
+    ExpectEq(rag.leafPasses.find(11) != rag.leafPasses.end(), true);
 
-    // ExpectEq(node1.subpassBarriers[1].frontBarriers.empty(), true);
-    // ExpectEq(node1.subpassBarriers[1].rearBarriers.size() == 1, true);
+    // an empty vert as head so index offset + 1
+    const auto& node5 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(5));
+    const auto& node7 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(7));
+    const auto& node8 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(8));
+    const auto& node9 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(9));
+    const auto& node11 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(11));
+    ExpectEq(!node5.attachemntStatus.empty() && node5.nextSubpass == nullptr &&
+                 node7.attachemntStatus.empty() && node7.nextSubpass == nullptr &&
+                 !node8.attachemntStatus.empty() && node8.nextSubpass != nullptr &&
+                 node9.attachemntStatus.empty() && node9.nextSubpass == nullptr &&
+                 !node11.attachemntStatus.empty() && node11.nextSubpass == nullptr,
+             true);
 
-    // const auto& barrier = node1.blockBarrier.rearBarriers[0];
-    // ExpectEq(barrier.type == BarrierType::FULL, true);
-    // ExpectEq(barrier.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    // // resID 3
-    // ExpectEq(barrier.beginStatus.visibility == std::get<2>(layoutInfo[0][3]), true);
-
-    // //// 2nd node
-    // const auto& node2 = barrierMap.at(2);
-    // ExpectEq(node2.blockBarrier.frontBarriers.empty(), true);
-    // ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
-
-    // const auto& node2RearBarrier0 = node2.blockBarrier.rearBarriers.back();
-    // ExpectEq(node2RearBarrier0.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    // ExpectEq(node2RearBarrier0.beginStatus.visibility == ShaderStageFlagBit::VERTEX, true);
-    // ExpectEq(node2RearBarrier0.endStatus.access == MemoryAccessBit::READ_ONLY, true);
-    // endstatus: whatever it was, it's COLOR_ATTACHMENT_OPTIMAL
+    ExpectEq(in_degree(5, rag) != 0 && out_degree(5, rag) != 0 &&
+                 in_degree(7, rag) == 0 && out_degree(7, rag) == 0 &&
+                 in_degree(8, rag) != 0 && out_degree(8, rag) != 0 &&
+                 in_degree(9, rag) == 0 && out_degree(9, rag) == 0 &&
+                 in_degree(11, rag) != 0 && out_degree(11, rag) == 0,
+             true);
 
     // runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);
 }

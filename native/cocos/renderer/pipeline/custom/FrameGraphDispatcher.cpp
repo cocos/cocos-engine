@@ -236,6 +236,12 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
         CC_EXPECTS(out_degree(vertex, rag) == 0);
         using FuncType = void (*)(ResourceAccessGraph::vertex_descriptor, ResourceAccessGraph &);
         static FuncType leafCulling = [](ResourceAccessGraph::vertex_descriptor vertex, ResourceAccessGraph &rag) {
+            auto &attachments = get(ResourceAccessGraph::AccessNode, rag, vertex);
+            attachments.attachemntStatus.clear();
+            if (attachments.nextSubpass) {
+                delete attachments.nextSubpass;
+                attachments.nextSubpass = nullptr;
+            }
             auto inEdges = in_edges(vertex, rag);
             for (auto iter = inEdges.first; iter < inEdges.second;) {
                 auto inEdge = *iter;
@@ -250,10 +256,6 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
         };
         leafCulling(vertex, rag);
     };
-
-    for (auto pass : resourceAccessGraph.leafPasses) {
-        printf("%d\n", pass.first);
-    }
 
     // make leaf node closed walk for pass reorder
     for (auto pass : resourceAccessGraph.leafPasses) {
@@ -1374,6 +1376,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
     AccessVertex lastVertID = INVALID_ID;
     CC_EXPECTS(rag.resourceIndex.find(name) != rag.resourceIndex.end());
     auto resourceID = rag.resourceIndex[name];
+    bool isExternalPass = get(get(ResourceGraph::Traits, rg), resourceID).hasSideEffects() || passType == PassType::PRESENT;
     auto iter = accessRecord.find(resourceID);
     if (iter == accessRecord.end()) {
         accessRecord.emplace(
@@ -1381,7 +1384,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
             ResourceTransition{
                 {},
                 {curVertID, visibility, access, passType, Range{}}});
-        if ((get(get(ResourceGraph::Traits, rg), resourceID).hasSideEffects() || passType == PassType::PRESENT)) {
+        if (isExternalPass) {
             rag.leafPasses[curVertID] = std::make_pair<bool, bool>(true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT);
         }
     } else {
@@ -1396,15 +1399,14 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
                     rag.leafPasses.erase(trans.lastStatus.vertID);
                 }
             }
-            if ((get(get(ResourceGraph::Traits, rg), resourceID).hasSideEffects() || passType == PassType::PRESENT)) {
+            if (isExternalPass) {
                 rag.leafPasses[curVertID] = std::make_pair<bool, bool>(true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT);
             }
             trans.currStatus = {curVertID, visibility, access, passType, Range{}};
             lastVertID = trans.lastStatus.vertID;
         } else {
-            bool needTransition = (trans.currStatus.access != access) || (trans.currStatus.passType != passType) || (trans.currStatus.visibility != visibility);
             // avoid subpass self depends
-            if (needTransition && trans.currStatus.vertID != curVertID) {
+            if (trans.currStatus.vertID != curVertID) {
                 lastVertID = trans.currStatus.vertID;
                 trans.lastStatus = trans.currStatus;
                 trans.currStatus = {curVertID, visibility, access, passType, Range{}};
@@ -1413,7 +1415,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
                 }
                 if (rag.leafPasses.find(curVertID) != rag.leafPasses.end()) {
                     // only write into externalRes counts
-                    if ((get(get(ResourceGraph::Traits, rg), resourceID).hasSideEffects() || passType == PassType::PRESENT)) {
+                    if (isExternalPass) {
                         rag.leafPasses[curVertID] = std::make_pair<bool, bool>(true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT);
                     }
                 }
