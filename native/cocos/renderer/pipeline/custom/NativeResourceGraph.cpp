@@ -54,7 +54,7 @@ gfx::BufferInfo getBufferInfo(const ResourceDesc& desc) {
         usage,
         MemoryUsage::DEVICE,
         desc.width,
-        1U,
+        1U, // stride should not be used
         BufferFlagBit::NONE,
     };
 }
