@@ -8,7 +8,7 @@ App({
       require('./<%= polyfillsBundleFile %>');
       require('./<%= systemJsBundleFile %>');
       require('./load-module.js');
-      const importMap = require('./<%= importMapFile %>');
+      const importMap = require('./<%= importMapFile %>').default;
       let System = $global.System;
       System.warmup({
         importMap,
