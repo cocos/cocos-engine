@@ -1,4 +1,4 @@
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -14,6 +14,8 @@ if (WECHAT) {
     currentPlatform = Platform.XIAOMI_QUICK_GAME;
 } else if (ALIPAY) {
     currentPlatform = Platform.ALIPAY_MINI_GAME;
+} else if (TAOBAO) {
+    currentPlatform = Platform.TAOBAO_CREATIVE_APP;
 } else if (BYTEDANCE) {
     currentPlatform = Platform.BYTEDANCE_MINI_GAME;
 } else if (OPPO) {
