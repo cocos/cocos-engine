@@ -50,7 +50,6 @@ public:
 
     void update(float dt) override;
     void render(float dt) override;
-    uint32_t getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 

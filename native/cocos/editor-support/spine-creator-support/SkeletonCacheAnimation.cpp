@@ -526,10 +526,6 @@ se_object_ptr SkeletonCacheAnimation::getSharedBufferOffset() const {
     return nullptr;
 }
 
-uint32_t SkeletonCacheAnimation::getRenderOrder() const {
-    return 0;
-}
-
 void SkeletonCacheAnimation::setToSetupPose() {
     if (_skeletonCache) {
         _skeletonCache->setToSetupPose();

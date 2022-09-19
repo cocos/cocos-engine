@@ -94,7 +94,7 @@ void MeshBuffer::uploadVB() {
     rVB->reset();
     rVB->writeBytes(reinterpret_cast<const char *>(_vb.getBuffer()), _vb.length());
     auto *uiMeshBuffer = _uiMeshBufferArr[_bufferPos];
-    uiMeshBuffer->setVData(static_cast<float*>(rVB->getBuffer()));
+    uiMeshBuffer->setVData(reinterpret_cast<float *>(rVB->getBuffer()));
     uiMeshBuffer->setByteOffset(static_cast<uint32_t>(_vb.length()));
 }
 
@@ -151,11 +151,11 @@ void MeshBuffer::cleanUIMeshBuffer() {
     _uiMeshBufferArr.clear();
 }
 
-cc::UIMeshBuffer *MeshBuffer::getUIMeshBuffer() {
+cc::UIMeshBuffer *MeshBuffer::getUIMeshBuffer() const {
     return _uiMeshBufferArr[_bufferPos];
 }
 
-const ccstd::vector<cc::UIMeshBuffer *>& MeshBuffer::uiMeshBuffers() {
+const ccstd::vector<cc::UIMeshBuffer *>& MeshBuffer::uiMeshBuffers() const {
     return _uiMeshBufferArr;
 }
 

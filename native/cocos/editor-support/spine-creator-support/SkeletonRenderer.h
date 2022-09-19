@@ -62,7 +62,6 @@ public:
     void update(float deltaTime) override {}
     void render(float deltaTime) override;
     virtual cc::Rect getBoundingBox() const;
-    uint32_t getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 

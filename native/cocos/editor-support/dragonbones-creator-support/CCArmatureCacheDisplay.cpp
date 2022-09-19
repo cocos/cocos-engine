@@ -394,10 +394,6 @@ se_object_ptr CCArmatureCacheDisplay::getSharedBufferOffset() const {
     return nullptr;
 }
 
-uint32_t CCArmatureCacheDisplay::getRenderOrder() const {
-    return 0;
-}
-
 void CCArmatureCacheDisplay::setRenderEntity(cc::RenderEntity* entity) {
     _entity = entity;
 }

@@ -46,7 +46,6 @@ public:
 
     void update(float dt) override;
     void render(float dt) override;
-    uint32_t getRenderOrder() const override;
 
     void setTimeScale(float scale) {
         _timeScale = scale;

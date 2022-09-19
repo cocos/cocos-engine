@@ -989,10 +989,6 @@ se_object_ptr SkeletonRenderer::getSharedBufferOffset() const {
     return nullptr;
 }
 
-uint32_t SkeletonRenderer::getRenderOrder() const {
-    return 0;
-}
-
 void SkeletonRenderer::setRenderEntity(cc::RenderEntity* entity) {
     _entity = entity;
 }

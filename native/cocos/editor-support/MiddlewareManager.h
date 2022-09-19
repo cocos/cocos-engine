@@ -43,7 +43,6 @@ public:
     virtual ~IMiddleware() = default;
     virtual void update(float dt) = 0;
     virtual void render(float dt) = 0;
-    virtual uint32_t getRenderOrder() const = 0;
 };
 
 /**

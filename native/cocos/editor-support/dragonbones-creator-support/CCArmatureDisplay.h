@@ -106,10 +106,6 @@ public:
      * @inheritDoc
      */
     void removeDBEventListener(const std::string &type, const std::function<void(EventObject *)> &listener) override;
-    /**
-     * @inheritDoc
-     */
-    uint32_t getRenderOrder() const override;
 
     using dbEventCallback = std::function<void(EventObject *)>;
     void setDBEventCallback(dbEventCallback callback) {

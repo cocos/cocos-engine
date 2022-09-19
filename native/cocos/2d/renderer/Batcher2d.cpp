@@ -270,8 +270,8 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
     if (enableBatch) {
         if (_currTexture == texture && _currMeshBuffer == meshBuffer
             && material->getHash() == _currMaterial->getHash()
-            && drawInfo->getIndexOffset() >= _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount()
-            && layer == _currLayer) {
+            && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount()
+            && layer == _currLayer && _currEntity->getUseLocal() == false) {
             auto ibCount = _currDrawInfo->getIbCount();
             _currDrawInfo->setIbCount(ibCount + drawInfo->getIbCount());
         } else {
@@ -287,7 +287,6 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
         generateBatch(_currEntity, _currDrawInfo);
         _currEntity = entity;
         _currDrawInfo = drawInfo;
-        generateBatch(_currEntity, _currDrawInfo);
     }
 }
 
