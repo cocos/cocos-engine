@@ -47,6 +47,8 @@ export class OneShotAudioMinigame {
 export class AudioPlayerMinigame implements OperationQueueable {
     private _innerAudioContext: InnerAudioContext;
     private _state: AudioState = AudioState.INIT;
+    private _cacheTime = 0;
+    private _needSeekAfterPlay = false;
 
     private _onPlay: () => void;
     private _onPause: () => void;
@@ -244,7 +246,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             } else {
                 this._cacheTime = time;
                 this._needSeekAfterPlay = true;
-                console.log(`Call seek, current time becomes ${this._cacheTime}`);
                 resolve();
             }
         });
