@@ -81,7 +81,7 @@ private:
         SLuint32 size;
         SLint8 *pDataBase; // Base address of local audio data storage
         SLint8 *pData;     // Current address of local audio data storage
-    } CallbackCntxt; //NOLINT(modernize-use-using)
+    } CallbackCntxt; //NOLINT(modernize-use-using, readability-identifier-naming)
 
     CallbackCntxt _decContext;
     int _bufferSizeInFrames;
