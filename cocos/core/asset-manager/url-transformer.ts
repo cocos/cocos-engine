@@ -56,7 +56,7 @@ export function parse (task: Task) {
             if (item.preset) {
                 js.addon(item, presets[item.preset]);
             }
-            // HACK: there is a bug when using for-in statemenet on OpenHarmony
+            // TODO(qgh): there is a bug when using for-in statemenet on OpenHarmony
             const keys = Object.keys(item);
             for (let i = 0; i < keys.length; ++i) {
                 const key = keys[i];
