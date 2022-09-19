@@ -935,7 +935,7 @@ if(APPLE)
     endif()
 endif()
 
-if(NOT OPENHARMONY AND (ANDROID OR OHOS))# TODO:May be removed later
+if(NOT OPENHARMONY AND (ANDROID OR OHOS))
     cocos_source_files(
         cocos/network/Downloader-java.cpp
         cocos/network/Downloader-java.h
@@ -2130,12 +2130,12 @@ cocos_source_files(
 )
 
 ######## auto
-if(NOT OPENHARMONY)# TODO:May be removed later
+if(NOT OPENHARMONY)
 cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
                             cocos/bindings/auto/jsb_network_auto.h
 )
-endif()# TODO:May be removed later
+endif()
 cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
                             cocos/bindings/auto/jsb_cocos_auto.h
