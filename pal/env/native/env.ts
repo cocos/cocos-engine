@@ -1,3 +1,4 @@
+/* eslint-disable import/no-dynamic-require */
 declare const require: (path: string) =>  Promise<void>;
 
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {

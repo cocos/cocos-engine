@@ -23,7 +23,6 @@ let jsb_downloader = null;
 const downloading = new cc.AssetManager.Cache();
 let tempDir = '';
 
-// @ts-ignore
 if(!window.oh) {
     // TODO(qgh):The openharmony system temporarily does not support network download
     jsb.Downloader.prototype._ctor = function () {

@@ -35,10 +35,10 @@ namespace cc {
 class AudioDecoderSLES : public AudioDecoder {
 protected:
     AudioDecoderSLES();
-    virtual ~AudioDecoderSLES();
+    ~AudioDecoderSLES() override;
 
     bool init(SLEngineItf engineItf, const ccstd::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
-    virtual bool decodeToPcm() override;
+    bool decodeToPcm() override;
 
 private:
     void queryAudioInfo();

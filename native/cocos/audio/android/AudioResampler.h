@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <android/log.h>
 #include <sys/system_properties.h>
@@ -30,9 +30,10 @@
 
 //#include <media/AudioBufferProvider.h>
 //#include <system/audio.h>
-#include <assert.h>
+#include <cassert>
 #include "audio/android/audio.h"
 
+// clang-format off
 namespace cc {
 
 class AudioResampler {
@@ -108,6 +109,7 @@ protected:
 
     int64_t calculateOutputPTS(int outputFrameIndex);
 
+
     const int32_t mChannelCount;
     const int32_t mSampleRate;
     int32_t mInSampleRate;
@@ -150,17 +152,18 @@ protected:
     //  inFrameCount = (mPhaseIncrement * (outFrameCount - 1) + mPhaseFraction) / phaseWrapLimit;
     //  phaseWrapLimit is the wraparound (1 << kNumPhaseBits), if not specified explicitly.
     //
-    inline size_t getInFrameCountRequired(size_t outFrameCount) {
+    inline size_t getInFrameCountRequired(size_t outFrameCount) const {
         return (static_cast<size_t>(outFrameCount) * mInSampleRate + (mSampleRate - 1)) / mSampleRate;
     }
 
-    inline float clampFloatVol(float volume) {
+    inline float clampFloatVol(float volume) {//NOLINT(readability-convert-member-functions-to-stati)
+        float ret = 0.0F;
         if (volume > UNITY_GAIN_FLOAT) {
-            return UNITY_GAIN_FLOAT;
+            ret = UNITY_GAIN_FLOAT;
         } else if (volume >= 0.) {
-            return volume;
+            ret = volume;
         }
-        return 0.; // NaN or negative volume maps to 0.
+        return ret; // NaN or negative volume maps to 0.
     }
 
 private:
@@ -176,6 +179,6 @@ private:
     // The absolute number is irrelevant, it's the relative values that matter.
     static uint32_t qualityMHz(src_quality quality);
 };
-
+// clang-format on
 // ----------------------------------------------------------------------------
 } // namespace cc

@@ -30,7 +30,7 @@
 
 // IDEA: This is actually unity gain, which might not be max in future, expressed in U.12
 #define MAX_GAIN_INT AudioMixer::UNITY_GAIN_INT
-
+// clang-format off
 namespace cc {
 
 // ----------------------------------------------------------------------------
@@ -382,6 +382,6 @@ private:
     static hook_t getTrackHook(int trackType, uint32_t channelCount,
                                audio_format_t mixerInFormat, audio_format_t mixerOutFormat);
 };
-
+// clang-format on
 // ----------------------------------------------------------------------------
 } // namespace cc

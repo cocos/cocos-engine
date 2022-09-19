@@ -57,7 +57,6 @@ private:
     void pause();
     void resume();
 
-private:
     SLEngineItf _engineItf;
     SLObjectItf _outputMixObj;
 
