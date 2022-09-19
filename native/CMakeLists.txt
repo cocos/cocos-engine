@@ -935,7 +935,7 @@ if(APPLE)
     endif()
 endif()
 
-if(NOT OPENHARMONY AND (ANDROID OR OHOS))
+if(ANDROID OR (NOT OPENHARMONY AND OHOS))
     cocos_source_files(
         cocos/network/Downloader-java.cpp
         cocos/network/Downloader-java.h

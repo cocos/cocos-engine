@@ -1,4 +1,3 @@
-/* eslint-disable import/no-dynamic-require */
 declare const require: (path: string) =>  Promise<void>;
 
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
@@ -13,6 +12,7 @@ export function loadJsFile (path: string): Promise<void> {
         // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
         window.oh.loadModule(`${path}`);
     } else {
+        // eslint-disable-next-line import/no-dynamic-require
         return require(`${path}`);
     }
 }

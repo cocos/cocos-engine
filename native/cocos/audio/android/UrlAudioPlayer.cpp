@@ -34,9 +34,9 @@ THE SOFTWARE.
 
 namespace {
 
-std::mutex __playerContainerMutex;//NOLINT(bugprone-reserved-identifier)
-ccstd::vector<cc::UrlAudioPlayer *> __playerContainer;//NOLINT(bugprone-reserved-identifier)
-std::once_flag __onceFlag;//NOLINT(bugprone-reserved-identifier)
+std::mutex __playerContainerMutex;//NOLINT(bugprone-reserved-identifier,readability-identifier-naming)
+ccstd::vector<cc::UrlAudioPlayer *> __playerContainer;//NOLINT(bugprone-reserved-identifier,readability-identifier-naming)
+std::once_flag __onceFlag;//NOLINT(bugprone-reserved-identifier,readability-identifier-naming)
 
 } // namespace
 
@@ -45,7 +45,7 @@ namespace cc {
 class SLUrlAudioPlayerCallbackProxy {
 public:
     static void playEventCallback(SLPlayItf caller, void *context, SLuint32 playEvent) {
-        auto *thiz = (UrlAudioPlayer *)context;
+        auto *thiz = reinterpret_cast<UrlAudioPlayer *>(context);
         // We must use a mutex for the whole block of the following function invocation.
         std::lock_guard<std::mutex> lk(__playerContainerMutex);
         auto iter = std::find(__playerContainer.begin(), __playerContainer.end(), thiz);
@@ -215,12 +215,12 @@ float UrlAudioPlayer::getDuration() const {
     SL_RETURN_VAL_IF_FAILED(r, 0.0F, "UrlAudioPlayer::getDuration failed");
 
     if (duration == SL_TIME_UNKNOWN) {
-        return -1.0f;
+        return -1.0F;
     } else {// NOLINT(readability-else-after-return)
         const_cast<UrlAudioPlayer *>(this)->_duration = duration / 1000.0F;
 
         if (_duration <= 0) {
-            return -1.0f;
+            return -1.0F;
         }
     }
     return _duration;
@@ -275,7 +275,7 @@ bool UrlAudioPlayer::prepare(const ccstd::string &url, SLuint32 locatorType, std
         locFd = {locatorType, _assetFd->getFd(), start, length};
         audioSrc.pLocator = &locFd;
     } else if (locatorType == SL_DATALOCATOR_URI) {
-        locUri = {locatorType, reinterpret_cast<SLchar *>(_url.c_str())};
+        locUri = {locatorType, (SLchar *)_url.c_str()}; // NOLINT(google-readability-casting)
         audioSrc.pLocator = &locUri;
         ALOGV("locUri: locatorType: %d", (int)locUri.locatorType);
     }
