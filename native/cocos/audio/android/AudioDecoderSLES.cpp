@@ -200,7 +200,7 @@ bool AudioDecoderSLES::decodeToPcm() {
 
         decSource.pLocator = &locFd;
     } else {
-        decUri = {SL_DATALOCATOR_URI, reinterpret_cast<SLchar *>(_url.c_str())};
+        decUri = {SL_DATALOCATOR_URI, (SLchar *)_url.c_str()}; // NOLINT(google-readability-casting)
         decSource.pLocator = &decUri;
     }
 
