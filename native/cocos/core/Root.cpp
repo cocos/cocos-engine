@@ -25,9 +25,12 @@
 
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
+#include "application/ApplicationManager.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
-#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IScreen.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -71,9 +74,51 @@ Root::~Root() {
     instance = nullptr;
 }
 
-void Root::initialize(gfx::Swapchain *swapchain) {
-    _swapchain = swapchain;
+void Root::initialize(gfx::Swapchain * /*swapchain*/) {
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
+    const auto &windows = windowMgr->getWindows();
+    for (const auto &pair : windows) {
+        auto *window = pair.second.get();
+        scene::RenderWindow *renderWindow = createRenderWindowFromSystemWindow(window);
+        if (!_mainRenderWindow && (window->getWindowId() == ISystemWindow::mainWindowId)) {
+            _mainRenderWindow = renderWindow;
+        }
+    }
+    _curRenderWindow = _mainRenderWindow;
     _xr = CC_GET_XR_INTERFACE();
+
+    // TODO(minggo):
+    // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
+
+    uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
+    maxJoints = maxJoints < 256 ? maxJoints : 256;
+    pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
+}
+
+render::Pipeline *Root::getCustomPipeline() const {
+    return dynamic_cast<render::Pipeline *>(_pipelineRuntime.get());
+}
+
+scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *window) {
+    if (!window) {
+        return nullptr;
+    }
+
+    auto *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
+    float pixelRatio = screen->getDevicePixelRatio();
+
+    uint32_t windowId = window->getWindowId();
+    auto handle = window->getWindowHandle();
+    const auto &size = window->getViewSize();
+
+    gfx::SwapchainInfo info;
+    info.width = static_cast<uint32_t>(size.x) * pixelRatio;
+    info.height = static_cast<uint32_t>(size.y) * pixelRatio;
+    info.windowHandle = reinterpret_cast<void *>(handle);
+    info.windowId = window->getWindowId();
+
+    gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);
+    _swapchains.emplace_back(swapchain);
 
     gfx::RenderPassInfo renderPassInfo;
 
@@ -86,26 +131,21 @@ void Root::initialize(gfx::Swapchain *swapchain) {
     depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
     depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
 
-    scene::IRenderWindowInfo info;
-    info.title = ccstd::string{"rootMainWindow"};
-    info.width = swapchain->getWidth();
-    info.height = swapchain->getHeight();
-    info.renderPassInfo = renderPassInfo;
-    info.swapchain = swapchain;
-    _mainWindow = createWindow(info);
+    scene::IRenderWindowInfo windowInfo;
+    windowInfo.title = StringUtil::format("renderWindow_%d", windowId);
+    windowInfo.width = swapchain->getWidth();
+    windowInfo.height = swapchain->getHeight();
+    windowInfo.renderPassInfo = renderPassInfo;
+    windowInfo.swapchain = swapchain;
 
-    _curWindow = _mainWindow;
-
-    // TODO(minggo):
-    // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
-
-    uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
-    maxJoints = maxJoints < 256 ? maxJoints : 256;
-    pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
+    return createWindow(windowInfo);
 }
 
-render::Pipeline *Root::getCustomPipeline() const {
-    return dynamic_cast<render::Pipeline *>(_pipelineRuntime.get());
+cc::scene::RenderWindow *Root::createRenderWindowFromSystemWindow(uint32_t windowId) {
+    if (windowId == 0) {
+        return nullptr;
+    }
+    return createRenderWindowFromSystemWindow(CC_GET_SYSTEM_WINDOW(windowId));
 }
 
 void Root::destroy() {
@@ -120,13 +160,19 @@ void Root::destroy() {
 
     CC_SAFE_DELETE(_batcher);
 
+    for (auto *swapchain : _swapchains) {
+        CC_SAFE_DELETE(swapchain);
+    }
+    _swapchains.clear();
+
     // TODO(minggo):
     //    this.dataPoolManager.clear();
 }
 
-void Root::resize(uint32_t width, uint32_t height) {
-    for (const auto &window : _windows) {
-        if (window->getSwapchain()) {
+void Root::resize(uint32_t windowId, uint32_t width, uint32_t height) {
+    for (const auto &window : _renderWindows) {
+        auto *swapchain = window->getSwapchain();
+        if (swapchain && (swapchain->getWindowId() == windowId)) {
             if (_xr) {
                 // xr, window's width and height should not change by device
                 width = window->getWidth();
@@ -168,7 +214,7 @@ public:
     gfx::DescriptorSet *getDescriptorSet() const override {
         return pipeline->getDescriptorSet();
     }
-    ccstd::vector<gfx::CommandBuffer *> getCommandBuffers() const override {
+    const ccstd::vector<gfx::CommandBuffer *> &getCommandBuffers() const override {
         return pipeline->getCommandBuffers();
     }
     pipeline::PipelineSceneData *getPipelineSceneData() const override {
@@ -267,6 +313,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         _pipeline = rppl;
         _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
+        rppl->setPipelineRuntime(_pipelineRuntime.get());
 
         // now cluster just enabled in deferred pipeline
         if (!_useDeferredPipeline || !_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {
@@ -275,7 +322,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
         }
         _pipeline->setBloomEnabled(false);
 
-        if (!_pipeline->activate(_mainWindow->getSwapchain())) {
+        if (!_pipeline->activate(_mainRenderWindow->getSwapchain())) {
             if (isCreateDefaultPipeline) {
                 CC_SAFE_DESTROY(_pipeline);
             }
@@ -286,7 +333,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     } else {
         _pipelineRuntime = std::make_unique<render::NativePipeline>(
             boost::container::pmr::get_default_resource());
-        if (!_pipelineRuntime->activate(_mainWindow->getSwapchain())) {
+        if (!_pipelineRuntime->activate(_mainRenderWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
             return false;
@@ -321,7 +368,7 @@ void Root::onGlobalPipelineStateChanged() {
 }
 
 void Root::activeWindow(scene::RenderWindow *window) {
-    _curWindow = window;
+    _curRenderWindow = window;
 }
 
 void Root::resetCumulativeTime() {
@@ -347,9 +394,8 @@ void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const c
     }
 
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
-        _swapchains.clear();
-        _swapchains.emplace_back(_swapchain);
         _device->acquire(_swapchains);
+
         // NOTE: c++ doesn't have a Director, so totalFrames need to be set from JS
         uint32_t stamp = totalFrames;
 
@@ -412,7 +458,7 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
         doXRFrameMove(totalFrames);
     } else {
         frameMoveBegin();
-        frameMoveProcess(true, totalFrames, _windows);
+        frameMoveProcess(true, totalFrames, _renderWindows);
         frameMoveEnd();
     }
 }
@@ -421,23 +467,32 @@ scene::RenderWindow *Root::createWindow(scene::IRenderWindowInfo &info) {
     IntrusivePtr<scene::RenderWindow> window = ccnew scene::RenderWindow();
 
     window->initialize(_device, info);
-    _windows.emplace_back(window);
+    _renderWindows.emplace_back(window);
     return window;
 }
 
 void Root::destroyWindow(scene::RenderWindow *window) {
-    auto it = std::find(_windows.begin(), _windows.end(), window);
-    if (it != _windows.end()) {
+    auto it = std::find(_renderWindows.begin(), _renderWindows.end(), window);
+    if (it != _renderWindows.end()) {
         CC_SAFE_DESTROY(*it);
-        _windows.erase(it);
+        _renderWindows.erase(it);
     }
 }
 
 void Root::destroyWindows() {
-    for (const auto &window : _windows) {
+    for (const auto &window : _renderWindows) {
         CC_SAFE_DESTROY(window);
     }
-    _windows.clear();
+    _renderWindows.clear();
+}
+
+uint32_t Root::createSystemWindow(const ISystemWindowInfo &info) {
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
+    ISystemWindow *window = windowMgr->createWindow(info);
+    if (!window) {
+        return 0;
+    }
+    return window->getWindowId();
 }
 
 scene::RenderScene *Root::createScene(const scene::IRenderSceneInfo &info) {
@@ -502,7 +557,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             _xr->beginRenderEyeFrame(xrEye);
 
             ccstd::vector<IntrusivePtr<scene::Camera>> allCameras;
-            for (const auto &window : _windows) {
+            for (const auto &window : _renderWindows) {
                 const ccstd::vector<IntrusivePtr<scene::Camera>> &wndCams = window->getCameras();
                 allCameras.insert(allCameras.end(), wndCams.begin(), wndCams.end());
             }
@@ -524,7 +579,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             //but we only need left/right camera when in left/right eye loop
             //condition2: main camera draw twice
             ccstd::vector<IntrusivePtr<scene::RenderWindow>> xrWindows;
-            for (const auto &window : _windows) {
+            for (const auto &window : _renderWindows) {
                 if (window->getSwapchain()) {
                     // not rt
                     _xr->bindXREyeWithRenderWindow(window, static_cast<xr::XREye>(xrEye));

@@ -25,19 +25,19 @@
 
 import {
     AttributeName, Buffer, BufferUsageBit, Device, MemoryUsageBit, DescriptorSet, BufferInfo, FormatFeatureBit, Format,
-} from '../../core/gfx';
+} from '../../gfx';
 import { Mesh } from './mesh';
-import { Texture2D } from '../../core/assets/texture-2d';
-import { ImageAsset } from '../../core/assets/image-asset';
+import { Texture2D } from '../../asset/assets/texture-2d';
+import { ImageAsset } from '../../asset/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
-    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
+    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
 import { warn } from '../../core/platform/debug';
 import { Morph, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { log2, nextPow2 } from '../../core/math/bits';
-import { IMacroPatch } from '../../core/renderer';
+import { IMacroPatch } from '../../render-scene';
 import { legacyCC } from '../../core/global-exports';
-import { PixelFormat } from '../../core/assets/asset-enum';
+import { PixelFormat } from '../../asset/assets/asset-enum';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.

@@ -46,6 +46,18 @@ class NativeComputePassBuilder;
 class NativeMovePassBuilder;
 class NativeCopyPassBuilder;
 class NativeSceneTransversal;
+struct PersistentRenderPassAndFramebuffer;
+struct ScenePassHandle;
+struct ScenePass;
+struct ScenePassQueue;
+struct RenderInstance;
+struct RenderInstancePack;
+struct RenderBatch;
+struct RenderBatchPack;
+struct NativeRenderQueue;
+class DefaultSceneVisitor;
+class DefaultForwardLightingTransversal;
+struct NativeRenderContext;
 class NativePipeline;
 
 } // namespace render

@@ -33,13 +33,13 @@ struct SDL_Window;
 namespace cc {
 class SDLHelper;
 class CC_DLL SystemWindow : public ISystemWindow {
+    friend class SystemWindowManager;
+
 public:
-    explicit SystemWindow(IEventDispatch* delegate);
+    explicit SystemWindow(uint32_t windowId, void* externalHandle);
     ~SystemWindow() override;
 
-    int init();
     void swapWindow();
-    void pollEvent(bool* quit);
 
     bool createWindow(const char* title,
                       int w, int h, int flags) override;
@@ -47,8 +47,10 @@ public:
                       int x, int y, int w,
                       int h, int flags) override;
     void closeWindow() override;
+
+    virtual uint32_t getWindowId() const override { return _windowId; }
     uintptr_t getWindowHandle() const override;
-    SDL_Window* getSDLWindowHandle() const;
+
     uintptr_t getDisplay() const;
     Size getViewSize() const override;
     void setViewSize(uint32_t w, uint32_t h) override {
@@ -62,9 +64,14 @@ public:
     void copyTextToClipboard(const std::string& text) override;
 
 private:
-    int _width{0};
-    int _height{0};
-    std::unique_ptr<SDLHelper> _sdl;
+    SDL_Window* getSDLWindow() const { return _window; }
+
+    uint32_t _width{0};
+    uint32_t _height{0};
+
+    uint32_t _windowId{0};
+    uintptr_t _windowHandle{0};
+    SDL_Window* _window{nullptr};
 };
 
 } // namespace cc

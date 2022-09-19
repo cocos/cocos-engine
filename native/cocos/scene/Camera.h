@@ -38,6 +38,7 @@
 #include "math/Mat4.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
+#include "platform/java/modules/XRInterface.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
 
@@ -341,6 +342,8 @@ public:
 
     void detachCamera();
 
+    uint32_t getSystemWindowId() const { return _systemWindowId; }
+
     inline CameraType getCameraType() const { return _cameraType; }
     inline void setCameraType(CameraType type) { _cameraType = type; }
 
@@ -349,6 +352,7 @@ public:
 
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
+
 protected:
     void setExposure(float ev100);
 
@@ -412,6 +416,8 @@ private:
     float _exposure{0.F};
     uint32_t _clearStencil{0};
     IXRInterface *_xr{nullptr};
+
+    uint32_t _systemWindowId{0};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Camera);
 };

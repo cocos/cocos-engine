@@ -23,13 +23,13 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { ccclass } from 'cc.decorator';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
-import { Texture2D, ImageAsset, RealCurve, CCClass } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { RealCurve, CCClass } from '../../core';
+import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
+import { Texture2D, ImageAsset } from '../../asset/assets';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 

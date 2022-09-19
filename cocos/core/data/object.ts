@@ -77,7 +77,7 @@ const objectsToDestroy: any = [];
 let deferredDestroyTimer = null;
 
 function compileDestruct (obj, ctor) {
-    const shouldSkipId = obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component;
+    const shouldSkipId = obj instanceof legacyCC.Node || obj instanceof legacyCC.Component;
     const idToSkip = shouldSkipId ? '_id' : null;
 
     let key;

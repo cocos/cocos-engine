@@ -23,16 +23,16 @@
  THE SOFTWARE.
 */
 
-import type { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
-import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
+import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../gfx';
+import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../rendering/define';
 import { Node } from '../../core/scene-graph';
-import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
+import { IMacroPatch, Pass } from '../../render-scene/core/pass';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { ModelType } from '../../core/renderer/scene/model';
+import { ModelType } from '../../render-scene/scene/model';
 import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';

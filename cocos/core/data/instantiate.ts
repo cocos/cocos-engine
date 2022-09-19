@@ -31,7 +31,7 @@ import { CCObject, isCCObject } from './object';
 import { js } from '../utils/js';
 import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
-import { Prefab } from '../assets/prefab';
+import { Prefab } from '../../asset/assets/prefab';
 import { Node } from '../scene-graph/node';
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 import { isCCClassOrFastDefined } from './class';
@@ -281,12 +281,12 @@ function instantiateObj (obj, parent) {
     if (isCCClassOrFastDefined(ctor)) {
         if (parent) {
             if (parent instanceof legacyCC.Component) {
-                if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
+                if (obj instanceof legacyCC.Node || obj instanceof legacyCC.Component) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return obj;
                 }
-            } else if (parent instanceof legacyCC._BaseNode) {
-                if (obj instanceof legacyCC._BaseNode) {
+            } else if (parent instanceof legacyCC.Node) {
+                if (obj instanceof legacyCC.Node) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

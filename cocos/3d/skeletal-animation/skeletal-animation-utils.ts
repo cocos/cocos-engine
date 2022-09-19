@@ -24,18 +24,18 @@
 */
 
 import { EDITOR, JSB } from 'internal:constants';
-import type { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { Address, BufferUsageBit, Filter, Format, FormatInfos,
-    MemoryUsageBit, Feature, Device, Buffer, BufferInfo, Sampler, SamplerInfo, FormatFeatureBit } from '../../core/gfx';
+import { BufferUsageBit, Format, FormatInfos,
+    MemoryUsageBit, Device, Buffer, BufferInfo, FormatFeatureBit } from '../../gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
-import { UBOSkinningAnimation } from '../../core/pipeline/define';
+import { UBOSkinningAnimation } from '../../rendering/define';
 import { Node } from '../../core/scene-graph';
-import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
+import { ITextureBufferHandle, TextureBufferPool } from '../../render-scene/core/texture-buffer-pool';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 // change here and cc-skinning.chunk to use other skinning algorithms

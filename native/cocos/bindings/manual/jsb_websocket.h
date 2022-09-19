@@ -57,10 +57,4 @@ private:
 
 SE_DECLARE_FINALIZE_FUNC(WebSocket_finalize);
 
-SE_DECLARE_FUNC(WebSocket_constructor);
-
-SE_DECLARE_FUNC(WebSocket_send);
-
-SE_DECLARE_FUNC(WebSocket_close);
-
 bool register_all_websocket(se::Object *obj); // NOLINT (readability-identifier-naming)

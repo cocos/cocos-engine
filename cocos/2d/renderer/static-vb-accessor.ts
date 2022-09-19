@@ -24,7 +24,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Device, Attribute } from '../../core/gfx';
+import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
 import { assertID, errorID } from '../../core/platform/debug';

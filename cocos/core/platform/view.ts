@@ -592,8 +592,8 @@ export class View extends Eventify(System) {
         point.y = (point.y - viewport.y) / this._scaleY;
     }
 
-    private _updateAdaptResult () {
-        legacyCC.director.root.resize(screen.windowSize.width, screen.windowSize.height);
+    private _updateAdaptResult (event: jsb.WindowEvent) {
+        legacyCC.director.root.resize(event.windowId, event.width, event.height);
         // Frame size changed, do resize works
         const width = this._designResolutionSize.width;
         const height = this._designResolutionSize.height;

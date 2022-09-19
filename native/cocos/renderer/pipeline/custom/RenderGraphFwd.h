@@ -30,6 +30,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
@@ -43,8 +44,12 @@ struct ResourceDesc;
 struct ResourceTraits;
 struct RenderSwapchain;
 struct ResourceStates;
+struct ManagedBuffer;
+struct ManagedTexture;
 struct ManagedResource;
 struct ManagedTag;
+struct ManagedBufferTag;
+struct ManagedTextureTag;
 struct PersistentBufferTag;
 struct PersistentTextureTag;
 struct FramebufferTag;
@@ -79,5 +84,24 @@ struct RenderGraph;
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+template <>
+struct hash<cc::render::RasterSubpass> {
+    hash_t operator()(const cc::render::RasterSubpass& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::SubpassGraph> {
+    hash_t operator()(const cc::render::SubpassGraph& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::RasterPass> {
+    hash_t operator()(const cc::render::RasterPass& val) const noexcept;
+};
+
+} // namespace ccstd
 
 // clang-format on

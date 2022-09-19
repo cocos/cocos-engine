@@ -25,15 +25,15 @@
 
 #pragma once
 
+#include <AppKit/AppKit.h>
 #include <iostream>
-
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 namespace cc {
 
 class SystemWindow : public ISystemWindow {
 public:
-    SystemWindow(IEventDispatch* delegate);
+    explicit SystemWindow(uint32_t windowId, void* externalHandle);
     ~SystemWindow() override;
 
     bool createWindow(const char* title,
@@ -49,6 +49,10 @@ public:
         _width = w;
         _height = h;
     }
+
+    uint32_t getWindowId() const override;
+    NSWindow* getNSWindow() const { return _window; }
+
     /*
      @brief enable/disable(lock) the cursor, default is enabled
      */
@@ -58,6 +62,9 @@ public:
 private:
     int32_t _width{0};
     int32_t _height{0};
-    bool _isWindowCreated{false};
+
+    uint32_t _windowId{0};
+    uintptr_t _windowHandle{0};
+    NSWindow* _window{nullptr};
 };
 } // namespace cc

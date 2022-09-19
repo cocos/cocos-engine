@@ -28,7 +28,7 @@
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
-import { SceneAsset } from './assets/scene-asset';
+import { SceneAsset } from '../asset/assets/scene-asset';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event';
@@ -40,10 +40,10 @@ import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils/js';
 import { legacyCC } from './global-exports';
-import { errorID, error, assertID, warnID, debug } from './platform/debug';
+import { errorID, error, assertID, warnID } from './platform/debug';
 import { containerManager } from './memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
-import { deviceManager } from './gfx';
+import { deviceManager } from '../gfx';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -358,7 +358,6 @@ export class Director extends EventTarget {
                 scene.insertChild(node, index);
             } else {
                 node.hideFlags |= CCObject.Flags.DontSave;
-                // @ts-expect-error insert to new scene
                 node.parent = scene;
             }
         }

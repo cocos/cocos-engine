@@ -27,17 +27,17 @@
 import { TEST, EDITOR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
-import { Material } from '../core/assets/material';
-import { Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy, Swapchain, deviceManager } from '../core/gfx';
+import { Material } from '../asset/assets/material';
+import { Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy, Swapchain, deviceManager } from '../gfx';
 import { Layers } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
-import { Pass } from '../core/renderer';
+import { Pass } from '../render-scene';
 import { preTransforms } from '../core/math/mat4';
 import { Root } from '../core/root';
-import { PipelineRuntime } from '../core/pipeline/custom/pipeline';
+import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director, System, sys } from '../core';
 import { Settings, settings } from '../core/settings';
 

@@ -31,4 +31,90 @@
 // clang-format off
 #include "NativePipelineTypes.h"
 
+namespace cc {
+
+namespace render {
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
+: clearColors(alloc) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc)
+: renderPass(std::move(rhs.renderPass)),
+  framebuffer(std::move(rhs.framebuffer)),
+  clearColors(std::move(rhs.clearColors), alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
+: renderPass(rhs.renderPass),
+  framebuffer(rhs.framebuffer),
+  clearColors(rhs.clearColors, alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
+
+ScenePassQueue::ScenePassQueue(const allocator_type& alloc) noexcept
+: queue(alloc) {}
+
+RenderInstancePack::RenderInstancePack(const allocator_type& alloc) noexcept
+: instances(alloc) {}
+
+RenderInstancePack::RenderInstancePack(RenderInstancePack&& rhs, const allocator_type& alloc)
+: instances(std::move(rhs.instances), alloc) {}
+
+RenderBatch::RenderBatch(const allocator_type& alloc) noexcept
+: vertexBuffers(alloc),
+  vertexBufferData(alloc),
+  uniformBufferData(alloc) {}
+
+RenderBatch::RenderBatch(RenderBatch&& rhs, const allocator_type& alloc)
+: vertexBuffers(std::move(rhs.vertexBuffers), alloc),
+  vertexBufferData(std::move(rhs.vertexBufferData), alloc),
+  indexBuffer(rhs.indexBuffer),
+  indexBufferData(rhs.indexBufferData),
+  vertexBufferCount(rhs.vertexBufferCount),
+  mergeCount(rhs.mergeCount),
+  inputAssembler(rhs.inputAssembler),
+  uniformBufferData(std::move(rhs.uniformBufferData), alloc),
+  uniformBuffer(rhs.uniformBuffer),
+  descriptorSet(rhs.descriptorSet),
+  scenePass(rhs.scenePass),
+  shader(rhs.shader) {}
+
+RenderBatchPack::RenderBatchPack(const allocator_type& alloc) noexcept
+: batches(alloc),
+  bufferOffset(alloc) {}
+
+RenderBatchPack::RenderBatchPack(RenderBatchPack&& rhs, const allocator_type& alloc)
+: batches(std::move(rhs.batches), alloc),
+  bufferOffset(std::move(rhs.bufferOffset), alloc) {}
+
+NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
+: scenePassQueue(alloc),
+  batchingQueue(alloc),
+  instancingQueue(alloc),
+  instancePacks(alloc) {}
+
+NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
+: scenePassQueue(std::move(rhs.scenePassQueue), alloc),
+  batchingQueue(std::move(rhs.batchingQueue), alloc),
+  instancingQueue(std::move(rhs.instancingQueue), alloc),
+  instancePacks(std::move(rhs.instancePacks), alloc) {}
+
+DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
+: name(alloc) {}
+
+DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept
+: name(alloc) {}
+
+NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
+: renderPasses(alloc),
+  freeRenderQueues(alloc),
+  freeInstancePacks(alloc) {}
+
+} // namespace render
+
+} // namespace cc
+
 // clang-format on

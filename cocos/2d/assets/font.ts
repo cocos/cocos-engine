@@ -25,7 +25,7 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { Asset } from '../../core/assets';
+import { Asset } from '../../asset/assets';
 import { legacyCC } from '../../core/global-exports';
 
 /**

@@ -42,7 +42,7 @@ CCVKShader::~CCVKShader() {
 
 namespace {
 
-void initGpuShader(CCVKGPUShader* gpuShader) {
+void initGpuShader(CCVKGPUShader *gpuShader) {
     cmdFuncCCVKCreateShader(CCVKDevice::getInstance(), gpuShader);
 
     // Clear shader source after they're uploaded to GPU

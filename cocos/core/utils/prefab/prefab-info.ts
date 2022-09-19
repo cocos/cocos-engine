@@ -1,12 +1,12 @@
 import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import { Prefab } from '../../assets';
+import { Prefab } from '../../../asset/assets';
 import { CCObject } from '../../data';
 import { Component } from '../../components';
 import { Node } from '../../scene-graph';
 
-function compareStringArray(array1: string[] | undefined, array2: string[] | undefined) {
+function compareStringArray (array1: string[] | undefined, array2: string[] | undefined) {
     if (!array1 || !array2) {
         return false;
     }
@@ -63,7 +63,7 @@ export class PropertyOverrideInfo {
     public value: any;
 
     // eslint-disable-next-line consistent-return
-    public isTarget(localID: string[], propPath: string[]) {
+    public isTarget (localID: string[], propPath: string[]) {
         if (EDITOR) {
             return compareStringArray(this.targetInfo?.localID, localID)
                 && compareStringArray(this.propertyPath, propPath);
@@ -81,7 +81,7 @@ export class MountedChildrenInfo {
     public nodes: Node[] = [];
 
     // eslint-disable-next-line consistent-return
-    public isTarget(localID: string[]) {
+    public isTarget (localID: string[]) {
         if (EDITOR) {
             return compareStringArray(this.targetInfo?.localID, localID);
         }
@@ -98,7 +98,7 @@ export class MountedComponentsInfo {
     public components: Component[] = [];
 
     // eslint-disable-next-line consistent-return
-    public isTarget(localID: string[]) {
+    public isTarget (localID: string[]) {
         if (EDITOR) {
             return compareStringArray(this.targetInfo?.localID, localID);
         }
@@ -148,7 +148,7 @@ export class PrefabInstance {
     public expanded = false;
 
     // eslint-disable-next-line consistent-return
-    public findPropertyOverride(localID: string[], propPath: string[]) {
+    public findPropertyOverride (localID: string[], propPath: string[]) {
         if (EDITOR) {
             for (let i = 0; i < this.propertyOverrides.length; i++) {
                 const propertyOverride = this.propertyOverrides[i];
@@ -160,7 +160,7 @@ export class PrefabInstance {
         }
     }
 
-    public removePropertyOverride(localID: string[], propPath: string[]) {
+    public removePropertyOverride (localID: string[], propPath: string[]) {
         if (EDITOR) {
             for (let i = 0; i < this.propertyOverrides.length; i++) {
                 const propertyOverride = this.propertyOverrides[i];

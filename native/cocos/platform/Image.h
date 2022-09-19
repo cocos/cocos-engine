@@ -89,7 +89,6 @@ public:
      */
     bool saveToFile(const std::string &filename, bool isToRGB = true);
 
-
 protected:
     bool initWithJpgData(const unsigned char *data, uint32_t dataLen);
     bool initWithPngData(const unsigned char *data, uint32_t dataLen);
@@ -103,9 +102,9 @@ protected:
     bool initWithETC2Data(const unsigned char *data, uint32_t dataLen);
     bool initWithASTCData(const unsigned char *data, uint32_t dataLen);
 
-    bool saveImageToPNG(const std::string& filePath, bool isToRGB = true);
-    bool saveImageToJPG(const std::string& filePath);
-    
+    bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);
+    bool saveImageToJPG(const std::string &filePath);
+
     unsigned char *_data = nullptr;
     uint32_t _dataLen = 0;
     int _width = 0;

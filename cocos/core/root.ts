@@ -23,26 +23,25 @@
  THE SOFTWARE.
  */
 
-import { DEV, HTML5, TEST } from 'internal:constants';
 import { Pool } from './memop';
-import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
-import { DebugView } from './pipeline/debug-view';
-import { Camera, Light, Model } from './renderer/scene';
+import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from '../rendering';
+import { DebugView } from '../rendering/debug-view';
+import { Camera, Light, Model } from '../render-scene/scene';
 import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
-import { LightType } from './renderer/scene/light';
-import { IRenderSceneInfo, RenderScene } from './renderer/core/render-scene';
-import { DirectionalLight } from './renderer/scene/directional-light';
-import { SphereLight } from './renderer/scene/sphere-light';
-import { SpotLight } from './renderer/scene/spot-light';
+import { LightType } from '../render-scene/scene/light';
+import { IRenderSceneInfo, RenderScene } from '../render-scene/core/render-scene';
+import { DirectionalLight } from '../render-scene/scene/directional-light';
+import { SphereLight } from '../render-scene/scene/sphere-light';
+import { SpotLight } from '../render-scene/scene/spot-light';
 import { legacyCC } from './global-exports';
-import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
-import { warn, warnID } from './platform/debug';
-import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
+import { RenderWindow, IRenderWindowInfo } from '../render-scene/core/render-window';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from '../gfx';
+import { warnID } from './platform/debug';
+import { Pipeline, PipelineRuntime } from '../rendering/custom/pipeline';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { IPipelineEvent } from './pipeline/pipeline-event';
+import { IPipelineEvent } from '../rendering/pipeline-event';
 import { settings, Settings } from './settings';
-import { localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
+import { localDescriptorSetLayout_ResizeMaxJoints } from '../rendering/define';
 import { macro } from './platform/macro';
 
 /**

@@ -32,6 +32,7 @@
 #pragma once
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Light.h"
@@ -197,18 +198,27 @@ struct RasterView {
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
     RasterView(RasterView&& rhs) noexcept = default;
-    RasterView(RasterView const& rhs)     = delete;
+    RasterView(RasterView const& rhs) = delete;
     RasterView& operator=(RasterView&& rhs) = default;
     RasterView& operator=(RasterView const& rhs) = default;
 
     ccstd::pmr::string slotName;
-    AccessType         accessType{AccessType::WRITE};
-    AttachmentType     attachmentType{AttachmentType::RENDER_TARGET};
-    gfx::LoadOp        loadOp{gfx::LoadOp::LOAD};
-    gfx::StoreOp       storeOp{gfx::StoreOp::STORE};
-    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::ALL};
-    gfx::Color         clearColor;
+    AccessType accessType{AccessType::WRITE};
+    AttachmentType attachmentType{AttachmentType::RENDER_TARGET};
+    gfx::LoadOp loadOp{gfx::LoadOp::LOAD};
+    gfx::StoreOp storeOp{gfx::StoreOp::STORE};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
+    gfx::Color clearColor;
 };
+
+inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {
+    return std::forward_as_tuple(lhs.slotName, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags) ==
+           std::forward_as_tuple(rhs.slotName, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags);
+}
+
+inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 enum class ClearValueType {
     FLOAT_TYPE,
@@ -226,7 +236,7 @@ struct ComputeView {
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 
     ComputeView(ComputeView&& rhs) noexcept = default;
-    ComputeView(ComputeView const& rhs)     = delete;
+    ComputeView(ComputeView const& rhs) = delete;
     ComputeView& operator=(ComputeView&& rhs) = default;
     ComputeView& operator=(ComputeView const& rhs) = default;
 
@@ -238,11 +248,20 @@ struct ComputeView {
     }
 
     ccstd::pmr::string name;
-    AccessType         accessType{AccessType::READ};
-    gfx::ClearFlagBit  clearFlags{gfx::ClearFlagBit::NONE};
-    gfx::Color         clearColor;
-    ClearValueType     clearValueType{ClearValueType::FLOAT_TYPE};
+    AccessType accessType{AccessType::READ};
+    gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
+    gfx::Color clearColor;
+    ClearValueType clearValueType{ClearValueType::FLOAT_TYPE};
 };
+
+inline bool operator==(const ComputeView& lhs, const ComputeView& rhs) noexcept {
+    return std::forward_as_tuple(lhs.name, lhs.accessType, lhs.clearFlags, lhs.clearValueType) ==
+           std::forward_as_tuple(rhs.name, rhs.accessType, rhs.clearFlags, rhs.clearValueType);
+}
+
+inline bool operator!=(const ComputeView& lhs, const ComputeView& rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 struct LightInfo {
     LightInfo() = default;
@@ -251,11 +270,35 @@ struct LightInfo {
       level(levelIn) {}
 
     IntrusivePtr<scene::Light> light;
-    uint32_t                   level{0};
+    uint32_t level{0};
 };
 
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+inline hash_t hash<cc::render::RasterView>::operator()(const cc::render::RasterView& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.slotName);
+    hash_combine(seed, val.accessType);
+    hash_combine(seed, val.attachmentType);
+    hash_combine(seed, val.loadOp);
+    hash_combine(seed, val.storeOp);
+    hash_combine(seed, val.clearFlags);
+    return seed;
+}
+
+inline hash_t hash<cc::render::ComputeView>::operator()(const cc::render::ComputeView& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.name);
+    hash_combine(seed, val.accessType);
+    hash_combine(seed, val.clearFlags);
+    hash_combine(seed, val.clearValueType);
+    return seed;
+}
+
+} // namespace ccstd
 
 // clang-format on

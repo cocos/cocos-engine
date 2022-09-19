@@ -37,8 +37,8 @@
 #include "scene/Fog.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
-#include "scene/SpotLight.h"
 #include "scene/Skybox.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 

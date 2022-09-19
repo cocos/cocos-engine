@@ -24,7 +24,6 @@
     #include <sys/types.h>
 #endif
 
-
 /* A single gain expressed as minifloat */
 typedef uint16_t gain_minifloat_t;
 
@@ -75,6 +74,5 @@ gain_minifloat_t gain_from_float(float v);
 
 /* Convert the internal representation used for gains to float */
 float float_from_gain(gain_minifloat_t a);
-
 
 #endif // COCOS_AUDIO_MINIFLOAT_H

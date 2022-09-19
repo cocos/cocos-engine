@@ -359,7 +359,7 @@ static void dispatchHMDEventInternal(const xr::XRControllerEvent &xrControllerEv
 
 xr::XRVendor XRInterface::getVendor() {
 #if CC_USE_XR
-    return (xr::XRVendor) xr::XrEntry::getInstance()->getXRConfig(cc::xr::XRConfigKey::DEVICE_VENDOR).getInt();
+    return (xr::XRVendor)xr::XrEntry::getInstance()->getXRConfig(cc::xr::XRConfigKey::DEVICE_VENDOR).getInt();
 #endif
     return xr::XRVendor::MONADO;
 }
@@ -392,7 +392,7 @@ uint32_t XRInterface::getRuntimeVersion() {
 
 void XRInterface::initialize(void *javaVM, void *activity) {
 #if CC_USE_XR
-    CC_LOG_INFO("[XR] initialize vm.%p,aty.%p | %d", javaVM, activity,  (int)gettid());
+    CC_LOG_INFO("[XR] initialize vm.%p,aty.%p | %d", javaVM, activity, (int)gettid());
     xr::XrEntry::getInstance()->initPlatformData(javaVM, activity);
     xr::XrEntry::getInstance()->setGamepadCallback(&dispatchGamepadEventInternal);
     xr::XrEntry::getInstance()->setHandleCallback(&dispatchHandleEventInternal);
@@ -409,9 +409,9 @@ void XRInterface::initialize(void *javaVM, void *activity) {
     });
     #if XR_OEM_PICO
     std::string graphicsApiName = GraphicsApiOpenglES;
-#if CC_USE_VULKAN
+        #if CC_USE_VULKAN
     graphicsApiName = GraphicsApiVulkan_1_0;
-#endif
+        #endif
     xr::XrEntry::getInstance()->createXrInstance(graphicsApiName.c_str());
     #endif
 #else
@@ -558,26 +558,26 @@ const std::vector<cc::xr::XRSwapchain> &XRInterface::getXRSwapchains() {
 
 gfx::Format XRInterface::getXRSwapchainFormat() {
 #if CC_USE_XR
-     int swapchainFormat = xr::XrEntry::getInstance()->getXRConfig(xr::XRConfigKey::SWAPCHAIN_FORMAT).getInt();
-#if CC_USE_GLES3
-    if(swapchainFormat == GL_SRGB_ALPHA_EXT) {
+    int swapchainFormat = xr::XrEntry::getInstance()->getXRConfig(xr::XRConfigKey::SWAPCHAIN_FORMAT).getInt();
+    #if CC_USE_GLES3
+    if (swapchainFormat == GL_SRGB_ALPHA_EXT) {
         return gfx::Format::SRGB8_A8;
-    } else if(swapchainFormat == GL_RGBA8) {
+    } else if (swapchainFormat == GL_RGBA8) {
         return gfx::Format::RGBA8;
-    } else if(swapchainFormat == GL_BGRA8_EXT) {
+    } else if (swapchainFormat == GL_BGRA8_EXT) {
         return gfx::Format::BGRA8;
     }
-#endif
+    #endif
 
-#if CC_USE_VULKAN
-    if(swapchainFormat == VK_FORMAT_R8G8B8A8_SRGB) {
+    #if CC_USE_VULKAN
+    if (swapchainFormat == VK_FORMAT_R8G8B8A8_SRGB) {
         return gfx::Format::SRGB8_A8;
-    } else if(swapchainFormat == VK_FORMAT_R8G8B8A8_UNORM) {
+    } else if (swapchainFormat == VK_FORMAT_R8G8B8A8_UNORM) {
         return gfx::Format::RGBA8;
-    } else if(swapchainFormat == VK_FORMAT_B8G8R8A8_UNORM) {
+    } else if (swapchainFormat == VK_FORMAT_B8G8R8A8_UNORM) {
         return gfx::Format::BGRA8;
     }
-#endif
+    #endif
 #endif
     return gfx::Format::BGRA8;
 }
@@ -598,11 +598,11 @@ void XRInterface::updateXRSwapchainTypedID(uint32_t typedID) {
 // vulkan
 #ifdef CC_USE_VULKAN
 uint32_t XRInterface::getXRVkApiVersion(uint32_t engineVkApiVersion) {
-#if CC_USE_XR
+    #if CC_USE_XR
     return xr::XrEntry::getInstance()->getXrVkApiVersion(engineVkApiVersion);
-#else
+    #else
     return engineVkApiVersion;
-#endif
+    #endif
 }
 
 void XRInterface::initializeVulkanData(const PFN_vkGetInstanceProcAddr &addr) {
@@ -610,22 +610,22 @@ void XRInterface::initializeVulkanData(const PFN_vkGetInstanceProcAddr &addr) {
 }
 
 VkInstance XRInterface::createXRVulkanInstance(const VkInstanceCreateInfo &instInfo) {
-#if CC_USE_XR
+    #if CC_USE_XR
     _vkInstance = xr::XrEntry::getInstance()->xrVkCreateInstance(instInfo, _vkGetInstanceProcAddr);
     _vkPhysicalDevice = xr::XrEntry::getInstance()->getXrVkGraphicsDevice(_vkInstance);
     return _vkInstance;
-#else
+    #else
     CC_UNUSED_PARAM(instInfo);
     return nullptr;
-#endif
+    #endif
 }
 
 VkDevice XRInterface::createXRVulkanDevice(const VkDeviceCreateInfo *deviceInfo) {
-#if CC_USE_XR
+    #if CC_USE_XR
     VK_CHECK(xr::XrEntry::getInstance()->xrVkCreateDevice(deviceInfo, _vkGetInstanceProcAddr, _vkPhysicalDevice, &_vkDevice));
-#else
+    #else
     CC_UNUSED_PARAM(deviceInfo);
-#endif
+    #endif
     return _vkDevice;
 }
 
@@ -634,12 +634,12 @@ VkPhysicalDevice XRInterface::getXRVulkanGraphicsDevice() {
 }
 
 void XRInterface::getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_t eye) {
-#if CC_USE_XR
+    #if CC_USE_XR
     xr::XrEntry::getInstance()->getSwapchainImages(vkImages, eye);
-#else
+    #else
     CC_UNUSED_PARAM(vkImages);
     CC_UNUSED_PARAM(eye);
-#endif
+    #endif
 }
 #endif
 // vulkan
@@ -647,33 +647,33 @@ void XRInterface::getXRSwapchainVkImages(std::vector<VkImage> &vkImages, uint32_
 // gles
 #ifdef CC_USE_GLES3
 void XRInterface::initializeGLESData(PFNGLES3WLOADPROC gles3wLoadFuncProc, gfx::GLES3GPUContext *gpuContext) {
-#if CC_USE_XR
+    #if CC_USE_XR
     _gles3wLoadFuncProc = gles3wLoadFuncProc;
     _gles3GPUContext = gpuContext;
     void *eglDisplay = gpuContext->eglDisplay;
     void *eglConfig = gpuContext->eglConfig;
     void *eglDefaultContext = gpuContext->eglDefaultContext;
     CC_LOG_INFO("[XR] initializeGLESData.egl.%p/%p/%p", eglDisplay, eglConfig, eglDefaultContext);
-#else
+    #else
     CC_UNUSED_PARAM(gles3wLoadFuncProc);
     CC_UNUSED_PARAM(gpuContext);
-#endif
+    #endif
 }
 
 void XRInterface::attachGLESFramebufferTexture2D() {
-#if CC_USE_XR
+    #if CC_USE_XR
     xr::XrEntry::getInstance()->attachXrFramebufferTexture2D();
-#endif
+    #endif
 }
 
 EGLSurfaceType XRInterface::acquireEGLSurfaceType(uint32_t typedID) {
-#if CC_USE_XR
+    #if CC_USE_XR
     if (_eglSurfaceTypeMap.count(typedID) > 0) {
         return _eglSurfaceTypeMap[typedID];
     }
-#else
+    #else
     CC_UNUSED_PARAM(typedID);
-#endif
+    #endif
     return EGLSurfaceType::WINDOW;
 }
 #endif

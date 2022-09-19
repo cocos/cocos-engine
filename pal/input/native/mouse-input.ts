@@ -5,20 +5,25 @@ import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
+declare const jsb: any;
+
 export class MouseInputSource {
     private _eventTarget: EventTarget = new EventTarget();
     private _preMousePos: Vec2 = new Vec2();
     private _isPressed = false;
+    private _windowManager: any;
 
     constructor () {
         this._registerEvent();
+        this._windowManager = jsb.ISystemWindowManager.getInstance();
     }
 
     private _getLocation (event: jsb.MouseEvent): Vec2 {
-        const windowSize = screenAdapter.windowSize;
+        const window = this._windowManager.getWindow(event.windowId);
+        const windowSize = window.getViewSize();
         const dpr = screenAdapter.devicePixelRatio;
         const x = event.x * dpr;
-        const y = windowSize.height - event.y * dpr;
+        const y = windowSize.y - event.y * dpr;
         return new Vec2(x, y);
     }
 
@@ -54,6 +59,7 @@ export class MouseInputSource {
             eventMouse.setButton(button);
             eventMouse.movementX = location.x - this._preMousePos.x;
             eventMouse.movementY = this._preMousePos.y - location.y;
+            eventMouse.windowId = mouseEvent.windowId;
 
             // update previous mouse position.
             this._preMousePos.set(location.x, location.y);

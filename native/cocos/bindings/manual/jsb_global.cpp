@@ -661,13 +661,13 @@ static bool js_loadImage(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(js_loadImage)
 //pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
-static bool js_saveImageData(se::State& s) { // NOLINT
-    const auto& args = s.args();
+static bool js_saveImageData(se::State &s) { // NOLINT
+    const auto &args = s.args();
     size_t argc = args.size();
-    bool ok = true;// NOLINT(readability-identifier-length)
+    bool ok = true; // NOLINT(readability-identifier-length)
     if (argc == 4 || argc == 5) {
         auto *uint8ArrayObj = args[0].toObject();
-        uint8_t *uint8ArrayData {nullptr};
+        uint8_t *uint8ArrayData{nullptr};
         size_t length = 0;
         uint8ArrayObj->root();
         uint8ArrayObj->incRef();
@@ -682,7 +682,7 @@ static bool js_saveImageData(se::State& s) { // NOLINT
         SE_PRECONDITION2(ok, false, "js_saveImageData : Error processing arguments");
 
         se::Value callbackVal = argc == 5 ? args[4] : se::Value::Null;
-        se::Object *callbackObj {nullptr};
+        se::Object *callbackObj{nullptr};
         if (!callbackVal.isNull()) {
             CC_ASSERT(callbackVal.isObject());
             CC_ASSERT(callbackVal.toObject()->isFunction());
@@ -696,7 +696,7 @@ static bool js_saveImageData(se::State& s) { // NOLINT
             auto *img = ccnew Image();
             // A conversion from size_t to uint32_t might lose integer precision
             img->initWithRawData(uint8ArrayData, static_cast<uint32_t>(length), width, height, 32 /*Unused*/);
-            bool isSuccess = img->saveToFile(filePath, false/*isToRGB*/);
+            bool isSuccess = img->saveToFile(filePath, false /*isToRGB*/);
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;

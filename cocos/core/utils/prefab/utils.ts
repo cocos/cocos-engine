@@ -29,7 +29,6 @@ import { legacyCC } from '../../global-exports';
 import type { Node } from '../../scene-graph/node';
 import { errorID, warn } from '../../platform/debug';
 import { Component } from '../../components';
-import type { BaseNode } from '../../scene-graph/base-node';
 import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
 import { MountedComponentsInfo, TargetInfo } from '.';
 import { editorExtrasTag } from '../../data';
@@ -330,7 +329,7 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
     }
 }
 
-export function applyTargetOverrides (node: BaseNode) {
+export function applyTargetOverrides (node: Node) {
     // @ts-expect-error private member access
     const targetOverrides = node._prefab?.targetOverrides;
     if (targetOverrides) {
@@ -429,7 +428,7 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
     }
 }
 
-export function expandNestedPrefabInstanceNode (node: BaseNode) {
+export function expandNestedPrefabInstanceNode (node: Node) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
 

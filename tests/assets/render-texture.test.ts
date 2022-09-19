@@ -1,6 +1,6 @@
-import { Filter, WrapMode } from '../../cocos/core/assets/asset-enum';
-import { RenderTexture } from '../../cocos/core/assets/render-texture';
-import { Address, SamplerInfo, Filter as GFXFilter } from '../../cocos/core/gfx/base/define';
+import { Filter, WrapMode } from '../../cocos/asset/assets/asset-enum';
+import { RenderTexture } from '../../cocos/asset/assets/render-texture';
+import { Address, SamplerInfo, Filter as GFXFilter } from '../../cocos/gfx/base/define';
 
 describe('render-texture', () => {
     test('sampler', () => {

@@ -25,23 +25,23 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
-import { RenderTexture } from '../assets/render-texture';
+import { RenderTexture } from '../../asset/assets/render-texture';
 import { UITransform } from '../../2d/framework';
 import { Component } from './component';
 import { Ray } from '../geometry';
 import { Color, Rect, toRadian, Vec3 } from '../math';
-import { CAMERA_DEFAULT_MASK } from '../pipeline/define';
-import { scene } from '../renderer';
+import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
+import { scene } from '../../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
-    CameraType, TrackingType } from '../renderer/scene/camera';
+    CameraType, TrackingType } from '../../render-scene/scene/camera';
 import { Root } from '../root';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
-import { ccenum, Enum } from '../value-types';
+import { Enum } from '../value-types';
 import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../global-exports';
-import { RenderWindow } from '../renderer/core/render-window';
-import { ClearFlagBit } from '../gfx';
+import { RenderWindow } from '../../render-scene/core/render-window';
+import { ClearFlagBit } from '../../gfx';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -522,7 +522,7 @@ export class Camera extends Component {
     }
 
     public onLoad () {
-         this._createCamera();
+        this._createCamera();
     }
 
     public onEnable () {

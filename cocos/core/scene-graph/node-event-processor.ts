@@ -26,15 +26,14 @@
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { Event, EventMouse, EventTouch, Touch } from '../../input/types';
 import { Vec2 } from '../math/vec2';
-import { BaseNode } from './base-node';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { NodeEventType } from './node-event';
 import { InputEventType, SystemEventTypeUnion } from '../../input/types/event-enum';
 
-const _cachedArray = new Array<BaseNode>(16);
-let _currentHovered: BaseNode | null = null;
+const _cachedArray = new Array<Node>(16);
+let _currentHovered: Node | null = null;
 const pos = new Vec2();
 
 const _touchEvents = [
@@ -253,7 +252,7 @@ export class NodeEventProcessor {
 
     public dispatchEvent (event: Event) {
         const owner = this.node;
-        let target: BaseNode;
+        let target: Node;
         let i = 0;
         event.target = owner;
 
@@ -330,7 +329,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getCapturingTargets (type: string, targets: BaseNode[]) {
+    public getCapturingTargets (type: string, targets: Node[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.capturingTarget?.hasEventListener(type)) {
@@ -349,7 +348,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getBubblingTargets (type: string, targets: BaseNode[]) {
+    public getBubblingTargets (type: string, targets: Node[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.bubblingTarget?.hasEventListener(type)) {
@@ -488,7 +487,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.MOUSE_DOWN;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -506,7 +505,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        const hit = node._uiProps.uiTransformComp.hitTest(pos);
+        const hit = node._uiProps.uiTransformComp.hitTest(pos, event.windowId);
         if (hit) {
             if (!this.previousMouseIn) {
                 // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -542,7 +541,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.MOUSE_UP;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -560,7 +559,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.MOUSE_WHEEL;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -597,7 +596,7 @@ export class NodeEventProcessor {
 
         event.getLocation(pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.TOUCH_START;
             event.bubbles = true;
             this._dispatchingTouch = event.touch;
@@ -628,8 +627,9 @@ export class NodeEventProcessor {
         }
 
         event.getLocation(pos);
+        //console.log('pos: ' + pos);
 
-        if (node._uiProps.uiTransformComp.hitTest(pos)) {
+        if (node._uiProps.uiTransformComp.hitTest(pos, event.windowId)) {
             event.type = NodeEventType.TOUCH_END;
         } else {
             event.type = NodeEventType.TOUCH_CANCEL;

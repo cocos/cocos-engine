@@ -28,7 +28,7 @@ import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@coco
 import { director, Game, game, ISchedulable, Node, Scheduler, System } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureAtlasData } from './CCTextureData';
-import { TextureBase } from '../core/assets/texture-base';
+import { TextureBase } from '../asset/assets/texture-base';
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
