@@ -92,7 +92,6 @@ public:
     inline CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
     inline CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
     inline CCVKGPUBarrierManager *gpuBarrierManager() { return _gpuBarrierManager; }
-    inline CCVKGPUFramebufferHub *gpuFramebufferHub() { return _gpuFramebufferHub; }
     inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
 
     CCVKGPUFencePool *gpuFencePool();
@@ -149,7 +148,6 @@ protected:
     CCVKGPUDescriptorHub *_gpuDescriptorHub{nullptr};
     CCVKGPUSemaphorePool *_gpuSemaphorePool{nullptr};
     CCVKGPUBarrierManager *_gpuBarrierManager{nullptr};
-    CCVKGPUFramebufferHub *_gpuFramebufferHub{nullptr};
     CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub{nullptr};
 
     ccstd::vector<const char *> _layers;

@@ -404,7 +404,6 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuDescriptorHub = ccnew CCVKGPUDescriptorHub(_gpuDevice);
     _gpuSemaphorePool = ccnew CCVKGPUSemaphorePool(_gpuDevice);
     _gpuBarrierManager = ccnew CCVKGPUBarrierManager(_gpuDevice);
-    _gpuFramebufferHub = ccnew CCVKGPUFramebufferHub;
     _gpuDescriptorSetHub = ccnew CCVKGPUDescriptorSetHub(_gpuDevice);
 
     _gpuDescriptorHub->link(_gpuDescriptorSetHub);
@@ -512,7 +511,6 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuSemaphorePool)
     CC_SAFE_DELETE(_gpuDescriptorHub)
     CC_SAFE_DELETE(_gpuBarrierManager)
-    CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
     if (_gpuDevice) {

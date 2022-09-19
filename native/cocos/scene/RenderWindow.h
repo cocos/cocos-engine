@@ -65,6 +65,9 @@ public:
 
     void extractRenderCameras(ccstd::vector<Camera *> &cameras);
 
+    void onNativeWindowDestroy(uint32_t windowId);
+    void onNativeWindowResume(uint32_t windowId);
+
     /**
      * @zh
      * 添加渲染相机
@@ -118,6 +121,8 @@ public:
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
 private:
+    void updateFramebuffer();
+
     uint32_t _width{1};
     uint32_t _height{1};
     gfx::Swapchain *_swapchain{nullptr};

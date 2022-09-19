@@ -24,6 +24,9 @@
  ****************************************************************************/
 
 #include "scene/RenderWindow.h"
+#include "BasePlatform.h"
+#include "interfaces/modules/ISystemWindowManager.h"
+#include "interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/Device.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXFramebuffer.h"
@@ -120,14 +123,7 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
         _height = height;
     }
 
-    if (_frameBuffer != nullptr) {
-        _frameBuffer->destroy();
-        _frameBuffer->initialize({
-            _renderPass,
-            _colorTextures.get(),
-            _depthStencilTexture,
-        });
-    }
+    updateFramebuffer();
 
     for (Camera *camera : _cameras) {
         camera->resize(width, height);
@@ -140,6 +136,34 @@ void RenderWindow::extractRenderCameras(ccstd::vector<Camera *> &cameras) {
             camera->update();
             cameras.emplace_back(camera);
         }
+    }
+}
+
+void RenderWindow::onNativeWindowDestroy(uint32_t windowId) {
+    if (_swapchain != nullptr && _swapchain->getWindowId() == windowId) {
+        _swapchain->destroySurface();
+    }
+}
+
+void RenderWindow::onNativeWindowResume(uint32_t windowId) {
+    auto *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
+    auto *hWnd = reinterpret_cast<void *>(windowMgr->getWindow(windowId)->getWindowHandle());
+
+    if (_swapchain == nullptr || _swapchain->getWindowId() != 0) {
+        return;
+    }
+    _swapchain->createSurface(hWnd);
+    updateFramebuffer();
+}
+
+void RenderWindow::updateFramebuffer() {
+    if (_frameBuffer != nullptr) {
+        _frameBuffer->destroy();
+        _frameBuffer->initialize({
+            _renderPass,
+            _colorTextures.get(),
+            _depthStencilTexture,
+        });
     }
 }
 
