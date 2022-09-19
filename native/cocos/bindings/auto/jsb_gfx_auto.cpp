@@ -21431,6 +21431,35 @@ static bool js_delete_cc_gfx_GFXObject(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_GFXObject) 
 
+static bool js_cc_gfx_GFXObject_getObjectID_static(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::GFXObject *arg1 = (cc::gfx::GFXObject *) NULL ;
+    uint32_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "GFXObject_getObjectID,1,SWIGTYPE_p_cc__gfx__GFXObject"); 
+    result = cc::gfx::GFXObject::getObjectID((cc::gfx::GFXObject const *)arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "GFXObject_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_GFXObject_getObjectID_static) 
+
 static bool js_cc_gfx_GFXObject_objectType_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -21498,6 +21527,7 @@ bool js_register_cc_gfx_GFXObject(se::Object* obj) {
     
     
     
+    cls->defineStaticFunction("getObjectID", _SE(js_cc_gfx_GFXObject_getObjectID_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_GFXObject));
