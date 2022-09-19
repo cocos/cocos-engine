@@ -265,26 +265,20 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
     auto* meshBuffer = drawInfo->getMeshBuffer();
 
     // check for merge draw
-    //MaterialInstance
     auto enableBatch = !entity->getUseLocal();
-    if (enableBatch) {
-        if (_currTexture == texture && _currMeshBuffer == meshBuffer
-            && material->getHash() == _currMaterial->getHash()
-            && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount()
-            && layer == _currLayer && _currEntity->getUseLocal() == false) {
-            auto ibCount = _currDrawInfo->getIbCount();
-            _currDrawInfo->setIbCount(ibCount + drawInfo->getIbCount());
-        } else {
-            generateBatch(_currEntity, _currDrawInfo);
-            _currLayer = layer;
-            _currMaterial = material;
-            _currTexture = texture;
-            _currMeshBuffer = meshBuffer;
-            _currEntity = entity;
-            _currDrawInfo = drawInfo;
-        }
+    if (enableBatch && _currTexture == texture && _currMeshBuffer == meshBuffer
+        && _currEntity->getUseLocal() == false
+        && material->getHash() == _currMaterial->getHash()
+        && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount()
+        && layer == _currLayer) {
+        auto ibCount = _currDrawInfo->getIbCount();
+        _currDrawInfo->setIbCount(ibCount + drawInfo->getIbCount());
     } else {
         generateBatch(_currEntity, _currDrawInfo);
+        _currLayer = layer;
+        _currMaterial = material;
+        _currTexture = texture;
+        _currMeshBuffer = meshBuffer;
         _currEntity = entity;
         _currDrawInfo = drawInfo;
     }
@@ -324,7 +318,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
         return;
     }
     if (drawInfo->getEnumDrawInfoType() == RenderDrawInfoType::MIDDLEWARE) {
-        generateBatchForIA(entity, drawInfo);
+        generateBatchForMiddleware(entity, drawInfo);
         return;
     }
     if (_currMaterial == nullptr) {
@@ -375,7 +369,7 @@ void Batcher2d::generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     _batches.push_back(curdrawBatch);
 }
 
-void Batcher2d::generateBatchForIA(RenderEntity* entity, RenderDrawInfo* drawInfo) {
+void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo* drawInfo) {
     auto layer = entity->getNode()->getLayer();
     auto* material = drawInfo->getMaterial();
     auto* texture = drawInfo->getTexture();
@@ -400,7 +394,7 @@ void Batcher2d::generateBatchForIA(RenderEntity* entity, RenderDrawInfo* drawInf
     ccstd::hash_t dssHash = _stencilManager->getStencilHash(stencilStage);
 
     auto* curdrawBatch = _drawBatchPool.alloc();
-    curdrawBatch->setVisFlags(layer);
+    curdrawBatch->setVisFlags(_currLayer);
     curdrawBatch->setInputAssembler(ia);
     curdrawBatch->fillPass(material, depthStencil, dssHash);
     const auto& pass = curdrawBatch->getPasses().at(0);
@@ -413,6 +407,7 @@ void Batcher2d::generateBatchForIA(RenderEntity* entity, RenderDrawInfo* drawInf
     _batches.push_back(curdrawBatch);
     // make sure next generateBatch return.
     resetRenderStates();
+    _currMeshBuffer = nullptr;
 }
 
 void Batcher2d::resetRenderStates() {

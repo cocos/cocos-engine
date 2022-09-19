@@ -78,6 +78,13 @@ SkeletonCacheAnimation::~SkeletonCacheAnimation() {
         _animationQueue.pop();
         delete ani;
     }
+    for (auto* draw : _drawInfoArray) {
+        CC_SAFE_DELETE(draw);
+    }
+
+    for (auto& item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
     stopSchedule();
 }
 

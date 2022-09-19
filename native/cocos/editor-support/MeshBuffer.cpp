@@ -146,6 +146,7 @@ void MeshBuffer::addUIMeshBuffer() {
 
 void MeshBuffer::cleanUIMeshBuffer() {
     for(auto *buf : _uiMeshBufferArr) {
+        buf->freeLayout();
         delete buf;
     }
     _uiMeshBufferArr.clear();

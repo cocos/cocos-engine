@@ -155,6 +155,14 @@ SkeletonRenderer::~SkeletonRenderer() {
         _sharedBufferOffset = nullptr;
     }
 
+    for (auto* draw : _drawInfoArray) {
+        CC_SAFE_DELETE(draw);
+    }
+
+    for (auto& item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
+
     stopSchedule();
 }
 

@@ -454,7 +454,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._sharedBufferOffset[0] = 0;
         this._useAttach = false;
 
-    this._nativeDisplay.setOpacityModifyRGB(this.premultipliedAlpha);
+        this._nativeDisplay.setOpacityModifyRGB(this.premultipliedAlpha);
 
         const compColor = this.color;
         this._nativeDisplay.setColor(compColor.r, compColor.g, compColor.b, compColor.a);

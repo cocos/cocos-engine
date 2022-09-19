@@ -72,7 +72,7 @@ public:
     void handleMiddlewareDraw(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
-    void generateBatchForIA(RenderEntity* entity, RenderDrawInfo* drawInfo);
+    void generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 
 private:

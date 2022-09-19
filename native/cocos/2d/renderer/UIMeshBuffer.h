@@ -56,6 +56,7 @@ public:
     void resetIA();
     void recycleIA(gfx::InputAssembler* ia);
     void parseLayout();
+    void freeLayout();
 
     gfx::InputAssembler* requireFreeIA(gfx::Device* device);
     gfx::InputAssembler* createNewIA(gfx::Device* device);

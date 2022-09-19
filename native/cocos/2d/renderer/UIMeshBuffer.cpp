@@ -172,6 +172,11 @@ void UIMeshBuffer::parseLayout() {
     _meshBufferLayout = reinterpret_cast<MeshBufferLayout*>(_sharedBuffer);
 }
 
+// only initialize needCreateLayout = true call it
+void UIMeshBuffer::freeLayout() {
+    CC_SAFE_DELETE(_meshBufferLayout);
+}
+
 void UIMeshBuffer::setByteOffset(uint32_t byteOffset) {
     _meshBufferLayout->byteOffset = byteOffset;
 }
