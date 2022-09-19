@@ -267,7 +267,7 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
     // check for merge draw
     auto enableBatch = !entity->getUseLocal();
     if (enableBatch && _currTexture == texture && _currMeshBuffer == meshBuffer
-        && _currEntity->getUseLocal() == false
+        && !_currEntity->getUseLocal()
         && material->getHash() == _currMaterial->getHash()
         && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount()
         && layer == _currLayer) {
