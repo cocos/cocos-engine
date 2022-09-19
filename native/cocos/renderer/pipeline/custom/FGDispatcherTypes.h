@@ -227,9 +227,9 @@ struct ResourceAccessGraph {
     // Members
     ccstd::pmr::vector<ccstd::pmr::string> resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
-    RenderGraph::vertex_descriptor presentPassID{0xFFFFFFFF};
-    ccstd::pmr::vector<RenderGraph::vertex_descriptor> externalPasses;
-    PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
+    RenderGraph::vertex_descriptor                      presentPassID{0xFFFFFFFF};
+    std::map<RenderGraph::vertex_descriptor, std::pair<bool,bool>>    leafPasses;
+    PmrFlatMap<uint32_t, ResourceTransition>            accessRecord;
 };
 
 struct EmptyGraph {
