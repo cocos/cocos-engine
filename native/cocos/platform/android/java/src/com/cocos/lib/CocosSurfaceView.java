@@ -34,17 +34,19 @@ import android.view.SurfaceView;
 public class CocosSurfaceView extends SurfaceView implements android.view.SurfaceHolder.Callback2 {
     private CocosTouchHandler mTouchHandler;
     private long mNativeHandle;
+    private int mWindowId;
 
-    public CocosSurfaceView(Context context) {
+    public CocosSurfaceView(Context context, int windowId) {
         super(context);
-        mNativeHandle = constructNative();
-        mTouchHandler = new CocosTouchHandler(mNativeHandle);
+        mWindowId = windowId;
+        mNativeHandle = constructNative(windowId);
+        mTouchHandler = new CocosTouchHandler(mWindowId);
         getHolder().addCallback(this);
     }
 
-    private native long constructNative();
+    private native long constructNative(int windowId);
     private native void destructNative(long handle);
-    private native void onSizeChangedNative(long handle, int width, final int height);
+    private native void onSizeChangedNative(int windowId, int width, final int height);
     private native void onSurfaceRedrawNeededNative(long handle);
     private native void onSurfaceCreatedNative(long handle, Surface surface);
     private native void onSurfaceChangedNative(long handle, Surface surface, int format, int width, int height);
@@ -57,7 +59,7 @@ public class CocosSurfaceView extends SurfaceView implements android.view.Surfac
         CocosHelper.runOnGameThreadAtForeground(new Runnable() {
             @Override
             public void run() {
-                onSizeChangedNative(mNativeHandle, w, h);
+                onSizeChangedNative(mWindowId, w, h);
             }
         });
     }
