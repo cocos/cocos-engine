@@ -75,13 +75,13 @@ private:
     std::condition_variable _eosCondition;
 
     /* Structure for passing information to callback function */
-    typedef struct CallbackCntxt_ {
+    typedef struct CallbackCntxt_ { //NOLINT(modernize-use-using, readability-identifier-naming)
         SLPlayItf playItf;
         SLMetadataExtractionItf metaItf;
         SLuint32 size;
         SLint8 *pDataBase; // Base address of local audio data storage
         SLint8 *pData;     // Current address of local audio data storage
-    } CallbackCntxt; //NOLINT(modernize-use-using, readability-identifier-naming)
+    } CallbackCntxt;
 
     CallbackCntxt _decContext;
     int _bufferSizeInFrames;

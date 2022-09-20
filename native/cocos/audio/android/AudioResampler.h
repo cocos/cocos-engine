@@ -155,7 +155,7 @@ protected:
         return (static_cast<size_t>(outFrameCount) * mInSampleRate + (mSampleRate - 1)) / mSampleRate;
     }
 
-    inline float clampFloatVol(float volume) {//NOLINT(readability-identifier-naming, readability-convert-member-functions-to-stati)
+    inline float clampFloatVol(float volume) {//NOLINT(readability-identifier-naming, readability-convert-member-functions-to-static)
         float ret = 0.0F;
         if (volume > UNITY_GAIN_FLOAT) {
             ret = UNITY_GAIN_FLOAT;
