@@ -60,6 +60,7 @@ export function launchEngine (): Promise<void> {
         window.global = window;
         const systemReady = require('./jsb-adapter/sys-ability-polyfill.js');
         systemReady().then(() => {
+            // @ts-ignore
             window.oh.loadModule = loadModule;
             try {
                 require("./jsb-adapter/web-adapter.js");
