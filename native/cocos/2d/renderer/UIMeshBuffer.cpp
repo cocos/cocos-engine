@@ -55,6 +55,7 @@ void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute> &&attrs, bool needCr
     if (needCreateLayout) {
         _meshBufferLayout = new MeshBufferLayout();
     }
+    _needDeleteLayout = needCreateLayout;
 }
 
 void UIMeshBuffer::reset() {
@@ -90,6 +91,9 @@ void UIMeshBuffer::destroy() {
         delete ia;
     }
     _iaPool.clear();
+    if (_needDeleteLayout) {
+        CC_SAFE_DELETE(_meshBufferLayout);
+    }
 }
 
 void UIMeshBuffer::setDirty() {
@@ -170,11 +174,6 @@ void UIMeshBuffer::syncSharedBufferToNative(uint32_t* buffer) {
 
 void UIMeshBuffer::parseLayout() {
     _meshBufferLayout = reinterpret_cast<MeshBufferLayout*>(_sharedBuffer);
-}
-
-// only initialize needCreateLayout = true call it
-void UIMeshBuffer::freeLayout() {
-    CC_SAFE_DELETE(_meshBufferLayout);
 }
 
 void UIMeshBuffer::setByteOffset(uint32_t byteOffset) {
