@@ -788,10 +788,6 @@ export class Game extends EventTarget {
             .then(() => this._setupRenderPipeline())
             .then(() => this._loadPreloadAssets())
             .then(() => {
-                // TODO: Image can't load with base64 data on Taobao platform.
-                if (TAOBAO) {
-                    return Promise.resolve();
-                }
                 builtinResMgr.compileBuiltinMaterial();
                 return SplashScreen.instance.init();
             })
@@ -911,8 +907,7 @@ export class Game extends EventTarget {
 
     private _updateCallback () {
         if (!this._inited) return;
-        // TODO: SplashScreen not working on Taobao platform.
-        if (!TAOBAO && !SplashScreen.instance.isFinished) {
+        if (!SplashScreen.instance.isFinished) {
             SplashScreen.instance.update(this._calculateDT());
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
