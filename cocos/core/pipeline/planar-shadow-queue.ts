@@ -26,7 +26,6 @@
 import { AABB, intersect } from '../geometry';
 import { SetIndex } from './define';
 import { CommandBuffer, Device, RenderPass } from '../gfx';
-import { InstancedBuffer } from './instanced-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Model, Camera, SubModel } from '../renderer/scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -34,7 +33,6 @@ import { ShadowType } from '../renderer/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 import { BatchingSchemes } from '../renderer/core/pass';
-import { RenderBatchedQueue } from './render-batched-queue';
 
 const _ab = new AABB();
 
@@ -42,7 +40,6 @@ export class PlanarShadowQueue {
     private _pendingSubModels: SubModel[] = [];
     private _castModels:Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
-    private _batchedQueue: RenderBatchedQueue = new RenderBatchedQueue();
     private _pipeline: PipelineRuntime;
 
     constructor (pipeline: PipelineRuntime) {
@@ -53,7 +50,6 @@ export class PlanarShadowQueue {
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadows = pipelineSceneData.shadows;
         this._instancedQueue.clear();
-        this._batchedQueue.clear();
         this._pendingSubModels.length = 0;
         this._castModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar || shadows.normal.length() < 0.000001) { return; }
@@ -86,13 +82,8 @@ export class PlanarShadowQueue {
                     const pass = passes[k];
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                        const buffer = pass.getInstancedBuffer();
-                        buffer.merge(subModel, model.getInstancedAttributeBlock(subModel), k);
-                        this._instancedQueue.queue.add(buffer);
-                    } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                        const buffer = pass.getBatchedBuffer();
-                        buffer.merge(subModel, k, model);
-                        this._batchedQueue.queue.add(buffer);
+                        instancedBuffer.merge(subModel, model.getInstancedAttributeBlock(subModel), k, subModel.planarShader);
+                        this._instancedQueue.queue.add(instancedBuffer);
                     } else {
                         this._pendingSubModels.push(subModel);
                     }
@@ -100,7 +91,6 @@ export class PlanarShadowQueue {
             }
         }
         this._instancedQueue.uploadBuffers(cmdBuff);
-        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {

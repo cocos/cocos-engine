@@ -221,7 +221,7 @@ void RenderAdditiveLightQueue::addRenderQueue(const scene::SubModel *subModel, c
     const auto lightCount = _lightIndices.size();
     if (batchingScheme == scene::BatchingSchemes::INSTANCING) { // instancing
         auto *buffer = pass->getInstancedBuffer();
-        buffer->merge(model, subModel, lightPassIdx);
+        buffer->merge(subModel, const_cast<scene::Model *>(model)->getInstancedAttributeBlock(subModel), lightPassIdx);
         buffer->setDynamicOffset(0, _lightBufferStride);
         _instancedQueue->add(buffer);
     } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) { // vb-merging

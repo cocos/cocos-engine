@@ -88,15 +88,21 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
             continue;
         }
 
-        if (!model->getInstanceAttributes().empty()) {
-            int i = 0;
-            for (const auto &subModel : model->getSubModels()) {
-                instancedBuffer->merge(model, subModel, i, subModel->getPlanarInstanceShader());
-                _instancedQueue->add(instancedBuffer);
-                ++i;
+        const auto &subModels = model->getSubModels();
+        const auto subModelCount = subModels.size();
+        for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+            const auto &subModel = subModels[subModelIdx];
+            const auto &subModelPasses = subModel->getPasses();
+            for (index_t i = 0; i < static_cast<index_t>(subModelPasses.size()); ++i) {
+                const auto subModelPass = subModelPasses[i];
+                const auto batchingScheme = subModelPass->getBatchingScheme();
+                if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
+                    instancedBuffer->merge(subModel, const_cast<scene::Model *>(model)->getInstancedAttributeBlock(subModel), i, subModel->getPlanarInstanceShader());
+                    _instancedQueue->add(instancedBuffer);
+                } else { // standard draw
+                    _pendingModels.emplace_back(subModel);
+                }
             }
-        } else {
-            _pendingModels.emplace_back(model);
         }
     }
 
@@ -125,17 +131,15 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
     const scene::Pass *pass = (*shadowInfo->getMaterial()->getPasses())[0];
     cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
 
-    for (const auto *model : _pendingModels) {
-        for (const auto &subModel : model->getSubModels()) {
-            auto *const shader = subModel->getPlanarShader();
-            auto *const ia = subModel->getInputAssembler();
-            auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass, subpassID);
+    for (const auto *subModel : _pendingModels) {
+        auto *const shader = subModel->getPlanarShader();
+        auto *const ia = subModel->getInputAssembler();
+        auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass, subpassID);
 
-            cmdBuffer->bindPipelineState(pso);
-            cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
-            cmdBuffer->bindInputAssembler(ia);
-            cmdBuffer->draw(ia);
-        }
+        cmdBuffer->bindPipelineState(pso);
+        cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
+        cmdBuffer->bindInputAssembler(ia);
+        cmdBuffer->draw(ia);
     }
 }
 

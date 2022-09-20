@@ -605,10 +605,8 @@ export class Model {
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         this.initialize();
 
-        let isNewSubModel = false;
         if (this._subModels[idx] == null) {
             this._subModels[idx] = this._createSubModel();
-            isNewSubModel = true;
         } else {
             this._subModels[idx].destroy();
         }
