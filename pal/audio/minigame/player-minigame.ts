@@ -2,7 +2,7 @@ import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
-import { clamp, clamp01, sys } from '../../../cocos/core';
+import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
 export class OneShotAudioMinigame {
@@ -48,7 +48,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _innerAudioContext: InnerAudioContext;
     private _state: AudioState = AudioState.INIT;
     private _cacheTime = 0;
-    private _needSeekAfterPlay = false;
+    private _needSeek = false;
+    private _seeking = false;
 
     private _onPlay: () => void;
     private _onPause: () => void;
@@ -57,6 +58,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onEnded: () => void;
     private _readyToHandleOnShow = false;
 
+    private resetSeekCache () {
+        this._cacheTime = 0;
+        this._needSeek = false;
+        this._seeking = false;
+    }
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -77,10 +83,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
             eventTarget.emit(AudioEvent.PLAYED);
-            if (this._needSeekAfterPlay) {
-                this._needSeekAfterPlay = false;
-                this._innerAudioContext.seek(this._cacheTime);
-                this._cacheTime = 0;
+            if (this._needSeek) {
+                this._needSeek = false;
+                this.seek(this._cacheTime).catch((e) => {});
             }
         };
         innerAudioContext.onPlay(this._onPlay);
@@ -92,15 +97,23 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onPause(this._onPause);
         this._onStop = () => {
             this._state = AudioState.STOPPED;
-            this._cacheTime = 0;
+            // Reset all properties
+            this.resetSeekCache();
             eventTarget.emit(AudioEvent.STOPPED);
         };
         innerAudioContext.onStop(this._onStop);
-        this._onSeeked = () => { eventTarget.emit(AudioEvent.SEEKED); };
+        this._onSeeked = () => {
+            eventTarget.emit(AudioEvent.SEEKED);
+            this._seeking = false;
+            if (this._needSeek) {
+                this._needSeek = false;
+                this.seek(this._cacheTime).catch((e) => {});
+            }
+        };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
             this._state = AudioState.INIT;
-            this._cacheTime = 0;
+            this.resetSeekCache();
             eventTarget.emit(AudioEvent.ENDED);
         };
         innerAudioContext.onEnded(this._onEnded);
@@ -214,13 +227,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
     get duration (): number {
         // KNOWN ISSUES: duration doesn't work well
         // On WeChat platform, duration is 0 at the time audio is loaded.
-        // On Native or Runtime platform, duration is 0 before playing.
         return this._innerAudioContext.duration;
     }
     get currentTime (): number {
-        // KNOWN ISSUES: currentTime doesn't work well
-        // on Baidu: currentTime returns without numbers on decimal places
-        // on WeChat iOS: we can't reset currentTime to 0 when stop audio
         if (this._state !== AudioState.PLAYING) {
             return this._cacheTime;
         }
@@ -238,19 +247,16 @@ export class AudioPlayerMinigame implements OperationQueueable {
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            // time = clamp(time, 0, this.duration);
-            if (this._state === AudioState.PLAYING) {
+            // KNOWN ISSUES: on Baidu: currentTime returns without numbers on decimal places
+            if (this._state === AudioState.PLAYING && !this._seeking) {
                 time = clamp(time, 0, this.duration);
-                this._eventTarget.once(AudioEvent.SEEKED, resolve);
+                this._seeking = true;
                 this._innerAudioContext.seek(time);
-            } else if (time === 0 && this._cacheTime === 0) {
-                // Make no sence;
-                resolve();
-            } else {
+            } else if (this._cacheTime !== time) { // Skip the invalid seek
                 this._cacheTime = time;
-                this._needSeekAfterPlay = true;
-                resolve();
+                this._needSeek = true;
             }
+            resolve();
         });
     }
 
