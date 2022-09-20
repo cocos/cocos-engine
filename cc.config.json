@@ -434,7 +434,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $BYTEDANCE",
+            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
