@@ -81,15 +81,16 @@ private:
 
     MeshBufferLayout* _meshBufferLayout{nullptr};
     uint32_t* _sharedBuffer{nullptr};
-    
+
     uint32_t _vertexFormatBytes{0};
     uint32_t _initVDataCount{0};
     uint32_t _initIDataCount{0};
-    ccstd::vector<gfx::Attribute> _attributes;
+    uint32_t _nextFreeIAHandle{0};
 
+    ccstd::vector<gfx::Attribute> _attributes;
     ccstd::vector<gfx::InputAssembler*> _iaPool{};
     gfx::InputAssemblerInfo _iaInfo;
-    uint32_t _nextFreeIAHandle{0};
+
     bool _dirty{false};
     bool _needDeleteVData{false};
     bool _needDeleteLayout{false};
