@@ -125,6 +125,10 @@ declare namespace jsb {
         height: number;
     }
 
+    /**
+     * @en WindowEvent.width and WindowEvent.height have both been multiplied by DPR
+     * @zh WindowEvent.width 和 WindowEvent.height 都已乘以 DPR
+     */
     export let onResize: (event: WindowEvent) => void | undefined;
     export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type
     export let onResume: () => void | undefined;

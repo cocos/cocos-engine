@@ -42,7 +42,8 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
   passIndex(alloc),
   resourceNames(alloc),
   resourceIndex(alloc),
-  externalPasses(alloc),
+  leafPasses(alloc),
+  culledPasses(alloc),
   accessRecord(alloc) {}
 
 // ContinuousContainer

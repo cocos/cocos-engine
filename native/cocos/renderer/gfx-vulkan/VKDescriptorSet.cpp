@@ -200,8 +200,8 @@ void CCVKDescriptorSet::update() {
             CCVKGPUDescriptor &binding = _gpuDescriptorSet->gpuDescriptors[i];
 
             if (hasFlag(DESCRIPTOR_BUFFER_TYPE, binding.type)) {
-                if (_buffers[i]) {
-                    CCVKGPUBufferView *bufferView = static_cast<CCVKBuffer *>(_buffers[i])->gpuBufferView();
+                if (_buffers[i].ptr) {
+                    CCVKGPUBufferView *bufferView = static_cast<CCVKBuffer *>(_buffers[i].ptr)->gpuBufferView();
                     if (binding.gpuBufferView != bufferView) {
                         for (uint32_t t = 0U; t < instanceCount; ++t) {
                             CCVKDescriptorInfo &descriptorInfo = _gpuDescriptorSet->instances[t].descriptorInfos[i];
@@ -218,8 +218,8 @@ void CCVKDescriptorSet::update() {
                     }
                 }
             } else if (hasFlag(DESCRIPTOR_TEXTURE_TYPE, binding.type)) {
-                if (_textures[i]) {
-                    CCVKGPUTextureView *textureView = static_cast<CCVKTexture *>(_textures[i])->gpuTextureView();
+                if (_textures[i].ptr) {
+                    CCVKGPUTextureView *textureView = static_cast<CCVKTexture *>(_textures[i].ptr)->gpuTextureView();
                     if (binding.gpuTextureView != textureView) {
                         for (auto &instance : _gpuDescriptorSet->instances) {
                             CCVKDescriptorInfo &descriptorInfo = instance.descriptorInfos[i];
@@ -235,8 +235,8 @@ void CCVKDescriptorSet::update() {
                         binding.gpuTextureView = textureView;
                     }
                 }
-                if (_samplers[i]) {
-                    CCVKGPUSampler *sampler = static_cast<CCVKSampler *>(_samplers[i])->gpuSampler();
+                if (_samplers[i].ptr) {
+                    CCVKGPUSampler *sampler = static_cast<CCVKSampler *>(_samplers[i].ptr)->gpuSampler();
                     if (binding.gpuSampler != sampler) {
                         for (auto &instance : _gpuDescriptorSet->instances) {
                             CCVKDescriptorInfo &descriptorInfo = instance.descriptorInfos[i];

@@ -41,6 +41,7 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/Set.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -48,6 +49,11 @@ namespace cc {
 namespace render {
 
 struct NullTag {};
+
+struct LeafStatus {
+    bool isExternal{false};
+    bool needCulling{false};
+};
 
 struct BufferRange {
     uint32_t offset{0};
@@ -228,7 +234,8 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<ccstd::pmr::string> resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
     RenderGraph::vertex_descriptor presentPassID{0xFFFFFFFF};
-    ccstd::pmr::vector<RenderGraph::vertex_descriptor> externalPasses;
+    PmrFlatMap<RenderGraph::vertex_descriptor, LeafStatus> leafPasses;
+    PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses;
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
 };
 

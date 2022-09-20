@@ -350,7 +350,8 @@ class BlitDesc {
         if (this._stageDesc) {
             return;
         }
-        const pass = this.blit.material!.passes[0];
+        const blit = this.blit;
+        const pass = blit.material!.passes[blit.passID];
         const device = this._queue!.devicePass.context.device;
         this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
         if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING) {
@@ -1172,10 +1173,26 @@ class DeviceSceneTask extends WebSceneTask {
             && this.graphScene.scene
             && this.graphScene.scene.flags & SceneFlags.SHADOW_CASTER;
     }
+    private _mergeMatToBlitDesc(fromDesc, toDesc) {
+        fromDesc.update();
+        const fromGpuDesc = fromDesc.gpuDescriptorSet;
+        const toGpuDesc = toDesc.gpuDescriptorSet;
+        for(let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
+            const currRes = toGpuDesc.gpuDescriptors[i];
+            if(!currRes.gpuBuffer) {
+                currRes.gpuBuffer = fromGpuDesc.gpuDescriptors[i].gpuBuffer;
+            } else if(!currRes.gpuTextureView) {
+                currRes.gpuTextureView = fromGpuDesc.gpuDescriptors[i].gpuTextureView;
+            } else if(!currRes.gpuSampler) {
+                currRes.gpuSampler = fromGpuDesc.gpuDescriptors[i].gpuSampler;
+            }
+        }
+    }
     private _recordBlit () {
         if (!this.graphScene.blit) { return; }
-        const currMat = this.graphScene.blit.material;
-        const pass = currMat!.passes[0];
+        const blit = this.graphScene.blit;
+        const currMat = blit.material;
+        const pass = currMat!.passes[blit.passID];
         const shader = pass.getShaderVariant();
         const devicePass = this._currentQueue.devicePass;
         const screenIa: any = this._currentQueue.blitDesc!.screenQuad!.quadIA;
@@ -1187,6 +1204,7 @@ class DeviceSceneTask extends WebSceneTask {
         if (pso) {
             this.visitor.bindPipelineState(pso);
             const layoutStage = devicePass.renderLayout;
+            this._mergeMatToBlitDesc(pass.descriptorSet, layoutStage!.descriptorSet!);
             // TODO: It will be changed to global later
             this.visitor.bindDescriptorSet(SetIndex.MATERIAL, layoutStage!.descriptorSet!);
             this.visitor.bindDescriptorSet(SetIndex.LOCAL, this._currentQueue.blitDesc!.stageDesc!);
@@ -1380,8 +1398,11 @@ class BaseRenderVisitor {
     protected _isScene (u: number): boolean {
         return !!this.context.renderGraph.tryGetScene(u);
     }
+    protected _isBlit(u: number): boolean {
+        return !!this.context.renderGraph.tryGetBlit(u);
+    }
     applyID (id: number): void {
-        if (this._isRaster(id)) { this.passID = id; } else if (this._isQueue(id)) { this.queueID = id; } else if (this._isScene(id)) { this.sceneID = id; }
+        if (this._isRaster(id)) { this.passID = id; } else if (this._isQueue(id)) { this.queueID = id; } else if (this._isScene(id) || this._isBlit(id)) { this.sceneID = id; }
     }
 }
 
