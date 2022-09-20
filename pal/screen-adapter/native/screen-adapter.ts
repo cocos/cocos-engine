@@ -116,7 +116,6 @@ class ScreenAdapter extends EventTarget {
     private _registerEvent () {
         jsb.onResize = (event: jsb.WindowEvent) => {
             if (event.width === 0 || event.height === 0) return;
-            
             // TODO: remove this function calling
             window.resize(event.width / this.devicePixelRatio, event.height / this.devicePixelRatio);
             this.emit('window-resize', event);
