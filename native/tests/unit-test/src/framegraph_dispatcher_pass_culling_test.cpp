@@ -43,7 +43,7 @@ TEST(fgDispatherCulling, test13) {
 
     const auto& barrierMap = fgDispatcher.getBarriers();
     const auto& rag = fgDispatcher.resourceAccessGraph;
-    ExpectEq(rag.vertices.size() == 12, true);
+    ExpectEq(rag.access.size() == 12, true);
 
     ExpectEq(rag.leafPasses.size() == 5, true);
 
@@ -79,6 +79,15 @@ TEST(fgDispatherCulling, test13) {
                  in_degree(9, rag) == 0 && out_degree(9, rag) == 0 &&
                  in_degree(11, rag) != 0 && out_degree(11, rag) == 0,
              true);
+
+    // 6, 7, 9 were culled.
+    // 6 was culled because after leaf 7 was culled, 6 itself becomes a non-writing-externalRes leaf.
+    ExpectEq(rag.culledPasses.size() == 3, true);
+    ExpectEq(rag.culledPasses.find(6) != rag.culledPasses.end() &&
+                 rag.culledPasses.find(7) != rag.culledPasses.end() &&
+                 rag.culledPasses.find(9) != rag.culledPasses.end(),
+             true);
+
 
     // runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);
 }

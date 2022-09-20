@@ -199,8 +199,16 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
     resourceAccessGraph.resourceNames.reserve(128);
     resourceAccessGraph.resourceIndex.reserve(128);
 
-    for (size_t i = 1; i <= renderGraph.vertices.size(); ++i) {
-        resourceAccessGraph.leafPasses.emplace(i, std::make_pair<bool, bool>(false, false));
+    if (!resourceAccessGraph.leafPasses.empty()) {
+        resourceAccessGraph.leafPasses.clear();
+    }
+    if (!resourceAccessGraph.culledPasses.empty()) {
+        resourceAccessGraph.culledPasses.clear();
+    }
+
+    const auto &names = get(RenderGraph::Name, renderGraph);
+    for (size_t i = 1; i <= names.container->size(); ++i) {
+        resourceAccessGraph.leafPasses.emplace(i, LeafStatus{false, false});
     }
 
     auto startID = add_vertex(resourceAccessGraph, INVALID_ID);
@@ -236,6 +244,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
         CC_EXPECTS(out_degree(vertex, rag) == 0);
         using FuncType = void (*)(ResourceAccessGraph::vertex_descriptor, ResourceAccessGraph &);
         static FuncType leafCulling = [](ResourceAccessGraph::vertex_descriptor vertex, ResourceAccessGraph &rag) {
+            rag.culledPasses.emplace(vertex);
             auto &attachments = get(ResourceAccessGraph::AccessNode, rag, vertex);
             attachments.attachemntStatus.clear();
             if (attachments.nextSubpass) {
@@ -259,8 +268,8 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
 
     // make leaf node closed walk for pass reorder
     for (auto pass : resourceAccessGraph.leafPasses) {
-        bool isExternal = pass.second.first;
-        bool needCulling = pass.second.second;
+        bool isExternal = pass.second.isExternal;
+        bool needCulling = pass.second.needCulling;
 
         if (isExternal && !needCulling) {
             if (pass.first != resourceAccessGraph.presentPassID) {
@@ -1385,7 +1394,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
                 {},
                 {curVertID, visibility, access, passType, Range{}}});
         if (isExternalPass) {
-            rag.leafPasses[curVertID] = std::make_pair<bool, bool>(true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT);
+            rag.leafPasses[curVertID] = LeafStatus{true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT};
         }
     } else {
         ResourceTransition &trans = iter->second;
@@ -1400,7 +1409,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
                 }
             }
             if (isExternalPass) {
-                rag.leafPasses[curVertID] = std::make_pair<bool, bool>(true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT);
+                rag.leafPasses[curVertID] = LeafStatus{true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT};
             }
             trans.currStatus = {curVertID, visibility, access, passType, Range{}};
             lastVertID = trans.lastStatus.vertID;
@@ -1416,7 +1425,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
                 if (rag.leafPasses.find(curVertID) != rag.leafPasses.end()) {
                     // only write into externalRes counts
                     if (isExternalPass) {
-                        rag.leafPasses[curVertID] = std::make_pair<bool, bool>(true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT);
+                        rag.leafPasses[curVertID] = LeafStatus{true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT};
                     }
                 }
             }
