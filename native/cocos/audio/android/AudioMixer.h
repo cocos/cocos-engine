@@ -158,8 +158,7 @@ private:
     struct state_t;
     struct track_t;
 
-    typedef void (*hook_t)(track_t *t, int32_t *output, size_t numOutFrames, int32_t *temp,
-                           int32_t *aux); //NOLINT(modernize-use-using)
+    typedef void (*hook_t)(track_t *t, int32_t *output, size_t numOutFrames, int32_t *temp, int32_t *aux); //NOLINT(modernize-use-using)
     static const int BLOCKSIZE = 16; // 4 cache lines
 
     struct track_t {
