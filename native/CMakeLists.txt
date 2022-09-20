@@ -2966,7 +2966,7 @@ if(USE_MODULES)
 endif()
 
 
-if(NOT OPENHARMONY AND (ANDROID OR OHOS))
+if(ANDROID OR (NOT OPENHARMONY AND OHOS))
     cc_enable_werror("${CC_JNI_SRC_FILES}")
     add_library(cocos_jni STATIC ${CC_JNI_SRC_FILES})
     target_include_directories(cocos_jni PUBLIC

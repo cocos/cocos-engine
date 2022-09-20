@@ -10,10 +10,10 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 export function loadJsFile (path: string): Promise<void> {
     if (window.oh) {
         // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
-        window.oh.loadModule(`${path}`);
+        window.oh.loadModule(path);
         return Promise.resolve();
     } else {
         // eslint-disable-next-line import/no-dynamic-require
-        return require(`${path}`);
+        return require(path);
     }
 }
