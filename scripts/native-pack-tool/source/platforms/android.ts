@@ -77,6 +77,8 @@ export class AndroidPackTool extends NativePackTool {
         let gradle = 'gradlew';
         if (process.platform === 'win32') {
             gradle += '.bat';
+        } else {
+            gradle = './' + gradle;
         }
 
         let buildMode = '';
