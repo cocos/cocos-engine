@@ -28,7 +28,7 @@ import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass,
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { AccessType, RasterView, ResourceResidency } from './types';
@@ -165,6 +165,12 @@ class ResourceVisitor implements ResourceGraphVisitor {
     }
     managed (value: ManagedResource) {
         this.dependency();
+    }
+    managedBuffer (value: ManagedBuffer) {
+        // noop
+    }
+    managedTexture (value: ManagedTexture) {
+        // noop
     }
     persistentBuffer (value: Buffer) {
     }

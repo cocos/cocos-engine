@@ -23,18 +23,71 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "Range.h"
+#include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
+
 
 namespace cc {
 
 namespace render {
 
 void ResourceGraph::mount(vertex_descriptor vertID, ccstd::pmr::vector<vertex_descriptor>& mounted) {
-
+    auto& resg = *this;
+    visitObject(
+        vertID, resg,
+        [&](const ManagedResource& resource) {
+            // to be removed
+        },
+        [&](ManagedBuffer& buffer) {
+            if (!buffer.buffer) {
+                mounted.emplace_back(vertID);
+            }
+            buffer.fenceValue = nextFenceValue;
+        },
+        [&](ManagedTexture& texture) {
+            if (!texture.texture) {
+                mounted.emplace_back(vertID);
+            }
+            texture.fenceValue = nextFenceValue;
+        },
+        [&](const IntrusivePtr<gfx::Buffer>& pass) {
+        },
+        [&](const IntrusivePtr<gfx::Texture>& pass) {
+        },
+        [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
+        },
+        [&](const RenderSwapchain& queue) {
+        });
 }
 
 void ResourceGraph::unmount(uint64_t completedFenceValue) {
-
+    auto& resg = *this;
+    for (const auto& vertID : makeRange(vertices(resg))) {
+        visitObject(
+            vertID, resg,
+            [&](const ManagedResource& resource) {
+                // to be removed
+            },
+            [&](ManagedBuffer& buffer) {
+                if (buffer.fenceValue <= completedFenceValue) {
+                    buffer.buffer.reset();
+                }
+            },
+            [&](ManagedTexture& texture) {
+                if (texture.fenceValue <= completedFenceValue) {
+                    texture.texture.reset();
+                }
+            },
+            [&](const IntrusivePtr<gfx::Buffer>& pass) {
+            },
+            [&](const IntrusivePtr<gfx::Texture>& pass) {
+            },
+            [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
+            },
+            [&](const RenderSwapchain& queue) {
+            });
+    }
 }
 
 } // namespace render

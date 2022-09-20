@@ -42,7 +42,7 @@ TEST(simpleClosedBarrierTest, test11) {
 
     const auto& barrierMap = fgDispatcher.getBarriers();
     const auto& rag = fgDispatcher.resourceAccessGraph;
-    ExpectEq(rag.vertices.size() == 10, true);
+    ExpectEq(rag._vertices.size() == 10, true);
 
     // head
     const auto& head = barrierMap.at(0);
