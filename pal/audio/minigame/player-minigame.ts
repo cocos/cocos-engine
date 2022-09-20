@@ -58,7 +58,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onEnded: () => void;
     private _readyToHandleOnShow = false;
 
-    private resetSeekCache () {
+    private _resetSeekCache () {
         this._cacheTime = 0;
         this._needSeek = false;
         this._seeking = false;
@@ -98,7 +98,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._onStop = () => {
             this._state = AudioState.STOPPED;
             // Reset all properties
-            this.resetSeekCache();
+            this._resetSeekCache();
             eventTarget.emit(AudioEvent.STOPPED);
         };
         innerAudioContext.onStop(this._onStop);
@@ -113,7 +113,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
             this._state = AudioState.INIT;
-            this.resetSeekCache();
+            this._resetSeekCache();
             eventTarget.emit(AudioEvent.ENDED);
         };
         innerAudioContext.onEnded(this._onEnded);
