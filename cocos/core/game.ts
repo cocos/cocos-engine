@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TAOBAO, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -788,6 +788,10 @@ export class Game extends EventTarget {
             .then(() => this._setupRenderPipeline())
             .then(() => this._loadPreloadAssets())
             .then(() => {
+                // TODO: Image can't load with base64 data on Taobao platform.
+                if (TAOBAO) {
+                    return Promise.resolve();
+                }
                 builtinResMgr.compileBuiltinMaterial();
                 return SplashScreen.instance.init();
             })
@@ -907,7 +911,8 @@ export class Game extends EventTarget {
 
     private _updateCallback () {
         if (!this._inited) return;
-        if (!SplashScreen.instance.isFinished) {
+        // TODO: SplashScreen not working on Taobao platform.
+        if (!TAOBAO && !SplashScreen.instance.isFinished) {
             SplashScreen.instance.update(this._calculateDT());
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
