@@ -16,7 +16,6 @@
 #include "gfx-base/GFXBarrier.h"
 #include "gfx-base/GFXDef-common.h"
 
-
 namespace cc {
 
 namespace render {
@@ -73,13 +72,23 @@ uint8_t getRasterViewPassOutputSlot(const RasterView& view) {
 }
 
 uint32_t getRasterPassInputCount(const RasterPass& pass) {
-    std::ignore = pass;
-    return 0;
+    uint32_t numInputs = 0;
+    for (const auto& [name, view] : pass.rasterViews) {
+        if (view.accessType == AccessType::READ || view.accessType == AccessType::READ_WRITE) {
+            ++numInputs;
+        }
+    }
+    return numInputs;
 }
 
 uint32_t getRasterPassOutputCount(const RasterPass& pass) {
-    std::ignore = pass;
-    return 0;
+    uint32_t numOutputs = 0;
+    for (const auto& [name, view] : pass.rasterViews) {
+        if (view.accessType == AccessType::READ_WRITE || view.accessType == AccessType::WRITE) {
+            ++numOutputs;
+        }
+    }
+    return numOutputs;
 }
 
 uint32_t getRasterPassResolveCount(const RasterPass& pass) {
@@ -104,9 +113,8 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         auto& subpass = rpInfo.subpasses.emplace_back();
         subpass.inputs.resize(getRasterPassInputCount(pass));
         subpass.colors.resize(getRasterPassOutputCount(pass));
-        // TODO(zhouzhenglong):
-        // subpass.resolves.resize(getRasterPassResolveCount(pass));
-        // subpass.preserves.resize(getRasterPassPreserveCount(pass));
+        subpass.resolves.resize(getRasterPassResolveCount(pass));
+        subpass.preserves.resize(getRasterPassPreserveCount(pass));
         auto numTotalAttachments = static_cast<uint32_t>(pass.rasterViews.size());
         uint32_t slot = 0;
         for (const auto& pair : pass.rasterViews) {
@@ -181,15 +189,17 @@ gfx::BufferBarrierInfo getBufferBarrier(
     visitObject(
         resID, resg,
         [&](const ManagedBuffer& res) {
-            // TODO(zhouzhenglong): get offset and size
+            size = res.buffer->getSize();
+            usage = res.buffer->getUsage();
+            memUsage = res.buffer->getMemUsage();
         },
         [&](const IntrusivePtr<gfx::Buffer>& buf) {
             size = buf->getSize();
             usage = buf->getUsage();
             memUsage = buf->getMemUsage();
         },
-        [&](const auto& texLike) {
-            // noop
+        [&](const auto&) {
+            CC_EXPECTS(false);
         });
 
     return {
@@ -214,13 +224,19 @@ gfx::TextureBarrierInfo getTextureBarrier(
     visitObject(
         resID, resg,
         [&](const ManagedTexture& res) {
-            // TODO(zhouzhenglong): get offset and size
+            usage = res.texture->getInfo().usage;
         },
         [&](const IntrusivePtr<gfx::Texture>& tex) {
             usage = tex->getInfo().usage;
         },
-        [&](const auto& texLike) {
-            // noop
+        [&](const IntrusivePtr<gfx::Framebuffer>&) {
+            CC_EXPECTS(false);
+        },
+        [&](const RenderSwapchain& sc) {
+            usage = sc.swapchain->getColorTexture()->getInfo().usage;
+        },
+        [&](const auto&) {
+            CC_EXPECTS(false);
         });
 
     const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
@@ -544,6 +560,11 @@ void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
     fgd.enablePassReorder(false);
     fgd.setParalellWeight(0);
     fgd.run();
+
+    PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses(scratch);
+    for (const auto& culled : fgd.resourceAccessGraph.culledPasses) {
+        
+    }
 
     RenderGraphVisitorContext ctx(
         ppl.nativeContext, rg, ppl.resourceGraph,
