@@ -56,7 +56,7 @@ namespace cc {
 
 namespace render {
 
-static constexpr bool enableBranchCulling = true;
+static constexpr bool ENABLE_BRANCH_CULLING = true;
 
 void passReorder(FrameGraphDispatcher &fgDispatcher);
 void memoryAliasing(FrameGraphDispatcher &fgDispatcher);
@@ -277,7 +277,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
             }
         } else {
             // write into transient resources, culled
-            if constexpr (enableBranchCulling) {
+            if constexpr (ENABLE_BRANCH_CULLING) {
                 branchCulling(pass.first, resourceAccessGraph);
             }
         }
