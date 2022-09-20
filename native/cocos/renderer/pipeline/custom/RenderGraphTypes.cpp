@@ -59,7 +59,8 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   textures(std::move(rhs.textures), alloc),
   framebuffers(std::move(rhs.framebuffers), alloc),
   swapchains(std::move(rhs.swapchains), alloc),
-  valueIndex(std::move(rhs.valueIndex), alloc) {}
+  valueIndex(std::move(rhs.valueIndex), alloc),
+  nextFenceValue(rhs.nextFenceValue) {}
 
 ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& alloc)
 : vertices(rhs.vertices, alloc),
@@ -72,7 +73,8 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   textures(rhs.textures, alloc),
   framebuffers(rhs.framebuffers, alloc),
   swapchains(rhs.swapchains, alloc),
-  valueIndex(rhs.valueIndex, alloc) {}
+  valueIndex(rhs.valueIndex, alloc),
+  nextFenceValue(rhs.nextFenceValue) {}
 
 // ContinuousContainer
 void ResourceGraph::reserve(vertices_size_type sz) {
@@ -149,8 +151,7 @@ RasterPass::RasterPass(const allocator_type& alloc) noexcept
   subpassGraph(alloc) {}
 
 RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
-: isValid(rhs.isValid),
-  rasterViews(std::move(rhs.rasterViews), alloc),
+: rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
   subpassGraph(std::move(rhs.subpassGraph), alloc),
   width(rhs.width),
@@ -158,8 +159,7 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   viewport(rhs.viewport) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
-: isValid(rhs.isValid),
-  rasterViews(rhs.rasterViews, alloc),
+: rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
   subpassGraph(rhs.subpassGraph, alloc),
   width(rhs.width),

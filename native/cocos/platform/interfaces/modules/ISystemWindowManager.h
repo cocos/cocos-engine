@@ -82,4 +82,4 @@ public:
      */
     virtual const SystemWindowMap &getWindows() const = 0;
 };
-}
+} // namespace cc

@@ -331,7 +331,7 @@ public:
     static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
-    static void dispatchResizeEvent(const WindowEvent& windowEvent);
+    static void dispatchResizeEvent(const WindowEvent &windowEvent);
     static void dispatchOrientationChangeEvent(int orientation);
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();

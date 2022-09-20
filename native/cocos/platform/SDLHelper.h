@@ -46,10 +46,10 @@ public:
     static void swapWindow(SDL_Window* window);
 
     static SDL_Window* createWindow(const char* title,
-                      int w, int h, int flags);
+                                    int w, int h, int flags);
     static SDL_Window* createWindow(const char* title,
-                      int x, int y, int w,
-                      int h, int flags);
+                                    int x, int y, int w,
+                                    int h, int flags);
 
     static uintptr_t getWindowHandle(SDL_Window* window);
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)

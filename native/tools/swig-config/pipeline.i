@@ -53,6 +53,8 @@ using namespace cc;
 //
 %ignore cc::pipeline::convertQueueSortFunc;
 %ignore cc::pipeline::RenderPipeline::getFrameGraph;
+%ignore cc::pipeline::RenderPipeline::setPipelineRuntime;
+%ignore cc::pipeline::RenderPipeline::getPipelineRuntime;
 %ignore cc::pipeline::PipelineSceneData::getRenderObjects;
 %ignore cc::pipeline::PipelineSceneData::setRenderObjects;
 %ignore cc::pipeline::PipelineSceneData::getShadowObjects;

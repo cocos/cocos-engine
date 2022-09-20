@@ -75,7 +75,7 @@ bool SystemWindow::createWindow(const char *title,
         return false;
     }
 
-    _width  = w;
+    _width = w;
     _height = h;
     _windowHandle = SDLHelper::getWindowHandle(_window);
 

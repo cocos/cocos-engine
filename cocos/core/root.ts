@@ -24,8 +24,8 @@
  */
 
 import { Pool } from './memop';
-import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
-import { DebugView } from './pipeline/debug-view';
+import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from '../rendering';
+import { DebugView } from '../rendering/debug-view';
 import { Camera, Light, Model } from '../render-scene/scene';
 import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from '../render-scene/scene/light';
@@ -37,11 +37,11 @@ import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../render-scene/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from '../gfx';
 import { warnID } from './platform/debug';
-import { Pipeline, PipelineRuntime } from './pipeline/custom/pipeline';
+import { Pipeline, PipelineRuntime } from '../rendering/custom/pipeline';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { IPipelineEvent } from './pipeline/pipeline-event';
+import { IPipelineEvent } from '../rendering/pipeline-event';
 import { settings, Settings } from './settings';
-import { localDescriptorSetLayout_ResizeMaxJoints } from './pipeline/define';
+import { localDescriptorSetLayout_ResizeMaxJoints } from '../rendering/define';
 import { macro } from './platform/macro';
 
 /**
