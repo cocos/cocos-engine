@@ -637,13 +637,13 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 void Root::addWindowEventListener() {
     _windowDestroyEventId = EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &e) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowDestroy(e.args->intVal);
+            window->onNativeWindowDestroy(e.args->ptrVal);
         }
     });
 
     _windowResumeEventId = EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &e) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowResume(e.args->intVal);
+            window->onNativeWindowResume(e.args->ptrVal);
         }
     });
 }

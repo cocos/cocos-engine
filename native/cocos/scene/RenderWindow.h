@@ -65,8 +65,8 @@ public:
 
     void extractRenderCameras(ccstd::vector<Camera *> &cameras);
 
-    void onNativeWindowDestroy(uint32_t windowId);
-    void onNativeWindowResume(uint32_t windowId);
+    void onNativeWindowDestroy(void *windowId);
+    void onNativeWindowResume(void *windowId);
 
     /**
      * @zh

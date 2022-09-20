@@ -92,7 +92,6 @@ protected:
 
 void Swapchain::destroySurface() {
     doDestroySurface();
-    _windowId = 0;
     _windowHandle = nullptr;
 }
 
