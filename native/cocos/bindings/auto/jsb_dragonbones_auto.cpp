@@ -4,6 +4,8 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "editor-support/dragonbones-creator-support/CCDragonBonesHeaders.h"
+#include "cocos/bindings/auto/jsb_2d_auto.h"
+#include "cocos/bindings/auto/jsb_assets_auto.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -5904,26 +5906,6 @@ static bool js_dragonbones_CCArmatureDisplay_getDebugData(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_dragonbones_CCArmatureDisplay_getDebugData)
 
-static bool js_dragonbones_CCArmatureDisplay_getParamsBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se::Object* result = cobj->getParamsBuffer();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_CCArmatureDisplay_getParamsBuffer)
-
 static bool js_dragonbones_CCArmatureDisplay_getRootDisplay(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
@@ -6173,6 +6155,26 @@ static bool js_dragonbones_CCArmatureDisplay_setDebugBonesEnabled(se::State& s) 
 }
 SE_BIND_FUNC(js_dragonbones_CCArmatureDisplay_setDebugBonesEnabled)
 
+static bool js_dragonbones_CCArmatureDisplay_setMaterial(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Material*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setMaterial(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_CCArmatureDisplay_setMaterial)
+
 static bool js_dragonbones_CCArmatureDisplay_setOpacityModifyRGB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
@@ -6192,6 +6194,26 @@ static bool js_dragonbones_CCArmatureDisplay_setOpacityModifyRGB(se::State& s) /
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_CCArmatureDisplay_setOpacityModifyRGB)
+
+static bool js_dragonbones_CCArmatureDisplay_setRenderEntity(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setRenderEntity(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_CCArmatureDisplay_setRenderEntity)
 
 static bool js_dragonbones_CCArmatureDisplay_create_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -6244,7 +6266,6 @@ bool js_register_dragonbones_CCArmatureDisplay(se::Object* obj) // NOLINT(readab
     cls->defineFunction("getAnimation", _SE(js_dragonbones_CCArmatureDisplay_getAnimation));
     cls->defineFunction("armature", _SE(js_dragonbones_CCArmatureDisplay_getArmature));
     cls->defineFunction("getDebugData", _SE(js_dragonbones_CCArmatureDisplay_getDebugData));
-    cls->defineFunction("getParamsBuffer", _SE(js_dragonbones_CCArmatureDisplay_getParamsBuffer));
     cls->defineFunction("getRootDisplay", _SE(js_dragonbones_CCArmatureDisplay_getRootDisplay));
     cls->defineFunction("getSharedBufferOffset", _SE(js_dragonbones_CCArmatureDisplay_getSharedBufferOffset));
     cls->defineFunction("hasDBEventListener", _SE(js_dragonbones_CCArmatureDisplay_hasDBEventListener));
@@ -6254,7 +6275,9 @@ bool js_register_dragonbones_CCArmatureDisplay(se::Object* obj) // NOLINT(readab
     cls->defineFunction("setColor", _SE(js_dragonbones_CCArmatureDisplay_setColor));
     cls->defineFunction("setDBEventCallback", _SE(js_dragonbones_CCArmatureDisplay_setDBEventCallback));
     cls->defineFunction("setDebugBonesEnabled", _SE(js_dragonbones_CCArmatureDisplay_setDebugBonesEnabled));
+    cls->defineFunction("setMaterial", _SE(js_dragonbones_CCArmatureDisplay_setMaterial));
     cls->defineFunction("setOpacityModifyRGB", _SE(js_dragonbones_CCArmatureDisplay_setOpacityModifyRGB));
+    cls->defineFunction("setRenderEntity", _SE(js_dragonbones_CCArmatureDisplay_setRenderEntity));
     cls->defineStaticFunction("create", _SE(js_dragonbones_CCArmatureDisplay_create_static));
     cls->defineFinalizeFunction(_SE(js_dragonBones_CCArmatureDisplay_finalize));
     cls->install();
@@ -6490,26 +6513,6 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getArmature(se::State& s) // N
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_CCArmatureCacheDisplay_getArmature)
-
-static bool js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se::Object* result = cobj->getParamsBuffer();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer)
 
 static bool js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -6760,6 +6763,26 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setDBEventCallback(se::State& 
 }
 SE_BIND_FUNC(js_dragonbones_CCArmatureCacheDisplay_setDBEventCallback)
 
+static bool js_dragonbones_CCArmatureCacheDisplay_setMaterial(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Material*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setMaterial(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_CCArmatureCacheDisplay_setMaterial)
+
 static bool js_dragonbones_CCArmatureCacheDisplay_setOpacityModifyRGB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
@@ -6779,6 +6802,26 @@ static bool js_dragonbones_CCArmatureCacheDisplay_setOpacityModifyRGB(se::State&
     return false;
 }
 SE_BIND_FUNC(js_dragonbones_CCArmatureCacheDisplay_setOpacityModifyRGB)
+
+static bool js_dragonbones_CCArmatureCacheDisplay_setRenderEntity(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setRenderEntity(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_dragonbones_CCArmatureCacheDisplay_setRenderEntity)
 
 static bool js_dragonbones_CCArmatureCacheDisplay_setTimeScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -6912,7 +6955,6 @@ bool js_register_dragonbones_CCArmatureCacheDisplay(se::Object* obj) // NOLINT(r
     cls->defineFunction("dispose", _SE(js_dragonbones_CCArmatureCacheDisplay_dispose));
     cls->defineFunction("getAnimation", _SE(js_dragonbones_CCArmatureCacheDisplay_getAnimation));
     cls->defineFunction("armature", _SE(js_dragonbones_CCArmatureCacheDisplay_getArmature));
-    cls->defineFunction("getParamsBuffer", _SE(js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer));
     cls->defineFunction("getSharedBufferOffset", _SE(js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset));
     cls->defineFunction("getTimeScale", _SE(js_dragonbones_CCArmatureCacheDisplay_getTimeScale));
     cls->defineFunction("onDisable", _SE(js_dragonbones_CCArmatureCacheDisplay_onDisable));
@@ -6924,7 +6966,9 @@ bool js_register_dragonbones_CCArmatureCacheDisplay(se::Object* obj) // NOLINT(r
     cls->defineFunction("setBatchEnabled", _SE(js_dragonbones_CCArmatureCacheDisplay_setBatchEnabled));
     cls->defineFunction("setColor", _SE(js_dragonbones_CCArmatureCacheDisplay_setColor));
     cls->defineFunction("setDBEventCallback", _SE(js_dragonbones_CCArmatureCacheDisplay_setDBEventCallback));
+    cls->defineFunction("setMaterial", _SE(js_dragonbones_CCArmatureCacheDisplay_setMaterial));
     cls->defineFunction("setOpacityModifyRGB", _SE(js_dragonbones_CCArmatureCacheDisplay_setOpacityModifyRGB));
+    cls->defineFunction("setRenderEntity", _SE(js_dragonbones_CCArmatureCacheDisplay_setRenderEntity));
     cls->defineFunction("setTimeScale", _SE(js_dragonbones_CCArmatureCacheDisplay_setTimeScale));
     cls->defineFunction("stopSchedule", _SE(js_dragonbones_CCArmatureCacheDisplay_stopSchedule));
     cls->defineFunction("update", _SE(js_dragonbones_CCArmatureCacheDisplay_update));

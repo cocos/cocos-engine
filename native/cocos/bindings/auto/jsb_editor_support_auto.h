@@ -22,9 +22,11 @@ bool js_register_cc_middleware_Texture2D(se::Object *obj); // NOLINT
 
 SE_DECLARE_FUNC(js_editor_support_Texture2D_getPixelsHigh);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_getPixelsWide);
+SE_DECLARE_FUNC(js_editor_support_Texture2D_getRealTexture);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_getRealTextureIndex);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setPixelsHigh);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setPixelsWide);
+SE_DECLARE_FUNC(js_editor_support_Texture2D_setRealTexture);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setRealTextureIndex);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setTexParamCallback);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_Texture2D);

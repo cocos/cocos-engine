@@ -66,6 +66,26 @@ static bool js_editor_support_Texture2D_getPixelsWide(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_getPixelsWide)
 
+static bool js_editor_support_Texture2D_getRealTexture(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        void* result = cobj->getRealTexture();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_editor_support_Texture2D_getRealTexture)
+
 static bool js_editor_support_Texture2D_getRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
@@ -125,6 +145,26 @@ static bool js_editor_support_Texture2D_setPixelsWide(se::State& s) // NOLINT(re
     return false;
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_setPixelsWide)
+
+static bool js_editor_support_Texture2D_setRealTexture(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<void*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setRealTexture(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_editor_support_Texture2D_setRealTexture)
 
 static bool js_editor_support_Texture2D_setRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -224,9 +264,11 @@ bool js_register_editor_support_Texture2D(se::Object* obj) // NOLINT(readability
 #endif
     cls->defineFunction("getPixelsHigh", _SE(js_editor_support_Texture2D_getPixelsHigh));
     cls->defineFunction("getPixelsWide", _SE(js_editor_support_Texture2D_getPixelsWide));
+    cls->defineFunction("getRealTexture", _SE(js_editor_support_Texture2D_getRealTexture));
     cls->defineFunction("getRealTextureIndex", _SE(js_editor_support_Texture2D_getRealTextureIndex));
     cls->defineFunction("setPixelsHigh", _SE(js_editor_support_Texture2D_setPixelsHigh));
     cls->defineFunction("setPixelsWide", _SE(js_editor_support_Texture2D_setPixelsWide));
+    cls->defineFunction("setRealTexture", _SE(js_editor_support_Texture2D_setRealTexture));
     cls->defineFunction("setRealTextureIndex", _SE(js_editor_support_Texture2D_setRealTextureIndex));
     cls->defineFunction("setTexParamCallback", _SE(js_editor_support_Texture2D_setTexParamCallback));
     cls->defineFinalizeFunction(_SE(js_cc_middleware_Texture2D_finalize));
