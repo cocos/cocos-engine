@@ -524,8 +524,38 @@ export class StateMachine extends EditorExtendable {
         const outgoings = from[outgoingsSymbol];
         const iAdjusting = outgoings.indexOf(adjusting);
         assertIsTrue(iAdjusting >= 0);
-        const iOver = clamp(iAdjusting + diff, 0, outgoings.length - 1);
-        move(outgoings, iAdjusting, iOver);
+        const iNew = clamp(iAdjusting + diff, 0, outgoings.length - 1);
+        { // 1. Adjust the order in entire transition array, which is used for serialization.
+            // We're doing a discrete movement: move without bother other outgoings from other motion
+            const { _transitions: globalTransitions } = this;
+            const adjustingIndexInGlobal = globalTransitions.indexOf(adjusting);
+            assertIsTrue(adjustingIndexInGlobal >= 0);
+            let lastPlaceholder = adjustingIndexInGlobal;
+            if (iNew > iAdjusting) {
+                // Shift right
+                for (let iOutgoing = iAdjusting + 1; iOutgoing <= iNew; ++iOutgoing) {
+                    const outgoing = outgoings[iOutgoing];
+                    const indexInGlobal = globalTransitions.indexOf(outgoing);
+                    assertIsTrue(indexInGlobal >= 0);
+                    globalTransitions[lastPlaceholder] = outgoing;
+                    lastPlaceholder = indexInGlobal;
+                }
+            } else if (iAdjusting > iNew) {
+                // Shift left
+                for (let iOutgoing = iAdjusting - 1; iOutgoing >= iNew; --iOutgoing) {
+                    const outgoing = outgoings[iOutgoing];
+                    const indexInGlobal = globalTransitions.indexOf(outgoing);
+                    assertIsTrue(indexInGlobal >= 0);
+                    globalTransitions[lastPlaceholder] = outgoing;
+                    lastPlaceholder = indexInGlobal;
+                }
+            }
+            globalTransitions[lastPlaceholder] = adjusting;
+        }
+        // eslint-disable-next-line no-lone-blocks
+        { // 2. Adjust the order in outgoing array.
+            move(outgoings, iAdjusting, iNew);
+        }
     }
 
     public clone () {
