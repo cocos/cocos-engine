@@ -128,8 +128,17 @@
         layer.drawableSize = CGSizeMake(width, height);
     }
 
-    if (cc::EventDispatcher::initialized())
-        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(width), static_cast<int>(height));
+    if (cc::EventDispatcher::initialized()) {
+        auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+        auto *window = windowMgr->getWindowFromNSWindow([self window]);
+        
+        cc::WindowEvent ev;
+        ev.type = cc::WindowEvent::Type::RESIZED;
+        ev.width = static_cast<int>(width);
+        ev.height = static_cast<int>(height);
+        ev.windowId = window->getWindowId();
+        cc::EventDispatcher::dispatchResizeEvent(ev);
+    }
 }
 
 - (void)keyDown:(NSEvent *)event {
