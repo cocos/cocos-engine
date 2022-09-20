@@ -86,11 +86,13 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onPlay(this._onPlay);
         this._onPause = () => {
             this._state = AudioState.PAUSED;
+            this._cacheTime = this._innerAudioContext.currentTime;
             eventTarget.emit(AudioEvent.PAUSED);
         };
         innerAudioContext.onPause(this._onPause);
         this._onStop = () => {
             this._state = AudioState.STOPPED;
+            this._cacheTime = 0;
             eventTarget.emit(AudioEvent.STOPPED);
         };
         innerAudioContext.onStop(this._onStop);
@@ -98,6 +100,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
             this._state = AudioState.INIT;
+            this._cacheTime = 0;
             eventTarget.emit(AudioEvent.ENDED);
         };
         innerAudioContext.onEnded(this._onEnded);
@@ -263,7 +266,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
     pause (): Promise<void> {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.PAUSED, resolve);
-            this._cacheTime = this._innerAudioContext.currentTime;
             this._innerAudioContext.pause();
         });
     }
@@ -272,7 +274,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
     stop (): Promise<void> {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
-            this._cacheTime = 0;
             this._innerAudioContext.stop();
         });
     }
