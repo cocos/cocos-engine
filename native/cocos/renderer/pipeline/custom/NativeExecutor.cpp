@@ -1,5 +1,6 @@
 #include "NativeExecutor.h"
 #include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/filtered_graph.hpp>
 #include <variant>
 #include "FGDispatcherGraphs.h"
 #include "GraphTypes.h"
@@ -20,6 +21,8 @@ namespace cc {
 
 namespace render {
 
+namespace {
+
 struct RenderGraphVisitorContext {
     RenderGraphVisitorContext(
         NativeRenderContext& contextIn,
@@ -27,6 +30,7 @@ struct RenderGraphVisitorContext {
         ResourceGraph& resgIn,
         const FrameGraphDispatcher& fgdIn,
         const FrameGraphDispatcher::BarrierMap& barrierMapIn,
+        const ccstd::pmr::vector<bool>& validPassesIn,
         gfx::Device* deviceIn,
         cc::gfx::CommandBuffer* cmdBuffIn,
         boost::container::pmr::memory_resource* scratchIn)
@@ -35,6 +39,7 @@ struct RenderGraphVisitorContext {
       resourceGraph(resgIn),
       fgd(fgdIn),
       barrierMap(barrierMapIn),
+      validPasses(validPassesIn),
       device(deviceIn),
       cmdBuff(cmdBuffIn),
       scratch(scratchIn) {}
@@ -44,13 +49,12 @@ struct RenderGraphVisitorContext {
     ResourceGraph& resourceGraph;
     const FrameGraphDispatcher& fgd;
     const FrameGraphDispatcher::BarrierMap& barrierMap;
+    const ccstd::pmr::vector<bool>& validPasses;
     gfx::Device* device = nullptr;
     cc::gfx::CommandBuffer* cmdBuff = nullptr;
     boost::container::pmr::memory_resource* scratch = nullptr;
     gfx::RenderPass* currentPass = nullptr;
 };
-
-namespace {
 
 void clear(gfx::RenderPassInfo& info) {
     info.colorAttachments.clear();
@@ -257,7 +261,12 @@ gfx::TextureBarrierInfo getTextureBarrier(
         desc.mipLevels};
 }
 
-} // namespace
+struct RenderGraphFilter {
+    bool operator()(RenderGraph::vertex_descriptor u) const {
+        return validPasses->operator[](u);
+    }
+    const ccstd::pmr::vector<bool>* validPasses = nullptr;
+};
 
 struct RenderGraphVisitor : boost::dfs_visitor<> {
     void submitBarriers(const std::vector<Barrier>& barriers) const {
@@ -475,7 +484,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
     void discover_vertex(
         RenderGraph::vertex_descriptor vertID,
-        const AddressableView<RenderGraph>& gv) const {
+        const boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>& gv) const {
         std::ignore = gv;
         visitObject(
             vertID, ctx.g,
@@ -515,7 +524,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
     void finish_vertex(
         RenderGraph::vertex_descriptor vertID,
-        const AddressableView<RenderGraph>& gv) const {
+        const boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>& gv) const {
         std::ignore = gv;
         visitObject(
             vertID, ctx.g,
@@ -551,6 +560,17 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     RenderGraphVisitorContext& ctx;
 };
 
+struct RenderGraphCullVisitor : boost::dfs_visitor<> {
+    void discover_vertex(
+        // NOLINTNEXTLINE(misc-unused-parameters)
+        RenderGraph::vertex_descriptor vertID, const AddressableView<RenderGraph>& gv) const {
+        validPasses[vertID] = false;
+    }
+    ccstd::pmr::vector<bool>& validPasses;
+};
+
+} // namespace
+
 void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
     auto* scratch = &ppl.unsyncPool;
     FrameGraphDispatcher fgd(
@@ -561,21 +581,33 @@ void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
     fgd.setParalellWeight(0);
     fgd.run();
 
-    PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses(scratch);
-    for (const auto& culled : fgd.resourceAccessGraph.culledPasses) {
-        
+    AddressableView<RenderGraph> graphView(rg);
+    ccstd::pmr::vector<bool> validPasses(num_vertices(rg), true, scratch);
+    auto colors = rg.colors(scratch);
+    { // Mark all culled vertices
+        RenderGraphCullVisitor visitor{{}, validPasses};
+        for (const auto& vertID : fgd.resourceAccessGraph.culledPasses) {
+            const auto passID = get(ResourceAccessGraph::PassID, fgd.resourceAccessGraph, vertID);
+            boost::depth_first_visit(graphView, passID, visitor, get(colors, rg));
+        }
+        colors.clear();
+        colors.resize(num_vertices(rg), boost::white_color);
     }
 
-    RenderGraphVisitorContext ctx(
-        ppl.nativeContext, rg, ppl.resourceGraph,
-        fgd, fgd.barrierMap,
-        ppl.device, ppl.getCommandBuffers()[0],
-        scratch);
+    { // Execute all valid passes
+        boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>
+            fg(graphView, boost::keep_all{}, RenderGraphFilter{&validPasses});
 
-    RenderGraphVisitor visitor{{}, ctx};
-    auto colors = rg.colors(scratch);
-    AddressableView<RenderGraph> graphView(rg);
-    boost::depth_first_search(graphView, visitor, get(colors, rg));
+        RenderGraphVisitorContext ctx(
+            ppl.nativeContext, rg, ppl.resourceGraph,
+            fgd, fgd.barrierMap,
+            validPasses,
+            ppl.device, ppl.getCommandBuffers()[0],
+            scratch);
+
+        RenderGraphVisitor visitor{{}, ctx};
+        boost::depth_first_search(fg, visitor, get(colors, rg));
+    }
 }
 
 } // namespace render
