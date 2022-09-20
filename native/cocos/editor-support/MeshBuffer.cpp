@@ -24,8 +24,22 @@
 ****************************************************************************/
 
 #include "MeshBuffer.h"
+#include "2d/renderer/UIMeshBuffer.h"
 
 MIDDLEWARE_BEGIN
+
+static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B{
+    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
+};
+
+static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B_C4B{
+    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
+    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
+    gfx::Attribute{gfx::ATTR_NAME_COLOR2, gfx::Format::RGBA8, true},
+};
 
 MeshBuffer::MeshBuffer(int vertexFormat)
 : MeshBuffer(vertexFormat, INIT_INDEX_BUFFER_SIZE, MAX_VERTEX_BUFFER_SIZE) {
@@ -58,6 +72,7 @@ void MeshBuffer::clear() {
     }
     _ibArr.clear();
     _vbArr.clear();
+    cleanUIMeshBuffer();
 }
 
 
@@ -67,7 +82,8 @@ void MeshBuffer::init() {
 
     auto *rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
     _vbArr.push_back(rVB);
-
+    cleanUIMeshBuffer();
+    addUIMeshBuffer();
 }
 
 void MeshBuffer::uploadVB() {
@@ -77,6 +93,9 @@ void MeshBuffer::uploadVB() {
     auto *rVB = _vbArr[_bufferPos];
     rVB->reset();
     rVB->writeBytes(reinterpret_cast<const char *>(_vb.getBuffer()), _vb.length());
+    auto *uiMeshBuffer = _uiMeshBufferArr[_bufferPos];
+    uiMeshBuffer->setVData(reinterpret_cast<float *>(rVB->getBuffer()));
+    uiMeshBuffer->setByteOffset(static_cast<uint32_t>(_vb.length()));
 }
 
 void MeshBuffer::uploadIB() {
@@ -86,6 +105,8 @@ void MeshBuffer::uploadIB() {
     auto *rIB = _ibArr[_bufferPos];
     rIB->reset();
     rIB->writeBytes(reinterpret_cast<const char *>(_ib.getBuffer()), _ib.length());
+    auto *uiMeshBuffer = _uiMeshBufferArr[_bufferPos];
+    uiMeshBuffer->setIData(reinterpret_cast<uint16_t *>(rIB->getBuffer()));
 }
 
 void MeshBuffer::next() {
@@ -99,12 +120,43 @@ void MeshBuffer::next() {
         auto *rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
         _vbArr.push_back(rVB);
     }
+
+    if (_uiMeshBufferArr.size() <= _bufferPos) {
+        addUIMeshBuffer();
+    }
 }
 
 void MeshBuffer::reset() {
     _bufferPos = 0;
     _vb.reset();
     _ib.reset();
+}
+
+void MeshBuffer::addUIMeshBuffer() {
+    UIMeshBuffer* uiMeshBuffer = new UIMeshBuffer();
+    ccstd::vector<gfx::Attribute> attrs;
+    if (_vertexFormat == VF_XYZUVC) {
+        attrs = ATTRIBUTES_V3F_T2F_C4B;
+    } else {
+        attrs = ATTRIBUTES_V3F_T2F_C4B_C4B;
+    }
+    uiMeshBuffer->initialize(std::move(attrs), true);
+    _uiMeshBufferArr.push_back(uiMeshBuffer);
+}
+
+void MeshBuffer::cleanUIMeshBuffer() {
+    for(auto *buf : _uiMeshBufferArr) {
+        delete buf;
+    }
+    _uiMeshBufferArr.clear();
+}
+
+cc::UIMeshBuffer *MeshBuffer::getUIMeshBuffer() const {
+    return _uiMeshBufferArr[_bufferPos];
+}
+
+const ccstd::vector<cc::UIMeshBuffer *>& MeshBuffer::uiMeshBuffers() const {
+    return _uiMeshBufferArr;
 }
 
 MIDDLEWARE_END
