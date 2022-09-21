@@ -2582,6 +2582,932 @@ bool js_register_cc_Device(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_ISystemWindow_class = nullptr;
+se::Object* __jsb_cc_ISystemWindow_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_ISystemWindow) 
+
+static bool js_cc_ISystemWindow_createWindow__SWIG_0(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    char *arg2 = (char *) NULL ;
+    int arg3 ;
+    int arg4 ;
+    int arg5 ;
+    int arg6 ;
+    int arg7 ;
+    ccstd::string temp2 ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,2,SWIGTYPE_p_char");
+    arg2 = (char *) temp2.c_str(); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,3,SWIGTYPE_int"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,4,SWIGTYPE_int"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,5,SWIGTYPE_int"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg6, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,6,SWIGTYPE_int"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[5], &arg7, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,7,SWIGTYPE_int"); 
+    result = (bool)(arg1)->createWindow((char const *)arg2,arg3,arg4,arg5,arg6,arg7);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+
+static bool js_cc_ISystemWindow_createWindow__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    char *arg2 = (char *) NULL ;
+    int arg3 ;
+    int arg4 ;
+    int arg5 ;
+    ccstd::string temp2 ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,2,SWIGTYPE_p_char");
+    arg2 = (char *) temp2.c_str(); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,3,SWIGTYPE_int"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,4,SWIGTYPE_int"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_createWindow,5,SWIGTYPE_int"); 
+    result = (bool)(arg1)->createWindow((char const *)arg2,arg3,arg4,arg5);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+
+static bool js_cc_ISystemWindow_createWindow(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 6) {
+        ok = js_cc_ISystemWindow_createWindow__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 4) {
+        ok = js_cc_ISystemWindow_createWindow__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_createWindow) 
+
+static bool js_cc_ISystemWindow_getWindowId(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::ISystemWindow const *)arg1)->getWindowId();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_getWindowId, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_getWindowId) 
+
+static bool js_cc_ISystemWindow_closeWindow(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->closeWindow();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_closeWindow) 
+
+static bool js_cc_ISystemWindow_getWindowHandle(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    uintptr_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::ISystemWindow const *)arg1)->getWindowHandle();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_getWindowHandle, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_getWindowHandle) 
+
+static bool js_cc_ISystemWindow_getViewSize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    cc::ISystemWindow::Size result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::ISystemWindow const *)arg1)->getViewSize();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_getViewSize, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_getViewSize) 
+
+static bool js_cc_ISystemWindow_setViewSize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindow_setViewSize,2,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindow_setViewSize,3,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setViewSize(arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_setViewSize) 
+
+static bool js_cc_ISystemWindow_setCursorEnabled(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "ISystemWindow_setCursorEnabled,2,SWIGTYPE_bool"); 
+    (arg1)->setCursorEnabled(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_setCursorEnabled) 
+
+static bool js_cc_ISystemWindow_copyTextToClipboard(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindow *arg1 = (cc::ISystemWindow *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindow>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindow_copyTextToClipboard,2,SWIGTYPE_p_ccstd__string");
+    arg2 = &temp2;
+    
+    (arg1)->copyTextToClipboard((ccstd::string const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindow_copyTextToClipboard) 
+
+static bool js_delete_cc_ISystemWindow(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_ISystemWindow) 
+
+bool js_register_cc_ISystemWindow(se::Object* obj) {
+    auto* cls = se::Class::create("ISystemWindow", obj, nullptr, nullptr); 
+    
+    
+    cls->defineFunction("createWindow", _SE(js_cc_ISystemWindow_createWindow)); 
+    cls->defineFunction("getWindowId", _SE(js_cc_ISystemWindow_getWindowId)); 
+    cls->defineFunction("closeWindow", _SE(js_cc_ISystemWindow_closeWindow)); 
+    cls->defineFunction("getWindowHandle", _SE(js_cc_ISystemWindow_getWindowHandle)); 
+    cls->defineFunction("getViewSize", _SE(js_cc_ISystemWindow_getViewSize)); 
+    cls->defineFunction("setViewSize", _SE(js_cc_ISystemWindow_setViewSize)); 
+    cls->defineFunction("setCursorEnabled", _SE(js_cc_ISystemWindow_setCursorEnabled)); 
+    cls->defineFunction("copyTextToClipboard", _SE(js_cc_ISystemWindow_copyTextToClipboard)); 
+    
+    cls->defineStaticProperty("mainWindowId", nullptr, nullptr); 
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_ISystemWindow));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::ISystemWindow>(cls);
+    
+    __jsb_cc_ISystemWindow_proto = cls->getProto();
+    __jsb_cc_ISystemWindow_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_ISystemWindowInfo_class = nullptr;
+se::Object* __jsb_cc_ISystemWindowInfo_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_ISystemWindowInfo) 
+
+static bool js_cc_ISystemWindowInfo_title_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->title, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_title_set,2,SWIGTYPE_ccstd__string"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_title_set) 
+
+static bool js_cc_ISystemWindowInfo_title_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->title, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_title_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->title, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_title_get) 
+
+static bool js_cc_ISystemWindowInfo_x_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->x, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_x_set,2,SWIGTYPE_int32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_x_set) 
+
+static bool js_cc_ISystemWindowInfo_x_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->x, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_x_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->x, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_x_get) 
+
+static bool js_cc_ISystemWindowInfo_y_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->y, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_y_set,2,SWIGTYPE_int32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_y_set) 
+
+static bool js_cc_ISystemWindowInfo_y_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->y, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_y_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->y, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_y_get) 
+
+static bool js_cc_ISystemWindowInfo_width_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->width, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_width_set,2,SWIGTYPE_int32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_width_set) 
+
+static bool js_cc_ISystemWindowInfo_width_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->width, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_width_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->width, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_width_get) 
+
+static bool js_cc_ISystemWindowInfo_height_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->height, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_height_set,2,SWIGTYPE_int32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_height_set) 
+
+static bool js_cc_ISystemWindowInfo_height_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->height, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_height_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->height, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_height_get) 
+
+static bool js_cc_ISystemWindowInfo_flags_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->flags, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_flags_set,2,SWIGTYPE_int32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_flags_set) 
+
+static bool js_cc_ISystemWindowInfo_flags_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->flags, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_flags_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->flags, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_flags_get) 
+
+static bool js_cc_ISystemWindowInfo_externalHandle_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    ok &= sevalue_to_native(args[0], &arg1->externalHandle);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_externalHandle_set,2,SWIGTYPE_p_void");
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_externalHandle_set) 
+
+static bool js_cc_ISystemWindowInfo_externalHandle_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(arg1->externalHandle, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowInfo_externalHandle_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->externalHandle, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_externalHandle_get) 
+
+// js_ctor
+static bool js_new_cc_ISystemWindowInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::ISystemWindowInfo *result;
+    result = (cc::ISystemWindowInfo *)new cc::ISystemWindowInfo();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_ISystemWindowInfo, __jsb_cc_ISystemWindowInfo_class, js_delete_cc_ISystemWindowInfo)
+
+static bool js_delete_cc_ISystemWindowInfo(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_ISystemWindowInfo) 
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::ISystemWindowInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::ISystemWindowInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    
+    json->getProperty("title", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->title), ctx);
+    }
+    
+    
+    json->getProperty("x", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->x), ctx);
+    }
+    
+    
+    json->getProperty("y", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->y), ctx);
+    }
+    
+    
+    json->getProperty("width", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->width), ctx);
+    }
+    
+    
+    json->getProperty("height", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->height), ctx);
+    }
+    
+    
+    json->getProperty("flags", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->flags), ctx);
+    }
+    
+    
+    json->getProperty("externalHandle", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->externalHandle), ctx);
+    }
+    
+    
+    return ok;
+}
+
+
+bool js_register_cc_ISystemWindowInfo(se::Object* obj) {
+    auto* cls = se::Class::create("ISystemWindowInfo", obj, nullptr, _SE(js_new_cc_ISystemWindowInfo)); 
+    
+    cls->defineProperty("title", _SE(js_cc_ISystemWindowInfo_title_get), _SE(js_cc_ISystemWindowInfo_title_set)); 
+    cls->defineProperty("x", _SE(js_cc_ISystemWindowInfo_x_get), _SE(js_cc_ISystemWindowInfo_x_set)); 
+    cls->defineProperty("y", _SE(js_cc_ISystemWindowInfo_y_get), _SE(js_cc_ISystemWindowInfo_y_set)); 
+    cls->defineProperty("width", _SE(js_cc_ISystemWindowInfo_width_get), _SE(js_cc_ISystemWindowInfo_width_set)); 
+    cls->defineProperty("height", _SE(js_cc_ISystemWindowInfo_height_get), _SE(js_cc_ISystemWindowInfo_height_set)); 
+    cls->defineProperty("flags", _SE(js_cc_ISystemWindowInfo_flags_get), _SE(js_cc_ISystemWindowInfo_flags_set)); 
+    cls->defineProperty("externalHandle", _SE(js_cc_ISystemWindowInfo_externalHandle_get), _SE(js_cc_ISystemWindowInfo_externalHandle_set)); 
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_ISystemWindowInfo));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::ISystemWindowInfo>(cls);
+    
+    __jsb_cc_ISystemWindowInfo_proto = cls->getProto();
+    __jsb_cc_ISystemWindowInfo_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_ISystemWindowManager_class = nullptr;
+se::Object* __jsb_cc_ISystemWindowManager_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_ISystemWindowManager) 
+
+static bool js_cc_ISystemWindowManager_init(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
+    int result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (int)(arg1)->init();
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_init) 
+
+static bool js_cc_ISystemWindowManager_processEvent(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
+    bool *arg2 = (bool *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowManager_processEvent,2,SWIGTYPE_p_bool"); 
+    (arg1)->processEvent(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_processEvent) 
+
+static bool js_cc_ISystemWindowManager_swapWindows(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->swapWindows();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_swapWindows) 
+
+static bool js_cc_ISystemWindowManager_createWindow(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
+    cc::ISystemWindowInfo *arg2 = 0 ;
+    cc::ISystemWindowInfo temp2 ;
+    cc::ISystemWindow *result = 0 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowManager_createWindow,2,SWIGTYPE_p_cc__ISystemWindowInfo");
+    arg2 = &temp2;
+    
+    result = (cc::ISystemWindow *)(arg1)->createWindow((cc::ISystemWindowInfo const &)*arg2);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowManager_createWindow, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_createWindow) 
+
+static bool js_cc_ISystemWindowManager_getWindow(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
+    uint32_t arg2 ;
+    cc::ISystemWindow *result = 0 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ISystemWindowManager_getWindow,2,SWIGTYPE_uint32_t"); 
+    
+    result = (cc::ISystemWindow *)((cc::ISystemWindowManager const *)arg1)->getWindow(arg2);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowManager_getWindow, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_getWindow) 
+
+static bool js_cc_ISystemWindowManager_getWindows(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
+    cc::SystemWindowMap *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::SystemWindowMap *) &((cc::ISystemWindowManager const *)arg1)->getWindows();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ISystemWindowManager_getWindows, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_getWindows) 
+
+static bool js_delete_cc_ISystemWindowManager(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_ISystemWindowManager) 
+
+bool js_register_cc_ISystemWindowManager(se::Object* obj) {
+    auto* cls = se::Class::create("ISystemWindowManager", obj, nullptr, nullptr); 
+    
+    
+    cls->defineFunction("init", _SE(js_cc_ISystemWindowManager_init)); 
+    cls->defineFunction("processEvent", _SE(js_cc_ISystemWindowManager_processEvent)); 
+    cls->defineFunction("swapWindows", _SE(js_cc_ISystemWindowManager_swapWindows)); 
+    cls->defineFunction("createWindow", _SE(js_cc_ISystemWindowManager_createWindow)); 
+    cls->defineFunction("getWindow", _SE(js_cc_ISystemWindowManager_getWindow)); 
+    cls->defineFunction("getWindows", _SE(js_cc_ISystemWindowManager_getWindows)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_ISystemWindowManager));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::ISystemWindowManager>(cls);
+    
+    __jsb_cc_ISystemWindowManager_proto = cls->getProto();
+    __jsb_cc_ISystemWindowManager_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_FileUtils_class = nullptr;
 se::Object* __jsb_cc_FileUtils_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_FileUtils) 
@@ -8051,6 +8977,9 @@ bool register_all_engine(se::Object* obj) {
     js_register_cc_CanvasGradient(ns); 
     js_register_cc_CanvasRenderingContext2D(ns); 
     js_register_cc_Device(ns); 
+    js_register_cc_ISystemWindow(ns); 
+    js_register_cc_ISystemWindowInfo(ns); 
+    js_register_cc_ISystemWindowManager(ns); 
     js_register_cc_FileUtils(ns); 
     js_register_cc_SAXParser(ns); 
     js_register_cc_Vec2(ns); 

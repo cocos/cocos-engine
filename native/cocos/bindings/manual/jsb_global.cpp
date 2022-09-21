@@ -411,7 +411,7 @@ static bool JSB_setCursorEnabled(se::State &s) { // NOLINT
     ok &= sevalue_to_native(args[0], &value);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    auto *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+    auto *systemWindowIntf = CC_GET_SYSTEM_WINDOW(ISystemWindow::mainWindowId);
     CC_ASSERT(systemWindowIntf != nullptr);
     systemWindowIntf->setCursorEnabled(value);
     return true;

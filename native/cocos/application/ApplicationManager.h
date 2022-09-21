@@ -76,7 +76,7 @@ private:
 #define CC_GET_SYSTEM_WINDOW(id)        CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager)->getWindow(id)
 #define CC_GET_MAIN_SYSTEM_WINDOW()     CC_GET_SYSTEM_WINDOW(cc::ISystemWindow::mainWindowId) // Assuming the 1st created window is the main system window for now!
 
-#define CC_GET_XR_INTERFACE()           BasePlatform::getPlatform()->getInterface<IXRInterface>()
+#define CC_GET_XR_INTERFACE() BasePlatform::getPlatform()->getInterface<IXRInterface>()
 
 /**
  * @brief Called at the user-defined main entry

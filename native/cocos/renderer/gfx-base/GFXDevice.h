@@ -190,7 +190,6 @@ protected:
     ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
     ccstd::unordered_map<BufferBarrierInfo, BufferBarrier *, Hasher<BufferBarrierInfo>> _bufferBarriers;
 
-
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
 };

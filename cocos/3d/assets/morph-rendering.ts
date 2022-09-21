@@ -30,7 +30,7 @@ import { Mesh } from './mesh';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { ImageAsset } from '../../asset/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
-    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
+    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
 import { warn } from '../../core/platform/debug';
 import { Morph, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';

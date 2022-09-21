@@ -41,8 +41,12 @@ inline const char* getName(const ResourceDesc& /*v*/) noexcept { return "Resourc
 inline const char* getName(const ResourceTraits& /*v*/) noexcept { return "ResourceTraits"; }
 inline const char* getName(const RenderSwapchain& /*v*/) noexcept { return "RenderSwapchain"; }
 inline const char* getName(const ResourceStates& /*v*/) noexcept { return "ResourceStates"; }
+inline const char* getName(const ManagedBuffer& /*v*/) noexcept { return "ManagedBuffer"; }
+inline const char* getName(const ManagedTexture& /*v*/) noexcept { return "ManagedTexture"; }
 inline const char* getName(const ManagedResource& /*v*/) noexcept { return "ManagedResource"; }
 inline const char* getName(const ManagedTag& /*v*/) noexcept { return "Managed"; }
+inline const char* getName(const ManagedBufferTag& /*v*/) noexcept { return "ManagedBuffer"; }
+inline const char* getName(const ManagedTextureTag& /*v*/) noexcept { return "ManagedTexture"; }
 inline const char* getName(const PersistentBufferTag& /*v*/) noexcept { return "PersistentBuffer"; }
 inline const char* getName(const PersistentTextureTag& /*v*/) noexcept { return "PersistentTexture"; }
 inline const char* getName(const FramebufferTag& /*v*/) noexcept { return "Framebuffer"; }

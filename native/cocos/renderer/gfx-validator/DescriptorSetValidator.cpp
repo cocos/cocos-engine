@@ -79,8 +79,8 @@ void DescriptorSetValidator::update() {
     Format format = {};
 
     for (size_t i = 0; i < descriptorCount; ++i) {
-        texture = _textures[i];
-        sampler = _samplers[i];
+        texture = _textures[i].ptr;
+        sampler = _samplers[i].ptr;
         if (texture == nullptr || sampler == nullptr) continue;
         format = texture->getInfo().format;
 

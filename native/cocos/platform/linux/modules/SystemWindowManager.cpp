@@ -24,15 +24,15 @@
  ****************************************************************************/
 
 #include "SystemWindowManager.h"
+#include "SDL2/SDL_events.h"
 #include "platform/BasePlatform.h"
 #include "platform/SDLHelper.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/linux/modules/SystemWindow.h"
-#include "SDL2/SDL_events.h"
 
 namespace cc {
 SystemWindowManager::SystemWindowManager(IEventDispatch *delegate)
-    : _eventDispatcher(delegate) {
+: _eventDispatcher(delegate) {
 }
 
 int SystemWindowManager::init() {

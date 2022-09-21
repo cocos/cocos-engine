@@ -94,7 +94,7 @@ struct ResourceAccessNode {
 struct ResourceAccessGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {vertices.get_allocator().resource()};
+        return {_vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -146,29 +146,29 @@ struct ResourceAccessGraph {
 
     // VertexList help functions
     inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -218,7 +218,7 @@ struct ResourceAccessGraph {
     } static constexpr AccessNode{}; // NOLINT
 
     // Vertices
-    ccstd::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> _vertices;
     // Components
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
     ccstd::pmr::vector<ResourceAccessNode> access;
@@ -278,29 +278,29 @@ struct EmptyGraph {
 
     // VertexList help functions
     inline std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline std::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const std::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -316,7 +316,7 @@ struct EmptyGraph {
         std::vector<InEdge> inEdges;
     };
     // Vertices
-    std::vector<Vertex> vertices;
+    std::vector<Vertex> _vertices;
 };
 
 struct Barrier {
@@ -342,7 +342,7 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
@@ -367,7 +367,7 @@ struct FrameGraphDispatcher {
 
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
-    RenderGraph& graph;
+    const RenderGraph& graph;
     LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;

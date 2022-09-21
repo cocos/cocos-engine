@@ -29,88 +29,12 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { Node } from '../../core/scene-graph/node';
 import { Event } from '../../input/types';
 
 export enum DeviceType {
     Other = 0,
     Left = 1,
     Right = 2
-}
-
-/**
- * @en The input event type
- * @zh 输入事件类型
- */
-export enum XrControlEventType {
-    SELECT_ENTERED = 'select-entered',
-    SELECT_EXITED = 'select-exited',
-    SELECT_CANCELED = 'select-canceled',
-
-    ACTIVATED = 'OnActivited',
-    DEACTIVITED = 'Deactivited',
-    ACTIVATE_CANCELED = 'activate-canceled',
-
-    UIPRESS_ENTERED = 'UI-press-entered',
-    UIPRESS_EXITED = 'UI-press-exited',
-    UIPRESS_CANCELED = 'UI-press-canceled',
-
-    HOVER_ENTERED = 'hover-entered',
-    HOVER_EXITED = 'hover-exited',
-    HOVER_STAY = 'hover-stay',
-    HOVER_CANCELED = 'hover-canceled'
-}
-
-/**
- * @en
- * Xr handle event.
- *
- * @zh
- * xr手柄事件。
- */
-export class XrEventHandle extends Event {
-    //  export class XrEventHandle {
-    /**
-     * @en Event trigger
-     * @zh 事件触发者（左右手柄等）
-     */
-    public deviceType = DeviceType.Other;
-
-    /**
-     * @en Collision detection point
-     * @zh 碰撞检测点
-     */
-    public hitPoint = new Vec3();
-
-    /**
-     * @en Controller model
-     * @zh Controller模型
-     */
-    public model: Node | null = null;
-
-    /**
-     * @en Handle events
-     * @zh 手柄事件
-     */
-    public eventHandle = 0;
-
-    /**
-     * @en Trigger Id
-     * @zh 触发者Id
-     */
-    public triggerId: string | undefined = "";
-
-    /**
-     * @en The attached node
-     * @zh 被附着者节点
-     */
-    public attachNode: Node | null = null;
-
-    /**
-     * @en Whether to force grab
-     * @zh 是否强制抓取
-     */
-    public forceGrab = true;
 }
 
 /**

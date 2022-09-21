@@ -37,7 +37,7 @@ import { Node } from '../../core/scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D } from './draw-batch';
 import { legacyCC } from '../../core/global-exports';
-import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
+import { ModelLocalBindings, UBOLocal } from '../../rendering/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Mat4 } from '../../core/math';

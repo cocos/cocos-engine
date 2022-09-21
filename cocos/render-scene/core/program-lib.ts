@@ -24,8 +24,8 @@
 */
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../core/pipeline/define';
-import { PipelineRuntime } from '../../core/pipeline/custom/pipeline';
+import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
+import { PipelineRuntime } from '../../rendering/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
 import { legacyCC } from '../../core/global-exports';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,

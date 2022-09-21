@@ -291,7 +291,7 @@ struct FrameGraphPassInfo {
 static void addPassToFrameGraph(const FrameGraphPassInfo &info) {
     const auto &rasterViews = info.rasterViews;
     const auto &passID = info.passID;
-    auto &barrierMap = info.barrierMap;
+    const auto &barrierMap = info.barrierMap;
     const auto &renderGraph = info.renderGraph;
     const auto &resourceGraph = info.resourceGraph;
     auto &frameGraph = info.frameGraph;

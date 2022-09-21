@@ -28,10 +28,9 @@
 #include "application/ApplicationManager.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
-#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
-#include "platform/interfaces/modules/IScreen.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -75,7 +74,7 @@ Root::~Root() {
     instance = nullptr;
 }
 
-void Root::initialize(gfx::Swapchain *  /*swapchain*/) {
+void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     auto *windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
     const auto &windows = windowMgr->getWindows();
     for (const auto &pair : windows) {
@@ -113,7 +112,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     const auto &size = window->getViewSize();
 
     gfx::SwapchainInfo info;
-    info.width  = static_cast<uint32_t>(size.x) * pixelRatio;
+    info.width = static_cast<uint32_t>(size.x) * pixelRatio;
     info.height = static_cast<uint32_t>(size.y) * pixelRatio;
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
@@ -215,7 +214,7 @@ public:
     gfx::DescriptorSet *getDescriptorSet() const override {
         return pipeline->getDescriptorSet();
     }
-    ccstd::vector<gfx::CommandBuffer *> getCommandBuffers() const override {
+    const ccstd::vector<gfx::CommandBuffer *> &getCommandBuffers() const override {
         return pipeline->getCommandBuffers();
     }
     pipeline::PipelineSceneData *getPipelineSceneData() const override {
@@ -314,6 +313,7 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
 
         _pipeline = rppl;
         _pipelineRuntime = std::make_unique<RenderPipelineBridge>(rppl);
+        rppl->setPipelineRuntime(_pipelineRuntime.get());
 
         // now cluster just enabled in deferred pipeline
         if (!_useDeferredPipeline || !_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {
