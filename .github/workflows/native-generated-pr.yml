@@ -29,6 +29,7 @@ jobs:
           SRC_MERGER=`curl -H "Accept: application/vnd.github+json" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${SRC_PR} | \
             sh -c 'node ./.github/workflows/jsonr.js merged_by.login'`
           echo "source pr merger ${SRC_MERGER}"
+          echo "token length: ${#REPO_TOKEN}"
           echo ::set-output name=SRC_MERGER::${SRC_MERGER}
           #curl -X POST  -H "Accept: application/vnd.github+json" \
           #  -H "Authorization: token $REPO_TOKEN" \
