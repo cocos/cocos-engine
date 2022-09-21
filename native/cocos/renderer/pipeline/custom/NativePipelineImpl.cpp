@@ -81,6 +81,7 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
   layoutGraph(alloc),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
+  nativeContext(alloc),
   resourceGraph(alloc),
   renderGraph(alloc) {}
 
@@ -362,119 +363,13 @@ bool NativePipeline::destroy() noexcept {
         pipelineSceneData = {};
     }
 
-    framegraph::FrameGraph::gc(0);
-
     return true;
 }
 
-// NOLINTNEXTLINE
 void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
+    std::ignore = cameras;
     const auto *sceneData = pipelineSceneData.get();
     auto *commandBuffer = device->getCommandBuffer();
-    float shadingScale = sceneData->getShadingScale();
-
-    struct RenderData2 {
-        framegraph::TextureHandle outputTex;
-    };
-
-    commandBuffer->begin();
-
-    for (const auto *camera : cameras) {
-        auto colorHandle = framegraph::FrameGraph::stringToHandle("outputTexture");
-
-        auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData2 &data) {
-            gfx::Color clearColor;
-            if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
-                clearColor.x = camera->getClearColor().x;
-                clearColor.y = camera->getClearColor().y;
-                clearColor.z = camera->getClearColor().z;
-            }
-            clearColor.w = camera->getClearColor().w;
-            // color
-            framegraph::Texture::Descriptor colorTexInfo;
-            colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-            colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
-            colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
-            colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
-            if (shadingScale != 1.F) {
-                colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
-            }
-
-            data.outputTex = builder.create(colorHandle, colorTexInfo);
-            framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-            colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
-            colorAttachmentInfo.clearColor = clearColor;
-            colorAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
-
-            colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
-
-            data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
-            builder.writeToBlackboard(colorHandle, data.outputTex);
-
-            auto getRenderArea = [](const scene::Camera *camera) {
-                float w{static_cast<float>(camera->getWindow()->getWidth())};
-                float h{static_cast<float>(camera->getWindow()->getHeight())};
-
-                const auto &vp = camera->getViewport();
-                return gfx::Rect{
-                    static_cast<int32_t>(vp.x * w),
-                    static_cast<int32_t>(vp.y * h),
-                    static_cast<uint32_t>(vp.z * w),
-                    static_cast<uint32_t>(vp.w * h),
-                };
-            };
-
-            auto getViewport = [&shadingScale, &getRenderArea](const scene::Camera *camera) {
-                const gfx::Rect &rect = getRenderArea(camera);
-                return gfx::Viewport{
-                    static_cast<int>(static_cast<float>(rect.x) * shadingScale),
-                    static_cast<int>(static_cast<float>(rect.y) * shadingScale),
-                    static_cast<uint32_t>(static_cast<float>(rect.width) * shadingScale),
-                    static_cast<uint32_t>(static_cast<float>(rect.height) * shadingScale)};
-            };
-
-            auto getScissor = [&shadingScale, &getRenderArea](const scene::Camera *camera) {
-                const gfx::Rect &rect = getRenderArea(camera);
-                return gfx::Rect{
-                    static_cast<int>(static_cast<float>(rect.x) * shadingScale),
-                    static_cast<int>(static_cast<float>(rect.y) * shadingScale),
-                    static_cast<uint32_t>(static_cast<float>(rect.width) * shadingScale),
-                    static_cast<uint32_t>(static_cast<float>(rect.height) * shadingScale)};
-            };
-
-            builder.setViewport(getViewport(camera), getScissor(camera));
-        };
-
-        auto forwardExec = [](const RenderData2 & /*data*/,
-                              const framegraph::DevicePassResourceTable &table) {
-            // do nothing
-        };
-
-        auto passHandle = framegraph::FrameGraph::stringToHandle("forwardPass");
-
-        frameGraph.addPass<RenderData2>(
-            static_cast<uint32_t>(ForwardInsertPoint::IP_FORWARD),
-            passHandle, forwardSetup, forwardExec);
-
-        frameGraph.presentFromBlackboard(colorHandle,
-                                         camera->getWindow()->getFramebuffer()->getColorTextures()[0], true);
-    }
-    frameGraph.compile();
-    frameGraph.execute();
-    frameGraph.reset();
-
-    ccstd::vector<gfx::CommandBuffer *> commandBuffers(1, commandBuffer);
-    device->flushCommands(commandBuffers);
-    device->getQueue()->submit(commandBuffers);
-
-    commandBuffer->end();
-    {
-        static uint64_t frameCount{0U};
-        static constexpr uint64_t INTERVAL_IN_SECONDS = 30;
-        if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
-            framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);
-        }
-    }
 }
 
 const MacroRecord &NativePipeline::getMacros() const {
