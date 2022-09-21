@@ -111,6 +111,13 @@ export class Batcher2D implements IBatcher {
     private _currIsStatic = false;
     private _currHash = 0;
 
+    //for middleware
+    private _currIsMiddleware = false;
+    private _currEnableBatch = false;
+    private _currMeshBuffer: MeshBuffer | null = null;
+    private _currIndexOffset = 0;
+    private _currIndexCount = 0;
+
     private _pOpacity = 1;
     private _opacityDirty = 0;
 
@@ -426,46 +433,47 @@ export class Batcher2D implements IBatcher {
 
     /**
      * @en
-     * Render component data submission process for individual [[gfx.InputAssembler]]
+     * Render component data submission process for middleware2d components
      * @zh
-     * 渲染组件中针对独立 [[gfx.InputAssembler]] 的提交流程
-     * 例如：Spine 和 DragonBones 等包含动态数据和材质的组件在内部管理 IA 并提交批次
+     * 渲染组件中针对2D中间件组件渲染数据的提交流程
+     * 例如：Spine 和 DragonBones 包含动态数据和材质的组件
      * @param comp - The committed renderable component
-     * @param ia - The committed [[gfx.InputAssembler]]
+     * @param meshBuffer - The MeshBuffer used
+     * @param indexOffset - indices offset
+     * @param indexCount - indices count
      * @param tex - The texture used
      * @param mat - The material used
-     * @param [transform] - The related node transform if the render data is based on node's local coordinates
+     * @param enableBatch - component support multi draw batch or not
      */
-    public commitIA (renderComp: UIRenderer, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
-        // if the last comp is spriteComp, previous comps should be batched.
-        if (this._currMaterial !== this._emptyMaterial) {
+    public commitMiddleware (comp: UIRenderer, meshBuffer: MeshBuffer, indexOffset: number,
+        indexCount: number, tex: TextureBase, mat: Material, enableBatch: boolean) {
+        // check if need merge draw batch
+        const texture = tex.getGFXTexture();
+        if (enableBatch && this._currEnableBatch && this._currMeshBuffer === meshBuffer && this._currTexture === texture
+            && this._currMaterial.hash === mat.hash
+            && this._currIndexOffset + this._currIndexCount === indexOffset
+            && this._currLayer === comp.node.layer) {
+            this._currIndexCount += indexCount;
+        } else {
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
-        }
-        let depthStencil;
-        let dssHash = 0;
-        if (renderComp) {
-            renderComp.stencilStage = StencilManager.sharedManager!.stage;
-            if (renderComp.customMaterial !== null) {
-                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
-            } else {
-                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
-            }
-            dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+
+            this._currComponent = comp;
+            this._currTexture = texture;
+            this._currSampler = tex.getGFXSampler();
+            this._currTextureHash = tex.getHash();
+            this._currLayer = comp.node.layer;
+            this._currSamplerHash = this._currSampler.hash;
+            this._currTransform = enableBatch ? null : comp.node;
+
+            this._currEnableBatch = enableBatch;
+            this._currMeshBuffer = meshBuffer;
+            this._currMaterial = mat;
+            this._currIndexOffset = indexOffset;
+            this._currIndexCount = indexCount;
         }
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
-        curDrawBatch.visFlags = renderComp.node.layer;
-        curDrawBatch.inputAssembler = ia;
-        curDrawBatch.useLocalData = transform || null;
-        if (tex) {
-            curDrawBatch.texture = tex.getGFXTexture();
-            curDrawBatch.sampler = tex.getGFXSampler();
-            curDrawBatch.textureHash = tex.getHash();
-            curDrawBatch.samplerHash = curDrawBatch.sampler.hash;
-        }
-        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, null);
-        this._batches.push(curDrawBatch);
+        this._currIsMiddleware = true;
     }
 
     /**
@@ -561,6 +569,10 @@ export class Batcher2D implements IBatcher {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: UIRenderer) {
+        if (this._currIsMiddleware) {
+            this.mergeBatchesForMiddleware(renderComp!);
+            return;
+        }
         const mat = this._currMaterial;
         if (!mat) {
             return;
@@ -621,6 +633,35 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.fillPasses(mat, depthStencil, dssHash, null);
 
         this._batches.push(curDrawBatch);
+    }
+
+    private mergeBatchesForMiddleware (renderComp: UIRenderer) {
+        let depthStencil;
+        let dssHash = 0;
+        renderComp.stencilStage = StencilManager.sharedManager!.stage;
+        if (renderComp.customMaterial !== null) {
+            depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, this._currMaterial);
+        } else {
+            depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+        }
+        dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        curDrawBatch.visFlags = renderComp.node.layer;
+        const ia = this._currMeshBuffer!.requireFreeIA(this.device);
+        ia.firstIndex = this._currIndexOffset;
+        ia.indexCount = this._currIndexCount;
+
+        curDrawBatch.inputAssembler = ia;
+        curDrawBatch.useLocalData = this._currTransform;
+        curDrawBatch.texture = this._currTexture;
+        curDrawBatch.sampler = this._currSampler;
+        curDrawBatch.textureHash = this._currTextureHash;
+        curDrawBatch.samplerHash = this._currSamplerHash;
+        curDrawBatch.fillPasses(this._currMaterial || null, depthStencil, dssHash, null);
+        this._batches.push(curDrawBatch);
+
+        this._currIsMiddleware = false;
     }
 
     /**
