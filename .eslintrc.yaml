@@ -94,6 +94,7 @@ rules:
     one-var-declaration-per-line: off # auto-fix has order issues with `one-var`
     prefer-destructuring: off # auto-fix is not smart enough to merge different instances
     linebreak-style: off # we don't enforce this on everyone's dev environment for now
+    spaced-comment: off # for license declarations
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 

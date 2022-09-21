@@ -1,5 +1,6 @@
 const utils = require('./utils');
 
+window.__globalAdapter = window.__globalAdapter || {};
 if (window.__globalAdapter) {
     let globalAdapter = window.__globalAdapter;
     let isLandscape = false;  // getSystemInfoSync not supported in sub context

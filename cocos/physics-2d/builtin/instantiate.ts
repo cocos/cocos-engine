@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import { select } from '../framework/physics-selector';
 import { BuiltinPhysicsWorld } from './builtin-world';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';

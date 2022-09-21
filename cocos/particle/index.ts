@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { Billboard } from './billboard';
 import { Line } from './line';
 import { ParticleSystem } from './particle-system';

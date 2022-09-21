@@ -1,0 +1,69 @@
+#pragma define-meta CC_RENDER_MODE range([0, 4])
+#pragma define RENDER_MODE_BILLBOARD 0
+#pragma define RENDER_MODE_STRETCHED_BILLBOARD 1
+#pragma define RENDER_MODE_HORIZONTAL_BILLBOARD 2
+#pragma define RENDER_MODE_VERTICAL_BILLBOARD 3
+#pragma define RENDER_MODE_MESH 4
+
+uniform Constants {
+  vec4 mainTiling_Offset;
+  vec4 frameTile_velLenScale;
+  vec4 scale;
+  vec4 nodeRotation;
+};
+
+#include <builtin/uniforms/cc-global>
+#include <builtin/uniforms/cc-local>
+#include <common/math/transform>
+
+out mediump vec2 uv;
+out mediump vec4 color;
+
+void computeVertPos (inout vec4 pos, vec2 vertOffset, vec4 q, vec3 s
+#if CC_RENDER_MODE == RENDER_MODE_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
+  , mat4 viewInv
+#endif
+#if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+  , vec3 eye
+  , vec4 velocity
+  , float velocityScale
+  , float lengthScale
+  , float xIndex
+#endif
+) {
+#if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
+  vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
+  vec3 camX = normalize(vec3(viewInv[0][0], viewInv[1][0], viewInv[2][0]));
+  vec3 camY = normalize(vec3(viewInv[0][1], viewInv[1][1], viewInv[2][1]));
+  vec3 camZ = normalize(vec3(viewInv[0][2], viewInv[1][2], viewInv[2][2]));
+  pos.xyz += rotateInLocalSpace(viewSpaceVert, camX, camY, camZ, q);
+#elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+  vec3 camRight = normalize(cross(pos.xyz - eye, velocity.xyz)) * s.x;
+  vec3 camUp = velocity.xyz * velocityScale + normalize(velocity.xyz) * lengthScale * s.y;
+  pos.xyz += (camRight * abs(vertOffset.x) * sign(vertOffset.y)) - camUp * xIndex;
+#elif CC_RENDER_MODE == RENDER_MODE_HORIZONTAL_BILLBOARD
+  vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
+  vec3 camX = vec3(1, 0, 0);
+  vec3 camY = vec3(0, 0, -1);
+  pos.xyz += rotateInLocalSpace(viewSpaceVert, camX, camY, cross(camX, camY), q);
+#elif CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
+  vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
+  rotateVecFromQuat(viewSpaceVert, q);
+  vec3 camX = normalize(vec3(cc_matView[0][0], cc_matView[1][0], cc_matView[2][0]));
+  vec3 camY = vec3(0, 1, 0);
+  vec3 offset = camX * viewSpaceVert.x + camY * viewSpaceVert.y;
+  pos.xyz += offset;
+#else
+  pos.x += vertOffset.x;
+  pos.y += vertOffset.y;
+#endif
+}
+
+vec2 computeUV (float frameIndex, vec2 vertIndex, vec2 frameTile){
+  vec2 aniUV = vec2(0, floor(frameIndex * frameTile.y));
+  aniUV.x = floor(frameIndex * frameTile.x * frameTile.y - aniUV.y * frameTile.x);
+#if CC_RENDER_MODE != RENDER_MODE_MESH
+  vertIndex.y = 1. - vertIndex.y; // if using billboard ,y must be flipped.but mesh does not,why?
+#endif
+  return (aniUV.xy + vertIndex) / vec2(frameTile.x, frameTile.y);
+}

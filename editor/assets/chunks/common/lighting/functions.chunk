@@ -1,0 +1,22 @@
+#include <common/lighting/attenuation>
+
+// helper functions for lighting model-functions
+
+float CalculateDistanceAttenuation(float distToLightSqr, float lightRadius, float lightRange)
+{
+  float litRadiusSqr = lightRadius * lightRadius;
+  float attRadiusSqrInv = 1.0 / max(lightRange, 0.01);
+  attRadiusSqrInv *= attRadiusSqrInv;
+  
+  // soft edge fading
+  float edgeAttenuation = litRadiusSqr / max(litRadiusSqr, distToLightSqr);
+  return GetDistAtt(distToLightSqr, attRadiusSqrInv) * edgeAttenuation;
+}
+
+float CalculateAngleAttenuation(vec3 spotLightDir, vec3 L, float cosAngleOuter)
+{
+  float cosInner = max(dot(spotLightDir, L), 0.01);
+  float litAngleScale = 1.0 / max(0.001, cosInner - cosAngleOuter);
+  float litAngleOffset = -cosAngleOuter * litAngleScale;
+  return GetAngleAtt(L, spotLightDir, litAngleScale, litAngleOffset);
+}

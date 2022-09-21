@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';

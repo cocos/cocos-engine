@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { Enum } from '../../core/value-types';
 /**
  * 键盘的返回键类型。

@@ -24,24 +24,18 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, disallowMultiple, executeInEditMode,
     executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../core/components/camera-component';
 import { Widget } from '../../ui/widget';
-import { game } from '../../core/game';
 import { Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
 import { legacyCC } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 import visibleRect from '../../core/platform/visible-rect';
 import { RenderRoot2D } from './render-root-2d';
-import { Node } from '../../core';
+import { Node, screen } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const _worldPos = new Vec3();
@@ -82,7 +76,7 @@ export class Canvas extends RenderRoot2D {
      * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
      * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
      *
-     * @deprecated since v3.0, please use [[cameraComponent.priority]] to control overlapping between cameras.
+     * @deprecated since v3.0, please use [[Camera.priority]] to control overlapping between cameras.
      */
     get renderMode () {
         return this._renderMode;
@@ -189,9 +183,10 @@ export class Canvas extends RenderRoot2D {
             // (Position in Node, contentSize in uiTransform)
             // (anchor in uiTransform, but it can edit, this is different from cocos creator)
             this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
+        } else {
+            // In Editor dont need resized camera when scene window resize
+            this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
         }
-
-        this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
     public onEnable () {
@@ -213,21 +208,18 @@ export class Canvas extends RenderRoot2D {
 
         if (EDITOR) {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+        } else {
+            this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
         }
-
-        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
     protected _onResizeCamera () {
         if (this._cameraComponent && this._alignCanvasWithScreen) {
             if (this._cameraComponent.targetTexture) {
-                const win = this._cameraComponent.targetTexture.window;
-                if (this._cameraComponent.camera) { this._cameraComponent.camera.setFixedSize(win!.width, win!.height); }
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
-            } else if (game.canvas) {
-                const size = game.canvas;
-                if (this._cameraComponent.camera) { this._cameraComponent.camera.resize(size.width, size.height); }
-                this._cameraComponent.orthoHeight = game.canvas.height / view.getScaleY() / 2;
+            } else {
+                const size = screen.windowSize;
+                this._cameraComponent.orthoHeight = size.height / view.getScaleY() / 2;
             }
 
             this.node.getWorldPosition(_worldPos);

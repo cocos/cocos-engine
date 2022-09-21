@@ -23,11 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import './deprecated';
 
 export { Mesh } from './mesh';
 export { Skeleton } from './skeleton';
+export type { Morph, MorphTarget, SubMeshMorph } from './morph';

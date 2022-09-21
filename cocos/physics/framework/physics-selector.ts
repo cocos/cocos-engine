@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
@@ -122,7 +117,7 @@ interface IPhysicsSelector {
 function updateLegacyMacro (id: string) {
     legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
     legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
-    legacyCC._global.CC_PHYSICS_AMMO = id === 'ammo.js';
+    legacyCC._global.CC_PHYSICS_AMMO = id === 'bullet';
 }
 
 function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
@@ -161,7 +156,6 @@ function switchTo (id: IPhysicsEngineId) {
         const world = mutableSelector.physicsWorld;
         world.setGravity(worldInitData.gravity);
         world.setAllowSleep(worldInitData.allowSleep);
-        world.setDefaultMaterial(worldInitData.defaultMaterial);
     }
 }
 
@@ -192,7 +186,6 @@ export function constructDefaultWorld (data: IWorldInitData) {
         const world = mutableSelector.physicsWorld = createPhysicsWorld();
         world.setGravity(worldInitData.gravity);
         world.setAllowSleep(worldInitData.allowSleep);
-        world.setDefaultMaterial(worldInitData.defaultMaterial);
     }
 }
 

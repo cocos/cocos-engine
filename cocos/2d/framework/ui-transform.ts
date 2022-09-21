@@ -23,26 +23,23 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
-import { EventListener } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
-import { legacyCC } from '../../core/global-exports';
 import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
+import { approx, EPSILON } from '../../core/math/utils';
+import { IMask } from '../../core/scene-graph/node-event-processor';
+import { Mask } from '../components/mask';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
+const _vec3a = new Vec3();
 const _mat4_temp = new Mat4();
 const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
@@ -70,7 +67,7 @@ export class UITransform extends Component {
      * 内容尺寸。
      */
     @displayOrder(0)
-    @tooltip('i18n:ui_transform.conten_size')
+    @tooltip('i18n:ui_transform.content_size')
     // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
@@ -314,7 +311,7 @@ export class UITransform extends Component {
         let clone: Size;
         if (height === undefined) {
             size = size as Size;
-            if ((size.width === locContentSize.width) && (size.height === locContentSize.height)) {
+            if (approx(size.width, locContentSize.width, EPSILON) && approx(size.height, locContentSize.height, EPSILON)) {
                 return;
             }
 
@@ -325,7 +322,8 @@ export class UITransform extends Component {
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
-            if ((size === locContentSize.width) && (height === locContentSize.height)) {
+            size = size as number;
+            if (approx(size, locContentSize.width, EPSILON) && approx(height, locContentSize.height, EPSILON)) {
                 return;
             }
 
@@ -333,7 +331,7 @@ export class UITransform extends Component {
                 clone = new Size(this._contentSize);
             }
 
-            locContentSize.width = size as number;
+            locContentSize.width = size;
             locContentSize.height = height;
         }
 
@@ -364,8 +362,10 @@ export class UITransform extends Component {
      * 默认的锚点是（0.5，0.5），因此它开始于节点的中心位置。<br>
      * 注意：Creator 中的锚点仅用于定位所在的节点，子节点的定位不受影响。
      *
-     * @param point - 节点锚点或节点 x 轴锚。
-     * @param y - 节点 y 轴锚。
+     * @param point @en Node anchor point or node x-axis anchor.
+     *              @zh 节点锚点或节点 x 轴锚。
+     * @param y @en The y-axis anchor of the node.
+     *          @zh 节点 y 轴锚。
      * @example
      * ```ts
      * import { Vec2 } from 'cc';
@@ -373,7 +373,7 @@ export class UITransform extends Component {
      * node.setAnchorPoint(1, 1);
      * ```
      */
-    public setAnchorPoint (point: Readonly<Vec2> | number, y?: number) {
+    public setAnchorPoint (point: Vec2 | Readonly<Vec2> | number, y?: number) {
         const locAnchorPoint = this._anchorPoint;
         if (y === undefined) {
             point = point as Vec2;
@@ -398,16 +398,16 @@ export class UITransform extends Component {
     }
 
     /**
-     * @zh
-     * 当前节点的点击计算。
+     * @zh UI 空间中的点击测试。
+     * @en Hit test with point in UI Space.
      *
-     * @param point - 屏幕点。
-     * @param listener - 事件监听器。
+     * @param uiPoint point in UI Space.
+     * @deprecated since v3.5.0, please use `uiTransform.hitTest(screenPoint: Vec2)` instead.
      */
-    public isHit (point: Vec2, listener?: EventListener) {
+    public isHit (uiPoint: Vec2) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
-        const cameraPt = _vec2a;
+        const v2WorldPt = _vec2a;
         const testPt = _vec2b;
 
         const cameras = this._getRenderScene().cameras;
@@ -415,7 +415,7 @@ export class UITransform extends Component {
             const camera = cameras[i];
             if (!(camera.visibility & this.node.layer)) continue;
 
-            // 将一个摄像机坐标系下的点转换到世界坐标系下
+            // Convert UI Space into World Space.
             camera.node.getWorldRT(_mat4_temp);
             const m12 = _mat4_temp.m12;
             const m13 = _mat4_temp.m13;
@@ -423,53 +423,104 @@ export class UITransform extends Component {
             _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
             _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
             Mat4.invert(_mat4_temp, _mat4_temp);
-            Vec2.transformMat4(cameraPt, point, _mat4_temp);
+            Vec2.transformMat4(v2WorldPt, uiPoint, _mat4_temp);
 
+            // Convert World Space into Local Node Space.
             this.node.getWorldMatrix(_worldMatrix);
             Mat4.invert(_mat4_temp, _worldMatrix);
             if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
                 continue;
             }
-            Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+            Vec2.transformMat4(testPt, v2WorldPt, _mat4_temp);
             testPt.x += this._anchorPoint.x * w;
             testPt.y += this._anchorPoint.y * h;
             let hit = false;
             if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
-                hit = true;
-                if (listener && listener.mask) {
-                    const mask = listener.mask;
-                    let parent: any = this.node;
-                    const length = mask ? mask.length : 0;
-                    // find mask parent, should hit test it
-                    for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
-                        const temp = mask[j];
-                        if (i === temp.index) {
-                            if (parent === temp.comp.node) {
-                                const comp = temp.comp;
-                                if (comp && comp._enabled && !(comp as any).isHit(cameraPt)) {
-                                    hit = false;
-                                    break;
-                                }
-
-                                j++;
-                            } else {
-                                // mask parent no longer exists
-                                mask.length = j;
-                                break;
-                            }
-                        } else if (i > temp.index) {
-                            // mask parent no longer exists
-                            mask.length = j;
-                            break;
-                        }
-                    }
-                }
+                hit = this._maskTest(v2WorldPt);
             }
             if (hit) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * @zh 屏幕空间中的点击测试。
+     * @en Hit test with point in Screen Space.
+     *
+     * @param screenPoint point in Screen Space.
+     */
+    public hitTest (screenPoint: Vec2, windowId: number = 0) {
+        const w = this._contentSize.width;
+        const h = this._contentSize.height;
+        const v3WorldPt = _vec3a;
+        const v2WorldPt = _vec2a;
+        const testPt = _vec2b;
+
+        const cameras = this._getRenderScene().cameras;
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) 
+                continue;
+            if (camera.systemWindowId !== windowId) {
+                continue;
+            }
+
+            // Convert Screen Space into World Space.
+            Vec3.set(v3WorldPt, screenPoint.x, screenPoint.y, 0);  // vec3 screen pos
+            camera.screenToWorld(v3WorldPt, v3WorldPt);
+            Vec2.set(v2WorldPt, v3WorldPt.x, v3WorldPt.y);
+
+            // Convert World Space into Local Node Space.
+            this.node.getWorldMatrix(_worldMatrix);
+            Mat4.invert(_mat4_temp, _worldMatrix);
+            if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
+                continue;
+            }
+            Vec2.transformMat4(testPt, v2WorldPt, _mat4_temp);
+            testPt.x += this._anchorPoint.x * w;
+            testPt.y += this._anchorPoint.y * h;
+            let hit = false;
+            if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+                hit = this._maskTest(v2WorldPt);
+            }
+            if (hit) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private _maskTest (pointInWorldSpace: Vec2) {
+        const maskList = this.node?.eventProcessor?.maskList as IMask[] | undefined;
+        if (maskList) {
+            let parent: Node | null = this.node;
+            const length = maskList.length;
+            // find mask parent, should hit test it
+            for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                const temp = maskList[j];
+                if (i === temp.index) {
+                    if (parent === temp.comp.node) {
+                        const comp = temp.comp as Mask;
+                        if (comp && comp._enabled && !comp.isHit(pointInWorldSpace)) {
+                            return false;
+                        }
+
+                        j++;
+                    } else {
+                        // mask parent no longer exists
+                        maskList.length = j;
+                        break;
+                    }
+                } else if (i > temp.index) {
+                    // mask parent no longer exists
+                    maskList.length = j;
+                    break;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -480,9 +531,12 @@ export class UITransform extends Component {
      * 将一个 UI 节点世界坐标系下点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
      * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 Camera 的 `convertToUINode`。
      *
-     * @param worldPoint - 世界坐标点。
-     * @param out - 转换后坐标。
-     * @returns - 返回与目标节点的相对位置。
+     * @param worldPoint @en Point in world space.
+     *                   @zh 世界坐标点。
+     * @param out @en Point in local space.
+     *            @zh 转换后坐标。
+     * @returns @en Return the relative position to the target node.
+     *          @zh 返回与目标节点的相对位置。
      * @example
      * ```ts
      * const newVec3 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
@@ -505,9 +559,12 @@ export class UITransform extends Component {
      * @zh
      * 将距当前节点坐标系下的一个点转换到世界坐标系。
      *
-     * @param nodePoint - 节点坐标。
-     * @param out - 转换后坐标。
-     * @returns - 返回 UI 世界坐标系。
+     * @param nodePoint @en Point in local space.
+     *                  @zh 节点坐标。
+     * @param out @en Point in world space.
+     *            @zh 转换后坐标。
+     * @returns @en Returns the coordinates in the UI world coordinate system.
+     *          @zh 返回 UI 世界坐标系。
      * @example
      * ```ts
      * const newVec3 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
@@ -580,7 +637,8 @@ export class UITransform extends Component {
      * @zh
      * 返回包含当前包围盒及其子节点包围盒的最小包围盒。
      *
-     * @param parentMat - 父节点矩阵。
+     * @param parentMat @en The parent node matrix.
+     *                  @zh 父节点矩阵。
      * @returns
      */
     public getBoundingBoxTo (parentMat: Mat4) {

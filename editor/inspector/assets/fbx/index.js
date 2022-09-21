@@ -76,7 +76,7 @@ const Elements = {
 
                 const label = document.createElement('ui-label');
                 button.appendChild(label);
-                label.setAttribute('value', `i18n:inspector.asset.fbx.${tab}`);
+                label.setAttribute('value', `i18n:ENGINE.assets.fbx.${tab}`);
             });
 
             panel.$.tabs.value = panel.tabs.indexOf(panel.activeTab);
@@ -146,6 +146,31 @@ exports.methods = {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
+        }
+    },
+};
+
+
+exports.listeners = {
+    'track'(event) {
+
+        if (event.args?.length) {
+            const { prop, value } = event.args[0];
+            if (!value) { return; } // 只有被勾选的时候上报埋点
+
+            const trackMap = {
+                meshOptimizer: 'A100000',
+                'fbx.smartMaterialEnabled': 'A100001',
+                disableMeshSplit: 'A100002',
+            };
+            const trackId = trackMap[prop];
+            if (trackId) {
+                Editor.Metrics._trackEventWithTimer({
+                    category: 'importSystem',
+                    id: trackId,
+                    value: 1,
+                });
+            }
         }
     },
 };

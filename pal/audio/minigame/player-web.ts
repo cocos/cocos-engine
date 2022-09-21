@@ -1,9 +1,11 @@
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
-import { clamp, clamp01, EventTarget } from '../../../cocos/core';
+import { clamp01 } from '../../../cocos/core';
+import { EventTarget } from '../../../cocos/core/event';
+import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 
 declare const fsUtils: any;
 const audioContext = minigame.tt?.getAudioContext?.();
@@ -11,6 +13,8 @@ const audioContext = minigame.tt?.getAudioContext?.();
 export class OneShotAudioWeb {
     private _bufferSourceNode: AudioBufferSourceNode;
     private _onPlayCb?: () => void;
+    private _url: string;
+
     get onPlay () {
         return this._onPlayCb;
     }
@@ -26,10 +30,11 @@ export class OneShotAudioWeb {
         this._onEndCb = cb;
     }
 
-    private constructor (audioBuffer: AudioBuffer, volume: number) {
+    private constructor (audioBuffer: AudioBuffer, volume: number, url: string) {
         this._bufferSourceNode = audioContext!.createBufferSource();
         this._bufferSourceNode.buffer = audioBuffer;
         this._bufferSourceNode.loop = false;
+        this._url = url;
 
         const gainNode = audioContext!.createGain();
         gainNode.gain.value = volume;
@@ -42,13 +47,16 @@ export class OneShotAudioWeb {
         this._bufferSourceNode.start();
         this.onPlay?.();
         this._bufferSourceNode.onended = () => {
+            audioBufferManager.tryReleasingCache(this._url);
             this._onEndCb?.();
         };
     }
 
     public stop (): void {
         this._bufferSourceNode.onended = null;  // stop will call ended callback
+        audioBufferManager.tryReleasingCache(this._url);
         this._bufferSourceNode.stop();
+        this._bufferSourceNode.buffer = null;
     }
 }
 
@@ -63,10 +71,13 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _audioTimer: AudioTimer;
     private _readyToHandleOnShow = false;
 
-    private static _audioBufferCacheMap: Record<string, AudioBuffer> = {};
-
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _operationQueue: OperationInfo[] = [];
 
     constructor (audioBuffer: AudioBuffer, url: string) {
@@ -86,6 +97,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             // @ts-expect-error need to release AudioBuffer instance
             this._audioBuffer = null;
         }
+        audioBufferManager.tryReleasingCache(this._src);
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
     }
@@ -122,8 +134,9 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new Promise((resolve, reject) => {
             // NOTE: maybe url is a temp path, which is not reliable.
             // need to cache the decoded audio buffer.
-            const cachedAudioBuffer = AudioPlayerWeb._audioBufferCacheMap[url];
+            const cachedAudioBuffer = audioBufferManager.getCache(url);
             if (cachedAudioBuffer) {
+                audioBufferManager.retainCache(url);
                 resolve(cachedAudioBuffer);
                 return;
             }
@@ -133,9 +146,9 @@ export class AudioPlayerWeb implements OperationQueueable {
                     reject(err);
                     return;
                 }
-                audioContext!.decodeAudioData(arrayBuffer).then((buffer) => {
-                    AudioPlayerWeb._audioBufferCacheMap[url] = buffer;
-                    resolve(buffer);
+                audioContext!.decodeAudioData(arrayBuffer).then((decodedAudioBuffer) => {
+                    audioBufferManager.addCache(url, decodedAudioBuffer);
+                    resolve(decodedAudioBuffer);
                 }).catch((e) => {});
             });
         });
@@ -145,7 +158,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new Promise((resolve, reject) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new OneShotAudioWeb(audioBuffer, volume);
+                const oneShotAudio = new OneShotAudioWeb(audioBuffer, volume, url);
                 resolve(oneShotAudio);
             }).catch(reject);
         });
@@ -182,6 +195,14 @@ export class AudioPlayerWeb implements OperationQueueable {
     }
     get currentTime (): number {
         return this._audioTimer.currentTime;
+    }
+
+    get sampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
     }
 
     @enqueueOperation
@@ -232,6 +253,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             if (this._sourceNode) {
                 this._sourceNode.onended = null;  // stop will call ended callback
                 this._sourceNode.stop();
+                this._sourceNode.buffer = null;
             }
         } catch (e) {
             // sourceNode can't be stopped twice, especially on Safari.

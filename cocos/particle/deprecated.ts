@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
-import { removeProperty } from '../core/utils/x-deprecated';
+import { removeProperty, replaceProperty } from '../core/utils/x-deprecated';
 import Burst from './burst';
 import { ParticleSystem } from './particle-system';
 import { Billboard } from './billboard';
@@ -42,6 +37,13 @@ removeProperty(Burst.prototype, 'Burst.prototype', [
     },
     {
         name: 'maxCount',
+    },
+]);
+
+replaceProperty(ParticleSystem.prototype, 'ParticleSystem.prototype', [
+    {
+        name: 'enableCulling',
+        newName: 'dataCulling',
     },
 ]);
 

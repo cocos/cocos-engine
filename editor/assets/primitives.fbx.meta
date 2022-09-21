@@ -1,5 +1,5 @@
 {
-  "ver": "2.0.14",
+  "ver": "2.3.1",
   "importer": "fbx",
   "imported": true,
   "uuid": "1263d74c-8167-4928-91a6-4e2672411f47",
@@ -141,21 +141,21 @@
         "gltfIndex": 7
       }
     },
-    "ea6e2": {
+    "8d883": {
       "importer": "gltf-material",
-      "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@ea6e2",
+      "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@8d883",
       "displayName": "",
-      "id": "ea6e2",
-      "name": "DefaultMaterial.material",
+      "id": "8d883",
+      "name": "lambert1.material",
+      "userData": {
+        "gltfIndex": 0
+      },
       "ver": "1.0.14",
       "imported": true,
       "files": [
         ".json"
       ],
-      "subMetas": {},
-      "userData": {
-        "gltfIndex": 0
-      }
+      "subMetas": {}
     },
     "aae0f": {
       "importer": "gltf-scene",
@@ -203,7 +203,7 @@
         "1263d74c-8167-4928-91a6-4e2672411f47@a804a"
       ],
       "materials": [
-        "1263d74c-8167-4928-91a6-4e2672411f47@ea6e2"
+        "1263d74c-8167-4928-91a6-4e2672411f47@8d883"
       ],
       "scenes": [
         "1263d74c-8167-4928-91a6-4e2672411f47@aae0f"
@@ -214,6 +214,10 @@
     "normals": 2,
     "tangents": 2,
     "imageMetas": [],
-    "legacyFbxImporter": true
+    "legacyFbxImporter": false,
+    "fbx": {
+      "preferLocalTimeSpan": false,
+      "smartMaterialEnabled": false
+    }
   }
 }

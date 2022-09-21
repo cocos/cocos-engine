@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, range, slide, serializable } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { UITransform } from '../2d/framework';
@@ -178,6 +173,11 @@ export class ProgressBar extends Component {
         if (this._mode === Mode.FILLED) {
             value = clamp01(value);
         }
+
+        if (this._totalLength === value) {
+            return;
+        }
+
         this._totalLength = value;
         this._updateBarStatus();
     }
@@ -342,3 +342,5 @@ export class ProgressBar extends Component {
         }
     }
 }
+
+legacyCC.ProgressBar = ProgressBar;

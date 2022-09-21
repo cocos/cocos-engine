@@ -24,11 +24,6 @@
  */
 
 /**
- * @packageDocumentation
- * @hidden
- */
-
-/**
  * export null for module elimination
  */
 const PhysX = null;

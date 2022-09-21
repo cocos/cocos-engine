@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable func-names */
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';

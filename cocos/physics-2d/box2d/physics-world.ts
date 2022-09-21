@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
@@ -20,6 +16,7 @@ import { PhysicsContact, b2ContactExtends } from './physics-contact';
 import { Contact2DType, Collider2D, RaycastResult2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
+import { legacyCC } from '../../core/global-exports';
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();
@@ -68,7 +65,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
-        if (EDITOR) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
 
         if (!v) {
             if (this._debugGraphics) {
@@ -80,7 +77,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     _checkDebugDrawValid () {
-        if (EDITOR) return;
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
@@ -253,6 +250,9 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         bodyDef.position.Set(pos.x / PHYSICS_2D_PTM_RATIO, pos.y / PHYSICS_2D_PTM_RATIO);
 
         tempVec3.z = Quat.getAxisAngle(this._rotationAxis, node.worldRotation);
+        if (this._rotationAxis.z < 0.0) {
+            tempVec3.z = Math.PI * 2 - tempVec3.z;
+        }
         bodyDef.angle = tempVec3.z;
 
         bodyDef.awake = comp.awakeOnLoad;

@@ -22,18 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module core
- */
 
 /* eslint-disable no-console */
-
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
 import { legacyCC } from '../global-exports';
 
-const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
+const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
 let logList: HTMLTextAreaElement | null = null;
@@ -231,7 +226,7 @@ export function _resetDebugSetting (mode: DebugMode) {
 
     if (EDITOR) {
         ccLog = console.log.bind(console);
-    } else if (mode === DebugMode.INFO) {
+    } else if (mode <= DebugMode.INFO) {
         if (JSB) {
             // @ts-expect-error We have no typing for this
             if (scriptEngineType === 'JavaScriptCore') {
@@ -370,6 +365,7 @@ export function getError (errorId: number, ...param: any[]): string {
 /**
  * @en Returns whether or not to display the FPS and debug information.
  * @zh 是否显示 FPS 信息和部分调试信息。
+ * @deprecated Since v3.6, Please use profiler.isShowingStates instead
  */
 export function isDisplayStats (): boolean {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -379,10 +375,10 @@ export function isDisplayStats (): boolean {
 /**
  * @en Sets whether display the FPS and debug informations on the bottom-left corner.
  * @zh 设置是否在左下角显示 FPS 和部分调试。
+ * @deprecated Since v3.6, Please use profiler.showStats instead
  */
 export function setDisplayStats (displayStats: boolean) {
     if (legacyCC.profiler) {
         displayStats ? legacyCC.profiler.showStats() : legacyCC.profiler.hideStats();
-        legacyCC.game.config.showFPS = !!displayStats;
     }
 }

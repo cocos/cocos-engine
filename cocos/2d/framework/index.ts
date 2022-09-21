@@ -23,14 +23,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+import './deprecated-1.2.0';
+import './deprecated-3.0.0';
+import './deprecated-3.6.0';
 
 export * from './canvas';
 export * from './ui-component';
-export * from './renderable-2d';
+export * from './ui-renderer';
 export * from './ui-transform';
 export * from './deprecated';
 export * from './render-root-2d';
+export * from './sprite-renderer';

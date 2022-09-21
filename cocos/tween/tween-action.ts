@@ -23,19 +23,13 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { easing } from '../core/animation';
-import { warnID, warn } from '../core';
+import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
-import { legacyCC, VERSION } from '../core/global-exports';
+import { VERSION } from '../core/global-exports';
 
 /** adapter */
-function TweenEasinAdapter (easingName: string) {
+function TweenEasingAdapter (easingName: string) {
     const initialChar = easingName.charAt(0);
     if (/[A-Z]/.test(initialChar)) {
         easingName = easingName.replace(initialChar, initialChar.toLowerCase());
@@ -112,7 +106,7 @@ export class TweenAction extends ActionInterval {
 
             /** adapter */
             if (opts.easing && typeof opts.easing === 'string') {
-                opts.easing = TweenEasinAdapter(opts.easing) as any;
+                opts.easing = TweenEasingAdapter(opts.easing) as any;
             }
 
             // global easing or progress used for this action

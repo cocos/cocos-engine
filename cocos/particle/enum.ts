@@ -23,17 +23,34 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { Enum } from '../core/value-types';
 
 export const Space = Enum({
     World: 0,
     Local: 1,
     Custom: 2,
+});
+
+/**
+ * @en Particle emitter culling mode
+ * @zh 粒子的剔除模式。
+ * @enum ParticleSystem.CullingMode
+ */
+export const CullingMode = Enum({
+    Pause: 0,
+    PauseAndCatchup: 1,
+    AlwaysSimulate: 2,
+});
+
+/**
+ * @en Particle emitter alignment space
+ * @zh 粒子的对齐模式。
+ * @enum ParticleSystemRenderer.AlignmentSpace
+ */
+export const AlignmentSpace = Enum({
+    World: 0,
+    Local: 1,
+    View: 2,
 });
 
 /**

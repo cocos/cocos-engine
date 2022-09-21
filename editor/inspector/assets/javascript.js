@@ -164,12 +164,20 @@ const Elements = {
                     length = 10;
                 }
 
+                if (!Array.isArray(this.meta.userData.dependencies)) {
+                    this.meta.userData.dependencies = [];
+                }
+
                 while (this.meta.userData.dependencies.length < length) {
                     this.meta.userData.dependencies.push('');
                 }
 
                 while (this.meta.userData.dependencies.length > length) {
                     this.meta.userData.dependencies.pop();
+                }
+
+                if (!this.meta.userData.dependencies.length) {
+                    this.meta.userData.dependencies = undefined;
                 }
 
                 this.dispatch('change');
@@ -188,14 +196,14 @@ const Elements = {
                 return;
             }
 
+            this.$.dependenciesContent.innerText = '';
+
             if (!Array.isArray(this.meta.userData.dependencies)) {
-                this.meta.userData.dependencies = [];
+                return;
             }
 
             const length = this.meta.userData.dependencies.length;
-
             this.$.dependenciesInput.value = length;
-            this.$.dependenciesContent.innerText = '';
 
             for (let i = 0; i < length; i++) {
                 const child = document.createElement('ui-asset');

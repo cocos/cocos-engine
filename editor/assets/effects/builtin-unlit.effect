@@ -8,10 +8,10 @@ CCEffect %{
       properties: &props
         mainTexture:    { value: grey }
         tilingOffset:   { value: [1, 1, 0, 0] }
-        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+        mainColor:      { value: [1, 1, 1, 1], linear: true, editor: { type: color } }
         colorScale:     { value: [1, 1, 1], target: colorScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: colorScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        color:          { target: mainColor, editor: { visible: false } } # backward compability
+        color:          { target: mainColor, linear: true, editor: { visible: false } } # backward compability
       migrations: &migs
         properties:
           mainColor:    { formerlySerializedAs: color }
@@ -64,11 +64,12 @@ CCEffect %{
 
 CCProgram unlit-vs %{
   precision highp float;
-  #include <input>
-  #include <cc-global>
-  #include <cc-local-batch>
-  #include <input>
-  #include <cc-fog-vs>
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <legacy/input>
+  #include <legacy/fog-vs>
 
   #if USE_VERTEX_COLOR
     in lowp vec4 a_color;
@@ -107,11 +108,11 @@ CCProgram unlit-vs %{
 
 CCProgram unlit-fs %{
   precision highp float;
-  #include <output>
-  #include <cc-fog-fs>
+  #include <legacy/output-standard>
+  #include <legacy/fog-fs>
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
   #endif
 
   #if USE_TEXTURE
@@ -133,11 +134,14 @@ CCProgram unlit-fs %{
     o.rgb *= colorScaleAndCutoff.xyz;
 
     #if USE_VERTEX_COLOR
-      o *= v_color;
+      o.rgb *= SRGBToLinear(v_color.rgb);//use linear
+      o.a *= v_color.a;
     #endif
 
     #if USE_TEXTURE
-      o *= texture(mainTexture, v_uv);
+      vec4 texColor = texture(mainTexture, v_uv);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      o *= texColor;
     #endif
 
     #if USE_ALPHA_TEST

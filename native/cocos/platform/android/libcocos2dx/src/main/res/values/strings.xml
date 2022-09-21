@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--EditBox Confirm Button Title-->
+    <string name="done" translatable="false">Done</string>
+    <string name="next" translatable="false">Next</string>
+    <string name="search" translatable="false">Search</string>
+    <string name="go" translatable="false">Go</string>
+    <string name="send" translatable="false">Send</string>
+</resources>

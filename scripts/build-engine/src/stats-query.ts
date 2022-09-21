@@ -2,60 +2,9 @@ import ps from 'path';
 import fs from 'fs-extra';
 import JSON5 from 'json5';
 import dedent from 'dedent';
+import { Config, Context, Feature, IndexConfig, Test } from './config-interface';
+import { ConstantManager } from './constant-manager';
 
-interface Config {
-    /**
-     * Engine features. Keys are feature IDs.
-     */
-    features: Record<string, Feature>;
-
-    /**
-     * Describe how to generate the index module `'cc'`.
-     * Currently not used.
-     */
-    index?: IndexConfig;
-
-    moduleOverrides?: Array<{
-        test: Test;
-        overrides: Record<string, string>;
-        isVirtualModule: boolean;
-    }>;
-}
-
-interface IndexConfig {
-    modules?: Record<string, {
-        /**
-         * If specified, export contents of the module into a namespace specified by `ns`
-         * and then export that namespace into `'cc'`.
-         * If not specified, contents of the module will be directly exported into `'cc'`.
-         */
-        ns?: string;
-
-        /**
-         * If `true`, accesses the exports of this module from `'cc'` will be marked as deprecated.
-         */
-        deprecated?: boolean;
-    }>;
-}
-
-type Test = string;
-
-/**
- * An engine feature.
- */
-interface Feature {
-    /**
-     * Modules to be included in this feature in their IDs.
-     * The ID of a module is its relative path(no extension) under /exports/.
-     */
-    modules: string[];
-}
-
-interface Context {
-    mode?: string;
-    platform?: string;
-    buildTimeConstants?: Object;
-}
 
 /**
  * Query any any stats of the engine.
@@ -67,10 +16,17 @@ export class StatsQuery {
     public static async create (engine: string) {
         const configFile = ps.join(engine, 'cc.config.json');
         const config: Config = JSON5.parse(await fs.readFile(configFile, 'utf8'));
+        // @ts-ignore
+        delete config['$schema'];
         const query = new StatsQuery(engine, config);
         await query._initialize();
         return query;
     }
+
+    /**
+     * Constant manager for engine and user.
+     */
+    public constantManager: ConstantManager;
 
     /**
      * Gets the path to the engine root.
@@ -111,6 +67,17 @@ export class StatsQuery {
             this._features[featureId]?.modules.forEach((entry) => units.add(entry));
         }
         return Array.from(units);
+    }
+
+    public getIntrinsicFlagsOfFeatures (featureIds: string[]) {
+        const flags: Record<string, unknown> = {};
+        for (const featureId of featureIds) {
+            const featureFlags = this._features[featureId]?.intrinsicFlags;
+            if (featureFlags) {
+                Object.assign(flags, featureFlags);
+            }
+        }
+        return flags as Record<string, number | boolean | string>;
     }
 
     /**
@@ -221,6 +188,7 @@ export class StatsQuery {
     private constructor (engine: string, config: Config) {
         this._config = config;
         this._engine = engine;
+        this.constantManager = new ConstantManager(engine);
     }
 
     private _evalTest<T> (test: Test, context: Context) {
@@ -232,12 +200,12 @@ export class StatsQuery {
 
     private _evalPathTemplate (pathTemplate: string, context: Context): string {
         let resultPath = pathTemplate;
-        let regExp = /\{\{(.*?)\}\}/g;
+        const regExp = /\{\{(.*?)\}\}/g;
         let exeResult;
-        while(exeResult = regExp.exec(pathTemplate)) {
-            let templateItem = exeResult[0];
-            let exp = exeResult[1];
-            let evalResult = (new Function('context', `return ${exp}`)(context)) as string;
+        while (exeResult = regExp.exec(pathTemplate)) {
+            const templateItem = exeResult[0];
+            const exp = exeResult[1];
+            const evalResult = (new Function('context', `return ${exp}`)(context)) as string;
             resultPath = pathTemplate.replace(templateItem, evalResult);
         }
         return resultPath;
@@ -259,6 +227,7 @@ export class StatsQuery {
                 }
                 parsedFeature.modules.push(featureUnitName);
             }
+            parsedFeature.intrinsicFlags = feature.intrinsicFlags;
         }
 
         if (config.index) {

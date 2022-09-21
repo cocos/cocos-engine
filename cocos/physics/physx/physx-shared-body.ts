@@ -23,15 +23,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Node, Quat, Vec3 } from '../../core';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
+import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import {
@@ -153,14 +149,14 @@ export class PhysXSharedBody {
     private _initStaticActor () {
         if (this._staticActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
-        this._staticActor = this.wrappedWorld.physics.createRigidStatic(t);
+        this._staticActor = PhysXInstance.physics.createRigidStatic(t);
         if (this._staticActor.$$) PX.IMPL_PTR[this._staticActor.$$.ptr] = this;
     }
 
     private _initDynamicActor () {
         if (this._dynamicActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
-        this._dynamicActor = this.wrappedWorld.physics.createRigidDynamic(t);
+        this._dynamicActor = PhysXInstance.physics.createRigidDynamic(t);
         if (this._dynamicActor.$$) PX.IMPL_PTR[this._dynamicActor.$$.ptr] = this;
         const wb = this.wrappedBody;
         if (wb) {
@@ -343,6 +339,7 @@ export class PhysXSharedBody {
     }
 
     setGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word0 = v;
         this.updateFilterData();
     }
@@ -352,17 +349,19 @@ export class PhysXSharedBody {
     }
 
     addGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word0 |= v;
         this.updateFilterData();
     }
 
     removeGroup (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word0 &= ~v;
         this.updateFilterData();
     }
 
     setMask (v: number): void {
-        if (v === -1) v = 0xffffffff;
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word1 = v;
         this.updateFilterData();
     }
@@ -372,11 +371,13 @@ export class PhysXSharedBody {
     }
 
     addMask (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word1 |= v;
         this.updateFilterData();
     }
 
     removeMask (v: number): void {
+        v >>>= 0; //convert to unsigned int(32bit) for physx
         this._filterData.word1 &= ~v;
         this.updateFilterData();
     }

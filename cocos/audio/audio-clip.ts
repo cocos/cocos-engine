@@ -23,21 +23,14 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/audio
- */
-
-import {
-    ccclass, type, serializable, override,
-} from 'cc.decorator';
-import { AudioPlayer, OneShotAudio } from 'pal/audio';
-import { Asset } from '../core/assets/asset';
+import { ccclass, serializable, override } from 'cc.decorator';
+import { AudioPlayer } from 'pal/audio';
+import { Asset } from '../asset/assets/asset';
 import { legacyCC } from '../core/global-exports';
 import { AudioState, AudioType } from '../../pal/audio/type';
 
 export interface AudioMeta {
-    player: AudioPlayer,
+    player: AudioPlayer | null,
     url: string;
     type: AudioType;
     duration: number;
@@ -45,9 +38,9 @@ export interface AudioMeta {
 
 /**
  * @en
- * The audio clip asset. <br>
+ * The audio clip asset.
  * @zh
- * 音频片段资源。<br>
+ * 音频片段资源。
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
@@ -60,18 +53,21 @@ export class AudioClip extends Asset {
 
     protected _meta: AudioMeta | null = null;
 
-    private _player?: AudioPlayer;
-
-    constructor () {
-        super();
-    }
+    private _player: AudioPlayer | null = null;
 
     public destroy (): boolean {
         const destroyResult = super.destroy();
         this._player?.destroy();
+        this._player = null;
+        if (this._meta) {
+            this._meta.player = null;
+        }
         return destroyResult;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
         if (meta) {
@@ -83,11 +79,13 @@ export class AudioClip extends Asset {
             this._duration = 0;
         }
     }
-
     get _nativeAsset () {
         return this._meta;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @override
     get _nativeDep () {
         return {

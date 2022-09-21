@@ -23,32 +23,27 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, JSB } from 'internal:constants';
-import { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { Address, BufferUsageBit, Filter, Format, FormatInfos,
-    MemoryUsageBit, Feature, Device, Buffer, BufferInfo } from '../../core/gfx';
+import { BufferUsageBit, Format, FormatInfos,
+    MemoryUsageBit, Device, Buffer, BufferInfo, FormatFeatureBit } from '../../gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
-import { UBOSkinningAnimation } from '../../core/pipeline/define';
+import { UBOSkinningAnimation } from '../../rendering/define';
 import { Node } from '../../core/scene-graph';
-import { genSamplerHash } from '../../core/renderer/core/sampler-lib';
-import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
+import { ITextureBufferHandle, TextureBufferPool } from '../../render-scene/core/texture-buffer-pool';
+import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
 export const MINIMUM_JOINT_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: Device): Format {
-    if (device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE) {
         return Format.RGBA32F;
     }
     return Format.RGBA8;
@@ -103,14 +98,7 @@ function roundUpTextureSize (targetLength: number, formatSize: number) {
     return Math.ceil(Math.max(MINIMUM_JOINT_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
-export const jointTextureSamplerHash = genSamplerHash([
-    Filter.POINT,
-    Filter.POINT,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-]);
+export { jointTextureSamplerInfo };
 
 interface IInternalJointAnimInfo {
     downstream?: Mat4; // downstream default pose, if present
@@ -151,6 +139,10 @@ export interface ICustomJointTextureLayout {
 // For (Infinity - Infinity) evaluates to NaN
 const Inf = Number.MAX_SAFE_INTEGER;
 
+/**
+ * The pool for joint textures.
+ * @internal
+ */
 export class JointTexturePool {
     private _device: Device;
 
@@ -458,6 +450,8 @@ export interface IAnimInfo {
     buffer: Buffer;
     data: Float32Array;
     dirty: boolean;
+    dirtyForJSB: Uint8Array;
+    currentClip: AnimationClip | null;
 }
 
 export class JointAnimationInfo {
@@ -480,8 +474,8 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info = { buffer, data, dirty: false };
-        this._setAnimInfoDirty(info, false);
+        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]), currentClip: null };
+
         this._pool.set(nodeID, info);
         return info;
     }
@@ -493,24 +487,14 @@ export class JointAnimationInfo {
         this._pool.delete(nodeID);
     }
 
-    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
-        info.dirty = value;
-        if (JSB) {
-            const key = 'nativeDirty';
-            const convertVal = value ? 1 : 0;
-            if (!info[key]) {
-                // In order to share dirty data with native
-                Object.defineProperty(info, key, { value: new Uint32Array(1).fill(convertVal), enumerable: true });
-                return;
-            }
-            info[key].fill(convertVal);
-        }
-    }
-
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
-        info.data[0] = 0;
+        info.currentClip = clip;
+        info.data[0] = -1;
         info.buffer.update(info.data);
-        this._setAnimInfoDirty(info, false);
+        info.dirty = false;
+        if (JSB) {
+            info.dirtyForJSB[0] = 0;
+        }
         return info;
     }
 

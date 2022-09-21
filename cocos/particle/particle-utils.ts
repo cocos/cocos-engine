@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { instantiate } from '../core/data';
 import { CCObject } from '../core/data/object';
 import { Director, director } from '../core/director';
@@ -37,7 +32,8 @@ import { ParticleSystem } from './particle-system';
 
 export class ParticleUtils {
     /**
-     * instantiate
+     * @en instantiate particle system from prefab
+     * @zh 从 prefab 实例化粒子系统
      */
     public static instantiate (prefab) {
         if (!this.registeredSceneEvent) {
@@ -45,7 +41,8 @@ export class ParticleUtils {
             this.registeredSceneEvent = true;
         }
         if (!this.particleSystemPool.has(prefab._uuid)) {
-            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => instantiate(prefab) || new Node(), 1));
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => instantiate(prefab) || new Node(), 1, (prefab) => prefab.destroy()));
         }
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
     }
@@ -72,11 +69,7 @@ export class ParticleUtils {
     private static registeredSceneEvent = false;
 
     private static onSceneUnload () {
-        this.particleSystemPool.forEach((value) => {
-            value.destroy((prefab) => {
-                prefab.destroy();
-            });
-        });
+        this.particleSystemPool.forEach((value) => value.destroy());
         this.particleSystemPool.clear();
     }
 }

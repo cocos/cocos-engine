@@ -151,8 +151,12 @@ function deprecatedClassMessage (oldClassName: string, newClassName) {
 }
 
 /**
- * Alias of [[Line]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.Line]]
+ * @zh
+ * [[geometry.Line]] 别名类
+ *
+ * @deprecated Since v3.0, please use Line instead
  */
 export class line extends Line {
     constructor () {
@@ -162,8 +166,13 @@ export class line extends Line {
 }
 
 /**
- * Alias of [[Plane]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.Plane]]
+ *
+ * @zh
+ * [[geometry.Plane]] 别名类
+ *
+ * @deprecated Since v3.0, please use Plane instead
  */
 export class plane extends Plane {
     constructor () {
@@ -173,8 +182,11 @@ export class plane extends Plane {
 }
 
 /**
- * Alias of [[Ray]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.Ray]]
+ * @zh
+ * [[geometry.Ray]] 别名类
+ * @deprecated Since v3.0, please use Ray instead
  */
 export class ray extends Ray {
     constructor () {
@@ -184,8 +196,12 @@ export class ray extends Ray {
 }
 
 /**
- * Alias of [[Triangle]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.Triangle]]
+ *
+ * @zh
+ * [[geometry.Triangle]] 别名类
+ * @deprecated Since v3.0, please use Triangle instead
  */
 export class triangle extends Triangle {
     constructor () {
@@ -195,8 +211,12 @@ export class triangle extends Triangle {
 }
 
 /**
- * Alias of [[Sphere]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.Sphere]]
+ *
+ * @zh
+ * [[geometry.Sphere]] 别名类
+ * @deprecated Since v3.0, please use Sphere instead
  */
 export class sphere extends Sphere {
     constructor () {
@@ -206,8 +226,12 @@ export class sphere extends Sphere {
 }
 
 /**
- * Alias of [[AABB]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.AABB]]
+ *
+ * @zh
+ * [[geometry.AABB]] 别名类
+ * @deprecated Since v3.0, please use AABB instead
  */
 export class aabb extends AABB {
     constructor () {
@@ -217,8 +241,12 @@ export class aabb extends AABB {
 }
 
 /**
- * Alias of [[OBB]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.OBB]]
+ *
+ * @zh
+ * [[geometry.OBB]] 别名类
+ * @deprecated Since v3.0, please use OBB instead
  */
 export class obb extends OBB {
     constructor () {
@@ -228,8 +256,12 @@ export class obb extends OBB {
 }
 
 /**
- * Alias of [[Capsule]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.Capsule]]
+ *
+ * @zh
+ * [[geometry.Capsule]] 别名类
+ * @deprecated Since v3.0, please use Capsule instead
  */
 export class capsule extends Capsule {
     constructor () {
@@ -239,8 +271,12 @@ export class capsule extends Capsule {
 }
 
 /**
- * Alias of [[Frustum]]
- * @deprecated Since v3.0
+ * @en
+ * Alias of [[geometry.Frustum]]
+ *
+ * @zh
+ * [[geometry.Frustum]] 别名类
+ * @deprecated Since v3.0, please use Frustum instead
  */
 export class frustum extends Frustum {
     constructor () {

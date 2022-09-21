@@ -1,116 +1,96 @@
-const { loopSetAssetDumpDataReadonly } = require('../utils/prop');
+const texture = require('./texture/texture');
 
-exports.template = `
-<section class="asset-render-texture">
-</section>
+const insertTemplate = `
+<ui-prop>
+    <ui-label slot="label" value="Width"></ui-label>
+    <ui-num-input slot="content" class="width-input" min="1" step="1"></ui-num-input>
+</ui-prop>
+<ui-prop>
+    <ui-label slot="label" value="Height"></ui-label>
+    <ui-num-input slot="content" class="height-input" min="1" step="1"></ui-num-input>
+</ui-prop>
 `;
 
-exports.methods = {
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
-    async query(uuid) {
-        return await Editor.Message.request('scene', 'query-render-texture', uuid);
-    },
-    async apply() {
-        this.reset();
-        await Editor.Message.request('scene', 'apply-render-texture', this.asset.uuid, this.renderTexture);
-    },
-    reset() {
-        this.dirtyData.origin = this.dirtyData.realtime;
-        this.dirtyData.uuid = '';
-    },
+exports.template = texture.template.replace('<!-- dont delete, for insert -->', insertTemplate);
 
-    async dataChange() {
-        await Editor.Message.request('scene', 'change-render-texture', this.renderTexture);
+exports.style = texture.style;
 
-        this.setDirtyData();
-        this.dispatch('change');
+exports.$ = Object.assign({}, texture.$, {
+    widthInput: '.width-input',
+    heightInput: '.height-input',
+});
+
+const Elements = Object.assign({}, texture.Elements, {
+    width: {
+        ready() {
+            const panel = this;
+
+            panel.$.widthInput.addEventListener('change', (event) => {
+                panel.userDataList.forEach((userData) => {
+                    userData.width = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.widthInput.value = panel.userData.width;
+
+            panel.updateInvalid(panel.$.widthInput, 'width');
+            panel.updateReadonly(panel.$.widthInput);
+        },
     },
+    height: {
+        ready() {
+            const panel = this;
 
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
-    setDirtyData() {
-        this.dirtyData.realtime = JSON.stringify(this.renderTexture);
+            panel.$.heightInput.addEventListener('change', (event) => {
+                panel.userDataList.forEach((userData) => {
+                    userData.height = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
 
-        if (!this.dirtyData.origin) {
-            this.dirtyData.origin = this.dirtyData.realtime;
-        }
+            panel.$.heightInput.value = panel.userData.height;
+
+            panel.updateInvalid(panel.$.heightInput, 'height');
+            panel.updateReadonly(panel.$.heightInput);
+        },
     },
-
-    isDirty() {
-        const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
-        return isDirty;
-    },
-};
-
-exports.$ = {
-    container: '.asset-render-texture',
-};
+});
 
 exports.ready = function() {
-    // Used to determine whether the material has been modified in isDirty()
-    this.dirtyData = {
-        uuid: '',
-        origin: '',
-        realtime: '',
-    };
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
 };
 
-exports.update = async function(assetList, metaList) {
+exports.methods = Object.assign({}, texture.methods, {
+    async apply() {
+        await Editor.Message.request('scene', 'apply-render-texture', this.asset.uuid, this.userData);
+    },
+});
+
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
-    this.meta = this.metaList[0];
     this.asset = this.assetList[0];
+    this.meta = this.metaList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = '';
-        return;
-    }
+    this.userData = this.meta.userData;
+    this.userDataList = this.metaList.map((item) => item.userData);
 
-    if (this.dirtyData.uuid !== this.asset.uuid) {
-        this.dirtyData.uuid = this.asset.uuid;
-        this.dirtyData.origin = '';
-    }
-
-    this.renderTexture = await this.query(this.asset.uuid);
-
-    for (const key in this.renderTexture) {
-        const dump = this.renderTexture[key];
-
-        if (this.asset.readonly) {
-            loopSetAssetDumpDataReadonly(dump);
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
         }
-
-        if (!dump.visible) {
-            continue;
-        }
-
-        // reuse
-        if (!this.$[key]) {
-            this.$[key] = document.createElement('ui-prop');
-            this.$[key].setAttribute('type', 'dump');
-            this.$[key].addEventListener('change-dump', this.dataChange.bind(this));
-        }
-
-        this.$.container.appendChild(this.$[key]);
-        this.updateReadonly(this.$[key]);
-        this.$[key].render(dump);
     }
-
-    this.setDirtyData();
-};
-
-exports.close = function() {
-    // Used to determine whether the material has been modified in isDirty()
-    this.dirtyData = {
-        uuid: '',
-        origin: '',
-        realtime: '',
-    };
 };

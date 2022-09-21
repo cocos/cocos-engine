@@ -1,0 +1,45 @@
+name: <Native> Template Validation
+
+#on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'templates/common/**'
+    - 'templates/android/**'
+    - 'templates/windows/**'
+    - 'templates/ios/**'
+    - 'templates/mac/**'
+    - 'templates/qnx/**'
+    - 'templates/linux/**'
+    - 'templates/ohos/**'
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  compile_linux:
+    name: "Linux-Ubuntu"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: files
+        continue-on-error: true
+        name: compatibility-info.json need update
+        uses: jitterbit/get-changed-files@v1
+      - run: |
+          subfile="templates/compatibility-info.json"
+          for changed_file in ${{ steps.files.outputs.all }}; do
+            echo "Do something with this ${changed_file}."
+            if [[ "$changed_file" =~ .*"$subfile" ]]; then
+               echo "compatibility-info.json updated!"
+               exit 0
+            else
+              echo "Test file $changed_file"
+            fi
+          done
+          echo "native templates is modified, pls consider if 'templates/compatibility-info.json' needs to be updated."
+          exit 1

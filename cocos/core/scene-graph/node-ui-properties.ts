@@ -23,15 +23,10 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
-import { UIComponent } from '../../2d/framework/ui-component';
-import { Renderable2D } from '../../2d/framework/renderable-2d';
+import { UIRenderer } from '../../2d/framework/ui-renderer';
 import { UITransform } from '../../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
+import { UIMeshRenderer } from '../../2d';
 
 /**
  * @en Node's UI properties abstraction
@@ -60,7 +55,7 @@ export class NodeUIProperties {
     get uiComp () {
         return this._uiComp;
     }
-    set uiComp (comp: UIComponent | Renderable2D | null) {
+    set uiComp (comp: UIMeshRenderer | UIRenderer | null) {
         if (this._uiComp && comp) {
             warnID(12002);
             return;
@@ -68,20 +63,45 @@ export class NodeUIProperties {
         this._uiComp = comp;
     }
 
-    private _uiComp: UIComponent | Renderable2D | null = null;
+    private _uiComp: UIMeshRenderer | UIRenderer | null = null;
 
     /**
-     * @en The opacity of the UI node
-     * @zh UI 透明度
+     * @en The opacity of the UI node for final rendering
+     * @zh 最终显示的 UI 透明度，受父节点透明度影响
      */
-    public opacity = 1;
-    public localOpacity = 1;
+    private _opacity = 1;
+    public get opacity () { return this._opacity; }
+
+    /**
+     * @en The opacity of the UI node itself
+     * @zh 本节点的 UI 透明度
+     */
+    private _localOpacity = 1;
+    get localOpacity () { return this._localOpacity; }
+    set localOpacity (val) {
+        this._localOpacity = val;
+        this.colorDirty = true;
+    }
+
+    public colorDirty = true;
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
-
-    public uiTransformDirty = true;
 
     constructor (node: any) {
         this._node = node;
     }
+
+    /**
+     * @deprecated since v3.4
+     */
+    public applyOpacity (effectOpacity) {
+        this._opacity = this._localOpacity * effectOpacity;
+    }
+
+    /**
+     * @en Make the opacity state of node tree is dirty, not effect anymore
+     * @zh 为结点树的透明度状态设置脏标签，不再有效果
+     * @deprecated since v3.4
+     */
+    public static markOpacityTree (node, isDirty = true) {}
 }

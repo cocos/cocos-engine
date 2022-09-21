@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { Vec3 } from '../../core/math';
 import { Collider } from '../../../exports/physics-framework';
 import { IVec3Like } from '../../core/math/type-define';
@@ -89,6 +84,8 @@ export class PhysicsRayResult {
      * internal methods.
      * @zh
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用。
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like) {
         Vec3.copy(this._hitPoint, hitPoint);

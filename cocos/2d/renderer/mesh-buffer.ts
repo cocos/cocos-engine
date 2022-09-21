@@ -23,172 +23,249 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo, InputAssembler } from '../../core/gfx';
-import { Batcher2D } from './batcher-2d';
-import { getComponentPerVertex } from './vertex-format';
+import { JSB } from 'internal:constants';
+import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
+import { getAttributeStride } from './vertex-format';
+import { getError, warnID } from '../../core/platform/debug';
+import { sys } from '../../core';
+import { assertIsTrue } from '../../core/data/utils/asserts';
+import { NativeUIMeshBuffer } from './native-2d';
+
+interface IIARef {
+    ia: InputAssembler;
+    vertexBuffers: Buffer[];
+    indexBuffer: Buffer;
+}
+
+export enum MeshBufferSharedBufferView{
+    byteOffset,
+    vertexOffset,
+    indexOffset,
+    dirty,
+    count,
+}
 
 export class MeshBuffer {
-    public static OPACITY_OFFSET = 8;
-
     get attributes () { return this._attributes; }
-    get vertexBuffers () { return this._vertexBuffers; }
-    get indexBuffer () { return this._indexBuffer; }
+    get vertexFormatBytes () { return this._vertexFormatBytes; }
 
-    public vData: Float32Array | null = null;
-    public iData: Uint16Array | null = null;
+    protected _byteOffset = 0;
+    get byteOffset () {
+        return this._byteOffset;
+    }
+    set byteOffset (val:number) {
+        this._byteOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.byteOffset] = val;
+        }
+    }
 
-    public byteStart = 0;
-    public byteOffset = 0;
-    public indicesStart = 0;
-    public indicesOffset = 0;
-    public vertexStart = 0;
-    public vertexOffset = 0;
-    public lastByteOffset = 1;
+    protected _vertexOffset = 0;
+    get vertexOffset () {
+        return this._vertexOffset;
+    }
+    set vertexOffset (val:number) {
+        this._vertexOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.vertexOffset] = val;
+        }
+    }
 
-    private _attributes: Attribute[] = null!;
-    private _vertexBuffers: Buffer[] = [];
-    private _indexBuffer: Buffer = null!;
-    private _iaInfo: InputAssemblerInfo = null!;
+    protected _indexOffset = 0;
+    get indexOffset () {
+        return this._indexOffset;
+    }
+    set indexOffset (val:number) {
+        this._indexOffset = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.indexOffset] = val;
+        }
+    }
 
-    // NOTE:
-    // actually 256 * 4 * (vertexFormat._bytes / 4)
-    // include pos, uv, color in ui attributes
-    private _batcher: Batcher2D;
-    private _dirty = false;
+    protected _dirty = false;
+    get dirty () {
+        return this._dirty;
+    }
+    set dirty (val:boolean) {
+        this._dirty = val;
+        if (JSB) {
+            this._sharedBuffer[MeshBufferSharedBufferView.dirty] = val ? 1 : 0;
+        }
+    }
+
+    protected _floatsPerVertex = 0;
+    get floatsPerVertex () {
+        return this._floatsPerVertex;
+    }
+    set floatsPerVertex (val:number) {
+        this._floatsPerVertex = val;
+    }
+
+    protected _vData: Float32Array = null!;
+    get vData () {
+        return this._vData;
+    }
+    set vData (val:Float32Array) {
+        this._vData = val;
+        //还得看是否需要共享.buffer
+        if (JSB) {
+            this._nativeObj.vData = val;
+        }
+    }
+
+    protected _iData: Uint16Array = null!;
+    get iData () {
+        return this._iData;
+    }
+    set iData (val:Uint16Array) {
+        this._iData = val;
+        if (JSB) {
+            this._nativeObj.iData = val;
+        }
+    }
+
+    protected _useLinkedData = false;
+    get useLinkedData () {
+        return this._useLinkedData;
+    }
+    set useLinkedData (val:boolean) {
+        if (JSB && this._useLinkedData !== val) {
+            this._nativeObj.useLinkData = val;
+        }
+        this._useLinkedData = val;
+    }
+
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
-    private _initIDataCount = 256 * 6;
-    private _outOfCallback: ((...args: number[]) => void) | null = null;
-    private _hInputAssemblers: InputAssembler[] = [];
+    private _initIDataCount = 0;
+    private _attributes: Attribute[] = null!;
+
+    // InputAssembler pools for each mesh buffer, array offset correspondent
+    private _iaPool: IIARef[] = [];
+    private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
-    constructor (batcher: Batcher2D) {
-        this._batcher = batcher;
+    //nativeObj
+    protected declare _nativeObj:NativeUIMeshBuffer;
+    get nativeObj () {
+        return this._nativeObj;
     }
 
-    get vertexFormatBytes (): number {
-        return this._vertexFormatBytes;
+    //sharedBuffer
+    protected declare _sharedBuffer: Uint32Array;
+    get sharedBuffer () {
+        return this._sharedBuffer;
     }
 
-    public initialize (attrs: Attribute[], outOfCallback: ((...args: number[]) => void) | null) {
-        this._outOfCallback = outOfCallback;
-        const formatBytes = getComponentPerVertex(attrs);
-        this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = 256 * this._vertexFormatBytes;
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
-
-        if (!this.vertexBuffers.length) {
-            this.vertexBuffers.push(this._batcher.device.createBuffer(new BufferInfo(
-                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                vbStride,
-                vbStride,
-            )));
+    public initSharedBuffer () {
+        if (JSB) {
+            this._sharedBuffer = new Uint32Array(MeshBufferSharedBufferView.count);
         }
+    }
 
-        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-
-        if (!this.indexBuffer) {
-            this._indexBuffer = this._batcher.device.createBuffer(new BufferInfo(
-                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                ibStride,
-                ibStride,
-            ));
+    public syncSharedBufferToNative () {
+        if (JSB) {
+            this._nativeObj.syncSharedBufferToNative(this._sharedBuffer);
         }
+    }
 
+    constructor () {
+        if (JSB) {
+            this._nativeObj = new NativeUIMeshBuffer();
+        }
+        this.initSharedBuffer();
+        this.syncSharedBufferToNative();
+    }
+
+    public initialize (device: Device, attrs: Attribute[], vFloatCount: number, iCount: number) {
+        this._initVDataCount = vFloatCount;
+        this._initIDataCount = iCount;
         this._attributes = attrs;
-        this._iaInfo = new InputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
 
-        // for recycle pool using purpose --
+        this.floatsPerVertex = getAttributeStride(attrs) >> 2;
+
+        assertIsTrue(this._initVDataCount / this._floatsPerVertex < 65536, getError(9005));
+
         if (!this.vData || !this.iData) {
-            this._reallocBuffer();
+            this.vData = new Float32Array(this._initVDataCount);
+            this.iData = new Uint16Array(this._initIDataCount);
         }
-        // ----------
-    }
-
-    public request (vertexCount = 4, indicesCount = 6) {
-        this.lastByteOffset = this.byteOffset;
-        const byteOffset = this.byteOffset + vertexCount * this._vertexFormatBytes;
-        const indicesOffset = this.indicesOffset + indicesCount;
-
-        if (vertexCount + this.vertexOffset > 65535) {
-            if (this._outOfCallback) {
-                this._outOfCallback.call(this._batcher, vertexCount, indicesCount);
-            }
-            return false;
+        // Initialize the first ia
+        this._iaPool.push(this.createNewIA(device));
+        if (JSB) {
+            this._nativeObj.initialize(device, attrs, vFloatCount, iCount);
         }
-
-        let byteLength = this.vData!.byteLength;
-        let indicesLength = this.iData!.length;
-        if (byteOffset > byteLength || indicesOffset > indicesLength) {
-            while (byteLength < byteOffset || indicesLength < indicesOffset) {
-                this._initVDataCount *= 2;
-                this._initIDataCount *= 2;
-
-                byteLength = this._initVDataCount * 4;
-                indicesLength = this._initIDataCount;
-            }
-
-            this._reallocBuffer();
-        }
-
-        this.vertexOffset += vertexCount;
-        this.indicesOffset += indicesCount;
-        this.byteOffset = byteOffset;
-
-        this._dirty = true;
-        return true;
     }
 
     public reset () {
-        this.byteStart = 0;
-        this.byteOffset = 0;
-        this.indicesStart = 0;
-        this.indicesOffset = 0;
-        this.vertexStart = 0;
-        this.vertexOffset = 0;
-        this.lastByteOffset = 0;
         this._nextFreeIAHandle = 0;
-
-        this._dirty = false;
+        this.dirty = false;
     }
 
     public destroy () {
+        this.reset();
         this._attributes = null!;
+        this._iaInfo = null!;
+        this.vData = null!;
+        this.iData = null!;
 
-        this.vertexBuffers[0].destroy();
-        this.vertexBuffers.length = 0;
-
-        this.indexBuffer.destroy();
-        this._indexBuffer = null!;
-
-        for (let i = 0; i < this._hInputAssemblers.length; i++) {
-            this._hInputAssemblers[i].destroy();
+        // Destroy InputAssemblers
+        for (let i = 0; i < this._iaPool.length; ++i) {
+            const iaRef = this._iaPool[i];
+            if (iaRef.vertexBuffers[0]) {
+                iaRef.vertexBuffers[0].destroy();
+            }
+            if (iaRef.indexBuffer) {
+                iaRef.indexBuffer.destroy();
+            }
+            iaRef.ia.destroy();
         }
-        this._hInputAssemblers.length = 0;
+        this._iaPool.length = 0;
     }
 
-    public recordBatch (): InputAssembler | null {
-        const vCount = this.indicesOffset - this.indicesStart;
-        if (!vCount) {
-            return null;
+    public setDirty () {
+        this.dirty = true;
+    }
+
+    /**
+     * @deprecated since v3.4.0, please use BufferAccessor's request
+     * @see [[BufferAccessor.request]]
+     */
+    public request (vertexCount: number, indexCount: number) {
+        warnID(9002);
+        return false;
+    }
+
+    //有返回值暂时没写
+    public requireFreeIA (device: Device) {
+        if (this._iaPool.length <= this._nextFreeIAHandle) {
+            this._iaPool.push(this.createNewIA(device));
         }
-
-        if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
-            this._hInputAssemblers.push(this._batcher.device.createInputAssembler(this._iaInfo));
-        }
-
-        const ia = this._hInputAssemblers[this._nextFreeIAHandle++];
-
-        ia.firstIndex = this.indicesStart;
-        ia.indexCount = vCount;
-
+        const ia = this._iaPool[this._nextFreeIAHandle++].ia;
         return ia;
+    }
+
+    //参数暂时没传
+    public recycleIA (ia: InputAssembler) {
+        const pool = this._iaPool;
+        for (let i = 0; i < this._nextFreeIAHandle; ++i) {
+            if (ia === pool[i].ia) {
+                // Swap to recycle the ia
+                const iaRef = pool[i];
+                pool[i] = pool[--this._nextFreeIAHandle];
+                pool[this._nextFreeIAHandle] = iaRef;
+                return;
+            }
+        }
+    }
+
+    public checkCapacity (vertexCount: number, indexCount: number) {
+        const maxVertex = (this.vertexOffset + vertexCount) * this._floatsPerVertex;
+        const maxIndex = this.indexOffset + indexCount;
+        if (maxVertex > this._initVDataCount || maxIndex > this._initIDataCount) {
+            return false;
+        }
+        return true;
     }
 
     public uploadBuffers () {
@@ -196,52 +273,76 @@ export class MeshBuffer {
             return;
         }
 
-        const verticesData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
-        const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indicesOffset);
+        // On iOS14, different IAs can not share same GPU buffer, so must submit the same date to different buffers
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
+        const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
+        const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
+        const byteCount = this.byteOffset;
+        const indexCount = this.indexOffset;
+        for (let i = 0; i < submitCount; ++i) {
+            const iaRef = this._iaPool[i];
+            // if (iOS14) {
+            //     indexCount = iaRef.ia.firstIndex + iaRef.ia.indexCount;
+            //     const maxVertex = this.iData[indexCount];
+            //     // Only upload as much data as needed, to avoid frequent resize, using pow2 size
+            //     // Wrong implementation because maxVertex might be larger than the last vertex id, hard to find the correct max vertex
+            //     byteCount = Math.min(this.byteOffset, nextPow2(maxVertex + 2) * this.vertexFormatBytes);
+            // }
 
-        if (this.byteOffset > this.vertexBuffers[0].size) {
-            this.vertexBuffers[0].resize(this.byteOffset);
-        }
-        this.vertexBuffers[0].update(verticesData);
+            const verticesData = new Float32Array(this.vData.buffer, 0, byteCount >> 2);
+            const indicesData = new Uint16Array(this.iData.buffer, 0, indexCount);
 
-        if (this.indicesOffset * 2 > this.indexBuffer.size) {
-            this.indexBuffer.resize(this.indicesOffset * 2);
-        }
-        this.indexBuffer.update(indicesData);
-        this._dirty = false;
-    }
-
-    private _reallocBuffer () {
-        this._reallocVData(true);
-        this._reallocIData(true);
-    }
-
-    private _reallocVData (copyOldData: boolean) {
-        let oldVData;
-        if (this.vData) {
-            oldVData = new Uint8Array(this.vData.buffer);
-        }
-
-        this.vData = new Float32Array(this._initVDataCount);
-
-        if (oldVData && copyOldData) {
-            const newData = new Uint8Array(this.vData.buffer);
-            for (let i = 0, l = oldVData.length; i < l; i++) {
-                newData[i] = oldVData[i];
+            const vertexBuffer = iaRef.vertexBuffers[0];
+            if (byteCount > vertexBuffer.size) {
+                vertexBuffer.resize(byteCount);
             }
+            vertexBuffer.update(verticesData);
+
+            if (indexCount * 2 > iaRef.indexBuffer.size) {
+                iaRef.indexBuffer.resize(indexCount * 2);
+            }
+            iaRef.indexBuffer.update(indicesData);
         }
+        this.dirty = false;
     }
 
-    private _reallocIData (copyOldData: boolean) {
-        const oldIData = this.iData;
+    //有返回值，暂时没原生化
+    private createNewIA (device: Device): IIARef {
+        let ia;
+        let vertexBuffers;
+        let indexBuffer;
+        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
+        // TODO: Maybe it can be removed after Apple fixes it?
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
+        if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
+            const vbStride = this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
+            const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+            const vertexBuffer = device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                vbStride,
+                vbStride,
+            ));
+            indexBuffer = device.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                ibStride,
+                ibStride,
+            ));
 
-        this.iData = new Uint16Array(this._initIDataCount);
-
-        if (oldIData && copyOldData) {
-            const iData = this.iData;
-            for (let i = 0, l = oldIData.length; i < l; i++) {
-                iData[i] = oldIData[i];
-            }
+            vertexBuffers = [vertexBuffer];
+            // Reuse purpose for new IAs
+            this._iaInfo = new InputAssemblerInfo(this._attributes, vertexBuffers, indexBuffer);
+            ia = device.createInputAssembler(this._iaInfo);
+        } else {
+            ia = device.createInputAssembler(this._iaInfo);
+            vertexBuffers = this._iaInfo.vertexBuffers;
+            indexBuffer = this._iaInfo.indexBuffer;
         }
+        return {
+            ia,
+            vertexBuffers,
+            indexBuffer,
+        };
     }
 }

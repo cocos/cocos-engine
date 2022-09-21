@@ -23,14 +23,8 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
-import { BaseNode } from './base-node';
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import { Layers } from './layers';
 import { Node } from './node';
@@ -40,12 +34,15 @@ import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
 import { SceneGlobals } from './scene-globals';
+import { SystemEventType } from '../../input/types';
+import { SystemEvent } from '../../input';
+import { NodeUIProperties } from './node-ui-properties';
 
-replaceProperty(BaseNode.prototype, 'BaseNode', [
+replaceProperty(Node.prototype, 'Node', [
     {
         name: 'childrenCount',
         newName: 'children.length',
-        customGetter (this: BaseNode) {
+        customGetter (this: Node) {
             return this.children.length;
         },
     },
@@ -148,6 +145,54 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'packing',
     },
+    {
+        name: 'autoAdapt',
+    },
+    {
+        name: 'fixedArea',
+    },
+    {
+        name: 'pcf',
+    },
+    {
+        name: 'bias',
+    },
+    {
+        name: 'normalBias',
+    },
+    {
+        name: 'near',
+    },
+    {
+        name: 'far',
+    },
+    {
+        name: 'shadowDistance',
+    },
+    {
+        name: 'invisibleOcclusionRange',
+    },
+    {
+        name: 'orthoSize',
+    },
+    {
+        name: 'saturation',
+    },
+]);
+
+replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
+    {
+        name: 'distance',
+        newName: 'planeHeight',
+    },
+    {
+        name: 'normal',
+        newName: 'planeDirection',
+    },
+    {
+        name: 'size',
+        newName: 'shadowMapSize',
+    },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [
@@ -156,6 +201,13 @@ removeProperty(Node.prototype, 'Node.prototype', [
     },
     {
         name: 'removeLayer',
+    },
+]);
+
+replaceProperty(NodeUIProperties.prototype, 'NodeUIProperties', [
+    {
+        name: 'opacityDirty',
+        newName: 'colorDirty',
     },
 ]);
 
@@ -249,6 +301,10 @@ removeProperty(Layers.BitMask, 'Layers.BitMask', [
 const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 const DontSave = CCObject.Flags.DontSave;
 
+/**
+ * @internal
+ * @deprecated since v3.5
+ */
 @ccclass('cc.PrivateNode')
 export class PrivateNode extends Node {
     constructor (name?: string) {
@@ -271,5 +327,43 @@ if (EDITOR) {
         Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
     };
 }
+
+replaceProperty(SystemEventType, 'SystemEventType', [
+    'MOUSE_ENTER',
+    'MOUSE_LEAVE',
+    'TRANSFORM_CHANGED',
+    'SCENE_CHANGED_FOR_PERSISTS',
+    'SIZE_CHANGED',
+    'ANCHOR_CHANGED',
+    'COLOR_CHANGED',
+    'CHILD_ADDED',
+    'CHILD_REMOVED',
+    'PARENT_CHANGED',
+    'NODE_DESTROYED',
+    'LAYER_CHANGED',
+    'SIBLING_ORDER_CHANGED',
+].map((name: string) => ({
+    name,
+    target: Node.EventType,
+    targetName: 'Node.EventType',
+})));
+
+replaceProperty(Node.EventType, 'Node.EventType', [
+    {
+        name: 'DEVICEMOTION',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'KEY_DOWN',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'KEY_UP',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+]);
 
 legacyCC.PrivateNode = PrivateNode;

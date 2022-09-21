@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import b2 from '@cocos/box2d';
 import { Vec2 } from '../../../core';
 

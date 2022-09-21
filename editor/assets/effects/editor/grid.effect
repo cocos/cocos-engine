@@ -20,8 +20,8 @@ CCEffect %{
 
 CCProgram grid-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 a_position;
   in vec4 a_color;
@@ -35,15 +35,14 @@ CCProgram grid-vs %{
     color = a_color;
 
     pos = cc_matProj * (cc_matView * cc_matWorld) * position;
-    pos.z += 0.001;
     return pos;
   }
 }%
 
 CCProgram grid-fs %{
   precision mediump float;
-  #include <cc-global>
-  #include <output>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/output>
 
   in vec4 color;
   in vec3 pos_w;

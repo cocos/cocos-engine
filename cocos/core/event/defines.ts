@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 export type EventArgumentsOf<
     K extends string,
     Map extends any,

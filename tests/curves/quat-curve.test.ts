@@ -1,5 +1,6 @@
 
 import { Quat, QuatCurve, QuatInterpolationMode } from '../../cocos/core';
+import { EasingMethod } from '../../cocos/core/curves/curve';
 import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
 
 describe('Curve', () => {
@@ -11,10 +12,12 @@ describe('Curve', () => {
     describe('serialization', () => {
         test('Normal', () => {
             const curve = new QuatCurve();
-            curve.assignSorted([0.1, 0.2, 0.3], [
+            curve.assignSorted([0.1, 0.2, 0.3, 0.4, 0.5], [
                 { value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.CONSTANT },
-                { value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP },
-                { value: { x: 0.9, y: 0.1, z: 0.11, w: 0.12 }, interpolationMode: QuatInterpolationMode.CONSTANT },
+                { value: { x: 0.5, y: -0.6, z: 0.48, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP, easingMethod: [0.299935, 0.555, -0.5, 0.997] },
+                { value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP, easingMethod: EasingMethod.SINE_IN_OUT },
+                { value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP, easingMethod: [0.1, 0.3, -0.5, 0.7] },
+                { value: { x: 0.9, y: 0.1, z: 0.11, w: 0.12 }, interpolationMode: QuatInterpolationMode.CONSTANT, easingMethod: EasingMethod.QUINT_IN },
             ]);
             compareCurves(serializeAndDeserialize(curve, QuatCurve), curve);
         });
@@ -57,5 +60,14 @@ function compareCurves (left: QuatCurve, right: QuatCurve, numDigits = 2) {
         expect(leftKeyframeValue.value.z).toBeCloseTo(rightKeyframeValue.value.z, numDigits);
         expect(leftKeyframeValue.value.w).toBeCloseTo(rightKeyframeValue.value.w, numDigits);
         expect(leftKeyframeValue.interpolationMode).toStrictEqual(rightKeyframeValue.interpolationMode);
+        if (!Array.isArray(leftKeyframeValue.easingMethod)) {
+            expect(leftKeyframeValue.easingMethod).toStrictEqual(rightKeyframeValue.easingMethod);
+        } else {
+            expect(rightKeyframeValue.easingMethod).toHaveLength(4);
+            expect(leftKeyframeValue.easingMethod[0]).toBeCloseTo((rightKeyframeValue.easingMethod as number[])[0], numDigits);
+            expect(leftKeyframeValue.easingMethod[1]).toBeCloseTo((rightKeyframeValue.easingMethod as number[])[1], numDigits);
+            expect(leftKeyframeValue.easingMethod[2]).toBeCloseTo((rightKeyframeValue.easingMethod as number[])[2], numDigits);
+            expect(leftKeyframeValue.easingMethod[3]).toBeCloseTo((rightKeyframeValue.easingMethod as number[])[3], numDigits);
+        }
     }
 }

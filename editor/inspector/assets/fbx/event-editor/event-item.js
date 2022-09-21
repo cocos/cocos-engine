@@ -77,7 +77,7 @@ exports.template = `
 
 exports.props = [
     'event',
-    'index'
+    'index',
 ];
 
 exports.computed = {

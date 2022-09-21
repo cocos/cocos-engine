@@ -1,0 +1,51 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma extension([GL_EXT_shader_texture_lod, __VERSION__ < 130])
+
+vec4 fragTextureLod (sampler2D tex, vec2 coord, float lod) {
+  #if __VERSION__ < 130
+    #ifdef GL_EXT_shader_texture_lod
+      return texture2DLodEXT(tex, coord, lod);
+    #else
+      return texture2D(tex, coord, lod); // fallback to bias
+    #endif
+  #else
+    return textureLod(tex, coord, lod);
+  #endif
+}
+
+vec4 fragTextureLod (samplerCube tex, vec3 coord, float lod) {
+  #if __VERSION__ < 130
+    #ifdef GL_EXT_shader_texture_lod
+      return textureCubeLodEXT(tex, coord, lod);
+    #else
+      return textureCube(tex, coord, lod); // fallback to bias
+    #endif
+  #else
+    return textureLod(tex, coord, lod);
+  #endif
+}
+
+vec4 fragTextureGrad (sampler2D tex, vec2 P, vec2 dPdx, vec2 dPdy) {
+  #if __VERSION__ < 130
+    #ifdef GL_EXT_shader_texture_lod
+      return texture2DGradEXT(tex, P, dPdx, dPdy);
+    #else
+      return texture2D(tex, P);
+    #endif
+  #else
+    return textureGrad(tex, P, dPdx, dPdy);
+  #endif
+}
+
+vec4 fragTextureGrad (samplerCube tex, vec3 P, vec3 dPdx, vec3 dPdy) {
+  #if __VERSION__ < 130
+    #ifdef GL_EXT_shader_texture_lod
+      return textureCubeGradEXT(tex, P, dPdx, dPdy);
+    #else
+      return textureCube(tex, P);
+    #endif
+  #else
+    return textureGrad(tex, P, dPdx, dPdy);
+  #endif
+}

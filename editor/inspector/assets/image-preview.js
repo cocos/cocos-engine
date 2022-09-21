@@ -36,6 +36,9 @@ exports.style = `
         color: var(--color-primary-contrast-weakest);
         border-radius: calc(var(--size-normal-radius) * 1px);
     }
+    .image-preview > .label > .size:empty {
+        display: none;
+    }
 `;
 
 exports.$ = {
@@ -62,6 +65,7 @@ const Elements = {
             if (panel.assetList.length > 1) {
                 panel.$.container.style.display = 'none';
             } else {
+                this.$.size.innerHTML = '';
                 panel.$.container.style.display = 'block';
             }
         },

@@ -7,13 +7,17 @@ if (!tsConfig.config) {
 }
 const { compilerOptions } = tsConfig.config;
 module.exports = {
-    testEnvironment: 'jsdom',
+    testEnvironment: './tests/test-environment.ts',
     testRegex: '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
     moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` }),
     transformIgnorePatterns: [
         // ignore everything in the node_modules EXCEPT for:
         // - @cocos/dragonbones-js
         'node_modules/(?!(@cocos/dragonbones-js)/)',
+    ],
+    setupFilesAfterEnv: [
+        "./tests/setup-after-env.ts",
+        "./tests/utils/log-capture-setup-after-env.ts"
     ],
     setupFiles: [
         './tests/init.ts',

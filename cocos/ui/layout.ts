@@ -24,12 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable, visible, displayName } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible, displayName } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { Rect, Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
@@ -38,6 +33,7 @@ import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { Node, warn } from '../core';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en Layout type.
@@ -272,6 +268,7 @@ export class Layout extends Component {
      * 布局类型。
      */
     @type(Type)
+    @displayOrder(0)
     @tooltip('i18n:layout.layout_type')
     get type () {
         return this._layoutType;
@@ -738,7 +735,7 @@ export class Layout extends Component {
             child.on(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
             child.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.on('active-in-hierarchy-changed', this._childrenChanged, this);
+            child.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         }
     }
 
@@ -749,7 +746,7 @@ export class Layout extends Component {
             child.off(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
             child.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.off('active-in-hierarchy-changed', this._childrenChanged, this);
+            child.off(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         }
     }
 
@@ -757,7 +754,7 @@ export class Layout extends Component {
         child.on(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
         child.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.on('active-in-hierarchy-changed', this._childrenChanged, this);
+        child.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         this._childrenChanged();
     }
 
@@ -765,7 +762,7 @@ export class Layout extends Component {
         child.off(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
         child.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.off('active-in-hierarchy-changed', this._childrenChanged, this);
+        child.off(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         this._childrenChanged();
     }
 
@@ -964,7 +961,7 @@ export class Layout extends Component {
         return containerResizeBoundary;
     }
 
-    protected _doLayoutGridAxisHorizontal (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
+    protected _doLayoutGridAxisHorizontal (layoutAnchor: Vec2 | Readonly<Vec2>, layoutSize: Size) {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
@@ -997,7 +994,7 @@ export class Layout extends Component {
         }
     }
 
-    protected _doLayoutGridAxisVertical (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
+    protected _doLayoutGridAxisVertical (layoutAnchor: Vec2 | Readonly<Vec2>, layoutSize: Size) {
         const baseHeight = layoutSize.height;
 
         let sign = 1;
@@ -1157,3 +1154,5 @@ export class Layout extends Component {
         return num;
     }
 }
+
+legacyCC.Layout = Layout;

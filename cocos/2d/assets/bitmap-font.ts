@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';

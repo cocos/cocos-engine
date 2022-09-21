@@ -22,128 +22,120 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-(function(){
+
+// @ts-expect-error jsb polyfills
+(function () {
     if (!window.middleware) return;
-
-    let middlewareMgr = middleware.MiddlewareManager.getInstance();
+    const RenderDrawInfoType_IA = 2;
+    const middleware = window.middleware;
+    const middlewareMgr = middleware.MiddlewareManager.getInstance();
     let reference = 0;
-    let director = cc.director;
-    let game = cc.game;
+    const director = cc.director;
+    const game = cc.game;
+    const _accessors = [];
 
-    let nativeXYZUVC = middleware.vfmtPosUvColor = 9;
-    let nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
+    const nativeXYZUVC = middleware.vfmtPosUvColor = 6;
+    const nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 7;
 
-    let vfmtPosUvColor = cc.internal.vfmtPosUvColor;
-    let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor;
+    const vfmtPosUvColor4B = cc.internal.vfmtPosUvColor4B;
+    const vfmtPosUvTwoColor4B = cc.internal.vfmtPosUvTwoColor4B;
 
-    let renderInfoLookup = middleware.RenderInfoLookup = {};
+    const renderInfoLookup = middleware.RenderInfoLookup = {};
     renderInfoLookup[nativeXYZUVC] = [];
     renderInfoLookup[nativeXYZUVCC] = [];
 
-    middleware.preRenderComponent = null;
-    middleware.preRenderBufferIndex = 0;
-    middleware.preRenderBufferType = nativeXYZUVC;
-    middleware.renderOrder = 0;
-    middleware.indicesStart = 0;
-    middleware.resetIndicesStart = false;
+    middleware.reset = function () {
+        middleware.preRenderComponent = null;
+        middleware.preRenderBufferIndex = 0;
+        middleware.preRenderBufferType = nativeXYZUVC;
+        middleware.renderOrder = 0;
+        middleware.indicesStart = 0;
+        middleware.resetIndicesStart = false;
+    };
+    middleware.reset();
     middleware.retain = function () {
         reference++;
-    }
+    };
     middleware.release = function () {
         if (reference === 0) {
-            cc.warn("middleware reference error: reference count should be greater than 0");
+            cc.warn('middleware reference error: reference count should be greater than 0');
             return;
         }
         reference--;
         if (reference === 0) {
-            const batcher2D = director.root.batcher2D;
             const uvcBuffers = renderInfoLookup[nativeXYZUVC];
             for (let i = 0; i < uvcBuffers.length; i++) {
-                batcher2D.unRegisterCustomBuffer(uvcBuffers[i]);
-                uvcBuffers[i].destroy();
+                cc.UI.RenderData.remove(uvcBuffers[i]);
             }
             uvcBuffers.length = 0;
             const uvccBuffers = renderInfoLookup[nativeXYZUVCC];
             for (let i = 0; i < uvccBuffers.length; i++) {
-                batcher2D.unRegisterCustomBuffer(uvccBuffers[i]);
-                uvccBuffers[i].destroy();
+                cc.UI.RenderData.remove(uvccBuffers[i]);
             }
             uvccBuffers.length = 0;
+            _accessors.forEach((accessor) => {
+                accessor.destroy();
+            });
         }
-    }
+    };
 
-    function CopyNativeBufferToJS(renderer, nativeFormat, jsFormat) {
+    function CopyNativeBufferToJS (renderer, nativeFormat, jsFormat) {
         if (!renderer) return;
 
-        let bufferCount = middlewareMgr.getBufferCount(nativeFormat);
-        for(let i = 0; i < bufferCount; i++) {
-            let ibBytesLength = middlewareMgr.getIBTypedArrayLength(nativeFormat, i);
-            let srcVertexCount = 65535;
-            let srcIndicesCount = ibBytesLength / 2; // USHORT
-            let srcVertexFloatCount = srcVertexCount * nativeFormat;
-            
+        const bufferCount = middlewareMgr.getBufferCount(nativeFormat);
+        for (let i = 0; i < bufferCount; i++) {
             let buffer = renderInfoLookup[nativeFormat][i];
             if (!buffer)  {
-                buffer = renderer.registerCustomBuffer(jsFormat);
+                if (!_accessors[jsFormat]) {
+                    _accessors[jsFormat] = cc.UI.RenderData.createStaticVBAccessor(jsFormat, 65535, 524280);
+                }
+                buffer = cc.UI.RenderData.add(jsFormat, _accessors[jsFormat]);
+                buffer.multiOwner = true;
+                buffer.drawInfoType = RenderDrawInfoType_IA;
+                // vertex count 65535, indices count 8 * 65535
+                buffer.resize(65535, 524280);
+                const meshBuffer = buffer.getMeshBuffer();
+                meshBuffer.useLinkedData = true;
+                renderInfoLookup[nativeFormat][i] = buffer;
             }
-
-            buffer.reset();
-
-            const isRecreate = buffer.request(srcVertexCount, srcIndicesCount);
-            if (!isRecreate) {
-                buffer = renderer.registerCustomBuffer(jsFormat);
-            }
-
-            const vBuf = buffer.vData;
-            const iBuf = buffer.iData;
-
-            const srcVBuf = middlewareMgr.getVBTypedArray(nativeFormat, i);
-            const srcIBuf = middlewareMgr.getIBTypedArray(nativeFormat, i);
-
-            vBuf.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
-            iBuf.set(srcIBuf.subarray(0, srcIndicesCount), 0);
-
-            // forbid js upload data, call by middleware
-            buffer.uploadBuffers();
-            
-            // forbid auto merge, because of it's meanless
-            buffer.indicesOffset = 0;
-            renderInfoLookup[nativeFormat][i] = buffer;
         }
     }
 
-    director.on(cc.Director.EVENT_BEFORE_UPDATE, function () {
+    director.on(cc.Director.EVENT_BEFORE_UPDATE, () => {
         if (reference === 0) return;
         middlewareMgr.update(game.deltaTime);
     });
 
-    director.on(cc.Director.EVENT_BEFORE_DRAW, function () {
+    director.on(cc.Director.EVENT_BEFORE_DRAW, () => {
         if (reference === 0) return;
         middlewareMgr.render(game.deltaTime);
 
         // reset render order
-        middleware.renderOrder = 0;
-        middleware.preRenderComponent = null;
-        middleware.preRenderBufferIndex = 0;
-        middleware.preRenderBufferType = nativeXYZUVC;
-        middleware.indicesStart = 0;
-        middleware.resetIndicesStart = false;
+        middleware.reset();
 
-        let batcher2D = director.root.batcher2D;
-        CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor);
-        CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor);
+        const batcher2D = director.root.batcher2D;
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor4B);
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor4B);
+        if (window.dragonBones) {
+            const armaSystem = cc.internal.ArmatureSystem.getInstance();
+            armaSystem.prepareRenderData();
+        }
+        if (window.spine) {
+            const skeletonSystem = cc.internal.SpineSkeletonSystem.getInstance();
+            skeletonSystem.prepareRenderData();
+        }
     });
 
-    let renderInfoMgr = middlewareMgr.getRenderInfoMgr();
+    const renderInfoMgr = middlewareMgr.getRenderInfoMgr();
     renderInfoMgr.renderInfo = renderInfoMgr.getSharedBuffer();
-    renderInfoMgr.setResizeCallback(function() {
+    renderInfoMgr.setResizeCallback(function () {
         this.attachInfo = this.getSharedBuffer();
     });
     renderInfoMgr.__middleware__ = middleware;
 
-    let attachInfoMgr = middlewareMgr.getAttachInfoMgr();
+    const attachInfoMgr = middlewareMgr.getAttachInfoMgr();
     attachInfoMgr.attachInfo = attachInfoMgr.getSharedBuffer();
-    attachInfoMgr.setResizeCallback(function() {
+    attachInfoMgr.setResizeCallback(function () {
         this.attachInfo = this.getSharedBuffer();
     });
 
@@ -152,23 +144,24 @@
 
     // generate get set function
     middleware.generateGetSet = function (moduleObj) {
-        for (let classKey in moduleObj) {
-            let classProto = moduleObj[classKey] && moduleObj[classKey].prototype;
+        for (const classKey in moduleObj) {
+            const classProto = moduleObj[classKey] && moduleObj[classKey].prototype;
             if (!classProto) continue;
-            for (let getName in classProto) {
-                let getPos = getName.search(/^get/);
-                if (getPos == -1) continue;
+            for (const getName in classProto) {
+                const getPos = getName.search(/^get/);
+                if (getPos === -1) continue;
                 let propName = getName.replace(/^get/, '');
-                let nameArr = propName.split('');
-                let lowerFirst = nameArr[0].toLowerCase();
-                let upperFirst = nameArr[0].toUpperCase();
+                const nameArr = propName.split('');
+                const lowerFirst = nameArr[0].toLowerCase();
+                const upperFirst = nameArr[0].toUpperCase();
                 nameArr.splice(0, 1);
-                let left = nameArr.join('');
+                const left = nameArr.join('');
                 propName = lowerFirst + left;
-                let setName = 'set' + upperFirst + left;
+                const setName = `set${upperFirst}${left}`;
+                // eslint-disable-next-line no-prototype-builtins
                 if (classProto.hasOwnProperty(propName)) continue;
-                let setFunc = classProto[setName];
-                let hasSetFunc = typeof setFunc === 'function';
+                const setFunc = classProto[setName];
+                const hasSetFunc = typeof setFunc === 'function';
                 if (hasSetFunc) {
                     Object.defineProperty(classProto, propName, {
                         get () {
@@ -190,4 +183,4 @@
             }
         }
     };
-})();
+}());

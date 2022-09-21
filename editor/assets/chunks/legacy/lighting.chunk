@@ -1,0 +1,9 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define CC_PIPELINE_TYPE_FORWARD 0
+#pragma define CC_PIPELINE_TYPE_DEFERRED 1
+#pragma define-meta CC_PIPELINE_TYPE range([0, 1])
+#pragma define-meta CC_FORCE_FORWARD_SHADING
+
+#include <builtin/uniforms/cc-forward-light>
+#include <common/lighting/attenuation>

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { Component } from '../../cocos/core/components/component';
 import { Node } from '../../cocos/core/scene-graph';
 import { legacyCC } from '../../cocos/core/global-exports';
@@ -67,7 +62,6 @@ interface IPoolHandlerComponent extends Component {
  *      等等....
  */
 export class NodePool {
-
     /**
      * @en The pool handler component, it could be the class name or the constructor.
      * @zh 缓冲池处理组件，用于节点的回收和复用逻辑，这个属性可以是组件类名或组件的构造函数。
@@ -159,8 +153,7 @@ export class NodePool {
         const last = this._pool.length - 1;
         if (last < 0) {
             return null;
-        }
-        else {
+        } else {
             // Pop the last object in pool
             const obj = this._pool[last];
             this._pool.length = last;

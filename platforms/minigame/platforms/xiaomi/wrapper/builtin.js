@@ -1155,6 +1155,7 @@
 	});
 	var location = {
 	  href: 'game.js',
+	  protocol: '',
 	  reload: function reload() {}
 	};
 
@@ -1162,3 +1163,6 @@
 
 /***/ })
 /******/ ]);
+
+require('../../../common/xmldom/dom-parser');
+require('./unify');

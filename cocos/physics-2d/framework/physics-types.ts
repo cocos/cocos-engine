@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
+
 
 import { Enum, Vec2 } from '../../core';
 import { Collider2D } from './components/colliders/collider-2d';
@@ -58,6 +55,11 @@ export enum EJoint2DType {
     HINGE,
 }
 Enum(EJoint2DType);
+
+export enum PhysicsGroup {
+    DEFAULT = 1,
+}
+Enum(PhysicsGroup);
 
 /**
  * @en Enum for ERaycast2DType.

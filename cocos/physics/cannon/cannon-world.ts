@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';

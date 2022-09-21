@@ -1,0 +1,80 @@
+name: <Native> Simulator
+
+#on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'native/**'
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  win_gen_simulator:
+    runs-on: windows-2019
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    name: Windows
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/native
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: npm install
+        run: |
+          npm install
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
+
+      - name: install vulkan-sdk
+        run: |
+          choco install vulkan-sdk
+      - name: generate bindings glue codes
+        run: |
+          cd ./tools/swig-config
+          echo "Create auto-generated jsbinding glue codes."
+          node genbindings.js &&
+          git status
+      - name: gen simulator
+        run: |
+          gulp gen-simulator
+      - name: check result
+        run: |
+          Get-ChildItem ./simulator/Release -Name SimulatorApp-Win32.exe
+          if(Test-Path ./simulator/Release/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
+
+  mac_gen_simulator:
+    runs-on: macos-latest
+    name: MacOS
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/native
+    steps:
+      - uses: actions/checkout@v2
+      - name: npm install
+        run: |
+          npm install
+          npm install gulp -g
+      - name: Download external libraries
+        run: |
+          EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
+
+      - name: Generate bindings
+        run: |
+          cd ./tools/swig-config
+          node genbindings.js
+          git status
+      - name: gen simulator
+        run: |
+          gulp gen-simulator-release
+      - name: check result
+        run: |
+          find ./ -name SimulatorApp-Mac
+          [ -f ./simulator/Release/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1

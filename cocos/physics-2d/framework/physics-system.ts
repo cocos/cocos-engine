@@ -1,20 +1,20 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
+
 
 import { EDITOR, DEBUG } from 'internal:constants';
-import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify } from '../../core';
+import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { createPhysicsWorld } from './instance';
 import { physicsEngineId } from './physics-selector';
 import { DelayEvent } from './physics-internal-types';
 import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO } from './physics-types';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
+import { legacyCC } from '../../core/global-exports';
+import { Settings, settings } from '../../core/settings';
 
 let instance: PhysicsSystem2D | null = null;
+legacyCC.internal.PhysicsGroup2D = PhysicsGroup;
 
 export class PhysicsSystem2D extends Eventify(System) {
     /**
@@ -41,7 +41,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -57,7 +57,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }
@@ -156,6 +156,16 @@ export class PhysicsSystem2D extends Eventify(System) {
 
     /**
      * @en
+     * Gets the predefined physics groups.
+     * @zh
+     * 获取预定义的物理分组。
+     */
+    public static get PhysicsGroup () {
+        return PhysicsGroup;
+    }
+
+    /**
+     * @en
      * Gets the physical system instance.
      * @zh
      * 获取物理系统实例。
@@ -193,22 +203,30 @@ export class PhysicsSystem2D extends Eventify(System) {
     private constructor () {
         super();
 
-        const config = game.config ? game.config.physics as IPhysicsConfig : null;
-        if (config) {
-            Vec2.copy(this._gravity, config.gravity as IVec2Like);
+        const gravity = settings.querySettings(Settings.Category.PHYSICS, 'gravity');
+        if (gravity) {
+            Vec2.copy(this._gravity, gravity as IVec2Like);
             this._gravity.multiplyScalar(PHYSICS_2D_PTM_RATIO);
+        }
+        this._allowSleep = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'allowSleep') ?? this._allowSleep;
+        this._fixedTimeStep = settings.querySettings<number>(Settings.Category.PHYSICS, 'fixedTimeStep') ?? this._fixedTimeStep;
+        this._maxSubSteps = settings.querySettings<number>(Settings.Category.PHYSICS, 'maxSubSteps') ?? this._maxSubSteps;
+        this._autoSimulation = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'autoSimulation') ?? this._autoSimulation;
+        const collisionMatrix = settings.querySettings(Settings.Category.PHYSICS, 'collisionMatrix');
+        if (collisionMatrix) {
+            for (const i in collisionMatrix) {
+                const bit = parseInt(i);
+                const value = 1 << parseInt(i);
+                this.collisionMatrix[`${value}`] = collisionMatrix[bit];
+            }
+        }
 
-            this._allowSleep = config.allowSleep as boolean;
-            this._fixedTimeStep = config.fixedTimeStep as number;
-            this._maxSubSteps = config.maxSubSteps as number;
-            this._autoSimulation = config.autoSimulation as boolean;
-
-            if (config.collisionMatrix) {
-                for (const i in config.collisionMatrix) {
-                    const bit = parseInt(i);
-                    const value = 1 << parseInt(i);
-                    this.collisionMatrix[`${value}`] = config.collisionMatrix[bit];
-                }
+        const collisionGroups = settings.querySettings<Array<{ name: string, index: number }>>(Settings.Category.PHYSICS, 'collisionGroups');
+        if (collisionGroups) {
+            const cg = collisionGroups;
+            if (cg instanceof Array) {
+                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                Enum.update(PhysicsGroup);
             }
         }
 
@@ -335,7 +353,7 @@ director.once(Director.EVENT_INIT, () => {
 });
 
 function initPhysicsSystem () {
-    if (!PhysicsSystem2D.PHYSICS_NONE && !EDITOR) {
+    if (!PhysicsSystem2D.PHYSICS_NONE && (!EDITOR || legacyCC.GAME_VIEW)) {
         director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
     }
 }

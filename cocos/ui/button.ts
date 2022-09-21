@@ -24,17 +24,12 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
-import { UITransform, Renderable2D } from '../2d/framework';
-import { EventMouse, EventTouch } from '../core/platform';
+import { UITransform, UIRenderer } from '../2d/framework';
+import { EventMouse, EventTouch } from '../input/types';
 import { Color, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { lerp } from '../core/math/utils';
@@ -43,6 +38,7 @@ import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const _tempColor = new Color();
 
@@ -235,6 +231,10 @@ export class Button extends Component {
         //         this.normalSprite = this._previousNormalSprite;
         //     }
         // }
+        if (this._interactable === value) {
+            return;
+        }
+
         this._interactable = value;
         this._updateState();
 
@@ -287,6 +287,7 @@ export class Button extends Component {
      * @zh
      * 普通状态下按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.normal_color')
     // @constget
     get normalColor (): Readonly<Color> {
@@ -309,6 +310,7 @@ export class Button extends Component {
      * @zh
      * 按下状态时按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.pressed_color')
     // @constget
     get pressedColor (): Readonly<Color> {
@@ -330,6 +332,7 @@ export class Button extends Component {
      * @zh
      * 悬停状态下按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.hover_color')
     // @constget
     get hoverColor (): Readonly<Color> {
@@ -350,6 +353,7 @@ export class Button extends Component {
      * @zh
      * 禁用状态下按钮所显示的颜色。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.disabled_color')
     // @constget
     get disabledColor (): Readonly<Color> {
@@ -374,6 +378,7 @@ export class Button extends Component {
      */
     @rangeMin(0)
     @rangeMax(10)
+    @displayOrder(4)
     @tooltip('i18n:button.duration')
     get duration () {
         return this._duration;
@@ -399,6 +404,7 @@ export class Button extends Component {
      * 注意：不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件。
      * 如果你需要这么做，你应该把 target 设置为另一个背景节点，而不是按钮节点。
      */
+    @displayOrder(3)
     @tooltip('i18n:button.zoom_scale')
     get zoomScale () {
         return this._zoomScale;
@@ -421,6 +427,7 @@ export class Button extends Component {
      * 普通状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.normal_sprite')
     get normalSprite () {
         return this._normalSprite;
@@ -448,6 +455,7 @@ export class Button extends Component {
      * 按下状态时按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.pressed_sprite')
     get pressedSprite () {
         return this._pressedSprite;
@@ -470,6 +478,7 @@ export class Button extends Component {
      * 悬停状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.hover_sprite')
     get hoverSprite () {
         return this._hoverSprite;
@@ -492,6 +501,7 @@ export class Button extends Component {
      * 禁用状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
+    @displayOrder(3)
     @tooltip('i18n:button.disabled_sprite')
     get disabledSprite () {
         return this._disabledSprite;
@@ -602,6 +612,12 @@ export class Button extends Component {
         }
     }
 
+    public onDestroy () {
+        if (this.target.isValid) {
+            this._unregisterTargetEvent(this.target);
+        }
+    }
+
     public update (dt: number) {
         const target = this.target;
         if (this._transitionFinished || !target) {
@@ -623,7 +639,7 @@ export class Button extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            const renderComp = target._uiProps.uiComp as Renderable2D;
+            const renderComp = target._uiProps.uiComp as UIRenderer;
             Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
             if (renderComp) {
                 renderComp.color = _tempColor;
@@ -660,7 +676,7 @@ export class Button extends Component {
         }
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
-            const renderComp = target.getComponent(Renderable2D);
+            const renderComp = target.getComponent(UIRenderer);
             if (renderComp) {
                 renderComp.color = this._normalColor;
             }
@@ -678,6 +694,11 @@ export class Button extends Component {
 
         this.node.on(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
         this.node.on(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+
+        this.node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.on(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+        this.node.on(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
     }
 
     protected _registerTargetEvent (target) {
@@ -696,6 +717,11 @@ export class Button extends Component {
 
         this.node.off(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
         this.node.off(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+
+        this.node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.off(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+        this.node.off(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
     }
 
     protected _unregisterTargetEvent (target) {
@@ -721,6 +747,7 @@ export class Button extends Component {
                 this._originalScale = new Vec3();
             }
             Vec3.copy(this._originalScale, this.target.getScale());
+            this._registerTargetEvent(this.target);
         }
     }
 
@@ -779,7 +806,7 @@ export class Button extends Component {
 
     private _onTargetTransformChanged (transformBit: TransformBit) {
         // update originalScale
-        if (transformBit | TransformBit.SCALE && this._originalScale
+        if ((transformBit & TransformBit.SCALE) && this._originalScale
             && this._transition === Transition.SCALE && this._transitionFinished) {
             Vec3.copy(this._originalScale, this.target.getScale());
         }
@@ -809,7 +836,7 @@ export class Button extends Component {
             return;
         }
 
-        const hit = this.node._uiProps.uiTransformComp!.isHit(touch.getUILocation());
+        const hit = this.node._uiProps.uiTransformComp!.hitTest(touch.getLocation());
 
         if (this._transition === Transition.SCALE && this.target && this._originalScale) {
             if (hit) {
@@ -898,7 +925,7 @@ export class Button extends Component {
     protected _updateColorTransition (state: string) {
         const color = this[`${state}Color`];
 
-        const renderComp = this.target?.getComponent(Renderable2D);
+        const renderComp = this.target?.getComponent(UIRenderer);
         if (!renderComp) {
             return;
         }
@@ -963,4 +990,38 @@ export class Button extends Component {
             this._updateScaleTransition(state);
         }
     }
+
+    private _xrHoverEnter() {
+        this._onMouseMoveIn();
+        this._updateState();
+    }
+
+    private _xrHoverExit() {
+        this._onMouseMoveOut();
+        if (this._pressed) {
+            this._pressed = false;
+            this._updateState();
+        }
+    }
+
+    private _xrClick() {
+        if (!this._interactable || !this.enabledInHierarchy) { return; }
+        this._pressed = true;
+        this._updateState();
+    }
+
+    private _xrUnClick() {
+        if (!this._interactable || !this.enabledInHierarchy) {
+            return;
+        }
+
+        if (this._pressed) {
+            ComponentEventHandler.emitEvents(this.clickEvents, this);
+            this.node.emit(EventType.CLICK, this);
+        }
+        this._pressed = false;
+        this._updateState();
+    }
 }
+
+legacyCC.Button = Button;

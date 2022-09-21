@@ -22,16 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
+import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../renderer/base';
 import { MeshRenderData } from '../../../renderer/render-data';
-import { Batcher2D } from '../../../renderer/batcher-2d';
+import { IBatcher } from '../../../renderer/i-batcher';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
@@ -82,14 +77,18 @@ export const graphicsAssembler: IAssembler = {
     useModel: true,
 
     updateRenderData (graphics: Graphics) {
-
+        if (JSB) {
+            if (graphics.renderData) {
+                graphics.renderData.material = graphics.getMaterialInstance(0);
+            }
+        }
     },
 
-    fillBuffers (graphics: Graphics, renderer: Batcher2D) {
+    fillBuffers (graphics: Graphics, renderer: IBatcher) {
         // this.renderIA!(graphics, renderer);
     },
 
-    renderIA (graphics: Graphics, renderer: Batcher2D) {
+    renderIA (graphics: Graphics, renderer: IBatcher) {
     },
 
     getRenderData (graphics: Graphics, vertexCount: number) {
@@ -287,14 +286,14 @@ export const graphicsAssembler: IAssembler = {
             }
 
             // stroke indices
-            let indicesOffset = meshBuffer.indicesStart;
+            let indicesOffset = meshBuffer.indexStart;
             for (let begin = offset + 2, over = meshBuffer.vertexStart; begin < over; begin++) {
                 iData[indicesOffset++] = begin - 2;
                 iData[indicesOffset++] = begin - 1;
                 iData[indicesOffset++] = begin;
             }
 
-            meshBuffer.indicesStart = indicesOffset;
+            meshBuffer.indexStart = indicesOffset;
         }
         _renderData = null;
         _impl = null;
@@ -342,7 +341,7 @@ export const graphicsAssembler: IAssembler = {
                 this._vSet!(pts[j].x, pts[j].y);
             }
 
-            let indicesOffset = renderData.indicesStart;
+            let indicesOffset = renderData.indexStart;
 
             if (path.complex) {
                 const earcutData: number[] = [];
@@ -371,7 +370,7 @@ export const graphicsAssembler: IAssembler = {
                 }
             }
 
-            meshBuffer.indicesStart = indicesOffset;
+            meshBuffer.indexStart = indicesOffset;
         }
 
         _renderData = null;

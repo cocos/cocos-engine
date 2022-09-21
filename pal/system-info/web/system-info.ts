@@ -1,7 +1,7 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/system-info';
-import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
+import { IFeatureMap } from 'pal/system-info';
+import { EventTarget } from '../../../cocos/core/event';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
@@ -17,9 +17,9 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
-    public readonly pixelRatio: number;
-    public readonly supportCapability: SupportCapability;
+    public readonly isXR: boolean;
     private _battery?: any;
+    private _featureMap: IFeatureMap;
 
     constructor () {
         super();
@@ -142,7 +142,7 @@ class SystemInfo extends EventTarget {
         }
         this.browserVersion = tmp ? tmp[4] : '';
 
-        this.pixelRatio = window.devicePixelRatio || 1;
+        this.isXR = false;
 
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');
@@ -159,6 +159,15 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
+        if (this.browserType === BrowserType.SAFARI) {
+            const result = / version\/(\d+)/.exec(ua)?.[1];
+            if (typeof result === 'string') {
+                if (Number.parseInt(result) >= 14) {
+                    // safari 14+ support webp, but canvas.toDataURL is not supported by default
+                    supportWebp = true;
+                }
+            }
+        }
         let supportImageBitmap = false;
         if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
             _tmpCanvas1.width = _tmpCanvas1.height = 2;
@@ -167,11 +176,25 @@ class SystemInfo extends EventTarget {
                 imageBitmap?.close();
             }).catch((err) => {});
         }
-        this.supportCapability = {
-            webp: supportWebp,
-            gl: supportWebGL,
-            canvas: supportCanvas,
-            imageBitmap: supportImageBitmap,
+
+        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
+        const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
+        this._featureMap = {
+            [Feature.WEBP]: supportWebp,
+            [Feature.IMAGE_BITMAP]: supportImageBitmap,
+            [Feature.WEB_VIEW]: true,
+            [Feature.VIDEO_PLAYER]: true,
+            [Feature.SAFE_AREA]: false,
+
+            [Feature.INPUT_TOUCH]: supportTouch,
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined || EDITOR,
+            [Feature.EVENT_MOUSE]: supportMouse,
+            [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
+            [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
+            // @ts-expect-error undefined webkitGetGamepads
+            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
+            [Feature.EVENT_HANDLE]: this.isXR,
+            [Feature.EVENT_HMD]: this.isXR,
         };
 
         this._registerEvent();
@@ -243,6 +266,10 @@ class SystemInfo extends EventTarget {
             document.addEventListener('pagehide', onHidden);
             document.addEventListener('pageshow', onShown);
         }
+    }
+
+    public hasFeature (feature: Feature): boolean {
+        return this._featureMap[feature];
     }
 
     public getBatteryLevel (): number {

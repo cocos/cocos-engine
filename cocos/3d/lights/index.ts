@@ -24,10 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 export { DirectionalLight } from './directional-light-component';
 export { Light } from './light-component';
 export { SphereLight } from './sphere-light-component';

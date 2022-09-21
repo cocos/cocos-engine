@@ -17,14 +17,14 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       properties: &props
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         occlusion:      { value: 1.0, target: pbrParams.x }
         roughness:      { value: 0.8, target: pbrParams.y }
         metallic:       { value: 0.6, target: pbrParams.z }
         normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
-        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:      { value: normal       }
@@ -47,12 +47,13 @@ CCProgram shared-ubos %{
 
 CCProgram standard-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-global>
-  #include <cc-local-batch>
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
   #include <shared-ubos>
-  #include <cc-fog-vs>
-  #include <cc-shadow-map-vs>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
@@ -69,12 +70,12 @@ CCProgram standard-vs %{
     out vec3 v_bitangent;
   #endif
 
-  #if HAS_SECOND_UV || USE_LIGHTMAP
+  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
     in vec2 a_texCoord1;
   #endif
 
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-vs>
+  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-vs>
   #endif
 
   void main () {
@@ -105,7 +106,7 @@ CCProgram standard-vs %{
     CC_TRANSFER_FOG(pos);
     CC_TRANSFER_SHADOW(pos);
 
-    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 
@@ -116,12 +117,12 @@ CCProgram standard-vs %{
 
 CCProgram standard-fs %{
   precision highp float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
   #include <shared-ubos>
-  #include <cc-fog-fs>
-  #include <standard-surface-entry>
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    #include <lightingmap-fs>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
+  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-fs>
   #endif
 
   in vec3 v_position;
@@ -135,15 +136,15 @@ CCProgram standard-fs %{
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
-    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
   #endif
   #if USE_NORMAL_MAP
     in vec3 v_tangent;
     in vec3 v_bitangent;
     uniform sampler2D normalMap;
-    #pragma define NORMAL_UV options([v_uv, v_uv1])
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
-  #pragma define PBR_UV options([v_uv, v_uv1])
+  #pragma define-meta PBR_UV options([v_uv, v_uv1])
   #if USE_PBR_MAP
     uniform sampler2D pbrMap;
   #endif
@@ -155,15 +156,15 @@ CCProgram standard-fs %{
   #endif
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
-    #pragma define EMISSIVE_UV options([v_uv, v_uv1])
+    #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
 
-  #define OCCLUSION_CHANNEL r
-  #define ROUGHNESS_CHANNEL g
-  #define METALLIC_CHANNEL  b
+  #pragma define OCCLUSION_CHANNEL r
+  #pragma define ROUGHNESS_CHANNEL g
+  #pragma define METALLIC_CHANNEL  b
 
   #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
 
   void surf (out StandardSurface s) {
@@ -183,7 +184,7 @@ CCProgram standard-fs %{
       if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       s.lightmap = texture(cc_lightingMap, v_luv);
     #endif
 
@@ -196,7 +197,7 @@ CCProgram standard-fs %{
         nmmp.z * normalize(s.normal);
     #endif
 
-    s.position = v_position;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     vec4 pbr = pbrParams;
     #if USE_PBR_MAP
@@ -213,8 +214,9 @@ CCProgram standard-fs %{
     #if USE_OCCLUSION_MAP
       pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
     #endif
-    s.occlusion = clamp(pbr.x, 0.0, 0.96);
-    s.roughness = clamp(pbr.y, 0.04, 1.0);
+    s.occlusion = pbr.x;
+    s.roughness = pbr.y;
+    s.specularIntensity = 0.5;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
@@ -224,14 +226,14 @@ CCProgram standard-fs %{
   }
 
   #pragma builtin(local)
-  layout(set = 2, binding = 11) uniform sampler2D cc_reflectionTexture;
+  layout(set = 2, binding = 12) uniform sampler2D cc_reflectionTexture;
 
-  layout(location = 0) out vec4 fragColorX;                        
+  layout(location = 0) out vec4 fragColorX;
 
-  void main () {                                                   
+  void main () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);
-    CC_APPLY_FOG(color);
+    CC_APPLY_FOG(color, s.position.xyz);
     vec4 baseColor = CCFragOutput(color);
 
     vec2 noise = v_normal.xy * 0.02;

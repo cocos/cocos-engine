@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
-
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 
@@ -56,22 +51,22 @@ export class OBB {
      * create a new obb
      * @zh
      * 创建一个新的 obb 实例。
-     * @param cx 形状的相对于原点的 X 坐标。
-     * @param cy 形状的相对于原点的 Y 坐标。
-     * @param cz 形状的相对于原点的 Z 坐标。
-     * @param hw - obb 宽度的一半。
-     * @param hh - obb 高度的一半。
-     * @param hl - obb 长度的一半。
-     * @param ox_1 方向矩阵参数。
-     * @param ox_2 方向矩阵参数。
-     * @param ox_3 方向矩阵参数。
-     * @param oy_1 方向矩阵参数。
-     * @param oy_2 方向矩阵参数。
-     * @param oy_3 方向矩阵参数。
-     * @param oz_1 方向矩阵参数。
-     * @param oz_2 方向矩阵参数。
-     * @param oz_3 方向矩阵参数。
-     * @return 返回一个 obb。
+     * @param cx @zh 形状的相对于原点的 X 坐标。 @en The x coordinate of origin.
+     * @param cy @zh 形状的相对于原点的 Y 坐标。 @en The y coordinate of origin.
+     * @param cz @zh 形状的相对于原点的 Z 坐标。 @en The z coordinate of origin.
+     * @param hw @zh - obb 宽度的一半。 @en Half the width of the OBB.
+     * @param hh @zh - obb 高度的一半。 @en Half the height of the OBB.
+     * @param hl @zh - obb 长度的一半。 @en Half the length of the OBB.
+     * @param ox_1 @zh 方向矩阵参数。 @en The x component of the one axis of the OBB.
+     * @param ox_2 @zh 方向矩阵参数。 @en The x component of the second axis of the OBB.
+     * @param ox_3 @zh 方向矩阵参数。 @en The x component of the third axis of the OBB.
+     * @param oy_1 @zh 方向矩阵参数。 @en The y component of the one axis of the OBB.
+     * @param oy_2 @zh 方向矩阵参数。 @en The y component of the second axis of the OBB.
+     * @param oy_3 @zh 方向矩阵参数。 @en The y component of the third axis of the OBB.
+     * @param oz_1 @zh 方向矩阵参数。 @en The z component of the one axis of the OBB.
+     * @param oz_2 @zh 方向矩阵参数。 @en The z component of the second axis of the OBB.
+     * @param oz_3 @zh 方向矩阵参数。 @en The z component of the third axis of the OBB.
+     * @return @zh 返回一个 obb。 @en A new OBB.
      */
     public static create (
         cx: number, cy: number, cz: number,
@@ -88,8 +83,8 @@ export class OBB {
      * clone a new obb
      * @zh
      * 克隆一个 obb。
-     * @param a 克隆的目标。
-     * @returns 克隆出的新对象。
+     * @param a @zh 克隆的目标。 @en The input OBB.
+     * @returns @zh The new OBB.  @en 克隆出的新对象。
      */
     public static clone (a: OBB) {
         return new OBB(a.center.x, a.center.y, a.center.z,
@@ -104,9 +99,9 @@ export class OBB {
      * copy the values from one obb to another
      * @zh
      * 将从一个 obb 的值复制到另一个 obb。
-     * @param {OBB} out 接受操作的 obb。
-     * @param {OBB} a 被复制的 obb。
-     * @return {OBB} out 接受操作的 obb。
+     * @param  out @zh 接受操作的 obb。 @en The output OBB.
+     * @param  a @zh 被复制的 obb。 @en The input OBB.
+     * @returns  @zh out 接受操作的 obb。 @en The reference of the first parameter `out`.
      */
     public static copy (out: OBB, a: OBB): OBB {
         Vec3.copy(out.center, a.center);
@@ -121,10 +116,10 @@ export class OBB {
      * create a new obb from two corner points
      * @zh
      * 用两个点创建一个新的 obb。
-     * @param out - 接受操作的 obb。
-     * @param minPos - obb 的最小点。
-     * @param maxPos - obb 的最大点。
-     * @returns {OBB} out 接受操作的 obb。
+     * @param out @zh - 接受操作的 obb。 @en The output OBB.
+     * @param minPos @zh - obb 的最小点。 @en The minimum position of the AABB.
+     * @param maxPos @zh - obb 的最大点。 @en The maximum position of the AABB.
+     * @returns @zh {OBB} out 接受操作的 obb。 @en The reference of the first parameter `out`.
      */
     public static fromPoints (out: OBB, minPos: Vec3, maxPos: Vec3): OBB {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
@@ -138,22 +133,23 @@ export class OBB {
      * Set the components of a obb to the given values
      * @zh
      * 将给定 obb 的属性设置为给定的值。
-     * @param cx - obb 的原点的 X 坐标。
-     * @param cy - obb 的原点的 Y 坐标。
-     * @param cz - obb 的原点的 Z 坐标。
-     * @param hw - obb 宽度的一半。
-     * @param hh - obb 高度的一半。
-     * @param hl - obb 长度的一半。
-     * @param ox_1 方向矩阵参数。
-     * @param ox_2 方向矩阵参数。
-     * @param ox_3 方向矩阵参数。
-     * @param oy_1 方向矩阵参数。
-     * @param oy_2 方向矩阵参数。
-     * @param oy_3 方向矩阵参数。
-     * @param oz_1 方向矩阵参数。
-     * @param oz_2 方向矩阵参数。
-     * @param oz_3 方向矩阵参数。
-     * @return {OBB} out
+     * @param out @zh 目标 OBB @en The output OBB.
+     * @param cx @zh 形状的相对于原点的 X 坐标。 @en The x coordinate of origin.
+     * @param cy @zh 形状的相对于原点的 Y 坐标。 @en The y coordinate of origin.
+     * @param cz @zh 形状的相对于原点的 Z 坐标。 @en The z coordinate of origin.
+     * @param hw @zh - obb 宽度的一半。 @en Half the width of the OBB.
+     * @param hh @zh - obb 高度的一半。 @en Half the height of the OBB.
+     * @param hl @zh - obb 长度的一半。 @en Half the length of the OBB.
+     * @param ox_1 @zh 方向矩阵参数。 @en The x component of the one axis of the OBB.
+     * @param ox_2 @zh 方向矩阵参数。 @en The x component of the second axis of the OBB.
+     * @param ox_3 @zh 方向矩阵参数。 @en The x component of the third axis of the OBB.
+     * @param oy_1 @zh 方向矩阵参数。 @en The y component of the one axis of the OBB.
+     * @param oy_2 @zh 方向矩阵参数。 @en The y component of the second axis of the OBB.
+     * @param oy_3 @zh 方向矩阵参数。 @en The y component of the third axis of the OBB.
+     * @param oz_1 @zh 方向矩阵参数。 @en The z component of the one axis of the OBB.
+     * @param oz_2 @zh 方向矩阵参数。 @en The z component of the second axis of the OBB.
+     * @param oz_3 @zh 方向矩阵参数。 @en The z component of the third axis of the OBB.
+     * @returns @zh out 接受操作的 OBB @en The reference of the first parameter `out`.
      */
     public static set (
         out: OBB,
@@ -170,18 +166,24 @@ export class OBB {
     }
 
     /**
+     * @en
+     * Center point of the OBB.
      * @zh
      * 本地坐标的中心点。
      */
     public center: Vec3;
 
     /**
+     * @en
+     * Half the distance across the OBB in each local axis.
      * @zh
      * 长宽高的一半。
      */
     public halfExtents: Vec3;
 
     /**
+     * @en
+     * Orientation matrix.
      * @zh
      * 方向矩阵。
      */
@@ -215,8 +217,8 @@ export class OBB {
      * Get the bounding points of this shape
      * @zh
      * 获取 obb 的最小点和最大点。
-     * @param {Vec3} minPos 最小点。
-     * @param {Vec3} maxPos 最大点。
+     * @param minPos @zh 最小点。 @en The out minimum position of the OBB.
+     * @param maxPos @zh 最大点。 @en The out maximum position of the OBB.
      */
     public getBoundary (minPos: Vec3, maxPos: Vec3) {
         transform_extent_m3(_v3_tmp, this.halfExtents, this.orientation);
@@ -225,14 +227,15 @@ export class OBB {
     }
 
     /**
+     * @en
      * Transform this shape
      * @zh
      * 将 out 根据这个 obb 的数据进行变换。
-     * @param m 变换的矩阵。
-     * @param pos 变换的位置部分。
-     * @param rot 变换的旋转部分。
-     * @param scale 变换的缩放部分。
-     * @param out 变换的目标。
+     * @param m @zh 变换的矩阵。 @en The transform matrix
+     * @param pos @zh 变换的位置部分。 @en 3d-vector translation.
+     * @param rot @zh 变换的旋转部分。 @en Quaternion rotation.
+     * @param scale @zh 变换的缩放部分。 @en 3d-vector scale.
+     * @param out @zh 变换的目标。 @en The output OBB.
      */
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: OBB) {
         Vec3.transformMat4(out.center, this.center, m);
@@ -242,11 +245,13 @@ export class OBB {
     }
 
     /**
+     * @en
+     * Transform by matrix and rotation.
      * @zh
      * 将 out 根据这个 obb 的数据进行变换。
-     * @param m 变换的矩阵。
-     * @param rot 变换的旋转部分。
-     * @param out 变换的目标。
+     * @param m @zh 变换的矩阵。 @en The transform matrix.
+     * @param rot @zh 变换的旋转部分。 @en Quaternion rotation.
+     * @param out @zh 变换的目标。 @en The output OBB.
      */
     public translateAndRotate (m: Mat4, rot: Quat, out: OBB) {
         Vec3.transformMat4(out.center, this.center, m);
@@ -255,10 +260,12 @@ export class OBB {
     }
 
     /**
+     * @en
+     * Scale OBB by a 3d-vector.
      * @zh
      *  将 out 根据这个 obb 的数据进行缩放。
-     * @param scale 缩放值。
-     * @param out 缩放的目标。
+     * @param scale @zh 缩放值。 @en 3d-vector scale.
+     * @param out @zh 缩放的目标。 @en The output OBB.
      */
     public setScale (scale: Vec3, out: OBB) {
         Vec3.multiply(out.halfExtents, this.halfExtents, scale);

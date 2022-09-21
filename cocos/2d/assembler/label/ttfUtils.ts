@@ -23,13 +23,9 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
+import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
-import { Texture2D } from '../../../core/assets';
+import { Texture2D } from '../../../asset/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
 import { Color, Size, Vec2, Rect } from '../../../core/math';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
@@ -37,9 +33,9 @@ import { ISharedLabelData, LetterRenderTexture } from './font-utils';
 import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
-import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { BlendFactor } from '../../../core/gfx';
+import { BlendFactor } from '../../../gfx';
+import { WrapMode } from '../../../asset/assets/asset-enum';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -105,48 +101,41 @@ export const ttfUtils =  {
     },
 
     updateRenderData (comp: Label) {
-        if (!comp.renderData || !comp.renderData.vertDirty) { return; }
+        if (!comp.renderData) { return; }
 
-        const trans = comp.node._uiProps.uiTransformComp!;
-        this._updateFontFamily(comp);
-        this._updateProperties(comp, trans);
-        this._calculateLabelFont();
-        this._updateLabelDimensions();
-        this._resetDynamicAtlas(comp);
-        this._updateTexture(comp);
-        this.updateOpacity(comp);
-        comp._setCacheAlpha(_alpha);
-        this._calDynamicAtlas(comp);
+        if (comp.renderData.vertDirty) {
+            const trans = comp.node._uiProps.uiTransformComp!;
+            this._updateFontFamily(comp);
+            this._updateProperties(comp, trans);
+            this._calculateLabelFont();
+            this._updateLabelDimensions();
+            this._updateTexture(comp);
+            this._calDynamicAtlas(comp);
 
-        comp.actualFontSize = _fontSize;
-        trans.setContentSize(_canvasSize);
+            comp.actualFontSize = _fontSize;
+            trans.setContentSize(_canvasSize);
 
-        this.updateVertexData(comp);
-        this.updateUvs(comp);
+            this.updateVertexData(comp);
+            this.updateUVs(comp); // Empty
+            comp.renderData.vertDirty = false;
+            // comp.markForUpdateRenderData(false);
+            comp.contentWidth = _nodeContentSize.width;
 
-        comp.markForUpdateRenderData(false);
+            _context = null;
+            _canvas = null;
+            _texture = null;
+        }
 
-        _context = null;
-        _canvas = null;
-        _texture = null;
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
+        }
     },
 
     updateVertexData (comp: Label) {
     },
 
-    updateUvs (comp: Label) {
-    },
-
-    updateOpacity (comp: Label) {
-        const vData = comp.renderData!.vData;
-
-        let colorOffset = 5;
-        const colorA = comp.node._uiProps.opacity;
-        for (let i = 0; i < 4; i++) {
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
-        }
+    updateUVs (comp: Label) {
     },
 
     _updateFontFamily (comp: Label) {
@@ -285,10 +274,15 @@ export const ttfUtils =  {
         const lineHeight = this._getLineHeight();
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        // to keep the one model same as before
-        // Todo: remove this protect when component remove blend function
-        // @ts-expect-error remove when component remove blend function
-        if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
+
+        if (_outlineComp) {
+            _context.fillStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_invisibleAlpha})`;
+            // Notice: fillRect twice will not effect
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+            // to keep the one model same as before
+            // Todo: remove this protect when component remove blend function
+            // @ts-expect-error remove when component remove blend function
+        } else if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
             _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
         }
@@ -310,8 +304,18 @@ export const ttfUtils =  {
             _context.shadowColor = 'transparent';
         }
 
-        // _texture.handleLoadedTexture();
-        if (_texture) {
+        this._uploadTexture(comp);
+    },
+
+    _uploadTexture (comp: Label) {
+        // May better for JIT
+        if (comp.cacheMode === Label.CacheMode.BITMAP) {
+            const frame = comp.ttfSpriteFrame!;
+            dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
+            frame._resetDynamicAtlasFrame();
+        }
+
+        if (_texture && _canvas) {
             let tex: Texture2D;
             if (_texture instanceof SpriteFrame) {
                 tex = (_texture.texture as Texture2D);
@@ -328,29 +332,30 @@ export const ttfUtils =  {
                     mipmapLevel: 1,
                 });
                 tex.uploadData(_canvas);
+                tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
                 if (_texture instanceof SpriteFrame) {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
                 }
+                if (comp.renderData) {
+                    comp.renderData.textureDirty = true;
+                }
                 if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
-                    legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                    if (JSB) {
+                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
+                    } else {
+                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                    }
                 }
             }
         }
     },
 
-    _resetDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
-        const frame = comp.ttfSpriteFrame!;
-        dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
-        frame._resetDynamicAtlasFrame();
-    },
-
     _calDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        if (comp.cacheMode !== Label.CacheMode.BITMAP || !_canvas || _canvas.width <= 0 || _canvas.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
-        comp.renderData!.uvDirty = true;
+        // TODO update material and uv
     },
 
     _setupOutline () {

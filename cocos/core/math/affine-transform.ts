@@ -25,11 +25,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { Mat4 } from './mat4';
 import { Rect } from './rect';
 import { Size } from './size';
@@ -134,16 +129,16 @@ export class AffineTransform {
      */
     public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform);
 
-    public static transformVec2 (out: Vec2, point: any, transOrY: any, t?: any) {
-        let x;
-        let y;
-        if (t === undefined) {
-            t = transOrY;
-            x = point.x;
-            y = point.y;
+    public static transformVec2 (out: Vec2, point: Vec2 | number, transOrY: AffineTransform | number, t?: AffineTransform) {
+        let x: number;
+        let y: number;
+        if (!t) {
+            t = transOrY as AffineTransform;
+            x = (point as Vec2).x;
+            y = (point as Vec2).y;
         } else {
-            x = point;
-            y = transOrY;
+            x = point as number;
+            y = transOrY as number;
         }
         out.x = t.a * x + t.c * y + t.tx;
         out.y = t.b * x + t.d * y + t.ty;

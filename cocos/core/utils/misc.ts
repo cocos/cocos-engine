@@ -24,10 +24,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+/* eslint-disable no-new-func */
 
 import { EDITOR, DEV } from 'internal:constants';
 import { getClassName, getset, isEmptyObject } from './js';
@@ -46,6 +43,7 @@ for (let i = 0; i < 64; ++i) { values[BASE64_KEYS.charCodeAt(i)] = i; }
 export const BASE64_VALUES = values;
 
 /**
+ * @engineInternal
  * @param ctor
  * @param sameNameGetSets
  * @param diffNameGetSets
@@ -71,7 +69,7 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
     let propName; const np = ctor.prototype;
     for (let i = 0; i < sameNameGetSets.length; i++) {
         propName = sameNameGetSets[i];
-        const suffix = propName[0].toUpperCase() + propName.slice(1);
+        const suffix = (propName[0].toUpperCase() as string) + (propName.slice(1) as string);
         define(np, propName, `get${suffix}`, `set${suffix}`);
     }
     for (propName in diffNameGetSets) {
@@ -101,7 +99,7 @@ export function pushToMap (map, key, value, pushFront) {
 
 export function contains (refNode, otherNode) {
     if (typeof refNode.contains === 'function') {
-        return refNode.contains(otherNode);
+        return refNode.contains(otherNode) as boolean;
     } else if (typeof refNode.compareDocumentPosition === 'function') {
         return !!(refNode.compareDocumentPosition(otherNode) & 16);
     } else {
@@ -125,7 +123,7 @@ export function isDomNode (obj) {
         // it should because window.Node was overwritten.
         return obj instanceof Node;
     } else {
-        return obj
+        return !!obj
             && typeof obj === 'object'
             && typeof obj.nodeType === 'number'
             && typeof obj.nodeName === 'string';
@@ -133,14 +131,7 @@ export function isDomNode (obj) {
 }
 
 export function callInNextTick (callback, p1?: any, p2?: any) {
-    if (EDITOR) {
-        if (callback) {
-            // @ts-expect-error
-            process.nextTick(() => {
-                callback(p1, p2);
-            });
-        }
-    } else if (callback) {
+    if (callback) {
         setTimeout(() => {
             callback(p1, p2);
         }, 0);
@@ -149,6 +140,7 @@ export function callInNextTick (callback, p1?: any, p2?: any) {
 
 // use anonymous function here to ensure it will not being hoisted without EDITOR
 export function tryCatchFunctor_EDITOR (funcName) {
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
     return Function('target',
         `${'try {\n'
         + '  target.'}${funcName}();\n`
@@ -166,21 +158,24 @@ export function isPlainEmptyObj_DEV (obj) {
 }
 
 /**
- * @en Clamp a value between from and to.
+ * @en Clamp a value between from and to. </br>
+ * if the original value is larger than max_inclusive, return max_inclusive. </br>
+ * if the original value is smaller than min_inclusive, return min_inclusive. </br>
+ * else return the original value.
  * @zh 限定浮点数的最大最小值。<br/>
  * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
  * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
  * 否则返回自身。
- * @param value 目标值
- * @param min_inclusive 最小值
- * @param max_inclusive 最大值
- * @return {Number}
+ * @param value @en Original value @zh 初始值
+ * @param min_inclusive @en Minimum value in between @zh 最小值
+ * @param max_inclusive @en Maximum value in between @zh 最大值
+ * @return {Number} @en The value clamped @zh 目标值
  * @example
  * var v1 = clampf(20, 0, 20); // 20;
  * var v2 = clampf(-1, 0, 20); //  0;
  * var v3 = clampf(10, 0, 20); // 10;
  */
-export function clampf (value, min_inclusive, max_inclusive) {
+export function clampf (value: number, min_inclusive: number, max_inclusive: number) {
     if (min_inclusive > max_inclusive) {
         const temp = min_inclusive;
         min_inclusive = max_inclusive;
@@ -192,18 +187,18 @@ export function clampf (value, min_inclusive, max_inclusive) {
 /**
  * @en converts degrees to radians
  * @zh 角度转弧度
- * @param angle 角度
- * @return {Number}
+ * @param angle @en The degree to convert @zh 角度
+ * @return {Number} The radian. @zh 弧度
  */
-export function degreesToRadians (angle) {
+export function degreesToRadians (angle: number) {
     return angle * macro.RAD;
 }
 
 /**
  * @en converts radians to degrees
  * @zh 弧度转角度
- * @param angle 弧度
- * @return {Number}
+ * @param angle @en The radian to convert @zh 弧度
+ * @return {Number} @en The degree @zh 角度
  */
 export function radiansToDegrees (angle) {
     return angle * macro.DEG;

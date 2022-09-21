@@ -23,145 +23,80 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { Color, Mat4, Vec3 } from '../../core/math';
+import { Color, Mat4 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph/node';
+import { FormatInfos } from '../../gfx';
+import { clamp } from '../../core';
 
-const vec3_temp = new Vec3();
-const _worldMatrix = new Mat4();
+const m = new Mat4();
 
-export function fillVertices3D (node: Node, renderer: Batcher2D, renderData: RenderData, color: Color) {
+export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
+    const chunk = renderData.chunk;
     const dataList = renderData.data;
-    let buffer = renderer.acquireBufferBatch()!;
-    let vertexOffset = buffer.byteOffset >> 2;
+    const vData = chunk.vb;
+    const vertexCount = renderData.vertexCount;
 
-    let vertexCount = renderData.vertexCount;
-    let indicesOffset = buffer.indicesOffset;
-    let vertexId = buffer.vertexOffset;
-    const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
-    if (!isRecreate) {
-        buffer = renderer.currBufferBatch!;
-        vertexCount = 0;
-        indicesOffset = 0;
-        vertexId = 0;
-    }
+    node.getWorldMatrix(m);
 
-    // buffer data may be realloc, need get reference after request.
-    const vBuf = buffer.vData!;
-
-    node.getWorldMatrix(_worldMatrix);
-
+    let vertexOffset = 0;
     for (let i = 0; i < vertexCount; i++) {
         const vert = dataList[i];
-        Vec3.set(vec3_temp, vert.x, vert.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
-        vBuf[vertexOffset++] = vec3_temp.x;
-        vBuf[vertexOffset++] = vec3_temp.y;
-        vBuf[vertexOffset++] = vec3_temp.z;
-        vBuf[vertexOffset++] = vert.u;
-        vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf, color, vertexOffset);
-        vertexOffset += 4;
-    }
-
-    // buffer data may be realloc, need get reference after request.
-    const iBuf = buffer.iData;
-    for (let i = 0; i < renderData.dataLength; i++) {
-        iBuf![indicesOffset + i] = vertexId + i;
-    }
-}
-
-export function fillMeshVertices3D (node: Node, renderer: Batcher2D, renderData: RenderData, color: Color) {
-    const dataList = renderData.data;
-    let buffer = renderer.acquireBufferBatch()!;
-    let vertexOffset = buffer.byteOffset >> 2;
-
-    let vertexCount = renderData.vertexCount;
-    let indicesOffset = buffer.indicesOffset;
-    let vertexId = buffer.vertexOffset;
-
-    const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
-    if (!isRecreate) {
-        buffer = renderer.currBufferBatch!;
-        vertexCount = 0;
-        indicesOffset = 0;
-        vertexId = 0;
-    }
-
-    // buffer data may be realloc, need get reference after request.
-    const vBuf = buffer.vData!;
-    const iBuf = buffer.iData!;
-
-    node.getWorldMatrix(_worldMatrix);
-
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = dataList[i];
-        Vec3.set(vec3_temp, vert.x, vert.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
-        vBuf[vertexOffset++] = vec3_temp.x;
-        vBuf[vertexOffset++] = vec3_temp.y;
-        vBuf[vertexOffset++] = vec3_temp.z;
-        vBuf[vertexOffset++] = vert.u;
-        vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf, color, vertexOffset);
-        vertexOffset += 4;
+        const x = vert.x;
+        const y = vert.y;
+        let rhw = m.m03 * x + m.m07 * y + m.m15;
+        rhw = rhw ? Math.abs(1 / rhw) : 1;
+        vData[vertexOffset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+        vData[vertexOffset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+        vData[vertexOffset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
+        Color.toArray(vData, color, vertexOffset + 5);
+        vertexOffset += 9;
     }
 
     // fill index data
+    const bid = chunk.bufferId;
+    const vid = chunk.vertexOffset;
+    const meshBuffer = chunk.meshBuffer;
+    const ib = chunk.meshBuffer.iData;
+    let indexOffset = meshBuffer.indexOffset;
     for (let i = 0, count = vertexCount / 4; i < count; i++) {
-        const start = vertexId + i * 4;
-        iBuf[indicesOffset++] = start;
-        iBuf[indicesOffset++] = start + 1;
-        iBuf[indicesOffset++] = start + 2;
-        iBuf[indicesOffset++] = start + 1;
-        iBuf[indicesOffset++] = start + 3;
-        iBuf[indicesOffset++] = start + 2;
+        const start = vid + i * 4;
+        ib[indexOffset++] = start;
+        ib[indexOffset++] = start + 1;
+        ib[indexOffset++] = start + 2;
+        ib[indexOffset++] = start + 1;
+        ib[indexOffset++] = start + 3;
+        ib[indexOffset++] = start + 2;
     }
+    meshBuffer.indexOffset += renderData.indexCount;
+    meshBuffer.setDirty();
 }
 
-export function fillVerticesWithoutCalc3D (node: Node, renderer: Batcher2D, renderData: RenderData, color: Color) {
-    const dataList = renderData.data;
-    let buffer = renderer.acquireBufferBatch()!;
-    let vertexOffset = buffer.byteOffset >> 2;
-
-    // buffer
-    let vertexCount = renderData.vertexCount;
-    let indicesOffset: number = buffer.indicesOffset;
-    let vertexId: number = buffer.vertexOffset;
-    const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
-    if (!isRecreate) {
-        buffer = renderer.currBufferBatch!;
-        vertexCount = 0;
-        indicesOffset = 0;
-        vertexId = 0;
+export function updateOpacity (renderData: RenderData, opacity: number) {
+    const vfmt = renderData.vertexFormat;
+    const vb = renderData.chunk.vb;
+    let attr; let format; let stride;
+    // Color component offset
+    let offset = 0;
+    for (let i = 0; i < vfmt.length; ++i) {
+        attr = vfmt[i];
+        format = FormatInfos[attr.format];
+        if (format.hasAlpha) {
+            stride = renderData.floatStride;
+            if (format.size / format.count === 1) {
+                const alpha = ~~clamp(Math.round(opacity * 255), 0, 255);
+                // Uint color RGBA8
+                for (let color = offset; color < vb.length; color += stride) {
+                    vb[color] = ((vb[color] & 0xffffff00) | alpha) >>> 0;
+                }
+            } else if (format.size / format.count === 4) {
+                // RGBA32 color, alpha at position 3
+                for (let alpha = offset + 3; alpha < vb.length; alpha += stride) {
+                    vb[alpha] = opacity;
+                }
+            }
+        }
+        offset += format.size >> 2;
     }
-
-    // buffer data may be realloc, need get reference after request.
-    const vBuf = buffer.vData!;
-
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = dataList[i];
-        vBuf[vertexOffset++] = vert.x;
-        vBuf[vertexOffset++] = vert.y;
-        vBuf[vertexOffset++] = vert.z;
-        vBuf[vertexOffset++] = vert.u;
-        vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf, color, vertexOffset);
-        vertexOffset += 4;
-    }
-
-    // buffer data may be realloc, need get reference after request.
-    const iBuf = buffer.iData;
-    iBuf![indicesOffset++] = vertexId;
-    iBuf![indicesOffset++] = vertexId + 1;
-    iBuf![indicesOffset++] = vertexId + 2;
-    iBuf![indicesOffset++] = vertexId + 1;
-    iBuf![indicesOffset++] = vertexId + 3;
-    iBuf![indicesOffset++] = vertexId + 2;
 }

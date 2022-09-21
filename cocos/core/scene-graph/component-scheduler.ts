@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { MutableForwardIterator } from '../utils/array';
@@ -368,6 +363,9 @@ export class ComponentScheduler {
         this._updating = false;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onEnabled (comp) {
         legacyCC.director.getScheduler().resumeTarget(comp);
         comp._objFlags |= IsOnEnableCalled;
@@ -380,6 +378,9 @@ export class ComponentScheduler {
         }
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onDisabled (comp) {
         legacyCC.director.getScheduler().pauseTarget(comp);
         comp._objFlags &= ~IsOnEnableCalled;
@@ -474,7 +475,7 @@ export class ComponentScheduler {
     /**
      * @en Process update phase for registered components
      * @zh 为当前注册的组件执行 update 阶段任务
-     * @param dt 距离上一帧的时间
+     * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
     public updatePhase (dt:number) {
         this.updateInvoker.invoke(dt);
@@ -483,7 +484,7 @@ export class ComponentScheduler {
     /**
      * @en Process late update phase for registered components
      * @zh 为当前注册的组件执行 late update 阶段任务
-     * @param dt 距离上一帧的时间
+     * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
     public lateUpdatePhase (dt:number) {
         this.lateUpdateInvoker.invoke(dt);

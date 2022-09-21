@@ -23,18 +23,14 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/video
- */
-
+import { screenAdapter } from 'pal/screen-adapter';
 import { mat4 } from '../core/math';
-import { sys, view, screen, warn } from '../core/platform';
+import { sys, screen, warn } from '../core/platform';
 import { game } from '../core';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
-import { ClearFlagBit } from '../core/gfx';
+import { ClearFlagBit } from '../gfx';
 import visibleRect from '../core/platform/visible-rect';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
 
@@ -386,7 +382,8 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._w = width;
         this._h = height;
 
-        const dpr = view.getDevicePixelRatio();
+        // TODO: implement videoPlayer in PAL
+        const dpr = screenAdapter.devicePixelRatio;
         const scaleX = 1 / dpr;
         const scaleY = 1 / dpr;
 

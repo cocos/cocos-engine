@@ -124,7 +124,7 @@ exports.template = `
     z-index: 10;
     background-color: var(--color-normal-fill);
     border: 1px solid var(--color-normal-fill-important);
-    border-radius: 4px;
+    border-radius: 2px;
     box-sizing: border-box;
 }
 
@@ -286,8 +286,8 @@ exports.template = `
 }
 
 .widget-component .button-group {
-    border: 1px solid var(--color-normal-border);
-    border-radius: 3px;
+    border: 1px solid var(--color-default-border-important);
+    border-radius: 2px;
     overflow: hidden;
     display: flex;
     flex: 1;
@@ -299,7 +299,7 @@ exports.template = `
     padding: 0 5px;
     text-align: center;
     font-size: 11px;
-    border-right: 1px solid var(--color-normal-border);
+    border-right: 1px solid var(--color-default-border-important);
     cursor: pointer;
 }
 
@@ -341,14 +341,14 @@ exports.template = `
     position: absolute;
     width: 12px;
     height: 4px;
-    background-color: var(--color-normal-border-weakest);
+    background-color: var(--color-normal-contrast-weakest);
 }
 
 .widget-component .button-group .button .icon .short {
     position: absolute;
     width: 7px;
     height: 4px;
-    background-color: var(--color-normal-border-weakest);
+    background-color: var(--color-normal-contrast-weakest);
 }
 
 .widget-component .button-group .button .left.bottom {
@@ -964,14 +964,13 @@ const uiElements = {
             if (!this.$customProps) {
                 this.$customProps = this.$el.querySelector('#customProps');
             }
-            this.$customProps.replaceChildren(...propUtils.getCustomPropElements(excludeList, this.dump, (element, prop) => {
+            propUtils.updateCustomPropElements(this.$customProps, excludeList, this.dump, (element, prop) => {
                 element.className = 'customProp';
-                const isShow = prop.dump.visible;
-                if (isShow) {
+                if (prop.dump.visible) {
                     element.render(prop.dump);
                 }
-                element.style = isShow ? '' : 'display: none;';
-            }));
+                element.hidden = !prop.dump.visible;
+            });
         },
     },
 };
@@ -1187,13 +1186,18 @@ const computed = {
     },
 };
 exports.ready = function() {
+    let requestAnimationFrameId = null;
     this.resizeObserver = new window.ResizeObserver(() => {
-        const rect = this.$this.getBoundingClientRect();
-        if (rect.width > 300) {
-            this.layout = 'horizontal';
-        } else {
-            this.layout = 'vertical';
-        }
+        if (requestAnimationFrameId !== null) { return; }
+        requestAnimationFrameId = window.requestAnimationFrame(() => {
+            const rect = this.$this.getBoundingClientRect();
+            if (rect.width > 300) {
+                this.layout = 'horizontal';
+            } else {
+                this.layout = 'vertical';
+            }
+            requestAnimationFrameId = null;
+        });
     });
 
     this.resizeObserver.observe(this.$this);

@@ -1,15 +1,15 @@
 {
-  "ver": "1.0.21",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "bd373594-df84-486d-a34a-19d09ddaa973",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
-      "ver": "1.0.21",
+      "ver": "1.0.22",
       "importer": "texture",
       "uuid": "bd373594-df84-486d-a34a-19d09ddaa973@6c48a",
       "imported": true,
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "bd373594-df84-486d-a34a-19d09ddaa973"
+        "imageUuidOrDatabaseUri": "bd373594-df84-486d-a34a-19d09ddaa973",
+        "visible": true
       },
       "displayName": "camera",
       "id": "6c48a",
@@ -37,6 +38,7 @@
     "type": "texture",
     "redirect": "bd373594-df84-486d-a34a-19d09ddaa973@6c48a",
     "flipVertical": true,
-    "hasAlpha": true
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false
   }
 }

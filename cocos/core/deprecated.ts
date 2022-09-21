@@ -23,17 +23,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
-import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
-import { SubModel } from './renderer/scene/submodel';
+import { SubModel } from '../render-scene/scene/submodel';
 import { Root } from './root';
 import { game } from './game';
 import System from './components/system';
@@ -228,17 +222,6 @@ removeProperty(Scheduler, 'Scheduler', [
     },
 ]);
 
-// Events
-
-replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
-    {
-        name: 'getUILocationInView',
-        newName: 'getLocationInView',
-        target: EventTouch,
-        targetName: 'EventTouch',
-    },
-]);
-
 // Render scene
 
 replaceProperty(SubModel.prototype, 'SubModel.prototype', [
@@ -330,5 +313,11 @@ removeProperty(Director.prototype, 'director', [
     {
         name: 'purgeCachedData',
         suggest: 'please use assetManager.releaseAll instead',
+    },
+    {
+        name: 'convertToGL',
+    },
+    {
+        name: 'convertToUI',
     },
 ]);

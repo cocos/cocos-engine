@@ -1,68 +1,34 @@
 import { assertIsTrue } from '../data/utils/asserts';
 import { IQuatLike, pingPong, Quat, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
-import { ExtrapolationMode } from './curve';
+import { EasingMethod, ExtrapolationMode } from './curve';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
+import { getEasingFn } from './easing-method';
+import { bezierByTime } from './bezier';
 
 /**
- * View to a quaternion frame value.
- * Note, the view may be invalidated due to keyframe change/add/remove.
- */
-@ccclass('cc.QuatKeyframeValue')
-@uniquelyReferenced
-class QuatKeyframeValue {
-    /**
-     * Interpolation method used for this keyframe.
-     */
-    @serializable
-    public interpolationMode: QuatInterpolationMode = QuatInterpolationMode.SLERP;
-
-    /**
-      * Value of the keyframe.
-      */
-    @serializable
-    public value: IQuatLike = Quat.clone(Quat.IDENTITY);
-
-    constructor ({
-        value,
-        interpolationMode,
-    }:  Partial<QuatKeyframeValue> = {}) {
-        // TODO: shall we normalize it?
-        this.value = value ? Quat.clone(value) : this.value;
-        this.interpolationMode = interpolationMode ?? this.interpolationMode;
-    }
-}
-
-export type { QuatKeyframeValue };
-
-/**
- * The parameter describing a real keyframe value.
- * In the case of partial keyframe value,
- * each component of the keyframe value is taken from the parameter.
- * For unspecified components, default values are taken:
- * - Interpolation mode: slerp
- * - Value: Identity quaternion
- */
-type QuatKeyframeValueParameters = Partial<QuatKeyframeValue>;
-
-function createQuatKeyframeValue (params: QuatKeyframeValueParameters) {
-    return new QuatKeyframeValue(params);
-}
-
-/**
- * The method used for interpolation between values of a keyframe and its next keyframe.
+ * @en
+ * The method used for interpolation between values of a quaternion keyframe and its next keyframe.
+ * @zh
+ * 在某四元数关键帧（前一帧）和其下一帧之间插值时使用的插值方式。
  */
 export enum QuatInterpolationMode {
     /**
-     * Perform spherical linear interpolation.
+     * @en
+     * Perform spherical linear interpolation between previous keyframe value and next keyframe value.
+     * @zh
+     * 在前一帧和后一帧之间执行球面线性插值。
      */
     SLERP,
 
     /**
+     * @en
      * Always use the value from this keyframe.
+     * @zh
+     * 永远使用前一帧的值。
      */
     CONSTANT,
 
@@ -77,29 +43,109 @@ export enum QuatInterpolationMode {
 }
 
 /**
+ * View to a quaternion frame value.
+ * Note, the view may be invalidated due to keyframe change/add/remove.
+ */
+@ccclass('cc.QuatKeyframeValue')
+@uniquelyReferenced
+class QuatKeyframeValue {
+    /**
+     * @en
+     * When perform interpolation, the interpolation method should be taken
+     * when for this keyframe is used as starting keyframe.
+     * @zh
+     * 在执行插值时，当以此关键帧作为起始关键帧时应当使用的插值方式。
+     */
+    @serializable
+    public interpolationMode: QuatInterpolationMode = QuatInterpolationMode.SLERP;
+
+    /**
+     * @en
+     * Value of the keyframe.
+     * @zh
+     * 该关键帧的值。
+     */
+    @serializable
+    public value: IQuatLike = Quat.clone(Quat.IDENTITY);
+
+    /**
+     * @internal Reserved for backward compatibility. Will be removed in future.
+     */
+    @serializable
+    public easingMethod: EasingMethod | [number, number, number, number] = EasingMethod.LINEAR;
+
+    constructor ({
+        value,
+        interpolationMode,
+        easingMethod,
+    }:  Partial<QuatKeyframeValue> = {}) {
+        // TODO: shall we normalize it?
+        this.value = value ? Quat.clone(value) : this.value;
+        this.interpolationMode = interpolationMode ?? this.interpolationMode;
+        this.easingMethod = easingMethod ?? this.easingMethod;
+    }
+}
+
+export type { QuatKeyframeValue };
+
+/**
+ * The parameter describing a real keyframe value.
+ * In the case of partial keyframe value,
+ * each component of the keyframe value is taken from the parameter.
+ * For unspecified components, default values are taken:
+ * - Interpolation mode: slerp
+ * - Value: Identity quaternion
+ * @zh
+ * 用于描述实数关键帧值的参数。
+ * 若是部分关键帧的形式，关键帧值的每个分量都是从该参数中取得。
+ * 对于未指定的分量，使用默认值：
+ * - 插值模式：球面线性插值
+ * - 值：单位四元数
+ */
+type QuatKeyframeValueParameters = Partial<QuatKeyframeValue>;
+
+function createQuatKeyframeValue (params: QuatKeyframeValueParameters) {
+    return new QuatKeyframeValue(params);
+}
+
+/**
+ * @en
  * Quaternion curve.
+ * @zh
+ * 四元数曲线
  */
 @ccclass('cc.QuatCurve')
 export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     /**
-     * Gets or sets the operation should be taken
-     * if input time is less than the time of first keyframe when evaluating this curve.
+     * @en
+     * Gets or sets the pre-extrapolation-mode of this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
+     * @zh
+     * 获取或设置此曲线的前向外推模式。
+     * 默认为 `ExtrapolationMode.CLAMP`。
      */
     @serializable
     public preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
-     * Gets or sets the operation should be taken
-     * if input time is greater than the time of last keyframe when evaluating this curve.
+     * @en
+     * Gets or sets the post-extrapolation-mode of this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
+     * @zh
+     * 获取或设置此曲线的后向外推模式。
+     * 默认为 `ExtrapolationMode.CLAMP`。
      */
     @serializable
     public postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
+     * @en
      * Evaluates this curve at specified time.
+     * @zh
+     * 计算此曲线在指定时间上的值。
      * @param time Input time.
+     * @param quat If specified, this value will be filled and returned.
+     * Otherwise a new quaternion object will be filled and returned.
      * @returns Result value.
      */
     public evaluate (time: number, quat?: Quat): Quat {
@@ -170,8 +216,15 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         default:
         case QuatInterpolationMode.CONSTANT:
             return Quat.copy(quat, preValue.value);
-        case QuatInterpolationMode.SLERP:
-            return Quat.slerp(quat, preValue.value, nextValue.value, ratio);
+        case QuatInterpolationMode.SLERP: {
+            const { easingMethod } = preValue;
+            const transformedRatio = easingMethod === EasingMethod.LINEAR
+                ? ratio
+                : Array.isArray(easingMethod)
+                    ? bezierByTime(easingMethod, ratio)
+                    : getEasingFn(easingMethod)(ratio);
+            return Quat.slerp(quat, preValue.value, nextValue.value, transformedRatio);
+        }
         }
     }
 
@@ -218,6 +271,9 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         }
     }
 
+    /**
+     * @internal
+     */
     public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
         if (!context.toCCON) {
             output.writeThis();
@@ -240,6 +296,11 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
 
         const nFrames = nKeyframes;
         const interpolationModesSize = INTERPOLATION_MODE_BYTES * (interpolationModeRepeated ? 1 : nFrames);
+        const easingMethodsSize = keyframeValues.reduce(
+            (result, { easingMethod }) => result += (Array.isArray(easingMethod)
+                ? EASING_METHOD_BYTES + (EASING_METHOD_BEZIER_COMPONENT_BYTES * 4)
+                : EASING_METHOD_BYTES), 0,
+        );
 
         let dataSize = 0;
         dataSize += (
@@ -247,6 +308,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
             + FRAME_COUNT_BYTES
             + TIME_BYTES * nFrames
             + VALUE_BYTES * 4 * nFrames
+            + easingMethodsSize
             + interpolationModesSize
             + 0
         );
@@ -266,6 +328,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         times.forEach((time, index) => dataView.setFloat32(P + TIME_BYTES * index, time, true));
         P += TIME_BYTES * nFrames;
 
+        // Values
         keyframeValues.forEach(({ value: { x, y, z, w } }, index) => {
             const pQuat = P + VALUE_BYTES * 4 * index;
             dataView.setFloat32(pQuat + VALUE_BYTES * 0, x, true);
@@ -274,6 +337,22 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
             dataView.setFloat32(pQuat + VALUE_BYTES * 3, w, true);
         });
         P += VALUE_BYTES * 4 * nFrames;
+
+        // Easing methods
+        keyframeValues.forEach(({ easingMethod }, index) => {
+            if (!Array.isArray(easingMethod)) {
+                dataView.setUint8(P, easingMethod);
+                ++P;
+            } else {
+                dataView.setUint8(P, EASING_METHOD_BEZIER_TAG);
+                ++P;
+                dataView.setFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 0, easingMethod[0], true);
+                dataView.setFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 1, easingMethod[1], true);
+                dataView.setFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 2, easingMethod[2], true);
+                dataView.setFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 3, easingMethod[3], true);
+                P += (EASING_METHOD_BEZIER_COMPONENT_BYTES * 4);
+            }
+        });
 
         // Frame values
         const INTERPOLATION_MODES_START = P; P += interpolationModesSize;
@@ -288,6 +367,9 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         output.writeProperty('bytes', bytes);
     }
 
+    /**
+     * @internal
+     */
     public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
         if (!context.fromCCON) {
             input.readThis();
@@ -313,7 +395,6 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
 
         // Frame values
         const P_VALUES = P; P += VALUE_BYTES * 4 * nFrames;
-        let pInterpolationModes = P;
         const keyframeValues = Array.from({ length: nFrames },
             (_, index) => {
                 const pQuat = P_VALUES + VALUE_BYTES * 4 * index;
@@ -321,15 +402,38 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
                 const y = dataView.getFloat32(pQuat + VALUE_BYTES * 1, true);
                 const z = dataView.getFloat32(pQuat + VALUE_BYTES * 2, true);
                 const w = dataView.getFloat32(pQuat + VALUE_BYTES * 3, true);
+                const easingMethod = dataView.getUint8(P);
+                ++P;
                 const keyframeValue = createQuatKeyframeValue({
                     value: { x, y, z, w },
-                    interpolationMode: dataView.getUint8(pInterpolationModes),
                 });
-                if (!interpolationModeRepeated) {
-                    pInterpolationModes += INTERPOLATION_MODE_BYTES;
+                if (easingMethod !== EASING_METHOD_BEZIER_TAG) {
+                    keyframeValue.easingMethod = easingMethod as EasingMethod;
+                } else {
+                    keyframeValue.easingMethod = [
+                        dataView.getFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 0, true),
+                        dataView.getFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 1, true),
+                        dataView.getFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 2, true),
+                        dataView.getFloat32(P + EASING_METHOD_BEZIER_COMPONENT_BYTES * 3, true),
+                    ];
+                    P += EASING_METHOD_BEZIER_COMPONENT_BYTES * 4;
                 }
                 return keyframeValue;
             });
+
+        if (interpolationModeRepeated) {
+            const interpolationMode = dataView.getUint8(P);
+            ++P;
+            for (let iKeyframe = 0; iKeyframe < nFrames; ++iKeyframe) {
+                keyframeValues[iKeyframe].interpolationMode = interpolationMode;
+            }
+        } else {
+            for (let iKeyframe = 0; iKeyframe < nFrames; ++iKeyframe) {
+                const interpolationMode = dataView.getUint8(P + iKeyframe);
+                keyframeValues[iKeyframe].interpolationMode = interpolationMode;
+            }
+            P += nFrames;
+        }
 
         this._times = times;
         this._values = keyframeValues;
@@ -345,3 +449,6 @@ const FRAME_COUNT_BYTES = 4;
 const TIME_BYTES = 4;
 const VALUE_BYTES = 4;
 const INTERPOLATION_MODE_BYTES = 1;
+const EASING_METHOD_BYTES = 1;
+const EASING_METHOD_BEZIER_TAG = 255;
+const EASING_METHOD_BEZIER_COMPONENT_BYTES = 4;

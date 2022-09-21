@@ -25,13 +25,8 @@
 
 // @ts-check
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { ccclass, editable, serializable } from 'cc.decorator';
-import { Asset } from '../../../core/assets/asset';
+import { Asset } from '../../../asset/assets/asset';
 import { math } from '../../../core';
 
 /**
@@ -138,10 +133,10 @@ export class PhysicsMaterial extends Asset {
     private _friction = 0.6;
 
     @serializable
-    private _rollingFriction = 0.1;
+    private _rollingFriction = 0.0;
 
     @serializable
-    private _spinningFriction = 0.1;
+    private _spinningFriction = 0.0;
 
     @serializable
     private _restitution = 0.0;

@@ -23,17 +23,13 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
-
 import { Vec2, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
+import { MeshRenderData } from '../2d/renderer/render-data';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -112,7 +108,7 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
-    public declare renderData;
+    public declare renderData: MeshRenderData;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
@@ -461,10 +457,13 @@ export class Simulator {
                 }
                 pool.put(deadParticle);
                 particles.length--;
-                renderData.indicesCount -= 6;
-                renderData.vertexCount -= 4;
+                renderData.resize(renderData.vertexCount - 4, renderData.indexCount - 6);
             }
         }
+
+        this.renderData.material = this.sys.getRenderMaterial(0); // hack
+        this.renderData.frame = this.sys._renderSpriteFrame; // hack
+        renderData.setRenderDrawInfoAttributes();
 
         if (particles.length === 0 && !this.active && !this.readyToPlay) {
             this.finished = true;
@@ -472,10 +471,10 @@ export class Simulator {
         }
     }
 
-    requestData (vertexCount: number, indicesCount: number) {
-        let offset = this.renderData.indicesCount;
-        this.renderData.request(vertexCount, indicesCount);
-        const count = this.renderData.indicesCount / 6;
+    requestData (vertexCount: number, indexCount: number) {
+        let offset = this.renderData.indexCount;
+        this.renderData.request(vertexCount, indexCount);
+        const count = this.renderData.indexCount / 6;
         const buffer = this.renderData.iData;
         for (let i = offset; i < count; i++) {
             const vId = i * 4;
@@ -486,5 +485,10 @@ export class Simulator {
             buffer[offset++] = vId + 3;
             buffer[offset++] = vId + 2;
         }
+    }
+
+    public initDrawInfo () {
+        const renderData = this.renderData;
+        renderData.setRenderDrawInfoAttributes();
     }
 }

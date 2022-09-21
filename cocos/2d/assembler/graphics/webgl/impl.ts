@@ -23,8 +23,11 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { Color, Vec2 } from '../../../../core/math';
+import { Graphics } from '../../../components';
 import { MeshRenderData } from '../../../renderer/render-data';
+import { RenderDrawInfoType } from '../../../renderer/render-draw-info';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags } from '../types';
 
@@ -96,6 +99,11 @@ export class Impl {
     private _points: Point[] = [];
     private _renderDataList: MeshRenderData[] = [];
     private _curPath: Path | null = null;
+    private _comp: Graphics;
+
+    constructor (comp: Graphics) {
+        this._comp = comp;
+    }
 
     public moveTo (x: number, y: number) {
         if (this.updatePathOffset) {
@@ -187,6 +195,7 @@ export class Impl {
             }
 
             MeshRenderData.remove(data);
+            data.removeRenderDrawInfo(this._comp);
         }
 
         this._renderDataList.length = 0;
@@ -199,6 +208,13 @@ export class Impl {
     public requestRenderData () {
         const renderData = MeshRenderData.add();
         this._renderDataList.push(renderData);
+        if (JSB) {
+            renderData.initRenderDrawInfo(this._comp, RenderDrawInfoType.MODEL);
+            // @ts-expect-error temporary no care
+            this._comp._renderData = renderData;
+            // @ts-expect-error temporary no care
+            this._comp._renderData!.material = this._comp.getMaterialInstance(0)!;// hack
+        }
 
         return renderData;
     }

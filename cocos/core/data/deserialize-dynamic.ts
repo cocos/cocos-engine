@@ -24,26 +24,22 @@
  THE SOFTWARE.
 */
 
-/**
- * @hidden
- */
-
 import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
-import { CCClass } from './class';
+import { CCClass, ENUM_TAG, BITMASK_TAG } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../../pal/system-info/enum-type';
 import { sys } from '../platform/sys';
 import { error } from '../platform/debug';
-import { CustomSerializable, DeserializationContext, deserializeTag, SerializationContext, SerializationInput } from './custom-serializable';
+import { CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from './custom-serializable';
 import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
-import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
+import { Asset } from '../../asset/assets';
 
 function compileObjectTypeJit (
     sources: string[],
@@ -57,7 +53,6 @@ function compileObjectTypeJit (
         if (!assumeHavePropIfIsValue) {
             sources.push('if(prop){');
         }
-        // @ts-expect-error Typing
         const ctorCode = js.getClassName(defaultValue);
         sources.push(`s._deserializeFastDefinedObject(o${accessorToSet},prop,${ctorCode});`);
         if (!assumeHavePropIfIsValue) {
@@ -114,7 +109,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
     const sources = [
         'var prop;',
     ];
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
+    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
 
     for (let p = 0; p < props.length; p++) {
@@ -149,11 +144,11 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
         // function undefined object(null) string boolean number
         const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
-        if (fastMode) {
+        const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
+        if (fastMode && (defaultValue !== undefined || userType)) {
             let isPrimitiveType;
-            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | undefined;
-            if (defaultValue === undefined && userType) {
-                isPrimitiveType = userType instanceof Attr.PrimitiveType;
+            if (defaultValue === undefined) {
+                isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
             } else {
                 const defaultType = typeof defaultValue;
                 isPrimitiveType = defaultType === 'string'
@@ -175,7 +170,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         }
         sources.push('}');
     }
-    if (legacyCC.js.isChildClassOf(klass, legacyCC._BaseNode) || legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
+    if (legacyCC.js.isChildClassOf(klass, legacyCC.Node) || legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
         // @ts-expect-error 2341
         if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
             const mayUsedInPersistRoot = js.isChildClassOf(klass, legacyCC.Node);
@@ -197,8 +192,8 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 }
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
-    const shouldCopyId = js.isChildClassOf(klass, legacyCC._BaseNode) || js.isChildClassOf(klass, legacyCC.Component);
+    const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    const shouldCopyId = js.isChildClassOf(klass, legacyCC.Node) || js.isChildClassOf(klass, legacyCC.Component);
     let shouldCopyRawData = false;
 
     const simpleProps: string[] = [];
@@ -221,11 +216,11 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             }
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + POSTFIX_DEFAULT]);
+            const userType = attrs[propName + POSTFIX_TYPE] as AnyFunction | string | undefined;
             let isPrimitiveType = false;
-            if (fastMode) {
-                const userType = attrs[propName + POSTFIX_TYPE];
-                if (defaultValue === undefined && userType) {
-                    isPrimitiveType = userType instanceof Attr.PrimitiveType;
+            if (fastMode && (defaultValue !== undefined || userType)) {
+                if (defaultValue === undefined) {
+                    isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
                 } else {
                     const defaultType = typeof defaultValue;
                     isPrimitiveType = defaultType === 'string'
@@ -549,7 +544,7 @@ class _Deserializer {
 
         const klass = this._classFinder(type, value, owner, propName);
         if (!klass) {
-            const notReported = this._classFinder === js._getClassById;
+            const notReported = this._classFinder === js.getClassById;
             if (notReported) {
                 this._reportMissingClass(type);
             }
@@ -578,7 +573,6 @@ class _Deserializer {
                 if (DEBUG) {
                     error(`Deserialize ${klass.name} failed, ${(e as { stack: string; }).stack}`);
                 }
-                this._reportMissingClass(type);
                 const obj = createObject(MissingScript);
                 this._deserializeInto(value, obj, MissingScript);
                 return obj;
@@ -654,6 +648,32 @@ class _Deserializer {
             deserialize = klass.__deserialize__ as CompiledDeserializeFn;
         } else {
             deserialize = compileDeserialize(this, klass);
+
+            // DEBUG: Check MissingScript data for issue 9878
+            try {
+                if (klass === MissingScript) {
+                    const props: string[] = klass.__values__;
+                    if (props.length === 0 || props[props.length - 1] !== '_$erialized') {
+                        error(`The '_$erialized' prop of MissingScript is missing. Will force the raw data to be save.`);
+                        error(`    Error props: ['${props}']. Please contact jare.`);
+                        // props.push('_$erialized');
+                    }
+
+                    const rawDeserialize: CompiledDeserializeFn = deserialize;
+                    deserialize = function (deserializer: _Deserializer,
+                        object: Record<string, unknown>,
+                        deserialized: Record<string, unknown>,
+                        constructor: AnyFunction) {
+                        rawDeserialize(deserializer, object, deserialized, constructor);
+                        if (!object._$erialized) {
+                            error(`Unable to stash previously serialized data. ${JSON.stringify(deserialized)}`);
+                        }
+                    };
+                }
+            } catch (e) {
+                error(`Error when checking MissingScript 6, ${e}`);
+            }
+
             js.value(klass, '__deserialize__', deserialize, true);
         }
         deserialize(this, obj, serialized, klass);
@@ -809,7 +829,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     reportMissingClass?: ReportMissingClass;
 }) {
     options = options || {};
-    const classFinder = options.classFinder || js._getClassById;
+    const classFinder = options.classFinder || js.getClassById;
     const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
@@ -827,7 +847,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        details.assignAssetsBy(EditorExtends.serialize.asAsset);
+        details.assignAssetsBy((uuid, options) => (EditorExtends.serialize.asAsset(uuid, options.type) as Asset));
     }
 
     // var afterJson = JSON.stringify(data, null, 2);

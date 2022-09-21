@@ -14,7 +14,12 @@ minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
 // #endregion platform related
 
 // #region SystemInfo
-const systemInfo = minigame.getSystemInfoSync();
+let systemInfo = minigame.getSystemInfoSync();
+minigame.getSystemInfoSync = () => systemInfo;
+minigame.onWindowResize?.(() => {
+    systemInfo = minigame.getSystemInfoSync();
+});
+
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;

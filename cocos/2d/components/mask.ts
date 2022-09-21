@@ -24,28 +24,18 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
-import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, serializable, range, slide, executeInEditMode } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { warnID } from '../../core/platform';
-import { Batcher2D } from '../renderer/batcher-2d';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, RenderingSubMesh, CCObject } from '../../core';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
+import { NodeEventType, Component, warnID } from '../../core';
 import { legacyCC } from '../../core/global-exports';
-import { MaterialInstance, scene } from '../../core/renderer';
-import { Model } from '../../core/renderer/scene';
-import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { MaskMode } from '../renderer/render-entity';
+import { Sprite } from './sprite';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -74,7 +64,7 @@ export enum MaskType {
      * @zh
      * 使用矩形作为遮罩。
      */
-    RECT = 0,
+    GRAPHICS_RECT = 0,
 
     /**
      * @en Ellipse Mask.
@@ -82,7 +72,7 @@ export enum MaskType {
      * @zh
      * 使用椭圆作为遮罩。
      */
-    ELLIPSE = 1,
+    GRAPHICS_ELLIPSE = 1,
 
     /**
      * @en Graphics Mask.
@@ -98,7 +88,7 @@ export enum MaskType {
      * @zh
      * 使用图片模版作为遮罩。
      */
-    IMAGE_STENCIL = 3,
+    SPRITE_STENCIL = 3,
 }
 
 ccenum(MaskType);
@@ -117,7 +107,15 @@ const SEGMENTS_MAX = 10000;
 @help('i18n:cc.Mask')
 @executionOrder(110)
 @menu('2D/Mask')
-export class Mask extends Renderable2D {
+@executeInEditMode
+export class Mask extends Component {
+    /**
+     * @en The type for mask.
+     *
+     * @zh 遮罩组件类型。
+     */
+    public static Type = MaskType;
+
     /**
      * @en
      * The mask type.
@@ -126,7 +124,6 @@ export class Mask extends Renderable2D {
      * 遮罩类型。
      */
     @type(MaskType)
-    @displayOrder(10)
     @tooltip('i18n:mask.type')
     get type () {
         return this._type;
@@ -137,36 +134,38 @@ export class Mask extends Renderable2D {
             return;
         }
 
-        // if (this._type === MaskType.IMAGE_STENCIL && !this._spriteFrame) {
-        //     this._detachClearModel();
-        // }
-
         this._type = value;
-        this.markForUpdateRenderData(false);
-        this._updateMaterial();
 
-        if (this._type !== MaskType.IMAGE_STENCIL) {
-            this._spriteFrame = null;
+        if (this._type !== MaskType.SPRITE_STENCIL) {
+            if (this._sprite) {
+                this.node.removeComponent(Sprite);
+                this._sprite._destroyImmediate();
+                this._sprite = null;
+            }
+            this._changeRenderType();
             this._updateGraphics();
-            if (this._renderData) {
-                this.destroyRenderData();
-                this._renderData = null;
+            if (JSB) {
+                this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
             }
         } else {
-            this._useRenderData();
-
             if (this._graphics) {
                 this._graphics.clear();
+                this.node.removeComponent(Graphics);
+                this._graphics._destroyImmediate();
+                this._graphics = null;
+            }
+            this._changeRenderType();
+            if (JSB) {
+                this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
             }
         }
     }
 
     /**
      * @en
-     * Reverse mask (Not supported Canvas Mode)
-     * .
+     * Reverse mask
      * @zh
-     * 反向遮罩（不支持 Canvas 模式）。
+     * 反向遮罩
      */
     @displayOrder(14)
     @tooltip('i18n:mask.inverted')
@@ -176,9 +175,10 @@ export class Mask extends Renderable2D {
 
     set inverted (value) {
         this._inverted = value;
-        this.stencilStage = Stage.DISABLED;
-        if (this._graphics) {
-            this._graphics.stencilStage = Stage.DISABLED;
+        this.subComp!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
+
+        if (JSB) {
+            this.subComp!.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
         }
     }
 
@@ -191,7 +191,7 @@ export class Mask extends Renderable2D {
      * 椭圆遮罩的曲线细分数。
      */
     @visible(function (this: Mask) {
-        return this.type === MaskType.ELLIPSE;
+        return this.type === MaskType.GRAPHICS_ELLIPSE;
     })
     get segments () {
         return this._segments;
@@ -212,26 +212,20 @@ export class Mask extends Renderable2D {
      *
      * @zh
      * 遮罩所需要的贴图。
+     * @deprecated since v3.6.1
      */
-    @type(SpriteFrame)
-    @visible(function (this: Mask) {
-        return this.type === MaskType.IMAGE_STENCIL;
-    })
     get spriteFrame () {
-        return this._spriteFrame;
+        if (this._sprite) {
+            return this._sprite.spriteFrame;
+        }
+        return null;
     }
 
     set spriteFrame (value) {
-        if (this._spriteFrame === value) {
-            return;
-        }
-
-        const lastSp = this._spriteFrame;
-        this._spriteFrame = value;
-        if (this._type === MaskType.IMAGE_STENCIL) {
-            if (!lastSp && value) {
-                this.markForUpdateRenderData();
-            }
+        if (this._sprite) {
+            this._sprite.spriteFrame = value;
+        } else {
+            console.error('please change type to sprite_stencil first');
         }
     }
 
@@ -249,7 +243,7 @@ export class Mask extends Renderable2D {
      * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容
      */
     @visible(function (this: Mask) {
-        return this.type === MaskType.IMAGE_STENCIL;
+        return this.type === MaskType.SPRITE_STENCIL;
     })
     @range([0, 1, 0.1])
     @slide
@@ -263,75 +257,18 @@ export class Mask extends Renderable2D {
         }
 
         this._alphaThreshold = value;
-        if (this.type === MaskType.IMAGE_STENCIL && this._graphics) {
-            const mat = this._graphics.getMaterialInstance(0)!;
+        if (this.type === MaskType.SPRITE_STENCIL && this._sprite) {
+            const mat = this._sprite.getMaterialInstance(0)!;
             mat.setProperty('alphaThreshold', this._alphaThreshold);
         }
     }
 
-    get graphics () {
-        return this._graphics;
+    get subComp () {
+        return this._graphics || this._sprite;
     }
-
-    get dstBlendFactor () {
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value) {
-        if (this._dstBlendFactor === value) {
-            return;
-        }
-
-        this._dstBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    get srcBlendFactor () {
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value) {
-        if (this._srcBlendFactor === value) {
-            return;
-        }
-
-        this._srcBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    @override
-    @visible(false)
-    // @constget
-    get color (): Readonly<Color> {
-        return this._color;
-    }
-
-    set color (value) {
-        if (this._color === value) {
-            return;
-        }
-
-        this._color.set(value);
-        this.markForUpdateRenderData();
-    }
-
-    @override
-    @visible(false)
-    get customMaterial () {
-        return this._customMaterial;
-    }
-
-    set customMaterial (val) {
-        // mask don`t support customMaterial
-    }
-
-    public static Type = MaskType;
-
-    public _clearStencilMtl: Material | null = null;
-    public _clearModel: Model | null = null;
 
     @serializable
-    protected _type = MaskType.RECT;
+    protected _type = MaskType.GRAPHICS_RECT;
 
     @serializable
     protected _inverted = false;
@@ -340,32 +277,29 @@ export class Mask extends Renderable2D {
     protected _segments = 64;
 
     @serializable
-    protected _spriteFrame: SpriteFrame | null = null;
-
-    @serializable
     protected _alphaThreshold = 0.1;
 
+    protected _sprite: Sprite | null = null;
     protected _graphics: Graphics | null = null;
 
-    private _clearModelMesh: RenderingSubMesh| null = null;
-
-    constructor () {
-        super();
-        this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
-    }
+    protected _stencilStage: Stage = Stage.DISABLED;
 
     public onLoad () {
-        this._createClearModel();
-        this._createGraphics();
+        this._changeRenderType();
 
-        if (this._graphics) {
-            this._graphics.onLoad();
+        if (JSB) {
+            if (this.subComp) {
+                this.subComp.renderEntity.setMaskMode(this._inverted ? MaskMode.MASK_INVERTED : MaskMode.MASK);
+            }
         }
     }
 
     public onEnable () {
-        super.onEnable();
+        this._changeRenderType();// Maybe useless,a protect,may effect custom setting
         this._updateGraphics();
+        this._enableRender();
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
     /**
@@ -373,38 +307,26 @@ export class Mask extends Renderable2D {
      * 图形内容重塑。
      */
     public onRestore () {
-        this._createGraphics();
-        super.updateMaterial();
+        this._changeRenderType();
         this._updateGraphics();
-        this._renderFlag = this._canRender();
     }
 
     public onDisable () {
-        super.onDisable();
-        this._disableGraphics();
+        this._disableRender();
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
     public onDestroy () {
-        super.onDestroy();
-        if (this._clearModel && this._clearModelMesh) {
-            director.root!.destroyModel(this._clearModel);
-            this._clearModelMesh.destroy();
-        }
-
-        if (this._clearStencilMtl) {
-            this._clearStencilMtl.destroy();
-        }
-
-        this._removeGraphics();
+        this._removeMaskNode();
     }
 
     /**
-     * @zh
-     * 根据屏幕坐标计算点击事件。
+     * Hit test with point in World Space.
      *
-     * @param cameraPt  屏幕点转换到相机坐标系下的点。
+     * @param worldPt point in World Space.
      */
-    public isHit (cameraPt: Vec2) {
+    public isHit (worldPt: Vec2) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const size = uiTrans.contentSize;
         const w = size.width;
@@ -413,15 +335,15 @@ export class Mask extends Renderable2D {
 
         this.node.getWorldMatrix(_worldMatrix);
         Mat4.invert(_mat4_temp, _worldMatrix);
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Vec2.transformMat4(testPt, worldPt, _mat4_temp);
         const ap = uiTrans.anchorPoint;
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;
 
         let result = false;
-        if (this.type === MaskType.RECT || this.type === MaskType.GRAPHICS_STENCIL) {
+        if (this.type === MaskType.GRAPHICS_RECT || this.type === MaskType.GRAPHICS_STENCIL || this.type === MaskType.SPRITE_STENCIL) {
             result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
-        } else if (this.type === MaskType.ELLIPSE) {
+        } else if (this.type === MaskType.GRAPHICS_ELLIPSE) {
             const rx = w / 2;
             const ry = h / 2;
             const px = testPt.x - 0.5 * w;
@@ -436,65 +358,51 @@ export class Mask extends Renderable2D {
         return result;
     }
 
-    protected _render (render: Batcher2D) {
-        render.commitComp(this, null, this._assembler!, null);
-    }
-
-    protected _postRender (render: Batcher2D) {
-        if (!this._postAssembler) {
-            return;
-        }
-
-        render.commitComp(this, null, this._postAssembler, null);
-    }
-
     protected _nodeStateChange (type: TransformBit) {
-        super._nodeStateChange(type);
-
         this._updateGraphics();
     }
 
-    protected _canRender () {
-        if (!super._canRender()) {
-            return false;
+    private _changeRenderType () {
+        const isGraphics = (this._type !== MaskType.SPRITE_STENCIL);
+        if (isGraphics) {
+            this._createGraphics();
+        } else {
+            this._createSprite();
         }
-
-        return this._graphics !== null && (this._type !== MaskType.IMAGE_STENCIL || this._spriteFrame !== null);
     }
 
-    protected _flushAssembler () {
-        const assembler = Mask.Assembler!.getAssembler(this);
-        const posAssembler = Mask.PostAssembler!.getAssembler(this);
-
-        if (this._assembler !== assembler) {
-            this.destroyRenderData();
-            this._assembler = assembler;
+    protected _createSprite () {
+        if (!this._sprite) {
+            let sprite = this._sprite = this.node.getComponent(Sprite);
+            if (!sprite) {
+                const node = this.node;
+                sprite = this._sprite = node.addComponent(Sprite);
+            }
+            sprite.color = Color.WHITE.clone();
+            sprite.sizeMode = 0;
         }
-
-        if (this._postAssembler !== posAssembler) {
-            this._postAssembler = posAssembler;
-        }
-
-        this._useRenderData();
+        this._sprite!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
+        // @ts-expect-error Mask hack
+        this._sprite!.updateMaterial();
     }
 
     protected _createGraphics () {
         if (!this._graphics) {
-            const graphics = this._graphics = new Graphics();
-            graphics._objFlags |= CCObject.Flags.IsOnLoadCalled;// hack for destroy
-            graphics.node = this.node;
-            graphics.node.getWorldMatrix();
-            graphics.lineWidth = 0;
+            let graphics = this._graphics = this.node.getComponent(Graphics);
+            if (!graphics) {
+                const node = this.node;
+                graphics = this._graphics = node.addComponent(Graphics);
+            }
+            graphics.lineWidth = 1;
             const color = Color.WHITE.clone();
             color.a = 0;
             graphics.fillColor = color;
         }
-
-        this._updateMaterial();
+        this._graphics!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
     }
 
     protected _updateGraphics () {
-        if (!this._graphics || (this._type !== MaskType.RECT && this._type !== MaskType.ELLIPSE)) {
+        if (!this._graphics || (this._type !== MaskType.GRAPHICS_RECT && this._type !== MaskType.GRAPHICS_ELLIPSE)) {
             return;
         }
 
@@ -508,9 +416,9 @@ export class Mask extends Renderable2D {
         const ap = uiTrans.anchorPoint;
         const x = -width * ap.x;
         const y = -height * ap.y;
-        if (this._type === MaskType.RECT) {
+        if (this._type === MaskType.GRAPHICS_RECT) {
             graphics.rect(x, y, width, height);
-        } else if (this._type === MaskType.ELLIPSE) {
+        } else if (this._type === MaskType.GRAPHICS_ELLIPSE) {
             const center = new Vec3(x + width / 2, y + height / 2, 0);
             const radius = new Vec3(width / 2, height / 2, 0);
             const points = _calculateCircle(center, radius, this._segments);
@@ -528,86 +436,237 @@ export class Mask extends Renderable2D {
         graphics.fill();
     }
 
-    protected _createClearModel () {
-        if (!this._clearModel) {
-            const mtl = builtinResMgr.get<Material>('default-clear-stencil');
-            this._clearStencilMtl = new MaterialInstance({
-                parent: mtl,
-                owner: this,
-                subModelIdx: 0,
-            });
-
-            this._clearModel = director.root!.createModel(scene.Model);
-            this._clearModel.node = this._clearModel.transform = this.node;
-            const stride = getAttributeStride(vfmt);
-            const gfxDevice: Device = legacyCC.director.root.device;
-            const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
-                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.DEVICE,
-                4 * stride,
-                stride,
-            ));
-
-            const vb = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
-            vertexBuffer.update(vb);
-            const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
-                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.DEVICE,
-                6 * Uint16Array.BYTES_PER_ELEMENT,
-                Uint16Array.BYTES_PER_ELEMENT,
-            ));
-
-            const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
-            indexBuffer.update(ib);
-            this._clearModelMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
-            this._clearModelMesh.subMeshIdx = 0;
-
-            this._clearModel.initSubModel(0, this._clearModelMesh, this._clearStencilMtl);
+    protected _enableRender () {
+        if (this.subComp) {
+            this.subComp.enabled = true;
         }
     }
 
-    protected _updateMaterial () {
-        if (this._graphics) {
-            const target = this._graphics;
-            target.stencilStage = Stage.DISABLED;
-            let mat;
-            if (this._type === MaskType.IMAGE_STENCIL) {
-                mat = builtinResMgr.get<Material>('ui-alpha-test-material');
-                target.setMaterial(mat, 0);
-                mat = target.getMaterialInstance(0);
-                mat.setProperty('alphaThreshold', this._alphaThreshold);
-            } else {
-                mat = builtinResMgr.get<Material>('ui-graphics-material');
-                target.setMaterial(mat, 0);
-                target.getMaterialInstance(0);
+    protected _disableRender () {
+        if (this.subComp) {
+            this.subComp.stencilStage = Stage.DISABLED;
+            // @ts-expect-error Mask hack
+            this.subComp.updateMaterial();
+            if (this.node.activeInHierarchy) {
+                this.subComp.enabled = false;
             }
         }
     }
 
-    protected _disableGraphics () {
-        if (this._graphics) {
-            this._graphics.onDisable();
+    protected _removeMaskNode () {
+        if (this._sprite) {
+            this._sprite.destroy();
+            this._sprite = null;
         }
-    }
-
-    protected _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
-            this._graphics._destroyImmediate(); // FIX: cocos-creator/2d-tasks#2511. TODO: cocos-creator/2d-tasks#2516
             this._graphics = null;
         }
     }
 
-    protected _useRenderData () {
-        if (this._type === MaskType.IMAGE_STENCIL && !this._renderData) {
-            if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
-                this.markForUpdateRenderData();
-            }
+    // deprecated interface
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get customMaterial () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.customMaterial;
         }
+        return null;
+    }
+    set customMaterial (val) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.customMaterial = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get color () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.color;
+        }
+        return null;
+    }
+    set color (value) {
+        warnID(9007);
+        if (this.subComp && value) {
+            this.subComp.color = value;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public markForUpdateRenderData (enable = true) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.markForUpdateRenderData(enable);
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public requestRenderData (any) {
+        warnID(9007);
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public destroyRenderData () {
+        warnID(9007);
+    }
+
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public updateRenderer () {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.updateRenderer();
+        }
+    }
+
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public fillBuffers (render: any) {
+        warnID(9007);
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public postUpdateAssembler (render: any) {
+        warnID(9007);
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setNodeDirty () {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setNodeDirty();
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setTextureDirty () {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setTextureDirty();
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get sharedMaterial () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.sharedMaterial;
+        }
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get sharedMaterials () {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.sharedMaterials;
+        }
+        return null;
+    }
+    set sharedMaterials (val) {
+        warnID(9007);
+        if (this.subComp && val) {
+            this.subComp.sharedMaterials = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get material (): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.material;
+        }
+        return null;
+    }
+    set material (val: any) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.material = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    get materials (): (any)[] {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.materials;
+        }
+        return [null];
+    }
+    set materials (val: (any)[]) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.materials = val;
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getMaterial (idx: number): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.getMaterial(idx);
+        }
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setMaterial (material: any, index: number) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setMaterial(material, index);
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getMaterialInstance (idx: number): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.getMaterialInstance(idx);
+        }
+        return null;
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public setMaterialInstance (matInst: any, index: number) {
+        warnID(9007);
+        if (this.subComp) {
+            this.subComp.setMaterialInstance(matInst, index);
+        }
+    }
+    /**
+     * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
+     */
+    public getRenderMaterial (index: number): any {
+        warnID(9007);
+        if (this.subComp) {
+            return this.subComp.getRenderMaterial(index);
+        }
+        return null;
     }
 }
 
-NodeEventProcessor._comp = Mask;
+NodeEventProcessor._maskComp = Mask;
 
 legacyCC.Mask = Mask;

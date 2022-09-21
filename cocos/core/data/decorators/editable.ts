@@ -23,14 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { DEV, EDITOR } from 'internal:constants';
 import { IExposedAttributes } from '../utils/attribute-defines';
-import { IPropertyOptions, property } from './property';
+import { getOrCreatePropertyStash } from './property';
+import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 
 import { LegacyPropertyDecorator, emptyDecorator, makeSmartEditorClassDecorator, makeEditorClassDecoratorFn, emptySmartClassDecorator, emptyDecoratorFn } from './utils';
 
@@ -73,8 +69,9 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
 export const menu: (path: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('menu') : emptyDecoratorFn;
 
 /**
- * @en When {{executeInEditMode}} is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
- * @zh 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
+ * @en When [[_decorator.executeInEditMode]] is set,
+ * this decorator will make the editor running in high FPS mode when a node with the component is focused
+ * @zh 当指定了 [[_decorator.executeInEditMode]] 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  * @example
  * ```ts
  * import { _decorator, Component } from 'cc';
@@ -128,7 +125,8 @@ export const inspector: (url: string) => ClassDecorator =    DEV ? makeEditorCla
 export const icon: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('icon') : emptyDecoratorFn;
 
 /**
- * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given.
+ * @en Define the help documentation url,
+ * if given, the component section in the **Inspector** will have a help documentation icon reference to the web page given.
  * @zh 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  * @param url The url of the help documentation
  * @example
@@ -143,7 +141,7 @@ export const icon: (url: string) => ClassDecorator =    DEV ? makeEditorClassDec
  * }
  * ```
  */
-export const help: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('help') : emptyDecoratorFn;
+export const help: (url: string) => ClassDecorator = DEV ? makeEditorClassDecoratorFn('help') : emptyDecoratorFn;
 
 /**
  * @en
@@ -151,7 +149,12 @@ export const help: (url: string) => ClassDecorator =    DEV ? makeEditorClassDec
  * @zh
  * 允许该属性与编辑器交互。
  */
-export const editable: LegacyPropertyDecorator = !DEV ? emptyDecorator : (target, propertyKey, descriptor) => property(makeEditable({ }))(target, propertyKey, descriptor);
+export const editable: LegacyPropertyDecorator = !DEV
+    ? emptyDecorator
+    : (target, propertyKey, descriptor) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+        setImplicitVisible(propertyStash);
+    };
 
 /**
  * @en
@@ -160,10 +163,9 @@ export const editable: LegacyPropertyDecorator = !DEV ? emptyDecorator : (target
  * 设置在编辑器展示该属性的条件。
  * @param condition 展示条件，当返回 `true` 时展示；否则不展示。
  */
-export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (condition) => property(makeEditable({
-        visible: condition,
-    }));
+export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('visible');
 
 /**
  * @en
@@ -171,9 +173,9 @@ export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDe
  * @zh
  * 设置该属性在编辑器中仅是可读的。
  */
-export const readOnly: LegacyPropertyDecorator = !DEV ? emptyDecorator : (target, propertyKey, descriptor) => property(makeEditable({
-    readonly: true,
-}))(target, propertyKey, descriptor);
+export const readOnly: LegacyPropertyDecorator = !DEV
+    ? emptyDecorator
+    : setPropertyStashWithImplicitVisible('readonly', true);
 
 /**
  * @en
@@ -182,10 +184,9 @@ export const readOnly: LegacyPropertyDecorator = !DEV ? emptyDecorator : (target
  * 设置该属性在编辑器中的显示名称。
  * @param text 显示名称。
  */
-export const displayName: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (text) => property(makeEditable({
-        displayName: text,
-    }));
+export const displayName: (text: string) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('displayName');
 
 /**
  * @en
@@ -194,10 +195,9 @@ export const displayName: (text: string) => LegacyPropertyDecorator = !DEV ? emp
  * 设置该属性在编辑器中的工具提示内容。
  * @param text 工具提示。
  */
-export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (text) => property(makeEditable({
-        tooltip: text,
-    }));
+export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashWithImplicitI18n('tooltip');
 
 /**
  * @en
@@ -206,10 +206,9 @@ export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDe
  * 设置在属性检查器上该属性所属的分类标签。
  * @param options 分组的配置。
  */
-export const group: (options: NonNullable<IExposedAttributes['group']>) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (options) => property(makeEditable({
-        group: options,
-    }));
+export const group: (options: NonNullable<IExposedAttributes['group']>) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('group');
 
 /**
  * @en
@@ -218,10 +217,9 @@ export const group: (options: NonNullable<IExposedAttributes['group']>) => Legac
  * 设置该属性在编辑器中允许设置的范围。
  * @param values 范围。
  */
-export const range: (values: [number, number, number] | [number, number]) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (values) => property(makeEditable({
-        range: values,
-    }));
+export const range: (values: [number, number, number] | [number, number]) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('range');
 
 /**
  * @en
@@ -230,10 +228,9 @@ export const range: (values: [number, number, number] | [number, number]) => Leg
  * 设置该属性在编辑器中允许的最小值。
  * @param value 最小值。
  */
-export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (value) => property(makeEditable({
-        min: value,
-    }));
+export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('min');
 
 /**
  * @en
@@ -242,10 +239,9 @@ export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV ? empty
  * 设置该属性在编辑器中允许的最大值。
  * @param value 最大值。
  */
-export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (value) => property(makeEditable({
-        max: value,
-    }));
+export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('max');
 
 /**
  * @en
@@ -254,10 +250,9 @@ export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV ? empty
  * 设置该属性在编辑器中的步进值。
  * @param value 步进值。
  */
-export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (value) => property(makeEditable({
-        step: value,
-    }));
+export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('step');
 
 /**
  * @en
@@ -265,10 +260,9 @@ export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV ? empt
  * @zh
  * 允许在编辑器中提供滑动条来调节值
  */
-export const slide: LegacyPropertyDecorator = !DEV ? emptyDecorator
-    : (target, propertyKey, descriptor) => property(makeEditable({
-        slide: true,
-    }))(target, propertyKey, descriptor);
+export const slide: LegacyPropertyDecorator = !DEV
+    ? emptyDecorator
+    : setPropertyStashWithImplicitVisible('slide', true);
 
 /**
  * @en
@@ -277,10 +271,9 @@ export const slide: LegacyPropertyDecorator = !DEV ? emptyDecorator
  * 设置该属性在编辑器中的显示顺序。
  * @param order 显示顺序。
  */
-export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (order) => property(makeEditable({
-        displayOrder: order,
-    }));
+export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('displayOrder');
 
 /**
  * @en
@@ -293,10 +286,9 @@ export const unit: (name:
 | 'lm'
 | 'lx'
 | 'cd/m²'
-) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (name) => property(makeEditable({
-        unit: name,
-    }));
+) => LegacyPropertyDecorator = !DEV
+    ? emptyDecoratorFn
+    : setPropertyStashVar1WithImplicitVisible('unit');
 
 /**
  * @en
@@ -304,10 +296,9 @@ export const unit: (name:
  * @zh
  * 设置在编辑器中赋值该属性前将值先转换为弧度制。
  */
-export const radian: LegacyPropertyDecorator = !DEV ? emptyDecorator
-    : (target, propertyKey, descriptor) => property(makeEditable({
-        radian: true,
-    }))(target, propertyKey, descriptor);
+export const radian: LegacyPropertyDecorator = !DEV
+    ? emptyDecorator
+    : setPropertyStashWithImplicitVisible('radian', true);
 
 /**
  * @en
@@ -315,10 +306,9 @@ export const radian: LegacyPropertyDecorator = !DEV ? emptyDecorator
  * @zh
  * 允许在编辑器中对该属性进行多行显示。
  */
-export const multiline: LegacyPropertyDecorator = !DEV ? emptyDecorator
-    : (target, propertyKey, descriptor) => property(makeEditable({
-        multiline: true,
-    }))(target, propertyKey, descriptor);
+export const multiline: LegacyPropertyDecorator = !DEV
+    ? emptyDecorator
+    : setPropertyStashWithImplicitVisible('multiline', true);
 
 /**
  * @en
@@ -326,15 +316,50 @@ export const multiline: LegacyPropertyDecorator = !DEV ? emptyDecorator
  * @zh
  * 设置该属性不参与编辑器中动画相关的交互。
  */
-export const disallowAnimation: LegacyPropertyDecorator = !EDITOR ? emptyDecorator : (target, propertyKey, descriptor) => property({
-    __noImplicit: true,
-    animatable: false,
-})(target, propertyKey, descriptor);
+export const disallowAnimation: LegacyPropertyDecorator = !DEV
+    ? emptyDecorator
+    : (target, propertyKey, descriptor) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+        propertyStash.animatable = false;
+    };
 
-function makeEditable (options: IPropertyOptions) {
-    options.__noImplicit = true;
-    if (!('visible' in options)) {
-        options.visible = true;
-    }
-    return options;
+function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
+    key: TKey,
+    value: NonNullable<PropertyStash[TKey]>,
+): LegacyPropertyDecorator {
+    return (target, propertyKey, descriptor) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+        propertyStash[key] = value;
+        setImplicitVisible(propertyStash);
+    };
+}
+
+function setPropertyStashVar1WithImplicitVisible<TKey extends keyof PropertyStash> (
+    key: TKey,
+) {
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptor) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+        propertyStash[key] = value;
+        setImplicitVisible(propertyStash);
+    };
+}
+
+function setImplicitVisible (propertyStash: PropertyStash) {
+    propertyStash.__internalFlags |= PropertyStashInternalFlag.IMPLICIT_VISIBLE;
+}
+
+function setPropertyStashWithImplicitI18n<TKey extends keyof PropertyStash> (
+    key: TKey,
+) {
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptor) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+        const prefix = 'i18n:';
+        if (value.startsWith(prefix)) {
+            const extensionPrefix = 'ENGINE.';
+            propertyStash[key] = `${prefix}${extensionPrefix}${value.substring(prefix.length)}`;
+        } else {
+            propertyStash[key] = value;
+        }
+        setImplicitVisible(propertyStash);
+    };
 }

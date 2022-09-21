@@ -24,12 +24,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
-import { ccclass, tooltip, displayOrder, range, type, radian, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -81,6 +76,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @radian
     @displayOrder(2)
     @tooltip('i18n:rotationOvertimeModule.x')
+    @visible(function (this: RotationOvertimeModule): boolean { return this.separateAxes; })
     public x = new CurveRange();
 
     /**
@@ -92,6 +88,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @radian
     @displayOrder(3)
     @tooltip('i18n:rotationOvertimeModule.y')
+    @visible(function (this: RotationOvertimeModule): boolean { return this.separateAxes; })
     public y = new CurveRange();
 
     /**
@@ -141,6 +138,18 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         // Rotation-overtime combine with start rotation, after that we get quat from the mat
         p.deltaMat = Mat4.fromQuat(p.deltaMat, p.deltaQuat);
         p.localMat = p.localMat.multiply(p.deltaMat); // accumulate rotation
+
+        if (!p.startRotated) {
+            if (renderMode !== RenderMode.Mesh) {
+                if (renderMode === RenderMode.StrecthedBillboard) {
+                    p.startEuler.set(0, 0, 0);
+                } else if (renderMode !== RenderMode.Billboard) {
+                    p.startEuler.set(0, 0, p.startEuler.z);
+                }
+            }
+            Quat.fromEuler(p.startRotation, p.startEuler.x * Particle.R2D, p.startEuler.y * Particle.R2D, p.startEuler.z * Particle.R2D);
+            p.startRotated = true;
+        }
 
         this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
         this._matRot = this._startMat.multiply(p.localMat);

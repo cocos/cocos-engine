@@ -10,16 +10,18 @@ exports.sortProp = function(propMap) {
 
     Object.keys(propMap).forEach((key) => {
         const item = propMap[key];
-        if ('displayOrder' in item) {
-            orderList.push({
-                key,
-                dump: item,
-            });
-        } else {
-            normalList.push({
-                key,
-                dump: item,
-            });
+        if (item != null) {
+            if ('displayOrder' in item) {
+                orderList.push({
+                    key,
+                    dump: item,
+                });
+            } else {
+                normalList.push({
+                    key,
+                    dump: item,
+                });
+            }
         }
     });
 
@@ -30,25 +32,55 @@ exports.sortProp = function(propMap) {
 
 /**
  *
- * This function can filter the contents of the dump and is mainly used to get the user's dump data
+ * This method is used to update the custom node
+ * @param {HTMLElement} container
  * @param {string[]} excludeList
  * @param {object} dump
- * @param {(element,prop)=>void} onElementCreated
+ * @param {(element,prop)=>void} update
  */
-exports.getCustomPropElements = function(excludeList, dump, onElementCreated) {
-    const customPropElements = [];
+exports.updateCustomPropElements = function(container, excludeList, dump, update) {
     const sortedProp = exports.sortProp(dump.value);
+    container.$ = container.$ || {};
+    /**
+     * @type {Array<HTMLElement>}
+     */
+    const children = [];
     sortedProp.forEach((prop) => {
         if (!excludeList.includes(prop.key)) {
-            const node = document.createElement('ui-prop');
-            node.setAttribute('type', 'dump');
-            if (typeof onElementCreated === 'function') {
-                onElementCreated(node, prop);
+            if (!prop.dump.visible) {
+                return;
             }
-            customPropElements.push(node);
+            let node = container.$[prop.key];
+            if (!node) {
+                node = document.createElement('ui-prop');
+                node.setAttribute('type', 'dump');
+                node.dump = prop.dump;
+                node.key = prop.key;
+                container.$[prop.key] = node;
+            }
+
+            if (typeof update === 'function') {
+                update(node, prop);
+            }
+
+            children.push(node);
         }
     });
-    return customPropElements;
+    const currentChildren = Array.from(container.children);
+    children.forEach((child, i) => {
+        if (child === currentChildren[i]) {
+            return;
+        }
+
+        container.appendChild(child);
+    });
+
+    // delete extra children
+    currentChildren.forEach(($child) => {
+        if (!children.includes($child)) {
+            $child.remove();
+        }
+    });
 };
 
 /**
@@ -158,73 +190,90 @@ exports.updatePropByDump = function(panel, dump) {
         panel.elements = {};
     }
 
-    const children = [];
+    if (!panel.$props) {
+        panel.$props = {};
+    }
 
-    Object.keys(dump.value).forEach((key) => {
-        const dumpdata = dump.value[key];
-        const element = panel.elements[key];
+    if (!panel.$groups) {
+        panel.$groups = {};
+    }
 
-        if (!panel.$[key]) {
-            // element does not exist and the data tells that it does not need to be displayed, terminate rendering
-            if (!dumpdata.visible) {
-                return;
-            }
+    const oldPropKeys = Object.keys(panel.$props);
+    const newPropKeys = [];
 
-            if (element && element.create) {
-                // when it need to go custom initialize
-                panel.$[key] = element.create.call(panel, dumpdata);
-            } else {
-                panel.$[key] = document.createElement('ui-prop');
-                panel.$[key].setAttribute('type', 'dump');
-                panel.$[key].render(dumpdata);
-            }
-
-            /**
-             * Defined in the ascending engine, while the custom order ranges from 0 - 100;
-             * If displayOrder is defined in the engine as a negative number, less than -100, it will take precedence over the custom ordering
-             */
-            panel.$[key].displayOrder = dumpdata.displayOrder === undefined ? 0 : Number(dumpdata.displayOrder);
-            panel.$[key].displayOrder += 100;
-
-            if (element && element.displayOrder !== undefined) {
-                panel.$[key].displayOrder = element.displayOrder;
-            }
-        } else {
-            // The element exists, but at this point the data informs that it does not need to be displayed and terminates
-            if (!dumpdata.visible) {
-                return;
-            }
-
-            if (panel.$[key].tagName === 'UI-PROP' && panel.$[key].getAttribute('type') === 'dump') {
-                panel.$[key].render(dumpdata);
-            }
-        }
-
-        if (panel.$[key]) {
-            if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
-                children.push(panel.$[key]);
-            }
-        }
-    });
-
-    // Reorder
-    children.sort((a, b) => a.displayOrder - b.displayOrder);
-
-    let $children = Array.from(panel.$.componentContainer.children);
-    children.forEach((child, i) => {
-        if (child === $children[i]) {
+    Object.keys(dump.value).forEach((key, index) => {
+        const info = dump.value[key];
+        if (!info.visible) {
             return;
         }
 
-        panel.$.componentContainer.appendChild(child);
+        const element = panel.elements[key];
+        let $prop = panel.$props[key];
+
+        newPropKeys.push(key);
+
+        if (!$prop) {
+            if (element && element.create) {
+                // when it need to go custom initialize
+                $prop = panel.$props[key] = panel.$[key] = element.create.call(panel, info);
+            } else {
+                $prop = panel.$props[key] = panel.$[key] = document.createElement('ui-prop');
+                $prop.setAttribute('type', 'dump');
+            }
+
+            const _displayOrder = info.group?.displayOrder || info.displayOrder;
+            $prop.displayOrder = _displayOrder === undefined ? index : Number(_displayOrder);
+
+            if (element && element.displayOrder !== undefined) {
+                $prop.displayOrder = element.displayOrder;
+            }
+
+            if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
+                if (info.group && dump.groups) {
+                    const { id = 'default', name } = info.group;
+
+                    if (!panel.$groups[id] && dump.groups[id]) {
+                        if (dump.groups[id].style === 'tab') {
+                            panel.$groups[id] = exports.createTabGroup(dump.groups[id], panel);
+                        }
+                    }
+
+                    if (panel.$groups[id]) {
+                        if (!panel.$groups[id].isConnected) {
+                            exports.appendChildByDisplayOrder(panel.$.componentContainer, panel.$groups[id], dump.groups[id].displayOrder);
+                        }
+
+                        if (dump.groups[id].style === 'tab') {
+                            exports.appendToTabGroup(panel.$groups[id], name);
+                        }
+                    }
+
+                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                } else {
+                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                }
+            }
+        } else if (!$prop.isConnected || !$prop.parentElement) {
+            if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
+                if (info.group && dump.groups) {
+                    const { id = 'default', name } = info.group;
+                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                } else {
+                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                }
+            }
+        }
+        $prop.render(info);
     });
 
-    // delete extra children
-    $children.forEach(($child) => {
-        if (!children.includes($child)) {
-            $child.remove();
+    for (const id of oldPropKeys) {
+        if (!newPropKeys.includes(id)) {
+            const $prop = panel.$props[id];
+            if ($prop && $prop.parentElement) {
+                $prop.parentElement.removeChild($prop);
+            }
         }
-    });
+    }
 
     for (const key in panel.elements) {
         const element = panel.elements[key];
@@ -258,9 +307,9 @@ exports.isMultipleInvalid = function(dump) {
  * Get the name based on the dump data
  */
 /**
- * 
- * @param {string} dump 
- * @returns 
+ *
+ * @param {string} dump
+ * @returns
  */
 exports.getName = function(dump) {
     if (!dump) {
@@ -273,9 +322,11 @@ exports.getName = function(dump) {
 
     let name = dump.name || '';
 
-    name = name.replace(/^\S/, (str) => str.toUpperCase());
+    name = name.trim().replace(/^\S/, (str) => str.toUpperCase());
     name = name.replace(/_/g, (str) => ' ');
     name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
+    // 驼峰转中间空格
+    name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
 
     return name.trim();
 };
@@ -285,7 +336,7 @@ exports.setTooltip = function(element, dump) {
         let tooltip = dump.tooltip;
         if (tooltip.startsWith('i18n:')) {
             tooltip = Editor.I18n.t('ENGINE.' + tooltip.substr(5));
-            // 如果 ENGINE 翻译不出来，就当成插件的翻译数据，尝试直接翻译
+            // If ENGINE doesn't translate, use extension's translation data and try to translate directly
             if (!tooltip || tooltip === dump.tooltip) {
                 tooltip = Editor.I18n.t(dump.tooltip.substr(5)) || dump.tooltip;
             }
@@ -297,9 +348,9 @@ exports.setTooltip = function(element, dump) {
 };
 
 /**
-* Sets the generic property Label in prop
-* name and tooltip
-*/
+ * Sets the generic property Label in prop
+ * name and tooltip
+ */
 exports.setLabel = function($label, dump) {
     if (!dump) {
         dump = this.dump;
@@ -311,4 +362,102 @@ exports.setLabel = function($label, dump) {
 
     $label.innerHTML = exports.getName(dump);
     exports.setTooltip($label, dump);
+};
+
+exports.createTabGroup = function(dump, panel) {
+    const $group = document.createElement('div');
+    $group.setAttribute('class', 'tab-group');
+
+    $group.dump = dump;
+    $group.tabs = {};
+
+    $group.$header = document.createElement('ui-tab');
+    $group.$header.setAttribute('class', 'tab-header');
+    $group.appendChild($group.$header);
+
+    $group.$header.addEventListener('change', (e) => {
+        const tabNames = Object.keys($group.tabs);
+        const tabName = tabNames[e.target.value || 0];
+        $group.childNodes.forEach((child) => {
+            if (!child.classList.contains('tab-content')) {
+                return;
+            }
+            if (child.getAttribute('name') === tabName) {
+                child.style.display = 'block';
+            } else {
+                child.style.display = 'none';
+            }
+        });
+    });
+
+    // check style
+    if (!panel.$this.shadowRoot.querySelector('style#group-style')) {
+        const style = document.createElement('style');
+        style.setAttribute('id', 'group-style');
+        style.innerText = `
+            .tab-group {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+            .tab-content {
+                display: none;
+                border: 1px dashed var(--color-normal-border);
+                padding: 10px;
+                margin-top: -9px;
+                border-top-right-radius: calc(var(--size-normal-radius) * 1px);
+                border-bottom-left-radius: calc(var(--size-normal-radius) * 1px);
+                border-bottom-right-radius: calc(var(--size-normal-radius) * 1px);
+            }`;
+
+        panel.$.componentContainer.before(style);
+    }
+
+    setTimeout(() => {
+        const $firstTab = $group.$header.shadowRoot.querySelector('ui-button');
+        if ($firstTab) {
+            $firstTab.dispatch('confirm');
+        }
+    });
+
+    return $group;
+};
+
+exports.appendToTabGroup = function($group, tabName) {
+    if ($group.tabs[tabName]) {
+        return;
+    }
+
+    const $content = document.createElement('div');
+
+    $group.tabs[tabName] = $content;
+
+    $content.setAttribute('class', 'tab-content');
+    $content.setAttribute('name', tabName);
+    $group.appendChild($content);
+
+    const $label = document.createElement('ui-label');
+    $label.value = exports.getName(tabName);
+
+    const $button = document.createElement('ui-button');
+    $button.setAttribute('name', tabName);
+    $button.appendChild($label);
+    $group.$header.appendChild($button);
+};
+
+exports.appendChildByDisplayOrder = function(parent, newChild, displayOrder = 0) {
+    const children = Array.from(parent.children);
+
+    const child = children.find((child) => {
+        if (child.dump && child.displayOrder > displayOrder) {
+            return child;
+        }
+
+        return null;
+    });
+
+    if (child) {
+        child.before(newChild);
+    } else {
+        parent.appendChild(newChild);
+    }
 };

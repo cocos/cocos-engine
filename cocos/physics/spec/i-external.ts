@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 export interface ITerrainAsset {
     _uuid: string;
     tileSize: number;

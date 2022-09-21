@@ -3,34 +3,34 @@ const ImageData = require('./ImageData');
 const DOMRect = require('./DOMRect');
 const CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
 
-let clamp = function (value) {
+const clamp = function (value) {
     value = Math.round(value);
     return value < 0 ? 0 : value < 255 ? value : 255;
 };
 
 class CanvasGradient {
-    constructor() {
-        console.log("==> CanvasGradient constructor");
+    constructor () {
+        console.log('==> CanvasGradient constructor');
     }
 
-    addColorStop(offset, color) {
-        console.log("==> CanvasGradient addColorStop");
+    addColorStop (offset, color) {
+        console.log('==> CanvasGradient addColorStop');
     }
 }
 
 class TextMetrics {
-    constructor(width) {
+    constructor (width) {
         this._width = width;
     }
 
-    get width() {
+    get width () {
         return this._width;
     }
 }
 
 class HTMLCanvasElement extends HTMLElement {
-    constructor(width, height) {
-        super('canvas')
+    constructor (width, height) {
+        super('canvas');
 
         this.id = 'glcanvas';
         this.type = 'canvas';
@@ -40,20 +40,19 @@ class HTMLCanvasElement extends HTMLElement {
         this._width = width ? Math.ceil(width) : 0;
         this._height = height ? Math.ceil(height) : 0;
         this._context2D = null;
-        this._data = null;
+        this._dataInner = null;
     }
 
     //REFINE: implement opts.
-    getContext(name, opts) {
-        var self = this;
+    getContext (name, opts) {
+        const self = this;
         if (name === '2d') {
             if (!this._context2D) {
                 this._context2D = new CanvasRenderingContext2D(this._width, this._height);
-                this._data = new ImageData(this._width, this._height);
                 this._context2D._canvas = this;
-                this._context2D._setCanvasBufferUpdatedCallback(function (data) {
+                this._context2D._setCanvasBufferUpdatedCallback((data) => {
                     // FIXME: Canvas's data will take 2x memory size, one in C++, another is obtained by Uint8Array here.
-                    self._data = new ImageData(data, self._width, self._height);
+                    self._dataInner = new ImageData(data, self._width, self._height);
                 });
             }
             return this._context2D;
@@ -62,9 +61,24 @@ class HTMLCanvasElement extends HTMLElement {
         return null;
     }
 
-    set width(width) {
+    get _data () {
+        if (this._context2D === null) {
+            return null;
+        }
+        if (!this._dataInner) {
+            this._context2D.fetchData();
+        }
+        return this._dataInner;
+    }
+
+    set _data (data) {
+        this._dataInner = data;
+    }
+
+    set width (width) {
         width = Math.ceil(width);
         if (this._width !== width) {
+            this._dataInner = null;
             this._width = width;
             if (this._context2D) {
                 this._context2D.width = width;
@@ -72,13 +86,14 @@ class HTMLCanvasElement extends HTMLElement {
         }
     }
 
-    get width() {
+    get width () {
         return this._width;
     }
 
-    set height(height) {
+    set height (height) {
         height = Math.ceil(height);
         if (this._height !== height) {
+            this._dataInner = null;
             this._height = height;
             if (this._context2D) {
                 this._context2D.height = height;
@@ -86,30 +101,30 @@ class HTMLCanvasElement extends HTMLElement {
         }
     }
 
-    get height() {
+    get height () {
         return this._height;
     }
 
-    get clientWidth() {
+    get clientWidth () {
         return window.innerWidth;
     }
 
-    get clientHeight() {
+    get clientHeight () {
         return window.innerHeight;
     }
 
-    get data() {
+    get data () {
         if (this._data) {
             return this._data.data;
         }
         return null;
     }
 
-    getBoundingClientRect() {
+    getBoundingClientRect () {
         return new DOMRect(0, 0, window.innerWidth, window.innerHeight);
     }
 
-    requestPointerLock() {
+    requestPointerLock () {
         jsb.setCursorEnabled(false);
     }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
@@ -19,52 +20,133 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
-import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
-import { TextureCube } from '../assets/texture-cube';
-import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
-import { Color, Quat, Vec3, Vec2, color } from '../math';
-import { Ambient } from '../renderer/scene/ambient';
-import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
-import { Skybox } from '../renderer/scene/skybox';
-import { Fog, FogType } from '../renderer/scene/fog';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
+    editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
+import { BAIDU } from 'internal:constants';
+import { TextureCube } from '../../asset/assets/texture-cube';
+import { CCFloat, CCInteger } from '../data/utils/attribute';
+import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
+import { Ambient } from '../../render-scene/scene/ambient';
+import { Shadows, ShadowType, ShadowSize } from '../../render-scene/scene/shadows';
+import { Skybox, EnvironmentLightingType } from '../../render-scene/scene/skybox';
+import { Octree } from '../../render-scene/scene/octree';
+import { Fog, FogType } from '../../render-scene/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { Root } from '../root';
+import { warnID } from '../platform/debug';
+import { Material } from '../../asset/assets/material';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
+const _v4 = new Vec4();
+const _col = new Color();
 const _qt = new Quat();
 
+// Normalize HDR color
+const normalizeHDRColor = (color : Vec4) => {
+    const intensity = 1.0 / Math.max(Math.max(Math.max(color.x, color.y), color.z), 0.0001);
+    if (intensity < 1.0) {
+        color.x *= intensity;
+        color.y *= intensity;
+        color.z *= intensity;
+    }
+};
 /**
- * @en Environment lighting information in the Scene
- * @zh 场景的环境光照相关信息
+ * @en Environment lighting configuration in the Scene
+ * @zh 场景的环境光照相关配置
  */
 @ccclass('cc.AmbientInfo')
 export class AmbientInfo {
-    @serializable
-    protected _skyColor = new Color(51, 128, 204, 1.0);
-    @serializable
-    protected _skyIllum = Ambient.SKY_ILLUM;
-    @serializable
-    protected _groundAlbedo = new Color(51, 51, 51, 255);
-
-    protected _resource: Ambient | null = null;
+    /**
+     * @en The sky color in HDR mode
+     * @zh HDR 模式下的天空光照色
+     */
+    get skyColorHDR () : Readonly<Vec4> {
+        return this._skyColorHDR;
+    }
 
     /**
-     * @en Sky color
-     * @zh 天空颜色
+     * @en The ground color in HDR mode
+     * @zh HDR 模式下的地面光照色
      */
-    @editable
-    set skyColor (val: Color) {
-        this._skyColor.set(val);
-        if (this._resource) { this._resource.skyColor = this._skyColor; }
+    get groundAlbedoHDR () : Readonly<Vec4> {
+        return this._groundAlbedoHDR;
     }
-    get skyColor () {
-        return this._skyColor;
+
+    /**
+     * @en Sky illuminance in HDR mode
+     * @zh HDR 模式下的天空亮度
+     */
+    get skyIllumHDR () {
+        return this._skyIllumHDR;
+    }
+
+    /**
+     * @en The sky color in LDR mode
+     * @zh LDR 模式下的天空光照色
+     */
+    get skyColorLDR () : Readonly<Vec4> {
+        return this._skyColorLDR;
+    }
+
+    /**
+     * @en The ground color in LDR mode
+     * @zh LDR 模式下的地面光照色
+     */
+    get groundAlbedoLDR () : Readonly<Vec4> {
+        return this._groundAlbedoLDR;
+    }
+
+    /**
+     * @en Sky illuminance in LDR mode
+     * @zh LDR 模式下的天空亮度
+     */
+    get skyIllumLDR () {
+        return this._skyIllumLDR;
+    }
+
+    /**
+     * @en Sky lighting color configurable in editor with color picker
+     * @zh 编辑器中可配置的天空光照颜色（通过颜色拾取器）
+     */
+    @visible(() => {
+        const scene = legacyCC.director.getScene();
+        const skybox = scene.globals.skybox;
+        if (skybox.useIBL && skybox.applyDiffuseMap) {
+            return false;
+        } else {
+            return true;
+        }
+    })
+    @editable
+    @tooltip('i18n:ambient.skyLightingColor')
+    set skyLightingColor (val: Color) {
+        _v4.set(val.x, val.y, val.z, val.w);
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._skyColorHDR.set(_v4);
+        } else {
+            this._skyColorLDR.set(_v4);
+        }
+        if (this._resource) { this._resource.skyColor.set(_v4); }
+    }
+    get skyLightingColor () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        _v4.set(isHDR ? this._skyColorHDR : this._skyColorLDR);
+        normalizeHDRColor(_v4);
+        return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
+    }
+
+    /**
+     * @internal
+     */
+    set skyColor (val: Vec4) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._skyColorHDR.set(val);
+        } else {
+            this._skyColorLDR.set(val);
+        }
+        if (this._resource) { this._resource.skyColor.set(val); }
     }
 
     /**
@@ -73,30 +155,92 @@ export class AmbientInfo {
      */
     @editable
     @type(CCFloat)
+    @tooltip('i18n:ambient.skyIllum')
     set skyIllum (val: number) {
-        this._skyIllum = val;
-        if (this._resource) { this._resource.skyIllum = this.skyIllum; }
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._skyIllumHDR = val;
+        } else {
+            this._skyIllumLDR = val;
+        }
+
+        if (this._resource) { this._resource.skyIllum = val; }
     }
     get skyIllum () {
-        return this._skyIllum;
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            return this._skyIllumHDR;
+        } else {
+            return this._skyIllumLDR;
+        }
     }
 
     /**
-     * @en Ground color
-     * @zh 地面颜色
+     * @en Ground lighting color configurable in editor with color picker
+     * @zh 编辑器中可配置的地面光照颜色（通过颜色拾取器）
      */
+    @visible(() => {
+        const scene = legacyCC.director.getScene();
+        const skybox = scene.globals.skybox;
+        if (skybox.useIBL && skybox.applyDiffuseMap) {
+            return false;
+        } else {
+            return true;
+        }
+    })
     @editable
-    set groundAlbedo (val: Color) {
-        this._groundAlbedo.set(val);
-        // only RGB channels are used, alpha channel are intensionally left unchanged here
-        if (this._resource) { this._resource.groundAlbedo = this._groundAlbedo; }
+    @tooltip('i18n:ambient.groundLightingColor')
+    set groundLightingColor (val: Color) {
+        _v4.set(val.x, val.y, val.z, val.w);
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._groundAlbedoHDR.set(_v4);
+        } else {
+            this._groundAlbedoLDR.set(_v4);
+        }
+        if (this._resource) { this._resource.groundAlbedo.set(_v4); }
     }
-    get groundAlbedo () {
-        return this._groundAlbedo;
+    get groundLightingColor () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        _v4.set(isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR);
+        normalizeHDRColor(_v4);
+        return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
+    /**
+     * @internal
+     */
+    set groundAlbedo (val: Vec4) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._groundAlbedoHDR.set(val);
+        } else {
+            this._groundAlbedoLDR.set(val);
+        }
+        if (this._resource) { this._resource.groundAlbedo.set(val); }
+    }
+
+    @serializable
+    @formerlySerializedAs('_skyColor')
+    protected _skyColorHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    @serializable
+    @formerlySerializedAs('_skyIllum')
+    protected _skyIllumHDR = Ambient.SKY_ILLUM;
+    @serializable
+    @formerlySerializedAs('_groundAlbedo')
+    protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+
+    @serializable
+    protected _skyColorLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    @serializable
+    protected _skyIllumLDR = Ambient.SKY_ILLUM;
+    @serializable
+    protected _groundAlbedoLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+
+    protected _resource: Ambient | null = null;
+
+    /**
+     * @en Activate the ambient lighting configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用环境光照设置，不需要手动调用
+     * @param resource The ambient configuration object in the render scene
+     */
     public activate (resource: Ambient) {
-        const aa :Ambient = resource;
         this._resource = resource;
         this._resource.initialize(this);
     }
@@ -104,30 +248,36 @@ export class AmbientInfo {
 legacyCC.AmbientInfo = AmbientInfo;
 
 /**
- * @en Skybox related information
- * @zh 天空盒相关信息
+ * @en Skybox related configuration
+ * @zh 天空盒相关配置
  */
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
-    @type(TextureCube)
-    protected _envmap: TextureCube | null = null;
-    @serializable
-    protected _isRGBE = false;
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _useIBL = false;
-
-    protected _resource: Skybox | null = null;
-
+    /**
+     * @en Whether to use diffuse convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
+     * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
+     */
+    set applyDiffuseMap (val) {
+        if (this._resource) {
+            this._resource.useDiffuseMap = val;
+        }
+    }
+    get applyDiffuseMap () {
+        if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === this._envLightingType) {
+            return true;
+        }
+        return false;
+    }
     /**
      * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
      */
     @editable
+    @tooltip('i18n:skybox.enabled')
     set enabled (val) {
         if (this._enabled === val) return;
         this._enabled = val;
+
         if (this._resource) {
             this._resource.enabled = this._enabled;
         }
@@ -137,85 +287,298 @@ export class SkyboxInfo {
     }
 
     /**
+     * @zh 环境反射类型
+     * @en environment reflection type
+     */
+    @editable
+    @type(EnvironmentLightingType)
+    @tooltip('i18n:skybox.EnvironmentLightingType')
+    set envLightingType (val) {
+        if (!this.envmap && EnvironmentLightingType.HEMISPHERE_DIFFUSE !== val) {
+            this.useIBL = false;
+            this.applyDiffuseMap = false;
+            this._envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
+        } else {
+            if (EnvironmentLightingType.HEMISPHERE_DIFFUSE === val) {
+                this.useIBL = false;
+                this.applyDiffuseMap = false;
+            } else if (EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION === val) {
+                this.useIBL = true;
+                this.applyDiffuseMap = false;
+            } else if (EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION === val) {
+                this.useIBL = true;
+                this.applyDiffuseMap = true;
+            }
+            this._envLightingType = val;
+        }
+    }
+    get envLightingType () {
+        return this._envLightingType;
+    }
+    /**
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
-    @editable
     set useIBL (val) {
-        this._useIBL = val;
-        if (this._resource) { this._resource.useIBL = this._useIBL; }
+        if (this._resource) {
+            this._resource.useIBL = val;
+        }
     }
     get useIBL () {
-        return this._useIBL;
+        if (EnvironmentLightingType.HEMISPHERE_DIFFUSE !== this._envLightingType) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @en Toggle HDR (TODO: This SHOULD be moved into it's own subgroup away from skybox)
+     * @zh 是否启用HDR？
+     */
+    @editable
+    @tooltip('i18n:skybox.useHDR')
+    set useHDR (val) {
+        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = val;
+        this._useHDR = val;
+
+        // Switch UI to and from LDR/HDR textures depends on HDR state
+        if (this._resource) {
+            if (this.envLightingType === EnvironmentLightingType.DIFFUSEMAP_WITH_REFLECTION) {
+                if (this.diffuseMap === null) {
+                    this.envLightingType = EnvironmentLightingType.AUTOGEN_HEMISPHERE_DIFFUSE_WITH_REFLECTION;
+                    warnID(15000);
+                } else if (this.diffuseMap.isDefault) {
+                    warnID(15002);
+                }
+            }
+        }
+
+        if (this._resource) {
+            this._resource.useHDR = this._useHDR;
+            this._resource.updateMaterialRenderInfo();
+        }
+    }
+    get useHDR () {
+        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = this._useHDR;
+        return this._useHDR;
     }
 
     /**
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-
     @editable
     @type(TextureCube)
+    @tooltip('i18n:skybox.envmap')
     set envmap (val) {
-        this._envmap = val;
-        if (this._resource) { this._resource.envmap = this._envmap; }
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._envmapHDR = val;
+            this._reflectionHDR = null;
+        } else {
+            this._envmapLDR = val;
+            this._reflectionLDR = null;
+        }
+        if (!val) {
+            if (isHDR) {
+                this._diffuseMapHDR = null;
+            } else {
+                this._diffuseMapLDR = null;
+            }
+            this.applyDiffuseMap = false;
+            this.useIBL = false;
+            this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
+        }
+
+        if (this._resource) {
+            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+            this._resource.useDiffuseMap = this.applyDiffuseMap;
+            this._resource.envmap = val;
+        }
     }
     get envmap () {
-        return this._envmap;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._envmapHDR;
+        } else {
+            return this._envmapLDR;
+        }
     }
 
     /**
-     * @en Whether enable RGBE data support in skybox shader
-     * @zh 是否需要开启 shader 内的 RGBE 数据支持？
+     * @en Rotate the skybox
+     * @zh 旋转天空盒
      */
-    @editable
-    set isRGBE (val) {
-        this._isRGBE = val;
-        if (this._resource) { this._resource.isRGBE = this._isRGBE; }
+    @type(CCFloat)
+    @range([0, 360])
+    @rangeStep(1)
+    @slide
+    @tooltip('i18n:skybox.rotationAngle')
+    set rotationAngle (val: number) {
+        this._rotationAngle = val;
+        if (this._resource) { this._resource.setRotationAngle(this._rotationAngle); }
     }
-    get isRGBE () {
-        return this._isRGBE;
+    get rotationAngle () {
+        return this._rotationAngle;
     }
 
+    /**
+     * @en The optional diffusion convolution map used in tandem with IBL
+     * @zh 使用的漫反射卷积图
+     */
+    @visible(function (this : SkyboxInfo) {
+        if (this.useIBL && this.applyDiffuseMap) {
+            return true;
+        }
+        return false;
+    })
+    @editable
+    @readOnly
+    @type(TextureCube)
+    @displayOrder(100)
+    set diffuseMap (val : TextureCube | null) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._diffuseMapHDR = val;
+        } else {
+            this._diffuseMapLDR = val;
+        }
+
+        if (this._resource) {
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+        }
+    }
+    get diffuseMap () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._diffuseMapHDR;
+        } else {
+            return this._diffuseMapLDR;
+        }
+    }
+
+    /**
+     * @en Convolutional map using environmental reflections
+     * @zh 使用环境反射卷积图
+     */
+    @visible(function (this : SkyboxInfo) {
+        if (this._resource?.reflectionMap) {
+            return true;
+        }
+        return false;
+    })
+    @editable
+    @readOnly
+    @type(TextureCube)
+    @displayOrder(100)
+    set reflectionMap (val: TextureCube | null) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._reflectionHDR = val;
+        } else {
+            this._reflectionLDR = val;
+        }
+        if (this._resource) {
+            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+        }
+    }
+    get reflectionMap () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._reflectionHDR;
+        } else {
+            return this._reflectionLDR;
+        }
+    }
+
+    /**
+     * @en Use custom skybox material
+     * @zh 使用自定义的天空盒材质
+     */
+    @editable
+    @type(Material)
+    @tooltip('i18n:skybox.material')
+    set skyboxMaterial (val: Material | null) {
+        this._editableMaterial = val;
+        if (this._resource) {
+            this._resource.setSkyboxMaterial(this._editableMaterial);
+        }
+    }
+    get skyboxMaterial () {
+        return this._editableMaterial;
+    }
+
+    @serializable
+    protected _envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+    @serializable
+    @type(TextureCube)
+    @formerlySerializedAs('_envmap')
+    protected _envmapHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _envmapLDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _diffuseMapHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _diffuseMapLDR: TextureCube | null = null;
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _useHDR = true;
+    @serializable
+    @type(Material)
+    protected _editableMaterial: Material | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _reflectionHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _reflectionLDR: TextureCube | null = null;
+    @serializable
+    protected _rotationAngle = 0;
+
+    protected _resource: Skybox | null = null;
+
+    /**
+     * @en Activate the skybox configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用天空盒设置，不需要手动调用
+     * @param resource The skybox configuration object in the render scene
+     */
     public activate (resource: Skybox) {
+        this.envLightingType = this._envLightingType;
         this._resource = resource;
         this._resource.initialize(this);
+        this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+        this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+        this._resource.setSkyboxMaterial(this._editableMaterial);
+        this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+        this._resource.setRotationAngle(this._rotationAngle);
         this._resource.activate(); // update global DS first
     }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
 
 /**
- * @zh 全局雾相关信息
- * @en Global fog info
+ * @zh 全局雾相关配置
+ * @en Global fog configuration
  */
 @ccclass('cc.FogInfo')
 export class FogInfo {
     public static FogType = FogType;
-    @serializable
-    protected _type = FogType.LINEAR;
-    @serializable
-    protected _fogColor = new Color('#C8C8C8');
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _fogDensity = 0.3;
-    @serializable
-    protected _fogStart = 0.5;
-    @serializable
-    protected _fogEnd = 300;
-    @serializable
-    protected _fogAtten = 5;
-    @serializable
-    protected _fogTop = 1.5;
-    @serializable
-    protected _fogRange = 1.2;
-    protected _resource: Fog | null = null;
+
     /**
      * @zh 是否启用全局雾效
      * @en Enable global fog
      */
     @editable
+    @tooltip('i18n:fog.enabled')
+    @displayOrder(0)
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
@@ -232,16 +595,39 @@ export class FogInfo {
     }
 
     /**
+     * @zh 是否启用精确雾效(像素雾)计算
+     * @en Enable accurate fog (pixel fog)
+     */
+    @editable
+    @tooltip('i18n:fog.accurate')
+    @displayOrder(0)
+    set accurate (val: boolean) {
+        if (this._accurate === val) return;
+        this._accurate = val;
+        if (this._resource) {
+            this._resource.accurate = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
+    }
+
+    get accurate () {
+        return this._accurate;
+    }
+
+    /**
      * @zh 全局雾颜色
      * @en Global fog color
      */
     @editable
+    @tooltip('i18n:fog.fogColor')
     set fogColor (val: Color) {
         this._fogColor.set(val);
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
 
-    get fogColor () {
+    get fogColor () : Readonly<Color> {
         return this._fogColor;
     }
 
@@ -251,6 +637,8 @@ export class FogInfo {
      */
     @editable
     @type(FogType)
+    @displayOrder(1)
+    @tooltip('i18n:fog.type')
     get type () {
         return this._type;
     }
@@ -271,7 +659,7 @@ export class FogInfo {
     @range([0, 1])
     @rangeStep(0.01)
     @slide
-    @displayOrder(3)
+    @tooltip('i18n:fog.fogDensity')
     get fogDensity () {
         return this._fogDensity;
     }
@@ -282,13 +670,13 @@ export class FogInfo {
     }
 
     /**
-     * @zh 雾效起始位置，只适用于线性雾
-     * @en Global fog start position, only for linear fog
+     * @zh 雾效起始位置
+     * @en Global fog start position
      */
-    @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
+    @visible(function (this: FogInfo) { return this._type !== FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(4)
+    @tooltip('i18n:fog.fogStart')
     get fogStart () {
         return this._fogStart;
     }
@@ -305,7 +693,7 @@ export class FogInfo {
     @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(5)
+    @tooltip('i18n:fog.fogEnd')
     get fogEnd () {
         return this._fogEnd;
     }
@@ -323,7 +711,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeMin(0.01)
     @rangeStep(0.01)
-    @displayOrder(6)
+    @tooltip('i18n:fog.fogAtten')
     get fogAtten () {
         return this._fogAtten;
     }
@@ -340,7 +728,7 @@ export class FogInfo {
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(7)
+    @tooltip('i18n:fog.fogTop')
     get fogTop () {
         return this._fogTop;
     }
@@ -357,7 +745,7 @@ export class FogInfo {
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
-    @displayOrder(8)
+    @tooltip('i18n:fog.fogRange')
     get fogRange () {
         return this._fogRange;
     }
@@ -367,6 +755,33 @@ export class FogInfo {
         if (this._resource) { this._resource.fogRange = val; }
     }
 
+    @serializable
+    protected _type = FogType.LINEAR;
+    @serializable
+    protected _fogColor = new Color('#C8C8C8');
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _fogDensity = 0.3;
+    @serializable
+    protected _fogStart = 0.5;
+    @serializable
+    protected _fogEnd = 300;
+    @serializable
+    protected _fogAtten = 5;
+    @serializable
+    protected _fogTop = 1.5;
+    @serializable
+    protected _fogRange = 1.2;
+    @serializable
+    protected _accurate = false;
+    protected _resource: Fog | null = null;
+
+    /**
+     * @en Activate the fog configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用雾效设置，不需要手动调用
+     * @param resource The fog configuration object in the render scene
+     */
     public activate (resource: Fog) {
         this._resource = resource;
         this._resource.initialize(this);
@@ -375,49 +790,17 @@ export class FogInfo {
 }
 
 /**
- * @en Scene level planar shadow related information
- * @zh 平面阴影相关信息
+ * @en Scene level shadow related configuration
+ * @zh 场景级别阴影相关的配置
  */
 @ccclass('cc.ShadowsInfo')
 export class ShadowsInfo {
-    @serializable
-    protected _type = ShadowType.Planar;
-    @serializable
-    protected _enabled = false;
-    @serializable
-    protected _normal = new Vec3(0, 1, 0);
-    @serializable
-    protected _distance = 0;
-    @serializable
-    protected _shadowColor = new Color(0, 0, 0, 76);
-    @serializable
-    protected _autoAdapt = true;
-    @serializable
-    protected _pcf = PCFType.HARD;
-    @serializable
-    protected _bias = 0.00001;
-    @serializable
-    protected _normalBias = 0.0;
-    @serializable
-    protected _near = 1;
-    @serializable
-    protected _far = 30;
-    @serializable
-    protected _orthoSize = 5;
-    @serializable
-    protected _maxReceived = 4;
-    @serializable
-    protected _size = new Vec2(512, 512);
-    @serializable
-    protected _saturation = 0.75;
-
-    protected _resource: Shadows | null = null;
-
     /**
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
      */
     @editable
+    @tooltip('i18n:shadow.enabled')
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
@@ -429,9 +812,18 @@ export class ShadowsInfo {
         }
     }
     get enabled () {
+        if (BAIDU) {
+            if (this._type !== ShadowType.Planar) {
+                this._enabled = false;
+            }
+        }
         return this._enabled;
     }
 
+    /**
+     * @en The type of the shadow
+     * @zh 阴影渲染的类型
+     */
     @editable
     @type(ShadowType)
     set type (val) {
@@ -451,7 +843,7 @@ export class ShadowsInfo {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
-    get shadowColor () {
+    get shadowColor () : Readonly<Color> {
         return this._shadowColor;
     }
 
@@ -460,11 +852,12 @@ export class ShadowsInfo {
      * @zh 阴影接收平面的法线
      */
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set normal (val: Vec3) {
+    @tooltip('i18n:shadow.planeDirection')
+    set planeDirection (val: Vec3) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }
-    get normal () {
+    get planeDirection () : Readonly<Vec3> {
         return this._normal;
     }
 
@@ -472,50 +865,16 @@ export class ShadowsInfo {
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
+    @editable
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set distance (val: number) {
+    @tooltip('i18n:shadow.planeHeight')
+    set planeHeight (val: number) {
         this._distance = val;
         if (this._resource) { this._resource.distance = val; }
     }
-    get distance () {
+    get planeHeight () {
         return this._distance;
-    }
-
-    /**
-     * @en Shadow color saturation
-     * @zh 阴影颜色饱和度
-     */
-    @editable
-    @range([0.0, 1.0, 0.01])
-    @slide
-    @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set saturation (val: number) {
-        if (val > 1.0) {
-            this._saturation = val / val;
-            if (this._resource) { this._resource.saturation = val / val; }
-        } else {
-            this._saturation = val;
-            if (this._resource) { this._resource.saturation = val; }
-        }
-    }
-    get saturation () {
-        return this._saturation;
-    }
-
-    /**
-     * @en The normal of the plane which receives shadow
-     * @zh 阴影接收平面的法线
-     */
-    @type(PCFType)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set pcf (val) {
-        this._pcf = val;
-        if (this._resource) { this._resource.pcf = val; }
-    }
-    get pcf () {
-        return this._pcf;
     }
 
     /**
@@ -523,6 +882,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影接收的最大光源数量
      */
     @type(CCInteger)
+    @tooltip('i18n:shadow.maxReceived')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set maxReceived (val: number) {
         this._maxReceived = val;
@@ -533,38 +893,11 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set shadow map sampler offset
-     * @zh 获取或者设置阴影纹理偏移值
-     */
-    @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set bias (val: number) {
-        this._bias = val;
-        if (this._resource) { this._resource.bias = val; }
-    }
-    get bias () {
-        return this._bias;
-    }
-
-    /**
-     * @en on or off Self-shadowing.
-     * @zh 打开或者关闭自阴影。
-     */
-    @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set normalBias (val: number) {
-        this._normalBias = val;
-        if (this._resource) { this._resource.normalBias = val; }
-    }
-    get normalBias () {
-        return this._normalBias;
-    }
-
-    /**
      * @en get or set shadow map size
      * @zh 获取或者设置阴影纹理大小
      */
     @type(ShadowSize)
+    @tooltip('i18n:shadow.shadowMapSize')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set shadowMapSize (value: number) {
         this._size.set(value, value);
@@ -576,65 +909,23 @@ export class ShadowsInfo {
     get shadowMapSize () {
         return this._size.x;
     }
-    get size () {
-        return this._size;
-    }
 
-    /**
-     * @en get or set shadow Map sampler auto adapt
-     * @zh 阴影纹理生成是否自适应
-     */
-    @type(CCBoolean)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set autoAdapt (val) {
-        this._autoAdapt = val;
-        if (this._resource) { this._resource.autoAdapt = val; }
-    }
-    get autoAdapt () {
-        return this._autoAdapt;
-    }
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _type = ShadowType.Planar;
+    @serializable
+    protected _normal = new Vec3(0, 1, 0);
+    @serializable
+    protected _distance = 0;
+    @serializable
+    protected _shadowColor = new Color(0, 0, 0, 76);
+    @serializable
+    protected _maxReceived = 4;
+    @serializable
+    protected _size = new Vec2(1024, 1024);
 
-    /**
-     * @en get or set shadow camera near
-     * @zh 获取或者设置阴影相机近裁剪面
-     */
-    @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
-    set near (val: number) {
-        this._near = val;
-        if (this._resource) { this._resource.near = val; }
-    }
-    get near () {
-        return this._near;
-    }
-
-    /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置阴影相机远裁剪面
-     */
-    @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
-    set far (val: number) {
-        this._far = val;
-        if (this._resource) { this._resource.far = val; }
-    }
-    get far () {
-        return this._far;
-    }
-
-    /**
-     * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影相机正交大小
-     */
-    @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
-    set orthoSize (val: number) {
-        this._orthoSize = val;
-        if (this._resource) { this._resource.orthoSize = val; }
-    }
-    get orthoSize () {
-        return this._orthoSize;
-    }
+    protected _resource: Shadows | null = null;
 
     /**
      * @en Set plane which receives shadow with the given node's world transformation
@@ -643,11 +934,16 @@ export class ShadowsInfo {
      */
     public setPlaneFromNode (node: Node) {
         node.getWorldRotation(_qt);
-        this.normal = Vec3.transformQuat(_v3, _up, _qt);
+        this.planeDirection = Vec3.transformQuat(_v3, _up, _qt);
         node.getWorldPosition(_v3);
-        this.distance = Vec3.dot(this._normal, _v3);
+        this.planeHeight = Vec3.dot(this._normal, _v3);
     }
 
+    /**
+     * @en Activate the shadow configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用阴影设置，不需要手动调用
+     * @param resource The shadow configuration object in the render scene
+     */
     public activate (resource: Shadows) {
         this._resource = resource;
         this._resource.initialize(this);
@@ -656,6 +952,104 @@ export class ShadowsInfo {
 }
 legacyCC.ShadowsInfo = ShadowsInfo;
 
+export const DEFAULT_WORLD_MIN_POS = new Vec3(-1024.0, -1024.0, -1024.0);
+export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
+export const DEFAULT_OCTREE_DEPTH = 8;
+
+/**
+ * @en Scene management and culling configuration based on octree
+ * @zh 基于八叉树的场景剔除配置
+ */
+@ccclass('cc.OctreeInfo')
+export class OctreeInfo {
+    /**
+     * @en Whether activate scene culling based on octree
+     * @zh 是否启用八叉树加速剔除？
+     */
+    @editable
+    @tooltip('i18n:octree_culling.enabled')
+    set enabled (val: boolean) {
+        if (this._enabled === val) return;
+        this._enabled = val;
+        if (this._resource) {
+            this._resource.enabled = val;
+        }
+    }
+    get enabled () {
+        return this._enabled;
+    }
+
+    /**
+     * @en The minimal position of the scene bounding box.
+     * Objects entirely outside the bounding box will be culled, other objects will be managed dynamically.
+     * @zh 场景包围盒的最小位置，完全超出包围盒的物体会被剔除，其他物体根据情况被动态剔除。
+     */
+    @editable
+    @tooltip('i18n:octree_culling.minPos')
+    @displayName('World MinPos')
+    set minPos (val: Vec3) {
+        this._minPos = val;
+        if (this._resource) { this._resource.minPos = val; }
+    }
+    get minPos () {
+        return this._minPos;
+    }
+
+    /**
+     * @en The maximum position of the scene bounding box.
+     * Objects entirely outside the bounding box will be culled, other objects will be managed dynamically.
+     * @zh 场景包围盒的最大位置，完全超出包围盒的物体会被剔除，其他物体根据情况被动态剔除。
+     */
+    @editable
+    @tooltip('i18n:octree_culling.maxPos')
+    @displayName('World MaxPos')
+    set maxPos (val: Vec3) {
+        this._maxPos = val;
+        if (this._resource) { this._resource.maxPos = val; }
+    }
+    get maxPos () {
+        return this._maxPos;
+    }
+
+    /**
+     * @en The depth of the octree.
+     * @zh 八叉树的深度。
+     */
+    @editable
+    @range([4, 12, 1])
+    @slide
+    @type(CCInteger)
+    @tooltip('i18n:octree_culling.depth')
+    set depth (val: number) {
+        this._depth = val;
+        if (this._resource) { this._resource.depth = val; }
+    }
+    get depth () {
+        return this._depth;
+    }
+
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _minPos = new Vec3(DEFAULT_WORLD_MIN_POS);
+    @serializable
+    protected _maxPos = new Vec3(DEFAULT_WORLD_MAX_POS);
+    @serializable
+    protected _depth = DEFAULT_OCTREE_DEPTH;
+
+    protected _resource: Octree | null = null;
+
+    /**
+     * @en Activate the octree configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用八叉树设置，不需要手动调用
+     * @param resource The octree configuration object in the render scene
+     */
+    public activate (resource: Octree) {
+        this._resource = resource;
+        this._resource.initialize(this);
+    }
+}
+
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
@@ -663,28 +1057,35 @@ legacyCC.ShadowsInfo = ShadowsInfo;
 @ccclass('cc.SceneGlobals')
 export class SceneGlobals {
     /**
-     * @en The environment light information
-     * @zh 场景的环境光照相关信息
+     * @en The environment lighting configuration
+     * @zh 场景的环境光照相关配置
      */
     @serializable
     @editable
     public ambient = new AmbientInfo();
     /**
-     * @en Scene level planar shadow related information
-     * @zh 平面阴影相关信息
+     * @en Scene level shadow related configuration
+     * @zh 平面阴影相关配置
      */
     @serializable
     @editable
     public shadows = new ShadowsInfo();
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @serializable
     public _skybox = new SkyboxInfo();
+    /**
+     * @en Global fog configuration
+     * @zh 全局雾相关配置
+     */
     @editable
     @serializable
     public fog = new FogInfo();
 
     /**
-     * @en Skybox related information
-     * @zh 天空盒相关信息
+     * @en Skybox related configuration
+     * @zh 天空盒相关配置
      */
     @editable
     @type(SkyboxInfo)
@@ -695,12 +1096,29 @@ export class SceneGlobals {
         this._skybox = value;
     }
 
+    /**
+     * @en Octree related configuration
+     * @zh 八叉树相关配置
+     */
+    @editable
+    @serializable
+    public octree = new OctreeInfo();
+
+    /**
+     * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
+     * @zh 启用和初始化场景全局配置，不需要手动调用
+     */
     public activate () {
-        const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
-        this.ambient.activate(sceneData.ambient);
+        const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
+        this.ambient.activate(sceneData.ambient);
+
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
+        this.octree.activate(sceneData.octree);
+
+        const root = legacyCC.director.root as Root;
+        root.onGlobalPipelineStateChanged();
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;

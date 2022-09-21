@@ -1,6 +1,6 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioEvent, AudioState, AudioType } from '../type';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { AudioEvent, AudioState, AudioPCMDataView, AudioType } from '../type';
+import { EventTarget } from '../../../cocos/core/event';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { BrowserType, OS } from '../../system-info/enum-type';
@@ -67,8 +67,13 @@ export class AudioPlayerDOM implements OperationQueueable {
     private _state: AudioState = AudioState.INIT;
     private _onEnded: () => void;
 
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _operationQueue: OperationInfo[] = [];
 
     constructor (nativeAudio: HTMLAudioElement) {
@@ -190,6 +195,14 @@ export class AudioPlayerDOM implements OperationQueueable {
     }
     get currentTime (): number {
         return this._domAudio.currentTime;
+    }
+
+    get sampleRate (): number {
+        return 0;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        return undefined;
     }
 
     @enqueueOperation

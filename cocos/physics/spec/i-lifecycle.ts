@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 export interface ILifecycle {
     /**
      * @en Update is called every frame, if the Component is enabled.<br/>

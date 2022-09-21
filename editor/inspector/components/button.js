@@ -8,15 +8,6 @@ const { setHidden, isMultipleInvalid } = require('../utils/prop');
 
 // export is to allow cc.toggle to reuse this piece of code
 exports.elements = {
-    target: {
-        displayOrder: 0,
-    },
-    interactable: {
-        displayOrder: 1,
-    },
-    transition: {
-        displayOrder: 3,
-    },
     normalColor: {
         update(element, dump) {
             setHidden(isMultipleInvalid(dump.transition) || dump.transition.value !== 1, element);

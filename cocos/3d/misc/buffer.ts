@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Format, FormatInfos, FormatType, FormatInfo } from '../../core/gfx';
+import { Format, FormatInfos, FormatType, FormatInfo } from '../../gfx';
 import { sys } from '../../core/platform/sys';
 
 const _typeMap: Record<string, string> = {

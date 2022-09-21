@@ -1,4 +1,3 @@
-
 function write (name) {
   const text = cc.primitives.toWavefrontOBJ(cc.primitives[name](), 100);
   const blob = new Blob([text], { type: 'text/plain' });

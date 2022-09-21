@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 import './font-loader';
 
 export * from './html-text-parser';

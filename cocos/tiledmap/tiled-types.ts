@@ -23,15 +23,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
-
-import { Color, Rect, Size, Texture2D, Vec2 } from '../core';
+import { Color, Rect, Size, Vec2 } from '../core';
 import { SpriteFrame } from '../2d/assets';
 import { ccenum } from '../core/value-types/enum';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
+import { Texture2D } from '../asset/assets';
 
 export type PropertiesInfo = { [key: string]: number | string };
 export type TiledAnimationType = Map<GID, TiledAnimation>;

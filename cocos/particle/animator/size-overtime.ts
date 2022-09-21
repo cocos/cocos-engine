@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -68,8 +63,10 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(2)
     @tooltip('i18n:sizeOvertimeModule.size')
+    @visible(function (this: SizeOvertimeModule): boolean { return !this.separateAxes; })
     public size = new CurveRange();
 
     /**
@@ -77,8 +74,10 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:sizeOvertimeModule.x')
+    @visible(function (this: SizeOvertimeModule): boolean { return this.separateAxes; })
     public x = new CurveRange();
 
     /**
@@ -86,8 +85,10 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(4)
     @tooltip('i18n:sizeOvertimeModule.y')
+    @visible(function (this: SizeOvertimeModule): boolean { return this.separateAxes; })
     public y = new CurveRange();
 
     /**
@@ -95,8 +96,10 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(5)
     @tooltip('i18n:sizeOvertimeModule.z')
+    @visible(function (this: SizeOvertimeModule): boolean { return this.separateAxes; })
     public z = new CurveRange();
 
     public name = PARTICLE_MODULE_NAME.SIZE;

@@ -23,18 +23,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { BitmapFont, IConfig, FontLetterDefinition } from '../../assets/bitmap-font';
+import { JSB } from 'internal:constants';
+import { BitmapFont, IConfig, FontLetterDefinition, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
 import { Rect, Size, Vec2 } from '../../../core/math';
-import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow } from '../../components/label';
+import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
-import { shareLabelInfo } from './font-utils';
+import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 class LetterInfo {
@@ -47,6 +43,8 @@ class LetterInfo {
 }
 
 const _tmpRect = new Rect();
+const _defaultLetterAtlas = new LetterAtlas(64, 64);
+const _defaultFontAtlas = new FontAtlas(null);
 
 let _comp: Label | null = null;
 let _uiTrans: UITransform | null = null;
@@ -81,32 +79,79 @@ let _isWrapText = false;
 let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
+let QUAD_INDICES;
 
 export const bmfontUtils = {
     updateRenderData (comp: Label) {
-        if (!comp.renderData || !comp.renderData.vertDirty) {
+        if (!comp.renderData) {
             return;
         }
 
         if (_comp === comp) { return; }
 
-        _comp = comp;
-        _uiTrans = _comp.node._uiProps.uiTransformComp!;
-        this._updateFontFamily(comp);
-        this._updateProperties(comp);
-        this._updateLabelInfo(comp);
-        this._updateContent();
+        if (comp.renderData.vertDirty) {
+            _comp = comp;
+            _uiTrans = _comp.node._uiProps.uiTransformComp!;
+            this._updateFontFamily(comp);
+            this._updateProperties(comp);
+            this._updateLabelInfo(comp);
+            this._updateContent();
 
-        _comp.actualFontSize = _fontSize;
-        _uiTrans.setContentSize(_contentSize);
+            _comp.actualFontSize = _fontSize;
+            _uiTrans.setContentSize(_contentSize);
+            this.updateUVs(comp);// dirty need
+            this.updateColor(comp); // dirty need
 
-        _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
-        // fix bmfont run updateRenderData twice bug
-        _comp.markForUpdateRenderData(false);
+            _comp.renderData!.vertDirty = false;
+            // fix bmfont run updateRenderData twice bug
+            // _comp.markForUpdateRenderData(false);
 
-        _comp = null;
+            _comp = null;
 
-        this._resetProperties();
+            this._resetProperties();
+        }
+
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
+        }
+    },
+
+    updateUVs (label: Label) {
+        const renderData = label.renderData!;
+        const vData = renderData.chunk.vb;
+        const vertexCount = renderData.vertexCount;
+        const dataList = renderData.data;
+        let vertexOffset = 3;
+        for (let i = 0; i < vertexCount; i++) {
+            const vert = dataList[i];
+            vData[vertexOffset] = vert.u;
+            vData[vertexOffset + 1] = vert.v;
+            vertexOffset += 9;
+        }
+    },
+
+    updateColor (label: Label) {
+        if (JSB) {
+            const renderData = label.renderData!;
+            const vertexCount = renderData.vertexCount;
+            if (vertexCount === 0) return;
+            const vData = renderData.chunk.vb;
+            const stride = renderData.floatStride;
+            let colorOffset = 5;
+            const color = label.color;
+            const colorR = color.r / 255;
+            const colorG = color.g / 255;
+            const colorB = color.b / 255;
+            const colorA = color.a / 255;
+            for (let i = 0; i < vertexCount; i++) {
+                vData[colorOffset] = colorR;
+                vData[colorOffset + 1] = colorG;
+                vData[colorOffset + 2] = colorB;
+                vData[colorOffset + 3] = colorA;
+                colorOffset += stride;
+            }
+        }
     },
 
     _updateFontScale () {
@@ -118,8 +163,16 @@ export const bmfontUtils = {
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset.fntConfig;
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
+        if (!shareLabelInfo.fontAtlas) {
+            if (comp.cacheMode === CacheMode.CHAR) {
+                shareLabelInfo.fontAtlas = _defaultLetterAtlas;
+            } else {
+                shareLabelInfo.fontAtlas = _defaultFontAtlas;
+            }
+        }
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
+        // TODO update material and uv
     },
 
     _updateLabelInfo (comp) {
@@ -180,6 +233,10 @@ export const bmfontUtils = {
         const kerningDict = _fntConfig!.kerningDict;
         const horizontalKerning = _horizontalKerning;
 
+        if (!kerningDict) {
+            return;
+        }
+
         let prev = -1;
         for (let i = 0; i < stringLen; ++i) {
             const key = string.charCodeAt(i);
@@ -193,7 +250,7 @@ export const bmfontUtils = {
         }
     },
 
-    _multilineTextWrap (nextTokenFunc: Function) {
+    _multilineTextWrap (nextTokenFunc: (arg0: string, arg1: number, arg2: number) => number) {
         const textLen = _string.length;
 
         let lineIndex = 0;
@@ -237,7 +294,7 @@ export const bmfontUtils = {
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     console.log(`Can't find letter definition in texture atlas ${
-                     _fntConfig!.atlasName} for letter:${character}`);
+                        _fntConfig!.atlasName} for letter:${character}`);
                     continue;
                 }
 
@@ -390,7 +447,7 @@ export const bmfontUtils = {
         }
 
         _lettersInfo[letterIndex].char = char;
-        _lettersInfo[letterIndex].hash = char.charCodeAt(0) + shareLabelInfo.hash;
+        _lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
         _lettersInfo[letterIndex].valid = false;
     },
 
@@ -401,7 +458,7 @@ export const bmfontUtils = {
         }
 
         const char = character.charCodeAt(0);
-        const key = char + shareLabelInfo.hash;
+        const key = `${char}${shareLabelInfo.hash}`;
 
         _lettersInfo[letterIndex].line = lineIndex;
         _lettersInfo[letterIndex].char = character;
@@ -450,7 +507,7 @@ export const bmfontUtils = {
         }
     },
 
-    _shrinkLabelToContentSize (lambda: Function) {
+    _shrinkLabelToContentSize (lambda: () => boolean) {
         const fontSize = _fontSize;
 
         let left = 0;
@@ -503,7 +560,7 @@ export const bmfontUtils = {
                     continue;
                 }
 
-                const px = letterInfo.x + letterDef.w / 2 * _bmfontScale;
+                const px = letterInfo.x + letterDef.w * _bmfontScale;
                 const lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {
@@ -543,7 +600,8 @@ export const bmfontUtils = {
 
         const texture =  _spriteFrame ? _spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
         const renderData = _comp.renderData!;
-        renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
+        renderData.dataLength = 0;
+        renderData.resize(0, 0);
         const anchorPoint = _uiTrans!.anchorPoint;
         const contentSize = _contentSize;
         const appX = anchorPoint.x * contentSize.width;
@@ -574,7 +632,7 @@ export const bmfontUtils = {
                     py -= clipTop;
                 }
 
-                if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
+                if ((py - _tmpRect.height * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
                     _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY) / _bmfontScale;
                 }
             }
@@ -603,8 +661,29 @@ export const bmfontUtils = {
                 this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appX, py - appY, _bmfontScale);
             }
         }
-
+        const indexCount = renderData.indexCount;
+        this.createQuadIndices(indexCount);
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return ret;
+    },
+
+    createQuadIndices (indexCount) {
+        if (indexCount % 6 !== 0) {
+            console.error('illegal index count!');
+            return;
+        }
+        const quadCount = indexCount / 6;
+        QUAD_INDICES = null;
+        QUAD_INDICES = new Uint16Array(indexCount);
+        let offset = 0;
+        for (let i = 0; i < quadCount; i++) {
+            QUAD_INDICES[offset++] = 0 + i * 4;
+            QUAD_INDICES[offset++] = 1 + i * 4;
+            QUAD_INDICES[offset++] = 2 + i * 4;
+            QUAD_INDICES[offset++] = 1 + i * 4;
+            QUAD_INDICES[offset++] = 3 + i * 4;
+            QUAD_INDICES[offset++] = 2 + i * 4;
+        }
     },
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {

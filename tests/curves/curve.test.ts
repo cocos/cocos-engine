@@ -2,16 +2,16 @@ import { editorExtrasTag, toRadian } from '../../cocos/core';
 import { RealCurve, RealInterpolationMode } from '../../cocos/core/curves';
 import { EasingMethod, RealKeyframeValue } from '../../cocos/core/curves/curve';
 import { ExtrapolationMode, TangentWeightMode } from '../../cocos/core/curves/real-curve-param';
-import { createRealKeyframeValueLike } from './curve-test-utils';
 import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
+import { createRealKeyframeValueLike } from './curve-test-utils';
 
 describe('Curve', () => {
     test('assign sorted', () => {
         const curve = new RealCurve();
         curve.assignSorted([0.1, 0.2, 0.3], [
-            realKeyframeWithoutTangent(0.4),
-            realKeyframeWithoutTangent(0.5),
-            realKeyframeWithoutTangent(0.6),
+            0.4,
+            0.5,
+            0.6,
         ]);
 
         // Assign empty(keys, values)
@@ -39,11 +39,11 @@ describe('Curve', () => {
         // In test mode, assertion error would be thrown.
         expect(() => curve.assignSorted(
             [0.2, 0.1],
-            [realKeyframeWithoutTangent(0.4), realKeyframeWithoutTangent(0.5)],
+            [0.4, 0.5],
         )).toThrow();
         expect(() => curve.assignSorted([
-            [0.2, realKeyframeWithoutTangent(0.4)],
-            [0.1, realKeyframeWithoutTangent(0.5)],
+            [0.2, 0.4],
+            [0.1, 0.5],
         ])).toThrow();
     });
 
@@ -51,9 +51,9 @@ describe('Curve', () => {
         test('Normal', () => {
             const curve = new RealCurve();
             curve.assignSorted([0.1, 0.2, 0.3], [
-                ({ value: 0.4, rightTangent: 0.0, leftTangent: 0.0, interpolationMode: RealInterpolationMode.CONSTANT }),
-                ({ value: 0.5, rightTangent: 0.0, leftTangent: 0.0, interpolationMode: RealInterpolationMode.LINEAR }),
-                ({
+                { value: 0.4, rightTangent: 0.0, leftTangent: 0.0, interpolationMode: RealInterpolationMode.CONSTANT },
+                { value: 0.5, rightTangent: 0.0, leftTangent: 0.0, interpolationMode: RealInterpolationMode.LINEAR },
+                {
                     value: 0.6,
                     rightTangent: 0.487,
                     rightTangentWeight: 0.2,
@@ -63,7 +63,7 @@ describe('Curve', () => {
                     tangentWeightMode: TangentWeightMode.BOTH,
                     easingMethod: EasingMethod.QUAD_OUT,
                     [editorExtrasTag]: { 'foo': 'bar' },
-                }),
+                },
             ]);
             compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
         });
@@ -71,9 +71,9 @@ describe('Curve', () => {
         test('Optimized for linear curve', () => {
             const curve = new RealCurve();
             curve.assignSorted([0.1, 0.2, 0.3], [
-                realKeyframeWithoutTangent(0.4),
-                realKeyframeWithoutTangent(0.5),
-                realKeyframeWithoutTangent(0.6),
+                0.4,
+                0.5,
+                0.6,
             ]);
             compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
         });
@@ -81,9 +81,9 @@ describe('Curve', () => {
         test('Optimized for constant curve', () => {
             const curve = new RealCurve();
             curve.assignSorted([0.1, 0.2, 0.3], [
-                realKeyframeWithoutTangent(0.4, RealInterpolationMode.CONSTANT),
-                realKeyframeWithoutTangent(0.5, RealInterpolationMode.CONSTANT),
-                realKeyframeWithoutTangent(0.6, RealInterpolationMode.CONSTANT),
+                { value: 0.4, interpolationMode: RealInterpolationMode.CONSTANT },
+                { value: 0.5, interpolationMode: RealInterpolationMode.CONSTANT },
+                { value: 0.6, interpolationMode: RealInterpolationMode.CONSTANT },
             ]);
             compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
         });
@@ -91,6 +91,9 @@ describe('Curve', () => {
 
     test('Default keyframe value', () => {
         const curve = new RealCurve();
+        expect(curve.preExtrapolation).toBe(ExtrapolationMode.CLAMP);
+        expect(curve.postExtrapolation).toBe(ExtrapolationMode.CLAMP);
+        expect(curve.keyFramesCount).toBe(0);
         curve.addKeyFrame(0, {});
         const keyframeValue = curve.getKeyframeValue(0);
         expect(keyframeValue.value).toBe(0.0);
@@ -111,8 +114,8 @@ describe('Curve', () => {
         test('Interpolation mode: constant', () => {
             const curve = new RealCurve();
             curve.assignSorted([
-                [0.2, createRealKeyframeValueLike({ value: 0.7, interpolationMode: RealInterpolationMode.CONSTANT, })],
-                [0.4, createRealKeyframeValueLike({ value: 0.8, interpolationMode: RealInterpolationMode.LINEAR, })],
+                [0.2, { value: 0.7, interpolationMode: RealInterpolationMode.CONSTANT, }],
+                [0.4, { value: 0.8, interpolationMode: RealInterpolationMode.LINEAR, }],
             ]);
             expect(curve.evaluate(0.28)).toBe(0.7);
         });
@@ -120,8 +123,8 @@ describe('Curve', () => {
         test('Interpolation mode: linear', () => {
             const curve = new RealCurve();
             curve.assignSorted([
-                [0.2, createRealKeyframeValueLike({ value: 0.7, interpolationMode: RealInterpolationMode.LINEAR, })],
-                [0.4, createRealKeyframeValueLike({ value: 0.8, interpolationMode: RealInterpolationMode.CONSTANT, })],
+                [0.2, { value: 0.7, interpolationMode: RealInterpolationMode.LINEAR, }],
+                [0.4, { value: 0.8, interpolationMode: RealInterpolationMode.CONSTANT, }],
             ]);
             expect(curve.evaluate(0.28)).toBeCloseTo(0.74);
         });
@@ -129,18 +132,18 @@ describe('Curve', () => {
         test('Interpolation mode: cubic; Both weights are unused', () => {
             const curve = new RealCurve();
             curve.assignSorted([
-                [0.2, createRealKeyframeValueLike({
+                [0.2, {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.7,
                     rightTangent: Math.tan(toRadian(30.0)),
-                })],
-                [0.4, createRealKeyframeValueLike({
+                }],
+                [0.4, {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.8,
                     leftTangent: Math.tan(toRadian(30.0)),
-                })],
+                }],
             ]);
             expect(curve.evaluate(0.28)).toBeCloseTo(0.74074, 5);
         });
@@ -148,18 +151,18 @@ describe('Curve', () => {
         test('Interpolation mode: cubic; Start weight is used', () => {
             const curve = new RealCurve();
             curve.assignSorted([
-                [0.2, createRealKeyframeValueLike({
+                [0.2, {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.RIGHT,
                     value: 0.7,
                     rightTangent: Math.tan(toRadian(30.0)),
-                })],
-                [0.4, createRealKeyframeValueLike({
+                }],
+                [0.4, {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.8,
                     leftTangent: Math.tan(toRadian(30.0)),
-                })],
+                }],
             ]);
             expect(curve.evaluate(0.28)).toBeCloseTo(0.73799, 5);
         });
@@ -167,18 +170,18 @@ describe('Curve', () => {
         test('Interpolation mode: cubic; End weight is used', () => {
             const curve = new RealCurve();
             curve.assignSorted([
-                [0.2, createRealKeyframeValueLike({
+                [0.2, {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.7,
                     rightTangent: Math.tan(toRadian(30.0)),
-                })],
-                [0.4, createRealKeyframeValueLike({
+                }],
+                [0.4, {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.LEFT,
                     value: 0.8,
                     leftTangent: Math.tan(toRadian(30.0)),
-                })],
+                }],
             ]);
             expect(curve.evaluate(0.28)).toBeCloseTo(0.74229, 5);
         });
@@ -202,8 +205,8 @@ describe('Curve', () => {
             curve.postExtrapolation = ExtrapolationMode.LINEAR;
 
             curve.assignSorted([
-                [0.2, ({ value: 5.0 })],
-                [0.3, ({ value: 3.14 })],
+                [0.2, { value: 5.0 }],
+                [0.3, { value: 3.14 }],
             ]);
             expect(curve.evaluate(0.05)).toBeCloseTo(7.79);
             expect(curve.evaluate(-102.4)).toBeCloseTo(1913.36);
@@ -223,14 +226,14 @@ describe('Curve', () => {
             curve.postExtrapolation = ExtrapolationMode.LOOP;
 
             curve.assignSorted([
-                [0.2, ({ value: 5.0 })],
-                [0.36, ({ value: 3.14 })],
+                [0.2, { value: 5.0 }],
+                [0.36, { value: 3.14 }],
             ]);
             expect(curve.evaluate(-2.7)).toBeCloseTo(curve.evaluate(0.34));
             expect(curve.evaluate(4.6)).toBeCloseTo(curve.evaluate(0.28));
 
             curve.assignSorted([
-                [0.2, ({ value: 5.0 })],
+                [0.2, { value: 5.0 }],
             ]);
             // Fall back to clamp
             expect(curve.evaluate(0.05)).toBeCloseTo(5.0);
@@ -243,8 +246,8 @@ describe('Curve', () => {
             curve.postExtrapolation = ExtrapolationMode.PING_PONG;
 
             curve.assignSorted([
-                [0.2, ({ value: 5.0 })],
-                [0.36, ({ value: 3.14 })],
+                [0.2, { value: 5.0 }],
+                [0.36, { value: 3.14 }],
             ]);
             expect(curve.evaluate(-2.7)).toBeCloseTo(curve.evaluate(0.22));
             expect(curve.evaluate(4.6)).toBeCloseTo(curve.evaluate(0.28));
@@ -259,13 +262,6 @@ describe('Curve', () => {
         });
     });
 });
-
-function realKeyframeWithoutTangent (value: number, interpolationMode: RealInterpolationMode = RealInterpolationMode.LINEAR): Partial<RealKeyframeValue> {
-    return createRealKeyframeValueLike({
-        value,
-        interpolationMode,
-    });
-}
 
 function compareCurves (left: RealCurve, right: RealCurve, numDigits = 2) {
     expect(left.keyFramesCount).toBe(right.keyFramesCount);

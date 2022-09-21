@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/web-view
- */
-
 import { legacyCC } from '../core/global-exports';
 import { WebView } from './web-view';
 import { EventType } from './web-view-enums';
@@ -38,7 +33,7 @@ import { Node } from '../core/scene-graph';
 export abstract class WebViewImpl {
     protected _componentEventList: Map<EventType, (...args: any[any]) => void> = new Map();
     protected _state = EventType.NONE;
-    protected _warpper: any; // Fix iframe display problem in ios.
+    protected _wrapper: any; // Fix iframe display problem in ios.
     protected _webview: HTMLIFrameElement | null = null;
 
     protected _loaded = false;
@@ -66,7 +61,7 @@ export abstract class WebViewImpl {
     }
 
     public reset () {
-        this._warpper = null;
+        this._wrapper = null;
         this._webview = null;
         this._loaded = false;
         this._w = 0;
@@ -110,7 +105,7 @@ export abstract class WebViewImpl {
 
     public destroy () {
         this.removeWebView();
-        this._warpper = null;
+        this._wrapper = null;
         this._webview = null;
         this._loaded = false;
         this._component = null;

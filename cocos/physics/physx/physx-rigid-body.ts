@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Vec3 } from '../../core';
 import { ERigidBodyType, PhysicsSystem, RigidBody } from '../framework';
@@ -41,8 +36,15 @@ const v3_0 = new Vec3();
 export class PhysXRigidBody implements IRigidBody {
     get impl (): any { return this._sharedBody.impl; }
 
-    get isAwake (): boolean { return !this.isStatic && !this.impl.isSleeping(); }
-    get isSleeping (): boolean { return this.isStatic || this.impl.isSleeping(); }
+    get isAwake (): boolean {
+        if (!this.isInScene || this.isStatic) return false;
+        return !this.impl.isSleeping();
+    }
+
+    get isSleeping (): boolean {
+        if (!this.isInScene || this.isStatic) return true;
+        return this.impl.isSleeping();
+    }
 
     get isEnabled (): boolean { return this._isEnabled; }
     get rigidBody (): RigidBody { return this._rigidBody; }
@@ -139,23 +141,23 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     wakeUp (): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStatic) return;
         this.impl.wakeUp();
     }
 
     sleep (): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStatic) return;
         this.impl.putToSleep();
     }
 
     clearState (): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStatic) return;
         this.clearForces();
         this.clearVelocity();
     }
 
     clearForces (): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStatic) return;
         this._sharedBody.clearForces();
     }
 

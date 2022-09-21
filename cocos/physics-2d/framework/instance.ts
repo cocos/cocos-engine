@@ -1,8 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, DEBUG, TEST } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { WRAPPER } from './physics-selector';
@@ -16,7 +11,7 @@ import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint, IRela
 const FUNC = (...v: any) => 0 as any;
 
 export function checkPhysicsModule (obj: any) {
-    if (DEBUG && !TEST && !EDITOR && obj == null) {
+    if (DEBUG && !TEST && (!EDITOR || legacyCC.GAME_VIEW) && obj == null) {
         errorID(9600);
         return true;
     }

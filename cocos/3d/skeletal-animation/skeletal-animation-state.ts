@@ -23,18 +23,12 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
-
 import { JSB } from 'internal:constants';
-import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
 import { Node } from '../../core/scene-graph/node';
-import { AnimationClip } from '../../core/animation/animation-clip';
-import { AnimationState } from '../../core/animation/animation-state';
+import type { AnimationClip } from '../../animation/animation-clip';
+import { AnimationState } from '../../animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../../core/global-exports';
@@ -53,6 +47,10 @@ interface ISocketData {
     frames: ITransform[];
 }
 
+/**
+ * @en The animation state for skeletal animations.
+ * @zh 骨骼动画的动画状态控制对象。
+ */
 export class SkeletalAnimationState extends AnimationState {
     protected _frames = 1;
 
@@ -63,8 +61,6 @@ export class SkeletalAnimationState extends AnimationState {
     protected _sockets: ISocketData[] = [];
 
     protected _animInfoMgr: JointAnimationInfo;
-
-    protected _comps: SkinnedMeshRenderer[] = [];
 
     protected _parent: SkeletalAnimation | null = null;
 
@@ -77,14 +73,6 @@ export class SkeletalAnimationState extends AnimationState {
 
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
-        this._comps.length = 0;
-        const comps = root.getComponentsInChildren(SkinnedMeshRenderer);
-        for (let i = 0; i < comps.length; ++i) {
-            const comp = comps[i];
-            if (comp.skinningRoot === root) {
-                this._comps.push(comp);
-            }
-        }
         this._parent = root.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         const baked = this._parent.useBakedAnimation;
         this._doNotCreateEval = baked;
@@ -94,29 +82,34 @@ export class SkeletalAnimationState extends AnimationState {
         this._frames = frames - 1;
         this._animInfo = this._animInfoMgr.getData(root.uuid);
         this._bakedDuration = this._frames / samples; // last key
+        this.setUseBaked(baked);
     }
 
-    public onPlay () {
-        super.onPlay();
-        const baked = this._parent!.useBakedAnimation;
-        if (baked) {
+    /**
+     * @internal This method only friends to `SkeletalAnimation`.
+     */
+    public setUseBaked (useBaked: boolean) {
+        if (useBaked) {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;
-            this._animInfoMgr.switchClip(this._animInfo!, this.clip);
-            for (let i = 0; i < this._comps.length; ++i) {
-                this._comps[i].uploadAnimation(this.clip);
-            }
         } else {
             this._sampleCurves = super._sampleCurves;
             this.duration = this.clip.duration;
             if (!this._curvesInited) {
                 this._curveLoaded = false;
-                super.initialize(this._targetNode!);
+                super.initialize(this._targetNode!
+                    );
                 this._curvesInited = true;
             }
         }
     }
 
+    /**
+     * @en Rebuild animation curves and register the socket transforms per frame to the sockets. It will replace the internal sockets list.
+     * @zh 为所有指定挂点更新动画曲线运算结果，并存储所有挂点的逐帧变换矩阵。这个方法会用传入的挂点更新取代内部挂点列表。
+     * @param sockets @en The sockets need update @zh 需要重建的挂点列表
+     * @returns void
+     */
     public rebuildSocketCurves (sockets: Socket[]) {
         this._sockets.length = 0;
         if (!this._targetNode) { return; }
@@ -167,21 +160,29 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
-    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
-        info.dirty = value;
-        if (JSB) {
-            const key = 'nativeDirty';
-            info[key].fill(value ? 1 : 0);
-        }
-    }
-
     private _sampleCurvesBaked (time: number) {
         const ratio = time / this.duration;
         const info = this._animInfo!;
+        const clip = this.clip;
+
+        // Ensure I'm the one on which the anim info is sampling.
+        if (info.currentClip !== clip) {
+            // If not, switch to me.
+            this._animInfoMgr.switchClip(this._animInfo!, clip);
+
+            const users = this._parent!.getUsers();
+            users.forEach((user) => {
+                user.uploadAnimation(clip);
+            });
+        }
+
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[0]) { return; }
         info.data[0] = curFrame;
-        this._setAnimInfoDirty(info, true);
+        info.dirty = true;
+        if (JSB) {
+            info.dirtyForJSB[0] = 1;
+        }
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
             const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]

@@ -1,0 +1,190 @@
+/****************************************************************************
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
+#include "base/Log.h"
+#include "base/threading/MessageQueue.h"
+
+#include "BufferValidator.h"
+#include "DescriptorSetLayoutValidator.h"
+#include "DescriptorSetValidator.h"
+#include "DeviceValidator.h"
+#include "TextureValidator.h"
+#include "ValidationUtils.h"
+
+namespace cc {
+namespace gfx {
+
+DescriptorSetValidator::DescriptorSetValidator(DescriptorSet *actor)
+: Agent<DescriptorSet>(actor) {
+    _typedID = actor->getTypedID();
+}
+
+DescriptorSetValidator::~DescriptorSetValidator() {
+    DeviceResourceTracker<DescriptorSet>::erase(this);
+    CC_SAFE_DELETE(_actor);
+}
+
+void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {
+    CC_ASSERT(!isInited());
+    _inited = true;
+    CC_ASSERT(info.layout && static_cast<DescriptorSetLayoutValidator *>(info.layout)->isInited());
+
+    /////////// execute ///////////
+
+    DescriptorSetInfo actorInfo;
+    actorInfo.layout = static_cast<DescriptorSetLayoutValidator *>(info.layout)->getActor();
+
+    _actor->initialize(actorInfo);
+}
+
+void DescriptorSetValidator::doDestroy() {
+    // Destroy twice.
+    CC_ASSERT(isInited());
+    _inited = false;
+
+    /////////// execute ///////////
+
+    _actor->destroy();
+}
+
+void DescriptorSetValidator::update() {
+    CC_ASSERT(isInited());
+
+    const auto descriptorCount = _textures.size();
+
+    Texture *texture = nullptr;
+    Sampler *sampler = nullptr;
+    Format format = {};
+
+    for (size_t i = 0; i < descriptorCount; ++i) {
+        texture = _textures[i].ptr;
+        sampler = _samplers[i].ptr;
+        if (texture == nullptr || sampler == nullptr) continue;
+        format = texture->getInfo().format;
+
+        if (sampler->getInfo().magFilter == Filter::LINEAR ||
+            sampler->getInfo().mipFilter == Filter::LINEAR ||
+            sampler->getInfo().minFilter == Filter::LINEAR) {
+            if (!hasFlag(DeviceValidator::getInstance()->getFormatFeatures(format), FormatFeature::LINEAR_FILTER)) {
+                CC_LOG_WARNING("[WARNING]: Format doesn't support linear filter.");
+            }
+        }
+    }
+
+    // DescriptorSet can not be updated after bound to CommandBuffer.
+    CC_ASSERT(_referenceStamp < DeviceValidator::getInstance()->currentFrame());
+
+    /////////// execute ///////////
+
+    if (!_isDirty) return;
+
+    _actor->update();
+    _isDirty = false;
+}
+
+void DescriptorSetValidator::forceUpdate() {
+    _isDirty = true;
+    _actor->forceUpdate();
+    _isDirty = false;
+}
+
+void DescriptorSetValidator::updateReferenceStamp() {
+    _referenceStamp = DeviceValidator::getInstance()->currentFrame();
+}
+
+void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
+    CC_ASSERT(isInited());
+    CC_ASSERT(buffer && static_cast<BufferValidator *>(buffer)->isInited());
+
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
+    CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
+
+    const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
+    CC_ASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_BUFFER_TYPE));
+
+    if (hasAnyFlags(info.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
+        // Should bind buffer views for dynamic descriptors.
+        CC_ASSERT(buffer->isBufferView());
+    }
+
+    if (hasAnyFlags(info.descriptorType, DescriptorType::UNIFORM_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER)) {
+        CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::UNIFORM));
+    } else if (hasAnyFlags(info.descriptorType, DescriptorType::STORAGE_BUFFER | DescriptorType::DYNAMIC_STORAGE_BUFFER)) {
+        CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::STORAGE));
+    }
+
+    /////////// execute ///////////
+
+    DescriptorSet::bindBuffer(binding, buffer, index);
+
+    _actor->bindBuffer(binding, static_cast<BufferValidator *>(buffer)->getActor(), index);
+}
+
+void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {
+    CC_ASSERT(isInited());
+    CC_ASSERT(texture && static_cast<TextureValidator *>(texture)->isInited());
+
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
+    CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
+
+    const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
+    CC_ASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE));
+
+    if (hasFlag(info.descriptorType, DescriptorType::INPUT_ATTACHMENT)) {
+        CC_ASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::INPUT_ATTACHMENT));
+    } else if (hasFlag(info.descriptorType, DescriptorType::STORAGE_IMAGE)) {
+        CC_ASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::STORAGE));
+    } else {
+        CC_ASSERT(hasFlag(texture->getInfo().usage, TextureUsageBit::SAMPLED));
+    }
+
+    /////////// execute ///////////
+
+    DescriptorSet::bindTexture(binding, texture, index);
+
+    _actor->bindTexture(binding, static_cast<TextureValidator *>(texture)->getActor(), index);
+}
+
+void DescriptorSetValidator::bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) {
+    CC_ASSERT(isInited());
+
+    const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
+    CC_ASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size());
+
+    const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
+    CC_ASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE));
+
+    /////////// execute ///////////
+
+    DescriptorSet::bindSampler(binding, sampler, index);
+
+    _actor->bindSampler(binding, sampler, index);
+}
+
+} // namespace gfx
+} // namespace cc

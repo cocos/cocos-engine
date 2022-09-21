@@ -1,7 +1,8 @@
-import { js, Node, Component, Vec3, RealKeyframeValue } from '../../cocos/core';
-import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/core/animation';
-import { ComponentPath, HierarchyPath, IValueProxyFactory, VectorTrack } from '../../cocos/core/animation/animation';
+import { js, Node, Component, Vec3 } from '../../cocos/core';
+import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/animation';
+import { ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, VectorTrack } from '../../cocos/animation/animation';
 import { ccclass } from 'cc.decorator';
+import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
 
 test('Common target', () => {
     @ccclass('TestComponent')
@@ -160,29 +161,15 @@ describe('Custom track setter', () => {
         expect(mockSetValue).toBeCalled();
     });
 
-    test('get() got called if any of channels is empty', () => {
-        const target = new Target();
-        const mockGetValue = target.getValue = jest.fn(target.getValue);
-        const mockSetValue = target.setValue = jest.fn(target.setValue);
-    
-        const track = new VectorTrack();
-        track.proxy = valueProxyWithGetSet;
-        const clip = new AnimationClip();
-        clip.addTrack(track);
-        const clipEval = clip.createEvaluator({
-            target,
-        });
-        clipEval.evaluate(0.0);
-        expect(mockGetValue).toBeCalled();
-        expect(mockSetValue).toBeCalled();
-    });
-
     test('If get() is not defined, the default channel value would be used', () => {
         const target = new Target();
         const mockSetValue = target.setValue = jest.fn(target.setValue);
     
         const track = new VectorTrack();
         track.proxy = valueProxyWithOnlySet;
+        track.channels().forEach(({ curve }) => {
+            curve.assignSorted([[0.0, ({ value: 2.0 })]]);
+        });
         const clip = new AnimationClip();
         clip.addTrack(track);
         const clipEval = clip.createEvaluator({
@@ -243,4 +230,31 @@ test('animation state', () => {
 test('default animation clip validation', () => {
     const validClip = new AnimationClip('valid');
     expect(validClip.validate()).toEqual(true);
+});
+
+test('Warn on track binding failure', () => {
+    const clip = new AnimationClip();
+    clip.name = 'AnyClip';
+    const track = new RealTrack();
+    track.path.toHierarchy('meow');
+    // Ensure the track is not empty otherwise its instantiation will be skipped.
+    track.channel.curve.assignSorted([0.0], [1.0]);
+    clip.addTrack(track);
+    const node = new Node('AnyRoot');
+
+    const warnIDWatcher = captureWarnIDs();
+    const errorIDWatcher = captureErrorIDs(); // To silence the hierarchy binding error which we don't care.
+    void clip.createEvaluator({
+        target: node,
+    });
+    expect(errorIDWatcher.captured.length).toBe(1); // No further verification -- it doesn't concern.
+    errorIDWatcher.stop();
+    expect(warnIDWatcher.captured.length).toBeGreaterThan(0);
+    const [lastId, ...lastArgs] = warnIDWatcher.captured[warnIDWatcher.captured.length - 1];
+    expect(lastId).toBe(3937);
+    expect(lastArgs).toStrictEqual([
+        clip.name,
+        node.name,
+    ]);
+    warnIDWatcher.stop();
 });

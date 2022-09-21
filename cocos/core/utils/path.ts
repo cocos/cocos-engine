@@ -24,13 +24,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
+import { systemInfo } from 'pal/system-info';
 import { OS } from '../../../pal/system-info/enum-type';
-import { sys } from '../platform/sys';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
 const DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;
@@ -164,5 +159,5 @@ export function stripSep (path: string) {
 }
 
 export function getSeperator () {
-    return sys.os === OS.WINDOWS ? '\\' : '/';
+    return systemInfo.os === OS.WINDOWS ? '\\' : '/';
 }

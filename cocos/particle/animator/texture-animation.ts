@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
-import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -161,6 +156,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(7)
     @tooltip('i18n:textureAnimationModule.frameOverTime')
     public frameOverTime = new CurveRange();
@@ -170,6 +166,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(8)
     @tooltip('i18n:textureAnimationModule.startFrame')
     public startFrame = new CurveRange();

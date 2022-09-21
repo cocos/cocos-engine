@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { Rect } from '../math';
 import { legacyCC } from '../global-exports';
 

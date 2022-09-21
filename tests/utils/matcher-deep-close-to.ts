@@ -5,7 +5,7 @@ expect.extend({ toBeDeepCloseTo });
 
 declare global {
     namespace jest {
-        interface Matchers<R> extends Matchers<unknown> {
+        interface Matchers<R> extends jest.Matchers<unknown> {
             toBeDeepCloseTo: (expected: unknown, numDigits?: number) => MatcherResult;
         }
     }

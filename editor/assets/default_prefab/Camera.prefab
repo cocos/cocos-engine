@@ -1,14 +1,15 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "",
+    "_name": "Camera",
     "_objFlags": 0,
     "_native": "",
     "data": {
       "__id__": 1
     },
     "optimizationPolicy": 0,
-    "asyncLoadAssets": false
+    "asyncLoadAssets": false,
+    "persistent": false
   },
   {
     "__type__": "cc.Node",
@@ -24,7 +25,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 3
+      "__id__": 4
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -89,8 +90,12 @@
     "_id": "",
     "_visibility": 1822425087,
     "__prefab": {
-      "__id__": 4
+      "__id__": 3
     }
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "dbCiGR9T1E0oZwxclTRFEj"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -101,9 +106,5 @@
       "__id__": 0
     },
     "fileId": "f8Nyw5r0hH9Zz+WrOqK1x/"
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "dbCiGR9T1E0oZwxclTRFEj"
   }
 ]

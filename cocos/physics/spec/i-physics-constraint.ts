@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { ILifecycle } from './i-lifecycle';
 import { Constraint, RigidBody } from '../framework';
 import { IVec3Like } from '../../core';

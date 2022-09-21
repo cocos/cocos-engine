@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 export * from './label';
 export { Mask } from './mask';
 export { RichText } from './rich-text';

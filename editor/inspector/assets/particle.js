@@ -3,12 +3,12 @@ exports.template = `
     <div class="content"
         id="content"
     >
-        <ui-prop is="asset" readonly>
+        <ui-prop ui="asset" readonly>
             <ui-label slot="label"
                 tooltip="i18n:ENGINE.assets.particle.spriteFrameTip"
                 value="i18n:ENGINE.assets.particle.spriteFrame"
             ></ui-label>
-            <ui-asset readonly
+            <ui-asset disabled
                 id="asset"
                 slot="content" 
                 droppable="cc.SpriteFrame" 

@@ -23,34 +23,27 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module scene-graph
- */
-
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { EDITOR, JSB, TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
-import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
-import { RenderScene } from '../renderer/scene/render-scene';
-import { BaseNode } from './base-node';
+import { RenderScene } from '../../render-scene/core/render-scene';
+import { Node } from './node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides } from '../utils/prefab/utils';
-import { NativeScene } from '../renderer/scene/native-scene';
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../utils/prefab/utils';
 
 /**
  * @en
- * Scene is a subclass of [[BaseNode]], composed by nodes, representing the root of a runnable environment in the game.
+ * Scene is a subclass of [[Node]], composed by nodes, representing the root of a runnable environment in the game.
  * It's managed by [[Director]] and user can switch from a scene to another using [[Director.loadScene]]
  * @zh
- * Scene 是 [[BaseNode]] 的子类，由节点所构成，代表着游戏中可运行的某一个整体环境。
+ * Scene 是 [[Node]] 的子类，由节点所构成，代表着游戏中可运行的某一个整体环境。
  * 它由 [[Director]] 管理，用户可以使用 [[Director.loadScene]] 来切换场景
  */
 @ccclass('cc.Scene')
-export class Scene extends BaseNode {
+export class Scene extends Node {
     /**
      * @en The renderer scene, normally user don't need to use it
      * @zh 渲染层场景，一般情况下用户不需要关心它
@@ -75,43 +68,22 @@ export class Scene extends BaseNode {
     /**
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _globals = new SceneGlobals();
 
-    public _renderScene: RenderScene | null = null;
-
     public dependAssets = null; // cache all depend assets for auto release
+
+    protected _renderScene: RenderScene | null = null;
 
     protected _inited: boolean;
 
     protected _prefabSyncedInLiveReload = false;
 
-    // support Node access parent data from Scene
-    protected _pos = Vec3.ZERO;
-
-    protected _rot = Quat.IDENTITY;
-
-    protected _scale = Vec3.ONE;
-
-    protected _mat = Mat4.IDENTITY;
-
-    protected _dirtyFlags = 0;
-
-    protected declare _nativeObj: NativeScene | null;
-
     protected _updateScene () {
         this._scene = this;
-    }
-
-    get native (): any {
-        return this._nativeObj;
-    }
-
-    protected _init () {
-        if (JSB) {
-            this._nativeObj = new NativeScene();
-        }
     }
 
     constructor (name: string) {
@@ -121,7 +93,6 @@ export class Scene extends BaseNode {
             this._renderScene = legacyCC.director.root.createScene({});
         }
         this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
-        this._init();
     }
 
     /**
@@ -156,108 +127,34 @@ export class Scene extends BaseNode {
         throw new Error(getError(3822));
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onHierarchyChanged () { }
 
-    public _onBatchCreated (dontSyncChildPrefab: boolean) {
-        super._onBatchCreated(dontSyncChildPrefab);
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            this.children[i]._siblingIndex = i;
-            this._children[i]._onBatchCreated(dontSyncChildPrefab);
-        }
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    public _onPostActivated (active: boolean) {
 
-        applyTargetOverrides(this);
     }
 
-    // transform helpers
-
     /**
-     * Refer to [[Node.getPosition]]
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public getPosition (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+    public _onBatchCreated (dontSyncChildPrefab: boolean) {
+        const len = this._children.length;
+        for (let i = 0; i < len; ++i) {
+            this._children[i]._siblingIndex = i;
+            this._children[i]._onBatchCreated(dontSyncChildPrefab);
+        }
+    }
 
     /**
-     * Refer to [[Node.getRotation]]
-     */
-    public getRotation (out?: Quat): Quat { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
-
-    /**
-     * Refer to [[Node.getScale]]
-     */
-    public getScale (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
-
-    /**
-     * Refer to [[Node.getWorldPosition]]
-     */
-    public getWorldPosition (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
-
-    /**
-     * Refer to [[Node.getWorldRotation]]
-     */
-    public getWorldRotation (out?: Quat) { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
-
-    /**
-     * Refer to [[Node.getWorldScale]]
-     */
-    public getWorldScale (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
-
-    /**
-     * Refer to [[Node.getWorldMatrix]]
-     */
-    public getWorldMatrix (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
-
-    /**
-     * Refer to [[Node.getWorldRS]]
-     */
-    public getWorldRS (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
-
-    /**
-     * Refer to [[Node.getWorldRT]]
-     */
-    public getWorldRT (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
-
-    /**
-     * Refer to [[Node.position]]
-     */
-    public get position (): Readonly<Vec3> { return Vec3.ZERO; }
-
-    /**
-     * Refer to [[Node.worldPosition]]
-     */
-    public get worldPosition (): Readonly<Vec3> { return Vec3.ZERO; }
-
-    /**
-     * Refer to [[Node.rotation]]
-     */
-    public get rotation (): Readonly<Quat> { return Quat.IDENTITY; }
-
-    /**
-     * Refer to [[Node.worldRotation]]
-     */
-    public get worldRotation (): Readonly<Quat> { return Quat.IDENTITY; }
-
-    /**
-     * Refer to [[Node.scale]]
-     */
-    public get scale (): Readonly<Vec3> { return Vec3.ONE; }
-
-    /**
-     * Refer to [[Node.worldScale]]
-     */
-    public get worldScale (): Readonly<Vec3> { return Vec3.ONE; }
-
-    /**
-     * Refer to [[Node.eulerAngles]]
-     */
-    public get eulerAngles (): Readonly<Vec3> { return Vec3.ZERO; }
-
-    /**
-     * Refer to [[Node.worldMatrix]]
-     */
-    public get worldMatrix (): Readonly<Mat4> { return Mat4.IDENTITY; }
-
-    /**
+     * @en
      * Refer to [[Node.updateWorldTransform]]
+     * @zh
+     * 参考 [[Node.updateWorldTransform]]
      */
     public updateWorldTransform () {}
 
@@ -268,24 +165,30 @@ export class Scene extends BaseNode {
     protected _load () {
         if (!this._inited) {
             if (TEST) {
-                assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
+                assert(!this._activeInHierarchy, 'Should deactivate ActionManager by default');
             }
+
+            expandNestedPrefabInstanceNode(this);
+            applyTargetOverrides(this);
             this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;
         }
-        // static methode can't use this as parameter type
-        this.walk(BaseNode._setScene);
+        // static method can't use this as parameter type
+        this.walk(Node._setScene);
     }
 
     protected _activate (active: boolean) {
         active = (active !== false);
         if (EDITOR) {
             // register all nodes to editor
+            // @ts-expect-error Polyfilled functions in node-dev.ts
             this._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
-        if (!TEST) this._globals.activate();
+        if (!TEST) {
+            this._globals.activate();
+        }
     }
 }
 

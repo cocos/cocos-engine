@@ -24,14 +24,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-/**
- * @packageDocumentation
- * @hidden
- */
+/* eslint-disable @typescript-eslint/ban-types */
 
 import { FiniteTimeAction, Action } from './action';
-import { RenderableComponent } from '../../core/components/renderable-component';
+import { Renderer } from '../../core/components/renderer';
 
 /**
  * @en Instant actions are immediate actions. They don't have a duration like the ActionInterval actions.
@@ -75,7 +71,7 @@ export class ActionInstant extends FiniteTimeAction {
  */
 export class Show extends ActionInstant {
     update (dt: any) {
-        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        const _renderComps = this.target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = true;
@@ -111,7 +107,7 @@ export function show (): ActionInstant {
  */
 export class Hide extends ActionInstant {
     update (dt: any) {
-        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        const _renderComps = this.target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = false;
@@ -147,7 +143,7 @@ export function hide (): ActionInstant {
  */
 export class ToggleVisibility extends ActionInstant {
     update (dt: any) {
-        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        const _renderComps = this.target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = !render.enabled;
@@ -252,11 +248,11 @@ export class CallFunc extends ActionInstant {
 
     /*
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
-	 * Creates a CallFunc action with the callback.
-	 * @param {function} selector
-	 * @param {object} [selectorTarget=null]
-	 * @param {*} [data=null] data for function, it accepts all data types.
-	 */
+     * Creates a CallFunc action with the callback.
+     * @param {function} selector
+     * @param {object} [selectorTarget=null]
+     * @param {*} [data=null] data for function, it accepts all data types.
+     */
     constructor (selector?: Function, selectorTarget?: any, data?: any) {
         super();
         this.initWithFunction(selector, selectorTarget, data);

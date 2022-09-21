@@ -23,23 +23,19 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
+import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
-import { Color, Vec2 } from '../../../core/math';
+import { Mat4, Vec2 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { Batcher2D } from '../../renderer/batcher-2d';
-import { Sprite } from '../../components';
+import { IBatcher } from '../../renderer/i-batcher';
+import { Sprite, UIOpacity } from '../../components';
 import { IAssembler } from '../../renderer/base';
-import { fillVertices3D } from '../utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const PI_2 = Math.PI * 2;
 const EPSILON = 1e-6;
-const tempColor = new Color(255, 255, 255, 255);
+const m = new Mat4();
 
 const _vertPos: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _vertices: number[] = new Array(4);
@@ -48,6 +44,7 @@ const _intersectPoint_1: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2(
 const _intersectPoint_2: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
+let QUAD_INDICES;
 
 function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]) {
     // left bottom, right, top
@@ -245,132 +242,228 @@ export const radialFilled: IAssembler = {
 
     updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
-
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        // if (frame) {
-        //     if (!frame._original && dynamicAtlasManager) {
-        //         dynamicAtlasManager.insertSpriteFrame(frame);
-        //     }
-        //     if (sprite._material._texture !== frame._texture) {
-        //         sprite._activateMaterial();
-        //     }
-        // }
-
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        // TODO update material and uv
+        this.updateUVs(sprite);
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
-            if (renderData.vertDirty || renderData.uvDirty) {
-                const dataList = renderData.data;
-
-                let fillStart = sprite.fillStart;
-                let fillRange = sprite.fillRange;
-                if (fillRange < 0) {
-                    fillStart += fillRange;
-                    fillRange = -fillRange;
-                }
-
-                // do round fill start [0,1), include 0, exclude 1
-                while (fillStart >= 1.0) { fillStart -= 1.0; }
-                while (fillStart < 0.0) { fillStart += 1.0; }
-
-                fillStart *= PI_2;
-                fillRange *= PI_2;
-                const fillEnd = fillStart + fillRange;
-
-                // build vertices
-                _calculateVertices(sprite);
-                // build uvs
-                _calculateUVs(frame);
-
-                _calcIntersectedPoints(
-                    _vertices[0], _vertices[2],
-                    _vertices[1], _vertices[3],
-                    _center, fillStart, _intersectPoint_1,
-                );
-                _calcIntersectedPoints(
-                    _vertices[0], _vertices[2],
-                    _vertices[1], _vertices[3],
-                    _center, fillStart + fillRange, _intersectPoint_2,
-                );
-
-                let offset = 0;
-                for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
-                    const triangle = _triangles[triangleIndex];
-                    if (!triangle) {
-                        continue;
-                    }
-                    // all in
-                    if (fillRange >= PI_2) {
-                        renderData.dataLength = offset + 3;
-                        _generateTriangle(dataList, offset, _center, _vertPos[triangle.x], _vertPos[triangle.y]);
-                        offset += 3;
-                        continue;
-                    }
-                    // test against
-                    let startAngle = _getVertAngle(_center, _vertPos[triangle.x]);
-                    let endAngle = _getVertAngle(_center, _vertPos[triangle.y]);
-                    if (endAngle < startAngle) { endAngle += PI_2; }
-                    startAngle -= PI_2;
-                    endAngle -= PI_2;
-                    // testing
-                    for (let testIndex = 0; testIndex < 3; ++testIndex) {
-                        if (startAngle >= fillEnd) {
-                            // all out
-                        } else if (startAngle >= fillStart) {
-                            renderData.dataLength = offset + 3;
-                            if (endAngle >= fillEnd) {
-                                // startAngle to fillEnd
-                                _generateTriangle(
-                                    dataList, offset, _center,
-                                    _vertPos[triangle.x],
-                                    _intersectPoint_2[triangleIndex],
-                                );
-                            } else {
-                                // startAngle to endAngle
-                                _generateTriangle(dataList, offset, _center,
-                                    _vertPos[triangle.x], _vertPos[triangle.y]);
-                            }
-                            offset += 3;
-                        } else if (endAngle > fillStart) {
-                            // startAngle < fillStart
-                            if (endAngle <= fillEnd) {
-                                renderData.dataLength = offset + 3;
-                                // fillStart to endAngle
-                                _generateTriangle(dataList, offset, _center,
-                                    _intersectPoint_1[triangleIndex],
-                                    _vertPos[triangle.y]);
-                                offset += 3;
-                            } else {
-                                renderData.dataLength = offset + 3;
-                                // fillStart to fillEnd
-                                _generateTriangle(dataList, offset, _center,
-                                    _intersectPoint_1[triangleIndex],
-                                    _intersectPoint_2[triangleIndex]);
-                                offset += 3;
-                            }
-                        }
-                        // add 2 * PI
-                        startAngle += PI_2;
-                        endAngle += PI_2;
-                    }
-                }
-
-                renderData.indicesCount = renderData.vertexCount = offset;
-                renderData.vertDirty = renderData.uvDirty = false;
+            if (!renderData.vertDirty) {
+                return;
             }
+            const dataList = renderData.data;
+
+            let fillStart = sprite.fillStart;
+            let fillRange = sprite.fillRange;
+            if (fillRange < 0) {
+                fillStart += fillRange;
+                fillRange = -fillRange;
+            }
+            // do round fill start [0,1), include 0, exclude 1
+            while (fillStart >= 1.0) { fillStart -= 1.0; }
+            while (fillStart < 0.0) { fillStart += 1.0; }
+            fillStart *= PI_2;
+            fillRange *= PI_2;
+            const fillEnd = fillStart + fillRange;
+            // build vertices
+            _calculateVertices(sprite);
+            // build uvs
+            _calculateUVs(frame);
+            _calcIntersectedPoints(
+                _vertices[0], _vertices[2],
+                _vertices[1], _vertices[3],
+                _center, fillStart, _intersectPoint_1,
+            );
+            _calcIntersectedPoints(
+                _vertices[0], _vertices[2],
+                _vertices[1], _vertices[3],
+                _center, fillStart + fillRange, _intersectPoint_2,
+            );
+
+            let offset = 0;
+            for (let triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
+                const triangle = _triangles[triangleIndex];
+                if (!triangle) {
+                    continue;
+                }
+                // all in
+                if (fillRange >= PI_2) {
+                    renderData.dataLength = offset + 3;
+                    _generateTriangle(dataList, offset, _center, _vertPos[triangle.x], _vertPos[triangle.y]);
+                    offset += 3;
+                    continue;
+                }
+                // test against
+                let startAngle = _getVertAngle(_center, _vertPos[triangle.x]);
+                let endAngle = _getVertAngle(_center, _vertPos[triangle.y]);
+                if (endAngle < startAngle) { endAngle += PI_2; }
+                startAngle -= PI_2;
+                endAngle -= PI_2;
+                // testing
+                for (let testIndex = 0; testIndex < 3; ++testIndex) {
+                    if (startAngle >= fillEnd) {
+                        // all out
+                    } else if (startAngle >= fillStart) {
+                        renderData.dataLength = offset + 3;
+                        if (endAngle >= fillEnd) {
+                            // startAngle to fillEnd
+                            _generateTriangle(
+                                dataList, offset, _center,
+                                _vertPos[triangle.x],
+                                _intersectPoint_2[triangleIndex],
+                            );
+                        } else {
+                            // startAngle to endAngle
+                            _generateTriangle(dataList, offset, _center,
+                                _vertPos[triangle.x], _vertPos[triangle.y]);
+                        }
+                        offset += 3;
+                    } else if (endAngle > fillStart) {
+                        // startAngle < fillStart
+                        if (endAngle <= fillEnd) {
+                            renderData.dataLength = offset + 3;
+                            // fillStart to endAngle
+                            _generateTriangle(dataList, offset, _center,
+                                _intersectPoint_1[triangleIndex],
+                                _vertPos[triangle.y]);
+                            offset += 3;
+                        } else {
+                            renderData.dataLength = offset + 3;
+                            // fillStart to fillEnd
+                            _generateTriangle(dataList, offset, _center,
+                                _intersectPoint_1[triangleIndex],
+                                _intersectPoint_2[triangleIndex]);
+                            offset += 3;
+                        }
+                    }
+                    // add 2 * PI
+                    startAngle += PI_2;
+                    endAngle += PI_2;
+                }
+            }
+            // hack for native when offset is 0
+            if (offset === 0) {
+                renderData.dataLength = 0;
+            }
+            renderData.resize(offset, offset);
+            if (JSB) {
+                const indexCount = renderData.indexCount;
+                this.createQuadIndices(indexCount);
+                renderData.chunk.setIndexBuffer(QUAD_INDICES);
+                // may can update color & uv here
+                // need dirty
+                this.updateWorldUVData(sprite);
+                //this.updateColorLate(sprite);
+                sprite.renderEntity.colorDirty = true;
+            }
+            renderData.updateRenderData(sprite, frame);
         }
     },
 
-    fillBuffers (comp: Sprite, renderer: Batcher2D) {
-        const node = comp.node;
-        const renderData: RenderData = comp.renderData!;
-        tempColor.set(comp.color);
-        tempColor.a = node._uiProps.opacity * 255;
-        fillVertices3D(node, renderer, renderData, tempColor);
+    createQuadIndices (indexCount) {
+        QUAD_INDICES = null;
+        QUAD_INDICES = new Uint16Array(indexCount);
+        let offset = 0;
+        for (let i = 0; i < indexCount; i++) {
+            QUAD_INDICES[offset++] = i;
+        }
     },
 
+    fillBuffers (comp: Sprite, renderer: IBatcher) {
+        const node = comp.node;
+        const renderData: RenderData = comp.renderData!;
+        const chunk = renderData.chunk;
+        if (node.hasChangedFlags || renderData.vertDirty) {
+            this.updateWorldVertexAndUVData(comp, chunk);
+            renderData.vertDirty = false;
+        }
+
+        // forColor
+        this.updateColorLate(comp);
+
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.meshBuffer;
+        const ib = chunk.meshBuffer.iData;
+        const indexOffset = meshBuffer.indexOffset;
+        for (let i = 0; i < renderData.indexCount; i++) {
+            ib[indexOffset + i] = vid + i;
+        }
+        meshBuffer.indexOffset += renderData.indexCount;
+        meshBuffer.setDirty();
+    },
+
+    updateWorldUVData (sprite: Sprite, chunk: StaticVBChunk) {
+        const renderData = sprite.renderData!;
+        const stride = renderData.floatStride;
+        const dataList: IRenderData[] = renderData.data;
+        const vData = renderData.chunk.vb;
+        for (let i  = 0; i < dataList.length; i++) {
+            const offset = i * stride;
+            vData[offset + 3] = dataList[i].u;
+            vData[offset + 4] = dataList[i].v;
+        }
+    },
+
+    // only for TS
+    updateWorldVertexAndUVData (sprite: Sprite, chunk: StaticVBChunk) {
+        const node = sprite.node;
+        node.getWorldMatrix(m);
+
+        const renderData = sprite.renderData!;
+        const stride = renderData.floatStride;
+        const dataList = sprite.renderData!.data;
+        const vData = chunk.vb;
+        const vertexCount = renderData.vertexCount;
+
+        let vertexOffset = 0;
+        for (let i = 0; i < vertexCount; i++) {
+            const vert = dataList[i];
+            const x = vert.x;
+            const y = vert.y;
+            let rhw = m.m03 * x + m.m07 * y + m.m15;
+            rhw = rhw ? Math.abs(1 / rhw) : 1;
+
+            vData[vertexOffset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
+            vData[vertexOffset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
+            vData[vertexOffset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
+            vData[vertexOffset + 3] = vert.u;
+            vData[vertexOffset + 4] = vert.v;
+            vertexOffset += stride;
+        }
+    },
+
+    // dirty Mark
+    // the real update uv is on updateWorldUVData
+    updateUVs (sprite: Sprite) {
+        const renderData = sprite.renderData!;
+        renderData.vertDirty = true;
+        sprite.markForUpdateRenderData();
+    },
+
+    // fill color here
+    updateColorLate (sprite: Sprite) {
+        const renderData = sprite.renderData!;
+        const vData = renderData.chunk.vb;
+        const stride = renderData.floatStride;
+        const vertexCount = renderData.vertexCount;
+
+        let colorOffset = 5;
+        const color = sprite.color;
+        const colorR = color.r / 255;
+        const colorG = color.g / 255;
+        const colorB = color.b / 255;
+        const colorA = sprite.node._uiProps.opacity;
+        for (let i = 0; i < vertexCount; i++) {
+            vData[colorOffset] = colorR;
+            vData[colorOffset + 1] = colorG;
+            vData[colorOffset + 2] = colorB;
+            vData[colorOffset + 3] = colorA;
+            colorOffset += stride;
+        }
+    },
+
+    // Too early
     updateColor (sprite: Sprite) {
     },
 };

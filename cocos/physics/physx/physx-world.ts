@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
@@ -47,8 +42,9 @@ import { PhysXContactEquation } from './physx-contact-equation';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
 import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
+import { PhysXInstance } from './physx-instance';
 
-export class PhysXWorld implements IPhysicsWorld {
+export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
     setDefaultMaterial (_v: PhysicsMaterial): void { }
     setGravity (gravity: IVec3Like): void {
@@ -56,25 +52,14 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     get impl (): any { return this.scene; }
-
-    readonly physics: any;
     readonly scene: any;
-    readonly cooking: any;
-
-    readonly queryfilterData: any;
-    readonly singleResult: any;
-    readonly mutipleResults: any;
-    readonly simulationCB: any;
-    readonly queryFilterCB: any;
-
-    readonly wrappedBodies: PhysXSharedBody[] = [];
     readonly callback = PhysXCallback;
+    readonly wrappedBodies: PhysXSharedBody[] = [];
 
     private _isNeedFetch = false;
 
-    mutipleResultSize = 12;
-
     constructor () {
+        super();
         initializeWorld(this);
     }
 
@@ -84,6 +69,7 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
+        if (this.wrappedBodies.length === 0) return;
         this._simulate(deltaTime);
         if (!PX.MULTI_THREAD) {
             this._fetchResults();

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';

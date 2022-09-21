@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Clang-Android",
+            "includePath": [
+                ".",
+                "cocos",
+                "cocos/renderer",
+                "cocos/platform",
+                "cocos/platform/ios",
+                "cocos/editor-support",
+                "cocos/bindings/jswrapper",
+                "external/sources",
+                "external/sources/khronos",
+                "external/win32/include",
+                "external/win32/include/v8"
+            ],
+            "compileCommands": "${workspaceFolder}/compile_commands.json"
+        }
+    ],
+    "version": 4
+}

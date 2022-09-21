@@ -1,15 +1,15 @@
 {
-  "ver": "1.0.21",
+  "ver": "1.0.24",
   "importer": "image",
   "imported": true,
   "uuid": "191b676f-175b-41fa-8283-ac539875bfd8",
   "files": [
-    ".png",
-    ".json"
+    ".json",
+    ".png"
   ],
   "subMetas": {
     "6c48a": {
-      "ver": "1.0.21",
+      "ver": "1.0.22",
       "importer": "texture",
       "uuid": "191b676f-175b-41fa-8283-ac539875bfd8@6c48a",
       "imported": true,
@@ -26,7 +26,8 @@
         "premultiplyAlpha": false,
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "191b676f-175b-41fa-8283-ac539875bfd8"
+        "imageUuidOrDatabaseUri": "191b676f-175b-41fa-8283-ac539875bfd8",
+        "visible": true
       },
       "displayName": "spot-light",
       "id": "6c48a",
@@ -37,6 +38,7 @@
     "type": "texture",
     "redirect": "191b676f-175b-41fa-8283-ac539875bfd8@6c48a",
     "flipVertical": true,
-    "hasAlpha": true
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false
   }
 }

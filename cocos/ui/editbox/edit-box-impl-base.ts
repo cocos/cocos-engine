@@ -26,15 +26,16 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EditBox } from './edit-box';
 
 export class EditBoxImplBase {
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _editing = false;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _delegate: EditBox | null = null;
 
     public init (delegate: EditBox) {}

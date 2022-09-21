@@ -24,22 +24,19 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component, EventHandler } from '../core/components';
 import { UITransform } from '../2d/framework';
-import { EventTouch, Touch } from '../core/platform';
+import { EventTouch, Touch } from '../input/types';
 import { Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { input, Input } from '../input/input';
+import { XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const _tempPos = new Vec3();
 /**
@@ -191,6 +188,10 @@ export class Slider extends Component {
         this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
         this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+
+        this.node.on(XrUIPressEventType.XRUI_HOVER_STAY, this._xrHoverStay, this);
+        this.node.on(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.on(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
         if (this._handle && this._handle.isValid) {
             this._handle.node.on(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
             this._handle.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
@@ -203,6 +204,10 @@ export class Slider extends Component {
         this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
         this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+
+        this.node.off(XrUIPressEventType.XRUI_HOVER_STAY, this._xrHoverStay, this);
+        this.node.off(XrUIPressEventType.XRUI_CLICK, this._xrClick, this);
+        this.node.off(XrUIPressEventType.XRUI_UNCLICK, this._xrUnClick, this);
         if (this._handle && this._handle.isValid) {
             this._handle.node.off(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
             this._handle.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
@@ -319,6 +324,41 @@ export class Slider extends Component {
             this._updateHandlePosition();
         }
     }
+
+    protected _xrHandleProgress (point: Vec3) {
+        if (!this._touchHandle) {
+            const uiTrans = this.node._uiProps.uiTransformComp!;
+            uiTrans.convertToNodeSpaceAR(point, _tempPos);
+            if (this.direction === Direction.Horizontal) {
+                this.progress = clamp01(0.5 + (_tempPos.x - this.node.position.x) / uiTrans.width);
+            } else {
+                this.progress = clamp01(0.5 + (_tempPos.y - this.node.position.y) / uiTrans.height);
+            }
+        }
+    }
+
+    protected _xrClick (event: XrUIPressEvent) {
+        if (!this._handle) {
+            return;
+        }
+        this._dragging = true;
+        this._xrHandleProgress(event.hitPoint);
+        this._emitSlideEvent();
+    }
+
+    protected _xrUnClick () {
+        this._dragging = false;
+        this._touchHandle = false;
+    }
+
+    protected _xrHoverStay (event: XrUIPressEvent) {
+        if (!this._dragging) {
+            return;
+        }
+
+        this._xrHandleProgress(event.hitPoint);
+        this._emitSlideEvent();
+    }
 }
 
 /**
@@ -328,3 +368,5 @@ export class Slider extends Component {
  * @param {Event.EventCustom} event
  * @param {Slider} slider - The slider component.
  */
+
+legacyCC.Slider = Slider;

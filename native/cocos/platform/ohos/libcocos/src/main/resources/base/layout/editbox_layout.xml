@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DependentLayout xmlns:ohos="http://schemas.huawei.com/res/ohos"
+                 ohos:id="$+id:editbox_container"
+                 ohos:height="match_parent"
+                 ohos:width="match_parent"
+                 ohos:alpha="0"
+                 ohos:orientation="vertical">
+
+    <StackLayout
+        ohos:height="40vp"
+        ohos:width="match_parent"
+        ohos:align_parent_bottom="true"
+        >
+
+        <TextField
+            ohos:id="$+id:editbox_textField"
+            ohos:hint_color="#888888"
+            ohos:height="match_parent"
+            ohos:width="match_parent"
+            ohos:background_element="$graphic:bg_common_unpress_btn"
+            ohos:text_alignment="vertical_center"
+            ohos:text_color="#333"
+            ohos:text_size="16fp"
+            ohos:weight="1"
+            />
+        <Button
+            ohos:id="$+id:editbox_enterBtn"
+            ohos:background_element="$graphic:darkgreen_roundrect"
+            ohos:height="match_parent"
+            ohos:width="match_content"
+            ohos:min_width="60vp"
+
+            ohos:right_margin="0vp"
+            ohos:layout_alignment="right"
+            ohos:text_alignment="center"
+            ohos:text_color="#FFF"
+            ohos:text_size="16fp"
+            ohos:weight="2"
+            ohos:text="OK"
+            />
+
+    </StackLayout>
+
+</DependentLayout>

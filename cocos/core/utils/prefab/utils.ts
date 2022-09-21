@@ -24,20 +24,15 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import type { Node } from '../../scene-graph/node';
 import { errorID, warn } from '../../platform/debug';
 import { Component } from '../../components';
-import type { BaseNode } from '../../scene-graph/base-node';
 import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
 import { MountedComponentsInfo, TargetInfo } from '.';
 import { editorExtrasTag } from '../../data';
+import { ValueType } from '../../value-types';
 
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
@@ -64,7 +59,7 @@ export function createNodeWithPrefab (node: Node) {
     }
 
     // save root's preserved props to avoid overwritten by prefab
-    const _objFlags =  node._objFlags;
+    const _objFlags = node._objFlags;
     // @ts-expect-error: private member access
     const _parent = node._parent;
     // @ts-expect-error: private member access
@@ -113,6 +108,11 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
     if (!targetMap) {
         return;
     }
+
+    if (!node) {
+        return;
+    }
+
     let curTargetMap = targetMap;
 
     // @ts-expect-error: private member access
@@ -147,7 +147,7 @@ export function getTarget (localID: string[], targetMap: any) {
         return null;
     }
 
-    let target: Component|Node|null = null;
+    let target: Component | Node | null = null;
     let targetIter: any = targetMap;
     for (let i = 0; i < localID.length; i++) {
         if (!targetIter) {
@@ -185,7 +185,8 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
 
-                    if (!childNode) {
+                    // @ts-expect-error private member access
+                    if (!childNode || target._children.includes(childNode)) {
                         continue;
                     }
 
@@ -205,7 +206,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     // @ts-expect-error private member access
                     childNode._siblingIndex = target._children.length - 1;
-                    childNode._onBatchCreated(false);
+                    expandPrefabInstanceNode(childNode, true);
                 }
             }
         }
@@ -316,6 +317,8 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                             targetPropOwner[targetPropName] = propOverride.value;
                         }
                     }
+                } else if (targetPropOwner[targetPropName] instanceof ValueType) {
+                    targetPropOwner[targetPropName].set(propOverride.value);
                 } else {
                     targetPropOwner[targetPropName] = propOverride.value;
                 }
@@ -326,14 +329,14 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
     }
 }
 
-export function applyTargetOverrides (node: BaseNode) {
+export function applyTargetOverrides (node: Node) {
     // @ts-expect-error private member access
     const targetOverrides = node._prefab?.targetOverrides;
     if (targetOverrides) {
-        for (let i = 0;  i < targetOverrides.length; i++) {
+        for (let i = 0; i < targetOverrides.length; i++) {
             const targetOverride = targetOverrides[i];
 
-            let source: Node|Component|null = targetOverride.source;
+            let source: Node | Component | null = targetOverride.source;
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
                 // @ts-expect-error private member access
@@ -348,7 +351,7 @@ export function applyTargetOverrides (node: BaseNode) {
                 continue;
             }
 
-            let target: Node|Component|null = null;
+            let target: Node | Component | null = null;
             const targetInfo = targetOverride.targetInfo;
             if (!targetInfo) {
                 continue;
@@ -388,5 +391,64 @@ export function applyTargetOverrides (node: BaseNode) {
                 targetPropOwner[targetPropName] = target;
             }
         }
+    }
+}
+
+export function expandPrefabInstanceNode (node: Node, recursively = false) {
+    // @ts-expect-error private member access
+    const prefabInfo = node._prefab;
+    const prefabInstance = prefabInfo?.instance;
+    if (prefabInstance && !prefabInstance.expanded) {
+        createNodeWithPrefab(node);
+        // nested prefab should expand before parent(property override order)
+        if (recursively) {
+            if (node && node.children) {
+                node.children.forEach((child) => {
+                    expandPrefabInstanceNode(child, true);
+                });
+            }
+        }
+        // nested prefab children's id will be the same: 3dtask#12511
+        // applyNodeAndComponentId(node, node.uuid);
+
+        const targetMap: Record<string, any | Node | Component> = {};
+        prefabInstance.targetMap = targetMap;
+        generateTargetMap(node, targetMap, true);
+        applyMountedChildren(node, prefabInstance.mountedChildren, targetMap);
+        applyRemovedComponents(node, prefabInstance.removedComponents, targetMap);
+        applyMountedComponents(node, prefabInstance.mountedComponents, targetMap);
+        applyPropertyOverrides(node, prefabInstance.propertyOverrides, targetMap);
+        prefabInstance.expanded = true;
+    } else if (recursively) {
+        if (node && node.children) {
+            node.children.forEach((child) => {
+                expandPrefabInstanceNode(child, true);
+            });
+        }
+    }
+}
+
+export function expandNestedPrefabInstanceNode (node: Node) {
+    // @ts-expect-error private member access
+    const prefabInfo = node._prefab;
+
+    if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
+        prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
+            expandPrefabInstanceNode(instanceNode);
+        });
+    }
+}
+
+export function applyNodeAndComponentId (node: Node, rootId: string) {
+    const { components, children } = node;
+    for (let i = 0; i < components.length; i++) {
+        const comp = components[i];
+        comp._id = `${rootId}${comp.__prefab?.fileId}`;
+    }
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        // @ts-expect-error private member access
+        child._id = `${rootId}${child._prefab?.fileId}`;
+        applyNodeAndComponentId(child, rootId);
     }
 }

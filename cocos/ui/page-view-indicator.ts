@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { SpriteFrame } from '../2d/assets';
 import { Component } from '../core/components';
@@ -38,7 +33,7 @@ import { Node } from '../core/scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
-import { Renderable2D } from '../2d/framework/renderable-2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { legacyCC } from '../core/global-exports';
 
 const _color = new Color();
@@ -106,7 +101,7 @@ export class PageViewIndicator extends Component {
      * @zh
      * 页面标记摆放方向
      *
-     * @param direction 摆放方向
+     * @param direction @en The direction of the PageViewIndicator @zh 页面标记的摆放方向
      */
     @type(Direction)
     @tooltip('i18n:pageview_indicator.direction')
@@ -174,13 +169,16 @@ export class PageViewIndicator extends Component {
      * @zh
      * 设置页面视图
      *
-     * @param target 页面视图对象
+     * @param target @en The page view which is attached with this indicator  @zh 当前标记对象附着到的页面视图对象
      */
     public setPageView (target: PageView) {
         this._pageView = target;
         this._refresh();
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _updateLayout () {
         this._layout = this.getComponent(Layout);
         if (!this._layout) {
@@ -198,6 +196,9 @@ export class PageViewIndicator extends Component {
         layout.resizeMode = Layout.ResizeMode.CONTAINER;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _createIndicator () {
         const node = new Node();
         node.layer = this.node.layer;
@@ -209,6 +210,9 @@ export class PageViewIndicator extends Component {
         return node;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _changedState () {
         const indicators = this._indicators;
         if (indicators.length === 0 || !this._pageView) { return; }
@@ -220,20 +224,23 @@ export class PageViewIndicator extends Component {
                 continue;
             }
 
-            const uiComp = node._uiProps.uiComp as Renderable2D;
+            const uiComp = node._uiProps.uiComp as UIRenderer;
             _color.set(uiComp.color);
             _color.a = 255 / 2;
             uiComp.color = _color;
         }
 
         if (indicators[idx]._uiProps.uiComp) {
-            const comp = indicators[idx]._uiProps.uiComp as Renderable2D;
+            const comp = indicators[idx]._uiProps.uiComp as UIRenderer;
             _color.set(comp.color);
             _color.a = 255;
             comp.color = _color;
         }
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _refresh () {
         if (!this._pageView) { return; }
         const indicators = this._indicators;
@@ -262,3 +269,5 @@ export class PageViewIndicator extends Component {
         this._changedState();
     }
 }
+
+legacyCC.PageViewIndicator = PageViewIndicator;

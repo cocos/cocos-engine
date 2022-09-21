@@ -18,4 +18,8 @@
     "editor.codeActionsOnSave": {
         "source.fixAll": true,
     },
+    "files.associations": {
+        "iterator": "cpp"
+    },
+    "cmake.configureOnOpen": false,
 }

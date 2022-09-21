@@ -1,5 +1,6 @@
 module.exports = {
     components: {
+        add_component: '添加组件',
         safe_area: {
             brief_help:
                 '该组件会将所在节点的布局适配到 iPhone X 等异形屏手机的安全区域内，通常用于 UI 交互区域的顶层节点。该组件将在真机上将自动生效，在编辑器下没有效果。',
@@ -18,5 +19,12 @@ module.exports = {
         label: {
             font_style_tooltip: "文本的样式，分别对应引擎的 isBold,isItalic,isUnderline",
         },
+        layer: {
+            confirm_message: '是否连同修改子节点的 Layer？',
+            change_children: '连同修改子节点',
+            change_self: '只修改节点自身',
+        },
+
+        missScriptTip: "脚本编译失败，请检查报错信息并进行修正，该组件将在修正后自动还原。",
     },
 };

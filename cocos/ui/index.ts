@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 export { Button } from './button';
 export { EditBox } from './editbox/edit-box';
 export { Layout } from './layout';

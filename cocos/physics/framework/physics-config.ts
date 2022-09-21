@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { IVec3Like } from '../../core';
 
 export interface ICollisionMatrix {

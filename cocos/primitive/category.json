@@ -1,0 +1,10 @@
+{
+    "title": {
+        "zh": "基础图元",
+        "en": "Primitive"
+    },
+    "description": {
+        "zh": "一些可参数化生成的基础图元",
+        "en": "Some parametric generated primitive"
+    }
+}

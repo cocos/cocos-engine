@@ -1,33 +1,31 @@
-
-'use strict';
-
 const jsbPhy = globalThis['jsb.physics'];
 
-jsbPhy['CACHE'] = {
+jsbPhy.CACHE = {
     trimesh: {},
     convex: {},
     height: {},
     material: {},
 };
 
-jsbPhy['OBJECT'] = {
+jsbPhy.OBJECT = {
     books: [],
     ptrToObj: {},
     raycastOptions: {
-        origin: null, unitDir: null,
+        origin: null,
+        unitDir: null,
         distance: 0,
         mask: 0,
         queryTrigger: true,
     },
 };
 
-jsbPhy['CONFIG'] = {
-    heightScale: 1 / 5000,
+jsbPhy.CONFIG = {
+    heightScale: 1 / 512,
 };
 
-const books = jsbPhy['OBJECT'].books;
-const ptrToObj = jsbPhy['OBJECT'].ptrToObj;
-const raycastOptions = jsbPhy['OBJECT'].raycastOptions;
+const books = jsbPhy.OBJECT.books;
+const ptrToObj = jsbPhy.OBJECT.ptrToObj;
+const raycastOptions = jsbPhy.OBJECT.raycastOptions;
 
 const TriggerEventObject = {
     type: 'onTriggerEnter',
@@ -63,7 +61,7 @@ const quat = new cc.Quat();
 const contactsPool = [];
 const contactBufferElementLength = 12;
 class ContactPoint {
-    constructor(e) {
+    constructor (e) {
         this.event = e;
         this.impl = null;
         this.colliderA = null;
@@ -114,7 +112,7 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
     contacts.length = 0;
     const contactCount = b.length / contactBufferElementLength;
     for (let i = 0; i < contactCount; i++) {
-        let c = contactsPool.length > 0 ? contactsPool.pop() : new ContactPoint(CollisionEventObject);
+        const c = contactsPool.length > 0 ? contactsPool.pop() : new ContactPoint(CollisionEventObject);
         c.colliderA = c0; c.colliderB = c1;
         c.impl = b; c.index = i; contacts.push(c);
     }
@@ -131,8 +129,8 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
 }
 
 class PhysicsWorld {
-    get impl () { return this._impl }
-    constructor() { this._impl = new jsbPhy.World(); }
+    get impl () { return this._impl; }
+    constructor () { this._impl = new jsbPhy.World(); }
 
     setGravity (v) {
         this._impl.setGravity(v.x, v.y, v.z);
@@ -188,24 +186,24 @@ class PhysicsWorld {
         this._impl.emitEvents();
     }
 
-    syncSceneToPhysics () {         
+    syncSceneToPhysics () {
         this._impl.syncSceneToPhysics();
     }
 
     syncAfterEvents () {
-        // this._impl.syncSceneToPhysics() 
+        // this._impl.syncSceneToPhysics()
     }
 
-    destroy () { this._impl.destroy() }
+    destroy () { this._impl.destroy(); }
 
     emitTriggerEvent () {
         const teps = this._impl.getTriggerEventPairs();
         const len = teps.length / 3;
         for (let i = 0; i < len; i++) {
             const t = i * 3;
-            const sa = ptrToObj[teps[t + 0]], sb = ptrToObj[teps[t + 1]];
+            const sa = ptrToObj[teps[t + 0]]; const sb = ptrToObj[teps[t + 1]];
             if (!sa || !sb) continue;
-            const c0 = sa.collider, c1 = sb.collider;
+            const c0 = sa.collider; const c1 = sb.collider;
             if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
             if (!c0.needTriggerEvent && !c1.needTriggerEvent) continue;
             const state = teps[t + 2];
@@ -217,7 +215,6 @@ class PhysicsWorld {
                 emitTriggerEvent('onTriggerExit', c0, c1, teps);
             }
         }
-
     }
 
     emitCollisionEvent () {
@@ -225,9 +222,9 @@ class PhysicsWorld {
         const len2 = ceps.length / 4;
         for (let i = 0; i < len2; i++) {
             const t = i * 4;
-            const sa = ptrToObj[ceps[t + 0]], sb = ptrToObj[ceps[t + 1]];
+            const sa = ptrToObj[ceps[t + 0]]; const sb = ptrToObj[ceps[t + 1]];
             if (!sa || !sb) continue;
-            const c0 = sa.collider, c1 = sb.collider;
+            const c0 = sa.collider; const c1 = sb.collider;
             if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
             if (!c0.needCollisionEvent && !c1.needCollisionEvent) continue;
             const state = ceps[t + 2];
@@ -239,7 +236,6 @@ class PhysicsWorld {
                 emitCollisionEvent('onCollisionExit', c0, c1, ceps, ceps[t + 3]);
             }
         }
-
     }
 }
 
@@ -275,12 +271,12 @@ function updateCollisionMatrix () {
 }
 
 class RigidBody {
-    get impl () { return this._impl }
-    get rigidBody () { return this._com }
+    get impl () { return this._impl; }
+    get rigidBody () { return this._com; }
     get isAwake () { return this._impl.isAwake(); }
-    get isSleepy () { return false }
+    get isSleepy () { return false; }
     get isSleeping () { return this._impl.isSleeping(); }
-    constructor() {
+    constructor () {
         updateCollisionMatrix();
         this._impl = new jsbPhy.RigidBody();
         this._isUsingCCD = false;
@@ -289,7 +285,7 @@ class RigidBody {
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
-        this._impl.initialize(v.node.native, v.type, v._group);
+        this._impl.initialize(v.node, v.type, v._group);
         bookNode(v.node);
     }
 
@@ -316,7 +312,7 @@ class RigidBody {
     getGroup () { return this._impl.getGroup(); }
     addGroup (v) { this.setGroup(this.getGroup() | v); }
     removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
-    setMask (v) { this._impl.setMask(v>>>0); }
+    setMask (v) { this._impl.setMask(v >>> 0); }
     getMask () { return this._impl.getMask(); }
     addMask (v) { this.setMask(this.getMask() | v); }
     removeMask (v) { this.setMask(this.getMask() & ~v); }
@@ -326,16 +322,16 @@ class RigidBody {
     setAllowSleep (v) { this._impl.setAllowSleep(v); }
     setLinearDamping (v) {
         const dt = cc.PhysicsSystem.instance.fixedTimeStep;
-        this._impl.setLinearDamping((1 - (1 - v) ** dt) / dt); 
+        this._impl.setLinearDamping((1 - (1 - v) ** dt) / dt);
     }
-    setAngularDamping (v) {        
+    setAngularDamping (v) {
         const dt = cc.PhysicsSystem.instance.fixedTimeStep;
         this._impl.setAngularDamping((1 - (1 - v) ** dt) / dt);
     }
     isUsingCCD () { return this._isUsingCCD; }
-    useCCD (v) { 
+    useCCD (v) {
         this._isUsingCCD = v;
-        return this._impl.useCCD(v); 
+        return this._impl.useCCD(v);
     }
     useGravity (v) { this._impl.useGravity(v); }
     setLinearFactor (v) { this._impl.setLinearFactor(v.x, v.y, v.z); }
@@ -367,18 +363,18 @@ const ESHAPE_FLAG = {
     DETECT_CONTACT_EVENT: 1 << 4,
     DETECT_CONTACT_POINT: 1 << 5,
     DETECT_CONTACT_CCD: 1 << 6,
-}
+};
 
 class Shape {
     get impl () { return this._impl; }
     get collider () { return this._com; }
     get attachedRigidBody () { return this._attachedRigidBody; }
-    constructor() { updateCollisionMatrix(); };
+    constructor () { updateCollisionMatrix(); }
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
-        this._impl.initialize(v.node.native);
-        ptrToObj[this._impl.getImpl()] = this;
+        this._impl.initialize(v.node);
+        ptrToObj[this._impl.getObjectID()] = this;
         bookNode(v.node);
     }
     onLoad () {
@@ -390,24 +386,24 @@ class Shape {
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
         unBookNode(this._com.node);
-        ptrToObj[this._impl.getImpl()] = null
-        delete ptrToObj[this._impl.getImpl()];
+        delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
         this._impl.onDestroy();
     }
     setMaterial (v) {
         const ins = cc.PhysicsSystem.instance;
         if (!v) v = ins.defaultMaterial;
-        if (!jsbPhy['CACHE'].material[v.id]) {
-            jsbPhy['CACHE'].material[v.id] = ins.physicsWorld.impl.createMaterial(v.id, v.friction, v.friction, v.restitution, 2, 2);
+        if (!jsbPhy.CACHE.material[v.id]) {
+            jsbPhy.CACHE.material[v.id] = ins.physicsWorld.impl.createMaterial(v.id, v.friction, v.friction, v.restitution, 2, 2);
         }
         this._impl.setMaterial(v.id, v.friction, v.friction, v.restitution, 2, 2);
     }
     setAsTrigger (v) { this._impl.setAsTrigger(v); }
     setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
-    getAABB(v) { v.copy(this._impl.getAABB());}
-    getBoundingSphere (v) { v.copy(this._impl.getBoundingSphere());}
+    getAABB (v) { v.copy(this._impl.getAABB()); }
+    getBoundingSphere (v) { v.copy(this._impl.getBoundingSphere()); }
     updateEventListener () {
-        var flag = 0;
+        let flag = 0;
         flag |= ESHAPE_FLAG.DETECT_CONTACT_CCD;
         if (this._com.isTrigger) flag |= ESHAPE_FLAG.IS_TRIGGER;
         if (this._com.needTriggerEvent || this._com.needCollisionEvent) flag |= ESHAPE_FLAG.NEED_EVENT;
@@ -417,14 +413,14 @@ class Shape {
     getGroup () { return this._impl.getGroup(); }
     addGroup (v) { this.setGroup(this.getGroup() | v); }
     removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
-    setMask (v) { this._impl.setMask(v>>>0); }
+    setMask (v) { this._impl.setMask(v >>> 0); }
     getMask () { return this._impl.getMask(); }
     addMask (v) { this.setMask(this.getMask() | v); }
     removeMask (v) { this.setMask(this.getMask() & ~v); }
 }
 
 class SphereShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.SphereShape(); }
+    constructor () { super(); this._impl = new jsbPhy.SphereShape(); }
     updateRadius () { this._impl.setRadius(this.collider.radius); }
     onLoad () {
         super.onLoad();
@@ -433,10 +429,10 @@ class SphereShape extends Shape {
 }
 
 class BoxShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.BoxShape(); }
-    updateSize () { 
+    constructor () { super(); this._impl = new jsbPhy.BoxShape(); }
+    updateSize () {
         const v = this.collider.size;
-        this._impl.setSize(v.x, v.y, v.z); 
+        this._impl.setSize(v.x, v.y, v.z);
     }
     onLoad () {
         super.onLoad();
@@ -445,7 +441,7 @@ class BoxShape extends Shape {
 }
 
 class CapsuleShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.CapsuleShape(); }
+    constructor () { super(); this._impl = new jsbPhy.CapsuleShape(); }
     setRadius (v) { this._impl.setRadius(v); }
     setDirection (v) { this._impl.setDirection(v); }
     setCylinderHeight (v) { this._impl.setCylinderHeight(v); }
@@ -458,7 +454,7 @@ class CapsuleShape extends Shape {
 }
 
 class PlaneShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.PlaneShape(); }
+    constructor () { super(); this._impl = new jsbPhy.PlaneShape(); }
     setConstant (v) { this._impl.setConstant(v); }
     setNormal (v) { this._impl.setNormal(v.x, v.y, v.z); }
     onLoad () {
@@ -472,7 +468,7 @@ function getConvexMesh (v) {
     if (!jsbPhy.CACHE.convex[v._uuid]) {
         const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
-        const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 }
+        const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
         jsbPhy.CACHE.convex[v._uuid] = world.createConvex(convex);
     }
     return jsbPhy.CACHE.convex[v._uuid];
@@ -485,10 +481,12 @@ function getTriangleMesh (v) {
         const posArr = v.readAttribute(0, 'a_position');
         const world = cc.PhysicsSystem.instance.physicsWorld.impl;
         const trimesh = {
-            positions: new Float32Array(posArr), positionLength: posArr.length / 3,
-            triangles: new Uint16Array(indArr), triangleLength: indArr.length / 3,
+            positions: new Float32Array(posArr),
+            positionLength: posArr.length / 3,
+            triangles: new Uint16Array(indArr),
+            triangleLength: indArr.length / 3,
             isU16: true,
-        }
+        };
         jsbPhy.CACHE.trimesh[v._uuid] = world.createTrimesh(trimesh);
     }
     return jsbPhy.CACHE.trimesh[v._uuid];
@@ -499,7 +497,7 @@ function getHeightField (v) {
         const rows = v.getVertexCountI();
         const columns = v.getVertexCountJ();
         const samples = new Int16Array(rows * columns);
-        const heightScale = jsbPhy['CONFIG'].heightScale;
+        const heightScale = jsbPhy.CONFIG.heightScale;
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
                 samples[j + i * columns] = v.getHeight(i, j) / heightScale;
@@ -513,56 +511,56 @@ function getHeightField (v) {
 }
 
 class CylinderShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.CylinderShape(); }
-    setRadius (v) { this.updateGeometry() }
-    setDirection (v) { this.updateGeometry() }
-    setHeight (v) { this.updateGeometry() }
+    constructor () { super(); this._impl = new jsbPhy.CylinderShape(); }
+    setRadius (v) { this.updateGeometry(); }
+    setDirection (v) { this.updateGeometry(); }
+    setHeight (v) { this.updateGeometry(); }
     updateGeometry () { this._impl.setCylinder(this._com.radius, this._com.height, this._com.direction); }
     initialize (v) {
-        if (!jsbPhy.CACHE.convex["CYLINDER"]) {
+        if (!jsbPhy.CACHE.convex.CYLINDER) {
             const primitive = cc.physics.utils.cylinder(0.5, 0.5, 2, { radialSegments: 32, heightSegments: 1 });
             const posArr = cc.physics.utils.shrinkPositions(primitive.positions);
             const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
-            const handle = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
-            jsbPhy.CACHE.convex["CYLINDER"] = handle;
+            const pxObjectID = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
+            jsbPhy.CACHE.convex.CYLINDER = pxObjectID;
         }
         this._com = v;
         this._impl.setCylinder(v.radius, v.height, v.direction);
-        this._impl.setConvex(jsbPhy.CACHE.convex["CYLINDER"]);
+        this._impl.setConvex(jsbPhy.CACHE.convex.CYLINDER);
         super.initialize(v);
     }
 }
 
 class ConeShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.ConeShape(); }
-    setRadius (v) { this.updateGeometry() }
-    setDirection (v) { this.updateGeometry() }
-    setHeight (v) { this.updateGeometry() }
+    constructor () { super(); this._impl = new jsbPhy.ConeShape(); }
+    setRadius (v) { this.updateGeometry(); }
+    setDirection (v) { this.updateGeometry(); }
+    setHeight (v) { this.updateGeometry(); }
     updateGeometry () { this._impl.setCone(this._com.radius, this._com.height, this._com.direction); }
     initialize (v) {
-        if (!jsbPhy.CACHE.convex["CONE"]) {
+        if (!jsbPhy.CACHE.convex.CONE) {
             const primitive = cc.physics.utils.cylinder(0, 0.5, 1, { radialSegments: 32, heightSegments: 1 });
             const posArr = cc.physics.utils.shrinkPositions(primitive.positions);
             const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
-            const handle = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
-            jsbPhy.CACHE.convex["CONE"] = handle;
+            const pxObjectID = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
+            jsbPhy.CACHE.convex.CONE = pxObjectID;
         }
         this._com = v;
         this._impl.setCone(v.radius, v.height, v.direction);
-        this._impl.setConvex(jsbPhy.CACHE.convex["CONE"]);
+        this._impl.setConvex(jsbPhy.CACHE.convex.CONE);
         super.initialize(v);
     }
 }
 
 class TrimeshShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.TrimeshShape(); }
+    constructor () { super(); this._impl = new jsbPhy.TrimeshShape(); }
     setConvex (v) { this._impl.useConvex(v); }
     setMesh (v) {
         if (!v) return;
         const isConvex = this._com.convex;
         this._impl.useConvex(isConvex);
-        const handle = isConvex ? getConvexMesh(v) : getTriangleMesh(v);
-        this._impl.setMesh(handle);
+        const pxObjectID = isConvex ? getConvexMesh(v) : getTriangleMesh(v);
+        this._impl.setMesh(pxObjectID);
     }
     initialize (v) {
         this._com = v;
@@ -573,11 +571,11 @@ class TrimeshShape extends Shape {
 }
 
 class TerrainShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.TerrainShape(); }
+    constructor () { super(); this._impl = new jsbPhy.TerrainShape(); }
     setTerrain (v) {
         if (!v) return;
-        const handle = getHeightField(v);
-        this._impl.setTerrain(handle, v.tileSize, v.tileSize, jsbPhy['CONFIG'].heightScale);
+        const pxObjectID = getHeightField(v);
+        this._impl.setTerrain(pxObjectID, v.tileSize, v.tileSize, jsbPhy.CONFIG.heightScale);
     }
     initialize (v) {
         this._com = v;
@@ -590,11 +588,11 @@ class Joint {
     get impl () { return this._impl; }
     get joint () { return this._com; }
     setEnableCollision (v) { this._impl.setEnableCollision(v); }
-    setConnectedBody (v) { this._impl.setConnectedBody(v ? v.body.impl.getNodeHandle() : 0); }
+    setConnectedBody (v) { this._impl.setConnectedBody(v ? v.body.impl.getObjectID() : 0); }
     initialize (v) {
         this._com = v;
-        this._impl.initialize(v.node.native);
-        ptrToObj[this._impl.getImpl()] = this;
+        this._impl.initialize(v.node);
+        ptrToObj[this._impl.getObjectID()] = this;
         this.onLoad();
     }
     onLoad () {
@@ -604,14 +602,14 @@ class Joint {
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
-        ptrToObj[this._impl.getImpl()] = null
-        delete ptrToObj[this._impl.getImpl()];
+        delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
         this._impl.onDestroy();
     }
 }
 
 class DistanceJoint extends Joint {
-    constructor() { super(); this._impl = new jsbPhy.DistanceJoint(); }
+    constructor () { super(); this._impl = new jsbPhy.DistanceJoint(); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
     onLoad () {
@@ -622,7 +620,7 @@ class DistanceJoint extends Joint {
 }
 
 class RevoluteJoint extends Joint {
-    constructor() { super(); this._impl = new jsbPhy.RevoluteJoint(); }
+    constructor () { super(); this._impl = new jsbPhy.RevoluteJoint(); }
     setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
@@ -634,17 +632,17 @@ class RevoluteJoint extends Joint {
     }
 }
 
-cc.physics.selector.register("physx", {
-    PhysicsWorld: PhysicsWorld,
-    RigidBody: RigidBody,
-    SphereShape: SphereShape,
-    BoxShape: BoxShape,
-    PlaneShape: PlaneShape,
-    CapsuleShape: CapsuleShape,
-    ConeShape: ConeShape,
-    CylinderShape: CylinderShape,
-    TrimeshShape: TrimeshShape,
-    TerrainShape: TerrainShape,
+cc.physics.selector.register('physx', {
+    PhysicsWorld,
+    RigidBody,
+    SphereShape,
+    BoxShape,
+    PlaneShape,
+    CapsuleShape,
+    ConeShape,
+    CylinderShape,
+    TrimeshShape,
+    TerrainShape,
     PointToPointConstraint: DistanceJoint,
     HingeConstraint: RevoluteJoint,
 });

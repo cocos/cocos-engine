@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { removeProperty, replaceProperty } from '../../core/utils';
 import { Mesh } from './mesh';
 

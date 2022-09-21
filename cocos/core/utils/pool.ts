@@ -23,11 +23,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
 type CleanUpFunction<T> = (value: T) => boolean | void;
 
 /**
@@ -138,6 +133,8 @@ export default class Pool<T> {
      * Get an object from pool, if no available object in the pool, null will be returned.
      * @zh
      * 获取对象池中的对象，如果对象池没有可用对象，则返回空。
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _get () {
         if (this.count > 0) {
