@@ -25,6 +25,8 @@
 
 #include "platform/ios/modules/SystemWindow.h"
 #import <UIKit/UIKit.h>
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 
 namespace cc {
 
@@ -52,8 +54,9 @@ uintptr_t SystemWindow::getWindowHandle() const {
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
+    auto dpr = BasePlatform::getPlatform()->getInterface<IScreen>()->getDevicePixelRatio();
     CGRect bounds = [[UIScreen mainScreen] bounds];
-    return Size{static_cast<float>(bounds.size.width), static_cast<float>(bounds.size.height)};
+    return Size{static_cast<float>(bounds.size.width * dpr), static_cast<float>(bounds.size.height * dpr)};
 }
 
 } // namespace cc
