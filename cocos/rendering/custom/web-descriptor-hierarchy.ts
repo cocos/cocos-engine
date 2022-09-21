@@ -316,6 +316,7 @@ export class WebDescriptorHierarchy {
             dbsMap.set(shader.name, queueDB);
         }
 
+        const pName = this._layoutGraph.getName(parent);
         for (let i = 0; i < asset.techniques.length; ++i) {
             const tech = asset.techniques[i];
             for (let j = 0; j < tech.passes.length; ++j) {
@@ -323,7 +324,7 @@ export class WebDescriptorHierarchy {
                 const passPhase = pass.phase;
                 let phase = '';
                 if (passPhase === undefined) {
-                    phase = '_';
+                    phase = `${pName}_`;
                 } else if (typeof passPhase === 'number') {
                     phase = passPhase.toString();
                 } else {
@@ -331,7 +332,7 @@ export class WebDescriptorHierarchy {
                 }
                 const db2add = dbsMap.get(pass.program);
                 if (db2add) {
-                    const v2add = this._layoutGraph.locate(`/default/${phase}`);
+                    const v2add = this._layoutGraph.locate(`/${pName}/${phase}`);
                     if (v2add === 0xFFFFFFFF) {
                         const v = this.addRenderPhase(phase, parent);
                         const dbStored = this._layoutGraph.getDescriptors(v);

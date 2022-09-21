@@ -6,6 +6,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
+      phase: forward-opaque
       properties: &props
         tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
@@ -58,6 +59,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
+      phase: forward-transparent
       embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
       depthStencilState:
         depthTest: true
