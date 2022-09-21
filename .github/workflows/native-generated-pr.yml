@@ -2,7 +2,7 @@ name: <Native> Assign Generated PR
 
 on:
   pull_request_target:
-    types: [opened]
+    # types: [opened]
     # paths:
     # - 'native/cocos/bindings/auto/**'
 
