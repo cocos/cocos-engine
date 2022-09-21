@@ -44,7 +44,7 @@ uint32_t Device::getInnerWidth() {
 uint32_t Device::getInnerHeight() {
     CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
     auto viewSize = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize();
-    return static_cast<int32_t>(viewSize.y);
+    return static_cast<uint32_t>(viewSize.y);
 }
 
 uint32_t Device::getWindowHandle() {
