@@ -113,10 +113,10 @@ export class Batcher2D implements IBatcher {
 
     //for middleware
     private _currIsMiddleware = false;
-    private _currEnableBatch = false;
-    private _currMeshBuffer: MeshBuffer | null = null;
-    private _currIndexOffset = 0;
-    private _currIndexCount = 0;
+    private _middlewareEnableBatch = false;
+    private _middlewareBuffer: MeshBuffer | null = null;
+    private _middlewareIndexStart = 0;
+    private _middlewareIndexCount = 0;
 
     private _pOpacity = 1;
     private _opacityDirty = 0;
@@ -449,11 +449,12 @@ export class Batcher2D implements IBatcher {
         indexCount: number, tex: TextureBase, mat: Material, enableBatch: boolean) {
         // check if need merge draw batch
         const texture = tex.getGFXTexture();
-        if (enableBatch && this._currEnableBatch && this._currMeshBuffer === meshBuffer && this._currTexture === texture
+        if (enableBatch && this._middlewareEnableBatch && this._middlewareBuffer === meshBuffer
+            && this._currTexture === texture
             && this._currMaterial.hash === mat.hash
-            && this._currIndexOffset + this._currIndexCount === indexOffset
+            && this._middlewareIndexStart + this._middlewareIndexCount === indexOffset
             && this._currLayer === comp.node.layer) {
-            this._currIndexCount += indexCount;
+            this._middlewareIndexCount += indexCount;
         } else {
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
@@ -467,11 +468,11 @@ export class Batcher2D implements IBatcher {
             this._currHash = 0;
             this._currTransform = enableBatch ? null : comp.node;
 
-            this._currEnableBatch = enableBatch;
-            this._currMeshBuffer = meshBuffer;
+            this._middlewareEnableBatch = enableBatch;
+            this._middlewareBuffer = meshBuffer;
             this._currMaterial = mat;
-            this._currIndexOffset = indexOffset;
-            this._currIndexCount = indexCount;
+            this._middlewareIndexStart = indexOffset;
+            this._middlewareIndexCount = indexCount;
         }
 
         this._currIsMiddleware = true;
@@ -649,9 +650,9 @@ export class Batcher2D implements IBatcher {
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.visFlags = renderComp.node.layer;
-        const ia = this._currMeshBuffer!.requireFreeIA(this.device);
-        ia.firstIndex = this._currIndexOffset;
-        ia.indexCount = this._currIndexCount;
+        const ia = this._middlewareBuffer!.requireFreeIA(this.device);
+        ia.firstIndex = this._middlewareIndexStart;
+        ia.indexCount = this._middlewareIndexCount;
 
         curDrawBatch.inputAssembler = ia;
         curDrawBatch.useLocalData = this._currTransform;
@@ -663,6 +664,7 @@ export class Batcher2D implements IBatcher {
         this._batches.push(curDrawBatch);
 
         this._currIsMiddleware = false;
+        this._middlewareBuffer = null;
     }
 
     /**
