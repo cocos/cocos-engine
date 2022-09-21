@@ -25,7 +25,7 @@
 
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
-import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO } from 'internal:constants';
+import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
@@ -33,8 +33,6 @@ import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
 import { sys } from '../platform/sys';
-
-const seperator = TAOBAO ? '_' : '@';
 
 /**
  * @en Image source in memory
@@ -233,7 +231,7 @@ export class ImageAsset extends Asset {
 
             const extensionIndices: string[] = [];
             for (const targetExtension of targetExtensions) {
-                const extensionFormat = targetExtension.split(seperator);
+                const extensionFormat = targetExtension.split('@');
                 const i = ImageAsset.extnames.indexOf(extensionFormat[0]);
                 let exportedExtensionID = i < 0 ? targetExtension : `${i}`;
                 if (extensionFormat[1]) {
@@ -265,7 +263,7 @@ export class ImageAsset extends Asset {
         let ext = '';
         const SupportTextureFormats = macro.SUPPORT_TEXTURE_FORMATS;
         for (const extensionID of extensionIDs) {
-            const extFormat = extensionID.split(seperator);
+            const extFormat = extensionID.split('@');
 
             const i = parseInt(extFormat[0], undefined);
             const tmpExt = ImageAsset.extnames[i] || extFormat[0];
