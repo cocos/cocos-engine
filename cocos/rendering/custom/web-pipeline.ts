@@ -537,6 +537,14 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, camera),
             'CameraQuad', '', new RenderData(), false, this._vertID,
         );
+        setCameraUBOValues(this, camera, this._pipeline,
+            camera.scene ? camera.scene : legacyCC.director.getScene().renderScene);
+        if (sceneFlags & SceneFlags.SHADOW_CASTER) {
+            // setShadowUBOLightView(this, light.light!, light.level);
+        } else {
+            setShadowUBOView(this, camera);
+        }
+        setTextureUBOView(this, camera, this._pipeline);
     }
     clearRenderTarget (name: string, color: Color) {
         this._renderGraph.addVertex<RenderGraphValue.Clear>(
@@ -810,7 +818,7 @@ export class WebPipeline extends Pipeline {
 
         this._forward = new ForwardPipelineBuilder();
         this._deferred = new DeferredPipelineBuilder();
-        // this.builder = new CustomPipelineBuilder();
+        this.builder = new CustomPipelineBuilder();
         return true;
     }
     public destroy (): boolean {
