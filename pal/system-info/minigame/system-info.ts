@@ -97,6 +97,7 @@ class SystemInfo extends EventTarget {
         this.isXR = false;
 
         // init capability
+        // NOTE: canvas.toDataURL() is not supported on WeChat iOS end (Found on iPhone 7p)
         const isIOSWechat = WECHAT && this.os === OS.IOS && !minigame.isDevTool;
         const _tmpCanvas1 = document.createElement('canvas');  // TODO: remove this
         let supportWebp;
