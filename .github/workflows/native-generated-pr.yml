@@ -21,8 +21,8 @@ jobs:
           PR_NUMBER: ${{github.event.number}}
         run: |
           # REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          # REPO_TOKEN: ${{secrets.PR_TOKEN}}
-          REPO_TOKEN=${{secrets.LABEl_TOKEN}}
+          REPO_TOKEN=${{secrets.PR_TOKEN}}
+          # REPO_TOKEN=${{secrets.LABEl_TOKEN}}
           SRC_PR=`curl ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits | \
             sh -c 'node ./.github/workflows/jsonr.js [0].commit.message "\(#(\w+)\)" 1'`
           echo "source pr ${SRC_PR}"
@@ -32,7 +32,7 @@ jobs:
           echo "token length:    ${#REPO_TOKEN}"
           echo ::set-output name=SRC_MERGER::${SRC_MERGER}
           # curl -X POST  -H "Accept: application/vnd.github+json" \
-          #   -H "Authorization: token ${{secrets.LABEl_TOKEN}}" \
+          #   -H "Authorization: token $REPO_TOKEN" \
           #   ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/assignees \
           #   -d '{"assignees":["${SRC_MERGER}"]}'
           # exit 0
