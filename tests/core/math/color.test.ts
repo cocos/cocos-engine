@@ -1,4 +1,4 @@
-import { Color } from '../../../cocos/core/math/color';
+import { Color, linearToSrgb8Bit, srgb8BitToLinear, srgbToLinear } from '../../../cocos/core/math/color';
 
 // test Color
 describe('Test Color', () => {
@@ -27,5 +27,14 @@ describe('Test Color', () => {
             Color.fromHEX(color4, testHexRGB);
             expect(color4._val).toBe(color3._val);
         });
+    });
+
+    test('linearToSrgb', () => {
+        expect(linearToSrgb8Bit(1.1)).toBe(255);
+        expect(linearToSrgb8Bit(-1)).toBe(0);
+        for (let i = 0; i != 256; i++) {
+            expect(linearToSrgb8Bit(srgb8BitToLinear(i))).toBe(i);
+            expect(srgb8BitToLinear(i)).toBe(srgbToLinear(i / 255.0));
+        }
     });
 });

@@ -30,6 +30,10 @@ import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';
 import { legacyCC } from '../global-exports';
 import { mixin } from '../utils/js-typed';
+import { assertIsTrue } from '../data/utils/asserts';
+import { Vec4 } from './vec4';
+import { CCClassConstructor } from '../data/deserialize';
+import { ccbitmask } from '../value-types/bitmask';
 
 const toFloat = 1 / 255;
 
@@ -382,11 +386,7 @@ export class Color extends ValueType {
      * @returns A string representation of the current color.
      */
     public toString () {
-        return `rgba(${
-            this.r.toFixed()}, ${
-            this.g.toFixed()}, ${
-            this.b.toFixed()}, ${
-            this.a.toFixed()})`;
+        return `rgba(${this.r.toFixed()}, ${this.g.toFixed()}, ${this.b.toFixed()}, ${this.a.toFixed()})`;
     }
 
     /**
@@ -406,16 +406,9 @@ export class Color extends ValueType {
      */
     public toCSS (opt: ('rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') = 'rgba') {
         if (opt === 'rgba') {
-            return `rgba(${
-                this.r},${
-                this.g},${
-                this.b},${
-                (this.a * toFloat).toFixed(2)})`;
+            return `rgba(${this.r},${this.g},${this.b},${(this.a * toFloat).toFixed(2)})`;
         } else if (opt === 'rgb') {
-            return `rgb(${
-                this.r},${
-                this.g},${
-                this.b})`;
+            return `rgb(${this.r},${this.g},${this.b})`;
         } else {
             return `#${this.toHEX(opt)}`;
         }
@@ -476,6 +469,37 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert to srgb.
+     * @zh 将当前颜色转换为 sRGB。
+     * @returns RGB integer value. Starting from the lowest valid bit, each 8 bits is the value of the Red, Green, and Blue channels respectively.
+     * @example
+     * ```
+     * const color = new Vec4(1, 1, 1, 1);
+     * color.linearFloat01To8bitSRGB();
+     * ```
+     */
+    public linearFloat01To8bitSRGB (value: Vec4) {
+        this.r = linearToSrgb8Bit(value[0]);
+        this.g = linearToSrgb8Bit(value[1]);
+        this.b = linearToSrgb8Bit(value[2]);
+        this.a = linearToSrgb8Bit(value[3]);
+        return this;
+    }
+    /**
+     * @en Convert to Linear Float Color
+     * @zh 将当前颜色转换为 Linear Float Color。
+     * @returns Vec4 as float color value.
+     * @example
+     * ```
+     * const color = Color.YELLOW;
+     * color.sRgb8BitToLinearFloat01();
+     * ```
+     */
+    public sRgb8BitToLinearFloat01 () {
+        return new Vec4(srgb8BitToLinear(this.r), srgb8BitToLinear(this.g), srgb8BitToLinear(this.b), srgb8BitToLinear(this.a));
+    }
+
+    /**
      * @en Convert to rgb value.
      * @zh 将当前颜色转换为 RGB 整数值。
      * @returns RGB integer value. Starting from the lowest valid bit, each 8 bits is the value of the Red, Green, and Blue channels respectively.
@@ -519,6 +543,9 @@ export class Color extends ValueType {
             const q = v * (1 - (s * f));
             const t = v * (1 - (s * (1 - f)));
             switch (i) {
+            default:
+                assertIsTrue(false);
+                // eslint-disable-next-line no-fallthrough
             case 0:
                 r = v;
                 g = t;
@@ -691,3 +718,37 @@ export function color (r?: number | Color | string, g?: number, b?: number, a?: 
 }
 
 legacyCC.color = color;
+
+export function srgbToLinear (x: number): number {
+    if (x <= 0) return 0;
+    else if (x >= 1) return 1;
+    else if (x < 0.04045) return x / 12.92;
+    else return ((x + 0.055) / 1.055) ** 2.4;
+}
+
+export function srgb8BitToLinear (x: number): number {
+    if ((x | 0) !== x || (x >>> 8) !== 0) { throw new RangeError('Value out of 8-bit range'); }
+    return SRGB_8BIT_TO_LINEAR[x];
+}
+
+export function linearToSrgb (x: number): number {
+    if (x <= 0) return 0;
+    else if (x >= 1) return 1;
+    else if (x < 0.0031308) return x * 12.92;
+    else return x ** (1 / 2.4) * 1.055 - 0.055;
+}
+
+export function linearToSrgb8Bit (x: number): number {
+    if (x <= 0) { return 0; }
+    const TABLE: Array<number> = SRGB_8BIT_TO_LINEAR;
+    if (x >= 1) { return TABLE.length - 1; }
+    let y = 0;
+    for (let i = TABLE.length >>> 1; i !== 0; i >>>= 1) {
+        if (TABLE[y | i] <= x) { y |= i; }
+    }
+    if (x - TABLE[y] <= TABLE[y + 1] - x) { return y; } else { return y + 1; }
+}
+
+// use table for more consistent conversion between uint8 and float, offline processes only.
+let SRGB_8BIT_TO_LINEAR: Array<number> = [];
+for (let i = 0; i < 256; i++) { SRGB_8BIT_TO_LINEAR.push(srgbToLinear(i / 255.0)); }
