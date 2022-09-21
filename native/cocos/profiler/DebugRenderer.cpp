@@ -241,13 +241,17 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
     }
 }
 
+void DebugRenderer::update() {
+    _buffer->update();
+}
+
 void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData) {
     CC_PROFILE(DebugRendererRender);
     if (!_buffer || _buffer->empty()) {
         return;
     }
 
-    _buffer->update();
+//    _buffer->update();
 
     const auto &pass = sceneData->getDebugRendererPass();
     const auto &shader = sceneData->getDebugRendererShader();

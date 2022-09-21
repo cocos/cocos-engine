@@ -98,6 +98,7 @@ bool isUISamplerSupported(uint32_t family);
 bool isRGB10A2UIStorageSupported(uint32_t family);
 bool isDDepthStencilFilterSupported(uint32_t family);
 bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet);
+bool supportMetalFX(id<MTLDevice> device);
 bool isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint32_t family);
 MTLPixelFormat getSupportedDepthStencilFormat(id<MTLDevice> device, uint32_t family, uint32_t &depthBits);
 bool isIndirectDrawSupported(uint32_t family);

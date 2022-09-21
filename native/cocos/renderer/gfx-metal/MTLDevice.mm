@@ -46,6 +46,7 @@
 #import "cocos/bindings/event/CustomEventTypes.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "profiler/Profiler.h"
+#import <MetalFX/MTLFXSpatialScaler.h>
 
 
 namespace cc {
@@ -212,30 +213,58 @@ void CCMTLDevice::present() {
     auto tempIndex = _currentFrameIndex;
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
-
-    ccstd::vector<id<CAMetalDrawable>> releaseQ;
+    
+    id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBuffer];
+    [cmdBuffer enqueue];
+    
     for (auto *swapchain : _swapchains) {
-        auto drawable = swapchain->currentDrawable();
-        if (drawable) {
-            releaseQ.push_back([drawable retain]);
-        }
-        swapchain->release();
+        auto* layer = swapchain->gpuSwapChainObj()->mtlLayer;
+        auto* color = static_cast<CCMTLTexture*>(swapchain->getColorTexture());
+        auto drawable = layer.nextDrawable;
+        auto drawbleTexture = drawable.texture;
+        
+#if 1
+        auto device = static_cast<id<MTLDevice>>(_mtlDevice);
+        bool support = [MTLFXSpatialScalerDescriptor supportsDevice:device];
+        auto scalerDesc = [MTLFXSpatialScalerDescriptor new];
+        [scalerDesc setInputWidth:color->getWidth()];
+        [scalerDesc setInputHeight:color->getHeight()];
+        [scalerDesc setColorTextureFormat:MTLPixelFormatBGRA8Unorm];
+        [scalerDesc setOutputTextureFormat:MTLPixelFormatBGRA8Unorm];
+        [scalerDesc setOutputWidth:drawbleTexture.width];
+        [scalerDesc setOutputHeight:drawbleTexture.height];
+        
+        auto outputTexDesc = [MTLTextureDescriptor new];
+        outputTexDesc.width = drawbleTexture.width;
+        outputTexDesc.height = drawbleTexture.height;
+        outputTexDesc.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        outputTexDesc.usage = MTLTextureUsageRenderTarget;
+        outputTexDesc.storageMode = MTLStorageModePrivate;
+        auto scalerOuput = [device newTextureWithDescriptor:outputTexDesc];
+        [outputTexDesc release];
+        
+        auto scaler = [scalerDesc newSpatialScalerWithDevice:device];
+        [scaler setInputContentWidth:color->getWidth()];
+        [scaler setInputContentHeight:color->getHeight()];
+        [scaler setColorTexture:color->getMTLTexture()];
+        [scaler setOutputTexture:scalerOuput];
+        [scaler encodeToCommandBuffer:cmdBuffer];
+        [scaler release];
+        [scalerDesc release];
+#endif
+        id<MTLBlitCommandEncoder> encoder = [cmdBuffer blitCommandEncoder];
+        [encoder copyFromTexture:scalerOuput toTexture:drawbleTexture];
+        [encoder endEncoding];
+
+        [cmdBuffer presentDrawable:drawable];
+        [scalerOuput release];
+        
     }
 
-    // present drawable
-    {
-        id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBuffer];
-        [cmdBuffer enqueue];
-
-        for (auto drawable : releaseQ) {
-            [cmdBuffer presentDrawable:drawable];
-            [drawable release];
-        }
-        [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-            onPresentCompleted(tempIndex);
-        }];
-        [cmdBuffer commit];
-    }
+    [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+        onPresentCompleted(tempIndex);
+    }];
+    [cmdBuffer commit];
 }
 
 void CCMTLDevice::onPresentCompleted(uint32_t index) {

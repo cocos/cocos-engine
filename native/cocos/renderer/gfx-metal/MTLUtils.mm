@@ -1793,5 +1793,13 @@ void mu::clearUtilResource() {
     }
 }
 
+bool mu::supportMetalFX(id<MTLDevice> device) {
+    if (@available(macOS 13.0, iOS 16.0, *)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 } // namespace gfx
 } // namespace cc

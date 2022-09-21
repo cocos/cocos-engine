@@ -53,7 +53,8 @@ namespace {
 constexpr size_t MegaBytesToBytes = 1024 * 1024;
 }
 
-constexpr size_t MAX_COLORATTACHMENTS = 16u;
+static constexpr size_t MAX_COLORATTACHMENTS = 16u;
+static constexpr size_t DRAWABLE_COUNT = 3U;
 
 struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;
@@ -293,8 +294,10 @@ protected:
 };
 
 struct CCMTLGPUSwapChainObject {
-    id<CAMetalDrawable> currentDrawable = nil;
     CAMetalLayer *mtlLayer = nullptr;
+    std::array<Texture*, DRAWABLE_COUNT> colors{nullptr, nullptr, nullptr};
+    Texture* depthStencil = nullptr;
+    uint32_t currentFrameIndex = 0;
 };
 
 struct CCMTLGPUQueueObject {

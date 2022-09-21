@@ -3090,6 +3090,7 @@ if(APPLE)
         "-framework OpenAL"
         "-framework GameController"
         "-framework Metal"
+        "-framework MetalFX"
         "-framework MetalKit"
         "-framework QuartzCore"
         "-framework MetalPerformanceShaders"

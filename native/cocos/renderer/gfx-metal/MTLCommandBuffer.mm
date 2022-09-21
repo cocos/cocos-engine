@@ -42,6 +42,7 @@
 #import "TargetConditionals.h"
 #import "profiler/Profiler.h"
 #import "base/Log.h"
+#import "cocos/profiler/DebugRenderer.h"
 
 namespace cc {
 namespace gfx {
@@ -144,10 +145,14 @@ void CCMTLCommandBuffer::end() {
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
+    
     // Sub CommandBuffer shouldn't call begin render pass
     if (_gpuCommandBufferObj->isSecondary) {
         return;
     }
+    
+    
+    CC_DEBUG_RENDERER->update();
 
     _gpuCommandBufferObj->renderPass = static_cast<CCMTLRenderPass *>(renderPass);
     _gpuCommandBufferObj->fbo = static_cast<CCMTLFramebuffer *>(fbo);
@@ -481,7 +486,7 @@ void CCMTLCommandBuffer::setViewport(const Viewport &vp) {
 }
 
 void CCMTLCommandBuffer::setScissor(const Rect &rect) {
-    _renderEncoder.setScissor(rect);
+//    _renderEncoder.setScissor(rect);
 }
 
 void CCMTLCommandBuffer::setLineWidth(float /*width*/) {
@@ -890,14 +895,14 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 
         id<MTLTexture> src = nil;
         if (ccSrcTex->swapChain()) {
-            src = ccSrcTex->swapChain()->currentDrawable().texture;
+            src = ccSrcTex->swapChain()->colorTexture()->getMTLTexture();
         } else {
             src = ccSrcTex->getMTLTexture();
         }
 
         id<MTLTexture> dst = nil;
         if (ccDstTex->swapChain()) {
-            dst = ccDstTex->swapChain()->currentDrawable().texture;
+            src = ccSrcTex->swapChain()->colorTexture()->getMTLTexture();
         } else {
             dst = ccDstTex->getMTLTexture();
         }

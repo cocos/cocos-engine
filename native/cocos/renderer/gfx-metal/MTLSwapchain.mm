@@ -105,17 +105,21 @@ void CCMTLSwapchain::doInit(const SwapchainInfo& info) {
     Format colorFmt = Format::BGRA8;
     Format depthStencilFmt = Format::DEPTH_STENCIL;
 
-    _colorTexture = ccnew CCMTLTexture;
-    _depthStencilTexture = ccnew CCMTLTexture;
 
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
     textureInfo.format = colorFmt;
-    textureInfo.width = info.width;
-    textureInfo.height = info.height;
-    initTexture(textureInfo, _colorTexture);
-
+    textureInfo.width = 1400;
+    textureInfo.height = 800;
+    
+    for (size_t i = 0; i < DRAWABLE_COUNT; ++i) {
+        _gpuSwapchainObj->colors[i] = ccnew CCMTLTexture();
+        initTexture(textureInfo, _gpuSwapchainObj->colors[i]);
+    }
+    _colorTexture = _gpuSwapchainObj->colors[0];
+    
     textureInfo.format = depthStencilFmt;
+    _depthStencilTexture = ccnew CCMTLTexture;
     initTexture(textureInfo, _depthStencilTexture);
 
     CCMTLDevice::getInstance()->registerSwapchain(this);
@@ -124,29 +128,31 @@ void CCMTLSwapchain::doInit(const SwapchainInfo& info) {
 void CCMTLSwapchain::doDestroy() {
     CCMTLDevice::getInstance()->unRegisterSwapchain(this);
     if (_gpuSwapchainObj) {
-        _gpuSwapchainObj->currentDrawable = nil;
         _gpuSwapchainObj->mtlLayer = nil;
+        for(size_t i = 0; i < DRAWABLE_COUNT; ++i) {
+            CC_SAFE_DESTROY_NULL(_gpuSwapchainObj->colors[i]);
+        };
 
         CC_SAFE_DELETE(_gpuSwapchainObj);
     }
-
-    CC_SAFE_DESTROY_NULL(_colorTexture);
+    
+    _colorTexture = nullptr;
     CC_SAFE_DESTROY_NULL(_depthStencilTexture);
 }
 
 void CCMTLSwapchain::doDestroySurface() {
     if (_gpuSwapchainObj) {
-        _gpuSwapchainObj->currentDrawable = nil;
         _gpuSwapchainObj->mtlLayer = nil;
     }
 }
 
 void CCMTLSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
-    _colorTexture->resize(width, height);
-    _depthStencilTexture->resize(width, height);
+    _colorTexture->resize(1400, 800);
+    _depthStencilTexture->resize(1400, 800);
 }
 
 CCMTLTexture* CCMTLSwapchain::colorTexture() {
+    _colorTexture = _gpuSwapchainObj->colors[_gpuSwapchainObj->currentFrameIndex];
     return static_cast<CCMTLTexture*>(_colorTexture.get());
 }
 
@@ -154,21 +160,15 @@ CCMTLTexture* CCMTLSwapchain::depthStencilTexture() {
     return static_cast<CCMTLTexture*>(_depthStencilTexture.get());
 }
 
-id<CAMetalDrawable> CCMTLSwapchain::currentDrawable() {
-    return _gpuSwapchainObj->currentDrawable;
+CAMetalLayer* CCMTLSwapchain::layer() {
+    return _gpuSwapchainObj->mtlLayer;
 }
 
 void CCMTLSwapchain::release() {
-    _gpuSwapchainObj->currentDrawable = nil;
-    static_cast<CCMTLTexture*>(_colorTexture.get())->update();
 }
 
 void CCMTLSwapchain::acquire() {
-    // hang on here if next drawable not available
-    while (!_gpuSwapchainObj->currentDrawable) {
-        _gpuSwapchainObj->currentDrawable = [_gpuSwapchainObj->mtlLayer nextDrawable];
-        static_cast<CCMTLTexture*>(_colorTexture.get())->update();
-    }
+    _gpuSwapchainObj->currentFrameIndex = _gpuSwapchainObj->currentFrameIndex++ % DRAWABLE_COUNT;
 }
 
 void CCMTLSwapchain::doCreateSurface(void* windowHandle) {
