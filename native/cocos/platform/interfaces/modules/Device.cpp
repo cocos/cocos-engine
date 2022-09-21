@@ -38,7 +38,7 @@ namespace cc {
 uint32_t Device::getInnerWidth() {
     CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
     auto viewSize = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize();
-    return static_cast<int32_t>(viewSize.x);
+    return static_cast<uint32_t>(viewSize.x);
 }
 
 uint32_t Device::getInnerHeight() {

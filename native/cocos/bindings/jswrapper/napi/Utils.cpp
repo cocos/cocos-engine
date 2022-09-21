@@ -37,7 +37,7 @@ void jsToSeValue(const target_value& value, Value* v) {
     napi_status    status;
     napi_valuetype valType;
     int64_t iRet      = 0;
-    double  dRet      = 0.F;
+    double  dRet      = 0.0;
     bool    bRet      = false;
     bool    lossless  = false;
     size_t  len       = 0;
