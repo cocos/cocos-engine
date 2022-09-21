@@ -39,4 +39,4 @@ jobs:
         uses: OperationsYU/auto-assignment@v1
         with:
           token: ${{ secrets.LABEl_TOKEN }}
-          users: '["${{steps.merger.output.SRC_MERGER}}"]'
+          users: '["${{steps.merger.outputs.SRC_MERGER}}"]'
