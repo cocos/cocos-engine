@@ -36,7 +36,6 @@
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
-#include "NativeExecutor.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
 #include "Pmr.h"
@@ -372,7 +371,7 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     const auto *sceneData = pipelineSceneData.get();
     auto *commandBuffer = device->getCommandBuffer();
 
-    executeRenderGraph(*this, renderGraph);
+    executeRenderGraph(renderGraph);
 }
 
 const MacroRecord &NativePipeline::getMacros() const {

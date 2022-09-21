@@ -512,6 +512,7 @@ public:
     void resetRenderQueue(bool reset) override;
     bool isRenderQueueReset() const override;
 
+    void executeRenderGraph(const RenderGraph& rg);
 private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;
 

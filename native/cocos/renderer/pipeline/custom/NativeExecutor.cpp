@@ -1,4 +1,3 @@
-#include "NativeExecutor.h"
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <variant>
@@ -575,7 +574,8 @@ struct RenderGraphCullVisitor : boost::dfs_visitor<> {
 
 } // namespace
 
-void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
+void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
+    auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
     FrameGraphDispatcher fgd(
         ppl.resourceGraph, rg,
