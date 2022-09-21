@@ -5,7 +5,8 @@ namespace cc {
 
 namespace render {
 
-void executeRenderGraph(const RenderGraph& renderGraph);
+class NativePipeline;
+void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg);
 
 } // namespace render
 

@@ -13,9 +13,10 @@
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "Set.h"
+#include "cocos/renderer/gfx-base/GFXBarrier.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
-#include "gfx-base/GFXBarrier.h"
-#include "gfx-base/GFXDef-common.h"
+
 
 namespace cc {
 
