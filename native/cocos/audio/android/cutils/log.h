@@ -33,7 +33,12 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <android/log.h>
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+// TODO(qgh):May be implemented in later versions
+// #include <Hilog/log.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -404,15 +409,23 @@ extern "C" {
  * is -inverted- from the normal assert() semantics.
  */
 #ifndef LOG_ALWAYS_FATAL_IF
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     #define LOG_ALWAYS_FATAL_IF(cond, ...)                                \
         ((__predict_false(cond))                                          \
              ? ((void)android_printAssert(#cond, LOG_TAG, ##__VA_ARGS__)) \
              : (void)0)
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #define LOG_ALWAYS_FATAL_IF(cond, ...)
+#endif
 #endif
 
 #ifndef LOG_ALWAYS_FATAL
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     #define LOG_ALWAYS_FATAL(...) \
         (((void)android_printAssert(NULL, LOG_TAG, ##__VA_ARGS__)))
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #define LOG_ALWAYS_FATAL(...)
+#endif
 #endif
 
 /*
@@ -467,8 +480,12 @@ extern "C" {
  * Log macro that allows you to specify a number for the priority.
  */
 #ifndef LOG_PRI
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     #define LOG_PRI(priority, tag, ...) \
         android_printLog(priority, tag, __VA_ARGS__)
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #define LOG_PRI(priority, tag, ...) ((void)0)
+#endif
 #endif
 
 /*

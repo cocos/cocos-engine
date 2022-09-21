@@ -24,6 +24,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include <sys/cdefs.h>
+#endif
 
 
 /* The memcpy_* conversion routines are designed to work in-place on same dst as src
@@ -929,6 +932,5 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
         return (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
     }  
     return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    
 #endif
 }

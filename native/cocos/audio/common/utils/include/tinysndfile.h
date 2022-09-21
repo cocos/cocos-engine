@@ -25,8 +25,9 @@
     #include <sys/cdefs.h>
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include <sys/types.h>
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #include <cstdint>
 #endif
-
 #include <cstdio>
 #include <cstdint>
 

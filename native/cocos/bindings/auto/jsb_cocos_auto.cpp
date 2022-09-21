@@ -2175,6 +2175,40 @@ static bool js_engine_Device_getDevicePixelRatio_static(se::State& s) // NOLINT(
 }
 SE_BIND_FUNC(js_engine_Device_getDevicePixelRatio_static)
 
+static bool js_engine_Device_getInnerHeight_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cc::Device::getInnerHeight();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getInnerHeight_static)
+
+static bool js_engine_Device_getInnerWidth_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cc::Device::getInnerWidth();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getInnerWidth_static)
+
 static bool js_engine_Device_getNetworkType_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -2208,6 +2242,23 @@ static bool js_engine_Device_getSafeAreaEdge_static(se::State& s) // NOLINT(read
     return false;
 }
 SE_BIND_FUNC(js_engine_Device_getSafeAreaEdge_static)
+
+static bool js_engine_Device_getWindowHandle_static(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cc::Device::getWindowHandle();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getWindowHandle_static)
 
 static bool js_engine_Device_setAccelerometerEnabled_static(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2289,8 +2340,11 @@ bool js_register_engine_Device(se::Object* obj) // NOLINT(readability-identifier
     cls->defineStaticFunction("getDeviceModel", _SE(js_engine_Device_getDeviceModel_static));
     cls->defineStaticFunction("getDeviceOrientation", _SE(js_engine_Device_getDeviceOrientation_static));
     cls->defineStaticFunction("getDevicePixelRatio", _SE(js_engine_Device_getDevicePixelRatio_static));
+    cls->defineStaticFunction("getInnerHeight", _SE(js_engine_Device_getInnerHeight_static));
+    cls->defineStaticFunction("getInnerWidth", _SE(js_engine_Device_getInnerWidth_static));
     cls->defineStaticFunction("getNetworkType", _SE(js_engine_Device_getNetworkType_static));
     cls->defineStaticFunction("getSafeAreaEdge", _SE(js_engine_Device_getSafeAreaEdge_static));
+    cls->defineStaticFunction("getWindowHandle", _SE(js_engine_Device_getWindowHandle_static));
     cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_engine_Device_setAccelerometerEnabled_static));
     cls->defineStaticFunction("setAccelerometerInterval", _SE(js_engine_Device_setAccelerometerInterval_static));
     cls->defineStaticFunction("setKeepScreenOn", _SE(js_engine_Device_setKeepScreenOn_static));

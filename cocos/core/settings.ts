@@ -26,6 +26,7 @@ import { HTML5 } from 'internal:constants';
 import { legacyCC } from './global-exports';
 
 declare const fsUtils: any;
+declare const require: (path: string) =>  Promise<void>;
 
 /**
  * @zh
@@ -74,6 +75,12 @@ export class Settings {
             }
         }
         if (!path) return Promise.resolve();
+
+        if (window.oh) {
+            // TODO(qgh):OpenHarmony temporarily does not support reading json that is not in the resource directory
+            this._settings = require('../settings.json');
+            return Promise.resolve();
+        }
         return new Promise((resolve, reject) => {
             if (!HTML5 && !path.startsWith('http')) {
                 const result = fsUtils.readJsonSync(path);

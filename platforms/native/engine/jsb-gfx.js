@@ -56,7 +56,8 @@ deviceProto.copyTexImagesToTexture = function (texImages, texture, regions) {
 
 const oldDeviceCreateSwapchainFunc = deviceProto.createSwapchain;
 deviceProto.createSwapchain = function (info) {
-    info.windowHandle = window.windowHandler;
+    // In openharmony, we need to get the window handle through the jsb interface
+    info.windowHandle = window.oh ? jsb.device.getWindowHandle() : window.windowHandler;
     return oldDeviceCreateSwapchainFunc.call(this, info);
 };
 

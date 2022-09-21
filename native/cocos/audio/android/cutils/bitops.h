@@ -20,9 +20,14 @@
 #include <stdbool.h>
 #include <string.h>
 #include <strings.h>
-#include <sys/cdefs.h>
 
-__BEGIN_DECLS
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include <sys/cdefs.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 static inline int popcount(unsigned int x) {
     return __builtin_popcount(x);
@@ -36,6 +41,8 @@ static inline int popcountll(unsigned long long x) {
     return __builtin_popcountll(x);
 }
 
-__END_DECLS
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* COCOS_CUTILS_BITOPS_H */

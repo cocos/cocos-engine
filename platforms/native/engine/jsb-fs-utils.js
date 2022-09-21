@@ -23,9 +23,12 @@ let jsb_downloader = null;
 const downloading = new cc.AssetManager.Cache();
 let tempDir = '';
 
-jsb.Downloader.prototype._ctor = function () {
-    this.__nativeRefs = {};
-};
+if(!window.oh) {
+    // TODO(qgh):The openharmony system temporarily does not support network download
+    jsb.Downloader.prototype._ctor = function () {
+        this.__nativeRefs = {};
+    };
+}
 
 var fsUtils = {
 

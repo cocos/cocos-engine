@@ -161,6 +161,11 @@ namespace build {
         };
 
         buildTimeConstants: IBuildTimeConstants;
+
+        /**
+         * Whether force SUPPORT_JIT to the specified value.
+         */
+        forceJitValue?: boolean,
     }
 
     export interface Result {
@@ -261,6 +266,9 @@ async function doBuild ({
         ...intrinsicFlags,
         ...options.buildTimeConstants,
     };
+    if (typeof options.forceJitValue !== undefined) {
+        buildTimeConstants['SUPPORT_JIT'] = options.forceJitValue as boolean;
+    }
 
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
@@ -275,8 +283,10 @@ async function doBuild ({
 
     // HACK: get platform, mode, flags from build time constants
     const flags: Record<string, any> = {};
-    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE'].forEach((key) => {
-        flags[key] = buildTimeConstants[key];
+    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'SUPPORT_JIT'].forEach((key) => {
+        if (key !== 'SUPPORT_JIT' || typeof buildTimeConstants['SUPPORT_JIT'] !== 'undefined') {
+            flags[key] = buildTimeConstants[key];
+        }
     });
     let platform = options.platform as PlatformType;
     if (!platform) {

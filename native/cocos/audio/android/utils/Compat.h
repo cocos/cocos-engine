@@ -17,7 +17,17 @@
 #ifndef COCOS_LIB_UTILS_COMPAT_H
 #define COCOS_LIB_UTILS_COMPAT_H
 
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <unistd.h>
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+#include <SLES/OpenSLES_OpenHarmony.h>
+#include <SLES/OpenSLES_Platform.h>
+#endif
 
 #if defined(__APPLE__)
 
@@ -83,6 +93,15 @@ static inline ssize_t pwrite64(int fd, const void *buf, size_t nbytes, off64_t o
     #define OS_PATH_SEPARATOR '\\'
 #else
     #define OS_PATH_SEPARATOR '/'
+#endif
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+typedef SLAndroidSimpleBufferQueueItf CCSLBufferQueueItf;
+#define CC_SL_IDD_BUFFER_QUEUE SL_IID_ANDROIDSIMPLEBUFFERQUEUE
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+typedef SLOHBufferQueueItf CCSLBufferQueueItf;
+#define CC_SL_IDD_BUFFER_QUEUE SL_IID_OH_BUFFERQUEUE
+#define __unused
 #endif
 
 #endif /* COCOS_LIB_UTILS_COMPAT_H */

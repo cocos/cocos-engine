@@ -93,11 +93,13 @@ static cc::network::Downloader *localDownloader() {
 }
 
 static void localDownloaderCreateTask(const ccstd::string &url, const std::function<void(const ccstd::string &, unsigned char *, int)> &callback) {
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO(qgh):May be removed later
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
     auto task = localDownloader()->createDataTask(url, key);
     gLocalDownloaderHandlers.emplace(task->identifier, callback);
+#endif
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
@@ -793,7 +795,7 @@ static bool JSB_setPreferredFramesPerSecond(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
-#if CC_USE_EDITBOX
+#if CC_USE_EDITBOX 
 static bool JSB_showInputBox(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
@@ -1379,7 +1381,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("destroyImage", _SE(js_destroyImage));
-#if CC_USE_EDITBOX
+#if CC_USE_EDITBOX && CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO(qgh):May be removed later
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
 #endif

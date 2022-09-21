@@ -16,10 +16,12 @@
 
 #pragma once
 
+#include <cstdint>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <android/log.h>
-#include <stdint.h>
 #include <sys/system_properties.h>
 #include <sys/types.h>
+#endif
 
 #include "audio/android/AudioBufferProvider.h"
 
@@ -28,7 +30,7 @@
 
 //#include <media/AudioBufferProvider.h>
 //#include <system/audio.h>
-#include <assert.h>
+#include <cassert>
 #include "audio/android/audio.h"
 
 namespace cc {
@@ -42,7 +44,7 @@ public:
     // NOTE: high quality SRC will only be supported for
     // certain fixed rate conversions. Sample rate cannot be
     // changed dynamically.
-    enum src_quality {
+    enum src_quality { // NOLINT(readability-identifier-naming)
         DEFAULT_QUALITY = 0,
         LOW_QUALITY = 1,
         MED_QUALITY = 2,
@@ -50,7 +52,7 @@ public:
         VERY_HIGH_QUALITY = 4,
     };
 
-    static const CONSTEXPR float UNITY_GAIN_FLOAT = 1.0f;
+    static const CONSTEXPR float UNITY_GAIN_FLOAT = 1.0F;
 
     static AudioResampler *create(audio_format_t format, int inChannelCount,
                                   int32_t sampleRate, src_quality quality = DEFAULT_QUALITY);
@@ -90,13 +92,13 @@ public:
 
 protected:
     // number of bits for phase fraction - 30 bits allows nearly 2x downsampling
-    static const int kNumPhaseBits = 30;
+    static const int kNumPhaseBits = 30; // NOLINT(readability-identifier-naming)
 
     // phase mask for fraction
-    static const uint32_t kPhaseMask = (1LU << kNumPhaseBits) - 1;
+    static const uint32_t kPhaseMask = (1LU << kNumPhaseBits) - 1; // NOLINT(readability-identifier-naming)
 
     // multiplier to calculate fixed point phase increment
-    static const double kPhaseMultiplier;
+    static const double kPhaseMultiplier; // NOLINT(readability-identifier-naming)
 
     AudioResampler(int inChannelCount, int32_t sampleRate, src_quality quality);
 
@@ -106,20 +108,21 @@ protected:
 
     int64_t calculateOutputPTS(int outputFrameIndex);
 
-    const int32_t mChannelCount;
-    const int32_t mSampleRate;
-    int32_t mInSampleRate;
-    AudioBufferProvider::Buffer mBuffer;
+
+    const int32_t mChannelCount;// NOLINT(readability-identifier-naming)
+    const int32_t mSampleRate;// NOLINT(readability-identifier-naming)
+    int32_t mInSampleRate;// NOLINT(readability-identifier-naming)
+    AudioBufferProvider::Buffer mBuffer;// NOLINT(readability-identifier-naming)
     union {
-        int16_t mVolume[2];
-        uint32_t mVolumeRL;
+        int16_t mVolume[2];// NOLINT(readability-identifier-naming)
+        uint32_t mVolumeRL;// NOLINT(readability-identifier-naming)
     };
-    int16_t mTargetVolume[2];
-    size_t mInputIndex;
-    int32_t mPhaseIncrement;
-    uint32_t mPhaseFraction;
-    uint64_t mLocalTimeFreq;
-    int64_t mPTS;
+    int16_t mTargetVolume[2];// NOLINT(readability-identifier-naming)
+    size_t mInputIndex;// NOLINT(readability-identifier-naming)
+    int32_t mPhaseIncrement;// NOLINT(readability-identifier-naming)
+    uint32_t mPhaseFraction;// NOLINT(readability-identifier-naming)
+    uint64_t mLocalTimeFreq;// NOLINT(readability-identifier-naming)
+    int64_t mPTS;// NOLINT(readability-identifier-naming)
 
     // returns the inFrameCount required to generate outFrameCount frames.
     //
@@ -148,32 +151,32 @@ protected:
     //  inFrameCount = (mPhaseIncrement * (outFrameCount - 1) + mPhaseFraction) / phaseWrapLimit;
     //  phaseWrapLimit is the wraparound (1 << kNumPhaseBits), if not specified explicitly.
     //
-    inline size_t getInFrameCountRequired(size_t outFrameCount) {
+    inline size_t getInFrameCountRequired(size_t outFrameCount) const {
         return (static_cast<size_t>(outFrameCount) * mInSampleRate + (mSampleRate - 1)) / mSampleRate;
     }
 
-    inline float clampFloatVol(float volume) {
+    inline float clampFloatVol(float volume) {//NOLINT(readability-identifier-naming, readability-convert-member-functions-to-static)
+        float ret = 0.0F;
         if (volume > UNITY_GAIN_FLOAT) {
-            return UNITY_GAIN_FLOAT;
+            ret = UNITY_GAIN_FLOAT;
         } else if (volume >= 0.) {
-            return volume;
+            ret = volume;
         }
-        return 0.; // NaN or negative volume maps to 0.
+        return ret; // NaN or negative volume maps to 0.
     }
 
 private:
-    const src_quality mQuality;
+    const src_quality mQuality;// NOLINT(readability-identifier-naming)
 
     // Return 'true' if the quality level is supported without explicit request
     static bool qualityIsSupported(src_quality quality);
 
     // For pthread_once()
-    static void init_routine();
+    static void init_routine(); // NOLINT(readability-identifier-naming)
 
     // Return the estimated CPU load for specific resampler in MHz.
     // The absolute number is irrelevant, it's the relative values that matter.
     static uint32_t qualityMHz(src_quality quality);
 };
-
 // ----------------------------------------------------------------------------
 } // namespace cc

@@ -140,7 +140,9 @@ int32_t Engine::init() {
 
 void Engine::destroy() {
     cc::DeferredReleasePool::clear();
+#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY) // TODO(qgh):May be removed later
     cc::network::HttpClient::destroyInstance();
+#endif
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
     CCObject::deferredDestroy();
@@ -225,6 +227,9 @@ void Engine::close() { // NOLINT
     //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();
     //#endif
+#if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY) // TODO(qgh):May be removed later
+    cc::network::HttpClient::destroyInstance();
+#endif
 
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();

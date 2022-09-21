@@ -25,19 +25,25 @@ THE SOFTWARE.
 
 #define LOG_TAG "PcmAudioService"
 
+#include "base/Macros.h"
 #include "audio/android/PcmAudioService.h"
 #include "audio/android/AudioMixerController.h"
+#include "audio/android/utils/Compat.h"
 
 namespace cc {
 
-static ccstd::vector<char> __silenceData;
+static ccstd::vector<char> __silenceData;//NOLINT(bugprone-reserved-identifier, readability-identifier-naming)
 
 #define AUDIO_PLAYER_BUFFER_COUNT (2)
 
 class SLPcmAudioPlayerCallbackProxy {
 public:
-    static void samplePlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
-        PcmAudioService *thiz = reinterpret_cast<PcmAudioService *>(context);
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    static void samplePlayerCallback(CCSLBufferQueueItf bq, void *context) {
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    static void samplePlayerCallback(CCSLBufferQueueItf bq, void *context, SLuint32 size) {
+#endif
+        auto *thiz = reinterpret_cast<PcmAudioService *>(context);
         thiz->bqFetchBufferCallback(bq);
     }
 };
@@ -60,7 +66,7 @@ bool PcmAudioService::enqueue() {
         } else {
             _controller->mixOneFrame();
 
-            auto current = _controller->current();
+            auto *current = _controller->current();
             ALOG_ASSERT(current != nullptr, "current buffer is nullptr ...");
             SLresult r = (*_bufferQueueItf)->Enqueue(_bufferQueueItf, current->buf, current->size);
             SL_RETURN_VAL_IF_FAILED(r, false, "enqueue failed!");
@@ -73,7 +79,8 @@ bool PcmAudioService::enqueue() {
     return true;
 }
 
-void PcmAudioService::bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq) {
+void PcmAudioService::bqFetchBufferCallback(CCSLBufferQueueItf bq) {
+    CC_UNUSED_PARAM(bq);
     // IDEA: PcmAudioService instance may be destroyed, we need to find a way to wait...
     // It's in sub thread
     enqueue();
@@ -90,19 +97,26 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     if (numChannels > 1) {
         channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
     }
-
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    // TODO(qgh): 1 channel must be set, there is a problem with dual channels in OpenHarmony
+    numChannels = 1;
+#endif
     SLDataFormat_PCM formatPcm = {
         SL_DATAFORMAT_PCM,
-        (SLuint32)numChannels,
-        (SLuint32)sampleRate * 1000,
+        static_cast<SLuint32>(numChannels),
+        static_cast<SLuint32>(sampleRate * 1000),
         SL_PCMSAMPLEFORMAT_FIXED_16,
         SL_PCMSAMPLEFORMAT_FIXED_16,
         channelMask,
         SL_BYTEORDER_LITTLEENDIAN};
 
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     SLDataLocator_AndroidSimpleBufferQueue locBufQueue = {
         SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
         AUDIO_PLAYER_BUFFER_COUNT};
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    SLDataLocator_BufferQueue locBufQueue = {SL_DATALOCATOR_BUFFERQUEUE, AUDIO_PLAYER_BUFFER_COUNT};
+#endif
     SLDataSource source = {&locBufQueue, &formatPcm};
 
     SLDataLocator_OutputMix locOutmix = {
@@ -113,7 +127,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     const SLInterfaceID ids[] = {
         SL_IID_PLAY,
         SL_IID_VOLUME,
-        SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
+        CC_SL_IDD_BUFFER_QUEUE,
     };
 
     const SLboolean req[] = {
@@ -124,7 +138,7 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
 
     SLresult r;
 
-    r = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &source, &sink, sizeof(ids) / sizeof(ids[0]), ids, req);
+    r = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &source, &sink, sizeof(ids) / sizeof(ids[0]), ids, req);//NOLINT(bugprone-sizeof-expression)
     SL_RETURN_VAL_IF_FAILED(r, false, "CreateAudioPlayer failed");
 
     r = (*_playObj)->Realize(_playObj, SL_BOOLEAN_FALSE);
@@ -136,8 +150,8 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
     r = (*_playObj)->GetInterface(_playObj, SL_IID_VOLUME, &_volumeItf);
     SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_VOLUME failed");
 
-    r = (*_playObj)->GetInterface(_playObj, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &_bufferQueueItf);
-    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_ANDROIDSIMPLEBUFFERQUEUE failed");
+    r = (*_playObj)->GetInterface(_playObj, CC_SL_IDD_BUFFER_QUEUE, &_bufferQueueItf);
+    SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface CC_SL_IDD_BUFFER_QUEUE failed");
 
     r = (*_bufferQueueItf)->RegisterCallback(_bufferQueueItf, SLPcmAudioPlayerCallbackProxy::samplePlayerCallback, this);
     SL_RETURN_VAL_IF_FAILED(r, false, "_bufferQueueItf RegisterCallback failed");
