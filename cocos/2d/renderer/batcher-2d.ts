@@ -464,6 +464,7 @@ export class Batcher2D implements IBatcher {
             this._currTextureHash = tex.getHash();
             this._currLayer = comp.node.layer;
             this._currSamplerHash = this._currSampler.hash;
+            this._currHash = 0;
             this._currTransform = enableBatch ? null : comp.node;
 
             this._currEnableBatch = enableBatch;
