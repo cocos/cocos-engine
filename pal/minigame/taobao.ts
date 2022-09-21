@@ -30,31 +30,6 @@ Object.defineProperty(minigame, 'orientation', {
 });
 // #endregion SystemInfo
 
-// #region TouchEvent
-// my.onTouchStart register touch event listner on body
-// need to register on canvas
-minigame.onTouchStart = function (cb) {
-    window.canvas.addEventListener('touchstart', (res) => {
-        cb && cb(res);
-    });
-};
-minigame.onTouchMove = function (cb) {
-    window.canvas.addEventListener('touchmove', (res) => {
-        cb && cb(res);
-    });
-};
-minigame.onTouchEnd = function (cb) {
-    window.canvas.addEventListener('touchend', (res) => {
-        cb && cb(res);
-    });
-};
-minigame.onTouchCancel = function (cb) {
-    window.canvas.addEventListener('touchcancel', (res) => {
-        cb && cb(res);
-    });
-};
-// #endregion TouchEvent
-
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     const audio: InnerAudioContext = my.createInnerAudioContext();
     // @ts-expect-error InnerAudioContext has onCanPlay

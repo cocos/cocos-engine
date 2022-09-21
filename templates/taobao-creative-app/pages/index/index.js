@@ -34,6 +34,10 @@ Page({
 			id:'GameCanvas', 
 			success(canvas){
 				$global.screencanvas = canvas;
+				if (!canvas.addEventListener) {
+					// fix: undefined addEventListener
+					canvas.addEventListener = function () {}
+				}
 				$global.__cocosCallback();
 			},
 			fail (err) {
