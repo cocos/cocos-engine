@@ -24,9 +24,11 @@
  THE SOFTWARE.
 */
 
-import { TEST } from 'internal:constants';
+import { TAOBAO, TEST } from 'internal:constants';
 import { BASE64_VALUES } from './misc';
 import { legacyCC } from '../global-exports';
+
+const seperator = TAOBAO ? '_' : '@';
 
 const HexChars = '0123456789abcdef'.split('');
 
@@ -51,7 +53,7 @@ const Indices = UuidTemplate.map((x, i) => (x === '-' ? NaN : i)).filter(isFinit
  * ```
  */
 export default function decodeUuid (base64: string) {
-    const strs = base64.split('@');
+    const strs = base64.split(seperator);
     const uuid = strs[0];
     if (uuid.length !== 22) {
         return base64;

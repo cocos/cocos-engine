@@ -319,6 +319,12 @@
             "ccGlobal": true,
             "internal": false
         },
+        "TAOBAO": {
+            "comment": "Running in the taobao creative app.",
+            "type": "boolean",
+            "value": false,
+            "internal": false
+        },
         "BYTEDANCE": {
             "comment": "Running in the ByteDance's mini game.",
             "type": "boolean",
@@ -428,7 +434,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $BYTEDANCE",
+            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
