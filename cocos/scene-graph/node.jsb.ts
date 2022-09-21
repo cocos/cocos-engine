@@ -21,22 +21,22 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass, editable, serializable, type } from 'cc.decorator'
-import { legacyCC } from '../global-exports';
-import { errorID, getError } from '../platform/debug';
-import { Component } from '../components/component';
+import { legacyCC } from '../core/global-exports';
+import { errorID, getError } from '../core/platform/debug';
+import { Component } from './component';
 import { NodeEventType } from './node-event';
-import { CCObject } from '../data/object';
+import { CCObject } from '../core/data/object';
 import { NodeUIProperties } from './node-ui-properties';
 import { NodeSpace, TransformBit } from './node-enum';
-import { Mat4, Quat, Vec3 } from '../math';
+import { Mat4, Quat, Vec3 } from '../core/math';
 import { Layers } from './layers';
-import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../data';
+import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
-import { getClassByName, isChildClassOf } from '../utils/js-typed';
-import { syncNodeValues } from "../utils/jsb-utils";
-import { property } from '../data/class-decorator';
+import { getClassByName, isChildClassOf } from '../core/utils/js-typed';
+import { syncNodeValues } from "../core/utils/jsb-utils";
+import { property } from '../core/data/class-decorator';
 import { nodePolyfill } from './node-dev';
-import * as js from '../utils/js';
+import * as js from '../core/utils/js';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 

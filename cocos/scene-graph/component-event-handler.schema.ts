@@ -1,4 +1,4 @@
-import { CCClass } from '../data';
+import { CCClass } from '../core/data';
 import { Node } from '../scene-graph/node';
 import { EventHandler } from './component-event-handler';
 

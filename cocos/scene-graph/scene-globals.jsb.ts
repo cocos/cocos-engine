@@ -31,13 +31,13 @@ import {
     visible
 // @ts-ignore
 } from 'cc.decorator';
-import { legacyCC } from '../global-exports';
-import { CCFloat, CCInteger } from '../data';
-import { TextureCube } from '../../asset/assets/texture-cube';
-import { Enum } from '../value-types';
-import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../data/decorators';
-import { EnvironmentLightingType } from '../../render-scene/scene';
-import { Material } from '../../asset/assets/material';
+import { legacyCC } from '../core/global-exports';
+import { CCFloat, CCInteger } from '../core/data';
+import { TextureCube } from '../asset/assets/texture-cube';
+import { Enum } from '../core/value-types';
+import { ccclass, displayOrder, rangeMin, rangeStep, slide } from '../core/data/decorators';
+import { EnvironmentLightingType } from '../render-scene/scene';
+import { Material } from '../asset/assets/material';
 
 /**
  * @zh

@@ -21,11 +21,11 @@
 
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from "internal:constants";
-import { legacyCC } from '../global-exports';
+import { legacyCC } from '../core/global-exports';
 import { Node } from './node';
-import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../utils/prefab/utils";
-import { assert } from "../platform/debug";
-import { updateChildrenForDeserialize } from '../utils/jsb-utils';
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../core/utils/prefab/utils";
+import { assert } from "../core/platform/debug";
+import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
 
 export const Scene = jsb.Scene;
 export type Scene = jsb.Scene;

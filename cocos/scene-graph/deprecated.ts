@@ -25,17 +25,17 @@
 
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
-import { replaceProperty, removeProperty } from '../utils/x-deprecated';
+import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
 import { Layers } from './layers';
 import { Node } from './node';
-import { Vec2 } from '../math/vec2';
-import { Size } from '../math/size';
-import { legacyCC } from '../global-exports';
-import { CCObject } from '../data/object';
-import { warnID } from '../platform/debug';
+import { Vec2 } from '../core/math/vec2';
+import { Size } from '../core/math/size';
+import { legacyCC } from '../core/global-exports';
+import { CCObject } from '../core/data/object';
+import { warnID } from '../core/platform/debug';
 import { SceneGlobals } from './scene-globals';
-import { SystemEventType } from '../../input/types';
-import { SystemEvent } from '../../input';
+import { SystemEventType } from '../input/types';
+import { SystemEvent } from '../input';
 import { NodeUIProperties } from './node-ui-properties';
 
 replaceProperty(Node.prototype, 'Node', [
@@ -53,40 +53,40 @@ replaceProperty(Node.prototype, 'Node', [
         name: 'width',
         targetName: 'node.getComponent(UITransform)',
         customGetter (this: Node) {
-            return this._uiProps.uiTransformComp!.width;
+            return this._uiProps.uiTransformComp.width;
         },
         customSetter (this: Node, value: number) {
-            this._uiProps.uiTransformComp!.width = value;
+            this._uiProps.uiTransformComp.width = value;
         },
     },
     {
         name: 'height',
         targetName: 'node.getComponent(UITransform)',
         customGetter (this: Node) {
-            return this._uiProps.uiTransformComp!.height;
+            return this._uiProps.uiTransformComp.height;
         },
         customSetter (this: Node, value: number) {
-            this._uiProps.uiTransformComp!.height = value;
+            this._uiProps.uiTransformComp.height = value;
         },
     },
     {
         name: 'anchorX',
         targetName: 'node.getComponent(UITransform)',
         customGetter (this: Node) {
-            return this._uiProps.uiTransformComp!.anchorX;
+            return this._uiProps.uiTransformComp.anchorX;
         },
         customSetter (this: Node, value: number) {
-            this._uiProps.uiTransformComp!.anchorX = value;
+            this._uiProps.uiTransformComp.anchorX = value;
         },
     },
     {
         name: 'anchorY',
         targetName: 'node.getComponent(UITransform)',
         customGetter (this: Node) {
-            return this._uiProps.uiTransformComp!.anchorY;
+            return this._uiProps.uiTransformComp.anchorY;
         },
         customSetter (this: Node, value: number) {
-            this._uiProps.uiTransformComp!.anchorY = value;
+            this._uiProps.uiTransformComp.anchorY = value;
         },
     },
     {
@@ -96,7 +96,7 @@ replaceProperty(Node.prototype, 'Node', [
             if (!out) {
                 out = new Vec2();
             }
-            out.set(this._uiProps.uiTransformComp!.anchorPoint);
+            out.set(this._uiProps.uiTransformComp.anchorPoint);
             return out;
         },
     },
@@ -104,7 +104,7 @@ replaceProperty(Node.prototype, 'Node', [
         name: 'setAnchorPoint',
         targetName: 'node.getComponent(UITransform)',
         customFunction (this: Node, point: Vec2 | number, y?: number) {
-            this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
+            this._uiProps.uiTransformComp.setAnchorPoint(point, y);
         },
     },
     {
@@ -115,7 +115,7 @@ replaceProperty(Node.prototype, 'Node', [
                 out = new Size();
             }
 
-            out.set(this._uiProps.uiTransformComp!.contentSize);
+            out.set(this._uiProps.uiTransformComp.contentSize);
             return out;
         },
     },
@@ -124,9 +124,9 @@ replaceProperty(Node.prototype, 'Node', [
         targetName: 'node.getComponent(UITransform)',
         customFunction (this: Node, size: Size | number, height?: number) {
             if (typeof size === 'number') {
-                this._uiProps.uiTransformComp!.setContentSize(size, height!);
+                this._uiProps.uiTransformComp.setContentSize(size, height!);
             } else {
-                this._uiProps.uiTransformComp!.setContentSize(size);
+                this._uiProps.uiTransformComp.setContentSize(size);
             }
         },
     },

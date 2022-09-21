@@ -24,9 +24,9 @@
  THE SOFTWARE.
 */
 
-import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
-import type { Node } from '../scene-graph';
-import { legacyCC } from '../global-exports';
+import { ccclass, serializable, editable, tooltip } from 'cc.decorator';
+import type { Node } from './node';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en
@@ -164,7 +164,7 @@ export class EventHandler {
         const comp = target!.getComponent(compType);
         if (!legacyCC.isValid(comp)) { return; }
 
-        const handler = comp![this.handler];
+        const handler = comp[this.handler];
         if (typeof (handler) !== 'function') { return; }
 
         if (this.customEventData != null && this.customEventData !== '') {

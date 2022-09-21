@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../global-exports';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en Node's coordinate space

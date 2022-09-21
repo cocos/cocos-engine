@@ -23,10 +23,10 @@
  THE SOFTWARE.
 */
 
-import { UIRenderer } from '../../2d/framework/ui-renderer';
-import { UITransform } from '../../2d/framework/ui-transform';
-import { warnID } from '../platform/debug';
-import { UIMeshRenderer } from '../../2d';
+import { UIRenderer } from '../2d/framework/ui-renderer';
+import { UITransform } from '../2d/framework/ui-transform';
+import { warnID } from '../core/platform/debug';
+import { UIMeshRenderer } from '../2d';
 
 /**
  * @en Node's UI properties abstraction

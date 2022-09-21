@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 
-import { BitMask, Enum } from '../value-types';
-import { legacyCC } from '../global-exports';
-import { log2 } from '../math/bits';
-import { js } from '../utils/js';
-import { assertIsTrue } from '../data/utils/asserts';
-import { getError } from '../platform/debug';
-import { Settings, settings } from '../settings';
+import { BitMask, Enum } from '../core/value-types';
+import { legacyCC } from '../core/global-exports';
+import { log2 } from '../core/math/bits';
+import { js } from '../core/utils/js';
+import { assertIsTrue } from '../core/data/utils/asserts';
+import { getError } from '../core/platform/debug';
+import { Settings, settings } from '../core/settings';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {

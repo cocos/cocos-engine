@@ -26,17 +26,17 @@
 
 import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { Script } from '../../asset/assets/scripts';
-import { CCObject } from '../data/object';
-import IDGenerator from '../utils/id-generator';
-import { getClassName, value } from '../utils/js';
-import { RenderScene } from '../../render-scene/core/render-scene';
-import { Rect } from '../math';
-import * as RF from '../data/utils/requiring-frame';
-import { Node } from '../scene-graph';
-import { legacyCC } from '../global-exports';
-import { errorID, warnID, assertID } from '../platform/debug';
-import { CompPrefabInfo } from '../utils/prefab/prefab-info';
+import { Script } from '../asset/assets/scripts';
+import { CCObject } from '../core/data/object';
+import IDGenerator from '../core/utils/id-generator';
+import { getClassName, value } from '../core/utils/js';
+import { RenderScene } from '../render-scene/core/render-scene';
+import { Rect } from '../core/math';
+import * as RF from '../core/data/utils/requiring-frame';
+import { Node } from './node';
+import { legacyCC } from '../core/global-exports';
+import { errorID, warnID, assertID } from '../core/platform/debug';
+import { CompPrefabInfo } from '../core/utils/prefab/prefab-info';
 import { EventHandler } from './component-event-handler';
 
 const idGenerator = new IDGenerator('Comp');
@@ -206,7 +206,7 @@ class Component extends CCObject {
         if (this._sceneGetter) {
             return this._sceneGetter();
         }
-        return this.node.scene.renderScene!;
+        return this.node.scene.renderScene;
     }
 
     // PUBLIC

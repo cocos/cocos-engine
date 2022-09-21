@@ -50,8 +50,6 @@ export { Root } from './root';
 export * from './scheduler';
 export * from './director';
 export * from './algorithm/murmurhash2_gc';
-export * from './scene-graph';
-export * from './components';
 export * from './curves';
 export * from './settings';
 

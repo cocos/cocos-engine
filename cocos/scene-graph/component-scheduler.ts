@@ -24,12 +24,12 @@
 */
 
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
-import { CCObject } from '../data/object';
-import { MutableForwardIterator } from '../utils/array';
-import { array } from '../utils/js';
-import { tryCatchFunctor_EDITOR } from '../utils/misc';
-import { legacyCC } from '../global-exports';
-import { error, assert } from '../platform/debug';
+import { CCObject } from '../core/data/object';
+import { MutableForwardIterator } from '../core/utils/array';
+import { array } from '../core/utils/js';
+import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
+import { legacyCC } from '../core/global-exports';
+import { error, assert } from '../core/platform/debug';
 
 const fastRemoveAt = array.fastRemoveAt;
 

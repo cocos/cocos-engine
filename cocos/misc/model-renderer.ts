@@ -26,7 +26,7 @@
 import {
     ccclass, serializable,
 } from 'cc.decorator';
-import { scene } from '../../render-scene';
+import { scene } from '../render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Renderer } from './renderer';
 

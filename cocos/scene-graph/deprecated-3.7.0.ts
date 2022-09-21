@@ -1,4 +1,4 @@
-import { deprecateModuleExportedName } from '../utils/x-deprecated';
+import { deprecateModuleExportedName } from '../core/utils/x-deprecated';
 
 deprecateModuleExportedName({
     BaseNode: {

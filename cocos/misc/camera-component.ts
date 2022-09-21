@@ -25,23 +25,22 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
-import { RenderTexture } from '../../asset/assets/render-texture';
-import { UITransform } from '../../2d/framework';
-import { Component } from './component';
-import { Ray } from '../geometry';
-import { Color, Rect, toRadian, Vec3 } from '../math';
-import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { scene } from '../../render-scene';
+import { RenderTexture } from '../asset/assets/render-texture';
+import { UITransform } from '../2d/framework';
+import { Component } from '../scene-graph';
+import { Ray } from '../core/geometry';
+import { Color, Rect, toRadian, Vec3 } from '../core/math';
+import { CAMERA_DEFAULT_MASK } from '../rendering/define';
+import { scene } from '../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
-    CameraType, TrackingType } from '../../render-scene/scene/camera';
-import { Root } from '../root';
+    CameraType, TrackingType } from '../render-scene/scene/camera';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
-import { Enum } from '../value-types';
+import { Enum } from '../core/value-types';
 import { TransformBit } from '../scene-graph/node-enum';
-import { legacyCC } from '../global-exports';
-import { RenderWindow } from '../../render-scene/core/render-window';
-import { ClearFlagBit } from '../../gfx';
+import { legacyCC } from '../core/global-exports';
+import { RenderWindow } from '../render-scene/core/render-window';
+import { ClearFlagBit } from '../gfx';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -166,7 +165,7 @@ export class Camera extends Component {
      * @zh 渲染场景中的相机对象。
      */
     get camera () {
-        return this._camera!;
+        return this._camera;
     }
 
     /**
@@ -629,7 +628,7 @@ export class Camera extends Component {
      */
     public _createCamera () {
         if (!this._camera) {
-            this._camera = (legacyCC.director.root as Root).createCamera();
+            this._camera = (legacyCC.director.root).createCamera();
             this._camera.initialize({
                 name: this.node.name,
                 node: this.node,

@@ -23,15 +23,15 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, DEV, TEST, SUPPORT_JIT, DEBUG } from 'internal:constants';
-import { CCObject, isValid } from '../data/object';
-import { array, Pool } from '../utils/js';
-import { tryCatchFunctor_EDITOR } from '../utils/misc';
+import { EDITOR, DEV, SUPPORT_JIT, DEBUG } from 'internal:constants';
+import { CCObject, isValid } from '../core/data/object';
+import { array, Pool } from '../core/utils/js';
+import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
-import { legacyCC } from '../global-exports';
-import { assert, errorID, getError } from '../platform/debug';
+import { legacyCC } from '../core/global-exports';
+import { assert, errorID, getError } from '../core/platform/debug';
 import { NodeEventType } from './node-event';
-import { assertIsTrue } from '../data/utils/asserts';
+import { assertIsTrue } from '../core/data/utils/asserts';
 
 const MAX_POOL_SIZE = 4;
 

@@ -25,14 +25,14 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { CCObject } from '../data/object';
-import { assert, getError } from '../platform/debug';
-import { RenderScene } from '../../render-scene/core/render-scene';
+import { CCObject } from '../core/data/object';
+import { assert, getError } from '../core/platform/debug';
+import { RenderScene } from '../render-scene/core/render-scene';
 import { Node } from './node';
-import { legacyCC } from '../global-exports';
-import { Component } from '../components/component';
+import { legacyCC } from '../core/global-exports';
+import { Component } from './component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../utils/prefab/utils';
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../core/utils/prefab/utils';
 
 /**
  * @en

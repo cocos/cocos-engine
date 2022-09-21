@@ -24,9 +24,9 @@
 */
 
 import { DEV } from 'internal:constants';
-import { warnID } from '../platform/debug';
+import { warnID } from '../core/platform/debug';
 import { Node } from './node';
-import { legacyCC } from '../global-exports';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en Finds a node by hierarchy path, the path is case-sensitive.
