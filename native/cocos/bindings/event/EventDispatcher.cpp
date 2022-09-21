@@ -405,8 +405,7 @@ void EventDispatcher::dispatchCloseEvent() {
 
 void EventDispatcher::dispatchDestroyWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_MAIN_SYSTEM_WINDOW()->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, ISystemWindow::mainWindowId);
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 #endif
@@ -414,7 +413,7 @@ void EventDispatcher::dispatchDestroyWindowEvent() {
 
 void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, reinterpret_cast<void *>(window->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, window->getWindowId());
 #else
     CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
@@ -423,8 +422,7 @@ void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_MAIN_SYSTEM_WINDOW()->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, ISystemWindow::mainWindowId);
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif
@@ -432,8 +430,7 @@ void EventDispatcher::dispatchRecreateWindowEvent() {
 
 void EventDispatcher::dispatchRecreateWindowEvent(cc::ISystemWindow *window) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    auto windowId = static_cast<uintptr_t>(window->getWindowId());
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, reinterpret_cast<void *>(windowId));
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, window->getWindowId());
 #else
     CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
