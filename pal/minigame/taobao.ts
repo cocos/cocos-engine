@@ -10,7 +10,7 @@ cloneObject(minigame, my);
 
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
+minigame.isDevTool = my.isIDE;
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 // init landscapeOrientation as LANDSCAPE_RIGHT
