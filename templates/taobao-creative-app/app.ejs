@@ -1,5 +1,6 @@
-let onShowCB;
-let onHideCB;
+$global._onShowCB = null;
+$global._onHideCB = null;
+
 App({
   onLaunch: function onLaunch(options) {
     console.info('App onLaunched');
@@ -33,19 +34,11 @@ App({
         console.error(err);
       });    
     };
-
-    my.onShow = function (cb) {
-      onShowCB = cb;
-    };
-
-    my.onHide = function (cb) {
-      onHideCB = cb;
-    };
   },
   onShow: function onShow(options) {
-    onShowCB && onShowCB();
+    $global._onShowCB && $global._onShowCB();
   },
   onHide: function onHide(options) {
-    onHideCB && onHideCB();
+    $global._onHideCB && $global._onHideCB();
   }
 });

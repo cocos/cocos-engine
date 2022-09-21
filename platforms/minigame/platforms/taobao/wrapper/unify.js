@@ -1,5 +1,50 @@
 const utils = require('./utils');
 
+function handleTouchEvent (event) {
+	if (my.isIDE) {
+		return;
+	}
+	let changedTouches = event.changedTouches;
+	if (changedTouches) {
+		for (let touch of changedTouches) {
+			touch.clientX = touch.x;
+			touch.clientY = touch.y;
+		}
+	}
+}
+
+my.onTouchStart = function (cb) {
+    $global._touchstartCB = function (event) {
+        handleTouchEvent(event);
+        cb(event);
+    };
+};
+my.onTouchCancel = function (cb) {
+    $global._touchcancelCB = function (event) {
+        handleTouchEvent(event);
+        cb(event);
+    };
+};
+my.onTouchEnd = function (cb) {
+    $global._touchendCB = function (event) {
+        handleTouchEvent(event);
+        cb(event);
+    };
+};
+my.onTouchMove = function (cb) {
+    $global._touchmoveCB = function (event) {
+        handleTouchEvent(event);
+        cb(event);
+    };
+};
+
+my.onShow = function (cb) {
+    $global._onShowCB = cb;
+};
+my.onHide = function (cb) {
+    $global._onHideCB = cb;
+};
+
 if (window.__globalAdapter) {
     let globalAdapter = window.__globalAdapter;
     // SystemInfo

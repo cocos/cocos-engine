@@ -1,54 +1,24 @@
-var touchstartCB;
-var touchcancelCB;
-var touchendCB;
-var touchmoveCB;
-
-function handleTouchEvent (event) {
-	if (my.isIDE) {
-		return;
-	}
-	let changedTouches = event.changedTouches;
-	if (changedTouches) {
-		for (let touch of changedTouches) {
-			touch.clientX = touch.x;
-			touch.clientY = touch.y;
-		}
-	}
-}
+$global._touchstartCB = null;
+$global._touchcancelCB = null;
+$global._touchendCB = null;
+$global._touchmoveCB = null;
 
 Page({
-	onReady () {
-		my.onTouchStart = function (cb) {
-			touchstartCB = cb;
-		}
-		my.onTouchCancel = function (cb) {
-			touchcancelCB = cb;
-		}
-		my.onTouchEnd = function (cb) {
-			touchendCB = cb;
-		}
-		my.onTouchMove = function (cb) {
-			touchmoveCB = cb;
-		}
-	},
+	onReady () { },
 	onError (err) {
 		console.error('error in page: ', err);
 	},
 	onTouchStart (event) {
-		handleTouchEvent(event);
-		touchstartCB && touchstartCB(event);
+		$global._touchstartCB && $global._touchstartCB(event);
 	},
 	onTouchCancel (event) {
-		handleTouchEvent(event);
-		touchcancelCB && touchcancelCB(event);
+		$global._touchcancelCB && $global._touchcancelCB(event);
 	},
 	onTouchEnd (event) {
-		handleTouchEvent(event);
-		touchendCB && touchendCB(event);
+		$global._touchendCB && $global._touchendCB(event);
 	},
 	onTouchMove (event) {
-		handleTouchEvent(event);
-		touchmoveCB && touchmoveCB(event);
+		$global._touchmoveCB && $global._touchmoveCB(event);
 	},
 	canvasOnReady () {
 		my.createCanvas({
