@@ -96,7 +96,7 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
         maxPos.z *= z;
     }
     if (minPos && maxPos) {
-        // Negative scaling causes min-max to be flipped.
+        // Negative scaling causes min-max to be swapped.
         if (x < 0) {
             const tmp = minPos.x; minPos.x = maxPos.x; maxPos.x = tmp;
         }
