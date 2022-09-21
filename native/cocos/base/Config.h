@@ -44,9 +44,7 @@
 /** Support webp or not. If your application don't use webp format picture, you can undefine this macro to save package size.
  */
 #ifndef CC_USE_WEBP
-    #if (CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
-        #define CC_USE_WEBP 1
-    #endif
+    #define CC_USE_WEBP 1
 #endif // CC_USE_WEBP
 
 /** Support EditBox
