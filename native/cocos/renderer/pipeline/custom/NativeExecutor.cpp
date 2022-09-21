@@ -202,7 +202,8 @@ gfx::BufferBarrierInfo getBufferBarrier(
             usage = buf->getUsage();
             memUsage = buf->getMemUsage();
         },
-        [&](const auto&) {
+        [&](const auto& tex) {
+            std::ignore = tex;
             CC_EXPECTS(false);
         });
 
@@ -233,13 +234,15 @@ gfx::TextureBarrierInfo getTextureBarrier(
         [&](const IntrusivePtr<gfx::Texture>& tex) {
             usage = tex->getInfo().usage;
         },
-        [&](const IntrusivePtr<gfx::Framebuffer>&) {
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            std::ignore = fb;
             CC_EXPECTS(false);
         },
         [&](const RenderSwapchain& sc) {
             usage = sc.swapchain->getColorTexture()->getInfo().usage;
         },
-        [&](const auto&) {
+        [&](const auto& buffer) {
+            std::ignore = buffer;
             CC_EXPECTS(false);
         });
 
