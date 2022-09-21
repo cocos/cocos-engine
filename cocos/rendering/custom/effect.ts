@@ -368,10 +368,10 @@ export function buildDeferredLayout (ppl: Pipeline) {
         ShaderStageFlagBit.FRAGMENT,
         lightingDescriptors);
 
-    lg.setDescriptor(lightingPassBlock, 'gbuffer_albedoMap', Type.SAMPLER2D);
-    lg.setDescriptor(lightingPassBlock, 'gbuffer_normalMap', Type.SAMPLER2D);
-    lg.setDescriptor(lightingPassBlock, 'gbuffer_emissiveMap', Type.SAMPLER2D);
-    lg.setDescriptor(lightingPassBlock, 'depth_stencil', Type.SAMPLER2D);
+    lg.setDescriptor(lightingPassBlock, 'gbuffer_albedoMap', Type.FLOAT4);
+    lg.setDescriptor(lightingPassBlock, 'gbuffer_normalMap', Type.FLOAT4);
+    lg.setDescriptor(lightingPassBlock, 'gbuffer_emissiveMap', Type.FLOAT4);
+    lg.setDescriptor(lightingPassBlock, 'depth_stencil', Type.FLOAT4);
 
     const visitor = new CollectVisitor();
     const colorMap = new VectorGraphColorMap(lg.layoutGraph.numVertices());
@@ -387,7 +387,7 @@ export function buildDeferredLayout (ppl: Pipeline) {
         ShaderStageFlagBit.FRAGMENT,
         postDescriptors);
 
-    lg.setDescriptor(postPassBlock, 'outputResultMap', Type.SAMPLER2D);
+    lg.setDescriptor(postPassBlock, 'outputResultMap', Type.FLOAT4);
     lg.merge(postDescriptors);
 
     lg.mergeDescriptors(postPassID);

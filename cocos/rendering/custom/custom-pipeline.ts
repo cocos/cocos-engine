@@ -87,7 +87,7 @@ export class CustomPipelineBuilder extends PipelineBuilder {
             const forwardPassRTName = `dsForwardPassColor${cameraName}`;
             const forwardPassDSName = `dsForwardPassDS${cameraName}`;
             if (!ppl.containsResource(forwardPassRTName)) {
-                ppl.addRenderTarget(forwardPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+                ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
                 // ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
                 ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
             }
