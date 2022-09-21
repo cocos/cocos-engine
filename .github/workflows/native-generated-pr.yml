@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Locate and assign issue
+      - name: Query source merger
+        id: merger
         env:
           PR_NUMBER: ${{github.event.number}}
           # REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -28,8 +29,14 @@ jobs:
           SRC_MERGER=`curl -H "Accept: application/vnd.github+json" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${SRC_PR} | \
             sh -c 'node ./.github/workflows/jsonr.js merged_by.login'`
           echo "source pr merger ${SRC_MERGER}"
-          curl -X POST  -H "Accept: application/vnd.github+json" \
-            -H "Authorization: token $REPO_TOKEN" \
-            ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/assignees \
-            -d '{"assignees":["${SRC_MERGER}"]}'
-          exit 0
+          echo ::set-output name=SRC_MERGER::${SRC_MERGER}
+          #curl -X POST  -H "Accept: application/vnd.github+json" \
+          #  -H "Authorization: token $REPO_TOKEN" \
+          #  ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/assignees \
+          #  -d '{"assignees":["${SRC_MERGER}"]}'
+          #exit 0
+      - name: Assignment
+        uses: OperationsYU/auto-assignment@v1
+        with:
+          token: ${{ secrets.LABEl_TOKEN }}
+          users: '["${{steps.merger.output.SRC_MERGER}}"]'
