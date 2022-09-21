@@ -81,7 +81,7 @@ export class PlanarShadowQueue {
                 for (let k = 0; k < passes.length; k++) {
                     const pass = passes[k];
                     const batchingScheme = pass.batchingScheme;
-                    if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+                    if (batchingScheme === BatchingSchemes.INSTANCING) {
                         instancedBuffer.merge(subModel, model.getInstancedAttributeBlock(subModel), k, subModel.planarShader);
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else {

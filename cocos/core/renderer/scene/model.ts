@@ -288,8 +288,8 @@ export class Model {
     public isDynamicBatching = false;
 
     /**
-     * @en The instance attributes, access by subModel
-     * @zh 实例化属性，通过子模型获取
+     * @en The instance attribute block, access by subModel
+     * @zh 硬件实例化属性，通过子模型访问
      */
     public getInstancedAttributeBlock (subModel: SubModel): IInstancedAttributeBlock {
         if (!this._instancedAttributes.has(subModel)) {
@@ -377,7 +377,7 @@ export class Model {
 
     /**
      * @en Instance matrix id, access by subModel
-     * @zh 实例矩阵索引，通过子模型获取
+     * @zh 硬件实例化中的矩阵索引，通过子模型访问
      */
     private _instMatWorldIdx: Map<SubModel, number> = new Map<SubModel, number>();
     private _lightmap: Texture2D | null = null;

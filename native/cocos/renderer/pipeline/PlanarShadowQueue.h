@@ -59,7 +59,7 @@ private:
     // weak reference
     ccstd::vector<const scene::Model *> _castModels;
     // weak reference
-    ccstd::vector<const scene::SubModel *> _pendingModels;
+    ccstd::vector<const scene::SubModel *> _pendingSubModels;
 };
 } // namespace pipeline
 } // namespace cc

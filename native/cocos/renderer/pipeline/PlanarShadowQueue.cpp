@@ -100,7 +100,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
                     instancedBuffer->merge(subModel, const_cast<scene::Model *>(model)->getInstancedAttributeBlock(subModel), i, subModel->getPlanarInstanceShader());
                     _instancedQueue->add(instancedBuffer);
                 } else { // standard draw
-                    _pendingModels.emplace_back(subModel);
+                    _pendingSubModels.emplace_back(subModel);
                 }
             }
         }
@@ -111,7 +111,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
 
 void PlanarShadowQueue::clear() {
     _castModels.clear();
-    _pendingModels.clear();
+    _pendingSubModels.clear();
     if (_instancedQueue) _instancedQueue->clear();
 }
 
@@ -124,14 +124,14 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
 
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
-    if (_pendingModels.empty()) {
+    if (_pendingSubModels.empty()) {
         return;
     }
 
     const scene::Pass *pass = (*shadowInfo->getMaterial()->getPasses())[0];
     cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
 
-    for (const auto *subModel : _pendingModels) {
+    for (const auto *subModel : _pendingSubModels) {
         auto *const shader = subModel->getPlanarShader();
         auto *const ia = subModel->getInputAssembler();
         auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass, subpassID);
@@ -147,7 +147,7 @@ void PlanarShadowQueue::destroy() {
     _pipeline = nullptr;
     CC_SAFE_DELETE(_instancedQueue);
     _castModels.clear();
-    _pendingModels.clear();
+    _pendingSubModels.clear();
 }
 
 } // namespace pipeline
