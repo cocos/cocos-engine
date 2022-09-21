@@ -97,12 +97,17 @@ class SystemInfo extends EventTarget {
         this.isXR = false;
 
         // init capability
+        const isIOSWechat = WECHAT && this.os === OS.IOS && !minigame.isDevTool;
         const _tmpCanvas1 = document.createElement('canvas');  // TODO: remove this
         let supportWebp;
-        try {
-            supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
-        } catch (e) {
-            supportWebp  = false;
+        if (isIOSWechat) {
+            supportWebp = true;
+        } else {
+            try {
+                supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+            } catch (e) {
+                supportWebp  = false;
+            }
         }
 
         const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
