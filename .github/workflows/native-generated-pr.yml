@@ -1,28 +1,29 @@
 name: <Native> Assign Generated PR
 
-# on:
-  # pull_request_target:
-    # types: [closed]
+on:
+  pull_request_target:
+    types: [opened]
     # paths:
     # - 'native/cocos/bindings/auto/**'
 
-on: pull_request
+# on: pull_request
 
 jobs:
   auto-assign:
-    if: 
-      (contains(github.event.pull_request.body, 'Automated PR to genbindings'))
     runs-on: ubuntu-latest
     steps:
+      - name: Skip by title
+        if: 
+          (contains(github.event.pull_request.body, 'Automated PR to genbindings'))
       - uses: actions/checkout@v2
       - name: Query source merger
         id: merger
         env:
           PR_NUMBER: ${{github.event.number}}
         run: |
-          REPO_TOKEN=${{secrets.GITHUB_TOKEN}}
+          # REPO_TOKEN=${{secrets.GITHUB_TOKEN}}
           # REPO_TOKEN=${{secrets.PR_TOKEN}}
-          # REPO_TOKEN=${{secrets.LABEL_TOKEN}}
+          REPO_TOKEN=${{secrets.LABEL_TOKEN}}
           SRC_PR=`curl ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits | \
             sh -c 'node ./.github/workflows/jsonr.js [0].commit.message "\(#(\w+)\)" 1'`
           echo "source pr ${SRC_PR}"
