@@ -5,7 +5,7 @@ App({
   onLaunch: function onLaunch(options) {
     console.info('App onLaunched');
 
-    $global.__cocosCallback = function () {
+    $global.__onCanvasCreated = function () {
       require('./<%= polyfillsBundleFile %>');
       require('./<%= systemJsBundleFile %>');
       require('./load-module.js');

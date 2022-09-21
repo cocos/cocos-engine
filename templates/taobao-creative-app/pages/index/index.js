@@ -29,7 +29,7 @@ Page({
 					// fix: undefined addEventListener
 					canvas.addEventListener = function () {}
 				}
-				$global.__cocosCallback();
+				$global.__onCanvasCreated();
 			},
 			fail (err) {
 				console.error('failed to init on screen canvas', err)
