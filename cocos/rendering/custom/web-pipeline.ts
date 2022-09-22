@@ -913,6 +913,12 @@ export class WebPipeline implements Pipeline {
     public onGlobalPipelineStateChanged (): void {
         // do nothing
     }
+    beginSetup (): void {
+        this._renderGraph = new RenderGraph();
+    }
+    endSetup (): void {
+        // noop
+    }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
@@ -980,7 +986,7 @@ export class WebPipeline implements Pipeline {
         );
     }
     beginFrame () {
-        this._renderGraph = new RenderGraph();
+        // noop
     }
     endFrame () {
         this._renderGraph = null;

@@ -89,6 +89,14 @@ gfx::Device *NativePipeline::getDevice() const {
     return device;
 }
 
+void NativePipeline::beginSetup() {
+    // noop
+}
+
+void NativePipeline::endSetup() {
+    // noop
+}
+
 bool NativePipeline::containsResource(const ccstd::string &name) const {
     return contains(name.c_str(), resourceGraph);
 }

@@ -45,147 +45,149 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
 export interface PipelineRuntime {
-    activate(swapchain: Swapchain): boolean;
-    destroy(): boolean;
-    render(cameras: Camera[]): void;
-    get device(): Device;
-    get globalDSManager(): GlobalDSManager;
-    get descriptorSetLayout(): DescriptorSetLayout;
-    get descriptorSet(): DescriptorSet;
-    get commandBuffers(): CommandBuffer[];
-    get pipelineSceneData(): PipelineSceneData;
-    get constantMacros(): string;
-    get profiler(): Model | null;
-    set profiler(profiler: Model | null);
-    get geometryRenderer(): GeometryRenderer | null;
-    get shadingScale(): number;
-    set shadingScale(scale: number);
-    getMacroString(name: string): string;
-    getMacroInt(name: string): number;
-    getMacroBool(name: string): boolean;
-    setMacroString(name: string, value: string): void;
-    setMacroInt(name: string, value: number): void;
-    setMacroBool(name: string, value: boolean): void;
-    onGlobalPipelineStateChanged(): void;
+    activate (swapchain: Swapchain): boolean;
+    destroy (): boolean;
+    render (cameras: Camera[]): void;
+    get device (): Device;
+    get globalDSManager (): GlobalDSManager;
+    get descriptorSetLayout (): DescriptorSetLayout;
+    get descriptorSet (): DescriptorSet;
+    get commandBuffers (): CommandBuffer[];
+    get pipelineSceneData (): PipelineSceneData;
+    get constantMacros (): string;
+    get profiler (): Model | null;
+    set profiler (profiler: Model | null);
+    get geometryRenderer (): GeometryRenderer | null;
+    get shadingScale (): number;
+    set shadingScale (scale: number);
+    getMacroString (name: string): string;
+    getMacroInt (name: string): number;
+    getMacroBool (name: string): boolean;
+    setMacroString (name: string, value: string): void;
+    setMacroInt (name: string, value: number): void;
+    setMacroBool (name: string, value: boolean): void;
+    onGlobalPipelineStateChanged (): void;
 
-    get macros(): MacroRecord;
+    get macros (): MacroRecord;
 }
 
 export interface Setter {
-    setMat4(name: string, mat: Mat4): void;
-    setQuaternion(name: string, quat: Quat): void;
-    setColor(name: string, color: Color): void;
-    setVec4(name: string, vec: Vec4): void;
-    setVec2(name: string, vec: Vec2): void;
-    setFloat(name: string, v: number): void;
-    setBuffer(name: string, buffer: Buffer): void;
-    setTexture(name: string, texture: Texture): void;
-    setReadWriteBuffer(name: string, buffer: Buffer): void;
-    setReadWriteTexture(name: string, texture: Texture): void;
-    setSampler(name: string, sampler: Sampler): void;
+    setMat4 (name: string, mat: Mat4): void;
+    setQuaternion (name: string, quat: Quat): void;
+    setColor (name: string, color: Color): void;
+    setVec4 (name: string, vec: Vec4): void;
+    setVec2 (name: string, vec: Vec2): void;
+    setFloat (name: string, v: number): void;
+    setBuffer (name: string, buffer: Buffer): void;
+    setTexture (name: string, texture: Texture): void;
+    setReadWriteBuffer (name: string, buffer: Buffer): void;
+    setReadWriteTexture (name: string, texture: Texture): void;
+    setSampler (name: string, sampler: Sampler): void;
 }
 
 export interface RasterQueueBuilder extends Setter {
-    addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name: string): void;
-    addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
-    addScene(name: string, sceneFlags: SceneFlags): void;
-    addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags): void;
-    addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
-    clearRenderTarget(name: string, color: Color): void;
-    setViewport(viewport: Viewport): void;
+    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name: string): void;
+    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
+    addScene (name: string, sceneFlags: SceneFlags): void;
+    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
+    clearRenderTarget (name: string, color: Color): void;
+    setViewport (viewport: Viewport): void;
 }
 
 export interface RasterPassBuilder extends Setter {
-    addRasterView(name: string, view: RasterView): void;
-    addComputeView(name: string, view: ComputeView): void;
-    addQueue(hint: QueueHint, name: string): RasterQueueBuilder;
-    addQueue(hint: QueueHint): RasterQueueBuilder;
-    addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags): void;
-    addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
-    setViewport(viewport: Viewport): void;
+    addRasterView (name: string, view: RasterView): void;
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (hint: QueueHint, name: string): RasterQueueBuilder;
+    addQueue (hint: QueueHint): RasterQueueBuilder;
+    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
+    setViewport (viewport: Viewport): void;
 }
 
 export interface ComputeQueueBuilder extends Setter {
-    addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
-    addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
+    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
+    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
 export interface ComputePassBuilder extends Setter {
-    addComputeView(name: string, view: ComputeView): void;
-    addQueue(name: string): ComputeQueueBuilder;
-    addQueue(): ComputeQueueBuilder;
-    addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
-    addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (name: string): ComputeQueueBuilder;
+    addQueue (): ComputeQueueBuilder;
+    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
+    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
 export interface MovePassBuilder {
-    addPair(pair: MovePair): void;
+    addPair (pair: MovePair): void;
 }
 
 export interface CopyPassBuilder {
-    addPair(pair: CopyPair): void;
+    addPair (pair: CopyPair): void;
 }
 
 export interface SceneVisitor {
-    get pipelineSceneData(): PipelineSceneData;
-    setViewport(vp: Viewport): void;
-    setScissor(rect: Rect): void;
-    bindPipelineState(pso: PipelineState): void;
-    bindInputAssembler(ia: InputAssembler): void;
-    draw(info: DrawInfo): void;
+    get pipelineSceneData (): PipelineSceneData;
+    setViewport (vp: Viewport): void;
+    setScissor (rect: Rect): void;
+    bindPipelineState (pso: PipelineState): void;
+    bindInputAssembler (ia: InputAssembler): void;
+    draw (info: DrawInfo): void;
 
     bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
     updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
 }
 
 export interface SceneTask {
-    get taskType(): TaskType;
-    start(): void;
-    join(): void;
-    submit(): void;
+    get taskType (): TaskType;
+    start (): void;
+    join (): void;
+    submit (): void;
 }
 
 export interface SceneTransversal {
-    transverse(visitor: SceneVisitor): SceneTask;
+    transverse (visitor: SceneVisitor): SceneTask;
 }
 
 export interface LayoutGraphBuilder {
-    clear(): void;
-    addRenderStage(name: string): number;
-    addRenderPhase(name: string, parentID: number): number;
-    addShader(name: string, parentPhaseID: number): void;
-    addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
-    addUniformBlock(nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void;
-    reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
-    compile(): number;
-    print(): string;
+    clear (): void;
+    addRenderStage (name: string): number;
+    addRenderPhase (name: string, parentID: number): number;
+    addShader (name: string, parentPhaseID: number): void;
+    addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void;
+    reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    compile (): number;
+    print (): string;
 }
 
 export interface Pipeline extends PipelineRuntime {
-    containsResource(name: string): boolean;
-    addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
-    addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
-    addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
-    beginFrame(): void;
-    endFrame(): void;
-    addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
-    addRasterPass(width: number, height: number, layoutName: string): RasterPassBuilder;
-    addComputePass(layoutName: string, name: string): ComputePassBuilder;
-    addComputePass(layoutName: string): ComputePassBuilder;
-    addMovePass(name: string): MovePassBuilder;
-    addCopyPass(name: string): CopyPassBuilder;
-    presentAll(): void;
-    createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
-    get layoutGraphBuilder(): LayoutGraphBuilder;
-    getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
+    beginSetup (): void;
+    endSetup (): void;
+    containsResource (name: string): boolean;
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    beginFrame (): void;
+    endFrame (): void;
+    addRasterPass (width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
+    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
+    addComputePass (layoutName: string, name: string): ComputePassBuilder;
+    addComputePass (layoutName: string): ComputePassBuilder;
+    addMovePass (name: string): MovePassBuilder;
+    addCopyPass (name: string): CopyPassBuilder;
+    presentAll (): void;
+    createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
+    get layoutGraphBuilder (): LayoutGraphBuilder;
+    getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
 export interface PipelineBuilder {
-    setup(cameras: Camera[], pipeline: Pipeline): void;
+    setup (cameras: Camera[], pipeline: Pipeline): void;
 }
 
 export class Factory {
