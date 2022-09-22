@@ -184,7 +184,7 @@ protected:
     static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);
 
     void updateAttributesAndBinding(index_t subModelIndex);
-    inline void setInstMatWorldIdx(const SubModel *subModel, int32_t idx) { _instMatWorldIdx[subModel] = idx; }
+    inline void setSubModelWorldMatrixIndex(const SubModel *subModel, int32_t idx) { _subModelWorldMatrixIndex[subModel] = idx; }
 
     // Please declare variables in descending order of memory size occupied by variables.
     Type _type{Type::DEFAULT};
@@ -225,7 +225,7 @@ protected:
     CallbacksInvoker _eventProcessor;
 
     ccstd::unordered_map<const SubModel *, InstancedAttributeBlock> _instancedAttributes;
-    ccstd::unordered_map<const SubModel *, int32_t> _instMatWorldIdx;
+    ccstd::unordered_map<const SubModel *, int32_t> _subModelWorldMatrixIndex;
 
     Float32Array _localData;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;

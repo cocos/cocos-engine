@@ -235,7 +235,7 @@ void Model::updateUBOs(uint32_t stamp) {
     const auto &worldMatrix = getTransform()->getWorldMatrix();
     bool hasNonInstancingPass = false;
     for (const auto subModel : _subModels) {
-        const auto idx = _instMatWorldIdx.at(subModel);
+        const auto idx = _subModelWorldMatrixIndex.at(subModel);
         if (idx >= 0) {
             ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock(subModel).views;
             uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
@@ -419,7 +419,7 @@ index_t Model::getInstancedAttributeIndex(const SubModel *subModel, const ccstd:
 }
 
 void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, const SubModel* subModel) {
-    setInstMatWorldIdx(subModel, -1);
+    setSubModelWorldMatrixIndex(subModel, -1);
     auto *pass = subModel->getPass(0);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
@@ -463,7 +463,7 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
         pass->getInstancedBuffer()->destroy();
     }
-    setInstMatWorldIdx(subModel,getInstancedAttributeIndex(subModel, INST_MAT_WORLD));
+    setSubModelWorldMatrixIndex(subModel,getInstancedAttributeIndex(subModel, INST_MAT_WORLD));
     _localDataUpdated = true;
 }
 
