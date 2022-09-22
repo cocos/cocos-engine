@@ -234,7 +234,7 @@ void Model::updateUBOs(uint32_t stamp) {
     getTransform()->updateWorldTransform();
     const auto &worldMatrix = getTransform()->getWorldMatrix();
     bool hasNonInstancingPass = false;
-    for (const auto subModel : _subModels) {
+    for (const auto &subModel : _subModels) {
         const auto idx = _subModelWorldMatrixIndex.at(subModel);
         if (idx >= 0) {
             ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock(subModel).views;
@@ -409,7 +409,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
 }
 
 index_t Model::getInstancedAttributeIndex(const SubModel *subModel, const ccstd::string &name) const {
-    const auto &attributes = _instancedAttributes.at(subModel).attributes;
+    const auto &attributes = _instancedAttributeMap.at(subModel).attributes;
     for (index_t i = 0; i < static_cast<index_t>(attributes.size()); ++i) {
         if (attributes[i].name == name) {
             return i;
@@ -526,9 +526,9 @@ void Model::updateLocalShadowBias() {
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
-    for (auto it = _instancedAttributes.begin(); it != _instancedAttributes.end(); ++it) {
-        const auto &attributes = it->second.attributes;
-        auto &views = it->second.views;
+    for (auto it : _instancedAttributeMap) {
+        const auto &attributes = it.second.attributes;
+        auto &views = it.second.views;
         for (size_t i = 0, len = attributes.size(); i < len; ++i) {
             const auto &attribute = attributes[i];
             if (attribute.name == name) {

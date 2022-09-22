@@ -117,7 +117,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     int idx = _instAnimInfoIdx;
     const float *curFrame = info.curFrame;
     bool hasNonInstancingPass = false;
-    for (const auto subModel : _subModels) {
+    for (const auto &subModel : _subModels) {
         if (idx >= 0) {
             auto &views = getInstancedAttributeBlock(subModel).views[idx];
             setTypedArrayValue(views, 0, *curFrame);
@@ -192,8 +192,8 @@ void BakedSkinningModel::updateInstancedJointTextureInfo() {
     const auto &jointTextureInfo = _jointMedium.jointTextureInfo;
     const IAnimInfo &animInfo = _jointMedium.animInfo;
     const index_t idx = _instAnimInfoIdx;
-    for (auto it = _instancedAttributes.begin(); it != _instancedAttributes.end(); ++it) {
-        auto &views = it->second.views;
+    for (const auto it : _instancedAttributeMap) {
+        auto &views = it.second.views;
         if (idx >= 0 && !views.empty()) {
             auto &view = views[idx];
             setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.

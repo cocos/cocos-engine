@@ -221,7 +221,7 @@ export class BakedSkinningModel extends MorphModel {
 
     private updateInstancedJointTextureInfo () {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
-        const values = Array.from(this._instancedAttributes.values());
+        const values = Array.from(this._instancedAttributeMap.values());
         const idx = this._instAnimInfoIdx;
         for (let i = 0; i < values.length; i++) {
             const views = values[i].views;

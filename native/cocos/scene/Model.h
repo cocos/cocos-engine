@@ -137,13 +137,13 @@ public:
     inline bool isInited() const { return _inited; }
     inline bool isCastShadow() const { return _castShadow; }
     inline bool isEnabled() const { return _enabled; }
-    inline ccstd::unordered_map<const SubModel *, InstancedAttributeBlock> &getInstancedAttributes() { return _instancedAttributes; }
+    inline ccstd::unordered_map<const SubModel *, InstancedAttributeBlock> &getInstancedAttributes() { return _instancedAttributeMap; }
     inline InstancedAttributeBlock &getInstancedAttributeBlock(const SubModel *subModel) {
-        if (!_instancedAttributes.count(subModel)) {
-            _instancedAttributes[subModel] = InstancedAttributeBlock();
+        if (!_instancedAttributeMap.count(subModel)) {
+            _instancedAttributeMap[subModel] = InstancedAttributeBlock();
         }
 
-        return _instancedAttributes.at(subModel);
+        return _instancedAttributeMap.at(subModel);
     }
     inline gfx::Buffer *getLocalBuffer() const { return _localBuffer.get(); }
     inline gfx::Buffer *getWorldBoundBuffer() const { return _worldBoundBuffer.get(); }
@@ -224,7 +224,7 @@ protected:
     // For JS
     CallbacksInvoker _eventProcessor;
 
-    ccstd::unordered_map<const SubModel *, InstancedAttributeBlock> _instancedAttributes;
+    ccstd::unordered_map<const SubModel *, InstancedAttributeBlock> _instancedAttributeMap;
     ccstd::unordered_map<const SubModel *, int32_t> _subModelWorldMatrixIndex;
 
     Float32Array _localData;

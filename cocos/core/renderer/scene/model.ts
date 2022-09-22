@@ -288,20 +288,20 @@ export class Model {
     public isDynamicBatching = false;
 
     /**
-     * @en The instance attribute block, access by subModel
+     * @en The instance attribute block, access by sub model
      * @zh 硬件实例化属性，通过子模型访问
      */
     public getInstancedAttributeBlock (subModel: SubModel): IInstancedAttributeBlock {
-        if (!this._instancedAttributes.has(subModel)) {
-            this._instancedAttributes.set(subModel, { buffer: null!, views: [], attributes: [] });
+        if (!this._instancedAttributeMap.has(subModel)) {
+            this._instancedAttributeMap.set(subModel, { buffer: null!, views: [], attributes: [] });
         }
-        return this._instancedAttributes.get(subModel) as IInstancedAttributeBlock;
+        return this._instancedAttributeMap.get(subModel) as IInstancedAttributeBlock;
     }
 
     get instancedAttributes () {
-        return this._instancedAttributes;
+        return this._instancedAttributeMap;
     }
-    protected _instancedAttributes: Map<SubModel, IInstancedAttributeBlock> = new Map<SubModel, IInstancedAttributeBlock>();
+    protected _instancedAttributeMap: Map<SubModel, IInstancedAttributeBlock> = new Map<SubModel, IInstancedAttributeBlock>();
 
     /**
      * @en The world axis-aligned bounding box
@@ -376,7 +376,7 @@ export class Model {
     protected _localBuffer: Buffer | null = null;
 
     /**
-     * @en Instance matrix id, access by subModel
+     * @en Instance matrix id, access by sub model
      * @zh 硬件实例化中的矩阵索引，通过子模型访问
      */
     private _subModelWorldMatrixIndex: Map<SubModel, number> = new Map<SubModel, number>();
