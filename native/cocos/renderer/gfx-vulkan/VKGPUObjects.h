@@ -264,12 +264,12 @@ struct CCVKGPUQueryPool {
 };
 
 struct CCVKGPUShaderStage {
-    CCVKGPUShaderStage(ShaderStageFlagBit t, ccstd::string s)
+    CCVKGPUShaderStage(ShaderStageFlagBit t, ccstd::vector<uint32_t> spirv = {})
     : type(t),
-      source(std::move(s)) {
+      spv(std::move(spirv)) {
     }
     ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
-    ccstd::string source;
+    ccstd::vector<uint32_t> spv;
     VkShaderModule vkShader = VK_NULL_HANDLE;
 };
 

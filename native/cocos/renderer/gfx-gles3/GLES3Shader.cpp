@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "GLES3Std.h"
-
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
 #include "GLES3Shader.h"
+#include "base/std/variant.h"
 
 namespace cc {
 namespace gfx {
@@ -74,6 +74,7 @@ void GLES3Shader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader->images = _images;
     _gpuShader->subpassInputs = _subpassInputs;
     for (const auto &stage : _stages) {
+        CC_ASSERT(!stage.source.empty());
         GLES3GPUShaderStage gpuShaderStage = {stage.stage, stage.source};
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
     }

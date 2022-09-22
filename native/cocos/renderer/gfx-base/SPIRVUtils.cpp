@@ -32,10 +32,18 @@
 #include "glslang/StandAlone/ResourceLimits.h"
 #include "spirv/spirv.h"
 
+#include <type_traits>
+#include "spirv-cross/spirv_glsl.hpp"
+#include "spirv-cross/spirv_msl.hpp"
+#include "spirv-tools/optimizer.hpp"
+
 namespace cc {
 namespace gfx {
 
 namespace {
+
+static_assert(sizeof(std::underlying_type<spv_target_env>) <= sizeof(uint32_t));
+
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
         case ShaderStageFlagBit::VERTEX: return EShLangVertex;
@@ -93,6 +101,108 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
     }
 }
 
+glslang::EShClient getClientPlatform(gfx::SpirvClientVersion version) {
+    switch (version) {
+        case gfx::SpirvClientVersion::OPENGL_ES_2_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_1:
+        case gfx::SpirvClientVersion::OPENGL_4_5:
+            return glslang::EShClientOpenGL;
+
+        case gfx::SpirvClientVersion::VULKAN_1_0:
+        case gfx::SpirvClientVersion::VULKAN_1_1:
+        case gfx::SpirvClientVersion::VULKAN_1_2:
+        case gfx::SpirvClientVersion::VULKAN_1_3:
+            return glslang::EShClientVulkan;
+
+        case gfx::SpirvClientVersion::METAL:
+            return glslang::EShClientVulkan;
+
+        default: {
+            CC_ASSERT(false);
+            return glslang::EShClientVulkan;
+        }
+    }
+}
+
+glslang::EshTargetClientVersion getClientVersion(gfx::SpirvClientVersion version) {
+    switch (version) {
+        case gfx::SpirvClientVersion::OPENGL_ES_2_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_1:
+        case gfx::SpirvClientVersion::OPENGL_4_5:
+            return glslang::EShTargetOpenGL_450;
+
+        case gfx::SpirvClientVersion::VULKAN_1_0: return glslang::EShTargetVulkan_1_0;
+        case gfx::SpirvClientVersion::VULKAN_1_1: return glslang::EShTargetVulkan_1_1;
+        case gfx::SpirvClientVersion::VULKAN_1_2: return glslang::EShTargetVulkan_1_2;
+#if GLSLANG_VERSION_LESS_OR_EQUAL_TO(11, 10, 0)
+        case gfx::SpirvClientVersion::VULKAN_1_3: return glslang::EShTargetVulkan_1_3;
+#else
+        case gfx::SpirvClientVersion::VULKAN_1_3: return glslang::EShTargetVulkan_1_2;
+#endif
+        case gfx::SpirvClientVersion::METAL:
+            return glslang::EShTargetVulkan_1_2;
+
+        default: {
+            CC_ASSERT(false);
+            return glslang::EShTargetVulkan_1_0;
+        }
+    }
+}
+
+uint32_t getTargetVersion(gfx::SpirvClientVersion version) {
+    switch (version) {
+        case gfx::SpirvClientVersion::OPENGL_ES_2_0:
+            return 300;
+        case gfx::SpirvClientVersion::OPENGL_ES_3_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_1: return 310;
+        case gfx::SpirvClientVersion::OPENGL_4_5: return 450;
+
+        case gfx::SpirvClientVersion::VULKAN_1_0: return glslang::EShTargetSpv_1_0;
+        case gfx::SpirvClientVersion::VULKAN_1_1: return glslang::EShTargetSpv_1_3;
+        case gfx::SpirvClientVersion::VULKAN_1_2: return glslang::EShTargetSpv_1_5;
+#if GLSLANG_VERSION_LESS_OR_EQUAL_TO(11, 10, 0)
+        case gfx::SpirvClientVersion::VULKAN_1_3: return glslang::EShTargetSpv_1_6;
+#else
+        case gfx::SpirvClientVersion::VULKAN_1_3: return glslang::EShTargetSpv_1_5;
+#endif
+        default: {
+            CC_ASSERT(false);
+            return glslang::EShTargetSpv_1_0;
+        }
+    }
+}
+
+glslang::EShTargetLanguageVersion getLanguageVersion(gfx::SpirvClientVersion version) {
+    switch (version) {
+        case gfx::SpirvClientVersion::OPENGL_ES_2_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_1:
+        case gfx::SpirvClientVersion::OPENGL_4_5:
+            return glslang::EShTargetSpv_1_0;
+
+        default: {
+            return static_cast<glslang::EShTargetLanguageVersion> (getTargetVersion(version));
+        }
+    };
+}
+
+spv_target_env getTargetEnv(gfx::SpirvClientVersion version) {
+    switch (version) {
+        case gfx::SpirvClientVersion::OPENGL_ES_2_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_0:
+        case gfx::SpirvClientVersion::OPENGL_ES_3_1: return SPV_ENV_OPENGL_4_5;
+        case gfx::SpirvClientVersion::VULKAN_1_0: return SPV_ENV_VULKAN_1_0;
+        case gfx::SpirvClientVersion::VULKAN_1_1: return SPV_ENV_VULKAN_1_1;
+        case gfx::SpirvClientVersion::VULKAN_1_2:
+        case gfx::SpirvClientVersion::VULKAN_1_3: return SPV_ENV_VULKAN_1_2;
+        default:
+            CC_LOG_ERROR("Unsupported SPIRV version: %d", version);
+            return SPV_ENV_UNIVERSAL_1_0;
+    }
+}
+
 // https://www.khronos.org/registry/spir-v/specs/1.0/SPIRV.pdf
 struct Id {
     uint32_t opcode{0};
@@ -104,12 +214,13 @@ struct Id {
 
 SPIRVUtils SPIRVUtils::instance;
 
-void SPIRVUtils::initialize(int vulkanMinorVersion) {
+void SPIRVUtils::initialize(gfx::SpirvClientVersion clientVersion) {
     glslang::InitializeProcess();
-
-    _clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10;
-    _clientVersion = getClientVersion(vulkanMinorVersion);
-    _targetVersion = getTargetVersion(vulkanMinorVersion);
+    _clientPlatform = getClientPlatform(clientVersion);
+    _clientVersion = getClientVersion(clientVersion);
+    _languageVersion = getLanguageVersion(clientVersion);
+    _targetVersion = getTargetVersion(clientVersion);
+    _optimizerEnv = getTargetEnv(clientVersion);
 }
 
 void SPIRVUtils::destroy() {
@@ -117,20 +228,27 @@ void SPIRVUtils::destroy() {
     _output.clear();
 }
 
-void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &source) {
+ccstd::vector<uint32_t> SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &source) {
     EShLanguage stage = getShaderStage(type);
     const char *string = source.c_str();
 
     _shader = std::make_unique<glslang::TShader>(stage);
     _shader->setStrings(&string, 1);
 
-    _shader->setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, _clientInputSemanticsVersion);
-    _shader->setEnvClient(glslang::EShClientVulkan, _clientVersion);
-    _shader->setEnvTarget(glslang::EShTargetSpv, _targetVersion);
+    _shader->setEnvInput(glslang::EShSourceGlsl, stage, _clientPlatform, _clientVersion);
+    _shader->setEnvClient(_clientPlatform, _clientVersion);
+    _shader->setEnvTarget(glslang::EShTargetSpv, _languageVersion);
 
-    auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
+    if (_clientPlatform == glslang::EShClientOpenGL) {
+        _shader->setAutoMapBindings(true);
+        _shader->setAutoMapLocations(true);
+    }
 
-    if (!_shader->parse(&glslang::DefaultTBuiltInResource, _clientInputSemanticsVersion, false, messages)) {
+    auto rules = (_clientPlatform == glslang::EShClientOpenGL) ? EShMsgSpvRules : (EShMsgSpvRules | EShMsgVulkanRules);
+
+    auto messages = static_cast<EShMessages>(rules);
+
+    if (!_shader->parse(&glslang::DefaultTBuiltInResource, _clientVersion, false, messages)) {
         CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", _shader->getInfoLog(), _shader->getInfoDebugLog());
     }
 
@@ -152,9 +270,10 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &sourc
     spvOptions.stripDebugInfo = true;
 #endif
     glslang::GlslangToSpv(*_program->getIntermediate(stage), _output, &logger, &spvOptions);
+    return _output;
 }
 
-void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
+ ccstd::vector<uint32_t> SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
     static ccstd::vector<Id> ids;
     static ccstd::vector<uint32_t> activeLocations;
     static ccstd::vector<uint32_t> newLocations;
@@ -249,6 +368,151 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
                          return attr.location == UINT_MAX;
                      }),
                      attributes.end());
+    return _output;
+ }
+
+ccstd::vector<uint32_t> SPIRVUtils::compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source) {
+    return compileGLSL(type, source);
+    EShLanguage stage = getShaderStage(type);
+    const char *string = source.c_str();
+
+    auto _shader = std::make_unique<glslang::TShader>(stage);
+    _shader->setStrings(&string, 1);
+    _shader->setEnvInput(glslang::EShSourceGlsl, stage, _clientPlatform, _clientVersion);
+    _shader->setEnvClient(_clientPlatform, _clientVersion);
+    _shader->setEnvTarget(glslang::EShTargetSpv, _languageVersion);
+    _shader->setEntryPoint("main");
+
+    if (_clientPlatform == glslang::EShClientOpenGL) {
+        _shader->setAutoMapBindings(true);
+        _shader->setAutoMapLocations(true);
+    }
+
+    auto messages = static_cast<EShMessages>(EShMsgSpvRules);
+
+    if (!_shader->parse(&glslang::DefaultTBuiltInResource, _languageVersion, false, messages)) {
+        CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", _shader->getInfoLog(), _shader->getInfoDebugLog());
+    }
+
+    _program = std::make_unique<glslang::TProgram>();
+    _program->addShader(_shader.get());
+
+    if (!_program->link(messages)) {
+        CC_LOG_ERROR("GLSL Linking Failed:\n%s\n%s", _program->getInfoLog(), _program->getInfoDebugLog());
+    }
+
+    _output.clear();
+    spv::SpvBuildLogger logger;
+    glslang::SpvOptions spvOptions;
+    spvOptions.disableOptimizer = false;
+    spvOptions.optimizeSize = true;
+#if CC_DEBUG > 0
+    spvOptions.validate = true;
+#else
+    spvOptions.stripDebugInfo = true;
+#endif
+    glslang::GlslangToSpv(*_program->getIntermediate(stage), _output, &logger, &spvOptions);
+    return _output;
+}
+
+ccstd::string SPIRVUtils::compileSPIRV2GLSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+    auto isOpenGLES = [](uint32_t targetVersion) {
+        return targetVersion == 300 || targetVersion == 310 || targetVersion == 450;
+    };
+
+    spirv_cross::CompilerGLSL glsl(source);
+    spirv_cross::CompilerGLSL::Options options;
+    options.version = _targetVersion;
+    options.es = isOpenGLES(_targetVersion);
+    glsl.set_common_options(options);
+
+    std::string output = glsl.compile();
+    if (output.empty()) {
+        printf("Failed to compile shader to GLSL");
+    }
+    return output;
+}
+
+ccstd::string SPIRVUtils::compileSPIRV2MSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+    spirv_cross::CompilerMSL msl(source);
+
+    spirv_cross::CompilerMSL::Options options;
+    options.platform = spirv_cross::CompilerMSL::Options::macOS;
+    options.set_msl_version(2, 3, 0);
+    options.emulate_subgroups = true;
+
+    msl.set_msl_options(options);
+
+    std::string output = msl.compile();
+    if (output.empty()) {
+        printf("Failed to compile shader to MSL");
+    }
+    return output;
+}
+
+ccstd::string compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+    // not supported yet
+    CC_ASSERT(false);
+    return {};
+}
+
+
+ccstd::string SPIRVUtils::compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+    return {};
+}
+
+ccstd::vector<uint32_t> SPIRVUtils::optimizeSPIRV(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+    std::vector<uint32_t> output;
+    spvtools::Optimizer optimizer(static_cast<spv_target_env>(_optimizerEnv));
+
+    // enable all optimizations
+    optimizer.RegisterPass(spvtools::CreateWrapOpKillPass());
+    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
+    optimizer.RegisterPass(spvtools::CreateMergeReturnPass());
+    optimizer.RegisterPass(spvtools::CreateInlineExhaustivePass());
+    optimizer.RegisterPass(spvtools::CreateEliminateDeadFunctionsPass());
+    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
+    optimizer.RegisterPass(spvtools::CreatePrivateToLocalPass());
+    optimizer.RegisterPass(spvtools::CreateLocalSingleBlockLoadStoreElimPass());
+    optimizer.RegisterPass(spvtools::CreateLocalSingleStoreElimPass());
+    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
+    optimizer.RegisterPass(spvtools::CreateScalarReplacementPass(100));
+    optimizer.RegisterPass(spvtools::CreateLocalAccessChainConvertPass());
+    optimizer.RegisterPass(spvtools::CreateLocalSingleBlockLoadStoreElimPass());
+    optimizer.RegisterPass(spvtools::CreateLocalSingleStoreElimPass());
+    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
+    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
+    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
+    optimizer.RegisterPass(spvtools::CreateCCPPass());
+    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
+    optimizer.RegisterPass(spvtools::CreateLoopUnrollPass(true));
+    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
+    optimizer.RegisterPass(spvtools::CreateRedundancyEliminationPass());
+    optimizer.RegisterPass(spvtools::CreateCombineAccessChainsPass());
+    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
+    optimizer.RegisterPass(spvtools::CreateScalarReplacementPass(100));
+    optimizer.RegisterPass(spvtools::CreateLocalAccessChainConvertPass());
+    optimizer.RegisterPass(spvtools::CreateLocalSingleBlockLoadStoreElimPass());
+    optimizer.RegisterPass(spvtools::CreateLocalSingleStoreElimPass());
+    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
+    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
+    optimizer.RegisterPass(spvtools::CreateVectorDCEPass());
+    optimizer.RegisterPass(spvtools::CreateDeadInsertElimPass());
+    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
+    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
+    optimizer.RegisterPass(spvtools::CreateIfConversionPass());
+    optimizer.RegisterPass(spvtools::CreateCopyPropagateArraysPass());
+    optimizer.RegisterPass(spvtools::CreateReduceLoadSizePass());
+    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
+    optimizer.RegisterPass(spvtools::CreateBlockMergePass());
+    optimizer.RegisterPass(spvtools::CreateRedundancyEliminationPass());
+    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
+    optimizer.RegisterPass(spvtools::CreateBlockMergePass());
+    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
+
+    // optimize the shader
+    optimizer.Run(source.data(), source.size(), &output);
+    return output;
 }
 
 } // namespace gfx

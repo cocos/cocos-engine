@@ -77,6 +77,43 @@ struct IProgramInfo : public IShaderInfo {
 
 const char *getDeviceShaderVersion(const gfx::Device *device);
 
+struct ShaderSource {
+    gfx::ShaderStage vert{gfx::ShaderStageFlagBit::VERTEX};
+    gfx::ShaderStage frag{gfx::ShaderStageFlagBit::FRAGMENT};
+};
+
+class ShaderCollection : public RefCounted {
+public:
+    ShaderCollection(IShaderInfo shaderInfo);
+
+    ~ShaderCollection();
+
+    IProgramInfo *getTemplate();
+
+    ITemplateInfo *getTemplateInfo();
+
+    ccstd::string getKey(const MacroRecord &defines) const;
+
+    gfx::Shader *getShaderVariant(gfx::Device *device, const Record<ccstd::string, MacroValue> &macros, render::PipelineRuntime *pipeline, ccstd::string *keyOut);
+
+    gfx::DescriptorSetLayout *getDescriptorSetLayout(gfx::Device *device, bool isLocal = false);
+
+    void destroyShaderByDefines(const Record<ccstd::string, MacroValue> &defines);
+
+private:
+    ShaderSource _getShaderSource(const ccstd::vector<IMacroInfo> &macros);
+    // ccstd::hash_t _computeMacrosHash(const ccstd::vector<IMacroInfo> &macros) const;
+
+    IProgramInfo _shaderInfo;
+    ITemplateInfo _templateInfo;
+
+    Record<ccstd::string, MacroValue> _templateMacros;
+    std::vector<IMacroInfo> _defaultMacros;
+
+    Record<ccstd::string, IntrusivePtr<gfx::Shader>> _shaderVariants;
+    Record<ccstd::string, ShaderSource> _shaderVariantSources;
+};
+
 /**
  * @en The global maintainer of all shader resources.
  * @zh 维护 shader 资源实例的全局管理器。
@@ -127,7 +164,7 @@ public:
      * @param name Target shader name
      */
     inline bool hasProgram(const ccstd::string &name) const {
-        return _templates.count(name) > 0;
+        return _shaderCollections.count(name) > 0;
     }
 
     /**
@@ -161,9 +198,6 @@ private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
 
     static ProgramLib *instance;
-    Record<ccstd::string, IProgramInfo> _templates; // per shader
-    Record<ccstd::string, IntrusivePtr<gfx::Shader>> _cache;
-    Record<uint64_t, ITemplateInfo> _templateInfos;
+    Record<ccstd::string, IntrusivePtr<ShaderCollection>> _shaderCollections;
 };
-
 } // namespace cc

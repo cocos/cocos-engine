@@ -359,6 +359,19 @@ ccstd::string mapVendorName(uint32_t vendorID) {
     return StringUtil::format("Unknown VendorID %d", vendorID);
 }
 
+SpirvClientVersion mapSpirvClientVersion(uint32_t vkMinorVersion) {
+    switch (vkMinorVersion) {
+        case 0: return SpirvClientVersion::VULKAN_1_0;
+        case 1: return SpirvClientVersion::VULKAN_1_1;
+        case 2: return SpirvClientVersion::VULKAN_1_2;
+        case 3: return SpirvClientVersion::VULKAN_1_3;
+        default: {
+            CC_ASSERT(false);
+            return SpirvClientVersion::VULKAN_1_0;
+        }
+    }
+}
+
 const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING =
     VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR |
     VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR;

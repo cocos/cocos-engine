@@ -501,8 +501,8 @@ struct IShaderInfo {
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;
-    IBuiltins builtins;
     ccstd::vector<IDefineInfo> defines;
+    IBuiltins builtins;
     ccstd::vector<IAttributeInfo> attributes;
     ccstd::vector<IBlockInfo> blocks;
     ccstd::vector<ISamplerTextureInfo> samplerTextures;

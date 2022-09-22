@@ -29,6 +29,7 @@
 #include "base/memory/Memory.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
+#include "base/std/variant.h"
 #include "math/Math.h"
 
 #ifdef Status
@@ -1192,9 +1193,14 @@ struct UniformInputAttachment {
 
 using UniformInputAttachmentList = ccstd::vector<UniformInputAttachment>;
 
+using ShaderSourceCode = ccstd::string;
+using ShaderByteCode = ccstd::vector<uint32_t>;
+
 struct ShaderStage {
     ShaderStageFlagBit stage{ShaderStageFlagBit::NONE};
-    ccstd::string source;
+
+    ShaderSourceCode source;
+    ShaderByteCode byteCode;
 
     EXPOSE_COPY_FN(ShaderStage)
 };
@@ -1599,6 +1605,20 @@ struct DynamicStates {
 
     EXPOSE_COPY_FN(DynamicStates)
 };
+
+enum class SpirvClientVersion : uint32_t {
+    VULKAN_1_0 = 100,
+    VULKAN_1_1 = 110,
+    VULKAN_1_2 = 120,
+    VULKAN_1_3 = 130,
+    OPENGL_ES_2_0 = 300,
+    OPENGL_ES_3_0 = 310,
+    OPENGL_ES_3_1 = 330,
+    OPENGL_4_5 = 450,
+    METAL = 10000,
+    COUNT,
+};
+CC_ENUM_CONVERSION_OPERATOR(SpirvClientVersion);
 
 #undef EXPOSE_COPY_FN
 

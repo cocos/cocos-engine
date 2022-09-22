@@ -230,7 +230,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     }
     volkLoadDevice(_gpuDevice->vkDevice);
 
-    SPIRVUtils::getInstance()->initialize(static_cast<int>(_gpuDevice->minorVersion));
+    auto spirvClientVersion = mapSpirvClientVersion(static_cast<int>(_gpuDevice->minorVersion)); 
+    SPIRVUtils::getInstance()->initialize(spirvClientVersion);
 
     ///////////////////// Gather Device Properties /////////////////////
 

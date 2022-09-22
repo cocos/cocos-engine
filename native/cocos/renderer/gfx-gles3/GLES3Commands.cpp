@@ -29,6 +29,7 @@
 #include "GLES3Std.h"
 #include "base/StringUtil.h"
 #include "gfx-base/GFXDef-common.h"
+#include "gfx-base/SPIRVUtils.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 #include "gfx-gles3/GLES3GPUObjects.h"
 
@@ -1002,6 +1003,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     GLenum glShaderStage = 0;
     ccstd::string shaderStageStr;
     GLint status;
+    auto *spirv = SPIRVUtils::getInstance();
 
     for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
         GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];
@@ -1029,7 +1031,13 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         }
         GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
         uint32_t version = device->constantRegistry()->glMinorVersion ? 310 : 300;
-        ccstd::string shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
+        ccstd::string shaderSource;
+        if (gpuStage.source.find("#version") == ccstd::string::npos) {
+            shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
+        } else {
+            shaderSource = gpuStage.source;
+        }
+
         const char *source = shaderSource.c_str();
         GL_CHECK(glShaderSource(gpuStage.glShader, 1, (const GLchar **)&source, nullptr));
         GL_CHECK(glCompileShader(gpuStage.glShader));
