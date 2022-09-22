@@ -137,11 +137,11 @@ private:
     static void addSurfaceEventListener() {
         Device *device = Device::instance;
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
-            device->destroySurface(e.args->ptrVal);
+            device->destroySurface(e.args[0].intVal);
         });
 
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
-            device->createSurface(e.args->ptrVal);
+            device->createSurface(e.args[0].intVal);
         });
     }
 

@@ -343,7 +343,7 @@ public:
 
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
-                    event.args->ptrVal = reinterpret_cast<void *>(ISystemWindow::mainWindowId);
+                    event.args[0].intVal = ISystemWindow::mainWindowId;
                     _androidPlatform->dispatchEvent(event);
                 }
                 break;
@@ -358,7 +358,7 @@ public:
                 }
                 cc::CustomEvent event;
                 event.name = EVENT_DESTROY_WINDOW;
-                event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
+                event.args[0].intVal = ISystemWindow::mainWindowId;
                 _androidPlatform->dispatchEvent(event);
                 break;
             }
