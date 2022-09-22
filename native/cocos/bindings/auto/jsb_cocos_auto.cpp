@@ -2181,7 +2181,7 @@ static bool js_engine_Device_getInnerHeight_static(se::State& s) // NOLINT(reada
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = cc::Device::getInnerHeight();
+        unsigned int result = cc::Device::getInnerHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -2198,7 +2198,7 @@ static bool js_engine_Device_getInnerWidth_static(se::State& s) // NOLINT(readab
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = cc::Device::getInnerWidth();
+        unsigned int result = cc::Device::getInnerWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
