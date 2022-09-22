@@ -157,9 +157,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const models = scene.models;
     const visibility = camera.visibility;
 
-    for (let i = 0; i < models.length; i++) {
-        const model = models[i];
-
+    function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
             if (model.castShadow) {
@@ -171,10 +169,33 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                  || (visibility & model.visFlags)) {
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
-                    continue;
+                    return;
                 }
 
                 renderObjects.push(getRenderObject(model, camera));
+            }
+        }
+    }
+
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        enqueueRenderObject(model);
+    }
+
+    // Enqueue models contained in LOD groups into renderObjects
+    // eslint-disable-next-line no-lone-blocks
+    {
+        for (const g of scene.lodGroups) {
+            if (g.enabled) {
+                const visIndex = LODGroupUtility.getVisibleLOD(g, camera);
+                if (visIndex >= 0) {
+                    const lod = g.LODs[visIndex];
+                    for (const model of lod.models) {
+                        if (model !== null) {
+                            enqueueRenderObject(model);
+                        }
+                    }
+                }
             }
         }
     }
