@@ -24,10 +24,10 @@
  */
 
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
-import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
+import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING, INST_MAT_WORLD } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute } from '../../gfx';
+    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { errorID } from '../../platform/debug';
 import { getPhaseID } from '../../pipeline/pass-phase';
@@ -400,6 +400,71 @@ export class SubModel {
         if (this._inputAssembler && drawInfo) {
             this._inputAssembler.drawInfo.copy(drawInfo);
         }
+    }
+
+    /**
+     * @en
+     * get instanced attribute index
+     * @zh
+     * 获取硬件实例化相关索引
+     */
+    /**
+     * @internal
+     */
+    public getInstancedAttributeIndex (name: string) {
+        const { attributes } = this.instancedAttributeBlock;
+        for (let i = 0; i < attributes.length; i++) {
+            if (attributes[i].name === name) { return i; }
+        }
+        return -1;
+    }
+
+    /**
+     * @en
+     * update instancing related data, invoked by model
+     * @zh
+     * 更新硬件实例化相关数据，一般由model调用
+     */
+    /**
+     * @internal
+     */
+    public UpdateInstancedAttributes (attributes: Attribute[]) {
+        // initialize subModelWorldMatrixIndex
+        this.instancedWorldMatrixIndex = -1;
+
+        const pass = this.passes[0];
+        if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
+        // free old data
+
+        let size = 0;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            size += FormatInfos[attribute.format].size;
+        }
+
+        const attrs = this.instancedAttributeBlock;
+        attrs.buffer = new Uint8Array(size);
+        attrs.views.length = attrs.attributes.length = 0;
+        let offset = 0;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            const attr = new Attribute();
+            attr.format = attribute.format;
+            attr.name = attribute.name;
+            attr.isNormalized = attribute.isNormalized;
+            attr.location = attribute.location;
+            attrs.attributes.push(attr);
+
+            const info = FormatInfos[attribute.format];
+
+            const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count);
+            attrs.views.push(typeViewArray);
+            offset += info.size;
+        }
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
+        this.instancedWorldMatrixIndex = this.getInstancedAttributeIndex(INST_MAT_WORLD);
     }
 
     protected _flushPassInfo (): void {

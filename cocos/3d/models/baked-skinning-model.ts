@@ -215,7 +215,7 @@ export class BakedSkinningModel extends MorphModel {
 
     protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
         super._updateInstancedAttributes(attributes, subModel);
-        this._instAnimInfoIdx = this._getInstancedAttributeIndex(subModel, INST_JOINT_ANIM_INFO);
+        this._instAnimInfoIdx = subModel.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
     }
 

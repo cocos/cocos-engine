@@ -730,54 +730,11 @@ export class Model {
         this._updateInstancedAttributes(shader.attributes, subModel);
     }
 
-    protected _getInstancedAttributeIndex (subModel: SubModel, name: string) {
-        const { attributes } = subModel.instancedAttributeBlock;
-        for (let i = 0; i < attributes.length; i++) {
-            if (attributes[i].name === name) { return i; }
-        }
-        return -1;
-    }
-
     // sub-classes can override the following functions if needed
 
     // for now no subModel level instancing attributes
     protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
-        // initialize subModelWorldMatrixIndex
-        subModel.instancedWorldMatrixIndex = -1;
-
-        const pass = subModel.passes[0];
-        if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
-        // free old data
-
-        let size = 0;
-        for (let j = 0; j < attributes.length; j++) {
-            const attribute = attributes[j];
-            if (!attribute.isInstanced) { continue; }
-            size += FormatInfos[attribute.format].size;
-        }
-
-        const attrs = subModel.instancedAttributeBlock;
-        attrs.buffer = new Uint8Array(size);
-        attrs.views.length = attrs.attributes.length = 0;
-        let offset = 0;
-        for (let j = 0; j < attributes.length; j++) {
-            const attribute = attributes[j];
-            if (!attribute.isInstanced) { continue; }
-            const attr = new Attribute();
-            attr.format = attribute.format;
-            attr.name = attribute.name;
-            attr.isNormalized = attribute.isNormalized;
-            attr.location = attribute.location;
-            attrs.attributes.push(attr);
-
-            const info = FormatInfos[attribute.format];
-
-            const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count);
-            attrs.views.push(typeViewArray);
-            offset += info.size;
-        }
-        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
-        subModel.instancedWorldMatrixIndex = this._getInstancedAttributeIndex(subModel, INST_MAT_WORLD);
+        subModel.UpdateInstancedAttributes(attributes);
         this._localDataUpdated = true;
     }
 
