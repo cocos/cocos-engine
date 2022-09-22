@@ -54,8 +54,8 @@
 #define SE_PRECONDITION2_VOID(condition, ...)                                                                \
     do {                                                                                                     \
         if (!(condition)) {                                                                                  \
-            CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
-            CC_LOG_ERROR(__VA_ARGS__);                                                                       \
+            DO_CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
+            DO_CC_LOG_ERROR(__VA_ARGS__);                                                                       \
             return;                                                                                          \
         }                                                                                                    \
     } while (0)
@@ -63,8 +63,8 @@
 #define SE_PRECONDITION2_FUNCNAME_VOID(condition, funcName, ...)                                         \
     do {                                                                                                 \
         if (!(condition)) {                                                                              \
-            CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, funcName); \
-            CC_LOG_ERROR(__VA_ARGS__);                                                                   \
+            DO_CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, funcName); \
+            DO_CC_LOG_ERROR(__VA_ARGS__);                                                                   \
             return;                                                                                      \
         }                                                                                                \
     } while (0)
@@ -72,8 +72,8 @@
 #define SE_PRECONDITION2(condition, ret_value, ...)                                                          \
     do {                                                                                                     \
         if (!(condition)) {                                                                                  \
-            CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
-            CC_LOG_ERROR(__VA_ARGS__);                                                                       \
+            DO_CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
+            DO_CC_LOG_ERROR(__VA_ARGS__);                                                                       \
             return (ret_value);                                                                              \
         }                                                                                                    \
     } while (0)
@@ -89,7 +89,7 @@
 #define SE_PRECONDITION4(condition, ret_value, errorCode)                                                    \
     do {                                                                                                     \
         if (!(condition)) {                                                                                  \
-            CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
+            DO_CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
             __glErrorCode = errorCode;                                                                       \
             return (ret_value);                                                                              \
         }                                                                                                    \
@@ -97,8 +97,8 @@
 
 #define SE_PRECONDITION_ERROR_BREAK(condition, ...)                                                      \
     if (!(condition)) {                                                                                  \
-        CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
-        CC_LOG_ERROR(__VA_ARGS__);                                                                       \
+        DO_CC_LOG_ERROR("jsb: ERROR: File %s: Line: %d, Function: %s\n", __FILE__, __LINE__, __FUNCTION__); \
+        DO_CC_LOG_ERROR(__VA_ARGS__);                                                                       \
         break;                                                                                           \
     }
 
