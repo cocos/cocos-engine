@@ -119,7 +119,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     bool hasNonInstancingPass = false;
     for (const auto &subModel : _subModels) {
         if (idx >= 0) {
-            auto &views = getInstancedAttributeBlock(subModel).views[idx];
+            auto &views = subModel->getInstancedAttributeBlock().views[idx];
             setTypedArrayValue(views, 0, *curFrame);
         } else {
             hasNonInstancingPass = true;
@@ -182,7 +182,7 @@ void BakedSkinningModel::updateLocalDescriptors(index_t subModelIndex, gfx::Desc
     }
 }
 
-void BakedSkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, const scene::SubModel *subModel) {
+void BakedSkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::SubModel *subModel) {
     Super::updateInstancedAttributes(attributes, subModel);
     _instAnimInfoIdx = getInstancedAttributeIndex(subModel, INST_JOINT_ANIM_INFO);
     updateInstancedJointTextureInfo();
@@ -192,8 +192,8 @@ void BakedSkinningModel::updateInstancedJointTextureInfo() {
     const auto &jointTextureInfo = _jointMedium.jointTextureInfo;
     const IAnimInfo &animInfo = _jointMedium.animInfo;
     const index_t idx = _instAnimInfoIdx;
-    for (const auto it : _instancedAttributeMap) {
-        auto &views = it.second.views;
+    for (auto subModel : _subModels) {
+        auto &views = subModel->getInstancedAttributeBlock().views;
         if (idx >= 0 && !views.empty()) {
             auto &view = views[idx];
             setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.

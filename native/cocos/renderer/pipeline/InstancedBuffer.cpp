@@ -50,12 +50,12 @@ void InstancedBuffer::destroy() {
     _instances.clear();
 }
 
-void InstancedBuffer::merge(const scene::SubModel *subModel, scene::InstancedAttributeBlock &attrs, uint32_t passIdx) {
-    merge(subModel, attrs, passIdx, nullptr);
+void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx) {
+    merge(subModel, passIdx, nullptr);
 }
 
-void InstancedBuffer::merge(const scene::SubModel *subModel, scene::InstancedAttributeBlock &attrs, uint32_t passIdx, gfx::Shader *shaderImplant) {
-    if (!attrs.buffer.buffer()) return;
+void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Shader *shaderImplant) {
+    auto &attrs = subModel->getInstancedAttributeBlock();
 
     const auto stride = attrs.buffer.length();
     if (!stride) return; // we assume per-instance attributes are always present

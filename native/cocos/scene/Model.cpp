@@ -235,9 +235,9 @@ void Model::updateUBOs(uint32_t stamp) {
     const auto &worldMatrix = getTransform()->getWorldMatrix();
     bool hasNonInstancingPass = false;
     for (const auto &subModel : _subModels) {
-        const auto idx = _subModelWorldMatrixIndex.at(subModel);
+        const auto idx = subModel->getInstancedWorldMatrixIndex();
         if (idx >= 0) {
-            ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock(subModel).views;
+            ccstd::vector<TypedArray> &attrs = subModel->getInstancedAttributeBlock().views;
             uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
         } else {
             hasNonInstancingPass = true;
@@ -408,8 +408,8 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     updateInstancedAttributes(shader->getAttributes(), subModel);
 }
 
-index_t Model::getInstancedAttributeIndex(const SubModel *subModel, const ccstd::string &name) const {
-    const auto &attributes = _instancedAttributeMap.at(subModel).attributes;
+index_t Model::getInstancedAttributeIndex(SubModel *subModel, const ccstd::string &name) const {
+    const auto &attributes = subModel->getInstancedAttributeBlock().attributes;
     for (index_t i = 0; i < static_cast<index_t>(attributes.size()); ++i) {
         if (attributes[i].name == name) {
             return i;
@@ -418,8 +418,9 @@ index_t Model::getInstancedAttributeIndex(const SubModel *subModel, const ccstd:
     return CC_INVALID_INDEX;
 }
 
-void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, const SubModel* subModel) {
-    setSubModelWorldMatrixIndex(subModel, -1);
+void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel* subModel) {
+    subModel->setInstancedWorldMatrixIndex( -1);
+
     auto *pass = subModel->getPass(0);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
@@ -437,7 +438,7 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
         if (!attribute.isInstanced) continue;
         size += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)].size;
     }
-    auto &attrs = getInstancedAttributeBlock(subModel);
+    auto &attrs = subModel->getInstancedAttributeBlock();
     attrs.buffer = Uint8Array(size);
     attrs.views.clear();
     attrs.attributes.clear();
@@ -463,7 +464,7 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
         pass->getInstancedBuffer()->destroy();
     }
-    setSubModelWorldMatrixIndex(subModel,getInstancedAttributeIndex(subModel, INST_MAT_WORLD));
+    subModel->setInstancedWorldMatrixIndex(getInstancedAttributeIndex(subModel, INST_MAT_WORLD));
     _localDataUpdated = true;
 }
 
@@ -526,9 +527,9 @@ void Model::updateLocalShadowBias() {
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
-    for (auto it : _instancedAttributeMap) {
-        const auto &attributes = it.second.attributes;
-        auto &views = it.second.views;
+    for (auto subModel : _subModels) {
+        const auto &attributes = subModel->getInstancedAttributeBlock().attributes;
+        auto &views = subModel->getInstancedAttributeBlock().views;
         for (size_t i = 0, len = attributes.size(); i < len; ++i) {
             const auto &attribute = attributes[i];
             if (attribute.name == name) {

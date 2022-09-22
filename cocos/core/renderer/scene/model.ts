@@ -49,12 +49,6 @@ const lightMapPatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHTMAP', value: true },
 ];
 
-export interface IInstancedAttributeBlock {
-    buffer: Uint8Array;
-    views: TypedArray[];
-    attributes: Attribute[];
-}
-
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -288,22 +282,6 @@ export class Model {
     public isDynamicBatching = false;
 
     /**
-     * @en The instance attribute block, access by sub model
-     * @zh 硬件实例化属性，通过子模型访问
-     */
-    public getInstancedAttributeBlock (subModel: SubModel): IInstancedAttributeBlock {
-        if (!this._instancedAttributeMap.has(subModel)) {
-            this._instancedAttributeMap.set(subModel, { buffer: null!, views: [], attributes: [] });
-        }
-        return this._instancedAttributeMap.get(subModel) as IInstancedAttributeBlock;
-    }
-
-    get instancedAttributes () {
-        return this._instancedAttributeMap;
-    }
-    protected _instancedAttributeMap: Map<SubModel, IInstancedAttributeBlock> = new Map<SubModel, IInstancedAttributeBlock>();
-
-    /**
      * @en The world axis-aligned bounding box
      * @zh 世界空间包围盒
      */
@@ -375,11 +353,6 @@ export class Model {
      */
     protected _localBuffer: Buffer | null = null;
 
-    /**
-     * @en Instance matrix id, access by sub model
-     * @zh 硬件实例化中的矩阵索引，通过子模型访问
-     */
-    private _subModelWorldMatrixIndex: Map<SubModel, number> = new Map<SubModel, number>();
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
@@ -561,10 +534,10 @@ export class Model {
         const worldMatrix = this.transform._mat;
         let hasNonInstancingPass = false;
         for (let i = 0; i < subModels.length; i++) {
-            const submodel = subModels[i];
-            const idx = this._subModelWorldMatrixIndex.get(submodel) as number;
+            const subModel = subModels[i];
+            const idx = subModel.instancedWorldMatrixIndex;
             if (idx >= 0) {
-                const attrs = this.getInstancedAttributeBlock(submodel).views;
+                const attrs = subModel.instancedAttributeBlock.views;
                 uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
             } else {
                 hasNonInstancingPass = true;
@@ -758,23 +731,20 @@ export class Model {
     }
 
     protected _getInstancedAttributeIndex (subModel: SubModel, name: string) {
-        const { attributes } = this.getInstancedAttributeBlock(subModel);
+        const { attributes } = subModel.instancedAttributeBlock;
         for (let i = 0; i < attributes.length; i++) {
             if (attributes[i].name === name) { return i; }
         }
         return -1;
     }
 
-    private _setSubModelWorldMatrixIndex (subModel: SubModel, idx: number) {
-        this._subModelWorldMatrixIndex.set(subModel, idx);
-    }
-
     // sub-classes can override the following functions if needed
 
-    // for now no submodel level instancing attributes
+    // for now no subModel level instancing attributes
     protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
         // initialize subModelWorldMatrixIndex
-        this._setSubModelWorldMatrixIndex(subModel, -1);
+        subModel.instancedWorldMatrixIndex = -1;
+
         const pass = subModel.passes[0];
         if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
         // free old data
@@ -786,7 +756,7 @@ export class Model {
             size += FormatInfos[attribute.format].size;
         }
 
-        const attrs = this.getInstancedAttributeBlock(subModel);
+        const attrs = subModel.instancedAttributeBlock;
         attrs.buffer = new Uint8Array(size);
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
@@ -807,7 +777,7 @@ export class Model {
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
-        this._setSubModelWorldMatrixIndex(subModel, this._getInstancedAttributeIndex(subModel, INST_MAT_WORLD));
+        subModel.instancedWorldMatrixIndex = this._getInstancedAttributeIndex(subModel, INST_MAT_WORLD);
         this._localDataUpdated = true;
     }
 

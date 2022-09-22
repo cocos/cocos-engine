@@ -27,7 +27,7 @@ import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager } from '../../gfx';
+    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { errorID } from '../../platform/debug';
 import { getPhaseID } from '../../pipeline/pass-phase';
@@ -35,6 +35,12 @@ import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
+
+export interface IInstancedAttributeBlock {
+    buffer: Uint8Array;
+    views: TypedArray[];
+    attributes: Attribute[];
+}
 
 /**
  * @en A sub part of the model, it describes how to render a specific sub mesh.
@@ -56,6 +62,8 @@ export class SubModel {
     protected _planarShader: Shader | null = null;
     protected _reflectionTex: Texture | null = null;
     protected _reflectionSampler: Sampler | null = null;
+    protected _instancedAttributeBlock: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
+    protected _instancedWorldMatrixIndex = -1;
 
     /**
      * @en
@@ -173,6 +181,25 @@ export class SubModel {
      */
     get planarShader (): Shader | null {
         return this._planarShader;
+    }
+
+    /**
+     * @en The instance attribute block, access by sub model
+     * @zh 硬件实例化属性，通过子模型访问
+     */
+    get instancedAttributeBlock () {
+        return this._instancedAttributeBlock;
+    }
+
+    /**
+     * @en Get or set instance matrix id, access by sub model
+     * @zh 获取或者设置硬件实例化中的矩阵索引，通过子模型访问
+     */
+    set instancedWorldMatrixIndex (val : number) {
+        this._instancedWorldMatrixIndex = val;
+    }
+    get instancedWorldMatrixIndex () {
+        return this._instancedWorldMatrixIndex;
     }
 
     /**

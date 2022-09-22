@@ -477,15 +477,17 @@ export class MeshRenderer extends ModelRenderer {
         if (JSB) {
             (this.model as any)._setInstancedAttribute(name, value);
         } else {
-            this.model.instancedAttributes.forEach((attributeValue: IInstancedAttributeBlock, subModel: SubModel) => {
-                const { attributes, views } = attributeValue;
+            const subModels = this.model.subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const subModel = subModels[i];
+                const { attributes, views } = subModel.instancedAttributeBlock;
                 for (let i = 0; i < attributes.length; i++) {
                     if (attributes[i].name === name) {
                         views[i].set(value);
                         break;
                     }
                 }
-            });
+            }
         }
     }
 

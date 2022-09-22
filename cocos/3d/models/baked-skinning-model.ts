@@ -32,7 +32,7 @@ import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM
 import { Node } from '../../core/scene-graph';
 import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { IInstancedAttributeBlock, ModelType } from '../../core/renderer/scene/model';
+import { ModelType } from '../../core/renderer/scene/model';
 import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
@@ -136,7 +136,7 @@ export class BakedSkinningModel extends MorphModel {
             const subModel = this._subModels[i];
             const idx = this._instAnimInfoIdx;
             if (idx >= 0) {
-                const view = this.getInstancedAttributeBlock(subModel).views[idx];
+                const view = subModel.instancedAttributeBlock.views[idx];
                 view[0] = info.data[0];
             } else {
                 hasNonInstancingPass = true;
@@ -222,14 +222,15 @@ export class BakedSkinningModel extends MorphModel {
     private updateInstancedJointTextureInfo () {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
-        this._instancedAttributeMap.forEach((attributeValue: IInstancedAttributeBlock, subModel: SubModel) => {
-            const views = attributeValue.views;
+        for (let i = 0; i < this._subModels.length; i++) {
+            const subModel = this._subModels[i];
+            const views = subModel.instancedAttributeBlock.views;
             if (idx >= 0 && views.length > 0) { // update instancing data too
                 const view = views[idx];
                 view[0] = animInfo.data[0];
                 view[1] = jointTextureInfo[1];
                 view[2] = jointTextureInfo[2];
             }
-        });
+        }
     }
 }

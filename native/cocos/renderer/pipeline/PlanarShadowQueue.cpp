@@ -97,7 +97,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
                 const auto subModelPass = subModelPasses[i];
                 const auto batchingScheme = subModelPass->getBatchingScheme();
                 if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
-                    instancedBuffer->merge(subModel, const_cast<scene::Model *>(model)->getInstancedAttributeBlock(subModel), i, subModel->getPlanarInstanceShader());
+                    instancedBuffer->merge(subModel, i, subModel->getPlanarInstanceShader());
                     _instancedQueue->add(instancedBuffer);
                 } else { // standard draw
                     _pendingSubModels.emplace_back(subModel);

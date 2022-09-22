@@ -55,11 +55,6 @@ class OctreeNode;
 class Octree;
 class Pass;
 struct IMacroPatch;
-struct InstancedAttributeBlock {
-    Uint8Array buffer;
-    ccstd::vector<TypedArray> views;
-    ccstd::vector<gfx::Attribute> attributes;
-};
 
 class Model : public RefCounted {
 public:
@@ -79,14 +74,14 @@ public:
     virtual void initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat);
     virtual ccstd::vector<IMacroPatch> getMacroPatches(index_t subModelIndex);
     virtual void setSubModelMaterial(index_t idx, Material *mat);
-    virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, const SubModel *subModel);
+    virtual void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel);
     virtual void updateTransform(uint32_t stamp);
     virtual void updateUBOs(uint32_t stamp);
     virtual void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
     virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
 
     void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
-    int32_t getInstancedAttributeIndex(const SubModel *subModel, const ccstd::string &name) const;
+    int32_t getInstancedAttributeIndex(SubModel *subModel, const ccstd::string &name) const;
     void initialize();
     void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
     void initLocalDescriptors(index_t subModelIndex);
@@ -137,14 +132,6 @@ public:
     inline bool isInited() const { return _inited; }
     inline bool isCastShadow() const { return _castShadow; }
     inline bool isEnabled() const { return _enabled; }
-    inline ccstd::unordered_map<const SubModel *, InstancedAttributeBlock> &getInstancedAttributes() { return _instancedAttributeMap; }
-    inline InstancedAttributeBlock &getInstancedAttributeBlock(const SubModel *subModel) {
-        if (!_instancedAttributeMap.count(subModel)) {
-            _instancedAttributeMap[subModel] = InstancedAttributeBlock();
-        }
-
-        return _instancedAttributeMap.at(subModel);
-    }
     inline gfx::Buffer *getLocalBuffer() const { return _localBuffer.get(); }
     inline gfx::Buffer *getWorldBoundBuffer() const { return _worldBoundBuffer.get(); }
     inline Float32Array getLocalData() const { return _localData; }
@@ -184,7 +171,6 @@ protected:
     static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);
 
     void updateAttributesAndBinding(index_t subModelIndex);
-    inline void setSubModelWorldMatrixIndex(const SubModel *subModel, int32_t idx) { _subModelWorldMatrixIndex[subModel] = idx; }
 
     // Please declare variables in descending order of memory size occupied by variables.
     Type _type{Type::DEFAULT};
@@ -223,9 +209,6 @@ protected:
 
     // For JS
     CallbacksInvoker _eventProcessor;
-
-    ccstd::unordered_map<const SubModel *, InstancedAttributeBlock> _instancedAttributeMap;
-    ccstd::unordered_map<const SubModel *, int32_t> _subModelWorldMatrixIndex;
 
     Float32Array _localData;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;

@@ -208,7 +208,7 @@ void SkinningModel::updateLocalDescriptors(index_t submodelIdx, gfx::DescriptorS
     }
 }
 
-void SkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, const scene::SubModel *subModel) {
+void SkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::SubModel *subModel) {
     auto *pass = subModel->getPass(0);
     if (pass->getBatchingScheme() != scene::BatchingSchemes::NONE) {
         // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
