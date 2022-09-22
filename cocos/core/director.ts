@@ -46,6 +46,7 @@ import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { deviceManager } from '../gfx';
 import { PipelineBuilder } from '../rendering/custom/pipeline';
 import { macro } from './platform/macro';
+import { Camera } from '../render-scene/scene';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -723,15 +724,18 @@ export class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             uiRendererManager.updateAllDirtyRenderers();
-            // if (this._root!.usesCustomPipeline &&  this._root?.windows !== undefined) {
-            //     const windows = this._root?.windows;
-            //     const cameraList: Camera[] = [];
-            //     for (let i = 0; i < windows.length; i++) {
-            //         const window = windows[i];
-            //         window.extractRenderCameras(cameraList);
-            //     }
-            //     const ppl = this._root.customPipeline;
-            // }
+            if (this._root?.usesCustomPipeline && this._root?.windows !== undefined) {
+                const windows = this._root.windows;
+                const cameras: Camera[] = [];
+                for (let i = 0; i < windows.length; i++) {
+                    const window = windows[i];
+                    window.extractRenderCameras(cameras);
+                }
+                const ppl = this._root.customPipeline;
+                ppl.beginSetup();
+                this._pipelineBuilder!.setup(cameras, ppl);
+                ppl.endSetup();
+            }
             this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
