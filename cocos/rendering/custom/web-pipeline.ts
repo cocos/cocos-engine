@@ -917,7 +917,7 @@ export class WebPipeline implements Pipeline {
         this._renderGraph = new RenderGraph();
     }
     endSetup (): void {
-        // noop
+        this.compile();
     }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
@@ -1041,14 +1041,6 @@ export class WebPipeline implements Pipeline {
         decideProfilerCamera(cameras);
         // build graph
         this.beginFrame();
-        if (this.builder) {
-            this.builder.setup(cameras, this);
-        } else if (this.usesDeferredPipeline) {
-            this._deferred.setup(cameras, this);
-        } else {
-            this._forward.setup(cameras, this);
-        }
-        this.compile();
         this.execute();
         this.endFrame();
     }

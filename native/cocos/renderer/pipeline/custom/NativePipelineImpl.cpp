@@ -90,11 +90,10 @@ gfx::Device *NativePipeline::getDevice() const {
 }
 
 void NativePipeline::beginSetup() {
-    // noop
+    renderGraph = RenderGraph(get_allocator());
 }
 
 void NativePipeline::endSetup() {
-    // noop
 }
 
 bool NativePipeline::containsResource(const ccstd::string &name) const {
@@ -190,7 +189,6 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
 }
 
 void NativePipeline::beginFrame() {
-    renderGraph = RenderGraph(get_allocator());
 }
 
 void NativePipeline::endFrame() {
