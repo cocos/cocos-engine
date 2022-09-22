@@ -132,9 +132,9 @@ export class BakedSkinningModel extends MorphModel {
         const info = this._jointsMedium.animInfo;
 
         let hasNonInstancingPass = false;
+        const idx = this._instAnimInfoIdx;
         for (let i = 0; i < this._subModels.length; i++) {
             const subModel = this._subModels[i];
-            const idx = this._instAnimInfoIdx;
             if (idx >= 0) {
                 const view = subModel.instancedAttributeBlock.views[idx];
                 view[0] = info.data[0];

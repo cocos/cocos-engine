@@ -89,9 +89,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
         }
 
         const auto &subModels = model->getSubModels();
-        const auto subModelCount = subModels.size();
-        for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto &subModel = subModels[subModelIdx];
+        for (const auto &subModel : subModels) {
             const auto &subModelPasses = subModel->getPasses();
             for (index_t i = 0; i < static_cast<index_t>(subModelPasses.size()); ++i) {
                 const auto subModelPass = subModelPasses[i];
