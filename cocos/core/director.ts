@@ -44,6 +44,8 @@ import { errorID, error, assertID, warnID } from './platform/debug';
 import { containerManager } from './memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { deviceManager } from '../gfx';
+import { PipelineBuilder } from '../rendering/custom/pipeline';
+import { macro } from './platform/macro';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -207,6 +209,7 @@ export class Director extends EventTarget {
     private _invalid: boolean;
     private _paused: boolean;
     private _root: Root | null;
+    private _pipelineBuilder: PipelineBuilder | null = null;
     private _loadingScene: string;
     private _scene: Scene | null;
     private _totalFrames: number;
@@ -720,6 +723,15 @@ export class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             uiRendererManager.updateAllDirtyRenderers();
+            // if (this._root!.usesCustomPipeline &&  this._root?.windows !== undefined) {
+            //     const windows = this._root?.windows;
+            //     const cameraList: Camera[] = [];
+            //     for (let i = 0; i < windows.length; i++) {
+            //         const window = windows[i];
+            //         window.extractRenderCameras(cameraList);
+            //     }
+            //     const ppl = this._root.customPipeline;
+            // }
             this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
@@ -743,6 +755,10 @@ export class Director extends EventTarget {
         this._root = new Root(deviceManager.gfxDevice);
         const rootInfo = {};
         this._root.initialize(rootInfo);
+        if (this._root.usesCustomPipeline && legacyCC.internal.createCustomPipeline && legacyCC.internal.customPipelineBuilderMap) {
+            const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
+            this._pipelineBuilder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
+        }
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }
