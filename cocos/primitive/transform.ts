@@ -69,9 +69,9 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
  * @param value @zh 缩放量。@en The scaling size
  */
 export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?: number }) {
-    const x = value.x || 0;
-    const y = value.y || 0;
-    const z = value.z || 0;
+    const x = value.x ?? 1.0;
+    const y = value.y ?? 1.0;
+    const z = value.z ?? 1.0;
     const nVertex = Math.floor(geometry.positions.length / 3);
     for (let iVertex = 0; iVertex < nVertex; ++iVertex) {
         const iX = iVertex * 3;
@@ -81,17 +81,35 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
         geometry.positions[iY] *= y;
         geometry.positions[iZ] *= z;
     }
-    if (geometry.minPos) {
-        geometry.minPos.x *= x;
-        geometry.minPos.y *= y;
-        geometry.minPos.z *= z;
+    const {
+        minPos,
+        maxPos,
+    } = geometry;
+    if (minPos) {
+        minPos.x *= x;
+        minPos.y *= y;
+        minPos.z *= z;
     }
-    if (geometry.maxPos) {
-        geometry.maxPos.x *= x;
-        geometry.maxPos.y *= y;
-        geometry.maxPos.z *= z;
+    if (maxPos) {
+        maxPos.x *= x;
+        maxPos.y *= y;
+        maxPos.z *= z;
     }
-    geometry.boundingRadius = Math.max(Math.max(x, y), z);
+    if (minPos && maxPos) {
+        // Negative scaling causes min-max to be swapped.
+        if (x < 0) {
+            const tmp = minPos.x; minPos.x = maxPos.x; maxPos.x = tmp;
+        }
+        if (y < 0) {
+            const tmp = minPos.y; minPos.y = maxPos.y; maxPos.y = tmp;
+        }
+        if (z < 0) {
+            const tmp = minPos.z; minPos.z = maxPos.z; maxPos.z = tmp;
+        }
+    }
+    if (typeof geometry.boundingRadius !== 'undefined') {
+        geometry.boundingRadius *= Math.max(Math.max(Math.abs(x), Math.abs(y)), Math.abs(z));
+    }
     return geometry;
 }
 

@@ -132,8 +132,8 @@ protected:
 
     Device();
 
-    void destroySurface(void *windowHandle);
-    void createSurface(void *windowHandle);
+    void destroySurface(uint32_t windowId);
+    void createSurface(uint32_t windowId);
 
     virtual bool doInit(const DeviceInfo &info) = 0;
     virtual void doDestroy() = 0;

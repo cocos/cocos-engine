@@ -103,17 +103,14 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     if (!window) {
         return nullptr;
     }
-
-    auto *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
-    float pixelRatio = screen->getDevicePixelRatio();
-
+    
     uint32_t windowId = window->getWindowId();
     auto handle = window->getWindowHandle();
     const auto &size = window->getViewSize();
 
     gfx::SwapchainInfo info;
-    info.width = static_cast<uint32_t>(size.x) * pixelRatio;
-    info.height = static_cast<uint32_t>(size.y) * pixelRatio;
+    info.width = static_cast<uint32_t>(size.x);
+    info.height = static_cast<uint32_t>(size.y);
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
 
