@@ -32,7 +32,7 @@ import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM
 import { Node } from '../../core/scene-graph';
 import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { ModelType } from '../../core/renderer/scene/model';
+import { IInstancedAttributeBlock, ModelType } from '../../core/renderer/scene/model';
 import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
@@ -221,16 +221,15 @@ export class BakedSkinningModel extends MorphModel {
 
     private updateInstancedJointTextureInfo () {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
-        const values = Array.from(this._instancedAttributeMap.values());
         const idx = this._instAnimInfoIdx;
-        for (let i = 0; i < values.length; i++) {
-            const views = values[i].views;
+        this._instancedAttributeMap.forEach((attributeValue: IInstancedAttributeBlock, subModel: SubModel) => {
+            const views = attributeValue.views;
             if (idx >= 0 && views.length > 0) { // update instancing data too
                 const view = views[idx];
                 view[0] = animInfo.data[0];
                 view[1] = jointTextureInfo[1];
                 view[2] = jointTextureInfo[2];
             }
-        }
+        });
     }
 }

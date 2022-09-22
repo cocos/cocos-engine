@@ -42,6 +42,7 @@ import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
+import { IInstancedAttributeBlock, SubModel } from '../../core/renderer/scene';
 
 /**
  * @en Shadow projection mode.
@@ -476,16 +477,15 @@ export class MeshRenderer extends ModelRenderer {
         if (JSB) {
             (this.model as any)._setInstancedAttribute(name, value);
         } else {
-            const attributeValues = Array.from(this.model.instancedAttributes.values());
-            for (let i = 0; i < attributeValues.length; ++i) {
-                const { attributes, views } = attributeValues[i];
+            this.model.instancedAttributes.forEach((attributeValue: IInstancedAttributeBlock, subModel: SubModel) => {
+                const { attributes, views } = attributeValue;
                 for (let i = 0; i < attributes.length; i++) {
                     if (attributes[i].name === name) {
                         views[i].set(value);
                         break;
                     }
                 }
-            }
+            });
         }
     }
 
