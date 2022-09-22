@@ -64,6 +64,23 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
+
+        // Get model(s) contained in LOD Groups
+        // eslint-disable-next-line no-lone-blocks
+        {
+            for (const g of scene.lodGroups) {
+                if (g.enabled) {
+                    const visIndex = LODGroupUtility.getVisibleLOD(g, camera);
+                    if (visIndex >= 0) {
+                        const lod = g.LODs[visIndex];
+                        for (const model of lod.models) {
+                            if (model &&  model.enabled && model.node && model.castShadow) this._castModels.push(model);
+                        }
+                    }
+                }
+            }
+        }
+
         const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
         this._instancedQueue.queue.add(instancedBuffer);
 
