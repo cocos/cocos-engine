@@ -433,6 +433,51 @@ export class Batcher2D implements IBatcher {
 
     /**
      * @en
+     * Render component data submission process for individual [[gfx.InputAssembler]]
+     * @zh
+     * 渲染组件中针对独立 [[gfx.InputAssembler]] 的提交流程
+     * 例如：Spine 和 DragonBones 等包含动态数据和材质的组件在内部管理 IA 并提交批次
+     * @param comp - The committed renderable component
+     * @param ia - The committed [[gfx.InputAssembler]]
+     * @param tex - The texture used
+     * @param mat - The material used
+     * @param [transform] - The related node transform if the render data is based on node's local coordinates
+     * @deprecated Will be removed in the future, please use commitMiddleware instead
+     */
+    public commitIA (renderComp: UIRenderer, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
+        // if the last comp is spriteComp, previous comps should be batched.
+        if (this._currMaterial !== this._emptyMaterial) {
+            this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
+        }
+        let depthStencil;
+        let dssHash = 0;
+        if (renderComp) {
+            renderComp.stencilStage = StencilManager.sharedManager!.stage;
+            if (renderComp.customMaterial !== null) {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
+            } else {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            }
+            dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+        }
+
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        curDrawBatch.visFlags = renderComp.node.layer;
+        curDrawBatch.inputAssembler = ia;
+        curDrawBatch.useLocalData = transform || null;
+        if (tex) {
+            curDrawBatch.texture = tex.getGFXTexture();
+            curDrawBatch.sampler = tex.getGFXSampler();
+            curDrawBatch.textureHash = tex.getHash();
+            curDrawBatch.samplerHash = curDrawBatch.sampler.hash;
+        }
+        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, null);
+        this._batches.push(curDrawBatch);
+    }
+
+    /**
+     * @en
      * Render component data submission process for middleware2d components
      * @zh
      * 渲染组件中针对2D中间件组件渲染数据的提交流程
