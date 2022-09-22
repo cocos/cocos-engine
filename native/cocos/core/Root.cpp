@@ -104,7 +104,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     if (!window) {
         return nullptr;
     }
-    
+
     uint32_t windowId = window->getWindowId();
     auto handle = window->getWindowHandle();
     const auto &size = window->getViewSize();
@@ -637,13 +637,13 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 void Root::addWindowEventListener() {
     _windowDestroyEventId = EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &e) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowDestroy(e.args->ptrVal);
+            window->onNativeWindowDestroy(static_cast<uint32_t>(e.args[0].intVal));
         }
     });
 
     _windowResumeEventId = EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &e) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowResume(e.args->ptrVal);
+            window->onNativeWindowResume(static_cast<uint32_t>(e.args[0].intVal));
         }
     });
 }

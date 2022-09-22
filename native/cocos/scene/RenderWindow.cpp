@@ -136,20 +136,18 @@ void RenderWindow::extractRenderCameras(ccstd::vector<Camera *> &cameras) {
     }
 }
 
-void RenderWindow::onNativeWindowDestroy(void *wHandle) {
-    if (_swapchain != nullptr && _swapchain->getWindowHandle() == wHandle) {
+void RenderWindow::onNativeWindowDestroy(uint32_t windowId) {
+    if (_swapchain != nullptr && _swapchain->getWindowId() == windowId) {
         _swapchain->destroySurface();
     }
 }
 
-void RenderWindow::onNativeWindowResume(void *wHandle) {
-    auto windowId = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(wHandle));
-    auto *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
-    auto *hWnd = reinterpret_cast<void *>(windowMgr->getWindow(windowId)->getWindowHandle());
-
+void RenderWindow::onNativeWindowResume(uint32_t windowId) {
     if (_swapchain == nullptr || _swapchain->getWindowId() != windowId) {
         return;
     }
+    auto *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
+    auto *hWnd = reinterpret_cast<void *>(windowMgr->getWindow(windowId)->getWindowHandle());
     _swapchain->createSurface(hWnd);
     updateFramebuffer();
 }
