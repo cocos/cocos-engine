@@ -27,11 +27,10 @@ import { PipelineState, DescriptorSet, InputAssembler, DrawInfo, Buffer, Command
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneVisitor } from './pipeline';
 
-export class WebSceneVisitor extends SceneVisitor {
+export class WebSceneVisitor implements SceneVisitor {
     protected _pipelineSceneData: PipelineSceneData;
     private _commandBuffer: CommandBuffer;
     constructor (commandBuffer: CommandBuffer, pipelineSceneData: PipelineSceneData) {
-        super();
         this._pipelineSceneData = pipelineSceneData;
         this._commandBuffer = commandBuffer;
     }

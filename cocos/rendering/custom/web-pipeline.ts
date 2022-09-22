@@ -706,9 +706,8 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     private readonly _pipeline: PipelineSceneData;
 }
 
-export class WebMovePassBuilder extends MovePassBuilder {
+export class WebMovePassBuilder implements MovePassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: MovePass) {
-        super();
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
@@ -721,9 +720,8 @@ export class WebMovePassBuilder extends MovePassBuilder {
     private readonly _pass: MovePass;
 }
 
-export class WebCopyPassBuilder extends CopyPassBuilder {
+export class WebCopyPassBuilder implements CopyPassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: CopyPass) {
-        super();
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
@@ -741,7 +739,7 @@ function isManaged (residency: ResourceResidency): boolean {
     || residency === ResourceResidency.MEMORYLESS;
 }
 
-export class WebPipeline extends Pipeline {
+export class WebPipeline implements Pipeline {
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
