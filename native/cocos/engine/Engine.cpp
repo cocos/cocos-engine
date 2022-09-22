@@ -60,6 +60,7 @@
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
 #include "platform/UniversalPlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #if CC_USE_DEBUG_RENDERER
@@ -75,11 +76,12 @@ bool setCanvasCallback(se::Object * /*global*/) {
     auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
-
+    auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
+    
     std::stringstream ss;
     {
-        ss << "window.innerWidth = " << static_cast<int>(viewSize.x) << ";";
-        ss << "window.innerHeight = " << static_cast<int>(viewSize.y) << ";";
+        ss << "window.innerWidth = "  << static_cast<int>(viewSize.x / dpr) << ";";
+        ss << "window.innerHeight = " << static_cast<int>(viewSize.y / dpr) << ";";
         ss << "window.windowHandler = ";
         if (sizeof(handler) == 8) { // use bigint
             ss << static_cast<uint64_t>(handler) << "n;";
