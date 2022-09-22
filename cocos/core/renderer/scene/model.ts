@@ -58,12 +58,6 @@ export enum ModelType {
     LINE,
 }
 
-function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView, v3: ArrayBufferView) {
-    v1[0] = mat.m00; v1[1] = mat.m01; v1[2] = mat.m02; v1[3] = mat.m12;
-    v2[0] = mat.m04; v2[1] = mat.m05; v2[2] = mat.m06; v2[3] = mat.m13;
-    v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
-}
-
 const lightmapSamplerHash = new SamplerInfo(
     Filter.LINEAR,
     Filter.LINEAR,
@@ -537,8 +531,7 @@ export class Model {
             const subModel = subModels[i];
             const idx = subModel.instancedWorldMatrixIndex;
             if (idx >= 0) {
-                const attrs = subModel.instancedAttributeBlock.views;
-                uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
+                subModel.UpdateInstancedWorldMatrix(worldMatrix, idx);
             } else {
                 hasNonInstancingPass = true;
             }

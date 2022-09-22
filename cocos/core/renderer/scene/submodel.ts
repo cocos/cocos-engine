@@ -32,6 +32,7 @@ import { legacyCC } from '../../global-exports';
 import { errorID } from '../../platform/debug';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
+import { Mat4 } from '../..';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -419,6 +420,24 @@ export class SubModel {
         return -1;
     }
 
+    /**
+     * @en
+     * update instancing related data, invoked by model
+     * @zh
+     * 更新硬件实例化相关数据，一般由model调用
+     */
+    /**
+     * @internal
+     */
+    public UpdateInstancedWorldMatrix (mat: Mat4, idx: number) {
+        const attrs = this.instancedAttributeBlock.views;
+        const v1 = attrs[idx];
+        const v2 = attrs[idx + 1];
+        const v3 = attrs[idx + 2];
+        v1[0] = mat.m00; v1[1] = mat.m01; v1[2] = mat.m02; v1[3] = mat.m12;
+        v2[0] = mat.m04; v2[1] = mat.m05; v2[2] = mat.m06; v2[3] = mat.m13;
+        v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
+    }
     /**
      * @en
      * update instancing related data, invoked by model
