@@ -79,12 +79,12 @@ export class OpenHarmonyPackTool extends NativePackTool {
         const ohosProjDir = this.paths.platformTemplateDirInPrj;
         if (!fs.existsSync(ps.join(ohosProjDir, 'node_modules'))) {
             console.debug(`Start install project ${ohosProjDir}`);
+            //set OpenHarmony npm repo
+            await cchelper.runCmd('npm', ['config', 'set', '@ohos:registry=https://repo.harmonyos.com/npm/'], false, ohosProjDir);
             // install
             await cchelper.runCmd('npm', ['i'], false, ohosProjDir);
         }
         console.debug(`Start buildOhosHap in ${ohosProjDir}`);
-        //set OpenHarmony npm repo
-        await cchelper.runCmd('npm', ['config', 'set', '@ohos:registry=https://repo.harmonyos.com/npm/'], false, ohosProjDir);
 
         // npm run buildOhosHap
         await cchelper.runCmd('npm', ['run', 'build'], false, ohosProjDir);
