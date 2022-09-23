@@ -101,6 +101,13 @@ export class AudioSource extends Component {
         }
         if (!clip) {
             this._lastSetClip = null;
+            if (this._player) {
+                audioManager.removePlaying(this._player);
+                this._player.offEnded();
+                this._player.offInterruptionBegin();
+                this._player.offInterruptionEnd();
+                this._player.destroy();
+            }
             return;
         }
         if (!clip._nativeAsset) {
