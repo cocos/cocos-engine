@@ -170,6 +170,13 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
+     * @en The event which will be triggered before the pipeline render.
+     * @zh 当前渲染帧渲染前所触发的事件。
+     * @event Director.EVENT_BEFORE_RENDER
+     */
+    public static readonly EVENT_BEFORE_RENDER = 'director_before_render';
+
+    /**
      * @en The event which will be triggered before the physics process.<br/>
      * @zh 物理过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_PHYSICS
@@ -747,6 +754,11 @@ export class Director extends EventTarget {
         }
     }
 
+    private buildRenderPipeline () {
+        if (this._root && this._pipelineBuilder) {
+            this._pipelineBuilder.setup(this._root.cameraList, this._root.customPipeline);
+        }
+    }
     /**
      * @internal
      */
@@ -762,6 +774,7 @@ export class Director extends EventTarget {
         if (this._root.usesCustomPipeline && legacyCC.internal.createCustomPipeline && legacyCC.internal.customPipelineBuilderMap) {
             const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
             this._pipelineBuilder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();

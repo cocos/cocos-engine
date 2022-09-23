@@ -183,6 +183,10 @@ rootProto._onDirectorBeforeCommit = function () {
     legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
 };
 
+rootProto._onDirectorBeforeRender = function () {
+    legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
+};
+
 const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
     oldFrameMove.call(this, deltaTime, legacyCC.director.getTotalFrames());

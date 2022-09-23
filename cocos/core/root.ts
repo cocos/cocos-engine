@@ -234,6 +234,10 @@ export class Root {
         return this._useDeferredPipeline;
     }
 
+    public get cameraList (): Camera[] {
+        return this._cameraList;
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -269,6 +273,7 @@ export class Root {
     private _cumulativeTime = 0;
     private _frameTime = 0;
     private declare _naitveObj: any;
+    private _cameraList: Camera[] = [];
 
     /**
      * @en The constructor of the root, user shouldn't create the root instance, it's managed by the [[Director]].
@@ -484,7 +489,9 @@ export class Root {
         }
 
         const windows = this._windows;
-        const cameraList: Camera[] = [];
+        const cameraList = this._cameraList;
+        cameraList.splice(0, cameraList.length);
+
         for (let i = 0; i < windows.length; i++) {
             const window = windows[i];
             window.extractRenderCameras(cameraList);
@@ -509,6 +516,7 @@ export class Root {
             for (let i = 0; i < cameraList.length; ++i) {
                 cameraList[i].geometryRenderer?.update();
             }
+            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
             this._pipeline.render(cameraList);
             this._device.present();
         }
