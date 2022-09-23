@@ -30,12 +30,8 @@ exports.update = async function(dump) {
         panel.dump = dump;
     }
 
-    panel.sceneProbeMode = await Editor.Message.request('scene', 'query-light-probe-edit-mode');
-    if (panel.sceneProbeMode) {
-        panel.$.edit.innerText = 'Disable Probe Edit';
-    } else {
-        panel.$.edit.innerText = 'Enable Probe Edit';
-    }
+    const mode = await Editor.Message.request('scene', 'query-light-probe-edit-mode');
+    panel.changeProbeMode(mode);
 };
 
 exports.ready = function() {
@@ -63,6 +59,28 @@ exports.ready = function() {
 
     panel.$.edit.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
-        panel.$this.update();
     });
+
+    panel.changeProbeModeBind = panel.changeProbeMode.bind(panel);
+    Editor.Message.addBroadcastListener('scene:light-probe-edit-mode-changed', panel.changeProbeModeBind);
+};
+
+exports.close = function() {
+    const panel = this;
+
+    Editor.Message.removeBroadcastListener('scene:light-probe-edit-mode-changed', panel.changeProbeModeBind);
+};
+
+exports.methods = {
+    changeProbeMode(mode) {
+        const panel = this;
+
+        panel.sceneProbeMode = mode;
+
+        if (mode) {
+            panel.$.edit.innerText = 'Disable Probe Edit';
+        } else {
+            panel.$.edit.innerText = 'Enable Probe Edit';
+        }
+    },
 };
