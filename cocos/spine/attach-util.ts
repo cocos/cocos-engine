@@ -23,10 +23,11 @@
  THE SOFTWARE.
  */
 
-import { Mat4, Node } from '../core';
+import { Mat4 } from '../core';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
 import { FrameBoneInfo } from './skeleton-cache';
+import { Node } from '../scene-graph';
 
 const tempMat4 = new Mat4();
 

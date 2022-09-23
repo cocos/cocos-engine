@@ -164,7 +164,7 @@ export class EventHandler {
         const comp = target!.getComponent(compType);
         if (!legacyCC.isValid(comp)) { return; }
 
-        const handler = comp[this.handler];
+        const handler = comp![this.handler];
         if (typeof (handler) !== 'function') { return; }
 
         if (this.customEventData != null && this.customEventData !== '') {

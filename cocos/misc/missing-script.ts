@@ -24,13 +24,11 @@
  THE SOFTWARE.
 */
 
-import { ccclass, inspector, editorOnly, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { getClassById } from '../utils/js';
-import { BUILTIN_CLASSID_RE } from '../utils/misc';
-import { Component } from './component';
-import { legacyCC } from '../global-exports';
-import { warnID, error } from '../platform/debug';
+import { ccclass, inspector, editorOnly, serializable } from 'cc.decorator';
+import { getClassById } from '../core/utils/js';
+import { Component } from '../scene-graph/component';
+import { legacyCC } from '../core/global-exports';
+import { warnID, error } from '../core/platform/debug';
 
 /**
  * @en
@@ -40,7 +38,7 @@ import { warnID, error } from '../platform/debug';
  */
 @ccclass('cc.MissingScript')
 @inspector('packages://inspector/inspectors/comps/missing-script.js')
-export default class MissingScript extends Component {
+export class MissingScript extends Component {
     // _scriptUuid: {
     //    get: function () {
     //        var id = this._$erialized.__type__;

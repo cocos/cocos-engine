@@ -29,7 +29,7 @@ import { Sphere } from '../../core/geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../core/math';
 import { legacyCC } from '../../core/global-exports';
 import { Enum } from '../../core/value-types';
-import type { ShadowsInfo } from '../../core/scene-graph/scene-globals';
+import type { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
 import { Shader } from '../../gfx';
 import { assert } from '../../core/platform/debug';

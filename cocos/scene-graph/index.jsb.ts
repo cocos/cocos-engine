@@ -1,3 +1,5 @@
+import './component-event-handler.schema';
+
 import './node-event-processor';
 
 export * from './node';

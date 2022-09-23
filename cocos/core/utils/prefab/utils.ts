@@ -26,9 +26,8 @@
 
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import type { Node } from '../../scene-graph/node';
+import type { Node, Component } from '../../../scene-graph';
 import { errorID, warn } from '../../platform/debug';
-import { Component } from '../../components';
 import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
 import { MountedComponentsInfo, TargetInfo } from '.';
 import { editorExtrasTag } from '../../data';

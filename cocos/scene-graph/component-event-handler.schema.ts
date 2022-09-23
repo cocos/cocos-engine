@@ -1,5 +1,5 @@
 import { CCClass } from '../core/data';
-import { Node } from '../scene-graph/node';
+import { Node } from './node';
 import { EventHandler } from './component-event-handler';
 
 CCClass.Attr.setClassAttr(EventHandler, 'target', 'type', 'Object');

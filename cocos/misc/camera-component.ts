@@ -629,7 +629,7 @@ export class Camera extends Component {
     public _createCamera () {
         if (!this._camera) {
             this._camera = (legacyCC.director.root).createCamera();
-            this._camera.initialize({
+            this._camera!.initialize({
                 name: this.node.name,
                 node: this.node,
                 projection: this._projection,
@@ -640,20 +640,20 @@ export class Camera extends Component {
                 trackingType: this.trackingType,
             });
 
-            this._camera.setViewportInOrientedSpace(this._rect);
-            this._camera.fovAxis = this._fovAxis;
-            this._camera.fov = toRadian(this._fov);
-            this._camera.orthoHeight = this._orthoHeight;
-            this._camera.nearClip = this._near;
-            this._camera.farClip = this._far;
-            this._camera.clearColor = this._color;
-            this._camera.clearDepth = this._depth;
-            this._camera.clearStencil = this._stencil;
-            this._camera.clearFlag = this._clearFlags;
-            this._camera.visibility = this._visibility;
-            this._camera.aperture = this._aperture;
-            this._camera.shutter = this._shutter;
-            this._camera.iso = this._iso;
+            this._camera!.setViewportInOrientedSpace(this._rect);
+            this._camera!.fovAxis = this._fovAxis;
+            this._camera!.fov = toRadian(this._fov);
+            this._camera!.orthoHeight = this._orthoHeight;
+            this._camera!.nearClip = this._near;
+            this._camera!.farClip = this._far;
+            this._camera!.clearColor = this._color;
+            this._camera!.clearDepth = this._depth;
+            this._camera!.clearStencil = this._stencil;
+            this._camera!.clearFlag = this._clearFlags;
+            this._camera!.visibility = this._visibility;
+            this._camera!.aperture = this._aperture;
+            this._camera!.shutter = this._shutter;
+            this._camera!.iso = this._iso;
         }
 
         this._updateTargetTexture();

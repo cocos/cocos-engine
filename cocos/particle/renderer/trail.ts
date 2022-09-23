@@ -37,7 +37,7 @@ import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
 import { legacyCC } from '../../core/global-exports';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { warnID } from '../../core';
 
 const PRE_TRIANGLE_INDEX = 1;

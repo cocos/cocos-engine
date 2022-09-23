@@ -1,4 +1,4 @@
-import { Component } from '../../core/components';
+import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
 import { property, ccclass, menu } from '../../core/data/class-decorator';

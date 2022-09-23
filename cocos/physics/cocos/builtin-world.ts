@@ -28,9 +28,8 @@ import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
-import { ObjectCollisionMatrix } from '../utils/object-collision-matrix';
 import { Ray, intersect } from '../../core/geometry';
-import { RecyclePool, Node, error } from '../../core';
+import { RecyclePool, error } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
 import { PhysicsMaterial } from '../framework/assets/physics-material';
@@ -38,6 +37,7 @@ import { TriggerEventType } from '../framework/physics-interface';
 import { Collider } from '../../../exports/physics-framework';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { fastRemoveAt } from '../../core/utils/array';
+import { Node } from '../../scene-graph';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {

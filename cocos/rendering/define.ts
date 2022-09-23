@@ -26,7 +26,7 @@
 import { Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { SubModel } from '../render-scene/scene/submodel';
-import { Layers } from '../core/scene-graph/layers';
+import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../core/global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
     Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,

@@ -206,7 +206,7 @@ class Component extends CCObject {
         if (this._sceneGetter) {
             return this._sceneGetter();
         }
-        return this.node.scene.renderScene;
+        return this.node.scene.renderScene!;
     }
 
     // PUBLIC

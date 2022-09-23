@@ -24,7 +24,7 @@
  */
 
 import { director } from '../core/director';
-import { System } from '../core/components';
+import { System } from '../core';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { legacyCC } from '../core/global-exports';
 

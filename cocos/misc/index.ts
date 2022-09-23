@@ -23,10 +23,9 @@
  THE SOFTWARE.
 */
 
-import './component-event-handler.schema';
-
 export { Camera } from './camera-component';
 export { ModelRenderer } from './model-renderer';
 export { Renderer } from './renderer';
+export { MissingScript } from './missing-script';
 /** deprecated */
 export * from './deprecated';

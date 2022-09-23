@@ -52,6 +52,7 @@ export * from './director';
 export * from './algorithm/murmurhash2_gc';
 export * from './curves';
 export * from './settings';
+export { default as System } from './system';
 
 export * from './curves/bezier';
 export { easing };
