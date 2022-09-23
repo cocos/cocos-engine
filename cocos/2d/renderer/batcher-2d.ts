@@ -442,7 +442,7 @@ export class Batcher2D implements IBatcher {
      * @param tex - The texture used
      * @param mat - The material used
      * @param [transform] - The related node transform if the render data is based on node's local coordinates
-     * @deprecated Will be removed in the future, please use commitMiddleware instead
+     * @deprecated since v3.6.2, please use [[commitMiddleware]] instead
      */
     public commitIA (renderComp: UIRenderer, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
         // if the last comp is spriteComp, previous comps should be batched.
