@@ -121,7 +121,7 @@ public:
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
 private:
-    void updateFramebuffer();
+    void generateFrameBuffer();
 
     uint32_t _width{1};
     uint32_t _height{1};

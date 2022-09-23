@@ -87,20 +87,19 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
         }
     }
 
-    updateFramebuffer();
+    generateFrameBuffer();
     return true;
 }
 
 void RenderWindow::destroy() {
     clearCameras();
 
-    CC_SAFE_DESTROY_NULL(_frameBuffer);
+    // Gfx objects invoke destroy in VK\GL\MTL Object destructor.
+    _frameBuffer = nullptr;
+    _renderPass = nullptr;
+    _depthStencilTexture = nullptr;
 
-    CC_SAFE_DESTROY_NULL(_depthStencilTexture);
-
-    for (auto *colorTexture : _colorTextures) {
-        CC_SAFE_DESTROY(colorTexture);
-    }
+    // RefVector invokes RefCounted::release() when removing an element.
     _colorTextures.clear();
 }
 
@@ -120,7 +119,7 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
         _height = height;
     }
 
-    updateFramebuffer();
+    generateFrameBuffer();
 
     for (Camera *camera : _cameras) {
         camera->resize(width, height);
@@ -149,13 +148,10 @@ void RenderWindow::onNativeWindowResume(uint32_t windowId) {
     auto *windowMgr = BasePlatform::getPlatform()->getInterface<ISystemWindowManager>();
     auto *hWnd = reinterpret_cast<void *>(windowMgr->getWindow(windowId)->getWindowHandle());
     _swapchain->createSurface(hWnd);
-    updateFramebuffer();
+    generateFrameBuffer();
 }
 
-void RenderWindow::updateFramebuffer() {
-    if (_frameBuffer != nullptr) {
-        _frameBuffer = nullptr;
-    }
+void RenderWindow::generateFrameBuffer() {
     _frameBuffer = gfx::Device::getInstance()->createFramebuffer(gfx::FramebufferInfo{
         _renderPass,
         _colorTextures.get(),
