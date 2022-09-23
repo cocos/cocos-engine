@@ -818,25 +818,13 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         createInfo.layers = 1;
         VK_CHECK(vkCreateFramebuffer(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuFramebuffer->vkFramebuffer));
     } else {
-        // swapchain-related framebuffers need special treatments: rebuild is needed
-        // whenever a user-specified attachment or swapchain itself is changed
-
-        FramebufferListMap &fboListMap = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap;
-        auto fboListMapIter = fboListMap.find(gpuFramebuffer);
-        if (fboListMapIter != fboListMap.end() && !fboListMapIter->second.empty()) {
-            return;
-        }
-        size_t swapchainImageCount = gpuFramebuffer->swapchain->swapchainImages.size();
-        if (fboListMapIter != fboListMap.end()) {
-            fboListMapIter->second.resize(swapchainImageCount);
-        } else {
-            fboListMap.emplace(std::piecewise_construct, std::forward_as_tuple(gpuFramebuffer), std::forward_as_tuple(swapchainImageCount));
-        }
+        size_t swapChainImageCount = gpuFramebuffer->swapchain->swapchainImages.size();
+        gpuFramebuffer->vkFrameBuffers.resize(swapChainImageCount);
         createInfo.renderPass = gpuFramebuffer->gpuRenderPass->vkRenderPass;
         createInfo.attachmentCount = utils::toUint(attachments.size());
         createInfo.pAttachments = attachments.data();
         createInfo.layers = 1;
-        for (size_t i = 0U; i < swapchainImageCount; ++i) {
+        for (size_t i = 0U; i < swapChainImageCount; ++i) {
             for (size_t j = 0U; j < colorViewCount; ++j) {
                 if (swapchainImageIndices & (1 << j)) {
                     attachments[j] = gpuFramebuffer->gpuColorViews[j]->swapchainVkImageViews[i];
@@ -845,7 +833,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
             if (swapchainImageIndices & (1 << colorViewCount)) {
                 attachments[colorViewCount] = gpuFramebuffer->gpuDepthStencilView->swapchainVkImageViews[i];
             }
-            VK_CHECK(vkCreateFramebuffer(device->gpuDevice()->vkDevice, &createInfo, nullptr, &fboListMap[gpuFramebuffer][i]));
+            VK_CHECK(vkCreateFramebuffer(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuFramebuffer->vkFrameBuffers[i]));
         }
     }
 }
@@ -1786,14 +1774,6 @@ void CCVKGPUBufferHub::flush(CCVKGPUTransportHub *transportHub) {
     }
 
     buffers.clear();
-}
-
-void CCVKGPUFramebufferHub::update(CCVKGPUTexture *texture) {
-    auto &pool = _framebuffers[texture];
-    for (auto *framebuffer : pool) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(framebuffer);
-        cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), framebuffer);
-    }
 }
 
 } // namespace gfx
