@@ -184,7 +184,7 @@ void BakedSkinningModel::updateLocalDescriptors(index_t subModelIndex, gfx::Desc
 
 void BakedSkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::SubModel *subModel) {
     Super::updateInstancedAttributes(attributes, subModel);
-    _instAnimInfoIdx = getInstancedAttributeIndex(subModel, INST_JOINT_ANIM_INFO);
+    _instAnimInfoIdx = subModel->getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     updateInstancedJointTextureInfo();
 }
 

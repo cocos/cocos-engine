@@ -81,7 +81,6 @@ public:
     virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
 
     void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
-    int32_t getInstancedAttributeIndex(SubModel *subModel, const ccstd::string &name) const;
     void initialize();
     void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
     void initLocalDescriptors(index_t subModelIndex);
@@ -168,7 +167,6 @@ public:
 
 protected:
     static SubModel *createSubModel();
-    static void uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3);
 
     void updateAttributesAndBinding(index_t subModelIndex);
 

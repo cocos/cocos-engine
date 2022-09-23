@@ -531,7 +531,7 @@ export class Model {
             const subModel = subModels[i];
             const idx = subModel.instancedWorldMatrixIndex;
             if (idx >= 0) {
-                subModel.UpdateInstancedWorldMatrix(worldMatrix, idx);
+                subModel.updateInstancedWorldMatrix(worldMatrix, idx);
             } else {
                 hasNonInstancingPass = true;
             }

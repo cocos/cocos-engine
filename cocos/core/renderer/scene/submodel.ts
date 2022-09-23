@@ -429,7 +429,7 @@ export class SubModel {
     /**
      * @internal
      */
-    public UpdateInstancedWorldMatrix (mat: Mat4, idx: number) {
+    public updateInstancedWorldMatrix (mat: Mat4, idx: number) {
         const attrs = this.instancedAttributeBlock.views;
         const v1 = attrs[idx];
         const v2 = attrs[idx + 1];

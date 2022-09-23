@@ -40,39 +40,6 @@
 #include "scene/SubModel.h"
 
 namespace {
-cc::TypedArray getTypedArrayConstructor(const cc::gfx::FormatInfo &info, cc::ArrayBuffer *buffer, uint32_t byteOffset, uint32_t length) {
-    const uint32_t stride = info.size / info.count;
-    switch (info.type) {
-        case cc::gfx::FormatType::UNORM:
-        case cc::gfx::FormatType::UINT: {
-            switch (stride) {
-                case 1: return cc::Uint8Array(buffer, byteOffset, length);
-                case 2: return cc::Uint16Array(buffer, byteOffset, length);
-                case 4: return cc::Uint32Array(buffer, byteOffset, length);
-                default:
-                    break;
-            }
-            break;
-        }
-        case cc::gfx::FormatType::SNORM:
-        case cc::gfx::FormatType::INT: {
-            switch (stride) {
-                case 1: return cc::Int8Array(buffer, byteOffset, length);
-                case 2: return cc::Int16Array(buffer, byteOffset, length);
-                case 4: return cc::Int32Array(buffer, byteOffset, length);
-                default:
-                    break;
-            }
-            break;
-        }
-        case cc::gfx::FormatType::FLOAT: {
-            return cc::Float32Array(buffer, byteOffset, length);
-        }
-        default:
-            break;
-    }
-    return cc::Float32Array(buffer, byteOffset, length);
-}
 
 cc::Float32Array &vec4ToFloat32Array(const cc::Vec4 &v, cc::Float32Array &out, index_t ofs = 0) {
     out[ofs + 0] = v.x;
@@ -106,7 +73,6 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
-const ccstd::string INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
 namespace cc {
@@ -144,23 +110,6 @@ void Model::destroy() {
     _transform = nullptr;
     _node = nullptr;
     _isDynamicBatching = false;
-}
-
-void Model::uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3) {
-    uint32_t copyBytes = sizeof(float) * 3;
-    auto *buffer = const_cast<uint8_t *>(v1.buffer()->getData());
-
-    uint8_t *dst = buffer + v1.byteOffset();
-    memcpy(dst, mat.m, copyBytes);
-    v1[3] = mat.m[12];
-
-    dst = buffer + v2.byteOffset();
-    memcpy(dst, mat.m + 4, copyBytes);
-    v2[3] = mat.m[13];
-
-    dst = buffer + v3.byteOffset();
-    memcpy(dst, mat.m + 8, copyBytes);
-    v3[3] = mat.m[14];
 }
 
 void Model::updateTransform(uint32_t stamp) {
@@ -238,7 +187,7 @@ void Model::updateUBOs(uint32_t stamp) {
         const auto idx = subModel->getInstancedWorldMatrixIndex();
         if (idx >= 0) {
             ccstd::vector<TypedArray> &attrs = subModel->getInstancedAttributeBlock().views;
-            uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
+            subModel->updateInstancedWorldMatrix(worldMatrix, idx);
         } else {
             hasNonInstancingPass = true;
         }
@@ -408,63 +357,15 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     updateInstancedAttributes(shader->getAttributes(), subModel);
 }
 
-index_t Model::getInstancedAttributeIndex(SubModel *subModel, const ccstd::string &name) const {
-    const auto &attributes = subModel->getInstancedAttributeBlock().attributes;
-    for (index_t i = 0; i < static_cast<index_t>(attributes.size()); ++i) {
-        if (attributes[i].name == name) {
-            return i;
-        }
-    }
-    return CC_INVALID_INDEX;
-}
-
 void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel* subModel) {
-    subModel->setInstancedWorldMatrixIndex( -1);
-
-    auto *pass = subModel->getPass(0);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, pass);
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, subModel);
             _isCalledFromJS = false;
             return;
         }
     }
-
-    if (!pass->getDevice()->hasFeature(gfx::Feature::INSTANCED_ARRAYS)) return;
-    // free old data
-
-    uint32_t size = 0;
-    for (const gfx::Attribute &attribute : attributes) {
-        if (!attribute.isInstanced) continue;
-        size += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)].size;
-    }
-    auto &attrs = subModel->getInstancedAttributeBlock();
-    attrs.buffer = Uint8Array(size);
-    attrs.views.clear();
-    attrs.attributes.clear();
-    attrs.views.reserve(attributes.size());
-    attrs.attributes.reserve(attributes.size());
-
-    uint32_t offset = 0;
-
-    for (const gfx::Attribute &attribute : attributes) {
-        if (!attribute.isInstanced) continue;
-        gfx::Attribute attr;
-        attr.format = attribute.format;
-        attr.name = attribute.name;
-        attr.isNormalized = attribute.isNormalized;
-        attr.location = attribute.location;
-        attrs.attributes.emplace_back(attr);
-        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
-        auto *buffer = attrs.buffer.buffer();
-        auto typeViewArray = getTypedArrayConstructor(info, buffer, offset, info.count);
-        attrs.views.emplace_back(typeViewArray);
-        offset += info.size;
-    }
-    if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
-        pass->getInstancedBuffer()->destroy();
-    }
-    subModel->setInstancedWorldMatrixIndex(getInstancedAttributeIndex(subModel, INST_MAT_WORLD));
+    subModel->updateInstancedAttributes(attributes);
     _localDataUpdated = true;
 }
 
@@ -528,33 +429,7 @@ void Model::updateLocalShadowBias() {
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
     for (auto subModel : _subModels) {
-        const auto &attributes = subModel->getInstancedAttributeBlock().attributes;
-        auto &views = subModel->getInstancedAttributeBlock().views;
-        for (size_t i = 0, len = attributes.size(); i < len; ++i) {
-            const auto &attribute = attributes[i];
-            if (attribute.name == name) {
-                const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
-                switch (info.type) {
-                    case gfx::FormatType::NONE:
-                    case gfx::FormatType::UNORM:
-                    case gfx::FormatType::SNORM:
-                    case gfx::FormatType::UINT:
-                    case gfx::FormatType::INT: {
-                        CC_ASSERT(false); // NOLINT
-                    } break;
-                    case gfx::FormatType::FLOAT:
-                    case gfx::FormatType::UFLOAT: {
-                        CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
-                        auto &view = ccstd::get<Float32Array>(views[i]);
-                        auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
-                        CC_ASSERT(byteLength <= view.byteLength());
-                        memcpy(dstData, value, byteLength);
-                    } break;
-                    default:
-                        break;
-                }
-            }
-        }
+        subModel->setInstancedAttribute(name, value, byteLength);
     }
 }
 

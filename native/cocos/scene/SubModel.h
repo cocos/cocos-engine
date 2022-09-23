@@ -64,6 +64,7 @@ public:
     inline void setOwner(Model *model) { _owner = model; }
     void setSubMesh(RenderingSubMesh *subMesh);
     inline void setInstancedWorldMatrixIndex(int32_t worldMatrixIndex) { _instancedWorldMatrixIndex = worldMatrixIndex; }
+    void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
 
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     inline gfx::DescriptorSet *getWorldBoundDescriptorSet() const { return _worldBoundDescriptorSet; }
@@ -79,6 +80,7 @@ public:
     inline uint32_t getId() const { return _id; }
     inline InstancedAttributeBlock &getInstancedAttributeBlock() { return _instancedAttributeBlock; }
     inline int32_t getInstancedWorldMatrixIndex() const { return _instancedWorldMatrixIndex; }
+    int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
     void initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &passes, const ccstd::vector<IMacroPatch> &patches);
     void initPlanarShadowShader();
@@ -87,6 +89,8 @@ public:
     void onPipelineStateChanged();
     void onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches);
     void onGeometryChanged();
+    void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes);
+    void updateInstancedWorldMatrix(const Mat4 &mat, int32_t idx);
 
 protected:
     void flushPassInfo();
