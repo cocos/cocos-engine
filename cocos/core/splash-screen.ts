@@ -65,7 +65,6 @@ export class SplashScreen {
     private quadAssmebler!: InputAssembler;
     private vertexBuffers!: Buffer;
     private indicesBuffers!: Buffer;
-    private framebuffer!: Framebuffer;
     private renderArea!: Rect;
     private clearColors!: Color[];
     private projection!: Mat4;
@@ -106,7 +105,6 @@ export class SplashScreen {
         } else {
             this.device = legacyCC.director.root!.device;
             this.swapchain = legacyCC.director.root!.mainWindow!.swapchain;
-            this.framebuffer = legacyCC.director.root!.mainWindow!.framebuffer;
 
             this.preInit();
             if (this.settings.displayWatermark) this.initWarterMark();
@@ -293,7 +291,7 @@ export class SplashScreen {
                 device.acquire([swapchain]);
                 // record command
                 const cmdBuff = this.cmdBuff;
-                const framebuffer = this.framebuffer;
+                const framebuffer = legacyCC.director.root!.mainWindow!.framebuffer;
                 const renderArea = this.renderArea;
 
                 renderArea.width = swapchain.width;
@@ -303,7 +301,8 @@ export class SplashScreen {
                 cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
 
                 const logoPass = this.logoMat.passes[0];
-                const logoPso = PipelineStateManager.getOrCreatePipelineState(device, logoPass, this.shader, framebuffer.renderPass, this.quadAssmebler);
+                const logoPso = PipelineStateManager.getOrCreatePipelineState(device, logoPass, this.shader, framebuffer.renderPass,
+                    this.quadAssmebler);
 
                 cmdBuff.bindPipelineState(logoPso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, logoPass.descriptorSet);
@@ -339,7 +338,6 @@ export class SplashScreen {
         this.clearColors = null!;
         if ((this.logoImage as any).destroy) (this.logoImage as any).destroy();
         this.logoImage = null!;
-        this.framebuffer = null!;
         this.renderArea = null!;
         this.cmdBuff = null!;
         this.shader = null!;

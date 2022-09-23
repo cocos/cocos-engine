@@ -48,13 +48,11 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
         auto *colorTex = static_cast<CCVKTexture *>(_colorTextures.at(i));
         _gpuFBO->gpuColorViews[i] = colorTex->gpuTextureView();
-        CCVKDevice::getInstance()->gpuFramebufferHub()->connect(colorTex->gpuTexture(), _gpuFBO);
     }
 
     if (_depthStencilTexture) {
         auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture);
         _gpuFBO->gpuDepthStencilView = depthTex->gpuTextureView();
-        CCVKDevice::getInstance()->gpuFramebufferHub()->connect(depthTex->gpuTexture(), _gpuFBO);
     }
 
     cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), _gpuFBO);
@@ -62,16 +60,6 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
 
 void CCVKFramebuffer::doDestroy() {
     if (_gpuFBO) {
-        for (auto &colorTexture : _colorTextures) {
-            auto *colorTex = static_cast<CCVKTexture *>(colorTexture);
-            CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(colorTex->gpuTexture(), _gpuFBO);
-        }
-
-        if (_depthStencilTexture) {
-            auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture);
-            CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(depthTex->gpuTexture(), _gpuFBO);
-        }
-
         CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuFBO);
         delete _gpuFBO;
         _gpuFBO = nullptr;
