@@ -53,8 +53,6 @@ class StaticLightSettings {
     @serializable
     protected _editorOnly = false;
     @serializable
-    protected _bakeable = false;
-    @serializable
     protected _castShadow = false;
 
     /**
@@ -79,19 +77,6 @@ class StaticLightSettings {
 
     set baked (val) {
         this._baked = val;
-    }
-
-    /**
-     * @en Whether the light is bake-able.
-     * @zh 光源是否可烘培。
-     */
-    @editable
-    get bakeable () {
-        return this._bakeable;
-    }
-
-    set bakeable (val) {
-        this._bakeable = val;
     }
 
     /**
