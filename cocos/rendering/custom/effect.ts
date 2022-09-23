@@ -203,6 +203,57 @@ enum BloomStage {
     UPSAMPLE,
     COMBINE
 }
+
+function buildBloomDownSample (lg, idx: number) {
+    const bloomDownsampleID = lg.addRenderStage(`Bloom_Downsample${idx}`, BloomStage.DOWNSAMPLE);
+    lg.addRenderPhase('Queue', bloomDownsampleID);
+    const bloomDownsampleDescriptors = lg.layoutGraph.getDescriptors(bloomDownsampleID);
+
+    const bloomDownsampleUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.UNIFORM_BUFFER,
+        ShaderStageFlagBit.ALL,
+        bloomDownsampleDescriptors);
+    const bloomDownsampleUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
+        0, 'BloomUBO', bloomDownsampleUniformBlock);
+    lg.setUniform(bloomDownsampleUBO, 'texSize', Type.FLOAT4, 1);
+    lg.setDescriptor(bloomDownsampleUniformBlock, 'BloomUBO', Type.UNKNOWN);
+
+    const bloomDownsamplePassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        bloomDownsampleDescriptors);
+    lg.setDescriptor(bloomDownsamplePassBlock, 'bloomTexture', Type.SAMPLER2D);
+    lg.merge(bloomDownsampleDescriptors);
+    lg.mergeDescriptors(bloomDownsampleID);
+}
+
+function buildBloomUpSample (lg, idx: number) {
+    const bloomUpsampleID = lg.addRenderStage(`Bloom_Upsample${idx}`, BloomStage.UPSAMPLE);
+    lg.addRenderPhase('Queue', bloomUpsampleID);
+    const bloomUpsampleDescriptors = lg.layoutGraph.getDescriptors(bloomUpsampleID);
+
+    const bloomUpsampleUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.UNIFORM_BUFFER,
+        ShaderStageFlagBit.ALL,
+        bloomUpsampleDescriptors);
+    const bloomUpsampleUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
+        0, 'BloomUBO', bloomUpsampleUniformBlock);
+    lg.setUniform(bloomUpsampleUBO, 'texSize', Type.FLOAT4, 1);
+    lg.setDescriptor(bloomUpsampleUniformBlock, 'BloomUBO', Type.UNKNOWN);
+
+    const bloomUpsamplePassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        bloomUpsampleDescriptors);
+    lg.setDescriptor(bloomUpsamplePassBlock, 'bloomTexture', Type.SAMPLER2D);
+    lg.merge(bloomUpsampleDescriptors);
+    lg.mergeDescriptors(bloomUpsampleID);
+}
+
 export function buildForwardLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
     const bFromGlobalDescriptorSet = false;
@@ -236,51 +287,11 @@ export function buildForwardLayout (ppl: Pipeline) {
         lg.merge(bloomPrefilterDescriptors);
         lg.mergeDescriptors(bloomPrefilterID);
         // 2.=== Bloom downsample ===
-        const bloomDownsampleID = lg.addRenderStage('Bloom_Downsample', BloomStage.DOWNSAMPLE);
-        lg.addRenderPhase('Queue', bloomDownsampleID);
-        const bloomDownsampleDescriptors = lg.layoutGraph.getDescriptors(bloomDownsampleID);
-
-        const bloomDownsampleUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.UNIFORM_BUFFER,
-            ShaderStageFlagBit.ALL,
-            bloomDownsampleDescriptors);
-        const bloomDownsampleUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
-            0, 'BloomUBO', bloomDownsampleUniformBlock);
-        lg.setUniform(bloomDownsampleUBO, 'texSize', Type.FLOAT4, 1);
-        lg.setDescriptor(bloomDownsampleUniformBlock, 'BloomUBO', Type.UNKNOWN);
-
-        const bloomDownsamplePassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.SAMPLER_TEXTURE,
-            ShaderStageFlagBit.FRAGMENT,
-            bloomDownsampleDescriptors);
-        lg.setDescriptor(bloomDownsamplePassBlock, 'bloomTexture', Type.SAMPLER2D);
-        lg.merge(bloomDownsampleDescriptors);
-        lg.mergeDescriptors(bloomDownsampleID);
+        buildBloomDownSample(lg, 0);
+        buildBloomDownSample(lg, 1);
         // 3.=== Bloom upsample ===
-        const bloomUpsampleID = lg.addRenderStage('Bloom_Upsample', BloomStage.UPSAMPLE);
-        lg.addRenderPhase('Queue', bloomUpsampleID);
-        const bloomUpsampleDescriptors = lg.layoutGraph.getDescriptors(bloomUpsampleID);
-
-        const bloomUpsampleUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.UNIFORM_BUFFER,
-            ShaderStageFlagBit.ALL,
-            bloomUpsampleDescriptors);
-        const bloomUpsampleUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
-            0, 'BloomUBO', bloomUpsampleUniformBlock);
-        lg.setUniform(bloomUpsampleUBO, 'texSize', Type.FLOAT4, 1);
-        lg.setDescriptor(bloomUpsampleUniformBlock, 'BloomUBO', Type.UNKNOWN);
-
-        const bloomUpsamplePassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.SAMPLER_TEXTURE,
-            ShaderStageFlagBit.FRAGMENT,
-            bloomUpsampleDescriptors);
-        lg.setDescriptor(bloomUpsamplePassBlock, 'bloomTexture', Type.SAMPLER2D);
-        lg.merge(bloomUpsampleDescriptors);
-        lg.mergeDescriptors(bloomUpsampleID);
+        buildBloomUpSample(lg, 0);
+        buildBloomUpSample(lg, 1);
         // 4.=== Bloom combine ===
         const bloomCombineSampleID = lg.addRenderStage('Bloom_Combine', BloomStage.COMBINE);
         lg.addRenderPhase('Queue', bloomCombineSampleID);

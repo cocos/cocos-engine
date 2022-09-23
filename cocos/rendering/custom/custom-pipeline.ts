@@ -15,7 +15,7 @@ export const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILT
 export class CustomPipelineBuilder extends PipelineBuilder {
     protected declare _bloomMaterial: Material;
     protected declare _postMaterial: Material;
-    private _threshold = 1.0;
+    private _threshold = 0.1;
     private _iterations = 2;
     private _intensity = 0.8;
     _antiAliasing: AntiAliasing = AntiAliasing.NONE;
@@ -133,7 +133,7 @@ export class CustomPipelineBuilder extends PipelineBuilder {
                 bloomClearColor.y = camera.clearColor.y;
                 bloomClearColor.z = camera.clearColor.z;
             }
-            bloomClearColor.w = 0;
+            bloomClearColor.w = camera.clearColor.w;
             // ==== Bloom prefilter ===
             const bloomPassPrefilterRTName = `dsBloomPassPrefilterColor${cameraName}`;
             const bloomPassPrefilterDSName = `dsBloomPassPrefilterDS${cameraName}`;
@@ -172,7 +172,7 @@ export class CustomPipelineBuilder extends PipelineBuilder {
                     ppl.addRenderTarget(bloomPassDownSampleRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
                     ppl.addDepthStencil(bloomPassDownSampleDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
                 }
-                const bloomDownSamplePass = ppl.addRasterPass(width, height, 'Bloom_Downsample', `CameraBloomDownSamplePass${cameraID}${i}`);
+                const bloomDownSamplePass = ppl.addRasterPass(width, height, `Bloom_Downsample${i}`, `CameraBloomDownSamplePass${cameraID}${i}`);
                 const computeView = new ComputeView();
                 computeView.name = 'bloomTexture';
                 if (i === 0) {
@@ -195,15 +195,16 @@ export class CustomPipelineBuilder extends PipelineBuilder {
             // === Bloom upSampler ===
             for (let i = 0; i < this._iterations; ++i) {
                 const texSize = new Vec4(width, height, 0, 0);
-                const bloomPassUpSampleRTName = `dsBloomPassUpSampleColor${cameraName}${i}`;
-                const bloomPassUpSampleDSName = `dsBloomPassUpSampleDS${cameraName}${i}`;
+                const bloomPassUpSampleRTName = `dsBloomPassUpSampleColor${cameraName}${this._iterations - 1 - i}`;
+                const bloomPassUpSampleDSName = `dsBloomPassUpSampleDS${cameraName}${this._iterations - 1 - i}`;
                 width <<= 1;
                 height <<= 1;
                 if (!ppl.containsResource(bloomPassUpSampleRTName)) {
                     ppl.addRenderTarget(bloomPassUpSampleRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
                     ppl.addDepthStencil(bloomPassUpSampleDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
                 }
-                const bloomUpSamplePass = ppl.addRasterPass(width, height, 'Bloom_Upsample', `CameraBloomUpSamplePass${cameraID}${i}`);
+                const bloomUpSamplePass = ppl.addRasterPass(width, height, `Bloom_Upsample${i}`,
+                    `CameraBloomUpSamplePass${cameraID}${this._iterations - 1 - i}`);
                 const computeView = new ComputeView();
                 computeView.name = 'bloomTexture';
                 if (i === 0) {

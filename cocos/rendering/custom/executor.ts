@@ -1217,6 +1217,7 @@ class DeviceSceneTask extends WebSceneTask {
         const blit = this.graphScene.blit;
         const currMat = blit.material;
         const pass = currMat!.passes[blit.passID];
+        pass.update();
         const shader = pass.getShaderVariant();
         const devicePass = this._currentQueue.devicePass;
         this._beginBindBlitUbo(devicePass);
