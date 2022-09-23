@@ -417,12 +417,34 @@ export class WebDescriptorHierarchy {
                                             }
                                         }
                                     }
-                                } else {
-                                    for (const uu of block.uniformBlocks) {
-                                        if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
-                                            blockStored.uniformBlocks.set(uu[0], uu[1]);
-                                            blockStored.count++;
-                                            blockStored.capacity++;
+                                } else if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+                                    if (index.updateFrequency <= UpdateFrequency.PER_BATCH) {
+                                        let capacityToAdd = 0;
+                                        for (const uu of block.uniformBlocks) {
+                                            capacityToAdd++;
+                                        }
+                                        if (capacityToAdd > blockStored.capacity) {
+                                            blockStored.capacity = capacityToAdd;
+                                            blockStored.count = capacityToAdd;
+                                        }
+
+                                        let capacityStored = 0;
+                                        for (const dd of blockStored.uniformBlocks) {
+                                            capacityStored++;
+                                        }
+                                        for (const uu of block.uniformBlocks) {
+                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined && capacityStored < capacityToAdd) {
+                                                blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                                capacityStored++;
+                                            }
+                                        }
+                                    } else {
+                                        for (const uu of block.uniformBlocks) {
+                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
+                                                blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                                blockStored.count++;
+                                                blockStored.capacity++;
+                                            }
                                         }
                                     }
                                 }
