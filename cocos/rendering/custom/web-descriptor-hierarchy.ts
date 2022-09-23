@@ -314,9 +314,19 @@ export class WebDescriptorHierarchy {
             }
 
             dbsMap.set(shader.name, queueDB);
+
+            this.merge(queueDB);
+            this.sort(queueDB);
+
+            const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
+            if (this.dbsToMerge.get(parentDB) === undefined) {
+                this.dbsToMerge.set(parentDB, []);
+            }
+            this.dbsToMerge.get(parentDB)?.push(queueDB);
         }
 
         const pName = this._layoutGraph.getName(parent);
+
         for (let i = 0; i < asset.techniques.length; ++i) {
             const tech = asset.techniques[i];
             for (let j = 0; j < tech.passes.length; ++j) {
@@ -376,32 +386,49 @@ export class WebDescriptorHierarchy {
                                     dbStored.blocks.set(blockIndex, b2add);
                                 }
                             } else {
-                                for (const dd of block.descriptors) {
-                                    if (blockStored.descriptors.get(dd[0]) === undefined) {
-                                        blockStored.descriptors.set(dd[0], dd[1]);
-                                        blockStored.count++;
-                                        blockStored.capacity++;
+                                const index = JSON.parse(blockIndex) as DescriptorBlockIndex;
+                                if (index.descriptorType !== DescriptorTypeOrder.UNIFORM_BUFFER && index.descriptorType !== DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+                                    if (index.updateFrequency <= UpdateFrequency.PER_BATCH) {
+                                        let capacityToAdd = 0;
+                                        for (const dd of block.descriptors) {
+                                            capacityToAdd++;
+                                        }
+                                        if (capacityToAdd > blockStored.capacity) {
+                                            blockStored.capacity = capacityToAdd;
+                                            blockStored.count = capacityToAdd;
+                                        }
+
+                                        let capacityStored = 0;
+                                        for (const dd of blockStored.descriptors) {
+                                            capacityStored++;
+                                        }
+                                        for (const dd of block.descriptors) {
+                                            if (blockStored.descriptors.get(dd[0]) === undefined && capacityStored < capacityToAdd) {
+                                                blockStored.descriptors.set(dd[0], dd[1]);
+                                                capacityStored++;
+                                            }
+                                        }
+                                    } else {
+                                        for (const dd of block.descriptors) {
+                                            if (blockStored.descriptors.get(dd[0]) === undefined) {
+                                                blockStored.descriptors.set(dd[0], dd[1]);
+                                                blockStored.count++;
+                                                blockStored.capacity++;
+                                            }
+                                        }
                                     }
-                                }
-                                for (const uu of block.uniformBlocks) {
-                                    if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
-                                        blockStored.uniformBlocks.set(uu[0], uu[1]);
-                                        blockStored.count++;
-                                        blockStored.capacity++;
+                                } else {
+                                    for (const uu of block.uniformBlocks) {
+                                        if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
+                                            blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                            blockStored.count++;
+                                            blockStored.capacity++;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-
-                    this.merge(db2add);
-                    this.sort(db2add);
-
-                    const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
-                    if (this.dbsToMerge.get(parentDB) === undefined) {
-                        this.dbsToMerge.set(parentDB, []);
-                    }
-                    this.dbsToMerge.get(parentDB)?.push(db2add);
                 }
             }
         }
