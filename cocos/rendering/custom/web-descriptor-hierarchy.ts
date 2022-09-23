@@ -314,7 +314,18 @@ export class WebDescriptorHierarchy {
             }
 
             dbsMap.set(shader.name, queueDB);
+
+            this.merge(queueDB);
+            this.sort(queueDB);
+
+            const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
+            if (this.dbsToMerge.get(parentDB) === undefined) {
+                this.dbsToMerge.set(parentDB, []);
+            }
+            this.dbsToMerge.get(parentDB)?.push(queueDB);
         }
+
+        const pName = this._layoutGraph.getName(parent);
 
         for (let i = 0; i < asset.techniques.length; ++i) {
             const tech = asset.techniques[i];
@@ -323,7 +334,7 @@ export class WebDescriptorHierarchy {
                 const passPhase = pass.phase;
                 let phase = '';
                 if (passPhase === undefined) {
-                    phase = '_';
+                    phase = `${pName}_`;
                 } else if (typeof passPhase === 'number') {
                     phase = passPhase.toString();
                 } else {
@@ -331,7 +342,7 @@ export class WebDescriptorHierarchy {
                 }
                 const db2add = dbsMap.get(pass.program);
                 if (db2add) {
-                    const v2add = this._layoutGraph.locate(`/default/${phase}`);
+                    const v2add = this._layoutGraph.locate(`/${pName}/${phase}`);
                     if (v2add === 0xFFFFFFFF) {
                         const v = this.addRenderPhase(phase, parent);
                         const dbStored = this._layoutGraph.getDescriptors(v);
@@ -375,32 +386,71 @@ export class WebDescriptorHierarchy {
                                     dbStored.blocks.set(blockIndex, b2add);
                                 }
                             } else {
-                                for (const dd of block.descriptors) {
-                                    if (blockStored.descriptors.get(dd[0]) === undefined) {
-                                        blockStored.descriptors.set(dd[0], dd[1]);
-                                        blockStored.count++;
-                                        blockStored.capacity++;
+                                const index = JSON.parse(blockIndex) as DescriptorBlockIndex;
+                                if (index.descriptorType !== DescriptorTypeOrder.UNIFORM_BUFFER && index.descriptorType !== DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+                                    if (index.updateFrequency <= UpdateFrequency.PER_BATCH) {
+                                        let capacityToAdd = 0;
+                                        for (const dd of block.descriptors) {
+                                            capacityToAdd++;
+                                        }
+                                        if (capacityToAdd > blockStored.capacity) {
+                                            blockStored.capacity = capacityToAdd;
+                                            blockStored.count = capacityToAdd;
+                                        }
+
+                                        let capacityStored = 0;
+                                        for (const dd of blockStored.descriptors) {
+                                            capacityStored++;
+                                        }
+                                        for (const dd of block.descriptors) {
+                                            if (blockStored.descriptors.get(dd[0]) === undefined && capacityStored < capacityToAdd) {
+                                                blockStored.descriptors.set(dd[0], dd[1]);
+                                                capacityStored++;
+                                            }
+                                        }
+                                    } else {
+                                        for (const dd of block.descriptors) {
+                                            if (blockStored.descriptors.get(dd[0]) === undefined) {
+                                                blockStored.descriptors.set(dd[0], dd[1]);
+                                                blockStored.count++;
+                                                blockStored.capacity++;
+                                            }
+                                        }
                                     }
-                                }
-                                for (const uu of block.uniformBlocks) {
-                                    if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
-                                        blockStored.uniformBlocks.set(uu[0], uu[1]);
-                                        blockStored.count++;
-                                        blockStored.capacity++;
+                                } else if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+                                    if (index.updateFrequency <= UpdateFrequency.PER_BATCH) {
+                                        let capacityToAdd = 0;
+                                        for (const uu of block.uniformBlocks) {
+                                            capacityToAdd++;
+                                        }
+                                        if (capacityToAdd > blockStored.capacity) {
+                                            blockStored.capacity = capacityToAdd;
+                                            blockStored.count = capacityToAdd;
+                                        }
+
+                                        let capacityStored = 0;
+                                        for (const dd of blockStored.uniformBlocks) {
+                                            capacityStored++;
+                                        }
+                                        for (const uu of block.uniformBlocks) {
+                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined && capacityStored < capacityToAdd) {
+                                                blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                                capacityStored++;
+                                            }
+                                        }
+                                    } else {
+                                        for (const uu of block.uniformBlocks) {
+                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
+                                                blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                                blockStored.count++;
+                                                blockStored.capacity++;
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-
-                    this.merge(db2add);
-                    this.sort(db2add);
-
-                    const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
-                    if (this.dbsToMerge.get(parentDB) === undefined) {
-                        this.dbsToMerge.set(parentDB, []);
-                    }
-                    this.dbsToMerge.get(parentDB)?.push(db2add);
                 }
             }
         }
