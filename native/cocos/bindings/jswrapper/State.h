@@ -83,6 +83,7 @@ public:
      *  @return
      */
     ~State() {
+        // Inline to speed up high-frequency calls without significant impact on code size
         SAFE_DEC_REF(_thisObject);
     }
 

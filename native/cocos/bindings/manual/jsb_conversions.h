@@ -111,7 +111,6 @@
     #define SE_HOLD_RETURN_VALUE(...)
 #endif
 
-
 template <typename T>
 bool seval_to_native_ptr(const se::Value &v, T *ret) { // NOLINT(readability-identifier-naming)
     CC_ASSERT(ret != nullptr);
@@ -311,7 +310,7 @@ inline void cc_tmp_set_private_data(se::Object *obj, cc::gfx::Sampler *v) { // N
     obj->setRawPrivateData(v);
 }
 
-// handle reference
+//  handle reference
 template <typename T>
 typename std::enable_if<!std::is_pointer<T>::value, bool>::type
 native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
@@ -960,6 +959,7 @@ inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference>
         return sevalue_to_native(from, &(holder->data), ctx);
     }
 }
+
 template <typename T>
 inline bool sevalue_to_native(const se::Value &from, HolderType<ccstd::vector<T>, true> *holder, se::Object *ctx) { // NOLINT(readability-identifier-naming)
     if constexpr (is_jsb_object_v<T> && std::is_pointer<T>::value) {
@@ -971,7 +971,6 @@ inline bool sevalue_to_native(const se::Value &from, HolderType<ccstd::vector<T>
         return sevalue_to_native(from, &(holder->data), ctx);
     }
 }
-
 
 /////////////////// std::shared_ptr
 
@@ -1134,30 +1133,31 @@ inline bool nativevalue_to_se(ccstd::vector<T> *const from, se::Value &to, se::O
 
 template <typename T>
 inline typename std::enable_if<std::is_enum<T>::value, bool>::type
-nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
+nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT
     to.setInt32(static_cast<int32_t>(from));
     return true;
 }
 
 template <typename T>
 inline typename std::enable_if<std::is_pointer<T>::value, bool>::type
-nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
+nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT
     return native_ptr_to_seval(from, &to);
 }
 
 template <typename T>
 inline typename std::enable_if<is_jsb_object_v<T>, bool>::type
-nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT
     return native_ptr_to_seval(from, &to);
 }
 
 template <typename T>
 inline typename std::enable_if<std::is_arithmetic<T>::value, bool>::type
-nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+nativevalue_to_se(const T &from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setDouble(static_cast<double>(from));
     return true;
 }
 
+//#endif // HAS_CONSTEXPR
 
 //////////////////////////////// forward declaration: nativevalue_to_se ////////////////////////////////
 
@@ -1485,7 +1485,6 @@ template <typename T>
 bool nativevalue_to_se(const std::reference_wrapper<T> ref, se::Value &to, se::Object *ctx) { // NOLINT
     return nativevalue_to_se(ref.get(), to, ctx);
 }
-
 
 // Remove this in near future.
 #include "jsb_conversions_deprecated.h"
