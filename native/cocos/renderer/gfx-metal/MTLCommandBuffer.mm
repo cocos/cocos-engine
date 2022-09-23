@@ -150,9 +150,6 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     if (_gpuCommandBufferObj->isSecondary) {
         return;
     }
-    
-    
-    CC_DEBUG_RENDERER->update();
 
     _gpuCommandBufferObj->renderPass = static_cast<CCMTLRenderPass *>(renderPass);
     _gpuCommandBufferObj->fbo = static_cast<CCMTLFramebuffer *>(fbo);

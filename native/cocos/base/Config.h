@@ -66,5 +66,17 @@
 #endif
 
 #ifndef CC_USE_PROFILER
-    #define CC_USE_PROFILER 1
+    #define CC_USE_PROFILER 0
 #endif
+
+#ifdef ENABLE_FSR
+    // FSR scaling ratio
+    #ifndef RESOLUTION_SCALE_RATIO
+        constexpr float SWAPCHAIN_SCALE_RATIO = 0.5F;
+    #else
+        constexpr float SWAPCHAIN_SCALE_RATIO = RESOLUTION_SCALE_RATIO;
+    #endif
+#else
+    constexpr float SWAPCHAIN_SCALE_RATIO = 1.0F;
+#endif
+static_assert(SWAPCHAIN_SCALE_RATIO > 0.49999F && SWAPCHAIN_SCALE_RATIO < 1.00001F, "Resolution scale out of range!");

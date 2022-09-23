@@ -34,6 +34,7 @@
 #import "MTLGPUObjects.h"
 #import "MTLDevice.h"
 #import "MTLGPUObjects.h"
+#import "../../base/Config.h"
 namespace cc {
 namespace gfx {
 
@@ -109,8 +110,8 @@ void CCMTLSwapchain::doInit(const SwapchainInfo& info) {
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
     textureInfo.format = colorFmt;
-    textureInfo.width = 1400;
-    textureInfo.height = 800;
+    textureInfo.width = info.width * SWAPCHAIN_SCALE_RATIO;
+    textureInfo.height = info.height * SWAPCHAIN_SCALE_RATIO;
     
     for (size_t i = 0; i < DRAWABLE_COUNT; ++i) {
         _gpuSwapchainObj->colors[i] = ccnew CCMTLTexture();
@@ -147,8 +148,8 @@ void CCMTLSwapchain::doDestroySurface() {
 }
 
 void CCMTLSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
-    _colorTexture->resize(1400, 800);
-    _depthStencilTexture->resize(1400, 800);
+    _colorTexture->resize(width * SWAPCHAIN_SCALE_RATIO, height * SWAPCHAIN_SCALE_RATIO);
+    _depthStencilTexture->resize(width * SWAPCHAIN_SCALE_RATIO, height * SWAPCHAIN_SCALE_RATIO);
 }
 
 CCMTLTexture* CCMTLSwapchain::colorTexture() {

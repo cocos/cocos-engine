@@ -5,6 +5,12 @@ set(CWD ${CMAKE_CURRENT_LIST_DIR})
 set(COCOS_SOURCE_LIST)
 set(ENGINE_NAME cocos_engine)
 
+######################## ENGINE FEATURE ########################
+option(ENABLE_FSR ON)
+option(ENABLE_TAA ON)
+
+add_definitions(-DENABLE_FSR -DENABLE_TAA)
+
 # Should be enable someday in the future
 # set(CMAKE_CXX_FLAGS "${WERROR_FLAGS}")
 
@@ -3083,6 +3089,8 @@ if(APPLE)
     target_include_directories(${ENGINE_NAME} PUBLIC
         ${CWD}/cocos/platform/ios
     )
+    # find_library(LIB_MetalFX_NAME NAMES MetalFX)
+    # set(LIB_MetalFX, "-framework ${LIB_MetalFX_NAME}")
     target_link_libraries(${ENGINE_NAME} PUBLIC
         "-liconv"
         "-framework AudioToolbox"
@@ -3107,7 +3115,6 @@ if(APPLE)
     )
     if(MACOSX)
         target_link_libraries(${ENGINE_NAME} PUBLIC
-            "-framework OpenGL"
             "-framework AppKit"
         )
         target_compile_definitions(${ENGINE_NAME} PUBLIC

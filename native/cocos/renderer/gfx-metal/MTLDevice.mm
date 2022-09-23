@@ -46,7 +46,12 @@
 #import "cocos/bindings/event/CustomEventTypes.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "profiler/Profiler.h"
-#import <MetalFX/MTLFXSpatialScaler.h>
+
+#if defined(ENBALE_FSR) || defined(ENABLE_TAA)
+    #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 160000
+        #import <MetalFX/MTLFXSpatialScaler.h>
+    #endif
+#endif
 
 
 namespace cc {
@@ -222,42 +227,47 @@ void CCMTLDevice::present() {
         auto* color = static_cast<CCMTLTexture*>(swapchain->getColorTexture());
         auto drawable = layer.nextDrawable;
         auto drawbleTexture = drawable.texture;
-        
-#if 1
-        auto device = static_cast<id<MTLDevice>>(_mtlDevice);
-        bool support = [MTLFXSpatialScalerDescriptor supportsDevice:device];
-        auto scalerDesc = [MTLFXSpatialScalerDescriptor new];
-        [scalerDesc setInputWidth:color->getWidth()];
-        [scalerDesc setInputHeight:color->getHeight()];
-        [scalerDesc setColorTextureFormat:MTLPixelFormatBGRA8Unorm];
-        [scalerDesc setOutputTextureFormat:MTLPixelFormatBGRA8Unorm];
-        [scalerDesc setOutputWidth:drawbleTexture.width];
-        [scalerDesc setOutputHeight:drawbleTexture.height];
-        
-        auto outputTexDesc = [MTLTextureDescriptor new];
-        outputTexDesc.width = drawbleTexture.width;
-        outputTexDesc.height = drawbleTexture.height;
-        outputTexDesc.pixelFormat = MTLPixelFormatBGRA8Unorm;
-        outputTexDesc.usage = MTLTextureUsageRenderTarget;
-        outputTexDesc.storageMode = MTLStorageModePrivate;
-        auto scalerOuput = [device newTextureWithDescriptor:outputTexDesc];
-        [outputTexDesc release];
-        
-        auto scaler = [scalerDesc newSpatialScalerWithDevice:device];
-        [scaler setInputContentWidth:color->getWidth()];
-        [scaler setInputContentHeight:color->getHeight()];
-        [scaler setColorTexture:color->getMTLTexture()];
-        [scaler setOutputTexture:scalerOuput];
-        [scaler encodeToCommandBuffer:cmdBuffer];
-        [scaler release];
-        [scalerDesc release];
+        auto targetTex = color->getMTLTexture();
+
+#ifdef ENABLE_FSR
+        if(@available(macOS 13.0, iOS 16.0, *)) {
+            auto device = static_cast<id<MTLDevice>>(_mtlDevice);
+            bool support = [MTLFXSpatialScalerDescriptor supportsDevice:device];
+            auto scalerDesc = [MTLFXSpatialScalerDescriptor new];
+            [scalerDesc setInputWidth:color->getWidth()];
+            [scalerDesc setInputHeight:color->getHeight()];
+            [scalerDesc setColorTextureFormat:MTLPixelFormatBGRA8Unorm];
+            [scalerDesc setOutputTextureFormat:MTLPixelFormatBGRA8Unorm];
+            [scalerDesc setOutputWidth:drawbleTexture.width];
+            [scalerDesc setOutputHeight:drawbleTexture.height];
+            
+            auto outputTexDesc = [MTLTextureDescriptor new];
+            outputTexDesc.width = drawbleTexture.width;
+            outputTexDesc.height = drawbleTexture.height;
+            outputTexDesc.pixelFormat = MTLPixelFormatBGRA8Unorm;
+            outputTexDesc.usage = MTLTextureUsageRenderTarget;
+            outputTexDesc.storageMode = MTLStorageModePrivate;
+            auto scalerOuput = [device newTextureWithDescriptor:outputTexDesc];
+            [outputTexDesc release];
+            
+            auto scaler = [scalerDesc newSpatialScalerWithDevice:device];
+            [scaler setInputContentWidth:color->getWidth()];
+            [scaler setInputContentHeight:color->getHeight()];
+            [scaler setColorTexture:color->getMTLTexture()];
+            [scaler setOutputTexture:scalerOuput];
+            [scaler encodeToCommandBuffer:cmdBuffer];
+            [scaler release];
+            [scalerDesc release];
+            [scalerOuput release];
+            targetTex = scalerOuput;
+        }
 #endif
+        
         id<MTLBlitCommandEncoder> encoder = [cmdBuffer blitCommandEncoder];
-        [encoder copyFromTexture:scalerOuput toTexture:drawbleTexture];
+        [encoder copyFromTexture:targetTex toTexture:drawbleTexture];
         [encoder endEncoding];
 
         [cmdBuffer presentDrawable:drawable];
-        [scalerOuput release];
         
     }
 
