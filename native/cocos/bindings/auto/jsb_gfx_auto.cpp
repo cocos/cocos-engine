@@ -26618,6 +26618,34 @@ static bool js_cc_gfx_Swapchain_getVSyncMode(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Swapchain_getVSyncMode) 
 
+static bool js_cc_gfx_Swapchain_getGeneration(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::Swapchain *arg1 = (cc::gfx::Swapchain *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::Swapchain>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::gfx::Swapchain const *)arg1)->getGeneration();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Swapchain_getGeneration, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_Swapchain_getGeneration) 
+
 static bool js_cc_gfx_Swapchain_width_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -26731,6 +26759,7 @@ bool js_register_cc_gfx_Swapchain(se::Object* obj) {
     cls->defineFunction("getWindowId", _SE(js_cc_gfx_Swapchain_getWindowId)); 
     cls->defineFunction("getWindowHandle", _SE(js_cc_gfx_Swapchain_getWindowHandle)); 
     cls->defineFunction("getVSyncMode", _SE(js_cc_gfx_Swapchain_getVSyncMode)); 
+    cls->defineFunction("getGeneration", _SE(js_cc_gfx_Swapchain_getGeneration)); 
     
     
     
