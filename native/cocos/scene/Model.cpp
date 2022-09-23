@@ -428,7 +428,7 @@ void Model::updateLocalShadowBias() {
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
-    for (auto subModel : _subModels) {
+    for (const auto &subModel : _subModels) {
         subModel->setInstancedAttribute(name, value, byteLength);
     }
 }

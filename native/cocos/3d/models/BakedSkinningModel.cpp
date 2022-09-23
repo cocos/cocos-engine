@@ -114,7 +114,7 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     Super::updateUBOs(stamp);
 
     IAnimInfo &info = _jointMedium.animInfo;
-    int idx = _instAnimInfoIdx;
+    const int idx = _instAnimInfoIdx;
     const float *curFrame = info.curFrame;
     bool hasNonInstancingPass = false;
     for (const auto &subModel : _subModels) {
@@ -125,8 +125,8 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
             hasNonInstancingPass = true;
         }
     }
-    
-    uint32_t frameDataBytes = info.frameDataBytes;
+
+    const uint32_t frameDataBytes = info.frameDataBytes;
     if (hasNonInstancingPass && *info.dirtyForJSB != 0) {
         info.buffer->update(curFrame, frameDataBytes);
         *info.dirtyForJSB = 0;
@@ -192,7 +192,7 @@ void BakedSkinningModel::updateInstancedJointTextureInfo() {
     const auto &jointTextureInfo = _jointMedium.jointTextureInfo;
     const IAnimInfo &animInfo = _jointMedium.animInfo;
     const index_t idx = _instAnimInfoIdx;
-    for (auto subModel : _subModels) {
+    for (const auto &subModel : _subModels) {
         auto &views = subModel->getInstancedAttributeBlock().views;
         if (idx >= 0 && !views.empty()) {
             auto &view = views[idx];
