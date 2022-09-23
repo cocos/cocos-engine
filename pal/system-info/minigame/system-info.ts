@@ -145,7 +145,7 @@ class SystemInfo extends EventTarget {
         return minigame.getBatteryInfoSync().level / 100;
     }
     public triggerGC (): void {
-        minigame.triggerGC();
+        minigame.triggerGC?.();
     }
     public openURL (url: string): void {
         if (DEBUG) {

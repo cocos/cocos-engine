@@ -1,6 +1,14 @@
-import { IMiniGame } from 'pal/minigame';
+import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject } from '../utils';
+import { Language } from '../system-info/enum-type';
+
+//taobao IDE    (language: "Chinese")
+//taobao phone  (language: Andrond: "cn", iPad: 'zh_CN')
+const languageMap: Record<string, Language> = {
+    Chinese: Language.CHINESE,
+    cn: Language.CHINESE,
+};
 
 declare let my: any;
 
@@ -10,6 +18,9 @@ cloneObject(minigame, my);
 
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
+systemInfo.language = languageMap[systemInfo.language] || systemInfo.language;
+minigame.getSystemInfoSync = () => systemInfo;
+
 minigame.isDevTool = my.isIDE;
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
@@ -30,18 +41,8 @@ Object.defineProperty(minigame, 'orientation', {
 });
 // #endregion SystemInfo
 
-minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audio: InnerAudioContext = my.createInnerAudioContext();
-    // @ts-expect-error InnerAudioContext has onCanPlay
-    audio.onCanplay = audio.onCanPlay.bind(audio);
-    // @ts-expect-error InnerAudioContext has offCanPlay
-    audio.offCanplay = audio.offCanPlay.bind(audio);
-    // @ts-expect-error InnerAudioContext has onCanPlay
-    delete audio.onCanPlay;
-    // @ts-expect-error InnerAudioContext has offCanPlay
-    delete audio.offCanPlay;
-    return audio;
-};
+// #region Audio
+// #region Audio
 
 // #region Font
 minigame.loadFont = function (url) {
@@ -57,13 +58,12 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
     // onAccelerometerChange would start accelerometer
     // so we won't call this method here
     _accelerometerCb = (res: any) => {
-        let x = res.x;
-        let y = res.y;
+        let x: number = res.x;
+        let y: number = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
-            const tmp = x;
-            x = -y * orientationFactor;
-            y = tmp * orientationFactor;
+            const orientationFactor: number = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
+            x = -res.y * orientationFactor;
+            y = res.x * orientationFactor;
         }
 
         const resClone = {
@@ -85,7 +85,7 @@ minigame.startAccelerometer = function (res: any) {
         my.onAccelerometerChange(_accelerometerCb);
     } else {
         // my.startAccelerometer() is not implemented.
-        console.error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on alipay platform');
+        console.error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform');
     }
 };
 minigame.stopAccelerometer = function (res: any) {
