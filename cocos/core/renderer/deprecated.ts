@@ -49,10 +49,8 @@ removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
 ]);
 
 removeProperty(Model.prototype, 'Model.prototype', [
-    {
-        name: 'isInstancingEnabled',
-        name: 'instancedAttributes',
-    },
+    { name: 'isInstancingEnabled' },
+    { name: 'instancedAttributes' },
 ]);
 
 const CameraVisFlags = {};
