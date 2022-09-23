@@ -441,6 +441,9 @@ void SkeletonCacheAnimation::setColor(float r, float g, float b, float a) {
 
 void SkeletonCacheAnimation::setBatchEnabled(bool enabled) {
     if (_enableBatch != enabled) {
+        for (auto& item : _materialCaches) {
+            CC_SAFE_DELETE(item.second);
+        }
         _materialCaches.clear();
         _enableBatch = enabled;
     }

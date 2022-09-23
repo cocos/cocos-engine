@@ -142,9 +142,7 @@ public:
         _debugDraw = enabled;
     }
 
-    void setBatchEnabled(bool enabled) {
-        _enableBatch = enabled;
-    }
+    void setBatchEnabled(bool enabled);
 
     void setAttachEnabled(bool enabled) {
         _useAttach = enabled;

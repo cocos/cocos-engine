@@ -64,10 +64,7 @@ public:
     Animation *getAnimation() const;
 
     void setColor(float r, float g, float b, float a);
-    void setBatchEnabled(bool enabled) {
-        // disable switch batch mode, force to enable batch, it may be changed in future version
-        // _enableBatch = enabled;
-    }
+    void setBatchEnabled(bool enabled);
     void setAttachEnabled(bool enabled);
 
     void setOpacityModifyRGB(bool value) {
