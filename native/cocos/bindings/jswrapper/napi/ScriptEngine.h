@@ -31,13 +31,14 @@
 #include "../config.h"
 #include "CommonHeader.h"
 
-using HandleScope = int;
+using HandleScope = napi_handle_scope;
 namespace se {
 class AutoHandleScope {
 public:
-    AutoHandleScope() {
-    }
-    ~AutoHandleScope() = default;
+    // This interface needs to be implemented in NAPI, similar to V8. 
+    // Ref:https://nodejs.org/docs/latest-v17.x/api/n-api.html#object-lifetime-management
+    AutoHandleScope();
+    ~AutoHandleScope();
 
 private:
     HandleScope _handleScope;

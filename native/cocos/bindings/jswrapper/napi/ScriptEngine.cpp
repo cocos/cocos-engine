@@ -33,6 +33,14 @@
 #include "base/std/container/array.h"
 
 namespace se {
+AutoHandleScope::AutoHandleScope() {
+    napi_open_handle_scope(ScriptEngine::getEnv(), &_handleScope);
+}
+
+AutoHandleScope::~AutoHandleScope() {
+    napi_close_handle_scope(ScriptEngine::getEnv(), _handleScope);
+}
+
 ScriptEngine *gSriptEngineInstance = nullptr;
 
 ScriptEngine::ScriptEngine() {};
