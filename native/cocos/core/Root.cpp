@@ -33,7 +33,6 @@
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
-#include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/Define.h"
@@ -46,6 +45,8 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/event/CustomEventTypes.h"
 
 namespace cc {
 
@@ -86,7 +87,7 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     }
     _curRenderWindow = _mainRenderWindow;
     _xr = CC_GET_XR_INTERFACE();
-
+    addWindowEventListener();
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 
@@ -103,7 +104,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     if (!window) {
         return nullptr;
     }
-    
+
     uint32_t windowId = window->getWindowId();
     auto handle = window->getWindowHandle();
     const auto &size = window->getViewSize();
@@ -147,7 +148,7 @@ cc::scene::RenderWindow *Root::createRenderWindowFromSystemWindow(uint32_t windo
 
 void Root::destroy() {
     destroyScenes();
-
+    removeWindowEventListener();
     if (_usesCustomPipeline && _pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
@@ -631,6 +632,25 @@ void Root::doXRFrameMove(int32_t totalFrames) {
     } else {
         CC_LOG_WARNING("[XR] isRenderAllowable is false !!!");
     }
+}
+
+void Root::addWindowEventListener() {
+    _windowDestroyEventId = EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &e) -> void {
+        for (const auto &window : _renderWindows) {
+            window->onNativeWindowDestroy(static_cast<uint32_t>(e.args[0].intVal));
+        }
+    });
+
+    _windowResumeEventId = EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &e) -> void {
+        for (const auto &window : _renderWindows) {
+            window->onNativeWindowResume(static_cast<uint32_t>(e.args[0].intVal));
+        }
+    });
+}
+
+void Root::removeWindowEventListener() const {
+    EventDispatcher::removeCustomEventListener(EVENT_DESTROY_WINDOW, _windowDestroyEventId);
+    EventDispatcher::removeCustomEventListener(EVENT_RECREATE_WINDOW, _windowResumeEventId);
 }
 
 } // namespace cc
