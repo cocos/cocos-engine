@@ -1,5 +1,6 @@
-import { director, Node, Scene, Vec3, System } from "../../cocos/core";
+import { director, Vec3, System } from "../../cocos/core";
 import { tween, Tween, TweenSystem } from "../../cocos/tween";
+import { Node, Scene } from "../../cocos/scene-graph";
 
 test('remove actions by tag', function () {
     const scene = new Scene('test-tags');

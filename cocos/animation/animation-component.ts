@@ -25,7 +25,7 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { Component } from '../core/components/component';
+import { Component } from '../scene-graph/component';
 import { Eventify } from '../core/event';
 import { warnID } from '../core/platform/debug';
 import * as ArrayUtils from '../core/utils/array';

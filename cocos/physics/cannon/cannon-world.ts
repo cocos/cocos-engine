@@ -24,18 +24,19 @@
  */
 
 import CANNON from '@cocos/cannon';
-import { Vec3, Quat } from '../../core/math';
+import { Vec3 } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
 import { Ray } from '../../core/geometry';
-import { RecyclePool, Node, error } from '../../core';
+import { RecyclePool, error } from '../../core';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { fastRemoveAt } from '../../core/utils/array';
+import { Node } from '../../scene-graph';
 
 export class CannonWorld implements IPhysicsWorld {
     get impl () {

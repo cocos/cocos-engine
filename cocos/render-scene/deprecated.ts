@@ -25,7 +25,7 @@
 
 import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
 import { RenderScene } from './core/render-scene';
-import { Layers } from '../core/scene-graph/layers';
+import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from './core/pass';
 import { Camera } from './scene/camera';

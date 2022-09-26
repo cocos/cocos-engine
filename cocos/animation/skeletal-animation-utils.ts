@@ -24,7 +24,7 @@
  */
 
 import { Mat4 } from '../core/math';
-import { Node } from '../core/scene-graph/node';
+import { Node } from '../scene-graph/node';
 
 const stack: IJointTransform[] = [];
 const pool: Map<string, IJointTransform> = new Map();

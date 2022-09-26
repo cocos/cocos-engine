@@ -1,7 +1,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import type { ParticleSystem } from '../../particle';
 import { warn } from '../../core/platform/debug';
-import type { Node } from '../../core/scene-graph/node';
+import type { Node } from '../../scene-graph/node';
 import { getClassByName } from '../../core/utils/js-typed';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { EmbeddedPlayableState, EmbeddedPlayable } from './embedded-player';

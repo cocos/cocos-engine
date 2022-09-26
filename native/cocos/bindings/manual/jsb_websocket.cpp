@@ -237,7 +237,7 @@ void JsbWebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
     _JSDelegate = jsDelegate;
 }
 
-static bool webSocketFinalize(const se::State &s) {
+static bool webSocketFinalize(se::State &s) {
     auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
     CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocket)", cobj);
 
@@ -346,7 +346,7 @@ static bool webSocketConstructor(se::State &s) {
 }
 SE_BIND_CTOR(webSocketConstructor, jsbWebSocketClass, webSocketFinalize)
 
-static bool webSocketSend(const se::State &s) {
+static bool webSocketSend(se::State& s) {
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
 
