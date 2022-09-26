@@ -26,7 +26,7 @@
 
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Component } from '../../../../core';
+import { Component } from '../../../../scene-graph';
 import { RigidBody } from '../rigid-body';
 import { Eventify } from '../../../../core/event';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';

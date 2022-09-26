@@ -24,8 +24,9 @@
  */
 
 import { Armature, Matrix } from '@cocos/dragonbones-js';
-import { Node, Mat4, Vec3 } from '../core';
+import { Mat4, Vec3 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
+import { Node } from '../scene-graph';
 import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 

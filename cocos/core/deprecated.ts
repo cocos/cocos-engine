@@ -30,7 +30,7 @@ import { legacyCC } from './global-exports';
 import { SubModel } from '../render-scene/scene/submodel';
 import { Root } from './root';
 import { game } from './game';
-import System from './components/system';
+import System from './system';
 import { Director } from './director';
 
 // VMATH

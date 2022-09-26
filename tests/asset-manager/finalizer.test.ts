@@ -4,7 +4,7 @@ import { assetManager, loader } from "../../cocos/asset/asset-manager";
 import releaseManager from "../../cocos/asset/asset-manager/release-manager";
 import { Texture2D } from "../../cocos/asset/assets/texture-2d";
 import { isValid } from "../../cocos/core/data/object";
-import { Scene, Node } from "../../cocos/core/scene-graph";
+import { Scene, Node } from "../../cocos/scene-graph";
 
 describe('releaseManager', () => {
 

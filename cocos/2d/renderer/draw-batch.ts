@@ -25,9 +25,9 @@
 
 import { Material } from '../../asset/assets/material';
 import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../gfx';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { Model } from '../../render-scene/scene/model';
-import { Layers } from '../../core/scene-graph/layers';
+import { Layers } from '../../scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../render-scene/core/pass';
 import { IBatcher } from './i-batcher';

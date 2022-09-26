@@ -19,7 +19,6 @@ CCEffect %{
         baseColorMap:  { value: grey }
     - vert: toon-vs:vert
       frag: toon-fs:frag
-      phase: forward-opaque
       properties: &props
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, linear: true, editor: { displayName: BaseColor, type: color } }

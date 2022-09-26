@@ -29,14 +29,14 @@
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import System from './components/system';
+import System from './system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event';
 import { input } from '../input';
 import { Root } from './root';
-import { Node, Scene } from './scene-graph';
-import { ComponentScheduler } from './scene-graph/component-scheduler';
-import NodeActivator from './scene-graph/node-activator';
+import { Node, Scene } from '../scene-graph';
+import { ComponentScheduler } from '../scene-graph/component-scheduler';
+import NodeActivator from '../scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils/js';
 import { legacyCC } from './global-exports';

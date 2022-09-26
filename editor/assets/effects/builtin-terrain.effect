@@ -5,7 +5,6 @@ CCEffect %{
     passes:
     - vert: terrain-vs
       frag: terrain-fs
-      phase: forward-opaque
       properties: &props
         UVScale:      { value: [1, 1, 1, 1] }
         metallic:     { value: [0, 0, 0, 0] }
