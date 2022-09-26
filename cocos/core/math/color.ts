@@ -469,34 +469,33 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Convert to srgb.
-     * @zh 将当前颜色转换为 sRGB。
-     * @returns RGB integer value. Starting from the lowest valid bit, each 8 bits is the value of the Red, Green, and Blue channels respectively.
-     * @example
-     * ```
-     * const color = new Vec4(1, 1, 1, 1);
-     * color.linearFloat01To8bitSRGB();
-     * ```
-     */
-    public linearFloat01To8bitSRGB (value: Vec4) {
-        this.r = linearToSrgb8Bit(value[0]);
-        this.g = linearToSrgb8Bit(value[1]);
-        this.b = linearToSrgb8Bit(value[2]);
-        this.a = linearToSrgb8Bit(value[3]);
-        return this;
-    }
-    /**
-     * @en Convert to Linear Float Color
-     * @zh 将当前颜色转换为 Linear Float Color。
-     * @returns Vec4 as float color value.
+     * @en Convert 8bit color to Vec4
+     * @zh 将当前颜色转换为到 Vec4
+     * @returns Vec4 as float color value
      * @example
      * ```
      * const color = Color.YELLOW;
-     * color.sRgb8BitToLinearFloat01();
+     * color.toVec4();
      * ```
      */
-    public sRgb8BitToLinearFloat01 () {
+    public toVec4 () : Vec4 {
         return new Vec4(srgb8BitToLinear(this.r), srgb8BitToLinear(this.g), srgb8BitToLinear(this.b), srgb8BitToLinear(this.a));
+    }
+    /**
+     * @en Set 8bit Color from Vec4
+     * @zh 使用 Vec4 设置 8 bit 颜色
+     * @returns 8 Bit srgb value
+     * @example
+     * ```
+     * color.fromVec4(new Vec4(1,1,1,1));
+     * ```
+     */
+    public fromVec4 (value: Vec4): Color {
+        this.r = linearToSrgb8Bit(value.x);
+        this.g = linearToSrgb8Bit(value.y);
+        this.b = linearToSrgb8Bit(value.z);
+        this.a = linearToSrgb8Bit(value.w);
+        return this;
     }
 
     /**
