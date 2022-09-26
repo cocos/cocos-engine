@@ -42,6 +42,7 @@ se::Object *jsControllerEventArray = nullptr;
 se::Object *jsResizeEventObj = nullptr;
 bool inited = false;
 
+// attach the argument object to the function
 void accessCacheArgObj(se::Object *func, se::Value *argObj, const char *cacheKey = "__reusedArgumentObject") {
     func->getProperty(cacheKey, argObj);
     if (argObj->isUndefined()) {
