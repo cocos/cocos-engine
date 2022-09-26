@@ -731,18 +731,6 @@ export class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             uiRendererManager.updateAllDirtyRenderers();
-            if (this._root?.usesCustomPipeline && this._root?.windows !== undefined) {
-                const windows = this._root.windows;
-                const cameras: Camera[] = [];
-                for (let i = 0; i < windows.length; i++) {
-                    const window = windows[i];
-                    window.extractRenderCameras(cameras);
-                }
-                const ppl = this._root.customPipeline;
-                ppl.beginSetup();
-                this._pipelineBuilder!.setup(cameras, ppl);
-                ppl.endSetup();
-            }
             this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
@@ -755,8 +743,10 @@ export class Director extends EventTarget {
     }
 
     private buildRenderPipeline () {
-        if (this._root && this._pipelineBuilder) {
-            this._pipelineBuilder.setup(this._root.cameraList, this._root.customPipeline);
+        if (this._root) {
+            this._root.customPipeline.beginSetup();
+            this._pipelineBuilder!.setup(this._root.cameraList, this._root.customPipeline);
+            this._root.customPipeline.endSetup();
         }
     }
     /**
@@ -774,6 +764,9 @@ export class Director extends EventTarget {
         if (this._root.usesCustomPipeline && legacyCC.internal.createCustomPipeline && legacyCC.internal.customPipelineBuilderMap) {
             const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
             this._pipelineBuilder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
+            if (this._pipelineBuilder === null) {
+                this._pipelineBuilder = map.get('Forward')!;
+            }
             legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
         for (let i = 0; i < this._systems.length; i++) {
