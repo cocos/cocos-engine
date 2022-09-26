@@ -41,8 +41,6 @@ layout(location = 2) in vec2 a_texCoord;
   #if CC_RECEIVE_SHADOW
     in vec2 a_localShadowBias; // x:shadow bias, y:shadow normal bias.
   #endif
-#elif USE_BATCHING
-  in float a_dyn_batch_id;
 #endif
 
 
