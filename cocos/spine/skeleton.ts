@@ -1432,6 +1432,7 @@ export class Skeleton extends UIRenderer {
     }
 
     protected _render (batcher: Batcher2D) {
+        let indicesCount = 0;
         if (this.renderData && this._drawList) {
             const rd = this.renderData;
             const chunk = rd.chunk;
@@ -1439,20 +1440,17 @@ export class Skeleton extends UIRenderer {
             const meshBuffer = rd.getMeshBuffer()!;
             const origin = meshBuffer.indexOffset;
             // Fill index buffer
-            accessor.appendIndices(chunk.bufferId, rd.indices!);
             for (let i = 0; i < this._drawList.length; i++) {
                 this._drawIdx = i;
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    // Construct IA
-                    const ia = meshBuffer.requireFreeIA(batcher.device);
-                    ia.firstIndex = origin + dc.indexOffset;
-                    ia.indexCount = dc.indexCount;
-                    // Commit IA
-                    batcher.commitIA(this, ia, dc.texture, dc.material!, this.node);
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
+                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
+                indicesCount += dc.indexCount;
             }
-            // this.node._static = true;
+            const subIndices = rd.indices!.subarray(0, indicesCount);
+            accessor.appendIndices(chunk.bufferId, subIndices);
         }
     }
 
