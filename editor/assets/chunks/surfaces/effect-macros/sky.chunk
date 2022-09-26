@@ -1,7 +1,6 @@
 // Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
 #pragma define USE_INSTANCING 0
-#pragma define USE_BATCHING 0
 
 // Disable unused functionality and varying data
 #define CC_SURFACES_USE_TANGENT_SPACE 0
