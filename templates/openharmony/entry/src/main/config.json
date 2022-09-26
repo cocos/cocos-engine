@@ -44,7 +44,7 @@
         "label": "$string:MainAbility_label",
         "type": "page",
         "visible": true,
-        "launchType": "standard"
+        "launchType": "singleton"
       }
     ],
     "js": [
