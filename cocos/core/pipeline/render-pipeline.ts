@@ -49,6 +49,7 @@ import { OS } from '../../../pal/system-info/enum-type';
 import { macro } from '../platform/macro';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
+import { murmurhash2_32_gc } from '../utils';
 
 /**
  * @en Render pipeline information descriptor
@@ -93,6 +94,25 @@ export class PipelineInputAssemblerData {
     quadIB: Buffer|null = null;
     quadVB: Buffer|null = null;
     quadIA: InputAssembler|null = null;
+}
+
+function hashFrameBuffer (fbo: Framebuffer) {
+    let hash = 666;
+    for (const color of fbo.colorTextures) {
+        const info = color?.info;
+        const hashStr = `${info!.type}_${info!.usage}_${info!.format}_${info!.width}_${info!.height}_${info!.flags}_
+            ${info!.layerCount}_${info!.levelCount}_${info!.samples}_${info!.depth}_${info!.externalRes}`;
+        hash = murmurhash2_32_gc(hashStr, hash);
+    }
+
+    if (fbo.depthStencilTexture) {
+        const info = fbo.depthStencilTexture.info;
+        const hashStr = `${info.type}_${info.usage}_${info.format}_${info.width}_${info.height}_${info.flags}_
+            ${info.layerCount}_${info.levelCount}_${info.samples}_${info.depth}_${info.externalRes}`;
+        hash = murmurhash2_32_gc(hashStr, hash);
+    }
+
+    return hash;
 }
 
 /**
@@ -311,13 +331,12 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     }
 
     public getRenderPass (clearFlags: ClearFlags, fbo: Framebuffer): RenderPass {
-        // clearFlags <= 7, framebuffer format < 100
-        const fakeHash = (clearFlags as number) + (fbo.colorTextures[0] ? fbo.colorTextures[0]!.format * 10 : 0)
-            + (fbo.depthStencilTexture ? fbo.depthStencilTexture.format * 1000 : 0);
-        let renderPass = this._renderPasses.get(fakeHash);
+        const fbHash = hashFrameBuffer(fbo);
+        const hash = murmurhash2_32_gc(`${fbHash}_${clearFlags}`, 666);
+        let renderPass = this._renderPasses.get(hash);
         if (renderPass) { return renderPass; }
         renderPass = this.createRenderPass(clearFlags, fbo.colorTextures[0]!.format, fbo.depthStencilTexture!.format);
-        this._renderPasses.set(fakeHash, renderPass);
+        this._renderPasses.set(hash, renderPass);
         return renderPass;
     }
 
