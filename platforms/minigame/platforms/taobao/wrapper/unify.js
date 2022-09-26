@@ -45,6 +45,7 @@ my.onHide = function (cb) {
     $global._onHideCB = cb;
 };
 
+window.__globalAdapter = window.__globalAdapter || {};
 if (window.__globalAdapter) {
     let globalAdapter = window.__globalAdapter;
     // SystemInfo
