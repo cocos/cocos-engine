@@ -65,7 +65,8 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number, shaderImplant: Shader | null = null) {
+    public merge (subModel: SubModel, passIdx: number, shaderImplant: Shader | null = null) {
+        const attrs = subModel.instancedAttributeBlock;
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;

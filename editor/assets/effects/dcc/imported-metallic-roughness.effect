@@ -16,7 +16,7 @@ CCEffect %{
         roughnessMap:         { value: grey }
         metallic:             { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallicMap:          { value: grey }
-        occlusion:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:            { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusionMap:         { value: white }
         emissiveScale:        { value: 1.0, editor: { displayName: Emissive } }
         emissiveScaleMap:     { value: grey, editor: { displayName: EmissiveMap } }
@@ -307,7 +307,7 @@ CCProgram standard-fs %{
     s.roughness = max(0.02, roughnessValue);
 
 
-    float occlusionValue = occlusion;
+    float occlusionValue = 1.0 - occlusion;
     #if USE_OCCLUSION_MAP
        vec4 occlusionColor = texture(occlusionMap, TEXTURE_UV);
        occlusionValue = discolor(occlusionColor.rgb);

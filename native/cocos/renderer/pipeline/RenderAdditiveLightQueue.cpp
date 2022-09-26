@@ -216,12 +216,12 @@ bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model *model) {
     return false;
 }
 
-void RenderAdditiveLightQueue::addRenderQueue(const scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
+void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
     const auto batchingScheme = pass->getBatchingScheme();
     const auto lightCount = _lightIndices.size();
     if (batchingScheme == scene::BatchingSchemes::INSTANCING) { // instancing
         auto *buffer = pass->getInstancedBuffer();
-        buffer->merge(model, subModel, lightPassIdx);
+        buffer->merge(subModel, lightPassIdx);
         buffer->setDynamicOffset(0, _lightBufferStride);
         _instancedQueue->add(buffer);
     } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) { // vb-merging

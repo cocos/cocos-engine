@@ -200,12 +200,13 @@ CCProgram standard-fs %{
   
 
   #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
-  #pragma define-meta DCC_APP_NAME range([0, 4])
+  #pragma define-meta DCC_APP_NAME range([0, 5])
   #define DCC_APP_OTHERS 0
-  #define DCC_APP_AUTODESK 1
+  #define DCC_APP_MAX 1
   #define DCC_APP_BLENDER 2
   #define DCC_APP_CINEMA4D 3
   #define DCC_APP_GLTF 4
+  #define DCC_APP_MAYA 5
 
   #if USE_SHININESS_MAP
     uniform sampler2D shininessExponentMap;
@@ -230,6 +231,7 @@ CCProgram standard-fs %{
   #endif
   #if USE_TRANSPARENCY_MAP
     uniform sampler2D transparencyMap;
+    #pragma define-meta TRANSPARENCY_MAP_CHANNEL options([a, r, g, b])
   #endif
 
   #if USE_NORMAL_MAP
@@ -250,7 +252,7 @@ CCProgram standard-fs %{
     #if DCC_APP_NAME == DCC_APP_BLENDER
       // 2-100
       float glossiness = clamp(sqrt(shininessExp) * 0.1/*/10.0*/, 0.0, 0.95); // glossiness=1 may leads to specular disappear
-    #elif DCC_APP_NAME == DCC_APP_AUTODESK
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
       // 2-1024
       float l2 = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
       float glossiness = pow(l2, 0.5);
@@ -266,7 +268,7 @@ CCProgram standard-fs %{
       float specularIntensityMultiplier = mix(1.0, 5.0, roughness);
     #elif DCC_APP_NAME == DCC_APP_CINEMA4D
       float specularIntensityMultiplier = mix(1.0, 50.0, roughness);
-    #elif DCC_APP_NAME == DCC_APP_AUTODESK
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
       float specularIntensityMultiplier = mix(1.0, 20.0, roughness);
     #else // DCC_APP_NAME == DCC_APP_GLTF / DCC_APP_OTHERS
       float specularIntensityMultiplier = 1.0;
@@ -276,7 +278,8 @@ CCProgram standard-fs %{
   
   vec4 getSpecularColorAndFactor()
   {
-    vec3 inSpecular = specularColor.rgb;
+    vec3 inSpecular = specularColor.rgb * specularFactor;
+    float inFactor = 1.0; //reserved
     #if USE_SPECULAR_GLOSSINESS_MAP
       inSpecular = SRGBToLinear(texture(specularGlossinessMap, TEXTURE_UV).rgb);
     #endif
@@ -285,7 +288,7 @@ CCProgram standard-fs %{
         specularTex.rgb = SRGBToLinear(specularTex.rgb);
         inSpecular = specularTex.rgb;
     #endif
-    return vec4(inSpecular, specularFactor);
+    return vec4(inSpecular, inFactor);
   }
   void surf (out StandardSurface s) {
     //diffuse
@@ -305,7 +308,10 @@ CCProgram standard-fs %{
     baseColor.rgb *= diffuseFactor;
     
     #if USE_TRANSPARENCY_MAP
-      baseColor.a = texture(transparencyMap, TEXTURE_UV).a;
+      baseColor.a = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+      #if DCC_APP_NAME == DCC_APP_MAYA
+        baseColor.a = 1.0 - baseColor.a;
+      #endif
     #endif
 
     #if USE_ALPHA_TEST
@@ -319,7 +325,7 @@ CCProgram standard-fs %{
     vec4 specularColorAndFactor = getSpecularColorAndFactor();
 
     //glossiness
-    float inGlossiness = 0.0, inSpecularIntensity = specularColorAndFactor.w;
+    float inGlossiness = 0.0, inSpecularIntensity = 1.0;
     #if HAS_EXPORTED_GLOSSINESS
       #if USE_SPECULAR_GLOSSINESS_MAP
         inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
@@ -371,7 +377,7 @@ CCProgram standard-fs %{
     s.roughness = 1.0 - inGlossiness;
     s.metallic = inMetallic;
     s.specularIntensity = inSpecularIntensity * 0.5;
-    s.emissive = vec3(0.0);
+    s.emissive = emissive.rgb;
   #if USE_EMISSIVE_MAP
     s.emissive = texture(emissiveMap, TEXTURE_UV).xyz;
   #endif
@@ -445,6 +451,13 @@ CCProgram shadow-caster-fs %{
   in highp vec2 v_clip_depth;
 
   #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
+  #pragma define-meta DCC_APP_NAME range([0, 5])
+  #define DCC_APP_OTHERS 0
+  #define DCC_APP_MAX 1
+  #define DCC_APP_BLENDER 2
+  #define DCC_APP_CINEMA4D 3
+  #define DCC_APP_GLTF 4
+  #define DCC_APP_MAYA 5
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
@@ -452,6 +465,7 @@ CCProgram shadow-caster-fs %{
 
   #if USE_TRANSPARENCY_MAP
     uniform sampler2D transparencyMap;
+    #pragma define-meta TRANSPARENCY_MAP_CHANNEL options([a, r, g, b])
   #endif
 
   #if USE_VERTEX_COLOR
@@ -468,7 +482,10 @@ CCProgram shadow-caster-fs %{
         alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
       #endif
       #if USE_TRANSPARENCY_MAP
-        alpha = texture(transparencyMap, TEXTURE_UV).a;
+        alpha = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+        #if DCC_APP_NAME == DCC_APP_MAYA
+          alpha = 1.0 - alpha;
+        #endif
       #endif
       if (alpha < alphaThreshold) discard;
     #endif
