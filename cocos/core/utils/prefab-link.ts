@@ -1,5 +1,5 @@
 import { ccclass, serializable, type, visible } from '../data/decorators';
-import { Component } from '../components/component';
+import { Component } from '../../scene-graph/component';
 import { Prefab } from '../../asset/assets/prefab';
 
 /**

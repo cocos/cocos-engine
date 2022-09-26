@@ -34,7 +34,7 @@ import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-dat
 import { WrapMode as AnimationWrapMode, WrapMode, WrapModeMask } from './types';
 import { legacyCC } from '../core/global-exports';
 import { approx, clamp, Mat4, Quat, Vec3 } from '../core/math';
-import { Node } from '../core/scene-graph/node';
+import { Node } from '../scene-graph/node';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import type { PoseOutput } from './pose-output';
 import * as legacy from './legacy-clip-data';

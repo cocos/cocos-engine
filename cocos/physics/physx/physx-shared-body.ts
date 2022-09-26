@@ -24,12 +24,12 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Node, Quat, Vec3 } from '../../core';
+import { Quat, Vec3 } from '../../core';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { TransformBit } from '../../scene-graph/node-enum';
 import {
     addActorToScene, syncNoneStaticToSceneIfWaking, getJsTransform, getTempTransform, physXEqualsCocosQuat,
     physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
@@ -39,6 +39,7 @@ import { ERigidBodyType, PhysicsSystem } from '../framework';
 import { PhysXJoint } from './joints/physx-joint';
 import { PhysicsGroup } from '../framework/physics-enum';
 import { fastRemoveAt } from '../../core/utils/array';
+import { Node } from '../../scene-graph';
 
 export class PhysXSharedBody {
     private static idCounter = 0;

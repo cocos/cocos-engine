@@ -28,7 +28,7 @@ import { builtinResMgr } from '../asset/asset-manager';
 import { createMesh } from '../3d/misc';
 import { Mesh } from '../3d/assets';
 import { Material, Texture2D } from '../asset/assets';
-import { Component } from '../core/components/component';
+import { Component } from '../scene-graph/component';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { scene } from '../render-scene';

@@ -29,13 +29,14 @@ import { JSB } from 'internal:constants';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
-import { TransformBit } from '../../core/scene-graph/node-enum';
-import { NodeEventType, Component, warnID } from '../../core';
+import { TransformBit } from '../../scene-graph/node-enum';
+import { warnID } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { Stage } from '../renderer/stencil-manager';
-import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { NodeEventProcessor } from '../../scene-graph/node-event-processor';
 import { MaskMode } from '../renderer/render-entity';
 import { Sprite } from './sprite';
+import { NodeEventType, Component } from '../../scene-graph';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();

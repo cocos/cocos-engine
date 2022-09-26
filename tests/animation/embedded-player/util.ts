@@ -1,4 +1,4 @@
-import { Node } from "../../../cocos/core";
+import { Node } from "../../../cocos/scene-graph";
 import { addEmbeddedPlayerTag, AnimationClip } from "../../../cocos/animation/animation-clip";
 import { EmbeddedPlayableState } from "../../../cocos/animation/embedded-player/embedded-player";
 import { EmbeddedPlayer } from "../../../editor/exports/embedded-player";

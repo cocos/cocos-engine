@@ -1,4 +1,4 @@
-import { Node } from "../../../cocos/core";
+import { Node } from "../../../cocos/scene-graph";
 import { EmbeddedPlayer, EmbeddedPlayable, EmbeddedPlayableState } from "../../../cocos/animation/embedded-player/embedded-player";
 import { AnimationClipHostEmbeddedPlayerMock } from "./util";
 

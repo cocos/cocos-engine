@@ -27,7 +27,7 @@ import { Frustum, Ray } from '../../core/geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like } from '../../core/math';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
 import { legacyCC } from '../../core/global-exports';
 import { RenderWindow } from '../core/render-window';

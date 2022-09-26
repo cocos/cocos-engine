@@ -24,7 +24,7 @@
  */
 
 import { director } from '../core/director';
-import { System } from '../core/components';
+import { System } from '../core';
 import { Skeleton } from './skeleton';
 import { legacyCC } from '../core/global-exports';
 

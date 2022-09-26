@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Component } from '../../core';
+import { Component } from '../../scene-graph';
 import { Attribute, deviceManager, Feature } from '../../gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';

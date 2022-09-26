@@ -1,8 +1,8 @@
-import { Component } from "../../cocos/core/components";
+import { Component } from "../../cocos/scene-graph/component";
 import { director } from "../../cocos/core/director";
 import { game } from "../../cocos/core/game";
-import { Scene } from "../../cocos/core/scene-graph/scene";
-import { Node } from "../../cocos/core/scene-graph/node";
+import { Scene } from "../../cocos/scene-graph/scene";
+import { Node } from "../../cocos/scene-graph/node";
 
 test('persist node with dynamic scene', function () {
     var oldScene = new Scene('');
