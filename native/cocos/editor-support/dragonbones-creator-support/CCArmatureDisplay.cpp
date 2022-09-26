@@ -403,6 +403,16 @@ se_object_ptr CCArmatureDisplay::getSharedBufferOffset() const {
     return nullptr;
 }
 
+void CCArmatureDisplay::setBatchEnabled(bool enabled) {
+    if (enabled != _enableBatch) {
+        for (auto& item : _materialCaches) {
+            CC_SAFE_DELETE(item.second);
+        }
+        _materialCaches.clear();
+        _enableBatch = enabled;
+    }
+}
+
 void CCArmatureDisplay::setRenderEntity(cc::RenderEntity* entity) {
     _entity = entity;
 }

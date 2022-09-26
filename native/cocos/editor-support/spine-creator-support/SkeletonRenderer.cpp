@@ -958,6 +958,9 @@ void SkeletonRenderer::setColor(float r, float g, float b, float a) {
 
 void SkeletonRenderer::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
+        for (auto& item : _materialCaches) {
+            CC_SAFE_DELETE(item.second);
+        }
         _materialCaches.clear();
         _enableBatch = enabled;
     }

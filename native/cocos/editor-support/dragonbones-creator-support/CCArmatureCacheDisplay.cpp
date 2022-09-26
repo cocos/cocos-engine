@@ -394,6 +394,16 @@ void CCArmatureCacheDisplay::setAttachEnabled(bool enabled) {
     _useAttach = enabled;
 }
 
+void CCArmatureCacheDisplay::setBatchEnabled(bool enabled) {
+    if (enabled != _enableBatch) {
+        for (auto& item : _materialCaches) {
+            CC_SAFE_DELETE(item.second);
+        }
+        _materialCaches.clear();
+        _enableBatch = enabled;
+    }
+}
+
 se_object_ptr CCArmatureCacheDisplay::getSharedBufferOffset() const {
     if (_sharedBufferOffset) {
         return _sharedBufferOffset->getTypeArray();

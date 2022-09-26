@@ -281,6 +281,7 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
         _currMeshBuffer = meshBuffer;
         _currEntity = entity;
         _currDrawInfo = drawInfo;
+        _currHash = 0;
     }
 }
 

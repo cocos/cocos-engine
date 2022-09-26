@@ -899,6 +899,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected _updateBatch () {
+        this._cleanMaterialCache();
         this.markForUpdateRenderData();
     }
 
