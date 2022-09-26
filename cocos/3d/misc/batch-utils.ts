@@ -26,7 +26,7 @@
 import { MeshRenderer } from '../framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
 import { Mat4 } from '../../core/math/mat4';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 
 function checkMaterialisSame (comp1: MeshRenderer, comp2: MeshRenderer): boolean {
     const matNum = comp1.sharedMaterials.length;

@@ -1,5 +1,6 @@
-import { director, Node, Quat, Vec3 } from "../../cocos/core";
-import { ICollisionEvent, ITriggerEvent, physics } from "../../exports/physics-framework";
+import { director, Quat, Vec3 } from "../../cocos/core";
+import { Node } from "../../cocos/scene-graph";
+import { ICollisionEvent, physics } from "../../exports/physics-framework";
 
 /**
  * This function is used to test the api of the RigidBody

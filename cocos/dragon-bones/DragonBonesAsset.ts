@@ -27,9 +27,10 @@ import { EDITOR } from 'internal:constants';
 import { Asset } from '../asset/assets';
 import { ccclass, serializable } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
-import { Enum, Node } from '../core';
+import { Enum } from '../core';
 import { CCFactory } from './CCFactory';
 import { legacyCC } from '../core/global-exports';
+import { Node } from '../scene-graph';
 
 /**
  * @en The skeleton data of dragonBones.

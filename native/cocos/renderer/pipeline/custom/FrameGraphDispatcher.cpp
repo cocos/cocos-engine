@@ -56,6 +56,8 @@ namespace cc {
 
 namespace render {
 
+static constexpr bool ENABLE_BRANCH_CULLING = true;
+
 void passReorder(FrameGraphDispatcher &fgDispatcher);
 void memoryAliasing(FrameGraphDispatcher &fgDispatcher);
 void buildBarriers(FrameGraphDispatcher &fgDispatcher);
@@ -153,7 +155,7 @@ gfx::MemoryAccessBit toGfxAccess(AccessType type) {
 };
 
 // AccessStatus.vertID : in resourceNode it's resource ID; in barrierNode it's pass ID.
-AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ViewStatus &status);
+AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGraph &rg, const ViewStatus &status);
 gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName);
 
 void addAccessStatus(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, const ViewStatus &status);
@@ -182,7 +184,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
     // what we need:
     //  - pass dependency
     //  - pass attachment access
-    //AccessTable accessRecord;
+    // AccessTable accessRecord;
 
     size_t numPasses = 1;
     numPasses += renderGraph.rasterPasses.size();
@@ -196,6 +198,18 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
     resourceAccessGraph.reserve(static_cast<ResourceAccessGraph::vertices_size_type>(numPasses));
     resourceAccessGraph.resourceNames.reserve(128);
     resourceAccessGraph.resourceIndex.reserve(128);
+
+    if (!resourceAccessGraph.leafPasses.empty()) {
+        resourceAccessGraph.leafPasses.clear();
+    }
+    if (!resourceAccessGraph.culledPasses.empty()) {
+        resourceAccessGraph.culledPasses.clear();
+    }
+
+    const auto &names = get(RenderGraph::Name, renderGraph);
+    for (size_t i = 1; i <= names.container->size(); ++i) {
+        resourceAccessGraph.leafPasses.emplace(i, LeafStatus{false, false});
+    }
 
     auto startID = add_vertex(resourceAccessGraph, INVALID_ID);
     CC_EXPECTS(startID == EXPECT_START_ID);
@@ -225,10 +239,47 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
             });
     }
 
+    auto &rag = resourceAccessGraph;
+    auto branchCulling = [](ResourceAccessGraph::vertex_descriptor vertex, ResourceAccessGraph &rag) -> void {
+        CC_EXPECTS(out_degree(vertex, rag) == 0);
+        using FuncType = void (*)(ResourceAccessGraph::vertex_descriptor, ResourceAccessGraph &);
+        static FuncType leafCulling = [](ResourceAccessGraph::vertex_descriptor vertex, ResourceAccessGraph &rag) {
+            rag.culledPasses.emplace(vertex);
+            auto &attachments = get(ResourceAccessGraph::AccessNode, rag, vertex);
+            attachments.attachemntStatus.clear();
+            if (attachments.nextSubpass) {
+                delete attachments.nextSubpass;
+                attachments.nextSubpass = nullptr;
+            }
+            auto inEdges = in_edges(vertex, rag);
+            for (auto iter = inEdges.first; iter < inEdges.second;) {
+                auto inEdge = *iter;
+                auto srcVert = source(inEdge, rag);
+                remove_edge(inEdge, rag);
+                if (out_degree(srcVert, rag) == 0) {
+                    leafCulling(srcVert, rag);
+                }
+                inEdges = in_edges(vertex, rag);
+                iter = inEdges.first;
+            }
+        };
+        leafCulling(vertex, rag);
+    };
+
     // make leaf node closed walk for pass reorder
-    for (auto pass : resourceAccessGraph.externalPasses) {
-        if (out_degree(pass, resourceAccessGraph) == 0) {
-            add_edge(pass, resourceAccessGraph.presentPassID, resourceAccessGraph);
+    for (auto pass : resourceAccessGraph.leafPasses) {
+        bool isExternal = pass.second.isExternal;
+        bool needCulling = pass.second.needCulling;
+
+        if (isExternal && !needCulling) {
+            if (pass.first != resourceAccessGraph.presentPassID) {
+                add_edge(pass.first, resourceAccessGraph.presentPassID, resourceAccessGraph);
+            }
+        } else {
+            // write into transient resources, culled
+            if constexpr (ENABLE_BRANCH_CULLING) {
+                branchCulling(pass.first, resourceAccessGraph);
+            }
         }
     }
 }
@@ -1327,13 +1378,14 @@ void addAccessStatus(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node
     });
 }
 
-AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ViewStatus &viewStatus) {
+AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGraph &rg, const ViewStatus &viewStatus) {
     const auto &[name, passType, visibility, access] = viewStatus;
     auto &accessRecord = rag.accessRecord;
 
     AccessVertex lastVertID = INVALID_ID;
     CC_EXPECTS(rag.resourceIndex.find(name) != rag.resourceIndex.end());
     auto resourceID = rag.resourceIndex[name];
+    bool isExternalPass = get(get(ResourceGraph::Traits, rg), resourceID).hasSideEffects() || passType == PassType::PRESENT;
     auto iter = accessRecord.find(resourceID);
     if (iter == accessRecord.end()) {
         accessRecord.emplace(
@@ -1341,26 +1393,41 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ViewStatus 
             ResourceTransition{
                 {},
                 {curVertID, visibility, access, passType, Range{}}});
+        if (isExternalPass) {
+            rag.leafPasses[curVertID] = LeafStatus{true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT};
+        }
     } else {
         ResourceTransition &trans = iter->second;
         if (access == gfx::MemoryAccessBit::READ_ONLY && trans.currStatus.access == gfx::MemoryAccessBit::READ_ONLY &&
-            trans.currStatus.passType == passType && trans.currStatus.visibility == visibility) {
+            (trans.currStatus.passType == passType || passType == PassType::PRESENT) && trans.currStatus.visibility == visibility) {
             // current READ, no WRITE before in this frame, it's expected to be external.
             bool dirtyExternalRes = trans.lastStatus.vertID == INVALID_ID;
             if (!dirtyExternalRes) {
                 tryAddEdge(trans.lastStatus.vertID, curVertID, rag);
+                if (rag.leafPasses.find(trans.lastStatus.vertID) != rag.leafPasses.end()) {
+                    rag.leafPasses.erase(trans.lastStatus.vertID);
+                }
+            }
+            if (isExternalPass) {
+                rag.leafPasses[curVertID] = LeafStatus{true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT};
             }
             trans.currStatus = {curVertID, visibility, access, passType, Range{}};
             lastVertID = trans.lastStatus.vertID;
-            rag.externalPasses.emplace_back(curVertID);
         } else {
-            bool needTransition = (trans.currStatus.access != access) || (trans.currStatus.passType != passType) || (trans.currStatus.visibility != visibility);
             // avoid subpass self depends
-            if (needTransition && trans.currStatus.vertID != curVertID) {
+            if (trans.currStatus.vertID != curVertID) {
+                lastVertID = trans.currStatus.vertID;
                 trans.lastStatus = trans.currStatus;
                 trans.currStatus = {curVertID, visibility, access, passType, Range{}};
-                tryAddEdge(trans.lastStatus.vertID, curVertID, rag);
-                lastVertID = trans.lastStatus.vertID;
+                if (rag.leafPasses.find(trans.lastStatus.vertID) != rag.leafPasses.end()) {
+                    rag.leafPasses.erase(trans.lastStatus.vertID);
+                }
+                if (rag.leafPasses.find(curVertID) != rag.leafPasses.end()) {
+                    // only write into externalRes counts
+                    if (isExternalPass) {
+                        rag.leafPasses[curVertID] = LeafStatus{true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT};
+                    }
+                }
             }
         }
     }
@@ -1398,7 +1465,7 @@ bool checkRasterViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, Pa
         auto access = toGfxAccess(rasterView.accessType);
         ViewStatus viewStatus{rasterView.slotName, passType, visibility, access};
         addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
-        auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, viewStatus);
+        auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
         if (lastVertId != INVALID_ID && lastVertId != vertID) {
             tryAddEdge(lastVertId, vertID, resourceAccessGraph);
             tryAddEdge(lastVertId, vertID, relationGraph);
@@ -1423,7 +1490,7 @@ bool checkComputeViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, P
             auto access = toGfxAccess(computeView.accessType);
             ViewStatus viewStatus{computeView.name, passType, visibility, access};
             addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
-            auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, viewStatus);
+            auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
             if (lastVertId != INVALID_ID) {
                 tryAddEdge(lastVertId, vertID, resourceAccessGraph);
                 tryAddEdge(lastVertId, vertID, relationGraph);
@@ -1529,13 +1596,13 @@ void processCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass
         ViewStatus dstViewStatus{pair.target, PassType::COPY, defaultVisibility, gfx::MemoryAccessBit::WRITE_ONLY};
         addCopyAccessStatus(resourceAccessGraph, resourceGraph, node, dstViewStatus, targetRange);
 
-        uint32_t lastVertSrc = dependencyCheck(resourceAccessGraph, vertID, srcViewStatus);
+        uint32_t lastVertSrc = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, srcViewStatus);
         if (lastVertSrc != INVALID_ID) {
             tryAddEdge(lastVertSrc, vertID, resourceAccessGraph);
             tryAddEdge(lastVertSrc, rlgVertID, relationGraph);
             dependent = true;
         }
-        uint32_t lastVertDst = dependencyCheck(resourceAccessGraph, vertID, dstViewStatus);
+        uint32_t lastVertDst = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, dstViewStatus);
         if (lastVertDst != INVALID_ID) {
             tryAddEdge(lastVertDst, vertID, resourceAccessGraph);
             tryAddEdge(lastVertDst, rlgVertID, relationGraph);
@@ -1578,7 +1645,7 @@ void processPresentPass(const Graphs &graphs, uint32_t passID, const PresentPass
         gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(layoutGraphData, passID, pair.first);
         ViewStatus viewStatus{pair.first, PassType::PRESENT, visibility, gfx::MemoryAccessBit::READ_ONLY};
 
-        auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, viewStatus);
+        auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
         addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
         if (lastVertId != INVALID_ID) {
             tryAddEdge(lastVertId, vertID, resourceAccessGraph);

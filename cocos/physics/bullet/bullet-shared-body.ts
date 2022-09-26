@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Node } from '../../core';
+import { TransformBit } from '../../scene-graph/node-enum';
+import { Node } from '../../scene-graph';
 import { BulletWorld } from './bullet-world';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';

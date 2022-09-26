@@ -350,7 +350,8 @@ class BlitDesc {
         if (this._stageDesc) {
             return;
         }
-        const pass = this.blit.material!.passes[0];
+        const blit = this.blit;
+        const pass = blit.material!.passes[blit.passID];
         const device = this._queue!.devicePass.context.device;
         this._stageDesc = device.createDescriptorSet(new DescriptorSetInfo(pass.localSetLayout));
         if (this.blit.sceneFlags & SceneFlags.VOLUMETRIC_LIGHTING) {
@@ -986,12 +987,19 @@ class DevicePreSceneTask extends WebSceneTask {
         this._updateGlobal(context, queueRenderData);
     }
 
+    protected _updateBlurUbo (camera: Camera) {
+        const ubo = this._currentQueue.devicePass.context.ubo;
+        ubo.updateGlobalUBO(camera.window);
+        ubo.updateCameraUBO(camera);
+        ubo.updateShadowUBO(camera);
+    }
+
     public submit () {
         const context = this._currentQueue.devicePass.context;
         const ubo = context.ubo;
         if (this.graphScene.blit) {
             const blitCam = this.graphScene.blit.camera;
-            if (blitCam) this._updateUbo();
+            if (blitCam) this._updateBlurUbo(blitCam);
             this._currentQueue.blitDesc!.update();
             return;
         }
@@ -1172,12 +1180,47 @@ class DeviceSceneTask extends WebSceneTask {
             && this.graphScene.scene
             && this.graphScene.scene.flags & SceneFlags.SHADOW_CASTER;
     }
+    private _mergeMatToBlitDesc (fromDesc, toDesc) {
+        fromDesc.update();
+        const fromGpuDesc = fromDesc.gpuDescriptorSet;
+        const toGpuDesc = toDesc.gpuDescriptorSet;
+        for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
+            const currRes = toGpuDesc.gpuDescriptors[i];
+            if (!currRes.gpuBuffer) {
+                currRes.gpuBuffer = fromGpuDesc.gpuDescriptors[i].gpuBuffer;
+            } else if (!currRes.gpuTextureView) {
+                currRes.gpuTextureView = fromGpuDesc.gpuDescriptors[i].gpuTextureView;
+            } else if (!currRes.gpuSampler) {
+                currRes.gpuSampler = fromGpuDesc.gpuDescriptors[i].gpuSampler;
+            }
+        }
+    }
+
+    // TODO: After the ubo is perfected, it needs to be replaced
+    private _beginBindBlitUbo (devicePass) {
+        this.visitor.bindDescriptorSet(SetIndex.GLOBAL,
+            devicePass.context.pipeline.globalDSManager.globalDescriptorSet);
+    }
+
+    private _endBindBlitUbo (devicePass) {
+        const stageId = devicePass.context.layoutGraph.locateChild(devicePass.context.layoutGraph.nullVertex(), 'default');
+        assert(stageId !== 0xFFFFFFFF);
+        const layout = devicePass.context.layoutGraph.getLayout(stageId);
+        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
+        this.visitor.bindDescriptorSet(SetIndex.GLOBAL,
+            layoutData.descriptorSet!);
+    }
+
     private _recordBlit () {
         if (!this.graphScene.blit) { return; }
-        const currMat = this.graphScene.blit.material;
-        const pass = currMat!.passes[0];
+
+        const blit = this.graphScene.blit;
+        const currMat = blit.material;
+        const pass = currMat!.passes[blit.passID];
+        pass.update();
         const shader = pass.getShaderVariant();
         const devicePass = this._currentQueue.devicePass;
+        this._beginBindBlitUbo(devicePass);
         const screenIa: any = this._currentQueue.blitDesc!.screenQuad!.quadIA;
         let pso;
         if (pass !== null && shader !== null && screenIa !== null) {
@@ -1187,12 +1230,14 @@ class DeviceSceneTask extends WebSceneTask {
         if (pso) {
             this.visitor.bindPipelineState(pso);
             const layoutStage = devicePass.renderLayout;
+            this._mergeMatToBlitDesc(pass.descriptorSet, layoutStage!.descriptorSet!);
             // TODO: It will be changed to global later
             this.visitor.bindDescriptorSet(SetIndex.MATERIAL, layoutStage!.descriptorSet!);
             this.visitor.bindDescriptorSet(SetIndex.LOCAL, this._currentQueue.blitDesc!.stageDesc!);
             this.visitor.bindInputAssembler(screenIa);
             this.visitor.draw(screenIa);
         }
+        this._endBindBlitUbo(devicePass);
     }
     private _recordAdditiveLights () {
         const devicePass = this._currentQueue.devicePass;
@@ -1380,8 +1425,11 @@ class BaseRenderVisitor {
     protected _isScene (u: number): boolean {
         return !!this.context.renderGraph.tryGetScene(u);
     }
+    protected _isBlit (u: number): boolean {
+        return !!this.context.renderGraph.tryGetBlit(u);
+    }
     applyID (id: number): void {
-        if (this._isRaster(id)) { this.passID = id; } else if (this._isQueue(id)) { this.queueID = id; } else if (this._isScene(id)) { this.sceneID = id; }
+        if (this._isRaster(id)) { this.passID = id; } else if (this._isQueue(id)) { this.queueID = id; } else if (this._isScene(id) || this._isBlit(id)) { this.sceneID = id; }
     }
 }
 

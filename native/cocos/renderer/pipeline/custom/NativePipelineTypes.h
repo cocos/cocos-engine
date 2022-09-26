@@ -32,7 +32,8 @@
 #pragma once
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
-#include "cocos/renderer/frame-graph/FrameGraph.h"
+#include "cocos/renderer/gfx-base/GFXFramebuffer.h"
+#include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
@@ -450,7 +451,7 @@ class NativePipeline final : public Pipeline {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {layoutGraph.get_allocator().resource()};
+        return {nativeContext.get_allocator().resource()};
     }
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
@@ -524,8 +525,8 @@ public:
     scene::Model* profiler{nullptr};
     LightingMode lightingMode{LightingMode::DEFAULT};
     IntrusivePtr<pipeline::PipelineSceneData> pipelineSceneData;
+    NativeRenderContext nativeContext;
     LayoutGraphData layoutGraph;
-    framegraph::FrameGraph frameGraph;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
 };

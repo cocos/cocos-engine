@@ -1,8 +1,9 @@
 import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from './native-2d';
 import { RenderDrawInfo } from './render-draw-info';
-import { Color, Node } from '../../core';
+import { Color } from '../../core';
 import { Stage } from './stencil-manager';
+import { Node } from '../../scene-graph';
 
 export enum RenderEntityType {
     STATIC,

@@ -40,7 +40,7 @@ import { macro } from './platform/macro';
 import { legacyCC, VERSION } from './global-exports';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from '../rendering';
-import { Layers, Node } from './scene-graph';
+import { Layers, Node } from '../scene-graph';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';

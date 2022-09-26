@@ -121,7 +121,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNativ
         auto func = [sysWindow]() -> void {
             cc::CustomEvent event;
             event.name = EVENT_RECREATE_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void *>(sysWindow->getWindowId());
+            event.args[0].intVal = sysWindow->getWindowId();
             auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
             platform->dispatchEvent(event);
         };
@@ -159,7 +159,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNativ
             auto func = [sysWindow]() -> void {
                 cc::CustomEvent event;
                 event.name = EVENT_RECREATE_WINDOW;
-                event.args->ptrVal = reinterpret_cast<void *>(sysWindow->getWindowId());
+                event.args[0].intVal = sysWindow->getWindowId();
                 auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
                 platform->dispatchEvent(event);
             };
@@ -179,9 +179,12 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceDestroyedNat
     // todo: destroy gfx surface
     auto func = [nativeWindow]() -> void {
         auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
+        auto *windowMgr = platform->getInterface<cc::SystemWindowManager>();
+        cc::ISystemWindow *window = windowMgr->getWindowFromANativeWindow(nativeWindow);
+
         cc::CustomEvent event;
         event.name = EVENT_DESTROY_WINDOW;
-        event.args->ptrVal = reinterpret_cast<void *>(nativeWindow);
+        event.args[0].intVal = window->getWindowId();
         platform->dispatchEvent(event);
     };
     CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);

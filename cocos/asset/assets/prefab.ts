@@ -30,7 +30,7 @@ import { compile } from '../../core/data/instantiate-jit';
 import { js, obsolete } from '../../core/utils/js';
 import { Enum } from '../../core/value-types';
 import { Asset } from './asset';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
 import * as utils from '../../core/utils/prefab';

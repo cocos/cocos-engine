@@ -214,15 +214,12 @@ struct CCVKGPUFramebuffer {
     ccstd::vector<CCVKGPUTextureView *> gpuColorViews;
     CCVKGPUTextureView *gpuDepthStencilView = nullptr;
     VkFramebuffer vkFramebuffer = VK_NULL_HANDLE;
+    std::vector<VkFramebuffer> vkFrameBuffers;
     CCVKGPUSwapchain *swapchain = nullptr;
     bool isOffscreen = true;
     uint32_t width = 0U;
     uint32_t height = 0U;
 };
-
-using FramebufferList = ccstd::vector<VkFramebuffer>;
-using FramebufferListMap = ccstd::unordered_map<CCVKGPUFramebuffer *, FramebufferList>;
-using FramebufferListMapIter = FramebufferListMap::iterator;
 
 struct CCVKGPUSwapchain {
     VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
@@ -230,7 +227,6 @@ struct CCVKGPUSwapchain {
 
     uint32_t curImageIndex = 0U;
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
-    FramebufferListMap vkSwapchainFramebufferListMap;
     ccstd::vector<VkBool32> queueFamilyPresentables;
     VkResult lastPresentResult = VK_NOT_READY;
 
@@ -1122,26 +1118,17 @@ public:
     }
 
     void collect(CCVKGPUFramebuffer *gpuFramebuffer) {
-        if (gpuFramebuffer->swapchain) {
-            if (_device->swapchains.count(gpuFramebuffer->swapchain)) { // make sure the swapchain is still alive
-                auto &list = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap[gpuFramebuffer];
-                if (_resources.size() < _count + list.size()) {
-                    _resources.resize(_count * 2);
-                }
-                for (VkFramebuffer vkFramebuffer : list) {
-                    Resource &res = _resources[_count++];
-                    res.type = RecycledType::FRAMEBUFFER;
-                    res.vkFramebuffer = vkFramebuffer;
-                }
-                list.clear();
-            }
-        } else if (gpuFramebuffer->vkFramebuffer) {
+        auto emplaceFb = [this](VkFramebuffer frameBuffer) {
             if (_resources.size() <= _count) {
                 _resources.resize(_count * 2);
             }
             Resource &res = _resources[_count++];
             res.type = RecycledType::FRAMEBUFFER;
-            res.vkFramebuffer = gpuFramebuffer->vkFramebuffer;
+            res.vkFramebuffer = frameBuffer;
+        };
+        emplaceFb(gpuFramebuffer->vkFramebuffer);
+        for (auto &fb : gpuFramebuffer->vkFrameBuffers) {
+            emplaceFb(fb);
         }
     }
 
@@ -1367,27 +1354,6 @@ private:
     ccstd::vector<ccstd::unordered_map<CCVKGPUBuffer *, BufferUpdate>> _buffersToBeUpdated;
 
     CCVKGPUDevice *_device = nullptr;
-};
-
-class CCVKGPUFramebufferHub final {
-public:
-    void connect(CCVKGPUTexture *texture, CCVKGPUFramebuffer *framebuffer) {
-        _framebuffers[texture].push_back(framebuffer);
-    }
-
-    void disengage(CCVKGPUTexture *texture) {
-        _framebuffers.erase(texture);
-    }
-
-    void disengage(CCVKGPUTexture *texture, CCVKGPUFramebuffer *framebuffer) {
-        auto &pool = _framebuffers[texture];
-        pool.erase(std::remove(pool.begin(), pool.end(), framebuffer), pool.end());
-    }
-
-    void update(CCVKGPUTexture *texture);
-
-private:
-    ccstd::unordered_map<CCVKGPUTexture *, ccstd::vector<CCVKGPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

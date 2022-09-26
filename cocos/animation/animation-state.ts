@@ -24,7 +24,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Node } from '../core/scene-graph/node';
+import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';

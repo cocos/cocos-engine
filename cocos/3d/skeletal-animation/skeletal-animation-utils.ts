@@ -34,7 +34,7 @@ import { BufferUsageBit, Format, FormatInfos,
     MemoryUsageBit, Device, Buffer, BufferInfo, FormatFeatureBit } from '../../gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../rendering/define';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { ITextureBufferHandle, TextureBufferPool } from '../../render-scene/core/texture-buffer-pool';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 

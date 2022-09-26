@@ -58,12 +58,12 @@ public class CocosActivity extends GameActivity {
 
 
 
-    private native void onCreateNative(Context activity);
+    private native void onCreateNative();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         onLoadNativeLibraries();
-        onCreateNative(this.getApplicationContext());
+        onCreateNative();
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
