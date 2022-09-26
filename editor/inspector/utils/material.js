@@ -15,7 +15,7 @@ exports.buildEffect = function(index, passData) {
         childMap: {},
     };
 
-    const hideAttrs = ['USE_INSTANCING', 'USE_BATCHING'];
+    const hideAttrs = ['USE_INSTANCING'];
 
     function encode(item) {
         let current = tree;
