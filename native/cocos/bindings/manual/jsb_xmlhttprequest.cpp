@@ -856,7 +856,7 @@ static bool XMLHttpRequest_getResponse(se::State &s) { //NOLINT(readability-iden
                 } else {
                     s.rval().setNull();
                 }
-            } else if (xhr->getResponseType() == XMLHttpRequest::ResponseType::ARRAY_BUFFER) {
+            } else if (xhr->getResponseType() == XMLHttpRequest::ResponseType::ARRAY_BUFFER || xhr->getResponseType() == XMLHttpRequest::ResponseType::BLOB) {
                 const Data &data = xhr->getResponseData();
                 se::HandleObject seObj(se::Object::createArrayBufferObject(data.getBytes(), data.getSize()));
                 if (!seObj.isEmpty()) {
