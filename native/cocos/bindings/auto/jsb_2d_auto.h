@@ -43,6 +43,7 @@ SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getLocalDes);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_getMeshBuffer);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_requestIA);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_resetMeshIA);
+SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setMeshBuffer);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_setRender2dBufferToNative);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_updateLocalDescriptorSet);
 SE_DECLARE_FUNC(js_2d_RenderDrawInfo_uploadBuffers);

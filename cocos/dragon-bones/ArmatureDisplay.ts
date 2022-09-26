@@ -27,7 +27,7 @@ import { EDITOR, JSB } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, RecyclePool, js, CCObject } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, builtinResMgr, RecyclePool, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
@@ -391,6 +391,20 @@ export class ArmatureDisplay extends UIRenderer {
         this._updateDebugDraw();
     }
 
+    /*
+     * @en Enabled batch model, if mesh is complex, do not enable batch, or will lower performance.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的龙骨动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+    */
+    @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
+    @editable
+    get enableBatch () { return this._enableBatch; }
+    set enableBatch (value) {
+        if (value !== this._enableBatch) {
+            this._enableBatch = value;
+            this._updateBatch();
+        }
+    }
+
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
@@ -445,6 +459,10 @@ export class ArmatureDisplay extends UIRenderer {
 
     @serializable
     protected _debugBones = false;
+
+    @serializable
+    protected _enableBatch = false;
+
     /* protected */ _debugDraw: Graphics | null = null;
 
     // DragonBones data store key.
@@ -572,20 +590,29 @@ export class ArmatureDisplay extends UIRenderer {
         super.destroyRenderData();
     }
 
+    private getMaterialTemplate () : Material {
+        let material = this.customMaterial;
+        if (material === null) {
+            material = builtinResMgr.get<Material>('default-spine-material');
+        }
+        return material;
+    }
+
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
         const key = `${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
             return inst;
         }
-        const material = this.getMaterial(0)!;
+        const material = this.getMaterialTemplate();
         const matInfo = {
             parent: material,
             subModelIdx: 0,
             owner: this,
         };
+
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
+        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: false });
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -612,6 +639,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected _render (batcher: Batcher2D) {
+        let indicesCount = 0;
         if (this.renderData && this._drawList) {
             const rd = this.renderData;
             const chunk = rd.chunk;
@@ -619,20 +647,17 @@ export class ArmatureDisplay extends UIRenderer {
             const meshBuffer = rd.getMeshBuffer()!;
             const origin = meshBuffer.indexOffset;
             // Fill index buffer
-            accessor.appendIndices(chunk.bufferId, rd.indices!);
             for (let i = 0; i < this._drawList.length; i++) {
                 this._drawIdx = i;
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    // Construct IA
-                    const ia = meshBuffer.requireFreeIA(batcher.device);
-                    ia.firstIndex = origin + dc.indexOffset;
-                    ia.indexCount = dc.indexCount;
-                    // Commit IA
-                    batcher.commitIA(this, ia, dc.texture, dc.material!, this.node);
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
+                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
+                indicesCount += dc.indexCount;
             }
-            // this.node._static = true;
+            const subIndices = rd.indices!.subarray(0, indicesCount);
+            accessor.appendIndices(chunk.bufferId, subIndices);
         }
     }
 
@@ -870,6 +895,11 @@ export class ArmatureDisplay extends UIRenderer {
         } else if (this._debugDraw) {
             this._debugDraw.node.parent = null;
         }
+        this.markForUpdateRenderData();
+    }
+
+    protected _updateBatch () {
+        this._cleanMaterialCache();
         this.markForUpdateRenderData();
     }
 
@@ -1340,7 +1370,7 @@ export class ArmatureDisplay extends UIRenderer {
 
     protected createRenderEntity () {
         const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
-        renderEntity.setUseLocal(true);
+        renderEntity.setUseLocal(false);
         return renderEntity;
     }
 

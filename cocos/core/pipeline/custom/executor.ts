@@ -801,8 +801,8 @@ class DevicePreSceneTask extends WebSceneTask {
         const sceneFlag = this._graphScene.scene!.flags;
         for (const ro of this.sceneData.renderObjects) {
             const subModels = ro.model.subModels;
-            for (const submodel of subModels) {
-                const passes = submodel.passes;
+            for (const subModel of subModels) {
+                const passes = subModel.passes;
                 for (const p of passes) {
                     if (p.phase !== this._currentQueue.phaseID) continue;
                     const batchingScheme = p.batchingScheme;
@@ -810,21 +810,21 @@ class DevicePreSceneTask extends WebSceneTask {
                     if (batchingScheme === BatchingSchemes.INSTANCING
                         && !this._submitInfo.instances.size) {
                         const instancedBuffer = p.getInstancedBuffer();
-                        instancedBuffer.merge(submodel, ro.model.instancedAttributes, passes.indexOf(p));
+                        instancedBuffer.merge(subModel, passes.indexOf(p));
                         this._submitInfo.instances.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING
                         && !this._submitInfo.batches.size) {
                         const batchedBuffer = p.getBatchedBuffer();
-                        batchedBuffer.merge(submodel, passes.indexOf(p), ro.model);
+                        batchedBuffer.merge(subModel, passes.indexOf(p), ro.model);
                         this._submitInfo.batches.add(batchedBuffer);
                     } else if ((sceneFlag & SceneFlags.TRANSPARENT_OBJECT)
                     && (sceneFlag & SceneFlags.OPAQUE_OBJECT || sceneFlag & SceneFlags.OPAQUE_OBJECT)) {
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p));
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p), true);
+                        this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p));
+                        this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p), true);
                     } else if ((sceneFlag & SceneFlags.CUTOUT_OBJECT) || (sceneFlag & SceneFlags.OPAQUE_OBJECT)) {
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p));
+                        this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p));
                     } else if (sceneFlag & SceneFlags.TRANSPARENT_OBJECT) {
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p), true);
+                        this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p), true);
                     }
                 }
             }

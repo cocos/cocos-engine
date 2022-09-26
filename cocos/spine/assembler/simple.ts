@@ -32,7 +32,7 @@ import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
 import { getAttributeStride, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
-import { Color, director, Mat4, Node, Texture2D } from '../../core';
+import { Color, director, Mat4, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
@@ -79,6 +79,7 @@ let _tempg: number;
 let _tempb: number;
 let _inRange: boolean;
 let _mustFlush: boolean;
+const _tempVecPos = new Vec3(0, 0, 0);
 let _r: number;
 let _g: number;
 let _b: number;
@@ -272,13 +273,16 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
         _needColor = true;
     }
-
+    let nodeMat: Mat4 | null = null;
+    if (comp.enableBatch) {
+        nodeMat = comp.node.worldMatrix;
+    }
     if (comp.isAnimationCached()) {
         // Traverse input assembler.
-        cacheTraverse();
+        cacheTraverse(nodeMat);
     } else {
         if (_vertexEffect) _vertexEffect.begin(comp._skeleton);
-        realTimeTraverse(batcher);
+        realTimeTraverse(nodeMat);
         if (_vertexEffect) _vertexEffect.end();
     }
     // Ensure mesh buffer update
@@ -492,7 +496,7 @@ function fillVertices (skeletonColor: spine.Color,
     }
 }
 
-function realTimeTraverse (batcher: Batcher2D) {
+function realTimeTraverse (worldMat: Mat4 | null) {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
     _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
@@ -676,6 +680,17 @@ function realTimeTraverse (batcher: Batcher2D) {
             for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
                 _ibuf[ii] += _vertexOffset + chunkOffset;
             }
+            if (worldMat) {
+                for (let ii = _vertexFloatOffset, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
+                    _tempVecPos.x = _vbuf[ii];
+                    _tempVecPos.y = _vbuf[ii + 1];
+                    _tempVecPos.z = 0;
+                    _tempVecPos.transformMat4(worldMat);
+                    _vbuf[ii] = _tempVecPos.x;
+                    _vbuf[ii + 1] = _tempVecPos.y;
+                    _vbuf[ii + 2] = _tempVecPos.z;
+                }
+            }
         }
         _vertexFloatOffset += _vertexFloatCount;
         _vertexOffset += _vertexCount;
@@ -718,7 +733,7 @@ function realTimeTraverse (batcher: Batcher2D) {
     }
 }
 
-function cacheTraverse () {
+function cacheTraverse (worldMat: Mat4 | null) {
     const frame = _comp!._curFrame;
     if (!frame) return;
 
@@ -780,6 +795,17 @@ function cacheTraverse () {
         // Fill vertices
         segVFCount = segInfo.vfCount;
         vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), frameVFOffset);
+        if (worldMat) {
+            for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
+                _tempVecPos.x = vbuf[ii];
+                _tempVecPos.y = vbuf[ii + 1];
+                _tempVecPos.z = 0;
+                _tempVecPos.transformMat4(worldMat);
+                vbuf[ii] = _tempVecPos.x;
+                vbuf[ii + 1] = _tempVecPos.y;
+                vbuf[ii + 2] = _tempVecPos.z;
+            }
+        }
 
         // Update color
         if (_needColor) {
