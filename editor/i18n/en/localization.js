@@ -774,6 +774,10 @@ module.exports = {
                 label: 'Animation',
                 description: 'Animation System.',
             },
+            network: {
+                label: 'Network',
+                description: 'Network Module.',
+            },
         },
         core: {
             label: "Core",
@@ -923,9 +927,13 @@ module.exports = {
             label: "Custom Render Pipeline (Experimental)",
             description: "Enable custom render pipeline",
         },
+        websocket: {
+            label: "WebSocket",
+            description: "Enable WebSocket for native. For implementation, iOS/macOS uses SocketRocket, Android uses OkHttp, and Windows uses libwebsockets.",
+        },
         websocket_server: {
             label: "WebSocket Server",
-            description: "Enable WebSocket Server for native.",
+            description: "Enable WebSocket Server for native. Note: WebSocket must also be enabled.",
         },
     },
     renderable_2d: {
