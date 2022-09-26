@@ -3,11 +3,12 @@ import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject } from '../utils';
 import { Language } from '../system-info/enum-type';
 
-//taobao IDE    (language: "Chinese")
-//taobao phone  (language: Andrond: "cn", iPad: 'zh_CN')
+//taobao IDE language   ("Chinese")
+//taobao phone language (Andrond: "cn", iPad: 'zh_CN')
 const languageMap: Record<string, Language> = {
     Chinese: Language.CHINESE,
     cn: Language.CHINESE,
+    zh_CN: Language.CHINESE,
 };
 
 declare let my: any;
@@ -40,9 +41,6 @@ Object.defineProperty(minigame, 'orientation', {
     },
 });
 // #endregion SystemInfo
-
-// #region Audio
-// #region Audio
 
 // #region Font
 minigame.loadFont = function (url) {
