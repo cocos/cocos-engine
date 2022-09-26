@@ -25,7 +25,7 @@
 
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph';
 import { Vec3, Vec2, Vec4 } from '../core/math';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';

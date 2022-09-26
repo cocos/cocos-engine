@@ -33,7 +33,7 @@ import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
 import { Pool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D } from './draw-batch';
 import { legacyCC } from '../../core/global-exports';

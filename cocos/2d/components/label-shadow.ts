@@ -25,10 +25,9 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
-import { Component } from '../../core/components/component';
+import { Component } from '../../scene-graph/component';
 import { Color, Vec2 } from '../../core/math';
 import { Label } from './label';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en Shadow effect for Label component, only for system fonts or TTF fonts

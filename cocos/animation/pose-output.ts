@@ -1,5 +1,5 @@
 import { BlendStateBuffer, BlendingPropertyName, BlendStateWriter } from '../3d/skeletal-animation/skeletal-animation-blending';
-import type { Node } from '../core/scene-graph';
+import type { Node } from '../scene-graph';
 
 export type Pose = BlendStateBuffer;
 

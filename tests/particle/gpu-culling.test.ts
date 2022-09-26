@@ -1,6 +1,7 @@
-import { director, Node, Scene } from "../../cocos/core";
+import { director } from "../../cocos/core";
 import { legacyCC } from "../../cocos/core/global-exports";
 import { ParticleSystem } from "../../exports/particle";
+import { Node, Scene } from "../../cocos/scene-graph";
 
 test('particle system gpu culling test', function () {
     const scene = new Scene('test');

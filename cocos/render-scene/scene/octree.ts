@@ -24,7 +24,7 @@
  */
 
 import { Vec3 } from '../../core/math/vec3';
-import { OctreeInfo } from '../../core/scene-graph/scene-globals';
+import { OctreeInfo } from '../../scene-graph/scene-globals';
 
 /**
  * @en The octree culling configuration of the render scene

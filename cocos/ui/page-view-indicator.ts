@@ -26,10 +26,10 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { SpriteFrame } from '../2d/assets';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { Color, Size } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
-import { Node } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';

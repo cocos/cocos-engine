@@ -25,7 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import MissingScript from '../../core/components/missing-script';
+import { MissingScript } from '../../misc/missing-script';
 import { deserialize, Details } from '../../core/data/deserialize';
 import { error } from '../../core/platform/debug';
 import { js } from '../../core/utils/js';
