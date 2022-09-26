@@ -47,8 +47,8 @@ JSB_REGISTER_OBJECT_TYPE(cc::scene::FogInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::IMacroPatch);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::ShadowsInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Shadows);
-JSB_REGISTER_OBJECT_TYPE(cc::scene::SubModel);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::InstancedAttributeBlock);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::SubModel);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Model);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::IRenderSceneInfo);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderScene);
@@ -243,6 +243,14 @@ SE_DECLARE_FUNC(js_scene_Shadows_initialize);
 SE_DECLARE_FUNC(js_scene_Shadows_setShadowMapSize);
 SE_DECLARE_FUNC(js_scene_Shadows_Shadows);
 
+extern se::Object *__jsb_cc_scene_InstancedAttributeBlock_proto;   // NOLINT
+extern se::Class *__jsb_cc_scene_InstancedAttributeBlock_class;    // NOLINT
+
+bool js_register_cc_scene_InstancedAttributeBlock(se::Object *obj); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &, cc::scene::InstancedAttributeBlock *, se::Object *ctx); //NOLINT
+
 extern se::Object *__jsb_cc_scene_SubModel_proto;   // NOLINT
 extern se::Class *__jsb_cc_scene_SubModel_class;    // NOLINT
 
@@ -260,18 +268,11 @@ SE_DECLARE_FUNC(js_scene_SubModel_initialize);
 SE_DECLARE_FUNC(js_scene_SubModel_onGeometryChanged);
 SE_DECLARE_FUNC(js_scene_SubModel_onMacroPatchesStateChanged);
 SE_DECLARE_FUNC(js_scene_SubModel_onPipelineStateChanged);
+SE_DECLARE_FUNC(js_scene_SubModel_setInstancedAttribute);
 SE_DECLARE_FUNC(js_scene_SubModel_setOwner);
 SE_DECLARE_FUNC(js_scene_SubModel_setWorldBoundDescriptorSet);
 SE_DECLARE_FUNC(js_scene_SubModel_update);
 SE_DECLARE_FUNC(js_scene_SubModel_SubModel);
-
-extern se::Object *__jsb_cc_scene_InstancedAttributeBlock_proto;   // NOLINT
-extern se::Class *__jsb_cc_scene_InstancedAttributeBlock_class;    // NOLINT
-
-bool js_register_cc_scene_InstancedAttributeBlock(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::scene::InstancedAttributeBlock *, se::Object *ctx); //NOLINT
 
 extern se::Object *__jsb_cc_scene_Model_proto;   // NOLINT
 extern se::Class *__jsb_cc_scene_Model_class;    // NOLINT
@@ -282,11 +283,6 @@ SE_DECLARE_FUNC(js_scene_Model_attachToScene);
 SE_DECLARE_FUNC(js_scene_Model_createBoundingShape);
 SE_DECLARE_FUNC(js_scene_Model_destroy);
 SE_DECLARE_FUNC(js_scene_Model_detachFromScene);
-SE_DECLARE_FUNC(js_scene_Model_getInstMatWorldIdx);
-SE_DECLARE_FUNC(js_scene_Model_getInstanceAttributes);
-SE_DECLARE_FUNC(js_scene_Model_getInstancedAttributeIndex);
-SE_DECLARE_FUNC(js_scene_Model_getInstancedBuffer);
-SE_DECLARE_FUNC(js_scene_Model_getInstancedBufferSize);
 SE_DECLARE_FUNC(js_scene_Model_getLocalData);
 SE_DECLARE_FUNC(js_scene_Model_getMacroPatches);
 SE_DECLARE_FUNC(js_scene_Model_initLightingmap);
@@ -300,9 +296,7 @@ SE_DECLARE_FUNC(js_scene_Model_onGlobalPipelineStateChanged);
 SE_DECLARE_FUNC(js_scene_Model_onMacroPatchesStateChanged);
 SE_DECLARE_FUNC(js_scene_Model_setBounds);
 SE_DECLARE_FUNC(js_scene_Model_setCalledFromJS);
-SE_DECLARE_FUNC(js_scene_Model_setInstMatWorldIdx);
 SE_DECLARE_FUNC(js_scene_Model_setInstancedAttribute);
-SE_DECLARE_FUNC(js_scene_Model_setInstancedAttributesViewData);
 SE_DECLARE_FUNC(js_scene_Model_setSubModelMaterial);
 SE_DECLARE_FUNC(js_scene_Model_setSubModelMesh);
 SE_DECLARE_FUNC(js_scene_Model_updateInstancedAttributes);
