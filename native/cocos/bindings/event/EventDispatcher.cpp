@@ -44,6 +44,7 @@ se::Object *jsOrientationEventObj = nullptr;
 bool inited = false;
 } // namespace
 namespace cc {
+    /// dead comments
 
 ccstd::unordered_map<ccstd::string, EventDispatcher::Node *> EventDispatcher::listeners;
 uint32_t EventDispatcher::hashListenerId = 1;
