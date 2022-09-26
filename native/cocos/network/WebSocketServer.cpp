@@ -93,11 +93,13 @@ void schedule_task_into_server_thread_task_queue(uv_async_t *asyn, std::function
 namespace cc {
 namespace network {
 
-#define RUN_IN_GAMETHREAD(task)                                                   \
-    do {                                                                          \
-        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
-            task;                                                                 \
-        });                                                                       \
+#define RUN_IN_GAMETHREAD(task)                                                       \
+    do {                                                                              \
+        if (CC_CURRENT_APPLICATION()) {                                               \
+            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
+                task;                                                                 \
+            });                                                                       \
+        }                                                                             \
     } while (0)
 
 #define DISPATCH_CALLBACK_IN_GAMETHREAD()                        \
