@@ -74,6 +74,13 @@ export class DirectionalLight extends Light {
     @serializable
     protected _csmOptimizationMode = CSMOptimizationMode.RemoveDuplicates;
 
+    @serializable
+    protected _shadowAdvancedOptions = false;
+    @serializable
+    protected _csmLayersTransition = false;
+    @serializable
+    protected _pcss = false;
+
     // fixed area properties
     @serializable
     protected _shadowFixedArea = false;
@@ -444,6 +451,63 @@ export class DirectionalLight extends Light {
         if (this._light) {
             this._light.shadowOrthoSize = this._shadowOrthoSize;
         }
+    }
+
+    /**
+     * @en Enabled shadow advanced options
+     * @zh 是否启用高级选项？
+     */
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 19 } })
+    @editable
+    @type(CCBoolean)
+    get shadowAdvancedOptions () {
+        return this._shadowAdvancedOptions;
+    }
+    set shadowAdvancedOptions (val) {
+        this._shadowAdvancedOptions = val;
+    }
+
+    /**
+     * @en Enabled csm layers transition
+     * @zh 是否启用级联阴影层级过渡？
+     */
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 20 } })
+    @editable
+    @type(CCBoolean)
+    get csmLayersTransition () {
+        return this._csmLayersTransition;
+    }
+    set csmLayersTransition (val) {
+        this._csmLayersTransition = val;
+    }
+
+    /**
+     * @en Enabled percentage closer soft shadows
+     * @zh 是否启用更紧密的百分比软影？
+     */
+    @visible(function (this: DirectionalLight) {
+        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
+    @editable
+    @type(CCBoolean)
+    get pcss () {
+        return this._pcss;
+    }
+    set pcss (val) {
+        this._pcss = val;
     }
 
     constructor () {
