@@ -3268,6 +3268,50 @@ se::Class* __jsb_cc_render_Pipeline_class = nullptr;
 se::Object* __jsb_cc_render_Pipeline_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_Pipeline) 
 
+static bool js_cc_render_Pipeline_beginSetup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->beginSetup();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_beginSetup) 
+
+static bool js_cc_render_Pipeline_endSetup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->endSetup();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_endSetup) 
+
 static bool js_cc_render_Pipeline_containsResource(se::State& s)
 {
     // js_function
@@ -3915,6 +3959,8 @@ bool js_register_cc_render_Pipeline(se::Object* obj) {
     
     cls->defineProperty("layoutGraphBuilder", _SE(js_cc_render_Pipeline_layoutGraphBuilder_get), nullptr); 
     
+    cls->defineFunction("beginSetup", _SE(js_cc_render_Pipeline_beginSetup)); 
+    cls->defineFunction("endSetup", _SE(js_cc_render_Pipeline_endSetup)); 
     cls->defineFunction("containsResource", _SE(js_cc_render_Pipeline_containsResource)); 
     cls->defineFunction("addRenderTexture", _SE(js_cc_render_Pipeline_addRenderTexture)); 
     cls->defineFunction("addRenderTarget", _SE(js_cc_render_Pipeline_addRenderTarget)); 
