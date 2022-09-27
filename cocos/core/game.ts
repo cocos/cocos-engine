@@ -868,13 +868,13 @@ export class Game extends EventTarget {
     public _loadCCEScripts () {
         return new Promise<void>((resolve, reject) => {
             if (PREVIEW) {
-                // @ts-ignore
+                // @ts-expect-error
                 import('cce:/internal/x/prerequisite-imports')
-                    .then(() => resolve(), (reason) => reject(reason))
+                    .then(() => resolve(), (reason) => reject(reason));
             } else {
-                resolve()
+                resolve();
             }
-        })
+        });
     }
 
     /**
