@@ -351,13 +351,13 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         if (dyingFramebuffer.depthStencilTexture) {
             dyingFramebuffer.depthStencilTexture.resize(width, height);
         }
-        dyingFramebuffer.destroy();
         // move
         const newFramebuffer = this._device.createFramebuffer(new FramebufferInfo(
             dyingFramebuffer.renderPass,
             colorTexArr,
             dyingFramebuffer.depthStencilTexture,
         ));
+        dyingFramebuffer.destroy();
         return newFramebuffer;
     }
 
