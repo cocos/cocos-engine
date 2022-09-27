@@ -85,8 +85,6 @@ public:
     DebugRenderer &operator=(const DebugRenderer &) = delete;
     DebugRenderer &operator=(DebugRenderer &&) = delete;
     ~DebugRenderer();
-    
-    void update();
 
     void activate(gfx::Device *device, const DebugRendererInfo &info = DebugRendererInfo());
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);

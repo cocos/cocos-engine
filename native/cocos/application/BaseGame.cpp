@@ -39,8 +39,8 @@ int BaseGame::init() {
     // override default value
     //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
     //_windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;
-    _windowInfo.width = 1400;
-    _windowInfo.height = 800;
+    _windowInfo.width = _windowInfo.width == -1 ? 800 : _windowInfo.width;
+    _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
     _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
                                                       cc::ISystemWindow::CC_WINDOW_RESIZABLE |
                                                       cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS

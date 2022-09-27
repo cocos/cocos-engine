@@ -133,11 +133,6 @@ void CCMTLTexture::doInit(const SwapchainTextureInfo &info) {
     }
 }
 
-void CCMTLTexture::update() {
-    if (_swapchain) {
-    }
-}
-
 bool CCMTLTexture::createMTLTexture() {
     if (_info.width == 0 || _info.height == 0) {
         CC_LOG_ERROR("CCMTLTexture: width or height should not be zero.");
@@ -172,7 +167,7 @@ bool CCMTLTexture::createMTLTexture() {
     if (descriptor == nullptr)
         return false;
 
-    descriptor.usage = mu::toMTLTextureUsage(_info.usage) | MTLTextureUsageShaderRead;
+    descriptor.usage = mu::toMTLTextureUsage(_info.usage);
     descriptor.sampleCount = mu::toMTLSampleCount(_info.samples);
     descriptor.textureType = descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_info.type);
     descriptor.mipmapLevelCount = _info.levelCount;

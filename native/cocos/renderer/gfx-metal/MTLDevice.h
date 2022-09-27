@@ -87,8 +87,6 @@ public:
             _swapchains.erase(iter);
         }
     }
-    
-    bool metalFeatureQuery();
 
 protected:
     static CCMTLDevice *_instance;

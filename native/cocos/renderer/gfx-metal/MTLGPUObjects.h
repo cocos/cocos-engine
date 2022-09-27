@@ -54,7 +54,6 @@ constexpr size_t MegaBytesToBytes = 1024 * 1024;
 }
 
 static constexpr size_t MAX_COLORATTACHMENTS = 16u;
-static constexpr size_t DRAWABLE_COUNT = 3U;
 
 struct CCMTLGPUDescriptorSetLayout {
     DescriptorSetLayoutBindingList bindings;

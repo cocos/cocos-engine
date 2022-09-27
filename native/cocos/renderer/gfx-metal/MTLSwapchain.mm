@@ -34,7 +34,6 @@
 #import "MTLGPUObjects.h"
 #import "MTLDevice.h"
 #import "MTLGPUObjects.h"
-#import "../../base/Config.h"
 namespace cc {
 namespace gfx {
 

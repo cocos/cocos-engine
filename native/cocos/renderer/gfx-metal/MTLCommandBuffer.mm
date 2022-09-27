@@ -602,7 +602,7 @@ void CCMTLCommandBuffer::setViewport(const Viewport &vp) {
 }
 
 void CCMTLCommandBuffer::setScissor(const Rect &rect) {
-//    _renderEncoder.setScissor(rect);
+   _renderEncoder.setScissor(rect);
 }
 
 void CCMTLCommandBuffer::setLineWidth(float /*width*/) {
@@ -1018,7 +1018,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 
         id<MTLTexture> dst = nil;
         if (ccDstTex->swapChain()) {
-            src = ccSrcTex->swapChain()->colorTexture()->getMTLTexture();
+            dst = ccDstTex->swapChain()->colorTexture()->getMTLTexture();
         } else {
             dst = ccDstTex->getMTLTexture();
         }
