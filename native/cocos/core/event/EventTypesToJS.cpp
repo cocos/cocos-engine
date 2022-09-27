@@ -45,7 +45,6 @@ const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTE
 const CallbacksInvoker::KeyType EventTypesToJS::MODEL_GET_MACRO_PATCHES{114};           //{"MODEL_GET_MACRO_PATCHES"};
 
 const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_COMMIT{115}; //{"MODEL_GET_MACRO_PATCHES"};
-const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_RENDER{116}; //{"DIRECTOR_BEFORE_RENDER"};
 
 const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED{116};
 const CallbacksInvoker::KeyType EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED{117};
@@ -62,5 +61,7 @@ const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCA
 const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE{124};
 
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_EDITOR_ATTACHED{125};
+
+const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_RENDER{126};
 
 } // namespace cc

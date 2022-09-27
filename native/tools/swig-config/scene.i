@@ -218,6 +218,7 @@ using namespace cc;
 %attribute(cc::Root, bool, usesCustomPipeline, usesCustomPipeline);
 %attribute(cc::Root, cc::render::PipelineRuntime *, pipeline, getPipeline);
 %attribute(cc::Root, cc::render::Pipeline*, customPipeline, getCustomPipeline);
+%attribute(cc::Root, %arg(ccstd::vector<cc::scene::Camera*> &), cameraList, getCameraList);
 
 %attribute(cc::scene::RenderWindow, uint32_t, width, getWidth);
 %attribute(cc::scene::RenderWindow, uint32_t, height, getHeight);
