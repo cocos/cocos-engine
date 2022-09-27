@@ -868,7 +868,7 @@ export class Game extends EventTarget {
     public _loadCCEScripts () {
         return new Promise<void>((resolve, reject) => {
             if (PREVIEW) {
-                // @ts-expect-error
+                // @ts-expect-error because we won't declare this internal module
                 import('cce:/internal/x/prerequisite-imports')
                     .then(() => resolve(), (reason) => reject(reason));
             } else {
