@@ -36,7 +36,7 @@ import { errorID } from './debug';
 import { screen } from './screen';
 import { macro } from './macro';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
-import { director } from '../director';
+import { director } from '../../game/director';
 import System  from '../system';
 import { Settings, settings } from '../settings';
 

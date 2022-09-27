@@ -2,7 +2,7 @@ import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, director } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 import { array } from '../../core/utils/js';
 import { Canvas } from '../../2d/framework';
@@ -18,6 +18,7 @@ import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 import { legacyCC } from '../../core/global-exports';
 import { Node, find, Layers } from '../../scene-graph';
+import { director } from '../../game';
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();

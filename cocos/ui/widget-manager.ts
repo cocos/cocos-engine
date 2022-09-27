@@ -26,7 +26,7 @@
 
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Director, director } from '../core/director';
+import { Director, director } from '../game/director';
 import { Vec2, Vec3 } from '../core/math';
 import { View } from '../core/platform/view';
 import visibleRect from '../core/platform/visible-rect';

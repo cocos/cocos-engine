@@ -1,4 +1,4 @@
-import { director } from '../../cocos/core';
+import { director } from '../../cocos/game';
 import { ccclass, requireComponent } from '../../cocos/core/data/decorators';
 import { Node, Scene, Component } from '../../cocos/scene-graph';
 

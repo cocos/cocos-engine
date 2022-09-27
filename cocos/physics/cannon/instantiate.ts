@@ -39,7 +39,7 @@ import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
-import { Game, game } from '../../core';
+import { Game, game } from '../../game';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('cannon.js', {

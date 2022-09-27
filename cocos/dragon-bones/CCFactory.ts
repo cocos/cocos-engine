@@ -25,7 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
-import { director, Game, game, ISchedulable, Scheduler, System } from '../core';
+import { ISchedulable, Scheduler, System } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureAtlasData } from './CCTextureData';
 import { TextureBase } from '../asset/assets/texture-base';
@@ -34,6 +34,7 @@ import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph';
+import { director, Game, game } from '../game';
 
 /**
  * DragonBones factory

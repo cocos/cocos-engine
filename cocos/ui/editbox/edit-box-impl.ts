@@ -28,8 +28,8 @@
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
-import { director } from '../../core/director';
-import { game } from '../../core/game';
+import { director } from '../../game/director';
+import { game } from '../../game';
 import { Mat4, Vec3 } from '../../core/math';
 import { view } from '../../core/platform';
 import { KeyCode } from '../../input/types';

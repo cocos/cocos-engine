@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { director } from '../core/director';
+import { director } from '../game/director';
 import { System } from '../core';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { legacyCC } from '../core/global-exports';
