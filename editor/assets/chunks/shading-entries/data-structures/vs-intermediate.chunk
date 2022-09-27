@@ -34,7 +34,7 @@ struct SurfacesStandardVertexIntermediate
   float fogFactor;
 #endif
 
-#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
   vec3 lightmapUV;
 #endif
 };
