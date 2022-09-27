@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, PREVIEW } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { js } from '../utils/js';
@@ -165,7 +165,7 @@ export function replaceOverrideAsset (task: Task) {
         const item = input[i] as RequestItem;
         if (assetsOverrideMap.has(item.uuid)) {
             const uuid = assetsOverrideMap.get(item.uuid)!;
-            if (EDITOR) {
+            if (EDITOR || PREVIEW) {
                 // In EDITOR, there is no bundle, so just change uuid.
                 item.overrideUuid = uuid;
                 item.ext = item.isNative ? item.ext : '.json';
