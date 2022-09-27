@@ -552,6 +552,8 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
                 mesh->_width = 0;
                 mesh->_height = 0;
             }
+            // mesh should not be added to skin, just delete it. While it still needs to read
+            // all bytes to make sure next readAttachment read back right data.
             if (needDelete) {
                 delete mesh;
                 mesh = nullptr;
