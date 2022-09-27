@@ -1007,7 +1007,7 @@ bool Mesh::copyIndices(index_t primitiveIndex, TypedArray &outputArray) {
     return true;
 }
 
-const gfx::FormatInfo* Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
+const gfx::FormatInfo *Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
     const gfx::FormatInfo *result = nullptr;
 
     accessAttribute(primitiveIndex, attributeName, [&](const IVertexBundle &vertexBundle, uint32_t iAttribute) {
