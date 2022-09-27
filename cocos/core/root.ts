@@ -490,7 +490,7 @@ export class Root {
 
         const windows = this._windows;
         const cameraList = this._cameraList;
-        cameraList.splice(0, cameraList.length);
+        cameraList.length = 0;
 
         for (let i = 0; i < windows.length; i++) {
             const window = windows[i];
