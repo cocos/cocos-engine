@@ -46,7 +46,6 @@ import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { deviceManager } from '../gfx';
 import { PipelineBuilder } from '../rendering/custom/pipeline';
 import { macro } from './platform/macro';
-import { Camera } from '../render-scene/scene';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -749,6 +748,20 @@ export class Director extends EventTarget {
             this._root.customPipeline.endSetup();
         }
     }
+
+    private setupRenderPipelineBuilder () {
+        if (this._root && this._root.usesCustomPipeline
+            && legacyCC.internal.createCustomPipeline
+            && legacyCC.internal.customPipelineBuilderMap) {
+            const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
+            this._pipelineBuilder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
+            if (this._pipelineBuilder === null) {
+                this._pipelineBuilder = map.get('Forward')!;
+            }
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+        }
+    }
+
     /**
      * @internal
      */
@@ -761,14 +774,9 @@ export class Director extends EventTarget {
         this._root = new Root(deviceManager.gfxDevice);
         const rootInfo = {};
         this._root.initialize(rootInfo);
-        if (this._root.usesCustomPipeline && legacyCC.internal.createCustomPipeline && legacyCC.internal.customPipelineBuilderMap) {
-            const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
-            this._pipelineBuilder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
-            if (this._pipelineBuilder === null) {
-                this._pipelineBuilder = map.get('Forward')!;
-            }
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
-        }
+
+        this.setupRenderPipelineBuilder();
+
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }
