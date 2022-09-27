@@ -199,8 +199,8 @@ if (window.oh) {
 
             if (!this._contentLength || this._recvLength == this._contentLength) {
                 this._readyState = XMLHttpRequest.DONE;
-                this.onreadystatechange();
                 this._onload();
+                this.onreadystatechange();
             }
             }
 
