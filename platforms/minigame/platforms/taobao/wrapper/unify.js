@@ -1,9 +1,9 @@
 const utils = require('./utils');
 
 function handleTouchEvent (event) {
-	let changedTouches = event.changedTouches;
+	const changedTouches = event.changedTouches;
 	if (changedTouches) {
-		for (let touch of changedTouches) {
+		for (const touch of changedTouches) {
 			touch.clientX = touch.x;
 			touch.clientY = touch.y;
 		}
@@ -44,7 +44,7 @@ my.onHide = function (cb) {
 
 window.__globalAdapter = window.__globalAdapter || {};
 if (window.__globalAdapter) {
-    let globalAdapter = window.__globalAdapter;
+    const globalAdapter = window.__globalAdapter;
     // SystemInfo
     globalAdapter.isSubContext = false;  // sub context not supported
     globalAdapter.isDevTool = my.isIDE;
@@ -52,10 +52,10 @@ if (window.__globalAdapter) {
 
     // Audio
     globalAdapter.createInnerAudioContext = function () {
-        let audio = my.createInnerAudioContext();
+        const audio = my.createInnerAudioContext();
         if (my.getSystemInfoSync().platform === 'iOS') {
             let currentTime = 0;
-            let originalSeek = audio.seek;
+            const originalSeek = audio.seek;
             audio.seek = function (time) {
                 // need to access audio.paused in the next tick
                 setTimeout(() => {
@@ -67,7 +67,7 @@ if (window.__globalAdapter) {
                 }, 50);
             };
 
-            let originalPlay = audio.play;
+            const originalPlay = audio.play;
             audio.play = function () {
                 if (currentTime !== 0) {
                     audio.seek(currentTime);
@@ -106,7 +106,7 @@ if (window.__globalAdapter) {
     // Font
     globalAdapter.loadFont = function (url) {
         // my.loadFont crash when url is not in user data path
-        return "Arial";
+        return 'Arial';
     };
 
     // hide show Event
@@ -115,18 +115,18 @@ if (window.__globalAdapter) {
 
     // Accelerometer
     let accelerometerCallback = null;
-    let systemInfo = my.getSystemInfoSync();
-    let windowWidth = systemInfo.windowWidth;
-    let windowHeight = systemInfo.windowHeight;
-    let isLandscape = windowWidth > windowHeight;
+    const systemInfo = my.getSystemInfoSync();
+    const windowWidth = systemInfo.windowWidth;
+    const windowHeight = systemInfo.windowHeight;
+    const isLandscape = windowWidth > windowHeight;
     function accelerometerChangeCallback (res, cb) {
-        let resClone = {};
+        const resClone = {};
 
         let x = res.x;
         let y = res.y;
 
         if (isLandscape) {
-            let tmp = x;
+            const tmp = x;
             x = -y;
             y = tmp;
         }
