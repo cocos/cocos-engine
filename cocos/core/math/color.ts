@@ -29,11 +29,8 @@ import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';
 import { legacyCC } from '../global-exports';
-import { mixin } from '../utils/js-typed';
 import { assertIsTrue } from '../data/utils/asserts';
 import { Vec4 } from './vec4';
-import { CCClassConstructor } from '../data/deserialize';
-import { ccbitmask } from '../value-types/bitmask';
 
 const toFloat = 1 / 255;
 
@@ -478,8 +475,13 @@ export class Color extends ValueType {
      * color.toVec4();
      * ```
      */
-    public toVec4 () : Vec4 {
-        return new Vec4(srgb8BitToLinear(this.r), srgb8BitToLinear(this.g), srgb8BitToLinear(this.b), srgb8BitToLinear(this.a));
+    public toVec4 (out?: Vec4): Vec4 {
+        out = out !== undefined ?  out : new Vec4();
+        out.x = srgb8BitToLinear(this.r);
+        out.y = srgb8BitToLinear(this.g);
+        out.z = srgb8BitToLinear(this.b);
+        out.w = srgb8BitToLinear(this.a);
+        return out;
     }
     /**
      * @en Set 8bit Color from Vec4
