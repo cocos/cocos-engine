@@ -167,7 +167,7 @@ void Root::destroy() {
     //    this.dataPoolManager.clear();
 }
 
-void Root::resize(uint32_t windowId, uint32_t width, uint32_t height) {
+void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) {
     for (const auto &window : _renderWindows) {
         auto *swapchain = window->getSwapchain();
         if (swapchain && (swapchain->getWindowId() == windowId)) {
