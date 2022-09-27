@@ -1470,7 +1470,7 @@ bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object * /*
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const cc::gfx::FormatInfo* &from, se::Value &to, se::Object * /*unused*/) {
+bool nativevalue_to_se(const cc::gfx::FormatInfo *from, se::Value &to, se::Object * /*unused*/) {
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("name", se::Value(from->name));
     obj->setProperty("size", se::Value(from->size));
