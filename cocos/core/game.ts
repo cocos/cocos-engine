@@ -774,6 +774,7 @@ export class Game extends EventTarget {
                 }
                 return Promise.resolve([]);
             })
+            .then(() => this._loadCCEScripts())
             .then(() => this._loadProjectBundles())
             .then(() => this._setupRenderPipeline())
             .then(() => this._loadPreloadAssets())
@@ -859,6 +860,21 @@ export class Game extends EventTarget {
                 resolve();
             });
         })));
+    }
+
+    /**
+     * @internal only for game-view
+     */
+    public _loadCCEScripts () {
+        return new Promise<void>((resolve, reject) => {
+            if (PREVIEW) {
+                // @ts-ignore
+                import('cce:/internal/x/prerequisite-imports')
+                    .then(() => resolve(), (reason) => reject(reason))
+            } else {
+                resolve()
+            }
+        })
     }
 
     /**
