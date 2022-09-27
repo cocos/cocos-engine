@@ -863,9 +863,9 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @internal only for game-view
+     * @internal only for preview
      */
-    public _loadCCEScripts () {
+    private _loadCCEScripts () {
         return new Promise<void>((resolve, reject) => {
             if (PREVIEW) {
                 // @ts-expect-error because we won't declare this internal module
