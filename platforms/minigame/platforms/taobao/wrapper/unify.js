@@ -1,9 +1,9 @@
 const utils = require('./utils');
 
 function handleTouchEvent (event) {
-	if (my.isIDE) {
-		return;
-	}
+	// if (my.isIDE) {
+	// 	return;
+	// }
 	let changedTouches = event.changedTouches;
 	if (changedTouches) {
 		for (let touch of changedTouches) {

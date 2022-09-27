@@ -93,16 +93,17 @@ minigame.stopAccelerometer = function (res: any) {
 // #endregion Accelerometer
 
 // #region SafeArea
+// It should be a value that is not multiplied by dpr
 minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
-    const systemInfo =  minigame.getSystemInfoSync();
+    const systemInfo = minigame.getSystemInfoSync();
     return {
         top: 0,
         left: 0,
-        bottom: systemInfo.screenHeight,
-        right: systemInfo.screenWidth,
-        width: systemInfo.screenWidth,
-        height: systemInfo.screenHeight,
+        bottom: systemInfo.windowHeight,
+        right: systemInfo.windowWidth,
+        width: systemInfo.windowWidth,
+        height: systemInfo.windowHeight,
     };
 };
 // #endregion SafeArea
