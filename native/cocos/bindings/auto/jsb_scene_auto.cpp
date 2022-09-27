@@ -126,9 +126,6 @@ using namespace cc;
 #define cc_Root_customPipeline_get(self_) self_->getCustomPipeline()
   
 
-#define cc_Root_cameraList_get(self_) self_->getCameraList()
-  
-
 #define cc_scene_RenderWindow_width_get(self_) self_->getWidth()
   
 
@@ -6236,25 +6233,6 @@ static bool js_cc_Root_customPipeline_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_Root_customPipeline_get) 
 
-static bool js_cc_Root_cameraList_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Root *arg1 = (cc::Root *) NULL ;
-    ccstd::vector< cc::scene::Camera * > *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Root>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (ccstd::vector< cc::scene::Camera * > *) &cc_Root_cameraList_get(arg1);
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Root_cameraList_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Root_cameraList_get) 
-
 bool js_register_cc_Root(se::Object* obj) {
     auto* cls = se::Class::create("Root", obj, nullptr, _SE(js_new_cc_Root)); 
     
@@ -6274,7 +6252,6 @@ bool js_register_cc_Root(se::Object* obj) {
     cls->defineProperty("usesCustomPipeline", _SE(js_cc_Root_usesCustomPipeline_get), nullptr); 
     cls->defineProperty("pipeline", _SE(js_cc_Root_pipeline_get), nullptr); 
     cls->defineProperty("customPipeline", _SE(js_cc_Root_customPipeline_get), nullptr); 
-    cls->defineProperty("cameraList", _SE(js_cc_Root_cameraList_get), nullptr); 
     
     cls->defineFunction("_initialize", _SE(js_cc_Root__initialize)); 
     cls->defineFunction("destroy", _SE(js_cc_Root_destroy)); 
