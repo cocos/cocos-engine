@@ -390,7 +390,10 @@ WebSocketServerConnection::~WebSocketServerConnection() {
 
 bool WebSocketServerConnection::send(std::shared_ptr<DataFrame> data) {
     _sendQueue.emplace_back(data);
-    onDrainData();
+    if (!_wsi || _closed || _readyState == ReadyState::CLOSING) {
+        return false;
+    }
+    lws_callback_on_writable(_wsi);
     return true;
 }
 
