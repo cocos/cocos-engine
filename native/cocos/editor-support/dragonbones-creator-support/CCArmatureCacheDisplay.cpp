@@ -430,14 +430,14 @@ cc::RenderDrawInfo* CCArmatureCacheDisplay::requestDrawInfo(int idx) {
 }
 
 cc::Material *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
-    uint32_t key = (static_cast<uint32_t>(blendSrc) << 16) | (static_cast<uint32_t>(blendDst));
+    uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info {
             (Material*)_material,
             0
         };
         MaterialInstance* materialInstance = new MaterialInstance(info);
-        const PassOverrides overrides;
+        PassOverrides overrides;
         BlendStateInfo stateInfo;
         stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
         BlendTargetInfo targetInfo;
@@ -449,6 +449,7 @@ cc::Material *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_
         targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
         BlendTargetInfoList targetList {targetInfo};
         stateInfo.targets = targetList;
+        overrides.blendState = stateInfo;
         materialInstance->overridePipelineStates(overrides);
         const MacroRecord macros {{"USE_LOCAL", false}};
         materialInstance->recompileShaders(macros);

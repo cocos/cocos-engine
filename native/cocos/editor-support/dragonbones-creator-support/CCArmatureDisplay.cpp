@@ -439,7 +439,7 @@ cc::Material *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t ble
             0
         };
         MaterialInstance* materialInstance = new MaterialInstance(info);
-        const PassOverrides overrides;
+        PassOverrides overrides;
         BlendStateInfo stateInfo;
         stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
         BlendTargetInfo targetInfo;
@@ -451,6 +451,7 @@ cc::Material *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t ble
         targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
         BlendTargetInfoList targetList {targetInfo};
         stateInfo.targets = targetList;
+        overrides.blendState = stateInfo;
         materialInstance->overridePipelineStates(overrides);
         const MacroRecord macros {{"USE_LOCAL", false}};
         materialInstance->recompileShaders(macros);

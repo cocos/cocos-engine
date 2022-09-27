@@ -578,7 +578,7 @@ cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_
             0
         };
         MaterialInstance* materialInstance = new MaterialInstance(info);
-        const PassOverrides overrides;
+        PassOverrides overrides;
         BlendStateInfo stateInfo;
         stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
         BlendTargetInfo targetInfo;
@@ -590,6 +590,7 @@ cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_
         targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
         BlendTargetInfoList targetList {targetInfo};
         stateInfo.targets = targetList;
+        overrides.blendState = stateInfo;
         materialInstance->overridePipelineStates(overrides);
         const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
         materialInstance->recompileShaders(macros);
