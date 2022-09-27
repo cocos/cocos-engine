@@ -27,7 +27,7 @@ import { Frustum, Ray } from '../../core/geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like } from '../../core/math';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
 import { legacyCC } from '../../core/global-exports';
 import { RenderWindow } from '../core/render-window';
@@ -108,6 +108,14 @@ export enum TrackingType {
     ROTATION = 3,
 }
 
+export enum CameraUsage {
+    EDITOR,
+    GAME_VIEW,
+    SCENE_VIEW,
+    PREVIEW,
+    GAME = 100,
+}
+
 const FSTOPS: number[] = [1.8, 2.0, 2.2, 2.5, 2.8, 3.2, 3.5, 4.0, 4.5, 5.0, 5.6, 6.3, 7.1, 8.0, 9.0, 10.0, 11.0, 13.0, 14.0, 16.0, 18.0, 20.0, 22.0];
 const SHUTTERS: number[] = [1.0, 1.0 / 2.0, 1.0 / 4.0, 1.0 / 8.0, 1.0 / 15.0, 1.0 / 30.0, 1.0 / 60.0, 1.0 / 125.0,
     1.0 / 250.0, 1.0 / 500.0, 1.0 / 1000.0, 1.0 / 2000.0, 1.0 / 4000.0];
@@ -123,6 +131,7 @@ export interface ICameraInfo {
     pipeline?: string;
     cameraType?: CameraType;
     trackingType?: TrackingType;
+    usage?: CameraUsage;
 }
 
 const v_a = new Vec3();
@@ -590,6 +599,7 @@ export class Camera {
     private _windowId = 0;
     private _cameraType: CameraType = CameraType.DEFAULT;
     private _trackingType: TrackingType = TrackingType.NO_TRACKING;
+    private _usage: CameraUsage = CameraUsage.GAME;
 
     constructor (device: Device) {
         this._device = device;
@@ -625,6 +635,9 @@ export class Camera {
      * @zh 初始化相机，开发者通常不应该使用这个方法，初始化流程是自动管理的。
      */
     public initialize (info: ICameraInfo) {
+        if (info.usage !== undefined) {
+            this._usage = info.usage;
+        }
         if (info.trackingType !== undefined) {
             this._trackingType = info.trackingType;
         }
@@ -858,6 +871,14 @@ export class Camera {
 
     set trackingType (type: TrackingType) {
         this._trackingType = type;
+    }
+
+    get cameraUsage () : CameraUsage {
+        return this._usage;
+    }
+
+    set cameraUsage (usage: CameraUsage) {
+        this._usage = usage;
     }
 
     /**

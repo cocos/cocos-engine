@@ -28,7 +28,7 @@
 import '../data/class';
 import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Eventify, EventTarget } from '../event';
+import { Eventify } from '../event';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
@@ -37,7 +37,7 @@ import { screen } from './screen';
 import { macro } from './macro';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import { director } from '../director';
-import { System } from '../components';
+import System  from '../system';
 import { Settings, settings } from '../settings';
 
 /**

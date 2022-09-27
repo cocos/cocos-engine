@@ -42,19 +42,29 @@ public:
 
     inline bool isInited() const { return _inited; }
 
+    inline bool isValid() const { return !_expired; }
+
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doResize(uint32_t size, uint32_t count) override;
     void doDestroy() override;
 
+    void addView(BufferValidator *view);
+    void removeView(BufferValidator *view);
+    void onExpire();
+
     ccstd::vector<uint8_t> _buffer;
+
+    BufferValidator *_source{nullptr};
+    ccstd::vector<BufferValidator *> _views; // weak reference
 
     uint64_t _lastUpdateFrame{0U};
     uint64_t _totalUpdateTimes{0U};
     uint64_t _creationFrame{0U};
 
     bool _inited{false};
+    bool _expired{false};
 
     ccstd::string _initStack;
 };

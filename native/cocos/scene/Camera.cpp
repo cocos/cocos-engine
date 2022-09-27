@@ -89,6 +89,7 @@ Camera::Camera(gfx::Device *device)
 Camera::~Camera() = default;
 
 bool Camera::initialize(const ICameraInfo &info) {
+    _usage = info.usage;
     _trackingType = info.trackingType;
     _cameraType = info.cameraType;
     _node = info.node;

@@ -30,13 +30,14 @@
 #include "PrivateObject.h"
 #include "Value.h"
 
+
 namespace se {
 
 class Object;
 
 /**
-     *  State represents an environment while a function or an accesstor is invoked from JavaScript.
-     */
+ *  State represents an environment while a function or an accesstor is invoked from JavaScript.
+ */
 class State final {
 public:
     /**
@@ -77,24 +78,36 @@ public:
 
     // Private API used in wrapper
     /**
-         *  @brief
-         *  @param[in]
-         *  @return
-         */
-    ~State();
+     *  @brief
+     *  @param[in]
+     *  @return
+     */
+    ~State() {
+        // Inline to speed up high-frequency calls without significant impact on code size
+        SAFE_DEC_REF(_thisObject);
+    }
 
-    explicit State(Object *thisObject);
-    State(Object *thisObject, const ValueArray &args);
+    explicit State(Object *thisObject) : _thisObject(thisObject) {
+        if (_thisObject != nullptr) {
+            _thisObject->incRef();
+        }
+    }
+    State(Object *thisObject, const ValueArray &args) : _thisObject(thisObject),
+                                                        _args(&args) {
+        if (_thisObject != nullptr) {
+            _thisObject->incRef();
+        }
+    }
+
+    // Disable copy/move constructor, copy/move assigment
+    State(const State &) = delete;
+    State(State &&) noexcept = delete;
+    State &operator=(const State &) = delete;
+    State &operator=(State &&) noexcept = delete;
 
 private:
-    // Disable copy/move constructor, copy/move assigment
-    State(const State &);
-    State(State &&) noexcept;
-    State &operator=(const State &);
-    State &operator=(State &&) noexcept;
-
-    Object *_thisObject{nullptr};     //weak ref
-    const ValueArray *_args{nullptr}; //weak ref
-    Value _retVal;                    //weak ref
+    Object *_thisObject{nullptr};     // weak ref
+    const ValueArray *_args{nullptr}; // weak ref
+    Value _retVal;                    // weak ref
 };
 } // namespace se

@@ -26,7 +26,7 @@
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
 import { Widget } from './widget';

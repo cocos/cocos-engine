@@ -30,7 +30,7 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { Model, Camera } from '../render-scene/scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
-import { Layers } from '../core/scene-graph/layers';
+import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 
 const _ab = new AABB();

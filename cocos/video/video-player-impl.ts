@@ -29,7 +29,7 @@ import { VideoPlayer } from './video-player';
 import { EventType } from './video-player-enums';
 import { error } from '../core/platform';
 import { director } from '../core/director';
-import { Node } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 
 export abstract class VideoPlayerImpl {
     protected _componentEventList: Map<string, () => void> = new Map();

@@ -27,7 +27,7 @@ import { Material } from '../../asset/assets/material';
 import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
 import { PassOverrides } from './pass';
-import { Renderer } from '../../core/components/renderer';
+import { Renderer } from '../../misc/renderer';
 
 export interface IMaterialInstanceInfo {
     parent: Material;

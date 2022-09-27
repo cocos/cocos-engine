@@ -49,6 +49,7 @@
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+#include "cocos/renderer/pipeline/custom/Set.h"
 #include "cocos/scene/Camera.h"
 
 namespace cc {
@@ -226,7 +227,7 @@ struct ResourceGraph {
         impl::ValueHandle<FramebufferTag, vertex_descriptor>,
         impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
 
-    void mount(vertex_descriptor vertID, ccstd::pmr::vector<vertex_descriptor>& mounted);
+    void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
 
     // ContinuousContainer

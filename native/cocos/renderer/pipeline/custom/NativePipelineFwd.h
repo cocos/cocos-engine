@@ -31,7 +31,6 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/frame-graph/FrameGraph.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
 namespace cc {
