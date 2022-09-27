@@ -39,6 +39,16 @@ BufferValidator::BufferValidator(Buffer *actor)
 
 BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
+
+    if (_source != nullptr) {
+        CC_ASSERT(_isBufferView);
+        _source->removeView(this);
+    }
+    for (auto *view : _views) {
+        CC_ASSERT(view->isBufferView());
+        view->onExpire();
+    }
+
     CC_SAFE_DELETE(_actor);
 
     uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
@@ -78,8 +88,9 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
     CC_ASSERT(!isInited());
     _inited = true;
 
+    auto *vBuffer = static_cast<BufferValidator *>(info.buffer);
     // Already been destroyed?
-    CC_ASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited());
+    CC_ASSERT(vBuffer != nullptr && vBuffer->isInited());
     CC_ASSERT(info.offset + info.range <= info.buffer->getSize());
     // zero-sized buffer?
     CC_ASSERT(info.range);
@@ -91,7 +102,10 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
     /////////// execute ///////////
 
     BufferViewInfo actorInfo = info;
-    actorInfo.buffer = static_cast<BufferValidator *>(info.buffer)->getActor();
+    actorInfo.buffer = vBuffer->getActor();
+
+    _source = vBuffer;
+    _source->addView(this);
 
     _actor->initialize(actorInfo);
 }
@@ -103,6 +117,11 @@ void BufferValidator::doResize(uint32_t size, uint32_t /*count*/) {
     // Cannot resize through buffer views.
     CC_ASSERT(!_isBufferView);
     CC_ASSERT(size);
+
+    for (auto *view : _views) {
+        view->onExpire();
+    }
+    _views.clear();
 
     /////////// execute ///////////
 
@@ -163,6 +182,19 @@ void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     }
 
     _lastUpdateFrame = cur;
+}
+
+void BufferValidator::addView(BufferValidator *view) {
+    _views.emplace_back(view);
+}
+
+void BufferValidator::removeView(BufferValidator *view) {
+    _views.erase(std::remove(_views.begin(), _views.end(), view), _views.end());
+}
+
+void BufferValidator::onExpire() {
+    _source = nullptr; 
+    _expired = true;
 }
 
 } // namespace gfx

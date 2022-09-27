@@ -346,8 +346,9 @@ export class Root {
      * @zh 重置在屏窗口的大小。
      * @param width The new width of the window.
      * @param height The new height of the window.
+     * @param windowId The system window ID, optional for now.
      */
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number, windowId?: number) {
         for (const window of this._windows) {
             if (window.swapchain) {
                 window.resize(width, height);
