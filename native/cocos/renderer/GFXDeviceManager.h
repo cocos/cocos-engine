@@ -63,6 +63,54 @@
 namespace cc {
 namespace gfx {
 
+class GFXDefaultResource {
+public:
+    GFXDefaultResource(Device *device) {
+        texture1D = device->createTexture({TextureType::TEX1D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 1, 1, TextureFlagBit::NONE});
+        texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE});
+        textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE});
+        texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::ONE, 2});
+        texture1DArray = device->createTexture({TextureType::TEX1D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 1, 1, TextureFlagBit::NONE, 2});
+        texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
+    }
+
+    ~GFXDefaultResource() {
+        CC_SAFE_DESTROY_AND_DELETE(texture1D);
+        CC_SAFE_DESTROY_AND_DELETE(texture2D);
+        CC_SAFE_DESTROY_AND_DELETE(texture1DArray);
+        CC_SAFE_DESTROY_AND_DELETE(texture2DArray);
+        CC_SAFE_DESTROY_AND_DELETE(textureCube);
+        CC_SAFE_DESTROY_AND_DELETE(texture3D);
+    }
+
+    const Texture *getTexture(TextureType type) const {
+        switch (type) {
+            case TextureType::TEX1D:
+                return texture1D;
+            case TextureType::TEX2D:
+                return texture2D;
+            case TextureType::CUBE:
+                return textureCube;
+            case TextureType::TEX3D:
+                return texture3D;
+            case TextureType::TEX1D_ARRAY:
+                return texture1DArray;
+            case TextureType::TEX2D_ARRAY:
+                return texture2DArray;
+            default:
+                return nullptr;
+        }
+    }
+
+private:
+    Texture *texture1D = nullptr;
+    Texture *texture2D = nullptr;
+    Texture *texture1DArray = nullptr;
+    Texture *texture2DArray = nullptr;
+    Texture *textureCube = nullptr;
+    Texture *texture3D = nullptr;
+};
+
 class CC_DLL DeviceManager final {
     static constexpr bool DETACH_DEVICE_THREAD{true};
     static constexpr bool FORCE_DISABLE_VALIDATION{false};
