@@ -115,7 +115,7 @@ export class SubModel {
      */
     set subMesh (subMesh) {
         this._inputAssembler!.destroy();
-        this._inputAssembler!.initialize(subMesh.iaInfo);
+        this._inputAssembler = this._device!.createInputAssembler(subMesh.iaInfo);
         if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
         this._subMesh = subMesh;
     }
