@@ -30,7 +30,7 @@
 import { WEBGPU } from 'internal:constants';
 import { gfx, webgpuAdapter, glslalgWasmModule, promiseForWebGPUInstantiation } from '../../../webgpu/instantiated';
 import {
-    Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer,
+    Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader
 } from './override';
 import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo,
@@ -558,4 +558,40 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         const shader = this.createShaderNative(shaderInfo, spvDatas);
         return shader;
     };
+
+    // if property being frequently get in TS, try cache it
+    // attention: invalid if got this object from a native object,
+    // eg. inputAssembler.indexBuffer.objectID
+    function cacheReadOnlyWGPUProperties<T> (type: T, props: string[]) {
+        const descriptor = { writable: true };
+        props.map((prop) => {
+            return Object.defineProperty(type['prototype'], `_${prop}`, descriptor);
+        });
+
+        // trick for emscripten object only, which contains a `name` indicates what type it is.
+        const typename = type['name'].replace('CCWGPU', '');
+        const oldCreate = Device.prototype[`create${typename}`];
+        Device.prototype[`create${typename}`] = function (info) {
+            const res = oldCreate.call(this, info);
+            for (let prop of props) {
+                res[`_${prop}`] = res[`${prop}`];
+                Object.defineProperty(res, `${prop}`, {
+                    get () {
+                        return this[`_${prop}`];
+                    }
+                });
+            }
+            return res;
+        }
+        const oldInit = type['prototype']['initialize'];
+        type['prototype']['initialize'] = function (info) {
+            oldInit.call(this, info);
+            for (let prop of props) {
+                this[`_${prop}`] = this[`${prop}`];
+            }
+        }
+    };
+
+    cacheReadOnlyWGPUProperties(Buffer, ['objectID']);
+
 });

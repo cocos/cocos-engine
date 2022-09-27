@@ -98,8 +98,8 @@ export class InstancedBuffer {
                 instance.data.set(oldData);
                 instance.vb.resize(newSize);
             }
-            if (instance.shader?.objectID !== shader.objectID) { instance.shader = shader; }
-            if (instance.descriptorSet.objectID !== descriptorSet.objectID) { instance.descriptorSet = descriptorSet; }
+            instance.shader = shader;
+            instance.descriptorSet = descriptorSet;
             instance.data.set(attrs.buffer, instance.stride * instance.count++);
             this.hasPendingModels = true;
             return;
