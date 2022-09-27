@@ -178,7 +178,7 @@ export class TiledLayer extends UIRenderer {
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
-            this._drawInfoList[idx].setDrawInfoType(RenderDrawInfoType.IA);
+            this._drawInfoList[idx].setDrawInfoType(RenderDrawInfoType.MIDDLEWARE);
         }
         return this._drawInfoList[idx];
     }

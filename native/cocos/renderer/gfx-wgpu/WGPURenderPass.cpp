@@ -41,7 +41,7 @@ public:
         for (size_t i = 0; i < info.colorAttachments.size(); i++) {
             colors[i].loadOp = toWGPULoadOp(info.colorAttachments[i].loadOp);
             colors[i].storeOp = toWGPUStoreOp(info.colorAttachments[i].storeOp);
-            colors[i].clearColor = defaultClearColor;
+            colors[i].clearValue = defaultClearColor;
             // TODO_Zeqaing : subpass
             if (info.colorAttachments[i].sampleCount != SampleCount::ONE)
                 samples = info.colorAttachments[i].sampleCount;
@@ -52,7 +52,7 @@ public:
         depthStencils[0].depthStoreOp = toWGPUStoreOp(info.depthStencilAttachment.depthStoreOp);
         depthStencils[0].stencilLoadOp = toWGPULoadOp(info.depthStencilAttachment.stencilLoadOp);
         depthStencils[0].stencilStoreOp = toWGPUStoreOp(info.depthStencilAttachment.stencilStoreOp);
-        depthStencils[0].clearDepth = defaultClearDepth;
+        depthStencils[0].depthClearValue = defaultClearDepth;
         depthStencils[0].depthReadOnly = false;
         depthStencils[0].stencilReadOnly = false;
         if (samples == SampleCount::ONE)
@@ -60,7 +60,7 @@ public:
 
         renderPassDesc = ccnew WGPURenderPassDescriptor;
 
-        //TODO_Zeqiang: Metal-like subpass
+        // TODO_Zeqiang: Metal-like subpass
         renderPassDesc->colorAttachmentCount = info.colorAttachments.size();
         renderPassDesc->colorAttachments = colors.data();
         renderPassDesc->depthStencilAttachment = depthStencils.data();
@@ -81,7 +81,11 @@ public:
     int sampleCount = 1;
 };
 
-CCWGPURenderPass::CCWGPURenderPass() : wrapper<RenderPass>(val::object()) {
+CCWGPURenderPass::CCWGPURenderPass() : RenderPass() {
+}
+
+CCWGPURenderPass::~CCWGPURenderPass() {
+    doDestroy();
 }
 
 void CCWGPURenderPass::doInit(const RenderPassInfo &info) {

@@ -65,22 +65,23 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number, shaderImplant: Shader | null = null) {
+    public merge (subModel: SubModel, passIdx: number, shaderImplant: Shader | null = null) {
+        const attrs = subModel.instancedAttributeBlock;
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
         const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
-        let shader  = shaderImplant;
+        let shader = shaderImplant;
         if (!shader) {
             shader = subModel.shaders[passIdx];
         }
         const descriptorSet = subModel.descriptorSet;
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
-            if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
+            if (instance.ia.indexBuffer?.objectID !== sourceIA.indexBuffer?.objectID || instance.count >= MAX_CAPACITY) { continue; }
 
             // check same binding
-            if (instance.lightingMap !== lightingMap) {
+            if (instance.lightingMap.objectID !== lightingMap.objectID) {
                 continue;
             }
 
@@ -97,8 +98,8 @@ export class InstancedBuffer {
                 instance.data.set(oldData);
                 instance.vb.resize(newSize);
             }
-            if (instance.shader !== shader) { instance.shader = shader; }
-            if (instance.descriptorSet !== descriptorSet) { instance.descriptorSet = descriptorSet; }
+            instance.shader = shader;
+            instance.descriptorSet = descriptorSet;
             instance.data.set(attrs.buffer, instance.stride * instance.count++);
             this.hasPendingModels = true;
             return;

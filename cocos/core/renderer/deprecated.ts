@@ -30,7 +30,7 @@ import { legacyCC } from '../global-exports';
 import { Pass } from './core/pass';
 import { Camera } from './scene/camera';
 import { Shadows } from './scene/shadows';
-import { SpotLight } from './scene';
+import { SpotLight, Model } from './scene';
 
 removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'raycastUI2DNode' },
@@ -46,6 +46,11 @@ removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'rayResultModels' },
     { name: 'rayResultAll' },
     { name: 'rayResultSingleModel' },
+]);
+
+removeProperty(Model.prototype, 'Model.prototype', [
+    { name: 'isInstancingEnabled' },
+    { name: 'instancedAttributes' },
 ]);
 
 const CameraVisFlags = {};

@@ -77,11 +77,12 @@ module.exports = {
         skyIllum: 'Ambient lighting intensity.',
     },
     skybox: {
-        applyDiffuseMap: 'When checking, scene objects will use accurate diffusion map instead of hemisphere lighting.',
+        EnvironmentLightingType: 'Choose environment lighting types: Custom hemisphere diffuse, no reflections / Autogen hemisphere diffuse, with reflections / More accuracy diffuse map, with reflections.',
         enabled: 'Enable or disable skybox rendering with Envmap cube texture settings.',
-        useIBL: 'When checking, scene objects will calculate image based lighting from Envmap settings with diffuse and specular-reflections. Otherwise objects only calculate hemisphere diffuse lighting.',
         useHDR: 'Toggle HDR or LDR mode. Each mode has seperate light source settings, HDR mode uses physical luminosity unit with camera exposure attributes, and LDR mode uses none-unit without exposure calculations.',
         envmap: 'Set skybox texture and environment light source. Support cross / longitude and latitude / 6-separated cube textures. Support hdr / tga / png file type.',
+        rotationAngle: 'Adjust Y-axis rotation for skybox and sky lighting.',
+        material: 'Set custom skybox material, see skybox.effect.',
     },
     fog: {
         enabled: 'Enable or disable global fog effect.',
@@ -97,19 +98,11 @@ module.exports = {
     },
     shadow: {
         enabled: 'Enable or disable real time shadows.',
+        type: 'Shadow effect type',
+        shadowColor: 'The planar shadow color',
         planeDirection: 'The normal vector of the plane which receives shadow.',
         planeHeight: 'The height from the origin of the plane which receives shadow.',
-        saturation: 'Shadow saturation. This value should be 1.0, we recommend that you\'d rather increase ambient lighting than modify this value. ',
-        pcf: 'Enable soft shadows.',
-        bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows. The more the value, the more the light leakage.',
-        normalBias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light.',
         shadowMapSize: 'Shadowmap resolutions.',
-        fixedArea: 'Toggle CSM and fixed area shadows. When checking, shadow will not follow camera, it distributes around directional light position. It is a legacy mode that we do not recommend.',
-        near: 'Fix area start.',
-        far: 'Fix area end.',
-        orthoSize: 'Fix area size, the larger value, the lower precision of shadows.',
-        invisibleOcclusionRange: 'If some shadow near the camera is missing, increase this value (world space unit) to fix it.',
-        shadowDistance: 'Shadows do not appear beyond this distance (world space unit).',
         maxReceived: 'Number of the effective light sources that produce shadows.',
     },
     animation: {
@@ -162,6 +155,18 @@ module.exports = {
         term: 'The photometric term currently being used',
         size: 'Size of the light',
         range: 'Range of the light',
+        shadowEnabled: 'Enable or disable real time shadows',
+        shadowPcf: 'Enable soft shadows',
+        shadowBias: 'Bias value (world space unit) that can avoid moire artifacts with shadows. The more the value, the more the light leakage',
+        shadowNormalBias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light',
+        shadowSaturation: 'Shadow saturation. This value should be 1.0, we recommend that you\'d rather increase ambient lighting than modify this value',
+        shadowDistance: 'Shadows do not appear beyond this distance (world space unit)',
+        shadowInvisibleOcclusionRange: 'If some shadow near the camera is missing, increase this value (world space unit) to fix it',
+        enableCSM: 'Enable CSM',
+        shadowFixedArea: 'Toggle CSM and fixed area shadows. When checking, shadow will not follow camera, it distributes around directional light position. It is a legacy mode that we do not recommend',
+        shadowNear: 'Fix area start',
+        shadowFar: 'Fix area end',
+        shadowOrthoSize: 'Fix area size, the larger value, the lower precision of shadows',
     },
     model: {
         shadow_casting_model: 'Shadow projection mode',
@@ -174,9 +179,9 @@ module.exports = {
         atlas: 'Atlas that the image belongs to',
         type:
             'Rendering mode:\n - Simple: Modifying the size will stretch the image as a whole, which is suitable for sequence frame animation and normal images. \n' +
-        '- Sliced: When changing the size, the four corners will not stretch, which is suitable for UI buttons and panel backgrounds. \n' +
-        '- Tiled : When changing the size, the original size image will continue to be tiled. \n' +
-        '- Filled : set a certain starting position and direction of filling, and the picture can be cropped and displayed at a certain ratio.',
+            '- Sliced: When changing the size, the four corners will not stretch, which is suitable for UI buttons and panel backgrounds. \n' +
+            '- Tiled : When changing the size, the original size image will continue to be tiled. \n' +
+            '- Filled : set a certain starting position and direction of filling, and the picture can be cropped and displayed at a certain ratio.',
         original_size: "Use the Image's original size as the Node size?",
         edit_button: 'Edit',
         select_button: 'Select In Atlas',
@@ -544,7 +549,7 @@ module.exports = {
         vertical_align: 'Vertical alignment',
         font_size: 'Font size, in points',
         font: 'Custom TTF font of Rich Text',
-        font_family:'Custom System font of Rich Text',
+        font_family: 'Custom System font of Rich Text',
         use_system_font: 'Using system font',
         cache_mode: 'The cache mode of label. This mode only supports system fonts.',
         max_width: 'The maximize width of RichText, pass 0 means not limit the maximize width.',
@@ -791,6 +796,10 @@ module.exports = {
             label: "WebGL 2.0",
             description: "Include support for WebGL 2.0 graphics API.\n If WebGL 2.0 is not available on target platform, the one will fallback as WebGL 1.0.",
         },
+        gfx_webgpu: {
+            label: "WebGPU",
+            description: "Include support for WebGPU graphics API.",
+        },
         ui: {
             label: "User Interface",
             description: "User interface support.",
@@ -930,9 +939,9 @@ module.exports = {
         color: 'Main color for rendering, it normally multiplies with texture color.',
     },
     ui_transform: {
-        content_size:'Size of the UI node.',
-        anchor_point:'Anchor point of the UI node.',
-        priority:'Priority of rendering ordering.',
+        content_size: 'Size of the UI node.',
+        anchor_point: 'Anchor point of the UI node.',
+        priority: 'Priority of rendering ordering.',
     },
     graphics: {
         lineWidth: 'The width of edges',
@@ -981,7 +990,7 @@ module.exports = {
             simplex_vertex2: 'Vertex 2 of the shape',
             simplex_vertex3: 'Vertex 3 of the shape',
         },
-        constant_force:{
+        constant_force: {
             force: 'The force apply on a rigid body in the world coordinate system',
             localForce: 'The force apply on a rigid body in the local coordinate system',
             torque: 'The torque applied to the rigid body in the world coordinate system',

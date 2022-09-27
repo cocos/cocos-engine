@@ -4,6 +4,8 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "spine-creator-support/spine-cocos2dx.h"
+#include "cocos/bindings/auto/jsb_2d_auto.h"
+#include "cocos/bindings/auto/jsb_assets_auto.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -13882,26 +13884,6 @@ static bool js_spine_SkeletonRenderer_getDebugData(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC(js_spine_SkeletonRenderer_getDebugData)
 
-static bool js_spine_SkeletonRenderer_getParamsBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se::Object* result = cobj->getParamsBuffer();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_spine_SkeletonRenderer_getParamsBuffer)
-
 static bool js_spine_SkeletonRenderer_getSharedBufferOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
@@ -14332,6 +14314,26 @@ static bool js_spine_SkeletonRenderer_setDebugSlotsEnabled(se::State& s) // NOLI
 }
 SE_BIND_FUNC(js_spine_SkeletonRenderer_setDebugSlotsEnabled)
 
+static bool js_spine_SkeletonRenderer_setMaterial(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Material*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setMaterial(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_spine_SkeletonRenderer_setMaterial)
+
 static bool js_spine_SkeletonRenderer_setOpacityModifyRGB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
@@ -14351,6 +14353,26 @@ static bool js_spine_SkeletonRenderer_setOpacityModifyRGB(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC(js_spine_SkeletonRenderer_setOpacityModifyRGB)
+
+static bool js_spine_SkeletonRenderer_setRenderEntity(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setRenderEntity(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_spine_SkeletonRenderer_setRenderEntity)
 
 static bool js_spine_SkeletonRenderer_setSkin(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14701,7 +14723,6 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj) // NOLINT(readability-i
     cls->defineFunction("getAttachment", _SE(js_spine_SkeletonRenderer_getAttachment));
     cls->defineFunction("getBoundingBox", _SE(js_spine_SkeletonRenderer_getBoundingBox));
     cls->defineFunction("getDebugData", _SE(js_spine_SkeletonRenderer_getDebugData));
-    cls->defineFunction("getParamsBuffer", _SE(js_spine_SkeletonRenderer_getParamsBuffer));
     cls->defineFunction("getSharedBufferOffset", _SE(js_spine_SkeletonRenderer_getSharedBufferOffset));
     cls->defineFunction("getSkeleton", _SE(js_spine_SkeletonRenderer_getSkeleton));
     cls->defineFunction("getTimeScale", _SE(js_spine_SkeletonRenderer_getTimeScale));
@@ -14721,7 +14742,9 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj) // NOLINT(readability-i
     cls->defineFunction("setDebugBonesEnabled", _SE(js_spine_SkeletonRenderer_setDebugBonesEnabled));
     cls->defineFunction("setDebugMeshEnabled", _SE(js_spine_SkeletonRenderer_setDebugMeshEnabled));
     cls->defineFunction("setDebugSlotsEnabled", _SE(js_spine_SkeletonRenderer_setDebugSlotsEnabled));
+    cls->defineFunction("setMaterial", _SE(js_spine_SkeletonRenderer_setMaterial));
     cls->defineFunction("setOpacityModifyRGB", _SE(js_spine_SkeletonRenderer_setOpacityModifyRGB));
+    cls->defineFunction("setRenderEntity", _SE(js_spine_SkeletonRenderer_setRenderEntity));
     cls->defineFunction("setSkin", _SE(js_spine_SkeletonRenderer_setSkin));
     cls->defineFunction("setSlotsRange", _SE(js_spine_SkeletonRenderer_setSlotsRange));
     cls->defineFunction("setSlotsToSetupPose", _SE(js_spine_SkeletonRenderer_setSlotsToSetupPose));
@@ -15973,26 +15996,6 @@ static bool js_spine_SkeletonCacheAnimation_getAttachment(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_getAttachment)
 
-static bool js_spine_SkeletonCacheAnimation_getParamsBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        se::Object* result = cobj->getParamsBuffer();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_getParamsBuffer)
-
 static bool js_spine_SkeletonCacheAnimation_getSharedBufferOffset(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
@@ -16374,6 +16377,26 @@ static bool js_spine_SkeletonCacheAnimation_setEndListener(se::State& s) // NOLI
 }
 SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setEndListener)
 
+static bool js_spine_SkeletonCacheAnimation_setMaterial(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::Material*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setMaterial(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setMaterial)
+
 static bool js_spine_SkeletonCacheAnimation_setOpacityModifyRGB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
@@ -16393,6 +16416,26 @@ static bool js_spine_SkeletonCacheAnimation_setOpacityModifyRGB(se::State& s) //
     return false;
 }
 SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setOpacityModifyRGB)
+
+static bool js_spine_SkeletonCacheAnimation_setRenderEntity(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::RenderEntity*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setRenderEntity(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setRenderEntity)
 
 static bool js_spine_SkeletonCacheAnimation_setSkin(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -16658,7 +16701,6 @@ bool js_register_spine_SkeletonCacheAnimation(se::Object* obj) // NOLINT(readabi
     cls->defineFunction("findBone", _SE(js_spine_SkeletonCacheAnimation_findBone));
     cls->defineFunction("findSlot", _SE(js_spine_SkeletonCacheAnimation_findSlot));
     cls->defineFunction("getAttachment", _SE(js_spine_SkeletonCacheAnimation_getAttachment));
-    cls->defineFunction("getParamsBuffer", _SE(js_spine_SkeletonCacheAnimation_getParamsBuffer));
     cls->defineFunction("getSharedBufferOffset", _SE(js_spine_SkeletonCacheAnimation_getSharedBufferOffset));
     cls->defineFunction("getSkeleton", _SE(js_spine_SkeletonCacheAnimation_getSkeleton));
     cls->defineFunction("getTimeScale", _SE(js_spine_SkeletonCacheAnimation_getTimeScale));
@@ -16674,7 +16716,9 @@ bool js_register_spine_SkeletonCacheAnimation(se::Object* obj) // NOLINT(readabi
     cls->defineFunction("setColor", _SE(js_spine_SkeletonCacheAnimation_setColor));
     cls->defineFunction("setCompleteListener", _SE(js_spine_SkeletonCacheAnimation_setCompleteListener));
     cls->defineFunction("setEndListener", _SE(js_spine_SkeletonCacheAnimation_setEndListener));
+    cls->defineFunction("setMaterial", _SE(js_spine_SkeletonCacheAnimation_setMaterial));
     cls->defineFunction("setOpacityModifyRGB", _SE(js_spine_SkeletonCacheAnimation_setOpacityModifyRGB));
+    cls->defineFunction("setRenderEntity", _SE(js_spine_SkeletonCacheAnimation_setRenderEntity));
     cls->defineFunction("setSkin", _SE(js_spine_SkeletonCacheAnimation_setSkin));
     cls->defineFunction("setSlotsToSetupPose", _SE(js_spine_SkeletonCacheAnimation_setSlotsToSetupPose));
     cls->defineFunction("setStartListener", _SE(js_spine_SkeletonCacheAnimation_setStartListener));

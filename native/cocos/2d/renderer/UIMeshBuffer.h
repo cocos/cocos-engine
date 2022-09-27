@@ -47,7 +47,7 @@ public:
     inline uint16_t* getIData() const { return _iData; }
     void setIData(uint16_t* iData);
 
-    void initialize(gfx::Device* device, ccstd::vector<gfx::Attribute>&& attrs, uint32_t vFloatCount, uint32_t iCount);
+    void initialize(ccstd::vector<gfx::Attribute>&& attrs, bool needCreateLayout = false);
     void reset();
     void destroy();
     void setDirty();
@@ -68,8 +68,6 @@ public:
     void setIndexOffset(uint32_t indexOffset);
     inline bool getDirty() const { return _meshBufferLayout->dirtyMark != 0; }
     void setDirty(bool dirty) const;
-    inline bool getUseLinkData() const { return _useLinkData; }
-    inline void setUseLinkData(bool val) { _useLinkData = val; }
     inline const ccstd::vector<gfx::Attribute>& getAttributes() const {
         return _attributes;
     }
@@ -83,16 +81,18 @@ private:
 
     MeshBufferLayout* _meshBufferLayout{nullptr};
     uint32_t* _sharedBuffer{nullptr};
-    bool _dirty{false};
+
     uint32_t _vertexFormatBytes{0};
     uint32_t _initVDataCount{0};
     uint32_t _initIDataCount{0};
-    ccstd::vector<gfx::Attribute> _attributes;
+    uint32_t _nextFreeIAHandle{0};
 
+    ccstd::vector<gfx::Attribute> _attributes;
     ccstd::vector<gfx::InputAssembler*> _iaPool{};
     gfx::InputAssemblerInfo _iaInfo;
-    uint32_t _nextFreeIAHandle{0};
+
+    bool _dirty{false};
     bool _needDeleteVData{false};
-    bool _useLinkData{false};
+    bool _needDeleteLayout{false};
 };
 } // namespace cc

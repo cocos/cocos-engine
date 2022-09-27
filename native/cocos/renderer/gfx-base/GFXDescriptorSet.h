@@ -55,7 +55,7 @@ public:
     Texture *getTexture(uint32_t binding, uint32_t index) const;
     Sampler *getSampler(uint32_t binding, uint32_t index) const;
 
-    inline DescriptorSetLayout *getLayout() { return _layout; }
+    inline DescriptorSetLayout *getLayout() const { return _layout; }
 
     inline void bindBuffer(uint32_t binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
     inline void bindTexture(uint32_t binding, Texture *texture) { bindTexture(binding, texture, 0U); }

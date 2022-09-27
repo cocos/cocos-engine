@@ -32,7 +32,7 @@
 using uint = std::uint32_t;
 using ushort = std::uint16_t;
 
-#if (CC_PLATFORM != CC_PLATFORM_LINUX && CC_PLATFORM != CC_PLATFORM_QNX) // linux has typedef ulong
+#if (CC_PLATFORM != CC_PLATFORM_LINUX && CC_PLATFORM != CC_PLATFORM_QNX && CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN) // linux has typedef ulong
 using ulong = std::uint32_t;
 #endif
 using FlagBits = std::uint32_t;

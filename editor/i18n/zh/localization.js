@@ -77,11 +77,12 @@ module.exports = {
         skyIllum: '环境光强度',
     },
     skybox: {
-        applyDiffuseMap: '勾选后，场景物体将使用更精确的漫反射图来取代默认的半球光照。',
+        EnvironmentLightingType: '选择三种环境光照类型：手调半球漫反射，无环境反射 / 自动生成半球漫反射，帯环境反射 / 更精确的漫反射图，帯环境反射',
         enabled: '勾选后即可开启天空盒，使用设置的立方体贴图进行渲染',
-        useIBL: '勾选后，场景物体将使用设置的立方体贴图来进行环境光漫反射及镜面反射计算.',
         useHDR: '切换高/低动态范围模式，每种模式都有自己独立的光源设定。\n高动态（HDR）模式会使用光度学灯光单位，配合相机镜头属性进行曝光计算，\n低动态（LDR）模式使用无单位光源和无曝光的镜头，更便于保留原图颜色',
         envmap: '设置一个立方体贴图作为环境光源和天空盒，贴图类型包括十字型 HDR 贴图、经纬度图、手动创建的 CubeMap 等。目前支持 HDR/TGA/PNG 等文件格式。',
+        rotationAngle: '调节天空盒与环境照明绕Y轴旋转的角度.',
+        material: '可使用自定义的天空盒材质，参考skybox.effect.',
     },
     fog: {
         enabled: '雾开关',
@@ -97,19 +98,11 @@ module.exports = {
     },
     shadow: {
         enabled: '是否开启实时阴影',
+        type: '阴影效果类型, 目前包括 ShadowMap（阴影贴图）、Planar（平面阴影）',
+        shadowColor: '平面阴影颜色',
         planeDirection: '阴影接收平面的法线，垂直于阴影，用于调整阴影的倾斜度',
         planeHeight: '阴影接收平面距离原点的高度',
-        saturation: '阴影饱和度，建议设置为 1.0。若需要减小方向光阴影的饱和程度，推荐通过增加环境光来实现，而不是调节该值。',
-        pcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）类型',
-        bias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
-        normalBias: '法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，\n防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
         shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
-        fixedArea: '切换固定区域和 CSM 模式。固定区域是一种旧模式，我们并不推荐使用。勾选该项则开启 CSM 模式，该模式下阴影会跟随方向光节点的位置，在方向光包围盒附近分布，而非跟随相机。',
-        near: '固定区域开始值',
-        far: '固定区域结束值',
-        orthoSize: '固定区域大小，该值越大则阴影精度越低',
-        invisibleOcclusionRange: '如果有背后的潜在投射物阴影丢失，请增大该值（世界空间单位）',
-        shadowDistance: '阴影有效距离（世界空间单位），该值越大则阴影精度越低',
         maxReceived: '产生阴影的有效光源数量',
     },
     animation: {
@@ -159,6 +152,18 @@ module.exports = {
         term: '当前使用的光度学计量单位',
         size: '光源大小',
         range: '光源范围',
+        shadowEnabled: '是否开启实时阴影',
+        shadowPcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）、SOFT_4X（16 倍采样）类型',
+        shadowBias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
+        shadowNormalBias: '法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，\n防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
+        shadowSaturation: '阴影饱和度，建议设置为 1.0。若需要减小方向光阴影的饱和程度，推荐通过增加环境光来实现，而不是调节该值。',
+        shadowDistance: '阴影有效距离（世界空间单位），该值越大则阴影精度越低',
+        shadowInvisibleOcclusionRange: '如果有背后的潜在投射物阴影丢失，请增大该值（世界空间单位）',
+        enableCSM: '开启 CSM 模式',
+        shadowFixedArea: '切换固定区域和 CSM 模式。固定区域是一种旧模式，我们并不推荐使用。勾选该项则开启 CSM 模式，该模式下阴影会跟随方向光节点的位置，在方向光包围盒附近分布，而非跟随相机。',
+        shadowNear: '固定区域开始值',
+        shadowFar: '固定区域结束值',
+        shadowOrthoSize: '固定区域大小，该值越大则阴影精度越低',
     },
     model: {
         shadow_casting_model: '阴影投射方式',
@@ -772,6 +777,10 @@ module.exports = {
             label: "WebGL 2.0",
             description: "包含对 WebGL 2.0 图形 API 的支持。\n当 WebGL 2.0 在目标平台上不可用时会自动回退至 WebGL 1.0。",
         },
+        gfx_webgpu: {
+            label: "WebGPU",
+            description: "包含对 WebGPU 图形 API 的支持。",
+        },
         ui: {
             label: "用户界面",
             description: "用户界面支持。",
@@ -911,9 +920,9 @@ module.exports = {
         color: '渲染颜色，一般情况下会和贴图颜色相乘',
     },
     ui_transform: {
-        content_size:'内容尺寸',
-        anchor_point:'锚点位置',
-        priority:'渲染排序优先级',
+        content_size: '内容尺寸',
+        anchor_point: '锚点位置',
+        priority: '渲染排序优先级',
     },
     graphics: {
         lineWidth: '线条宽度',
@@ -962,7 +971,7 @@ module.exports = {
             simplex_vertex2: '形状的顶点 2',
             simplex_vertex3: '形状的顶点 3',
         },
-        constant_force:{
+        constant_force: {
             force: '在世界坐标系中，对刚体施加的力',
             localForce: '在本地坐标系中，对刚体施加的力',
             torque: '在世界坐标系中，对刚体施加的扭转力',

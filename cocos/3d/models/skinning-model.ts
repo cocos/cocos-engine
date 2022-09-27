@@ -40,6 +40,7 @@ import { IMacroPatch, BatchingSchemes, Pass } from '../../core/renderer';
 import { warnID } from '../../core/platform/debug';
 import { ImageAsset, Texture2D, director } from '../../core';
 import { PixelFormat } from '../../core/assets/asset-enum';
+import { SubModel } from '../../core/renderer/scene';
 
 const uniformPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -263,12 +264,13 @@ export class SkinningModel extends MorphModel {
         }
     }
 
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
+        const pass = subModel.passes[0];
         if (pass.batchingScheme !== BatchingSchemes.NONE) {
             // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
             warnID(3936, this.node.getPathInHierarchy());
         }
-        super._updateInstancedAttributes(attributes, pass);
+        super._updateInstancedAttributes(attributes, subModel);
     }
 
     private _ensureEnoughBuffers (count: number) {

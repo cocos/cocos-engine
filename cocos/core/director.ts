@@ -433,10 +433,6 @@ export class Director extends EventTarget {
         assertID(scene, 1205);
         assertID(scene instanceof Scene, 1216);
 
-        // ensure scene initialized
-        // @ts-expect-error run private method
-        scene._load();
-
         // Delay run / replace scene to the end of the frame
         this.once(Director.EVENT_END_FRAME, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
