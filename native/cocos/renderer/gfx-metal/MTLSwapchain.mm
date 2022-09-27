@@ -110,15 +110,12 @@ void CCMTLSwapchain::doInit(const SwapchainInfo& info) {
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
     textureInfo.format = colorFmt;
-    textureInfo.width = info.width * SWAPCHAIN_SCALE_RATIO;
-    textureInfo.height = info.height * SWAPCHAIN_SCALE_RATIO;
+    textureInfo.width = info.width;
+    textureInfo.height = info.height;
     
-    for (size_t i = 0; i < DRAWABLE_COUNT; ++i) {
-        _gpuSwapchainObj->colors[i] = ccnew CCMTLTexture();
-        initTexture(textureInfo, _gpuSwapchainObj->colors[i]);
-    }
-    _colorTexture = _gpuSwapchainObj->colors[0];
-    
+    _colorTexture = ccnew CCMTLTexture();
+    initTexture(textureInfo, _colorTexture);
+
     textureInfo.format = depthStencilFmt;
     _depthStencilTexture = ccnew CCMTLTexture;
     initTexture(textureInfo, _depthStencilTexture);
@@ -130,14 +127,10 @@ void CCMTLSwapchain::doDestroy() {
     CCMTLDevice::getInstance()->unRegisterSwapchain(this);
     if (_gpuSwapchainObj) {
         _gpuSwapchainObj->mtlLayer = nil;
-        for(size_t i = 0; i < DRAWABLE_COUNT; ++i) {
-            CC_SAFE_DESTROY_NULL(_gpuSwapchainObj->colors[i]);
-        };
-
         CC_SAFE_DELETE(_gpuSwapchainObj);
     }
     
-    _colorTexture = nullptr;
+    CC_SAFE_DESTROY_NULL(_colorTexture);
     CC_SAFE_DESTROY_NULL(_depthStencilTexture);
 }
 
@@ -148,12 +141,11 @@ void CCMTLSwapchain::doDestroySurface() {
 }
 
 void CCMTLSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
-    _colorTexture->resize(width * SWAPCHAIN_SCALE_RATIO, height * SWAPCHAIN_SCALE_RATIO);
-    _depthStencilTexture->resize(width * SWAPCHAIN_SCALE_RATIO, height * SWAPCHAIN_SCALE_RATIO);
+    _colorTexture->resize(width, height);
+    _depthStencilTexture->resize(width, height);
 }
 
 CCMTLTexture* CCMTLSwapchain::colorTexture() {
-    _colorTexture = _gpuSwapchainObj->colors[_gpuSwapchainObj->currentFrameIndex];
     return static_cast<CCMTLTexture*>(_colorTexture.get());
 }
 
@@ -169,7 +161,6 @@ void CCMTLSwapchain::release() {
 }
 
 void CCMTLSwapchain::acquire() {
-    _gpuSwapchainObj->currentFrameIndex = _gpuSwapchainObj->currentFrameIndex++ % DRAWABLE_COUNT;
 }
 
 void CCMTLSwapchain::doCreateSurface(void* windowHandle) {

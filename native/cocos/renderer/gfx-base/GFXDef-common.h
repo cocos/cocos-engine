@@ -109,6 +109,21 @@ using DescriptorSetLayoutList = ccstd::vector<DescriptorSetLayout *>;
 // make sure you have FILLED GRAPHs before enable this!
 static constexpr bool ENABLE_GRAPH_AUTO_BARRIER{false};
 
+#ifdef ENABLE_FSR
+    // FSR scaling ratio
+    #ifndef RESOLUTION_SCALE_RATIO
+        constexpr float FSR_SCALE_RATIO = 0.5F;
+    #else
+        constexpr float FSR_SCALE_RATIO = RESOLUTION_SCALE_RATIO;
+    #endif
+    constexpr bool FSR_ENABLED = true;
+#else
+    constexpr float FSR_SCALE_RATIO = 1.0F;
+    constexpr bool FSR_ENABLED = false;
+#endif
+static_assert(FSR_SCALE_RATIO > 0.49999F && FSR_SCALE_RATIO < 1.00001F, "Resolution scale out of range!");
+
+
 /**
  * @en Graphics object type
  * @zh 图形API对象的类型
@@ -1325,11 +1340,22 @@ struct ALIGNAS(8) SubpassDependency {
 
 using SubpassDependencyList = ccstd::vector<SubpassDependency>;
 
+struct FSRInfo {
+    bool enabled{false};
+    float ratio{FSR_SCALE_RATIO};
+};
+
+struct TAAInfo {
+    // TODO
+};
+
 struct RenderPassInfo {
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
+    TAAInfo taaInfo;
+    FSRInfo fsrInfo;
 
     EXPOSE_COPY_FN(RenderPassInfo)
 };

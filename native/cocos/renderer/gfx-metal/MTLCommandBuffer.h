@@ -100,11 +100,15 @@ protected:
 
     ccstd::vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets; // NOLINT(bugprone-reserved-identifier)
     ccstd::vector<ccstd::vector<uint32_t>> _dynamicOffsets;
+    ccstd::vector<Texture*> _fboTextures;
+    ccstd::unordered_map<uint32_t, std::pair<void*, void*>> _fsrAttachmentmap;
+    
+    Rect _renderArea;
     uint32_t _firstDirtyDescriptorSet = UINT_MAX;
-
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     bool _firstRenderPass = true;
+    bool _fsrEnabled = false;
     CCMTLDevice *_mtlDevice = nullptr;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
     CCMTLRenderCommandEncoder _renderEncoder;

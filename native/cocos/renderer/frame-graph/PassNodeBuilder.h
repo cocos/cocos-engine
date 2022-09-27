@@ -56,6 +56,7 @@ public:
     inline void setViewport(const gfx::Rect &scissor) noexcept;
     inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
     inline void setBarrier(const PassBarrierPair &barrier);
+    inline void enableFSR(bool en = true, float ratio = 0.5F);
 
     void writeToBlackboard(const StringHandle &name, const Handle &handle) const noexcept;
     Handle readFromBlackboard(const StringHandle &name) const noexcept;
@@ -98,6 +99,10 @@ void PassNodeBuilder::setViewport(const gfx::Viewport &viewport, const gfx::Rect
 
 void PassNodeBuilder::setBarrier(const PassBarrierPair &barrier) {
     _passNode.setBarrier(barrier);
+}
+
+void PassNodeBuilder::enableFSR(bool en, float ratio) {
+    _passNode.enableFSR(en, ratio);
 }
 
 } // namespace framegraph

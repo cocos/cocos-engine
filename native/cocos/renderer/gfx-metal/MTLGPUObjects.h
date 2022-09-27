@@ -295,9 +295,6 @@ protected:
 
 struct CCMTLGPUSwapChainObject {
     CAMetalLayer *mtlLayer = nullptr;
-    std::array<Texture*, DRAWABLE_COUNT> colors{nullptr, nullptr, nullptr};
-    Texture* depthStencil = nullptr;
-    uint32_t currentFrameIndex = 0;
 };
 
 struct CCMTLGPUQueueObject {

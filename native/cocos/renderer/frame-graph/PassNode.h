@@ -56,6 +56,7 @@ public:
     inline void sideEffect();
     inline void subpass(bool end, bool clearActionIgnorable);
     inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor);
+    inline void enableFSR(bool en = true, float ratio = 0.5F);
     inline const PassBarrierPair &getBarriers() const;
 
 private:
@@ -87,11 +88,11 @@ private:
     bool _subpassEnd{false};
     bool _hasClearedAttachment{false};
     bool _clearActionIgnorable{false};
-
     bool _customViewport{false};
     gfx::Viewport _viewport;
     gfx::Rect _scissor;
-
+    gfx::FSRInfo _fsrInfo;
+    
     PassBarrierPair _barriers;
 
     friend class FrameGraph;
@@ -119,6 +120,10 @@ void PassNode::setViewport(const gfx::Viewport &viewport, const gfx::Rect &sciss
     _customViewport = true;
     _viewport = viewport;
     _scissor = scissor;
+}
+void PassNode::enableFSR(bool en, float ratio) {
+    _fsrInfo.enabled = en;
+    _fsrInfo.ratio = ratio;
 }
 
 } // namespace framegraph

@@ -46,6 +46,10 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         append(graph, passNode, &attachments);
         _barriers.push_back(std::cref(passNode->getBarriers()));
         _subpasses.back().barrierID = index++;
+        if(passNode->_fsrInfo.enabled) {
+            // use the first one if more than one info has set.
+            _fsrInfo = passNode->_fsrInfo;
+        }
     }
 
     auto *device = gfx::Device::getInstance();
@@ -407,6 +411,8 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     for (auto &subpass : _subpasses) {
         rpInfo.subpasses.emplace_back(subpass.desc);
     }
+    
+    rpInfo.fsrInfo = _fsrInfo;
 
     passDependency(rpInfo);
 

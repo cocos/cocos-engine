@@ -100,6 +100,11 @@ ccstd::hash_t Hasher<RenderPassInfo>::operator()(const RenderPassInfo &info) con
     ccstd::hash_combine(seed, info.depthStencilAttachment);
     ccstd::hash_combine(seed, info.subpasses);
     ccstd::hash_combine(seed, info.dependencies);
+    ccstd::hash_combine(seed, info.fsrInfo.enabled);
+    if(info.fsrInfo.enabled) {
+        ccstd::hash_combine(seed, info.fsrInfo.ratio);
+    }
+//    ccstd::hash_combine(seed, info.taaInfo.)
     return seed;
 }
 

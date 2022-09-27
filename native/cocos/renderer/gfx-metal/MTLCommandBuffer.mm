@@ -43,6 +43,11 @@
 #import "profiler/Profiler.h"
 #import "base/Log.h"
 #import "cocos/profiler/DebugRenderer.h"
+#if defined(ENABLE_FSR) || defined(ENABLE_TAA)
+    #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 160000
+        #import <MetalFX/MTLFXSpatialScaler.h>
+    #endif
+#endif
 
 namespace cc {
 namespace gfx {
@@ -145,27 +150,66 @@ void CCMTLCommandBuffer::end() {
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
-    
     // Sub CommandBuffer shouldn't call begin render pass
     if (_gpuCommandBufferObj->isSecondary) {
         return;
     }
-
+    // if not rendering to full framebuffer(eg. left top area), draw a quad to pretend viewport clear.
+    bool renderingFullFramebuffer = isRenderingEntireDrawable(renderArea, static_cast<CCMTLFramebuffer *>(fbo));
+    const auto& fsrInfo = renderPass->getFSRInfo();
+    _fboTextures = fbo->getColorTextures();
+    Texture *dsTexture = fbo->getDepthStencilTexture();
+    const SubpassInfoList &subpasses = renderPass->getSubpasses();
+    auto device = static_cast<id<MTLDevice>>(_mtlDevice->getMTLDevice());
+    
+    TextureList &colorTextures = _fboTextures;
+    _renderArea = renderArea;
+    Rect scissorArea = renderArea;
+#ifdef ENABLE_FSR
+    _fsrEnabled = fsrInfo.enabled && renderingFullFramebuffer;
+    if(_fsrEnabled) {
+        for(size_t i = 0; i < colorTextures.size(); ++i) {
+            auto format = colorTextures[i]->getFormat();
+            if(format == Format::DEPTH || format == Format::DEPTH_STENCIL) {
+                // skip depthstencil, Metal allow attachment size differs
+                continue;
+            }
+            for(size_t j = 0; j < subpasses.size(); ++j) {
+                const auto& subpass = subpasses[j];
+                auto iter = std::find_if(subpass.colors.begin(), subpass.colors.end(), [i](uint32_t attachmentIdx){ return attachmentIdx == i;});
+                // ok this texture is one of the final render outputs.
+                if(iter != subpass.colors.end()) {
+                    const auto& textureInfo = colorTextures[(*iter)]->getInfo();
+                    TextureInfo info{textureInfo};
+                    info.width = info.width * fsrInfo.ratio;
+                    info.height = info.height * fsrInfo.ratio;
+                    auto* fsrTexture = CCMTLDevice::getInstance()->createTexture(info);
+                    _fsrAttachmentmap.emplace(i, std::make_pair<void*, void*>(fsrTexture, colorTextures[(*iter)]));
+                    // replace raw texture by fsrTexture
+                    colorTextures[i] = fsrTexture;
+                    break;
+                }
+            }
+        }
+    }
+    
+    if(fsrInfo.enabled) {
+        scissorArea.x *= fsrInfo.ratio;
+        scissorArea.y *= fsrInfo.ratio;
+        scissorArea.width *= fsrInfo.ratio;
+        scissorArea.height *= fsrInfo.ratio;
+    }
+#endif
     _gpuCommandBufferObj->renderPass = static_cast<CCMTLRenderPass *>(renderPass);
     _gpuCommandBufferObj->fbo = static_cast<CCMTLFramebuffer *>(fbo);
 
     auto *ccMtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     auto isOffscreen = _gpuCommandBufferObj->fbo->isOffscreen();
-    const SubpassInfoList &subpasses = renderPass->getSubpasses();
     const ColorAttachmentList &colorAttachments = renderPass->getColorAttachments();
 
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
-    const TextureList &colorTextures = fbo->getColorTextures();
-    Texture *dsTexture = fbo->getDepthStencilTexture();
     auto *swapchain = static_cast<CCMTLSwapchain *>(_gpuCommandBufferObj->fbo->swapChain());
 
-    // if not rendering to full framebuffer(eg. left top area), draw a quad to pretend viewport clear.
-    bool renderingFullFramebuffer = isRenderingEntireDrawable(renderArea, static_cast<CCMTLFramebuffer *>(fbo));
     bool needPartialClear = false;
     if (subpasses.empty()) {
         if (dsTexture) {
@@ -282,18 +326,12 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         _renderEncoder.initialize(mtlCommandBuffer, mtlRenderPassDescriptor);
         //[_renderEncoder.getMTLEncoder() memoryBarrierWithScope:MTLBarrierScopeTextures afterStages:MTLRenderStageFragment beforeStages:MTLRenderStageFragment];
     }
-
+    
     if (!renderingFullFramebuffer && needPartialClear) {
         //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
-        mu::clearRenderArea(_mtlDevice, _renderEncoder.getMTLEncoder(), renderPass, renderArea, colors, depth, stencil);
+        mu::clearRenderArea(_mtlDevice, _renderEncoder.getMTLEncoder(), renderPass, scissorArea, colors, depth, stencil);
     }
 
-    Rect scissorArea = renderArea;
-#if defined(CC_DEBUG) && (CC_DEBUG > 0)
-    const Vec2 renderTargetSize = ccMtlRenderPass->getRenderTargetSizes()[0];
-    scissorArea.width = MIN(scissorArea.width, renderTargetSize.x - scissorArea.x);
-    scissorArea.height = MIN(scissorArea.height, renderTargetSize.y - scissorArea.y);
-#endif
     _renderEncoder.setViewport(scissorArea);
     _renderEncoder.setScissor(scissorArea);
 
@@ -310,6 +348,87 @@ void CCMTLCommandBuffer::endRenderPass() {
     } else {
         _renderEncoder.endEncoding();
     }
+    
+#ifdef ENABLE_FSR
+    const auto& fsrInfo = _gpuCommandBufferObj->renderPass->getFSRInfo();
+    if(@available(macOS 13.0, iOS 16.0, *)) {
+        auto device = static_cast<id<MTLDevice>>(_mtlDevice->getMTLDevice());
+        bool supportSpatialScaling = mu::supportMetalFX(device);
+        if(supportSpatialScaling && _fsrEnabled) {
+            struct Dimension {
+                uint32_t srcWidth{0};
+                uint32_t srcHeight{0};
+                uint32_t dstWidth{0};
+                uint32_t dstHeight{0};
+            };
+            ccstd::queue<std::pair<id<MTLTexture>, id<MTLTexture>>> blitQ;
+            for(auto pair : _fsrAttachmentmap) {
+                auto index = pair.first;
+                if(_gpuCommandBufferObj->renderPass->getColorAttachments()[index].storeOp != StoreOp::STORE) {
+                    continue;
+                }
+                auto* ccSrcTex = static_cast<CCMTLTexture*>(pair.second.first);
+                auto* ccDstTex = static_cast<CCMTLTexture*>(pair.second.second);
+                auto srcTex = ccSrcTex->getMTLTexture();
+                auto dstTex = ccDstTex->getMTLTexture();
+                
+                Dimension key{ccSrcTex->getWidth(), ccSrcTex->getHeight(), ccDstTex->getWidth(), ccDstTex->getHeight()};
+                
+                auto scalerDesc = [MTLFXSpatialScalerDescriptor new];
+                [scalerDesc setInputWidth:key.srcWidth];
+                [scalerDesc setInputHeight:key.srcHeight];
+                [scalerDesc setColorTextureFormat:mu::toMTLPixelFormat(ccSrcTex->getFormat())];
+                [scalerDesc setOutputTextureFormat:mu::toMTLPixelFormat(ccDstTex->getFormat())];
+                [scalerDesc setOutputWidth:key.dstWidth];
+                [scalerDesc setOutputHeight:key.dstHeight];
+                [scalerDesc setColorProcessingMode:MTLFXSpatialScalerColorProcessingModeLinear];
+                auto scaler = [scalerDesc newSpatialScalerWithDevice:device];
+                [scalerDesc release];
+                
+                auto scalerOuput = dstTex;
+                if([dstTex storageMode] != MTLStorageModePrivate) {
+                    auto outputTexDesc = [MTLTextureDescriptor new];
+                    outputTexDesc.width = key.dstWidth;
+                    outputTexDesc.height = key.dstHeight;
+                    outputTexDesc.pixelFormat = mu::toMTLPixelFormat(ccDstTex->getFormat());
+                    outputTexDesc.usage = MTLTextureUsageRenderTarget;
+                    outputTexDesc.storageMode = MTLStorageModePrivate;
+                    scalerOuput = [device newTextureWithDescriptor:outputTexDesc];
+                    [outputTexDesc release];
+                }
+                [scaler setInputContentWidth:key.srcWidth];
+                [scaler setInputContentHeight:key.srcHeight];
+                [scaler setColorTexture:srcTex];
+                [scaler setOutputTexture:scalerOuput];
+                [scaler encodeToCommandBuffer:_gpuCommandBufferObj->mtlCommandBuffer];
+                [scaler release];
+                blitQ.push(std::make_pair(scalerOuput, dstTex));
+            }
+            
+            // batch copy
+            if(!blitQ.empty()) {
+                id<MTLBlitCommandEncoder> encoder = [_gpuCommandBufferObj->mtlCommandBuffer blitCommandEncoder];
+                while(!blitQ.empty()) {
+                    auto src = blitQ.front().first;
+                    auto dst = blitQ.front().second;
+                    [encoder copyFromTexture:src toTexture:dst];
+                    if([src storageMode] != MTLStorageModePrivate) {
+                        [src release];
+                    }
+                    blitQ.pop();
+                }
+                [encoder endEncoding];
+            }
+            
+            for(auto pair : _fsrAttachmentmap) {
+                auto* ccSrcTex = static_cast<CCMTLTexture*>(pair.second.first);
+                ccSrcTex->destroy();
+                delete ccSrcTex;
+            }
+            _fsrAttachmentmap.clear();
+        }
+    }
+#endif
     _gpuCommandBufferObj->renderPass->reset();
 }
 
@@ -533,7 +652,7 @@ void CCMTLCommandBuffer::nextSubpass() {
             }
             updateDepthStencilState(curSubpassIndex, mtlRenderPassDescriptor);
             _renderEncoder.initialize(getMTLCommandBuffer(), ccRenderpass->getMTLRenderPassDescriptor());
-            const TextureList &colorTextures = _gpuCommandBufferObj->fbo->getColorTextures();
+            const TextureList &colorTextures = _fboTextures;
             if (!subpasses.empty()) {
                 const auto &inputs = subpasses[curSubpassIndex].inputs;
                 for (size_t i = 0; i < inputs.size(); i++) {

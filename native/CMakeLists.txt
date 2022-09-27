@@ -9,7 +9,7 @@ set(ENGINE_NAME cocos_engine)
 option(ENABLE_FSR ON)
 option(ENABLE_TAA ON)
 
-add_definitions(-DENABLE_FSR -DENABLE_TAA)
+# add_definitions(-DENABLE_FSR -DENABLE_TAA)
 
 # Should be enable someday in the future
 # set(CMAKE_CXX_FLAGS "${WERROR_FLAGS}")

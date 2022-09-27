@@ -914,7 +914,7 @@ bool mu::isImageBlockSupported() {
     if (!mu::isFramebufferFetchSupported()) {
         return false;
     }
-#if (CC_PLATFORM == CC_PLATFORM_IOS) //|| TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_IOS) || TARGET_CPU_ARM64
     return true;
 #else
     return false;
@@ -922,7 +922,7 @@ bool mu::isImageBlockSupported() {
 }
 
 bool mu::isFramebufferFetchSupported() {
-#if (CC_PLATFORM == CC_PLATFORM_IOS) //|| TARGET_CPU_ARM64
+#if (CC_PLATFORM == CC_PLATFORM_IOS) || TARGET_CPU_ARM64
     return true;
 #else
     return false;

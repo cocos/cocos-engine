@@ -45,6 +45,7 @@ public:
     inline const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
     inline const SubpassInfoList &getSubpasses() const { return _subpasses; }
     inline const SubpassDependencyList &getDependencies() const { return _dependencies; }
+    inline const FSRInfo &getFSRInfo() const { return _fsrInfo; }
     inline ccstd::hash_t getHash() const { return _hash; }
 
 protected:
@@ -58,6 +59,8 @@ protected:
     SubpassInfoList _subpasses;
     SubpassDependencyList _dependencies;
     ccstd::hash_t _hash = 0;
+    FSRInfo _fsrInfo;
+    TAAInfo _taaInfo;
 };
 
 } // namespace gfx
