@@ -1,12 +1,12 @@
-import { Pool } from './memop';
-import { warnID } from './platform/debug';
-import legacyCC from '../../predefine';
-import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
-import { Device, deviceManager } from '../gfx';
-import { DebugView } from '../rendering/debug-view';
-import { buildDeferredLayout, buildForwardLayout } from '../rendering/custom/effect';
-import { settings, Settings } from './settings';
-import { ForwardPipeline } from '../rendering';
+import { Pool } from './core/memop';
+import { warnID } from './core/platform/debug';
+import legacyCC from '../predefine';
+import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
+import { Device, deviceManager } from './gfx';
+import { DebugView } from './rendering/debug-view';
+import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
+import { settings, Settings } from './core/settings';
+import { ForwardPipeline } from './rendering';
 
 declare const nr: any;
 declare const jsb: any;

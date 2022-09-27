@@ -31,7 +31,7 @@ import { BitmapFont } from '../../2d/assets';
 import { director } from '../../game/director';
 import { game } from '../../game';
 import { Mat4, Vec3 } from '../../core/math';
-import { view } from '../../core/platform';
+import { view } from '../view';
 import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';

@@ -28,7 +28,7 @@ import { EDITOR, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../scene-graph/component';
-import { view } from '../core/platform/view';
+import { view } from './view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
