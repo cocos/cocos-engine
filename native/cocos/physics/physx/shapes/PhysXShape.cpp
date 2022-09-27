@@ -137,7 +137,6 @@ void PhysXShape::updateCenter() {
     node->updateWorldTransform();
     physx::PxTransform local{_mCenter * node->getWorldScale(), _mRotation};
     getShape().setLocalPose(local);
-    if (_mEnabled && !isTrigger()) sb.updateCenterOfMass();
 }
 
 void PhysXShape::insertToShapeMap() {

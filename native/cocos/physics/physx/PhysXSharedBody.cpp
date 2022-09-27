@@ -197,16 +197,6 @@ void PhysXSharedBody::initDynamicActor() {
     }
 }
 
-void PhysXSharedBody::updateCenterOfMass() {
-    initActor();
-    if (isStatic()) return;
-    PxTransform com{PxIdentity};
-    for (auto const &ws : _mWrappedShapes) {
-        if (!ws->isTrigger()) com.p -= ws->getCenter();
-    }
-    _mDynamicActor->setCMassLocalPose(com);
-}
-
 void PhysXSharedBody::syncScale() {
     for (auto const &sb : _mWrappedShapes) {
         sb->updateScale();
@@ -281,7 +271,6 @@ void PhysXSharedBody::addShape(const PhysXShape &shape) {
         getImpl().rigidActor->attachShape(shape.getShape());
         _mWrappedShapes.push_back(&const_cast<PhysXShape &>(shape));
         if (!shape.isTrigger()) {
-            if (!const_cast<PhysXShape &>(shape).getCenter().isZero()) updateCenterOfMass();
             if (isDynamic()) PxRigidBodyExt::setMassAndUpdateInertia(*getImpl().rigidDynamic, _mMass);
         }
     }
@@ -295,7 +284,6 @@ void PhysXSharedBody::removeShape(const PhysXShape &shape) {
         _mWrappedShapes.erase(iter);
         getImpl().rigidActor->detachShape(shape.getShape(), true);
         if (!const_cast<PhysXShape &>(shape).isTrigger()) {
-            if (!const_cast<PhysXShape &>(shape).getCenter().isZero()) updateCenterOfMass();
             if (isDynamic()) PxRigidBodyExt::setMassAndUpdateInertia(*getImpl().rigidDynamic, _mMass);
         }
     }

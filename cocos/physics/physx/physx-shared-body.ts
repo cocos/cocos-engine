@@ -211,7 +211,6 @@ export class PhysXSharedBody {
             this.impl.attachShape(ws.impl);
             this.wrappedShapes.push(ws);
             if (!ws.collider.isTrigger) {
-                if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
                 if (this.isDynamic) setMassAndUpdateInertia(this.impl, this._wrappedBody!.rigidBody.mass);
             }
         }
@@ -224,7 +223,6 @@ export class PhysXSharedBody {
             this.impl.detachShape(ws.impl, true);
             fastRemoveAt(this.wrappedShapes, index);
             if (!ws.collider.isTrigger) {
-                if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
                 if (this.isDynamic) setMassAndUpdateInertia(this.impl, this._wrappedBody!.rigidBody.mass);
             }
         }
@@ -386,18 +384,6 @@ export class PhysXSharedBody {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
             this.wrappedShapes[i].updateFilterData(this._filterData);
         }
-    }
-
-    updateCenterOfMass (): void {
-        this._initActor();
-        if (this._isStatic) return;
-        const center = VEC3_0;
-        center.set(0, 0, 0);
-        for (let i = 0; i < this.wrappedShapes.length; i++) {
-            const collider = this.wrappedShapes[i].collider;
-            if (!collider.isTrigger) center.subtract(collider.center);
-        }
-        this.impl.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
     }
 
     clearForces (): void {
