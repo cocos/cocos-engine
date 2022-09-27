@@ -77,12 +77,12 @@ module.exports = {
         skyIllum: '环境光强度',
     },
     skybox: {
-        envLightingType: '选择三种环境光照类型：手调半球漫反射，无环境反射 / 自动生成半球漫反射，帯环境反射 / 更精确的漫反射图，帯环境反射',
+        EnvironmentLightingType: '选择三种环境光照类型：手调半球漫反射，无环境反射 / 自动生成半球漫反射，帯环境反射 / 更精确的漫反射图，帯环境反射',
         enabled: '勾选后即可开启天空盒，使用设置的立方体贴图进行渲染',
         useHDR: '切换高/低动态范围模式，每种模式都有自己独立的光源设定。\n高动态（HDR）模式会使用光度学灯光单位，配合相机镜头属性进行曝光计算，\n低动态（LDR）模式使用无单位光源和无曝光的镜头，更便于保留原图颜色',
         envmap: '设置一个立方体贴图作为环境光源和天空盒，贴图类型包括十字型 HDR 贴图、经纬度图、手动创建的 CubeMap 等。目前支持 HDR/TGA/PNG 等文件格式。',
         rotationAngle: '调节天空盒与环境照明绕Y轴旋转的角度.',
-        skyBoxMaterial: '可使用自定义的天空盒材质，参考skybox.effect.',
+        material: '可使用自定义的天空盒材质，参考skybox.effect.',
     },
     fog: {
         enabled: '雾开关',

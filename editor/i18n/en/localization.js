@@ -77,12 +77,12 @@ module.exports = {
         skyIllum: 'Ambient lighting intensity.',
     },
     skybox: {
-        envLightingType: 'Choose environment lighting types: Custom hemisphere diffuse, no reflections / Autogen hemisphere diffuse, with reflections / More accuracy diffuse map, with reflections.',
+        EnvironmentLightingType: 'Choose environment lighting types: Custom hemisphere diffuse, no reflections / Autogen hemisphere diffuse, with reflections / More accuracy diffuse map, with reflections.',
         enabled: 'Enable or disable skybox rendering with Envmap cube texture settings.',
         useHDR: 'Toggle HDR or LDR mode. Each mode has seperate light source settings, HDR mode uses physical luminosity unit with camera exposure attributes, and LDR mode uses none-unit without exposure calculations.',
         envmap: 'Set skybox texture and environment light source. Support cross / longitude and latitude / 6-separated cube textures. Support hdr / tga / png file type.',
         rotationAngle: 'Adjust Y-axis rotation for skybox and sky lighting.',
-        skyBoxMaterial: 'Set custom skybox material, see skybox.effect.',
+        material: 'Set custom skybox material, see skybox.effect.',
     },
     fog: {
         enabled: 'Enable or disable global fog effect.',
