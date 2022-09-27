@@ -292,6 +292,9 @@ public:
     scene::RenderWindow *createRenderWindowFromSystemWindow(uint32_t windowId);
     scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
 
+    const ccstd::vector<scene::Camera *> &getCameraList() const {
+        return _cameraList;
+    }
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);

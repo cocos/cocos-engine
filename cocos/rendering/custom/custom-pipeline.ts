@@ -12,7 +12,7 @@ export const BLOOM_PREFILTERPASS_INDEX = 0;
 export const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
 export const BLOOM_UPSAMPLEPASS_INDEX = BLOOM_DOWNSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 export const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
-export class CustomPipelineBuilder extends PipelineBuilder {
+export class CustomPipelineBuilder implements PipelineBuilder {
     protected declare _bloomMaterial: Material;
     protected declare _postMaterial: Material;
     private _threshold = 0.1;

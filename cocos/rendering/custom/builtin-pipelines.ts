@@ -7,7 +7,7 @@ import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterVi
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { AntiAliasing, buildShadowPasses, getCameraUniqueID, getLoadOpOfClearFlag, validPunctualLightsCulling } from './define';
 
-export class ForwardPipelineBuilder extends PipelineBuilder {
+export class ForwardPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: Pipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
@@ -99,7 +99,7 @@ class DeferredData {
     _antiAliasing: AntiAliasing = AntiAliasing.NONE;
 }
 
-export class DeferredPipelineBuilder extends PipelineBuilder {
+export class DeferredPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: Pipeline): void {
         for (let i = 0; i < cameras.length; ++i) {
             const camera = cameras[i];

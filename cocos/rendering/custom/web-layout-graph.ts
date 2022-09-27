@@ -185,12 +185,11 @@ class PrintVisitor extends DefaultVisitor {
 }
 
 @ccclass('cc.WebLayoutGraphBuilder')
-export class WebLayoutGraphBuilder extends LayoutGraphBuilder  {
+export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
     private _data: LayoutGraphData;
     private _device: Device | null;
 
     constructor (deviceIn: Device | null, dataIn: LayoutGraphData) {
-        super();
         this._device = deviceIn;
         this._data = dataIn;
     }

@@ -427,7 +427,7 @@ void Root::frameMoveEnd() {
             }
         }
     #endif
-
+        _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_RENDER, this);
         _pipelineRuntime->render(_cameraList);
 #endif
         _device->present();
