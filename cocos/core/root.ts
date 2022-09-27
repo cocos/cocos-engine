@@ -342,7 +342,7 @@ export class Root {
      * @param width The new width of the window.
      * @param height The new height of the window.
      */
-    public resize (width: number, height: number) {
+    public resize (windowId: number, width: number, height: number) {
         for (const window of this._windows) {
             if (window.swapchain) {
                 window.resize(width, height);
