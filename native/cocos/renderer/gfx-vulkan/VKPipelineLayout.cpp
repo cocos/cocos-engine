@@ -57,10 +57,11 @@ void CCVKPipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
 }
 
 void CCVKPipelineLayout::doDestroy() {
-    if (_gpuPipelineLayout) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuPipelineLayout);
-        _gpuPipelineLayout = nullptr;
-    }
+    _gpuPipelineLayout = nullptr;
+}
+
+void CCVKGPUPipelineLayout::shutdown() {
+    cmdFuncCCVKDestroyPipelineLayout(CCVKDevice::getInstance()->gpuDevice(), this);
 }
 
 } // namespace gfx
