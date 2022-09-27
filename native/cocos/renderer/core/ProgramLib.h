@@ -80,11 +80,40 @@ const char *getDeviceShaderVersion(const gfx::Device *device);
 struct ShaderSource {
     gfx::ShaderStage vert{gfx::ShaderStageFlagBit::VERTEX};
     gfx::ShaderStage frag{gfx::ShaderStageFlagBit::FRAGMENT};
+    gfx::ShaderStage comp{gfx::ShaderStageFlagBit::COMPUTE};
+
+    const gfx::ShaderStage &getStage(gfx::ShaderStageFlagBit stage) const {
+        switch (stage) {
+            case gfx::ShaderStageFlagBit::VERTEX:
+                return vert;
+            case gfx::ShaderStageFlagBit::FRAGMENT:
+                return frag;
+            case gfx::ShaderStageFlagBit::COMPUTE:
+                return comp;
+            default:
+                CC_ASSERT(false);
+                return vert;
+        }
+    }
+
+    gfx::ShaderStage &getStage(gfx::ShaderStageFlagBit stage) {
+        switch (stage) {
+            case gfx::ShaderStageFlagBit::VERTEX:
+                return vert;
+            case gfx::ShaderStageFlagBit::FRAGMENT:
+                return frag;
+            case gfx::ShaderStageFlagBit::COMPUTE:
+                return comp;
+            default:
+                CC_ASSERT(false);
+                return vert;
+        }
+    }
 };
 
 class ShaderCollection : public RefCounted {
 public:
-    ShaderCollection(IShaderInfo shaderInfo);
+    explicit ShaderCollection(const IShaderInfo &shaderInfo);
 
     ~ShaderCollection();
 
@@ -101,9 +130,6 @@ public:
     void destroyShaderByDefines(const Record<ccstd::string, MacroValue> &defines);
 
 private:
-    ShaderSource _getShaderSource(const ccstd::vector<IMacroInfo> &macros);
-    // ccstd::hash_t _computeMacrosHash(const ccstd::vector<IMacroInfo> &macros) const;
-
     IProgramInfo _shaderInfo;
     ITemplateInfo _templateInfo;
 
@@ -138,7 +164,6 @@ public:
      * @zh 通过名字获取 Shader 模板
      * @param name Target shader name
      */
-
     IProgramInfo *getTemplate(const ccstd::string &name);
 
     /**
@@ -146,7 +171,6 @@ public:
      * @zh 通过名字获取 Shader 模版信息
      * @param name Target shader name
      */
-
     ITemplateInfo *getTemplateInfo(const ccstd::string &name);
 
     /**
@@ -180,7 +204,6 @@ public:
      * @zh 销毁所有完全满足指定预处理宏特征的 shader 实例。
      * @param defines The preprocess macros as filter
      */
-
     void destroyShaderByDefines(const MacroRecord &defines);
 
     /**

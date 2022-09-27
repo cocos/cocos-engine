@@ -34,6 +34,7 @@ import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
+import { gfx } from '../../../typedoc-index';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -142,12 +143,36 @@ export declare namespace EffectAsset {
         samplerTextures: IBuiltin[];
         images: IBuiltin[];
     }
+
+    export interface IShaderSourceCode
+    {
+        glsl1: string;
+        glsl3: string;
+        glsl4: string;
+    }
+
+    export interface IShaderSourceCollection {
+        glsl1: string;
+        glsl3: string;
+        glsl4: string;
+        spv: string;
+        msl: string;
+        hlsl: string;
+    }
+
+    export interface IShaderStage {
+        stage: gfx.ShaderStageFlagBit;
+        source: IShaderSourceCode;
+        collection: IShaderSourceCollection;
+    }
+
     export interface IShaderInfo {
         name: string;
         hash: number;
         glsl4: { vert: string, frag: string };
         glsl3: { vert: string, frag: string };
         glsl1: { vert: string, frag: string };
+        stages: IShaderStage[];
         builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
         defines: IDefineInfo[];
         attributes: IAttributeInfo[];

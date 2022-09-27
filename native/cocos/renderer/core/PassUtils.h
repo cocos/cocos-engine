@@ -98,10 +98,6 @@ const ccstd::string &getDefaultStringFromType(gfx::Type type);
 const ccstd::string &getStringFromType(gfx::Type type);
 
 /**
- * @en Combination of preprocess macros
- * @zh 预处理宏组合
- */
-/**
  * @en Override the preprocess macros
  * @zh 覆写预处理宏
  * @param target Target preprocess macros to be overridden

@@ -268,9 +268,10 @@ static void copyDefines(const ccstd::vector<IDefineInfo> &from, ccstd::vector<ID
 void IProgramInfo::copyFrom(const IShaderInfo &o) {
     name = o.name;
     hash = o.hash;
-    glsl4 = o.glsl4;
-    glsl3 = o.glsl3;
-    glsl1 = o.glsl1;
+
+    // copy stages to programInfo
+    std::copy(o.stages.cbegin(), o.stages.cend(), std::back_inserter(stages));
+
     builtins = o.builtins;
     copyDefines(o.defines, defines);
     blocks = o.blocks;
@@ -318,7 +319,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
     if (!shaderCollection) {
         shaderCollection = new ShaderCollection(shader);
     }
-    return /*shaderCollection*/nullptr;
+    return /*shaderCollection*/ nullptr;
 }
 
 /**
@@ -377,7 +378,7 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
     return shader;
 }
 
-ShaderCollection::ShaderCollection(IShaderInfo shaderInfo) {
+ShaderCollection::ShaderCollection(const IShaderInfo &shaderInfo) {
     _shaderInfo.copyFrom(shaderInfo);
     int32_t offset = 0;
     for (auto &def : _shaderInfo.defines) {
@@ -575,14 +576,12 @@ ShaderCollection::ShaderCollection(IShaderInfo shaderInfo) {
     }
     insertBuiltinBindings(_shaderInfo, _templateInfo, pipeline::localDescriptorSetLayout, "locals", nullptr);
 
-    _templateInfo.shaderInfo.stages.emplace_back();
-    auto &vertexShaderInfo = _templateInfo.shaderInfo.stages.back();
-    vertexShaderInfo.stage = gfx::ShaderStageFlagBit::VERTEX;
-    vertexShaderInfo.source = "";
-    _templateInfo.shaderInfo.stages.emplace_back();
-    auto &fragmentShaderInfo = _templateInfo.shaderInfo.stages.back();
-    fragmentShaderInfo.stage = gfx::ShaderStageFlagBit::FRAGMENT;
-    fragmentShaderInfo.source = "";
+    // TODO: yiwenxue : here we need to extract the shader sources from the raw buffer, and store them to the sourceCache, discard the others, the original shader source will still be kept in the shader collection
+
+    std::transform(_shaderInfo.stages.begin(), _shaderInfo.stages.end(), std::back_inserter(_templateInfo.shaderInfo.stages), [](const auto &stage) {
+        return gfx::ShaderStage{stage.stage, std::string("")};
+    });
+
     _templateInfo.handleMap = genHandles(_shaderInfo);
     _templateInfo.setLayouts = {};
 
@@ -594,6 +593,8 @@ ShaderCollection::ShaderCollection(IShaderInfo shaderInfo) {
     std::for_each(_defaultMacros.cbegin(), _defaultMacros.cend(), [this](const IMacroInfo &def) {
         _templateMacros[def.name] = def.value;
     });
+
+    // extract the shader source from the raw buffer
 }
 
 ShaderCollection::~ShaderCollection() {
@@ -605,7 +606,6 @@ ShaderCollection::~ShaderCollection() {
     }
 #endif
 }
-
 
 IProgramInfo *ShaderCollection::getTemplate() {
     return &_shaderInfo;
@@ -632,12 +632,50 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
     ccstd::vector<IMacroInfo> macroArray = prepareDefines(defines, _shaderInfo.defines);
     _templateInfo.shaderInfo.attributes = getActiveAttributes(_shaderInfo, _templateInfo, defines);
 
+    auto preCompile = [&](const ccstd::string &sourceCode, gfx::ShaderStage &stage) {
+        gfx::SPIRVUtils *spirvUtils = gfx::SPIRVUtils::getInstance();
+        ccstd::string srcCode;
+        ccstd::vector<uint32_t> spvCode; 
+        switch (device->getGfxAPI()) {
+            case gfx::API::GLES2:
+                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 300 es\n" + sourceCode);
+                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
+                srcCode = spirvUtils->compileSPIRV2GLSL(stage.stage, spvCode);
+                stage.source = srcCode;
+
+            case gfx::API::GLES3:
+                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 310 es\n" + sourceCode);
+                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
+                srcCode = spirvUtils->compileSPIRV2GLSL(stage.stage, spvCode);
+                stage.source = srcCode;
+                break;
+
+            case gfx::API::VULKAN:
+                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 460\n" + sourceCode);
+                spvCode = spirvUtils->compressInputLocations(_templateInfo.shaderInfo.attributes);
+                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
+                stage.byteCode = spvCode;
+                break;
+
+            case gfx::API::METAL:
+                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, sourceCode);
+                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
+                srcCode = spirvUtils->compileSPIRV2MSL(stage.stage, spvCode);
+                stage.source = srcCode;
+                break;
+
+            default:
+                break;
+        }
+    };
+
     auto createShader = [&](gfx::Shader *shader) {
         auto *device = gfx::Device::getInstance();
         auto it = _shaderVariantSources.find(key);
         if (it != _shaderVariantSources.end()) {
-            _templateInfo.shaderInfo.stages[0] = it->second.vert;
-            _templateInfo.shaderInfo.stages[1] = it->second.frag;
+            for (auto &stage : _templateInfo.shaderInfo.stages) {
+                stage = it->second.getStage(stage.stage);
+            }
         } else {
 #if CC_SHADER_BAKE_MODE
             // TODO: yiwenxue : shader bake mode
@@ -651,65 +689,17 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
             }
             auto prefix = pipeline->getConstantMacros() + _shaderInfo.constantMacros + ss.str();
 
-            const IShaderSource *src = &_shaderInfo.glsl3;
-            const auto *deviceShaderVersion = getDeviceShaderVersion(device);
-            if (deviceShaderVersion) {
-                src = _shaderInfo.getSource(deviceShaderVersion);
-            } else {
-                CC_LOG_ERROR("Invalid GFX API!");
-            }
             // Shader preprocessing -- shader precompile and optimize
             gfx::SPIRVUtils *spirvUtils = gfx::SPIRVUtils::getInstance();
-            std::vector<uint32_t> vertSpv, fragSpv;
-
             ShaderSource source{};
-            std::string version;
-            switch (device->getGfxAPI()) {
-                case gfx::API::GLES2:
-                    version = "#version 300 es\n";
-                    vertSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::VERTEX, version + prefix + src->vert);
-                    fragSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::FRAGMENT, version + prefix + src->frag);
-                    vertSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::VERTEX, vertSpv);
-                    fragSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::FRAGMENT, fragSpv);
-                    source.vert.source = spirvUtils->compileSPIRV2GLSL(gfx::ShaderStageFlagBit::VERTEX, vertSpv);
-                    source.frag.source = spirvUtils->compileSPIRV2GLSL(gfx::ShaderStageFlagBit::FRAGMENT, fragSpv);
-                    break;
 
-                case gfx::API::GLES3:
-                    version = "#version 310 es\n";
-                    vertSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::VERTEX, version + prefix + src->vert);
-                    fragSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::FRAGMENT, version + prefix + src->frag);
-                    vertSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::VERTEX, vertSpv);
-                    fragSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::FRAGMENT, fragSpv);
-                    source.vert.source = spirvUtils->compileSPIRV2GLSL(gfx::ShaderStageFlagBit::VERTEX, vertSpv);
-                    source.frag.source = spirvUtils->compileSPIRV2GLSL(gfx::ShaderStageFlagBit::FRAGMENT, fragSpv);
-                    break;
-
-                case gfx::API::VULKAN:
-                    version = "#version 450\n";
-                    vertSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::VERTEX, version + prefix + src->vert);
-                    vertSpv = spirvUtils->compressInputLocations(_templateInfo.shaderInfo.attributes);
-                    fragSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::FRAGMENT, version + prefix + src->frag);
-                    vertSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::VERTEX, vertSpv);
-                    fragSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::FRAGMENT, fragSpv);
-                    source.vert.byteCode = vertSpv;
-                    source.frag.byteCode = fragSpv;
-                    break;
-
-                case gfx::API::METAL:
-                    vertSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::VERTEX, prefix + src->vert);
-                    fragSpv = spirvUtils->compileGLSL2SPIRV(gfx::ShaderStageFlagBit::FRAGMENT, prefix + src->frag);
-                    vertSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::VERTEX, vertSpv);
-                    fragSpv = spirvUtils->optimizeSPIRV(gfx::ShaderStageFlagBit::FRAGMENT, fragSpv);
-                    source.vert.source = spirvUtils->compileSPIRV2MSL(gfx::ShaderStageFlagBit::VERTEX, vertSpv);
-                    source.frag.source = spirvUtils->compileSPIRV2MSL(gfx::ShaderStageFlagBit::FRAGMENT, fragSpv);
-                    break;
-
-                default:
-                    break;
-            };
-            _templateInfo.shaderInfo.stages[0] = source.vert;
-            _templateInfo.shaderInfo.stages[1] = source.frag;
+            for (uint32_t i = 0; i < _shaderInfo.stages.size(); i++) {
+                auto &stage = _templateInfo.shaderInfo.stages[i];
+                auto &sourceStage = source.getStage(stage.stage);
+                auto sourceCode = prefix + _shaderInfo.stages[i].source.glsl3;
+                preCompile(sourceCode, stage);
+                sourceStage = stage;
+            }
             _shaderVariantSources[key] = source;
 #endif
         }
@@ -753,10 +743,6 @@ void ShaderCollection::destroyShaderByDefines(const Record<ccstd::string, MacroV
         _shaderVariants[key]->destroy();
         _shaderVariants.erase(key);
     }
-}
-
-ShaderSource ShaderCollection::_getShaderSource(const ccstd::vector<IMacroInfo> &macros) {
-    return {};
 }
 
 ccstd::string ShaderCollection::getKey(const MacroRecord &defines) const {

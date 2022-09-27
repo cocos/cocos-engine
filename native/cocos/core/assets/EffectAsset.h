@@ -25,9 +25,11 @@
 
 #pragma once
 
+#include <stdint.h>
 #include <tuple>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 #include "base/std/optional.h"
 
 #include "base/Value.h"
@@ -491,16 +493,57 @@ struct IBuiltins {
 };
 
 struct IShaderSource {
-    ccstd::string vert;
-    ccstd::string frag;
+    gfx::ShaderStageFlags stage{gfx::ShaderStageFlagBit::NONE};
+    ccstd::string vert; // vertex shader source
+    ccstd::string frag; // fragment shader source
+};
+
+/**
+ shader code
+ 1. source code or optimized code
+ 2. glsl versions
+ 3. shader stages
+
+ stage { source : {glsl1, glsl3, glsl4}, optimized : {spv, msl, hlsl} }
+
+ source code:
+ 1. glsl1, glsl3, glsl4
+
+ optimized code:
+ 1. spv, msl, hlsl
+ */
+
+using CompressedShaderSource = std::vector<uint8_t>;
+
+struct IShaderSourceCode { // shader source code
+    ccstd::string glsl1;
+    ccstd::string glsl3;
+    ccstd::string glsl4;
+};
+struct IShaderSourceCollection { // compressed shader code
+    CompressedShaderSource glsl1;
+    CompressedShaderSource glsl3;
+    CompressedShaderSource glsl4;
+    CompressedShaderSource spv;
+    CompressedShaderSource msl;
+    CompressedShaderSource hlsl;
+};
+struct IShaderStage {
+    gfx::ShaderStageFlags stage{gfx::ShaderStageFlagBit::NONE};
+    IShaderSourceCode source;
+    IShaderSourceCollection collection;
 };
 
 struct IShaderInfo {
     ccstd::string name;
     ccstd::hash_t hash{0xFFFFFFFFU};
-    IShaderSource glsl4;
-    IShaderSource glsl3;
+
     IShaderSource glsl1;
+    IShaderSource glsl3;
+    IShaderSource glsl4;
+
+    ccstd::vector<IShaderStage> stages;
+
     ccstd::vector<IDefineInfo> defines;
     IBuiltins builtins;
     ccstd::vector<IAttributeInfo> attributes;
@@ -511,13 +554,6 @@ struct IShaderInfo {
     ccstd::vector<IBufferInfo> buffers;
     ccstd::vector<IImageInfo> images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
-
-    const IShaderSource *getSource(const ccstd::string &version) const {
-        if (version == "glsl1") return &glsl1;
-        if (version == "glsl3") return &glsl3;
-        if (version == "glsl4") return &glsl4;
-        return nullptr;
-    }
 };
 
 using IPreCompileInfoValueType = ccstd::variant<ccstd::vector<bool>, ccstd::vector<int32_t>, ccstd::vector<ccstd::string>>;
