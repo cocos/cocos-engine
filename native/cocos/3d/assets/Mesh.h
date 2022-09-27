@@ -423,7 +423,7 @@ public:
      * @param attributeName @en Attribute name @zh 属性名称
      * @returns @en Return null if failed to read format, return the format otherwise. @zh 读取失败返回 null， 否则返回 format
      */
-    const gfx::FormatInfo *readAttributeFormat(index_t primitiveIndex, const char *attributeName);
+    const gfx::FormatInfo readAttributeFormat(index_t primitiveIndex, const char *attributeName);
 
     /**
      * @en update dynamic sub mesh geometry
