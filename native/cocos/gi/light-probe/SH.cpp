@@ -62,34 +62,34 @@ ccstd::vector<Vec3> LightProbeSampler::uniformSampleSphereAll(uint32_t uCount1, 
 }
 
 ccstd::vector<SH::BasisFunction> SH::_basisFunctions = {
-    [](const Vec3& v) -> float { return +0.5F * std::sqrtf(math::PI_INV); },
-    [](const Vec3& v) -> float { return -0.5F * std::sqrtf(3.0F * math::PI_INV) * v.y; },
-    [](const Vec3& v) -> float { return +0.5F * std::sqrtf(3.0F * math::PI_INV) * v.z; },
-    [](const Vec3& v) -> float { return -0.5F * std::sqrtf(3.0F * math::PI_INV) * v.x; },
-    [](const Vec3& v) -> float { return +0.5F * std::sqrtf(15.0F * math::PI_INV) * v.y * v.x; },
-    [](const Vec3& v) -> float { return -0.5F * std::sqrtf(15.0F * math::PI_INV) * v.y * v.z; },
-    [](const Vec3& v) -> float { return 0.25F * std::sqrtf(5.0F * math::PI_INV) * (3.0F * v.z * v.z - 1.0F); },
-    [](const Vec3& v) -> float { return -0.5F * std::sqrtf(15.0F * math::PI_INV) * v.z * v.x; },
-    [](const Vec3& v) -> float { return 0.25F * std::sqrtf(15.0F * math::PI_INV) * (v.x * v.x - v.y * v.y); },
+    [](const Vec3& v) -> float { return 0.282095F; },                             // 0.5F * std::sqrtf(math::PI_INV)
+    [](const Vec3& v) -> float { return 0.488603F * v.y; },                       // 0.5F * std::sqrtf(3.0F * math::PI_INV) * v.y
+    [](const Vec3& v) -> float { return 0.488603F * v.z; },                       // 0.5F * std::sqrtf(3.0F * math::PI_INV) * v.z
+    [](const Vec3& v) -> float { return 0.488603F * v.x; },                       // 0.5F * std::sqrtf(3.0F * math::PI_INV) * v.x
+    [](const Vec3& v) -> float { return 1.09255F * v.y * v.x; },                  // 0.5F * std::sqrtf(15.0F * math::PI_INV) * v.y * v.x
+    [](const Vec3& v) -> float { return 1.09255F * v.y * v.z; },                  // 0.5F * std::sqrtf(15.0F * math::PI_INV) * v.y * v.z
+    [](const Vec3& v) -> float { return 0.946175F * (v.z * v.z - 1.0F / 3.0F); }, // 0.75F * std::sqrtf(5.0F * math::PI_INV) * (v.z * v.z - 1.0F / 3.0F)
+    [](const Vec3& v) -> float { return 1.09255F * v.z * v.x; },                  // 0.5F * std::sqrtf(15.0F * math::PI_INV) * v.z * v.x
+    [](const Vec3& v) -> float { return 0.546274F * (v.x * v.x - v.y * v.y); },   // 0.25F * std::sqrtf(15.0F * math::PI_INV) * (v.x * v.x - v.y * v.y)
 };
 
-Vec3 SH::evaluate(LightProbeQuality quality, const Vec3& sample, const ccstd::vector<Vec3>& coefficients) {
+Vec3 SH::evaluate(const Vec3& sample, const ccstd::vector<Vec3>& coefficients) {
     Vec3 result{0.0F, 0.0F, 0.0F};
 
     const auto size = coefficients.size();
     for (auto i = 0; i < size; i++) {
         const Vec3& c = coefficients[i];
-        result += c * evaluateBasis(quality, i, sample);
+        result += c * evaluateBasis(i, sample);
     }
 
     return result;
 }
 
-ccstd::vector<Vec3> SH::project(LightProbeQuality quality, const ccstd::vector<Vec3>& samples, const ccstd::vector<Vec3>& values) {
+ccstd::vector<Vec3> SH::project(const ccstd::vector<Vec3>& samples, const ccstd::vector<Vec3>& values) {
     CC_ASSERT(samples.size() > 0 && samples.size() == values.size());
 
     // integral using Monte Carlo method
-    const auto basisCount = getBasisCount(quality);
+    const auto basisCount = getBasisCount();
     const auto sampleCount = samples.size();
     const auto scale = 1.0F / (LightProbeSampler::uniformSpherePdf() * static_cast<float>(sampleCount));
 
@@ -100,7 +100,7 @@ ccstd::vector<Vec3> SH::project(LightProbeQuality quality, const ccstd::vector<V
         Vec3 coefficient{0.0F, 0.0F, 0.0F};
 
         for (auto k = 0; k < sampleCount; k++) {
-            coefficient += values[k] * evaluateBasis(quality, i, samples[k]);
+            coefficient += values[k] * evaluateBasis(i, samples[k]);
         }
 
         coefficient *= scale;
@@ -110,9 +110,9 @@ ccstd::vector<Vec3> SH::project(LightProbeQuality quality, const ccstd::vector<V
     return coefficients;
 }
 
-ccstd::vector<Vec3> SH::convolveCosine(LightProbeQuality quality, const ccstd::vector<Vec3>& radianceCoefficients) {
-    static const float COSTHETA[3] = {0.8862268925F, 1.0233267546F, 0.4954159260F};    
-    const auto lmax = getBandCount(quality);
+ccstd::vector<Vec3> SH::convolveCosine(const ccstd::vector<Vec3>& radianceCoefficients) {
+    static const float COSTHETA[3] = {0.8862268925F, 1.0233267546F, 0.4954159260F};
+    const auto lmax = 2;
 
     ccstd::vector<Vec3> irradianceCoefficients;
 

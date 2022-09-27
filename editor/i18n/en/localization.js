@@ -1033,7 +1033,6 @@ module.exports = {
     },
     light_probe: {
         enabled: 'The switch of light probe.',
-        quality: 'The quality of light probe, Normal mode uses 9 spherical harmonics coefficients, Fast mode uses 4 spherical harmonics coefficients.',
         reduceRinging: 'The value to reduce ringing of light probe.',
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',

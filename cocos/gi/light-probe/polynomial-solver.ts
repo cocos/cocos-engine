@@ -78,6 +78,14 @@ export class PolynomialSolver {
             roots.push(-2.0 * root);
         }
 
-        return roots.length > 0 ? roots[0] + offset : 0.0;
+        // return the unique positive root
+        for (let i = 0; i < roots.length; i++) {
+            if (roots[i] + offset >= 0.0) {
+                return roots[i] + offset;
+            }
+        }
+
+        // never reach here
+        return 0.0;
     }
 }

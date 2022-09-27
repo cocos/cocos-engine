@@ -94,6 +94,7 @@ public:
     void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
     void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
     void updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    void updateSHUBOs();
     void updateOctree();
     void updateWorldBoundUBOs();
     void updateLocalShadowBias();
@@ -106,6 +107,7 @@ public:
     inline void setCastShadow(bool value) { _castShadow = value; }
     inline void setEnabled(bool value) { _enabled = value; }
     inline void setLocalBuffer(gfx::Buffer *buffer) { _localBuffer = buffer; }
+    inline void setLocalSHBuffer(gfx::Buffer *buffer) { _localSHBuffer = buffer; }
     inline void setWorldBoundBuffer(gfx::Buffer *buffer) { _worldBoundBuffer = buffer; }
 
     inline void setNode(Node *node) { _node = node; }
@@ -131,8 +133,12 @@ public:
     inline bool isInited() const { return _inited; }
     inline bool isCastShadow() const { return _castShadow; }
     inline bool isEnabled() const { return _enabled; }
+    inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
+    inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
     inline gfx::Buffer *getLocalBuffer() const { return _localBuffer.get(); }
+    inline gfx::Buffer *getLocalSHBuffer() const { return _localSHBuffer.get(); }
     inline gfx::Buffer *getWorldBoundBuffer() const { return _worldBoundBuffer.get(); }
+    inline Float32Array getLocalSHData() const { return _localSHData; }
     inline geometry::AABB *getModelBounds() const { return _modelBounds; }
     inline Node *getNode() const { return _node.get(); }
     inline bool isReceiveShadow() const { return _receiveShadow; }
@@ -176,6 +182,7 @@ protected:
     uint32_t _descriptorSetCount{1};
     uint32_t _priority{0};
     uint32_t _updateStamp{0};
+    Float32Array _localSHData;
 
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};
@@ -184,11 +191,13 @@ protected:
     IntrusivePtr<Node> _transform;
     IntrusivePtr<Node> _node;
     IntrusivePtr<gfx::Buffer> _localBuffer;
+    IntrusivePtr<gfx::Buffer> _localSHBuffer;
     IntrusivePtr<gfx::Buffer> _worldBoundBuffer;
     IntrusivePtr<geometry::AABB> _worldBounds;
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
 
+    int32_t _tetrahedronIndex{0};
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};

@@ -27,6 +27,7 @@
 #include "LightProbe.h"
 #include "PolynomialSolver.h"
 #include "math/Math.h"
+#include "math/Utils.h"
 
 namespace cc {
 namespace gi {
@@ -42,6 +43,7 @@ void LightProbesData::build(const ccstd::vector<Vec3> &points) {
 int32_t LightProbesData::getInterpolationSHCoefficients(const Vec3 &position, int32_t tetIndex, ccstd::vector<Vec3> &coefficients) const {
     Vec4 weights{0.0F, 0.0F, 0.0F, 0.0F};
     tetIndex = getInterpolationWeights(position, tetIndex, weights);
+    coefficients.resize(SH::getBasisCount());
 
     const auto &tetrahedron = _tetrahedrons[tetIndex];
     const auto &c0 = _probes[tetrahedron.vertex0].coefficients;
@@ -102,16 +104,27 @@ int32_t LightProbesData::getInterpolationWeights(const Vec3 &position, int32_t t
 }
 
 Vec3 LightProbesData::getTriangleBarycentricCoord(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &position) {
-    const auto v0 = p0 - p2;
-    const auto v1 = p1 - p2;
-    const auto v = position - p2;
+    Vec3 normal;
+    Vec3::cross(p1 - p0, p2 - p0, &normal);
 
-    float invDeterminant = 1.0F / (v0.x * v1.y - v0.y * v1.x);
-    float alpha = (v1.y * v.x - v1.x * v.y) * invDeterminant;
-    float beta = (v0.x * v.y - v0.y * v.x) * invDeterminant;
-    float gamma = 1.0F - alpha - beta;
+    if (normal.lengthSquared() <= mathutils::EPSILON) {
+        return Vec3(0.0F, 0.0F, 0.0F);
+    }
 
-    return Vec3(alpha, beta, gamma);
+    const Vec3 n = normal.getNormalized();
+    const float area012Inv = 1.0f / (n.dot(normal));
+
+    Vec3 crossP12;
+    Vec3::cross(p1 - position, p2 - position, &crossP12);
+    const float areaP12 = n.dot(crossP12);
+    const float alpha = areaP12 * area012Inv;
+
+    Vec3 crossP20;
+    Vec3::cross(p2 - position, p0 - position, &crossP20);
+    const float areaP20 = n.dot(crossP20);
+    const float beta = areaP20 * area012Inv;
+
+    return Vec3(alpha, beta, 1.0F - alpha - beta);
 }
 
 Vec4 LightProbesData::getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron) const {
@@ -164,7 +177,6 @@ Vec4 LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const T
 
 void LightProbes::initialize(LightProbeInfo *info) {
     _enabled = info->isEnabled();
-    _quality = info->getQuality();
     _reduceRinging = info->getReduceRinging();
     _showProbe = info->isShowProbe();
     _showWireframe = info->isShowWireframe();

@@ -32,7 +32,6 @@ import { Skybox, EnvironmentLightingType } from '../render-scene/scene/skybox';
 import { Octree } from '../render-scene/scene/octree';
 import { Fog, FogType } from '../render-scene/scene/fog';
 import { LightProbesData, LightProbes } from '../../gi/light-probe/light-probe';
-import { LightProbeQuality } from '../../gi/light-probe/sh';
 import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
@@ -1080,24 +1079,6 @@ export class LightProbeInfo {
     }
 
     /**
-     * @en Light probe's quality
-     * @zh 光照探针的质量等级
-     */
-    @editable
-    @type(LightProbeQuality)
-    @tooltip('i18n:light_probe.quality')
-    set quality (val) {
-        if (this._quality === val) return;
-        this._quality = val;
-        if (this._resource) {
-            this._resource.quality = val;
-        }
-    }
-    get quality () {
-        return this._quality;
-    }
-
-    /**
      * @en Reduce ringing of light probe
      * @zh 减少光照探针的振铃效果
      */
@@ -1185,8 +1166,6 @@ export class LightProbeInfo {
 
     @serializable
     protected _enabled = false;
-    @serializable
-    protected _quality = LightProbeQuality.Normal;
     @serializable
     protected _reduceRinging = 0.0;
     @serializable

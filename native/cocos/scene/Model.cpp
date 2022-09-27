@@ -30,6 +30,7 @@
 #include "core/assets/Material.h"
 #include "core/event/EventTypesToJS.h"
 #include "gfx-base/GFXTexture.h"
+#include "gi/light-probe/LightProbe.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
@@ -86,6 +87,7 @@ void Model::destroy() {
     _subModels.clear();
 
     CC_SAFE_DESTROY_NULL(_localBuffer);
+    CC_SAFE_DESTROY_NULL(_localSHBuffer);
     CC_SAFE_DESTROY_NULL(_worldBoundBuffer);
 
     _worldBounds = nullptr;
@@ -311,6 +313,28 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
+void Model::updateSHUBOs() {
+    if (!_worldBounds) {
+        return;
+    }
+
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
+    const auto &data = lightProbes->getData();
+
+    ccstd::vector<Vec3> coefficients(9);
+    uint32_t offset = pipeline::UBOSH::SH_COEFFICIENTS;
+    _tetrahedronIndex = data.getInterpolationSHCoefficients(_worldBounds->getCenter(), _tetrahedronIndex, coefficients);
+
+    for (auto i = 0U; i < coefficients.size(); i++) {
+        const auto &coefficient = coefficients[i];
+
+        _localSHData[offset++] = coefficient.x;
+        _localSHData[offset++] = coefficient.y;
+        _localSHData[offset++] = coefficient.z;
+    }
+}
+
 ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
@@ -371,8 +395,8 @@ void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
         _worldBoundBuffer = _device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOLocal::SIZE,
-            pipeline::UBOLocal::SIZE,
+            pipeline::UBOWorldBound::SIZE,
+            pipeline::UBOWorldBound::SIZE,
             gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }

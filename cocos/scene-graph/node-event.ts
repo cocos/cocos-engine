@@ -160,6 +160,14 @@ export enum NodeEventType {
     TRANSFORM_CHANGED = 'transform-changed',
 
     /**
+     * @en
+     * The event occur when mobility changed.
+     * @zh
+     * 当可移动性改变时触发的事件
+     */
+    MOBILITY_CHANGED = 'mobility-changed',
+
+    /**
      * @en The event type for notifying the host scene has been changed for a persist node.
      * @zh 当场景常驻节点的场景发生改变时触发的事件，一般在切换场景过程中触发。
      */

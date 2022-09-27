@@ -68,9 +68,6 @@ public:
     inline void setEnabled(bool val) { _enabled = val; }
     inline bool isEnabled() const { return _enabled; }
 
-    inline void setQuality(LightProbeQuality quality) { _quality = quality; }
-    inline LightProbeQuality getQuality() const { return _quality; }
-
     inline void setReduceRinging(float val) { _reduceRinging = val; }
     inline float getReduceRinging() const { return _reduceRinging; }
 
@@ -88,7 +85,6 @@ public:
 
 private:
     bool _enabled{true};
-    LightProbeQuality _quality{LightProbeQuality::Normal};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};
@@ -112,15 +108,6 @@ public:
         }
     }
     inline bool isEnabled() const { return _enabled; }
-
-    inline void setQuality(LightProbeQuality val) {
-        _quality = val;
-        if (_resource) {
-            _resource->setQuality(val);
-        }
-    }
-
-    inline LightProbeQuality getQuality() const { return _quality; }
 
     inline void setReduceRinging(float val) {
         _reduceRinging = val;
@@ -167,7 +154,6 @@ private:
     LightProbes *_resource{nullptr};
 
     bool _enabled{true};
-    LightProbeQuality _quality{LightProbeQuality::Normal};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};

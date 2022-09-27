@@ -1678,6 +1678,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @type(MobilityMode)
     set mobility (m) {
         this._mobility = m;
+        this.emit(NodeEventType.MOBILITY_CHANGED);
     }
 
     get mobility () {

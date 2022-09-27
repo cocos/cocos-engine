@@ -243,6 +243,7 @@ enum class CC_DLL ModelLocalBindings {
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
     UBO_UI_LOCAL,
+    UBO_SH,
 
     SAMPLER_JOINTS,
     SAMPLER_MORPH_POSITION,
@@ -371,6 +372,16 @@ struct CC_DLL UBOMorph {
 
 struct CC_DLL UBOUILocal {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_UI_LOCAL);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformBlock LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL UBOSH {
+    static constexpr uint32_t SH_COEFFICIENTS = 0;
+    static constexpr uint32_t COUNT = UBOSH::SH_COEFFICIENTS + 28; // 3 * 9 sh float, 1 padding float
+    static constexpr uint32_t SIZE = UBOSH::COUNT * 4;
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_SH);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformBlock LAYOUT;
     static const ccstd::string NAME;

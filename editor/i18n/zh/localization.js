@@ -1014,7 +1014,6 @@ module.exports = {
     },
     light_probe: {
         enabled: '光照探针开关',
-        quality: '光照探针质量等级，Normal模式使用9个球谐系数，Fast模式使用4个球谐系数',
         reduceRinging: '减少光照探针的振铃效果',
         showProbe: '是否显示光照探针',
         showWireframe: '是否显示光照探针连线',

@@ -43,4 +43,10 @@ enum class TransformBit : uint32_t {
 };
 CC_ENUM_BITWISE_OPERATORS(TransformBit);
 
+enum class MobilityMode {
+    Static = 0,
+    Stationary,
+    Movable,
+};
+
 } // namespace cc

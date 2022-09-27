@@ -25,11 +25,14 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
-import { LightProbeQuality } from './sh';
 import { PolynomialSolver } from './polynomial-solver';
 import { LightProbeInfo } from '../../core/scene-graph/scene-globals';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
+import { EPSILON } from '../../core/math/utils';
+import { legacyCC } from '../../core/global-exports';
+import { LightProbeSampler, SH } from './sh';
+import { math } from '../../core';
 
 @ccclass('cc.LightProbesData')
 export class LightProbesData {
@@ -49,13 +52,10 @@ export class LightProbesData {
         return this._tetrahedrons;
     }
 
-    public set tetrahedrons (val: Tetrahedron[]) {
-        this._tetrahedrons = val;
-    }
-
     public getInterpolationSHCoefficients (position: Vec3, tetIndex: number, coefficients: Vec3[]) {
         const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
         tetIndex = this.getInterpolationWeights(position, tetIndex, weights);
+        const length = SH.getBasisCount();
 
         const tetrahedron = this._tetrahedrons[tetIndex];
         const c0 = this._probes[tetrahedron.vertex0].coefficients;
@@ -65,7 +65,7 @@ export class LightProbesData {
         if (tetrahedron.vertex3 >= 0) {
             const c3 = this._probes[tetrahedron.vertex3].coefficients;
 
-            for (let i = 0; i < coefficients.length; i++) {
+            for (let i = 0; i < length; i++) {
                 coefficients[i] = new Vec3(0.0, 0.0, 0.0);
                 Vec3.scaleAndAdd(coefficients[i], coefficients[i], c0[i], weights.x);
                 Vec3.scaleAndAdd(coefficients[i], coefficients[i], c1[i], weights.y);
@@ -73,7 +73,7 @@ export class LightProbesData {
                 Vec3.scaleAndAdd(coefficients[i], coefficients[i], c3[i], weights.w);
             }
         } else {
-            for (let i = 0; i < coefficients.length; i++) {
+            for (let i = 0; i < length; i++) {
                 coefficients[i] = new Vec3(0.0, 0.0, 0.0);
                 Vec3.scaleAndAdd(coefficients[i], coefficients[i], c0[i], weights.x);
                 Vec3.scaleAndAdd(coefficients[i], coefficients[i], c1[i], weights.y);
@@ -95,7 +95,7 @@ export class LightProbesData {
 
         for (let i = 0; i < tetrahedronCount; i++) {
             const tetrahedron = this._tetrahedrons[tetIndex];
-            weights = this.getBarycentricCoord(position, tetrahedron);
+            this.getBarycentricCoord(position, tetrahedron, weights);
             if (weights.x >= 0.0 && weights.y >= 0.0 && weights.z >= 0.0 && weights.w >= 0.0) {
                 break;
             }
@@ -123,39 +123,60 @@ export class LightProbesData {
     }
 
     private static getTriangleBarycentricCoord (p0: Vec3, p1: Vec3, p2: Vec3, position: Vec3) {
-        const v0 = new Vec3(0.0, 0.0, 0.0);
         const v1 = new Vec3(0.0, 0.0, 0.0);
-        const v = new Vec3(0.0, 0.0, 0.0);
+        const v2 = new Vec3(0.0, 0.0, 0.0);
+        const normal = new Vec3(0.0, 0.0, 0.0);
 
-        Vec3.subtract(v0, p0, p2);
-        Vec3.subtract(v1, p1, p2);
-        Vec3.subtract(v, position, p2);
+        Vec3.subtract(v1, p1, p0);
+        Vec3.subtract(v2, p2, p0);
+        Vec3.cross(normal, v1, v2);
 
-        const invDeterminant = 1.0 / (v0.x * v1.y - v0.y * v1.x);
-        const alpha = (v1.y * v.x - v1.x * v.y) * invDeterminant;
-        const beta = (v0.x * v.y - v0.y * v.x) * invDeterminant;
-        const gamma = 1.0 - alpha - beta;
+        if (normal.lengthSqr() <= math.EPSILON) {
+            return new Vec3(0.0, 0.0, 0.0);
+        }
 
-        return new Vec3(alpha, beta, gamma);
+        const n = normal.clone();
+        n.normalize();
+        const area012Inv = 1.0 / n.dot(normal);
+
+        const edgeP0 = new Vec3(0.0, 0.0, 0.0);
+        const edgeP1 = new Vec3(0.0, 0.0, 0.0);
+        const edgeP2 = new Vec3(0.0, 0.0, 0.0);
+
+        Vec3.subtract(edgeP0, p0, position);
+        Vec3.subtract(edgeP1, p1, position);
+        Vec3.subtract(edgeP2, p2, position);
+
+        const crossP12 = new Vec3(0.0, 0.0, 0.0);
+        Vec3.cross(crossP12, edgeP1, edgeP2);
+        const areaP12 = n.dot(crossP12);
+        const alpha = areaP12 * area012Inv;
+
+        const crossP20 = new Vec3(0.0, 0.0, 0.0);
+        Vec3.cross(crossP20, edgeP2, edgeP0);
+        const areaP20 = n.dot(crossP20);
+        const beta = areaP20 * area012Inv;
+
+        return new Vec3(alpha, beta, 1.0 - alpha - beta);
     }
 
-    private getBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron) {
+    private getBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4) {
         if (tetrahedron.vertex3 >= 0) {
-            return this.getTetrahedronBarycentricCoord(position, tetrahedron);
+            this.getTetrahedronBarycentricCoord(position, tetrahedron, weights);
         } else {
-            return this.getOuterCellBarycentricCoord(position, tetrahedron);
+            this.getOuterCellBarycentricCoord(position, tetrahedron, weights);
         }
     }
 
-    private getTetrahedronBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron) {
+    private getTetrahedronBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4) {
         const result = new Vec3(0.0, 0.0, 0.0);
         Vec3.subtract(result, position, this._probes[tetrahedron.vertex3].position);
         Vec3.transformMat3(result, result, tetrahedron.matrix);
 
-        return new Vec4(result.x, result.y, result.z, 1.0 - result.x - result.y - result.z);
+        weights.set(result.x, result.y, result.z, 1.0 - result.x - result.y - result.z);
     }
 
-    private getOuterCellBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron) {
+    private getOuterCellBarycentricCoord (position: Vec3, tetrahedron: Tetrahedron, weights: Vec4) {
         const p0 = this._probes[tetrahedron.vertex0].position;
         const p1 = this._probes[tetrahedron.vertex1].position;
         const p2 = this._probes[tetrahedron.vertex2].position;
@@ -173,7 +194,8 @@ export class LightProbesData {
         let t = Vec3.dot(v, normal);
         if (t < 0.0) {
             // test tetrahedron in next iterator
-            return new Vec4(0.0, 0.0, 0.0, -1.0);
+            weights.set(0.0, 0.0, 0.0, -1.0);
+            return;
         }
 
         const coefficients = new Vec3(0.0, 0.0, 0.0);
@@ -195,7 +217,7 @@ export class LightProbesData {
         Vec3.scaleAndAdd(v2, p2, this._probes[tetrahedron.vertex2].normal, t);
         const result = LightProbesData.getTriangleBarycentricCoord(v0, v1, v2, position);
 
-        return new Vec4(result.x, result.y, result.z, 0.0);
+        weights.set(result.x, result.y, result.z, 0.0);
     }
 
     @serializable
@@ -214,21 +236,15 @@ export class LightProbes {
      * @zh 是否启用光照探针
      */
     set enabled (val: boolean) {
+        if (this._enabled === val) {
+            return;
+        }
+
         this._enabled = val;
+        this._updatePipeline();
     }
     get enabled () {
         return this._enabled;
-    }
-
-    /**
-     * @en Light probe's quality
-     * @zh 光照探针的质量等级
-     */
-    set quality (quality) {
-        this._quality = quality;
-    }
-    get quality () {
-        return this._quality;
     }
 
     /**
@@ -287,7 +303,6 @@ export class LightProbes {
     }
 
     protected _enabled = false;
-    protected _quality = LightProbeQuality.Normal;
     protected _reduceRinging = 0.0;
     protected _showProbe = true;
     protected _showWireframe = true;
@@ -296,11 +311,20 @@ export class LightProbes {
 
     public initialize (info: LightProbeInfo) {
         this._enabled = info.enabled;
-        this._quality = info.quality;
         this._reduceRinging = info.reduceRinging;
         this._showProbe = info.showProbe;
         this._showWireframe = info.showWireframe;
         this._showConvex = info.showConvex;
         this._data = info.data;
+
+        this._updatePipeline();
+    }
+
+    protected _updatePipeline () {
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+
+        pipeline.macros.CC_LIGHT_PROBE_ENABLED = this.enabled;
+        root.onGlobalPipelineStateChanged();
     }
 }

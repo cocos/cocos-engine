@@ -23,19 +23,13 @@
  THE SOFTWARE.
  */
 
+import { Vec4 } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Vec3 } from '../../core/math/vec3';
-import { Enum } from '../../core/value-types';
 
-const SH_BASIS_FAST_COUNT = 4;
-const SH_BASIS_NORMAL_COUNT = 9;
+const SH_BASIS_COUNT = 9;
 
-export const LightProbeQuality = Enum({
-    Fast: 0,   // 4 basis functions of L0 & L1
-    Normal: 1, // 9 basis functions of L0 & L1 & L2
-});
-
-class LightProbeSampler {
+export class LightProbeSampler {
     /**
      *  generate one sample from sphere uniformly
      */
@@ -82,30 +76,159 @@ class LightProbeSampler {
 /**
  * Spherical Harmonics utility class
  */
-class SH {
+export class SH {
     private static _basisFunctions: { (v: Vec3): number }[] =
     [
-        (v: Vec3): number => +0.5 * Math.sqrt(1.0 / Math.PI),
-        (v: Vec3): number => -0.5 * Math.sqrt(3.0 / Math.PI) * v.y,
-        (v: Vec3): number => +0.5 * Math.sqrt(3.0 / Math.PI) * v.z,
-        (v: Vec3): number => -0.5 * Math.sqrt(3.0 / Math.PI) * v.x,
-        (v: Vec3): number => +0.5 * Math.sqrt(15.0 / Math.PI) * v.y * v.x,
-        (v: Vec3): number => -0.5 * Math.sqrt(15.0 / Math.PI) * v.y * v.z,
-        (v: Vec3): number => 0.25 * Math.sqrt(5.0 / Math.PI) * (3.0 * v.z * v.z - 1.0),
-        (v: Vec3): number => -0.5 * Math.sqrt(15.0 / Math.PI) * v.z * v.x,
-        (v: Vec3): number => 0.25 * Math.sqrt(15.0 / Math.PI) * (v.x * v.x - v.y * v.y),
+        (v: Vec3): number => 0.282095,                              // 0.5 * Math.sqrt(1.0 / Math.PI)
+        (v: Vec3): number => 0.488603 * v.y,                        // 0.5 * Math.sqrt(3.0 / Math.PI) * v.y
+        (v: Vec3): number => 0.488603 * v.z,                        // 0.5 * Math.sqrt(3.0 / Math.PI) * v.z
+        (v: Vec3): number => 0.488603 * v.x,                        // 0.5 * Math.sqrt(3.0 / Math.PI) * v.x
+        (v: Vec3): number => 1.09255 * v.y * v.x,                   // 0.5 * Math.sqrt(15.0 / Math.PI) * v.y * v.x
+        (v: Vec3): number => 1.09255 * v.y * v.z,                   // 0.5 * Math.sqrt(15.0 / Math.PI) * v.y * v.z
+        (v: Vec3): number => 0.946175 * (v.z * v.z - 1.0 / 3.0),    // 0.75 * Math.sqrt(5.0 / Math.PI) * (v.z * v.z - 1.0 / 3.0)
+        (v: Vec3): number => 1.09255 * v.z * v.x,                   // 0.5 * Math.sqrt(15.0 / Math.PI) * v.z * v.x
+        (v: Vec3): number => 0.546274 * (v.x * v.x - v.y * v.y),    // 0.25 * Math.sqrt(15.0 / Math.PI) * (v.x * v.x - v.y * v.y)
     ];
+
+    private static _basisOverPI: number[] =
+    [
+        0.0897936,  // 0.282095 / Math.PI
+        0.155527,   // 0.488603 / Math.PI
+        0.155527,   // 0.488603 / Math.PI
+        0.155527,   // 0.488603 / Math.PI
+        0.347769,   // 1.09255 / Math.PI
+        0.347769,   // 1.09255 / Math.PI
+        0.301177,   // 0.946175 / Math.PI
+        0.347769,   // 1.09255 / Math.PI
+        0.173884,   // 0.546274 / Math.PI
+    ];
+
+    public static updateUBOData (coefficients: Vec3[], data: Float32Array, offset = 0) {
+        // cc_sh_linear_const_r
+        data[offset++] = coefficients[3].x * this._basisOverPI[3];
+        data[offset++] = coefficients[1].x * this._basisOverPI[1];
+        data[offset++] = coefficients[2].x * this._basisOverPI[2];
+        data[offset++] = coefficients[0].x * this._basisOverPI[0] - coefficients[6].x * this._basisOverPI[6] / 3.0;
+
+        // cc_sh_linear_const_g
+        data[offset++] = coefficients[3].y * this._basisOverPI[3];
+        data[offset++] = coefficients[1].y * this._basisOverPI[1];
+        data[offset++] = coefficients[2].y * this._basisOverPI[2];
+        data[offset++] = coefficients[0].y * this._basisOverPI[0] - coefficients[6].y * this._basisOverPI[6] / 3.0;
+
+        // cc_sh_linear_const_b
+        data[offset++] = coefficients[3].z * this._basisOverPI[3];
+        data[offset++] = coefficients[1].z * this._basisOverPI[1];
+        data[offset++] = coefficients[2].z * this._basisOverPI[2];
+        data[offset++] = coefficients[0].z * this._basisOverPI[0] - coefficients[6].z * this._basisOverPI[6] / 3.0;
+
+        // cc_sh_quadratic_r
+        data[offset++] = coefficients[4].x * this._basisOverPI[4];
+        data[offset++] = coefficients[5].x * this._basisOverPI[5];
+        data[offset++] = coefficients[6].x * this._basisOverPI[6];
+        data[offset++] = coefficients[7].x * this._basisOverPI[7];
+
+        // cc_sh_quadratic_g
+        data[offset++] = coefficients[4].y * this._basisOverPI[4];
+        data[offset++] = coefficients[5].y * this._basisOverPI[5];
+        data[offset++] = coefficients[6].y * this._basisOverPI[6];
+        data[offset++] = coefficients[7].y * this._basisOverPI[7];
+
+        // cc_sh_quadratic_b
+        data[offset++] = coefficients[4].z * this._basisOverPI[4];
+        data[offset++] = coefficients[5].z * this._basisOverPI[5];
+        data[offset++] = coefficients[6].z * this._basisOverPI[6];
+        data[offset++] = coefficients[7].z * this._basisOverPI[7];
+
+        // cc_sh_quadratic_a
+        data[offset++] = coefficients[8].x * this._basisOverPI[8];
+        data[offset++] = coefficients[8].y * this._basisOverPI[8];
+        data[offset++] = coefficients[8].z * this._basisOverPI[8];
+        data[offset++] = 0.0;
+    }
+
+    /**
+     * recreate a function from sh coefficients, which is same as SHEvaluate in shader
+     */
+    public static SHEvaluate (normal: Vec3, coefficients: Vec3[]) {
+        const linearConstR = new Vec4(
+            coefficients[3].x * this._basisOverPI[3],
+            coefficients[1].x * this._basisOverPI[1],
+            coefficients[2].x * this._basisOverPI[2],
+            coefficients[0].x * this._basisOverPI[0] - coefficients[6].x * this._basisOverPI[6] / 3.0,
+        );
+
+        const linearConstG = new Vec4(
+            coefficients[3].y * this._basisOverPI[3],
+            coefficients[1].y * this._basisOverPI[1],
+            coefficients[2].y * this._basisOverPI[2],
+            coefficients[0].y * this._basisOverPI[0] - coefficients[6].y * this._basisOverPI[6] / 3.0,
+        );
+
+        const linearConstB = new Vec4(
+            coefficients[3].z * this._basisOverPI[3],
+            coefficients[1].z * this._basisOverPI[1],
+            coefficients[2].z * this._basisOverPI[2],
+            coefficients[0].z * this._basisOverPI[0] - coefficients[6].z * this._basisOverPI[6] / 3.0,
+        );
+
+        const quadraticR = new Vec4(
+            coefficients[4].x * this._basisOverPI[4],
+            coefficients[5].x * this._basisOverPI[5],
+            coefficients[6].x * this._basisOverPI[6],
+            coefficients[7].x * this._basisOverPI[7],
+        );
+
+        const quadraticG = new Vec4(
+            coefficients[4].y * this._basisOverPI[4],
+            coefficients[5].y * this._basisOverPI[5],
+            coefficients[6].y * this._basisOverPI[6],
+            coefficients[7].y * this._basisOverPI[7],
+        );
+
+        const quadraticB = new Vec4(
+            coefficients[4].z * this._basisOverPI[4],
+            coefficients[5].z * this._basisOverPI[5],
+            coefficients[6].z * this._basisOverPI[6],
+            coefficients[7].z * this._basisOverPI[7],
+        );
+
+        const quadraticA = new Vec3(
+            coefficients[8].x * this._basisOverPI[8],
+            coefficients[8].y * this._basisOverPI[8],
+            coefficients[8].z * this._basisOverPI[8],
+        );
+
+        const result = new Vec3(0.0, 0.0, 0.0);
+        const normal4 = new Vec4(normal.x, normal.y, normal.z, 1.0);
+
+        // calculate linear and const terms
+        result.x = Vec4.dot(linearConstR, normal4);
+        result.y = Vec4.dot(linearConstG, normal4);
+        result.z = Vec4.dot(linearConstB, normal4);
+
+        // calculate quadratic terms
+        const n14 = new Vec4(normal.x * normal.y, normal.y * normal.z, normal.z * normal.z, normal.z * normal.x);
+        const n5 = normal.x * normal.x - normal.y * normal.y;
+
+        result.x += Vec4.dot(quadraticR, n14);
+        result.y += Vec4.dot(quadraticG, n14);
+        result.z += Vec4.dot(quadraticB, n14);
+        Vec3.scaleAndAdd(result, result, quadraticA, n5);
+
+        return result;
+    }
 
     /**
      * recreate a function from sh coefficients
      */
-    public static evaluate (quality: number, sample: Vec3, coefficients: Vec3[]) {
+    public static evaluate (sample: Vec3, coefficients: Vec3[]) {
         const result = new Vec3(0.0, 0.0, 0.0);
 
         const size = coefficients.length;
         for (let i = 0; i < size; i++) {
             const c = coefficients[i];
-            Vec3.scaleAndAdd(result, result, c, this.evaluateBasis(quality, i, sample));
+            Vec3.scaleAndAdd(result, result, c, this.evaluateBasis(i, sample));
         }
 
         return result;
@@ -114,11 +237,11 @@ class SH {
     /**
      * project a function to sh coefficients
      */
-    public static project (quality: number, samples: Vec3[], values: Vec3[]) {
+    public static project (samples: Vec3[], values: Vec3[]) {
         assertIsTrue(samples.length > 0 && samples.length === values.length);
 
         // integral using Monte Carlo method
-        const basisCount = this.getBasisCount(quality);
+        const basisCount = this.getBasisCount();
         const sampleCount = samples.length;
         const scale = 1.0 / (LightProbeSampler.uniformSpherePdf() * sampleCount);
 
@@ -128,7 +251,7 @@ class SH {
             const coefficient = new Vec3(0.0, 0.0, 0.0);
 
             for (let k = 0; k < sampleCount; k++) {
-                Vec3.scaleAndAdd(coefficient, coefficient, values[k], this.evaluateBasis(quality, i, samples[k]));
+                Vec3.scaleAndAdd(coefficient, coefficient, values[k], this.evaluateBasis(i, samples[k]));
             }
 
             Vec3.multiplyScalar(coefficient, coefficient, scale);
@@ -141,9 +264,9 @@ class SH {
     /**
      * calculate irradiance's sh coefficients from radiance's sh coefficients directly
      */
-    public static convolveCosine (quality: number, radianceCoefficients: Vec3[]) {
+    public static convolveCosine (radianceCoefficients: Vec3[]) {
         const COSTHETA: number[] = [0.8862268925, 1.0233267546, 0.4954159260];
-        const lmax = this.getBandCount(quality);
+        const lmax = 2;
 
         const irradianceCoefficients: Vec3[] = [];
 
@@ -161,25 +284,17 @@ class SH {
     }
 
     /**
-     * return band count: lmax = 1 or lmax = 2
-     */
-    public static getBandCount (quality: number) {
-        return (quality === LightProbeQuality.Normal ? 2 : 1);
-    }
-
-    /**
      * return basis function count
      */
-    public static getBasisCount (quality: number) {
-        const BASIS_COUNTS: number[] = [SH_BASIS_FAST_COUNT, SH_BASIS_NORMAL_COUNT];
-        return BASIS_COUNTS[quality];
+    public static getBasisCount () {
+        return SH_BASIS_COUNT;
     }
 
     /**
      * evaluate from a basis function
      */
-    public static evaluateBasis (quality: number, index: number, sample: Vec3) {
-        assertIsTrue(index < this.getBasisCount(quality));
+    public static evaluateBasis (index: number, sample: Vec3) {
+        assertIsTrue(index < this.getBasisCount());
         const func = this._basisFunctions[index];
 
         return func(sample);

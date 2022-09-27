@@ -504,6 +504,14 @@ public:
         _isStatic = v ? 1 : 0;
     }
 
+    inline MobilityMode getMobility() const {
+        return _mobility;
+    }
+
+    inline void setMobility(MobilityMode m) {
+        _mobility = m;
+    }
+
     /**
      * @en Whether the node's transformation have changed during the current frame.
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
@@ -691,6 +699,7 @@ private:
     Vec3 _euler{0, 0, 0};
     Quaternion _worldRotation{Quaternion::identity()};
     Mat4 _worldMatrix{Mat4::IDENTITY};
+    MobilityMode _mobility = MobilityMode::Static;
 
     // Shared memory with JS
     // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
