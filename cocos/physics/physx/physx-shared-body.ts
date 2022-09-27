@@ -193,13 +193,6 @@ export class PhysXSharedBody {
         if (isStaticBefore) {
             const da = this._dynamicActor;
             setMassAndUpdateInertia(da, this._wrappedBody!.rigidBody.mass);
-            const center = VEC3_0;
-            center.set(0, 0, 0);
-            for (let i = 0; i < this.wrappedShapes.length; i++) {
-                const collider = this.wrappedShapes[i].collider;
-                if (!collider.isTrigger) center.subtract(collider.center);
-            }
-            da.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
         }
     }
 

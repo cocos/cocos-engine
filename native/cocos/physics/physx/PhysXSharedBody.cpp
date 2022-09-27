@@ -162,11 +162,6 @@ void PhysXSharedBody::switchActor(const bool isStaticBefore) {
         if (isDynamic()) _mDynamicActor->wakeUp();
         _mDynamicActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic());
         PxRigidBodyExt::setMassAndUpdateInertia(*_mDynamicActor, _mMass);
-        PxTransform com{PxIdentity};
-        for (auto const &ws : _mWrappedShapes) {
-            if (!ws->isTrigger()) com.p -= ws->getCenter();
-        }
-        _mDynamicActor->setCMassLocalPose(com);
     }
 }
 
