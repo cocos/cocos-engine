@@ -1007,7 +1007,7 @@ bool Mesh::copyIndices(index_t primitiveIndex, TypedArray &outputArray) {
     return true;
 }
 
-const gfx::FormatInfo Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
+const gfx::FormatInfo* Mesh::readAttributeFormat(index_t primitiveIndex, const char *attributeName) {
     const gfx::FormatInfo *result = nullptr;
 
     accessAttribute(primitiveIndex, attributeName, [&](const IVertexBundle &vertexBundle, uint32_t iAttribute) {
@@ -1015,7 +1015,7 @@ const gfx::FormatInfo Mesh::readAttributeFormat(index_t primitiveIndex, const ch
         result = &gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(format)];
     });
 
-    return *result;
+    return result;
 }
 
 void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometry) {
