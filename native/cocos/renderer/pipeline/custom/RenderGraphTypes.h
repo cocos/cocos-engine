@@ -467,8 +467,8 @@ struct RasterPass {
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.viewport) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.viewport);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
@@ -985,7 +985,6 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     hash_combine(seed, val.subpassGraph);
     hash_combine(seed, val.width);
     hash_combine(seed, val.height);
-    hash_combine(seed, val.viewport);
     return seed;
 }
 

@@ -44,6 +44,8 @@ import { errorID, error, assertID, warnID } from '../core/platform/debug';
 import { containerManager } from '../core/memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { deviceManager } from '../gfx';
+import { PipelineBuilder } from '../rendering/custom/pipeline';
+import { macro } from './platform/macro';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -167,6 +169,13 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
+     * @en The event which will be triggered before the pipeline render.
+     * @zh 当前渲染帧渲染前所触发的事件。
+     * @event Director.EVENT_BEFORE_RENDER
+     */
+    public static readonly EVENT_BEFORE_RENDER = 'director_before_render';
+
+    /**
      * @en The event which will be triggered before the physics process.<br/>
      * @zh 物理过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_PHYSICS
@@ -207,6 +216,7 @@ export class Director extends EventTarget {
     private _invalid: boolean;
     private _paused: boolean;
     private _root: Root | null;
+    private _pipelineBuilder: PipelineBuilder | null = null;
     private _loadingScene: string;
     private _scene: Scene | null;
     private _totalFrames: number;
@@ -731,6 +741,27 @@ export class Director extends EventTarget {
         }
     }
 
+    private buildRenderPipeline () {
+        if (this._root) {
+            this._root.customPipeline.beginSetup();
+            this._pipelineBuilder!.setup(this._root.cameraList, this._root.customPipeline);
+            this._root.customPipeline.endSetup();
+        }
+    }
+
+    private setupRenderPipelineBuilder () {
+        if (this._root && this._root.usesCustomPipeline
+            && legacyCC.internal.createCustomPipeline
+            && legacyCC.internal.customPipelineBuilderMap) {
+            const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
+            this._pipelineBuilder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
+            if (this._pipelineBuilder === null) {
+                this._pipelineBuilder = map.get('Forward')!;
+            }
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+        }
+    }
+
     /**
      * @internal
      */
@@ -743,6 +774,9 @@ export class Director extends EventTarget {
         this._root = new Root(deviceManager.gfxDevice);
         const rootInfo = {};
         this._root.initialize(rootInfo);
+
+        this.setupRenderPipelineBuilder();
+
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }

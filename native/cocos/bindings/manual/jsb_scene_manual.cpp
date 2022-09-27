@@ -122,6 +122,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
     })
 
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::DIRECTOR_BEFORE_COMMIT, _onDirectorBeforeCommit);
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::EventTypesToJS::DIRECTOR_BEFORE_RENDER, _onDirectorBeforeRender);
 
     return true;
 }

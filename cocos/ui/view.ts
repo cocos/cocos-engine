@@ -592,14 +592,14 @@ export class View extends Eventify(System) {
         point.y = (point.y - viewport.y) / this._scaleY;
     }
 
-    private _updateAdaptResult (event: jsb.WindowEvent) {
-        legacyCC.director.root.resize(event.windowId, event.width, event.height);
+    private _updateAdaptResult (width: number, height: number, windowId?: number) {
+        legacyCC.director.root.resize(width, height, windowId === undefined ? 1 : windowId);
         // Frame size changed, do resize works
-        const width = this._designResolutionSize.width;
-        const height = this._designResolutionSize.height;
+        const w = this._designResolutionSize.width;
+        const h = this._designResolutionSize.height;
 
         if (width > 0) {
-            this.setDesignResolutionSize(width, height, this._resolutionPolicy);
+            this.setDesignResolutionSize(w, h, this._resolutionPolicy);
         }
 
         this.emit('canvas-resize');

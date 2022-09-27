@@ -19766,62 +19766,6 @@ static bool js_cc_scene_RenderWindow_extractRenderCameras(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_RenderWindow_extractRenderCameras) 
 
-static bool js_cc_scene_RenderWindow_onNativeWindowDestroy(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::RenderWindow *arg1 = (cc::scene::RenderWindow *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderWindow_onNativeWindowDestroy,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->onNativeWindowDestroy(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_RenderWindow_onNativeWindowDestroy) 
-
-static bool js_cc_scene_RenderWindow_onNativeWindowResume(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::RenderWindow *arg1 = (cc::scene::RenderWindow *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderWindow_onNativeWindowResume,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->onNativeWindowResume(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_RenderWindow_onNativeWindowResume) 
-
 static bool js_cc_scene_RenderWindow_attachCamera(se::State& s)
 {
     // js_function
@@ -20028,8 +19972,6 @@ bool js_register_cc_scene_RenderWindow(se::Object* obj) {
     cls->defineFunction("destroy", _SE(js_cc_scene_RenderWindow_destroy)); 
     cls->defineFunction("resize", _SE(js_cc_scene_RenderWindow_resize)); 
     cls->defineFunction("extractRenderCameras", _SE(js_cc_scene_RenderWindow_extractRenderCameras)); 
-    cls->defineFunction("onNativeWindowDestroy", _SE(js_cc_scene_RenderWindow_onNativeWindowDestroy)); 
-    cls->defineFunction("onNativeWindowResume", _SE(js_cc_scene_RenderWindow_onNativeWindowResume)); 
     cls->defineFunction("attachCamera", _SE(js_cc_scene_RenderWindow_attachCamera)); 
     cls->defineFunction("detachCamera", _SE(js_cc_scene_RenderWindow_detachCamera)); 
     cls->defineFunction("clearCameras", _SE(js_cc_scene_RenderWindow_clearCameras)); 

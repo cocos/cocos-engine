@@ -50,8 +50,13 @@ int BaseGame::init() {
     std::call_once(_windowCreateFlag, [&]() {
         ISystemWindowInfo info;
         info.title = _windowInfo.title;
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
         info.x = _windowInfo.x == -1 ? 50 : _windowInfo.x; // 50 meams move window a little for now
         info.y = _windowInfo.y == -1 ? 50 : _windowInfo.y; // same above
+#else
+        info.x = _windowInfo.x == -1 ? 0 : _windowInfo.x;
+        info.y = _windowInfo.y == -1 ? 0 : _windowInfo.y;
+#endif
         info.width = _windowInfo.width;
         info.height = _windowInfo.height;
         info.flags = _windowInfo.flags;

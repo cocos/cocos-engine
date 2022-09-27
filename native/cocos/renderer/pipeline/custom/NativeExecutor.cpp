@@ -1,4 +1,3 @@
-#include "NativeExecutor.h"
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <variant>
@@ -13,9 +12,10 @@
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "Set.h"
+#include "cocos/renderer/gfx-base/GFXBarrier.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
-#include "gfx-base/GFXBarrier.h"
-#include "gfx-base/GFXDef-common.h"
+
 
 namespace cc {
 
@@ -574,7 +574,8 @@ struct RenderGraphCullVisitor : boost::dfs_visitor<> {
 
 } // namespace
 
-void executeRenderGraph(NativePipeline& ppl, const RenderGraph& rg) {
+void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
+    auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
     FrameGraphDispatcher fgd(
         ppl.resourceGraph, rg,
