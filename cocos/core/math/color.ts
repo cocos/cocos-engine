@@ -89,7 +89,41 @@ export class Color extends ValueType {
         out.a = a;
         return out;
     }
-
+    /**
+     * @en Convert 8bit color to Vec4
+     * @zh 将当前颜色转换为到 Vec4
+     * @returns Vec4 as float color value
+     * @example
+     * ```
+     * const color = Color.YELLOW;
+     * color.toVec4();
+     * ```
+     */
+    public static toVec4 (color:Color, out?: Vec4): Vec4 {
+        out = out !== undefined ?  out : new Vec4();
+        out.x = srgb8BitToLinear(color.r);
+        out.y = srgb8BitToLinear(color.g);
+        out.z = srgb8BitToLinear(color.b);
+        out.w = srgb8BitToLinear(color.a);
+        return out;
+    }
+    /**
+     * @en Set 8bit Color from Vec4
+     * @zh 使用 Vec4 设置 8 bit 颜色
+     * @returns 8 Bit srgb value
+     * @example
+     * ```
+     * color.fromVec4(new Vec4(1,1,1,1));
+     * ```
+     */
+    public static fromVec4 (value: Vec4, out?: Color): Color {
+        out = out === undefined ? new Color() : out;
+        out.r = linearToSrgb8Bit(value.x);
+        out.g = linearToSrgb8Bit(value.y);
+        out.b = linearToSrgb8Bit(value.z);
+        out.a = linearToSrgb8Bit(value.w);
+        return out;
+    }
     /**
      * @en Converts the hexadecimal formal color into rgb formal and save the results to out color.
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
@@ -463,41 +497,6 @@ export class Color extends ValueType {
             hex.push((this.a < 16 ? prefix : '') + (this.a).toString(16));
         }
         return hex.join('');
-    }
-
-    /**
-     * @en Convert 8bit color to Vec4
-     * @zh 将当前颜色转换为到 Vec4
-     * @returns Vec4 as float color value
-     * @example
-     * ```
-     * const color = Color.YELLOW;
-     * color.toVec4();
-     * ```
-     */
-    public toVec4 (out?: Vec4): Vec4 {
-        out = out !== undefined ?  out : new Vec4();
-        out.x = srgb8BitToLinear(this.r);
-        out.y = srgb8BitToLinear(this.g);
-        out.z = srgb8BitToLinear(this.b);
-        out.w = srgb8BitToLinear(this.a);
-        return out;
-    }
-    /**
-     * @en Set 8bit Color from Vec4
-     * @zh 使用 Vec4 设置 8 bit 颜色
-     * @returns 8 Bit srgb value
-     * @example
-     * ```
-     * color.fromVec4(new Vec4(1,1,1,1));
-     * ```
-     */
-    public fromVec4 (value: Vec4): Color {
-        this.r = linearToSrgb8Bit(value.x);
-        this.g = linearToSrgb8Bit(value.y);
-        this.b = linearToSrgb8Bit(value.z);
-        this.a = linearToSrgb8Bit(value.w);
-        return this;
     }
 
     /**
