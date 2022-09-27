@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
@@ -127,6 +127,13 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             const depend = depends[i];
             const dependAsset = assetsMap[`${depend.uuid}@import`];
             if (!dependAsset) {
+                if (DEBUG || EDITOR) {
+                    const assetManger = (legacyCC.assetManager as typeof import('./asset-manager').default);
+                    for (const [origin, target] of assetManger.assetsOverrideMap.entries()) {
+                        error(`Asset with UUID  '${target}' is the value of assetManger.assetsOverrideMap['${origin}'],try to use the asset with UUID '${origin}' instead.`);
+                        break;
+                    }
+                }
                 if (EDITOR) {
                     if (!missingAssetReporter) {
                         // eslint-disable-next-line new-cap
