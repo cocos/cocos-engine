@@ -408,7 +408,9 @@ export declare namespace native {
         /**
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.
-         * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
+         * @param requestURL
+         * @en Request download resource URL. Node: Users need to encode the URL containing special characters except spaces (such as Chinese, etc.)
+         * @zh 请求下载资源的URL. 注意: 当URL中包含除空格外特殊字符(如:中文等)时需要用户自行编码后传入.
          * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
          * @param identifier  @en identifier @zh 标识符
          * @return @en DownloaderTask @zh 下载任务对象
@@ -471,7 +473,9 @@ export declare namespace native {
          * @deprecated since v3.6.0, please use `createDownloadTask` to instead.
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.
-         * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
+         * @param requestURL
+         * @en Request download resource URL. Node: Users need to encode the URL containing special characters except spaces (such as Chinese, etc.)
+         * @zh 请求下载资源的URL. 注意: 当URL中包含除空格外特殊字符(如:中文等)时需要用户自行编码后传入.
          * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
          * @param identifier  @en identifier @zh 标识符
          * @return @en DownloaderTask @zh 下载任务对象
