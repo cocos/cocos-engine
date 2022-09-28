@@ -609,7 +609,7 @@ export class CollectVisitor extends DefaultVisitor {
         if (g.holds(LayoutGraphValue.RenderStage, v)) {
             freq = UpdateFrequency.PER_PASS;
         } else {
-            freq = UpdateFrequency.PER_QUEUE;
+            freq = UpdateFrequency.PER_PHASE;
         }
         return freq;
     }

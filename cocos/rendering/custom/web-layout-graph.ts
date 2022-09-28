@@ -264,7 +264,7 @@ export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
     public addRenderPhase (name: string, parentID: number): number {
         return this._data.addVertex(LayoutGraphDataValue.RenderPhase,
             new RenderPhaseData(), name,
-            UpdateFrequency.PER_QUEUE, new PipelineLayoutData(),
+            UpdateFrequency.PER_PHASE, new PipelineLayoutData(),
             parentID);
     }
 
