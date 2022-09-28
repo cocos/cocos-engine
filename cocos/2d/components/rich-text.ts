@@ -503,7 +503,7 @@ export class RichText extends Component {
     }
 
     public start () {
-        this._onTTFLoaded();
+        //this._onTTFLoaded();
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
@@ -1263,12 +1263,6 @@ export class RichText extends Component {
         label.lineHeight = this._lineHeight;
 
         label.updateRenderData(true);
-        // Todo: need update context size after this function call
-        // @ts-expect-error update assembler renderData for richText
-        const assembler = label._assembler;
-        if (assembler) {
-            assembler.updateRenderData(label);
-        }
     }
 
     protected _applyLayer () {
