@@ -242,7 +242,7 @@ module.exports = {
                 },
                 materialDumpDir: {
                     name: 'Material Dump Directory',
-                    title: 'The directory to dump the materials.\nDefault to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
+                    title: 'The directory to dump the materials.<br>Default to a direct sub-folder named `Materials_${model-file-base-name}` under current path.',
                 },
                 useVertexColors: {
                     name: 'Use Vertex Colors',

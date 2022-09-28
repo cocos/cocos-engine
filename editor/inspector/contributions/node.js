@@ -181,7 +181,7 @@ exports.listeners = {
          * So stop preview some properties.
          */
         const stopPreviewOnTheseTooltips = [
-            'i18n:animation.default_clip',
+            'i18n:ENGINE.animation.default_clip',
         ];
         if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
             return;
