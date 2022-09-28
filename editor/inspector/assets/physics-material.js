@@ -1,6 +1,23 @@
 exports.template = `
 <section class="asset-physics-material">
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>  
 </section>
+`;
+
+exports.style = `
+.asset-physics-material[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-physics-material[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-physics-material .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
 `;
 
 exports.methods = {
@@ -116,9 +133,11 @@ exports.update = async function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     if (this.dirtyData.uuid !== this.asset.uuid) {

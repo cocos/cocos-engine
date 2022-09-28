@@ -1,6 +1,8 @@
 exports.template = `
-<ui-prop type="dump" class="asset-render-pipeline">
-</ui-prop>
+<section class="asset-render-pipeline">
+    <ui-prop class="dump-prop" type="dump"></ui-prop>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>  
+</section>
 `;
 
 exports.methods = {
@@ -56,7 +58,7 @@ exports.methods = {
 
     updateInterface() {
         this.updateReadonly(this.pipeline);
-        this.$.container.render(this.pipeline);
+        this.$.prop.render(this.pipeline);
     },
 
     updateReadonly(obj) {
@@ -94,7 +96,24 @@ exports.methods = {
 
 exports.$ = {
     container: '.asset-render-pipeline',
+    prop: '.dump-prop',
 };
+
+exports.style = `
+.asset-render-pipeline[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-render-pipeline[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-render-pipeline .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+`;
 
 exports.ready = function() {
     this.$.container.addEventListener('change-dump', this.change.bind(this));
@@ -114,9 +133,11 @@ exports.update = async function(assetList, metaList) {
     this.meta = this.metaList[0];
     this.asset = this.assetList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     if (this.dirtyData.uuid !== this.asset.uuid) {

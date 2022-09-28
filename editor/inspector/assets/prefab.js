@@ -13,15 +13,11 @@ exports.$ = {
     persistentCheckbox: '.persistent-checkbox',
 };
 
-exports.style = `
-
-`;
-
 exports.methods = {
     /**
      * Update whether a data is editable in multi-select state
      */
-     updateInvalid(element, prop) {
+    updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
             return meta.userData[prop] !== this.meta.userData[prop];
         });
@@ -46,7 +42,7 @@ exports.update = function(assetList, metaList) {
     panel.metaList = metaList;
     panel.asset = assetList[0];
     panel.meta = metaList[0];
-    
+
     // persistent
     panel.updateInvalid(panel.$.persistentCheckbox, 'persistent');
     panel.updateReadonly(panel.$.persistentCheckbox);

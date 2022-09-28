@@ -104,10 +104,6 @@
     flex: 1;
 }
 
-:host > .container > .content > .content-footer {
-    margin-top: 10px;
-}
-
 :host([sub-type="material"]) > .container > .content,
 :host([sub-type="gltf-material"]) > .container > .content {
     padding-top: 0;

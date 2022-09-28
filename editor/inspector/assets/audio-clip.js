@@ -11,7 +11,7 @@ exports.style = `
 }
 `;
 exports.$ = {
-    constainer: '.asset-audio-clip',
+    container: '.asset-audio-clip',
 };
 exports.update = function(assetList, metaList) {
     // Support multi-select list display, limit the number of display
@@ -30,5 +30,5 @@ exports.update = function(assetList, metaList) {
         html += `<audio class="audio" controls="controls" src="${asset.file}?v=${Date.now()}"></audio>`;
     });
 
-    this.$.constainer.innerHTML = html;
+    this.$.container.innerHTML = html;
 };

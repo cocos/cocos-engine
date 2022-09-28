@@ -13,6 +13,7 @@ exports.template = `
     <div class="content">
         <ui-tree class="tree"></ui-tree>
     </div>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </section>
 `;
 
@@ -203,26 +204,44 @@ exports.style = `
     flex-direction: column;
 }
 
-.header {
+.asset-animation-mask[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-animation-mask[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-animation-mask .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+
+.asset-animation-mask > .header {
     margin-top: 10px;
     display: flex;
 }
 
-.header ui-button {
-    flex: 1;
+.asset-animation-mask > .header ui-button {
     text-align: center;
 }
 
-.header .clear {
+.asset-animation-mask > .header .import {
+    flex: 1;
     margin-left: 10px;
 }
 
-.content {
+.asset-animation-mask > .header .clear {
+    margin-left: 10px;
+}
+
+.asset-animation-mask > .content {
     flex: 1;
     margin-top: 10px;
 }
 
-.content .tree {
+.asset-animation-mask > .content .tree {
     height: 100%;
 }
 `;
@@ -332,9 +351,11 @@ exports.update = async function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     if (this.dirtyData.uuid !== this.asset.uuid) {

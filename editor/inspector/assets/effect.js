@@ -19,11 +19,28 @@ exports.template = `
     </ui-section>
 
     <div class="codes"></div>
+
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
 `;
 
 exports.style = `
     .asset-effect {  }
+
+    .asset-effect[multiple-invalid] > *:not(.multiple-warn-tip) {
+        display: none!important;
+     }
+    
+     .asset-effect[multiple-invalid] > .multiple-warn-tip {
+        display: block;
+     }
+    
+    .asset-effect .multiple-warn-tip {
+        display: none;
+        text-align: center;
+        color: var(--color-focus-contrast-weakest);
+    }
+
     .asset-effect > * {
         margin-bottom: 8px;
     }
@@ -272,11 +289,11 @@ exports.update = function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (this.assetList.length !== 1) {
-        this.$.container.style.display = 'none';
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
     } else {
-        this.$.container.style.display = 'block';
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     const isLegal = this.refresh();

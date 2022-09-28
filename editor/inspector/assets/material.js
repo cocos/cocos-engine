@@ -521,14 +521,6 @@ exports.ready = function() {
         this.confirm();
     });
 
-    //  The event is triggered when the useBatching is modified
-    this.$.useBatching.addEventListener('change-dump', (event) => {
-        this.changeBatching(event.target.dump.value);
-        this.storeCache(event.target.dump);
-        this.change();
-        this.confirm();
-    });
-
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', (event) => {
         const dump = event.target.dump;
