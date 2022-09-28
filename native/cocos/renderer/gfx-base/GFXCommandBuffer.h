@@ -69,6 +69,8 @@ public:
     virtual void endQuery(QueryPool *queryPool, uint32_t id) = 0;
     virtual void resetQueryPool(QueryPool *queryPool) = 0;
     virtual void completeQueryPool(QueryPool *queryPool) {}
+    virtual void buildAccelerationStructure(AccelerationStructure *accel) = 0;
+    virtual void updateAccelerationStructure(AccelerationStructure *accel) = 0;
 
     // barrier: excutionBarrier
     // bufferBarriers: array of BufferBarrier*, descriptions of access of buffers

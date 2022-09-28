@@ -41,6 +41,7 @@ class Sampler;
 class Buffer;
 class Texture;
 class Device;
+class AccelerationStructure;
 } // namespace gfx
 namespace pipeline {
 
@@ -58,6 +59,7 @@ public:
     void bindBuffer(uint32_t binding, gfx::Buffer *buffer);
     void bindTexture(uint32_t binding, gfx::Texture *texture);
     void bindSampler(uint32_t binding, gfx::Sampler *sampler);
+    void bindAccelerationStructure(uint32_t binding, gfx::AccelerationStructure * accel);
     void update();
     gfx::DescriptorSet *getOrCreateDescriptorSet(const scene::Light *light);
     void destroy();

@@ -411,6 +411,22 @@ const gfx::UniformSamplerTexture DIFFUSEMAP::LAYOUT = {
     1,
 };
 
+const ccstd::string TOPLEVELAS::NAME = "cc_toplevelAccelerationStructure";
+const gfx::DescriptorSetLayoutBinding TOPLEVELAS::DESCRIPTOR = {
+    TOPLEVELAS::BINDING,
+    gfx::DescriptorType::ACCELERATION_STRUCTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::AccelerationStructureLayout TOPLEVELAS::LAYOUT = {
+    globalSet,
+    TOPLEVELAS::BINDING,
+    TOPLEVELAS::NAME,
+    gfx::Type::ACCELERATION_STRUCTURE,
+    1,
+};
+
 const ccstd::string JOINTTEXTURE::NAME = "cc_jointTexture";
 const gfx::DescriptorSetLayoutBinding JOINTTEXTURE::DESCRIPTOR = {
     JOINTTEXTURE::BINDING,

@@ -25,11 +25,13 @@
 
 #pragma once
 
+#include "base/Ptr.h"
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 #include "math/Math.h"
+#include "math/Mat4.h"
 
 #ifdef Status
     // Fix linux compile errors
@@ -85,6 +87,7 @@ class Queue;
 class QueryPool;
 class Window;
 class Context;
+class AccelerationStructure;
 
 using BufferBarrierList = ccstd::vector<BufferBarrier *>;
 using TextureBarrierList = ccstd::vector<TextureBarrier *>;
@@ -104,6 +107,7 @@ constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
 using BufferList = ccstd::vector<Buffer *>;
 using TextureList = ccstd::vector<Texture *>;
 using SamplerList = ccstd::vector<Sampler *>;
+using AccelerationStructureList = ccstd::vector<AccelerationStructure *>;
 using DescriptorSetLayoutList = ccstd::vector<DescriptorSetLayout *>;
 
 // make sure you have FILLED GRAPHs before enable this!
@@ -133,6 +137,7 @@ enum class ObjectType : uint32_t {
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
+    ACCELERATION_STRUCTURE,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ObjectType);
@@ -190,7 +195,7 @@ enum class Feature : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
 
-enum class Format : uint32_t {
+enum class  Format : uint32_t {
 
     UNKNOWN,
 
@@ -380,7 +385,6 @@ enum class Type : uint32_t {
     MAT3X2,
     MAT3,
     MAT3X4,
-    MAT4X2,
     MAT4X3,
     MAT4,
     // combined image samplers
@@ -408,6 +412,8 @@ enum class Type : uint32_t {
     IMAGE_CUBE,
     // input attachment
     SUBPASS_INPUT,
+    //acceleration structure
+    ACCELERATION_STRUCTURE,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Type);
@@ -425,6 +431,9 @@ enum class BufferUsageBit : uint32_t {
     UNIFORM = 0x10,
     STORAGE = 0x20,
     INDIRECT = 0x40,
+    SHADER_DEVICE_ADDRESS = 0x80,
+    ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY = 0x100,
+    ACCELERATION_STRUCTURE_STORAGE = 0x200
 };
 using BufferUsage = BufferUsageBit;
 CC_ENUM_BITWISE_OPERATORS(BufferUsageBit);
@@ -471,6 +480,7 @@ enum class TextureUsageBit : uint32_t {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+
 };
 using TextureUsage = TextureUsageBit;
 CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
@@ -755,6 +765,7 @@ enum class DescriptorType : uint32_t {
     TEXTURE = 0x40,
     STORAGE_IMAGE = 0x80,
     INPUT_ATTACHMENT = 0x100,
+    ACCELERATION_STRUCTURE = 0x200
 };
 CC_ENUM_BITWISE_OPERATORS(DescriptorType);
 
@@ -1156,6 +1167,16 @@ struct UniformTexture {
 
 using UniformTextureList = ccstd::vector<UniformTexture>;
 
+struct AccelerationStructureLayout {
+    uint32_t set{0};
+    uint32_t binding{0};
+    ccstd::string name;
+    Type type{Type::UNKNOWN};
+    uint32_t count{0};
+
+    EXPOSE_COPY_FN(AccelerationStructureLayout)
+};
+
 struct UniformStorageImage {
     uint32_t set{0};
     uint32_t binding{0};
@@ -1210,6 +1231,82 @@ struct Attribute {
     uint32_t location{0};
 
     EXPOSE_COPY_FN(Attribute)
+};
+
+/*
+enum class ASGeometryType : uint32_t {
+    TRIANGLE_MESH,
+    AABB,
+    INSTANCE,
+    COUNT
+};
+*/
+
+enum class ASGeometryFlagBit : uint32_t {
+    GEOMETRY_OPAQUE = 0x1,
+    COUNT
+};
+
+CC_ENUM_BITWISE_OPERATORS(ASGeometryFlagBit);
+using ASGeometryFlags = ASGeometryFlagBit;
+
+enum class ASBuildFlagBits : uint32_t {
+    ALLOW_UPDATE = 0x1,
+    ALLOW_COMPACTION = 0x2,
+    PREFER_FAST_TRACE = 0x4,
+    PREFER_FAST_BUILD = 0x8,
+    LOW_MEMORY = 0x10,
+};
+
+CC_ENUM_BITWISE_OPERATORS(ASBuildFlagBits);
+using ASBuildFlags = ASBuildFlagBits;
+
+enum class GeometryInstanceFlagBits : uint32_t {
+    TRIANGLE_FACING_CULL_DISABLE,
+    TRIANGLE_FLIP_FACING,
+    FORCE_OPAQUE,
+    FORCE_NO_OPAQUE,
+    TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR = TRIANGLE_FLIP_FACING,
+    COUNT
+};
+
+CC_ENUM_BITWISE_OPERATORS(GeometryInstanceFlagBits);
+using GeometryInstanceFlags = GeometryInstanceFlagBits;
+
+struct ASTriangleMesh {
+    ASGeometryFlags flag;
+    Format vertexFormat;
+    uint32_t vertexCount;
+    uint32_t vertexStride;
+    uint32_t indexCount;
+    Buffer* vertexBuffer;
+    Buffer* indexBuffer; 
+};
+
+struct ASAABB {
+    ASGeometryFlags flag;
+    Buffer *aabbsBuffer;
+    float minX;
+    float minY;
+    float minZ;
+    float maxX;
+    float maxY;
+    float maxZ;
+};
+
+struct ASInstance {
+    Mat4 transform{};
+    uint32_t instanceCustomIdx;
+    uint32_t mask;
+    uint32_t shaderBindingTableRecordOffset;
+    GeometryInstanceFlags flags;
+    AccelerationStructure *accelerationStructureRef;
+};
+
+struct AccelerationStructureInfo{
+    ccstd::vector<ASTriangleMesh> triangels;
+    ccstd::vector<ASAABB> aabbs;
+    ccstd::vector<ASInstance> instances;
 };
 
 using AttributeList = ccstd::vector<Attribute>;

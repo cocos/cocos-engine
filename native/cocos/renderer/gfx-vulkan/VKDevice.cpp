@@ -142,9 +142,35 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedFeatures2.features.depthBounds = deviceFeatures.depthBounds;
     requestedFeatures2.features.multiDrawIndirect = deviceFeatures.multiDrawIndirect;
 
+
     if (_gpuContext->validationEnabled) {
         requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     }
+
+    #define CC_RAY_TRACING_ENABLE 1
+
+#if CC_RAY_TRACING_ENABLE
+
+    requestedExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
+    requestedExtensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+    requestedExtensions.push_back(VK_KHR_RAY_QUERY_EXTENSION_NAME);
+
+    requestedVulkan12Features.bufferDeviceAddress = true;
+
+    VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR};
+    accelerationStructureFeatures.accelerationStructure = true;
+
+    VkPhysicalDeviceRayQueryFeaturesKHR rayQueryFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR};
+    rayQueryFeatures.rayQuery = true;
+
+    VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR};
+    rayTracingPipelineFeatures.rayTracingPipeline = true;
+
+    requestedVulkan12Features.pNext = &accelerationStructureFeatures;
+    accelerationStructureFeatures.pNext = &rayQueryFeatures;
+    rayQueryFeatures.pNext = &rayTracingPipelineFeatures;
+    
+#endif
 
     // check extensions
     uint32_t availableLayerCount;
@@ -342,6 +368,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     allocatorInfo.physicalDevice = _gpuContext->physicalDevice;
     allocatorInfo.device = _gpuDevice->vkDevice;
     allocatorInfo.instance = _gpuContext->vkInstance;
+    allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
 
     VmaVulkanFunctions vmaVulkanFunc{};
     vmaVulkanFunc.vkAllocateMemory = vkAllocateMemory;
@@ -855,6 +882,11 @@ PipelineLayout *CCVKDevice::createPipelineLayout() {
 
 PipelineState *CCVKDevice::createPipelineState() {
     return ccnew CCVKPipelineState;
+}
+
+
+AccelerationStructure *CCVKDevice::createAccelerationStructure() {
+    return ccnew CCVKAccelerationStructure;
 }
 
 Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {

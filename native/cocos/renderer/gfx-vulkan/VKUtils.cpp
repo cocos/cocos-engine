@@ -201,6 +201,9 @@ VkBufferUsageFlagBits mapVkBufferUsageFlagBits(BufferUsage usage) {
     if (hasFlag(usage, BufferUsage::UNIFORM)) flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     if (hasFlag(usage, BufferUsage::STORAGE)) flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     if (hasFlag(usage, BufferUsage::INDIRECT)) flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+    if (hasFlag(usage, BufferUsageBit::SHADER_DEVICE_ADDRESS)) flags |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+    if (hasFlag(usage, BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY)) flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+    if (hasFlag(usage, BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE)) flags |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
     return static_cast<VkBufferUsageFlagBits>(flags);
 }
 
@@ -297,6 +300,7 @@ VkDescriptorType mapVkDescriptorType(DescriptorType type) {
         case DescriptorType::TEXTURE: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         case DescriptorType::STORAGE_IMAGE: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
         case DescriptorType::INPUT_ATTACHMENT: return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        case DescriptorType::ACCELERATION_STRUCTURE: return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
         default: {
             CC_ASSERT(false);
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -346,6 +350,22 @@ SurfaceTransform mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform) {
     return SurfaceTransform::IDENTITY;
 }
 
+VkGeometryFlagsKHR mapVkGeometryFlags(ASGeometryFlagBit flags) {
+    VkGeometryFlagsKHR _flags = 0U;
+    if (hasFlag(flags, ASGeometryFlagBit::GEOMETRY_OPAQUE)) _flags |= VK_GEOMETRY_OPAQUE_BIT_KHR;
+    return static_cast<VkGeometryFlagsKHR>(_flags);
+}
+
+VkBuildAccelerationStructureFlagsKHR mapVkBuildAccelerationStructureFlags(ASBuildFlags flags) {
+    VkBuildAccelerationStructureFlagsKHR _flags = 0U;
+    if (hasFlag(flags, ASBuildFlagBits::ALLOW_COMPACTION)) _flags |= VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR;
+    if (hasFlag(flags, ASBuildFlagBits::ALLOW_UPDATE)) _flags |= VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR;
+    if (hasFlag(flags, ASBuildFlagBits::LOW_MEMORY)) _flags |= VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR;
+    if (hasFlag(flags, ASBuildFlagBits::PREFER_FAST_TRACE)) _flags |= VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
+    if (hasFlag(flags, ASBuildFlagBits::PREFER_FAST_BUILD)) _flags |= VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR;
+    return static_cast<VkBuildAccelerationStructureFlagsKHR>( _flags);
+}
+
 ccstd::string mapVendorName(uint32_t vendorID) {
     switch (vendorID) {
         case 0x1002: return "Advanced Micro Devices, Inc.";
@@ -357,6 +377,26 @@ ccstd::string mapVendorName(uint32_t vendorID) {
         case 0x8086: return "Intel Corporation";
     }
     return StringUtil::format("Unknown VendorID %d", vendorID);
+}
+
+VkTransformMatrixKHR mapVkTransformMatrix(const Mat4& matrix) {
+    //todo
+    VkTransformMatrixKHR vkTransform{};
+    vkTransform.matrix[0][0] = matrix.m[0];
+    vkTransform.matrix[0][1] = matrix.m[4];
+    vkTransform.matrix[0][2] = matrix.m[8];
+    vkTransform.matrix[0][3] = -matrix.m[12];
+
+    vkTransform.matrix[1][0] = matrix.m[1];
+    vkTransform.matrix[1][1] = matrix.m[5];
+    vkTransform.matrix[1][2] = matrix.m[9];
+    vkTransform.matrix[1][3] = matrix.m[13];
+
+    vkTransform.matrix[2][0] = matrix.m[2];
+    vkTransform.matrix[2][1] = matrix.m[6];
+    vkTransform.matrix[2][2] = matrix.m[10];
+    vkTransform.matrix[2][3] = matrix.m[14];
+    return vkTransform;
 }
 
 const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING =

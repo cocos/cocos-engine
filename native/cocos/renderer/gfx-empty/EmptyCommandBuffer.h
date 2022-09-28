@@ -58,6 +58,8 @@ public:
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
     void resetQueryPool(QueryPool *queryPool) override;
+    void buildAccelerationStructure(AccelerationStructure* accel) override;
+    void updateAccelerationStructure(AccelerationStructure* accel) override;
 
 protected:
     void doInit(const CommandBufferInfo &info) override;

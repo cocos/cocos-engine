@@ -37,6 +37,10 @@ class Node;
 class SkinningModel;
 class BakedSkinningModel;
 
+namespace pipeline {
+    class SceneAccelerationStructure;
+}
+
 namespace scene {
 
 class Model;
@@ -117,6 +121,7 @@ private:
     ccstd::vector<IntrusivePtr<SpotLight>> _spotLights;
     ccstd::vector<DrawBatch2D *> _batches;
     Octree *_octree{nullptr};
+    pipeline::SceneAccelerationStructure *_sceneAccel;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderScene);
 };

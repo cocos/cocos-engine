@@ -32,6 +32,7 @@
 #include "base/Log.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
+#include "pipeline/SceneAccelerationStructure.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
@@ -52,6 +53,7 @@ RenderScene::~RenderScene() = default;
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
     _octree = sceneData->getOctree();
+    _sceneAccel = ccnew pipeline::SceneAccelerationStructure;
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
@@ -83,6 +85,8 @@ void RenderScene::update(uint32_t stamp) {
         }
     }
 
+    _sceneAccel->update(this);
+
     CC_PROFILE_OBJECT_UPDATE(Models, _models.size());
     CC_PROFILE_OBJECT_UPDATE(Cameras, _cameras.size());
     CC_PROFILE_OBJECT_UPDATE(DrawBatch2D, _batches.size());
@@ -93,6 +97,7 @@ void RenderScene::destroy() {
     removeSphereLights();
     removeSpotLights();
     removeModels();
+    CC_SAFE_DELETE(_sceneAccel)
 }
 
 void RenderScene::addCamera(Camera *camera) {
@@ -188,6 +193,16 @@ void RenderScene::removeSpotLights() {
 void RenderScene::addModel(Model *model) {
     model->attachToScene(this);
     _models.emplace_back(model);
+
+    /*
+    for (const auto &submodel : model->getSubModels()) {
+        const auto *ia = submodel->getInputAssembler();
+        const auto indexCount = ia->getIndexCount();
+        if (indexCount == 486) {
+            CC_LOG_INFO("");
+        }
+    }*/
+
     if (_octree && _octree->isEnabled()) {
         _octree->insert(model);
     }

@@ -111,5 +111,12 @@ void EmptyCommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
 void EmptyCommandBuffer::resetQueryPool(QueryPool *queryPool) {
 }
 
+void EmptyCommandBuffer::buildAccelerationStructure(AccelerationStructure* accel) {
+}
+
+void EmptyCommandBuffer::updateAccelerationStructure(AccelerationStructure* accel) {
+    
+}
+
 } // namespace gfx
 } // namespace cc

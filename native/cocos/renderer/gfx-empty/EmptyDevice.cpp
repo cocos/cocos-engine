@@ -39,6 +39,8 @@
 #include "EmptyShader.h"
 #include "EmptySwapchain.h"
 #include "EmptyTexture.h"
+#include "EmptyAccelerationStructure.h"
+
 #include "base/Log.h"
 
 namespace cc {
@@ -148,6 +150,11 @@ PipelineLayout *EmptyDevice::createPipelineLayout() {
 PipelineState *EmptyDevice::createPipelineState() {
     return ccnew EmptyPipelineState;
 }
+
+ AccelerationStructure* EmptyDevice::createAccelerationStructure() {
+    return ccnew EmptyAccelerationStructure;
+ }
+
 
 void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
 }

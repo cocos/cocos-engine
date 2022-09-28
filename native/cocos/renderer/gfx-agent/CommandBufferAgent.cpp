@@ -511,5 +511,15 @@ void CommandBufferAgent::completeQueryPool(QueryPool *queryPool) {
         });
 }
 
+void CommandBufferAgent::buildAccelerationStructure(AccelerationStructure* accel) {
+    //todo
+}
+
+void CommandBufferAgent::updateAccelerationStructure(AccelerationStructure* accel) {
+    //todo
+}
+
+
+
 } // namespace gfx
 } // namespace cc

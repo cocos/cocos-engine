@@ -69,7 +69,10 @@ VkColorComponentFlags mapVkColorComponentFlags(ColorMask colorMask);
 VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage);
 VkShaderStageFlags mapVkShaderStageFlags(ShaderStageFlagBit stages);
 SurfaceTransform mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform);
+VkGeometryFlagsKHR mapVkGeometryFlags(ASGeometryFlagBit flags);
+VkBuildAccelerationStructureFlagsKHR mapVkBuildAccelerationStructureFlags(ASBuildFlags flags);
 ccstd::string mapVendorName(uint32_t vendorID);
+VkTransformMatrixKHR mapVkTransformMatrix(const Mat4& matrix);
 
 void fullPipelineBarrier(VkCommandBuffer cmdBuff);
 const ThsvsAccessType *getAccessType(AccessFlagBit flag);

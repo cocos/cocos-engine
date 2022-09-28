@@ -789,5 +789,14 @@ void CCVKCommandBuffer::resetQueryPool(QueryPool *queryPool) {
     vkQueryPool->_ids.clear();
 }
 
+void CCVKCommandBuffer::buildAccelerationStructure(AccelerationStructure* accel) {
+    auto *gpuAccel = static_cast<CCVKAccelerationStructure *>(accel)->gpuAccelerationStructure();
+    cmdFuncCCVKBuildAccelerationStructure(CCVKDevice::getInstance(), gpuAccel, _gpuCommandBuffer);
+}
+void CCVKCommandBuffer::updateAccelerationStructure(AccelerationStructure* accel) {
+    auto *gpuAccel = static_cast<CCVKAccelerationStructure *>(accel)->gpuAccelerationStructure();
+    cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice::getInstance(), gpuAccel, _gpuCommandBuffer);
+}
+
 } // namespace gfx
 } // namespace cc

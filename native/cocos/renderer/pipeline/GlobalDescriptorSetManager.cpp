@@ -109,6 +109,23 @@ void GlobalDSManager::bindTexture(uint32_t binding, gfx::Texture *texture) {
     }
 }
 
+void GlobalDSManager::bindAccelerationStructure(uint32_t binding, gfx::AccelerationStructure* accel) {
+    if (!accel) {
+        // consider create a default as
+        return;
+    }
+    if (_globalDescriptorSet!=nullptr) {
+        _globalDescriptorSet->bindAccelerationStructure(binding, accel);
+    }
+
+    for (const auto &pair : _descriptorSetMap) {
+        if (pair.second != nullptr) {
+            pair.second->bindAccelerationStructure(binding, accel);
+        }
+    }
+}
+
+
 void GlobalDSManager::update() {
     if (_globalDescriptorSet != nullptr) {
         _globalDescriptorSet->update();
@@ -191,6 +208,9 @@ void GlobalDSManager::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings[SPOTSHADOWMAP::BINDING] = SPOTSHADOWMAP::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[DIFFUSEMAP::NAME] = DIFFUSEMAP::LAYOUT;
     globalDescriptorSetLayout.bindings[DIFFUSEMAP::BINDING] = DIFFUSEMAP::DESCRIPTOR;
+
+    globalDescriptorSetLayout.tlas = TOPLEVELAS::LAYOUT;
+    globalDescriptorSetLayout.bindings[TOPLEVELAS::BINDING] = TOPLEVELAS::DESCRIPTOR;
 
     localDescriptorSetLayout.bindings.resize(static_cast<size_t>(ModelLocalBindings::COUNT));
     localDescriptorSetLayout.blocks[UBOLocalBatched::NAME] = UBOLocalBatched::LAYOUT;

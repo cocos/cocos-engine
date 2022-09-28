@@ -535,5 +535,14 @@ void CommandBufferValidator::completeQueryPool(QueryPool *queryPool) {
     _actor->completeQueryPool(actorQueryPool);
 }
 
+void CommandBufferValidator::buildAccelerationStructure(AccelerationStructure* accel) {
+    CC_ASSERT(isInited());
+    //todo
+}
+
+void CommandBufferValidator::updateAccelerationStructure(AccelerationStructure *accel) {
+    CC_ASSERT(isInited());
+    // todo
+}
 } // namespace gfx
 } // namespace cc
