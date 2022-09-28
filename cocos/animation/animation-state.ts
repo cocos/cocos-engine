@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { Playable } from './playable';
-import { WrapMode, WrapModeMask, WrappedInfo } from './types';
+import { WrapMode, WrappedInfo } from './types';
 import { legacyCC } from '../core/global-exports';
 import { ccenum } from '../core/value-types/enum';
 import { assertIsTrue } from '../core/data/utils/asserts';
@@ -36,6 +36,7 @@ import { AnimationMask } from './marionette/animation-mask';
 import { PoseOutput } from './pose-output';
 import { BlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';
 import { getGlobalAnimationManager } from './global-animation-manager';
+import { WrapModeMask } from '../core/geometry/curve';
 
 /**
  * @en The event type supported by Animation
