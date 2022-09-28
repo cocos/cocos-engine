@@ -97,14 +97,7 @@ class SystemInfo extends EventTarget {
         this.isXR = false;
 
         // init capability
-        // NOTE: canvas.toDataURL() is not supported on WeChat iOS end (Found on iPhone 7p)
-        const isIOSWechat = WECHAT && this.os === OS.IOS;
-        let supportWebp;
-        if (isIOSWechat) {
-            supportWebp = true;
-        } else {
-            supportWebp = this._supportsWebp();
-        }
+        const supportWebp = this._supportsWebp();
 
         const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
         this._featureMap = {
@@ -128,12 +121,18 @@ class SystemInfo extends EventTarget {
     }
 
     private _supportsWebp (): boolean {
-        let supportWebp: boolean;
+        // NOTE: canvas.toDataURL() is not supported on WeChat iOS end (Found on iPhone 7p)
+        const isIOSWechat = WECHAT && this.os === OS.IOS;
         const _tmpCanvas = document.createElement('canvas');  // TODO: remove this
-        try {
-            supportWebp = TEST ? false : _tmpCanvas.toDataURL('image/webp').startsWith('data:image/webp');
-        } catch (e) {
-            supportWebp  = false;
+        let supportWebp: boolean;
+        if (isIOSWechat) {
+            supportWebp = true;
+        } else {
+            try {
+                supportWebp = TEST ? false : _tmpCanvas.toDataURL('image/webp').startsWith('data:image/webp');
+            } catch (e) {
+                supportWebp  = false;
+            }
         }
         return supportWebp;
     }
