@@ -92,6 +92,7 @@ const Alignment = [
 export const ttfUtils =  {
     getAssemblerData () {
         const sharedLabelData = Label._canvasPool.get();
+        sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
         return sharedLabelData;
     },
 
