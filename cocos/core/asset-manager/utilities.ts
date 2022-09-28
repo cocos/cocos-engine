@@ -127,27 +127,20 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             const depend = depends[i];
             const dependAsset = assetsMap[`${depend.uuid}@import`];
             if (!dependAsset) {
-                let warningForAssetOverride: string | undefined;
                 if (DEBUG || EDITOR) {
                     const assetManger = (legacyCC.assetManager as typeof import('./asset-manager').default);
                     for (const [origin, target] of assetManger.assetsOverrideMap.entries()) {
-                        warningForAssetOverride = `Asset with UUID  '${target}' is the value of assetManger.assetsOverrideMap['${origin}'],try to use the asset with UUID '${origin}' instead.`;
+                        error(`Asset with UUID  '${target}' is the value of assetManger.assetsOverrideMap['${origin}'],try to use the asset with UUID '${origin}' instead.`);
                         break;
                     }
                 }
                 if (EDITOR) {
-                    if (warningForAssetOverride) {
-                        console.error(warningForAssetOverride);
-                    }
                     if (!missingAssetReporter) {
                         // eslint-disable-next-line new-cap
                         missingAssetReporter = new EditorExtends.MissingReporter.object(asset);
                     }
                     missingAssetReporter.stashByOwner(depend.owner, depend.prop, EditorExtends.serialize.asAsset(depend.uuid));
                 } else {
-                    if (warningForAssetOverride) {
-                        error(warningForAssetOverride);
-                    }
                     error(`The asset ${depend.uuid} is missing!`);
                 }
                 if (depend.type && depend.type !== Asset) {
