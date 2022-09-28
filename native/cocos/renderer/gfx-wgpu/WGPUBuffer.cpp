@@ -222,7 +222,7 @@ CCWGPUBuffer *CCWGPUBuffer::defaultUniformBuffer() {
         BufferInfo info = {
             .usage = BufferUsageBit::UNIFORM,
             .memUsage = MemoryUsageBit::DEVICE,
-            .size = 4,
+            .size = 256,
             .flags = BufferFlagBit::NONE,
         };
         dftUniformBuffer = ccnew CCWGPUBuffer;
@@ -236,7 +236,7 @@ CCWGPUBuffer *CCWGPUBuffer::defaultStorageBuffer() {
         BufferInfo info = {
             .usage = BufferUsageBit::STORAGE,
             .memUsage = MemoryUsageBit::DEVICE,
-            .size = 4,
+            .size = 256,
             .flags = BufferFlagBit::NONE,
         };
         dftStorageBuffer = ccnew CCWGPUBuffer;

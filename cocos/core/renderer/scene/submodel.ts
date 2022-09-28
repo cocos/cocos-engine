@@ -399,7 +399,7 @@ export class SubModel {
         // update draw info
         const drawInfo = this._subMesh.drawInfo;
         if (this._inputAssembler && drawInfo) {
-            this._inputAssembler.drawInfo.copy(drawInfo);
+            Object.assign(this._inputAssembler.drawInfo, drawInfo);
         }
     }
 
