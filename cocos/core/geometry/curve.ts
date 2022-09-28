@@ -345,6 +345,9 @@ CCClass.fastDefine('cc.AnimationCurve', AnimationCurve, {
     _curve: null,
 });
 
+/**
+ * @engineInternal
+ */
 export enum WrapModeMask {
     Default = 0,
     Normal = 1 << 0,
