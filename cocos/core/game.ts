@@ -863,14 +863,14 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @internal only for preview
+     * @internal only for browser preview
      */
     private _loadCCEScripts () {
         return new Promise<void>((resolve, reject) => {
-            if (PREVIEW && !TEST) {
+            // Since there is no script in the bundle during preview, we need to load the user's script in the following way
+            if (PREVIEW && !TEST && !EDITOR && !NATIVE) {
                 const bundneName = 'cce:/internal/x/prerequisite-imports';
-                import(bundneName)
-                    .then(() => resolve(), (reason) => reject(reason));
+                import(bundneName).then(() => resolve(), (reason) => reject(reason));
             } else {
                 resolve();
             }
