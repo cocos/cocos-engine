@@ -93,7 +93,27 @@ struct CCVKGPUGeneralBarrier {
     ThsvsGlobalBarrier barrier{};
 };
 
-class CCVKGPURenderPass final : public GFXDeviceObject {
+struct CCVKDeviceObjectDeleter {
+    template <typename T>
+    void operator()(T *ptr) const;
+};
+
+class CCVKGPUDeviceObject : public GFXDeviceObject<CCVKDeviceObjectDeleter> {
+public:
+    CCVKGPUDeviceObject() = default;
+    ~CCVKGPUDeviceObject() = default;
+
+    virtual void shutdown() {};
+};
+
+template <typename T>
+void CCVKDeviceObjectDeleter::operator()(T *ptr) const {
+    auto *object = const_cast<CCVKGPUDeviceObject*>(static_cast<const CCVKGPUDeviceObject*>(ptr));
+    object->shutdown();
+    delete object;
+}
+
+class CCVKGPURenderPass final : public CCVKGPUDeviceObject {
 public:
     void shutdown() override;
 
@@ -113,7 +133,7 @@ public:
 
 struct CCVKGPUSwapchain;
 struct CCVKGPUFramebuffer;
-struct CCVKGPUTexture : public GFXDeviceObject {
+struct CCVKGPUTexture  : public CCVKGPUDeviceObject {
     TextureType type = TextureType::TEX2D;
     Format format = Format::UNKNOWN;
     TextureUsage usage = TextureUsageBit::NONE;
@@ -142,7 +162,7 @@ struct CCVKGPUTexture : public GFXDeviceObject {
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
 };
 
-struct CCVKGPUTextureView : public GFXDeviceObject {
+struct CCVKGPUTextureView  : public CCVKGPUDeviceObject {
     CCVKGPUTexture *gpuTexture = nullptr;
     TextureType type = TextureType::TEX2D;
     Format format = Format::UNKNOWN;
@@ -157,7 +177,7 @@ struct CCVKGPUTextureView : public GFXDeviceObject {
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
-struct CCVKGPUSampler : public GFXDeviceObject {
+struct CCVKGPUSampler  : public CCVKGPUDeviceObject {
     Filter minFilter = Filter::LINEAR;
     Filter magFilter = Filter::LINEAR;
     Filter mipFilter = Filter::NONE;
@@ -171,7 +191,7 @@ struct CCVKGPUSampler : public GFXDeviceObject {
     VkSampler vkSampler;
 };
 
-struct CCVKGPUBuffer : public GFXDeviceObject {
+struct CCVKGPUBuffer  : public CCVKGPUDeviceObject {
     BufferUsage usage = BufferUsage::NONE;
     MemoryUsage memUsage = MemoryUsage::NONE;
     uint32_t stride = 0U;
@@ -202,7 +222,7 @@ struct CCVKGPUBuffer : public GFXDeviceObject {
     }
 };
 
-struct CCVKGPUBufferView : public GFXDeviceObject {
+struct CCVKGPUBufferView  : public CCVKGPUDeviceObject {
     CCVKGPUBuffer *gpuBuffer = nullptr;
     uint32_t offset = 0U;
     uint32_t range = 0U;
@@ -212,7 +232,7 @@ struct CCVKGPUBufferView : public GFXDeviceObject {
     }
 };
 
-struct CCVKGPUFramebuffer : public GFXDeviceObject {
+struct CCVKGPUFramebuffer  : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     ConstPtr<CCVKGPURenderPass> gpuRenderPass;
@@ -226,7 +246,7 @@ struct CCVKGPUFramebuffer : public GFXDeviceObject {
     uint32_t height = 0U;
 };
 
-struct CCVKGPUSwapchain : public GFXDeviceObject {
+struct CCVKGPUSwapchain : public CCVKGPUDeviceObject {
     VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
     VkSwapchainCreateInfoKHR createInfo{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
 
@@ -239,7 +259,7 @@ struct CCVKGPUSwapchain : public GFXDeviceObject {
     ccstd::vector<VkImage> swapchainImages;
 };
 
-struct CCVKGPUCommandBuffer : public GFXDeviceObject {
+struct CCVKGPUCommandBuffer : public CCVKGPUDeviceObject {
     VkCommandBuffer vkCommandBuffer = VK_NULL_HANDLE;
     VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     uint32_t queueFamilyIndex = 0U;
@@ -257,7 +277,7 @@ struct CCVKGPUQueue {
     ccstd::vector<VkCommandBuffer> commandBuffers;
 };
 
-struct CCVKGPUQueryPool : public GFXDeviceObject {
+struct CCVKGPUQueryPool : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     QueryType type{QueryType::OCCLUSION};
@@ -276,7 +296,7 @@ struct CCVKGPUShaderStage {
     VkShaderModule vkShader = VK_NULL_HANDLE;
 };
 
-struct CCVKGPUShader : public GFXDeviceObject {
+struct CCVKGPUShader : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     ccstd::string name;
@@ -285,7 +305,7 @@ struct CCVKGPUShader : public GFXDeviceObject {
     bool initialized = false;
 };
 
-struct CCVKGPUInputAssembler : public GFXDeviceObject {
+struct CCVKGPUInputAssembler : public CCVKGPUDeviceObject {
 
     AttributeList attributes;
     ccstd::vector<CCVKGPUBufferView *> gpuVertexBuffers;
@@ -309,7 +329,7 @@ struct CCVKGPUDescriptor {
 };
 
 struct CCVKGPUDescriptorSetLayout;
-struct CCVKGPUDescriptorSet : public GFXDeviceObject {
+struct CCVKGPUDescriptorSet : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     ccstd::vector<CCVKGPUDescriptor> gpuDescriptors;
@@ -327,7 +347,7 @@ struct CCVKGPUDescriptorSet : public GFXDeviceObject {
     uint32_t layoutID = 0U;
 };
 
-struct CCVKGPUPipelineLayout : public GFXDeviceObject {
+struct CCVKGPUPipelineLayout : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     ccstd::vector<ConstPtr<CCVKGPUDescriptorSetLayout>> setLayouts;
@@ -339,7 +359,7 @@ struct CCVKGPUPipelineLayout : public GFXDeviceObject {
     uint32_t dynamicOffsetCount;
 };
 
-struct CCVKGPUPipelineState : public GFXDeviceObject {
+struct CCVKGPUPipelineState : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     PipelineBindPoint bindPoint = PipelineBindPoint::GRAPHICS;
@@ -605,7 +625,7 @@ private:
     uint32_t _maxSetsPerPool = 0U;
 };
 
-struct CCVKGPUDescriptorSetLayout : public GFXDeviceObject {
+struct CCVKGPUDescriptorSetLayout : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     DescriptorSetLayoutBindingList bindings;

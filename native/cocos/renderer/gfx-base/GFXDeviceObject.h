@@ -27,34 +27,38 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
+struct DefaultDeleter {
+    template <typename T>
+    void operator()(T *ptr) const {
+        delete ptr;
+    }
+};
+
+template <typename Deleter = DefaultDeleter>
 class GFXDeviceObject {
 public:
-    virtual ~GFXDeviceObject() = default;
+    virtual ~GFXDeviceObject() noexcept = default;
 
-    void addRef() const {
+    void addRef() const noexcept {
         ++_referenceCount;
     }
 
-    void release() const {
-        CC_ASSERT(_referenceCount > 0);
-        --_referenceCount;
-
-        if (_referenceCount == 0) {
-            const_cast<GFXDeviceObject*>(this)->shutdown();
-            delete this;
+    void release() const noexcept {
+        auto count = static_cast<int32_t>(--_referenceCount);
+        CC_ASSERT(count >= 0);
+        if (count == 0) {
+            Deleter()(this);
         }
     }
 
-    unsigned int getRefCount() const {
-        return _referenceCount;
+    uint32_t getRefCount() const noexcept {
+        return static_cast<uint32_t>(_referenceCount);
     }
 
 protected:
-    virtual void shutdown() {}
+    GFXDeviceObject() noexcept = default;
 
-    GFXDeviceObject() = default;
-
-    mutable unsigned int _referenceCount{0};
+    mutable std::atomic_uint32_t _referenceCount{0};
 };
 
 template <typename T>
