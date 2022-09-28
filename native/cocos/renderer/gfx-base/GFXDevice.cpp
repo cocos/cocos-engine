@@ -126,5 +126,81 @@ BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
     return _bufferBarriers[info];
 }
 
+DefaultResource::DefaultResource(Device *device) {
+    texture1D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 1, TextureFlagBit::NONE});
+    texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE});
+    textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE});
+    texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::ONE, 2});
+    texture1DArray = device->createTexture({TextureType::TEX1D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 1, 1, TextureFlagBit::NONE, 2});
+    texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
+
+    uint32_t bufferSize = 64;
+    uint8_t *bufferData = new uint8_t[bufferSize * 4];
+    for (uint32_t i = 0; i < bufferSize; i++) {
+        bufferData[i * 4] = 0;
+        bufferData[i * 4 + 1] = 0;
+        bufferData[i * 4 + 2] = 0;
+        bufferData[i * 4 + 3] = 255;
+    }
+    {
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 1, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, texture1D, &region, 1);
+    }
+    {
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, texture2D, &region, 1);
+    }
+    {
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 2}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, texture3D, &region, 1);
+    }
+    {
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 1;
+        device->copyBuffersToTexture(&bufferData, textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 2;
+        device->copyBuffersToTexture(&bufferData, textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 3;
+        device->copyBuffersToTexture(&bufferData, textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 4;
+        device->copyBuffersToTexture(&bufferData, textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 5;
+        device->copyBuffersToTexture(&bufferData, textureCube, &region, 1);
+    }
+    {
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {1, 1, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, texture1DArray, &region, 1);
+        region.texSubres.baseArrayLayer = 1;
+        device->copyBuffersToTexture(&bufferData, texture1DArray, &region, 1);
+    }
+    {
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, texture2DArray, &region, 1);
+        region.texSubres.baseArrayLayer = 1;
+        device->copyBuffersToTexture(&bufferData, texture2DArray, &region, 1);
+    }
+    delete bufferData;
+}
+
+const Texture *DefaultResource::getTexture(TextureType type) const {
+    switch (type) {
+        case TextureType::TEX1D:
+            return texture1D;
+        case TextureType::TEX2D:
+            return texture2D;
+        case TextureType::CUBE:
+            return textureCube;
+        case TextureType::TEX3D:
+            return texture3D;
+        case TextureType::TEX1D_ARRAY:
+            return texture1DArray;
+        case TextureType::TEX2D_ARRAY:
+            return texture2DArray;
+        default:
+            return nullptr;
+    }
+}
+
 } // namespace gfx
 } // namespace cc

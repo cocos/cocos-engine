@@ -191,6 +191,23 @@ private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
 };
 
+class DefaultResource {
+public:
+    DefaultResource(Device *device);
+
+    ~DefaultResource() {}
+
+    const Texture *getTexture(TextureType type) const;
+
+private:
+    IntrusivePtr<Texture> texture1D;
+    IntrusivePtr<Texture> texture2D;
+    IntrusivePtr<Texture> texture1DArray;
+    IntrusivePtr<Texture> texture2DArray;
+    IntrusivePtr<Texture> textureCube;
+    IntrusivePtr<Texture> texture3D;
+};
+
 //////////////////////////////////////////////////////////////////////////
 
 CommandBuffer *Device::createCommandBuffer(const CommandBufferInfo &info) {
