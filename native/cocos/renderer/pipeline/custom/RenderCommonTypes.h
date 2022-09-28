@@ -44,7 +44,7 @@ namespace render {
 enum class UpdateFrequency {
     PER_INSTANCE,
     PER_BATCH,
-    PER_QUEUE,
+    PER_PHASE,
     PER_PASS,
     COUNT,
 };

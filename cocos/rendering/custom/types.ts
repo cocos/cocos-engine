@@ -35,7 +35,7 @@ import { Light } from '../../render-scene/scene';
 export const enum UpdateFrequency {
     PER_INSTANCE,
     PER_BATCH,
-    PER_QUEUE,
+    PER_PHASE,
     PER_PASS,
     COUNT,
 }
@@ -46,8 +46,8 @@ export function getUpdateFrequencyName (e: UpdateFrequency): string {
         return 'PER_INSTANCE';
     case UpdateFrequency.PER_BATCH:
         return 'PER_BATCH';
-    case UpdateFrequency.PER_QUEUE:
-        return 'PER_QUEUE';
+    case UpdateFrequency.PER_PHASE:
+        return 'PER_PHASE';
     case UpdateFrequency.PER_PASS:
         return 'PER_PASS';
     case UpdateFrequency.COUNT:
