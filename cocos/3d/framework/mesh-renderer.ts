@@ -716,7 +716,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _updateUseLightProbe () {
         if (!this._model) { return; }
         const node = this.node;
-        if (node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
+        if (this._mesh && node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
             this._model.useLightProbe = true;
         } else {
             this._model.useLightProbe = false;

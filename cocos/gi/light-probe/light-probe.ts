@@ -52,6 +52,10 @@ export class LightProbesData {
         return this._tetrahedrons;
     }
 
+    public empty () {
+        return this._probes.length === 0 || this._tetrahedrons.length === 0;
+    }
+
     public getInterpolationSHCoefficients (position: Vec3, tetIndex: number, coefficients: Vec3[]) {
         const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
         tetIndex = this.getInterpolationWeights(position, tetIndex, weights);

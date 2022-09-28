@@ -621,6 +621,31 @@ export class Model {
         }
     }
 
+    public isShowProbe () {
+        if (!this._useLightProbe) {
+            return false;
+        }
+
+        if (this.isInstancingEnabled) {
+            return false;
+        }
+
+        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        if (!lightProbes.enabled || !lightProbes.data) {
+            return false;
+        }
+
+        if (lightProbes.data.empty()) {
+            return false;
+        }
+
+        if (!this._worldBounds) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * @en Update the model's SH ubo
      * @zh 更新模型的球谐 ubo
@@ -634,12 +659,12 @@ export class Model {
             return;
         }
 
-        if (!this._localSHBuffer) {
+        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        if (!lightProbes.enabled || !lightProbes.data) {
             return;
         }
 
-        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
-        if (!lightProbes.enabled || !lightProbes.data) {
+        if (lightProbes.data.empty()) {
             return;
         }
 
@@ -657,7 +682,9 @@ export class Model {
         this._lastWorldBoundCenter.set(center);
 
         SH.updateUBOData(coefficients, this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET);
-        this._localSHBuffer.update(this._localSHData);
+        if (this._localSHBuffer) {
+            this._localSHBuffer.update(this._localSHData);
+        }
     }
 
     /**
