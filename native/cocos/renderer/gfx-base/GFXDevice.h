@@ -193,19 +193,19 @@ private:
 
 class DefaultResource {
 public:
-    DefaultResource(Device *device);
+    explicit DefaultResource(Device *device);
 
-    ~DefaultResource() {}
+    ~DefaultResource() = default;
 
     const Texture *getTexture(TextureType type) const;
 
 private:
-    IntrusivePtr<Texture> texture1D;
-    IntrusivePtr<Texture> texture2D;
-    IntrusivePtr<Texture> texture1DArray;
-    IntrusivePtr<Texture> texture2DArray;
-    IntrusivePtr<Texture> textureCube;
-    IntrusivePtr<Texture> texture3D;
+    IntrusivePtr<Texture> _texture1D;
+    IntrusivePtr<Texture> _texture2D;
+    IntrusivePtr<Texture> _texture1DArray;
+    IntrusivePtr<Texture> _texture2DArray;
+    IntrusivePtr<Texture> _textureCube;
+    IntrusivePtr<Texture> _texture3D;
 };
 
 //////////////////////////////////////////////////////////////////////////
