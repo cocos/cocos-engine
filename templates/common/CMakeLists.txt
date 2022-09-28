@@ -35,6 +35,10 @@ endif()
 
 include(${RES_DIR}/proj/cfg.cmake)
 
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/localCfg.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/localCfg.cmake)
+endif()
+
 if(NOT COCOS_X_PATH)
     message(FATAL_ERROR "COCOS_X_PATH is not set!")
 endif()
