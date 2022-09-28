@@ -27,7 +27,6 @@ import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { legacyCC } from './global-exports';
-import { SubModel } from '../render-scene/scene/submodel';
 
 import System from './system';
 
@@ -217,25 +216,5 @@ removeProperty(Scheduler, 'Scheduler', [
     {
         name: 'PRIORITY_NON_SYSTEM',
         suggest: 'Use enum` System.Priority` instead',
-    },
-]);
-
-// Render scene
-
-replaceProperty(SubModel.prototype, 'SubModel.prototype', [
-    {
-        name: 'subMeshData',
-        newName: 'subMesh',
-    },
-]);
-
-removeProperty(SubModel.prototype, 'SubModel.prototype', [
-    {
-        name: 'getSubModel',
-        suggest: 'Use `subModels[i]` instead',
-    },
-    {
-        name: 'subModelNum',
-        suggest: 'Use `subModels.length` instead',
     },
 ]);
