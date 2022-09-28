@@ -1,4 +1,4 @@
-import { director } from "../../cocos/core";
+import { director } from "../../cocos/game";
 import { legacyCC } from "../../cocos/core/global-exports";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { ParticleSystem } from "../../exports/particle";

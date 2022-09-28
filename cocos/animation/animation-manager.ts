@@ -25,7 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import System from '../core/system';
-import { director, Director } from '../core/director';
+import { director, Director } from '../game/director';
 import { errorID } from '../core/platform/debug';
 import { Node } from '../scene-graph';
 import { MutableForwardIterator } from '../core/utils/array';

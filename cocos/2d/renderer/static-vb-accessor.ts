@@ -31,7 +31,7 @@ import { assertID, errorID } from '../../core/platform/debug';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pool } from '../../core/memop/pool';
 import { macro } from '../../core/platform/macro';
-import { director } from '../../core';
+import { director } from '../../game';
 
 interface IFreeEntry {
     offset: number;

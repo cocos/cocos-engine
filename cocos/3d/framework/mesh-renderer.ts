@@ -32,7 +32,7 @@ import { Mesh } from '../assets/mesh';
 import { Vec4 } from '../../core/math';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../core/value-types';
 import { builtinResMgr } from '../../asset/asset-manager';

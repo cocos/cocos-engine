@@ -220,7 +220,7 @@
                 "cocos/scene-graph/scene.ts": "cocos/scene-graph/scene.jsb.ts",
                 "cocos/scene-graph/scene-globals.ts": "cocos/scene-graph/scene-globals.jsb.ts",
                 "cocos/scene-graph/index.ts": "cocos/scene-graph/index.jsb.ts",
-                "cocos/core/root.ts": "cocos/core/root.jsb.ts",
+                "cocos/root.ts": "cocos/root.jsb.ts",
                 "cocos/asset/asset-manager/builtin-res-mgr.ts": "cocos/asset/asset-manager/builtin-res-mgr.jsb.ts",
                 "cocos/asset/assets/index.ts": "cocos/asset/assets/index.jsb.ts",
                 "cocos/asset/assets/asset.ts": "cocos/asset/assets/asset.jsb.ts",

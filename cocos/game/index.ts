@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,31 +24,8 @@
  THE SOFTWARE.
 */
 
-import { legacyCC, VERSION } from './global-exports';
-import * as easing from './algorithm/easing';
-import * as geometry from './geometry';
-import * as math from './math';
-import * as memop from './memop';
 import './deprecated';
+import './splash-screen';
 
-legacyCC.math = math;
-legacyCC.geometry = geometry;
-legacyCC.easing = easing;
-
-export { math, memop, geometry, VERSION };
-
-export * from './math';
-export * from './memop';
-export * from './value-types';
-export * from './utils';
-export * from './data';
-export * from './event';
-export * from './platform';
-export * from './scheduler';
-export * from './algorithm/murmurhash2_gc';
-export * from './curves';
-export * from './settings';
-export { default as System } from './system';
-
-export * from './curves/bezier';
-export { easing };
+export * from './director';
+export * from './game';

@@ -31,7 +31,7 @@ import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, Text
 import { legacyCC } from '../../core/global-exports';
 import { errorID } from '../../core/platform/debug';
 import { getPhaseID } from '../../rendering/pass-phase';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;

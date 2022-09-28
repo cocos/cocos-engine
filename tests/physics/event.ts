@@ -1,4 +1,5 @@
-import { director, Vec3 } from "../../cocos/core";
+import { Vec3 } from "../../cocos/core";
+import { director } from "../../cocos/game";
 import { Node } from "../../cocos/scene-graph";
 import { physics } from "../../exports/physics-framework";
 

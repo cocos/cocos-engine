@@ -29,23 +29,23 @@
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import System from './system';
-import { CCObject } from './data/object';
-import { EventTarget } from './event';
+import System from '../core/system';
+import { CCObject } from '../core/data/object';
+import { EventTarget } from '../core/event';
 import { input } from '../input';
-import { Root } from './root';
+import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';
 import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
-import { Scheduler } from './scheduler';
-import { js } from './utils/js';
-import { legacyCC } from './global-exports';
-import { errorID, error, assertID, warnID } from './platform/debug';
-import { containerManager } from './memop/container-manager';
+import { Scheduler } from '../core/scheduler';
+import { js } from '../core/utils/js';
+import { legacyCC } from '../core/global-exports';
+import { errorID, error, assertID, warnID } from '../core/platform/debug';
+import { containerManager } from '../core/memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { deviceManager } from '../gfx';
 import { PipelineBuilder } from '../rendering/custom/pipeline';
-import { macro } from './platform/macro';
+import { macro } from '../core/platform/macro';
 
 // ----------------------------------------------------------------------------------------------------------------------
 

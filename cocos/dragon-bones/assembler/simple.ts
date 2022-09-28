@@ -24,7 +24,7 @@
  */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, director } from '../../core';
+import { Color, Mat4 } from '../../core';
 import { BlendFactor } from '../../gfx';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { MaterialInstance } from '../../render-scene/core/material-instance';
@@ -39,6 +39,7 @@ import { RenderData } from '../../2d/renderer/render-data';
 import { Texture2D } from '../../asset/assets';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Node } from '../../scene-graph';
+import { director } from '../../game';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;

@@ -28,7 +28,7 @@ import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { legacyCC } from '../../core/global-exports';
 import { Camera } from '../../render-scene/scene';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 
 /**
  * @en The sphere light component, multiple sphere lights can be added to one scene.

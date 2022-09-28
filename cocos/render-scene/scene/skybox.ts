@@ -32,7 +32,7 @@ import { MaterialInstance } from '../core/material-instance';
 import { Model } from './model';
 import { legacyCC } from '../../core/global-exports';
 import type { SkyboxInfo } from '../../scene-graph/scene-globals';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { GlobalDSManager } from '../../rendering/global-descriptor-set-manager';
 import { deviceManager } from '../../gfx';
 import { Enum } from '../../core/value-types';

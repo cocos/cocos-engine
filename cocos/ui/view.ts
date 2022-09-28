@@ -25,20 +25,20 @@
  THE SOFTWARE.
 */
 
-import '../data/class';
+import '../core/data/class';
 import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Eventify } from '../event';
-import { Rect, Size, Vec2 } from '../math';
-import visibleRect from './visible-rect';
-import { legacyCC } from '../global-exports';
-import { errorID } from './debug';
-import { screen } from './screen';
-import { macro } from './macro';
-import { Orientation } from '../../../pal/screen-adapter/enum-type';
-import { director } from '../director';
-import System  from '../system';
-import { Settings, settings } from '../settings';
+import { Eventify } from '../core/event';
+import { Rect, Size, Vec2 } from '../core/math';
+import visibleRect from '../core/platform/visible-rect';
+import { legacyCC } from '../core/global-exports';
+import { errorID } from '../core/platform/debug';
+import { screen } from '../core/platform/screen';
+import { macro } from '../core/platform/macro';
+import { Orientation } from '../../pal/screen-adapter/enum-type';
+import { director } from '../game/director';
+import System  from '../core/system';
+import { Settings, settings } from '../core/settings';
 
 /**
  * @en View represents the game window.<br/>

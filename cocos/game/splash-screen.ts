@@ -24,20 +24,20 @@
  */
 
 import { EDITOR, PREVIEW } from 'internal:constants';
-import * as easing from './algorithm/easing';
+import * as easing from '../core/algorithm/easing';
 import { Material } from '../asset/assets/material';
-import { clamp01 } from './math/utils';
+import { clamp01 } from '../core/math/utils';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
-    BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
+    BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
     MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform, Swapchain,
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
-import { legacyCC } from './global-exports';
+import { legacyCC } from '../core/global-exports';
 import { SetIndex } from '../rendering/define';
-import { Mat4, Vec2 } from './math';
-import { Settings, settings } from './settings';
-import { sys } from './platform/sys';
+import { Mat4, Vec2 } from '../core/math';
+import { Settings, settings } from '../core/settings';
+import { sys } from '../core/platform/sys';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'NONE' | 'FADE-INOUT';

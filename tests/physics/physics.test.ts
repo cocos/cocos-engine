@@ -1,4 +1,4 @@
-import { director, game, Game } from "../../cocos/core";
+import { director, game, Game } from "../../cocos/game";
 import { physics, PhysicsSystem } from "../../exports/physics-framework";
 
 import "../../exports/physics-physx";

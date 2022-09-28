@@ -35,7 +35,7 @@ import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
 import { Node } from '../scene-graph/node';
-import { director, Director } from '../core/director';
+import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../scene-graph/node-event';

@@ -1,10 +1,11 @@
 import { EDITOR } from 'internal:constants';
-import { director, System } from '../../../core';
+import { System } from '../../../core';
 import { Filter } from '../../../asset/assets/asset-enum';
 import { legacyCC } from '../../../core/global-exports';
 import { macro } from '../../../core/platform';
 import { js } from '../../../core/utils/js';
 import { Atlas } from './atlas';
+import { director } from '../../../game';
 
 export class DynamicAtlasManager extends System {
     public static instance: DynamicAtlasManager;
