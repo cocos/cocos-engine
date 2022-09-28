@@ -834,6 +834,8 @@ struct DeviceCaps {
     uint32_t maxUniformBlockSize{0};
     uint32_t maxTextureSize{0};
     uint32_t maxCubeMapTextureSize{0};
+    uint32_t maxArrayTextureLayers{0};
+    uint32_t max3DTextureSize{0};
     uint32_t uboOffsetAlignment{1};
 
     uint32_t maxComputeSharedMemorySize{0};

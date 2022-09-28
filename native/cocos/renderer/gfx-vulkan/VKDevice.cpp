@@ -313,6 +313,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _caps.maxVertexTextureUnits = limits.maxPerStageDescriptorSampledImages;
     _caps.maxTextureSize = limits.maxImageDimension2D;
     _caps.maxCubeMapTextureSize = limits.maxImageDimensionCube;
+    _caps.maxArrayTextureLayers = limits.maxImageArrayLayers;
+    _caps.max3DTextureSize = limits.maxImageDimension3D;
     _caps.uboOffsetAlignment = utils::toUint(limits.minUniformBufferOffsetAlignment);
     // compute shaders
     _caps.maxComputeSharedMemorySize = limits.maxComputeSharedMemorySize;

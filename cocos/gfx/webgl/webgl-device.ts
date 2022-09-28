@@ -148,7 +148,8 @@ export class WebGLDevice extends Device {
         this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-
+        this._caps.maxArrayTextureLayers = 0;
+        this._caps.max3DTextureSize = 0;
         // WebGL doesn't support UBOs at all, so here we return
         // the guaranteed minimum number of available bindings in WebGL2
         this._caps.maxUniformBufferBindings = 16;
