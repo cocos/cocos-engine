@@ -165,7 +165,7 @@ export class Camera extends Component {
      * @zh 渲染场景中的相机对象。
      */
     get camera () {
-        return this._camera;
+        return this._camera!;
     }
 
     /**

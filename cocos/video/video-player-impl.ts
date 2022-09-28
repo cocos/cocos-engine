@@ -28,7 +28,7 @@ import { UITransform } from '../2d/framework';
 import { VideoPlayer } from './video-player';
 import { EventType } from './video-player-enums';
 import { error } from '../core/platform';
-import { director } from '../core/director';
+import { director } from '../game/director';
 import { Node } from '../scene-graph';
 
 export abstract class VideoPlayerImpl {

@@ -24,7 +24,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';

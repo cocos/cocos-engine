@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
-import { Root } from '../core/root';
+import { Root } from '../root';
 
 const enum RenderingDebugViewType {
     NONE,

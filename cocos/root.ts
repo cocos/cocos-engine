@@ -23,26 +23,26 @@
  THE SOFTWARE.
  */
 
-import { Pool } from './memop';
-import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from '../rendering';
-import { DebugView } from '../rendering/debug-view';
-import { Camera, Light, Model } from '../render-scene/scene';
-import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
-import { LightType } from '../render-scene/scene/light';
-import { IRenderSceneInfo, RenderScene } from '../render-scene/core/render-scene';
-import { DirectionalLight } from '../render-scene/scene/directional-light';
-import { SphereLight } from '../render-scene/scene/sphere-light';
-import { SpotLight } from '../render-scene/scene/spot-light';
-import { legacyCC } from './global-exports';
-import { RenderWindow, IRenderWindowInfo } from '../render-scene/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from '../gfx';
-import { warnID } from './platform/debug';
-import { Pipeline, PipelineRuntime } from '../rendering/custom/pipeline';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { IPipelineEvent } from '../rendering/pipeline-event';
-import { settings, Settings } from './settings';
-import { localDescriptorSetLayout_ResizeMaxJoints } from '../rendering/define';
-import { macro } from './platform/macro';
+import { Pool } from './core/memop';
+import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
+import { DebugView } from './rendering/debug-view';
+import { Camera, Light, Model } from './render-scene/scene';
+import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
+import { LightType } from './render-scene/scene/light';
+import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene';
+import { DirectionalLight } from './render-scene/scene/directional-light';
+import { SphereLight } from './render-scene/scene/sphere-light';
+import { SpotLight } from './render-scene/scene/spot-light';
+import { legacyCC } from './core/global-exports';
+import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
+import { warnID } from './core/platform/debug';
+import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
+import { Batcher2D } from './2d/renderer/batcher-2d';
+import { IPipelineEvent } from './rendering/pipeline-event';
+import { settings, Settings } from './core/settings';
+import { localDescriptorSetLayout_ResizeMaxJoints } from './rendering/define';
+import { macro } from './core/platform/macro';
 
 /**
  * @en Initialization information for the Root

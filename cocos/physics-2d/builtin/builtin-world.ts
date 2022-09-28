@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';
-import { CCObject, director, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
+import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
 import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
@@ -12,6 +12,7 @@ import { PhysicsSystem2D, Collider2D } from '../framework';
 import { BuiltinContact } from './builtin-contact';
 import { legacyCC } from '../../core/global-exports';
 import { Node, find } from '../../scene-graph';
+import { director } from '../../game';
 
 const contactResults: BuiltinContact[] = [];
 const testIntersectResults: Collider2D[] = [];

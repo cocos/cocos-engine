@@ -32,7 +32,7 @@ import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component, Node } from '../scene-graph';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, warn, logID, director } from '../core';
+import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, warn, logID } from '../core';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher.js';
@@ -46,6 +46,7 @@ import { legacyCC } from '../core/global-exports';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo, RenderDrawInfoType } from '../2d/renderer/render-draw-info';
 import { Texture2D } from '../asset/assets';
+import { director } from '../game';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
