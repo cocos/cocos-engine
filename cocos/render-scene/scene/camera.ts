@@ -637,6 +637,8 @@ export class Camera {
     public initialize (info: ICameraInfo) {
         if (info.usage !== undefined) {
             this._usage = info.usage;
+        } else {
+            this.setDefaultUsage();
         }
         if (info.trackingType !== undefined) {
             this._trackingType = info.trackingType;
@@ -1070,5 +1072,17 @@ export class Camera {
     private updateExposure () {
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
         this.setExposure(ev100);
+    }
+
+    private setDefaultUsage () {
+        if (EDITOR) {
+            if (legacyCC.GAME_VIEW) {
+                this._usage = CameraUsage.GAME_VIEW;
+            } else {
+                this._usage = CameraUsage.EDITOR;
+            }
+        } else {
+            this._usage = CameraUsage.GAME;
+        }
     }
 }
