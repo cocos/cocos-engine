@@ -706,9 +706,8 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     private readonly _pipeline: PipelineSceneData;
 }
 
-export class WebMovePassBuilder extends MovePassBuilder {
+export class WebMovePassBuilder implements MovePassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: MovePass) {
-        super();
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
@@ -721,9 +720,8 @@ export class WebMovePassBuilder extends MovePassBuilder {
     private readonly _pass: MovePass;
 }
 
-export class WebCopyPassBuilder extends CopyPassBuilder {
+export class WebCopyPassBuilder implements CopyPassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: CopyPass) {
-        super();
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
@@ -741,7 +739,7 @@ function isManaged (residency: ResourceResidency): boolean {
     || residency === ResourceResidency.MEMORYLESS;
 }
 
-export class WebPipeline extends Pipeline {
+export class WebPipeline implements Pipeline {
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -915,6 +913,12 @@ export class WebPipeline extends Pipeline {
     public onGlobalPipelineStateChanged (): void {
         // do nothing
     }
+    beginSetup (): void {
+        this._renderGraph = new RenderGraph();
+    }
+    endSetup (): void {
+        this.compile();
+    }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
@@ -982,7 +986,7 @@ export class WebPipeline extends Pipeline {
         );
     }
     beginFrame () {
-        this._renderGraph = new RenderGraph();
+        // noop
     }
     endFrame () {
         this._renderGraph = null;
@@ -1037,14 +1041,6 @@ export class WebPipeline extends Pipeline {
         decideProfilerCamera(cameras);
         // build graph
         this.beginFrame();
-        if (this.builder) {
-            this.builder.setup(cameras, this);
-        } else if (this.usesDeferredPipeline) {
-            this._deferred.setup(cameras, this);
-        } else {
-            this._forward.setup(cameras, this);
-        }
-        this.compile();
         this.execute();
         this.endFrame();
     }

@@ -29,7 +29,6 @@ import './deprecated';
 export * from './sys';
 export * from './macro';
 export * from './visible-rect';
-export * from './view';
 export {
     debug,
     log,

@@ -29,7 +29,7 @@ import { toRadian } from '../../core/math';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { legacyCC } from '../../core/global-exports';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { Camera, PCFType, ShadowType } from '../../render-scene/scene';
 import { property } from '../../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';

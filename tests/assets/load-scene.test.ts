@@ -1,6 +1,5 @@
 import { Component } from "../../cocos/scene-graph/component";
-import { director } from "../../cocos/core/director";
-import { game } from "../../cocos/core/game";
+import { game, director } from "../../cocos/game";
 import { Scene } from "../../cocos/scene-graph/scene";
 import { Node } from "../../cocos/scene-graph/node";
 

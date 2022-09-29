@@ -40,6 +40,8 @@ export * from '../cocos/rendering';
 export * from '../cocos/rendering/custom/builtin-pipelines';
 export * from '../cocos/scene-graph';
 export * from '../cocos/misc';
+export * from '../cocos/game';
+export { Root } from '../cocos/root';
 
 export { gfx };
 

@@ -28,7 +28,7 @@ import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
 } from '../../gfx';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { Camera } from '../scene';
 
 export interface IRenderWindowInfo {

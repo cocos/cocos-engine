@@ -23,17 +23,8 @@
  THE SOFTWARE.
  */
 
+import { WrapModeMask } from '../core/geometry/curve';
 import { ccenum } from '../core/value-types/enum';
-
-export enum WrapModeMask {
-    Default = 0,
-    Normal = 1 << 0,
-    Loop = 1 << 1,
-    ShouldWrap = 1 << 2,
-    Clamp = 1 << 3,
-    PingPong = 1 << 4 | 1 << 1 | 1 << 2,  // Loop, ShouldWrap
-    Reverse = 1 << 5 | 1 << 2,      // ShouldWrap
-}
 
 /**
  * 动画使用的循环模式。

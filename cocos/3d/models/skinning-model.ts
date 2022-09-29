@@ -38,7 +38,7 @@ import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../animation/skeletal-animation-utils';
 import { IMacroPatch, BatchingSchemes, Pass } from '../../render-scene';
 import { warnID } from '../../core/platform/debug';
-import { director } from '../../core';
+import { director } from '../../game';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 

@@ -26,8 +26,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bulletModule, { bulletType } from '@cocos/bullet';
 import { WECHAT } from 'internal:constants';
-import { physics } from '../../../exports/physics-framework';
-import { game } from '../../core/game';
+import { game } from '../../game';
 import { sys } from '../../core/platform';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 

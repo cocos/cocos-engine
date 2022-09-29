@@ -33,7 +33,7 @@ import { Octree } from '../render-scene/scene/octree';
 import { Fog, FogType } from '../render-scene/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
-import { Root } from '../core/root';
+import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
 

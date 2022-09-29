@@ -62,4 +62,6 @@ const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAG
 
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_EDITOR_ATTACHED{125};
 
+const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_RENDER{126};
+
 } // namespace cc

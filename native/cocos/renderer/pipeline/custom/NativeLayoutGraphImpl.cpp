@@ -273,6 +273,8 @@ ccstd::string NativeLayoutGraphBuilder::print() const {
         boost::container::pmr::get_default_resource());
     ccstd::pmr::string space(&pool);
 
+    oss << "\n";
+
     auto &g = *data;
     for (const auto v : makeRange(vertices(g))) {
         if (parent(v, g) != LayoutGraphData::null_vertex()) {
@@ -323,8 +325,9 @@ ccstd::string NativeLayoutGraphBuilder::print() const {
             }
             OSS << "}\n";
         }
+        INDENT_END();
+        OSS << "}\n";
     }
-
     return oss.str();
 }
 
