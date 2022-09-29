@@ -637,7 +637,18 @@ export class Camera {
     public initialize (info: ICameraInfo) {
         if (info.usage !== undefined) {
             this._usage = info.usage;
+        } else {
+            if (EDITOR) {
+                if (legacyCC.GAME_VIEW) {
+                    this._usage = CameraUsage.GAME_VIEW;
+                } else {
+                    this._usage = CameraUsage.EDITOR;
+                }
+            } else {
+                this._usage = CameraUsage.GAME;
+            }
         }
+        
         if (info.trackingType !== undefined) {
             this._trackingType = info.trackingType;
         }
