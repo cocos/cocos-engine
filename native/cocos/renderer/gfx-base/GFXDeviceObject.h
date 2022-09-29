@@ -44,6 +44,7 @@ public:
     }
 
     void release() const noexcept {
+        // atomic::operator _Ty uses load(memory_order_seq_cst), all threads observe all modifications in the same order.
         auto count = static_cast<int32_t>(--_referenceCount);
         CC_ASSERT(count >= 0);
         if (count == 0) {

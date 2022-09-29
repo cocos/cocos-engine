@@ -103,12 +103,12 @@ public:
     CCVKGPUDeviceObject() = default;
     ~CCVKGPUDeviceObject() = default;
 
-    virtual void shutdown() {};
+    virtual void shutdown(){};
 };
 
 template <typename T>
 void CCVKDeviceObjectDeleter::operator()(T *ptr) const {
-    auto *object = const_cast<CCVKGPUDeviceObject*>(static_cast<const CCVKGPUDeviceObject*>(ptr));
+    auto *object = const_cast<CCVKGPUDeviceObject *>(static_cast<const CCVKGPUDeviceObject *>(ptr));
     object->shutdown();
     delete object;
 }
@@ -133,7 +133,7 @@ public:
 
 struct CCVKGPUSwapchain;
 struct CCVKGPUFramebuffer;
-struct CCVKGPUTexture  : public CCVKGPUDeviceObject {
+struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     TextureType type = TextureType::TEX2D;
     Format format = Format::UNKNOWN;
     TextureUsage usage = TextureUsageBit::NONE;
@@ -162,7 +162,7 @@ struct CCVKGPUTexture  : public CCVKGPUDeviceObject {
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
 };
 
-struct CCVKGPUTextureView  : public CCVKGPUDeviceObject {
+struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
     CCVKGPUTexture *gpuTexture = nullptr;
     TextureType type = TextureType::TEX2D;
     Format format = Format::UNKNOWN;
@@ -177,7 +177,7 @@ struct CCVKGPUTextureView  : public CCVKGPUDeviceObject {
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
-struct CCVKGPUSampler  : public CCVKGPUDeviceObject {
+struct CCVKGPUSampler : public CCVKGPUDeviceObject {
     Filter minFilter = Filter::LINEAR;
     Filter magFilter = Filter::LINEAR;
     Filter mipFilter = Filter::NONE;
@@ -191,7 +191,7 @@ struct CCVKGPUSampler  : public CCVKGPUDeviceObject {
     VkSampler vkSampler;
 };
 
-struct CCVKGPUBuffer  : public CCVKGPUDeviceObject {
+struct CCVKGPUBuffer : public CCVKGPUDeviceObject {
     BufferUsage usage = BufferUsage::NONE;
     MemoryUsage memUsage = MemoryUsage::NONE;
     uint32_t stride = 0U;
@@ -222,7 +222,7 @@ struct CCVKGPUBuffer  : public CCVKGPUDeviceObject {
     }
 };
 
-struct CCVKGPUBufferView  : public CCVKGPUDeviceObject {
+struct CCVKGPUBufferView : public CCVKGPUDeviceObject {
     CCVKGPUBuffer *gpuBuffer = nullptr;
     uint32_t offset = 0U;
     uint32_t range = 0U;
@@ -232,7 +232,7 @@ struct CCVKGPUBufferView  : public CCVKGPUDeviceObject {
     }
 };
 
-struct CCVKGPUFramebuffer  : public CCVKGPUDeviceObject {
+struct CCVKGPUFramebuffer : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     ConstPtr<CCVKGPURenderPass> gpuRenderPass;
@@ -306,7 +306,6 @@ struct CCVKGPUShader : public CCVKGPUDeviceObject {
 };
 
 struct CCVKGPUInputAssembler : public CCVKGPUDeviceObject {
-
     AttributeList attributes;
     ccstd::vector<CCVKGPUBufferView *> gpuVertexBuffers;
     CCVKGPUBufferView *gpuIndexBuffer = nullptr;
@@ -1165,7 +1164,7 @@ private:
  * Transport hub for data traveling between host and devices.
  * Record all transfer commands until batched submission.
  */
-//#define ASYNC_BUFFER_UPDATE
+// #define ASYNC_BUFFER_UPDATE
 class CCVKGPUTransportHub final {
 public:
     CCVKGPUTransportHub(CCVKGPUDevice *device, CCVKGPUQueue *queue)
