@@ -657,10 +657,10 @@ export class Camera extends Component {
             if (EDITOR) {
                 if (legacyCC.GAME_VIEW) {
                     this._camera!.cameraUsage = CameraUsage.GAME_VIEW;
-                }else {
+                } else {
                     this._camera!.cameraUsage = CameraUsage.EDITOR;
                 }
-            }else {
+            } else {
                 this._camera!.cameraUsage = CameraUsage.GAME;
             }
         }
