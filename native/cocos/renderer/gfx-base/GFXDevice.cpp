@@ -135,13 +135,8 @@ DefaultResource::DefaultResource(Device *device) {
     _texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
 
     uint32_t bufferSize = 64;
-    auto *bufferData = new uint8_t[bufferSize * 4];
-    for (uint32_t i = 0; i < bufferSize; i++) {
-        bufferData[i * 4] = 0;
-        bufferData[i * 4 + 1] = 0;
-        bufferData[i * 4 + 2] = 0;
-        bufferData[i * 4 + 3] = 255;
-    }
+    ccstd::vector<uint8_t> buffer(bufferSize, 255);
+    const uint8_t *bufferData = buffer.data();
     {
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 1, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture1D, &region, 1);
@@ -180,7 +175,6 @@ DefaultResource::DefaultResource(Device *device) {
         region.texSubres.baseArrayLayer = 1;
         device->copyBuffersToTexture(&bufferData, _texture2DArray, &region, 1);
     }
-    delete[] bufferData;
 }
 
 const Texture *DefaultResource::getTexture(TextureType type) const {
