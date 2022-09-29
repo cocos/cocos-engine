@@ -29,7 +29,7 @@ import { Color, Vec2 } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings } from '../../rendering/define';
 import { Model } from '../../render-scene/scene';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { ModelRenderer } from '../../misc';

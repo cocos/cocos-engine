@@ -28,6 +28,8 @@ declare const render: any;
 import { legacyCC } from '../../core/global-exports';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
+import { CustomPipelineBuilder } from './custom-pipeline';
 
 export function createCustomPipeline (): Pipeline {
     const root = legacyCC.director.root;
@@ -40,6 +42,8 @@ export function createCustomPipeline (): Pipeline {
     return ppl;
 }
 
-export function setCustomPipelineBuilder (builder: PipelineBuilder) {
-    // not implemented yet
+export function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
+    map.set('Forward', new ForwardPipelineBuilder());
+    map.set('Deferred', new DeferredPipelineBuilder());
+    map.set('Custom', new CustomPipelineBuilder());
 }

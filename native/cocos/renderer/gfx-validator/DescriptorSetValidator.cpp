@@ -116,7 +116,9 @@ void DescriptorSetValidator::updateReferenceStamp() {
 
 void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
     CC_ASSERT(isInited());
-    CC_ASSERT(buffer && static_cast<BufferValidator *>(buffer)->isInited());
+    auto *vBuffer = static_cast<BufferValidator *>(buffer);
+    CC_ASSERT(buffer && vBuffer->isInited());
+    CC_ASSERT(vBuffer->isValid() && "Buffer View Expired");
 
     const ccstd::vector<uint32_t> &bindingIndices = _layout->getBindingIndices();
     const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
@@ -140,7 +142,7 @@ void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32
 
     DescriptorSet::bindBuffer(binding, buffer, index);
 
-    _actor->bindBuffer(binding, static_cast<BufferValidator *>(buffer)->getActor(), index);
+    _actor->bindBuffer(binding, vBuffer->getActor(), index);
 }
 
 void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {

@@ -29,7 +29,7 @@ import { IAssembler } from '../../2d/renderer/base';
 import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledRenderData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
-import { director, Director } from '../../core';
+import { director, Director } from '../../game';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { RenderData } from '../../2d/renderer/render-data';

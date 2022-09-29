@@ -28,7 +28,7 @@ import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, 
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
-import { director } from '../../core/director';
+import { director } from '../../game/director';
 import { Color } from '../../core/math';
 import { scene } from '../../render-scene';
 import { IAssembler } from '../renderer/base';

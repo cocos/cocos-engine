@@ -50,9 +50,8 @@ export class RenderInfo implements IRenderPass {
     public passIdx = -1;
 }
 
-export class WebSceneTask extends SceneTask {
+export class WebSceneTask implements SceneTask {
     constructor (scneData: PipelineSceneData, ubo: PipelineUBO, camera: Camera | null, visitor: SceneVisitor) {
-        super();
         if (camera) {
             this._scene = camera.scene!;
             this._camera = camera;
@@ -157,7 +156,7 @@ export class WebSceneTask extends SceneTask {
     protected _ubo: PipelineUBO;
 }
 
-export class WebSceneTransversal extends SceneTransversal {
+export class WebSceneTransversal implements SceneTransversal {
     public preRenderPass (visitor: SceneVisitor): SceneTask {
         return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
@@ -165,7 +164,6 @@ export class WebSceneTransversal extends SceneTransversal {
         return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
     constructor (camera: Camera | null, sceneData: PipelineSceneData, ubo: PipelineUBO) {
-        super();
         this._camera = camera;
         if (camera) this._scene = camera.scene!;
         this._sceneData = sceneData;

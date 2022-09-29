@@ -441,13 +441,13 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline) {
     _ubos.push_back(_cameraBuffer);
     _cameraUBOs.resize(_alignedCameraUBOSize / sizeof(float));
 
-    auto *cameraUBO = _device->createBuffer({
+    _cameraBufferView = _device->createBuffer({
         _cameraBuffer,
         0,
         UBOCamera::SIZE,
     });
-    descriptorSet->bindBuffer(UBOCamera::BINDING, cameraUBO);
-    _ubos.push_back(cameraUBO);
+    descriptorSet->bindBuffer(UBOCamera::BINDING, _cameraBufferView);
+    _ubos.push_back(_cameraBufferView);
 
     auto *shadowUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
@@ -474,7 +474,7 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline) {
 
 void PipelineUBO::destroy() {
     for (auto &ubo : _ubos) {
-        CC_SAFE_DESTROY_AND_DELETE(ubo)
+        CC_SAFE_DELETE(ubo)
     }
     _ubos.clear();
 }
@@ -496,13 +496,25 @@ void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
     cmdBuffer->updateBuffer(_cameraBuffer, _cameraUBOs.data());
 }
 
-void PipelineUBO::updateMultiCameraUBO(const ccstd::vector<scene::Camera *> &cameras) {
+void PipelineUBO::updateMultiCameraUBO(GlobalDSManager *globalDSMgr, const ccstd::vector<scene::Camera *> &cameras) {
     const auto cameraCount = cameras.size();
     const auto totalUboSize = static_cast<uint32_t>(_alignedCameraUBOSize * cameraCount);
 
     if (_cameraBuffer->getSize() < totalUboSize) {
         _cameraBuffer->resize(totalUboSize);
         _cameraUBOs.resize(totalUboSize / sizeof(float));
+
+        if (_cameraBufferView != nullptr) {
+            _ubos.erase(std::remove(_ubos.begin(), _ubos.end(), _cameraBufferView), _ubos.end());
+            CC_SAFE_DELETE(_cameraBufferView);
+        }
+        _cameraBufferView = _device->createBuffer({
+            _cameraBuffer,
+            0,
+            UBOCamera::SIZE,
+        });
+        globalDSMgr->bindBuffer(UBOCamera::BINDING, _cameraBufferView);
+        _ubos.push_back(_cameraBufferView);
     }
 
     for (uint32_t cameraIdx = 0; cameraIdx < cameraCount; ++cameraIdx) {

@@ -24,7 +24,7 @@
 */
 
 import { DEBUG, JSB } from 'internal:constants';
-import { director } from '../../core/director';
+import { director } from '../../game/director';
 import { Material } from '../../asset/assets/material';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Color } from '../../core/math';

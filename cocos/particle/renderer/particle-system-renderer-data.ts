@@ -29,7 +29,7 @@ import { Material, Texture2D } from '../../asset/assets';
 import { AlignmentSpace, RenderMode } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
-import { director } from '../../core/director';
+import { director } from '../../game/director';
 import { Device, Format, FormatFeatureBit } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { errorID, warnID } from '../../core';
