@@ -33,7 +33,7 @@ import { Color, Rect, toRadian, Vec3 } from '../core/math';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { scene } from '../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
-    CameraType, TrackingType } from '../render-scene/scene/camera';
+    CameraType, CameraUsage, TrackingType } from '../render-scene/scene/camera';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
 import { Enum } from '../core/value-types';
@@ -654,6 +654,15 @@ export class Camera extends Component {
             this._camera!.aperture = this._aperture;
             this._camera!.shutter = this._shutter;
             this._camera!.iso = this._iso;
+            if (EDITOR) {
+                if (legacyCC.GAME_VIEW) {
+                    this._camera!.cameraUsage = CameraUsage.GAME_VIEW;
+                }else {
+                    this._camera!.cameraUsage = CameraUsage.EDITOR;
+                }
+            }else {
+                this._camera!.cameraUsage = CameraUsage.GAME;
+            }
         }
 
         this._updateTargetTexture();
