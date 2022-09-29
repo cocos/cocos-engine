@@ -25,7 +25,6 @@
 
 import { CCClass } from '../data/class';
 import { clamp, pingPong, repeat } from '../math/utils';
-import { WrapModeMask } from '../../animation/types';
 import { ExtrapolationMode, RealCurve, RealInterpolationMode } from '../curves';
 
 const LOOK_FORWARD = 3;
@@ -345,6 +344,19 @@ export class AnimationCurve {
 CCClass.fastDefine('cc.AnimationCurve', AnimationCurve, {
     _curve: null,
 });
+
+/**
+ * @engineInternal
+ */
+export enum WrapModeMask {
+    Default = 0,
+    Normal = 1 << 0,
+    Loop = 1 << 1,
+    ShouldWrap = 1 << 2,
+    Clamp = 1 << 3,
+    PingPong = 1 << 4 | 1 << 1 | 1 << 2,  // Loop, ShouldWrap
+    Reverse = 1 << 5 | 1 << 2,      // ShouldWrap
+}
 
 function fromLegacyWrapMode (legacyWrapMode: WrapModeMask): ExtrapolationMode {
     switch (legacyWrapMode) {

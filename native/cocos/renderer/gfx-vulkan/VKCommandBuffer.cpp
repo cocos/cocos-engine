@@ -72,8 +72,8 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuf
 
     CCVKDevice::getInstance()->gpuDevice()->getCommandBufferPool()->request(_gpuCommandBuffer);
 
-    _curGPUPipelineState = nullptr;
-    _curGPUInputAssember = nullptr;
+    _curGPUPipelineState  = nullptr;
+    _curGPUInputAssembler = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
     _curDynamicOffsetsArray.assign(_curDynamicOffsetsArray.size(), {});
     _firstDirtyDescriptorSet = UINT_MAX;
@@ -111,7 +111,7 @@ void CCVKCommandBuffer::end() {
     if (!_gpuCommandBuffer->began) return;
 
     _curGPUFBO = nullptr;
-    _curGPUInputAssember = nullptr;
+    _curGPUInputAssembler = nullptr;
     _curDynamicStates.viewport.width = _curDynamicStates.viewport.height = _curDynamicStates.scissor.width = _curDynamicStates.scissor.height = 0U;
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
@@ -245,7 +245,7 @@ void CCVKCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descripto
 void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
     CCVKGPUInputAssembler *gpuInputAssembler = static_cast<CCVKInputAssembler *>(ia)->gpuInputAssembler();
 
-    if (_curGPUInputAssember != gpuInputAssembler) {
+    if (_curGPUInputAssembler != gpuInputAssembler) {
         // buffers may be rebuilt(e.g. resize event) without IA's acknowledge
         uint32_t vbCount = utils::toUint(gpuInputAssembler->gpuVertexBuffers.size());
         if (gpuInputAssembler->vertexBuffers.size() < vbCount) {
@@ -267,7 +267,7 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
                                  gpuInputAssembler->gpuIndexBuffer->gpuBuffer->getStartOffset(gpuDevice->curBackBufferIndex),
                                  gpuInputAssembler->gpuIndexBuffer->gpuBuffer->stride == 4 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16);
         }
-        _curGPUInputAssember = gpuInputAssembler;
+        _curGPUInputAssembler = gpuInputAssembler;
     }
 }
 
@@ -382,7 +382,7 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
 
-    const auto *gpuIndirectBuffer = _curGPUInputAssember->gpuIndirectBuffer;
+    const auto *gpuIndirectBuffer = _curGPUInputAssembler->gpuIndirectBuffer;
 
     if (gpuIndirectBuffer) {
         uint32_t drawInfoCount = gpuIndirectBuffer->range / gpuIndirectBuffer->gpuBuffer->stride;
@@ -423,7 +423,7 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
         }
     } else {
         uint32_t instanceCount = std::max(info.instanceCount, 1U);
-        bool hasIndexBuffer = _curGPUInputAssember->gpuIndexBuffer && info.indexCount > 0;
+        bool hasIndexBuffer = _curGPUInputAssembler->gpuIndexBuffer && info.indexCount > 0;
 
         if (hasIndexBuffer) {
             vkCmdDrawIndexed(_gpuCommandBuffer->vkCommandBuffer, info.indexCount, instanceCount,
@@ -572,8 +572,8 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
 void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     CCVKDevice *device = CCVKDevice::getInstance();
     CCVKGPUDevice *gpuDevice = device->gpuDevice();
-    CCVKGPUPipelineLayout *pipelineLayout = _curGPUPipelineState->gpuPipelineLayout;
-    ccstd::vector<uint32_t> &dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
+    const CCVKGPUPipelineLayout *pipelineLayout = _curGPUPipelineState->gpuPipelineLayout;
+    const ccstd::vector<uint32_t> &dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
     uint32_t descriptorSetCount = utils::toUint(pipelineLayout->setLayouts.size());
     _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
 
