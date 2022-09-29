@@ -876,7 +876,7 @@ void cmdFuncCCVKCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
     CCVKGPUDescriptorSetPool *pool = gpuDevice->getDescriptorSetPool(gpuDescriptorSetLayout->id);
     pool->link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
 
-    gpuDescriptorSetLayout->defaultDescriptorSet = pool->request(0);
+    gpuDescriptorSetLayout->defaultDescriptorSet = pool->request();
 
     if (gpuDevice->useDescriptorUpdateTemplate && bindingCount) {
         const ccstd::vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
@@ -1497,11 +1497,6 @@ void cmdFuncCCVKDestroyShader(CCVKGPUDevice *gpuDevice, CCVKGPUShader *gpuShader
 }
 
 void cmdFuncCCVKDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
-    if (gpuDescriptorSetLayout->defaultDescriptorSet != VK_NULL_HANDLE) {
-        gpuDevice->getDescriptorSetPool(gpuDescriptorSetLayout->id)->yield(gpuDescriptorSetLayout->defaultDescriptorSet, 0);
-        gpuDescriptorSetLayout->defaultDescriptorSet = VK_NULL_HANDLE;
-    }
-
     if (gpuDescriptorSetLayout->vkDescriptorUpdateTemplate != VK_NULL_HANDLE) {
         if (gpuDevice->minorVersion > 0) {
             vkDestroyDescriptorUpdateTemplate(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
@@ -1548,92 +1543,6 @@ const CCVKGPUGeneralBarrier *CCVKGPURenderPass::getBarrier(size_t index, CCVKGPU
         return colorAttachments[index].barrier ? static_cast<CCVKGeneralBarrier *>(colorAttachments[index].barrier)->gpuBarrier() : &gpuDevice->defaultColorBarrier;
     }
     return depthStencilAttachment.barrier ? static_cast<CCVKGeneralBarrier *>(depthStencilAttachment.barrier)->gpuBarrier() : &gpuDevice->defaultDepthStencilBarrier;
-}
-
-void CCVKGPURecycleBin::clear() {
-    for (uint32_t i = 0U; i < _count; ++i) {
-        Resource &res = _resources[i];
-        switch (res.type) {
-            case RecycledType::BUFFER:
-                if (res.buffer.vkBuffer) {
-                    vmaDestroyBuffer(_device->memoryAllocator, res.buffer.vkBuffer, res.buffer.vmaAllocation);
-                    res.buffer.vkBuffer = VK_NULL_HANDLE;
-                    res.buffer.vmaAllocation = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::TEXTURE:
-                if (res.image.vkImage) {
-                    vmaDestroyImage(_device->memoryAllocator, res.image.vkImage, res.image.vmaAllocation);
-                    res.image.vkImage = VK_NULL_HANDLE;
-                    res.image.vmaAllocation = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::TEXTURE_VIEW:
-                if (res.vkImageView) {
-                    vkDestroyImageView(_device->vkDevice, res.vkImageView, nullptr);
-                    res.vkImageView = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::FRAMEBUFFER:
-                if (res.vkFramebuffer) {
-                    vkDestroyFramebuffer(_device->vkDevice, res.vkFramebuffer, nullptr);
-                    res.vkFramebuffer = VK_NULL_HANDLE;
-                }
-                break;
-            case RecycledType::QUERY_POOL:
-                if (res.gpuQueryPool) {
-                    cmdFuncCCVKDestroyQueryPool(_device, res.gpuQueryPool);
-                    delete res.gpuQueryPool;
-                    res.gpuQueryPool = nullptr;
-                }
-                break;
-            case RecycledType::RENDER_PASS:
-                if (res.gpuRenderPass) {
-                    cmdFuncCCVKDestroyRenderPass(_device, res.gpuRenderPass);
-                    delete res.gpuRenderPass;
-                    res.gpuRenderPass = nullptr;
-                }
-                break;
-            case RecycledType::SAMPLER:
-                if (res.gpuSampler) {
-                    cmdFuncCCVKDestroySampler(_device, res.gpuSampler);
-                    delete res.gpuSampler;
-                    res.gpuSampler = nullptr;
-                }
-                break;
-            case RecycledType::SHADER:
-                if (res.gpuShader) {
-                    cmdFuncCCVKDestroyShader(_device, res.gpuShader);
-                    delete res.gpuShader;
-                    res.gpuShader = nullptr;
-                }
-                break;
-            case RecycledType::DESCRIPTOR_SET_LAYOUT:
-                if (res.gpuDescriptorSetLayout) {
-                    cmdFuncCCVKDestroyDescriptorSetLayout(_device, res.gpuDescriptorSetLayout);
-                    delete res.gpuDescriptorSetLayout;
-                    res.gpuDescriptorSetLayout = nullptr;
-                }
-                break;
-            case RecycledType::PIPELINE_LAYOUT:
-                if (res.gpuPipelineLayout) {
-                    cmdFuncCCVKDestroyPipelineLayout(_device, res.gpuPipelineLayout);
-                    delete res.gpuPipelineLayout;
-                    res.gpuPipelineLayout = nullptr;
-                }
-                break;
-            case RecycledType::PIPELINE_STATE:
-                if (res.gpuPipelineState) {
-                    cmdFuncCCVKDestroyPipelineState(_device, res.gpuPipelineState);
-                    delete res.gpuPipelineState;
-                    res.gpuPipelineState = nullptr;
-                }
-                break;
-            default: break;
-        }
-        res.type = RecycledType::UNKNOWN;
-    }
-    _count = 0;
 }
 
 VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const {

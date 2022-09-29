@@ -59,11 +59,11 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
 }
 
 void CCVKFramebuffer::doDestroy() {
-    if (_gpuFBO) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuFBO);
-        delete _gpuFBO;
-        _gpuFBO = nullptr;
-    }
+    _gpuFBO = nullptr;
+}
+
+void CCVKGPUFramebuffer::shutdown() {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
 }
 
 } // namespace gfx
