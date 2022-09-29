@@ -655,7 +655,7 @@ void ScriptEngine::cleanup() {
     _isolate->Dispose();
     _isolate = nullptr;
     Object::setIsolate(nullptr);
-    
+
     _globalObj = nullptr;
     _isValid = false;
 
