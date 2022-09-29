@@ -673,6 +673,7 @@ void ScriptEngine::cleanup() {
 
     _isInCleanup = false;
     NativePtrToObjectMap::destroy();
+    _gcFuncValue.setUndefined();
     _gcFunc = nullptr;
     SE_LOGD("ScriptEngine::cleanup end ...\n");
 }
