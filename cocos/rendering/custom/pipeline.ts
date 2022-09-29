@@ -66,7 +66,7 @@ export interface PipelineRuntime {
     setMacroBool (name: string, value: boolean): void;
     onGlobalPipelineStateChanged (): void;
 
-    get macros (): MacroRecord;
+    readonly macros: MacroRecord;
 }
 
 export interface Setter {
