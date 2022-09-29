@@ -510,7 +510,7 @@ bool ScriptEngine::postInit() {
     _isolate->SetPromiseRejectCallback(onPromiseRejectCallback);
 
     NativePtrToObjectMap::init();
-    Object::setup();
+
     Class::setIsolate(_isolate);
     Object::setIsolate(_isolate);
 
@@ -653,8 +653,9 @@ void ScriptEngine::cleanup() {
         _isolate->Exit();
     }
     _isolate->Dispose();
-
     _isolate = nullptr;
+    Object::setIsolate(nullptr);
+    
     _globalObj = nullptr;
     _isValid = false;
 
@@ -774,11 +775,9 @@ bool ScriptEngine::start(v8::Isolate *isolate) {
 }
 
 void ScriptEngine::garbageCollect() {
-    int objSize = __objectSet ? static_cast<int>(__objectSet->size()) : -1;
-    SE_LOGD("GC begin ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), objSize);
+    SE_LOGD("GC begin ..., (js->native map) size: %d\n", (int)NativePtrToObjectMap::size());
     _gcFunc->call({}, nullptr);
-    objSize = __objectSet ? static_cast<int>(__objectSet->size()) : -1;
-    SE_LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), objSize);
+    SE_LOGD("GC end ..., (js->native map) size: %d\n", (int)NativePtrToObjectMap::size());
 }
 
 bool ScriptEngine::isGarbageCollecting() const {

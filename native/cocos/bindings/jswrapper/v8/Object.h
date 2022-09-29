@@ -514,7 +514,6 @@ private:
     static void nativeObjectFinalizeHook(Object *seObj);
     static void setIsolate(v8::Isolate *isolate);
     static void cleanup();
-    static void setup();
 
     Object();
     ~Object() override;
@@ -541,8 +540,6 @@ private:
     friend class ScriptEngine;
     friend class JSBPersistentHandleVisitor;
 };
-// NOLINTNEXTLINE
-extern std::unique_ptr<ccstd::unordered_set<Object *>> __objectSet;
 
 } // namespace se
 
