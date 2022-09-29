@@ -49,13 +49,16 @@ public:
     void clear();
     void fillPass(Material *mat, const gfx::DepthStencilState *depthStencilState, ccstd::hash_t dsHash, const ccstd::vector<IMacroPatch> *patches = nullptr);
 
-    inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
+    void setInputAssembler(gfx::InputAssembler *ia);
+    inline void setIndexOffset(uint32_t offset) { _drawInfo.firstIndex = offset; }
+    inline void setIndexCount(uint32_t count) { _drawInfo.indexCount = count; }
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
     inline void setVisFlags(uint32_t flags) { _visFlags = flags; }
     inline void setUseLocalFlag(Node *node) { _useLocalData = node; }
     inline void setModel(Model *model) { _model = model; }
 
     inline gfx::InputAssembler *getInputAssembler() const { return _inputAssembler; }
+    inline const gfx::DrawInfo &getDrawInfo() const { return _drawInfo; }
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     inline uint32_t getVisFlags() const { return _visFlags; }
     inline const ccstd::vector<gfx::Shader *> &getShaders() const { return _shaders; }
@@ -66,6 +69,7 @@ public:
 protected:
     gfx::InputAssembler *_inputAssembler{nullptr}; // IntrusivePtr ?
     gfx::DescriptorSet *_descriptorSet{nullptr};
+    gfx::DrawInfo _drawInfo{};
     uint32_t _visFlags{0};
     ccstd::vector<IntrusivePtr<scene::Pass>> _passes;
     ccstd::vector<gfx::Shader *> _shaders;
