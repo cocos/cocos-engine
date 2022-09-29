@@ -56,14 +56,13 @@ void UIMeshBuffer::initialize(gfx::Device* /*device*/, ccstd::vector<gfx::Attrib
 
 void UIMeshBuffer::reset() {
     setIndexOffset(0);
-    _nextFreeIAHandle = 0;
     _dirty = false;
 }
 
 void UIMeshBuffer::resetIA() {
-    for (auto* ia : _iaPool) {
-        ia->setFirstIndex(0);
-        ia->setIndexCount(0);
+    if (_ia != nullptr) {
+        _ia->setFirstIndex(0);
+        _ia->setIndexCount(0);
     }
 }
 
@@ -82,11 +81,7 @@ void UIMeshBuffer::destroy() {
     _vData = nullptr;
     _iData = nullptr;
     // Destroy InputAssemblers
-    for (auto* ia : _iaPool) {
-        ia->destroy();
-        delete ia;
-    }
-    _iaPool.clear();
+    CC_SAFE_DELETE(_ia)
 }
 
 void UIMeshBuffer::setDirty() {
@@ -94,24 +89,21 @@ void UIMeshBuffer::setDirty() {
 }
 
 gfx::InputAssembler* UIMeshBuffer::requireFreeIA(gfx::Device* device) {
-    if (_nextFreeIAHandle >= _iaPool.size()) {
-        createNewIA(device);
-    }
-    return _iaPool[_nextFreeIAHandle++];
+    createNewIA(device);
+    return _ia;
 }
 
 void UIMeshBuffer::uploadBuffers() {
     uint32_t byteOffset = getByteOffset();
     bool dirty = getDirty();
-    if (_meshBufferLayout == nullptr || byteOffset == 0 || !dirty || _iaPool.empty()) {
+    if (_meshBufferLayout == nullptr || byteOffset == 0 || !dirty || _ia == nullptr) {
         return;
     }
 
     uint32_t indexCount = getIndexOffset();
     uint32_t byteCount = getByteOffset();
 
-    gfx::InputAssembler* ia = _iaPool[0];
-    gfx::BufferList vBuffers = ia->getVertexBuffers();
+    gfx::BufferList vBuffers = _ia->getVertexBuffers();
     if (!vBuffers.empty()) {
         gfx::Buffer* vBuffer = vBuffers[0];
         if (byteCount > vBuffer->getSize()) {
@@ -119,7 +111,7 @@ void UIMeshBuffer::uploadBuffers() {
         }
         vBuffer->update(_vData);
     }
-    gfx::Buffer* iBuffer = ia->getIndexBuffer();
+    gfx::Buffer* iBuffer = _ia->getIndexBuffer();
     if (indexCount * 2 > iBuffer->getSize()) {
         iBuffer->resize(indexCount * 2);
     }
@@ -133,7 +125,7 @@ void UIMeshBuffer::recycleIA(gfx::InputAssembler* ia) {
 }
 
 gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
-    if (_iaPool.empty()) {
+    if (_ia == nullptr) {
         uint32_t vbStride = _vertexFormatBytes;
         uint32_t ibStride = sizeof(uint16_t);
 
@@ -153,11 +145,9 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
         _iaInfo.attributes = _attributes;
         _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
         _iaInfo.indexBuffer = indexBuffer;
+        _ia = device->createInputAssembler(_iaInfo);
     }
-    auto* ia = device->createInputAssembler(_iaInfo);
-    _iaPool.emplace_back(ia);
-
-    return ia;
+    return _ia;
 }
 
 void UIMeshBuffer::syncSharedBufferToNative(uint32_t* buffer) {

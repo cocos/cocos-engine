@@ -213,7 +213,6 @@ public:
 
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();
-    void resetMeshIA();
 
     inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
     void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
@@ -264,8 +263,6 @@ private:
         ccstd::hash_t _dataHash{0};
     } _drawInfoAttrs{};
 
-    uint16_t _nextFreeIAHandle{0};
-
     bindings::NativeMemorySharedToScriptActor _attrSharedBufferActor;
     // weak reference
     Material* _material{nullptr};
@@ -289,8 +286,8 @@ private:
         scene::Model* _model;
         uint8_t* _sharedBuffer;
     };
-    gfx::InputAssemblerInfo* _iaInfo{nullptr};
-    ccstd::vector<gfx::InputAssembler*>* _iaPool{nullptr};
+    gfx::InputAssemblerInfo _iaInfo;
+    gfx::InputAssembler* _ia{nullptr};
     LocalDSBF* _localDSBF{nullptr};
 };
 } // namespace cc

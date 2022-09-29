@@ -89,9 +89,8 @@ private:
     uint32_t _initIDataCount{0};
     ccstd::vector<gfx::Attribute> _attributes;
 
-    ccstd::vector<gfx::InputAssembler*> _iaPool{};
+    gfx::InputAssembler* _ia{nullptr};
     gfx::InputAssemblerInfo _iaInfo;
-    uint32_t _nextFreeIAHandle{0};
     bool _needDeleteVData{false};
     bool _useLinkData{false};
 };
