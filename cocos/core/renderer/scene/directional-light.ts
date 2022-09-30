@@ -57,6 +57,9 @@ export class DirectionalLight extends Light {
     protected _csmLayerLambda = 0.75;
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
 
+    protected _csmLayersTransition = false;
+    protected _pcss = false;
+
     // fixed area properties
     protected _shadowFixedArea = false;
     protected _shadowNear = 0.1;
@@ -287,6 +290,30 @@ export class DirectionalLight extends Light {
         this._shadowOrthoSize = val;
     }
 
+    /**
+     * @en Enabled csm layers transition
+     * @zh 是否启用级联阴影层级过渡？
+     */
+    get csmLayersTransition () {
+        return this._csmLayersTransition;
+    }
+    set csmLayersTransition (val) {
+        this._csmLayersTransition = val;
+        this._activate();
+    }
+
+    /**
+     * @en Enabled percentage closer soft shadows
+     * @zh 是否启用更紧密的百分比软影？
+     */
+    get pcss () {
+        return this._pcss;
+    }
+    set pcss (val) {
+        this._pcss = val;
+        this._activate();
+    }
+
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
@@ -315,8 +342,12 @@ export class DirectionalLight extends Light {
         if (this._shadowEnabled) {
             if (this._shadowFixedArea || !pipeline.pipelineSceneData.csmSupported) {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
+            } else if (this.csmLevel > 1) {
+                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 2;
+                pipeline.macros.CC_CASCADED_LAYERS_TRANSITION = this._csmLayersTransition;
+                pipeline.macros.CC_PERCENTAGE_CLOSER_SOFT_SHADOWS = this._pcss;
             } else {
-                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = this.csmLevel > 1 ? 2 : 1;
+                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
             }
             pipeline.macros.CC_DIR_SHADOW_PCF_TYPE = this._shadowPcf;
         } else {

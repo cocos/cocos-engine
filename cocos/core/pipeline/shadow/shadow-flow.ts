@@ -97,6 +97,12 @@ export class ShadowFlow extends RenderFlow {
         // 0: CC_DIR_LIGHT_SHADOW_NONE, 1: CC_DIR_LIGHT_SHADOW_UNIFORM, 2: CC_DIR_LIGHT_SHADOW_CASCADED, 3: CC_DIR_LIGHT_SHADOW_VARIANCE
         pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 0;
 
+        // 0: CC_CASCADED_LAYERS_TRANSITION_OFF, 1: CC_CASCADED_LAYERS_TRANSITION_ON
+        pipeline.macros.CC_CASCADED_LAYERS_TRANSITION = 0;
+
+        // 0: CC_PERCENTAGE_CLOSER_SOFT_SHADOWS_OFF, 1: CC_PERCENTAGE_CLOSER_SOFT_SHADOWS_ON
+        pipeline.macros.CC_PERCENTAGE_CLOSER_SOFT_SHADOWS = 0;
+
         pipeline.onGlobalPipelineStateChanged();
     }
 
