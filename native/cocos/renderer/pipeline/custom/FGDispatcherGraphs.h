@@ -31,12 +31,12 @@
 // clang-format off
 #pragma once
 #include <boost/utility/string_view.hpp>
+#include <tuple>
 #include "cocos/renderer/pipeline/custom/FGDispatcherTypes.h"
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 #include "cocos/renderer/pipeline/custom/PathUtils.h"
-#include "cocos/renderer/pipeline/custom/invoke.hpp"
 
 namespace cc {
 
@@ -144,8 +144,8 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(ResourceAccessGraph::vertex_descriptor u, ResourceAccessGraph::vertex_descriptor v, ResourceAccessGraph& g) noexcept { // NOLINT
-    auto& s = g.vertices[u];
-    auto& t = g.vertices[v];
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
     s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), ResourceAccessGraph::OutEdge(v)), s.outEdges.end());
     t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), ResourceAccessGraph::InEdge(u)), t.inEdges.end());
 }
@@ -154,8 +154,8 @@ inline void remove_edge(ResourceAccessGraph::out_edge_iterator outIter, Resource
     auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
-    auto& s = g.vertices[u];
-    auto& t = g.vertices[v];
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), ResourceAccessGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
@@ -165,7 +165,7 @@ inline void remove_edge(ResourceAccessGraph::out_edge_iterator outIter, Resource
 inline void remove_edge(ResourceAccessGraph::edge_descriptor e, ResourceAccessGraph& g) noexcept { // NOLINT
     const auto u = source(e, g);
     const auto v = target(e, g);
-    auto& s = g.vertices[u];
+    auto& s = g._vertices[u];
     auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), ResourceAccessGraph::OutEdge(v));
     CC_EXPECTS(outIter != s.outEdges.end());
     remove_edge(ResourceAccessGraph::out_edge_iterator(outIter, u), g);
@@ -228,9 +228,9 @@ inline void remove_vertex(ResourceAccessGraph::vertex_descriptor u, ResourceAcce
 template <class Component0, class Component1>
 inline ResourceAccessGraph::vertex_descriptor
 addVertex(Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
-    auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g.vertices.size());
+    auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g._vertices.size());
 
-    g.vertices.emplace_back();
+    g._vertices.emplace_back();
 
     { // UuidGraph
         const auto& uuid = c0;
@@ -246,12 +246,12 @@ addVertex(Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
 template <class Component0, class Component1>
 inline ResourceAccessGraph::vertex_descriptor
 addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, ResourceAccessGraph& g) {
-    auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g.vertices.size());
+    auto v = gsl::narrow_cast<ResourceAccessGraph::vertex_descriptor>(g._vertices.size());
 
-    g.vertices.emplace_back();
+    g._vertices.emplace_back();
 
     { // UuidGraph
-        invoke_hpp::apply(
+        std::apply(
             [&](const auto&... args) {
                 auto res = g.passIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
                 CC_ENSURES(res.second);
@@ -259,13 +259,13 @@ addVertex(std::piecewise_construct_t /*tag*/, Component0&& c0, Component1&& c1, 
             c0);
     }
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.passID.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.access.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -376,8 +376,8 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(EmptyGraph::vertex_descriptor u, EmptyGraph::vertex_descriptor v, EmptyGraph& g) noexcept { // NOLINT
-    auto& s = g.vertices[u];
-    auto& t = g.vertices[v];
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
     s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), EmptyGraph::OutEdge(v)), s.outEdges.end());
     t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), EmptyGraph::InEdge(u)), t.inEdges.end());
 }
@@ -386,8 +386,8 @@ inline void remove_edge(EmptyGraph::out_edge_iterator outIter, EmptyGraph& g) no
     auto e = *outIter;
     const auto u = source(e, g);
     const auto v = target(e, g);
-    auto& s = g.vertices[u];
-    auto& t = g.vertices[v];
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
     auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), EmptyGraph::InEdge(u));
     CC_EXPECTS(inIter != t.inEdges.end());
     t.inEdges.erase(inIter);
@@ -397,7 +397,7 @@ inline void remove_edge(EmptyGraph::out_edge_iterator outIter, EmptyGraph& g) no
 inline void remove_edge(EmptyGraph::edge_descriptor e, EmptyGraph& g) noexcept { // NOLINT
     const auto u = source(e, g);
     const auto v = target(e, g);
-    auto& s = g.vertices[u];
+    auto& s = g._vertices[u];
     auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), EmptyGraph::OutEdge(v));
     CC_EXPECTS(outIter != s.outEdges.end());
     remove_edge(EmptyGraph::out_edge_iterator(outIter, u), g);
@@ -664,9 +664,9 @@ get(ccstd::pmr::vector<boost::default_color_type>& colors, const EmptyGraph& /*g
 // MutableGraph(Vertex)
 inline EmptyGraph::vertex_descriptor
 addVertex(EmptyGraph& g) {
-    auto v = gsl::narrow_cast<EmptyGraph::vertex_descriptor>(g.vertices.size());
+    auto v = gsl::narrow_cast<EmptyGraph::vertex_descriptor>(g._vertices.size());
 
-    g.vertices.emplace_back();
+    g._vertices.emplace_back();
 
     return v;
 }

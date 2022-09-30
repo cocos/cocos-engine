@@ -40,11 +40,8 @@
 #include "GFXShader.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
-#include "application/ApplicationManager.h"
 #include "base/RefCounted.h"
 #include "base/std/container/array.h"
-#include "platform/interfaces/modules/IXRInterface.h"
-#include "platform/java/modules/XRInterface.h"
 #include "states/GFXBufferBarrier.h"
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
@@ -135,9 +132,6 @@ protected:
 
     Device();
 
-    void destroySurface(void *windowHandle);
-    void createSurface(void *windowHandle);
-
     virtual bool doInit(const DeviceInfo &info) = 0;
     virtual void doDestroy() = 0;
 
@@ -192,7 +186,6 @@ protected:
     ccstd::unordered_map<GeneralBarrierInfo, GeneralBarrier *, Hasher<GeneralBarrierInfo>> _generalBarriers;
     ccstd::unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
     ccstd::unordered_map<BufferBarrierInfo, BufferBarrier *, Hasher<BufferBarrierInfo>> _bufferBarriers;
-
 
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference

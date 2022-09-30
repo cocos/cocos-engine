@@ -531,6 +531,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/ISystem.cpp
     cocos/platform/interfaces/modules/ISystem.h
     cocos/platform/interfaces/modules/ISystemWindow.h
+    cocos/platform/interfaces/modules/ISystemWindowManager.h
     cocos/platform/interfaces/modules/IVibrator.h
     cocos/platform/interfaces/modules/XRCommon.h
     cocos/platform/interfaces/modules/IXRInterface.h
@@ -597,6 +598,8 @@ if(WINDOWS)
             cocos/platform/win32/modules/Screen.h
             cocos/platform/win32/modules/SystemWindow.cpp
             cocos/platform/win32/modules/SystemWindow.h
+            cocos/platform/win32/modules/SystemWindowManager.cpp
+            cocos/platform/win32/modules/SystemWindowManager.h
         )
     endif()
 elseif(ANDROID OR OHOS)
@@ -615,6 +618,8 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/CommonSystem.h
         cocos/platform/java/modules/SystemWindow.cpp
         cocos/platform/java/modules/SystemWindow.h
+        cocos/platform/java/modules/SystemWindowManager.cpp
+        cocos/platform/java/modules/SystemWindowManager.h
         cocos/platform/java/modules/XRInterface.cpp
         cocos/platform/java/modules/XRInterface.h
     )
@@ -660,6 +665,8 @@ elseif(MACOSX)
                                  cocos/platform/mac/modules/Screen.h
                                  cocos/platform/mac/modules/SystemWindow.mm
                                  cocos/platform/mac/modules/SystemWindow.h
+                                 cocos/platform/mac/modules/SystemWindowManager.mm
+                                 cocos/platform/mac/modules/SystemWindowManager.h
         )
     endif()
 elseif(IOS)
@@ -678,6 +685,8 @@ elseif(IOS)
                             cocos/platform/ios/modules/System.h
                             cocos/platform/ios/modules/SystemWindow.mm
                             cocos/platform/ios/modules/SystemWindow.h
+                            cocos/platform/ios/modules/SystemWindowManager.mm
+                            cocos/platform/ios/modules/SystemWindowManager.h
    )
 elseif(LINUX)
     cocos_source_files(
@@ -705,6 +714,8 @@ elseif(LINUX)
             cocos/platform/linux/modules/Screen.h
             cocos/platform/linux/modules/SystemWindow.cpp
             cocos/platform/linux/modules/SystemWindow.h
+            cocos/platform/linux/modules/SystemWindowManager.cpp
+            cocos/platform/linux/modules/SystemWindowManager.h
         )
     endif()
 endif()
@@ -955,6 +966,7 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
+        ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
         ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.cpp
@@ -1039,6 +1051,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/SPIRVUtils.cpp
                  cocos/renderer/gfx-base/GFXObject.h
                  cocos/renderer/gfx-base/GFXObject.cpp
+                 cocos/renderer/gfx-base/GFXBarrier.cpp
+                 cocos/renderer/gfx-base/GFXBarrier.h
                  cocos/renderer/gfx-base/GFXBuffer.cpp
                  cocos/renderer/gfx-base/GFXBuffer.h
                  cocos/renderer/gfx-base/GFXCommandBuffer.cpp
@@ -1072,6 +1086,7 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXSwapchain.h
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
+                 cocos/renderer/gfx-base/GFXDeviceObject.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
@@ -1247,6 +1262,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
                  cocos/renderer/pipeline/custom/test/test.h
+                 cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
+                 cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1259,6 +1276,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
+                 cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeLayoutGraphImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
@@ -1625,6 +1643,7 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKUtils.h
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
+                     cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp
@@ -2939,7 +2958,7 @@ if(MSVC)
     file(GLOB V8_DLLS
         ${CWD}/external/win64/libs/v8/Release/*.dll
     )
-    
+
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll

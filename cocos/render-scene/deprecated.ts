@@ -25,12 +25,13 @@
 
 import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
 import { RenderScene } from './core/render-scene';
-import { Layers } from '../core/scene-graph/layers';
+import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from './core/pass';
 import { Camera } from './scene/camera';
 import { Shadows } from './scene/shadows';
 import { SpotLight } from './scene';
+import { SubModel } from './scene/submodel';
 
 removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'raycastUI2DNode' },
@@ -229,5 +230,23 @@ removeProperty(Shadows.prototype, 'Shadows.prototype', [
 removeProperty(SpotLight.prototype, 'SpotLight.prototype', [
     {
         name: 'aspect',
+    },
+]);
+
+replaceProperty(SubModel.prototype, 'SubModel.prototype', [
+    {
+        name: 'subMeshData',
+        newName: 'subMesh',
+    },
+]);
+
+removeProperty(SubModel.prototype, 'SubModel.prototype', [
+    {
+        name: 'getSubModel',
+        suggest: 'Use `subModels[i]` instead',
+    },
+    {
+        name: 'subModelNum',
+        suggest: 'Use `subModels.length` instead',
     },
 ]);

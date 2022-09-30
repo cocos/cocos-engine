@@ -24,10 +24,10 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
-import { getPhaseID } from '../../core/pipeline/pass-phase';
+import { getPhaseID } from '../../rendering/pass-phase';
 import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
@@ -38,10 +38,10 @@ import { IProgramInfo, programLib } from './program-lib';
 import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
 } from './pass-utils';
-import { RenderPassStage, RenderPriority } from '../../core/pipeline/define';
+import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { errorID } from '../../core/platform/debug';
-import { InstancedBuffer } from '../../core/pipeline/instanced-buffer';
-import { BatchedBuffer } from '../../core/pipeline/batched-buffer';
+import { InstancedBuffer } from '../../rendering/instanced-buffer';
+import { BatchedBuffer } from '../../rendering/batched-buffer';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part

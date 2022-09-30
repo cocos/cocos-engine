@@ -45,6 +45,8 @@ using namespace cc::render;
 %ignore cc::render::PipelineRuntime::getMacros;
 %ignore cc::render::PipelineRuntime::setValue;
 %ignore cc::render::PipelineRuntime::isOcclusionQueryEnabled;
+%ignore cc::render::PipelineRuntime::resetRenderQueue;
+%ignore cc::render::PipelineRuntime::isRenderQueueReset;
 %ignore cc::render::SceneVisitor::bindDescriptorSet;
 %ignore cc::render::SceneVisitor::updateBuffer;
 
@@ -91,7 +93,7 @@ using namespace cc::render;
 %attribute(cc::render::PipelineRuntime, cc::pipeline::GlobalDSManager*, globalDSManager, getGlobalDSManager);
 %attribute(cc::render::PipelineRuntime, cc::gfx::DescriptorSetLayout*, descriptorSetLayout, getDescriptorSetLayout);
 %attribute(cc::render::PipelineRuntime, cc::gfx::DescriptorSet*, descriptorSet, getDescriptorSet);
-%attribute(cc::render::PipelineRuntime, ccstd::vector<cc::gfx::CommandBuffer*>, commandBuffers, getCommandBuffers);
+%attribute(cc::render::PipelineRuntime, ccstd::vector<cc::gfx::CommandBuffer*>&, commandBuffers, getCommandBuffers);
 %attribute(cc::render::PipelineRuntime, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
 %attribute(cc::render::PipelineRuntime, ccstd::string&, constantMacros, getConstantMacros);
 %attribute(cc::render::PipelineRuntime, cc::scene::Model*, profiler, getProfiler, setProfiler);

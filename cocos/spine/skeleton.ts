@@ -30,7 +30,7 @@ import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache'
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Node, CCClass, CCObject, Color, Enum, ccenum, logID, warn, RecyclePool } from '../core';
+import { CCClass, CCObject, Color, Enum, ccenum, logID, warn, RecyclePool } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
@@ -45,6 +45,7 @@ import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
 import { Material, Texture2D } from '../asset/assets';
 import { builtinResMgr } from '../asset/asset-manager';
+import { Node } from '../scene-graph';
 
 export const timeScale = 1.0;
 

@@ -70,12 +70,7 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
 }
 
 void CCVKInputAssembler::doDestroy() {
-    if (_gpuInputAssembler) {
-        _gpuInputAssembler->vertexBuffers.clear();
-        _gpuInputAssembler->vertexBufferOffsets.clear();
-        delete _gpuInputAssembler;
-        _gpuInputAssembler = nullptr;
-    }
+    _gpuInputAssembler = nullptr;
 }
 
 } // namespace gfx

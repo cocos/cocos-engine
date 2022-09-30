@@ -24,7 +24,7 @@
  */
 
 import { legacyCC } from '../../core/global-exports';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
  * @en The event type supported by SystemEvent and Node events

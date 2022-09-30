@@ -52,6 +52,7 @@ public:
     static const CallbacksInvoker::KeyType MODEL_GET_MACRO_PATCHES;
 
     static const CallbacksInvoker::KeyType DIRECTOR_BEFORE_COMMIT;
+    static const CallbacksInvoker::KeyType DIRECTOR_BEFORE_RENDER;
 
     static const CallbacksInvoker::KeyType SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED;
     static const CallbacksInvoker::KeyType TEXTURE_BASE_GFX_SAMPLER_UPDATED;

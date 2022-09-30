@@ -1,5 +1,5 @@
 
-import { MissingScript } from '../../../cocos/core';
+import { MissingScript } from '../../../cocos/misc';
 import { deserialize } from '../../../cocos/core/data/deserialize';
 import { js } from '../../../cocos/core/utils/js';
 

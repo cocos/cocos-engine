@@ -57,6 +57,12 @@ export class EventTouch extends Event {
     public simulate = false;
 
     /**
+     * @en The unique ID of SystemWindow, which triggerd the event
+     * @zh 触发此事件的系统窗口 ID
+     */
+    public windowId = 0;
+
+    /**
      * @en Set whether to prevent events from being swallowed by nodes, which is false by default.
      * If set to true, the event is allowed to be dispatched to nodes at the bottom layer.
      * NOTE: Setting to true will reduce the efficiency of event dispatching.

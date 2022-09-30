@@ -12,6 +12,7 @@
 
 #include <boost/config/workaround.hpp>
 #include <cstddef>
+#include <cstdint>
 
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #pragma once

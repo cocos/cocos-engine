@@ -350,7 +350,7 @@ class ScreenAdapter extends EventTarget {
                 const dpr = window.devicePixelRatio;
                 // NOTE: some browsers especially on iPhone doesn't support MediaQueryList
                 window.matchMedia(`(resolution: ${dpr}dppx)`)?.addEventListener?.('change', () => {
-                    this.emit('window-resize');
+                    this.emit('window-resize', this.windowSize.width, this.windowSize.height);
                     updateDPRChangeListener();
                 }, { once: true });
             };
@@ -366,13 +366,13 @@ class ScreenAdapter extends EventTarget {
                 }
                 this._updateFrameState();
                 this._resizeFrame();
-                this.emit('orientation-change');
+                this.emit('orientation-change', this.windowSize.width, this.windowSize.height);
                 this._orientationChangeTimeoutId = -1;
             }, EVENT_TIMEOUT);
         });
         document.addEventListener(this._fn.fullscreenchange, () => {
             this._onFullscreenChange?.();
-            this.emit('fullscreen-change');
+            this.emit('fullscreen-change', this.windowSize.width, this.windowSize.height);
         });
     }
     private _convertToSizeInCssPixels (size: Size) {
@@ -515,7 +515,7 @@ class ScreenAdapter extends EventTarget {
             || this._cachedFrameStyle.height !== this._gameFrame.style.height
             || this._cachedContainerStyle.width !== this._gameContainer.style.width
             || this._cachedContainerStyle.height !== this._gameContainer.style.height)) {
-            this.emit('window-resize');
+            this.emit('window-resize', this.windowSize.width, this.windowSize.height);
 
             // Update Cache
             this._cachedFrameStyle.width = this._gameFrame.style.width;

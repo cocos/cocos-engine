@@ -25,10 +25,10 @@
 
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { BlendState, DepthStencilState, RasterizerState,
     DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager } from '../../gfx';
-import { RenderPassStage } from '../../core/pipeline/define';
+import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';

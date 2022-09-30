@@ -60,6 +60,9 @@ struct CC_DLL DebugViewConfig {
     bool csmLayerColoration;
 };
 
+struct ISystemWindowInfo;
+class ISystemWindow;
+
 class Root final {
 public:
     static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
@@ -73,10 +76,11 @@ public:
     /**
      * @zh
      * 重置大小
-     * @param width 屏幕宽度
-     * @param height 屏幕高度
+     * @param width 窗口宽度
+     * @param height 窗口高度
+     * @param windowId 窗口 ID
      */
-    void resize(uint32_t width, uint32_t height);
+    void resize(uint32_t width, uint32_t height, uint32_t windowId);
 
     bool setRenderPipeline(pipeline::RenderPipeline *rppl = nullptr);
     void onGlobalPipelineStateChanged();
@@ -120,6 +124,14 @@ public:
      * 销毁全部窗口
      */
     void destroyWindows();
+
+    /**
+     * @zh
+     * 创建一个系统窗口
+     * @param info 系统窗口描述信息
+     * @return 新创建的系统窗口 ID
+     */
+    static uint32_t createSystemWindow(const cc::ISystemWindowInfo &info);
 
     /**
      * @zh
@@ -177,15 +189,15 @@ public:
      * @zh
      * 主窗口
      */
-    inline scene::RenderWindow *getMainWindow() const { return _mainWindow.get(); }
+    inline scene::RenderWindow *getMainWindow() const { return _mainRenderWindow.get(); }
 
     /**
      * @zh
      * 当前窗口
      */
-    inline void setCurWindow(scene::RenderWindow *window) { _curWindow = window; }
+    inline void setCurWindow(scene::RenderWindow *window) { _curRenderWindow = window; }
 
-    inline scene::RenderWindow *getCurWindow() const { return _curWindow.get(); }
+    inline scene::RenderWindow *getCurWindow() const { return _curRenderWindow.get(); }
 
     /**
      * @zh
@@ -199,7 +211,7 @@ public:
      * @zh
      * 窗口列表
      */
-    inline const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _windows; }
+    inline const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _renderWindows; }
 
     /**
      * @zh
@@ -277,19 +289,27 @@ public:
 
     inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
 
+    scene::RenderWindow *createRenderWindowFromSystemWindow(uint32_t windowId);
+    scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
+
+    const ccstd::vector<scene::Camera *> &getCameraList() const {
+        return _cameraList;
+    }
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
     void frameMoveEnd();
     void doXRFrameMove(int32_t totalFrames);
+    void addWindowEventListener();
+    void removeWindowEventListener() const;
 
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
     Batcher2d *_batcher{nullptr};
-    IntrusivePtr<scene::RenderWindow> _mainWindow;
-    IntrusivePtr<scene::RenderWindow> _curWindow;
+    IntrusivePtr<scene::RenderWindow> _mainRenderWindow;
+    IntrusivePtr<scene::RenderWindow> _curRenderWindow;
     IntrusivePtr<scene::RenderWindow> _tempWindow;
-    ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
+    ccstd::vector<IntrusivePtr<scene::RenderWindow>> _renderWindows;
     IntrusivePtr<pipeline::RenderPipeline> _pipeline{nullptr};
     std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
@@ -305,6 +325,8 @@ private:
     bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
     IXRInterface *_xr{nullptr};
+    uint32_t _windowDestroyEventId{0};
+    uint32_t _windowResumeEventId{0};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;

@@ -28,8 +28,8 @@ import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { AABB } from '../../core/geometry/aabb';
-import { Node } from '../../core/scene-graph';
-import { Layers } from '../../core/scene-graph/layers';
+import { Node } from '../../scene-graph';
+import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
@@ -37,7 +37,7 @@ import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../core/math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../core/pipeline/define';
+import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../rendering/define';
 
 const m4_1 = new Mat4();
 

@@ -27,17 +27,17 @@ import { ccclass, help, menu, executionOrder, requireComponent, tooltip, seriali
 import { EDITOR, WECHAT } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Component } from '../core/components/component';
-import { view } from '../core/platform/view';
+import { Component } from '../scene-graph/component';
+import { view } from './view';
 import { Sprite } from '../2d/components/sprite';
-import { Node } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
 import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../asset/assets/image-asset';
 import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { NodeEventType } from '../scene-graph/node-event';
 import { CCObject } from '../core';
 import { Texture2D } from '../asset/assets';
 

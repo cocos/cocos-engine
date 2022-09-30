@@ -29,7 +29,7 @@ import { EDITOR, PREVIEW } from 'internal:constants';
 import { property } from '../../core/data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../../core/event';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { extname } from '../../core/utils/path';
 import { debug, getError } from '../../core/platform/debug';

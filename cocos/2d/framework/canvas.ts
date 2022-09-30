@@ -27,16 +27,16 @@
 import { ccclass, help, disallowMultiple, executeInEditMode,
     executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Camera } from '../../core/components/camera-component';
+import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
 import { Vec3 } from '../../core/math';
-import { view } from '../../core/platform/view';
+import { view } from '../../ui/view';
 import { legacyCC } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 import visibleRect from '../../core/platform/visible-rect';
 import { RenderRoot2D } from './render-root-2d';
-import { Node, screen } from '../../core';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { screen } from '../../core';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 const _worldPos = new Vec3();
 

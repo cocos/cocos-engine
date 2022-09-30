@@ -331,7 +331,7 @@ ResultType mapTupleArguments(se::Object *self, TupleIn &input, std::index_sequen
     using map_tuple = typename Mapping::mapping_list::tuple_type;
     using result_type = typename Mapping::result_types_tuple_mutable;
     static_assert(std::is_same<ResultType, result_type>::value, "result_type mismatch");
-    // if CC_CONSTEXPR (std::tuple_size<result_type>::value > 0) {
+    //if constexpr (std::tuple_size<result_type>::value > 0) {
     return result_type(ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...);
     //}
     // return result_type();
@@ -842,7 +842,7 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     }
 
     bool set(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_SETTER) {
+        if constexpr (HAS_SETTER) {
             T *self = reinterpret_cast<T *>(state.nativeThisObject());
             se::Object *thisObject = state.thisObject();
             const auto &args = state.args();
@@ -1000,7 +1000,7 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     }
 
     bool set(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_SETTER) {
+        if constexpr (HAS_SETTER) {
             const auto &args = state.args();
             HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
             sevalue_to_native(args[0], &(temp.data), nullptr);

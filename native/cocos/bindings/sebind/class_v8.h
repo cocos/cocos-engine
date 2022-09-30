@@ -25,6 +25,7 @@
 #pragma once
 
 #include "class.inl"
+#include "cocos/bindings/jswrapper/ValueArrayPool.h"
 
 namespace sebind {
 // finalizer callback
@@ -141,7 +142,7 @@ bool class_<T>::install(se::Object *nsObject) {
     _installed = true;
 
     if (_ctx->constructors.empty()) {
-        if CC_CONSTEXPR (std::is_default_constructible<T>::value) {
+        if constexpr (std::is_default_constructible<T>::value) {
             constructor(); // add default constructor
         }
     }

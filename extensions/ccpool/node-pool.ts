@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Component } from '../../cocos/core/components/component';
-import { Node } from '../../cocos/core/scene-graph';
+import { Component } from '../../cocos/scene-graph/component';
+import { Node } from '../../cocos/scene-graph';
 import { legacyCC } from '../../cocos/core/global-exports';
 
 type Constructor<T = {}> = new(...args: any[]) => T;
