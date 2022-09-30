@@ -1,5 +1,5 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
-import { buildBloomPass as buildBloomPasses, buildForwardPass, buildPostprocessPass, validPunctualLightsCulling } from './define';
+import { buildBloomPass as buildBloomPasses, buildForwardPass, buildPostprocessPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
@@ -9,9 +9,11 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             if (camera.scene === null) {
                 continue;
             }
+            const isGameView = camera.cameraUsage === CameraUsage.GAME
+                || camera.cameraUsage === CameraUsage.GAME_VIEW;
             // forward pass
-            const forwardInfo = buildForwardPass(camera, ppl, camera.cameraUsage !== CameraUsage.EDITOR);
-            if (camera.cameraUsage === CameraUsage.EDITOR) {
+            const forwardInfo = buildForwardPass(camera, ppl, isGameView);
+            if (!isGameView) {
                 return;
             }
             // bloom passes
