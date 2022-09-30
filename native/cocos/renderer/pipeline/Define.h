@@ -532,6 +532,7 @@ bool supportsR16HalfFloatTexture(const gfx::Device *device);
 bool supportsR32FloatTexture(const gfx::Device *device);
 
 extern CC_DLL uint32_t skyboxFlag;
+extern CC_DLL uint32_t solidColorFlag;
 
 struct CC_DLL SHADOWMAP {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);

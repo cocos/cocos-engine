@@ -556,6 +556,7 @@ const gfx::UniformStorageImage REFLECTIONSTORAGE::LAYOUT = {
 };
 
 uint32_t skyboxFlag = static_cast<uint32_t>(gfx::ClearFlagBit::STENCIL) << 1;
+uint32_t solidColorFlag = static_cast<uint32_t>(gfx::ClearFlagBit::ALL);
 
 uint32_t nextPow2(uint32_t val) {
     --val;
