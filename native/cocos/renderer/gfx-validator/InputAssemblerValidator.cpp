@@ -91,5 +91,11 @@ void InputAssemblerValidator::doDestroy() {
     _actor->destroy();
 }
 
+void InputAssemblerValidator::doUpdate() {
+    CC_ASSERT(isInited());
+
+    _actor->update();
+}
+
 } // namespace gfx
 } // namespace cc

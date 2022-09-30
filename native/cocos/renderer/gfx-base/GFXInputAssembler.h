@@ -38,6 +38,7 @@ public:
 
     void initialize(const InputAssemblerInfo &info);
     void destroy();
+    void update();
 
     inline const AttributeList &getAttributes() const { return _attributes; }
     inline const BufferList &getVertexBuffers() const { return _vertexBuffers; }
@@ -67,6 +68,7 @@ public:
 protected:
     virtual void doInit(const InputAssemblerInfo &info) = 0;
     virtual void doDestroy() = 0;
+    virtual void doUpdate() {};
 
     ccstd::hash_t computeAttributesHash() const;
 

@@ -79,5 +79,15 @@ void InputAssemblerAgent::doDestroy() {
         });
 }
 
+void InputAssemblerAgent::doUpdate() {
+    ENQUEUE_MESSAGE_1(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        InputAssemblerUpdate,
+        actor, getActor(),
+        {
+            actor->update();
+        });
+}
+
 } // namespace gfx
 } // namespace cc

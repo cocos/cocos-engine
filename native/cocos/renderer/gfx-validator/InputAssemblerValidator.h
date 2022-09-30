@@ -41,6 +41,7 @@ public:
 protected:
     void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;
+    void doUpdate() override;
 
     bool _inited{false};
 };

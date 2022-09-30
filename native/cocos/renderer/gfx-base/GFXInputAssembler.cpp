@@ -83,5 +83,9 @@ void InputAssembler::destroy() {
     _drawInfo = DrawInfo();
 }
 
+void InputAssembler::update() {
+    doUpdate();
+}
+
 } // namespace gfx
 } // namespace cc
