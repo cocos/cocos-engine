@@ -221,11 +221,7 @@ void cmdFuncCCVKCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTex
         }
     } else if (gpuTextureView->gpuTexture->vkImage) {
         createFn(gpuTextureView->gpuTexture->vkImage, &gpuTextureView->vkImageView);
-    } else {
-        return;
     }
-
-    device->gpuDescriptorHub()->update(gpuTextureView);
 }
 
 void cmdFuncCCVKCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
@@ -285,7 +281,6 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
                              &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
 
     gpuBuffer->mappedData = reinterpret_cast<uint8_t *>(res.pMappedData);
-    gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
 
     // add special access types directly from usage
     if (hasFlag(gpuBuffer->usage, BufferUsageBit::VERTEX)) gpuBuffer->renderAccessTypes.push_back(THSVS_ACCESS_VERTEX_BUFFER);
@@ -787,7 +782,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
 
     uint32_t swapchainImageIndices = 0;
     for (size_t i = 0U; i < colorViewCount; ++i) {
-        CCVKGPUTextureView *texView = gpuFramebuffer->gpuColorViews[i];
+        const CCVKGPUTextureView *texView = gpuFramebuffer->gpuColorViews[i];
         if (texView->gpuTexture->swapchain) {
             gpuFramebuffer->swapchain = texView->gpuTexture->swapchain;
             swapchainImageIndices |= (1 << i);
@@ -1159,7 +1154,7 @@ void cmdFuncCCVKCreateGeneralBarrier(CCVKDevice * /*device*/, CCVKGPUGeneralBarr
 }
 
 namespace {
-void bufferUpload(const CCVKGPUBuffer &stagingBuffer, CCVKGPUBuffer &gpuBuffer, VkBufferCopy region, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+void bufferUpload(const CCVKGPUBufferView &stagingBuffer, CCVKGPUBuffer &gpuBuffer, VkBufferCopy region, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     if (gpuBuffer.transferAccess) {
         // guard against WAW hazard
@@ -1172,7 +1167,7 @@ void bufferUpload(const CCVKGPUBuffer &stagingBuffer, CCVKGPUBuffer &gpuBuffer, 
                              0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
     }
 #endif
-    vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer.vkBuffer, 1, &region);
+    vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.gpuBuffer->vkBuffer, gpuBuffer.vkBuffer, 1, &region);
 };
 } // namespace
 
@@ -1234,13 +1229,12 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     while (sizeToUpload) {
         uint32_t chunkSizeToUpload = std::min(chunkSize, static_cast<uint32_t>(sizeToUpload));
         sizeToUpload -= chunkSizeToUpload;
-        CCVKGPUBuffer stagingBuffer;
-        stagingBuffer.size = chunkSizeToUpload;
-        device->gpuStagingBufferPool()->alloc(&stagingBuffer);
-        memcpy(stagingBuffer.mappedData, static_cast<const char *>(dataToUpload) + chunkOffset, chunkSizeToUpload);
+
+        IntrusivePtr<CCVKGPUBufferView> stagingBuffer = device->gpuStagingBufferPool()->alloc(chunkSizeToUpload);
+        memcpy(stagingBuffer->mappedData(), static_cast<const char *>(dataToUpload) + chunkOffset, chunkSizeToUpload);
 
         VkBufferCopy region{
-            stagingBuffer.startOffset,
+            stagingBuffer->offset,
             gpuBuffer->getStartOffset(backBufferIndex) + chunkOffset,
             chunkSizeToUpload,
         };
@@ -1248,12 +1242,12 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         chunkOffset += chunkSizeToUpload;
 
         if (cmdBuffer) {
-            bufferUpload(stagingBuffer, *gpuBuffer, region, cmdBuffer);
+            bufferUpload(*stagingBuffer, *gpuBuffer, region, cmdBuffer);
         } else {
             device->gpuTransportHub()->checkIn(
                 // capture by ref is safe here since the transport function will be executed immediately in the same thread
                 [&stagingBuffer, &gpuBuffer, region](CCVKGPUCommandBuffer *gpuCommandBuffer) {
-                    bufferUpload(stagingBuffer, *gpuBuffer, region, gpuCommandBuffer);
+                    bufferUpload(*stagingBuffer, *gpuBuffer, region, gpuCommandBuffer);
                 });
         }
     }
@@ -1359,25 +1353,24 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
                     heightOffset = static_cast<int32_t>(h);
                     stepHeight = std::min(chunkHeight, extent.height - h);
 
-                    CCVKGPUBuffer stagingBuffer;
-                    stagingBuffer.size = rowPitchSize * (stepHeight / blockSize.second);
-                    device->gpuStagingBufferPool()->alloc(&stagingBuffer, offsetAlignment);
+                    uint32_t stagingBufferSize = rowPitchSize * (stepHeight / blockSize.second);
+                    IntrusivePtr<CCVKGPUBufferView> stagingBuffer = device->gpuStagingBufferPool()->alloc(stagingBufferSize, offsetAlignment);
 
                     for (uint32_t j = 0; j < stepHeight; j += blockSize.second) {
-                        memcpy(stagingBuffer.mappedData + destOffset, buffers[idx] + buffOffset, destRowSize);
+                        memcpy(stagingBuffer->mappedData() + destOffset, buffers[idx] + buffOffset, destRowSize);
                         destOffset += rowPitchSize;
                         buffOffset += buffStrideSize;
                     }
 
                     VkBufferImageCopy stagingRegion;
-                    stagingRegion.bufferOffset = stagingBuffer.startOffset;
+                    stagingRegion.bufferOffset = stagingBuffer->offset;
                     stagingRegion.bufferRowLength = rowPitch;
                     stagingRegion.bufferImageHeight = stepHeight;
                     stagingRegion.imageSubresource = {gpuTexture->aspectMask, mipLevel, l + baseLayer, 1};
                     stagingRegion.imageOffset = {offset.x, offset.y + heightOffset, offset.z + static_cast<int>(depth)};
                     stagingRegion.imageExtent = {destWidth, std::min(stepHeight, destHeight - heightOffset), 1};
 
-                    vkCmdCopyBufferToImage(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuTexture->vkImage,
+                    vkCmdCopyBufferToImage(gpuCommandBuffer->vkCommandBuffer, stagingBuffer->gpuBuffer->vkBuffer, gpuTexture->vkImage,
                                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &stagingRegion);
                 }
             }
@@ -1438,7 +1431,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     device->gpuBarrierManager()->checkIn(gpuTexture);
 }
 
-void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer,
+void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBufferView *destBuffer,
                                      const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     ccstd::vector<ThsvsAccessType> &curTypes = srcTexture->currentAccessTypes;
 
@@ -1464,7 +1457,7 @@ void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcText
     for (size_t i = 0U; i < count; ++i) {
         const BufferTextureCopy &region = regions[i];
         VkBufferImageCopy &stagingRegion = stagingRegions[i];
-        stagingRegion.bufferOffset = destBuffer->startOffset + offset;
+        stagingRegion.bufferOffset = destBuffer->offset + offset;
         stagingRegion.bufferRowLength = region.buffStride;
         stagingRegion.bufferImageHeight = region.buffTexHeight;
         stagingRegion.imageSubresource = {srcTexture->aspectMask, region.texSubres.mipLevel, region.texSubres.baseArrayLayer, region.texSubres.layerCount};
@@ -1478,7 +1471,7 @@ void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcText
         offset += regionSize;
     }
     vkCmdCopyImageToBuffer(gpuCommandBuffer->vkCommandBuffer, srcTexture->vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           destBuffer->vkBuffer, utils::toUint(stagingRegions.size()), stagingRegions.data());
+                           destBuffer->gpuBuffer->vkBuffer, utils::toUint(stagingRegions.size()), stagingRegions.data());
 
     curTypes.assign({THSVS_ACCESS_TRANSFER_READ});
     srcTexture->transferAccess = THSVS_ACCESS_TRANSFER_READ;
