@@ -1483,10 +1483,9 @@ bool nativevalue_to_se(const cc::gfx::FormatInfo *from, se::Value &to, se::Objec
         obj->setProperty("isCompressed", se::Value(from->isCompressed));
         to.setObject(obj);
         return true;
-    } else {
-        to.setNull();
-        return false;
-    }
+    } 
+    to.setNull();
+    return false;
 }
 
 
