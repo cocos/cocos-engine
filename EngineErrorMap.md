@@ -3284,6 +3284,10 @@ The shadow visible distance is so small that CSM stratification is not effective
 
 The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade.
 
+### 15100
+
+Camera '%s' clear flag is skybox, but skybox is disabled. Force set clear flag to solid color.
+
 ### 16000
 
 '%s' is deprecated since v%s.
