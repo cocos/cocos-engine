@@ -805,32 +805,31 @@ class DevicePreSceneTask extends WebSceneTask {
             return;
         }
         const sceneFlag = this._graphScene.scene!.flags;
-        for (const ro of this.sceneData.renderObjects) {
-            const subModels = ro.model.subModels;
-            for (const submodel of subModels) {
-                const passes = submodel.passes;
-                for (const p of passes) {
-                    if (p.phase !== this._currentQueue.phaseID) continue;
-                    const batchingScheme = p.batchingScheme;
-                    // If the size of instances is not 0, it has been added
-                    if (batchingScheme === BatchingSchemes.INSTANCING
-                        && !this._submitInfo.instances.size) {
-                        const instancedBuffer = p.getInstancedBuffer();
-                        instancedBuffer.merge(submodel, ro.model.instancedAttributes, passes.indexOf(p));
-                        this._submitInfo.instances.add(instancedBuffer);
-                    } else if (batchingScheme === BatchingSchemes.VB_MERGING
-                        && !this._submitInfo.batches.size) {
-                        const batchedBuffer = p.getBatchedBuffer();
-                        batchedBuffer.merge(submodel, passes.indexOf(p), ro.model);
-                        this._submitInfo.batches.add(batchedBuffer);
-                    } else if ((sceneFlag & SceneFlags.TRANSPARENT_OBJECT)
-                    && (sceneFlag & SceneFlags.OPAQUE_OBJECT || sceneFlag & SceneFlags.OPAQUE_OBJECT)) {
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p));
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p), true);
-                    } else if ((sceneFlag & SceneFlags.CUTOUT_OBJECT) || (sceneFlag & SceneFlags.OPAQUE_OBJECT)) {
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p));
-                    } else if (sceneFlag & SceneFlags.TRANSPARENT_OBJECT) {
-                        this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p), true);
+        // If it is not empty, it means that it has been added and will not be traversed.
+        const isEmpty = !this._submitInfo.opaqueList.length
+                        && !this._submitInfo.transparentList.length
+                        && !this._submitInfo.instances.size
+                        && !this._submitInfo.batches.size;
+        if (isEmpty) {
+            for (const ro of this.sceneData.renderObjects) {
+                const subModels = ro.model.subModels;
+                for (const submodel of subModels) {
+                    const passes = submodel.passes;
+                    for (const p of passes) {
+                        if (p.phase !== this._currentQueue.phaseID) continue;
+                        const batchingScheme = p.batchingScheme;
+                        if (batchingScheme === BatchingSchemes.INSTANCING) {
+                            const instancedBuffer = p.getInstancedBuffer();
+                            instancedBuffer.merge(submodel, ro.model.instancedAttributes, passes.indexOf(p));
+                            this._submitInfo.instances.add(instancedBuffer);
+                        } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
+                            const batchedBuffer = p.getBatchedBuffer();
+                            batchedBuffer.merge(submodel, passes.indexOf(p), ro.model);
+                            this._submitInfo.batches.add(batchedBuffer);
+                        } else {
+                            this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p));
+                            this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p), true);
+                        }
                     }
                 }
             }
@@ -844,8 +843,8 @@ class DevicePreSceneTask extends WebSceneTask {
             this._submitInfo.planarQueue = new PlanarShadowQueue(pipeline);
             this._submitInfo.planarQueue.gatherShadowPasses(this.camera, this._cmdBuff);
         }
-        this._submitInfo.opaqueList.sort(this._opaqueCompareFn);
-        this._submitInfo.transparentList.sort(this._transparentCompareFn);
+        if (sceneFlag & SceneFlags.OPAQUE_OBJECT) { this._submitInfo.opaqueList.sort(this._opaqueCompareFn); }
+        if (sceneFlag & SceneFlags.TRANSPARENT_OBJECT) { this._submitInfo.transparentList.sort(this._transparentCompareFn); }
     }
     protected _insertRenderList (ro: RenderObject, subModelIdx: number, passIdx: number, isTransparent = false) {
         const subModel = ro.model.subModels[subModelIdx];
@@ -1275,12 +1274,23 @@ class DeviceSceneTask extends WebSceneTask {
             return;
         }
         const graphSceneData = this.graphScene.scene!;
-        this._recordOpaqueList();
-        this._recordInstences();
+        if (graphSceneData.flags & SceneFlags.OPAQUE_OBJECT
+            || graphSceneData.flags & SceneFlags.CUTOUT_OBJECT) {
+            this._recordOpaqueList();
+        }
+        if (graphSceneData.flags & SceneFlags.DRAW_INSTANCING) {
+            this._recordInstences();
+        }
         this._recordBatches();
-        this._recordAdditiveLights();
-        this._recordPlanarShadows();
-        this._recordTransparentList();
+        if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
+            this._recordAdditiveLights();
+        }
+        if (graphSceneData.flags & SceneFlags.PLANAR_SHADOW) {
+            this._recordPlanarShadows();
+        }
+        if (graphSceneData.flags & SceneFlags.TRANSPARENT_OBJECT) {
+            this._recordTransparentList();
+        }
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(devicePass.renderPass,
                 context.commandBuffer, context.pipeline.pipelineSceneData);
