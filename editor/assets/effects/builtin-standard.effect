@@ -292,7 +292,7 @@ CCProgram standard-fs %{
     #endif
     s.occlusion = pbr.x;
     s.roughness = pbr.y;
-    s.specularIntensity = 0.5;
+    s.specularIntensity = pbr.w;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
