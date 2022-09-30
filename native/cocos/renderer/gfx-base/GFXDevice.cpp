@@ -127,20 +127,15 @@ BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
 }
 
 DefaultResource::DefaultResource(Device *device) {
-    _texture1D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 1, TextureFlagBit::NONE});
     _texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE});
     _textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE});
+    
     _texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::ONE, 2});
     _texture1DArray = device->createTexture({TextureType::TEX1D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 1, 1, TextureFlagBit::NONE, 2});
     _texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
 
     uint32_t bufferSize = 64;
     ccstd::vector<uint8_t> buffer(bufferSize, 255);
-    const uint8_t *bufferData = buffer.data();
-    {
-        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 1, 1}, {0, 0, 1}};
-        device->copyBuffersToTexture(&bufferData, _texture1D, &region, 1);
-    }
     {
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture2D, &region, 1);
@@ -179,8 +174,6 @@ DefaultResource::DefaultResource(Device *device) {
 
 const Texture *DefaultResource::getTexture(TextureType type) const {
     switch (type) {
-        case TextureType::TEX1D:
-            return _texture1D;
         case TextureType::TEX2D:
             return _texture2D;
         case TextureType::CUBE:
@@ -192,6 +185,7 @@ const Texture *DefaultResource::getTexture(TextureType type) const {
         case TextureType::TEX2D_ARRAY:
             return _texture2DArray;
         default:
+            CC_ASSERT(false);
             return nullptr;
     }
 }
