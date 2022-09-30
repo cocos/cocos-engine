@@ -253,7 +253,12 @@ float CCGetLinearDepth(vec3 worldPos) {
   }
   
   #if CC_SUPPORT_CASCADED_SHADOW_MAP
-    int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos) {
+    #if CC_CASCADED_LAYERS_TRANSITION
+      int CCGetCSMLevel(out bool transitionArea, out float ratio, out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos)
+    #else
+      int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos)
+    #endif
+    {
       int layer = -1;
       highp float layerThreshold = cc_csmViewDir0[0].w;
       for (int i = 0; i < NUMCASCADES; i++) {
@@ -262,6 +267,24 @@ float CCGetLinearDepth(vec3 worldPos) {
         if (clipPos.x >= (0.0 + layerThreshold) && clipPos.x <= (1.0 - layerThreshold) &&
             clipPos.y >= (0.0 + layerThreshold) && clipPos.y <= (1.0 - layerThreshold) &&
             clipPos.z >= 0.0 && clipPos.z <= 1.0 && layer < 0) {
+          #if CC_CASCADED_LAYERS_TRANSITION
+            if (clipPos.x <= 0.15 - layerThreshold || clipPos.x >= (1.0 - 0.15 + layerThreshold) ||
+                clipPos.y <= 0.15 - layerThreshold || clipPos.y >= (0.85) + layerThreshold) {
+              if (clipPos.x >= layerThreshold && clipPos.x <= 0.15) {
+                ratio = (clipPos.x - layerThreshold) / (0.15 - layerThreshold);
+              }
+              if (clipPos.x >= (0.85) && clipPos.x <= (1.0 - layerThreshold)) {
+                ratio = (clipPos.x - (0.85)) / (0.15 - layerThreshold);
+              }
+              if (clipPos.y >= layerThreshold && clipPos.y <= 0.15) {
+                ratio = (clipPos.y - layerThreshold) / (0.15 - layerThreshold);
+              }
+              if (clipPos.y >= (0.85) && clipPos.y <= (1.0 - layerThreshold)) {
+                ratio = (clipPos.y - (0.85)) / (0.15 - layerThreshold);
+              }
+            transitionArea = true;
+          }
+          #endif
           csmPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
           csmPos.xy = csmPos.xy * cc_csmAtlas[i].xy + cc_csmAtlas[i].zw;
           shadowProjDepthInfo = cc_csmProjDepthInfo[i];
@@ -275,13 +298,43 @@ float CCGetLinearDepth(vec3 worldPos) {
       return layer;
     }
 
-    // output csmPos is non-biased position that can be used for sampling shadow map after homogeneous divid
-    float CCCSMFactorBase(out vec4 csmPos, out vec4 csmNDCPosWithBias, vec3 worldPos, vec3 N, vec2 shadowBias)
+    bool CCGetCSMNextLevel(out vec4 nextCSMPos, out vec4 nextShadowProjDepthInfo, out vec4 nextShadowProjInfo, out vec3 nextShadowViewDir0, out vec3 nextShadowViewDir1, out vec3 nextShadowViewDir2, int nextLayer, vec3 worldPos) {
+      highp float layerThreshold = cc_csmViewDir0[0].w;
+      bool hasNext = false;
+      for (int i = 0; i < NUMCASCADES; i++) {
+        if (i == nextLayer) {
+          vec4 shadowPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
+          vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+          if (clipPos.x >= (0.0 + layerThreshold) && clipPos.x <= (1.0 - layerThreshold) &&
+              clipPos.y >= (0.0 + layerThreshold) && clipPos.y <= (1.0 - layerThreshold) &&
+              clipPos.z >= 0.0 && clipPos.z <= 1.0) {
+            nextCSMPos = cc_matCSMViewProj[i] * vec4(worldPos.xyz, 1.0);
+            nextCSMPos.xy = nextCSMPos.xy * cc_csmAtlas[i].xy + cc_csmAtlas[i].zw;
+            nextShadowProjDepthInfo = cc_csmProjDepthInfo[i];
+            nextShadowProjInfo = cc_csmProjInfo[i];
+            nextShadowViewDir0 = cc_csmViewDir0[i].xyz;
+            nextShadowViewDir1 = cc_csmViewDir1[i].xyz;
+            nextShadowViewDir2 = cc_csmViewDir2[i].xyz;
+            hasNext = true;
+          }
+        }
+      }
+      return hasNext;
+    }
+
+    float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
     {
-      csmPos = vec4(1.0);
+      bool transitionArea = false;
+      float ratio = 0.0;
+      vec4 csmPos = vec4(1.0);
       vec4 shadowProjDepthInfo, shadowProjInfo;
       vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
-      int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+      int level = -1;
+      #if CC_CASCADED_LAYERS_TRANSITION
+        level = CCGetCSMLevel(transitionArea, ratio, csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+      #else
+        level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+      #endif
       if (level < 0) { return 1.0; }
 
       vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
@@ -301,8 +354,35 @@ float CCGetLinearDepth(vec3 worldPos) {
         realtimeShadow = CCGetDirLightShadowFactorHard(pos);
       #endif
 
-      csmNDCPosWithBias = pos;
-      return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+      #if CC_CASCADED_LAYERS_TRANSITION
+        vec4 nextCSMPos = vec4(1.0);
+        vec4 nextShadowProjDepthInfo, nextShadowProjInfo;
+        vec3 nextShadowViewDir0, nextShadowViewDir1, nextShadowViewDir2;
+        float nextRealtimeShadow = 1.0;
+        bool hasNextLevel = CCGetCSMNextLevel(nextCSMPos, nextShadowProjDepthInfo, nextShadowProjInfo, nextShadowViewDir0, nextShadowViewDir1, nextShadowViewDir2, level + 1, worldPos);
+        if (transitionArea && hasNextLevel) {
+          vec4 nexPos = ApplyShadowDepthBias_FaceNormal(nextCSMPos, N, shadowBias.y, nextShadowViewDir0, nextShadowViewDir1, nextShadowViewDir2, nextShadowProjInfo.xy);
+          nexPos = ApplyShadowDepthBias_Orthographic(nexPos, shadowBias.x, nextShadowProjDepthInfo.x, nextShadowProjDepthInfo.y);
+
+          #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
+            nextRealtimeShadow = CCGetDirLightShadowFactorSoft5X(nexPos);
+          #endif
+          #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_3X
+            nextRealtimeShadow = CCGetDirLightShadowFactorSoft3X(nexPos);
+          #endif
+          #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT
+            nextRealtimeShadow = CCGetDirLightShadowFactorSoft(nexPos);
+          #endif
+          #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_HARD
+            nextRealtimeShadow = CCGetDirLightShadowFactorHard(nexPos);
+          #endif
+
+          return mix(mix(nextRealtimeShadow, realtimeShadow, ratio), 1.0, cc_shadowNFLSInfo.w);
+        }
+        return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+      #else
+        return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+      #endif
     }
   #else
     int CCGetCSMLevel(out vec4 csmPos, out vec4 shadowProjDepthInfo, out vec4 shadowProjInfo, out vec3 shadowViewDir0, out vec3 shadowViewDir1, out vec3 shadowViewDir2, vec3 worldPos) {

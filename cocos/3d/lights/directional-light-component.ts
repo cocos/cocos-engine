@@ -75,7 +75,7 @@ export class DirectionalLight extends Light {
     protected _csmOptimizationMode = CSMOptimizationMode.RemoveDuplicates;
 
     @serializable
-    protected _shadowAdvancedOptions = false;
+    protected _csmAdvancedOptions = false;
     @serializable
     protected _csmLayersTransition = false;
     @serializable
@@ -465,11 +465,11 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 19 } })
     @editable
     @type(CCBoolean)
-    get shadowAdvancedOptions () {
-        return this._shadowAdvancedOptions;
+    get csmAdvancedOptions () {
+        return this._csmAdvancedOptions;
     }
-    set shadowAdvancedOptions (val) {
-        this._shadowAdvancedOptions = val;
+    set csmAdvancedOptions (val) {
+        this._csmAdvancedOptions = val;
     }
 
     /**
@@ -479,7 +479,8 @@ export class DirectionalLight extends Light {
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
          && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
-         && this._csmLevel > CSMLevel.LEVEL_1;
+         && this._csmLevel > CSMLevel.LEVEL_1
+         && this._csmAdvancedOptions;
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 20 } })
     @editable
@@ -498,7 +499,8 @@ export class DirectionalLight extends Light {
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
          && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
-         && this._csmLevel > CSMLevel.LEVEL_1;
+         && this._csmLevel > CSMLevel.LEVEL_1
+         && this._csmAdvancedOptions;
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
     @editable
@@ -535,6 +537,8 @@ export class DirectionalLight extends Light {
             this._light.csmLevel = this._csmLevel;
             this._light.csmLayerLambda = this._csmLayerLambda;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
+            this._light.csmLayersTransition = this._csmLayersTransition;
+            this._light.pcss = this._pcss;
         }
     }
 }
