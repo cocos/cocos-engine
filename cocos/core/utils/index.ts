@@ -38,7 +38,6 @@ import * as misc from './misc';
 import * as path from './path';
 
 export * from './x-deprecated';
-export { PrefabLink } from './prefab-link';
 
 export {
     js,

@@ -48,18 +48,16 @@ export interface PipelineRuntime {
     activate (swapchain: Swapchain): boolean;
     destroy (): boolean;
     render (cameras: Camera[]): void;
-    get device (): Device;
-    get globalDSManager (): GlobalDSManager;
-    get descriptorSetLayout (): DescriptorSetLayout;
-    get descriptorSet (): DescriptorSet;
-    get commandBuffers (): CommandBuffer[];
-    get pipelineSceneData (): PipelineSceneData;
-    get constantMacros (): string;
-    get profiler (): Model | null;
-    set profiler (profiler: Model | null);
-    get geometryRenderer (): GeometryRenderer | null;
-    get shadingScale (): number;
-    set shadingScale (scale: number);
+    readonly device: Device;
+    readonly globalDSManager: GlobalDSManager;
+    readonly descriptorSetLayout: DescriptorSetLayout;
+    readonly descriptorSet: DescriptorSet;
+    readonly commandBuffers: CommandBuffer[];
+    readonly pipelineSceneData: PipelineSceneData;
+    readonly constantMacros: string;
+    profiler: Model | null;
+    readonly geometryRenderer: GeometryRenderer | null;
+    shadingScale: number;
     getMacroString (name: string): string;
     getMacroInt (name: string): number;
     getMacroBool (name: string): boolean;
@@ -68,7 +66,7 @@ export interface PipelineRuntime {
     setMacroBool (name: string, value: boolean): void;
     onGlobalPipelineStateChanged (): void;
 
-    get macros (): MacroRecord;
+    readonly macros: MacroRecord;
 }
 
 export interface Setter {
@@ -131,7 +129,7 @@ export interface CopyPassBuilder {
 }
 
 export interface SceneVisitor {
-    get pipelineSceneData (): PipelineSceneData;
+    readonly pipelineSceneData: PipelineSceneData;
     setViewport (vp: Viewport): void;
     setScissor (rect: Rect): void;
     bindPipelineState (pso: PipelineState): void;
@@ -143,7 +141,7 @@ export interface SceneVisitor {
 }
 
 export interface SceneTask {
-    get taskType (): TaskType;
+    readonly taskType: TaskType;
     start (): void;
     join (): void;
     submit (): void;
@@ -182,7 +180,7 @@ export interface Pipeline extends PipelineRuntime {
     addCopyPass (name: string): CopyPassBuilder;
     presentAll (): void;
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
-    get layoutGraphBuilder (): LayoutGraphBuilder;
+    readonly layoutGraphBuilder: LayoutGraphBuilder;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 

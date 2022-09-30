@@ -77,10 +77,11 @@ void CCVKShader::doInit(const ShaderInfo & /*info*/) {
 }
 
 void CCVKShader::doDestroy() {
-    if (_gpuShader) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuShader);
-        _gpuShader = nullptr;
-    }
+    _gpuShader =  nullptr;
+}
+
+void CCVKGPUShader::shutdown() {
+    cmdFuncCCVKDestroyShader(CCVKDevice::getInstance()->gpuDevice(), this);
 }
 
 } // namespace gfx

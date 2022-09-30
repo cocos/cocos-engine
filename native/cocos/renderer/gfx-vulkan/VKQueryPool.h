@@ -28,11 +28,10 @@
 #include <mutex>
 #include "VKStd.h"
 #include "gfx-base/GFXQueryPool.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-struct CCVKGPUQueryPool;
 
 class CC_VULKAN_API CCVKQueryPool final : public QueryPool {
 public:
@@ -48,7 +47,7 @@ protected:
     void doInit(const QueryPoolInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUQueryPool *_gpuQueryPool{nullptr};
+    IntrusivePtr<CCVKGPUQueryPool> _gpuQueryPool;
     ccstd::vector<uint32_t> _ids;
 };
 
