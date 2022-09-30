@@ -145,7 +145,7 @@ struct ICameraInfo {
 class Camera : public RefCounted {
 public:
     static constexpr int32_t SKYBOX_FLAG{static_cast<int32_t>(gfx::ClearFlagBit::STENCIL) << 1};
-    static constexpr int32_t SOLID_COLOR_FLAG{static_cast<int32_t>(gfx::ClearFlagBit::ALL)};
+    static constexpr int32_t SOLID_COLOR_FLAG{gfx::ClearFlagBit::ALL};
 
     explicit Camera(gfx::Device *device);
     ~Camera() override;
