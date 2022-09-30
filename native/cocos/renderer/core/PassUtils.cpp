@@ -185,8 +185,7 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx] = colorFloat.x;
              a[idx + 1] = colorFloat.y;
              a[idx + 2] = colorFloat.z;
-         }
-         else {
+         } else {
              CC_ASSERT(false);
          }
      }},
