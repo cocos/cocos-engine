@@ -148,6 +148,23 @@ public:
     static Object *createObjectWithClass(Class *cls);
 
     /**
+     *  @brief Creates a JavaScript Native Binding Object from an JS constructor with no arguments, which behaves as `new MyClass();` in JS.
+     *  @param[in] constructor The JS constructor
+     *  @return A JavaScript object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createObjectWithConstructor(se::Object *constructor);
+
+    /**
+     *  @brief Creates a JavaScript Native Binding Object from an JS constructor with arguments, which behaves as `new MyClass(arg0, arg1, arg2, ...);` in JS.
+     *  @param[in] constructor The JS constructor
+     *  @param[in] args The arguments passed to the JS constructor
+     *  @return A JavaScript object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createObjectWithConstructor(se::Object *constructor, const ValueArray &args);
+
+    /**
      *  @brief Gets a se::Object from an existing native object pointer.
      *  @param[in] ptr The native object pointer associated with the se::Object
      *  @return A JavaScript Native Binding Object, or nullptr if there is an error.

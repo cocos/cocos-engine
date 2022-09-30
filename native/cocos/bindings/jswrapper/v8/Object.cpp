@@ -183,6 +183,30 @@ Object *Object::createObjectWithClass(Class *cls) {
     return obj;
 }
 
+/* static */
+Object *Object::createObjectWithConstructor(se::Object *constructor) {
+    auto jsVal = constructor->_getJSObject()->CallAsConstructor(__isolate->GetCurrentContext(), 0, nullptr);
+    if (jsVal.IsEmpty()) {
+        return nullptr;
+    }
+
+    v8::Local<v8::Object> jsobj = v8::Local<v8::Object>::Cast(jsVal.ToLocalChecked());
+    return Object::_createJSObject(nullptr, jsobj);
+}
+
+/* static */
+Object *Object::createObjectWithConstructor(se::Object *constructor, const ValueArray &args) {
+    ccstd::vector<v8::Local<v8::Value>> jsArgs(args.size());
+    internal::seToJsArgs(__isolate, args, jsArgs.data());
+    auto jsVal = constructor->_getJSObject()->CallAsConstructor(__isolate->GetCurrentContext(), static_cast<int>(args.size()), jsArgs.data());
+    if (jsVal.IsEmpty()) {
+        return nullptr;
+    }
+
+    v8::Local<v8::Object> jsobj = v8::Local<v8::Object>::Cast(jsVal.ToLocalChecked());
+    return Object::_createJSObject(nullptr, jsobj);
+}
+
 Object *Object::createArrayObject(size_t length) {
     v8::Local<v8::Array> jsobj = v8::Array::New(__isolate, static_cast<int>(length));
     Object *obj = Object::_createJSObject(nullptr, jsobj);
