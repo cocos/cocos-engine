@@ -308,7 +308,7 @@ function packRenderData () {
     const tiledData = _curLayer.requestTiledRenderData();
     if (JSB) {
         tiledData.renderData = RenderData.add(vfmtPosUvColor, _accessor);
-        tiledData.renderData.drawInfoType = RenderDrawInfoType.IA;
+        tiledData.renderData.drawInfoType = RenderDrawInfoType.MIDDLEWARE;
     } else {
         tiledData.renderData = RenderData.add(vfmtPosUvColor);
     }

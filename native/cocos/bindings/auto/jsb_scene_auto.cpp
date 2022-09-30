@@ -5417,6 +5417,200 @@ bool js_register_scene_Shadows(se::Object* obj) // NOLINT(readability-identifier
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_scene_InstancedAttributeBlock_proto = nullptr; // NOLINT
+se::Class* __jsb_cc_scene_InstancedAttributeBlock_class = nullptr;  // NOLINT
+
+static bool js_scene_InstancedAttributeBlock_get_buffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->buffer, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->buffer, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_InstancedAttributeBlock_get_buffer)
+
+static bool js_scene_InstancedAttributeBlock_set_buffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->buffer, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_buffer)
+
+static bool js_scene_InstancedAttributeBlock_get_views(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->views, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->views, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_InstancedAttributeBlock_get_views)
+
+static bool js_scene_InstancedAttributeBlock_set_views(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->views, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_views)
+
+static bool js_scene_InstancedAttributeBlock_get_attributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->attributes, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->attributes, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_InstancedAttributeBlock_get_attributes)
+
+static bool js_scene_InstancedAttributeBlock_set_attributes(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->attributes, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_attributes)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::scene::InstancedAttributeBlock * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::scene::InstancedAttributeBlock*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("buffer", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->buffer), ctx);
+    }
+    json->getProperty("views", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->views), ctx);
+    }
+    json->getProperty("attributes", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->attributes), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_InstancedAttributeBlock_finalize)
+
+static bool js_scene_InstancedAttributeBlock_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::InstancedAttributeBlock);
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::InstancedAttributeBlock);
+        auto cobj = ptr->get<cc::scene::InstancedAttributeBlock>();
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            delete ptr;
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+        s.thisObject()->setPrivateObject(ptr);
+        return true;
+    }
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::InstancedAttributeBlock);
+    auto cobj = ptr->get<cc::scene::InstancedAttributeBlock>();
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->buffer), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->views), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->attributes), nullptr);
+    }
+
+    if(!ok) {
+        delete ptr;
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_scene_InstancedAttributeBlock_constructor, __jsb_cc_scene_InstancedAttributeBlock_class, js_cc_scene_InstancedAttributeBlock_finalize)
+
+static bool js_cc_scene_InstancedAttributeBlock_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_InstancedAttributeBlock_finalize)
+
+bool js_register_scene_InstancedAttributeBlock(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("IInstancedAttributeBlock", obj, nullptr, _SE(js_scene_InstancedAttributeBlock_constructor));
+
+#if CC_DEBUG
+    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
+#endif
+    cls->defineProperty("buffer", _SE(js_scene_InstancedAttributeBlock_get_buffer), _SE(js_scene_InstancedAttributeBlock_set_buffer));
+    cls->defineProperty("views", _SE(js_scene_InstancedAttributeBlock_get_views), _SE(js_scene_InstancedAttributeBlock_set_views));
+    cls->defineProperty("attributes", _SE(js_scene_InstancedAttributeBlock_get_attributes), _SE(js_scene_InstancedAttributeBlock_set_attributes));
+    cls->defineFinalizeFunction(_SE(js_cc_scene_InstancedAttributeBlock_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::InstancedAttributeBlock>(cls);
+
+    __jsb_cc_scene_InstancedAttributeBlock_proto = cls->getProto();
+    __jsb_cc_scene_InstancedAttributeBlock_class = cls;
+
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_scene_SubModel_proto = nullptr; // NOLINT
 se::Class* __jsb_cc_scene_SubModel_class = nullptr;  // NOLINT
 
@@ -5870,6 +6064,30 @@ static bool js_scene_SubModel_setInputAssembler(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_SubModel_setInputAssembler)
 
+static bool js_scene_SubModel_setInstancedAttribute(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
+    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<const float*, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        cobj->setInstancedAttribute(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_scene_SubModel_setInstancedAttribute)
+
 static bool js_scene_SubModel_setOwner(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
@@ -6090,6 +6308,7 @@ bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifie
     cls->defineFunction("onGeometryChanged", _SE(js_scene_SubModel_onGeometryChanged));
     cls->defineFunction("onMacroPatchesStateChanged", _SE(js_scene_SubModel_onMacroPatchesStateChanged));
     cls->defineFunction("onPipelineStateChanged", _SE(js_scene_SubModel_onPipelineStateChanged));
+    cls->defineFunction("setInstancedAttribute", _SE(js_scene_SubModel_setInstancedAttribute));
     cls->defineFunction("setOwner", _SE(js_scene_SubModel_setOwner));
     cls->defineFunction("setWorldBoundDescriptorSet", _SE(js_scene_SubModel_setWorldBoundDescriptorSet));
     cls->defineFunction("update", _SE(js_scene_SubModel_update));
@@ -6099,200 +6318,6 @@ bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifie
 
     __jsb_cc_scene_SubModel_proto = cls->getProto();
     __jsb_cc_scene_SubModel_class = cls;
-
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-se::Object* __jsb_cc_scene_InstancedAttributeBlock_proto = nullptr; // NOLINT
-se::Class* __jsb_cc_scene_InstancedAttributeBlock_class = nullptr;  // NOLINT
-
-static bool js_scene_InstancedAttributeBlock_get_buffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->buffer, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->buffer, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_InstancedAttributeBlock_get_buffer)
-
-static bool js_scene_InstancedAttributeBlock_set_buffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->buffer, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_buffer)
-
-static bool js_scene_InstancedAttributeBlock_get_views(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->views, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->views, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_InstancedAttributeBlock_get_views)
-
-static bool js_scene_InstancedAttributeBlock_set_views(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->views, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_views)
-
-static bool js_scene_InstancedAttributeBlock_get_attributes(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->attributes, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->attributes, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_InstancedAttributeBlock_get_attributes)
-
-static bool js_scene_InstancedAttributeBlock_set_attributes(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::InstancedAttributeBlock>(s);
-    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->attributes, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_InstancedAttributeBlock_set_attributes)
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::scene::InstancedAttributeBlock * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::scene::InstancedAttributeBlock*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    json->getProperty("buffer", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->buffer), ctx);
-    }
-    json->getProperty("views", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->views), ctx);
-    }
-    json->getProperty("attributes", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->attributes), ctx);
-    }
-    return ok;
-}
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_scene_InstancedAttributeBlock_finalize)
-
-static bool js_scene_InstancedAttributeBlock_constructor(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-
-    if(argc == 0)
-    {
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::InstancedAttributeBlock);
-        s.thisObject()->setPrivateObject(ptr);
-        return true;
-    }
-
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-        auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::InstancedAttributeBlock);
-        auto cobj = ptr->get<cc::scene::InstancedAttributeBlock>();
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            delete ptr;
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-        s.thisObject()->setPrivateObject(ptr);
-        return true;
-    }
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT(cc::scene::InstancedAttributeBlock);
-    auto cobj = ptr->get<cc::scene::InstancedAttributeBlock>();
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->buffer), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->views), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->attributes), nullptr);
-    }
-
-    if(!ok) {
-        delete ptr;
-        SE_REPORT_ERROR("Argument convertion error");
-        return false;
-    }
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_scene_InstancedAttributeBlock_constructor, __jsb_cc_scene_InstancedAttributeBlock_class, js_cc_scene_InstancedAttributeBlock_finalize)
-
-static bool js_cc_scene_InstancedAttributeBlock_finalize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_scene_InstancedAttributeBlock_finalize)
-
-bool js_register_scene_InstancedAttributeBlock(se::Object* obj) // NOLINT(readability-identifier-naming)
-{
-    auto* cls = se::Class::create("IInstancedAttributeBlock", obj, nullptr, _SE(js_scene_InstancedAttributeBlock_constructor));
-
-#if CC_DEBUG
-    cls->defineStaticProperty("isJSBClass", _SE(js_scene_getter_return_true), nullptr);
-#endif
-    cls->defineProperty("buffer", _SE(js_scene_InstancedAttributeBlock_get_buffer), _SE(js_scene_InstancedAttributeBlock_set_buffer));
-    cls->defineProperty("views", _SE(js_scene_InstancedAttributeBlock_get_views), _SE(js_scene_InstancedAttributeBlock_set_views));
-    cls->defineProperty("attributes", _SE(js_scene_InstancedAttributeBlock_get_attributes), _SE(js_scene_InstancedAttributeBlock_set_attributes));
-    cls->defineFinalizeFunction(_SE(js_cc_scene_InstancedAttributeBlock_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::scene::InstancedAttributeBlock>(cls);
-
-    __jsb_cc_scene_InstancedAttributeBlock_proto = cls->getProto();
-    __jsb_cc_scene_InstancedAttributeBlock_class = cls;
 
 
     se::ScriptEngine::getInstance()->clearException();
@@ -6374,129 +6399,6 @@ static bool js_scene_Model_detachFromScene(se::State& s) // NOLINT(readability-i
     return false;
 }
 SE_BIND_FUNC(js_scene_Model_detachFromScene)
-
-static bool js_scene_Model_getInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int32_t result = cobj->getInstMatWorldIdx();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_getInstMatWorldIdx)
-
-static bool js_scene_Model_getInstanceAttributes(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::gfx::Attribute>& result = cobj->getInstanceAttributes();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_getInstanceAttributes)
-
-static bool js_scene_Model_getInstancedAttributeBlock(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::scene::InstancedAttributeBlock& result = cobj->getInstancedAttributeBlock();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_getInstancedAttributeBlock)
-
-static bool js_scene_Model_getInstancedAttributeIndex(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::string, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        int32_t result = cobj->getInstancedAttributeIndex(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_getInstancedAttributeIndex)
-
-static bool js_scene_Model_getInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const unsigned char* result = cobj->getInstancedBuffer();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_getInstancedBuffer)
-
-static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getInstancedBufferSize();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_getInstancedBufferSize)
 
 static bool js_scene_Model_getLocalBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7003,26 +6905,6 @@ static bool js_scene_Model_isInited(se::State& s) // NOLINT(readability-identifi
 }
 SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isInited)
 
-static bool js_scene_Model_isInstancingEnabled(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isInstancingEnabled();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_GET(js_scene_Model_isInstancingEnabled)
-
 static bool js_scene_Model_isLocalDataUpdated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -7231,26 +7113,6 @@ static bool js_scene_Model_setEnabled(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setEnabled)
 
-static bool js_scene_Model_setInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<int32_t, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setInstMatWorldIdx(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_setInstMatWorldIdx)
-
 static bool js_scene_Model_setInstancedAttribute(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -7274,50 +7136,6 @@ static bool js_scene_Model_setInstancedAttribute(se::State& s) // NOLINT(readabi
     return false;
 }
 SE_BIND_FUNC(js_scene_Model_setInstancedAttribute)
-
-static bool js_scene_Model_setInstancedAttributeBlock(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::scene::InstancedAttributeBlock, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setInstancedAttributeBlock(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC_AS_PROP_SET(js_scene_Model_setInstancedAttributeBlock)
-
-static bool js_scene_Model_setInstancedAttributesViewData(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    // SE_PRECONDITION2(cobj, false, "Invalid Native Object");
-    if (nullptr == cobj) return true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<int, false> arg0 = {};
-        HolderType<int, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
-        cobj->setInstancedAttributesViewData(arg0.value(), arg1.value(), arg2.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_setInstancedAttributesViewData)
 
 static bool js_scene_Model_setLocalBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -7653,7 +7471,7 @@ static bool js_scene_Model_updateInstancedAttributes(se::State& s) // NOLINT(rea
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<std::vector<cc::gfx::Attribute>, true> arg0 = {};
-        HolderType<cc::scene::Pass*, false> arg1 = {};
+        HolderType<cc::scene::SubModel*, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -7893,7 +7711,6 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineProperty("worldBoundBuffer", _SE(js_scene_Model_getWorldBoundBuffer_asGetter), _SE(js_scene_Model_setWorldBoundBuffer_asSetter));
     cls->defineProperty("localBuffer", _SE(js_scene_Model_getLocalBuffer_asGetter), _SE(js_scene_Model_setLocalBuffer_asSetter));
     cls->defineProperty("updateStamp", _SE(js_scene_Model_getUpdateStamp_asGetter), nullptr);
-    cls->defineProperty("isInstancingEnabled", _SE(js_scene_Model_isInstancingEnabled_asGetter), nullptr);
     cls->defineProperty("receiveShadow", _SE(js_scene_Model_isReceiveShadow_asGetter), _SE(js_scene_Model_setReceiveShadow_asSetter));
     cls->defineProperty("castShadow", _SE(js_scene_Model_isCastShadow_asGetter), _SE(js_scene_Model_setCastShadow_asSetter));
     cls->defineProperty("shadowBias", _SE(js_scene_Model_getShadowBias_asGetter), _SE(js_scene_Model_setShadowBias_asSetter));
@@ -7903,18 +7720,12 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineProperty("visFlags", _SE(js_scene_Model_getVisFlags_asGetter), _SE(js_scene_Model_setVisFlags_asSetter));
     cls->defineProperty("enabled", _SE(js_scene_Model_isEnabled_asGetter), _SE(js_scene_Model_setEnabled_asSetter));
     cls->defineProperty("type", _SE(js_scene_Model_getType_asGetter), _SE(js_scene_Model_setType_asSetter));
-    cls->defineProperty("instancedAttributes", _SE(js_scene_Model_getInstancedAttributeBlock_asGetter), _SE(js_scene_Model_setInstancedAttributeBlock_asSetter));
     cls->defineProperty("isDynamicBatching", _SE(js_scene_Model_isDynamicBatching_asGetter), _SE(js_scene_Model_setDynamicBatching_asSetter));
     cls->defineProperty("priority", _SE(js_scene_Model_getPriority_asGetter), _SE(js_scene_Model_setPriority_asSetter));
     cls->defineFunction("attachToScene", _SE(js_scene_Model_attachToScene));
     cls->defineFunction("createBoundingShape", _SE(js_scene_Model_createBoundingShape));
     cls->defineFunction("destroy", _SE(js_scene_Model_destroy));
     cls->defineFunction("detachFromScene", _SE(js_scene_Model_detachFromScene));
-    cls->defineFunction("getInstMatWorldIdx", _SE(js_scene_Model_getInstMatWorldIdx));
-    cls->defineFunction("getInstanceAttributes", _SE(js_scene_Model_getInstanceAttributes));
-    cls->defineFunction("_getInstancedAttributeIndex", _SE(js_scene_Model_getInstancedAttributeIndex));
-    cls->defineFunction("getInstancedBuffer", _SE(js_scene_Model_getInstancedBuffer));
-    cls->defineFunction("getInstancedBufferSize", _SE(js_scene_Model_getInstancedBufferSize));
     cls->defineFunction("getLocalData", _SE(js_scene_Model_getLocalData));
     cls->defineFunction("getMacroPatches", _SE(js_scene_Model_getMacroPatches));
     cls->defineFunction("initLightingmap", _SE(js_scene_Model_initLightingmap));
@@ -7928,12 +7739,10 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("onMacroPatchesStateChanged", _SE(js_scene_Model_onMacroPatchesStateChanged));
     cls->defineFunction("setBounds", _SE(js_scene_Model_setBounds));
     cls->defineFunction("setCalledFromJS", _SE(js_scene_Model_setCalledFromJS));
-    cls->defineFunction("setInstMatWorldIdx", _SE(js_scene_Model_setInstMatWorldIdx));
     cls->defineFunction("setInstancedAttribute", _SE(js_scene_Model_setInstancedAttribute));
-    cls->defineFunction("setInstancedAttributesViewData", _SE(js_scene_Model_setInstancedAttributesViewData));
     cls->defineFunction("setSubModelMaterial", _SE(js_scene_Model_setSubModelMaterial));
     cls->defineFunction("setSubModelMesh", _SE(js_scene_Model_setSubModelMesh));
-    cls->defineFunction("_updateInstancedAttributes", _SE(js_scene_Model_updateInstancedAttributes));
+    cls->defineFunction("updateInstancedAttributes", _SE(js_scene_Model_updateInstancedAttributes));
     cls->defineFunction("updateLightingmap", _SE(js_scene_Model_updateLightingmap));
     cls->defineFunction("_updateLocalDescriptors", _SE(js_scene_Model_updateLocalDescriptors));
     cls->defineFunction("updateLocalShadowBias", _SE(js_scene_Model_updateLocalShadowBias));

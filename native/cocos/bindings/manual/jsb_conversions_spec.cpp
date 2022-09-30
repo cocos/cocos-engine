@@ -1470,6 +1470,22 @@ bool nativevalue_to_se(const cc::gfx::Rect &from, se::Value &to, se::Object * /*
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
+bool nativevalue_to_se(const cc::gfx::FormatInfo *from, se::Value &to, se::Object * /*unused*/) {
+    se::HandleObject obj(se::Object::createPlainObject());
+    obj->setProperty("name", se::Value(from->name));
+    obj->setProperty("size", se::Value(from->size));
+    obj->setProperty("count", se::Value(from->count));
+    obj->setProperty("type", se::Value(static_cast<int>(from->type)));
+    obj->setProperty("hasAlpha", se::Value(from->hasAlpha));
+    obj->setProperty("hasDepth", se::Value(from->hasDepth));
+    obj->setProperty("hasStencil", se::Value(from->hasStencil));
+    obj->setProperty("isCompressed", se::Value(from->isCompressed));
+    to.setObject(obj);
+    return true;
+}
+
+
+// NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/) {
     to.setObject(arrayBuffer.getJSArrayBuffer());
     return true;

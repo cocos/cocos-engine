@@ -27,6 +27,7 @@
 #include "core/Root.h"
 #include "core/platform/Debug.h"
 #include "pipeline/Define.h"
+#include "pipeline/InstancedBuffer.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
@@ -36,6 +37,42 @@
 
 namespace cc {
 namespace scene {
+
+const ccstd::string INST_MAT_WORLD = "a_matWorld0";
+
+cc::TypedArray getTypedArrayConstructor(const cc::gfx::FormatInfo &info, cc::ArrayBuffer *buffer, uint32_t byteOffset, uint32_t length) {
+    const uint32_t stride = info.size / info.count;
+    switch (info.type) {
+        case cc::gfx::FormatType::UNORM:
+        case cc::gfx::FormatType::UINT: {
+            switch (stride) {
+                case 1: return cc::Uint8Array(buffer, byteOffset, length);
+                case 2: return cc::Uint16Array(buffer, byteOffset, length);
+                case 4: return cc::Uint32Array(buffer, byteOffset, length);
+                default:
+                    break;
+            }
+            break;
+        }
+        case cc::gfx::FormatType::SNORM:
+        case cc::gfx::FormatType::INT: {
+            switch (stride) {
+                case 1: return cc::Int8Array(buffer, byteOffset, length);
+                case 2: return cc::Int16Array(buffer, byteOffset, length);
+                case 4: return cc::Int32Array(buffer, byteOffset, length);
+                default:
+                    break;
+            }
+            break;
+        }
+        case cc::gfx::FormatType::FLOAT: {
+            return cc::Float32Array(buffer, byteOffset, length);
+        }
+        default:
+            break;
+    }
+    return cc::Float32Array(buffer, byteOffset, length);
+}
 
 SubModel::SubModel() {
     _id = generateId();
@@ -236,6 +273,67 @@ void SubModel::onGeometryChanged() {
     }
 }
 
+void SubModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute>& attributes) {
+    auto *pass = getPass(0);
+    _instancedWorldMatrixIndex = -1;
+    if (!pass->getDevice()->hasFeature(gfx::Feature::INSTANCED_ARRAYS)) return;
+    // free old data
+
+    uint32_t size = 0;
+    for (const gfx::Attribute &attribute : attributes) {
+        if (!attribute.isInstanced) continue;
+        size += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)].size;
+    }
+    auto &attrs = _instancedAttributeBlock;
+    attrs.buffer = Uint8Array(size);
+    attrs.views.clear();
+    attrs.attributes.clear();
+    attrs.views.reserve(attributes.size());
+    attrs.attributes.reserve(attributes.size());
+
+    uint32_t offset = 0;
+
+    for (const gfx::Attribute &attribute : attributes) {
+        if (!attribute.isInstanced) continue;
+        gfx::Attribute attr;
+        attr.format = attribute.format;
+        attr.name = attribute.name;
+        attr.isNormalized = attribute.isNormalized;
+        attr.location = attribute.location;
+        attrs.attributes.emplace_back(attr);
+        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+        auto *buffer = attrs.buffer.buffer();
+        auto typeViewArray = getTypedArrayConstructor(info, buffer, offset, info.count);
+        attrs.views.emplace_back(typeViewArray);
+        offset += info.size;
+    }
+    if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
+        pass->getInstancedBuffer()->destroy();
+    }
+    _instancedWorldMatrixIndex = getInstancedAttributeIndex(INST_MAT_WORLD);
+}
+
+void SubModel::updateInstancedWorldMatrix(const Mat4& mat, int32_t idx) {
+    auto &attrs = _instancedAttributeBlock.views;
+    auto &v1 = ccstd::get<Float32Array>(attrs[idx]);
+    auto &v2 = ccstd::get<Float32Array>(attrs[idx + 1]);
+    auto &v3 = ccstd::get<Float32Array>(attrs[idx+ + 2]);
+    const uint32_t copyBytes = sizeof(float) * 3;
+    auto *buffer = const_cast<uint8_t *>(v1.buffer()->getData());
+
+    uint8_t *dst = buffer + v1.byteOffset();
+    memcpy(dst, mat.m, copyBytes);
+    v1[3] = mat.m[12];
+
+    dst = buffer + v2.byteOffset();
+    memcpy(dst, mat.m + 4, copyBytes);
+    v2[3] = mat.m[13];
+
+    dst = buffer + v3.byteOffset();
+    memcpy(dst, mat.m + 8, copyBytes);
+    v3[3] = mat.m[14];
+}
+
 void SubModel::flushPassInfo() {
     const auto &passes = *_passes;
     if (passes.empty()) return;
@@ -256,6 +354,46 @@ void SubModel::setSubMesh(RenderingSubMesh *subMesh) {
         subMesh->genFlatBuffers();
     }
     _subMesh = subMesh;
+}
+
+void SubModel::setInstancedAttribute(const ccstd::string& name, const float* value, uint32_t byteLength) {
+    const auto &attributes = _instancedAttributeBlock.attributes;
+    auto &views = _instancedAttributeBlock.views;
+    for (size_t i = 0, len = attributes.size(); i < len; ++i) {
+        const auto &attribute = attributes[i];
+        if (attribute.name == name) {
+            const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
+            switch (info.type) {
+                case gfx::FormatType::NONE:
+                case gfx::FormatType::UNORM:
+                case gfx::FormatType::SNORM:
+                case gfx::FormatType::UINT:
+                case gfx::FormatType::INT: {
+                    CC_ASSERT(false); // NOLINT
+                } break;
+                case gfx::FormatType::FLOAT:
+                case gfx::FormatType::UFLOAT: {
+                    CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
+                    auto &view = ccstd::get<Float32Array>(views[i]);
+                    auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
+                    CC_ASSERT(byteLength <= view.byteLength());
+                    memcpy(dstData, value, byteLength);
+                } break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+int32_t SubModel::getInstancedAttributeIndex(const ccstd::string& name) const {
+    const auto &attributes = _instancedAttributeBlock.attributes;
+    for (index_t i = 0; i < static_cast<index_t>(attributes.size()); ++i) {
+        if (attributes[i].name == name) {
+            return i;
+        }
+    }
+    return CC_INVALID_INDEX;
 }
 
 } // namespace scene

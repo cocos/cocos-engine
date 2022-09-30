@@ -775,6 +775,7 @@ export class Game extends EventTarget {
                 return Promise.resolve([]);
             })
             .then(() => this._loadProjectBundles())
+            .then(() => this._loadCCEScripts())
             .then(() => this._setupRenderPipeline())
             .then(() => this._loadPreloadAssets())
             .then(() => {
@@ -859,6 +860,21 @@ export class Game extends EventTarget {
                 resolve();
             });
         })));
+    }
+
+    /**
+     * @internal only for browser preview
+     */
+    private _loadCCEScripts () {
+        return new Promise<void>((resolve, reject) => {
+            // Since there is no script in the bundle during preview, we need to load the user's script in the following way
+            if (PREVIEW && !TEST && !EDITOR && !NATIVE) {
+                const bundneName = 'cce:/internal/x/prerequisite-imports';
+                import(bundneName).then(() => resolve(), (reason) => reject(reason));
+            } else {
+                resolve();
+            }
+        });
     }
 
     /**

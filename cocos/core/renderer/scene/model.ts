@@ -33,8 +33,7 @@ import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
-import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
-import { legacyCC } from '../../global-exports';
+import { IMacroPatch, BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
@@ -50,12 +49,6 @@ const lightMapPatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHTMAP', value: true },
 ];
 
-export interface IInstancedAttributeBlock {
-    buffer: Uint8Array;
-    views: TypedArray[];
-    attributes: Attribute[];
-}
-
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -63,12 +56,6 @@ export enum ModelType {
     BATCH_2D,
     PARTICLE_BATCH,
     LINE,
-}
-
-function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView, v3: ArrayBufferView) {
-    v1[0] = mat.m00; v1[1] = mat.m01; v1[2] = mat.m02; v1[3] = mat.m12;
-    v2[0] = mat.m04; v2[1] = mat.m05; v2[2] = mat.m06; v2[3] = mat.m13;
-    v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
 }
 
 const lightmapSamplerHash = new SamplerInfo(
@@ -156,14 +143,6 @@ export class Model {
      */
     get updateStamp () {
         return this._updateStamp;
-    }
-
-    /**
-     * @en Whether GPU instancing is enabled for the current model
-     * @zh 是否开启实例化渲染
-     */
-    get isInstancingEnabled () {
-        return this._instMatWorldIdx >= 0;
     }
 
     /**
@@ -297,12 +276,6 @@ export class Model {
     public isDynamicBatching = false;
 
     /**
-     * @en The instance attributes
-     * @zh 实例化属性
-     */
-    public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
-
-    /**
      * @en The world axis-aligned bounding box
      * @zh 世界空间包围盒
      */
@@ -374,11 +347,6 @@ export class Model {
      */
     protected _localBuffer: Buffer | null = null;
 
-    /**
-     * @en Instance matrix id
-     * @zh 实例矩阵索引
-     */
-    private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
@@ -558,11 +526,17 @@ export class Model {
 
         // @ts-expect-error using private members here for efficiency
         const worldMatrix = this.transform._mat;
-        const idx = this._instMatWorldIdx;
-        if (idx >= 0) {
-            const attrs = this.instancedAttributes.views;
-            uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
-        } else if (this._localBuffer) {
+        let hasNonInstancingPass = false;
+        for (let i = 0; i < subModels.length; i++) {
+            const subModel = subModels[i];
+            const idx = subModel.instancedWorldMatrixIndex;
+            if (idx >= 0) {
+                subModel.updateInstancedWorldMatrix(worldMatrix, idx);
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+        if (hasNonInstancingPass && this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
 
@@ -597,10 +571,8 @@ export class Model {
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         this.initialize();
 
-        let isNewSubModel = false;
         if (this._subModels[idx] == null) {
             this._subModels[idx] = this._createSubModel();
-            isNewSubModel = true;
         } else {
             this._subModels[idx].destroy();
         }
@@ -748,57 +720,14 @@ export class Model {
         }
 
         const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
-        this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
-    }
-
-    protected _getInstancedAttributeIndex (name: string) {
-        const { attributes } = this.instancedAttributes;
-        for (let i = 0; i < attributes.length; i++) {
-            if (attributes[i].name === name) { return i; }
-        }
-        return -1;
-    }
-
-    private _setInstMatWorldIdx (idx: number) {
-        this._instMatWorldIdx = idx;
+        this._updateInstancedAttributes(shader.attributes, subModel);
     }
 
     // sub-classes can override the following functions if needed
 
-    // for now no submodel level instancing attributes
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
-        if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
-        // free old data
-
-        let size = 0;
-        for (let j = 0; j < attributes.length; j++) {
-            const attribute = attributes[j];
-            if (!attribute.isInstanced) { continue; }
-            size += FormatInfos[attribute.format].size;
-        }
-
-        const attrs = this.instancedAttributes;
-        attrs.buffer = new Uint8Array(size);
-        attrs.views.length = attrs.attributes.length = 0;
-        let offset = 0;
-        for (let j = 0; j < attributes.length; j++) {
-            const attribute = attributes[j];
-            if (!attribute.isInstanced) { continue; }
-            const attr = new Attribute();
-            attr.format = attribute.format;
-            attr.name = attribute.name;
-            attr.isNormalized = attribute.isNormalized;
-            attr.location = attribute.location;
-            attrs.attributes.push(attr);
-
-            const info = FormatInfos[attribute.format];
-
-            const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count);
-            attrs.views.push(typeViewArray);
-            offset += info.size;
-        }
-        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
-        this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
+    // for now no subModel level instancing attributes
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
+        subModel.UpdateInstancedAttributes(attributes);
         this._localDataUpdated = true;
     }
 

@@ -403,8 +403,8 @@ module.exports = {
 
         copy_node_value: '复制节点的值',
         paste_node_value: '粘贴节点的值',
-        copy_node_world_transform: '复制节点世界坐标',
-        paste_node_world_transform: '粘贴节点世界坐标',
+        copy_node_world_transform: '复制节点 Transform',
+        paste_node_world_transform: '粘贴节点 Transform',
 
         copy_component: '复制组件',
         paste_component: '粘贴成为新组件',

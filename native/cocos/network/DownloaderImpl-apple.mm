@@ -274,7 +274,9 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 - (NSURLSessionDownloadTask *)createDownloadTask:(std::shared_ptr<const cc::network::DownloadTask> &)task {
     const char *urlStr = task->requestURL.c_str();
     DLLOG("DownloaderAppleImpl createDownloadTask: %s", urlStr);
-    NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:urlStr]];
+    NSString *resourcePath = [NSString stringWithUTF8String:urlStr];
+    NSString *encodePath = [resourcePath stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet characterSetWithCharactersInString:@"`#%^{}\"[]|\\<> "].invertedSet];
+    NSURL *url = [NSURL URLWithString:encodePath];
     NSMutableURLRequest *request = nil;
     if (_hints.timeoutInSeconds > 0) {
         request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:(NSTimeInterval)_hints.timeoutInSeconds];
