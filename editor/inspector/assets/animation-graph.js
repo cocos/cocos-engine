@@ -1,4 +1,6 @@
-exports.template = `
+'use strict';
+
+exports.template = /* html */`
 <section class="asset-animation-graph">
     <ui-button class="open">
         <ui-label value="i18n:ENGINE.assets.animationGraph.edit"></ui-label>
@@ -7,7 +9,7 @@ exports.template = `
 </section>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .asset-animation-graph {
    padding-top: 10px;
    text-align: center;

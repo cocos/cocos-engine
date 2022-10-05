@@ -75,9 +75,6 @@ exports.methods = {
         }
     },
 
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
     setDirtyData() {
         this.dirtyData.realtime = JSON.stringify(this.pipeline);
 

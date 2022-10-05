@@ -1,8 +1,9 @@
 'use strict';
 
 const { readFileSync, existsSync } = require('fs');
+const { updateElementReadonly } = require('../utils/assets');
 
-exports.template = `
+exports.template = /* html */`
 <div class="asset-effect">
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.effect.shader" tooltip="i18n:ENGINE.assets.effect.shaderTip"></ui-label>
@@ -24,7 +25,7 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
     .asset-effect {  }
 
     .asset-effect[multiple-invalid] > *:not(.multiple-warn-tip) {
@@ -138,7 +139,7 @@ const Elements = {
                 panel.$.shaderSelect.setAttribute('tooltip', panel.shaders[panel.shadersIndex].name);
             }
 
-            panel.updateReadonly(panel.$.shaderSelect);
+            updateElementReadonly.call(this, panel.$.shaderSelect);
         },
     },
     combinations: {
@@ -170,11 +171,9 @@ const Elements = {
                     const name = typeof value === 'boolean' ? (value ? 'on' : 'off') : value.toString();
 
                     const button = document.createElement('ui-button');
-                    content.appendChild(button);
-
+                    updateElementReadonly.call(panel, button);
                     button.setAttribute('class', 'tab');
                     button.setAttribute('checked', checked);
-                    panel.updateReadonly(button);
                     button.innerText = name;
                     button.addEventListener('click', () => {
                         if (!panel.combinations[panel.shadersIndex][define.name]) {
@@ -192,9 +191,10 @@ const Elements = {
                             button.setAttribute('checked', 'true');
                         }
 
-                        panel.dataChange();
-                        panel.dispatch('change');
+                        panel.change();
                     });
+
+                    content.appendChild(button);
                 });
             });
 
@@ -264,49 +264,6 @@ const Elements = {
             }
         },
     },
-};
-
-/**
- * A method to initialize the panel
- */
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-/**
- * Methods to automatically render components
- * @param assetList
- * @param metaList
- */
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    if (assetList.length > 1) {
-        this.$.container.setAttribute('multiple-invalid', '');
-        return;
-    } else {
-        this.$.container.removeAttribute('multiple-invalid');
-    }
-
-    const isLegal = this.refresh();
-    if (!isLegal) {
-        return;
-    }
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
 };
 
 exports.methods = {
@@ -393,17 +350,7 @@ exports.methods = {
 
         return true;
     },
-    /**
-     * Update read-only status
-     */
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
-    dataChange() {
+    change() {
         const panel = this;
 
         // Need to exclude empty arrays, otherwise scene will report an error
@@ -419,5 +366,42 @@ exports.methods = {
         });
 
         panel.meta.userData.combinations = submitData;
+
+        panel.dispatch('change');
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
+        return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
+    }
+
+    const isLegal = this.refresh();
+    if (!isLegal) {
+        return;
+    }
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
 };

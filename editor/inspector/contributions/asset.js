@@ -272,7 +272,7 @@ const Elements = {
 
             panel.contentRenders = {};
         },
-        update() {
+        async update() {
             const panel = this;
 
             // 重置渲染对象
@@ -322,10 +322,10 @@ const Elements = {
                 }
 
                 contentRender.__panels__ = Array.from(contentRender.children);
-                Array.prototype.forEach.call(contentRender.__panels__, ($panel) => {
+                for (const $panel of contentRender.__panels__) {
                     $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
-                    $panel.update(panel.assetList, panel.metaList);
-                });
+                    await $panel.update(panel.assetList, panel.metaList);
+                }
             }
         },
     },
@@ -573,7 +573,6 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
             await element.update.call(panel);
         }
     }
-
     panel.history && panel.history.snapshot(panel);
 };
 

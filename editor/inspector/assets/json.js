@@ -1,17 +1,19 @@
+'use strict';
+
 const { createReadStream } = require('fs');
 const ReadLine = require('readline');
 
 const MAX_LINES = 400;
 const MAX_LENGTH = 20000;
 
-exports.template = `
+exports.template = /* html */`
 <section class="asset-json">
     <ui-code language="json"></ui-code>
     <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </section>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .asset-json {
     flex: 1;
     display: flex;

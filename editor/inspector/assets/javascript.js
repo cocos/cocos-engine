@@ -1,10 +1,12 @@
+'use strict';
+
 const { createReadStream } = require('fs');
 const ReadLine = require('readline');
 
 const MAX_LINES = 400;
 const MAX_LENGTH = 20000;
 
-exports.template = `
+exports.template = /* html */`
 <section class="asset-javascript">
     <ui-prop>
         <ui-label slot="label"
@@ -91,22 +93,7 @@ exports.template = `
 </section>
 `;
 
-exports.$ = {
-    isPluginCheckBox: '#is-plugin',
-    detail: '.detail',
-    loadPluginInEditorCheckBox: '#load-plugin-in-editor',
-    loadPluginInWebCheckBox: '#load-plugin-in-web',
-    loadPluginInNativeCheckBox: '#load-plugin-in-native',
-    dependencies: '.dependencies',
-    dependenciesInput: '#dependencies-input',
-    dependenciesContent: '#dependencies-content',
-    executionScope: '#executionScope',
-    executionScopeEnclosedProp: '#executionScopeEnclosedProp',
-    executionScopeEnclosedInput: '#executionScopeEnclosedInput',
-    code: '#code',
-};
-
-exports.style = `
+exports.style = /* css */`
 .asset-javascript {
     flex: 1;
     display: flex;
@@ -128,11 +115,26 @@ exports.style = `
 }
 `;
 
+exports.$ = {
+    isPluginCheckBox: '#is-plugin',
+    detail: '.detail',
+    loadPluginInEditorCheckBox: '#load-plugin-in-editor',
+    loadPluginInWebCheckBox: '#load-plugin-in-web',
+    loadPluginInNativeCheckBox: '#load-plugin-in-native',
+    dependencies: '.dependencies',
+    dependenciesInput: '#dependencies-input',
+    dependenciesContent: '#dependencies-content',
+    executionScope: '#executionScope',
+    executionScopeEnclosedProp: '#executionScopeEnclosedProp',
+    executionScopeEnclosedInput: '#executionScopeEnclosedInput',
+    code: '#code',
+};
+
 const Elements = {
     isPlugin: {
         ready() {
             this.$.isPluginCheckBox.addEventListener('confirm', (event) => {
-                this.dataChange('isPlugin', event);
+                this.change('isPlugin', event);
                 Elements.detail.update.call(this);
             });
         },
@@ -229,7 +231,7 @@ const Elements = {
             }
 
             this.$.executionScope.addEventListener('confirm', (event) => {
-                this.dataChange('executionScope', event);
+                this.change('executionScope', event);
                 Elements.executionScopeEnclosed.update.call(this);
             });
         },
@@ -274,7 +276,7 @@ const Elements = {
     },
     loadPluginInWebCheckBox: {
         ready() {
-            this.$.loadPluginInWebCheckBox.addEventListener('confirm', this.dataChange.bind(this, 'loadPluginInWeb'));
+            this.$.loadPluginInWebCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInWeb'));
         },
         update() {
             this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb;
@@ -283,7 +285,7 @@ const Elements = {
     },
     loadPluginInNativeCheckBox: {
         ready() {
-            this.$.loadPluginInNativeCheckBox.addEventListener('confirm', this.dataChange.bind(this, 'loadPluginInNative'));
+            this.$.loadPluginInNativeCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInNative'));
         },
         update() {
             this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative;
@@ -292,7 +294,7 @@ const Elements = {
     },
     loadPluginInEditorCheckBox: {
         ready() {
-            this.$.loadPluginInEditorCheckBox.addEventListener('confirm', this.dataChange.bind(this, 'loadPluginInEditor'));
+            this.$.loadPluginInEditorCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInEditor'));
         },
         update() {
             this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInEditor;
@@ -356,6 +358,34 @@ const Elements = {
     },
 };
 
+exports.methods = {
+    t(key) {
+        return Editor.I18n.t(`ENGINE.assets.javascript.${key}`);
+    },
+    updateInvalid(element, prop) {
+        const invalid = this.metaList.some((meta) => {
+            return meta.userData[prop] !== this.meta.userData[prop];
+        });
+        element.invalid = invalid;
+    },
+    change(key, event) {
+        this.metaList.forEach((meta) => {
+            meta.userData[key] = event.target.value;
+        });
+
+        this.dispatch('change');
+    },
+};
+
+exports.ready = function() {
+    for (const key in Elements) {
+        const element = Elements[key];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
 exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
@@ -368,32 +398,4 @@ exports.update = function(assetList, metaList) {
             element.update.call(this);
         }
     }
-};
-
-exports.ready = function() {
-    for (const key in Elements) {
-        const element = Elements[key];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.methods = {
-    t(key) {
-        return Editor.I18n.t(`ENGINE.assets.javascript.${key}`);
-    },
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
-    dataChange(key, event) {
-        this.metaList.forEach((meta) => {
-            meta.userData[key] = event.target.value;
-        });
-
-        this.dispatch('change');
-    },
 };

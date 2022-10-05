@@ -22,7 +22,7 @@ exports.style = `
 
 exports.methods = {
     record() {
-        return JSON.stringify(this.physicsMaterial);
+        return JSON.stringify(this.queryData);
     },
 
     async restore(record) {
@@ -31,7 +31,7 @@ exports.methods = {
             return false;
         }
 
-        this.physicsMaterial = record;
+        this.queryData = record;
         await this.change();
         return true;
     },
@@ -42,7 +42,7 @@ exports.methods = {
 
     async apply() {
         this.reset();
-        await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.physicsMaterial);
+        await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.queryData);
     },
 
     reset() {
@@ -54,25 +54,19 @@ exports.methods = {
     },
 
     async change() {
-        this.physicsMaterial = await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
-
+        this.queryData = await Editor.Message.request('scene', 'change-physics-material', this.queryData);
         this.updateInterface();
         this.setDirtyData();
         this.dispatch('change');
-
-        if (this.getNewestDataSnapshot) {
-            this.getNewestDataSnapshot = false;
-            this.dispatch('snapshot');
-        }
     },
 
-    confirm() {
-        this.getNewestDataSnapshot = true;
+    snapshot() {
+        this.dispatch('snapshot');
     },
 
     updateInterface() {
-        for (const key in this.physicsMaterial) {
-            const dump = this.physicsMaterial[key];
+        for (const key in this.queryData) {
+            const dump = this.queryData[key];
 
             if (!dump.visible) {
                 continue;
@@ -93,16 +87,11 @@ exports.methods = {
         }
     },
 
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
     setDirtyData() {
-        this.dirtyData.realtime = JSON.stringify(this.physicsMaterial);
+        this.dirtyData.realtime = JSON.stringify(this.queryData);
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
-
-            this.dispatch('snapshot');
         }
     },
 
@@ -116,8 +105,12 @@ exports.$ = {
 };
 
 exports.ready = function() {
-    this.$.container.addEventListener('change-dump', this.change.bind(this));
-    this.$.container.addEventListener('confirm-dump', this.confirm.bind(this));
+    this.$.container.addEventListener('change-dump', () => {
+        this.change();
+    });
+    this.$.container.addEventListener('confirm-dump', () => {
+        this.snapshot();
+    });
 
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
@@ -145,7 +138,7 @@ exports.update = async function(assetList, metaList) {
         this.dirtyData.origin = '';
     }
 
-    this.physicsMaterial = await this.query(this.asset.uuid);
+    this.queryData = await this.query(this.asset.uuid);
 
     this.updateInterface();
     this.setDirtyData();
