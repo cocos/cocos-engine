@@ -94,7 +94,7 @@ exports.methods = {
         this.dispatch('change');
     },
 
-    confirm() {
+    snapshot() {
         this.dispatch('snapshot');
     },
 
@@ -495,7 +495,7 @@ exports.ready = function() {
         await this.updateInterface();
 
         this.change();
-        this.confirm();
+        this.snapshot();
     });
 
     this.$.location.addEventListener('change', () => {
@@ -510,7 +510,7 @@ exports.ready = function() {
         this.material.technique = event.target.value;
         await this.updateInterface();
         this.change();
-        this.confirm();
+        this.snapshot();
     });
 
     // The event is triggered when the useInstancing is modified
@@ -518,7 +518,7 @@ exports.ready = function() {
         this.changeInstancing(event.target.dump.value);
         this.storeCache(event.target.dump);
         this.change();
-        this.confirm();
+        this.snapshot();
     });
 
     // The event triggered when the content of material is modified
@@ -530,15 +530,15 @@ exports.ready = function() {
     });
 
     this.$.materialDump.addEventListener('confirm-dump', () => {
-        this.confirm();
+        this.snapshot();
     });
 
     this.$.custom.addEventListener('change', () => {
         this.change();
     });
 
-    this.$.custom.addEventListener('confirm', () => {
-        this.confirm();
+    this.$.custom.addEventListener('snapshot', () => {
+        this.snapshot();
     });
 };
 

@@ -63,41 +63,53 @@ exports.$ = {
 const Elements = {
     spriteFrame: {
         ready() {
-            this.$.spriteFrame.addEventListener('confirm', this.change.bind(this, 'spriteFrameUuid'));
+            this.$.spriteFrame.addEventListener('confirm', () => {
+                this.change.call(this, 'spriteFrameUuid');
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.spriteFrame.value = this.meta.userData.spriteFrameUuid;
-            this.updateInvalid(this.$.spriteFrame, 'spriteFrameUuid');
+            updateElementInvalid.call(this, this.$.spriteFrame, 'spriteFrameUuid');
             updateElementReadonly.call(this, this.$.spriteFrame);
         },
     },
     itemWidth: {
         ready() {
             this.$.itemWidth.addEventListener('change', this.change.bind(this, 'itemWidth'));
+            this.$.itemWidth.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.itemWidth.value = this.meta.userData.itemWidth;
-            this.updateInvalid(this.$.itemWidth, 'itemWidth');
+            updateElementInvalid.call(this, this.$.itemWidth, 'itemWidth');
             updateElementReadonly.call(this, this.$.itemWidth);
         },
     },
     itemHeight: {
         ready() {
             this.$.itemHeight.addEventListener('change', this.change.bind(this, 'itemHeight'));
+            this.$.itemHeight.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.itemHeight.value = this.meta.userData.itemHeight;
-            this.updateInvalid(this.$.itemHeight, 'itemHeight');
+            updateElementInvalid.call(this, this.$.itemHeight, 'itemHeight');
             updateElementReadonly.call(this, this.$.itemHeight);
         },
     },
     startChar: {
         ready() {
             this.$.startChar.addEventListener('change', this.change.bind(this, 'startChar'));
+            this.$.startChar.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.startChar.value = this.meta.userData.startChar;
-            this.updateInvalid(this.$.startChar, 'startChar');
+            updateElementInvalid.call(this, this.$.startChar, 'startChar');
             updateElementReadonly.call(this, this.$.startChar);
         },
     },
@@ -110,12 +122,6 @@ const Elements = {
 };
 
 exports.methods = {
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
     change(key, event) {
         this.metaList.forEach((meta) => {
             meta.userData[key] = event.target.value;

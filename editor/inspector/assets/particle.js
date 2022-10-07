@@ -1,4 +1,6 @@
-exports.template = `
+'use strict';
+
+exports.template = /* html */`
 <section class="asset-particle">
     <div class="content"
         id="content"
@@ -19,13 +21,7 @@ exports.template = `
 </section>
 `;
 
-exports.$ = {
-    container: '.asset-particle',
-    content: '#content',
-    asset: '#asset',
-};
-
-exports.style = `
+exports.style = /* css */`
 .asset-particle[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
  }
@@ -41,6 +37,11 @@ exports.style = `
 }
 `;
 
+exports.$ = {
+    container: '.asset-particle',
+    content: '#content',
+    asset: '#asset',
+};
 
 exports.update = function(assetList, metaList) {
     this.assetList = assetList;

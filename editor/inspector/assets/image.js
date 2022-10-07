@@ -1,7 +1,7 @@
 'use strict';
 
 const { join } = require('path');
-const { updateElementReadonly } = require('../utils/assets');
+const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
 
 exports.template = /* html */`
 <div class="asset-image">
@@ -81,7 +81,9 @@ const Elements = {
                 panel.updatePanel(spriteFrameChange);
                 // need to be dispatched after updatePanel
                 panel.dispatch('change');
+            });
 
+            panel.$.typeSelect.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
         },
@@ -97,7 +99,7 @@ const Elements = {
 
             panel.$.typeSelect.value = panel.meta.userData.type;
 
-            panel.updateInvalid(panel.$.typeSelect, 'type');
+            updateElementInvalid.call(panel, panel.$.typeSelect, 'type');
             updateElementReadonly.call(panel, panel.$.typeSelect);
         },
     },
@@ -110,6 +112,9 @@ const Elements = {
                     meta.userData.flipVertical = event.target.value;
                 });
                 panel.dispatch('change');
+            });
+
+            panel.$.flipVerticalCheckbox.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
         },
@@ -118,7 +123,7 @@ const Elements = {
 
             panel.$.flipVerticalCheckbox.value = panel.meta.userData.flipVertical;
 
-            panel.updateInvalid(panel.$.flipVerticalCheckbox, 'flipVertical');
+            updateElementInvalid.call(panel, panel.$.flipVerticalCheckbox, 'flipVertical');
             updateElementReadonly.call(panel, panel.$.flipVerticalCheckbox);
         },
     },
@@ -131,6 +136,9 @@ const Elements = {
                     meta.userData.fixAlphaTransparencyArtifacts = event.target.value;
                 });
                 panel.dispatch('change');
+            });
+
+            panel.$.fixAlphaTransparencyArtifactsCheckbox.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
         },
@@ -144,7 +152,7 @@ const Elements = {
             const isCapableToFixAlphaTransparencyArtifacts = !bannedTypes.includes(panel.meta.userData.type);
             if (isCapableToFixAlphaTransparencyArtifacts) {
                 fixATAProp.style.display = 'block';
-                panel.updateInvalid(panel.$.fixAlphaTransparencyArtifactsCheckbox, 'fixAlphaTransparencyArtifacts');
+                updateElementInvalid.call(panel, panel.$.fixAlphaTransparencyArtifactsCheckbox, 'fixAlphaTransparencyArtifacts');
                 updateElementReadonly.call(panel, panel.$.fixAlphaTransparencyArtifactsCheckbox);
             } else {
                 fixATAProp.style.display = 'none';
@@ -160,6 +168,9 @@ const Elements = {
                     meta.userData.isRGBE = event.target.value;
                 });
                 panel.dispatch('change');
+            });
+
+            panel.$.isRGBECheckbox.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
         },
@@ -171,7 +182,7 @@ const Elements = {
 
                 panel.$.isRGBECheckbox.value = panel.meta.userData.isRGBE;
 
-                panel.updateInvalid(panel.$.isRGBECheckbox, 'isRGBE');
+                updateElementInvalid.call(panel, panel.$.isRGBECheckbox, 'isRGBE');
                 updateElementReadonly.call(panel, panel.$.isRGBECheckbox);
             } else {
                 panel.$.isRGBEProp.style.display = 'none';
@@ -181,12 +192,6 @@ const Elements = {
 };
 
 exports.methods = {
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
     updatePanel(spriteFrameChange) {
         this.setPanel(this.$.panelSection, this.meta.userData.type, spriteFrameChange);
 
@@ -280,11 +285,19 @@ exports.ready = function() {
             element.ready.call(this);
         }
     }
+
     this.$.panelSection.addEventListener('change', () => {
         this.dispatch('change');
     });
+    this.$.panelSection.addEventListener('snapshot', () => {
+        this.dispatch('snapshot');
+    });
+
     this.$.texturePanelSection.addEventListener('change', () => {
         this.dispatch('change');
+    });
+    this.$.texturePanelSection.addEventListener('snapshot', () => {
+        this.dispatch('snapshot');
     });
 };
 

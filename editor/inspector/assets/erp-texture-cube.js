@@ -131,6 +131,9 @@ const Elements = {
     anisotropy: {
         ready() {
             this.$.anisotropy.addEventListener('change', this.change.bind(this, 'anisotropy'));
+            this.$.anisotropy.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.anisotropy.value = this.meta.userData.anisotropy;
@@ -141,6 +144,9 @@ const Elements = {
     faceSize: {
         ready() {
             this.$.faceSize.addEventListener('change', this.change.bind(this, 'faceSize'));
+            this.$.faceSize.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.faceSize.value = this.meta.userData.faceSize;
@@ -151,6 +157,9 @@ const Elements = {
     filterMode: {
         ready() {
             this.$.filterMode.addEventListener('change', this.change.bind(this, 'filterMode'));
+            this.$.filterMode.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             let optionsHtml = '';
@@ -191,6 +200,9 @@ const Elements = {
     minfilter: {
         ready() {
             this.$.minfilter.addEventListener('change', this.change.bind(this, 'minfilter'));
+            this.$.minfilter.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             let optionsHtml = '';
@@ -208,6 +220,9 @@ const Elements = {
     magfilter: {
         ready() {
             this.$.magfilter.addEventListener('change', this.change.bind(this, 'magfilter'));
+            this.$.magfilter.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             let optionsHtml = '';
@@ -225,6 +240,9 @@ const Elements = {
     generateMipmaps: {
         ready() {
             this.$.generateMipmaps.addEventListener('change', this.change.bind(this, 'generateMipmaps'));
+            this.$.generateMipmaps.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.generateMipmaps.value = this.meta.userData.mipfilter ? this.meta.userData.mipfilter !== 'none' : false;
@@ -241,6 +259,9 @@ const Elements = {
     mipfilter: {
         ready() {
             this.$.mipfilter.addEventListener('change', this.change.bind(this, 'mipfilter'));
+            this.$.mipfilter.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             let optionsHtml = '';
@@ -258,6 +279,9 @@ const Elements = {
     wrapMode: {
         ready() {
             this.$.wrapMode.addEventListener('change', this.change.bind(this, 'wrapMode'));
+            this.$.wrapMode.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             let optionsHtml = '';
@@ -298,6 +322,9 @@ const Elements = {
     wrapModeS: {
         ready() {
             this.$.wrapModeS.addEventListener('change', this.change.bind(this, 'wrapModeS'));
+            this.$.wrapModeS.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             let optionsHtml = '';
@@ -319,6 +346,9 @@ const Elements = {
     wrapModeT: {
         ready() {
             this.$.wrapModeT.addEventListener('change', this.change.bind(this, 'wrapModeT'));
+            this.$.wrapModeT.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             let optionsHtml = '';
@@ -340,6 +370,9 @@ const Elements = {
     mipBakeMode: {
         ready() {
             this.$.mipBakeMode.addEventListener('change', this.change.bind(this, 'mipBakeMode'));
+            this.$.mipBakeMode.addEventListener('confirm', () => {
+                this.dispatch('snapshot');
+            });
         },
         update() {
             this.$.mipBakeMode.value = this.meta.userData.mipBakeMode === 2 ? true : false;

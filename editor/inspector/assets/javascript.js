@@ -1,5 +1,7 @@
 'use strict';
 
+const { updateElementInvalid } = require('../utils/assets');
+
 const { createReadStream } = require('fs');
 const ReadLine = require('readline');
 
@@ -140,7 +142,7 @@ const Elements = {
         },
         update() {
             this.$.isPluginCheckBox.value = this.meta.userData.isPlugin;
-            this.updateInvalid(this.$.isPluginCheckBox, 'isPlugin');
+            updateElementInvalid.call(this, this.$.isPluginCheckBox, 'isPlugin');
         },
     },
     detail: {
@@ -185,6 +187,8 @@ const Elements = {
                 this.dispatch('change');
 
                 Elements.dependencies.update.call(this);
+
+                this.dispatch('snapshot');
             });
         },
         update() {
@@ -201,6 +205,7 @@ const Elements = {
             this.$.dependenciesContent.innerText = '';
 
             if (!Array.isArray(this.meta.userData.dependencies)) {
+                this.$.dependenciesInput.value = 0;
                 return;
             }
 
@@ -216,6 +221,7 @@ const Elements = {
                 child.addEventListener('confirm', (event) => {
                     this.meta.userData.dependencies[i] = event.target.value;
                     this.dispatch('change');
+                    this.dispatch('snapshot');
                 });
             }
         },
@@ -237,7 +243,7 @@ const Elements = {
         },
         update() {
             this.$.executionScope.value = this.meta.userData.executionScope !== 'global' ? 'enclosed' : 'global';
-            this.updateInvalid(this.$.executionScope, 'executionScope');
+            updateElementInvalid.call(this, this.$.executionScope, 'executionScope');
         },
     },
     executionScopeEnclosed: {
@@ -254,6 +260,7 @@ const Elements = {
                     }
                     this.metaList.forEach((meta) => (meta.userData.simulateGlobals = globalNames.length === 0 ? true : globalNames));
                     this.dispatch('change');
+                    this.dispatch('snapshot');
                 }
             });
         },
@@ -280,7 +287,7 @@ const Elements = {
         },
         update() {
             this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb;
-            this.updateInvalid(this.$.loadPluginInWebCheckBox, 'loadPluginInWeb');
+            updateElementInvalid.call(this, this.$.loadPluginInWebCheckBox, 'loadPluginInWeb');
         },
     },
     loadPluginInNativeCheckBox: {
@@ -289,7 +296,7 @@ const Elements = {
         },
         update() {
             this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative;
-            this.updateInvalid(this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
+            updateElementInvalid.call(this, this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
         },
     },
     loadPluginInEditorCheckBox: {
@@ -298,7 +305,7 @@ const Elements = {
         },
         update() {
             this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInEditor;
-            this.updateInvalid(this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
+            updateElementInvalid.call(this, this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
         },
     },
     code: {
@@ -362,18 +369,13 @@ exports.methods = {
     t(key) {
         return Editor.I18n.t(`ENGINE.assets.javascript.${key}`);
     },
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
     change(key, event) {
         this.metaList.forEach((meta) => {
             meta.userData[key] = event.target.value;
         });
 
         this.dispatch('change');
+        this.dispatch('snapshot');
     },
 };
 

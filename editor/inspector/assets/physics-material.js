@@ -1,10 +1,12 @@
-exports.template = `
+'use strict';
+
+exports.template = /* html */`
 <section class="asset-physics-material">
     <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>  
 </section>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .asset-physics-material[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
  }
@@ -19,6 +21,10 @@ exports.style = `
     color: var(--color-focus-contrast-weakest);
 }
 `;
+
+exports.$ = {
+    container: '.asset-physics-material',
+};
 
 exports.methods = {
     record() {
@@ -99,9 +105,6 @@ exports.methods = {
         const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
         return isDirty;
     },
-};
-exports.$ = {
-    container: '.asset-physics-material',
 };
 
 exports.ready = function() {

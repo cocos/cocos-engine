@@ -1,4 +1,6 @@
-exports.template = `
+'use strict';
+
+exports.template = /* html */`
 <div class="container">
     <div class="show-type-wrap">
         <ui-tab class="show-type" value="0">
@@ -71,7 +73,7 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 ui-prop,
 ui-section {
     margin: 4px 0;
@@ -455,6 +457,7 @@ const Elements = {
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 });
 
                 const miniIcon = document.createElement('ui-icon');
@@ -476,6 +479,7 @@ const Elements = {
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 });
             });
         },
@@ -615,43 +619,6 @@ const Elements = {
             Object.assign(panel.$.controlRight.style, panel.currentClipInfo.ctrlEndStyle);
         },
     },
-};
-
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-    this.initAnimationNameToUUIDMap();
-    this.initAnimationInfos();
-    if (this.animationInfos) {
-        this.onSelect(this.rawClipIndex, this.splitClipIndex);
-    }
-};
-
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
 };
 
 async function callModelPreviewFunction(funcName, ...args) {
@@ -1000,6 +967,7 @@ exports.methods = {
         const curClipInfo = panel.getCurClipInfo();
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     updateVirtualControl() {
         const panel = this;
@@ -1038,6 +1006,7 @@ exports.methods = {
         panel.clipNames.add(name);
 
         panel.dispatch('change');
+        panel.dispatch('snapshot');
         Elements.clips.update.call(panel);
     },
     onCutClip(event) {
@@ -1050,6 +1019,7 @@ exports.methods = {
         Elements.editor.update.call(panel);
 
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onFpsChange(event) {
         const panel = this;
@@ -1058,6 +1028,7 @@ exports.methods = {
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onWrapModeChange(event) {
         const panel = this;
@@ -1072,6 +1043,7 @@ exports.methods = {
         );
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onSpeedChange(event) {
         const panel = this;
@@ -1087,5 +1059,43 @@ exports.methods = {
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+    this.initAnimationNameToUUIDMap();
+    this.initAnimationInfos();
+    if (this.animationInfos) {
+        this.onSelect(this.rawClipIndex, this.splitClipIndex);
+    }
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
 };

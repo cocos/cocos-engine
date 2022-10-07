@@ -1,9 +1,32 @@
-exports.template = `
+'use strict';
+
+exports.template = /* html */`
 <section class="asset-render-pipeline">
     <ui-prop class="dump-prop" type="dump"></ui-prop>
     <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>  
 </section>
 `;
+
+exports.style = /* css */`
+.asset-render-pipeline[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-render-pipeline[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-render-pipeline .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+`;
+
+exports.$ = {
+    container: '.asset-render-pipeline',
+    prop: '.dump-prop',
+};
 
 exports.methods = {
     record() {
@@ -45,30 +68,25 @@ exports.methods = {
         this.updateInterface();
         this.setDirtyData();
         this.dispatch('change');
-
-        if (this.getNewestDataSnapshot) {
-            this.getNewestDataSnapshot = false;
-            this.dispatch('snapshot');
-        }
     },
 
-    confirm() {
-        this.getNewestDataSnapshot = true;
+    snapshot() {
+        this.dispatch('snapshot');
     },
 
     updateInterface() {
-        this.updateReadonly(this.pipeline);
+        this.LoopUpdateReadonly(this.pipeline);
         this.$.prop.render(this.pipeline);
     },
 
-    updateReadonly(obj) {
+    LoopUpdateReadonly(obj) {
         if (this.asset.readonly) {
             if (obj && 'readonly' in obj && 'value' in obj) {
                 obj.readonly = true;
 
                 if (typeof obj.value === 'object') {
                     for (const key in obj.value) {
-                        this.updateReadonly(obj.value[key]);
+                        this.LoopUpdateReadonly(obj.value[key]);
                     }
                 }
             }
@@ -80,8 +98,6 @@ exports.methods = {
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
-
-            this.dispatch('snapshot');
         }
     },
 
@@ -91,30 +107,9 @@ exports.methods = {
     },
 };
 
-exports.$ = {
-    container: '.asset-render-pipeline',
-    prop: '.dump-prop',
-};
-
-exports.style = `
-.asset-render-pipeline[multiple-invalid] > *:not(.multiple-warn-tip) {
-    display: none!important;
- }
-
- .asset-render-pipeline[multiple-invalid] > .multiple-warn-tip {
-    display: block;
- }
-
-.asset-render-pipeline .multiple-warn-tip {
-    display: none;
-    text-align: center;
-    color: var(--color-focus-contrast-weakest);
-}
-`;
-
 exports.ready = function() {
     this.$.container.addEventListener('change-dump', this.change.bind(this));
-    this.$.container.addEventListener('confirm-dump', this.confirm.bind(this));
+    this.$.container.addEventListener('confirm-dump', this.snapshot.bind(this));
 
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
@@ -156,4 +151,3 @@ exports.close = function() {
         realtime: '',
     };
 };
-

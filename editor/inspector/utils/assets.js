@@ -9,3 +9,11 @@ exports.updateElementReadonly = function(element, readonly) {
         element.removeAttribute('disabled');
     }
 };
+
+exports.updateElementInvalid = function(element, prop) {
+    const invalid = this.metaList.some((meta) => {
+        return meta.userData[prop] !== this.meta.userData[prop];
+    });
+
+    element.invalid = invalid;
+};

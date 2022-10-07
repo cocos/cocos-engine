@@ -116,12 +116,18 @@ const Elements = {
         ready() {
             const panel = this;
 
+            panel.shadersIndex = 0;
+
             panel.$.shaderSelect.addEventListener('change', (event) => {
-                this.shadersIndex = event.target.value;
+                panel.shadersIndex = event.target.value;
 
                 // There are other properties that are updated depending on its change
                 Elements.combinations.update.call(panel);
                 Elements.codes.update.call(panel);
+            });
+
+            panel.$.shaderSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -132,6 +138,10 @@ const Elements = {
                 optionsHtml += `<option value="${index}">${shader.name}</option>`;
             });
             panel.$.shaderSelect.innerHTML = optionsHtml;
+
+            if (panel.shadersIndex > panel.shaders.length - 1) {
+                panel.shadersIndex = 0;
+            }
 
             panel.$.shaderSelect.value = panel.shadersIndex;
 
@@ -206,6 +216,18 @@ const Elements = {
         },
     },
     codes: {
+        ready() {
+            const panel = this;
+
+            panel.glslNames = {
+                glsl3: 'GLSL 300 ES Output',
+                glsl1: 'GLSL 100 Output',
+            };
+            panel.shaderNames = {
+                vert: 'Vertex Shader',
+                frag: 'Fragment Shader',
+            };
+        },
         update() {
             const panel = this;
 
@@ -267,6 +289,16 @@ const Elements = {
 };
 
 exports.methods = {
+    record() {
+        return JSON.stringify({ shadersIndex: this.shadersIndex });
+    },
+    restore(record) {
+        record = JSON.parse(record);
+
+        this.$.shaderSelect.value = record.shadersIndex;
+        this.$.shaderSelect.dispatch('change');
+        return true;
+    },
     refresh() {
         const panel = this;
 
@@ -290,16 +322,6 @@ exports.methods = {
         }
 
         panel.shaders = dataSource.shaders;
-
-        panel.shadersIndex = 0;
-        panel.glslNames = {
-            glsl3: 'GLSL 300 ES Output',
-            glsl1: 'GLSL 100 Output',
-        };
-        panel.shaderNames = {
-            vert: 'Vertex Shader',
-            frag: 'Fragment Shader',
-        };
 
         // The edited value of defines in each shader
         panel.combinations = [];
@@ -368,6 +390,7 @@ exports.methods = {
         panel.meta.userData.combinations = submitData;
 
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
 };
 
