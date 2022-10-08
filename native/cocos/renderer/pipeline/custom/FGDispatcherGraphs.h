@@ -30,7 +30,7 @@
  */
 // clang-format off
 #pragma once
-#include <boost/utility/string_view.hpp>
+#include <string_view>
 #include <tuple>
 #include "cocos/renderer/pipeline/custom/FGDispatcherTypes.h"
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
