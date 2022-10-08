@@ -161,7 +161,12 @@ export const simple: IAssembler = {
             let iCount = 0;
             for (let i = 0; i < slots.length; ++i) {
                 const slot = slots[i] as CCSlot;
-                vCount += slot._localVertices.length / LOCAL_FLOAT_PER_VERTEX;
+                const remainder = slot._localVertices.length % 4;
+                if (remainder === 0) {
+                    vCount += slot._localVertices.length / LOCAL_FLOAT_PER_VERTEX;
+                } else {
+                    vCount += (slot._localVertices.length - remainder) / LOCAL_FLOAT_PER_VERTEX + 1;
+                }
                 iCount += slot._indices.length;
             }
 
