@@ -124,12 +124,11 @@ export class Frustum {
     /**
      * @en Calculate the splitted frustum.
      * @zh 创建一个新的截锥体。
-     * @param m @en The transform matrix @zh 变换矩阵
-     * @param fov @en Field of view of the camera @zh 相机的视角大小
-     * @param aspect @en The aspect ratio of the camera @zh 相机视图的长宽比
      * @param start @en The split start position @zh 分割开始位置
      * @param end @en The split end position @zh 分割末尾位置
-     * @return @en The out object @zh 返回新截锥体.
+     * @param aspect @en The aspect ratio of the camera @zh 相机视图的长宽比
+     * @param fov @en Field of view of the camera @zh 相机的视角大小
+     * @param m @en The transform matrix @zh 变换矩阵
      */
     public split (start: number, end: number, aspect: number, fov: number, m: Mat4) {
         // 0: cameraNear  1:cameraFar
