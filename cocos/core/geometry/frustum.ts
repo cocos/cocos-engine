@@ -122,8 +122,8 @@ export class Frustum {
     }
 
     /**
-     * @en Calculate the splitted frustum.
-     * @zh 创建一个新的截锥体。
+     * @en Calculate a split frustum.
+     * @zh 计算出一个分割的视锥体。
      * @param start @en The split start position @zh 分割开始位置
      * @param end @en The split end position @zh 分割末尾位置
      * @param aspect @en The aspect ratio of the camera @zh 相机视图的长宽比
