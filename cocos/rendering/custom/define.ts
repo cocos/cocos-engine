@@ -435,7 +435,7 @@ export function buildForwardPass (camera: Camera,
         .addQueue(QueueHint.RENDER_OPAQUE)
         .addSceneOfCamera(camera, new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-            | SceneFlags.PLANAR_SHADOW | SceneFlags.DEFAULT_LIGHTING);
+             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
         .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
