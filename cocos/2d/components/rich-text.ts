@@ -583,7 +583,13 @@ export class RichText extends Component {
                 if (thisPartSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
-                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
+                    // If it is not the first element, it is right behind a "\n", so we should reset the lineOffsetX as 0.
+                    let currOffsetX = i === 0 ? this._lineOffsetX : 0;
+                    // Hack: Special switching line could reserve fontSize-length space
+                    if (currOffsetX >= this.maxWidth - this.fontSize) {
+                        currOffsetX = 0;
+                    }
+                    const thisPartSplitResultArr = this.splitLongStringOver2048(multilineTexts[i], styleIndex, currOffsetX);
                     partStringArr.push(...thisPartSplitResultArr);
                 }
             }
@@ -594,7 +600,7 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected splitLongStringOver2048 (text: string, styleIndex: number) {
+    protected splitLongStringOver2048 (text: string, styleIndex: number, lineOffsetX) {
         const partStringArr: string[] = [];
         const longStr = text;
 
@@ -602,15 +608,19 @@ export class RichText extends Component {
         let curEnd = longStr.length / 2;
         let curString = longStr.substring(curStart, curEnd);
         let leftString = longStr.substring(curEnd);
-        let curStringSize = this._calculateSize(styleIndex, curString);
-        let leftStringSize = this._calculateSize(styleIndex, leftString);
+        let curStringSizeX = this._calculateSize(styleIndex, curString).x;
+        let leftStringSizeX = this._calculateSize(styleIndex, leftString).x;
 
         // a line should be an unit to split long string
         const lineCountForOnePart = 1;
-        const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+        let sizeForThisPart = (lineCountForOnePart * this.maxWidth === 0) ? 2048 : (lineCountForOnePart * this.maxWidth);
+
+        // it does influence the first element of splitted array,
+        // the element should put into the left space in current line
+        sizeForThisPart -= lineOffsetX;
 
         // divide text into some pieces of which the size is less than sizeForOnePart
-        while (curStringSize.x > sizeForOnePart) {
+        while (curStringSizeX > sizeForThisPart) {
             curEnd /= 2;
             // at least one char can be an entity, step back.
             if (curEnd < 1) {
@@ -620,7 +630,7 @@ export class RichText extends Component {
 
             curString = curString.substring(curStart, curEnd);
             leftString = longStr.substring(curEnd);
-            curStringSize = this._calculateSize(styleIndex, curString);
+            curStringSizeX = this._calculateSize(styleIndex, curString).x;
         }
 
         // avoid too many loops
@@ -628,7 +638,7 @@ export class RichText extends Component {
         // the minimum step of expansion or reduction
         let curWordStep = 1;
         while (leftTryTimes && curStart < text.length) {
-            while (leftTryTimes && curStringSize.x < sizeForOnePart) {
+            while (leftTryTimes && curStringSizeX < sizeForThisPart) {
                 const nextPartExec = getEnglishWordPartAtFirst(leftString);
                 // add a character, unless there is a complete word at the beginning of the next line
                 if (nextPartExec && nextPartExec.length > 0) {
@@ -638,16 +648,16 @@ export class RichText extends Component {
 
                 curString = longStr.substring(curStart, curEnd);
                 leftString = longStr.substring(curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
+                curStringSizeX = this._calculateSize(styleIndex, curString).x;
 
                 leftTryTimes--;
             }
 
             // reduce condition：size > maxwidth && curString.length >= 2
-            while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
+            while (leftTryTimes && curString.length >= 2 && curStringSizeX > sizeForThisPart) {
                 curEnd -= curWordStep;
                 curString = longStr.substring(curStart, curEnd);
-                curStringSize = this._calculateSize(styleIndex, curString);
+                curStringSizeX = this._calculateSize(styleIndex, curString).x;
                 // after the first reduction, the step should be 1.
                 curWordStep = 1;
 
@@ -669,25 +679,41 @@ export class RichText extends Component {
             // but step must be integer because we split the complete characters of which the unit is integer.
             // it is reasonable that using the length of this result to estimate the next result.
             partStringArr.push(curString);
-            const partStep = curString.length;
+            // after putting the first element in array, we should reset sizeForThisPart
+            sizeForThisPart = lineCountForOnePart * this.maxWidth;
+
+            // generate the next element
+            const nextStep = sizeForThisPart / this.fontSize;
             curStart = curEnd;
-            curEnd += partStep;
+            curEnd += nextStep;
 
             curString = longStr.substring(curStart, curEnd);
+            curStringSizeX = this._calculateSize(styleIndex, curString).x;
             leftString = longStr.substring(curEnd);
-            leftStringSize = this._calculateSize(styleIndex, leftString);
+            leftStringSizeX = this._calculateSize(styleIndex, leftString).x;
 
             leftTryTimes--;
 
-            // Exit: If the left part string size is less than 2048, the method will finish.
-            if (leftStringSize.x < 2048) {
+            // Exit1: If the current string is the last part of text,
+            // the leftString will be empty string, then we should exit
+            if (!leftString) {
                 curStart = text.length;
                 curEnd = text.length;
-                curString = leftString;
                 partStringArr.push(curString);
                 break;
-            } else {
-                curStringSize = this._calculateSize(styleIndex, curString);
+            }
+
+            // Exit2: If the current string size is approaching to max width in one line and
+            // the left part string size is less than 2048, the method will finish.
+            if (curStringSizeX <= sizeForThisPart
+                && curStringSizeX + this.fontSize > sizeForThisPart
+                && leftStringSizeX < 2048) {
+                curStart = text.length;
+                curEnd = text.length;
+                partStringArr.push(curString);
+                partStringArr.push(leftString);
+                curString = leftString;
+                break;
             }
         }
 
