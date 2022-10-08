@@ -34,9 +34,6 @@
 #include "math/Vec3.h"
 
 namespace cc {
-namespace scene {
-class Camera;
-}
 namespace geometry {
 
 class Frustum final : public ShapeBase {
@@ -67,18 +64,6 @@ public:
      * @return @en The out object @zh 返回视锥体.
      */
     static Frustum *createFromAABB(Frustum *out, const AABB &aabb);
-
-    /**
-     * @en Calculate the splitted frustum.
-     * @zh 创建一个新的截锥体。
-     * @param out @en The output frustum @zh 输出的新截锥体
-     * @param camera @en The camera of the frustum @zh 相机参数
-     * @param m @en The transform matrix @zh 变换矩阵
-     * @param start @en The split start position @zh 分割开始位置
-     * @param end @en The split end position @zh 分割末尾位置
-     * @return @en The out object @zh 返回新截锥体.
-     */
-    static Frustum *split(Frustum *out, const scene::Camera &camera, const Mat4 &m, float start, float end);
 
     /**
      * @en
