@@ -1,5 +1,7 @@
 'use strict';
 
+const { updateElementReadonly } = require('../utils/assets');
+
 exports.template = /* html */`
 <section class="asset-animation-graph">
     <ui-button class="open">
@@ -50,8 +52,11 @@ exports.update = function(assetList, metaList) {
 
     if (assetList.length > 1) {
         this.$.container.setAttribute('multiple-invalid', '');
+        return;
     } else {
         this.$.container.removeAttribute('multiple-invalid');
     }
+
+    updateElementReadonly.call(this, this.$.button);
 };
 

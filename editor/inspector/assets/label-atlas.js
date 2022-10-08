@@ -1,6 +1,6 @@
 'use strict';
 
-const { updateElementReadonly } = require('../utils/assets');
+const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
 
 exports.template = /* html */`
 <section class="asset-label-atlas">

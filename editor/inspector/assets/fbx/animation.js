@@ -1,5 +1,7 @@
 'use strict';
 
+const { updateElementReadonly, updateElementInvalid } = require('../../utils/assets');
+
 exports.template = /* html */`
 <div class="container">
     <div class="show-type-wrap">
@@ -70,6 +72,7 @@ exports.template = /* html */`
             <ui-num-input slot="content" class="speed"></ui-num-input>
         </ui-prop>
     </div>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
 `;
 
@@ -77,6 +80,19 @@ exports.style = /* css */`
 ui-prop,
 ui-section {
     margin: 4px 0;
+}
+.container[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .container[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.container .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
 }
 .container > .show-type-wrap {
     text-align: center;
@@ -106,6 +122,7 @@ ui-section {
     display: flex;
     line-height: 1.6em;
     padding: 2px 5px;
+    cursor: pointer;
 }
 .container > .clips > .clip > .table > .line[active] {
     background: var(--color-focus-fill);
@@ -134,6 +151,16 @@ ui-section {
 }
 .container > .clips > .clip > .add-clip > .button > ui-icon:hover {
     background: var(--color-normal-fill);
+}
+
+.container > .clips > .clip > .add-clip > .button > ui-icon[disabled] {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.container > .editor[disabled] {
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 .container > .editor > .anim-name {
@@ -448,6 +475,7 @@ const Elements = {
                 const addIcon = document.createElement('ui-icon');
                 addIcon.setAttribute('value', 'add');
                 addIcon.setAttribute('tooltip', 'Duplicate Selected');
+                updateElementReadonly.call(panel, addIcon);
                 button.appendChild(addIcon);
                 addIcon.addEventListener('click', () => {
                     const newInfo = panel.newClipTemplate();
@@ -463,6 +491,7 @@ const Elements = {
                 const miniIcon = document.createElement('ui-icon');
                 miniIcon.setAttribute('value', 'mini');
                 miniIcon.setAttribute('tooltip', 'Remove Selected');
+                updateElementReadonly.call(panel, miniIcon);
                 button.appendChild(miniIcon);
                 miniIcon.addEventListener('click', () => {
                     panel.updateCurrentClipInfo();
@@ -560,6 +589,8 @@ const Elements = {
             } else {
                 panel.$.editor.style.display = 'block';
             }
+
+            updateElementReadonly.call(panel, panel.$.editor);
 
             panel.$.clipName.value = panel.currentClipInfo.name;
 
@@ -1077,6 +1108,13 @@ exports.update = function(assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
+
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
+        return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
+    }
 
     for (const prop in Elements) {
         const element = Elements[prop];

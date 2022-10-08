@@ -25,7 +25,6 @@ exports.template = /* html */`
 
 exports.style = /* css */`
   .asset-texture-cube > .preview {
-    background: var(--color-normal-fill-emphasis);
     padding: 20px;
     margin-top: 10px;
   }
@@ -39,7 +38,7 @@ exports.style = /* css */`
     line-height: var(--size);
     width: var(--size);
     height: var(--size);
-    background: var(--color-normal-fill);
+    background-color: var(--color-normal-fill-emphasis);
     text-align: center;
   }
   .asset-texture-cube > .preview > .images > ui-drag-item > .top {

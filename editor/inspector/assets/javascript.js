@@ -1,6 +1,6 @@
 'use strict';
 
-const { updateElementInvalid } = require('../utils/assets');
+const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
 
 const { createReadStream } = require('fs');
 const ReadLine = require('readline');
@@ -143,6 +143,7 @@ const Elements = {
         update() {
             this.$.isPluginCheckBox.value = this.meta.userData.isPlugin;
             updateElementInvalid.call(this, this.$.isPluginCheckBox, 'isPlugin');
+            updateElementReadonly.call(this, this.$.isPluginCheckBox);
         },
     },
     detail: {
@@ -202,12 +203,15 @@ const Elements = {
                 return;
             }
 
+            updateElementReadonly.call(this, this.$.dependenciesInput);
+
             this.$.dependenciesContent.innerText = '';
 
             if (!Array.isArray(this.meta.userData.dependencies)) {
                 this.$.dependenciesInput.value = 0;
                 return;
             }
+
 
             const length = this.meta.userData.dependencies.length;
             this.$.dependenciesInput.value = length;
@@ -218,6 +222,7 @@ const Elements = {
 
                 child.setAttribute('value', this.meta.userData.dependencies[i]);
                 child.setAttribute('droppable', 'cc.Script');
+                updateElementReadonly.call(this, child);
                 child.addEventListener('confirm', (event) => {
                     this.meta.userData.dependencies[i] = event.target.value;
                     this.dispatch('change');
@@ -244,6 +249,7 @@ const Elements = {
         update() {
             this.$.executionScope.value = this.meta.userData.executionScope !== 'global' ? 'enclosed' : 'global';
             updateElementInvalid.call(this, this.$.executionScope, 'executionScope');
+            updateElementReadonly.call(this, this.$.executionScope);
         },
     },
     executionScopeEnclosed: {
@@ -276,6 +282,8 @@ const Elements = {
                 return;
             }
 
+            updateElementReadonly.call(this, this.$.executionScopeEnclosedInput);
+
             this.$.executionScopeEnclosedInput.value = Array.isArray(this.meta.userData.simulateGlobals)
                 ? this.meta.userData.simulateGlobals.join(';')
                 : '';
@@ -288,6 +296,7 @@ const Elements = {
         update() {
             this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb;
             updateElementInvalid.call(this, this.$.loadPluginInWebCheckBox, 'loadPluginInWeb');
+            updateElementReadonly.call(this, this.$.loadPluginInWebCheckBox);
         },
     },
     loadPluginInNativeCheckBox: {
@@ -297,6 +306,7 @@ const Elements = {
         update() {
             this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative;
             updateElementInvalid.call(this, this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
+            updateElementReadonly.call(this, this.$.loadPluginInNativeCheckBox);
         },
     },
     loadPluginInEditorCheckBox: {
@@ -306,6 +316,7 @@ const Elements = {
         update() {
             this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInEditor;
             updateElementInvalid.call(this, this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
+            updateElementReadonly.call(this, this.$.loadPluginInEditorCheckBox);
         },
     },
     code: {
