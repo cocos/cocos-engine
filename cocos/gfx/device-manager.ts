@@ -161,7 +161,7 @@ export class DeviceManager {
     }
 
     private _initSwapchain () {
-        const swapchainInfo = new SwapchainInfo(this._canvas!);
+        const swapchainInfo = new SwapchainInfo(1, this._canvas!);
         const windowSize = screen.windowSize;
         swapchainInfo.width = windowSize.width;
         swapchainInfo.height = windowSize.height;
