@@ -755,6 +755,10 @@ module.exports = {
                 label: '动画',
                 description: '动画系统。',
             },
+            network: {
+                label: '网络',
+                description: '网络模块。',
+            },
         },
         core: {
             label: "核心功能",
@@ -904,9 +908,13 @@ module.exports = {
             label: "自定义渲染管线（实验）",
             description: "启用自定义渲染管线。",
         },
+        websocket: {
+            label: "WebSocket",
+            description: "对原生启用 WebSocket。其中iOS/macOS使用SocketRocket实现, Android使用OkHttp实现, Windows使用libwebsockets实现。",
+        },
         websocket_server: {
             label: "WebSocket Server",
-            description: "对原生启用 WebSocket Server。",
+            description: "对原生启用 WebSocket Server。注意: 必须同时启用 WebSocket。",
         },
     },
     renderable_2d: {
