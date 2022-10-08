@@ -1482,10 +1482,10 @@ bool nativevalue_to_se(const cc::gfx::FormatInfo *from, se::Value &to, se::Objec
         obj->setProperty("hasStencil", se::Value(from->hasStencil));
         obj->setProperty("isCompressed", se::Value(from->isCompressed));
         to.setObject(obj);
-        return true;
-    } 
-    to.setNull();
-    return false;
+    } else {
+        to.setNull();
+    }
+    return true;
 }
 
 
