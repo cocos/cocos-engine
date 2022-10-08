@@ -169,9 +169,12 @@ module.exports = {
         shadowOrthoSize: 'Fix area size, the larger value, the lower precision of shadows',
     },
     model: {
+        shadow_receiving_model: 'Shadow receive mode',
         shadow_casting_model: 'Shadow projection mode',
         mesh: 'The mesh of the model',
         skinning_root: 'The skinning root, where the controlling Animation is located',
+        shadow_bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows for model. <br>The more the value, the more the light leakage',
+        shadow_normal_bias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light',
     },
     sprite: {
         gray_scale: 'Whether turn on grayscale rendering mode',
