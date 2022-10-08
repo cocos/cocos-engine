@@ -1012,35 +1012,11 @@ export class BindingMappingInfo {
     }
 }
 
-export class SystemWindowInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public title: string = null!,
-        public x: number = 0,
-        public y: number = 0,
-        public width: number = 0,
-        public height: number = 0,
-        public flags: number = 0,
-        public windowHandle: HTMLCanvasElement = null!,
-    ) {}
-
-    public copy (info: Readonly<SystemWindowInfo>) {
-        this.title = info.title;
-        this.x = info.x;
-        this.y = info.y;
-        this.width = info.width;
-        this.height = info.height;
-        this.flags = info.flags;
-        this.windowHandle = info.windowHandle;
-        return this;
-    }
-}
-
 export class SwapchainInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
+        public windowId: number = 0,
         public windowHandle: HTMLCanvasElement = null!,
         public vsyncMode: VsyncMode = VsyncMode.ON,
         public width: number = 0,
@@ -1048,6 +1024,7 @@ export class SwapchainInfo {
     ) {}
 
     public copy (info: Readonly<SwapchainInfo>) {
+        this.windowId = info.windowId;
         this.windowHandle = info.windowHandle;
         this.vsyncMode = info.vsyncMode;
         this.width = info.width;
