@@ -44,6 +44,18 @@ import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
+export interface OutputArchive {
+    saveBool (value: boolean): void;
+    saveNumber (value: number): void;
+    saveString (value: string): void;
+}
+
+export interface InputArchive {
+    loadBool (): boolean;
+    loadNumber (): number;
+    loadString (): string;
+}
+
 export interface PipelineRuntime {
     activate (swapchain: Swapchain): boolean;
     destroy (): boolean;
@@ -189,16 +201,4 @@ export interface PipelineBuilder {
 }
 
 export class Factory {
-}
-
-export interface OutputArchive {
-    saveBool (value: boolean): void;
-    saveNumber (value: number): void;
-    saveString (value: string): void;
-}
-
-export interface InputArchive {
-    loadBool (): boolean;
-    loadNumber (): number;
-    loadString (): string;
 }

@@ -38,6 +38,8 @@ namespace cc {
 
 namespace render {
 
+class OutputArchive;
+class InputArchive;
 class PipelineRuntime;
 class Setter;
 class RasterQueueBuilder;
@@ -53,8 +55,6 @@ class LayoutGraphBuilder;
 class Pipeline;
 class PipelineBuilder;
 class Factory;
-class OutputArchive;
-class InputArchive;
 
 } // namespace render
 
