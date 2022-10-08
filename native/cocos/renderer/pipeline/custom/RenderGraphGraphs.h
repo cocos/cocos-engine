@@ -30,7 +30,7 @@
  */
 // clang-format off
 #pragma once
-#include <boost/utility/string_view.hpp>
+#include <string_view>
 #include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
@@ -940,13 +940,13 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::NameTa
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -957,13 +957,13 @@ struct property_map<cc::render::ResourceGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1089,13 +1089,13 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::NameTag>
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1106,13 +1106,13 @@ struct property_map<cc::render::SubpassGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1166,13 +1166,13 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::NameTag> {
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1183,13 +1183,13 @@ struct property_map<cc::render::RenderGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1200,13 +1200,13 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::LayoutTag>
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 

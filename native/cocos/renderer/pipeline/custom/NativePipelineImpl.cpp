@@ -295,7 +295,7 @@ LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
-    auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
+    auto iter = layoutGraph.shaderLayoutIndex.find(std::string_view(shaderName));
     if (iter != layoutGraph.shaderLayoutIndex.end()) {
         const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);

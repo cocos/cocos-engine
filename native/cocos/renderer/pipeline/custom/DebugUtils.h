@@ -25,8 +25,8 @@
 
 #pragma once
 #include <sstream>
+#include <string_view>
 #include "base/std/container/string.h"
-#include "boost/utility/string_view.hpp"
 
 namespace cc {
 
@@ -69,7 +69,7 @@ inline Indent<ccstd::pmr::string> indent(ccstd::pmr::string& str) {
 }
 
 inline void copyString(std::ostream& os,
-                       boost::string_view space, boost::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
+                       std::string_view space, std::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
                        bool append = false) {
     std::istringstream iss{ccstd::string(str)};
     ccstd::string line;
@@ -95,7 +95,7 @@ inline void copyString(std::ostream& os,
     }
 }
 
-inline void copyString(std::ostream& os, boost::string_view str) {
+inline void copyString(std::ostream& os, std::string_view str) {
     std::istringstream iss{ccstd::string(str)};
     ccstd::string line;
     while (std::getline(iss, line)) {
@@ -108,7 +108,7 @@ inline void copyString(std::ostream& os, boost::string_view str) {
 }
 
 inline void copyCppString(std::ostream& os,
-                          boost::string_view space, boost::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
+                          std::string_view space, std::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
                           bool append = false) {
     std::istringstream iss{ccstd::string(str)};
     ccstd::string line;
