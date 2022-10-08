@@ -256,14 +256,14 @@ float CCGetLinearDepth(vec3 worldPos) {
           #if CC_CASCADED_LAYERS_TRANSITION
             if (clipPos.x <= 0.15 - layerThreshold || clipPos.x >= (1.0 - 0.15 + layerThreshold) ||
                 clipPos.y <= 0.15 - layerThreshold || clipPos.y >= (0.85) + layerThreshold) {
-              if (clipPos.x >= layerThreshold && clipPos.x <= 0.15) {
+              if (clipPos.x >= layerThreshold && clipPos.x <= 0.15 - layerThreshold) {
                 ratio = (clipPos.x - layerThreshold) / (0.15 - layerThreshold);
               }
               if (clipPos.x >= (0.85) && clipPos.x <= (1.0 - layerThreshold)) {
                 ratio = (clipPos.x - (0.85)) / (0.15 - layerThreshold);
               }
-              if (clipPos.y >= layerThreshold && clipPos.y <= 0.15) {
-                ratio = (clipPos.y - layerThreshold) / (0.15 - layerThreshold);
+              if (clipPos.y >= layerThreshold && clipPos.y <= 0.15 - layerThreshold) {
+                ratio = min((clipPos.y  + layerThreshold + layerThreshold) / (0.15), 1.0);
               }
               if (clipPos.y >= (0.85) && clipPos.y <= (1.0 - layerThreshold)) {
                 ratio = (clipPos.y - (0.85)) / (0.15 - layerThreshold);
