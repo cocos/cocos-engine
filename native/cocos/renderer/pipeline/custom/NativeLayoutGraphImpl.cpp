@@ -87,7 +87,7 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
     for (const auto &pairD : block.descriptors) {
         const auto &name = pairD.first;
         const auto &d = pairD.second;
-        auto iter = g.attributeIndex.find(boost::string_view(name));
+        auto iter = g.attributeIndex.find(std::string_view(name));
         if (iter == g.attributeIndex.end()) {
             auto attrID = gsl::narrow_cast<uint32_t>(g.valueNames.size());
             g.valueNames.emplace_back(name);
@@ -109,7 +109,7 @@ void NativeLayoutGraphBuilder::addUniformBlock(uint32_t nodeID, const Descriptor
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
     auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
-    auto iter = g.attributeIndex.find(boost::string_view(name));
+    auto iter = g.attributeIndex.find(std::string_view(name));
     if (iter == g.attributeIndex.end()) {
         auto attrID = gsl::narrow_cast<uint32_t>(g.valueNames.size());
         g.valueNames.emplace_back(name);

@@ -53,6 +53,8 @@ class LayoutGraphBuilder;
 class Pipeline;
 class PipelineBuilder;
 class Factory;
+class OutputArchive;
+class InputArchive;
 
 } // namespace render
 
