@@ -26,7 +26,6 @@
 #include "core/geometry/Frustum.h"
 #include <cmath>
 #include "core/geometry/Enums.h"
-#include "scene/Camera.h"
 #include "scene/Define.h"
 
 namespace cc {
