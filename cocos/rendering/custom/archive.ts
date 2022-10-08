@@ -28,34 +28,15 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-// clang-format off
-#pragma once
-#include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+/* eslint-disable max-len */
+export interface OutputArchive {
+    saveBool (value: boolean): void;
+    saveNumber (value: number): void;
+    saveString (value: string): void;
+}
 
-namespace cc {
-
-namespace render {
-
-class PipelineRuntime;
-class Setter;
-class RasterQueueBuilder;
-class RasterPassBuilder;
-class ComputeQueueBuilder;
-class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
-class SceneVisitor;
-class SceneTask;
-class SceneTransversal;
-class LayoutGraphBuilder;
-class Pipeline;
-class PipelineBuilder;
-class Factory;
-
-} // namespace render
-
-} // namespace cc
-
-// clang-format on
+export interface InputArchive {
+    loadBool (): boolean;
+    loadNumber (): number;
+    loadString (): string;
+}

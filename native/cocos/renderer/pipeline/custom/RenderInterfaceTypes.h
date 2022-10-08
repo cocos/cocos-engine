@@ -66,34 +66,6 @@ namespace cc {
 
 namespace render {
 
-class OutputArchive {
-public:
-    OutputArchive() noexcept = default;
-    OutputArchive(OutputArchive&& rhs) = delete;
-    OutputArchive(OutputArchive const& rhs) = delete;
-    OutputArchive& operator=(OutputArchive&& rhs) = delete;
-    OutputArchive& operator=(OutputArchive const& rhs) = delete;
-    virtual ~OutputArchive() noexcept = default;
-
-    virtual void saveBool(bool value) = 0;
-    virtual void saveNumber(double value) = 0;
-    virtual void saveString(std::string_view value) = 0;
-};
-
-class InputArchive {
-public:
-    InputArchive() noexcept = default;
-    InputArchive(InputArchive&& rhs) = delete;
-    InputArchive(InputArchive const& rhs) = delete;
-    InputArchive& operator=(InputArchive&& rhs) = delete;
-    InputArchive& operator=(InputArchive const& rhs) = delete;
-    virtual ~InputArchive() noexcept = default;
-
-    virtual bool loadBool() = 0;
-    virtual double loadNumber() = 0;
-    virtual std::string_view loadString() = 0;
-};
-
 class PipelineRuntime {
 public:
     PipelineRuntime() noexcept = default;
