@@ -35,7 +35,7 @@ import { ParameterType, UpdateFrequency } from './types';
 import { ccclass } from '../../core/data/decorators';
 import { OutputArchive } from './archive';
 
-export const enum DescriptorTypeOrder {
+export enum DescriptorTypeOrder {
     UNIFORM_BUFFER,
     DYNAMIC_UNIFORM_BUFFER,
     SAMPLER_TEXTURE,

@@ -32,6 +32,11 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 
 let _pipeline: WebPipeline | null = null;
 
+export * from './types';
+export { Descriptor, DescriptorTypeOrder, DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
+export { CopyPair, MovePair } from './render-graph';
+export * from './pipeline';
+
 export function createCustomPipeline (): Pipeline {
     const ppl = new WebPipeline();
     const pplName = macro.CUSTOM_PIPELINE_NAME;
@@ -45,8 +50,24 @@ export function createCustomPipeline (): Pipeline {
     return ppl;
 }
 
-export function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
+export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
+
+export function setCustomPipeline (name: string, builder: PipelineBuilder) {
+    customPipelineBuilderMap.set(name, builder);
+}
+
+export function getCustomPipeline (name: string): PipelineBuilder {
+    let builder = customPipelineBuilderMap.get(name) || null;
+    if (builder === null) {
+        builder = customPipelineBuilderMap.get('Forward')!;
+    }
+    return builder;
+}
+
+function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
 }
+
+addCustomBuiltinPipelines(customPipelineBuilderMap);

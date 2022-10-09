@@ -267,6 +267,7 @@
         "cc.geometry",
         "cc.getTypedArrayConstructor",
         "cc.gfx",
+        "cc.rendering",
         "cc.instantiate",
         "cc.internal",
         "cc.isValid",
