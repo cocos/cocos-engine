@@ -41,7 +41,7 @@ import { assert } from '../../core/platform/debug';
 import { macro } from '../../core/platform/macro';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { supportsR32FloatTexture } from '../define';
+import { supportsR32FloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -770,6 +770,8 @@ export class WebPipeline implements Pipeline {
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this._device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
+        const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
+        str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
         this._constantMacros = str;
     }
     public setCustomPipelineName (name: string) {
