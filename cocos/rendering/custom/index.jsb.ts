@@ -61,7 +61,7 @@ export function getCustomPipeline (name: string): PipelineBuilder {
     return builder;
 }
 
-export function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
+function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
