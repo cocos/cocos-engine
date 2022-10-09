@@ -76,6 +76,10 @@ void RenderDrawInfo::uploadBuffers() {
     }
 }
 
+void RenderDrawInfo::resetMeshIA() const {
+    CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
+}
+
 void RenderDrawInfo::destroy() {
     CC_SAFE_DELETE(_iaInfo.indexBuffer);
     if (!_iaInfo.vertexBuffers.empty()) {

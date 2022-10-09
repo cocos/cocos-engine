@@ -213,6 +213,7 @@ public:
 
     gfx::InputAssembler* requestIA(gfx::Device* device);
     void uploadBuffers();
+    void resetMeshIA() const;
 
     inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
     void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
