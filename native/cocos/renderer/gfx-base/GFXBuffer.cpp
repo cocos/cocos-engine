@@ -68,14 +68,16 @@ void Buffer::destroy() {
     _offset = _size = _stride = _count = 0U;
 }
 
-void Buffer::resize(uint32_t size) {
+bool Buffer::resize(uint32_t size) {
     if (size != _size) {
         uint32_t count = size / _stride;
         doResize(size, count);
 
         _size = size;
         _count = count;
+        return true;
     }
+    return false;
 }
 
 } // namespace gfx

@@ -90,6 +90,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint32_t passIdx, con
             }
 
             if (isBatchExist) {
+                bool needUpdateIA = false;
                 for (uint32_t j = 0; j < flatBuffersCount; ++j) {
                     const auto &flatBuffer = flatBuffers[j];
                     auto *batchVB = batch.vbs[j];
@@ -103,6 +104,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint32_t passIdx, con
                         CC_FREE(vbData);
                         batch.vbDatas[j] = vbDataNew;
                         vbData = vbDataNew;
+                        needUpdateIA = true;
                     }
 
                     auto offset = batch.vbCount * flatBuffer.stride;
@@ -118,6 +120,11 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint32_t passIdx, con
                     batch.indexData = newIndexData;
                     indexData = batch.indexData;
                     batch.indexBuffer->resize(indexSize);
+                    needUpdateIA = true;
+                }
+
+                if (needUpdateIA) {
+                    batch.ia->update();
                 }
 
                 const auto start = batch.vbCount;

@@ -90,10 +90,12 @@ void UIModelProxy::uploadData() {
         auto* ia = subModelList.at(i)->getInputAssembler();
         if (drawInfo->getVertexOffset() <= 0) continue;
         gfx::BufferList vBuffers = ia->getVertexBuffers();
+        bool needUpdateIA = false;
+
         if (!vBuffers.empty()) {
             auto size = drawInfo->getVertexOffset() * _stride;
             // if (size > vBuffers[0]->getSize()) {
-            vBuffers[0]->resize(size);
+            needUpdateIA |= vBuffers[0]->resize(size);
             // }
             vBuffers[0]->update(drawInfo->getVDataBuffer()); // vdata
         }
@@ -102,11 +104,15 @@ void UIModelProxy::uploadData() {
         gfx::Buffer* iBuffer = ia->getIndexBuffer();
         auto size = drawInfo->getIndexOffset() * 2;
         // if (size > iBuffer->getSize()) {
-        iBuffer->resize(size);
+        needUpdateIA |= iBuffer->resize(size);
         // }
         iBuffer->update(drawInfo->getIDataBuffer());   // idata
         ia->setIndexCount(drawInfo->getIndexOffset()); // indexCount
         // drawInfo->setModel(_model); // hack, render by model
+
+        if (needUpdateIA) {
+            ia->update();
+        }
     }
 
     if (!drawInfos.empty()) {

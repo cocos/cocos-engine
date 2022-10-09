@@ -40,7 +40,7 @@ public:
 
     void initialize(const BufferInfo &info);
     void initialize(const BufferViewInfo &info);
-    void resize(uint32_t size);
+    bool resize(uint32_t size);
     void destroy();
 
     virtual void update(const void *buffer, uint32_t size) = 0;

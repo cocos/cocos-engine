@@ -59,14 +59,21 @@ gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
 void RenderDrawInfo::uploadBuffers() {
     CC_ASSERT(_drawInfoAttrs._isMeshBuffer && _drawInfoAttrs._drawInfoType == RenderDrawInfoType::COMP);
     if (_drawInfoAttrs._vbCount == 0 || _drawInfoAttrs._ibCount == 0) return;
+    bool needUpdateIA = false;
+
     uint32_t size = _drawInfoAttrs._vbCount * 9 * sizeof(float); // magic Number
     gfx::Buffer* vBuffer = _iaInfo.vertexBuffers[0];
-    vBuffer->resize(size);
+    needUpdateIA |= vBuffer->resize(size);
     vBuffer->update(_vDataBuffer);
+
     gfx::Buffer* iBuffer = _iaInfo.indexBuffer;
     uint32_t iSize = _drawInfoAttrs._ibCount * 2;
-    iBuffer->resize(iSize);
+    needUpdateIA |= iBuffer->resize(iSize);
     iBuffer->update(_iDataBuffer);
+
+    if (needUpdateIA) {
+        _ia->update();
+    }
 }
 
 void RenderDrawInfo::destroy() {

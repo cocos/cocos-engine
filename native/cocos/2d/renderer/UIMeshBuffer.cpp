@@ -102,20 +102,27 @@ void UIMeshBuffer::uploadBuffers() {
 
     uint32_t indexCount = getIndexOffset();
     uint32_t byteCount = getByteOffset();
+    bool needUpdateIA = false;
 
     gfx::BufferList vBuffers = _ia->getVertexBuffers();
     if (!vBuffers.empty()) {
         gfx::Buffer* vBuffer = vBuffers[0];
         if (byteCount > vBuffer->getSize()) {
             vBuffer->resize(byteCount);
+            needUpdateIA = true;
         }
         vBuffer->update(_vData);
     }
     gfx::Buffer* iBuffer = _ia->getIndexBuffer();
     if (indexCount * 2 > iBuffer->getSize()) {
         iBuffer->resize(indexCount * 2);
+        needUpdateIA = true;
     }
     iBuffer->update(_iData);
+
+    if (needUpdateIA) {
+        _ia->update();
+    }
 
     setDirty(false);
 }

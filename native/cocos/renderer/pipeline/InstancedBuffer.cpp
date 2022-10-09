@@ -85,6 +85,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
             const auto newSize = instance.stride * instance.capacity;
             instance.data = static_cast<uint8_t *>(CC_REALLOC(instance.data, newSize));
             instance.vb->resize(newSize);
+            instance.ia->update();
         }
         if (instance.shader != shader) {
             instance.shader = shader;
