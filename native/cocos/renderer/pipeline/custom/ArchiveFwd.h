@@ -23,38 +23,24 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+// clang-format off
 #pragma once
-#include <boost/container_hash/hash.hpp>
-#include <string_view>
-
-// transparent hash
-// see https://stackoverflow.com/questions/20317413/what-are-transparent-comparators
+#include "cocos/base/std/variant.h"
 
 namespace cc {
 
-template <class Char>
-struct TransparentStringHash {
-    using is_transparent = void;
-    using string_view_type = std::basic_string_view<Char>;
+namespace render {
 
-    size_t operator()(string_view_type str) const noexcept {
-        return boost::hash<string_view_type>{}(str);
-    }
-    size_t operator()(const Char* str) const noexcept {
-        return boost::hash<string_view_type>{}(str);
-    }
-    template <class Alloc>
-    size_t operator()(const std::basic_string<Char, std::char_traits<Char>, Alloc>& str) const noexcept {
-        return boost::hash<string_view_type>{}(str);
-    }
-};
+class OutputArchive;
+class InputArchive;
 
-template <class T>
-struct ObserverPtr {
-    T* get() const noexcept {
-        return ptr;
-    }
-    T* ptr;
-};
+} // namespace render
 
 } // namespace cc
+
+// clang-format on

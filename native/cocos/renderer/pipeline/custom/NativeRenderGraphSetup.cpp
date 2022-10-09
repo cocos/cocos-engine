@@ -137,14 +137,14 @@ namespace {
 
 render::NameLocalID getNameID(
     const PmrFlatMap<ccstd::pmr::string, render::NameLocalID> &index,
-    boost::string_view name) {
+    std::string_view name) {
     auto iter = index.find(name);
     CC_EXPECTS(iter != index.end());
     return iter->second;
 }
 
 void addMat4(
-    const LayoutGraphData &lg, boost::string_view name,
+    const LayoutGraphData &lg, std::string_view name,
     const cc::Mat4 &v, RenderData &data) {
     auto nameID = getNameID(lg.constantIndex, name);
     static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");

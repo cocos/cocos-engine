@@ -23,38 +23,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-#include <boost/container_hash/hash.hpp>
-#include <string_view>
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+/* eslint-disable max-len */
+export interface OutputArchive {
+    saveBool (value: boolean): void;
+    saveNumber (value: number): void;
+    saveString (value: string): void;
+}
 
-// transparent hash
-// see https://stackoverflow.com/questions/20317413/what-are-transparent-comparators
-
-namespace cc {
-
-template <class Char>
-struct TransparentStringHash {
-    using is_transparent = void;
-    using string_view_type = std::basic_string_view<Char>;
-
-    size_t operator()(string_view_type str) const noexcept {
-        return boost::hash<string_view_type>{}(str);
-    }
-    size_t operator()(const Char* str) const noexcept {
-        return boost::hash<string_view_type>{}(str);
-    }
-    template <class Alloc>
-    size_t operator()(const std::basic_string<Char, std::char_traits<Char>, Alloc>& str) const noexcept {
-        return boost::hash<string_view_type>{}(str);
-    }
-};
-
-template <class T>
-struct ObserverPtr {
-    T* get() const noexcept {
-        return ptr;
-    }
-    T* ptr;
-};
-
-} // namespace cc
+export interface InputArchive {
+    loadBool (): boolean;
+    loadNumber (): number;
+    loadString (): string;
+}

@@ -1264,6 +1264,9 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
+                 cocos/renderer/pipeline/custom/ArchiveFwd.h
+                 cocos/renderer/pipeline/custom/ArchiveTypes.cpp
+                 cocos/renderer/pipeline/custom/ArchiveTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
