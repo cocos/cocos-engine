@@ -742,12 +742,8 @@ export class Director extends EventTarget {
 
     private buildRenderPipeline () {
         if (this._root) {
-            const map: Map<string, PipelineBuilder> = legacyCC.rendering.customPipelineBuilderMap;
-            let builder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
-            if (builder === null) {
-                builder = map.get('Forward')!;
-            }
             this._root.customPipeline.beginSetup();
+            const builder = legacyCC.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
             builder.setup(this._root.cameraList, this._root.customPipeline);
             this._root.customPipeline.endSetup();
         }
