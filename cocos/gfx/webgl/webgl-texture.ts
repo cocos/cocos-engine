@@ -31,10 +31,10 @@ import { IWebGLGPUTexture } from './webgl-gpu-objects';
 
 export class WebGLTexture extends Texture {
     get gpuTexture (): IWebGLGPUTexture {
-        return  this._gpuTexture!;
+        return this._gpuTexture!;
     }
 
-    get lodLevel () :number {
+    get lodLevel (): number {
         return this._lodLevel;
     }
 
@@ -86,9 +86,10 @@ export class WebGLTexture extends Texture {
                 isSwapchainTexture: isSwapchainTexture || false,
             };
 
-            WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
-
-            WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isSwapchainTexture) {
+                WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
+                WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
 
             this._viewInfo.texture = this;
             this._viewInfo.type = info.type;
@@ -134,9 +135,11 @@ export class WebGLTexture extends Texture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGLCmdFuncResizeTexture(WebGLDeviceManager.instance, this._gpuTexture);
-            WebGLDeviceManager.instance.memoryStatus.textureSize -= oldSize;
-            WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isSwapchainTexture) {
+                WebGLCmdFuncResizeTexture(WebGLDeviceManager.instance, this._gpuTexture);
+                WebGLDeviceManager.instance.memoryStatus.textureSize -= oldSize;
+                WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
         }
     }
 
