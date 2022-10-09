@@ -119,7 +119,11 @@ inline void copyCppString(std::ostream& os,
         } else if (line[0] == '#') {
             os << line << '\n';
         } else if (*line.rbegin() == ':') {
+#if defined(_MSC_VER) && _MSC_VER < 1920
+            os << space << line << '\n';
+#else
             os << space.substr(0, std::max(size_t(4), space.size()) - 4) << line << "\n";
+#endif
         } else {
             if (append) {
                 if (count == 0) {
