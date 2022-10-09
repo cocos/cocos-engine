@@ -138,7 +138,7 @@ private:
     class ALIGNAS(64) MemoryAllocator final {
     public:
         MemoryAllocator() = default;
-        ~MemoryAllocator() = default;
+        ~MemoryAllocator() noexcept;
         MemoryAllocator(MemoryAllocator const &) = delete;
         MemoryAllocator(MemoryAllocator &&) = delete;
         MemoryAllocator &operator=(MemoryAllocator const &) = delete;
