@@ -2,6 +2,7 @@ import { createCustomPipeline, addCustomBuiltinPipelines } from '../cocos/render
 import { legacyCC } from '../cocos/core/global-exports';
 import { PipelineBuilder } from '../cocos/rendering/custom/pipeline';
 
+export * from '../cocos/rendering/custom/types';
 export * from '../cocos/rendering/custom/pipeline';
 
 legacyCC.internal.createCustomPipeline = createCustomPipeline;
