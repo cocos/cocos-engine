@@ -451,6 +451,7 @@ class DeviceRenderQueue {
 
 class SubmitInfo {
     public instances = new Set<InstancedBuffer>();
+    public renderInstanceQueue : InstancedBuffer[] = [];
     public batches = new Set<BatchedBuffer>();
     public opaqueList: RenderInfo[] = [];
     public transparentList: RenderInfo[] = [];
@@ -725,7 +726,21 @@ class DeviceRenderPass {
         }
         cmdBuff.endRenderPass();
     }
+
+    private _clearInstance () {
+        for (const [cam, info] of this.submitMap) {
+            const it = info.instances.values(); let res = it.next();
+            while (!res.done) {
+                res.value.clear();
+                res = it.next();
+            }
+            info.renderInstanceQueue = [];
+            info.instances.clear();
+        }
+    }
+
     postPass () {
+        this._clearInstance();
         this.submitMap.clear();
         for (const queue of this._deviceQueues) {
             queue.postRecord();
@@ -833,6 +848,7 @@ class DevicePreSceneTask extends WebSceneTask {
                     }
                 }
             }
+            this._instancedSort();
         }
         const pipeline = this._currentQueue.devicePass.context.pipeline;
         if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
@@ -846,6 +862,26 @@ class DevicePreSceneTask extends WebSceneTask {
         if (sceneFlag & SceneFlags.OPAQUE_OBJECT) { this._submitInfo.opaqueList.sort(this._opaqueCompareFn); }
         if (sceneFlag & SceneFlags.TRANSPARENT_OBJECT) { this._submitInfo.transparentList.sort(this._transparentCompareFn); }
     }
+
+    protected _instancedSort () {
+        let it = this._submitInfo!.instances.values();
+        let res = it.next();
+        while (!res.done) {
+            if (!(res.value.pass.blendState.targets[0].blend)) {
+                this._submitInfo!.renderInstanceQueue.push(res.value);
+            }
+            res = it.next();
+        }
+        it = this._submitInfo!.renderInstanceQueue.values();
+        res = it.next();
+        while (!res.done) {
+            if (res.value.pass.blendState.targets[0].blend) {
+                this._submitInfo!.renderInstanceQueue.push(res.value);
+            }
+            res = it.next();
+        }
+    }
+
     protected _insertRenderList (ro: RenderObject, subModelIdx: number, passIdx: number, isTransparent = false) {
         const subModel = ro.model.subModels[subModelIdx];
         const pass = subModel.passes[passIdx];
@@ -1047,7 +1083,10 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordInstences () {
         const submitMap = this._currentQueue.devicePass.submitMap;
-        const it = submitMap.get(this.camera!)!.instances.values(); let res = it.next();
+        const it = submitMap.get(this.camera!)!.renderInstanceQueue.length === 0
+            ? submitMap.get(this.camera!)!.instances.values()
+            : submitMap.get(this.camera!)!.renderInstanceQueue.values();
+        let res = it.next();
         while (!res.done) {
             const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
