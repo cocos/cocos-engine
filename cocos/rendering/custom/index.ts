@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { Pipeline, PipelineBuilder } from './public';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';

@@ -26,7 +26,7 @@
 declare const render: any;
 
 import { legacyCC } from '../../core/global-exports';
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { Pipeline, PipelineBuilder } from './public';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder } from './custom-pipeline';
