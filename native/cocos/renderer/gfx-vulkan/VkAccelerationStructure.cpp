@@ -24,8 +24,8 @@ void CCVKAccelerationStructure::doInit(const AccelerationStructureInfo& info) {
         _gpuAccelerationStructure->geomtryInfos = info.aabbs;
     }
 
-    //todo
- 
+    _gpuAccelerationStructure->buildFlags = info.buildFlag;
+
     cmdFuncCCVKCreateAcclerationStructure(CCVKDevice::getInstance(), _gpuAccelerationStructure); 
 }
 
@@ -71,12 +71,37 @@ void CCVKAccelerationStructure::doBuild() {
     device->getQueue()->submit(&cmdBuf, 1);
 }
 
+void CCVKAccelerationStructure::doCompact() {
+    auto* device = CCVKDevice::getInstance();
+    auto* cmdBuf = device->getCommandBuffer();
+
+    cmdBuf->begin();
+    CCVKAccelerationStructure* compactedAccel = ccnew CCVKAccelerationStructure;
+    compactedAccel->_gpuAccelerationStructure = ccnew CCVKGPUAccelerationStructure;
+    cmdBuf->compactAccelerationStructure(this,compactedAccel);
+    cmdBuf->end();
+
+    device->flushCommands(&cmdBuf, 1);
+    device->getQueue()->submit(&cmdBuf, 1);
+
+    vkDestroyAccelerationStructureKHR(device->gpuDevice()->vkDevice, _gpuAccelerationStructure->vkAccelerationStructure, nullptr);
+    _gpuAccelerationStructure->accelStructBuffer->destroy();
+
+    _gpuAccelerationStructure->vkAccelerationStructure = compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure;
+    _gpuAccelerationStructure->accelStructBuffer = compactedAccel->_gpuAccelerationStructure->accelStructBuffer;
+
+    compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure = VK_NULL_HANDLE;
+    compactedAccel->_gpuAccelerationStructure->accelStructBuffer = nullptr;
+    compactedAccel->destroy();
+}
+
 void CCVKAccelerationStructure::doDestroy() {
     if (_gpuAccelerationStructure) {
         //CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuAccelerationStructure);
         VkDevice device = CCVKDevice::getInstance()->gpuDevice()->vkDevice;
         vkDestroyAccelerationStructureKHR(device, _gpuAccelerationStructure->vkAccelerationStructure,nullptr);
-        _gpuAccelerationStructure->accelStructBuffer->destroy();
+        if (_gpuAccelerationStructure->accelStructBuffer!=nullptr)
+            _gpuAccelerationStructure->accelStructBuffer->destroy();
         if (_gpuAccelerationStructure->instancesBuffer != nullptr)
             _gpuAccelerationStructure->instancesBuffer->destroy();
         _gpuAccelerationStructure = nullptr;

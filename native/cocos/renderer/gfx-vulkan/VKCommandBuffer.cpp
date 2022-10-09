@@ -798,5 +798,11 @@ void CCVKCommandBuffer::updateAccelerationStructure(AccelerationStructure* accel
     cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice::getInstance(), gpuAccel, _gpuCommandBuffer);
 }
 
+void CCVKCommandBuffer::compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) {
+    auto *gpuAccel = static_cast<CCVKAccelerationStructure *>(accel)->gpuAccelerationStructure();
+    auto *resAccel = static_cast<CCVKAccelerationStructure *>(res)->gpuAccelerationStructure();
+    cmdFuncCCVKCompactAccelerationStructure(CCVKDevice::getInstance(), gpuAccel, resAccel,_gpuCommandBuffer);
+}
+
 } // namespace gfx
 } // namespace cc

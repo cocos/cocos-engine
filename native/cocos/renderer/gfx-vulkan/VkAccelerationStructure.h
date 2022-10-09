@@ -21,6 +21,7 @@ protected:
     void doDestroy() override;
     void doUpdate() override;
     void doBuild() override;
+    void doCompact() override;
 
     CCVKGPUAccelerationStructure *_gpuAccelerationStructure = nullptr;
 };

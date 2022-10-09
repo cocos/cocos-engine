@@ -113,9 +113,11 @@ namespace cc
 
                             blasInfo.triangels.push_back(blasGeom);
                         }
-
+                        blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
                         gfx::AccelerationStructure* blas = device->createAccelerationStructure(blasInfo);
                         blas->build();
+                        blas->compact();
+                        
                         blasMap.emplace(mesh_uuid, blas);
                         tlasGeom.accelerationStructureRef = blas;
                     }

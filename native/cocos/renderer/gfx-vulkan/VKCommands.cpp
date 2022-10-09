@@ -1281,6 +1281,7 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
         maxPrimitiveCount[i] = pRangeInfo[i].primitiveCount;
 
     VkAccelerationStructureBuildGeometryInfoKHR& geomInfo = gpuAccelerationStructure->buildGeometryInfo;
+    
     geomInfo.flags = mapVkBuildAccelerationStructureFlags(gpuAccelerationStructure->buildFlags);
     geomInfo.geometryCount = gpuAccelerationStructure->geometries.size();
     geomInfo.pGeometries = gpuAccelerationStructure->geometries.data();
@@ -1680,13 +1681,38 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
     }
 
     vkCmdBuildAccelerationStructuresKHR(gpuCommandBuffer->vkCommandBuffer, 1, &buildGeomInfo, buildRangeInfoPtrs.data());
-    
+
+    if (hasFlag(accel->buildFlags, ASBuildFlagBits::ALLOW_COMPACTION)) {
+        const auto &vkdevice = device->gpuDevice()->vkDevice;
+
+        if (!accel->vkCompactedSizeQueryPool) {
+            VkQueryPoolCreateInfo queryPoolCreateInfo = {VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO};
+            queryPoolCreateInfo.queryCount = 1;
+            queryPoolCreateInfo.queryType = VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR;
+
+            VK_CHECK(vkCreateQueryPool(vkdevice, &queryPoolCreateInfo, nullptr, &accel->vkCompactedSizeQueryPool));
+        }
+
+        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR, 0, 1, &barrier, 0, nullptr, 0, nullptr);
+
+        vkCmdWriteAccelerationStructuresPropertiesKHR(gpuCommandBuffer->vkCommandBuffer, 1, &accel->vkAccelerationStructure,
+                                                      VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR, accel->vkCompactedSizeQueryPool, 0);
+    }
+
     vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, scratchBuffer, nullptr);
 }
 
 void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer)
 {
     if (!accel->vkAccelerationStructure) {
+        return;
+    }
+
+    if (!hasFlag(accel->buildFlags,ASBuildFlagBits::ALLOW_UPDATE)) {
         return;
     }
 
@@ -1753,6 +1779,51 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
 
     vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, scratchBuffer, nullptr);
 }
+
+void cmdFuncCCVKCompactAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerationStructure *accel, CCVKGPUAccelerationStructure *res, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+
+    if (!accel->vkAccelerationStructure) {
+        return;
+    }
+
+    if (!hasFlag(accel->buildFlags, ASBuildFlagBits::ALLOW_COMPACTION)) {
+        return;
+    }
+
+    if (!accel->vkCompactedSizeQueryPool) {
+        return;
+    }
+
+    const auto &vkdevice = device->gpuDevice()->vkDevice;
+    uint32_t compactedSize{0};
+    vkGetQueryPoolResults(vkdevice, accel->vkCompactedSizeQueryPool, 0, 1, sizeof(uint32_t), &compactedSize, sizeof(uint32_t), VK_QUERY_RESULT_WAIT_BIT);
+
+    VkCopyAccelerationStructureInfoKHR copyInfo = {VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR};
+    copyInfo.src = accel->vkAccelerationStructure;
+
+    BufferInfo compactedBufferInfo{};
+    compactedBufferInfo.size = compactedSize;
+    compactedBufferInfo.memUsage = MemoryUsageBit::DEVICE;
+    compactedBufferInfo.usage = BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE | BufferUsageBit::TRANSFER_DST;
+    auto compactedBuffer = device->createBuffer(compactedBufferInfo);
+
+    VkAccelerationStructureKHR compactedAccel;
+    VkAccelerationStructureCreateInfoKHR compactedAccelCreateInfo = {VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR};
+    compactedAccelCreateInfo.size = compactedSize;
+    compactedAccelCreateInfo.type = accel->buildGeometryInfo.type;
+    compactedAccelCreateInfo.offset = 0;
+    compactedAccelCreateInfo.buffer = static_cast<CCVKBuffer *>(compactedBuffer)->gpuBuffer()->vkBuffer;
+
+    VK_CHECK(vkCreateAccelerationStructureKHR(vkdevice, &compactedAccelCreateInfo, nullptr, &compactedAccel));
+
+    copyInfo.dst = compactedAccel;
+    copyInfo.mode = VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR;
+    vkCmdCopyAccelerationStructureKHR(gpuCommandBuffer->vkCommandBuffer, &copyInfo);
+
+    res->vkAccelerationStructure = compactedAccel;
+    res->accelStructBuffer = compactedBuffer;
+}
+
 
 void cmdFuncCCVKDestroyQueryPool(CCVKGPUDevice *gpuDevice, CCVKGPUQueryPool *gpuQueryPool) {
     if (gpuQueryPool->vkPool != VK_NULL_HANDLE) {

@@ -66,6 +66,7 @@ public:
     void resetQueryPool(QueryPool *queryPool) override;
     void buildAccelerationStructure(AccelerationStructure* accel) override;
     void updateAccelerationStructure(AccelerationStructure* accel) override;
+    void compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) override;
 
     CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
 

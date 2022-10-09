@@ -21,5 +21,9 @@ namespace cc {
             
         }
 
+        void EmptyAccelerationStructure::doCompact() {
+            
+        }
+
 	} // namespace gfx
 } // namespace cc

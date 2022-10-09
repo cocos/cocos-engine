@@ -13,6 +13,7 @@ public:
     void initialize(const AccelerationStructureInfo &info);
     void build();
     void update();
+    void compact();
     void destroy();
 
     const AccelerationStructureInfo &getInfo() const {
@@ -29,6 +30,7 @@ protected:
     virtual void doBuild() = 0;
     virtual void doDestroy() = 0;
     virtual void doUpdate() = 0;
+    virtual void doCompact() = 0;
 
     AccelerationStructureInfo _info;
 };

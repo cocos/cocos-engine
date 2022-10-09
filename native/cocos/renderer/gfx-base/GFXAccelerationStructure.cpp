@@ -26,6 +26,10 @@ void AccelerationStructure::update(){
     doUpdate();
 }
 
+void AccelerationStructure::compact() {
+    doCompact();
+}
+
 void AccelerationStructure::destroy() {
     doDestroy();
     _info = AccelerationStructureInfo();

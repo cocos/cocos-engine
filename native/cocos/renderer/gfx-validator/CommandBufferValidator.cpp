@@ -544,5 +544,11 @@ void CommandBufferValidator::updateAccelerationStructure(AccelerationStructure *
     CC_ASSERT(isInited());
     // todo
 }
+
+void CommandBufferValidator::compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) {
+    CC_ASSERT(isInited());
+    //todo
+}
+
 } // namespace gfx
 } // namespace cc

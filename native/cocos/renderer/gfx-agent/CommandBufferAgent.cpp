@@ -519,7 +519,9 @@ void CommandBufferAgent::updateAccelerationStructure(AccelerationStructure* acce
     //todo
 }
 
-
+void CommandBufferAgent::compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) {
+    // todo
+}
 
 } // namespace gfx
 } // namespace cc

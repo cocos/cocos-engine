@@ -118,5 +118,10 @@ void EmptyCommandBuffer::updateAccelerationStructure(AccelerationStructure* acce
     
 }
 
+void EmptyCommandBuffer::compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) {
+    
+}
+
+
 } // namespace gfx
 } // namespace cc

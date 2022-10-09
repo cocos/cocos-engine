@@ -11,6 +11,7 @@ public:
     void doDestroy() override;
     void doUpdate() override;
     void doBuild() override;
+    void doCompact() override;
 };
 
 } // namespace gfx

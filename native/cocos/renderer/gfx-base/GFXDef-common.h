@@ -1307,6 +1307,7 @@ struct AccelerationStructureInfo{
     ccstd::vector<ASTriangleMesh> triangels;
     ccstd::vector<ASAABB> aabbs;
     ccstd::vector<ASInstance> instances;
+    ASBuildFlags buildFlag;
 };
 
 using AttributeList = ccstd::vector<Attribute>;
