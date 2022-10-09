@@ -742,7 +742,7 @@ export class Director extends EventTarget {
 
     private buildRenderPipeline () {
         if (this._root) {
-            const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
+            const map: Map<string, PipelineBuilder> = legacyCC.rendering.customPipelineBuilderMap;
             let builder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
             if (builder === null) {
                 builder = map.get('Forward')!;
@@ -754,9 +754,7 @@ export class Director extends EventTarget {
     }
 
     private setupRenderPipelineBuilder () {
-        if (this._root && this._root.usesCustomPipeline
-            && legacyCC.internal.createCustomPipeline
-            && legacyCC.internal.customPipelineBuilderMap) {
+        if (this._root && this._root.usesCustomPipeline && legacyCC.rendering) {
             legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
     }

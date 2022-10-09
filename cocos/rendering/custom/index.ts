@@ -32,6 +32,11 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 
 let _pipeline: WebPipeline | null = null;
 
+export * from './types';
+export { Descriptor, DescriptorTypeOrder, DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
+export { CopyPair, MovePair } from './render-graph';
+export * from './pipeline';
+
 export function createCustomPipeline (): Pipeline {
     const ppl = new WebPipeline();
     const pplName = macro.CUSTOM_PIPELINE_NAME;
