@@ -637,7 +637,7 @@ export default class Device {
       'OES_texture_half_float',
       'OES_texture_half_float_linear',
       'OES_vertex_array_object',
-      'WEBGL_compressed_texture_atc',
+      'WEBGL_compressed_texture_astc',
       'WEBGL_compressed_texture_etc',
       'WEBGL_compressed_texture_etc1',
       'WEBGL_compressed_texture_pvrtc',

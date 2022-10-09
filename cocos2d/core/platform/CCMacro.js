@@ -398,15 +398,15 @@ Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
     }
 });
 
-let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
+let SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
 /**
  * !#en
  * The image format supported by the engine defaults, and the supported formats may differ in different build platforms and device types.
- * Currently all platform and device support ['.webp', '.jpg', '.jpeg', '.bmp', '.png'], The iOS mobile platform also supports the PVR format。
+ * Currently all platform and device support ['.astc', '.webp', '.jpg', '.jpeg', '.bmp', '.png'], The iOS mobile platform also supports the PVR format。
  * !#zh
  * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
- * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. 另外 Ios 手机平台还额外支持了 PVR 格式。
+ * 目前所有平台和设备支持的格式有 ['.astc', '.webp', '.jpg', '.jpeg', '.bmp', '.png']. 另外 Ios 手机平台还额外支持了 PVR 格式。
  * @property {String[]} SUPPORT_TEXTURE_FORMATS
  */
 cc.macro.SUPPORT_TEXTURE_FORMATS = SUPPORT_TEXTURE_FORMATS;
