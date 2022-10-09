@@ -47,10 +47,10 @@ uint32_t Device::getInnerHeight() {
     return static_cast<uint32_t>(viewSize.y);
 }
 
-uint32_t Device::getWindowHandle() {
+uintptr_t Device::getWindowHandle() {
     CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr);
     auto handler = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle();
-    return static_cast<uint32_t>(handler);
+    return static_cast<uintptr_t>(handler);
 }
 
 int Device::getDPI() {
