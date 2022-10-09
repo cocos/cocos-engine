@@ -190,15 +190,3 @@ export interface PipelineBuilder {
 
 export class Factory {
 }
-
-export interface OutputArchive {
-    saveBool (value: boolean): void;
-    saveNumber (value: number): void;
-    saveString (value: string): void;
-}
-
-export interface InputArchive {
-    loadBool (): boolean;
-    loadNumber (): number;
-    loadString (): string;
-}

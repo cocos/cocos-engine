@@ -30,13 +30,13 @@
  */
 /* eslint-disable max-len */
 export interface OutputArchive {
-    saveBool (value: boolean): void;
-    saveNumber (value: number): void;
-    saveString (value: string): void;
+    writeBool (value: boolean): void;
+    writeNumber (value: number): void;
+    writeString (value: string): void;
 }
 
 export interface InputArchive {
-    loadBool (): boolean;
-    loadNumber (): number;
-    loadString (): string;
+    readBool (): boolean;
+    readNumber (): number;
+    readString (): string;
 }
