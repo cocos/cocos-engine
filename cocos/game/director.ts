@@ -216,7 +216,6 @@ export class Director extends EventTarget {
     private _invalid: boolean;
     private _paused: boolean;
     private _root: Root | null;
-    private _pipelineBuilder: PipelineBuilder | null = null;
     private _loadingScene: string;
     private _scene: Scene | null;
     private _totalFrames: number;
@@ -743,8 +742,13 @@ export class Director extends EventTarget {
 
     private buildRenderPipeline () {
         if (this._root) {
+            const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
+            let builder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
+            if (builder === null) {
+                builder = map.get('Forward')!;
+            }
             this._root.customPipeline.beginSetup();
-            this._pipelineBuilder!.setup(this._root.cameraList, this._root.customPipeline);
+            builder.setup(this._root.cameraList, this._root.customPipeline);
             this._root.customPipeline.endSetup();
         }
     }
@@ -753,11 +757,6 @@ export class Director extends EventTarget {
         if (this._root && this._root.usesCustomPipeline
             && legacyCC.internal.createCustomPipeline
             && legacyCC.internal.customPipelineBuilderMap) {
-            const map: Map<string, PipelineBuilder> = legacyCC.internal.customPipelineBuilderMap;
-            this._pipelineBuilder = map.get(macro.CUSTOM_PIPELINE_NAME) || null;
-            if (this._pipelineBuilder === null) {
-                this._pipelineBuilder = map.get('Forward')!;
-            }
             legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
     }
