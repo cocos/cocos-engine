@@ -28,3 +28,8 @@ export type {
     MotionPreviewerTimelineStats,
     TransitionPreviewerTimelineStats,
 } from '../src/marionette/preview';
+
+export {
+    visitAnimationClips,
+    visitAnimationClipsInController,
+} from '../src/marionette/visit';

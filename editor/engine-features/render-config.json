@@ -192,12 +192,21 @@
             "description": "i18n:ENGINE.features.tween.description",
             "wechatPlugin": true
         },
+        "websocket": {
+            "default": ["websocket"],
+            "label": "i18n:ENGINE.features.websocket.label",
+            "description": "i18n:ENGINE.features.websocket.description",
+            "native": "USE_SOCKET",
+            "wechatPlugin": false,
+            "category": "network"
+        },
         "websocket-server": {
             "default": [],
             "label": "i18n:ENGINE.features.websocket_server.label",
             "description": "i18n:ENGINE.features.websocket_server.description",
             "native": "USE_WEBSOCKET_SERVER",
-            "wechatPlugin": false
+            "wechatPlugin": false,
+            "category": "network"
         },
         "terrain": {
             "default": ["terrain"],
@@ -255,6 +264,10 @@
         "animation": {
             "label": "i18n:ENGINE.features.categories.animation.label",
             "description": "i18n:ENGINE.features.categories.animation.description"
+        },
+        "network": {
+            "label": "i18n:ENGINE.features.categories.network.label",
+            "description": "i18n:ENGINE.features.categories.network.description"
         }
     }
 }
