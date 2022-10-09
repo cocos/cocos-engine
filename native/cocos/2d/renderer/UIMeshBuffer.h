@@ -90,7 +90,6 @@ private:
     ccstd::vector<gfx::Attribute> _attributes;
 
     gfx::InputAssembler* _ia{nullptr};
-    gfx::InputAssemblerInfo _iaInfo;
     bool _needDeleteVData{false};
     bool _useLinkData{false};
 };

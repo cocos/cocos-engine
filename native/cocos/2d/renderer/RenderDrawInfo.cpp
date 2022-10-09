@@ -62,14 +62,19 @@ void RenderDrawInfo::uploadBuffers() {
     bool needUpdateIA = false;
 
     uint32_t size = _drawInfoAttrs._vbCount * 9 * sizeof(float); // magic Number
-    gfx::Buffer* vBuffer = _iaInfo.vertexBuffers[0];
-    needUpdateIA |= vBuffer->resize(size);
-    vBuffer->update(_vDataBuffer);
+    const auto &vBuffers = _ia->getVertexBuffers();
+    if (!vBuffers.empty()) {
+        gfx::Buffer* vBuffer = vBuffers[0];
+        needUpdateIA |= vBuffer->resize(size);
+        vBuffer->update(_vDataBuffer);
+    }
 
-    gfx::Buffer* iBuffer = _iaInfo.indexBuffer;
-    uint32_t iSize = _drawInfoAttrs._ibCount * 2;
-    needUpdateIA |= iBuffer->resize(iSize);
-    iBuffer->update(_iDataBuffer);
+    gfx::Buffer* iBuffer = _ia->getIndexBuffer();
+    if (iBuffer != nullptr) {
+        uint32_t iSize = _drawInfoAttrs._ibCount * 2;
+        needUpdateIA |= iBuffer->resize(iSize);
+        iBuffer->update(_iDataBuffer);
+    }
 
     if (needUpdateIA) {
         _ia->update();
@@ -81,11 +86,13 @@ void RenderDrawInfo::resetMeshIA() const {
 }
 
 void RenderDrawInfo::destroy() {
-    CC_SAFE_DELETE(_iaInfo.indexBuffer);
-    if (!_iaInfo.vertexBuffers.empty()) {
-        // only one vb
-        CC_SAFE_DELETE(_iaInfo.vertexBuffers[0]);
-        _iaInfo.vertexBuffers.clear();
+    if (_ia != nullptr) {
+        const auto &vertexBuffers = _ia->getVertexBuffers();
+        for (auto* vertexBuffer : vertexBuffers) {
+            delete vertexBuffer;
+        }
+        auto *indexBuffer = _ia->getIndexBuffer();
+        CC_SAFE_DELETE(indexBuffer);
     }
 
     CC_SAFE_DELETE(_ia);
@@ -114,10 +121,11 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
             ibStride,
         });
 
-        _iaInfo.attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
-        _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
-        _iaInfo.indexBuffer = indexBuffer;
-        _ia = device->createInputAssembler(_iaInfo);
+        gfx::InputAssemblerInfo iaInfo = {};
+        iaInfo.attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
+        iaInfo.vertexBuffers.emplace_back(vertexBuffer);
+        iaInfo.indexBuffer = indexBuffer;
+        _ia = device->createInputAssembler(iaInfo);
     }
 
     return _ia;

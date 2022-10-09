@@ -69,11 +69,14 @@ void UIMeshBuffer::resetIA() {
 void UIMeshBuffer::destroy() {
     reset();
     _attributes.clear();
-    for (auto* vb : _iaInfo.vertexBuffers) {
-        delete vb;
+    if (_ia != nullptr) {
+        const auto &vertexBuffers = _ia->getVertexBuffers();
+        for (auto* vertexBuffer : vertexBuffers) {
+            delete vertexBuffer;
+        }
+        auto *indexBuffer = _ia->getIndexBuffer();
+        CC_SAFE_DELETE(indexBuffer);
     }
-    _iaInfo.vertexBuffers.clear();
-    CC_SAFE_DELETE(_iaInfo.indexBuffer);
     if (_needDeleteVData) {
         delete _vData;
         delete _iData;
@@ -104,9 +107,9 @@ void UIMeshBuffer::uploadBuffers() {
     uint32_t byteCount = getByteOffset();
     bool needUpdateIA = false;
 
-    gfx::BufferList vBuffers = _ia->getVertexBuffers();
+    const auto &vBuffers = _ia->getVertexBuffers();
     if (!vBuffers.empty()) {
-        gfx::Buffer* vBuffer = vBuffers[0];
+        gfx::Buffer *vBuffer = vBuffers[0];
         if (byteCount > vBuffer->getSize()) {
             vBuffer->resize(byteCount);
             needUpdateIA = true;
@@ -149,10 +152,11 @@ gfx::InputAssembler* UIMeshBuffer::createNewIA(gfx::Device* device) {
             ibStride,
         });
 
-        _iaInfo.attributes = _attributes;
-        _iaInfo.vertexBuffers.emplace_back(vertexBuffer);
-        _iaInfo.indexBuffer = indexBuffer;
-        _ia = device->createInputAssembler(_iaInfo);
+        gfx::InputAssemblerInfo iaInfo = {};
+        iaInfo.attributes = _attributes;
+        iaInfo.vertexBuffers.emplace_back(vertexBuffer);
+        iaInfo.indexBuffer = indexBuffer;
+        _ia = device->createInputAssembler(iaInfo);
     }
     return _ia;
 }

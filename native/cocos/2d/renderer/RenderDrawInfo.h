@@ -287,7 +287,6 @@ private:
         scene::Model* _model;
         uint8_t* _sharedBuffer;
     };
-    gfx::InputAssemblerInfo _iaInfo;
     gfx::InputAssembler* _ia{nullptr};
     LocalDSBF* _localDSBF{nullptr};
 };
