@@ -1263,7 +1263,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
             bufferUpload(stagingBuffer, *gpuBuffer, region, cmdBuffer);
         } else {
             device->gpuTransportHub()->checkIn(
-                [&stagingBuffer, &gpuBuffer, region](CCVKGPUCommandBuffer *gpuCommandBuffer) {
+                [=](CCVKGPUCommandBuffer *gpuCommandBuffer) {
                     bufferUpload(stagingBuffer, *gpuBuffer, region, gpuCommandBuffer);
                 });
         }
