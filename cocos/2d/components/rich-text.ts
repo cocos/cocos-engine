@@ -483,7 +483,6 @@ export class RichText extends Component {
 
     public onLoad () {
         this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
-        this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
     public onEnable () {
@@ -501,6 +500,11 @@ export class RichText extends Component {
         }
 
         this._activateChildren(false);
+    }
+
+    public start () {
+        this._onTTFLoaded();
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
     public onRestore () {
@@ -1285,12 +1289,12 @@ export class RichText extends Component {
         label.lineHeight = this._lineHeight;
 
         label.updateRenderData(true);
-        // // Todo: need update context size after this function call
-        // // @ts-expect-error update assembler renderData for richText
-        // const assembler = label._assembler;
-        // if (assembler) {
-        //     assembler.updateRenderData(label);
-        // }
+        // Todo: need update context size after this function call
+        // @ts-expect-error update assembler renderData for richText
+        const assembler = label._assembler;
+        if (assembler) {
+            assembler.updateRenderData(label);
+        }
     }
 
     protected _applyLayer () {
