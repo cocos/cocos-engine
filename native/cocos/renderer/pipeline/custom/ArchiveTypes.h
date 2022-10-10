@@ -46,9 +46,9 @@ public:
     OutputArchive& operator=(OutputArchive const& rhs) = delete;
     virtual ~OutputArchive() noexcept = default;
 
-    virtual void saveBool(bool value) = 0;
-    virtual void saveNumber(double value) = 0;
-    virtual void saveString(std::string_view value) = 0;
+    virtual void writeBool(bool value) = 0;
+    virtual void writeNumber(double value) = 0;
+    virtual void writeString(std::string_view value) = 0;
 };
 
 class InputArchive {
@@ -60,9 +60,9 @@ public:
     InputArchive& operator=(InputArchive const& rhs) = delete;
     virtual ~InputArchive() noexcept = default;
 
-    virtual bool loadBool() = 0;
-    virtual double loadNumber() = 0;
-    virtual std::string_view loadString() = 0;
+    virtual bool readBool() = 0;
+    virtual double readNumber() = 0;
+    virtual std::string_view readString() = 0;
 };
 
 } // namespace render
