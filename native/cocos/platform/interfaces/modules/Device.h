@@ -55,7 +55,7 @@ public:
 
     static uint32_t getInnerWidth();
     static uint32_t getInnerHeight();
-    static uint32_t getWindowHandle();
+    static uintptr_t getWindowHandle();
     /**
      *  Gets the DPI of device
      *  @return The DPI of device.
