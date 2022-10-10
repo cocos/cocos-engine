@@ -2249,7 +2249,7 @@ static bool js_engine_Device_getWindowHandle_static(se::State& s) // NOLINT(read
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cc::Device::getWindowHandle();
+        uintptr_t result = cc::Device::getWindowHandle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
