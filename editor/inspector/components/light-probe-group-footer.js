@@ -1,24 +1,28 @@
 exports.template = `
-<div class="container">
-    <ui-button class="blue generate" tooltip="i18n:ENGINE.components.lightProbeGroup.generateTip">Generate Probes</ui-button>
-    <ui-button class="blue edit" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enable Probe Edit</ui-button>
+<div class="light-probe-group">
+    <ui-button class="blue half box">Edit Box Mode</ui-button>
+    <ui-button class="blue half generate" tooltip="i18n:ENGINE.components.lightProbeGroup.generateTip">Generate Probes</ui-button>
+    <ui-button class="edit" type="success" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enter Probe Edit Mode</ui-button>
 </div>
 `;
 
 exports.style = `
-.container {
+.light-probe-group {
     display: flex;
-    margin-top: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
 }
-ui-button {
-    flex: 1;
+.half {
+    width: 50%;
 }
 .edit {
-    margin-left: 8px;
+    flex: 1;
+    margin-top: 6px;
 }
 `;
 
 exports.$ = {
+    box: '.box',
     generate: '.generate',
     edit: '.edit',
 };
@@ -78,9 +82,9 @@ exports.methods = {
         panel.sceneProbeMode = mode;
 
         if (mode) {
-            panel.$.edit.innerText = 'Disable Probe Edit';
+            panel.$.edit.innerText = 'Exit Probe Edit Mode';
         } else {
-            panel.$.edit.innerText = 'Enable Probe Edit';
+            panel.$.edit.innerText = 'Enter Probe Edit Mode';
         }
     },
 };
