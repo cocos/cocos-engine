@@ -78,12 +78,10 @@ void MessageQueue::MemoryAllocator::freeByUser(MessageQueue *const mainMessageQu
 
  MessageQueue::MemoryAllocator::~MemoryAllocator() noexcept {
     uint8_t *chunk = nullptr;
-     while (_chunkCount.load(std::memory_order_acquire) != 0) {
-         if(_chunkPool.try_dequeue(chunk)) {
-             free(chunk);
-             _chunkCount.fetch_sub(1, std::memory_order_acq_rel);
-         }
-     }
+    while (_chunkPool.try_dequeue(chunk)) {
+        free(chunk);
+        _chunkCount.fetch_sub(1, std::memory_order_acq_rel);
+    }
 }
 
 void MessageQueue::MemoryAllocator::free(uint8_t *const chunk) noexcept {
