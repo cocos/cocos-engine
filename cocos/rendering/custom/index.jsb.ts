@@ -32,8 +32,6 @@ import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipel
 import { CustomPipelineBuilder } from './custom-pipeline';
 
 export * from './types';
-export { Descriptor, DescriptorTypeOrder, DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
-export { CopyPair, MovePair } from './render-graph';
 export * from './pipeline';
 
 export function createCustomPipeline (): Pipeline {

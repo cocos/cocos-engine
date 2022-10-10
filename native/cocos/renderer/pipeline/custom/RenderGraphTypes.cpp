@@ -181,46 +181,6 @@ ComputePass::ComputePass(ComputePass&& rhs, const allocator_type& alloc)
 ComputePass::ComputePass(ComputePass const& rhs, const allocator_type& alloc)
 : computeViews(rhs.computeViews, alloc) {}
 
-CopyPair::CopyPair(const allocator_type& alloc) noexcept
-: source(alloc),
-  target(alloc) {}
-
-CopyPair::CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
-: source(std::move(sourceIn), alloc),
-  target(std::move(targetIn), alloc),
-  mipLevels(mipLevelsIn),
-  numSlices(numSlicesIn),
-  sourceMostDetailedMip(sourceMostDetailedMipIn),
-  sourceFirstSlice(sourceFirstSliceIn),
-  sourcePlaneSlice(sourcePlaneSliceIn),
-  targetMostDetailedMip(targetMostDetailedMipIn),
-  targetFirstSlice(targetFirstSliceIn),
-  targetPlaneSlice(targetPlaneSliceIn) {}
-
-CopyPair::CopyPair(CopyPair&& rhs, const allocator_type& alloc)
-: source(std::move(rhs.source), alloc),
-  target(std::move(rhs.target), alloc),
-  mipLevels(rhs.mipLevels),
-  numSlices(rhs.numSlices),
-  sourceMostDetailedMip(rhs.sourceMostDetailedMip),
-  sourceFirstSlice(rhs.sourceFirstSlice),
-  sourcePlaneSlice(rhs.sourcePlaneSlice),
-  targetMostDetailedMip(rhs.targetMostDetailedMip),
-  targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
-
-CopyPair::CopyPair(CopyPair const& rhs, const allocator_type& alloc)
-: source(rhs.source, alloc),
-  target(rhs.target, alloc),
-  mipLevels(rhs.mipLevels),
-  numSlices(rhs.numSlices),
-  sourceMostDetailedMip(rhs.sourceMostDetailedMip),
-  sourceFirstSlice(rhs.sourceFirstSlice),
-  sourcePlaneSlice(rhs.sourcePlaneSlice),
-  targetMostDetailedMip(rhs.targetMostDetailedMip),
-  targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
-
 CopyPass::CopyPass(const allocator_type& alloc) noexcept
 : copyPairs(alloc) {}
 
@@ -229,37 +189,6 @@ CopyPass::CopyPass(CopyPass&& rhs, const allocator_type& alloc)
 
 CopyPass::CopyPass(CopyPass const& rhs, const allocator_type& alloc)
 : copyPairs(rhs.copyPairs, alloc) {}
-
-MovePair::MovePair(const allocator_type& alloc) noexcept
-: source(alloc),
-  target(alloc) {}
-
-MovePair::MovePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc) noexcept // NOLINT
-: source(std::move(sourceIn), alloc),
-  target(std::move(targetIn), alloc),
-  mipLevels(mipLevelsIn),
-  numSlices(numSlicesIn),
-  targetMostDetailedMip(targetMostDetailedMipIn),
-  targetFirstSlice(targetFirstSliceIn),
-  targetPlaneSlice(targetPlaneSliceIn) {}
-
-MovePair::MovePair(MovePair&& rhs, const allocator_type& alloc)
-: source(std::move(rhs.source), alloc),
-  target(std::move(rhs.target), alloc),
-  mipLevels(rhs.mipLevels),
-  numSlices(rhs.numSlices),
-  targetMostDetailedMip(rhs.targetMostDetailedMip),
-  targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
-
-MovePair::MovePair(MovePair const& rhs, const allocator_type& alloc)
-: source(rhs.source, alloc),
-  target(rhs.target, alloc),
-  mipLevels(rhs.mipLevels),
-  numSlices(rhs.numSlices),
-  targetMostDetailedMip(rhs.targetMostDetailedMip),
-  targetFirstSlice(rhs.targetFirstSlice),
-  targetPlaneSlice(rhs.targetPlaneSlice) {}
 
 MovePass::MovePass(const allocator_type& alloc) noexcept
 : movePairs(alloc) {}

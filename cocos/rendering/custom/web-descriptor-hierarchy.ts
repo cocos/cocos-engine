@@ -25,9 +25,9 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets';
-import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { DescriptorDB, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
-import { ParameterType, UpdateFrequency } from './types';
+import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOCSM, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor } from './graph';
 import { ccclass } from '../../core/data/decorators';

@@ -5,9 +5,10 @@ import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, Des
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch } from './graph';
 // eslint-disable-next-line max-len
-import { DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
+import { LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, DescriptorData } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
-import { getUpdateFrequencyName, UpdateFrequency } from './types';
+import { getUpdateFrequencyName, DescriptorBlockIndex, DescriptorTypeOrder,
+    Descriptor, getDescriptorTypeOrderName, DescriptorBlockFlattened, UpdateFrequency } from './types';
 
 function getName (type: Type): string {
     switch (type) {
