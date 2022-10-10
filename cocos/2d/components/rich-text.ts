@@ -567,9 +567,11 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected SplitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
+    protected splitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
         const approxSize = text.length * this.fontSize;
         const partStringArr: string[] = [];
+        // avoid that many short richtext still execute _calculateSize so that performance is low
+        // we set a threshold as 2048 * 0.8, if the estimated size is less than it, we can skip _calculateSize precisely
         if (approxSize <= 2048 * 0.8) {
             partStringArr.push(text);
             return partStringArr;
@@ -1042,7 +1044,7 @@ export class RichText extends Component {
                 }
             }
 
-            const splitArr: string[] = this.SplitLongStringApproximatelyIn2048(text, i);
+            const splitArr: string[] = this.splitLongStringApproximatelyIn2048(text, i);
             text = splitArr.join('\n');
 
             const multilineTexts = text.split('\n');
@@ -1265,12 +1267,6 @@ export class RichText extends Component {
         label.lineHeight = this._lineHeight;
 
         label.updateRenderData(true);
-        // // Todo: need update context size after this function call
-        // // @ts-expect-error update assembler renderData for richText
-        // const assembler = label._assembler;
-        // if (assembler) {
-        //     assembler.updateRenderData(label);
-        // }
     }
 
     protected _applyLayer () {
