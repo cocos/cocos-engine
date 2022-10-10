@@ -1261,6 +1261,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
+                 cocos/renderer/pipeline/custom/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
@@ -1293,6 +1294,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonNames.h
                  cocos/renderer/pipeline/custom/RenderCommonReflection.cpp
                  cocos/renderer/pipeline/custom/RenderCommonReflection.h
+                 cocos/renderer/pipeline/custom/RenderCommonSerialization.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
