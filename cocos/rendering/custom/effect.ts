@@ -2,10 +2,11 @@ import { legacyCC } from '../../core/global-exports';
 import { EffectAsset } from '../../asset/assets';
 import { CollectVisitor, WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
-import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue } from './layout-graph';
+import { DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
 import { LayoutGraphBuilder, Pipeline } from './pipeline';
 import { DescriptorType, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { ParameterType, UpdateFrequency } from './types';
+import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder,
+    ParameterType, UpdateFrequency } from './types';
 import { depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { SetIndex } from '../define';
 

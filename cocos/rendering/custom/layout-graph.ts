@@ -31,84 +31,9 @@
 /* eslint-disable max-len */
 import * as impl from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { ParameterType, UpdateFrequency } from './types';
+import { DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ccclass } from '../../core/data/decorators';
 import { OutputArchive } from './archive';
-
-export enum DescriptorTypeOrder {
-    UNIFORM_BUFFER,
-    DYNAMIC_UNIFORM_BUFFER,
-    SAMPLER_TEXTURE,
-    SAMPLER,
-    TEXTURE,
-    STORAGE_BUFFER,
-    DYNAMIC_STORAGE_BUFFER,
-    STORAGE_IMAGE,
-    INPUT_ATTACHMENT,
-}
-
-export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
-    switch (e) {
-    case DescriptorTypeOrder.UNIFORM_BUFFER:
-        return 'UNIFORM_BUFFER';
-    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
-        return 'DYNAMIC_UNIFORM_BUFFER';
-    case DescriptorTypeOrder.SAMPLER_TEXTURE:
-        return 'SAMPLER_TEXTURE';
-    case DescriptorTypeOrder.SAMPLER:
-        return 'SAMPLER';
-    case DescriptorTypeOrder.TEXTURE:
-        return 'TEXTURE';
-    case DescriptorTypeOrder.STORAGE_BUFFER:
-        return 'STORAGE_BUFFER';
-    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
-        return 'DYNAMIC_STORAGE_BUFFER';
-    case DescriptorTypeOrder.STORAGE_IMAGE:
-        return 'STORAGE_IMAGE';
-    case DescriptorTypeOrder.INPUT_ATTACHMENT:
-        return 'INPUT_ATTACHMENT';
-    default:
-        return '';
-    }
-}
-
-export class Descriptor {
-    constructor (type: Type = Type.UNKNOWN) {
-        this.type = type;
-    }
-    type: Type;
-    count = 1;
-}
-
-export class DescriptorBlock {
-    readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
-    readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
-    capacity = 0;
-    count = 0;
-}
-
-@ccclass('cc.DescriptorBlockFlattened')
-export class DescriptorBlockFlattened {
-    readonly descriptorNames: string[] = [];
-    readonly uniformBlockNames: string[] = [];
-    readonly descriptors: Descriptor[] = [];
-    readonly uniformBlocks: UniformBlock[] = [];
-    capacity = 0;
-    count = 0;
-}
-
-export class DescriptorBlockIndex {
-    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
-        this.updateFrequency = updateFrequency;
-        this.parameterType = parameterType;
-        this.descriptorType = descriptorType;
-        this.visibility = visibility;
-    }
-    updateFrequency: UpdateFrequency;
-    parameterType: ParameterType;
-    descriptorType: DescriptorTypeOrder;
-    visibility: ShaderStageFlagBit;
-}
 
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();

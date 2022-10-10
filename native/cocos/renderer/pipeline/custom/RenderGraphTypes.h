@@ -38,13 +38,13 @@
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
 #include "cocos/base/std/hash/hash.h"
+#include "cocos/core/assets/Material.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/GFXTexture.h"
 #include "cocos/renderer/gfx-base/states/GFXSampler.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
@@ -493,34 +493,6 @@ struct ComputePass {
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
-struct CopyPair {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {source.get_allocator().resource()};
-    }
-
-    CopyPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
-    CopyPair(CopyPair&& rhs, const allocator_type& alloc);
-    CopyPair(CopyPair const& rhs, const allocator_type& alloc);
-
-    CopyPair(CopyPair&& rhs) noexcept = default;
-    CopyPair(CopyPair const& rhs) = delete;
-    CopyPair& operator=(CopyPair&& rhs) = default;
-    CopyPair& operator=(CopyPair const& rhs) = default;
-
-    ccstd::pmr::string source;
-    ccstd::pmr::string target;
-    uint32_t mipLevels{0xFFFFFFFF};
-    uint32_t numSlices{0xFFFFFFFF};
-    uint32_t sourceMostDetailedMip{0};
-    uint32_t sourceFirstSlice{0};
-    uint32_t sourcePlaneSlice{0};
-    uint32_t targetMostDetailedMip{0};
-    uint32_t targetFirstSlice{0};
-    uint32_t targetPlaneSlice{0};
-};
-
 struct CopyPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -537,31 +509,6 @@ struct CopyPass {
     CopyPass& operator=(CopyPass const& rhs) = default;
 
     ccstd::pmr::vector<CopyPair> copyPairs;
-};
-
-struct MovePair {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {source.get_allocator().resource()};
-    }
-
-    MovePair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    MovePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
-    MovePair(MovePair&& rhs, const allocator_type& alloc);
-    MovePair(MovePair const& rhs, const allocator_type& alloc);
-
-    MovePair(MovePair&& rhs) noexcept = default;
-    MovePair(MovePair const& rhs) = delete;
-    MovePair& operator=(MovePair&& rhs) = default;
-    MovePair& operator=(MovePair const& rhs) = default;
-
-    ccstd::pmr::string source;
-    ccstd::pmr::string target;
-    uint32_t mipLevels{0xFFFFFFFF};
-    uint32_t numSlices{0xFFFFFFFF};
-    uint32_t targetMostDetailedMip{0};
-    uint32_t targetFirstSlice{0};
-    uint32_t targetPlaneSlice{0};
 };
 
 struct MovePass {

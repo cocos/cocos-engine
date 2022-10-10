@@ -33,7 +33,7 @@ import * as impl from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
-import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
+import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -972,71 +972,8 @@ export class ComputePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
-export class CopyPair {
-    constructor (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        sourceMostDetailedMip = 0,
-        sourceFirstSlice = 0,
-        sourcePlaneSlice = 0,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
-    ) {
-        this.source = source;
-        this.target = target;
-        this.mipLevels = mipLevels;
-        this.numSlices = numSlices;
-        this.sourceMostDetailedMip = sourceMostDetailedMip;
-        this.sourceFirstSlice = sourceFirstSlice;
-        this.sourcePlaneSlice = sourcePlaneSlice;
-        this.targetMostDetailedMip = targetMostDetailedMip;
-        this.targetFirstSlice = targetFirstSlice;
-        this.targetPlaneSlice = targetPlaneSlice;
-    }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    sourceMostDetailedMip: number;
-    sourceFirstSlice: number;
-    sourcePlaneSlice: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
-}
-
 export class CopyPass {
     readonly copyPairs: CopyPair[] = [];
-}
-
-export class MovePair {
-    constructor (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
-    ) {
-        this.source = source;
-        this.target = target;
-        this.mipLevels = mipLevels;
-        this.numSlices = numSlices;
-        this.targetMostDetailedMip = targetMostDetailedMip;
-        this.targetFirstSlice = targetFirstSlice;
-        this.targetPlaneSlice = targetPlaneSlice;
-    }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
 }
 
 export class MovePass {

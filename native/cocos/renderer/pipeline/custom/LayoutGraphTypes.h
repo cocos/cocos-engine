@@ -51,62 +51,6 @@ namespace cc {
 
 namespace render {
 
-enum class DescriptorTypeOrder {
-    UNIFORM_BUFFER,
-    DYNAMIC_UNIFORM_BUFFER,
-    SAMPLER_TEXTURE,
-    SAMPLER,
-    TEXTURE,
-    STORAGE_BUFFER,
-    DYNAMIC_STORAGE_BUFFER,
-    STORAGE_IMAGE,
-    INPUT_ATTACHMENT,
-};
-
-struct Descriptor {
-    Descriptor() = default;
-    Descriptor(gfx::Type typeIn) noexcept // NOLINT
-    : type(typeIn) {}
-
-    gfx::Type type{gfx::Type::UNKNOWN};
-    uint32_t count{1};
-};
-
-struct DescriptorBlock {
-    ccstd::map<ccstd::string, Descriptor> descriptors;
-    ccstd::map<ccstd::string, gfx::UniformBlock> uniformBlocks;
-    uint32_t capacity{0};
-    uint32_t count{0};
-};
-
-struct DescriptorBlockFlattened {
-    ccstd::vector<ccstd::string> descriptorNames;
-    ccstd::vector<ccstd::string> uniformBlockNames;
-    ccstd::vector<Descriptor> descriptors;
-    ccstd::vector<gfx::UniformBlock> uniformBlocks;
-    uint32_t capacity{0};
-    uint32_t count{0};
-};
-
-struct DescriptorBlockIndex {
-    DescriptorBlockIndex() = default;
-    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorTypeOrder descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
-    : updateFrequency(updateFrequencyIn),
-      parameterType(parameterTypeIn),
-      descriptorType(descriptorTypeIn),
-      visibility(visibilityIn) {}
-
-    UpdateFrequency updateFrequency{UpdateFrequency::PER_INSTANCE};
-    ParameterType parameterType{ParameterType::CONSTANTS};
-    DescriptorTypeOrder descriptorType{DescriptorTypeOrder::UNIFORM_BUFFER};
-    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-};
-
-inline bool operator<(const DescriptorBlockIndex& lhs, const DescriptorBlockIndex& rhs) noexcept {
-    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.descriptorType, lhs.visibility) <
-           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.descriptorType, rhs.visibility);
-}
-
 struct DescriptorDB {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
