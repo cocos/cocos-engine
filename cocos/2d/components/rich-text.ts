@@ -568,8 +568,14 @@ export class RichText extends Component {
     * @engineInternal
     */
     protected SplitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
-        const labelSize = this._calculateSize(styleIndex, text);
+        const approxSize = text.length * this.fontSize;
         const partStringArr: string[] = [];
+        if (approxSize <= 2048 * 0.8) {
+            partStringArr.push(text);
+            return partStringArr;
+        }
+
+        const labelSize = this._calculateSize(styleIndex, text);
         if (labelSize.x < 2048) {
             partStringArr.push(text);
         } else {
