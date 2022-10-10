@@ -75,7 +75,7 @@ export function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: Attac
 
 export function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0): Rect {
     const out = new Rect();
-    const vp = camera.viewport;
+    const vp = camera ? camera.viewport : new Rect(0, 0, 1, 1);
     const w = width;
     const h = height;
     out.x = vp.x * w;
@@ -178,6 +178,9 @@ export function buildBloomPass (camera: Camera,
     const cameraName = `Camera${cameraID}`;
     let width = camera.window.width;
     let height = camera.window.height;
+    const area = getRenderArea(camera, width, height);
+    width = area.width;
+    height = area.height;
     // Start bloom
     const bloomClearColor = new Color(0, 0, 0, 1);
     if (camera.clearFlag & ClearFlagBit.COLOR) {
@@ -197,6 +200,7 @@ export function buildBloomPass (camera: Camera,
         ppl.addDepthStencil(bloomPassPrefilterDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     const bloomPrefilterPass = ppl.addRasterPass(width, height, 'Bloom_Prefilter', `CameraBloomPrefilterPass${cameraID}`);
+    bloomPrefilterPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
         const computeView = new ComputeView();
         computeView.name = 'outputResultMap';
@@ -225,6 +229,7 @@ export function buildBloomPass (camera: Camera,
             ppl.addDepthStencil(bloomPassDownSampleDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
         const bloomDownSamplePass = ppl.addRasterPass(width, height, `Bloom_Downsample${i}`, `CameraBloomDownSamplePass${cameraID}${i}`);
+        bloomDownSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
         const computeView = new ComputeView();
         computeView.name = 'bloomTexture';
         if (i === 0) {
@@ -257,6 +262,7 @@ export function buildBloomPass (camera: Camera,
         }
         const bloomUpSamplePass = ppl.addRasterPass(width, height, `Bloom_Upsample${i}`,
             `CameraBloomUpSamplePass${cameraID}${bloomData.iterations - 1 - i}`);
+        bloomUpSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
         const computeView = new ComputeView();
         computeView.name = 'bloomTexture';
         if (i === 0) {
@@ -280,13 +286,14 @@ export function buildBloomPass (camera: Camera,
     const bloomPassCombineRTName = `dsBloomPassCombineColor${cameraName}`;
     const bloomPassCombineDSName = `dsBloomPassCombineDS${cameraName}`;
 
-    width = camera.window.width;
-    height = camera.window.height;
+    width = area.width;
+    height = area.height;
     if (!ppl.containsResource(bloomPassCombineRTName)) {
         ppl.addRenderTarget(bloomPassCombineRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(bloomPassCombineDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     const bloomCombinePass = ppl.addRasterPass(width, height, 'Bloom_Combine', `CameraBloomCombinePass${cameraID}`);
+    bloomCombinePass.setViewport(new Viewport(area.x, area.y, width, height));
     const computeViewOut = new ComputeView();
     computeViewOut.name = 'outputResultMap';
     bloomCombinePass.addComputeView(inputRT, computeViewOut);
@@ -343,8 +350,9 @@ export function buildPostprocessPass (camera: Camera,
         postInfo = new PostInfo(antiAliasing);
     }
     const cameraID = getCameraUniqueID(camera);
-    const width = camera.window.width;
-    const height = camera.window.height;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
     const postprocessPassRTName = `postprocessPassRTName${cameraID}`;
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
@@ -352,6 +360,7 @@ export function buildPostprocessPass (camera: Camera,
         ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     const postprocessPass = ppl.addRasterPass(width, height, 'Postprocess', `CameraPostprocessPass${cameraID}`);
+    postprocessPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputTex)) {
         const computeView = new ComputeView();
         computeView.name = 'outputResultMap';
@@ -391,8 +400,9 @@ export function buildForwardPass (camera: Camera,
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
-    const width = camera.window.width;
-    const height = camera.window.height;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
 
     const forwardPassRTName = `dsForwardPassColor${cameraName}`;
     const forwardPassDSName = `dsForwardPassDS${cameraName}`;
@@ -405,6 +415,7 @@ export function buildForwardPass (camera: Camera,
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     const forwardPass = ppl.addRasterPass(width, height, 'default', `CameraForwardPass${cameraID}`);
+    forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
             const computeView = new ComputeView();
@@ -451,6 +462,9 @@ export function buildShadowPass (passName: Readonly<string>,
     ppl: Pipeline,
     camera: Camera, light: Light, level: number,
     width: Readonly<number>, height: Readonly<number>) {
+    const area = getRenderArea(camera, width, height, light, level);
+    width = area.width;
+    height = area.height;
     const device = ppl.device;
     const shadowMapName = passName;
     if (!ppl.containsResource(shadowMapName)) {
@@ -459,6 +473,7 @@ export function buildShadowPass (passName: Readonly<string>,
         ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     const pass = ppl.addRasterPass(width, height, 'default', passName);
+    pass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     pass.addRasterView(shadowMapName, new RasterView('_',
         AccessType.WRITE, AttachmentType.RENDER_TARGET,
         LoadOp.CLEAR, StoreOp.STORE,
@@ -469,8 +484,6 @@ export function buildShadowPass (passName: Readonly<string>,
         LoadOp.CLEAR, StoreOp.DISCARD,
         ClearFlagBit.DEPTH_STENCIL,
         new Color(camera.clearDepth, camera.clearStencil, 0, 0)));
-    const rect = getRenderArea(camera, width, height, light, level);
-    pass.setViewport(new Viewport(rect.x, rect.y, rect.width, rect.height));
     const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
     queue.addSceneOfCamera(camera, new LightInfo(light, level),
         SceneFlags.SHADOW_CASTER);
@@ -545,8 +558,9 @@ export class GBufferInfo {
 export function buildGBufferPass (camera: Camera,
     ppl: Pipeline) {
     const cameraID = getCameraUniqueID(camera);
-    const width = camera.window.width;
-    const height = camera.window.height;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
     const gBufferPassRTName = `gBufferPassColorCamera`;
     const gBufferPassNormal = `gBufferPassNormal`;
     const gBufferPassEmissive = `gBufferPassEmissive`;
@@ -560,7 +574,7 @@ export function buildGBufferPass (camera: Camera,
     }
     // gbuffer pass
     const gBufferPass = ppl.addRasterPass(width, height, 'Geometry', `CameraGBufferPass${cameraID}`);
-
+    gBufferPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     const rtColor = new Color(0, 0, 0, 0);
     if (camera.clearFlag & ClearFlagBit.COLOR) {
         if (ppl.pipelineSceneData.isHDR) {
@@ -634,8 +648,9 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
-    const width = camera.window.width;
-    const height = camera.window.height;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
 
     const deferredLightingPassRTName = `deferredLightingPassRTName`;
     const deferredLightingPassDS = `deferredLightingPassDS`;
@@ -645,6 +660,7 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     }
     // lighting pass
     const lightingPass = ppl.addRasterPass(width, height, 'Lighting', `CameraLightingPass${cameraID}`);
+    lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
             const computeView = new ComputeView();
