@@ -1263,6 +1263,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
             bufferUpload(stagingBuffer, *gpuBuffer, region, cmdBuffer);
         } else {
             device->gpuTransportHub()->checkIn(
+                // capture by ref is safe here since the transport function will be executed immediately in the same thread
                 [&stagingBuffer, &gpuBuffer, region](CCVKGPUCommandBuffer *gpuCommandBuffer) {
                     bufferUpload(stagingBuffer, *gpuBuffer, region, gpuCommandBuffer);
                 });
