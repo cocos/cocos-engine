@@ -320,7 +320,7 @@ public:
 
 class Factory {
 public:
-    static Pipeline            *createPipeline();
+    static Pipeline *createPipeline();
 };
 
 } // namespace render

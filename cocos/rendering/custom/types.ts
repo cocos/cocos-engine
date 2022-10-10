@@ -32,7 +32,7 @@
 import { ClearFlagBit, Color, LoadOp, StoreOp } from '../../gfx';
 import { Light } from '../../render-scene/scene';
 
-export const enum UpdateFrequency {
+export enum UpdateFrequency {
     PER_INSTANCE,
     PER_BATCH,
     PER_PHASE,
@@ -57,7 +57,7 @@ export function getUpdateFrequencyName (e: UpdateFrequency): string {
     }
 }
 
-export const enum ParameterType {
+export enum ParameterType {
     CONSTANTS,
     CBV,
     UAV,
@@ -85,7 +85,7 @@ export function getParameterTypeName (e: ParameterType): string {
     }
 }
 
-export const enum ResourceResidency {
+export enum ResourceResidency {
     MANAGED,
     MEMORYLESS,
     PERSISTENT,
@@ -110,7 +110,7 @@ export function getResourceResidencyName (e: ResourceResidency): string {
     }
 }
 
-export const enum QueueHint {
+export enum QueueHint {
     NONE,
     RENDER_OPAQUE,
     RENDER_CUTOUT,
@@ -132,7 +132,7 @@ export function getQueueHintName (e: QueueHint): string {
     }
 }
 
-export const enum ResourceDimension {
+export enum ResourceDimension {
     BUFFER,
     TEXTURE1D,
     TEXTURE2D,
@@ -154,7 +154,7 @@ export function getResourceDimensionName (e: ResourceDimension): string {
     }
 }
 
-export const enum ResourceFlags {
+export enum ResourceFlags {
     NONE = 0,
     UNIFORM = 0x1,
     INDIRECT = 0x2,
@@ -165,7 +165,7 @@ export const enum ResourceFlags {
     INPUT_ATTACHMENT = 0x40,
 }
 
-export const enum TaskType {
+export enum TaskType {
     SYNC,
     ASYNC,
 }
@@ -181,7 +181,7 @@ export function getTaskTypeName (e: TaskType): string {
     }
 }
 
-export const enum SceneFlags {
+export enum SceneFlags {
     NONE = 0,
     OPAQUE_OBJECT = 0x1,
     CUTOUT_OBJECT = 0x2,
@@ -199,7 +199,7 @@ export const enum SceneFlags {
     ALL = 0xFFFFFFFF,
 }
 
-export const enum LightingMode {
+export enum LightingMode {
     NONE,
     DEFAULT,
     CLUSTERED,
@@ -218,7 +218,7 @@ export function getLightingModeName (e: LightingMode): string {
     }
 }
 
-export const enum AttachmentType {
+export enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
 }
@@ -234,7 +234,7 @@ export function getAttachmentTypeName (e: AttachmentType): string {
     }
 }
 
-export const enum AccessType {
+export enum AccessType {
     READ,
     READ_WRITE,
     WRITE,
@@ -280,7 +280,7 @@ export class RasterView {
     readonly clearColor: Color;
 }
 
-export const enum ClearValueType {
+export enum ClearValueType {
     FLOAT_TYPE,
     INT_TYPE,
 }
