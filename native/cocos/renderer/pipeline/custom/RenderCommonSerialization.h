@@ -74,10 +74,12 @@ inline void load(InputArchive& ar, ComputeView& v) {
 }
 
 inline void save(OutputArchive& ar, const LightInfo& v) {
+    // skip, light: IntrusivePtr<scene::Light>
     save(ar, v.level);
 }
 
 inline void load(InputArchive& ar, LightInfo& v) {
+    // skip, light: IntrusivePtr<scene::Light>
     load(ar, v.level);
 }
 
