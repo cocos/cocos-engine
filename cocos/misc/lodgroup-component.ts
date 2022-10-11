@@ -37,6 +37,7 @@ import { AABB } from '../core/geometry';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
 
+const _DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.2, 0.07];
 @ccclass
 export class LOD {
     // The relative minimum transition height in screen space.
@@ -193,6 +194,14 @@ export class LODGroup extends Component {
 
     onLoad () {
         this._createLODGroup();
+        // generate default lod for lodGroup
+        if (this._lodGroup.lodCount < 1) {
+            const size = _DEFAULT_SCREEN_OCCUPATION.length;
+            for (let i = 0; i < size; i++) {
+                this._LODs[i] = new LOD();
+                this._LODs[i].screenRelativeTransitionHeight = _DEFAULT_SCREEN_OCCUPATION[i];
+            }
+        }
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -266,7 +275,7 @@ export class LODGroup extends Component {
         // }
 
         LODGroupEditorUtility.recalculateBounds(this);
-        // lod's model will enabled while execute culling
+        // lod's model will be enabled while execute culling
         for (const lod of this._LODs) {
             for (const renderer of lod.renderers) {
                 const renderScene = renderer._getRenderScene();
