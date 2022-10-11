@@ -76,9 +76,13 @@ void MessageQueue::MemoryAllocator::freeByUser(MessageQueue *const mainMessageQu
     mainMessageQueue->kick();
 }
 
- MessageQueue::MemoryAllocator::~MemoryAllocator() noexcept {
+MessageQueue::MemoryAllocator::~MemoryAllocator() noexcept {
+    destroy();
+}
+
+void MessageQueue::MemoryAllocator::destroy() noexcept {
     uint8_t *chunk = nullptr;
-    while (_chunkPool.try_dequeue(chunk)) {
+    if(_chunkPool.try_dequeue(chunk)) {
         ::free(chunk);
         _chunkCount.fetch_sub(1, std::memory_order_acq_rel);
     }

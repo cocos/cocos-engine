@@ -148,6 +148,7 @@ private:
         uint8_t *request() noexcept;
         void recycle(uint8_t *chunk, bool freeByUser) noexcept;
         void freeByUser(MessageQueue *mainMessageQueue) noexcept;
+        void destroy() noexcept;
 
     private:
         using ChunkQueue = moodycamel::ConcurrentQueue<uint8_t *>;
