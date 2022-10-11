@@ -249,7 +249,7 @@ export class LODGroup extends Component {
         this._lodGroup.node = this.node;
 
         // Engine unit test case.
-        const renderers = LODGroupEditorUtility.getAvailableRenderers(this);
+        // const renderers = LODGroupEditorUtility.getAvailableRenderers(this);
 
         // const step = 1.0 / (1 + renderers.length);
         // let levelCount = 1;
@@ -266,6 +266,15 @@ export class LODGroup extends Component {
         // }
 
         LODGroupEditorUtility.recalculateBounds(this);
+        // lod's model will enabled while execute culling
+        for (const lod of this._LODs) {
+            for (const renderer of lod.renderers) {
+                const renderScene = renderer._getRenderScene();
+                if (renderScene && renderer.model) {
+                    renderScene.removeModel(renderer.model);
+                }
+            }
+        }
     }
 
     protected _attachToScene () {
@@ -284,42 +293,6 @@ export class LODGroup extends Component {
 }
 
 export class LODGroupEditorUtility {
-    /**
-     *
-     * @param lodGroup current LOD Group component
-     * @param camera current perspective camera
-     * @returns visible LOD index in lodGroup
-     */
-    static getVisibleLOD (lodGroup: LODGroup, camera: Camera): number {
-        const relativeHeight = this.getRelativeHeight(lodGroup, camera) || 0;
-
-        let lodIndex = -1;
-        for (let i = 0; i < lodGroup.lodCount; ++i) {
-            const lod = lodGroup.getLOD(i);
-            if (relativeHeight >= lod.screenRelativeTransitionHeight) {
-                lodIndex = i;
-                break;
-            }
-        }
-        return lodIndex;
-    }
-
-    /**
-     *
-     * @param lodGroup current LOD Group component
-     * @param camera current perspective camera
-     * @returns height of current lod group relvative to camera position in screen space, aka. relativeHeight
-     */
-    static getRelativeHeight (lodGroup: LODGroup, camera: Camera): number|null {
-        if (!lodGroup.node) return null;
-
-        let distance: number | undefined;
-        if (camera.projectionType === scene.CameraProjection.PERSPECTIVE) {
-            distance =  Vec3.len(lodGroup.localReferencePoint.transformMat4(lodGroup.node.worldMatrix).subtract(camera.node.position));
-        }
-        return this.distanceToRelativeHeight(camera, distance, this.getWorldSpaceSize(lodGroup));
-    }
-
     static recalculateBounds (lodGroup: LODGroup): void {
         function getTransformedBoundary (c: /* center */Vec3, e: /*extents*/Vec3, transform: Mat4): [Vec3, Vec3] {
             let minPos: Vec3;
@@ -399,43 +372,5 @@ export class LODGroupEditorUtility {
         for (let i = 0; i < lodgroup.lodCount; ++i) {
             lodgroup.getLOD(i).screenRelativeTransitionHeight *= scale;
         }
-    }
-
-    static getAvailableRenderers (lodGroup: LODGroup): MeshRenderer[] {
-        function recuGetSubRenderers (node: Node, renderers: MeshRenderer[]) {
-            for (const subNode of node.children) {
-                const renderer = subNode.getComponent(MeshRenderer);
-                if (renderer) {
-                    renderers.push(renderer);
-                } else if (subNode.children.length) {
-                    recuGetSubRenderers(subNode, renderers);
-                }
-            }
-        }
-
-        const root = lodGroup.node;
-        const renderers = [];
-        recuGetSubRenderers(root, renderers);
-        return renderers;
-    }
-
-    private static distanceToRelativeHeight (camera: Camera, distance: number | undefined, size: number): number {
-        if (camera.projectionType === CameraProjection.PERSPECTIVE) {
-            assertIsTrue(typeof distance === 'number', 'distance must be present for perspective projection');
-            return (size * camera.matProj.m05) / (distance * 2.0); // note: matProj.m05 is 1 / tan(fov / 2.0)
-        } else {
-            return size * camera.matProj.m05 * 0.5;
-        }
-    }
-
-    private static relativeHeightToDistance (camera: Camera, relativeHeight: number, size: number): number {
-        assertIsTrue(camera.projectionType === CameraProjection.PERSPECTIVE, 'Camera type must be perspective.');
-        return (size * camera.matProj.m05) / (relativeHeight * 2.0); // note: matProj.m05 is 1 / tan(fov / 2.0)
-    }
-
-    private static getWorldSpaceSize (lodGroup: LODGroup): number {
-        const scale = lodGroup.node.scale;
-        const maxScale = Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
-        return maxScale * lodGroup.size;
     }
 }
