@@ -9,7 +9,9 @@
 #include <builtin/uniforms/cc-global>
 #include <builtin/uniforms/cc-shadow>
 
+// Base
 #include <common/common-define>
+#include <common/data/unpack>
 
 // Functional
 #include <builtin/functionalities/world-transform>
