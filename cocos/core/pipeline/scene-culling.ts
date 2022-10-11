@@ -25,7 +25,7 @@
 
 import { intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
-import { Camera, SKYBOX_FLAG, SOLID_COLOR_FLAG } from '../renderer/scene/camera';
+import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Vec3 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
