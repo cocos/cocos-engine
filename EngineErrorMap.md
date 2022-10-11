@@ -3286,7 +3286,7 @@ The native folder may be generated from older versions, please refer https://doc
 
 ### 15100
 
-Camera '%s' clear flag is skybox, but skybox is disabled. Force set clear flag to solid color.
+Camera '%s' clear flag is skybox, but skybox is disabled,  may cause strange background effect, please set camera clear flag to solid color.
 
 ### 16000
 
