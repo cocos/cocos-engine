@@ -1158,6 +1158,24 @@ void cmdFuncCCVKCreateGeneralBarrier(CCVKDevice * /*device*/, CCVKGPUGeneralBarr
     thsvsGetVulkanMemoryBarrier(gpuGeneralBarrier->barrier, &gpuGeneralBarrier->srcStageMask, &gpuGeneralBarrier->dstStageMask, &gpuGeneralBarrier->vkBarrier);
 }
 
+namespace {
+void bufferUpload(const CCVKGPUBuffer &stagingBuffer, CCVKGPUBuffer &gpuBuffer, VkBufferCopy region, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
+    if (gpuBuffer.transferAccess) {
+        // guard against WAW hazard
+        VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
+    }
+#endif
+    vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer.vkBuffer, 1, &region);
+};
+} // namespace
+
 void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const void *buffer, uint32_t size, const CCVKGPUCommandBuffer *cmdBuffer) {
     if (!gpuBuffer) return;
 
@@ -1209,36 +1227,35 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         }
     }
 
-    CCVKGPUBuffer stagingBuffer;
-    stagingBuffer.size = sizeToUpload;
-    device->gpuStagingBufferPool()->alloc(&stagingBuffer);
-    memcpy(stagingBuffer.mappedData, dataToUpload, sizeToUpload);
+    // upload buffer by chunks
+    uint32_t chunkSize = std::min(sizeToUpload, CCVKGPUStagingBufferPool::CHUNK_SIZE);
 
-    VkBufferCopy region{
-        stagingBuffer.startOffset,
-        gpuBuffer->getStartOffset(backBufferIndex),
-        sizeToUpload,
-    };
-    auto upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
-        if (gpuBuffer->transferAccess) {
-            // guard against WAW hazard
-            VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
-            vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            vkBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
+    uint32_t chunkOffset = 0U;
+    while (sizeToUpload) {
+        uint32_t chunkSizeToUpload = std::min(chunkSize, static_cast<uint32_t>(sizeToUpload));
+        sizeToUpload -= chunkSizeToUpload;
+        CCVKGPUBuffer stagingBuffer;
+        stagingBuffer.size = chunkSizeToUpload;
+        device->gpuStagingBufferPool()->alloc(&stagingBuffer);
+        memcpy(stagingBuffer.mappedData, static_cast<const char *>(dataToUpload) + chunkOffset, chunkSizeToUpload);
+
+        VkBufferCopy region{
+            stagingBuffer.startOffset,
+            gpuBuffer->getStartOffset(backBufferIndex) + chunkOffset,
+            chunkSizeToUpload,
+        };
+
+        chunkOffset += chunkSizeToUpload;
+
+        if (cmdBuffer) {
+            bufferUpload(stagingBuffer, *gpuBuffer, region, cmdBuffer);
+        } else {
+            device->gpuTransportHub()->checkIn(
+                // capture by ref is safe here since the transport function will be executed immediately in the same thread
+                [&stagingBuffer, &gpuBuffer, region](CCVKGPUCommandBuffer *gpuCommandBuffer) {
+                    bufferUpload(stagingBuffer, *gpuBuffer, region, gpuCommandBuffer);
+                });
         }
-#endif
-        vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
-    };
-
-    if (cmdBuffer) {
-        upload(cmdBuffer);
-    } else {
-        device->gpuTransportHub()->checkIn(upload);
     }
 
     gpuBuffer->transferAccess = THSVS_ACCESS_TRANSFER_WRITE;
