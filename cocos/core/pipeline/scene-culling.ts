@@ -33,6 +33,7 @@ import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
+import { warnID } from '../platform';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -145,8 +146,12 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         }
     }
 
-    if (skybox.enabled && skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
-        renderObjects.push(getRenderObject(skybox.model, camera));
+    if ((camera.clearFlag & SKYBOX_FLAG)) {
+        if (skybox.enabled && skybox.model) {
+            renderObjects.push(getRenderObject(skybox.model, camera));
+        } else {
+            warnID(15100, camera.name);
+        }
     }
 
     const models = scene.models;
