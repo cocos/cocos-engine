@@ -40,8 +40,6 @@ export class OpenHarmonyPackTool extends NativePackTool {
         await cchelper.replaceInFile([
             { reg: '^sdk\\.dir.*', text: `sdk.dir=${platformParams.sdkPath}` },
         ], ps.join(ohosProjDir, 'local.properties'));
-
-        const abisList = (platformParams.appABIs && platformParams.appABIs.length > 0) ? platformParams.appABIs : ['armeabi-v7a'];
         
         // entry/build-profile.json5
         const buildCfgFile = ps.join(ohosProjDir, 'entry/build-profile.json5');
@@ -53,10 +51,11 @@ export class OpenHarmonyPackTool extends NativePackTool {
 
         //write abi
         try {
+            const abiFilters = (platformParams.appABIs && platformParams.appABIs.length > 0) ? platformParams.appABIs : ['armeabi-v7a'];
             let buildCfgContent = fs.readFileSync(buildCfgFile);
             let buildCfgJson = JSON5.parse(buildCfgContent.toString());
-            buildCfgJson.buildOption.externalNativeOptions.abiFilters = abisList;
-            
+            buildCfgJson.buildOption.externalNativeOptions.abiFilters = abiFilters;
+
             fs.writeFileSync(buildCfgFile, JSON5.stringify(buildCfgJson, null, 2));
         } catch (e) {
             console.log(`rewrite buildCfgJson err: ${e}`);
