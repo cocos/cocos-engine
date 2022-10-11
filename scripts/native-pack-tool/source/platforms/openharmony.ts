@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import { cchelper, Paths } from "../utils";
 import { randomBytes } from "crypto";
 import { outputJSONSync } from 'fs-extra';
-
+import * as JSON5 from "json5"
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -34,7 +34,6 @@ export class OpenHarmonyPackTool extends NativePackTool {
         await this.generateCMakeConfig();
 
         const ohosProjDir = this.paths.platformTemplateDirInPrj;
-        const cocosXRoot = ps.normalize(Paths.nativeRoot);
         const platformParams = this.params.platformParams;
         const assetsDir = this.paths.buildAssetsDir;
         // local.properties
@@ -43,11 +42,26 @@ export class OpenHarmonyPackTool extends NativePackTool {
         ], ps.join(ohosProjDir, 'local.properties'));
 
         // entry/build-profile.json5
+        const buildCfgFile = ps.join(ohosProjDir, 'entry/build-profile.json5');
         await cchelper.replaceInFile([
             { reg: '={DRES_DIR}', text: `=${cchelper.fixPath(this.paths.buildDir!)}` },
             { reg: '={DCOMMON_DIR}', text: `=${cchelper.fixPath(process.env.COMMON_DIR || '')}` },
             { reg: /"compileSdkVersion": *,/, text: `"compileSdkVersion": ${platformParams.apiLevel},}` },
-        ], ps.join(ohosProjDir, 'entry/build-profile.json5'));
+        ], buildCfgFile);
+
+        //write abi
+        try {
+            const abiFilters = (platformParams.appABIs && platformParams.appABIs.length > 0) ? platformParams.appABIs : ['armeabi-v7a'];
+            let buildCfgContent = fs.readFileSync(buildCfgFile);
+            let buildCfgJson = JSON5.parse(buildCfgContent.toString());
+            buildCfgJson.buildOption.externalNativeOptions.abiFilters = abiFilters;
+
+            fs.writeFileSync(buildCfgFile, JSON5.stringify(buildCfgJson, null, 2));
+        } catch (e) {
+            console.log(`rewrite buildCfgJson err: ${e}`);
+        }
+
+
 
         // copy jsb-adapter to entry/src/main/ets/MainAbility/cocos/jsb-adapter
         const mainDir = ps.join(ohosProjDir, 'entry/src/main');
