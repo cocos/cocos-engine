@@ -836,7 +836,7 @@ class DevicePreSceneTask extends WebSceneTask {
                         const batchingScheme = p.batchingScheme;
                         if (batchingScheme === BatchingSchemes.INSTANCING) {
                             const instancedBuffer = p.getInstancedBuffer();
-                            instancedBuffer.merge(subModel, ro.model.instancedAttributes, passes.indexOf(p));
+                            instancedBuffer.merge(subModel, passes.indexOf(p));
                             this._submitInfo.instances.add(instancedBuffer);
                         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                             const batchedBuffer = p.getBatchedBuffer();

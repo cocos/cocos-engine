@@ -37,7 +37,7 @@ import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-a
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
-import { SubModel } from '../../core/renderer/scene';
+import { SubModel } from '../../render-scene/scene';
 
 interface IJointsInfo {
     buffer: Buffer | null;

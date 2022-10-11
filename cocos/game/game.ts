@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, NATIVE, PREVIEW, WEBGPU } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, WEBGPU } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';

@@ -32,7 +32,7 @@ import { RenderInstancedQueue } from './render-instanced-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
-import { BatchingSchemes } from '../renderer/core/pass';
+import { BatchingSchemes } from '../render-scene/core/pass';
 
 const _ab = new AABB();
 

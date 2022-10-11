@@ -44,8 +44,9 @@ import { ArmatureSystem } from './ArmatureSystem';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
-import { Material, Texture2D, builtinResMgr } from '../asset/assets';
+import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
+import { builtinResMgr } from '../asset/asset-manager';
 
 enum DefaultArmaturesEnum {
     default = -1,

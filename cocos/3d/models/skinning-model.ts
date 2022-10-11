@@ -41,7 +41,7 @@ import { warnID } from '../../core/platform/debug';
 import { director } from '../../game';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
-import { SubModel } from '../../render-scene';
+import { SubModel } from '../../render-scene/scene';
 
 const uniformPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },

@@ -42,7 +42,6 @@ import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
-import { IInstancedAttributeBlock, SubModel } from '../../core/renderer/scene';
 
 /**
  * @en Shadow projection mode.

@@ -32,7 +32,7 @@ import { MaterialInstance } from '../../render-scene';
 import { SkeletonTexture } from '../skeleton-texture';
 import { getAttributeStride, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
-import { Color, Vec3 } from '../../core';
+import { Color, Mat4, Vec3 } from '../../core';
 import { BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
