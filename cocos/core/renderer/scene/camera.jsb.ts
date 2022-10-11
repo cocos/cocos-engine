@@ -116,7 +116,6 @@ export interface ICameraInfo {
 }
 
 export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
-export const SOLID_COLOR_FLAG = ClearFlagBit.ALL;
 
 export const Camera = jsb.Camera;
 const cameraProto: any = jsb.Camera.prototype;
