@@ -40,7 +40,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
         await cchelper.replaceInFile([
             { reg: '^sdk\\.dir.*', text: `sdk.dir=${platformParams.sdkPath}` },
         ], ps.join(ohosProjDir, 'local.properties'));
-        
+
         // entry/build-profile.json5
         const buildCfgFile = ps.join(ohosProjDir, 'entry/build-profile.json5');
         await cchelper.replaceInFile([
