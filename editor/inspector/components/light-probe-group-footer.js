@@ -1,8 +1,8 @@
 exports.template = `
 <div class="light-probe-group">
-    <ui-button class="blue half box">Edit Box Mode</ui-button>
-    <ui-button class="blue half generate" tooltip="i18n:ENGINE.components.lightProbeGroup.generateTip">Generate Probes</ui-button>
-    <ui-button class="edit" type="success" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enter Probe Edit Mode</ui-button>
+    <ui-button class="box">Edit Area Box</ui-button>
+    <ui-button class="generate" tooltip="i18n:ENGINE.components.lightProbeGroup.generateTip">Generate Probes</ui-button>
+    <ui-button class="blue edit" type="success" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enter Probe Edit Mode</ui-button>
 </div>
 `;
 
@@ -12,12 +12,17 @@ exports.style = `
     flex-wrap: wrap;
     margin-top: 6px;
 }
-.half {
-    width: 50%;
+.box {
+    width: 48%;
+    margin-right: 2%;
+}
+.generate {
+    width: 48%;
+    margin-left: 2%;
 }
 .edit {
     flex: 1;
-    margin-top: 6px;
+    margin-top: 8px;
 }
 `;
 
@@ -36,6 +41,9 @@ exports.update = async function(dump) {
 
     const mode = await Editor.Message.request('scene', 'query-light-probe-edit-mode');
     panel.changeProbeMode(mode);
+
+    const boxMode = await Editor.Message.request('scene', 'query-light-probe-bounding-box-edit-mode');
+    panel.changeProbeBoxMode(boxMode);
 };
 
 exports.ready = function() {
@@ -67,12 +75,20 @@ exports.ready = function() {
 
     panel.changeProbeModeBind = panel.changeProbeMode.bind(panel);
     Editor.Message.addBroadcastListener('scene:light-probe-edit-mode-changed', panel.changeProbeModeBind);
+
+    panel.$.box.addEventListener('confirm', async () => {
+        await Editor.Message.request('scene', 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
+    });
+
+    panel.changeProbeBoxModeBind = panel.changeProbeBoxMode.bind(panel);
+    Editor.Message.addBroadcastListener('scene:light-probe-bounding-box-edit-mode-changed', panel.changeProbeBoxMode);
 };
 
 exports.close = function() {
     const panel = this;
 
     Editor.Message.removeBroadcastListener('scene:light-probe-edit-mode-changed', panel.changeProbeModeBind);
+    Editor.Message.removeBroadcastListener('scene:light-probe-bounding-box-edit-mode-changed', panel.changeProbeBoxModeBind);
 };
 
 exports.methods = {
@@ -85,6 +101,17 @@ exports.methods = {
             panel.$.edit.innerText = 'Exit Probe Edit Mode';
         } else {
             panel.$.edit.innerText = 'Enter Probe Edit Mode';
+        }
+    },
+    changeProbeBoxMode(mode) {
+        const panel = this;
+
+        panel.sceneProbeBoxMode = mode;
+
+        if (mode) {
+            panel.$.box.innerText = 'Done Edit';
+        } else {
+            panel.$.box.innerText = 'Edit Area Box';
         }
     },
 };
