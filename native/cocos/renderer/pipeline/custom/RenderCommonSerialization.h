@@ -1,0 +1,190 @@
+/****************************************************************************
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+#pragma once
+#include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/SerializationUtils.h"
+
+namespace cc {
+
+namespace render {
+
+inline void save(OutputArchive& ar, const RasterView& v) {
+    save(ar, v.slotName);
+    save(ar, v.accessType);
+    save(ar, v.attachmentType);
+    save(ar, v.loadOp);
+    save(ar, v.storeOp);
+    save(ar, v.clearFlags);
+    save(ar, v.clearColor);
+}
+
+inline void load(InputArchive& ar, RasterView& v) {
+    load(ar, v.slotName);
+    load(ar, v.accessType);
+    load(ar, v.attachmentType);
+    load(ar, v.loadOp);
+    load(ar, v.storeOp);
+    load(ar, v.clearFlags);
+    load(ar, v.clearColor);
+}
+
+inline void save(OutputArchive& ar, const ComputeView& v) {
+    save(ar, v.name);
+    save(ar, v.accessType);
+    save(ar, v.clearFlags);
+    save(ar, v.clearColor);
+    save(ar, v.clearValueType);
+}
+
+inline void load(InputArchive& ar, ComputeView& v) {
+    load(ar, v.name);
+    load(ar, v.accessType);
+    load(ar, v.clearFlags);
+    load(ar, v.clearColor);
+    load(ar, v.clearValueType);
+}
+
+inline void save(OutputArchive& ar, const LightInfo& v) {
+    // skip, light: IntrusivePtr<scene::Light>
+    save(ar, v.level);
+}
+
+inline void load(InputArchive& ar, LightInfo& v) {
+    // skip, light: IntrusivePtr<scene::Light>
+    load(ar, v.level);
+}
+
+inline void save(OutputArchive& ar, const Descriptor& v) {
+    save(ar, v.type);
+    save(ar, v.count);
+}
+
+inline void load(InputArchive& ar, Descriptor& v) {
+    load(ar, v.type);
+    load(ar, v.count);
+}
+
+inline void save(OutputArchive& ar, const DescriptorBlock& v) {
+    save(ar, v.descriptors);
+    save(ar, v.uniformBlocks);
+    save(ar, v.capacity);
+    save(ar, v.count);
+}
+
+inline void load(InputArchive& ar, DescriptorBlock& v) {
+    load(ar, v.descriptors);
+    load(ar, v.uniformBlocks);
+    load(ar, v.capacity);
+    load(ar, v.count);
+}
+
+inline void save(OutputArchive& ar, const DescriptorBlockFlattened& v) {
+    save(ar, v.descriptorNames);
+    save(ar, v.uniformBlockNames);
+    save(ar, v.descriptors);
+    save(ar, v.uniformBlocks);
+    save(ar, v.capacity);
+    save(ar, v.count);
+}
+
+inline void load(InputArchive& ar, DescriptorBlockFlattened& v) {
+    load(ar, v.descriptorNames);
+    load(ar, v.uniformBlockNames);
+    load(ar, v.descriptors);
+    load(ar, v.uniformBlocks);
+    load(ar, v.capacity);
+    load(ar, v.count);
+}
+
+inline void save(OutputArchive& ar, const DescriptorBlockIndex& v) {
+    save(ar, v.updateFrequency);
+    save(ar, v.parameterType);
+    save(ar, v.descriptorType);
+    save(ar, v.visibility);
+}
+
+inline void load(InputArchive& ar, DescriptorBlockIndex& v) {
+    load(ar, v.updateFrequency);
+    load(ar, v.parameterType);
+    load(ar, v.descriptorType);
+    load(ar, v.visibility);
+}
+
+inline void save(OutputArchive& ar, const CopyPair& v) {
+    save(ar, v.source);
+    save(ar, v.target);
+    save(ar, v.mipLevels);
+    save(ar, v.numSlices);
+    save(ar, v.sourceMostDetailedMip);
+    save(ar, v.sourceFirstSlice);
+    save(ar, v.sourcePlaneSlice);
+    save(ar, v.targetMostDetailedMip);
+    save(ar, v.targetFirstSlice);
+    save(ar, v.targetPlaneSlice);
+}
+
+inline void load(InputArchive& ar, CopyPair& v) {
+    load(ar, v.source);
+    load(ar, v.target);
+    load(ar, v.mipLevels);
+    load(ar, v.numSlices);
+    load(ar, v.sourceMostDetailedMip);
+    load(ar, v.sourceFirstSlice);
+    load(ar, v.sourcePlaneSlice);
+    load(ar, v.targetMostDetailedMip);
+    load(ar, v.targetFirstSlice);
+    load(ar, v.targetPlaneSlice);
+}
+
+inline void save(OutputArchive& ar, const MovePair& v) {
+    save(ar, v.source);
+    save(ar, v.target);
+    save(ar, v.mipLevels);
+    save(ar, v.numSlices);
+    save(ar, v.targetMostDetailedMip);
+    save(ar, v.targetFirstSlice);
+    save(ar, v.targetPlaneSlice);
+}
+
+inline void load(InputArchive& ar, MovePair& v) {
+    load(ar, v.source);
+    load(ar, v.target);
+    load(ar, v.mipLevels);
+    load(ar, v.numSlices);
+    load(ar, v.targetMostDetailedMip);
+    load(ar, v.targetFirstSlice);
+    load(ar, v.targetPlaneSlice);
+}
+
+} // namespace render
+
+} // namespace cc

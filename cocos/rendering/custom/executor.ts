@@ -65,6 +65,7 @@ import { renderProfiler } from '../pipeline-funcs';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
+import { getRenderArea } from './define';
 
 class DeviceResource {
     protected _context: ExecutorContext;
@@ -1171,47 +1172,6 @@ class DeviceSceneTask extends WebSceneTask {
         submitMap.get(this.camera!)?.shadowMap?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
-    protected _generateRenderArea (): Rect {
-        const out = new Rect();
-        const vp = this.camera ? this.camera.viewport : new Rect(0, 0, 1, 1);
-        const texture = this._currentQueue.devicePass.framebuffer.colorTextures[0]!;
-        const w = texture.width;
-        const h = texture.height;
-        out.x = vp.x * w;
-        out.y = vp.y * h;
-        out.width = vp.width * w;
-        out.height = vp.height * h;
-        if (this._isShadowMap() && this.graphScene.scene!.light.light) {
-            const light = this.graphScene.scene!.light.light;
-            const level = this.graphScene.scene!.light.level;
-            switch (light.type) {
-            case LightType.DIRECTIONAL: {
-                const mainLight = light as DirectionalLight;
-                if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
-                    out.x = 0;
-                    out.y = 0;
-                    out.width = w;
-                    out.height = h;
-                } else {
-                    out.x = level % 2 * 0.5 * w;
-                    out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
-                    out.width = 0.5 * w;
-                    out.height = 0.5 * h;
-                }
-                break;
-            }
-            case LightType.SPOT: {
-                out.x = 0;
-                out.y = 0;
-                out.width = w;
-                out.height = h;
-                break;
-            }
-            default:
-            }
-        }
-        return out;
-    }
     private _isShadowMap () {
         return this.sceneData.shadows.enabled
             && this.sceneData.shadows.type === ShadowType.ShadowMap
@@ -1296,10 +1256,14 @@ class DeviceSceneTask extends WebSceneTask {
     }
 
     public submit () {
-        const area = this._generateRenderArea();
         const devicePass = this._currentQueue.devicePass;
         const context = devicePass.context;
         if (!this._currentQueue.devicePass.viewport) {
+            const texture = this._currentQueue.devicePass.framebuffer.colorTextures[0]!;
+            const lightInfo = this.graphScene.scene!.light;
+            const area = this._isShadowMap() && lightInfo.light
+                ? getRenderArea(this.camera!, texture.width, texture.height, lightInfo.light, lightInfo.level)
+                : getRenderArea(this.camera!, texture.width, texture.height);
             this.visitor.setViewport(new Viewport(area.x, area.y, area.width, area.height));
             this.visitor.setScissor(area);
         }
