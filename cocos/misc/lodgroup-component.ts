@@ -24,7 +24,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { ccclass, executeInEditMode, menu, serializable } from 'cc.decorator';
+import { ccclass, executeInEditMode, menu, serializable, type } from 'cc.decorator';
 import { Vec3, Vec4, Mat4 } from '../core/math';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
@@ -37,11 +37,14 @@ import { AABB } from '../core/geometry';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
 
+@ccclass
 export class LOD {
     // The relative minimum transition height in screen space.
     @serializable
     protected _screenRelativeTransitionHeight = 1;
     // Mesh renderers components contained in this LOD level.
+    @type([MeshRenderer])
+    @serializable
     protected _renderers: MeshRenderer[] = [];
     // renderer internal LOD data block.
     protected _LOD: scene.LOD = new scene.LOD();
@@ -54,10 +57,20 @@ export class LOD {
      * @en The relvative (minimum) transition height of this LOD level in screen space
      * @zh 本层级（最小）相对屏幕区域的过渡高度
      */
+    @type(Number)
     get screenRelativeTransitionHeight () { return this._screenRelativeTransitionHeight; }
     set screenRelativeTransitionHeight (val) {
         this._screenRelativeTransitionHeight = val;
         this._LOD.screenRelativeTransitionHeight = val;
+    }
+
+    @type(MeshRenderer)
+    get renderers () {
+        return this._renderers;
+    }
+
+    set renderers (meshList: MeshRenderer[]) {
+        this._renderers = meshList;
     }
 
     /**
@@ -119,6 +132,7 @@ export class LODGroup extends Component {
     /**
      *@en The array of LODs
      */
+    @serializable
     protected _LODs: LOD[] = [];
 
     protected _lodGroup = new scene.LODGroup();
@@ -137,12 +151,22 @@ export class LODGroup extends Component {
 
     get lodCount () { return this._LODs.length; }
 
+    @type(Number)
     set size (val: number) {
         this._size = val;
         this._lodGroup.size = val;
     }
 
     get size () { return this._size; }
+
+    @type([LOD])
+    get LODs () {
+        return this._LODs;
+    }
+
+    set LODs (LODs: LOD[]) {
+        this._LODs = LODs;
+    }
 
     insertLOD (index: number, lod: LOD): LOD {
         this._LODs.splice(index, 0, lod);
@@ -181,35 +205,35 @@ export class LODGroup extends Component {
     onEnable () {
         this._attachToScene();
 
-        if (EDITOR) {
-            // Detach all mesh renderers from scene
-            const scene = this._getRenderScene();
-            if (scene) {
-                for (const lod of this._LODs) {
-                    for (let j = 0; j < lod.rendererCount; ++j) {
-                        const renderer = lod.getRenderer(j);
-                        if (renderer && renderer.model && renderer.enabled) { scene.removeModel(renderer.model); }
-                    }
-                }
-            }
-        }
+        // if (EDITOR) {
+        //     // Detach all mesh renderers from scene
+        //     const scene = this._getRenderScene();
+        //     if (scene) {
+        //         for (const lod of this._LODs) {
+        //             for (let j = 0; j < lod.rendererCount; ++j) {
+        //                 const renderer = lod.getRenderer(j);
+        //                 if (renderer && renderer.model && renderer.enabled) { scene.removeModel(renderer.model); }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     onDisable () {
         this._detachFromScene();
 
-        if (EDITOR) {
-            // Detach all mesh renderers from scene
-            const scene = this._getRenderScene();
-            if (scene) {
-                for (const lod of this._LODs) {
-                    for (let j = 0; j < lod.rendererCount; ++j) {
-                        const renderer = lod.getRenderer(j);
-                        if (renderer && renderer.model && renderer.enabled) { scene.addModel(renderer.model); }
-                    }
-                }
-            }
-        }
+        // if (EDITOR) {
+        //     // Detach all mesh renderers from scene
+        //     const scene = this._getRenderScene();
+        //     if (scene) {
+        //         for (const lod of this._LODs) {
+        //             for (let j = 0; j < lod.rendererCount; ++j) {
+        //                 const renderer = lod.getRenderer(j);
+        //                 if (renderer && renderer.model && renderer.enabled) { scene.addModel(renderer.model); }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     onDestroy () {
@@ -227,19 +251,19 @@ export class LODGroup extends Component {
         // Engine unit test case.
         const renderers = LODGroupEditorUtility.getAvailableRenderers(this);
 
-        const step = 1.0 / (1 + renderers.length);
-        let levelCount = 1;
-        for (const renderer of renderers) {
-            const lod = new LOD();
-            lod.screenRelativeTransitionHeight = 1.0 - step * levelCount;
-            lod.insertRenderer(-1, renderer);
-            this.insertLOD(-1, lod);
+        // const step = 1.0 / (1 + renderers.length);
+        // let levelCount = 1;
+        // for (const renderer of renderers) {
+        //     const lod = new LOD();
+        //     lod.screenRelativeTransitionHeight = 1.0 - step * levelCount;
+        //     lod.insertRenderer(-1, renderer);
+        //     this.insertLOD(-1, lod);
 
-            // const renderScene = renderer._getRenderScene();
-            // if (renderScene && renderer.model) renderScene.removeModel(renderer.model);
+        //     // const renderScene = renderer._getRenderScene();
+        //     // if (renderScene && renderer.model) renderScene.removeModel(renderer.model);
 
-            ++levelCount;
-        }
+        //     ++levelCount;
+        // }
 
         LODGroupEditorUtility.recalculateBounds(this);
     }

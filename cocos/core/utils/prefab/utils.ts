@@ -32,7 +32,6 @@ import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
 import { MountedComponentsInfo, TargetInfo } from '.';
 import { editorExtrasTag } from '../../data';
 import { ValueType } from '../../value-types';
-import { LODGroup } from '../../../misc';
 
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
@@ -431,13 +430,6 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
 export function expandNestedPrefabInstanceNode (node: Node) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
-    if (node.children.length > 0) {
-        const index = node.children[0].name.toUpperCase().search('_LOD');
-        if (index >= 0) {
-            node.addComponent(LODGroup);
-        }
-    }
-
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
