@@ -152,7 +152,6 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
             sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
         } else {
             debug::warnID(15100, camera->getName());
-            camera->setClearFlag(gfx::ClearFlagBit::ALL);
         }
     }
 
