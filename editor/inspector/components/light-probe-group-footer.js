@@ -81,7 +81,7 @@ exports.ready = function() {
     });
 
     panel.changeProbeBoxModeBind = panel.changeProbeBoxMode.bind(panel);
-    Editor.Message.addBroadcastListener('scene:light-probe-bounding-box-edit-mode-changed', panel.changeProbeBoxMode);
+    Editor.Message.addBroadcastListener('scene:light-probe-bounding-box-edit-mode-changed', panel.changeProbeBoxModeBind);
 };
 
 exports.close = function() {
