@@ -151,7 +151,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             renderObjects.push(getRenderObject(skybox.model, camera));
         } else {
             warnID(15100, camera.name);
-            camera.clearFlag = SOLID_COLOR_FLAG;
         }
     }
 
