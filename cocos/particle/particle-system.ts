@@ -795,7 +795,9 @@ export class ParticleSystem extends ModelRenderer {
         // HACK, TODO
         this.renderer.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
-        if (this._trailModule) this._trailModule.onInit(this);
+        if (this._trailModule && !this.renderer.useGPU) {
+            this._trailModule.onInit(this);
+        }
         this.bindModule();
         this._resetPosition();
 
@@ -996,7 +998,6 @@ export class ParticleSystem extends ModelRenderer {
                 this._trailModule._detachFromScene();
             }
         }
-        
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();

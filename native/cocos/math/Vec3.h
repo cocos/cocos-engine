@@ -20,10 +20,10 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_VEC3_H
-#define MATH_VEC3_H
+#pragma once
 
 #include <cmath>
+#include "math/Math.h"
 #include "math/MathBase.h"
 
 /**
@@ -611,6 +611,13 @@ public:
      */
     inline bool operator!=(const Vec3 &v) const;
 
+    /**
+     * Determines if this vector is approximately equal to the given vector.
+     */
+    inline bool approxEquals(const Vec3 &v, float precision = CC_FLOAT_CMP_PRECISION) const {
+        return math::isEqualF(x, v.x, precision) && math::isEqualF(y, v.y, precision) && math::isEqualF(z, v.z, precision);
+    }
+
     /** equals to Vec3(0,0,0) */
     static const Vec3 ZERO;
     /** equals to Vec3(1,1,1) */
@@ -646,5 +653,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Vec3.inl"
-
-#endif // MATH_VEC3_H

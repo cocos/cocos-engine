@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
-import { getComponentPerVertex } from './vertex-format';
+import { getAttributeStride, vfmtPosUvColor, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from './vertex-format';
 import { getError, warnID } from '../../core/platform/debug';
 import { sys } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
@@ -42,8 +42,7 @@ export enum MeshBufferSharedBufferView{
     vertexOffset,
     indexOffset,
     dirty,
-    floatsPerVertex,
-    count = 5
+    count,
 }
 
 export class MeshBuffer {
@@ -100,9 +99,6 @@ export class MeshBuffer {
     }
     set floatsPerVertex (val:number) {
         this._floatsPerVertex = val;
-        if (JSB) {
-            this._sharedBuffer[MeshBufferSharedBufferView.floatsPerVertex] = val;
-        }
     }
 
     protected _vData: Float32Array = null!;
@@ -186,8 +182,7 @@ export class MeshBuffer {
         this._initIDataCount = iCount;
         this._attributes = attrs;
 
-        //sync to native
-        this.floatsPerVertex = getComponentPerVertex(attrs);
+        this.floatsPerVertex = getAttributeStride(attrs) >> 2;
 
         assertIsTrue(this._initVDataCount / this._floatsPerVertex < 65536, getError(9005));
 

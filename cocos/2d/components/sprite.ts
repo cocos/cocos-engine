@@ -605,15 +605,6 @@ export class Sprite extends UIRenderer {
         }
     }
 
-    // hack for mask
-    protected _postRender (render: IBatcher) {
-        if (!this._postAssembler) {
-            return;
-        }
-
-        render.commitComp(this, null, null, this._postAssembler, null);
-    }
-
     private _applySpriteSize () {
         if (this._spriteFrame) {
             if (BUILD || !this._spriteFrame.isDefault) {

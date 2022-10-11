@@ -242,6 +242,7 @@ exports.methods = {
         });
 
         this.dispatch('change');
+        this.dispatch('track', { tab: 'fbx', prop, value: event.target.value });
     },
     /**
      * Update whether a data is editable in multi-select state

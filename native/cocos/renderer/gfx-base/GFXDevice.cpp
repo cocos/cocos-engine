@@ -31,6 +31,7 @@ namespace cc {
 namespace gfx {
 
 Device *Device::instance = nullptr;
+bool Device::isSupportDetachDeviceThread = true;
 
 Device *Device::getInstance() {
     return Device::instance;
@@ -39,8 +40,8 @@ Device *Device::getInstance() {
 Device::Device() {
     Device::instance = this;
     // Device instance is created and hold by TS. Native should hold it too
-    // to make sure it exists after JavaScript virtural machine is destroyed.
-    // Then will destory the Device instance in native.
+    // to make sure it exists after JavaScript virtual machine is destroyed.
+    // Then will destroy the Device instance in native.
     addRef();
     _features.fill(false);
     _formatFeatures.fill(FormatFeature::NONE);

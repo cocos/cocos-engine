@@ -25,8 +25,10 @@
 
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
+#include "application/ApplicationManager.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
+#include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
@@ -71,6 +73,7 @@ Root::~Root() {
 
 void Root::initialize(gfx::Swapchain *swapchain) {
     _swapchain = swapchain;
+    _xr = CC_GET_XR_INTERFACE();
 
     gfx::RenderPassInfo renderPassInfo;
 
@@ -128,6 +131,11 @@ void Root::recoverGfxContext() {
 void Root::resize(uint32_t width, uint32_t height) {
     for (const auto &window : _windows) {
         if (window->getSwapchain()) {
+            if (_xr) {
+                // xr, window's width and height should not change by device
+                width = window->getWidth();
+                height = window->getHeight();
+            }
             window->resize(width, height);
         }
     }
@@ -234,6 +242,15 @@ public:
     bool isOcclusionQueryEnabled() const override {
         return pipeline->isOcclusionQueryEnabled();
     }
+
+    void resetRenderQueue(bool reset) override {
+        pipeline->resetRenderQueue(reset);
+    }
+
+    bool isRenderQueueReset() const override {
+        return pipeline->isRenderQueueReset();
+    }
+
     pipeline::RenderPipeline *pipeline = nullptr;
 };
 
@@ -315,20 +332,7 @@ void Root::resetCumulativeTime() {
     _cumulativeTime = 0;
 }
 
-void Root::frameMove(float deltaTime, int32_t totalFrames) {
-    CCObject::deferredDestroy();
-
-    _frameTime = deltaTime;
-
-    ++_frameCount;
-    _cumulativeTime += deltaTime;
-    _fpsTime += deltaTime;
-    if (_fpsTime > 1.0F) {
-        _fps = _frameCount;
-        _frameCount = 0;
-        _fpsTime = 0.0;
-    }
-
+void Root::frameMoveBegin() {
     for (const auto &scene : _scenes) {
         scene->removeBatches();
     }
@@ -339,7 +343,10 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
 
     //
     _cameraList.clear();
-    for (const auto &window : _windows) {
+}
+
+void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows) {
+    for (const auto &window : windows) {
         window->extractRenderCameras(_cameraList);
     }
 
@@ -354,12 +361,18 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
             _batcher->uploadBuffers();
         }
 
-        for (const auto &scene : _scenes) {
-            scene->update(stamp);
+        if (isNeedUpdateScene) {
+            for (const auto &scene : _scenes) {
+                scene->update(stamp);
+            }
         }
 
         CC_PROFILER_UPDATE;
+    }
+}
 
+void Root::frameMoveEnd() {
+    if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
         _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_COMMIT, this);
 
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
@@ -382,6 +395,29 @@ void Root::frameMove(float deltaTime, int32_t totalFrames) {
 
     if (_batcher != nullptr) {
         _batcher->reset();
+    }
+}
+
+void Root::frameMove(float deltaTime, int32_t totalFrames) {
+    CCObject::deferredDestroy();
+
+    _frameTime = deltaTime;
+
+    ++_frameCount;
+    _cumulativeTime += deltaTime;
+    _fpsTime += deltaTime;
+    if (_fpsTime > 1.0F) {
+        _fps = _frameCount;
+        _frameCount = 0;
+        _fpsTime = 0.0;
+    }
+
+    if (_xr) {
+        doXRFrameMove(totalFrames);
+    } else {
+        frameMoveBegin();
+        frameMoveProcess(true, totalFrames, _windows);
+        frameMoveEnd();
     }
 }
 
@@ -460,6 +496,93 @@ void Root::destroyScenes() {
         CC_SAFE_DESTROY(scene);
     }
     _scenes.clear();
+}
+
+void Root::doXRFrameMove(int32_t totalFrames) {
+    if (_xr->isRenderAllowable()) {
+        bool isSceneUpdated = false;
+        int viewCount = _xr->getXRConfig(xr::XRConfigKey::VIEW_COUNT).getInt();
+        for (int xrEye = 0; xrEye < viewCount; xrEye++) {
+            _xr->beginRenderEyeFrame(xrEye);
+
+            ccstd::vector<IntrusivePtr<scene::Camera>> allCameras;
+            for (const auto &window : _windows) {
+                const ccstd::vector<IntrusivePtr<scene::Camera>> &wndCams = window->getCameras();
+                allCameras.insert(allCameras.end(), wndCams.begin(), wndCams.end());
+            }
+
+            // when choose PreEyeCamera, only hmd has PoseTracker
+            // draw left eye change hmd node's position to -ipd/2 | draw right eye  change hmd node's position to ipd/2
+            for (const auto &camera : allCameras) {
+                if (camera->getTrackingType() != cc::scene::TrackingType::NO_TRACKING) {
+                    Node *camNode = camera->getNode();
+                    if (camNode) {
+                        const auto &viewPosition = _xr->getHMDViewPosition(xrEye, static_cast<int>(camera->getTrackingType()));
+                        camNode->setPosition({viewPosition[0], viewPosition[1], viewPosition[2]});
+                    }
+                }
+            }
+
+            frameMoveBegin();
+            //condition1: mainwindow has left camera && right camera,
+            //but we only need left/right camera when in left/right eye loop
+            //condition2: main camera draw twice
+            ccstd::vector<IntrusivePtr<scene::RenderWindow>> xrWindows;
+            for (const auto &window : _windows) {
+                if (window->getSwapchain()) {
+                    // not rt
+                    _xr->bindXREyeWithRenderWindow(window, static_cast<xr::XREye>(xrEye));
+                }
+                xrWindows.emplace_back(window);
+            }
+
+            bool isNeedUpdateScene = xrEye == static_cast<uint32_t>(xr::XREye::LEFT) || (xrEye == static_cast<uint32_t>(xr::XREye::RIGHT) && !isSceneUpdated);
+            frameMoveProcess(isNeedUpdateScene, totalFrames, xrWindows);
+            auto camIter = _cameraList.begin();
+            while (camIter != _cameraList.end()) {
+                scene::Camera *cam = *camIter;
+                bool isMismatchedCam =
+                    (static_cast<xr::XREye>(xrEye) == xr::XREye::LEFT && cam->getCameraType() == scene::CameraType::RIGHT_EYE) ||
+                    (static_cast<xr::XREye>(xrEye) == xr::XREye::RIGHT && cam->getCameraType() == scene::CameraType::LEFT_EYE);
+                if (isMismatchedCam) {
+                    // currently is left eye loop, so right camera do not need active
+                    camIter = _cameraList.erase(camIter);
+                } else {
+                    camIter++;
+                }
+            }
+
+            if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
+                if (isNeedUpdateScene) {
+                    isSceneUpdated = true;
+                    // only one eye enable culling (without other cameras)
+                    if (_cameraList.size() == 1 && _cameraList[0]->getTrackingType() != cc::scene::TrackingType::NO_TRACKING) {
+                        _cameraList[0]->setCullingEnable(true);
+                        _pipelineRuntime->resetRenderQueue(true);
+                    }
+                } else {
+                    // another eye disable culling (without other cameras)
+                    if (_cameraList.size() == 1 && _cameraList[0]->getTrackingType() != cc::scene::TrackingType::NO_TRACKING) {
+                        _cameraList[0]->setCullingEnable(false);
+                        _pipelineRuntime->resetRenderQueue(false);
+                    }
+                }
+            }
+
+            frameMoveEnd();
+            _xr->endRenderEyeFrame(xrEye);
+        }
+        // recovery to normal status (condition: xr scene jump to normal scene)
+        if (_pipelineRuntime) {
+            _pipelineRuntime->resetRenderQueue(true);
+        }
+
+        for (scene::Camera *cam : _cameraList) {
+            cam->setCullingEnable(true);
+        }
+    } else {
+        CC_LOG_WARNING("[XR] isRenderAllowable is false !!!");
+    }
 }
 
 } // namespace cc

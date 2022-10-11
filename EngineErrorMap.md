@@ -2471,6 +2471,10 @@ cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will b
 
 cc.ParticleSystem: change material failed, please use proper particle material
 
+### 6036
+
+cc.ParticleSystem: life time should bigger than 1 or buffer will be insufficient
+
 ### 6100
 
 <!-- DEPRECATED -->
@@ -3100,6 +3104,10 @@ BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT 
 
 QuadRenderData is removed, please use MeshRenderData instead.
 
+### 9007
+
+Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation.
+
 ### 9100
 
 texture size exceeds current device limits %d/%d
@@ -3295,3 +3303,7 @@ The native folder may be generated from older versions, please refer https://doc
 ### 16101
 
 The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html
+
+### 16201
+
+The asset replacing failed, can not found override asset('%s') for '%s' 

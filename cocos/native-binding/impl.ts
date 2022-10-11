@@ -124,6 +124,18 @@ if( NATIVE ){
             globalJsb.__JsbBridgeWrapper = value;
         },
     });
+    const originSaveImageData = globalJsb.saveImageData;
+    globalJsb.saveImageData = (data: Uint8Array, width: number, height: number, filePath: string) => {
+            return new Promise<void>((resolve, reject) => {
+                originSaveImageData(data, width, height, filePath, (isSuccess) => {
+                    if (isSuccess) {
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                })
+            });
+    }
 }
 
 export const native = {
@@ -140,4 +152,5 @@ export const native = {
     AssetsManager: globalJsb.AssetsManager,
     EventAssetsManager: globalJsb.EventAssetsManager,
     Manifest: globalJsb.Manifest,
+    saveImageData: globalJsb.saveImageData,
 };

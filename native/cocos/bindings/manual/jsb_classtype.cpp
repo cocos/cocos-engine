@@ -25,4 +25,4 @@
 
 #include "jsb_classtype.h"
 
-ccstd::unordered_map<ccstd::string, se::Class *> JSBClassType::jsbClassTypeMap;
+ccstd::unordered_map<const char *, se::Class *> JSBClassType::jsbClassTypeMap;

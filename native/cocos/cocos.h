@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#pragma once
+
 // public headers for user application
 
 #include "application/ApplicationManager.h"

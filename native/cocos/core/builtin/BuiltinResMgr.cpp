@@ -167,6 +167,12 @@ bool BuiltinResMgr::initBuiltinRes() {
     // default texture
     initTexture2DWithUuid("default-texture", DEFAULT_IMAGE_RGBA_DATA_16X16, sizeof(DEFAULT_IMAGE_RGBA_DATA_16X16), 16, 16);
 
+    // black cube texture
+    initTextureCubeWithUuid("black-cube-texture", BLACK_IMAGE_RGBA_DATA_2X2, sizeof(BLACK_IMAGE_RGBA_DATA_2X2), 2, 2);
+
+    // grey cube texture
+    initTextureCubeWithUuid("grey-cube-texture", GREY_IMAGE_RGBA_DATA_2X2, sizeof(GREY_IMAGE_RGBA_DATA_2X2), 2, 2);
+
     // white cube texture
     initTextureCubeWithUuid("white-cube-texture", WHITE_IMAGE_RGBA_DATA_2X2, sizeof(WHITE_IMAGE_RGBA_DATA_2X2), 2, 2);
 

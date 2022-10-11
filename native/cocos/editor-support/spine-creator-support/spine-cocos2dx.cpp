@@ -58,7 +58,7 @@ static uint16_t quadTriangles[6] = {0, 1, 2, 2, 3, 0};
 static void setAttachmentVertices(RegionAttachment *attachment) {
     auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
     auto *attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()), 4, quadTriangles, 6);
-    V2F_T2F_C4F *vertices = attachmentVertices->_triangles->verts;
+    V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
     for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
         vertices[i].texCoord.u = attachment->getUVs()[ii];
         vertices[i].texCoord.v = attachment->getUVs()[ii + 1];
@@ -70,7 +70,7 @@ static void setAttachmentVertices(MeshAttachment *attachment) {
     auto *region = static_cast<AtlasRegion *>(attachment->getRendererObject());
     auto *attachmentVertices = new AttachmentVertices(static_cast<Texture2D *>(region->page->getRendererObject()),
                                                       static_cast<int32_t>(attachment->getWorldVerticesLength() >> 1), attachment->getTriangles().buffer(), static_cast<int32_t>(attachment->getTriangles().size()));
-    V2F_T2F_C4F *vertices = attachmentVertices->_triangles->verts;
+    V3F_T2F_C4B *vertices = attachmentVertices->_triangles->verts;
     for (size_t i = 0, ii = 0, nn = attachment->getWorldVerticesLength(); ii < nn; ++i, ii += 2) {
         vertices[i].texCoord.u = attachment->getUVs()[ii];
         vertices[i].texCoord.v = attachment->getUVs()[ii + 1];

@@ -27,7 +27,7 @@ import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
     supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
-import { Mat4, Vec3, Vec4, Color } from '../math';
+import { Mat4, Vec3, Vec4, Color, toRadian } from '../math';
 import { PipelineRuntime } from './custom/pipeline';
 import { legacyCC } from '../global-exports';
 import { CSMLevel, PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
@@ -161,6 +161,8 @@ export class PipelineUBO {
         cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
 
         cv[UBOCamera.SURFACE_TRANSFORM_OFFSET] = camera.surfaceTransform;
+        cv[UBOCamera.SURFACE_TRANSFORM_OFFSET + 2] = Math.cos(toRadian(sceneData.skybox.getRotationAngle()));
+        cv[UBOCamera.SURFACE_TRANSFORM_OFFSET + 3] = Math.sin(toRadian(sceneData.skybox.getRotationAngle()));
 
         const colorTempRGB = fog.colorArray;
         cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET] = colorTempRGB.x;
@@ -194,8 +196,8 @@ export class PipelineUBO {
             return 1.0  / (shadowMapSize * 0.5);
         case PCFType.SOFT_2X:
             return 2.0  / (shadowMapSize * 0.5);
-        // case PCFType.SOFT_4X:
-        //     return 3.0  / (shadowMapSize * 0.5);
+        case PCFType.SOFT_4X:
+            return 3.0  / (shadowMapSize * 0.5);
         default:
         }
         return 0.0;
@@ -306,6 +308,7 @@ export class PipelineUBO {
         const sv = shadowBufferView;
         const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
         const cap = pipeline.device.capabilities;
+        const csmSupported = sceneData.csmSupported;
 
         switch (light.type) {
         case LightType.DIRECTIONAL: {
@@ -318,7 +321,7 @@ export class PipelineUBO {
                     let matShadowProj;
                     let matShadowViewProj;
                     let levelCount = 0;
-                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1) {
+                    if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1 || !csmSupported) {
                         matShadowView = csmLayers.specialLayer.matShadowView;
                         matShadowProj = csmLayers.specialLayer.matShadowProj;
                         matShadowViewProj = csmLayers.specialLayer.matShadowViewProj;

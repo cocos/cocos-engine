@@ -76,8 +76,6 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.empty()) {
-        _isResourceOwner = true;
-
         auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
@@ -135,7 +133,7 @@ void DeferredPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
             _clusterComp->clusterLightCulling(camera);
         }
 
-        for (auto *const flow : _flows) {
+        for (auto const &flow : _flows) {
             flow->render(camera);
         }
         _fg.compile();

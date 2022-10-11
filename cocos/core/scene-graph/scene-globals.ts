@@ -410,6 +410,23 @@ export class SkyboxInfo {
     }
 
     /**
+     * @en Rotate the skybox
+     * @zh 旋转天空盒
+     */
+    @type(CCFloat)
+    @range([0, 360])
+    @rangeStep(1)
+    @slide
+    @tooltip('i18n:skybox.rotationAngle')
+    set rotationAngle (val: number) {
+        this._rotationAngle = val;
+        if (this._resource) { this._resource.setRotationAngle(this._rotationAngle); }
+    }
+    get rotationAngle () {
+        return this._rotationAngle;
+    }
+
+    /**
      * @en The optional diffusion convolution map used in tandem with IBL
      * @zh 使用的漫反射卷积图
      */
@@ -523,6 +540,8 @@ export class SkyboxInfo {
     @serializable
     @type(TextureCube)
     protected _reflectionLDR: TextureCube | null = null;
+    @serializable
+    protected _rotationAngle = 0;
 
     protected _resource: Skybox | null = null;
 
@@ -539,6 +558,7 @@ export class SkyboxInfo {
         this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
         this._resource.setSkyboxMaterial(this._editableMaterial);
         this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+        this._resource.setRotationAngle(this._rotationAngle);
         this._resource.activate(); // update global DS first
     }
 }

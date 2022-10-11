@@ -190,6 +190,7 @@ public:
     bool _useHDR{true};
     EnvironmentLightingType _envLightingType{EnvironmentLightingType::HEMISPHERE_DIFFUSE};
     IntrusivePtr<Material> _editableMaterial;
+    float _rotationAngle{0.F};
     Skybox *_resource{nullptr};
 };
 
@@ -277,6 +278,13 @@ public:
     TextureCube *getDiffuseMap() const;
     void setDiffuseMap(TextureCube *val);
     void setSkyboxMaterial(Material *skyboxMat);
+    /**
+     * @en Set skybox rotate angle
+     * @zh 设置天空盒旋转角度
+     * @param angle  @en rotation angle @zh 旋转角度
+     */
+    void setRotationAngle(float angle);
+    float getRotationAngle() const { return _rotationAngle; };
 
     TextureCube *getReflectionMap() const;
 
@@ -302,7 +310,7 @@ private:
     bool _useDiffuseMap{false};
     bool _activated{false};
     IntrusivePtr<Material> _editableMaterial;
-
+    float _rotationAngle{0.F};
     CC_DISALLOW_COPY_MOVE_ASSIGN(Skybox);
 };
 

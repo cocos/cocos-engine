@@ -25,7 +25,6 @@
 ****************************************************************************/
 
 #include "State.h"
-#include "Object.h"
 
 namespace se {
 
@@ -48,24 +47,4 @@ State::~State() {
     SAFE_DEC_REF(_thisObject);
 }
 
-void *State::nativeThisObject() const {
-    return _thisObject != nullptr ? _thisObject->getPrivateData() : nullptr;
-}
-
-Object *State::thisObject() {
-    // _nativeThisObject in Static method will be nullptr
-    //        assert(_thisObject != nullptr);
-    return _thisObject;
-}
-
-const ValueArray &State::args() const {
-    if (_args != nullptr) {
-        return *(_args);
-    }
-    return EmptyValueArray;
-}
-
-Value &State::rval() {
-    return _retVal;
-}
 } // namespace se

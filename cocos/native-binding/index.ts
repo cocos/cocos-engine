@@ -1316,4 +1316,35 @@ export declare namespace native {
           */
         export function removeAllListeners();
     }
+    /**
+     * @en Save the image to the path indicated.
+     * @zh 保存图片到指定路径。
+     * @param data : @en the image data, should be raw data array with uint8 @zh 图片数据, 应为原始数据数组，uint8 格式。
+     * @param path : @en the path to save @zh 保存路径
+     * @param width : @en the width of the image @zh 图片宽度
+     * @param height : @en the height of the image @zh 图片高度
+     * @param filePath : @en the file path of the image @zh 图片文件路径
+     * @example
+     * ```ts
+        let renderTexture = new RenderTexture();
+        let renderWindowInfo = {
+        width: this._width,
+        height: this._height
+        };
+        renderTexture.reset(renderWindowInfo);
+        cameras.forEach((camera: any) => {
+        camera.targetTexture = renderTexture;
+        });
+        await this.waitForNextFrame();
+        cameras.forEach((camera: any) => {
+            camera.targetTexture = null;
+        });
+        let pixelData = renderTexture.readPixels();
+        native.saveImageData(pixelData, path, width, height, filePath).then(()=>{
+            console.log("Save image data success");
+        }).catch(()=>{
+            console.log("Fail to save image data");
+        });
+     */
+    export function saveImageData(data: Uint8Array, width: number, height: number, filePath: string): Promise<void>;
 }

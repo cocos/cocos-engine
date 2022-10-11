@@ -130,7 +130,18 @@ public:
                 return intf;
             }
         }
-        CC_ASSERT(false);
+        return nullptr;
+    }
+
+    template <class T>
+    std::enable_if_t<std::is_base_of<OSInterface, T>::value, T *>
+    getInterface() {
+        for (const auto &it : _osInterfaces) {
+            T *intf = dynamic_cast<T *>(it.get());
+            if (intf) {
+                return intf;
+            }
+        }
         return nullptr;
     }
 
