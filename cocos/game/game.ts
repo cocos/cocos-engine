@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, NATIVE, PREVIEW } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW, WEBGPU } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -84,7 +84,7 @@ export interface IGameConfig {
      * You can pass in parameters in game.init or override them in the [game.onPostBaseInitDelegate] event callback.
      * Note: you need to specify this option in the application.js template or add a delegate callback.
      */
-    overrideSettings : Partial<{ [ k in Settings.Category[keyof Settings.Category] ]: Record<string, any> }>
+    overrideSettings: Partial<{ [k in Settings.Category[keyof Settings.Category]]: Record<string, any> }>
 
     /**
      * @zh
@@ -602,8 +602,8 @@ export class Game extends EventTarget {
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if ((this._engineInited && type === Game.EVENT_ENGINE_INITED)
-        || (this._inited && type === Game.EVENT_GAME_INITED)
-        || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
+            || (this._inited && type === Game.EVENT_GAME_INITED)
+            || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
             callback.call(target);
         }
         return this.eventTargetOn(type, callback, target, once);
@@ -686,17 +686,6 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.timeEnd('Init Base');
                 }
-
-                if (sys.isXR) {
-                    // XrEntry must not be destroyed
-                    xr.entry = xr.XrEntry.getInstance();
-
-                    const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
-                    const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
-                    xr.entry.setMultisamplesRTT(xrMSAA);
-                    xr.entry.setRenderingScale(xrRenderingScale);
-                }
-
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })
@@ -711,6 +700,7 @@ export class Game extends EventTarget {
                     console.time('Init Infrastructure');
                 }
                 macro.init();
+                this._initXR();
                 const adapter = findCanvas();
                 if (adapter) {
                     this.canvas = adapter.canvas;
@@ -785,6 +775,7 @@ export class Game extends EventTarget {
                 return Promise.resolve([]);
             })
             .then(() => this._loadProjectBundles())
+            .then(() => this._loadCCEScripts())
             .then(() => this._setupRenderPipeline())
             .then(() => this._loadPreloadAssets())
             .then(() => {
@@ -803,6 +794,18 @@ export class Game extends EventTarget {
                 this._inited = true;
                 this._safeEmit(Game.EVENT_GAME_INITED);
             });
+    }
+
+    private _initXR () {
+        if (sys.isXR) {
+            // XrEntry must not be destroyed
+            xr.entry = xr.XrEntry.getInstance();
+
+            const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
+            const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+            xr.entry.setMultisamplesRTT(xrMSAA);
+            xr.entry.setRenderingScale(xrRenderingScale);
+        }
     }
 
     private _compatibleWithOldParams (config: IGameConfig) {
@@ -857,6 +860,21 @@ export class Game extends EventTarget {
                 resolve();
             });
         })));
+    }
+
+    /**
+     * @internal only for browser preview
+     */
+    private _loadCCEScripts () {
+        return new Promise<void>((resolve, reject) => {
+            // Since there is no script in the bundle during preview, we need to load the user's script in the following way
+            if (PREVIEW && !TEST && !EDITOR && !NATIVE) {
+                const bundneName = 'cce:/internal/x/prerequisite-imports';
+                import(bundneName).then(() => resolve(), (reason) => reject(reason));
+            } else {
+                resolve();
+            }
+        });
     }
 
     /**

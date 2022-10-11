@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
-#include <emscripten/val.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include <functional>
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -37,11 +38,10 @@ struct CCWGPUCommandBufferObject;
 
 typedef std::function<void(CCWGPUCommandBufferObject *)> EncodeFunc;
 
-class CCWGPUCommandBuffer final : public emscripten::wrapper<CommandBuffer> {
+class CCWGPUCommandBuffer final : public CommandBuffer {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUCommandBuffer);
     CCWGPUCommandBuffer();
-    ~CCWGPUCommandBuffer() = default;
+    ~CCWGPUCommandBuffer();
 
     void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) override;
     void end() override;
@@ -65,26 +65,31 @@ public:
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
-    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
+    void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
 
-    //TODO_Zeqiang: wgpu query pool
+    // TODO_Zeqiang: wgpu query pool
     void beginQuery(QueryPool *queryPool, uint32_t id) override{};
     void endQuery(QueryPool *queryPool, uint32_t id) override{};
     void resetQueryPool(QueryPool *queryPool) override{};
     void completeQueryPool(QueryPool *queryPool) override{};
 
-    inline CCWGPUCommandBufferObject *gpuCommandBufferObject() { return _gpuCommandBufferObj; }
+    inline CCWGPUCommandBufferObject *gpuCommandBufferObject() const { return _gpuCommandBufferObj; }
 
     void updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list);
-
-    void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size) {
-        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-        updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
-    }
 
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil) {
         this->CommandBuffer::beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
     }
+
+    void reset();
+
+    void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const std::vector<uint32_t> &dynamicOffsets) {
+        bindDescriptorSet(set, descriptorSet, dynamicOffsets.size(), dynamicOffsets.data());
+    }
+
+    // emscripten export
+    EXPORT_EMS(
+        void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size);)
 
 protected:
     virtual void doInit(const CommandBufferInfo &info);
@@ -99,8 +104,8 @@ protected:
     Framebuffer *_frameBuffer = nullptr;
 
     // command buffer inner impl
-    //std::queue<EncodeFunc> _renderPassFuncQ;
-    //std::queue<EncodeFunc> _computeFuncQ;
+    // std::queue<EncodeFunc> _renderPassFuncQ;
+    // std::queue<EncodeFunc> _computeFuncQ;
 };
 
 } // namespace gfx
