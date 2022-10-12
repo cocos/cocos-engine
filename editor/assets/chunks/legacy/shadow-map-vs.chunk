@@ -13,10 +13,8 @@ vec2 CCGetShadowBias()
 {
   #if USE_INSTANCING
     return vec2(a_localShadowBias.x + cc_shadowWHPBInfo.w, a_localShadowBias.y + cc_shadowLPNNInfo.z);
-  #elif !USE_BATCHING
-    return vec2(cc_localShadowBias.x + cc_shadowWHPBInfo.w, cc_localShadowBias.y + cc_shadowLPNNInfo.z);
   #else
-    return vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
+    return vec2(cc_localShadowBias.x + cc_shadowWHPBInfo.w, cc_localShadowBias.y + cc_shadowLPNNInfo.z);
   #endif
 }
 #endif

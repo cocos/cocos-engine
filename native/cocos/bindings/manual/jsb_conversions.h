@@ -1109,7 +1109,12 @@ bool nativevalue_to_se(const ccstd::variant<ARGS...> &from, se::Value &to, se::O
 
 template <typename... ARGS>
 bool nativevalue_to_se(const ccstd::variant<ARGS...> *from, se::Value &to, se::Object *ctx) { // NOLINT
-    return nativevalue_to_se(*from, to, ctx);
+    if (from) {
+        return nativevalue_to_se(*from, to, ctx);
+    }
+
+    to.setNull();
+    return true;
 }
 
 template <typename... ARGS>

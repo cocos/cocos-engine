@@ -117,7 +117,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     }
   #endif
 
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     vec3 lightmap = s.lightmap.rgb;
     #if CC_USE_HDR
         // convert from standard camera exposure parameters to current exposure value

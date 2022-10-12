@@ -68,7 +68,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_UVLIGHTMAP))
     {
-      #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+      #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
         color = vec4(FSInput_lightMapUV.xy, 0.0, 1.0);
       #else
         color = vec4(0.0, 0.0, 0.0, 1.0);
