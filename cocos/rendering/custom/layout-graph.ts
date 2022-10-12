@@ -33,7 +33,7 @@ import * as impl from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ccclass } from '../../core/data/decorators';
-import { OutputArchive } from './archive';
+import { OutputArchive, InputArchive } from './archive';
 
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
@@ -1197,4 +1197,100 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly constantIndex: Map<string, number> = new Map<string, number>();
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
+}
+
+export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB) {
+}
+
+export function loadDescriptorDB (ar: InputArchive, v: DescriptorDB) {
+}
+
+export function saveRenderPhase (ar: OutputArchive, v: RenderPhase) {
+}
+
+export function loadRenderPhase (ar: InputArchive, v: RenderPhase) {
+}
+
+export function saveUniformData (ar: OutputArchive, v: UniformData) {
+}
+
+export function loadUniformData (ar: InputArchive, v: UniformData) {
+}
+
+export function saveUniformBlockData (ar: OutputArchive, v: UniformBlockData) {
+}
+
+export function loadUniformBlockData (ar: InputArchive, v: UniformBlockData) {
+}
+
+export function saveDescriptorData (ar: OutputArchive, v: DescriptorData) {
+}
+
+export function loadDescriptorData (ar: InputArchive, v: DescriptorData) {
+}
+
+export function saveDescriptorBlockData (ar: OutputArchive, v: DescriptorBlockData) {
+}
+
+export function loadDescriptorBlockData (ar: InputArchive, v: DescriptorBlockData) {
+}
+
+export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSetLayoutData) {
+}
+
+export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetLayoutData) {
+}
+
+export function saveDescriptorSetData (ar: OutputArchive, v: DescriptorSetData) {
+}
+
+export function loadDescriptorSetData (ar: InputArchive, v: DescriptorSetData) {
+}
+
+export function savePipelineLayoutData (ar: OutputArchive, v: PipelineLayoutData) {
+}
+
+export function loadPipelineLayoutData (ar: InputArchive, v: PipelineLayoutData) {
+}
+
+export function saveShaderBindingData (ar: OutputArchive, v: ShaderBindingData) {
+}
+
+export function loadShaderBindingData (ar: InputArchive, v: ShaderBindingData) {
+}
+
+export function saveShaderLayoutData (ar: OutputArchive, v: ShaderLayoutData) {
+}
+
+export function loadShaderLayoutData (ar: InputArchive, v: ShaderLayoutData) {
+}
+
+export function saveTechniqueData (ar: OutputArchive, v: TechniqueData) {
+}
+
+export function loadTechniqueData (ar: InputArchive, v: TechniqueData) {
+}
+
+export function saveEffectData (ar: OutputArchive, v: EffectData) {
+}
+
+export function loadEffectData (ar: InputArchive, v: EffectData) {
+}
+
+export function saveShaderProgramData (ar: OutputArchive, v: ShaderProgramData) {
+}
+
+export function loadShaderProgramData (ar: InputArchive, v: ShaderProgramData) {
+}
+
+export function saveRenderStageData (ar: OutputArchive, v: RenderStageData) {
+}
+
+export function loadRenderStageData (ar: InputArchive, v: RenderStageData) {
+}
+
+export function saveRenderPhaseData (ar: OutputArchive, v: RenderPhaseData) {
+}
+
+export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
 }

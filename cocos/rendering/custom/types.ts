@@ -31,6 +31,7 @@
 /* eslint-disable max-len */
 import { ClearFlagBit, Color, LoadOp, ShaderStageFlagBit, StoreOp, Type, UniformBlock } from '../../gfx';
 import { Light } from '../../render-scene/scene';
+import { OutputArchive, InputArchive } from './archive';
 
 export enum UpdateFrequency {
     PER_INSTANCE,
@@ -448,4 +449,58 @@ export class MovePair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
+}
+
+export function saveRasterView (ar: OutputArchive, v: RasterView) {
+}
+
+export function loadRasterView (ar: InputArchive, v: RasterView) {
+}
+
+export function saveComputeView (ar: OutputArchive, v: ComputeView) {
+}
+
+export function loadComputeView (ar: InputArchive, v: ComputeView) {
+}
+
+export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
+}
+
+export function loadLightInfo (ar: InputArchive, v: LightInfo) {
+}
+
+export function saveDescriptor (ar: OutputArchive, v: Descriptor) {
+}
+
+export function loadDescriptor (ar: InputArchive, v: Descriptor) {
+}
+
+export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
+}
+
+export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock) {
+}
+
+export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened) {
+}
+
+export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened) {
+}
+
+export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockIndex) {
+}
+
+export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIndex) {
+}
+
+export function saveCopyPair (ar: OutputArchive, v: CopyPair) {
+}
+
+export function loadCopyPair (ar: InputArchive, v: CopyPair) {
+}
+
+export function saveMovePair (ar: OutputArchive, v: MovePair) {
+}
+
+export function loadMovePair (ar: InputArchive, v: MovePair) {
 }
