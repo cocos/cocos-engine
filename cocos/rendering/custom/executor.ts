@@ -701,9 +701,10 @@ class DeviceRenderPass {
     protected _applyViewport (frameTex: Texture) {
         this._viewport = null;
         const viewport = this._rasterInfo.pass.viewport;
-        if (viewport.left !== 0 || viewport.top !== 0
-            || viewport.width !== frameTex.width
-            || viewport.height !== frameTex.height) {
+        if (viewport.left !== 0
+            || viewport.top !== 0
+            || viewport.width !== 0
+            || viewport.height !== 0) {
             this._viewport = viewport;
         }
     }
@@ -712,7 +713,8 @@ class DeviceRenderPass {
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
         const cmdBuff = this._context.commandBuffer;
-        const renderArea = this._viewport ? new Rect(this._viewport.left, this._viewport.top, this._viewport.width, this._viewport.height)
+        const renderArea = this._viewport
+            ? new Rect(this._viewport.left, this._viewport.top, this._viewport.width, this._viewport.height)
             :  new Rect(0, 0, tex.width, tex.height);
         cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderArea,
             this.clearColor, this.clearDepth, this.clearStencil);
@@ -1260,9 +1262,10 @@ class DeviceSceneTask extends WebSceneTask {
         const context = devicePass.context;
         if (!this._currentQueue.devicePass.viewport) {
             const texture = this._currentQueue.devicePass.framebuffer.colorTextures[0]!;
-            const lightInfo = this.graphScene.scene!.light;
-            const area = this._isShadowMap() && lightInfo.light
-                ? getRenderArea(this.camera!, texture.width, texture.height, lightInfo.light, lightInfo.level)
+            const graphScene = this.graphScene;
+            const lightInfo = graphScene.scene ? graphScene.scene.light : null;
+            const area = this._isShadowMap() && graphScene.scene && lightInfo!.light
+                ? getRenderArea(this.camera!, texture.width, texture.height, lightInfo!.light, lightInfo!.level)
                 : getRenderArea(this.camera!, texture.width, texture.height);
             this.visitor.setViewport(new Viewport(area.x, area.y, area.width, area.height));
             this.visitor.setScissor(area);
