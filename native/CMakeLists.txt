@@ -233,34 +233,41 @@ include(${EXTERNAL_ROOT}/CMakeLists.txt)
 if(USE_AUDIO)
     cocos_source_files(
             cocos/audio/AudioEngine.cpp
-            cocos/audio/include/AudioEngine.h
-            cocos/audio/include/AudioDef.h
-            cocos/audio/include/Export.h
+            cocos/audio/AudioEngine.h
+            cocos/audio/AudioDef.h
+            cocos/audio/Export.h
     )
     if(WINDOWS)
         cocos_source_files(
-            cocos/audio/common/utils/tinysndfile.cpp
-NO_WERROR   cocos/audio/common/utils/primitives.cpp
-            cocos/audio/common/utils/include/tinysndfile.h
-            cocos/audio/common/utils/include/primitives.h
-            cocos/audio/common/utils/private/private.h
-            cocos/audio/common/decoder/AudioDecoder.cpp
-            cocos/audio/common/decoder/AudioDecoder.h
-            cocos/audio/common/decoder/AudioDecoderManager.cpp
-            cocos/audio/common/decoder/AudioDecoderManager.h
-            cocos/audio/common/decoder/AudioDecoderMp3.cpp
-            cocos/audio/common/decoder/AudioDecoderMp3.h
-            cocos/audio/common/decoder/AudioDecoderOgg.cpp
-            cocos/audio/common/decoder/AudioDecoderOgg.h
-            cocos/audio/common/decoder/AudioDecoderWav.cpp
-            cocos/audio/common/decoder/AudioDecoderWav.h
-            cocos/audio/oalsoft/AudioCache.cpp
-            cocos/audio/oalsoft/AudioCache.h
-            cocos/audio/oalsoft/AudioEngine-soft.cpp
-            cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/include/AudioMacros.h
-            cocos/audio/oalsoft/AudioPlayer.cpp
-            cocos/audio/oalsoft/AudioPlayer.h
+            cocos/audio/AudioClip.cpp
+            cocos/audio/AudioClip.h
+            cocos/audio/AudioPlayer.cpp
+            cocos/audio/AudioPlayer.h
+            cocos/audio/graph_based/AudioBuffer.h
+            cocos/audio/graph_based/AudioBuffer.cpp
+            cocos/audio/graph_based/AudioBufferSourceNode.h
+            cocos/audio/graph_based/AudioBufferSourceNode.cpp
+            cocos/audio/graph_based/AudioContext.h
+            cocos/audio/graph_based/AudioContext.cpp
+            cocos/audio/graph_based/AudioDestinationNode.h
+            cocos/audio/graph_based/AudioDestinationNode.cpp
+            cocos/audio/graph_based/AudioNode.h
+            cocos/audio/graph_based/AudioNode.cpp
+            cocos/audio/graph_based/AudioScheduledSourceNode.cpp
+            cocos/audio/graph_based/AudioScheduledSourceNode.h
+            cocos/audio/graph_based/AudioParam.h
+            cocos/audio/graph_based/AudioParam.cpp
+            cocos/audio/graph_based/BaseAudioContext.h
+            cocos/audio/graph_based/BaseAudioContext.cpp
+            cocos/audio/graph_based/GainNode.h
+            cocos/audio/graph_based/GainNode.cpp
+            cocos/audio/graph_based/PannerNode.cpp
+            cocos/audio/graph_based/PannerNode.h
+            cocos/audio/graph_based/StereoPannerNode.cpp
+            cocos/audio/graph_based/StereoPannerNode.h
+            
+
+
         )
     elseif(LINUX OR QNX)
         cocos_source_files(
@@ -276,7 +283,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/oalsoft/AudioCache.h
             cocos/audio/oalsoft/AudioEngine-soft.cpp
             cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/include/AudioMacros.h
+            cocos/audio/AudioMacros.h
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
         )
@@ -366,7 +373,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/oalsoft/AudioCache.h
             cocos/audio/oalsoft/AudioEngine-soft.cpp
             cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/include/AudioMacros.h
+            cocos/audio/AudioMacros.h
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
             cocos/audio/ohos/FsCallback.h

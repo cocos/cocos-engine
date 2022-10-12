@@ -1,0 +1,38 @@
+#include "LabSound/core/AudioParam.h"
+#include "base/std/container/string.h"
+namespace cc {
+/*
+* AudioParam is a class containning a lab::AudioParam.It represent a value with the specified name
+*/
+
+class AudioParam {
+public:
+    AudioParam(ccstd::string &name, ccstd::string &shortName, double defaultValue, double minValue, double maxValue);
+    AudioParam(lab::AudioParam* param);
+    // AudioParam & operator=(const AudioParam& param) = default;
+    AudioParam() = delete;
+    ~AudioParam();
+    float defaultValue() { return _param->defaultValue(); }
+    float maxValue() { return _param->maxValue(); };
+    float minValue() { return _param->minValue(); }
+    void setValue(float val) { _param->setValue(val); }
+    float value() { return _param->value(); }
+
+    // TODO(timlyeee): Methods are uncertained to add at current time, both are unnessecary or bad to use. 
+
+    ///* Cancels all scheduled future changes to the AudioParam but holds its value at a given time until further changes are made using other methods. */
+    //void cancelAndHoldAtTime(double cancelTime);
+    //void cancelScheduledValues(double startTime);
+    ///* Schedules a gradual exponential change in the value of the AudioParam */
+    //void exponentialRampToValueAtTime(float value, double endTime);
+    //void linearRampToValueAtTime(float val, double endTime);
+    //void setTargetAtTime(double target, double startTime, float timeConstant);
+    //void setValueAtTime(float val, double startTime);
+    //void setValueCurveAtTime(std::vector<float> values, double startTime, double duration);
+
+private:
+    // All self defined audio param descriptor will be saved here. Normally there's no need to construct a desc yourself.
+    std::shared_ptr<lab::AudioParam> _param;
+
+};
+}
