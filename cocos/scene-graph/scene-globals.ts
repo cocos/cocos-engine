@@ -1176,6 +1176,8 @@ export class LightProbeInfo {
     protected _showConvex = false;
     @serializable
     protected _data: LightProbesData | null = null;
+    @serializable
+    protected _lightProbeGroups: LightProbeGroup[] = [];
 
     protected _resource: LightProbes | null = null;
 
@@ -1184,12 +1186,61 @@ export class LightProbeInfo {
         this._resource.initialize(this);
     }
 
-    public update (lightProbeGroup: LightProbeGroup) {
-        if (!this._data) {
-            this._data = new LightProbesData();
+    public addGroup (group: LightProbeGroup): boolean {
+        if (!group) {
+            return false;
         }
 
-        this._data.build(lightProbeGroup.probes);
+        if (this._lightProbeGroups.includes(group)) {
+            return false;
+        }
+
+        this._lightProbeGroups.push(group);
+
+        return true;
+    }
+
+    public removeGroup (group: LightProbeGroup): boolean {
+        if (!group) {
+            return false;
+        }
+
+        const index = this._lightProbeGroups.findIndex((element) => element === group);
+        if (index === -1) {
+            return false;
+        }
+
+        this._lightProbeGroups.splice(index, 1);
+
+        return true;
+    }
+
+    public update () {
+        if (!this._data) {
+            this._data = new LightProbesData();
+            if (this._resource) {
+                this._resource.data = this._data;
+            }
+        }
+
+        const probes: Vec3[] = [];
+        for (let i = 0; i < this._lightProbeGroups.length; i++) {
+            const group = this._lightProbeGroups[i];
+            if (!group.node) {
+                continue;
+            }
+
+            const worldPosition = group.node.worldPosition;
+            const count = group.probes.length;
+
+            for (let j = 0; j < count; j++) {
+                const position = new Vec3(0, 0, 0);
+                Vec3.add(position, group.probes[j], worldPosition);
+                probes.push(position);
+            }
+        }
+
+        this._data.build(probes);
     }
 }
 legacyCC.LightProbeInfo = LightProbeInfo;

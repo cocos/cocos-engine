@@ -29,9 +29,8 @@ import { PolynomialSolver } from './polynomial-solver';
 import { LightProbeInfo } from '../../core/scene-graph/scene-globals';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
-import { EPSILON } from '../../core/math/utils';
 import { legacyCC } from '../../core/global-exports';
-import { LightProbeSampler, SH } from './sh';
+import { SH } from './sh';
 import { math } from '../../core';
 
 @ccclass('cc.LightProbesData')
@@ -54,6 +53,10 @@ export class LightProbesData {
 
     public empty () {
         return this._probes.length === 0 || this._tetrahedrons.length === 0;
+    }
+
+    public available () {
+        return !this.empty() && this._probes[0].coefficients.length !== 0;
     }
 
     public getInterpolationSHCoefficients (position: Vec3, tetIndex: number, coefficients: Vec3[]) {
@@ -324,11 +327,25 @@ export class LightProbes {
         this._updatePipeline();
     }
 
+    public available () {
+        if (!this._enabled) {
+            return false;
+        }
+
+        if (!this._data) {
+            return false;
+        }
+
+        return this._data.available();
+    }
+
     protected _updatePipeline () {
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
 
-        pipeline.macros.CC_LIGHT_PROBE_ENABLED = this.enabled;
-        root.onGlobalPipelineStateChanged();
+        if (pipeline.macros.CC_LIGHT_PROBE_ENABLED !== this.enabled) {
+            pipeline.macros.CC_LIGHT_PROBE_ENABLED = this.enabled;
+            root.onGlobalPipelineStateChanged();
+        }
     }
 }

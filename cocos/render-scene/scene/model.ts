@@ -24,6 +24,7 @@
  */
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
@@ -39,7 +40,7 @@ import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayCons
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
-import { LightProbeSampler, SH } from '../../../gi/light-probe/sh';
+import { SH } from '../../../gi/light-probe/sh';
 
 const m4_1 = new Mat4();
 
@@ -396,7 +397,7 @@ export class Model {
      * @en Local SH ubo data
      * @zh 本地球谐 ubo 数据
      */
-    protected _localSHData = new Float32Array(UBOSH.COUNT);
+    protected _localSHData: Float32Array | null = null;
 
     /**
      * @en Local SH ubo buffer
@@ -621,21 +622,13 @@ export class Model {
         }
     }
 
-    public isShowProbe () {
+    private isLightProbeAvailable () {
         if (!this._useLightProbe) {
             return false;
         }
 
-        if (this.isInstancingEnabled) {
-            return false;
-        }
-
         const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
-        if (!lightProbes.enabled || !lightProbes.data) {
-            return false;
-        }
-
-        if (lightProbes.data.empty()) {
+        if (!lightProbes.available()) {
             return false;
         }
 
@@ -646,43 +639,32 @@ export class Model {
         return true;
     }
 
+    public showTetrahedron () {
+        return this.isLightProbeAvailable();
+    }
+
     /**
      * @en Update the model's SH ubo
      * @zh 更新模型的球谐 ubo
      */
     public updateSHUBOs () {
-        if (!this._useLightProbe) {
+        if (!this.isLightProbeAvailable()) {
             return;
         }
 
-        if (this.isInstancingEnabled) {
-            return;
-        }
-
-        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
-        if (!lightProbes.enabled || !lightProbes.data) {
-            return;
-        }
-
-        if (lightProbes.data.empty()) {
-            return;
-        }
-
-        if (!this._worldBounds) {
-            return;
-        }
-
-        const center = this._worldBounds.center;
-        if (center.equals(this._lastWorldBoundCenter)) {
+        const center = this._worldBounds!.center;
+        if (!EDITOR && center.equals(this._lastWorldBoundCenter)) {
             return;
         }
 
         const coefficients: Vec3[] = [];
-        this._tetrahedronIndex = lightProbes.data.getInterpolationSHCoefficients(center, this._tetrahedronIndex, coefficients);
+        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        this._tetrahedronIndex = lightProbes.data!.getInterpolationSHCoefficients(center, this._tetrahedronIndex, coefficients);
+        SH.reduceRinging(coefficients, lightProbes.reduceRinging);
         this._lastWorldBoundCenter.set(center);
 
-        SH.updateUBOData(coefficients, this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET);
-        if (this._localSHBuffer) {
+        if (this._localSHData && this._localSHBuffer) {
+            SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
             this._localSHBuffer.update(this._localSHData);
         }
     }
@@ -892,6 +874,14 @@ export class Model {
     }
 
     protected _initLocalSHDescriptors (subModelIndex: number) {
+        if (!EDITOR && !this._useLightProbe) {
+            return;
+        }
+
+        if (!this._localSHData) {
+            this._localSHData = new Float32Array(UBOSH.COUNT);
+        }
+
         if (!this._localSHBuffer) {
             this._localSHBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,

@@ -79,7 +79,15 @@ float PolynomialSolver::getCubicUniqueRoot(float b, float c, float d) {
         }
     }
 
-    return roots.size() > 0 ? roots[0] + offset : 0.0F;
+    // return the unique positive root
+    for (auto i = 0U; i < roots.size(); i++) {
+        if (roots[i] + offset >= 0.0F) {
+            return roots[i] + offset;
+        }
+    }
+
+    // never reach here
+    return 0.0;
 }
 
 } // namespace gi

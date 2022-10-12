@@ -94,6 +94,16 @@ public:
         return func(sample);
     }
 
+    static inline void reduceRinging(ccstd::vector<Vec3>& coefficients, float lambda) {
+        for (int32_t l = 0; l <= _lmax; ++l) {
+            float scale = 1.f / (1.f + lambda * l * l * (l + 1) * (l + 1));
+            for (int32_t m = -l; m <= l; ++m) {
+                const int32_t i = toIndex(l, m);
+                coefficients[i] *= scale;
+            }
+        }
+    }
+
 private:
     static inline float lambda(int32_t l) {
         return std::sqrtf((4.0F * math::PI) / (2.0F * static_cast<float>(l) + 1.0F));
@@ -103,6 +113,7 @@ private:
         return l * l + l + m;
     }
 
+    static constexpr int32_t _lmax = 2;
     static ccstd::vector<BasisFunction> _basisFunctions;
 };
 

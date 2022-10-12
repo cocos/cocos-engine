@@ -26,7 +26,7 @@
 export class PolynomialSolver {
     /**
      * solve quadratic equation: b * t^2 + c * t + d = 0
-     * return the unique real root
+     * return the unique real positive root
      */
     public static getQuadraticUniqueRoot (b: number, c: number, d: number) {
         // quadratic case
@@ -46,7 +46,7 @@ export class PolynomialSolver {
 
     /**
      * solve cubic equation: t^3 + b * t^2 + c * t + d = 0
-     * return the unique real root
+     * return the unique real positive root
      */
     public static getCubicUniqueRoot (b: number, c: number, d: number) {
         const roots: number[] = [];

@@ -33,13 +33,13 @@ class PolynomialSolver {
 public:
     /**
      * solve quadratic equation: b * t^2 + c * t + d = 0
-     * return the unique real root
+     * return the unique real positive root
      */
     static float getQuadraticUniqueRoot(float b, float c, float d);
 
     /**
      * solve cubic equation: t^3 + b * t^2 + c * t + d = 0
-     * return the unique real root
+     * return the unique real positive root
      */
     static float getCubicUniqueRoot(float b, float c, float d);
 };

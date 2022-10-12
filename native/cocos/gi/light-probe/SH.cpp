@@ -111,15 +111,13 @@ ccstd::vector<Vec3> SH::project(const ccstd::vector<Vec3>& samples, const ccstd:
 }
 
 ccstd::vector<Vec3> SH::convolveCosine(const ccstd::vector<Vec3>& radianceCoefficients) {
-    static const float COSTHETA[3] = {0.8862268925F, 1.0233267546F, 0.4954159260F};
-    const auto lmax = 2;
-
+    static const float cosTheta[3] = {0.8862268925F, 1.0233267546F, 0.4954159260F};
     ccstd::vector<Vec3> irradianceCoefficients;
 
-    for (auto l = 0; l <= lmax; l++) {
+    for (auto l = 0; l <= _lmax; l++) {
         for (auto m = -l; m <= l; m++) {
             auto i = toIndex(l, m);
-            Vec3 coefficient = lambda(l) * COSTHETA[l] * radianceCoefficients[i];
+            Vec3 coefficient = lambda(l) * cosTheta[l] * radianceCoefficients[i];
             irradianceCoefficients.push_back(coefficient);
         }
     }

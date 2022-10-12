@@ -142,13 +142,28 @@ export class LightProbeGroup extends Component {
         this._nProbesZ = val;
     }
 
-    public onLoad () {
-    }
-
     public onEnable () {
+        if (!this.node) {
+            return;
+        }
+
+        this.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, this.onAncestorTransformChanged, this);
+        const changed = this.node.scene.globals.lightProbeInfo.addGroup(this);
+        if (changed) {
+            this.onProbeChanged();
+        }
     }
 
     public onDisable () {
+        if (!this.node) {
+            return;
+        }
+
+        const changed = this.node.scene.globals.lightProbeInfo.removeGroup(this);
+        if (changed) {
+            this.onProbeChanged();
+        }
+        this.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, this.onAncestorTransformChanged, this);
     }
 
     public generateLightProbes () {
@@ -169,7 +184,18 @@ export class LightProbeGroup extends Component {
     }
 
     public onProbeChanged () {
-        this.node.scene.globals.lightProbeInfo.update(this);
-        this.node.emit(NodeEventType.LIGHT_PROBE_CHANGED);
+        if (this._probes.length > 0) {
+            this.node.scene.globals.lightProbeInfo.update();
+            this.node.emit(NodeEventType.LIGHT_PROBE_CHANGED);
+        }
+    }
+
+    private onAncestorTransformChanged () {
+        if (!this.node) {
+            return;
+        }
+
+        this.node.updateWorldTransform();
+        this.onProbeChanged();
     }
 }

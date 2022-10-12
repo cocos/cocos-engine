@@ -77,6 +77,8 @@ export class LightProbeSampler {
  * Spherical Harmonics utility class
  */
 export class SH {
+    private static _lmax = 2;
+
     private static _basisFunctions: { (v: Vec3): number }[] =
     [
         (v: Vec3): number => 0.282095,                              // 0.5 * Math.sqrt(1.0 / Math.PI)
@@ -103,7 +105,7 @@ export class SH {
         0.173884,   // 0.546274 / Math.PI
     ];
 
-    public static updateUBOData (coefficients: Vec3[], data: Float32Array, offset = 0) {
+    public static updateUBOData (data: Float32Array, offset: number, coefficients: Vec3[]) {
         // cc_sh_linear_const_r
         data[offset++] = coefficients[3].x * this._basisOverPI[3];
         data[offset++] = coefficients[1].x * this._basisOverPI[1];
@@ -150,7 +152,7 @@ export class SH {
     /**
      * recreate a function from sh coefficients, which is same as SHEvaluate in shader
      */
-    public static SHEvaluate (normal: Vec3, coefficients: Vec3[]) {
+    public static shaderEvaluate (normal: Vec3, coefficients: Vec3[]) {
         const linearConstR = new Vec4(
             coefficients[3].x * this._basisOverPI[3],
             coefficients[1].x * this._basisOverPI[1],
@@ -265,17 +267,15 @@ export class SH {
      * calculate irradiance's sh coefficients from radiance's sh coefficients directly
      */
     public static convolveCosine (radianceCoefficients: Vec3[]) {
-        const COSTHETA: number[] = [0.8862268925, 1.0233267546, 0.4954159260];
-        const lmax = 2;
-
+        const cosTheta: number[] = [0.8862268925, 1.0233267546, 0.4954159260];
         const irradianceCoefficients: Vec3[] = [];
 
-        for (let l = 0; l <= lmax; l++) {
+        for (let l = 0; l <= this._lmax; l++) {
             for (let m = -l; m <= l; m++) {
                 const i = this.toIndex(l, m);
 
                 const coefficient = new Vec3(0.0, 0.0, 0.0);
-                Vec3.multiplyScalar(coefficient, radianceCoefficients[i], this.lambda(l) * COSTHETA[l]);
+                Vec3.multiplyScalar(coefficient, radianceCoefficients[i], this.lambda(l) * cosTheta[l]);
                 irradianceCoefficients.push(coefficient);
             }
         }
@@ -298,6 +298,20 @@ export class SH {
         const func = this._basisFunctions[index];
 
         return func(sample);
+    }
+
+    public static reduceRinging (coefficients: Vec3[], lambda: number) {
+        if (lambda === 0.0) {
+            return;
+        }
+
+        for (let l = 0; l <= this._lmax; ++l) {
+            const scale = 1.0 / (1.0 + lambda * l * l * (l + 1) * (l + 1));
+            for (let m = -l; m <= l; ++m) {
+                const i = this.toIndex(l, m);
+                Vec3.multiplyScalar(coefficients[i], coefficients[i], scale);
+            }
+        }
     }
 
     private static lambda (l: number) {

@@ -72,7 +72,8 @@ ccstd::vector<Vec3> AutoPlacement::doGenerateUniform(const PlacementInfo &info) 
 }
 
 ccstd::vector<Vec3> AutoPlacement::doGenerateAdaptive(const PlacementInfo &info) {
-    return {};
+    // TODO
+    return doGenerateUniform(info);
 }
 
 } // namespace gi

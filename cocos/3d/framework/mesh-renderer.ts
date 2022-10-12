@@ -554,6 +554,7 @@ export class MeshRenderer extends ModelRenderer {
             // Initialize lighting map before model initializing
             // because the lighting map will influence the model's shader
             this._model.initLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+            this._updateUseLightProbe();
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
@@ -716,7 +717,8 @@ export class MeshRenderer extends ModelRenderer {
     protected _updateUseLightProbe () {
         if (!this._model) { return; }
         const node = this.node;
-        if (this._mesh && node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
+        if (this._mesh && !this._model.isInstancingEnabled
+            && node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
             this._model.useLightProbe = true;
         } else {
             this._model.useLightProbe = false;
