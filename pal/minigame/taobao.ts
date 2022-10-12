@@ -42,6 +42,17 @@ Object.defineProperty(minigame, 'orientation', {
 });
 // #endregion SystemInfo
 
+// #region Audio
+minigame.createInnerAudioContext = function (): InnerAudioContext {
+    const audio: InnerAudioContext = my.createInnerAudioContext();
+    // @ts-expect-error InnerAudioContext has onCanPlay
+    audio.onCanplay = audio.onCanPlay.bind(audio);
+    // @ts-expect-error InnerAudioContext has onCanPlay
+    delete audio.onCanPlay;
+    return audio;
+};
+// #region Audio
+
 // #region Font
 minigame.loadFont = function (url) {
     // my.loadFont crash when url is not in user data path

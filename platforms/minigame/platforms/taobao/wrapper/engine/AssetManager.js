@@ -2,33 +2,37 @@ const parser = cc.assetManager.parser;
 const downloader = cc.assetManager.downloader;
 const debug = cc.debug;
 
-function downloadImage(url, options, onComplete) {
+function doNothing (url, options, onComplete) {
     onComplete(null, url);
 }
 
 if (my.isIDE) {
-    // NOTE: image can't load from cached downloaded file on Taobao IDE
     downloader.register({
-        // Image
-        '.png': downloadImage,
-        '.jpg': downloadImage,
-        '.bmp': downloadImage,
-        '.jpeg': downloadImage,
-        '.gif': downloadImage,
-        '.ico': downloadImage,
-        '.tiff': downloadImage,
-        '.image': downloadImage,
-        '.webp': downloadImage,
-        '.pvr': downloadImage,
-        '.pkm': downloadImage,
-        '.astc': downloadImage,
+        // NOTE: Image can't load from cached downloaded file on Taobao
+        '.png': doNothing,
+        '.jpg': doNothing,
+        '.bmp': doNothing,
+        '.jpeg': doNothing,
+        '.gif': doNothing,
+        '.ico': doNothing,
+        '.tiff': doNothing,
+        '.image': doNothing,
+        '.webp': doNothing,
     });
 }
 
-function loadImage(url, options, onComplete) {
+downloader.register({
+    // Note: Audio can't load from cached downloaded file onTaoBao
+    '.mp3': doNothing,
+    '.ogg': doNothing,
+    '.wav': doNothing,
+    '.m4a': doNothing,
+});
+
+function loadImage (url, options, onComplete) {
     const img = window.screencanvas.createImage();
 
-    function loadCallback() {
+    function loadCallback () {
         img.onload = null;
         img.onerror = null;
 
@@ -37,7 +41,7 @@ function loadImage(url, options, onComplete) {
         }
     }
 
-    function errorCallback() {
+    function errorCallback () {
         img.onload = null;
         img.onerror = null;
 
@@ -47,7 +51,7 @@ function loadImage(url, options, onComplete) {
     }
 
     img.onload = loadCallback;
-    img.onerror - errorCallback;
+    img.onerror = errorCallback;
     img.src = url;
     return img;
 }
@@ -55,6 +59,7 @@ function loadImage(url, options, onComplete) {
 downloader.downloadDomImage = loadImage;
 
 parser.register({
+    // Image
     '.png': loadImage,
     '.jpg': loadImage,
     '.bmp': loadImage,
