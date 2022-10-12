@@ -452,54 +452,101 @@ export class MovePair {
 }
 
 export function saveRasterView (ar: OutputArchive, v: RasterView) {
+    ar.writeString(v.slotName);
+    ar.writeNumber(v.accessType);
+    ar.writeNumber(v.attachmentType);
+    ar.writeNumber(v.loadOp);
+    ar.writeNumber(v.storeOp);
+    ar.writeNumber(v.clearFlags);
+    // skip: clearColor: gfx::Color
 }
 
 export function loadRasterView (ar: InputArchive, v: RasterView) {
 }
 
 export function saveComputeView (ar: OutputArchive, v: ComputeView) {
+    ar.writeString(v.name);
+    ar.writeNumber(v.accessType);
+    ar.writeNumber(v.clearFlags);
+    // skip: clearColor: gfx::Color
+    ar.writeNumber(v.clearValueType);
 }
 
 export function loadComputeView (ar: InputArchive, v: ComputeView) {
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
+    // skip, light: IntrusivePtr<scene::Light>
+    ar.writeNumber(v.level);
 }
 
 export function loadLightInfo (ar: InputArchive, v: LightInfo) {
 }
 
 export function saveDescriptor (ar: OutputArchive, v: Descriptor) {
+    ar.writeNumber(v.type);
+    ar.writeNumber(v.count);
 }
 
 export function loadDescriptor (ar: InputArchive, v: Descriptor) {
 }
 
 export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
+    // Map
+    // Map
+    ar.writeNumber(v.capacity);
+    ar.writeNumber(v.count);
 }
 
 export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock) {
 }
 
 export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened) {
+    // Array
+    // Array
+    // Array
+    // Array
+    ar.writeNumber(v.capacity);
+    ar.writeNumber(v.count);
 }
 
 export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened) {
 }
 
 export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockIndex) {
+    ar.writeNumber(v.updateFrequency);
+    ar.writeNumber(v.parameterType);
+    ar.writeNumber(v.descriptorType);
+    ar.writeNumber(v.visibility);
 }
 
 export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIndex) {
 }
 
 export function saveCopyPair (ar: OutputArchive, v: CopyPair) {
+    ar.writeString(v.source);
+    ar.writeString(v.target);
+    ar.writeNumber(v.mipLevels);
+    ar.writeNumber(v.numSlices);
+    ar.writeNumber(v.sourceMostDetailedMip);
+    ar.writeNumber(v.sourceFirstSlice);
+    ar.writeNumber(v.sourcePlaneSlice);
+    ar.writeNumber(v.targetMostDetailedMip);
+    ar.writeNumber(v.targetFirstSlice);
+    ar.writeNumber(v.targetPlaneSlice);
 }
 
 export function loadCopyPair (ar: InputArchive, v: CopyPair) {
 }
 
 export function saveMovePair (ar: OutputArchive, v: MovePair) {
+    ar.writeString(v.source);
+    ar.writeString(v.target);
+    ar.writeNumber(v.mipLevels);
+    ar.writeNumber(v.numSlices);
+    ar.writeNumber(v.targetMostDetailedMip);
+    ar.writeNumber(v.targetFirstSlice);
+    ar.writeNumber(v.targetPlaneSlice);
 }
 
 export function loadMovePair (ar: InputArchive, v: MovePair) {

@@ -1199,97 +1199,146 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
 }
 
+import {
+    saveRasterView, loadRasterView,
+    saveComputeView, loadComputeView,
+    saveLightInfo, loadLightInfo,
+    saveDescriptor, loadDescriptor,
+    saveDescriptorBlock, loadDescriptorBlock,
+    saveDescriptorBlockFlattened, loadDescriptorBlockFlattened,
+    saveDescriptorBlockIndex, loadDescriptorBlockIndex,
+    saveCopyPair, loadCopyPair,
+    saveMovePair, loadMovePair,
+} from './types';
+
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB) {
+    // Map
 }
 
 export function loadDescriptorDB (ar: InputArchive, v: DescriptorDB) {
 }
 
 export function saveRenderPhase (ar: OutputArchive, v: RenderPhase) {
+    // skip: shaders: PmrTransparentSet<ccstd::pmr::string>
 }
 
 export function loadRenderPhase (ar: InputArchive, v: RenderPhase) {
 }
 
 export function saveUniformData (ar: OutputArchive, v: UniformData) {
+    ar.writeNumber(v.uniformID);
+    ar.writeNumber(v.uniformType);
+    ar.writeNumber(v.offset);
+    ar.writeNumber(v.size);
 }
 
 export function loadUniformData (ar: InputArchive, v: UniformData) {
 }
 
 export function saveUniformBlockData (ar: OutputArchive, v: UniformBlockData) {
+    ar.writeNumber(v.bufferSize);
+    // Array
 }
 
 export function loadUniformBlockData (ar: InputArchive, v: UniformBlockData) {
 }
 
 export function saveDescriptorData (ar: OutputArchive, v: DescriptorData) {
+    ar.writeNumber(v.descriptorID);
+    ar.writeNumber(v.count);
 }
 
 export function loadDescriptorData (ar: InputArchive, v: DescriptorData) {
 }
 
 export function saveDescriptorBlockData (ar: OutputArchive, v: DescriptorBlockData) {
+    ar.writeNumber(v.type);
+    ar.writeNumber(v.visibility);
+    ar.writeNumber(v.offset);
+    ar.writeNumber(v.capacity);
+    // Array
 }
 
 export function loadDescriptorBlockData (ar: InputArchive, v: DescriptorBlockData) {
 }
 
 export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSetLayoutData) {
+    ar.writeNumber(v.slot);
+    ar.writeNumber(v.capacity);
+    // Array
+    // Map
 }
 
 export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetLayoutData) {
 }
 
 export function saveDescriptorSetData (ar: OutputArchive, v: DescriptorSetData) {
+    // Struct
+    saveDescriptorSetLayoutData(ar, v.descriptorSetLayoutData);
+    // Struct
+    saveDescriptorSetLayoutInfo(ar, v.descriptorSetLayoutInfo);
+    // skip, descriptorSetLayout: IntrusivePtr<gfx::DescriptorSetLayout>
+    // skip, descriptorSet: IntrusivePtr<gfx::DescriptorSet>
 }
 
 export function loadDescriptorSetData (ar: InputArchive, v: DescriptorSetData) {
 }
 
 export function savePipelineLayoutData (ar: OutputArchive, v: PipelineLayoutData) {
+    // Map
 }
 
 export function loadPipelineLayoutData (ar: InputArchive, v: PipelineLayoutData) {
 }
 
 export function saveShaderBindingData (ar: OutputArchive, v: ShaderBindingData) {
+    // Map
 }
 
 export function loadShaderBindingData (ar: InputArchive, v: ShaderBindingData) {
 }
 
 export function saveShaderLayoutData (ar: OutputArchive, v: ShaderLayoutData) {
+    // Map
+    // Map
 }
 
 export function loadShaderLayoutData (ar: InputArchive, v: ShaderLayoutData) {
 }
 
 export function saveTechniqueData (ar: OutputArchive, v: TechniqueData) {
+    // Array
 }
 
 export function loadTechniqueData (ar: InputArchive, v: TechniqueData) {
 }
 
 export function saveEffectData (ar: OutputArchive, v: EffectData) {
+    // Map
 }
 
 export function loadEffectData (ar: InputArchive, v: EffectData) {
 }
 
 export function saveShaderProgramData (ar: OutputArchive, v: ShaderProgramData) {
+    // Struct
+    savePipelineLayoutData(ar, v.layout);
 }
 
 export function loadShaderProgramData (ar: InputArchive, v: ShaderProgramData) {
 }
 
 export function saveRenderStageData (ar: OutputArchive, v: RenderStageData) {
+    // Map
 }
 
 export function loadRenderStageData (ar: InputArchive, v: RenderStageData) {
 }
 
 export function saveRenderPhaseData (ar: OutputArchive, v: RenderPhaseData) {
+    ar.writeString(v.rootSignature);
+    // Array
+    // Map
 }
 
 export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
