@@ -405,12 +405,11 @@ struct ShaderBindingData {
 
     ShaderBindingData(const allocator_type& alloc) noexcept; // NOLINT
     ShaderBindingData(ShaderBindingData&& rhs, const allocator_type& alloc);
-    ShaderBindingData(ShaderBindingData const& rhs, const allocator_type& alloc);
 
     ShaderBindingData(ShaderBindingData&& rhs) noexcept = default;
     ShaderBindingData(ShaderBindingData const& rhs) = delete;
     ShaderBindingData& operator=(ShaderBindingData&& rhs) = default;
-    ShaderBindingData& operator=(ShaderBindingData const& rhs) = default;
+    ShaderBindingData& operator=(ShaderBindingData const& rhs) = delete;
 
     PmrFlatMap<NameLocalID, uint32_t> descriptorBindings;
 };
@@ -431,6 +430,40 @@ struct ShaderLayoutData {
 
     ccstd::pmr::map<UpdateFrequency, DescriptorSetLayoutData> layoutData;
     ccstd::pmr::map<UpdateFrequency, ShaderBindingData> bindingData;
+};
+
+struct TechniqueData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {passes.get_allocator().resource()};
+    }
+
+    TechniqueData(const allocator_type& alloc) noexcept; // NOLINT
+    TechniqueData(TechniqueData&& rhs, const allocator_type& alloc);
+
+    TechniqueData(TechniqueData&& rhs) noexcept = default;
+    TechniqueData(TechniqueData const& rhs) = delete;
+    TechniqueData& operator=(TechniqueData&& rhs) = default;
+    TechniqueData& operator=(TechniqueData const& rhs) = delete;
+
+    ccstd::pmr::map<ccstd::pmr::string, ShaderLayoutData> passes;
+};
+
+struct EffectData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {techniques.get_allocator().resource()};
+    }
+
+    EffectData(const allocator_type& alloc) noexcept; // NOLINT
+    EffectData(EffectData&& rhs, const allocator_type& alloc);
+
+    EffectData(EffectData&& rhs) noexcept = default;
+    EffectData(EffectData const& rhs) = delete;
+    EffectData& operator=(EffectData&& rhs) = default;
+    EffectData& operator=(EffectData const& rhs) = delete;
+
+    ccstd::pmr::map<ccstd::pmr::string, TechniqueData> techniques;
 };
 
 struct ShaderProgramData {
@@ -657,7 +690,7 @@ struct LayoutGraphData {
     PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
-    PmrFlatMap<ccstd::pmr::string, ShaderLayoutData> shaderLayoutData;
+    PmrFlatMap<ccstd::pmr::string, EffectData> effects;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

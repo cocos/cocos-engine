@@ -626,6 +626,14 @@ export class ShaderLayoutData {
     readonly bindingData: Map<UpdateFrequency, ShaderBindingData> = new Map<UpdateFrequency, ShaderBindingData>();
 }
 
+export class TechniqueData {
+    readonly passes: Map<string, ShaderLayoutData> = new Map<string, ShaderLayoutData>();
+}
+
+export class EffectData {
+    readonly techniques: Map<string, TechniqueData> = new Map<string, TechniqueData>();
+}
+
 export class ShaderProgramData {
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
 }
@@ -820,7 +828,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         this.attributeIndex.clear();
         this.constantIndex.clear();
         this.shaderLayoutIndex.clear();
-        this.shaderLayoutData.clear();
+        this.effects.clear();
         // ComponentGraph
         this._names.length = 0;
         this._updateFrequencies.length = 0;
@@ -1188,5 +1196,5 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly attributeIndex: Map<string, number> = new Map<string, number>();
     readonly constantIndex: Map<string, number> = new Map<string, number>();
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
-    readonly shaderLayoutData: Map<string, ShaderLayoutData> = new Map<string, ShaderLayoutData>();
+    readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
 }

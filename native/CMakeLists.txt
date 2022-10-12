@@ -1278,6 +1278,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.h
+                 cocos/renderer/pipeline/custom/LayoutGraphSerialization.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
