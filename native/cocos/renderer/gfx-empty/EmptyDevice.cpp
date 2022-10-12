@@ -149,6 +149,10 @@ PipelineState *EmptyDevice::createPipelineState() {
     return ccnew EmptyPipelineState;
 }
 
+DynamicBuffer *EmptyDevice::createDynamicBuffer() {
+    return nullptr;
+}
+
 void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
 }
 

@@ -54,6 +54,7 @@ public:
     using Device::createSwapchain;
     using Device::createTexture;
     using Device::createTextureBarrier;
+    using Device::createDynamicBuffer;
 
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
@@ -72,6 +73,7 @@ public:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *createPipelineLayout() override;
     PipelineState *createPipelineState() override;
+    DynamicBuffer *createDynamicBuffer() override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;

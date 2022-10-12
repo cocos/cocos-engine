@@ -1055,6 +1055,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXBarrier.h
                  cocos/renderer/gfx-base/GFXBuffer.cpp
                  cocos/renderer/gfx-base/GFXBuffer.h
+                 cocos/renderer/gfx-base/GFXDynamicBuffer.cpp
+                 cocos/renderer/gfx-base/GFXDynamicBuffer.h
                  cocos/renderer/gfx-base/GFXCommandBuffer.cpp
                  cocos/renderer/gfx-base/GFXCommandBuffer.h
                  cocos/renderer/gfx-base/GFXDef.cpp
@@ -1098,6 +1100,8 @@ cocos_source_files(
 
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
+                 cocos/renderer/gfx-agent/DynamicBufferAgent.h
+                 cocos/renderer/gfx-agent/DynamicBufferAgent.cpp
                  cocos/renderer/gfx-agent/CommandBufferAgent.h
                  cocos/renderer/gfx-agent/CommandBufferAgent.cpp
                  cocos/renderer/gfx-agent/DescriptorSetAgent.h
@@ -1129,6 +1133,8 @@ cocos_source_files(
 
                  cocos/renderer/gfx-validator/BufferValidator.h
                  cocos/renderer/gfx-validator/BufferValidator.cpp
+                 cocos/renderer/gfx-validator/DynamicBufferValidator.h
+                 cocos/renderer/gfx-validator/DynamicBufferValidator.cpp
                  cocos/renderer/gfx-validator/CommandBufferValidator.h
                  cocos/renderer/gfx-validator/CommandBufferValidator.cpp
                  cocos/renderer/gfx-validator/DescriptorSetValidator.h
@@ -1608,6 +1614,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/vk_mem_alloc.h
                      cocos/renderer/gfx-vulkan/VKBuffer.cpp
                      cocos/renderer/gfx-vulkan/VKBuffer.h
+                     cocos/renderer/gfx-vulkan/VKDynamicBuffer.cpp
+                     cocos/renderer/gfx-vulkan/VKDynamicBuffer.h
                      cocos/renderer/gfx-vulkan/VKCommandBuffer.cpp
                      cocos/renderer/gfx-vulkan/VKCommandBuffer.h
                      cocos/renderer/gfx-vulkan/VKCommands.cpp

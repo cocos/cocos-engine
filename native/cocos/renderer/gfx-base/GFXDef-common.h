@@ -133,6 +133,7 @@ enum class ObjectType : uint32_t {
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
+    DYNAMIC_BUFFER,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ObjectType);
@@ -1017,6 +1018,12 @@ struct BufferViewInfo {
     uint32_t range{0};
 
     EXPOSE_COPY_FN(BufferViewInfo)
+};
+
+struct ALIGNAS(8) DynamicBufferInfo {
+    BufferUsage usage{BufferUsageBit::NONE};
+    uint32_t size{0};
+    uint32_t allocHost{true};
 };
 
 struct DrawInfo {

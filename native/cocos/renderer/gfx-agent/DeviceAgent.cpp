@@ -46,6 +46,7 @@
 #include "ShaderAgent.h"
 #include "SwapchainAgent.h"
 #include "TextureAgent.h"
+#include "DynamicBufferAgent.h"
 
 namespace cc {
 namespace gfx {
@@ -274,6 +275,11 @@ PipelineLayout *DeviceAgent::createPipelineLayout() {
 PipelineState *DeviceAgent::createPipelineState() {
     PipelineState *actor = _actor->createPipelineState();
     return ccnew PipelineStateAgent(actor);
+}
+
+DynamicBuffer *DeviceAgent::createDynamicBuffer() {
+    DynamicBuffer *actor = _actor->createDynamicBuffer();
+    return ccnew DynamicBufferAgent(actor);
 }
 
 Sampler *DeviceAgent::getSampler(const SamplerInfo &info) {

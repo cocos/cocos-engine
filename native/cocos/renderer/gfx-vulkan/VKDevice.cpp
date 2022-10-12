@@ -40,6 +40,7 @@
 #include "VKShader.h"
 #include "VKSwapchain.h"
 #include "VKTexture.h"
+#include "VKDynamicBuffer.h"
 #include "VKUtils.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef-common.h"
@@ -855,6 +856,10 @@ PipelineLayout *CCVKDevice::createPipelineLayout() {
 
 PipelineState *CCVKDevice::createPipelineState() {
     return ccnew CCVKPipelineState;
+}
+
+DynamicBuffer *CCVKDevice::createDynamicBuffer() {
+    return ccnew CCVKDynamicBuffer;
 }
 
 Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {

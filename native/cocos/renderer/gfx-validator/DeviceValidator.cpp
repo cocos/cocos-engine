@@ -41,6 +41,7 @@
 #include "SwapchainValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "DynamicBufferValidator.h"
 
 #include <algorithm>
 #include <cstring>
@@ -253,6 +254,13 @@ PipelineState *DeviceValidator::createPipelineState() {
     PipelineState *actor = _actor->createPipelineState();
     PipelineState *result = ccnew PipelineStateValidator(actor);
     DeviceResourceTracker<PipelineState>::push(result);
+    return result;
+}
+
+DynamicBuffer *DeviceValidator::createDynamicBuffer() {
+    DynamicBuffer *actor = _actor->createDynamicBuffer();
+    DynamicBuffer *result = ccnew DynamicBufferValidator(actor);
+    DeviceResourceTracker<DynamicBuffer>::push(result);
     return result;
 }
 

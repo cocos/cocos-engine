@@ -74,6 +74,7 @@ public:
     using Device::createShader;
     using Device::createTexture;
     using Device::createTextureBarrier;
+    using Device::createDynamicBuffer;
 
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
@@ -124,6 +125,7 @@ protected:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *createPipelineLayout() override;
     PipelineState *createPipelineState() override;
+    DynamicBuffer *createDynamicBuffer() override;
 
     Sampler *createSampler(const SamplerInfo &info) override;
     GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) override;
