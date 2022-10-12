@@ -305,6 +305,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 6033, "cc.ParticleSystem: not allowing create to be invoked twice with different particle system" },
 { 6034, "cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak" },
 { 6035, "cc.ParticleSystem: change material failed, please use proper particle material" },
+{ 6036, "cc.ParticleSystem: life time should bigger than 1 or buffer will be insufficient" },
 { 6400, "asset.url is not usable in core process" },
 { 6402, "AssetLibrary has already been initialized!" },
 { 6500, "Widget target must be one of the parent nodes of it" },
@@ -407,6 +408,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 9004, "Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes" },
 { 9005, "BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 *9* 4 / 1024 = 2304KB)" },
 { 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
+{ 9007, "Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation." },
 { 9100, "texture size exceeds current device limits %d/%d" },
 { 9201, "Cannot access game frame or container." },
 { 9202, "Setting window size is not supported." },
@@ -453,6 +455,7 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 16002, "'%s' is removed since v%s." },
 { 16003, "'%s' is removed since v%s, please use '%s' instead." },
 { 16101, "The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html" },
+{ 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 
 };
 }//namespace cc

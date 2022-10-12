@@ -273,6 +273,16 @@ inline bool sevalue_to_native(const se::Value &from, se::Value *to, se::Object *
     return true;
 }
 
+inline bool sevalue_to_native(const se::Value &from, se::Object **to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
+    *to = from.toObject();
+    return true;
+}
+
+inline bool sevalue_to_native(const se::Value &from, const se::Object **to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
+    *to = from.toObject();
+    return true;
+}
+
 bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
 
 bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*unused*/); // NOLINT(readability-identifier-naming)
@@ -544,7 +554,14 @@ bool nativevalue_to_se(const ccstd::unordered_map<ccstd::string, cc::Value> &fro
 
 bool nativevalue_to_se(const cc::Vec2 &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
-bool nativevalue_to_se(const cc::Vec3 &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
+bool nativevalue_to_se(const cc::Vec3 &from, se::Value &to, se::Object *ctx);         // NOLINT(readability-identifier-naming)
+inline bool nativevalue_to_se(const cc::Vec3 *from, se::Value &to, se::Object *ctx) { // NOLINT(readability-identifier-naming)
+    if (from != nullptr) {
+        return nativevalue_to_se(*from, to, ctx);
+    }
+    to.setUndefined();
+    return true;
+}
 
 bool nativevalue_to_se(const cc::Vec4 &from, se::Value &to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 

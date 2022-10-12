@@ -54,7 +54,7 @@ public:
     };
 
     struct ColorData {
-        cc::middleware::Color4F color;
+        cc::middleware::Color4B color;
         std::size_t vertexFloatOffset = 0;
     };
 

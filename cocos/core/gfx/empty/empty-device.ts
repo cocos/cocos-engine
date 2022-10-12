@@ -64,6 +64,8 @@ import { EmptyTexture } from './empty-texture';
 import { legacyCC } from '../../global-exports';
 
 export class EmptyDevice extends Device {
+    private _swapchain: EmptySwapchain | null = null;
+
     public initialize (info: DeviceInfo): boolean {
         this._gfxAPI = API.UNKNOWN;
 
@@ -87,6 +89,8 @@ export class EmptyDevice extends Device {
             this._cmdBuff.destroy();
             this._cmdBuff = null;
         }
+
+        this._swapchain = null;
     }
 
     public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>) {}
@@ -102,6 +106,7 @@ export class EmptyDevice extends Device {
 
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
         const swapchain = new EmptySwapchain();
+        this._swapchain = swapchain;
         swapchain.initialize(info);
         return swapchain;
     }
@@ -178,6 +183,10 @@ export class EmptyDevice extends Device {
             this._samplers.set(hash, new Sampler(info, hash));
         }
         return this._samplers.get(hash)!;
+    }
+
+    public getSwapchains (): Readonly<Swapchain[]> {
+        return [this._swapchain as Swapchain];
     }
 
     public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>) {

@@ -185,7 +185,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
     ArmatureCache::ColorData *nowColor = colors[colorOffset++];
     auto maxVFOffset = nowColor->vertexFloatOffset;
 
-    Color4F color;
+    Color4B color;
 
     float tempR = 0.0F;
     float tempG = 0.0F;
@@ -222,10 +222,10 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
         tempG = _nodeColor.g * multiplier;
         tempB = _nodeColor.b * multiplier;
 
-        color.a = tempA;
-        color.r = colorData->color.r * tempR;
-        color.g = colorData->color.g * tempG;
-        color.b = colorData->color.b * tempB;
+        color.a = (uint8_t)floorf(tempA);
+        color.r = (uint8_t)floorf(colorData->color.r * tempR);
+        color.g = (uint8_t)floorf(colorData->color.g * tempG);
+        color.b = (uint8_t)floorf(colorData->color.b * tempB);
     };
 
     handleColor(nowColor);
@@ -265,7 +265,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
 
         // fill vertex buffer
         vb.checkSpace(vertexBytes, true);
-        dstVertexOffset = vb.getCurPos() / sizeof(V2F_T2F_C4F);
+        dstVertexOffset = vb.getCurPos() / sizeof(V3F_T2F_C4B);
         dstVertexBuffer = reinterpret_cast<float *>(vb.getCurBuffer());
         dstColorBuffer = reinterpret_cast<unsigned int *>(vb.getCurBuffer());
         vb.writeBytes(reinterpret_cast<char *>(srcVB.getBuffer()) + srcVertexBytesOffset, vertexBytes);

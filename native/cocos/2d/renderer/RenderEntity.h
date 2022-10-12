@@ -58,7 +58,7 @@ struct EntityAttrLayout {
     uint8_t colorA{255};
     uint8_t maskMode{0};
     uint8_t colorDirtyBit{1};
-    uint8_t enabledIndex{1};
+    uint8_t enabledIndex{0};
     uint8_t useLocal{0};
 };
 
@@ -94,6 +94,9 @@ public:
 
     inline Node* getNode() const { return _node; }
     void setNode(Node* node);
+
+    inline Node* getRenderTransform() const { return _renderTransform; }
+    void setRenderTransform(Node* renderTransform);
 
     inline uint32_t getStencilStage() const { return static_cast<uint32_t>(_stencilStage); }
     inline void setStencilStage(uint32_t stage) {
@@ -136,6 +139,9 @@ private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderEntity);
     // weak reference
     Node* _node{nullptr};
+
+    // weak reference
+    Node* _renderTransform{nullptr};
 
     EntityAttrLayout _entityAttrLayout;
     float _opacity{1.0F};

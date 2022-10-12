@@ -73,13 +73,13 @@ export class AndroidPackTool extends NativePackTool {
         const projDir: string = this.paths.nativePrjDir;
         if (!fs.existsSync(projDir)) {
             throw new Error(`dir ${projDir} not exits`);
-            return false;
         }
         let gradle = 'gradlew';
         if (process.platform === 'win32') {
             gradle += '.bat';
+        } else {
+            gradle = './' + gradle;
         }
-        gradle = ps.join(projDir, gradle);
 
         let buildMode = '';
         const outputMode = this.params.debug ? 'Debug' : 'Release';
@@ -87,7 +87,19 @@ export class AndroidPackTool extends NativePackTool {
         // compile android
         buildMode = `${this.params.projectName}:assemble${outputMode}`;
         // await cchelper.runCmd(gradle, [buildMode /* "--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir */], false, projDir);
-        await cchelper.runCmd(gradle, [buildMode], false, projDir);
+
+        // pushd
+        const originDir = process.cwd();
+        try {
+            process.chdir(projDir);
+            await cchelper.runCmd(gradle, [buildMode], false, projDir);
+        } catch (e) {
+            throw e;
+        } finally {
+            // popd
+            process.chdir(originDir);
+        }
+
 
         // compile android-instant
         if (options.androidInstant) {
@@ -231,12 +243,10 @@ export class AndroidPackTool extends NativePackTool {
         const manifestPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'instantapp/AndroidManifest.xml');
         if (!fs.existsSync(manifestPath)) {
             throw new Error(`${manifestPath} not found`);
-            return;
         }
         const urlInfo = URL.parse(url);
         if (!urlInfo.host) {
             throw new Error(`parse url ${url} fail`);
-            return;
         }
         let manifest = fs.readFileSync(manifestPath, 'utf8');
         manifest = manifest.replace(/<category\s*android:name="android.intent.category.DEFAULT"\s*\/>/, (str) => {
@@ -262,7 +272,6 @@ export class AndroidPackTool extends NativePackTool {
         let apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
         if (!fs.existsSync(apkPath)) {
             throw new Error(`apk not found at ${apkPath}`);
-            return false;
         }
         fs.copyFileSync(apkPath, ps.join(destDir, apkName));
         if (options.androidInstant) {
@@ -270,7 +279,6 @@ export class AndroidPackTool extends NativePackTool {
             apkPath = ps.join(this.paths.nativePrjDir, `build/instantapp/outputs/apk/${suffix}/${apkName}`);
             if (!fs.existsSync(apkPath)) {
                 throw new Error(`instant apk not found at ${apkPath}`);
-                return false;
             }
             fs.copyFileSync(apkPath, ps.join(destDir, apkName));
         }
@@ -280,7 +288,6 @@ export class AndroidPackTool extends NativePackTool {
             apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/bundle/${suffix}/${apkName}`);
             if (!fs.existsSync(apkPath)) {
                 throw new Error(`instant apk not found at ${apkPath}`);
-                return false;
             }
             fs.copyFileSync(apkPath, ps.join(destDir, apkName));
         }
@@ -316,12 +323,10 @@ export class AndroidPackTool extends NativePackTool {
 
         if (!fs.existsSync(apkPath)) {
             throw new Error(`can not find apk at ${apkPath}`);
-            return false;
         }
 
         if (!fs.existsSync(adbPath)) {
             throw new Error(`can not find adb at ${adbPath}`);
-            return false;
         }
 
         if (await this.checkApkInstalled()) {

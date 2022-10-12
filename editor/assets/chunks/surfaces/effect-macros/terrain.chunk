@@ -2,9 +2,6 @@
 
 // Rename some user macros to surface internal macros
 
-#pragma define-meta USE_NORMAL_MAP
-#define CC_SURFACES_USE_TANGENT_SPACE USE_NORMAL_MAP
-
 #define CC_SURFACES_USE_VERTEX_COLOR 0
 #define CC_SURFACES_USE_SECOND_UV 0
 #define CC_SURFACES_USE_TWO_SIDED 0

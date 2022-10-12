@@ -502,6 +502,7 @@ export class ParticleSystem2D extends UIRenderer {
     public set positionType (val) {
         this._positionType = val;
         this._updateMaterial();
+        this._updatePositionType();
     }
 
     /**
@@ -750,6 +751,7 @@ export class ParticleSystem2D extends UIRenderer {
     public onEnable () {
         super.onEnable();
         this._updateMaterial();
+        this._updatePositionType();
     }
 
     public onDestroy () {
@@ -1166,6 +1168,9 @@ export class ParticleSystem2D extends UIRenderer {
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
+        if (mat && mat.passes.length > 0) {
+            this._updateBlendFunc();
+        }
     }
 
     /**
@@ -1187,7 +1192,7 @@ export class ParticleSystem2D extends UIRenderer {
     }
 
     protected _canRender () {
-        return super._canRender() && !this._stopped && this._renderSpriteFrame !== null;
+        return super._canRender() && !this._stopped && this._renderSpriteFrame !== null && this._renderSpriteFrame !== undefined;
     }
 
     protected _render (render: IBatcher) {
@@ -1197,6 +1202,19 @@ export class ParticleSystem2D extends UIRenderer {
             render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, this.node);
         } else {
             render.commitComp(this, this._simulator.renderData, this._renderSpriteFrame, this._assembler, null);
+        }
+    }
+
+    protected _updatePositionType () {
+        if (this._positionType === PositionType.RELATIVE) {
+            this._renderEntity.setRenderTransform(this.node.parent);
+            this._renderEntity.setUseLocal(true);
+        } else if (this.positionType === PositionType.GROUPED) {
+            this._renderEntity.setRenderTransform(this.node);
+            this._renderEntity.setUseLocal(true);
+        } else {
+            this._renderEntity.setRenderTransform(null);
+            this._renderEntity.setUseLocal(false);
         }
     }
 }

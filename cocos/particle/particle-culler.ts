@@ -27,7 +27,7 @@ import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../core/scene-graph/node';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4 } from '../core';
+import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4 } from '../core';
 import { INT_MAX } from '../core/math/bits';
 import { particleEmitZAxis } from './particle-general-function';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
@@ -36,6 +36,7 @@ import { AABB } from '../core/geometry';
 import type { ParticleSystem } from './particle-system';
 
 const _node_mat = new Mat4();
+const _node_parent_inv = new Mat4();
 const _node_rol = new Quat();
 const _node_scale = new Vec3();
 
@@ -209,6 +210,11 @@ export class ParticleCuller {
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
 
+        if (ps.node.parent) {
+            ps.node.parent.getWorldMatrix(_node_parent_inv);
+            _node_parent_inv.invert();
+        }
+
         for (let i = 0; i < particleLst.length; ++i) {
             const p: Particle = particleLst[i];
             p.remainingLifetime -= dt;
@@ -220,11 +226,16 @@ export class ParticleCuller {
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
                 this._gravity.w = 1.0;
-                this._gravity = this._gravity.transformMat4(this._localMat);
+                if (!approx(gravityFactor, 0.0, EPSILON)) {
+                    if (ps.node.parent) {
+                        this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                    }
+                    this._gravity = this._gravity.transformMat4(this._localMat);
 
-                p.velocity.x += this._gravity.x;
-                p.velocity.y += this._gravity.y;
-                p.velocity.z += this._gravity.z;
+                    p.velocity.x += this._gravity.x;
+                    p.velocity.y += this._gravity.y;
+                    p.velocity.z += this._gravity.z;
+                }
             } else {
                 // apply gravity.
                 p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
