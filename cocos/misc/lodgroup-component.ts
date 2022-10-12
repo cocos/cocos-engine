@@ -195,11 +195,12 @@ export class LODGroup extends Component {
     onLoad () {
         this._createLODGroup();
         // generate default lod for lodGroup
-        if (this._lodGroup.lodCount < 1) {
+        if (this.lodCount < 1) {
             const size = _DEFAULT_SCREEN_OCCUPATION.length;
             for (let i = 0; i < size; i++) {
-                this._LODs[i] = new LOD();
-                this._LODs[i].screenRelativeTransitionHeight = _DEFAULT_SCREEN_OCCUPATION[i];
+                const lod = new LOD();
+                lod.screenRelativeTransitionHeight = _DEFAULT_SCREEN_OCCUPATION[i];
+                this.insertLOD(i, lod);
             }
         }
     }
