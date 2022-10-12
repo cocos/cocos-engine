@@ -415,7 +415,6 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::Layers::Enum, visFlags, getVisFlags, setVisFlags);
 %attribute(cc::scene::Model, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::Model, cc::scene::Model::Type, type, getType, setType);
-%attribute(cc::scene::Model, cc::scene::InstancedAttributeBlock&, instancedAttributes, getInstancedAttributeBlock, setInstancedAttributeBlock);
 %attribute(cc::scene::Model, bool, isDynamicBatching, isDynamicBatching, setDynamicBatching);
 %attribute(cc::scene::Model, uint32_t, priority, getPriority, setPriority);
 
