@@ -72,6 +72,14 @@ using namespace cc;
 %ignore cc::Node::setRTS;
 %ignore cc::scene::Camera::syncCameraEditor;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
+%ignore cc::scene::SubModel::getInstancedAttributeBlock;
+%ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::setInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::getInstancedAttributeIndex;
+%ignore cc::scene::SubModel::setInstancedAttributeIndex;
+%ignore cc::scene::SubModel::updateInstancedAttributes;
+%ignore cc::scene::SubModel::updateInstancedWorldMatrix;
+
 %ignore cc::scene::Model::getLocalData;
 %ignore cc::scene::Model::getEventProcessor;
 %ignore cc::scene::Model::getOctreeNode;
@@ -170,8 +178,6 @@ using namespace cc;
 
 %rename(_initLocalDescriptors) cc::scene::Model::initLocalDescriptors;
 %rename(_updateLocalDescriptors) cc::scene::Model::updateLocalDescriptors;
-%rename(_updateInstancedAttributes) cc::scene::Model::updateInstancedAttributes;
-%rename(_getInstancedAttributeIndex) cc::scene::Model::getInstancedAttributeIndex;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
@@ -400,7 +406,6 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::gfx::Buffer *, worldBoundBuffer, getWorldBoundBuffer, setWorldBoundBuffer);
 %attribute(cc::scene::Model, cc::gfx::Buffer *, localBuffer, getLocalBuffer, setLocalBuffer);
 %attribute(cc::scene::Model, uint32_t, updateStamp, getUpdateStamp);
-%attribute(cc::scene::Model, bool, isInstancingEnabled, isInstancingEnabled);
 %attribute(cc::scene::Model, bool, receiveShadow, isReceiveShadow, setReceiveShadow);
 %attribute(cc::scene::Model, bool, castShadow, isCastShadow, setCastShadow);
 %attribute(cc::scene::Model, float, shadowBias, getShadowBias, setShadowBias);
