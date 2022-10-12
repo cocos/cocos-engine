@@ -28,9 +28,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
-#ifndef CC_WGPU_WASM
-    #include "base/ZipUtils.h"
-#endif
+#include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "base/std/container/string.h"
 #include "memory/Memory.h"
@@ -165,7 +163,6 @@ ccstd::string &StringUtil::toupper(ccstd::string &str) {
 }
 
 ccstd::string GzipedString::value() const { // NOLINT(readability-convert-member-functions-to-static)
-#ifndef CC_WGPU_WASM
     uint8_t *outGzip{nullptr};
     uint8_t *outBase64{nullptr};
     auto *input = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
@@ -175,9 +172,6 @@ ccstd::string GzipedString::value() const { // NOLINT(readability-convert-member
     free(outGzip);
     free(outBase64);
     return ret;
-#else
-    return "";
-#endif
 }
 
 } // namespace cc

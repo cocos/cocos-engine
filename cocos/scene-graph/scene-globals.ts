@@ -824,7 +824,6 @@ export class ShadowsInfo {
      * @en The type of the shadow
      * @zh 阴影渲染的类型
      */
-    @tooltip('i18n:shadow.type')
     @editable
     @type(ShadowType)
     set type (val) {
@@ -839,7 +838,6 @@ export class ShadowsInfo {
      * @en Shadow color
      * @zh 阴影颜色
      */
-    @tooltip('i18n:shadow.shadowColor')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     set shadowColor (val: Color) {
         this._shadowColor.set(val);
@@ -853,8 +851,8 @@ export class ShadowsInfo {
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    @tooltip('i18n:shadow.planeDirection')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
+    @tooltip('i18n:shadow.planeDirection')
     set planeDirection (val: Vec3) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
@@ -867,10 +865,10 @@ export class ShadowsInfo {
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    @tooltip('i18n:shadow.planeHeight')
     @editable
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
+    @tooltip('i18n:shadow.planeHeight')
     set planeHeight (val: number) {
         this._distance = val;
         if (this._resource) { this._resource.distance = val; }
@@ -883,8 +881,8 @@ export class ShadowsInfo {
      * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
-    @tooltip('i18n:shadow.maxReceived')
     @type(CCInteger)
+    @tooltip('i18n:shadow.maxReceived')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set maxReceived (val: number) {
         this._maxReceived = val;
@@ -898,8 +896,8 @@ export class ShadowsInfo {
      * @en get or set shadow map size
      * @zh 获取或者设置阴影纹理大小
      */
-    @tooltip('i18n:shadow.shadowMapSize')
     @type(ShadowSize)
+    @tooltip('i18n:shadow.shadowMapSize')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set shadowMapSize (value: number) {
         this._size.set(value, value);

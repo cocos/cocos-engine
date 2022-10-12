@@ -1,7 +1,0 @@
-{
-    "version": "1.0.0",
-    "templates": [
-        "game.json",
-        "project.swan.json"
-    ]
-}

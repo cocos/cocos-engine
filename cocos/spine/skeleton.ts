@@ -445,20 +445,6 @@ export class Skeleton extends UIRenderer {
             this._updateUseTint();
         }
     }
-    /*
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-    */
-    @editable
-    @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
-    get enableBatch () { return this._enableBatch; }
-    set enableBatch (value) {
-        if (value !== this._enableBatch) {
-            this._enableBatch = value;
-            this._updateBatch();
-        }
-    }
-
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
@@ -482,7 +468,6 @@ export class Skeleton extends UIRenderer {
     }
 
     get socketNodes () { return this._socketNodes; }
-
     // Frame cache
     /**
      * @internal
@@ -618,9 +603,6 @@ export class Skeleton extends UIRenderer {
     @visible(false)
     @serializable
     protected defaultAnimation = '';
-
-    @serializable
-    protected _enableBatch = false;
 
     @serializable
     protected _sockets: SpineSocket[] = [];
@@ -1355,14 +1337,6 @@ export class Skeleton extends UIRenderer {
         super.destroyRenderData();
     }
 
-    private getMaterialTemplate () : Material {
-        let material = this.customMaterial;
-        if (material === null) {
-            material = builtinResMgr.get<Material>('default-spine-material');
-        }
-        return material;
-    }
-
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
         let inst = this._materialCache[key];
@@ -1370,7 +1344,20 @@ export class Skeleton extends UIRenderer {
             return inst;
         }
 
-        const material = this.getMaterialTemplate();
+        let material = this.customMaterial;
+        if (material === null) {
+            material = builtinResMgr.get<Material>('default-spine-material');
+        }
+
+        let useTwoColor = false;
+        switch (type) {
+        case SpineMaterialType.TWO_COLORED:
+            useTwoColor = true;
+            break;
+        case SpineMaterialType.COLORED_TEXTURED:
+        default:
+            break;
+        }
         const matInfo = {
             parent: material,
             subModelIdx: 0,
@@ -1391,12 +1378,7 @@ export class Skeleton extends UIRenderer {
                 }],
             },
         });
-        let useTwoColor = false;
-        if (type === SpineMaterialType.TWO_COLORED) {
-            useTwoColor = true;
-        }
-        const useLocal = !this._enableBatch;
-        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: useLocal });
+        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: true });
         return inst;
     }
 
@@ -1434,7 +1416,6 @@ export class Skeleton extends UIRenderer {
     }
 
     protected _render (batcher: Batcher2D) {
-        let indicesCount = 0;
         if (this.renderData && this._drawList) {
             const rd = this.renderData;
             const chunk = rd.chunk;
@@ -1442,17 +1423,20 @@ export class Skeleton extends UIRenderer {
             const meshBuffer = rd.getMeshBuffer()!;
             const origin = meshBuffer.indexOffset;
             // Fill index buffer
+            accessor.appendIndices(chunk.bufferId, rd.indices!);
             for (let i = 0; i < this._drawList.length; i++) {
                 this._drawIdx = i;
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
+                    // Construct IA
+                    const ia = meshBuffer.requireFreeIA(batcher.device);
+                    ia.firstIndex = origin + dc.indexOffset;
+                    ia.indexCount = dc.indexCount;
+                    // Commit IA
+                    batcher.commitIA(this, ia, dc.texture, dc.material!, this.node);
                 }
-                indicesCount += dc.indexCount;
             }
-            const subIndices = rd.indices!.subarray(0, indicesCount);
-            accessor.appendIndices(chunk.bufferId, subIndices);
+            // this.node._static = true;
         }
     }
 
@@ -1575,7 +1559,11 @@ export class Skeleton extends UIRenderer {
     }
     // if change use batch mode, just clear material cache
     protected _updateBatch () {
-        this._cleanMaterialCache();
+        // let baseMaterial = this.getMaterial(0);
+        // if (baseMaterial) {
+        //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+        // }
+        // this._materialCache = {};
         this.markForUpdateRenderData();
     }
 

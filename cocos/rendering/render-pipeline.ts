@@ -48,7 +48,6 @@ import { OS } from '../../pal/system-info/enum-type';
 import { macro } from '../core/platform/macro';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
-import { murmurhash2_32_gc } from '../core/algorithm/murmurhash2_gc';
 
 /**
  * @en Render pipeline information descriptor
@@ -93,25 +92,6 @@ export class PipelineInputAssemblerData {
     quadIB: Buffer|null = null;
     quadVB: Buffer|null = null;
     quadIA: InputAssembler|null = null;
-}
-
-function hashFrameBuffer (fbo: Framebuffer) {
-    let hash = 666;
-    for (const color of fbo.colorTextures) {
-        const info = color?.info;
-        const hashStr = `${info!.type}_${info!.usage}_${info!.format}_${info!.width}_${info!.height}_${info!.flags}_
-            ${info!.layerCount}_${info!.levelCount}_${info!.samples}_${info!.depth}_${info!.externalRes}`;
-        hash = murmurhash2_32_gc(hashStr, hash);
-    }
-
-    if (fbo.depthStencilTexture) {
-        const info = fbo.depthStencilTexture.info;
-        const hashStr = `${info.type}_${info.usage}_${info.format}_${info.width}_${info.height}_${info.flags}_
-            ${info.layerCount}_${info.levelCount}_${info.samples}_${info.depth}_${info.externalRes}`;
-        hash = murmurhash2_32_gc(hashStr, hash);
-    }
-
-    return hash;
 }
 
 /**
@@ -276,7 +256,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     protected _geometryRenderer: GeometryRenderer | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
     protected _pipelineRenderData: PipelineRenderData | null = null;
-    protected _renderPasses = new Map<number, RenderPass>();
+    protected _renderPasses = new Map<ClearFlags, RenderPass>();
     protected _width = 0;
     protected _height = 0;
     protected _lastUsedRenderArea: Rect = new Rect();
@@ -330,34 +310,30 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     }
 
     public getRenderPass (clearFlags: ClearFlags, fbo: Framebuffer): RenderPass {
-        const fbHash = hashFrameBuffer(fbo);
-        const hash = murmurhash2_32_gc(`${fbHash}_${clearFlags}`, 666);
-        let renderPass = this._renderPasses.get(hash);
+        let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
         renderPass = this.createRenderPass(clearFlags, fbo.colorTextures[0]!.format, fbo.depthStencilTexture!.format);
-        this._renderPasses.set(hash, renderPass);
+        this._renderPasses.set(clearFlags, renderPass);
         return renderPass;
     }
 
-    public newFramebufferByRatio (dyingFramebuffer: Framebuffer) {
+    public applyFramebufferRatio (framebuffer: Framebuffer) {
         const sceneData = this.pipelineSceneData;
         const width = this._width * sceneData.shadingScale;
         const height = this._height * sceneData.shadingScale;
-        const colorTexArr: any = dyingFramebuffer.colorTextures;
+        const colorTexArr: any = framebuffer.colorTextures;
         for (let i = 0; i < colorTexArr.length; i++) {
             colorTexArr[i]!.resize(width, height);
         }
-        if (dyingFramebuffer.depthStencilTexture) {
-            dyingFramebuffer.depthStencilTexture.resize(width, height);
+        if (framebuffer.depthStencilTexture) {
+            framebuffer.depthStencilTexture.resize(width, height);
         }
-        // move
-        const newFramebuffer = this._device.createFramebuffer(new FramebufferInfo(
-            dyingFramebuffer.renderPass,
+        framebuffer.destroy();
+        framebuffer.initialize(new FramebufferInfo(
+            framebuffer.renderPass,
             colorTexArr,
-            dyingFramebuffer.depthStencilTexture,
+            framebuffer.depthStencilTexture,
         ));
-        dyingFramebuffer.destroy();
-        return newFramebuffer;
     }
 
     /**

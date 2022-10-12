@@ -42,8 +42,9 @@ public:
 
     inline CCWGPUSwapchainObject *gpuSwapchainObject() { return _gpuSwapchainObj; }
 
-    inline void setColorTexture(Texture *tex) { _colorTexture = tex; }
-    inline void setDepthStencilTexture(Texture *tex) { _depthStencilTexture = tex; }
+    CCWGPUTexture *getColorTexture();
+
+    CCWGPUTexture *getDepthStencilTexture();
 
     void update();
 

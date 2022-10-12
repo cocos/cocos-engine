@@ -26,25 +26,32 @@
 #include "WGPUInputAssembler.h"
 #include "WGPUObject.h"
 
+using namespace emscripten;
 namespace cc {
 namespace gfx {
 
-CCWGPUInputAssembler::CCWGPUInputAssembler() : InputAssembler() {
-}
-
-CCWGPUInputAssembler::~CCWGPUInputAssembler() {
-    doDestroy();
+CCWGPUInputAssembler::CCWGPUInputAssembler() : wrapper<InputAssembler>(val::object()) {
 }
 
 void CCWGPUInputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssemblerObj = ccnew CCWGPUInputAssemblerObject;
+    // // typedef struct WGPUVertexState {
+    // //     WGPUChainedStruct const * nextInChain;
+    // //     WGPUShaderModule module;
+    // //     char const * entryPoint;
+    // //     uint32_t bufferCount;
+    // //     WGPUVertexBufferLayout const * buffers;
+    // // } WGPUVertexState;
+
+    // _gpuInputAssemblerObj->wgpuVertexState.nextInChain = nullptr;
+    // _gpuInputAssemblerObj->wgpuVertexState.module =
 }
 
 void CCWGPUInputAssembler::doDestroy() {
-    if (_gpuInputAssemblerObj) {
-        delete _gpuInputAssemblerObj;
-        _gpuInputAssemblerObj = nullptr;
-    }
+}
+
+void CCWGPUInputAssembler::update(const DrawInfo &info) {
+    _drawInfo = info;
 }
 
 } // namespace gfx

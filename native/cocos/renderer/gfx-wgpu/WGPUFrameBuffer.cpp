@@ -30,11 +30,7 @@ using namespace emscripten;
 namespace cc {
 namespace gfx {
 
-CCWGPUFramebuffer::CCWGPUFramebuffer() : Framebuffer() {
-}
-
-CCWGPUFramebuffer::~CCWGPUFramebuffer() {
-    doDestroy();
+CCWGPUFramebuffer::CCWGPUFramebuffer() : wrapper<Framebuffer>(val::object()) {
 }
 
 void CCWGPUFramebuffer::doInit(const FramebufferInfo &info) {

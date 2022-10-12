@@ -35,6 +35,7 @@ void DrawBatch2D::clear() {
     _inputAssembler = nullptr;
     _descriptorSet = nullptr;
     _model = nullptr;
+    _useLocalData = nullptr;
     _visFlags = 1 << 23;
 }
 

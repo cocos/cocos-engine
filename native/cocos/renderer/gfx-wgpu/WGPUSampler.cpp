@@ -32,17 +32,16 @@
 namespace cc {
 namespace gfx {
 
-namespace {
-CCWGPUSampler *dftFilterableSampler = nullptr;
-CCWGPUSampler *dftUnfilterableSampler = nullptr;
-} // namespace
+namespace anoymous {
+CCWGPUSampler *defaultSampler = nullptr;
+}
 
 using namespace emscripten;
 
-CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : Sampler(info) {
+CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : wrapper<Sampler>(val::object(), info) {
     WGPUSamplerDescriptor descriptor = {
         .nextInChain = nullptr,
-        .label = (std::to_string(static_cast<uint32_t>(info.minFilter)) + " " + std::to_string(static_cast<uint32_t>(info.magFilter)) + " " + std::to_string(static_cast<uint32_t>(info.mipFilter))).c_str(),
+        .label = nullptr,
         .addressModeU = toWGPUAddressMode(info.addressU),
         .addressModeV = toWGPUAddressMode(info.addressV),
         .addressModeW = toWGPUAddressMode(info.addressW),
@@ -51,7 +50,7 @@ CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : Sampler(info) {
         .mipmapFilter = toWGPUFilterMode(info.mipFilter),
         .lodMinClamp = 0.0f,
         .lodMaxClamp = std::numeric_limits<float>::max(),
-        .compare = WGPUCompareFunction_Undefined, // toWGPUCompareFunction(info.cmpFunc),
+        .compare = WGPUCompareFunction_Undefined, //toWGPUCompareFunction(info.cmpFunc),
         .maxAnisotropy = static_cast<uint16_t>(info.maxAnisotropy),
     };
 
@@ -63,38 +62,21 @@ CCWGPUSampler::~CCWGPUSampler() {
     wgpuSamplerRelease(_wgpuSampler);
 }
 
-CCWGPUSampler *CCWGPUSampler::defaultFilterableSampler() {
-    if (!dftFilterableSampler) {
+CCWGPUSampler *CCWGPUSampler::defaultSampler() {
+    if (!anoymous::defaultSampler) {
         SamplerInfo info = {
             .minFilter = Filter::LINEAR,
             .magFilter = Filter::LINEAR,
-            .mipFilter = Filter::LINEAR,
+            .mipFilter = Filter::NONE,
             .addressU = Address::WRAP,
             .addressV = Address::WRAP,
             .addressW = Address::WRAP,
             .maxAnisotropy = 0,
             .cmpFunc = ComparisonFunc::ALWAYS,
         };
-        dftFilterableSampler = ccnew CCWGPUSampler(info);
+        anoymous::defaultSampler = ccnew CCWGPUSampler(info);
     }
-    return dftFilterableSampler;
-}
-
-CCWGPUSampler *CCWGPUSampler::defaultUnfilterableSampler() {
-    if (!dftUnfilterableSampler) {
-        SamplerInfo info = {
-            .minFilter = Filter::POINT,
-            .magFilter = Filter::POINT,
-            .mipFilter = Filter::POINT,
-            .addressU = Address::WRAP,
-            .addressV = Address::WRAP,
-            .addressW = Address::WRAP,
-            .maxAnisotropy = 0,
-            .cmpFunc = ComparisonFunc::ALWAYS,
-        };
-        dftUnfilterableSampler = ccnew CCWGPUSampler(info);
-    }
-    return dftUnfilterableSampler;
+    return anoymous::defaultSampler;
 }
 
 } // namespace gfx

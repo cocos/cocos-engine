@@ -69,10 +69,12 @@ export declare class NativeUIMeshBuffer {
     set vData(val: Float32Array);
     get iData(): Uint16Array;
     set iData(val: Uint16Array);
+    get useLinkData(): boolean;
+    set useLinkData(val: boolean);
 
     syncSharedBufferToNative(data: TypedArray);
 
-    initialize(attrs: Attribute[]);
+    initialize(device: Device, attrs: Attribute[], vFloatCount: number, iCount: number);
     reset();
     destroy();
     setDirty();

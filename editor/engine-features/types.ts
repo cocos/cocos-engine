@@ -3,7 +3,6 @@
 export type EngineFeature =
     | 'gfx-webgl'
     | 'gfx-webgl2'
-    | 'gfx-webgpu'
     | 'base'
     | 'graphcis'
     | '3d'

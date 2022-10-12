@@ -92,20 +92,6 @@ export class ForwardStage extends RenderStage {
         this._uiPhase = new UIPhase();
     }
 
-    public addRenderInstancedQueue (queue: RenderInstancedQueue) {
-        if (this.additiveInstanceQueues.includes(queue)) {
-            return;
-        }
-        this.additiveInstanceQueues.push(queue);
-    }
-
-    public removeRenderInstancedQueue (queue: RenderInstancedQueue) {
-        const index = this.additiveInstanceQueues.indexOf(queue);
-        if (index > -1) {
-            this.additiveInstanceQueues.splice(index, 1);
-        }
-    }
-
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         if (info.renderQueues) {
@@ -149,7 +135,7 @@ export class ForwardStage extends RenderStage {
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = pass.getInstancedBuffer();
-                        instancedBuffer.merge(subModel, p);
+                        instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = pass.getBatchedBuffer();

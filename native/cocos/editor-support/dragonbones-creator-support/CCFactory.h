@@ -112,6 +112,8 @@ public:
         _dragonBonesInstance->render();
     }
 
+    virtual uint32_t getRenderOrder() const override { return 0; }
+
     /**
      * @note When script engine clean up is trigger,will stop dragonbones timer.
      */

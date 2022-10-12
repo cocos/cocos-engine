@@ -179,12 +179,6 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx] = vec3.x;
              a[idx + 1] = vec3.y;
              a[idx + 2] = 0;
-         } else if (ccstd::holds_alternative<Color>(v)) {
-             const auto &color = ccstd::get<Color>(v);
-             Vec4 colorFloat{color.toVec4()};
-             a[idx] = colorFloat.x;
-             a[idx + 1] = colorFloat.y;
-             a[idx + 2] = colorFloat.z;
          } else {
              CC_ASSERT(false);
          }

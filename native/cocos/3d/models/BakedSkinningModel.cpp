@@ -114,20 +114,15 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     Super::updateUBOs(stamp);
 
     IAnimInfo &info = _jointMedium.animInfo;
-    const int idx = _instAnimInfoIdx;
+    int idx = _instAnimInfoIdx;
     const float *curFrame = info.curFrame;
-    bool hasNonInstancingPass = false;
-    for (const auto &subModel : _subModels) {
-        if (idx >= 0) {
-            auto &views = subModel->getInstancedAttributeBlock().views[idx];
-            setTypedArrayValue(views, 0, *curFrame);
-        } else {
-            hasNonInstancingPass = true;
-        }
-    }
-
-    const uint32_t frameDataBytes = info.frameDataBytes;
-    if (hasNonInstancingPass && *info.dirtyForJSB != 0) {
+    uint32_t frameDataBytes = info.frameDataBytes;
+    //    float curFrame = info.data[0];
+    //    uint32_t curFrameDataBytes = info.data.byteLength();
+    if (idx >= 0) {
+        auto &views = getInstancedAttributeBlock().views[idx];
+        setTypedArrayValue(views, 0, *curFrame);
+    } else if (*info.dirtyForJSB != 0) {
         info.buffer->update(curFrame, frameDataBytes);
         *info.dirtyForJSB = 0;
     }
@@ -182,24 +177,21 @@ void BakedSkinningModel::updateLocalDescriptors(index_t subModelIndex, gfx::Desc
     }
 }
 
-void BakedSkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::SubModel *subModel) {
-    Super::updateInstancedAttributes(attributes, subModel);
-    _instAnimInfoIdx = subModel->getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
+void BakedSkinningModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) {
+    Super::updateInstancedAttributes(attributes, pass);
+    _instAnimInfoIdx = getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     updateInstancedJointTextureInfo();
 }
 
 void BakedSkinningModel::updateInstancedJointTextureInfo() {
     const auto &jointTextureInfo = _jointMedium.jointTextureInfo;
     const IAnimInfo &animInfo = _jointMedium.animInfo;
-    const index_t idx = _instAnimInfoIdx;
-    for (const auto &subModel : _subModels) {
-        auto &views = subModel->getInstancedAttributeBlock().views;
-        if (idx >= 0 && !views.empty()) {
-            auto &view = views[idx];
-            setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.
-            setTypedArrayValue(view, 1, jointTextureInfo[1]);
-            setTypedArrayValue(view, 2, jointTextureInfo[2]);
-        }
+    index_t idx = _instAnimInfoIdx;
+    if (idx >= 0) {
+        auto &view = getInstancedAttributeBlock().views[idx];
+        setTypedArrayValue(view, 0, *animInfo.curFrame); //NOTE: curFrame is only used in JSB.
+        setTypedArrayValue(view, 1, jointTextureInfo[1]);
+        setTypedArrayValue(view, 2, jointTextureInfo[2]);
     }
 }
 

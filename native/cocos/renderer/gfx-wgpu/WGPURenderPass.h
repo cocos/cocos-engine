@@ -25,9 +25,7 @@
 
 #pragma once
 
-#ifdef CC_WGPU_WASM
-    #include "WGPUDef.h"
-#endif
+#include <emscripten/bind.h>
 #include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
@@ -36,14 +34,13 @@ namespace gfx {
 struct CCWGPURenderPassObject;
 class CCWGPURenderPassHelper;
 
-class CCWGPURenderPass final : public RenderPass {
+class CCWGPURenderPass final : public emscripten::wrapper<RenderPass> {
 public:
+    EMSCRIPTEN_WRAPPER(CCWGPURenderPass);
     CCWGPURenderPass();
-    ~CCWGPURenderPass();
+    ~CCWGPURenderPass() = default;
 
     inline CCWGPURenderPassObject *gpuRenderPassObject() { return _renderPassObject; }
-
-    using RenderPass::initialize;
 
 protected:
     void doInit(const RenderPassInfo &info) override;
