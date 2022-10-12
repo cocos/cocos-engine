@@ -54,6 +54,8 @@ struct DescriptorBlockData;
 struct DescriptorSetLayoutData;
 struct DescriptorSetData;
 struct PipelineLayoutData;
+struct ShaderBindingData;
+struct ShaderLayoutData;
 struct ShaderProgramData;
 struct RenderStageData;
 struct RenderPhaseData;

@@ -397,6 +397,42 @@ struct PipelineLayoutData {
     ccstd::pmr::map<UpdateFrequency, DescriptorSetData> descriptorSets;
 };
 
+struct ShaderBindingData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {descriptorBindings.get_allocator().resource()};
+    }
+
+    ShaderBindingData(const allocator_type& alloc) noexcept; // NOLINT
+    ShaderBindingData(ShaderBindingData&& rhs, const allocator_type& alloc);
+    ShaderBindingData(ShaderBindingData const& rhs, const allocator_type& alloc);
+
+    ShaderBindingData(ShaderBindingData&& rhs) noexcept = default;
+    ShaderBindingData(ShaderBindingData const& rhs) = delete;
+    ShaderBindingData& operator=(ShaderBindingData&& rhs) = default;
+    ShaderBindingData& operator=(ShaderBindingData const& rhs) = default;
+
+    PmrFlatMap<NameLocalID, uint32_t> descriptorBindings;
+};
+
+struct ShaderLayoutData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {layoutData.get_allocator().resource()};
+    }
+
+    ShaderLayoutData(const allocator_type& alloc) noexcept; // NOLINT
+    ShaderLayoutData(ShaderLayoutData&& rhs, const allocator_type& alloc);
+
+    ShaderLayoutData(ShaderLayoutData&& rhs) noexcept = default;
+    ShaderLayoutData(ShaderLayoutData const& rhs) = delete;
+    ShaderLayoutData& operator=(ShaderLayoutData&& rhs) = default;
+    ShaderLayoutData& operator=(ShaderLayoutData const& rhs) = delete;
+
+    ccstd::pmr::map<UpdateFrequency, DescriptorSetLayoutData> layoutData;
+    ccstd::pmr::map<UpdateFrequency, ShaderBindingData> bindingData;
+};
+
 struct ShaderProgramData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -621,6 +657,7 @@ struct LayoutGraphData {
     PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
+    PmrFlatMap<ccstd::pmr::string, ShaderLayoutData> shaderLayoutData;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

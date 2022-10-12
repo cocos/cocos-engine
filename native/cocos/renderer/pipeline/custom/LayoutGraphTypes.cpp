@@ -168,6 +168,23 @@ PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
 PipelineLayoutData::PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc)
 : descriptorSets(std::move(rhs.descriptorSets), alloc) {}
 
+ShaderBindingData::ShaderBindingData(const allocator_type& alloc) noexcept
+: descriptorBindings(alloc) {}
+
+ShaderBindingData::ShaderBindingData(ShaderBindingData&& rhs, const allocator_type& alloc)
+: descriptorBindings(std::move(rhs.descriptorBindings), alloc) {}
+
+ShaderBindingData::ShaderBindingData(ShaderBindingData const& rhs, const allocator_type& alloc)
+: descriptorBindings(rhs.descriptorBindings, alloc) {}
+
+ShaderLayoutData::ShaderLayoutData(const allocator_type& alloc) noexcept
+: layoutData(alloc),
+  bindingData(alloc) {}
+
+ShaderLayoutData::ShaderLayoutData(ShaderLayoutData&& rhs, const allocator_type& alloc)
+: layoutData(std::move(rhs.layoutData), alloc),
+  bindingData(std::move(rhs.bindingData), alloc) {}
+
 ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
 : layout(alloc) {}
 
@@ -201,6 +218,7 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   attributeIndex(alloc),
   constantIndex(alloc),
   shaderLayoutIndex(alloc),
+  shaderLayoutData(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
@@ -214,6 +232,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   attributeIndex(std::move(rhs.attributeIndex), alloc),
   constantIndex(std::move(rhs.constantIndex), alloc),
   shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
+  shaderLayoutData(std::move(rhs.shaderLayoutData), alloc),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 // ContinuousContainer
