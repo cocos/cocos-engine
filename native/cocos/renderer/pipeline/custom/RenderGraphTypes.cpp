@@ -41,6 +41,7 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   descs(alloc),
   traits(alloc),
   states(alloc),
+  samplerInfo(alloc),
   resources(alloc),
   managedBuffers(alloc),
   managedTextures(alloc),
@@ -56,6 +57,7 @@ ResourceGraph::ResourceGraph(ResourceGraph&& rhs, const allocator_type& alloc)
   descs(std::move(rhs.descs), alloc),
   traits(std::move(rhs.traits), alloc),
   states(std::move(rhs.states), alloc),
+  samplerInfo(std::move(rhs.samplerInfo), alloc),
   resources(std::move(rhs.resources), alloc),
   managedBuffers(std::move(rhs.managedBuffers), alloc),
   managedTextures(std::move(rhs.managedTextures), alloc),
@@ -72,6 +74,7 @@ ResourceGraph::ResourceGraph(ResourceGraph const& rhs, const allocator_type& all
   descs(rhs.descs, alloc),
   traits(rhs.traits, alloc),
   states(rhs.states, alloc),
+  samplerInfo(rhs.samplerInfo, alloc),
   resources(rhs.resources, alloc),
   managedBuffers(rhs.managedBuffers, alloc),
   managedTextures(rhs.managedTextures, alloc),
@@ -89,6 +92,7 @@ void ResourceGraph::reserve(vertices_size_type sz) {
     descs.reserve(sz);
     traits.reserve(sz);
     states.reserve(sz);
+    samplerInfo.reserve(sz);
 }
 
 ResourceGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
