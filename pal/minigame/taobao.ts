@@ -119,4 +119,22 @@ minigame.getSafeArea = function () {
 };
 // #endregion SafeArea
 
+// HACK: adapt GL.getUniformLocation
+// Android return value: undefined.   iOS return value: {ID: -1}.
+if (!my.isIDE && my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') {
+    // @ts-expect-error canvas defined in global
+    const locCanvas = $global.screencanvas;
+    if (locCanvas) {
+        const webglRC = locCanvas.getContext('webgl');
+        const originalGetUniformLocation = webglRC.getUniformLocation.bind(webglRC);
+        webglRC.getUniformLocation = function (program, name) {
+            const glLoc = originalGetUniformLocation(program, name);
+            if (glLoc && glLoc.ID === -1) {
+                return undefined;
+            }
+            return originalGetUniformLocation(program, name);
+        };
+    }
+}
+
 export { minigame };
