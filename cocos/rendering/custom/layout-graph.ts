@@ -627,7 +627,7 @@ export class ShaderLayoutData {
 }
 
 export class TechniqueData {
-    readonly passes: Map<string, ShaderLayoutData> = new Map<string, ShaderLayoutData>();
+    readonly passes: ShaderLayoutData[] = [];
 }
 
 export class EffectData {

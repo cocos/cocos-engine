@@ -446,7 +446,7 @@ struct TechniqueData {
     TechniqueData& operator=(TechniqueData&& rhs) = default;
     TechniqueData& operator=(TechniqueData const& rhs) = delete;
 
-    ccstd::pmr::map<ccstd::pmr::string, ShaderLayoutData> passes;
+    ccstd::pmr::vector<ShaderLayoutData> passes;
 };
 
 struct EffectData {
