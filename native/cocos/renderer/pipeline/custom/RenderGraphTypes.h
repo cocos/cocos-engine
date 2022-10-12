@@ -126,6 +126,7 @@ struct PersistentBufferTag {};
 struct PersistentTextureTag {};
 struct FramebufferTag {};
 struct SwapchainTag {};
+struct SamplerTag {};
 
 struct ResourceGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -262,6 +263,8 @@ struct ResourceGraph {
     } static constexpr Traits{}; // NOLINT
     struct StatesTag {
     } static constexpr States{}; // NOLINT
+    struct SamplerTag {
+    } static constexpr Sampler{}; // NOLINT
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -270,6 +273,7 @@ struct ResourceGraph {
     ccstd::pmr::vector<ResourceDesc> descs;
     ccstd::pmr::vector<ResourceTraits> traits;
     ccstd::pmr::vector<ResourceStates> states;
+    ccstd::pmr::vector<gfx::SamplerInfo> samplerInfo;
     // PolymorphicGraph
     ccstd::pmr::vector<ManagedResource> resources;
     ccstd::pmr::vector<ManagedBuffer> managedBuffers;
