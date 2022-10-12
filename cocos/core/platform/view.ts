@@ -36,7 +36,6 @@ import { errorID } from './debug';
 import { screen } from './screen';
 import { macro } from './macro';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
-import { director } from '../director';
 import { System } from '../components';
 import { Settings, settings } from '../settings';
 
@@ -1032,7 +1031,7 @@ legacyCC.ResolutionPolicy = ResolutionPolicy;
  * @zh view 是全局的视图单例对象。
  */
 export const view = View.instance = legacyCC.view = new View();
-director.registerSystem('view', view, 0);
+legacyCC.director.registerSystem('view', view, 0);
 
 /**
  * @en winSize is the alias object for the size of the current game window.
