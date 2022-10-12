@@ -76,6 +76,9 @@
                 "gfx-webgl2": {
                     "$ref": "#/definitions/Item"
                 },
+                "gfx-webgpu": {
+                    "$ref": "#/definitions/Item"
+                },
                 "graphcis": {
                     "$ref": "#/definitions/Item"
                 },
@@ -217,6 +220,9 @@
                 "gfx-webgl2": {
                     "$ref": "#/definitions/BaseItem"
                 },
+                "gfx-webgpu": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "graphcis": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -312,4 +318,3 @@
     },
     "type": "object"
 }
-

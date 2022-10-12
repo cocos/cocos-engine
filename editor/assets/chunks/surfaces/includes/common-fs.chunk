@@ -51,7 +51,7 @@
 #include <builtin/functionalities/fog>
 
 // Uniform should depend on system macro, not surface macro
-#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
   #include <builtin/uniforms/cc-light-map>
   #include <common/lighting/light-map>
 #endif
