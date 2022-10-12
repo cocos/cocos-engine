@@ -75,17 +75,6 @@ export class AudioSource extends Component {
     private _isLoaded = false;
 
     private _lastSetClip: AudioClip | null = null;
-
-    private _resetPlayer () {
-        if (this._player) {
-            audioManager.removePlaying(this._player);
-            this._player.offEnded();
-            this._player.offInterruptionBegin();
-            this._player.offInterruptionEnd();
-            this._player.destroy();
-            this._player = null;
-        }
-    }
     /**
      * @en
      * The default AudioClip to be played for this audio source.
@@ -112,7 +101,6 @@ export class AudioSource extends Component {
         }
         if (!clip) {
             this._lastSetClip = null;
-            this._resetPlayer();
             return;
         }
         if (!clip._nativeAsset) {
@@ -133,7 +121,13 @@ export class AudioSource extends Component {
             }
             this._isLoaded = true;
             // clear old player
-            this._resetPlayer();
+            if (this._player) {
+                audioManager.removePlaying(this._player);
+                this._player.offEnded();
+                this._player.offInterruptionBegin();
+                this._player.offInterruptionEnd();
+                this._player.destroy();
+            }
             this._player = player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);

@@ -126,10 +126,18 @@ constexpr void validateParameterTypes(const std::tuple<ARGS...> * /*unused*/) {
         validateParameterType<ARGS>()...};
 }
 
+template <typename T>
+struct ListEntry {
+    ListEntry<T> *prevEntry{nullptr};
+    ListEntry<T> *nextEntry{nullptr};
+    T *prev() { return static_cast<T *>(prevEntry); }
+    T *next() { return static_cast<T *>(nextEntry); }
+};
+
 class EventBus;
 struct EventCallbackBase;
 
-class Listener {
+class Listener : public ListEntry<Listener> {
 public:
     explicit Listener(BusType type);
     Listener(BusType type, const char *name);
@@ -157,7 +165,7 @@ class EventBus {
 public:
     static EventBus *acquire(BusType type);
 
-    EventBus() = default;
+    EventBus();
 
     template <typename... ARGS>
     void send(ARGS &&...args);
@@ -166,7 +174,14 @@ private:
     void dispatch(EventBase *event);
     void addListener(Listener *);
     void removeListener(Listener *);
-    std::vector<Listener*> _listeners;
+
+    union {
+        ListEntry<Listener> _entry;
+        struct {
+            ListEntry<Listener> *first{nullptr};
+            ListEntry<Listener> *last{nullptr};
+        } _list;
+    };
 
     friend class Listener;
 };

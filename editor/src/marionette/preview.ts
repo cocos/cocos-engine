@@ -1,5 +1,5 @@
 import { BlendStateBuffer, LegacyBlendStateBuffer } from '../../../cocos/3d/skeletal-animation/skeletal-animation-blending';
-import { Node } from '../../../cocos/scene-graph';
+import { Node } from '../../../cocos/core';
 import { Motion, MotionEval } from '../../../cocos/animation/marionette/motion';
 import { createEval } from '../../../cocos/animation/marionette/create-eval';
 import { BindContext } from '../../../cocos/animation/marionette/parametric';

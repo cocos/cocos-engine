@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#ifdef CC_WGPU_WASM
-    #include "WGPUDef.h"
-#endif
+#include <emscripten/bind.h>
 #include "gfx-base/states/GFXSampler.h"
 
 #include "WGPUobject.h"
@@ -34,18 +32,19 @@
 namespace cc {
 namespace gfx {
 
-class CCWGPUSampler final : public Sampler {
+class CCWGPUSampler final : public emscripten::wrapper<Sampler> {
 public:
+    EMSCRIPTEN_WRAPPER(CCWGPUSampler);
     explicit CCWGPUSampler(const SamplerInfo &info);
     ~CCWGPUSampler();
 
-    inline WGPUSampler gpuSampler() const { return _wgpuSampler; }
+    inline WGPUSampler gpuSampler() { return _wgpuSampler; }
 
-    static CCWGPUSampler *defaultFilterableSampler();
-    static CCWGPUSampler *defaultUnfilterableSampler();
+    static CCWGPUSampler *defaultSampler();
 
-    // stamp current state
+    //stamp current state
     void stamp() {}
+
     bool internalChanged() const { return false; }
 
 protected:

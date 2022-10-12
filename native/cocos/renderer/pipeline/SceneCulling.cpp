@@ -34,7 +34,6 @@
 #include "core/geometry/Intersect.h"
 #include "core/geometry/Sphere.h"
 #include "core/scene-graph/Node.h"
-#include "core/platform/Debug.h"
 #include "math/Quaternion.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
@@ -147,12 +146,8 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
     csmLayers->clearCastShadowObjects();
     csmLayers->clearLayerObjects();
 
-    if (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag) {
-        if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
-            sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
-        } else {
-            debug::warnID(15100, camera->getName());
-        }
+    if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel() && (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag)) {
+        sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
     }
 
     const scene::Octree *octree = scene->getOctree();

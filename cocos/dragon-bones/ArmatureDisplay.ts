@@ -46,7 +46,6 @@ import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
 import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
-import { builtinResMgr } from '../asset/asset-manager';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -393,20 +392,6 @@ export class ArmatureDisplay extends UIRenderer {
         this._updateDebugDraw();
     }
 
-    /*
-     * @en Enabled batch model, if mesh is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的龙骨动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-    */
-    @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
-    @editable
-    get enableBatch () { return this._enableBatch; }
-    set enableBatch (value) {
-        if (value !== this._enableBatch) {
-            this._enableBatch = value;
-            this._updateBatch();
-        }
-    }
-
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
@@ -461,10 +446,6 @@ export class ArmatureDisplay extends UIRenderer {
 
     @serializable
     protected _debugBones = false;
-
-    @serializable
-    protected _enableBatch = false;
-
     /* protected */ _debugDraw: Graphics | null = null;
 
     // DragonBones data store key.
@@ -592,29 +573,20 @@ export class ArmatureDisplay extends UIRenderer {
         super.destroyRenderData();
     }
 
-    private getMaterialTemplate () : Material {
-        let material = this.customMaterial;
-        if (material === null) {
-            material = builtinResMgr.get<Material>('default-spine-material');
-        }
-        return material;
-    }
-
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
         const key = `${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
             return inst;
         }
-        const material = this.getMaterialTemplate();
+        const material = this.getMaterial(0)!;
         const matInfo = {
             parent: material,
             subModelIdx: 0,
             owner: this,
         };
-
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: false });
+        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -641,7 +613,6 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected _render (batcher: Batcher2D) {
-        let indicesCount = 0;
         if (this.renderData && this._drawList) {
             const rd = this.renderData;
             const chunk = rd.chunk;
@@ -649,17 +620,20 @@ export class ArmatureDisplay extends UIRenderer {
             const meshBuffer = rd.getMeshBuffer()!;
             const origin = meshBuffer.indexOffset;
             // Fill index buffer
+            accessor.appendIndices(chunk.bufferId, rd.indices!);
             for (let i = 0; i < this._drawList.length; i++) {
                 this._drawIdx = i;
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
+                    // Construct IA
+                    const ia = meshBuffer.requireFreeIA(batcher.device);
+                    ia.firstIndex = origin + dc.indexOffset;
+                    ia.indexCount = dc.indexCount;
+                    // Commit IA
+                    batcher.commitIA(this, ia, dc.texture, dc.material!, this.node);
                 }
-                indicesCount += dc.indexCount;
             }
-            const subIndices = rd.indices!.subarray(0, indicesCount);
-            accessor.appendIndices(chunk.bufferId, subIndices);
+            // this.node._static = true;
         }
     }
 
@@ -897,11 +871,6 @@ export class ArmatureDisplay extends UIRenderer {
         } else if (this._debugDraw) {
             this._debugDraw.node.parent = null;
         }
-        this.markForUpdateRenderData();
-    }
-
-    protected _updateBatch () {
-        this._cleanMaterialCache();
         this.markForUpdateRenderData();
     }
 
@@ -1372,7 +1341,7 @@ export class ArmatureDisplay extends UIRenderer {
 
     protected createRenderEntity () {
         const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
-        renderEntity.setUseLocal(false);
+        renderEntity.setUseLocal(true);
         return renderEntity;
     }
 

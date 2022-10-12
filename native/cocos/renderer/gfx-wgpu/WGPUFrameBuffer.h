@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#ifdef CC_WGPU_WASM
-    #include "WGPUDef.h"
-#endif
+#include <emscripten/bind.h>
 #include "gfx-base/GFXFramebuffer.h"
 
 namespace cc {
@@ -34,18 +32,12 @@ namespace gfx {
 
 class CCWGPUSwapchain;
 
-class CCWGPUFramebuffer final : public Framebuffer {
+class CCWGPUFramebuffer final : public emscripten::wrapper<Framebuffer> {
 public:
     CCWGPUFramebuffer();
-    ~CCWGPUFramebuffer();
+    ~CCWGPUFramebuffer() = default;
 
     inline CCWGPUSwapchain *swapchain() { return _swapchain; }
-
-    using Framebuffer::initialize;
-
-    inline void setRenderPass(RenderPass *rp) { _renderPass = rp; }
-    inline void setColorTextures(const TextureList &colors) { _colorTextures = colors; }
-    inline void setDepthStencilTexture(Texture *dsTex) { _depthStencilTexture = dsTex; }
 
 protected:
     void doInit(const FramebufferInfo &info) override;

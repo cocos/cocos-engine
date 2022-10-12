@@ -52,6 +52,7 @@ public:
     inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
     inline void setVisFlags(uint32_t flags) { _visFlags = flags; }
+    inline void setUseLocalFlag(Node *node) { _useLocalData = node; }
     inline void setModel(Model *model) { _model = model; }
 
     inline gfx::InputAssembler *getInputAssembler() const { return _inputAssembler; }
@@ -59,6 +60,7 @@ public:
     inline uint32_t getVisFlags() const { return _visFlags; }
     inline const ccstd::vector<gfx::Shader *> &getShaders() const { return _shaders; }
     inline const ccstd::vector<IntrusivePtr<Pass>> &getPasses() const { return _passes; }
+    inline Node *getUseLocalFlag() const { return _useLocalData; }
     inline Model *getModel() const { return _model; }
 
 protected:
@@ -68,6 +70,7 @@ protected:
     ccstd::vector<IntrusivePtr<scene::Pass>> _passes;
     ccstd::vector<gfx::Shader *> _shaders;
 
+    Node *_useLocalData{nullptr}; // May don`t need
     Model *_model{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(DrawBatch2D);

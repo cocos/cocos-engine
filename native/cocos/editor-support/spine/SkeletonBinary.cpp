@@ -525,17 +525,12 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
             return box;
         }
         case AttachmentType_Mesh: {
-            bool needDelete = false;
             int vertexCount;
             MeshAttachment *mesh;
             String path(readStringRef(input, skeletonData));
             if (path.isEmpty()) path = name;
 
             mesh = _attachmentLoader->newMeshAttachment(*skin, String(name), String(path));
-            if (!mesh) {
-                mesh = new MeshAttachment(name);
-                needDelete = true;
-            }
             mesh->_path = path;
             readColor(input, mesh->getColor());
             vertexCount = readVarint(input, true);
@@ -551,13 +546,6 @@ Attachment *SkeletonBinary::readAttachment(DataInput *input, Skin *skin, int slo
             } else {
                 mesh->_width = 0;
                 mesh->_height = 0;
-            }
-            // mesh should not be added to skin, just delete it. While it still needs to read
-            // all bytes to make sure next readAttachment read back right data.
-            if (needDelete) {
-                delete mesh;
-                mesh = nullptr;
-                return nullptr;
             }
             _attachmentLoader->configureAttachment(mesh);
             return mesh;

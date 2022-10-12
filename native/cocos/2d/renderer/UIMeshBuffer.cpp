@@ -49,13 +49,9 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute> &&attrs, bool needCreateLayout) {
+void UIMeshBuffer::initialize(gfx::Device* /*device*/, ccstd::vector<gfx::Attribute>&& attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
     _attributes = attrs;
     _vertexFormatBytes = getAttributesStride(attrs);
-    if (needCreateLayout) {
-        _meshBufferLayout = new MeshBufferLayout();
-    }
-    _needDeleteLayout = needCreateLayout;
 }
 
 void UIMeshBuffer::reset() {
@@ -91,9 +87,6 @@ void UIMeshBuffer::destroy() {
         delete ia;
     }
     _iaPool.clear();
-    if (_needDeleteLayout) {
-        CC_SAFE_DELETE(_meshBufferLayout);
-    }
 }
 
 void UIMeshBuffer::setDirty() {

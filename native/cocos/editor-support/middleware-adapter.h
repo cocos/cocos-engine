@@ -181,8 +181,6 @@ public:
     /** Sets texture param callback*/
     void setTexParamCallback(const texParamCallback &callback);
 
-    void setRealTexture(void* texturePtr);
-    void *getRealTexture() const;
 private:
     /** width in pixels */
     int _pixelsWide = 0;
@@ -194,7 +192,6 @@ private:
     int _realTextureIndex = 0;
 
     texParamCallback _texParamCallback = nullptr;
-    void* _texturePtr = nullptr;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -100,7 +100,6 @@ export class RenderWindow {
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
     protected _framebuffer: Framebuffer | null = null;
-    protected _device: Device | null = null;
 
     /**
      * @private
@@ -122,7 +121,6 @@ export class RenderWindow {
 
         this._width = info.width;
         this._height = info.height;
-        this._device = device;
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
         if (info.swapchain) {
@@ -179,7 +177,6 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-        this._device = null;
     }
 
     /**
@@ -206,7 +203,7 @@ export class RenderWindow {
 
         if (this.framebuffer) {
             this.framebuffer.destroy();
-            this._framebuffer = this._device!.createFramebuffer(new FramebufferInfo(
+            this.framebuffer.initialize(new FramebufferInfo(
                 this._renderPass!,
                 this._colorTextures,
                 this._depthStencilTexture,

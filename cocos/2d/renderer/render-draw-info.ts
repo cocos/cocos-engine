@@ -32,7 +32,7 @@ export enum AttrUInt32ArrayView {
 export enum RenderDrawInfoType {
     COMP,
     MODEL,
-    MIDDLEWARE,
+    IA,
     SUB_NODE,
 }
 

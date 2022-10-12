@@ -37,12 +37,6 @@
 namespace cc {
 namespace scene {
 class Pass;
-struct InstancedAttributeBlock {
-    Uint8Array buffer;
-    ccstd::vector<TypedArray> views;
-    ccstd::vector<gfx::Attribute> attributes;
-};
-
 class SubModel : public RefCounted {
 public:
     SubModel();
@@ -63,8 +57,6 @@ public:
     inline void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
     inline void setOwner(Model *model) { _owner = model; }
     void setSubMesh(RenderingSubMesh *subMesh);
-    inline void setInstancedWorldMatrixIndex(int32_t worldMatrixIndex) { _instancedWorldMatrixIndex = worldMatrixIndex; }
-    void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
 
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     inline gfx::DescriptorSet *getWorldBoundDescriptorSet() const { return _worldBoundDescriptorSet; }
@@ -78,9 +70,6 @@ public:
     inline RenderingSubMesh *getSubMesh() const { return _subMesh; }
     inline Model *getOwner() const { return _owner; }
     inline uint32_t getId() const { return _id; }
-    inline InstancedAttributeBlock &getInstancedAttributeBlock() { return _instancedAttributeBlock; }
-    inline int32_t getInstancedWorldMatrixIndex() const { return _instancedWorldMatrixIndex; }
-    int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
     void initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &passes, const ccstd::vector<IMacroPatch> &patches);
     void initPlanarShadowShader();
@@ -89,35 +78,26 @@ public:
     void onPipelineStateChanged();
     void onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches);
     void onGeometryChanged();
-    void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes);
-    void updateInstancedWorldMatrix(const Mat4 &mat, int32_t idx);
 
 protected:
     void flushPassInfo();
 
-    pipeline::RenderPriority _priority{pipeline::RenderPriority::DEFAULT};
-
-    int32_t _id{-1};
-    int32_t _instancedWorldMatrixIndex{-1};
-
     gfx::Device *_device{nullptr};
-    Model *_owner{nullptr};
-    gfx::Sampler *_reflectionSampler{nullptr};
-
+    ccstd::vector<IMacroPatch> _patches;
     IntrusivePtr<gfx::InputAssembler> _inputAssembler;
     IntrusivePtr<gfx::DescriptorSet> _descriptorSet;
     IntrusivePtr<gfx::DescriptorSet> _worldBoundDescriptorSet;
+
     IntrusivePtr<gfx::Texture> _reflectionTex;
+    gfx::Sampler *_reflectionSampler{nullptr};
+    pipeline::RenderPriority _priority{pipeline::RenderPriority::DEFAULT};
     IntrusivePtr<gfx::Shader> _planarShader;
     IntrusivePtr<gfx::Shader> _planarInstanceShader;
     IntrusivePtr<RenderingSubMesh> _subMesh;
-
-    InstancedAttributeBlock _instancedAttributeBlock{};
-
-    ccstd::vector<IMacroPatch> _patches;
-    ccstd::vector<IntrusivePtr<gfx::Shader>> _shaders;
-    
     std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> _passes;
+    ccstd::vector<IntrusivePtr<gfx::Shader>> _shaders;
+    Model *_owner{nullptr};
+    int32_t _id{-1};
 
 private:
     static inline int32_t generateId() {

@@ -32,12 +32,12 @@
 
 #include "application/ApplicationManager.h"
 #include "base/Scheduler.h"
-#include "base/StringUtil.h"
 #include "base/memory/Memory.h"
 #include "base/std/container/deque.h"
 #include "base/std/container/set.h"
 #include "base/std/container/vector.h"
 #include "platform/FileUtils.h"
+
 #include "network/Downloader.h"
 
 // **NOTE**
@@ -309,8 +309,7 @@ private:
         const DownloadTaskCURL *coTask = wrapper.second;
 
         // set url
-        ccstd::string url(task.requestURL);
-        curl_easy_setopt(handle, CURLOPT_URL, StringUtil::replaceAll(url, " ", "%20").c_str());
+        curl_easy_setopt(handle, CURLOPT_URL, task.requestURL.c_str());
 
         // set write func
         if (forContent) {

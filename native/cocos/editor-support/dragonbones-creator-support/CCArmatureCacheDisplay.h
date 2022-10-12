@@ -30,12 +30,6 @@
 #include "base/RefCounted.h"
 #include "dragonbones/DragonBonesHeaders.h"
 
-namespace cc {
-class RenderEntity;
-class RenderDrawInfo;
-class Material;
-};
-
 DRAGONBONES_NAMESPACE_BEGIN
 
 class CCArmatureCacheDisplay : public cc::RefCounted, public cc::middleware::IMiddleware {
@@ -46,6 +40,7 @@ public:
 
     void update(float dt) override;
     void render(float dt) override;
+    uint32_t getRenderOrder() const override;
 
     void setTimeScale(float scale) {
         _timeScale = scale;
@@ -64,7 +59,10 @@ public:
     Animation *getAnimation() const;
 
     void setColor(float r, float g, float b, float a);
-    void setBatchEnabled(bool enabled);
+    void setBatchEnabled(bool enabled) {
+        // disable switch batch mode, force to enable batch, it may be changed in future version
+        // _batch = enabled;
+    }
     void setAttachEnabled(bool enabled);
 
     void setOpacityModifyRGB(bool value) {
@@ -88,11 +86,11 @@ public:
      * format |render info offset|attach info offset|
      */
     se_object_ptr getSharedBufferOffset() const;
-
-    cc::RenderDrawInfo *requestDrawInfo(int idx);
-    cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
-    void setMaterial(cc::Material *material);
-    void setRenderEntity(cc::RenderEntity* entity);
+    /**
+         * @return js send to cpp parameters, it's a Uint32Array
+		 * format |render order|world matrix|
+         */
+    se_object_ptr getParamsBuffer() const;
 
 private:
     float _timeScale = 1;
@@ -108,7 +106,7 @@ private:
     std::map<std::string, bool> _listenerIDMap;
 
     bool _useAttach = false;
-    bool _enableBatch = true;
+    bool _batch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
 
     bool _premultipliedAlpha = false;
@@ -117,11 +115,8 @@ private:
     EventObject *_eventObject;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
-
-    cc::RenderEntity *_entity = nullptr;
-    cc::Material *_material = nullptr;
-    ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
-    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
+    // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
+    cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
 };
 
 DRAGONBONES_NAMESPACE_END

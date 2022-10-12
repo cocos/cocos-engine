@@ -115,7 +115,6 @@ export class DirectionalLight extends Light {
      * @en Whether activate real time shadow.
      * @zh 是否启用实时阴影？
      */
-    @tooltip('i18n:lights.shadowEnabled')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
@@ -135,7 +134,6 @@ export class DirectionalLight extends Light {
      * @en The shadow pcf for real time shadow.
      * @zh 实时阴影计算中的阴影 pcf 等级。
      */
-    @tooltip('i18n:lights.shadowPcf')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 5  } })
@@ -155,7 +153,6 @@ export class DirectionalLight extends Light {
      * @en The shadow map sampler offset for real time shadow.
      * @zh 实时阴影计算中的阴影纹理偏移值。
      */
-    @tooltip('i18n:lights.shadowBias')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 6 } })
@@ -175,7 +172,6 @@ export class DirectionalLight extends Light {
      * @en The global normal bias for real time shadow.
      * @zh 实时阴影计算中的法线偏移。
      */
-    @tooltip('i18n:lights.shadowNormalBias')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 7 } })
@@ -195,7 +191,6 @@ export class DirectionalLight extends Light {
      * @en The shadow color saturation for real time shadow.
      * @zh 实时阴影计算中的阴影颜色饱和度。
      */
-    @tooltip('i18n:lights.shadowSaturation')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 8 } })
@@ -218,7 +213,6 @@ export class DirectionalLight extends Light {
      * @en The potential shadow distance from the camera for real time shadow.
      * @zh 实时阴影计算中潜在阴影产生的范围
      */
-    @tooltip('i18n:lights.shadowDistance')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
@@ -246,7 +240,6 @@ export class DirectionalLight extends Light {
      * @en The occlusion range for real time shadow.
      * @zh 实时阴影计算中剔除阴影的范围
     */
-    @tooltip('i18n:lights.shadowInvisibleOcclusionRange')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
@@ -293,7 +286,6 @@ export class DirectionalLight extends Light {
      * @en enable csm
      * @zh 开启或关闭 csm 模式
      */
-    @tooltip('i18n:lights.enableCSM')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
@@ -362,7 +354,6 @@ export class DirectionalLight extends Light {
      * @en Whether to use fixed area shadow in real time shadow.
      * @zh 实时阴影计算中是否使用固定区域阴影。
      */
-    @tooltip('i18n:lights.shadowFixedArea')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
@@ -382,7 +373,6 @@ export class DirectionalLight extends Light {
      * @en The near clip plane of the shadow camera for fixed area shadow
      * @zh 固定区域阴影设置中阴影相机近裁剪面
      */
-    @tooltip('i18n:lights.shadowNear')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
@@ -405,7 +395,6 @@ export class DirectionalLight extends Light {
      * @en The far clip plane of the shadow camera for fixed area shadow.
      * @zh 固定区域阴影设置中阴影相机远裁剪面。
      */
-    @tooltip('i18n:lights.shadowFar')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type
@@ -428,7 +417,6 @@ export class DirectionalLight extends Light {
      * @en The orthogonal size of the shadow camera for fixed area shadow.
      * @zh 固定区域阴影设置中阴影相机的正交尺寸
      */
-    @tooltip('i18n:lights.shadowOrthoSize')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type

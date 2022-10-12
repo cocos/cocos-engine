@@ -76,18 +76,6 @@ void MessageQueue::MemoryAllocator::freeByUser(MessageQueue *const mainMessageQu
     mainMessageQueue->kick();
 }
 
-MessageQueue::MemoryAllocator::~MemoryAllocator() noexcept {
-    destroy();
-}
-
-void MessageQueue::MemoryAllocator::destroy() noexcept {
-    uint8_t *chunk = nullptr;
-    if(_chunkPool.try_dequeue(chunk)) {
-        ::free(chunk);
-        _chunkCount.fetch_sub(1, std::memory_order_acq_rel);
-    }
-}
-
 void MessageQueue::MemoryAllocator::free(uint8_t *const chunk) noexcept {
     if (_chunkCount.load(std::memory_order_acquire) >= MEMORY_CHUNK_POOL_CAPACITY) {
         memoryFreeForMultiThread(chunk);

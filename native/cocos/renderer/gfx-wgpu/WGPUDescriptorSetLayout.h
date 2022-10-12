@@ -24,10 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#ifdef CC_WGPU_WASM
-    #include "WGPUDef.h"
-#endif
-#include "base/std/container/set.h"
+
+#include <emscripten/bind.h>
+#include <set>
 #include "gfx-base/GFXDescriptorSetLayout.h"
 
 namespace cc {
@@ -38,37 +37,29 @@ class CCWGPUTexture;
 class CCWGPUBuffer;
 class CCWGPUSampler;
 
-class CCWGPUDescriptorSetLayout final : public DescriptorSetLayout {
+class CCWGPUDescriptorSetLayout final : public emscripten::wrapper<DescriptorSetLayout> {
 public:
+    EMSCRIPTEN_WRAPPER(CCWGPUDescriptorSetLayout);
     CCWGPUDescriptorSetLayout();
-    ~CCWGPUDescriptorSetLayout();
+    ~CCWGPUDescriptorSetLayout() = default;
 
     inline CCWGPUBindGroupLayoutObject *gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
 
-    void updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer);
-    void updateTextureLayout(uint8_t binding, const CCWGPUTexture *texture);
-    void updateSamplerLayout(uint8_t binding, const CCWGPUSampler *sampler);
+    void updateLayout(uint8_t binding, const CCWGPUBuffer *buffer = nullptr, const CCWGPUTexture *tex = nullptr, const CCWGPUSampler *sampler = nullptr);
 
-    void prepare(ccstd::set<uint8_t> &bindingInUse, bool forceUpdate = false);
+    void prepare(bool forceUpdate = false);
 
     inline uint8_t dynamicOffsetCount() { return _dynamicOffsetCount; }
 
     static void *defaultBindGroupLayout();
-    static void *getBindGroupLayoutByHash(ccstd::hash_t hash);
 
     void print() const;
-
-    ccstd::hash_t getHash() {
-        return _hash;
-    }
 
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;
 
-    ccstd::hash_t hash() const;
-    ccstd::hash_t _hash{0};
-    bool _internalChanged{false};
+    size_t hash() const;
 
     CCWGPUBindGroupLayoutObject *_gpuLayoutEntryObj = nullptr;
 

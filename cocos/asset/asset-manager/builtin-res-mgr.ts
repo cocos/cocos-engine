@@ -331,8 +331,7 @@ class BuiltinResMgr {
                     } else {
                         assets.forEach((asset) => {
                             resources[asset.name] = asset;
-                            // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
-                            if (!EDITOR || legacyCC.GAME_VIEW) { releaseManager.addIgnoredAsset(asset); }
+                            releaseManager.addIgnoredAsset(asset);
                             if (asset instanceof legacyCC.Material) {
                                 this._materialsToBeCompiled.push(asset as Material);
                             }

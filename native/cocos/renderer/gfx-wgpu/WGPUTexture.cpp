@@ -33,19 +33,15 @@
 namespace cc {
 namespace gfx {
 
-namespace {
-CCWGPUTexture *dftCommonTexture = nullptr;
-CCWGPUTexture *dftStorageTexture = nullptr;
-} // namespace
+namespace anoymous {
+CCWGPUTexture *defaultCommonTexture = nullptr;
+CCWGPUTexture *defaultStorageTexture = nullptr;
+} // namespace anoymous
 
 using namespace emscripten;
 
-CCWGPUTexture::CCWGPUTexture() : Texture() {
+CCWGPUTexture::CCWGPUTexture() : wrapper<Texture>(val::object()) {
     _gpuTextureObj = ccnew CCWGPUTextureObject;
-}
-
-CCWGPUTexture::~CCWGPUTexture() {
-    doDestroy();
 }
 
 void CCWGPUTexture::doInit(const TextureInfo &info) {
@@ -53,7 +49,6 @@ void CCWGPUTexture::doInit(const TextureInfo &info) {
     if (info.type == TextureType::CUBE) {
         depthOrArrayLayers = 6;
     }
-
     WGPUTextureDescriptor descriptor = {
         .nextInChain = nullptr,
         .label = nullptr,
@@ -66,7 +61,6 @@ void CCWGPUTexture::doInit(const TextureInfo &info) {
     };
 
     _gpuTextureObj->wgpuTexture = wgpuDeviceCreateTexture(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
-    CCWGPUDevice::getInstance()->getMemoryStatus().textureSize += _size;
 
     WGPUTextureViewDescriptor texViewDesc = {
         .nextInChain = nullptr,
@@ -105,7 +99,6 @@ void CCWGPUTexture::doInit(const TextureViewInfo &info) {
 
 void CCWGPUTexture::doInit(const SwapchainTextureInfo &info) {
     if (_swapchain) {
-        printf("swapchain %d, %d\n", info.width, info.height);
         auto *swapchain = static_cast<CCWGPUSwapchain *>(_swapchain);
         if (info.format == Format::DEPTH || info.format == Format::DEPTH_STENCIL) {
             WGPUTextureDescriptor descriptor = {
@@ -119,7 +112,6 @@ void CCWGPUTexture::doInit(const SwapchainTextureInfo &info) {
                 .sampleCount = 1,
             };
             _gpuTextureObj->wgpuTexture = wgpuDeviceCreateTexture(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
-            CCWGPUDevice::getInstance()->getMemoryStatus().textureSize += _size;
 
             WGPUTextureAspect aspect = info.format == Format::DEPTH ? WGPUTextureAspect_DepthOnly : WGPUTextureAspect_All;
             WGPUTextureViewDescriptor texViewDesc = {
@@ -144,17 +136,16 @@ void CCWGPUTexture::doInit(const SwapchainTextureInfo &info) {
 void CCWGPUTexture::doDestroy() {
     if (_gpuTextureObj) {
         if (_gpuTextureObj->wgpuTexture) {
-            CCWGPUDevice::getInstance()->moveToTrash(_gpuTextureObj->wgpuTexture);
-            CCWGPUDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+            wgpuTextureDestroy(_gpuTextureObj->wgpuTexture);
+            wgpuTextureRelease(_gpuTextureObj->wgpuTexture);
         }
         if (_gpuTextureObj->wgpuTextureView) {
             wgpuTextureViewRelease(_gpuTextureObj->wgpuTextureView);
         }
-        if (_gpuTextureObj->selfView && !_isTextureView) {
+        if (_gpuTextureObj->selfView) {
             wgpuTextureViewRelease(_gpuTextureObj->selfView);
         }
         delete _gpuTextureObj;
-        _gpuTextureObj = nullptr;
     }
     _internalChanged = true;
 }
@@ -165,14 +156,9 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
         printf("Resize is not support on texture view!");
         return;
     }
-    // swapchain color tex using canvas
-    if (_swapchain && _info.format != Format::DEPTH && _info.format != Format::DEPTH_STENCIL) {
-        auto *swapchain = static_cast<CCWGPUSwapchain *>(_swapchain);
-        _gpuTextureObj->selfView = wgpuSwapChainGetCurrentTextureView(swapchain->gpuSwapchainObject()->wgpuSwapChain);
-        return;
-    }
     if (_gpuTextureObj->wgpuTexture) {
-        CCWGPUDevice::getInstance()->moveToTrash(_gpuTextureObj->wgpuTexture);
+        wgpuTextureDestroy(_gpuTextureObj->wgpuTexture);
+        wgpuTextureRelease(_gpuTextureObj->wgpuTexture);
     }
     if (_gpuTextureObj->wgpuTextureView) {
         wgpuTextureViewRelease(_gpuTextureObj->wgpuTextureView);
@@ -180,9 +166,6 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (_gpuTextureObj->selfView) {
         wgpuTextureViewRelease(_gpuTextureObj->selfView);
     }
-
-    CCWGPUDevice::getInstance()->getMemoryStatus().textureSize -= _size;
-    CCWGPUDevice::getInstance()->getMemoryStatus().textureSize += size;
 
     uint8_t depthOrArrayLayers = _info.depth;
     if (_info.type == TextureType::CUBE) {
@@ -193,7 +176,7 @@ void CCWGPUTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
         .label = nullptr,
         .usage = toWGPUTextureUsage(_info.usage),
         .dimension = toWGPUTextureDimension(_info.type),
-        .size = {width, height, depthOrArrayLayers},
+        .size = {_info.width, _info.height, depthOrArrayLayers},
         .format = toWGPUTextureFormat(_info.format),
         .mipLevelCount = _info.levelCount,
         .sampleCount = toWGPUSampleCount(_info.samples),
@@ -221,7 +204,7 @@ void CCWGPUTexture::stamp() {
 }
 
 CCWGPUTexture *CCWGPUTexture::defaultCommonTexture() {
-    if (!dftCommonTexture) {
+    if (!anoymous::defaultCommonTexture) {
         TextureInfo info = {
             .type = TextureType::TEX2D,
             .usage = TextureUsageBit::SAMPLED,
@@ -235,15 +218,15 @@ CCWGPUTexture *CCWGPUTexture::defaultCommonTexture() {
             .depth = 1,
             .externalRes = nullptr,
         };
-        dftCommonTexture = ccnew CCWGPUTexture;
-        dftCommonTexture->initialize(info);
+        anoymous::defaultCommonTexture = ccnew CCWGPUTexture;
+        anoymous::defaultCommonTexture->initialize(info);
     }
 
-    return dftCommonTexture;
+    return anoymous::defaultCommonTexture;
 }
 
 CCWGPUTexture *CCWGPUTexture::defaultStorageTexture() {
-    if (!dftStorageTexture) {
+    if (!anoymous::defaultStorageTexture) {
         TextureInfo info = {
             .type = TextureType::TEX2D,
             .usage = TextureUsageBit::STORAGE,
@@ -257,11 +240,11 @@ CCWGPUTexture *CCWGPUTexture::defaultStorageTexture() {
             .depth = 1,
             .externalRes = nullptr,
         };
-        dftStorageTexture = ccnew CCWGPUTexture;
-        dftStorageTexture->initialize(info);
+        anoymous::defaultStorageTexture = ccnew CCWGPUTexture;
+        anoymous::defaultStorageTexture->initialize(info);
     }
 
-    return dftStorageTexture;
+    return anoymous::defaultStorageTexture;
 }
 
 CCWGPUSwapchain *CCWGPUTexture::swapchain() {
