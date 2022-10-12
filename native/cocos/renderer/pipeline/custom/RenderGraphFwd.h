@@ -53,6 +53,7 @@ struct PersistentBufferTag;
 struct PersistentTextureTag;
 struct FramebufferTag;
 struct SwapchainTag;
+struct SamplerTag;
 struct ResourceGraph;
 struct RasterSubpass;
 struct SubpassGraph;
