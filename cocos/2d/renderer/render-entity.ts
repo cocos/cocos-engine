@@ -96,6 +96,15 @@ export class RenderEntity {
         }
     }
 
+    // for UIOpacity recursion
+    protected _opacityDirty = false;
+    get opacityDirty () {
+        return this._opacityDirty;
+    }
+    set opacityDirty (val:boolean) {
+        this._opacityDirty = val;
+    }
+
     protected _colorDirty = true;
     get colorDirty () {
         return this._colorDirty;

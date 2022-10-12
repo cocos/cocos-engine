@@ -43,6 +43,7 @@ import { legacyCC } from '../core/global-exports';
 import { errorID, error, assertID, warnID } from '../core/platform/debug';
 import { containerManager } from '../core/memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
+import { uiRendererOpacityManager } from '../2d/framework/ui-renderer-opacity-manager';
 import { deviceManager } from '../gfx';
 import { PipelineBuilder } from '../rendering/custom/pipeline';
 import { macro } from '../core/platform/macro';
@@ -297,7 +298,7 @@ export class Director extends EventTarget {
 
         if (!EDITOR) {
             if (legacyCC.isValid(this._scene)) {
-                this._scene!.destroy();
+                this._scene.destroy();
             }
             this._scene = null;
         }
@@ -352,7 +353,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(this._persistRootNodes).map((x) => this._persistRootNodes[x] as Node);
+        const persistNodeList = Object.keys(this._persistRootNodes).map((x) => this._persistRootNodes[x]);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -380,7 +381,7 @@ export class Director extends EventTarget {
             console.time('Destroy');
         }
         if (legacyCC.isValid(oldScene)) {
-            oldScene!.destroy();
+            oldScene.destroy();
         }
         if (!EDITOR) {
             // auto release assets
@@ -729,7 +730,8 @@ export class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             uiRendererManager.updateAllDirtyRenderers();
-            this._root!.frameMove(dt);
+            uiRendererOpacityManager.updateAllDirtyOpacityRenderers();
+            this._root.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
             Node.resetHasChangedFlags();
@@ -793,7 +795,7 @@ export class Director extends EventTarget {
         }
         const id = node.uuid;
         if (!this._persistRootNodes[id]) {
-            const scene = this._scene as any;
+            const scene = this._scene;
             if (legacyCC.isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;

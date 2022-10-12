@@ -48,6 +48,7 @@ import { uiRendererManager } from './ui-renderer-manager';
 import { assert } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
+import { UIOpacity } from '../components';
 
 // hack
 ccenum(BlendFactor);
@@ -263,8 +264,11 @@ export class UIRenderer extends Renderer {
      */
     public _internalId = -1;
 
+    public _opacityDirtyVersion = -1;
+    public _opacityInternalId = -1;
+
     get batcher () {
-        return director.root!.batcher2D;
+        return director.root.batcher2D;
     }
 
     get renderEntity () {
@@ -301,6 +305,8 @@ export class UIRenderer extends Renderer {
         this._colorDirty();
         uiRendererManager.addRenderer(this);
         this.markForUpdateRenderData();
+
+        UIOpacity.executeRecursionOnEnable(this.node);
     }
 
     // For Redo, Undo
@@ -373,6 +379,19 @@ export class UIRenderer extends Renderer {
         this._renderData = null;
     }
 
+    public updateRendererOpacity () {
+        let finalLocalOpacity = 1;
+        let recursionNode :Node|null = this.node;
+        while (recursionNode) {
+            const op =  this.getComponent<UIOpacity>(UIOpacity);
+            if (op) {
+                finalLocalOpacity *= op.opacity / 255;
+            }
+            recursionNode = recursionNode.parent;
+        }
+        this._renderEntity.localOpacity = finalLocalOpacity;
+    }
+
     // test code: to replace prev part updateAssembler
     public updateRenderer () {
         if (this._assembler) {
@@ -435,7 +454,7 @@ export class UIRenderer extends Renderer {
         this.node._uiProps.colorDirty = true;
         this.setEntityColorDirty(true);
         this.setEntityColor(this._color);
-        this.setEntityOpacity(this.node._uiProps.localOpacity);
+        //this.setEntityOpacity(this.node._uiProps.localOpacity);
 
         if (this._assembler) {
             this._assembler.updateColor(this);
