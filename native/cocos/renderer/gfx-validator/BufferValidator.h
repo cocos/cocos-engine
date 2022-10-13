@@ -38,6 +38,10 @@ public:
 
     void update(const void *buffer, uint32_t size) override;
 
+    void flush(const void *buffer) override;
+
+    uint8_t *getStagingAddress() const override;
+
     void sanityCheck(const void *buffer, uint32_t size);
 
     inline bool isInited() const { return _inited; }

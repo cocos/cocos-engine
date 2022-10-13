@@ -42,6 +42,10 @@ public:
 
     void update(const void *buffer, uint32_t size) override;
 
+    void flush(const void *buffer) override;
+
+    uint8_t *getStagingAddress() const override;
+
     static void getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint32_t size, uint8_t **pActorBuffer, bool *pNeedFreeing);
 
 private:

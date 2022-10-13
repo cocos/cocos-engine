@@ -431,6 +431,7 @@ CC_ENUM_BITWISE_OPERATORS(BufferUsageBit);
 
 enum class BufferFlagBit : uint32_t {
     NONE = 0,
+    USE_STAGING = 0x01,
 };
 using BufferFlags = BufferFlagBit;
 CC_ENUM_BITWISE_OPERATORS(BufferFlagBit);

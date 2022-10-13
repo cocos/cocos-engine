@@ -166,6 +166,10 @@ void BufferValidator::update(const void *buffer, uint32_t size) {
     _actor->update(buffer, size);
 }
 
+void BufferValidator::flush(const void *buffer) {
+    _actor->flush(buffer);
+}
+
 void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     uint64_t cur = DeviceValidator::getInstance()->currentFrame();
 
@@ -193,9 +197,14 @@ void BufferValidator::removeView(BufferValidator *view) {
 }
 
 void BufferValidator::onExpire() {
-    _source = nullptr; 
+    _source = nullptr;
     _expired = true;
 }
+
+uint8_t *BufferValidator::getStagingAddress() const {
+    return _actor->getStagingAddress();
+}
+
 
 } // namespace gfx
 } // namespace cc

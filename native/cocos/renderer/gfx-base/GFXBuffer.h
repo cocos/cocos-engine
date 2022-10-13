@@ -43,9 +43,33 @@ public:
     void resize(uint32_t size);
     void destroy();
 
+    template <typename T>
+    struct StructuredWriter {
+        T *operator->() {
+            return ptr;
+        }
+        T *ptr;
+    };
+
+    template <typename T>
+    StructuredWriter<T> createWriter() {
+        return StructuredWriter<T>{reinterpret_cast<T*>(getStagingAddress())};
+    }
+
+    template <typename T>
+    void write(const T& value, uint32_t offset) const {
+        write(reinterpret_cast<const uint8_t*>(&value), offset, sizeof(T));
+    }
+
+    void write(const uint8_t *value, uint32_t offset, uint32_t size) const;
+
     virtual void update(const void *buffer, uint32_t size) = 0;
 
+    virtual void flush(const void *buffer) { update(buffer, _size); }
+
     inline void update(const void *buffer) { update(buffer, _size); }
+
+    void update();
 
     inline BufferUsage getUsage() const { return _usage; }
     inline MemoryUsage getMemUsage() const { return _memUsage; }
@@ -55,6 +79,7 @@ public:
     inline BufferFlags getFlags() const { return _flags; }
     inline bool isBufferView() const { return _isBufferView; }
 
+    virtual uint8_t *getStagingAddress() const { return _data; }
 protected:
     virtual void doInit(const BufferInfo &info) = 0;
     virtual void doInit(const BufferViewInfo &info) = 0;
@@ -68,6 +93,7 @@ protected:
     uint32_t _size = 0U;
     uint32_t _offset = 0U;
     BufferFlags _flags = BufferFlagBit::NONE;
+    uint8_t *_data{nullptr};
     bool _isBufferView = false;
 };
 

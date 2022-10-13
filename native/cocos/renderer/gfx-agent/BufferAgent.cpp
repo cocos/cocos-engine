@@ -54,7 +54,7 @@ BufferAgent::~BufferAgent() {
 
 void BufferAgent::doInit(const BufferInfo &info) {
     uint32_t size = getSize();
-    if (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST)) {
+    if (hasFlag(info.flags, BufferFlagBit::USE_STAGING) || (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST))) {
         for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
             _stagingBuffers.push_back(reinterpret_cast<uint8_t *>(malloc(size)));
         }
@@ -165,6 +165,18 @@ void BufferAgent::update(const void *buffer, uint32_t size) {
         });
 }
 
+void BufferAgent::flush(const void *buffer) {
+    auto *mq = DeviceAgent::getInstance()->getMessageQueue();
+    ENQUEUE_MESSAGE_3(
+        mq, BufferUpdate,
+        actor, getActor(),
+        buffer, buffer,
+        size, _size,
+        {
+            actor->update(buffer, size);
+        });
+}
+
 void BufferAgent::getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint32_t size, uint8_t **pActorBuffer, bool *pNeedFreeing) {
     if (!buffer->_stagingBuffers.empty()) { // for frequent updates on big buffers
         uint32_t frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
@@ -175,6 +187,14 @@ void BufferAgent::getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, ui
     } else { // for small enough buffers
         *pActorBuffer = mq->allocate<uint8_t>(size);
     }
+}
+
+uint8_t *BufferAgent::getStagingAddress() const {
+    if (_stagingBuffers.empty()) {
+        return nullptr;
+    }
+    uint32_t frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
+    return _stagingBuffers[frameIndex];
 }
 
 } // namespace gfx
