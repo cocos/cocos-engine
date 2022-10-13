@@ -307,14 +307,15 @@ CCProgram standard-fs %{
     s.roughness = max(0.02, roughnessValue);
 
 
-    float occlusionValue = 1.0 - occlusion;
+    float occlusionValue = 1.0;
     #if USE_OCCLUSION_MAP
        vec4 occlusionColor = texture(occlusionMap, TEXTURE_UV);
-       occlusionValue = discolor(occlusionColor.rgb);
+       float occlusionColorValue = discolor(occlusionColor.rgb);
        #if USE_OCCLUSION_CHANNEL 
            occlusionColor.rgb = SRGBToLinear(occlusionColor.rgb);
-           occlusionValue = occlusionColor.OCCLUSION_CHANNEL;
+           occlusionColorValue = occlusionColor.OCCLUSION_CHANNEL;
        #endif
+       occlusionValue = mix(1.0, occlusionColorValue, occlusion);
     #endif
     s.occlusion = occlusionValue;
 

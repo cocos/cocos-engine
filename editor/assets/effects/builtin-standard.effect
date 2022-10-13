@@ -274,7 +274,7 @@ CCProgram standard-fs %{
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     vec4 pbr = pbrParams;
-    pbr.x = 1.0 - pbr.x;
+    pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, PBR_UV);
       pbr.x *= res.OCCLUSION_CHANNEL;
@@ -288,7 +288,7 @@ CCProgram standard-fs %{
       pbr.y *= metallicRoughness.ROUGHNESS_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
-      pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL, pbrParams.x);
     #endif
     s.occlusion = pbr.x;
     s.roughness = pbr.y;

@@ -276,7 +276,7 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyPBRParams()
   {
     vec4 pbr = pbrParams;
-    pbr.x = 1.0 - pbr.x;
+    pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, DEFAULT_UV);
       pbr.x *= res.OCCLUSION_CHANNEL;
@@ -285,7 +285,7 @@ CCProgram surface-fragment %{
       pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
-      pbr.x *= texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL, pbrParams.x);
     #endif
 
     return pbr;
