@@ -143,7 +143,7 @@ const raySubMesh = (function () {
         if (rayAABB2(ray, min, max)) {
             const pm = submesh.primitiveMode;
             const { positions: vb, indices: ib } = submesh.geometricInfo;
-            narrowphase(vb, ib, pm, ray, opt);
+            narrowphase(vb, ib!, pm, ray, opt);
         }
         return minDis;
     };
