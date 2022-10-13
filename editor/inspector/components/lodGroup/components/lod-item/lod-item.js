@@ -3,15 +3,15 @@
 const { readFileSync } = require('fs');
 const { join } = require('path');
 
-exports.template = readFileSync(join(__dirname, './lod-item.html'), 'utf8');;
+exports.template = readFileSync(join(__dirname, './lod-item.html'), 'utf8');
 
 exports.props = ['data', 'index', 'min', 'max', 'lodGroupId'];
 
 exports.data = function() {
     return {
         totalTriangles: 0,
-    }
-}
+    };
+};
 
 exports.watch = {
     'data.value.triangles': {
@@ -22,9 +22,9 @@ exports.watch = {
                 return sum += item.value;
             }, 0);
             that.totalTriangles = res;
-        }
+        },
     },
-}
+};
 
 exports.methods = {
     onScreenSizeConfirm(event) {
