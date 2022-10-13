@@ -509,12 +509,12 @@ export function loadDescriptor (ar: InputArchive, v: Descriptor) {
 }
 
 export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
-    ar.writeNumber(v.descriptors.size);
+    ar.writeNumber(v.descriptors.size); // Map<string, Descriptor>
     for (const [k1, v1] of v.descriptors) {
         ar.writeString(k1);
         saveDescriptor(ar, v1);
     }
-    ar.writeNumber(v.uniformBlocks.size);
+    ar.writeNumber(v.uniformBlocks.size); // Map<string, UniformBlock>
     for (const [k1, v1] of v.uniformBlocks) {
         ar.writeString(k1);
         saveUniformBlock(ar, v1);
@@ -525,24 +525,38 @@ export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
 
 export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock) {
     let sz = 0;
+    sz = ar.readNumber(); // Map<string, Descriptor>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = new Descriptor();
+        loadDescriptor(ar, v1);
+        v.descriptors.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<string, UniformBlock>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = new UniformBlock();
+        loadUniformBlock(ar, v1);
+        v.uniformBlocks.set(k1, v1);
+    }
     v.capacity = ar.readNumber();
     v.count = ar.readNumber();
 }
 
 export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened) {
-    ar.writeNumber(v.descriptorNames.length);
+    ar.writeNumber(v.descriptorNames.length); // string[]
     for (const v1 of v.descriptorNames) {
         ar.writeString(v1);
     }
-    ar.writeNumber(v.uniformBlockNames.length);
+    ar.writeNumber(v.uniformBlockNames.length); // string[]
     for (const v1 of v.uniformBlockNames) {
         ar.writeString(v1);
     }
-    ar.writeNumber(v.descriptors.length);
+    ar.writeNumber(v.descriptors.length); // Descriptor[]
     for (const v1 of v.descriptors) {
         saveDescriptor(ar, v1);
     }
-    ar.writeNumber(v.uniformBlocks.length);
+    ar.writeNumber(v.uniformBlocks.length); // UniformBlock[]
     for (const v1 of v.uniformBlocks) {
         saveUniformBlock(ar, v1);
     }
@@ -552,24 +566,24 @@ export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBl
 
 export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened) {
     let sz = 0;
-    sz = ar.readNumber(); // Array
+    sz = ar.readNumber(); // string[]
     v.descriptorNames.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
         v.descriptorNames[i1] = ar.readString();
     }
-    sz = ar.readNumber(); // Array
+    sz = ar.readNumber(); // string[]
     v.uniformBlockNames.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
         v.uniformBlockNames[i1] = ar.readString();
     }
-    sz = ar.readNumber(); // Array
+    sz = ar.readNumber(); // Descriptor[]
     v.descriptors.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
         const v1 = new Descriptor();
         loadDescriptor(ar, v1);
         v.descriptors[i1] = v1;
     }
-    sz = ar.readNumber(); // Array
+    sz = ar.readNumber(); // UniformBlock[]
     v.uniformBlocks.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
         const v1 = new UniformBlock();
