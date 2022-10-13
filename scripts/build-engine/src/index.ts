@@ -29,6 +29,7 @@ import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 import { codeAsset } from './rollup-plugins/code-asset';
 import { ModeType, PlatformType } from './constant-manager';
+import { assetUrl } from './rollup-plugins/asset-url';
 
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
@@ -275,9 +276,11 @@ async function doBuild ({
 
     // HACK: get platform, mode, flags from build time constants
     const flags: Record<string, any> = {};
-    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE'].forEach((key) => {
+    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'WEBGPU'].forEach((key) => {
         flags[key] = buildTimeConstants[key];
     });
+    // Wether use webgpu
+    const useWebGPU = flags['WEBGPU'];
     let platform = options.platform as PlatformType;
     if (!platform) {
         ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE"].some(key => {
@@ -536,6 +539,11 @@ async function doBuild ({
 
         defaultHandler(warning);
     };
+
+    rollupPlugins.unshift(assetUrl({
+        engineRoot,
+        useWebGPU,
+    }));
 
     const rollupOptions: rollup.InputOptions = {
         input: rollupEntries,

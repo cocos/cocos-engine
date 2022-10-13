@@ -12,7 +12,7 @@
             "label": "i18n:ENGINE.features.graphics.label",
             "multi": true,
             "description": "i18n:ENGINE.features.graphics.description",
-            "default": ["gfx-webgl", "gfx-webgl2"],
+            "default": ["gfx-webgl", "gfx-webgl2", "gfx-webgpu"],
             "options": {
                 "gfx-webgl": {
                     "required": true,

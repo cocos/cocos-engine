@@ -833,22 +833,22 @@ class DevicePreSceneTask extends WebSceneTask {
         if (isEmpty) {
             for (const ro of this.sceneData.renderObjects) {
                 const subModels = ro.model.subModels;
-                for (const submodel of subModels) {
-                    const passes = submodel.passes;
+                for (const subModel of subModels) {
+                    const passes = subModel.passes;
                     for (const p of passes) {
                         if (p.phase !== this._currentQueue.phaseID) continue;
                         const batchingScheme = p.batchingScheme;
                         if (batchingScheme === BatchingSchemes.INSTANCING) {
                             const instancedBuffer = p.getInstancedBuffer();
-                            instancedBuffer.merge(submodel, ro.model.instancedAttributes, passes.indexOf(p));
+                            instancedBuffer.merge(subModel, passes.indexOf(p));
                             this._submitInfo.instances.add(instancedBuffer);
                         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                             const batchedBuffer = p.getBatchedBuffer();
-                            batchedBuffer.merge(submodel, passes.indexOf(p), ro.model);
+                            batchedBuffer.merge(subModel, passes.indexOf(p), ro.model);
                             this._submitInfo.batches.add(batchedBuffer);
                         } else {
-                            this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p));
-                            this._insertRenderList(ro, subModels.indexOf(submodel), passes.indexOf(p), true);
+                            this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p));
+                            this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p), true);
                         }
                     }
                 }

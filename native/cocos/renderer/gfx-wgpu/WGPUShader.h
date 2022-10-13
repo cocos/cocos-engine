@@ -24,31 +24,37 @@
 ****************************************************************************/
 
 #pragma once
-
-#include <emscripten/bind.h>
-#include "WGPUDef.h"
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "gfx-base/GFXShader.h"
 
 namespace cc {
 namespace gfx {
 
 struct CCWGPUShaderObject;
+class SPIRVUtils;
 
-class CCWGPUShader final : public emscripten::wrapper<Shader> {
+class CCWGPUShader final : public Shader {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUShader);
     CCWGPUShader();
-    ~CCWGPUShader() = default;
+    ~CCWGPUShader();
 
     inline CCWGPUShaderObject *gpuShaderObject() { return _gpuShaderObject; }
 
-    void initialize(const SPVShaderInfoInstance &info);
+    void initialize(const ShaderInfo &info) { doInit(info); }
+
+    // ems export
+    EXPORT_EMS(
+        void initialize(const ShaderInfo &info, emscripten::val &spirvs);)
+    void initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs);
 
 protected:
     void doInit(const ShaderInfo &info) override;
     void doDestroy() override;
 
     CCWGPUShaderObject *_gpuShaderObject = nullptr;
+    static SPIRVUtils *spirv;
 };
 
 } // namespace gfx

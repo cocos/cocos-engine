@@ -29,6 +29,10 @@
 #include "IOTypedArray.h"
 #include "base/std/container/vector.h"
 
+namespace cc {
+    class UIMeshBuffer;
+};
+
 MIDDLEWARE_BEGIN
 
 class MeshBuffer {
@@ -72,7 +76,7 @@ public:
         return _bufferPos + 1;
     }
 
-    std::size_t getBufferPos() const {
+    uint16_t getBufferPos() const {
         return _bufferPos;
     }
 
@@ -84,6 +88,10 @@ public:
         return _ib;
     }
 
+    cc::UIMeshBuffer *getUIMeshBuffer() const;
+
+    const ccstd::vector<cc::UIMeshBuffer *> &uiMeshBuffers() const;
+
     void uploadVB();
     void uploadIB();
     void reset();
@@ -93,10 +101,13 @@ private:
     void clear();
     void init();
     void afterCleanupHandle();
+    void addUIMeshBuffer();
+    void cleanUIMeshBuffer();
 
     ccstd::vector<IOTypedArray *> _ibArr;
     ccstd::vector<IOTypedArray *> _vbArr;
-    std::size_t _bufferPos = 0;
+    ccstd::vector<cc::UIMeshBuffer *> _uiMeshBufferArr;
+    uint16_t _bufferPos = 0;
     IOBuffer _vb;
     IOBuffer _ib;
     int _vertexFormat = 0;

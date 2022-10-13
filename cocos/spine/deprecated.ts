@@ -27,8 +27,4 @@ import { removeProperty } from '../core/utils/x-deprecated';
 import { Skeleton } from './skeleton';
 
 removeProperty(Skeleton.prototype, 'Skeleton', [
-    {
-        name: 'enableBatch',
-        suggest: 'Not support batch render mode',
-    },
 ]);
