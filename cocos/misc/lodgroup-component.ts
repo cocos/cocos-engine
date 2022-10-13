@@ -72,7 +72,6 @@ export class LOD {
 
     set renderers (meshList) {
         this._renderers = meshList;
-        console.log(meshList);
     }
 
     @editable
