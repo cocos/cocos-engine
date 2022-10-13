@@ -29,6 +29,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
+
 export interface OutputArchive {
     writeBool (value: boolean): void;
     writeNumber (value: number): void;
