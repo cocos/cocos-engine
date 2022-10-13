@@ -210,17 +210,13 @@ export class LODGroup extends Component {
     }
 
     recalculateBounds () {
-        const comp = this.node.getComponent(LODGroup);
-        if (comp) {
-            LODGroupEditorUtility.recalculateBounds(comp);
-        }
+        LODGroupEditorUtility.recalculateBounds(this);
+        
     }
 
     resetObjectSize () {
-        const comp = this.node.getComponent(LODGroup);
-        if (comp) {
-            LODGroupEditorUtility.resetObjectSize(comp);
-        }
+        LODGroupEditorUtility.resetObjectSize(this);
+        
     }
 
     get lodGroup () { return this._lodGroup; }
@@ -444,19 +440,27 @@ export class LODGroupEditorUtility {
             lodGroup.localReferencePoint = c;
             lodGroup.size = Math.max(e.x, e.y, e.z) * 2.0;
         }
-    }
+        this.emitChangeNode(lodGroup.node);
 
-    static resetObjectSize (lodgroup: LODGroup): void {
-        if (lodgroup.size === 1.0) return;
+    }
+    static emitChangeNode (node:Node) {
+        if(EDITOR){
+            // @ts-expect-error Because EditorExtends is Editor only
+            EditorExtends.Node.emit('change', node.uuid, node);
+        }
+    }
+    static resetObjectSize (lodGroup: LODGroup): void {
+        if (lodGroup.size === 1.0) return;
 
         // 1 will be new object size
-        const scale = 1.0 / lodgroup.size;
+        const scale = 1.0 / lodGroup.size;
         // reset object size to 1
-        lodgroup.size = 1.0;
+        lodGroup.size = 1.0;
 
-        for (let i = 0; i < lodgroup.lodCount; ++i) {
-            lodgroup.getLOD(i).screenRelativeTransitionHeight *= scale;
+        for (let i = 0; i < lodGroup.lodCount; ++i) {
+            lodGroup.getLOD(i).screenRelativeTransitionHeight *= scale;
         }
+        this.emitChangeNode(lodGroup.node);
     }
 
     private static distanceToRelativeHeight (camera: Camera, distance: number | undefined, size: number): number {
