@@ -117,6 +117,14 @@ export declare namespace EffectAsset {
         count: number;
         stageFlags: ShaderStageFlags;
     }
+
+    export interface IIAccelerationStructureInfp{
+        set: number;
+        binding: number;
+        name: string;
+        count: number;
+        stageFlags: ShaderStageFlags;
+    }
     export interface IAttributeInfo {
         name: string;
         format: Format;
@@ -160,6 +168,7 @@ export declare namespace EffectAsset {
         buffers: IBufferInfo[];
         images: IImageInfo[];
         subpassInputs: IInputAttachmentInfo[];
+        accelerationStructures: IIAccelerationStructureInfp[];
     }
     export interface IPreCompileInfo {
         [name: string]: boolean[] | number[] | string[];
