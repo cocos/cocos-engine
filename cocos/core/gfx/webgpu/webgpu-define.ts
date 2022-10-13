@@ -196,25 +196,34 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         const referredFuncMap = new Map<string, [fnName: string, samplerType: string, samplerName: string]>();
         const samplerSet = new Set<string>();
         samplerTexturArr?.every((str) => {
-            let textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
+            // `(?<=)` not compatible with str.match on safari.
+            // let textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
+            const textureNameRegExpStr = '(?<=uniform(.*?)sampler\\w* )(\\w+)(?=;)';
+            let textureName = (new RegExp(textureNameRegExpStr, 'g')).exec(str)![0];
+        
             let samplerStr = str.replace(textureName, `${textureName}Sampler`);
-            let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
+
+            // let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
+            const samplerRegExpStr = '(?<=uniform(.*?))sampler(\\w*)';
+            let samplerFunc = (new RegExp(samplerRegExpStr, 'g')).exec(str)![0];
             samplerFunc = samplerFunc.replace('sampler', '');
             if (samplerFunc === '') {
                 textureName = textureName.replace('Sampler', '');
             } else {
-                samplerStr = samplerStr.replace(/(?<=uniform(.*?))(sampler\w*)/g, 'sampler');
+                const samplerReplaceReg = new RegExp('(?<=uniform(.*?))(sampler\\w*)', 'g');
+                samplerStr = samplerStr.replace(samplerReplaceReg, 'sampler');
 
                 // layout (set = a, binding = b) uniform sampler2D cctex;
                 // to:
                 // layout (set = a, binding = b) uniform sampler cctexSampler;
                 // layout (set = a, binding = b + maxTextureNum) uniform texture2D cctex;
-                const samplerReg = /(?<=binding = )(\d+)(?=\))/g;
-                const samplerBindingStr = str.match(samplerReg)!.toString();
+                const samplerReg = new RegExp('(?<=binding = )(\\d+)(?=\\))', 'g');
+                const samplerBindingStr = samplerReg.exec(str)![0];
                 const samplerBinding = Number(samplerBindingStr) + 16;
                 samplerStr = samplerStr.replace(samplerReg, samplerBinding.toString());
-
-                const textureStr = str.replace(/(?<=uniform(.*?))(sampler)(?=\w*)/g, 'texture');
+                
+                const textureReg = new RegExp('(?<=uniform(.*?))(sampler)(?=\\w*)', 'g');
+                const textureStr = str.replace(textureReg, 'texture');
                 code = code.replace(str, `${textureStr}\n${samplerStr}`);
             }
 
