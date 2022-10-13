@@ -458,29 +458,43 @@ export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeNumber(v.loadOp);
     ar.writeNumber(v.storeOp);
     ar.writeNumber(v.clearFlags);
-    // skip: clearColor: gfx::Color
+    saveColor(ar, v.clearColor);
 }
 
 export function loadRasterView (ar: InputArchive, v: RasterView) {
+    v.slotName = ar.readString();
+    v.accessType = ar.readNumber();
+    v.attachmentType = ar.readNumber();
+    v.loadOp = ar.readNumber();
+    v.storeOp = ar.readNumber();
+    v.clearFlags = ar.readNumber();
+    loadColor(ar, v.clearColor);
 }
 
 export function saveComputeView (ar: OutputArchive, v: ComputeView) {
     ar.writeString(v.name);
     ar.writeNumber(v.accessType);
     ar.writeNumber(v.clearFlags);
-    // skip: clearColor: gfx::Color
+    saveColor(ar, v.clearColor);
     ar.writeNumber(v.clearValueType);
 }
 
 export function loadComputeView (ar: InputArchive, v: ComputeView) {
+    v.name = ar.readString();
+    v.accessType = ar.readNumber();
+    v.clearFlags = ar.readNumber();
+    loadColor(ar, v.clearColor);
+    v.clearValueType = ar.readNumber();
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
-    // skip, light: IntrusivePtr<scene::Light>
+    // skip, v.light: IntrusivePtr<scene::Light>
     ar.writeNumber(v.level);
 }
 
 export function loadLightInfo (ar: InputArchive, v: LightInfo) {
+    // skip, v.light: IntrusivePtr<scene::Light>
+    v.level = ar.readNumber();
 }
 
 export function saveDescriptor (ar: OutputArchive, v: Descriptor) {
@@ -489,28 +503,80 @@ export function saveDescriptor (ar: OutputArchive, v: Descriptor) {
 }
 
 export function loadDescriptor (ar: InputArchive, v: Descriptor) {
+    v.type = ar.readNumber();
+    v.count = ar.readNumber();
 }
 
 export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
-    // Map
-    // Map
+    ar.writeNumber(v.descriptors.size);
+    for (const [k1, v1] of v.descriptors) {
+        ar.writeString(k1);
+        saveDescriptor(ar, v1);
+    }
+    ar.writeNumber(v.uniformBlocks.size);
+    for (const [k1, v1] of v.uniformBlocks) {
+        ar.writeString(k1);
+        saveUniformBlock(ar, v1);
+    }
     ar.writeNumber(v.capacity);
     ar.writeNumber(v.count);
 }
 
 export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock) {
+    let sz = 0;
+    v.capacity = ar.readNumber();
+    v.count = ar.readNumber();
 }
 
 export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened) {
-    // Array
-    // Array
-    // Array
-    // Array
+    ar.writeNumber(v.descriptorNames.length);
+    for (const v1 of v.descriptorNames) {
+        ar.writeString(v1);
+    }
+    ar.writeNumber(v.uniformBlockNames.length);
+    for (const v1 of v.uniformBlockNames) {
+        ar.writeString(v1);
+    }
+    ar.writeNumber(v.descriptors.length);
+    for (const v1 of v.descriptors) {
+        saveDescriptor(ar, v1);
+    }
+    ar.writeNumber(v.uniformBlocks.length);
+    for (const v1 of v.uniformBlocks) {
+        saveUniformBlock(ar, v1);
+    }
     ar.writeNumber(v.capacity);
     ar.writeNumber(v.count);
 }
 
 export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened) {
+    let sz = 0;
+    sz = ar.readNumber(); // Array
+    v.descriptorNames.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        v.descriptorNames[i1] = ar.readString();
+    }
+    sz = ar.readNumber(); // Array
+    v.uniformBlockNames.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        v.uniformBlockNames[i1] = ar.readString();
+    }
+    sz = ar.readNumber(); // Array
+    v.descriptors.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new Descriptor();
+        loadDescriptor(ar, v1);
+        v.descriptors[i1] = v1;
+    }
+    sz = ar.readNumber(); // Array
+    v.uniformBlocks.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new UniformBlock();
+        loadUniformBlock(ar, v1);
+        v.uniformBlocks[i1] = v1;
+    }
+    v.capacity = ar.readNumber();
+    v.count = ar.readNumber();
 }
 
 export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockIndex) {
@@ -521,6 +587,10 @@ export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockI
 }
 
 export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIndex) {
+    v.updateFrequency = ar.readNumber();
+    v.parameterType = ar.readNumber();
+    v.descriptorType = ar.readNumber();
+    v.visibility = ar.readNumber();
 }
 
 export function saveCopyPair (ar: OutputArchive, v: CopyPair) {
@@ -537,6 +607,16 @@ export function saveCopyPair (ar: OutputArchive, v: CopyPair) {
 }
 
 export function loadCopyPair (ar: InputArchive, v: CopyPair) {
+    v.source = ar.readString();
+    v.target = ar.readString();
+    v.mipLevels = ar.readNumber();
+    v.numSlices = ar.readNumber();
+    v.sourceMostDetailedMip = ar.readNumber();
+    v.sourceFirstSlice = ar.readNumber();
+    v.sourcePlaneSlice = ar.readNumber();
+    v.targetMostDetailedMip = ar.readNumber();
+    v.targetFirstSlice = ar.readNumber();
+    v.targetPlaneSlice = ar.readNumber();
 }
 
 export function saveMovePair (ar: OutputArchive, v: MovePair) {
@@ -550,4 +630,11 @@ export function saveMovePair (ar: OutputArchive, v: MovePair) {
 }
 
 export function loadMovePair (ar: InputArchive, v: MovePair) {
+    v.source = ar.readString();
+    v.target = ar.readString();
+    v.mipLevels = ar.readNumber();
+    v.numSlices = ar.readNumber();
+    v.targetMostDetailedMip = ar.readNumber();
+    v.targetFirstSlice = ar.readNumber();
+    v.targetPlaneSlice = ar.readNumber();
 }
