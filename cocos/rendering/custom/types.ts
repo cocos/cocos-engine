@@ -489,7 +489,7 @@ export function loadComputeView (ar: InputArchive, v: ComputeView) {
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
-    // skip, v.light: IntrusivePtr<scene::Light>
+    // skip, v.light: Light
     ar.writeNumber(v.level);
 }
 

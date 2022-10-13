@@ -1221,7 +1221,7 @@ export function loadDescriptorDB (ar: InputArchive, v: DescriptorDB) {
 }
 
 export function saveRenderPhase (ar: OutputArchive, v: RenderPhase) {
-    // skip: v.shaders: PmrTransparentSet<ccstd::pmr::string>
+    // skip: v.shaders: Set<string>
 }
 
 export function loadRenderPhase (ar: InputArchive, v: RenderPhase) {
@@ -1335,8 +1335,8 @@ export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetL
 export function saveDescriptorSetData (ar: OutputArchive, v: DescriptorSetData) {
     saveDescriptorSetLayoutData(ar, v.descriptorSetLayoutData);
     saveDescriptorSetLayoutInfo(ar, v.descriptorSetLayoutInfo);
-    // skip, v.descriptorSetLayout: IntrusivePtr<gfx::DescriptorSetLayout>
-    // skip, v.descriptorSet: IntrusivePtr<gfx::DescriptorSet>
+    // skip, v.descriptorSetLayout: DescriptorSetLayout
+    // skip, v.descriptorSet: DescriptorSet
 }
 
 export function loadDescriptorSetData (ar: InputArchive, v: DescriptorSetData) {
