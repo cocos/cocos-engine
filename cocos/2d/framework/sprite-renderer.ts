@@ -23,14 +23,16 @@
 */
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { builtinResMgr, Color, Material, ModelRenderer, Vec2 } from '../../core';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material } from '../../asset/assets';
+import { Color, Vec2 } from '../../core';
 import { legacyCC } from '../../core/global-exports';
-import { ModelLocalBindings } from '../../core/pipeline/define';
-import { Model } from '../../core/renderer/scene';
-import { Root } from '../../core/root';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { ModelLocalBindings } from '../../rendering/define';
+import { Model } from '../../render-scene/scene';
+import { Root } from '../../root';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
+import { ModelRenderer } from '../../misc';
 
 enum SpriteMode {
     SIMPLE = 0,

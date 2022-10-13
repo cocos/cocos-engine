@@ -30,6 +30,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace {
 se::Value tickVal;
@@ -59,7 +60,7 @@ uint32_t EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {
     return inited && se::ScriptEngine::getInstance()->isValid();
-};
+}
 
 void EventDispatcher::init() {
     inited = true;
@@ -161,6 +162,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
 
     se::ValueArray args;
     args.emplace_back(se::Value(jsTouchObjArray));
+    args.emplace_back(se::Value(touchEvent.windowId));
     EventDispatcher::doDispatchJsEvent(eventName, args);
     EventDispatcher::dispatchCustomEvent(eventName, 0);
 }
@@ -186,6 +188,8 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
         jsMouseEventObj->setProperty("x", xVal);
         jsMouseEventObj->setProperty("y", yVal);
     }
+
+    jsMouseEventObj->setProperty("windowId", se::Value(mouseEvent.windowId));
 
     const char *eventName = nullptr;
     const char *jsFunctionName = nullptr;
@@ -244,6 +248,8 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
     jsKeyboardEventObj->setProperty("shiftKey", se::Value(keyboardEvent.shiftKeyActive));
     jsKeyboardEventObj->setProperty("repeat", se::Value(keyboardEvent.action == KeyboardEvent::Action::REPEAT));
     jsKeyboardEventObj->setProperty("keyCode", se::Value(keyboardEvent.key));
+    jsKeyboardEventObj->setProperty("windowId", se::Value(keyboardEvent.windowId));
+
     se::ValueArray args;
     args.emplace_back(se::Value(jsKeyboardEventObj));
     EventDispatcher::doDispatchJsEvent(eventName, args);
@@ -336,6 +342,23 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 0);
 }
 
+void EventDispatcher::dispatchResizeEvent(const WindowEvent &windowEvent) {
+    se::AutoHandleScope scope;
+    if (!jsResizeEventObj) {
+        jsResizeEventObj = se::Object::createPlainObject();
+        jsResizeEventObj->root();
+    }
+
+    jsResizeEventObj->setProperty("windowId", se::Value(windowEvent.windowId));
+    jsResizeEventObj->setProperty("width", se::Value(windowEvent.width));
+    jsResizeEventObj->setProperty("height", se::Value(windowEvent.height));
+
+    se::ValueArray args;
+    args.emplace_back(se::Value(jsResizeEventObj));
+    EventDispatcher::doDispatchJsEvent("onResize", args);
+    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 0);
+}
+
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;
@@ -384,18 +407,34 @@ void EventDispatcher::dispatchCloseEvent() {
 
 void EventDispatcher::dispatchDestroyWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, ISystemWindow::mainWindowId);
 #else
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
+#endif
+}
+
+void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, window->getWindowId());
+#else
+    CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 #endif
 }
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, ISystemWindow::mainWindowId);
 #else
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
+#endif
+}
+
+void EventDispatcher::dispatchRecreateWindowEvent(cc::ISystemWindow *window) {
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, window->getWindowId());
+#else
+    CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif
 }

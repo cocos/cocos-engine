@@ -30,11 +30,13 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
 
+#include "application/ApplicationManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "storage/local-storage/LocalStorage.h"
 
 extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration, readability-identifier-naming)
 
-static bool jsb_ccx_empty_func(const se::State & /*s*/) { // NOLINT(readability-identifier-naming)
+static bool jsb_ccx_empty_func(se::State & /*s*/) { // NOLINT(readability-identifier-naming)
     return true;
 }
 SE_BIND_FUNC(jsb_ccx_empty_func) // NOLINT(readability-identifier-naming)
@@ -225,7 +227,7 @@ static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identi
 }
 SE_BIND_FUNC(JSB_localStorageGetItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool JSB_localStorageRemoveItem(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -242,7 +244,7 @@ static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readabili
 }
 SE_BIND_FUNC(JSB_localStorageRemoveItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool JSB_localStorageSetItem(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 2) {
@@ -263,7 +265,7 @@ static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-
 }
 SE_BIND_FUNC(JSB_localStorageSetItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageClear(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool JSB_localStorageClear(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -468,7 +470,7 @@ static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NO
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_measureText) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_CanvasRenderingContext2D_fillRect(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
@@ -494,7 +496,7 @@ static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { //
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillRect) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_CanvasRenderingContext2D_fillText(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
@@ -525,7 +527,7 @@ static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { //
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillText) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_CanvasRenderingContext2D_strokeText(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
@@ -600,18 +602,18 @@ static bool register_device(se::Object * /*obj*/) { // NOLINT(readability-identi
 }
 
 static bool register_canvas_context2d(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("fillText", _SE(js_engine_CanvasRenderingContext2D_fillText));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("strokeText", _SE(js_engine_CanvasRenderingContext2D_strokeText));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("fillRect", _SE(js_engine_CanvasRenderingContext2D_fillRect));
-    __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("measureText", _SE(js_engine_CanvasRenderingContext2D_measureText));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("fillText", _SE(js_engine_CanvasRenderingContext2D_fillText));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("strokeText", _SE(js_engine_CanvasRenderingContext2D_strokeText));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("fillRect", _SE(js_engine_CanvasRenderingContext2D_fillRect));
+    __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("measureText", _SE(js_engine_CanvasRenderingContext2D_measureText));
 
     se::ScriptEngine::getInstance()->clearException();
 
     return true;
 }
 
-static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NOLINT(readability-identifier-naming)
+static bool js_engine_FileUtils_listFilesRecursively(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::FileUtils *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     const auto &args = s.args();
@@ -733,6 +735,25 @@ static bool register_engine_Color_manual(se::Object * /*obj*/) { // NOLINT(reada
     return true;
 }
 
+static bool js_cc_ISystemWindowManager_getInstance_static(se::State &s) { // NOLINT(readability-identifier-naming)
+    const auto &args = s.args();
+
+    CC_UNUSED bool ok = true;
+    auto *instance = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
+    ok &= nativevalue_to_se(instance, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_cc_ISystemWindowManager_getInstance Failed");
+
+    return true;
+}
+SE_BIND_FUNC(js_cc_ISystemWindowManager_getInstance_static)
+
+static bool register_platform(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
+    se::Value constructor;
+    bool result = __jsb_cc_ISystemWindowManager_proto->getProperty("constructor", &constructor);
+    result &= constructor.toObject()->defineFunction("getInstance", _SE(js_cc_ISystemWindowManager_getInstance_static));
+    return result;
+}
+
 bool register_all_cocos_manual(se::Object *obj) { // NOLINT(readability-identifier-naming)
     register_plist_parser(obj);
     register_sys_localStorage(obj);
@@ -741,5 +762,6 @@ bool register_all_cocos_manual(se::Object *obj) { // NOLINT(readability-identifi
     register_filetuils_ext(obj);
     register_engine_Color_manual(obj);
     register_se_setExceptionCallback(obj);
+    register_platform(obj);
     return true;
 }

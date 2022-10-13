@@ -23,17 +23,16 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB, DEV } from 'internal:constants';
+import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ValueType } from '../value-types';
 import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '../math';
-import { warnID, errorID, getError } from '../platform/debug';
+import { errorID, getError } from '../platform/debug';
 import * as js from '../utils/js';
 
 import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
-import { Asset } from '../assets/asset';
+import { Asset } from '../../asset/assets/asset';
 
-import { deserializeTag } from './custom-serializable';
 import type { CCON } from './ccon';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';

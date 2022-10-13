@@ -26,18 +26,18 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
 import { EDITOR, DEV } from 'internal:constants';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework/ui-transform';
 import { Size, Vec2, Vec3 } from '../core/math';
-import { errorID, warnID } from '../core/platform/debug';
-import { View } from '../core/platform/view';
+import { errorID } from '../core/platform/debug';
+import { View } from './view';
 import visibleRect from '../core/platform/visible-rect';
-import { Scene } from '../core/scene-graph';
-import { Node } from '../core/scene-graph/node';
+import { Scene } from '../scene-graph';
+import { Node } from '../scene-graph/node';
 import { ccenum } from '../core/value-types/enum';
-import { TransformBit } from '../core/scene-graph/node-enum';
+import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { NodeEventType } from '../scene-graph/node-event';
 
 const _tempScale = new Vec2();
 

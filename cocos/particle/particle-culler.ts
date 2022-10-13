@@ -24,8 +24,8 @@
  */
 
 import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
-import { Node } from '../core/scene-graph/node';
-import { TransformBit } from '../core/scene-graph/node-enum';
+import { Node } from '../scene-graph/node';
+import { TransformBit } from '../scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
 import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4 } from '../core';
 import { INT_MAX } from '../core/math/bits';

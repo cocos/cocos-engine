@@ -60,7 +60,9 @@
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
 #include "platform/UniversalPlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -71,14 +73,15 @@ namespace {
 bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
-    auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
-
+    auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
+    
     std::stringstream ss;
     {
-        ss << "window.innerWidth = " << static_cast<int>(viewSize.x) << ";";
-        ss << "window.innerHeight = " << static_cast<int>(viewSize.y) << ";";
+        ss << "window.innerWidth = "  << static_cast<int>(viewSize.x / dpr) << ";";
+        ss << "window.innerHeight = " << static_cast<int>(viewSize.y / dpr) << ";";
         ss << "window.windowHandler = ";
         if (sizeof(handler) == 8) { // use bigint
             ss << static_cast<uint64_t>(handler) << "n;";
@@ -365,21 +368,24 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
         ev.type == WindowEvent::Type::RESTORED) {
         emit(static_cast<int>(ON_RESUME));
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::EventDispatcher::dispatchRecreateWindowEvent();
+        ISystemWindow *window = CC_GET_SYSTEM_WINDOW(ev.windowId);
+        cc::EventDispatcher::dispatchRecreateWindowEvent(window);
 #endif
         cc::EventDispatcher::dispatchEnterForegroundEvent();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
-        cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
-        auto *w = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+        cc::EventDispatcher::dispatchResizeEvent(ev);
+        auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
+        CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {
         emit(static_cast<int>(ON_PAUSE));
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::EventDispatcher::dispatchDestroyWindowEvent();
+        ISystemWindow *window = CC_GET_SYSTEM_WINDOW(ev.windowId);
+        cc::EventDispatcher::dispatchDestroyWindowEvent(window);
 #endif
         cc::EventDispatcher::dispatchEnterBackgroundEvent();
         isHandled = true;

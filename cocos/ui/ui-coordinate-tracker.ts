@@ -25,10 +25,10 @@
 */
 
 import { ccclass, help, menu, executionOrder, tooltip, type, serializable } from 'cc.decorator';
-import { Component } from '../core/components/component';
-import { EventHandler } from '../core/components/component-event-handler';
-import { Node } from '../core/scene-graph/node';
-import { Camera } from '../core/components';
+import { Component } from '../scene-graph/component';
+import { EventHandler } from '../scene-graph/component-event-handler';
+import { Node } from '../scene-graph/node';
+import { Camera } from '../misc/camera-component';
 import { Vec3 } from '../core/math';
 
 /**

@@ -269,6 +269,8 @@ export class Input {
         }
         const changedTouches = [touch];
         const eventTouch = new EventTouch(changedTouches, false, eventType, (eventType === InputEventType.TOUCH_END ? [] : changedTouches));
+        eventTouch.windowId = eventMouse.windowId;
+        
         if (eventType === InputEventType.TOUCH_END) {
             touchManager.releaseTouch(touchID);
         }

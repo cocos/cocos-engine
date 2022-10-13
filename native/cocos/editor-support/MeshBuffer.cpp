@@ -75,7 +75,6 @@ void MeshBuffer::clear() {
     cleanUIMeshBuffer();
 }
 
-
 void MeshBuffer::init() {
     auto *rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
     _ibArr.push_back(rIB);

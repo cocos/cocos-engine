@@ -26,6 +26,9 @@
 #include "GFXDevice.h"
 #include "GFXObject.h"
 #include "base/memory/Memory.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 namespace gfx {
@@ -93,24 +96,6 @@ void Device::destroy() {
     doDestroy();
 
     CC_SAFE_DELETE(_onAcquire);
-}
-
-void Device::destroySurface(void *windowHandle) {
-    for (const auto &swapchain : _swapchains) {
-        if (swapchain->getWindowHandle() == windowHandle) {
-            swapchain->destroySurface();
-            break;
-        }
-    }
-}
-
-void Device::createSurface(void *windowHandle) {
-    for (const auto &swapchain : _swapchains) {
-        if (!swapchain->getWindowHandle()) {
-            swapchain->createSurface(windowHandle);
-            break;
-        }
-    }
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {

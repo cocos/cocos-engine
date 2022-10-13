@@ -25,10 +25,10 @@
 
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { Component } from '../../core/components/component';
+import { Component } from '../../scene-graph/component';
 import { clampf } from '../../core/utils/misc';
 import { UIRenderer } from '../framework/ui-renderer';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 
 /**
  * @en

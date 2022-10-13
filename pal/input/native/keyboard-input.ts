@@ -59,6 +59,7 @@ export class KeyboardInputSource {
     private _getInputEvent (event: jsb.KeyboardEvent, eventType: InputEventType) {
         const keyCode = getKeyCode(event.keyCode);
         const eventKeyboard = new EventKeyboard(keyCode, eventType);
+        eventKeyboard.windowId = event.windowId;
         return eventKeyboard;
     }
 

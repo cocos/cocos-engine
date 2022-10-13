@@ -1,7 +1,7 @@
-import { assetManager } from "../../cocos/core/asset-manager";
-import Config from "../../cocos/core/asset-manager/config";
-import RequestItem from "../../cocos/core/asset-manager/request-item";
-import { files } from '../../cocos/core/asset-manager/shared';
+import { assetManager } from "../../cocos/asset/asset-manager";
+import Config from "../../cocos/asset/asset-manager/config";
+import RequestItem from "../../cocos/asset/asset-manager/request-item";
+import { files } from '../../cocos/asset/asset-manager/shared';
 
 describe('pack-manager', function () {
     const packManager = assetManager.packManager;

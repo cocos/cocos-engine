@@ -3284,6 +3284,10 @@ The shadow visible distance is so small that CSM stratification is not effective
 
 The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade.
 
+### 15100
+
+Camera '%s' clear flag is skybox, but skybox is disabled,  may cause strange background effect, please set camera clear flag to solid color.
+
 ### 16000
 
 '%s' is deprecated since v%s.
@@ -3307,3 +3311,7 @@ The effect('%s') you are looking for does not exist, please confirm the effect n
 ### 16201
 
 The asset replacing failed, can not found override asset('%s') for '%s' 
+
+### 16301
+
+node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first

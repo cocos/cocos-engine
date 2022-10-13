@@ -25,65 +25,9 @@
 
 import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { sys } from './sys';
-import { View } from './view';
 import { legacyCC } from '../global-exports';
 import { screen } from './screen';
 
-// #region deprecation on view
-removeProperty(View.prototype, 'View.prototype', [
-    {
-        name: 'isAntiAliasEnabled',
-        suggest: 'The API of Texture2d have been largely modified, no alternative',
-    },
-    {
-        name: 'enableAntiAlias',
-        suggest: 'The API of Texture2d have been largely modified, no alternative',
-    },
-]);
-markAsWarning(View.prototype, 'View.prototype', [
-    {
-        name: 'adjustViewportMeta',
-    },
-    {
-        name: 'enableAutoFullScreen',
-        suggest: 'use screen.requestFullScreen() instead.',
-    },
-    {
-        name: 'isAutoFullScreenEnabled',
-    },
-    {
-        name: 'setCanvasSize',
-        suggest: 'setting size in CSS pixels is not recommended, please use screen.windowSize instead.',
-    },
-    {
-        name: 'getCanvasSize',
-        suggest: 'please use screen.windowSize instead.',
-    },
-    {
-        name: 'getFrameSize',
-        suggest: 'getting size in CSS pixels is not recommended, please use screen.windowSize instead.',
-    },
-    {
-        name: 'setFrameSize',
-        suggest: 'setting size in CSS pixels is not recommended, please use screen.windowSize instead.',
-    },
-    {
-        name: 'getDevicePixelRatio',
-        suggest: 'use screen.devicePixelRatio instead.',
-    },
-    {
-        name: 'convertToLocationInView',
-    },
-    {
-        name: 'enableRetina',
-    },
-    {
-        name: 'isRetinaEnabled',
-    },
-    {
-        name: 'setRealPixelResolution',
-    },
-]);
 markAsWarning(legacyCC, 'cc', [
     {
         name: 'winSize',

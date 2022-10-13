@@ -34,32 +34,31 @@ struct SDL_WindowEvent;
 
 namespace cc {
 class IEventDispatch;
+
 class SDLHelper {
+    friend class SystemWindowManager;
+
 public:
-    SDLHelper(IEventDispatch* delegate);
+    SDLHelper();
     ~SDLHelper();
 
-    int init();
-    void swapWindow();
-    bool createWindow(const char* title,
-                      int w, int h, int flags);
-    bool createWindow(const char* title,
-                      int x, int y, int w,
-                      int h, int flags);
+    static int init();
+    static void swapWindow(SDL_Window* window);
 
-    void pollEvent(bool* quit);
-    uintptr_t getWindowHandle() const;
+    static SDL_Window* createWindow(const char* title,
+                                    int w, int h, int flags);
+    static SDL_Window* createWindow(const char* title,
+                                    int x, int y, int w,
+                                    int h, int flags);
+
+    static uintptr_t getWindowHandle(SDL_Window* window);
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
-    uintptr_t getDisplay() const;
+    static uintptr_t getDisplay(SDL_Window* window);
 #endif
-    void setCursorEnabled(bool value);
-    SDL_Window* getSDLWindowHandle() const;
+    static void setCursorEnabled(bool value);
 
 private:
-    void dispatchSDLEvent(const SDL_Event& sdlEvent, bool* quit);
-    void dispatchWindowEvent(const SDL_WindowEvent& wevent);
-    bool _isWindowCreated{false};
-    IEventDispatch* _delegate{nullptr};
-    struct SDL_Window* _handle{nullptr};
+    static void dispatchSDLEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_Event& sdlEvent, bool* quit);
+    static void dispatchWindowEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_WindowEvent& wevent);
 };
 } // namespace cc

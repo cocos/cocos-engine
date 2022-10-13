@@ -112,7 +112,7 @@ ccstd::string System::getCurrentLanguageCode() const {
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
     int length = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
 
-    char *tempCode = reinterpret_cast<char*>(CC_MALLOC(length));
+    char *tempCode = reinterpret_cast<char *>(CC_MALLOC(length));
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, tempCode, length);
     ccstd::string code(tempCode);
     CC_FREE(tempCode);

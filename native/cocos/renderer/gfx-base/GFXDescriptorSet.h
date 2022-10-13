@@ -68,10 +68,16 @@ protected:
     virtual void doInit(const DescriptorSetInfo &info) = 0;
     virtual void doDestroy() = 0;
 
+    template <typename T>
+    struct ObjectWithId {
+        T *ptr = nullptr;
+        uint32_t id = INVALID_OBJECT_ID;
+    };
+
     DescriptorSetLayout *_layout = nullptr;
-    BufferList _buffers;
-    TextureList _textures;
-    SamplerList _samplers;
+    ccstd::vector<ObjectWithId<Buffer>> _buffers;
+    ccstd::vector<ObjectWithId<Texture>> _textures;
+    ccstd::vector<ObjectWithId<Sampler>> _samplers;
 
     bool _isDirty = false;
 };

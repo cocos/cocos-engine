@@ -27,7 +27,7 @@
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UIRenderer } from '../2d/framework';
-import { Texture2D } from '../core/assets/texture-2d';
+import { Texture2D } from '../asset/assets/texture-2d';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
 import { legacyCC } from '../core/global-exports';

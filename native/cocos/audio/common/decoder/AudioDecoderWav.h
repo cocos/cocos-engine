@@ -70,7 +70,6 @@ protected:
     ~AudioDecoderWav() override;
     sf::SNDFILE *_sf_handle{nullptr};
 
-
     friend class AudioDecoderManager;
 };
 

@@ -45,6 +45,7 @@ protected:
     void doResize(uint32_t width, uint32_t height, SurfaceTransform transform) override;
     void doDestroySurface() override;
     void doCreateSurface(void *windowHandle) override;
+    void updateInfo();
 
     bool _inited{false};
 };

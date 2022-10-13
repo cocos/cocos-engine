@@ -25,9 +25,9 @@
 
 import { instantiate } from '../core/data';
 import { CCObject } from '../core/data/object';
-import { Director, director } from '../core/director';
+import { Director, director } from '../game/director';
 import { Pool } from '../core/memop';
-import { Node } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
 
 export class ParticleUtils {

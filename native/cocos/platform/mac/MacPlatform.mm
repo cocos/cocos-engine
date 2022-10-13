@@ -39,9 +39,11 @@
 #else
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"
+    #include "modules/SystemWindowManager.h"
 #endif
 
 #import <AppKit/AppKit.h>
+#include "base/memory/Memory.h"
 
 extern int cocos_main(int argc, const char **argv);
 
@@ -110,7 +112,7 @@ int32_t MacPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>(this));
+    registerInterface(std::make_shared<SystemWindowManager>());
     registerInterface(std::make_shared<Vibrator>());
     return 0;
 }
@@ -161,6 +163,10 @@ void MacPlatform::onClose() {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::CLOSE;
     dispatchEvent(ev);
+}
+
+cc::ISystemWindow *MacPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) { 
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 } // namespace cc

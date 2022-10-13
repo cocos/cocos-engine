@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
-import { Texture2D } from '../../../core/assets';
+import { Texture2D } from '../../../asset/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
 import { Color, Size, Vec2, Rect } from '../../../core/math';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
@@ -33,10 +33,9 @@ import { ISharedLabelData, LetterRenderTexture } from './font-utils';
 import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
-import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { BlendFactor } from '../../../core/gfx';
-import { WrapMode } from '../../../core/assets/asset-enum';
+import { BlendFactor } from '../../../gfx';
+import { WrapMode } from '../../../asset/assets/asset-enum';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;

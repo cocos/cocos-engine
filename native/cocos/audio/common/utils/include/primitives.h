@@ -21,10 +21,9 @@
     #include <sys/types.h>
 #endif
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
-
 
 /* The memcpy_* conversion routines are designed to work in-place on same dst as src
  * buffers only if the types shrink on copy, with the exception of memcpy_to_i16_from_u8().
@@ -900,9 +899,9 @@ static inline int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a)
 #else
     if (left) {
         return a + (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
-    }  
+    }
     return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    
+
 #endif
 }
 
@@ -927,8 +926,8 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
 #else
     if (left) {
         return (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
-    }  
+    }
     return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
-    
+
 #endif
 }

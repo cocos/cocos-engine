@@ -1,11 +1,10 @@
 
-import { Component, lerp, Node, Vec2, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
-import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource } from '../../cocos/core/animation/marionette/animation-graph';
-import { createEval } from '../../cocos/core/animation/marionette/create-eval';
-import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
-import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/core/animation/marionette/graph-eval';
-import { createGraphFromDescription } from '../../cocos/core/animation/marionette/__tmp__/graph-from-description';
+import { lerp, Vec3, warnID } from '../../cocos/core';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/animation/marionette/asset-creation';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource } from '../../cocos/animation/marionette/animation-graph';
+import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
+import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/graph-eval';
+import { createGraphFromDescription } from '../../cocos/animation/marionette/__tmp__/graph-from-description';
 import gAnyTransition from './graphs/any-transition';
 import gUnspecifiedCondition from './graphs/unspecified-condition';
 import glUnspecifiedConditionOnEntryNode from './graphs/unspecified-condition-for-non-entry-node';
@@ -15,17 +14,18 @@ import gVariableNotFoundInAnimationBlend from './graphs/variable-not-found-in-po
 import gAnimationBlendRequiresNumbers from './graphs/pose-blend-requires-numbers';
 import gInfinityLoop from './graphs/infinity-loop';
 import gZeroTimePiece from './graphs/zero-time-piece';
-import { blend1D } from '../../cocos/core/animation/marionette/blend-1d';
+import { blend1D } from '../../cocos/animation/marionette/blend-1d';
 import '../utils/matcher-deep-close-to';
-import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/core/animation/marionette/condition';
-import { AnimationController } from '../../cocos/core/animation/marionette/animation-controller';
-import { StateMachineComponent } from '../../cocos/core/animation/marionette/state-machine-component';
-import { VectorTrack } from '../../cocos/core/animation/animation';
+import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/animation/marionette/condition';
+import { AnimationController } from '../../cocos/animation/marionette/animation-controller';
+import { StateMachineComponent } from '../../cocos/animation/marionette/state-machine-component';
+import { VectorTrack } from '../../cocos/animation/animation';
 import 'jest-extended';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
-import { AnimationClip } from '../../cocos/core/animation/animation-clip';
-import { TriggerResetMode } from '../../cocos/core/animation/marionette/variable';
-import { MotionState } from '../../cocos/core/animation/marionette/motion-state';
+import { AnimationClip } from '../../cocos/animation/animation-clip';
+import { TriggerResetMode } from '../../cocos/animation/marionette/variable';
+import { MotionState } from '../../cocos/animation/marionette/motion-state';
+import { Node, Component } from '../../cocos/scene-graph';
 
 describe('NewGen Anim', () => {
     test('Defaults', () => {

@@ -26,12 +26,12 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Renderer } from '../core/components/renderer';
-import { ModelRenderer } from '../core/components/model-renderer';
-import { Material } from '../core/assets/material';
+import { Renderer } from '../misc/renderer';
+import { ModelRenderer } from '../misc/model-renderer';
+import { Material } from '../asset/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { scene } from '../core/renderer';
+import { scene } from '../render-scene';
 import ColorOverLifetimeModule from './animator/color-overtime';
 import CurveRange, { Mode } from './animator/curve-range';
 import ForceOvertimeModule from './animator/force-overtime';
@@ -50,9 +50,9 @@ import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
-import { TransformBit } from '../core/scene-graph/node-enum';
+import { TransformBit } from '../scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
-import { Camera } from '../core/renderer/scene';
+import { Camera } from '../render-scene/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
 import { CCBoolean, CCFloat } from '../core';

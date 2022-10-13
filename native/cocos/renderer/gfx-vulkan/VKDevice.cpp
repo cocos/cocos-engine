@@ -48,9 +48,9 @@
 #include "states/VKTextureBarrier.h"
 
 #include "gfx-base/SPIRVUtils.h"
-#include "profiler/Profiler.h"
 #include "application/ApplicationManager.h"
 #include "platform/interfaces/modules/IXRInterface.h"
+#include "profiler/Profiler.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyVk.h"
@@ -404,7 +404,6 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuDescriptorHub = ccnew CCVKGPUDescriptorHub(_gpuDevice);
     _gpuSemaphorePool = ccnew CCVKGPUSemaphorePool(_gpuDevice);
     _gpuBarrierManager = ccnew CCVKGPUBarrierManager(_gpuDevice);
-    _gpuFramebufferHub = ccnew CCVKGPUFramebufferHub;
     _gpuDescriptorSetHub = ccnew CCVKGPUDescriptorSetHub(_gpuDevice);
 
     _gpuDescriptorHub->link(_gpuDescriptorSetHub);
@@ -486,8 +485,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     CC_LOG_INFO("DEVICE_EXTENSIONS: %s", deviceExtensions.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
-    if(_xr) {
-        cc::gfx::CCVKGPUQueue* vkQueue = static_cast<cc::gfx::CCVKQueue *>(getQueue())->gpuQueue();
+    if (_xr) {
+        cc::gfx::CCVKGPUQueue *vkQueue = static_cast<cc::gfx::CCVKQueue *>(getQueue())->gpuQueue();
         _xr->setXRConfig(xr::XRConfigKey::VK_QUEUE_FAMILY_INDEX, static_cast<int>(vkQueue->queueFamilyIndex));
         _xr->postGFXDeviceInitialize(_api);
     }
@@ -512,7 +511,6 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuSemaphorePool)
     CC_SAFE_DELETE(_gpuDescriptorHub)
     CC_SAFE_DELETE(_gpuBarrierManager)
-    CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
     if (_gpuDevice) {
@@ -632,14 +630,14 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
             }
         }
 
-        if(_xr) {
+        if (_xr) {
             xr::XRSwapchain xrSwapchain = _xr->doGFXDeviceAcquire(_api);
             swapchain->gpuSwapchain()->curImageIndex = xrSwapchain.swapchainImageIndex;
         }
-        if(swapchain->gpuSwapchain()->vkSwapchain) {
+        if (swapchain->gpuSwapchain()->vkSwapchain) {
             vkSwapchains.push_back(swapchain->gpuSwapchain()->vkSwapchain);
         }
-        if(swapchain->gpuSwapchain()) {
+        if (swapchain->gpuSwapchain()) {
             gpuSwapchains.push_back(swapchain->gpuSwapchain());
         }
         vkSwapchainIndices.push_back(swapchain->gpuSwapchain()->curImageIndex);

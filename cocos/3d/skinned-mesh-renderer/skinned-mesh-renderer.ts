@@ -26,10 +26,10 @@
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type,
 } from 'cc.decorator';
-import type { AnimationClip } from '../../core/animation/animation-clip';
-import { Material } from '../../core/assets';
+import type { AnimationClip } from '../../animation/animation-clip';
+import { Material } from '../../asset/assets';
 import { Skeleton } from '../assets/skeleton';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { MeshRenderer } from '../framework/mesh-renderer';
 import type { SkeletalAnimation } from '../skeletal-animation';
 import { legacyCC } from '../../core/global-exports';

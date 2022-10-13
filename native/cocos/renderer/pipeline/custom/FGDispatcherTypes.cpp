@@ -36,18 +36,19 @@ namespace cc {
 namespace render {
 
 ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   passID(alloc),
   access(alloc),
   passIndex(alloc),
   resourceNames(alloc),
   resourceIndex(alloc),
-  externalPasses(alloc),
+  leafPasses(alloc),
+  culledPasses(alloc),
   accessRecord(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     passID.reserve(sz);
     access.reserve(sz);
 }
@@ -64,7 +65,7 @@ ResourceAccessGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& all
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
+FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
 : resourceAccessGraph(alloc),
   resourceGraph(resourceGraphIn),
   graph(graphIn),

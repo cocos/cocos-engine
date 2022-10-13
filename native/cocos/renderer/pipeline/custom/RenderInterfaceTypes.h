@@ -31,9 +31,10 @@
 // clang-format off
 #pragma once
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/scene/Camera.h"
 
 namespace cc {
 
@@ -69,11 +70,10 @@ namespace render {
 class PipelineRuntime {
 public:
     PipelineRuntime() noexcept = default;
-    PipelineRuntime(PipelineRuntime&& rhs)      = delete;
+    PipelineRuntime(PipelineRuntime&& rhs) = delete;
     PipelineRuntime(PipelineRuntime const& rhs) = delete;
     PipelineRuntime& operator=(PipelineRuntime&& rhs) = delete;
     PipelineRuntime& operator=(PipelineRuntime const& rhs) = delete;
-
     virtual ~PipelineRuntime() noexcept = default;
 
     virtual bool activate(gfx::Swapchain * swapchain) = 0;
@@ -85,7 +85,7 @@ public:
     virtual pipeline::GlobalDSManager *getGlobalDSManager() const = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout() const = 0;
     virtual gfx::DescriptorSet *getDescriptorSet() const = 0;
-    virtual ccstd::vector<gfx::CommandBuffer*> getCommandBuffers() const = 0;
+    virtual const ccstd::vector<gfx::CommandBuffer*>& getCommandBuffers() const = 0;
     virtual pipeline::PipelineSceneData *getPipelineSceneData() const = 0;
     virtual const ccstd::string &getConstantMacros() const = 0;
     virtual scene::Model *getProfiler() const = 0;
@@ -117,11 +117,10 @@ public:
 class Setter {
 public:
     Setter() noexcept = default;
-    Setter(Setter&& rhs)      = delete;
+    Setter(Setter&& rhs) = delete;
     Setter(Setter const& rhs) = delete;
     Setter& operator=(Setter&& rhs) = delete;
     Setter& operator=(Setter const& rhs) = delete;
-
     virtual ~Setter() noexcept = default;
 
     virtual void setMat4(const ccstd::string& name, const cc::Mat4& mat) = 0;
@@ -145,10 +144,10 @@ public:
     virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) = 0;
     virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
 };
@@ -161,10 +160,10 @@ public:
     virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& name) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, SceneFlags sceneFlags) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, SceneFlags sceneFlags) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
+    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
 };
 
@@ -192,11 +191,10 @@ public:
 class MovePassBuilder {
 public:
     MovePassBuilder() noexcept = default;
-    MovePassBuilder(MovePassBuilder&& rhs)      = delete;
+    MovePassBuilder(MovePassBuilder&& rhs) = delete;
     MovePassBuilder(MovePassBuilder const& rhs) = delete;
     MovePassBuilder& operator=(MovePassBuilder&& rhs) = delete;
     MovePassBuilder& operator=(MovePassBuilder const& rhs) = delete;
-
     virtual ~MovePassBuilder() noexcept = default;
 
     virtual void addPair(const MovePair& pair) = 0;
@@ -205,11 +203,10 @@ public:
 class CopyPassBuilder {
 public:
     CopyPassBuilder() noexcept = default;
-    CopyPassBuilder(CopyPassBuilder&& rhs)      = delete;
+    CopyPassBuilder(CopyPassBuilder&& rhs) = delete;
     CopyPassBuilder(CopyPassBuilder const& rhs) = delete;
     CopyPassBuilder& operator=(CopyPassBuilder&& rhs) = delete;
     CopyPassBuilder& operator=(CopyPassBuilder const& rhs) = delete;
-
     virtual ~CopyPassBuilder() noexcept = default;
 
     virtual void addPair(const CopyPair& pair) = 0;
@@ -218,11 +215,10 @@ public:
 class SceneVisitor {
 public:
     SceneVisitor() noexcept = default;
-    SceneVisitor(SceneVisitor&& rhs)      = delete;
+    SceneVisitor(SceneVisitor&& rhs) = delete;
     SceneVisitor(SceneVisitor const& rhs) = delete;
     SceneVisitor& operator=(SceneVisitor&& rhs) = delete;
     SceneVisitor& operator=(SceneVisitor const& rhs) = delete;
-
     virtual ~SceneVisitor() noexcept = default;
 
     virtual const pipeline::PipelineSceneData* getPipelineSceneData() const = 0;
@@ -239,11 +235,10 @@ public:
 class SceneTask {
 public:
     SceneTask() noexcept = default;
-    SceneTask(SceneTask&& rhs)      = delete;
+    SceneTask(SceneTask&& rhs) = delete;
     SceneTask(SceneTask const& rhs) = delete;
     SceneTask& operator=(SceneTask&& rhs) = delete;
     SceneTask& operator=(SceneTask const& rhs) = delete;
-
     virtual ~SceneTask() noexcept = default;
 
     virtual TaskType getTaskType() const noexcept = 0;
@@ -255,11 +250,10 @@ public:
 class SceneTransversal {
 public:
     SceneTransversal() noexcept = default;
-    SceneTransversal(SceneTransversal&& rhs)      = delete;
+    SceneTransversal(SceneTransversal&& rhs) = delete;
     SceneTransversal(SceneTransversal const& rhs) = delete;
     SceneTransversal& operator=(SceneTransversal&& rhs) = delete;
     SceneTransversal& operator=(SceneTransversal const& rhs) = delete;
-
     virtual ~SceneTransversal() noexcept = default;
 
     virtual SceneTask* transverse(SceneVisitor *visitor) const = 0;
@@ -268,11 +262,10 @@ public:
 class LayoutGraphBuilder {
 public:
     LayoutGraphBuilder() noexcept = default;
-    LayoutGraphBuilder(LayoutGraphBuilder&& rhs)      = delete;
+    LayoutGraphBuilder(LayoutGraphBuilder&& rhs) = delete;
     LayoutGraphBuilder(LayoutGraphBuilder const& rhs) = delete;
     LayoutGraphBuilder& operator=(LayoutGraphBuilder&& rhs) = delete;
     LayoutGraphBuilder& operator=(LayoutGraphBuilder const& rhs) = delete;
-
     virtual ~LayoutGraphBuilder() noexcept = default;
 
     virtual void clear() = 0;
@@ -290,6 +283,9 @@ public:
 class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
+
+    virtual void beginSetup() = 0;
+    virtual void endSetup() = 0;
 
     virtual bool containsResource(const ccstd::string& name) const = 0;
     virtual uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
@@ -314,11 +310,10 @@ public:
 class PipelineBuilder {
 public:
     PipelineBuilder() noexcept = default;
-    PipelineBuilder(PipelineBuilder&& rhs)      = delete;
+    PipelineBuilder(PipelineBuilder&& rhs) = delete;
     PipelineBuilder(PipelineBuilder const& rhs) = delete;
     PipelineBuilder& operator=(PipelineBuilder&& rhs) = delete;
     PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
-
     virtual ~PipelineBuilder() noexcept = default;
 
     virtual void setup(const ccstd::vector<scene::Camera*>& cameras, Pipeline* pipeline) = 0;
@@ -326,7 +321,7 @@ public:
 
 class Factory {
 public:
-    static Pipeline            *createPipeline();
+    static Pipeline *createPipeline();
 };
 
 } // namespace render

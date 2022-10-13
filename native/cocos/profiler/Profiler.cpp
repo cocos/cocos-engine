@@ -37,6 +37,7 @@
 #include "platform/FileUtils.h"
 #include "platform/interfaces/modules/Device.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
@@ -49,7 +50,7 @@ namespace cc {
  */
 class ProfilerBlock {
 public:
-    ProfilerBlock(ProfilerBlock *parent, const std::string_view& name)
+    ProfilerBlock(ProfilerBlock *parent, const std::string_view &name)
     : _parent(parent), _name(name) {}
     ~ProfilerBlock();
 
@@ -194,7 +195,7 @@ void Profiler::doIntervalUpdate() {
     const auto *root = Root::getInstance();
     const auto *sceneData = pipeline->getPipelineSceneData();
     const auto *shadows = sceneData->getShadows();
-    const auto *window = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
+    const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     const auto viewSize = window->getViewSize() * Device::getDevicePixelRatio();
 
     _coreStats.fps = root->getFps();
@@ -222,7 +223,7 @@ void Profiler::doFrameUpdate() {
 void Profiler::printStats() {
 #if CC_USE_DEBUG_RENDERER
     auto *renderer = CC_DEBUG_RENDERER;
-    const auto *window = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
+    const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     const auto viewSize = window->getViewSize() * Device::getDevicePixelRatio();
     const auto width = viewSize.x;
     const auto lineHeight = renderer->getLineHeight();

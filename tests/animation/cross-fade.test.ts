@@ -1,7 +1,6 @@
-import { AnimationClip, AnimationState, Node } from '../../cocos/core';
-import { CrossFade } from '../../cocos/core/animation/cross-fade';
-import { Playable } from '../../cocos/core/animation/playable';
-import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { AnimationState } from '../../cocos/animation';
+import { CrossFade } from '../../cocos/animation/cross-fade';
+import { Playable } from '../../cocos/animation/playable';
 import { remove } from '../../cocos/core/utils/array';
 
 type CrossFadeScheduler = NonNullable<ConstructorParameters<typeof CrossFade>[0]>;
