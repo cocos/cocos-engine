@@ -495,7 +495,7 @@ export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
 }
 
 export function loadLightInfo (ar: InputArchive, v: LightInfo) {
-    // skip, v.light: IntrusivePtr<scene::Light>
+    // skip, v.light: Light
     v.level = ar.readNumber();
 }
 

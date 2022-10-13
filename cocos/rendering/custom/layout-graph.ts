@@ -1222,11 +1222,19 @@ export function loadDescriptorDB (ar: InputArchive, v: DescriptorDB) {
 }
 
 export function saveRenderPhase (ar: OutputArchive, v: RenderPhase) {
-    // skip: v.shaders: Set<string>
+    ar.writeNumber(v.shaders.size); // Set<string>
+    for (const v1 of v.shaders) {
+        ar.writeString(v1);
+    }
 }
 
 export function loadRenderPhase (ar: InputArchive, v: RenderPhase) {
-    // skip: v.shaders: PmrTransparentSet<ccstd::pmr::string>
+    let sz = 0;
+    sz = ar.readNumber(); // Set<string>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = ar.readString();
+        v.shaders.add(v1);
+    }
 }
 
 export function saveUniformData (ar: OutputArchive, v: UniformData) {
@@ -1343,8 +1351,8 @@ export function saveDescriptorSetData (ar: OutputArchive, v: DescriptorSetData) 
 export function loadDescriptorSetData (ar: InputArchive, v: DescriptorSetData) {
     loadDescriptorSetLayoutData(ar, v.descriptorSetLayoutData);
     loadDescriptorSetLayoutInfo(ar, v.descriptorSetLayoutInfo);
-    // skip, v.descriptorSetLayout: IntrusivePtr<gfx::DescriptorSetLayout>
-    // skip, v.descriptorSet: IntrusivePtr<gfx::DescriptorSet>
+    // skip, v.descriptorSetLayout: DescriptorSetLayout
+    // skip, v.descriptorSet: DescriptorSet
 }
 
 export function savePipelineLayoutData (ar: OutputArchive, v: PipelineLayoutData) {
