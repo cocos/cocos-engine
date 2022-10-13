@@ -24,7 +24,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { ccclass, executeInEditMode, menu, serializable, type } from 'cc.decorator';
+import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
 import { Vec3, Vec4, Mat4 } from '../core/math';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
@@ -38,7 +38,7 @@ import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
 
 const _DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.2, 0.07];
-@ccclass
+@ccclass('cc.LOD')
 export class LOD {
     // The relative minimum transition height in screen space.
     @serializable
@@ -46,7 +46,7 @@ export class LOD {
     // Mesh renderers components contained in this LOD level.
     @type([MeshRenderer])
     @serializable
-    protected _renderers: MeshRenderer[] = [];
+    protected _renderers: (MeshRenderer | null)[] = [];
     // renderer internal LOD data block.
     protected _LOD: scene.LOD = new scene.LOD();
 
@@ -65,13 +65,33 @@ export class LOD {
         this._LOD.screenRelativeTransitionHeight = val;
     }
 
-    @type(MeshRenderer)
+    @type([MeshRenderer])
     get renderers () {
         return this._renderers;
     }
 
-    set renderers (meshList: MeshRenderer[]) {
+    set renderers (meshList) {
         this._renderers = meshList;
+        console.log(meshList);
+    }
+
+    @editable
+    @type([Number])
+    get triangles () {
+        const tris: number[] = [];
+        this._renderers.forEach((meshRenderer: MeshRenderer | null) => {
+            let count = 0;
+            if (meshRenderer && meshRenderer.mesh) {
+                const primitives = meshRenderer.mesh.struct.primitives;
+                primitives?.forEach((subMesh: Mesh.ISubMesh) => {
+                    if (subMesh && subMesh.indexView) {
+                        count += subMesh.indexView.count;
+                    }
+                });
+            }
+            tris.push(count / 3);
+        });
+        return tris;
     }
 
     /**
@@ -93,14 +113,14 @@ export class LOD {
      * @param index 0 indexed position in renderer array, when -1 is specified, the last element will be deleted
      * @returns The renderer deleted
      */
-    deleteRenderer (index: number): MeshRenderer {
+    deleteRenderer (index: number): MeshRenderer | null {
         const renderer = this._renderers[index];
         this._renderers.splice(index, 1);
         this._LOD.models.splice(index, 1);
         return renderer;
     }
 
-    getRenderer (index: number): MeshRenderer {
+    getRenderer (index: number): MeshRenderer | null {
         return this._renderers[index];
     }
 
@@ -188,6 +208,20 @@ export class LODGroup extends Component {
 
     setLOD (index: number, lod: LOD) {
         this._LODs[index] = lod;
+    }
+
+    recalculateBounds () {
+        const comp = this.node.getComponent(LODGroup);
+        if (comp) {
+            LODGroupEditorUtility.recalculateBounds(comp);
+        }
+    }
+
+    resetObjectSize () {
+        const comp = this.node.getComponent(LODGroup);
+        if (comp) {
+            LODGroupEditorUtility.resetObjectSize(comp);
+        }
     }
 
     get lodGroup () { return this._lodGroup; }
@@ -279,6 +313,9 @@ export class LODGroup extends Component {
         // lod's model will be enabled while execute culling
         for (const lod of this._LODs) {
             for (const renderer of lod.renderers) {
+                if (!renderer) {
+                    continue;
+                }
                 const renderScene = renderer._getRenderScene();
                 if (renderScene && renderer.model) {
                     renderScene.removeModel(renderer.model);
@@ -374,6 +411,9 @@ export class LODGroupEditorUtility {
             const lod = lodGroup.getLOD(i);
             for (let j = 0; j < lod.rendererCount; ++j) {
                 const renderer = lod.getRenderer(j);
+                if (!renderer) {
+                    continue;
+                }
                 const worldBounds = renderer.model?.worldBounds;
                 if (worldBounds) {
                     worldBounds.getBoundary(minPos, maxPos);
