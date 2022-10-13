@@ -33,6 +33,10 @@
     align-items: center;
 }
 
+.lod-item .header:hover > .right > .operator {
+    display: flex;
+}
+
 .lod-item .header > .left {
     display: flex;
     align-items: center;
@@ -52,7 +56,7 @@
 }
 
 .header > .right > .operator {
-    display: flex;
+    display: none;
     margin-left: 8px;
     background: var(--color-default-fill);
     border-color: var(--color-default-border);
@@ -117,6 +121,4 @@
     user-select: text;
     overflow: hidden;
     text-align: right;
-}
-}
 }
