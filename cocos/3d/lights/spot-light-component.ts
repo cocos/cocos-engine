@@ -199,6 +199,7 @@ export class SpotLight extends Light {
      * @en Whether activate shadow
      * @zh 是否启用阴影？
      */
+    @tooltip('i18n:lights.shadowEnabled')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
@@ -217,6 +218,7 @@ export class SpotLight extends Light {
      * @en The pcf level of the shadow generation.
      * @zh 获取或者设置阴影 pcf 等级。
      */
+    @tooltip('i18n:lights.shadowPcf')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
     @editable
@@ -235,6 +237,7 @@ export class SpotLight extends Light {
      * @en The depth offset of shadow to avoid moire pattern artifacts
      * @zh 阴影的深度偏移, 可以减弱跨像素导致的条纹状失真
      */
+    @tooltip('i18n:lights.shadowBias')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @editable
@@ -253,6 +256,7 @@ export class SpotLight extends Light {
      * @en The normal bias of the shadow map.
      * @zh 设置或者获取法线偏移。
      */
+    @tooltip('i18n:lights.shadowNormalBias')
     @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
     @editable

@@ -940,6 +940,7 @@ export class WebPipeline implements Pipeline {
                 name, desc,
                 new ResourceTraits(ResourceResidency.EXTERNAL),
                 new ResourceStates(),
+                new SamplerInfo(),
             );
         } else {
             return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
@@ -948,6 +949,7 @@ export class WebPipeline implements Pipeline {
                 name, desc,
                 new ResourceTraits(ResourceResidency.BACKBUFFER),
                 new ResourceStates(),
+                new SamplerInfo(),
             );
         }
     }
@@ -968,6 +970,7 @@ export class WebPipeline implements Pipeline {
             name, desc,
             new ResourceTraits(residency),
             new ResourceStates(),
+            new SamplerInfo(),
         );
     }
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
@@ -985,6 +988,7 @@ export class WebPipeline implements Pipeline {
             name, desc,
             new ResourceTraits(residency),
             new ResourceStates(),
+            new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
         );
     }
     beginFrame () {

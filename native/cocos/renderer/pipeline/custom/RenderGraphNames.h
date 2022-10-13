@@ -51,6 +51,7 @@ inline const char* getName(const PersistentBufferTag& /*v*/) noexcept { return "
 inline const char* getName(const PersistentTextureTag& /*v*/) noexcept { return "PersistentTexture"; }
 inline const char* getName(const FramebufferTag& /*v*/) noexcept { return "Framebuffer"; }
 inline const char* getName(const SwapchainTag& /*v*/) noexcept { return "Swapchain"; }
+inline const char* getName(const SamplerTag& /*v*/) noexcept { return "Sampler"; }
 inline const char* getName(const ResourceGraph& /*v*/) noexcept { return "ResourceGraph"; }
 inline const char* getName(const RasterSubpass& /*v*/) noexcept { return "RasterSubpass"; }
 inline const char* getName(const SubpassGraph& /*v*/) noexcept { return "SubpassGraph"; }

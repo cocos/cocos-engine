@@ -37,17 +37,22 @@ CCWGPUSwapchain::CCWGPUSwapchain(CCWGPUDevice *device) {
 
 CCWGPUSwapchain::~CCWGPUSwapchain() {
     _device = nullptr;
+    doDestroy();
 }
 
 void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
-    WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
-    canvDesc.chain.sType = WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
-    canvDesc.selector = "canvas";
+    printf("swapchain init %d, %d\n", info.width, info.height);
+    // WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
+    // canvDesc.chain.sType = WGPUSType_SurfaceDescriptorFromCanvasHTMLSelector;
+    // canvDesc.selector = "canvas";
 
-    WGPUSurfaceDescriptor surfDesc = {};
-    surfDesc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&canvDesc);
-    WGPUSurface surface = wgpuInstanceCreateSurface(nullptr, &surfDesc);
+    // WGPUSurfaceDescriptor surfDesc = {};
+    // surfDesc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&canvDesc);
+    // WGPUSurface surface = wgpuInstanceCreateSurface(nullptr, &surfDesc);
 
+    auto *device = CCWGPUDevice::getInstance();
+    CCWGPUDeviceObject *gpuDeviceObj = device->gpuDeviceObject();
+    auto surface = gpuDeviceObj->instance.wgpuSurface;
     WGPUPresentMode presentMode;
     switch (info.vsyncMode) {
         case VsyncMode::OFF:
@@ -69,7 +74,6 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
             presentMode = WGPUPresentMode_Fifo;
     }
 
-    auto *device = CCWGPUDevice::getInstance();
     WGPUSwapChainDescriptor swapChainDesc;
     swapChainDesc.nextInChain = nullptr;
     swapChainDesc.label = "defaultSwapChain";
@@ -79,7 +83,6 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
     swapChainDesc.height = info.height;
     swapChainDesc.presentMode = presentMode;
 
-    CCWGPUDeviceObject *gpuDeviceObj = device->gpuDeviceObject();
     WGPUSwapChain swapChain = wgpuDeviceCreateSwapChain(gpuDeviceObj->wgpuDevice, surface, &swapChainDesc);
     _gpuSwapchainObj = ccnew CCWGPUSwapchainObject;
     _gpuSwapchainObj->wgpuSwapChain = swapChain;
@@ -91,6 +94,10 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
         .width = info.width,
         .height = info.height,
     };
+
+    printf("swapchain init %d, %d\n", info.width, info.height);
+
+    printf("swapchain tex init %d, %d\n", textureInfo.width, textureInfo.height);
 
     _colorTexture = _gpuSwapchainObj->swapchainColor = ccnew CCWGPUTexture;
     initTexture(textureInfo, _gpuSwapchainObj->swapchainColor);
@@ -104,14 +111,16 @@ void CCWGPUSwapchain::doInit(const SwapchainInfo &info) {
 }
 
 void CCWGPUSwapchain::doDestroy() {
-    // wgpuSurfaceRelease(_gpuSwapchainObj->wgpuSurface);
-    // wgpuSwapChainRelease(_gpuSwapchainObj->wgpuSwapChain);
+    wgpuSwapChainRelease(_gpuSwapchainObj->wgpuSwapChain);
 
     CCWGPUDevice::getInstance()->unRegisterSwapchain(this);
 
-    delete _gpuSwapchainObj->swapchainColor;
-    delete _gpuSwapchainObj->swapchainDepthStencil;
-    delete _gpuSwapchainObj;
+    if (_gpuSwapchainObj) {
+        delete _gpuSwapchainObj->swapchainColor;
+        delete _gpuSwapchainObj->swapchainDepthStencil;
+        delete _gpuSwapchainObj;
+        _gpuSwapchainObj = nullptr;
+    }
 }
 
 void CCWGPUSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
@@ -119,16 +128,10 @@ void CCWGPUSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform
     _depthStencilTexture->resize(height, height);
 }
 
-CCWGPUTexture *CCWGPUSwapchain::getColorTexture() {
-    return static_cast<CCWGPUTexture *>(_colorTexture);
-}
-
-CCWGPUTexture *CCWGPUSwapchain::getDepthStencilTexture() {
-    return static_cast<CCWGPUTexture *>(_depthStencilTexture);
-}
-
 void CCWGPUSwapchain::update() {
-    static_cast<CCWGPUTexture *>(_colorTexture)->gpuTextureObject()->selfView = wgpuSwapChainGetCurrentTextureView(_gpuSwapchainObj->wgpuSwapChain);
+    auto swapchainView = static_cast<CCWGPUTexture *>(_colorTexture.get())->gpuTextureObject()->selfView;
+    wgpuTextureViewRelease(swapchainView);
+    static_cast<CCWGPUTexture *>(_colorTexture.get())->gpuTextureObject()->selfView = wgpuSwapChainGetCurrentTextureView(_gpuSwapchainObj->wgpuSwapChain);
 }
 
 void CCWGPUSwapchain::doDestroySurface() {

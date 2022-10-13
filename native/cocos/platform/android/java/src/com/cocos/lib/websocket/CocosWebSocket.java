@@ -295,6 +295,9 @@ public class CocosWebSocket extends WebSocketListener {
     public void onClosing(org.cocos2dx.okhttp3.WebSocket _webSocket, int code,
                           String reason) {
         output("Closing : " + code + " / " + reason);
+        if (_webSocket != null) {
+            _webSocket.close(code, reason);
+        }
     }
 
     @Override

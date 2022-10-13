@@ -40,7 +40,6 @@ namespace pipeline {
 class RenderPipeline;
 class InstanceBuffer;
 class RenderInstancedQueue;
-class RenderBatchedQueue;
 
 class CC_DLL PlanarShadowQueue final {
 public:
@@ -60,7 +59,7 @@ private:
     // weak reference
     ccstd::vector<const scene::Model *> _castModels;
     // weak reference
-    ccstd::vector<const scene::Model *> _pendingModels;
+    ccstd::vector<const scene::SubModel *> _pendingSubModels;
 };
 } // namespace pipeline
 } // namespace cc

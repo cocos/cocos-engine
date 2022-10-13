@@ -48,7 +48,7 @@ struct Render2dLayout {
 enum class RenderDrawInfoType : uint8_t {
     COMP,
     MODEL,
-    IA,
+    MIDDLEWARE,
     SUB_NODE,
 };
 
@@ -124,6 +124,9 @@ public:
         _material = material;
     }
 
+    inline void setMeshBuffer(UIMeshBuffer* meshBuffer) {
+        _meshBuffer = meshBuffer;
+    }
     inline UIMeshBuffer* getMeshBuffer() const {
         return _meshBuffer;
     }
