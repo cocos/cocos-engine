@@ -44,6 +44,7 @@ import { DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequ
 } from './types';
 import { ccclass } from '../../core/data/decorators';
 import { OutputArchive, InputArchive } from './archive';
+import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
 
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();

@@ -416,17 +416,45 @@ void load(InputArchive& ar, std::unordered_map<Key, Value, Hash, Pred, Allocator
 
 // gfx
 inline void save(OutputArchive& ar, const gfx::Color& v) {
-    ar.writeNumber(v.x);
-    ar.writeNumber(v.y);
-    ar.writeNumber(v.z);
-    ar.writeNumber(v.w);
+    save(ar, v.x);
+    save(ar, v.y);
+    save(ar, v.z);
+    save(ar, v.w);
 }
 
 inline void load(InputArchive& ar, gfx::Color& v) {
-    v.x = static_cast<float>(ar.readNumber());
-    v.y = static_cast<float>(ar.readNumber());
-    v.z = static_cast<float>(ar.readNumber());
-    v.w = static_cast<float>(ar.readNumber());
+    load(ar, v.x);
+    load(ar, v.y);
+    load(ar, v.z);
+    load(ar, v.w);
+}
+
+inline void save(OutputArchive& ar, const gfx::Uniform& v) {
+    save(ar, v.name);
+    save(ar, v.type);
+    save(ar, v.count);
+}
+
+inline void load(InputArchive& ar, gfx::Uniform& v) {
+    load(ar, v.name);
+    load(ar, v.type);
+    load(ar, v.count);
+}
+
+inline void save(OutputArchive& ar, const gfx::UniformBlock& v) {
+    save(ar, v.set);
+    save(ar, v.binding);
+    save(ar, v.name);
+    save(ar, v.members);
+    save(ar, v.count);
+}
+
+inline void load(InputArchive& ar, gfx::UniformBlock& v) {
+    load(ar, v.set);
+    load(ar, v.binding);
+    load(ar, v.name);
+    load(ar, v.members);
+    load(ar, v.count);
 }
 
 inline void save(OutputArchive& ar, const gfx::DescriptorSetLayoutBinding& v) {

@@ -32,6 +32,7 @@
 import { ClearFlagBit, Color, LoadOp, ShaderStageFlagBit, StoreOp, Type, UniformBlock } from '../../gfx';
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
+import { saveColor, loadColor, saveUniformBlock, loadUniformBlock } from './serialization';
 
 export enum UpdateFrequency {
     PER_INSTANCE,
