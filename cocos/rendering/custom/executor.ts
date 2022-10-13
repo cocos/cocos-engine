@@ -483,6 +483,8 @@ class RenderPassLayoutInfo {
             if (!gfxTex) {
                 throw Error(`Could not find texture with resource name ${this._inputName}`);
             }
+            const resId = context.resourceGraph.vertex(this._inputName);
+            const samplerInfo = context.resourceGraph.getSampler(resId);
             // bind descriptors
             for (const descriptor of input[1]) {
                 const descriptorName = descriptor.name;
@@ -492,7 +494,7 @@ class RenderPassLayoutInfo {
                     for (let i = 0; i !== block.descriptors.length; ++i) {
                         if (descriptorID === block.descriptors[i].descriptorID) {
                             layoutData.descriptorSet!.bindTexture(block.offset + i, gfxTex);
-                            layoutData.descriptorSet!.bindSampler(block.offset + i, context.device.getSampler(new SamplerInfo()));
+                            layoutData.descriptorSet!.bindSampler(block.offset + i, context.device.getSampler(samplerInfo));
                             if (!this._descriptorSet) this._descriptorSet = layoutData.descriptorSet;
                         }
                     }
