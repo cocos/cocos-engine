@@ -21,8 +21,7 @@ exports.$ = {
 
 exports.update = function(dump) {
     vm.dump = dump;
-    console.log(dump);
-}
+};
 
 exports.ready = function() {
     vm = new Vue({
@@ -34,7 +33,7 @@ exports.ready = function() {
         data() {
             return {
                 dump: {},
-            }
+            };
         },
         methods: {
             onObjectSizeConfirm(event) {
@@ -45,7 +44,6 @@ exports.ready = function() {
             updateLODs(operator, index) {
                 const that = this;
                 const LODs = that.dump.value.LODs.value;
-                // TODO: 手动处理 path
                 if (operator === 'insert') {
                     if (LODs.length >= 8) {
                         console.warn('Maximum 8 LOD, Can\'t add more LOD');
@@ -70,13 +68,21 @@ exports.ready = function() {
                 that.$refs['lod-dump'].dump = dump;
                 that.$refs['lod-dump'].dispatch('change-dump');
             },
-            recalculateBounds() {
-                // TODO: 
-                console.log('recalculateBounds');
+            async recalculateBounds() {
+                const that = this;
+                await Editor.Message.request('scene', 'execute-component-method', {
+                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                    name: 'recalculateBounds',
+                    args: [],
+                });
             },
-            resetObjectSize() {
-                // TODO: 
-                console.log('resetObjectSize');
+            async resetObjectSize() {
+                const that = this;
+                await Editor.Message.request('scene', 'execute-component-method', {
+                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                    name: 'resetObjectSize',
+                    args: [],
+                });
             },
             calculateRange(range, index) {
                 const that = this;
@@ -86,11 +92,12 @@ exports.ready = function() {
                 } else if (range === 'max') {
                     return LODs[index - 1] ? LODs[index - 1].value.screenRelativeTransitionHeight.value * 100 : 100;
                 }
+                return null;
             },
         },
     });
-}
+};
 
 exports.close = function() {
     vm = null;
-}
+};
