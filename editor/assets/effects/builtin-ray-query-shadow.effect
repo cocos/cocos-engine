@@ -41,19 +41,6 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
-    - &shadow-caster
-      vert: shadow-caster-vs:vert
-      frag: shadow-caster-fs:frag
-      phase: shadow-caster
-      propertyIndex: 0
-      rasterizerState:
-        cullMode: front
-      properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
   - name: transparent
     passes:
     - vert: ray-query-vs
@@ -70,7 +57,6 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       properties: *props
     - *forward-add
-    - *shadow-caster
 }%
 
 CCProgram shared-ubos %{
@@ -112,6 +98,8 @@ CCProgram ray-query-vs %{
 
   #if USE_NORMAL_MAP
     out mediump vec4 v_tangent;
+  #else 
+    out mediump vec4 v_tangent;
   #endif
 
   #if HAS_SECOND_UV || CC_USE_LIGHTMAP
@@ -144,6 +132,9 @@ CCProgram ray-query-vs %{
     #endif
 
     #if USE_NORMAL_MAP
+      v_tangent.xyz = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_tangent.w = In.tangent.w;
+    #else
       v_tangent.xyz = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
       v_tangent.w = In.tangent.w;
     #endif
@@ -183,12 +174,9 @@ CCProgram ray-query-fs %{
   #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
     #include <legacy/lightingmap-fs>
   #endif
-
-  layout(set = 0,binding = 5) uniform samplerCube cc_environment;
-
+  
   #if __VERSION__ >= 460
     #include <builtin/uniforms/cc-acceleration-structure>
-    
   #endif
 
   in vec3 v_position;
@@ -214,6 +202,8 @@ CCProgram ray-query-fs %{
     in mediump vec4 v_tangent;
     uniform sampler2D normalMap;
     #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
+  # else 
+    in mediump vec4 v_tangent;
   #endif
   #pragma define-meta PBR_UV options([v_uv, v_uv1])
   #if USE_PBR_MAP
@@ -239,7 +229,7 @@ CCProgram ray-query-fs %{
     #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
 
- #if __VERSION__ >= 460
+  #if __VERSION__ >= 460
   uint baseHash( uvec2 p )
   {
     p = 1103515245U*((p >> 1U)^(p.yx));
@@ -267,34 +257,7 @@ CCProgram ray-query-fs %{
     float z = cosPhi;
     return vec3(x,y,z);
   }
-
-const mat3 CubePositions[12] = {mat3(vec3(0.5,0.5,0.5),vec3(-0.5,0.5,0.5),vec3(0.5,-0.5,0.5)),
-                            mat3(vec3(0.5,-0.5,0.5),vec3(-0.5,0.5,0.5),vec3(-0.5,-0.5,0.5)),
-                            mat3(vec3(0.5,-0.5,0.5),vec3(0.5,-0.5,-0.5),vec3(0.5,0.5,0.5)),
-                            mat3(vec3(0.5,0.5,0.5),vec3(0.5,-0.5,-0.5),vec3(0.5,0.5,-0.5)),
-                            mat3(vec3(0.5,-0.5,-0.5),vec3(-0.5,-0.5,-0.5),vec3(0.5,0.5,-0.5)),
-                            mat3(vec3(0.5,0.5,-0.5), vec3(-0.5,-0.5,-0.5),vec3(-0.5,0.5,-0.5)),
-                            mat3(vec3(-0.5,-0.5,-0.5),  vec3(-0.5,-0.5,0.5),vec3(-0.5,0.5,-0.5)),
-                            mat3(vec3(-0.5,0.5,-0.5), vec3(-0.5,-0.5,0.5), vec3(-0.5,0.5,0.5)),
-                            mat3(vec3(0.5,-0.5,0.5), vec3(-0.5,-0.5,0.5), vec3(0.5,-0.5,-0.5)),
-                            mat3(vec3(0.5,-0.5,-0.5), vec3(-0.5,-0.5,0.5), vec3(-0.5,-0.5,-0.5)),
-                            mat3(vec3(0.5,0.5,-0.5), vec3(-0.5,0.5,-0.5), vec3(0.5,0.5,0.5)),
-                            mat3(vec3(0.5,0.5,0.5), vec3(-0.5,0.5,-0.5),vec3(-0.5,0.5,0.5))};
-
-const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0)),
-                            mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0)),
-                            mat3(vec3(1.0,0.0,0.0),vec3(1.0,0.0,0.0),vec3(1.0,0.0,0.0)),
-                            mat3(vec3(1.0,0.0,0.0),vec3(1.0,0.0,0.0),vec3(1.0,0.0,0.0)),
-                            mat3(vec3(0.0,0.0,-1.0),vec3(0.0,0.0,-1.0),vec3(0.0,0.0,-1.0)),
-                            mat3(vec3(0.0,0.0,-1.0),vec3(0.0,0.0,-1.0),vec3(0.0,0.0,-1.0)),
-                            mat3(vec3(-1.0,0.0,0.0),vec3(-1.0,0.0,0.0),vec3(-1.0,0.0,0.0)),
-                            mat3(vec3(-1.0,0.0,0.0),vec3(-1.0,0.0,0.0),vec3(-1.0,0.0,0.0)),
-                            mat3(vec3(0.0,-1.0,0.0),vec3(0.0,-1.0,0.0),vec3(0.0,-1.0,0.0)),
-                            mat3(vec3(0.0,-1.0,0.0),vec3(0.0,-1.0,0.0),vec3(0.0,-1.0,0.0)),
-                            mat3(vec3(0.0,1.0,0.0),vec3(0.0,1.0,0.0),vec3(0.0,1.0,0.0)),
-                            mat3(vec3(0.0,1.0,0.0),vec3(0.0,1.0,0.0),vec3(0.0,1.0,0.0))};
-
- #endif
+  #endif
 
   void surf (out StandardSurface s) {
     vec4 baseColor = albedo;
@@ -326,6 +289,8 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
       s.shadowBias = v_shadowBias;
     #endif
 
+    mat3 TBN;
+
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
       vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
@@ -333,108 +298,70 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
         (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent.xyz) +
         (nmmp.y * emissiveScaleParam.w) * normalize(bitangent) +
         nmmp.z * normalize(s.normal);
+      
+      TBN = mat3(normalize(v_tangent.xyz),normalize(bitangent), normalize(s.normal));
+    #else 
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; 
+      TBN = mat3(normalize(v_tangent.xyz),normalize(bitangent), normalize(s.normal));
     #endif
 
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     #if __VERSION__ >= 460
-      vec3 light_points[4] = {vec3(1.995,5.443,3.199),vec3(1.179,10.125,0.022),vec3(1.726,11.071,3.873),vec3(7.3,5.89,-0.865)};
       vec3 origin = s.position;
-      vec3 viewDirect = normalize(cc_cameraPos.xyz - s.position);
-      vec3 direction = -reflect(viewDirect,s.normal);
-      if(s.albedo.r<0.1){
-        direction = -viewDirect;
-      }
-      float tMin = 0.01f;
-      float tMax = 1000.0f;
 
-      rayQueryEXT rayQuery;
-      rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsOpaqueEXT, 0xFF, origin, tMin, direction, tMax);
+      vec3 light_points[4] = {vec3(1.995,5.443,3.199),vec3(1.179,10.125,0.022),vec3(1.726,11.071,3.873),vec3(7.3,5.89,-0.865)};
 
-      bool miss = true;
-
-      for(int i = 0;i<5;++i){
-
-            while(rayQueryProceedEXT(rayQuery));
-
-            if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
-            {
-                int instanceId = rayQueryGetIntersectionInstanceCustomIndexEXT(rayQuery,true);
-                int primitiveIdx = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery,true);
-                mat3 primitivePosition = CubePositions[primitiveIdx]; 
-                mat3 primitiveNormal = CubeNormals[primitiveIdx];
-                vec2 bary = rayQueryGetIntersectionBarycentricsEXT(rayQuery,true);
-                const vec3 barycentrics = vec3(1.0 - bary.x - bary.y, bary.x, bary.y);
-                mat4x3 objToWorld = rayQueryGetIntersectionObjectToWorldEXT(rayQuery,true);
-                mat4x3 worldToObj = rayQueryGetIntersectionWorldToObjectEXT(rayQuery,true);
-        
-                const vec3 hitWorldPos = (objToWorld*vec4(primitivePosition*barycentrics,1.0)).xyz;
-                const vec3 hitWorldNormal = (transpose(worldToObj) * (primitiveNormal*barycentrics)).xyz;
-                origin = hitWorldPos;
-                tMin = 0.01f;
-
-                if(instanceId != 0 && instanceId != 7){
-
-                    if(instanceId == 1){
-                      s.albedo.rgb = vec3(0.0,0.0,1.0);
-                    }else if(instanceId == 2){
-                      s.albedo.rgb = vec3(1.0,0.0,0.0);
-                    }else if(instanceId == 3){
-                      s.albedo.rgb = vec3(0.0,1.0,0.0);
-                    }else if(instanceId == 4){
-                      s.albedo.rgb = vec3(1.0,1.0,0.0);
-                    }else if(instanceId == 5){
-                      s.albedo.rgb = vec3(1.0,1.0,1.0);
-                      tMin = 0.1f;
-                    }else if(instanceId == 6){
-                      s.albedo.rgb = vec3(1.0,1.0,1.0);
-                    }
-                    float shadowFactor = 0.0;
-                    for(int i =0;i<4;++i)
-                    {
-                        vec3 light_position = light_points[i];
-                        vec3 L = light_position-origin; 
-                        vec3 direction = normalize(L);
-                        tMax = length(L);
-
-                        // Initializes a ray query object but does not start traversal
-                        rayQueryEXT rayQuery;
-                        rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
-
-                        // Start traversal: return false if traversal is complete
-                        while(rayQueryProceedEXT(rayQuery));
-
-                        if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
-                        {
-                            shadowFactor += 1.0;
-                        }
-                    }
-                    shadowFactor/= 4.0;
-                    s.albedo *= (1.0-shadowFactor);
-                    miss = false;
-                    break;
-
-                }else if(instanceId == 7){
-                    float ior = 1.0;
-                    if(dot(direction,hitWorldNormal)>=0){
-                      ior = 1.0/ior;
-                    }
-                    direction = direction;//refract(-direction,hitWorldNormal,ior);
-                    rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsOpaqueEXT, 0xFF, origin, tMin, direction, tMax);
-                }else{//hit walls or floor
-                  direction = reflect(direction,hitWorldNormal);
-                  rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsOpaqueEXT, 0xFF, origin, tMin, direction, tMax);
-                }
-            }else{
-                //miss
-                s.albedo.rgb = texture(cc_environment,direction).rgb;
-                break;
-            }
-        }
-        //if miss
-        if(miss)
-            s.albedo.rgb = texture(cc_environment,direction).rgb;
+      float shadowFactor = .0;
       
+      for(int i = 0; i < 4; ++i)
+      {
+        vec3 light_position = light_points[i];
+        vec3 L = light_position-origin; 
+        vec3 direction = normalize(L);
+        float tMin = 0.1f;
+        float tMax = length(L);
+
+        rayQueryEXT rayQuery;
+        rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
+
+        while(rayQueryProceedEXT(rayQuery));
+      
+        if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
+        {
+            shadowFactor += 1.0;
+        }
+      }
+      
+      shadowFactor/= 4.0;
+
+      //ao
+      float seed  = baseHash(uvec2(gl_FragCoord.xy));
+      
+      rayQueryEXT rayQuery;
+      float tMin = 0.1f;//todo How to choose adaptive tMin according to vertex normal?
+      float tMax = 0.7;
+      vec3 direction;
+
+      float ao = .0;
+      /*
+      for(int i = 0;i<16;++i){
+        seed = hash1(seed);
+        direction = TBN*random_in_unit_hemisphere(seed);
+        rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
+        while(rayQueryProceedEXT(rayQuery));
+        if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
+        {
+          ao += 1.0;
+        }
+      }
+      */
+
+      ao /= 16.0;
+
+      s.albedo *= (1.0 - ao);
+      s.albedo *= (1.0 - shadowFactor);
+
     #endif
 
     vec4 pbr = pbrParams;
@@ -467,6 +394,7 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
   CC_STANDARD_SURFACE_ENTRY()
 }%
 
+/*
 CCProgram shadow-caster-vs %{
   precision highp float;
   #include <legacy/input-standard>
@@ -555,3 +483,4 @@ CCProgram shadow-caster-fs %{
     #endif
   }
 }%
+*/
