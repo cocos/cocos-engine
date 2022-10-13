@@ -74,8 +74,7 @@ namespace cc
                     gfx::ASInstance tlasGeom{};
                     //tlasGeom.stype = gfx::ASGeometryType::INSTANCE;
                     tlasGeom.instanceCustomIdx = 0;
-<<<<<<< HEAD
-=======
+
 
                     if (pModel->getNode()->getName() == "Cube-001") {
                         tlasGeom.instanceCustomIdx = 1;
@@ -93,7 +92,6 @@ namespace cc
                         tlasGeom.instanceCustomIdx = 7;
                     }
                     
->>>>>>> 4fd604403 (fix some bugs)
                     tlasGeom.shaderBindingTableRecordOffset = 0;
                     tlasGeom.mask = 0xFF;
                     tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
