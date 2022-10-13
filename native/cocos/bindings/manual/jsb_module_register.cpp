@@ -124,9 +124,9 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_platform_bindings);
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(register_all_gfx_manual);
-#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later
     se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_network_manual);
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY// TODO(qgh):May be removed later
     se->addRegisterCallback(register_all_xmlhttprequest);
     // extension depend on network
     se->addRegisterCallback(register_all_extension);

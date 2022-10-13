@@ -885,12 +885,14 @@ cocos_source_files(MODULE ccmath
 )
 
 ##### network
-# The network module of OpenHarmony is implemented in the ts layer
-if(NOT OPENHARMONY)
 cocos_source_files(
                  cocos/network/Downloader.cpp
                  cocos/network/Downloader.h
                  cocos/network/DownloaderImpl.h
+)
+# The xmlhttprequest module of OpenHarmony is implemented in the ts layer
+if(NOT OPENHARMONY)
+cocos_source_files(
                  cocos/network/HttpClient.h
                  cocos/network/HttpCookie.cpp
                  cocos/network/HttpCookie.h
@@ -954,7 +956,7 @@ if(NOT APPLE AND USE_SOCKET)
     endif()
 endif()
 
-if(WINDOWS OR LINUX OR QNX)
+if(WINDOWS OR LINUX OR QNX OR OPENHARMONY)
     cocos_source_files(
         NO_WERROR    cocos/network/Downloader-curl.cpp
                      cocos/network/Downloader-curl.h
@@ -2129,13 +2131,9 @@ cocos_source_files(
 )
 
 ######## auto
-if(NOT OPENHARMONY)
 cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
                             cocos/bindings/auto/jsb_network_auto.h
-)
-endif()
-cocos_source_files(
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
                             cocos/bindings/auto/jsb_cocos_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_extension_auto.cpp
