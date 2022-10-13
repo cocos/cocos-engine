@@ -265,7 +265,7 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
     bufferInfo.size = gpuBuffer->size;
     bufferInfo.usage = mapVkBufferUsageFlagBits(gpuBuffer->usage) | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 
-    if (gpuBuffer->usage==BufferUsageBit::VERTEX||gpuBuffer->usage == BufferUsageBit::INDEX) {
+    if (hasAnyFlags(gpuBuffer->usage,BufferUsageBit::VERTEX|BufferUsageBit::INDEX)) {
         bufferInfo.usage |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
     }
 
@@ -1651,25 +1651,30 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
         VkAccelerationStructureBuildRangeInfoKHR buildRangeInfo{instanceCount, 0, 0, 0};
         accel->rangeInfos[0] = buildRangeInfo;
     }
-
+    
     VkAccelerationStructureBuildGeometryInfoKHR &buildGeomInfo = accel->buildGeometryInfo;
     buildGeomInfo.srcAccelerationStructure = VK_NULL_HANDLE;
     buildGeomInfo.dstAccelerationStructure = accel->vkAccelerationStructure;
     buildGeomInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
 
-    //Create Scratch Buffer
-    VkBufferCreateInfo scratchBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-    scratchBufferCreateInfo.size = accel->buildSizesInfo.buildScratchSize;
-    scratchBufferCreateInfo.usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-    VmaAllocationCreateInfo allocCreateInfo{};
-    allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-    VmaAllocation vmaAllocation;
-
-    VkBuffer scratchBuffer;
-    VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &scratchBufferCreateInfo, &allocCreateInfo, &scratchBuffer, &vmaAllocation, nullptr));
+    //Create Scratch Buffer (if needed)
+    if (!accel->scratchBuffer||accel->scratchBufferSize< accel->buildSizesInfo.buildScratchSize) {
+        if (accel->scratchBuffer) {
+            //Destroy old scrath Buffer
+            vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, accel->scratchBuffer, accel->scratchVmaAllocation);
+        }
+        VkBufferCreateInfo scratchBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+        scratchBufferCreateInfo.size = accel->buildSizesInfo.buildScratchSize;
+        scratchBufferCreateInfo.usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        VmaAllocationCreateInfo allocCreateInfo{};
+        allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+        VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &scratchBufferCreateInfo, &allocCreateInfo,
+                                 &accel->scratchBuffer, &accel->scratchVmaAllocation, nullptr));
+        accel->scratchBufferSize = scratchBufferCreateInfo.size;
+    }
 
     VkBufferDeviceAddressInfo deviceAddressInfo = {VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
-    deviceAddressInfo.buffer = scratchBuffer;
+    deviceAddressInfo.buffer = accel->scratchBuffer;
 
     buildGeomInfo.scratchData.deviceAddress = vkGetBufferDeviceAddress(device->gpuDevice()->vkDevice, &deviceAddressInfo);
 
@@ -1691,28 +1696,25 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
             queryPoolCreateInfo.queryType = VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR;
 
             VK_CHECK(vkCreateQueryPool(vkdevice, &queryPoolCreateInfo, nullptr, &accel->vkCompactedSizeQueryPool));
+            vkCmdResetQueryPool(gpuCommandBuffer->vkCommandBuffer, accel->vkCompactedSizeQueryPool, 0, 1);
         }
 
         VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
         barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
         barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
-        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR, 0, 1, &barrier, 0, nullptr, 0, nullptr);
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             0, 1, &barrier, 0, nullptr, 0, nullptr);
 
         vkCmdWriteAccelerationStructuresPropertiesKHR(gpuCommandBuffer->vkCommandBuffer, 1, &accel->vkAccelerationStructure,
                                                       VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR, accel->vkCompactedSizeQueryPool, 0);
     }
-
-    vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, scratchBuffer, nullptr);
 }
 
 void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer)
 {
-    if (!accel->vkAccelerationStructure) {
-        return;
-    }
-
-    if (!hasFlag(accel->buildFlags,ASBuildFlagBits::ALLOW_UPDATE)) {
+    if (!accel->vkAccelerationStructure || !hasFlag(accel->buildFlags, ASBuildFlagBits::ALLOW_UPDATE)) {
         return;
     }
 
@@ -1750,21 +1752,24 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
     buildGeomInfo.dstAccelerationStructure = accel->vkAccelerationStructure;
     buildGeomInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR;
 
-    VkBufferCreateInfo scratchBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-    scratchBufferCreateInfo.size = accel->buildSizesInfo.updateScratchSize;
-
-    assert(scratchBufferCreateInfo.size != 0);
-
-    scratchBufferCreateInfo.usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-    VmaAllocationCreateInfo allocCreateInfo{};
-    allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-    VmaAllocation vmaAllocation;
-
-    VkBuffer scratchBuffer;
-    VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &scratchBufferCreateInfo, &allocCreateInfo, &scratchBuffer, &vmaAllocation, nullptr));
+    // Create Scratch Buffer (if needed)
+    if (!accel->scratchBuffer || accel->scratchBufferSize < accel->buildSizesInfo.updateScratchSize) {
+        if (accel->scratchBuffer) {
+            // Destroy old scrath Buffer
+            vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, accel->scratchBuffer, accel->scratchVmaAllocation);
+        }
+        VkBufferCreateInfo scratchBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+        scratchBufferCreateInfo.size = accel->buildSizesInfo.updateScratchSize;
+        scratchBufferCreateInfo.usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        VmaAllocationCreateInfo allocCreateInfo{};
+        allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+        VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &scratchBufferCreateInfo, &allocCreateInfo,
+                                 &accel->scratchBuffer, &accel->scratchVmaAllocation, nullptr));
+        accel->scratchBufferSize = scratchBufferCreateInfo.size;
+    }
 
     VkBufferDeviceAddressInfo deviceAddressInfo = {VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
-    deviceAddressInfo.buffer = scratchBuffer;
+    deviceAddressInfo.buffer = accel->scratchBuffer;
 
     buildGeomInfo.scratchData.deviceAddress = vkGetBufferDeviceAddress(device->gpuDevice()->vkDevice, &deviceAddressInfo);
 
@@ -1776,21 +1781,13 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
     }
 
     vkCmdBuildAccelerationStructuresKHR(gpuCommandBuffer->vkCommandBuffer, 1, &buildGeomInfo, buildRangeInfoPtrs.data());
-
-    vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, scratchBuffer, nullptr);
 }
 
 void cmdFuncCCVKCompactAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerationStructure *accel, CCVKGPUAccelerationStructure *res, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
 
-    if (!accel->vkAccelerationStructure) {
-        return;
-    }
-
-    if (!hasFlag(accel->buildFlags, ASBuildFlagBits::ALLOW_COMPACTION)) {
-        return;
-    }
-
-    if (!accel->vkCompactedSizeQueryPool) {
+    if (!accel->vkAccelerationStructure||
+        !hasFlag(accel->buildFlags, ASBuildFlagBits::ALLOW_COMPACTION)||
+        !accel->vkCompactedSizeQueryPool) {
         return;
     }
 
@@ -1823,7 +1820,6 @@ void cmdFuncCCVKCompactAccelerationStructure(CCVKDevice *device, CCVKGPUAccelera
     res->vkAccelerationStructure = compactedAccel;
     res->accelStructBuffer = compactedBuffer;
 }
-
 
 void cmdFuncCCVKDestroyQueryPool(CCVKGPUDevice *gpuDevice, CCVKGPUQueryPool *gpuQueryPool) {
     if (gpuQueryPool->vkPool != VK_NULL_HANDLE) {
@@ -1887,7 +1883,26 @@ void cmdFuncCCVKDestroyAccelerationStructure(CCVKGPUDevice *gpuDevice, CCVKGPUAc
     if (gpuAccelerationStructure->vkAccelerationStructure!=VK_NULL_HANDLE) {
         vkDestroyAccelerationStructureKHR(gpuDevice->vkDevice, gpuAccelerationStructure->vkAccelerationStructure,nullptr);
         gpuAccelerationStructure->vkAccelerationStructure = VK_NULL_HANDLE;
+    }
+    if (gpuAccelerationStructure->scratchBuffer) {
+        vmaDestroyBuffer(gpuDevice->memoryAllocator, gpuAccelerationStructure->scratchBuffer, gpuAccelerationStructure->scratchVmaAllocation);
+        gpuAccelerationStructure->scratchBufferSize = 0;
+        gpuAccelerationStructure->scratchVmaAllocation = VK_NULL_HANDLE;
+        gpuAccelerationStructure->scratchBuffer = VK_NULL_HANDLE;
+    }
+    
+    if (gpuAccelerationStructure->vkCompactedSizeQueryPool) {
+        vkDestroyQueryPool(gpuDevice->vkDevice, gpuAccelerationStructure->vkCompactedSizeQueryPool, nullptr);
+        gpuAccelerationStructure->vkCompactedSizeQueryPool = VK_NULL_HANDLE;
+    }
+
+    if (gpuAccelerationStructure->accelStructBuffer) {
         gpuAccelerationStructure->accelStructBuffer->destroy();
+        gpuAccelerationStructure->accelStructBuffer = nullptr;
+    }
+    if (gpuAccelerationStructure->instancesBuffer) {
+        gpuAccelerationStructure->instancesBuffer->destroy();
+        gpuAccelerationStructure->instancesBuffer = nullptr;
     }
 }
 

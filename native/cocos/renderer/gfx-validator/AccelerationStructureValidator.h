@@ -8,8 +8,9 @@ namespace gfx {
 
 class CC_DLL AccelerationStructureValidator final : public Agent<AccelerationStructure> {
 public:
-    explicit AccelerationStructureValidator(Texture *actor);
+    explicit AccelerationStructureValidator(AccelerationStructure *actor);
     ~AccelerationStructureValidator() override;
+    inline bool isInited() const { return _inited; }
 
 protected:
     friend class SwapchainValidator;
@@ -18,6 +19,9 @@ protected:
     void doDestroy() override;
     void doBuild() override;
     void doUpdate() override;
+    void doCompact() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

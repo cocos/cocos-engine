@@ -32,6 +32,7 @@
 #include "core/memop/CachedArray.h"
 #include "gfx-base/GFXDeviceObject.h"
 #include "gfx-vulkan/VKAccelerationStructure.h"
+#include "vulkan/vulkan_core.h"
 
 #define TBB_USE_EXCEPTIONS 0 // no-rtti for now
 #include "tbb/concurrent_unordered_map.h"
@@ -181,23 +182,23 @@ struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
 struct CCVKGPUAccelerationStructure : public CCVKGPUDeviceObject{
     ASBuildFlags buildFlags = ASBuildFlagBits::PREFER_FAST_BUILD | ASBuildFlagBits::ALLOW_UPDATE;
     VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR};
-    //VkAccelerationStructureBuildRangeInfoKHR* buildRangeInfos;
-    std::variant<ccstd::vector<ASTriangleMesh>, ccstd::vector<ASAABB>, ccstd::vector<ASInstance>> geomtryInfos;
-
     VkAccelerationStructureBuildSizesInfoKHR buildSizesInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR};
+
+    std::variant<ccstd::vector<ASTriangleMesh>, ccstd::vector<ASAABB>, ccstd::vector<ASInstance>> geomtryInfos;
     ccstd::vector<VkAccelerationStructureGeometryKHR> geometries;
     ccstd::vector<VkAccelerationStructureBuildRangeInfoKHR> rangeInfos{};
     // todo
-    // descriptor infos
     Buffer *accelStructBuffer = nullptr;
     Buffer *instancesBuffer = nullptr;
+    VkBuffer scratchBuffer = VK_NULL_HANDLE;
+    VkDeviceSize scratchBufferSize{0};
+    VmaAllocation scratchVmaAllocation{};
 
     VkAccelerationStructureKHR vkAccelerationStructure = VK_NULL_HANDLE;
     VkQueryPool vkCompactedSizeQueryPool = VK_NULL_HANDLE;
 };
 
 struct CCVKGPUSampler : public CCVKGPUDeviceObject {
-
     Filter minFilter = Filter::LINEAR;
     Filter magFilter = Filter::LINEAR;
     Filter mipFilter = Filter::NONE;
@@ -333,6 +334,7 @@ struct CCVKGPUInputAssembler : public CCVKGPUDeviceObject {
     ccstd::vector<VkBuffer> vertexBuffers;
     ccstd::vector<VkDeviceSize> vertexBufferOffsets;
 };
+
 
 union CCVKDescriptorInfo {
     VkDescriptorImageInfo image;
@@ -1151,6 +1153,7 @@ public:
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUSampler, RecycledType::SAMPLER, res.vkSampler = gpuRes->vkSampler)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUQueryPool, RecycledType::QUERY_POOL, res.vkQueryPool = gpuRes->vkPool)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineState, RecycledType::PIPELINE_STATE, res.vkPipeline = gpuRes->vkPipeline)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUAccelerationStructure,RecycledType::ACCELERATION_STRUCTURE,res.vkAccelerationStructure = gpuRes->vkAccelerationStructure)
 
     void clear();
 
@@ -1167,7 +1170,8 @@ private:
         SAMPLER,
         PIPELINE_STATE,
         DESCRIPTOR_SET,
-        EVENT
+        EVENT,
+        ACCELERATION_STRUCTURE
     };
     struct Buffer {
         VkBuffer vkBuffer;
@@ -1197,6 +1201,7 @@ private:
             VkSampler vkSampler;
             VkEvent vkEvent;
             VkPipeline vkPipeline;
+            VkAccelerationStructureKHR vkAccelerationStructure;
         };
     };
 

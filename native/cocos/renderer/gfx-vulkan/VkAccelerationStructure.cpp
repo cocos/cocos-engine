@@ -69,6 +69,7 @@ void CCVKAccelerationStructure::doBuild() {
 
     device->flushCommands(&cmdBuf, 1);
     device->getQueue()->submit(&cmdBuf, 1);
+    device->waitAllFences();
 }
 
 void CCVKAccelerationStructure::doCompact() {
@@ -84,6 +85,8 @@ void CCVKAccelerationStructure::doCompact() {
     device->flushCommands(&cmdBuf, 1);
     device->getQueue()->submit(&cmdBuf, 1);
 
+    device->waitAllFences();
+
     vkDestroyAccelerationStructureKHR(device->gpuDevice()->vkDevice, _gpuAccelerationStructure->vkAccelerationStructure, nullptr);
     _gpuAccelerationStructure->accelStructBuffer->destroy();
 
@@ -96,15 +99,8 @@ void CCVKAccelerationStructure::doCompact() {
 }
 
 void CCVKAccelerationStructure::doDestroy() {
-    // todo gpuRecycleBin Implementation
     if (_gpuAccelerationStructure) {
-        //CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuAccelerationStructure);
-        VkDevice device = CCVKDevice::getInstance()->gpuDevice()->vkDevice;
-        vkDestroyAccelerationStructureKHR(device, _gpuAccelerationStructure->vkAccelerationStructure,nullptr);
-        if (_gpuAccelerationStructure->accelStructBuffer!=nullptr)
-            _gpuAccelerationStructure->accelStructBuffer->destroy();
-        if (_gpuAccelerationStructure->instancesBuffer != nullptr)
-            _gpuAccelerationStructure->instancesBuffer->destroy();
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuAccelerationStructure);
         _gpuAccelerationStructure = nullptr;
     }
 }

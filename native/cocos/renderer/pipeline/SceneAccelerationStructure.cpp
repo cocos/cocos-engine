@@ -175,6 +175,7 @@ namespace cc
                     tlasInfo.instances.push_back(inst.second.second);
                 }
                 if (_needRecreate) {
+                    //todo Safely destroy current tlas
                     if (topLevelAccelerationStructure) {
                         topLevelAccelerationStructure->destroy();
                     }
@@ -187,7 +188,7 @@ namespace cc
                     topLevelAccelerationStructure->build();
                     _needRebuild = false;
                 } else if (_needUpdate) {
-                    topLevelAccelerationStructure->update();
+                    topLevelAccelerationStructure->build();
                     _needUpdate = false;
                 }
             }
