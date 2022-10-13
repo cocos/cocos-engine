@@ -12,7 +12,7 @@ class RenderScene;
 }
 namespace pipeline
 {
-class GlobalDSManager;
+    class GlobalDSManager;
     class SceneAccelerationStructure final
     {
     public:
@@ -21,13 +21,14 @@ class GlobalDSManager;
         void destroy();
     protected:
         IntrusivePtr<gfx::AccelerationStructure> topLevelAccelerationStructure;
-
+        IntrusivePtr<gfx::Buffer> sceneDescBuffer;
         ccstd::vector<IntrusivePtr<gfx::AccelerationStructure>> bottomLevelAccelerationStructures;
         ccstd::unordered_map<uint64_t,IntrusivePtr<gfx::AccelerationStructure>> blasMap;
         ccstd::unordered_map<ccstd::string,std::pair<bool,gfx::ASInstance>> modelMap;
          
         pipeline::GlobalDSManager* _globalDSManager{nullptr};
     private:
+
     };
-}
+} // namespace pipeline
 } // namespace cc
