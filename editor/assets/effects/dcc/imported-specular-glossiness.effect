@@ -150,7 +150,7 @@ CCProgram standard-vs %{
 
     #if USE_NORMAL_MAP
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+      v_bitangent = cross(v_normal, v_tangent) * (In.tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
     #endif
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
