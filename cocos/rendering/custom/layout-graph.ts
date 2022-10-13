@@ -1203,7 +1203,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB) {
     ar.writeNumber(v.blocks.size); // Map<string, DescriptorBlock>
     for (const [k1, v1] of v.blocks) {
-        saveDescriptorBlockIndex(ar, k1);
+        saveDescriptorBlockIndex(ar, JSON.parse(k1));
         saveDescriptorBlock(ar, v1);
     }
 }
@@ -1216,7 +1216,7 @@ export function loadDescriptorDB (ar: InputArchive, v: DescriptorDB) {
         loadDescriptorBlockIndex(ar, k1);
         const v1 = new DescriptorBlock();
         loadDescriptorBlock(ar, v1);
-        v.blocks.set(k1, v1);
+        v.blocks.set(JSON.stringify(k1), v1);
     }
 }
 
