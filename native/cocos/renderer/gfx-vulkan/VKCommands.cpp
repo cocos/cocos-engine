@@ -848,7 +848,7 @@ void cmdFuncCCVKCreateShader(CCVKDevice *device, CCVKGPUShader *gpuShader) {
     SPIRVUtils *spirv = SPIRVUtils::getInstance();
 
     for (CCVKGPUShaderStage &stage : gpuShader->gpuStages) {
-        spirv->compileGLSL(stage.type, "#version 450\n" + stage.source);
+        spirv->compileGLSL(stage.type, "#version 460\n" + stage.source);
         if (stage.type == ShaderStageFlagBit::VERTEX) spirv->compressInputLocations(gpuShader->attributes);
 
         VkShaderModuleCreateInfo createInfo{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
@@ -1632,9 +1632,9 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
         for (const auto &instance : asInstances) {
             VkAccelerationStructureInstanceKHR inst{};
             inst.transform = mapVkTransformMatrix(instance.transform);
-            inst.mask = 0xFF;
-            inst.instanceCustomIndex = 0;
-            inst.instanceShaderBindingTableRecordOffset = 0;
+            inst.mask = instance.mask;
+            inst.instanceCustomIndex = instance.instanceCustomIdx;
+            inst.instanceShaderBindingTableRecordOffset = instance.shaderBindingTableRecordOffset;
             inst.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
             VkAccelerationStructureDeviceAddressInfoKHR deviceAddressInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR};
             deviceAddressInfo.accelerationStructure = static_cast<CCVKAccelerationStructure *>(instance.accelerationStructureRef)->gpuAccelerationStructure()->vkAccelerationStructure;
@@ -1725,9 +1725,9 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
 
             VkAccelerationStructureInstanceKHR inst{};
             inst.transform = mapVkTransformMatrix(instance.transform);
-            inst.mask = 0xFF;
-            inst.instanceCustomIndex = 0;
-            inst.instanceShaderBindingTableRecordOffset = 0;
+            inst.mask = instance.mask;
+            inst.instanceCustomIndex = instance.instanceCustomIdx;
+            inst.instanceShaderBindingTableRecordOffset = instance.shaderBindingTableRecordOffset;
             inst.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
             VkAccelerationStructureDeviceAddressInfoKHR deviceAddressInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR};
             deviceAddressInfo.accelerationStructure = static_cast<CCVKAccelerationStructure *>(instance.accelerationStructureRef)->gpuAccelerationStructure()->vkAccelerationStructure;

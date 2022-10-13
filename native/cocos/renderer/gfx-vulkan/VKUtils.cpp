@@ -380,12 +380,11 @@ ccstd::string mapVendorName(uint32_t vendorID) {
 }
 
 VkTransformMatrixKHR mapVkTransformMatrix(const Mat4& matrix) {
-    //todo
     VkTransformMatrixKHR vkTransform{};
     vkTransform.matrix[0][0] = matrix.m[0];
     vkTransform.matrix[0][1] = matrix.m[4];
     vkTransform.matrix[0][2] = matrix.m[8];
-    vkTransform.matrix[0][3] = -matrix.m[12];
+    vkTransform.matrix[0][3] = matrix.m[12];
 
     vkTransform.matrix[1][0] = matrix.m[1];
     vkTransform.matrix[1][1] = matrix.m[5];

@@ -76,7 +76,7 @@ void CCVKAccelerationStructure::doCompact() {
     auto* cmdBuf = device->getCommandBuffer();
 
     cmdBuf->begin();
-    CCVKAccelerationStructure* compactedAccel = ccnew CCVKAccelerationStructure;
+    auto* compactedAccel = ccnew CCVKAccelerationStructure;
     compactedAccel->_gpuAccelerationStructure = ccnew CCVKGPUAccelerationStructure;
     cmdBuf->compactAccelerationStructure(this,compactedAccel);
     cmdBuf->end();
@@ -96,6 +96,7 @@ void CCVKAccelerationStructure::doCompact() {
 }
 
 void CCVKAccelerationStructure::doDestroy() {
+    // todo gpuRecycleBin Implementation
     if (_gpuAccelerationStructure) {
         //CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuAccelerationStructure);
         VkDevice device = CCVKDevice::getInstance()->gpuDevice()->vkDevice;
@@ -106,7 +107,6 @@ void CCVKAccelerationStructure::doDestroy() {
             _gpuAccelerationStructure->instancesBuffer->destroy();
         _gpuAccelerationStructure = nullptr;
     }
-    //todo gpuRecycleBin Implementation
 }
 
 } // namespace gfx
