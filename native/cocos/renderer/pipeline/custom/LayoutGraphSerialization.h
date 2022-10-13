@@ -29,6 +29,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 #pragma once
+#include <cocos/renderer/pipeline/custom/LayoutGraphGraphs.h>
 #include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonSerialization.h"
@@ -52,6 +53,20 @@ inline void save(OutputArchive& ar, const RenderPhase& v) {
 
 inline void load(InputArchive& ar, RenderPhase& v) {
     load(ar, v.shaders);
+}
+
+inline void save(OutputArchive& ar, const LayoutGraph& g) {
+    using Graph = LayoutGraph;
+    using VertexT = Graph::vertex_descriptor;
+    using SizeT = Graph::vertices_size_type;
+    static_assert(std::is_same_v<VertexT, SizeT>);
+
+    const auto numVertices = num_vertices(g);
+    const auto numEdges = num_edges(g);
+    save(ar, numVertices);
+    save(ar, numEdges);
+    save(ar, static_cast<SizeT>(g.stages.size()));
+    save(ar, static_cast<SizeT>(g.phases.size()));
 }
 
 inline void save(OutputArchive& ar, const UniformData& v) {
@@ -208,6 +223,20 @@ inline void load(InputArchive& ar, RenderPhaseData& v) {
     load(ar, v.rootSignature);
     load(ar, v.shaderPrograms);
     load(ar, v.shaderIndex);
+}
+
+inline void save(OutputArchive& ar, const LayoutGraphData& g) {
+    using Graph = LayoutGraphData;
+    using VertexT = Graph::vertex_descriptor;
+    using SizeT = Graph::vertices_size_type;
+    static_assert(std::is_same_v<VertexT, SizeT>);
+
+    const auto numVertices = num_vertices(g);
+    const auto numEdges = num_edges(g);
+    save(ar, numVertices);
+    save(ar, numEdges);
+    save(ar, static_cast<SizeT>(g.stages.size()));
+    save(ar, static_cast<SizeT>(g.phases.size()));
 }
 
 } // namespace render
