@@ -149,7 +149,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if ((camera.clearFlag & SKYBOX_FLAG)) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
-        } else {
+        } else if(camera.clearFlag === SKYBOX_FLAG) {
             legacyCC.warnID(15100, camera.name);
         }
     }
