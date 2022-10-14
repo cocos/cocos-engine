@@ -132,6 +132,7 @@ if (!my.isIDE && my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') 
             if (glLoc && glLoc.ID === -1) {
                 return undefined;
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return originalGetUniformLocation(program, name);
         };
     }
