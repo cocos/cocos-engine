@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
+import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';

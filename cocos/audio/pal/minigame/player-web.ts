@@ -5,7 +5,7 @@ import { EventTarget } from '../../../cocos/core/event';
 import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
+import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../../type';
 
 declare const fsUtils: any;
 const audioContext = minigame.tt?.getAudioContext?.();

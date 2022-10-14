@@ -1,5 +1,5 @@
 import { warnID } from '../../../cocos/core';
-import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
+import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../../type';
 import { AudioPlayerDOM, OneShotAudioDOM } from './player-dom';
 import { AudioContextAgent, AudioPlayerWeb, OneShotAudioWeb } from './player-web';
 

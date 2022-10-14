@@ -1,6 +1,6 @@
 import { minigame } from 'pal/minigame';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
+import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../../type';
 import { AudioPlayerMinigame, OneShotAudioMinigame } from './player-minigame';
 import { AudioPlayerWeb, OneShotAudioWeb } from './player-web';
 

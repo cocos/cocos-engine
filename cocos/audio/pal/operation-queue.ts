@@ -1,4 +1,4 @@
-import { EventTarget } from '../../cocos/core';
+import { EventTarget } from '../../core/event';
 
 type OperationMethod = (...args: any[]) => Promise<void>;
 export interface OperationInfo {

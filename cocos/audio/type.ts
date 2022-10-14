@@ -1,4 +1,5 @@
 export enum AudioEvent {
+    READY = 'ready',
     PLAYED = 'play',
     PAUSED = 'pause',
     STOPPED = 'stop',
@@ -22,13 +23,30 @@ export interface AudioLoadOptions {
 }
 
 export enum AudioState {
-    INIT,
+    READY,
     PLAYING,
     PAUSED,
     STOPPED,
     INTERRUPTED,
 }
-
+// All actions are positive
+export enum AudioAction {
+    PLAY,
+    REPLAY,
+    PAUSE,
+    STOP,
+}
+enum AudioErrorCode {
+    LOAD_FAILED,
+    LOAD_REJECTED,
+    PLAY_FAILED,
+    PLAY_REJECTED,
+    //etc. TODO(timlyeee): Accomplish error mechanism
+}
+export interface AudioOperationResult {
+    success: boolean,
+    error: AudioErrorCode,
+}
 export type AudioBufferView = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 export class AudioPCMDataView {

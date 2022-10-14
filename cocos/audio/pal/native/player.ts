@@ -1,5 +1,5 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView } from '../type';
+import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView } from '../../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';

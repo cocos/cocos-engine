@@ -30,10 +30,9 @@ import { cclegacy, js } from '../core';
 import './deprecated';
 
 export { AudioClip } from './audio-clip';
-
-export { AudioSource };
-export { AudioPCMDataView } from '../../pal/audio/type';
-
+export { AudioPlayer } from './audio-player';
+export { AudioPCMDataView, AudioState } from './type';
+export type { OperationQueueable } from './pal/operation-queue';
 export { AudioSource as AudioSourceComponent };
 cclegacy.AudioSourceComponent = AudioSource;
 js.setClassAlias(AudioSource, 'cc.AudioSourceComponent');

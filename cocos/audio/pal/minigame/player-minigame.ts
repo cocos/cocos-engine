@@ -1,7 +1,7 @@
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
+import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
@@ -44,7 +44,7 @@ export class OneShotAudioMinigame {
     }
 }
 
-export class AudioPlayerMinigame implements OperationQueueable {
+export class AudioPlayer  {
     private _innerAudioContext: InnerAudioContext;
     private _state: AudioState = AudioState.INIT;
     private _cacheTime = 0;
@@ -91,14 +91,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onPlay(this._onPlay);
         this._onPause = () => {
             this._state = AudioState.PAUSED;
-            try {
-                const currentTime = this._innerAudioContext.currentTime;
-                if (currentTime !== null && currentTime !== undefined) {
-                    this._cacheTime = currentTime;
-                }
-            } catch {
-                // Do nothing, cacheTime is not updated.
-            }
+            this._cacheTime = this._innerAudioContext.currentTime;
             eventTarget.emit(AudioEvent.PAUSED);
         };
         innerAudioContext.onPause(this._onPause);
@@ -132,8 +125,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
             });
-            // NOTE: innewAudioContext might not stop the audio playing, have to call it explicitly.
-            this._innerAudioContext.stop();
             this._innerAudioContext.destroy();
             // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'
             this._innerAudioContext = null;
@@ -280,12 +271,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
     @enqueueOperation
     pause (): Promise<void> {
         return new Promise((resolve) => {
-            if (this.state !== AudioState.PLAYING) {
-                resolve();
-            } else {
-                this._eventTarget.once(AudioEvent.PAUSED, resolve);
-                this._innerAudioContext.pause();
-            }
+            this._eventTarget.once(AudioEvent.PAUSED, resolve);
+            this._innerAudioContext.pause();
         });
     }
 

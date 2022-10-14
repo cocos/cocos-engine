@@ -45,6 +45,6 @@
   "include": [
       "exports/**/*.ts",
       "typedoc-index.ts",
-      "pal/**/*.ts"
-  ]
+      "**/pal/**/*.ts",
+, "cocos/audio/type.ts"  ]
 }
