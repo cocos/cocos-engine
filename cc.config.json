@@ -133,9 +133,6 @@
         "video": {
             "modules": ["video"]
         },
-        "xr": {
-            "modules": ["xr"]
-        },
         "terrain": {
             "modules": ["terrain"],
             "dependentAssets": ["1d08ef62-a503-4ce2-8b9a-46c90873f7d3"]
@@ -167,6 +164,13 @@
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
+        },
+        "xr": {
+            "modules": ["xr"]
+        },
+        "ar": {
+            "modules": ["ar"],
+            "dependentModules": ["xr"]
         },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]
@@ -520,6 +524,18 @@
             "type": "boolean",
             "value": false,
             "internal": true
+        },
+        "XR_ENV": {
+            "comment": "Running in environment where using XR.\n- 0 CLOSE\n- 1 XR\n- 2 WEB_XR",
+            "type": "number",
+            "value": 0,
+            "internal": false
+        },
+        "XR_TYPE": {
+            "comment": "Different types in the XR environment.\n- 0 OFF\n- 1 VR\n- 2 AR",
+            "type": "number",
+            "value": 0,
+            "internal": false
         }
     }
 }

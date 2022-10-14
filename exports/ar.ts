@@ -23,4 +23,4 @@
  THE SOFTWARE.
  */
 
-export * from './event/xr-event-handle';
+export * from '../cocos/xr/ar';
