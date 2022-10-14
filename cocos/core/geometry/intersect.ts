@@ -1217,9 +1217,8 @@ const intersect = {
     rayTriangle,
     rayCapsule,
 
-    /** As these functions depends on upper modules, so move the implementation to misc/intersect.ts.
-     * These functions are defined here to keep compatibility, they will be override in misc/intersect.ts.
-     */
+    // As these functions depends on upper modules, so move the implementation to misc/intersect.ts.
+    // These functions are defined here to keep compatibility, they will be override in misc/intersect.ts.
     raySubMesh: null as unknown as (ray: Ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) => number,
     rayMesh: null as unknown as (ray: Ray, mesh: Mesh, options?: IRayMeshOptions) => number,
     rayModel: null as unknown as (r: Ray, model: Model, options?: IRayModelOptions) => number,
