@@ -1509,6 +1509,66 @@ VkDeviceAddress getVkBufferDeviceAddr(VkDevice device, CCVKBuffer *buffer) {
     return getVkBufferDeviceAddr(device, buffer->gpuBuffer()->vkBuffer);
 }
 
+void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure, VkAccelerationStructureGeometryKHR &accelerationStructureGeom,const std::vector<ASInstance> &instances) {
+    gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
+    accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+    accelerationStructureGeom.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+
+    const uint32_t instanceCount = instances.size();
+    const uint32_t instanceBufferSize = instanceCount * sizeof(VkAccelerationStructureInstanceKHR);
+
+    // Create instances data buffer, but do not upload data yet.
+    VkBufferCreateInfo instancesBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    instancesBufferCreateInfo.size = instanceBufferSize;
+    instancesBufferCreateInfo.usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    VmaAllocationCreateInfo allocCreateInfo{};
+    allocCreateInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+    VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &instancesBufferCreateInfo, &allocCreateInfo,
+                             &gpuAccelerationStructure->instancesBuffer, &gpuAccelerationStructure->instancesBufferAllocation, nullptr));
+    gpuAccelerationStructure->instancesBufferSize = instanceBufferSize;
+
+    VkAccelerationStructureGeometryInstancesDataKHR instancesData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR};
+    instancesData.data.deviceAddress = getVkBufferDeviceAddr(device->gpuDevice()->vkDevice, gpuAccelerationStructure->instancesBuffer);
+
+    accelerationStructureGeom.geometry.instances = instancesData;
+    gpuAccelerationStructure->geometries.push_back(accelerationStructureGeom);
+    gpuAccelerationStructure->rangeInfos.push_back({instanceCount, 0, 0, 0});
+}
+
+void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure, VkAccelerationStructureGeometryKHR &accelerationStructureGeom, const std::vector<ASTriangleMesh> &mesh) {
+    gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
+    for (auto &triangles : mesh) {
+        accelerationStructureGeom.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+        accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+        accelerationStructureGeom.geometry.triangles = mapVkASGeomTrianglesData(triangles, device->gpuDevice());
+        gpuAccelerationStructure->geometries.push_back(accelerationStructureGeom);
+        gpuAccelerationStructure->rangeInfos.push_back({triangles.indexCount / 3, 0, 0, 0});
+    }
+}
+
+void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure, VkAccelerationStructureGeometryKHR &accelerationStructureGeom, std::vector<ASAABB> &aabbs) {
+    gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
+    for (auto &aabb : aabbs) {
+        accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_AABBS_KHR;
+
+        VkAabbPositionsKHR aabbPositions{aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ};
+
+        BufferInfo buffer_info;
+        buffer_info.size = sizeof(VkAabbPositionsKHR);
+        buffer_info.memUsage = MemoryUsageBit::DEVICE;
+        buffer_info.usage = BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY | BufferUsageBit::SHADER_DEVICE_ADDRESS;
+        aabb.aabbsBuffer = device->createBuffer(buffer_info);
+        aabb.aabbsBuffer->update(&aabbPositions);
+
+        VkAccelerationStructureGeometryAabbsDataKHR aabbsData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR};
+        aabbsData.data.deviceAddress = getVkBufferDeviceAddr(device->gpuDevice()->vkDevice, static_cast<CCVKBuffer *>(aabb.aabbsBuffer));
+
+        accelerationStructureGeom.geometry.aabbs = aabbsData;
+        gpuAccelerationStructure->geometries.push_back(accelerationStructureGeom);
+        gpuAccelerationStructure->rangeInfos.push_back({1, 0, 0, 0});
+    }
+}
+
 } // namespace
 
 void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure) {
@@ -1519,63 +1579,13 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
     std::visit(overloaded{
                    [](auto arg) {},
                    [&](const std::vector<ASInstance> &instances) {
-                       gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
-                       accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-                       accelerationStructureGeom.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-
-                       const uint32_t instanceCount = instances.size();
-                       const uint32_t instanceBufferSize = instanceCount * sizeof(VkAccelerationStructureInstanceKHR);
-
-                       VkBufferCreateInfo instancesBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-                       instancesBufferCreateInfo.size = instanceBufferSize;
-                       instancesBufferCreateInfo.usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR|VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-                       VmaAllocationCreateInfo allocCreateInfo{};
-                       allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-                       VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &instancesBufferCreateInfo, &allocCreateInfo,
-                                                &gpuAccelerationStructure->instancesBuffer, &gpuAccelerationStructure->instancesBufferAllocation, nullptr));
-                       gpuAccelerationStructure->instancesBufferSize = instanceBufferSize;
-
-                       VkAccelerationStructureGeometryInstancesDataKHR instancesData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR};
-                       instancesData.data.deviceAddress = getVkBufferDeviceAddr(_device, gpuAccelerationStructure->instancesBuffer);
-
-                       accelerationStructureGeom.geometry.instances = instancesData;
-                       gpuAccelerationStructure->geometries.push_back(accelerationStructureGeom);
-
-                       VkAccelerationStructureBuildRangeInfoKHR buildRangeInfo{instanceCount, 0, 0, 0};
-                       gpuAccelerationStructure->rangeInfos.push_back(buildRangeInfo);
+                       fillGeometryInfo(device, gpuAccelerationStructure, accelerationStructureGeom, instances);
                    },
                    [&](const std::vector<ASTriangleMesh> &mesh) {
-                       gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
-                       for (auto &triangles : mesh) {
-                           accelerationStructureGeom.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-                           accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-                           accelerationStructureGeom.geometry.triangles = mapVkASGeomTrianglesData(triangles, device->gpuDevice());
-                           gpuAccelerationStructure->geometries.push_back(accelerationStructureGeom);
-                           VkAccelerationStructureBuildRangeInfoKHR buildRangeInfo{triangles.indexCount / 3, 0, 0, 0};
-                           gpuAccelerationStructure->rangeInfos.push_back(buildRangeInfo);
-                       }
+                       fillGeometryInfo(device, gpuAccelerationStructure, accelerationStructureGeom,mesh);
                    },
                    [&](std::vector<ASAABB> &aabbs) {
-                       gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
-                       for (auto &aabb : aabbs) {
-                           accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_AABBS_KHR;
-
-                           VkAabbPositionsKHR aabbPositions{aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ};
-
-                           BufferInfo buffer_info;
-                           buffer_info.size = sizeof(VkAabbPositionsKHR);
-                           buffer_info.memUsage = MemoryUsageBit::DEVICE;
-                           buffer_info.usage = BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY | BufferUsageBit::SHADER_DEVICE_ADDRESS;
-                           aabb.aabbsBuffer = device->createBuffer(buffer_info);
-                           aabb.aabbsBuffer->update(&aabbPositions);
-
-                           VkAccelerationStructureGeometryAabbsDataKHR aabbsData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR};
-                           aabbsData.data.deviceAddress = getVkBufferDeviceAddr(_device, static_cast<CCVKBuffer *>(aabb.aabbsBuffer));
-
-                           accelerationStructureGeom.geometry.aabbs = aabbsData;
-                           gpuAccelerationStructure->geometries.push_back(accelerationStructureGeom);
-                           gpuAccelerationStructure->rangeInfos.push_back({1, 0, 0, 0});
-                       }
+                       fillGeometryInfo(device, gpuAccelerationStructure, accelerationStructureGeom, aabbs);
                    }},
                gpuAccelerationStructure->geomtryInfos);
 
@@ -1600,6 +1610,7 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
                                             &gpuAccelerationStructure->buildSizesInfo);
 
     accelerationStructureCreateInfo.size = gpuAccelerationStructure->buildSizesInfo.accelerationStructureSize;
+
     // Create Backing buffer
     VkBufferCreateInfo backingBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     backingBufferCreateInfo.size = accelerationStructureCreateInfo.size;
@@ -1610,54 +1621,43 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
                              &gpuAccelerationStructure->accelStructBackingBuffer, &gpuAccelerationStructure->backingBufferAllocation, nullptr));
 
     accelerationStructureCreateInfo.buffer = gpuAccelerationStructure->accelStructBackingBuffer;
-
     accelerationStructureCreateInfo.type = gpuAccelerationStructure->buildGeometryInfo.type;
-    // offset (is an offset in bytes from the base address of the buffer at which the acceleration will be stored, and must be a multiple of 256)
     accelerationStructureCreateInfo.offset = 0;
-
-    // createFlags (not very useful)
-    // deviceAddress (the device address requested for the acceleration structure if the accelerationStructureCaptureReplay feature is being used)
 
     VK_CHECK(vkCreateAccelerationStructureKHR(gpuDevice->vkDevice, &accelerationStructureCreateInfo, nullptr, &gpuAccelerationStructure->vkAccelerationStructure));
 }
 
+namespace {
 
-void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-    if (!accel->vkAccelerationStructure) {
-        return;
-    }
-    if (accel->buildGeometryInfo.type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR) {
-        ccstd::vector<VkAccelerationStructureInstanceKHR> instances{};
-        const auto& asInstances = std::get<ccstd::vector<ASInstance>>(accel->geomtryInfos);
-        instances.reserve(asInstances.size());
+void updateGPUInstanceDataBuffer(CCVKDevice *device, CCVKGPUAccelerationStructure *accel) {
+    ccstd::vector<VkAccelerationStructureInstanceKHR> instances{};
+    const auto &asInstances = std::get<ccstd::vector<ASInstance>>(accel->geomtryInfos);
+    instances.reserve(asInstances.size());
+    std::transform(asInstances.cbegin(), asInstances.cend(), std::back_inserter(instances),
+                   [&](const ASInstance &inst) { return mapVkASInstance(device->gpuDevice(), inst); });
 
-        for (const auto &instance : asInstances) {
-            instances.emplace_back(mapVkASInstance(device->gpuDevice(),instance));
-        }
+    const uint32_t instanceBufferSize = instances.size() * sizeof(VkAccelerationStructureInstanceKHR);
+    assert(accel->instancesBufferSize >= instanceBufferSize);
+    /*
+    CCVKGPUBuffer gpuBuffer;
+    gpuBuffer.vkBuffer = accel->instancesBuffer;
+    gpuBuffer.usage = BufferUsageBit::TRANSFER_DST;
+    gpuBuffer.transferAccess = THSVS_ACCESS_TRANSFER_WRITE;
+    cmdFuncCCVKUpdateBuffer(device, &gpuBuffer, instances.data(), instanceBufferSize,nullptr);*/
+    void *data;
+    vmaMapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBufferAllocation, &data);
+    memcpy(data, instances.data(), instanceBufferSize);
+    vmaUnmapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBufferAllocation);
 
-        const uint32_t instanceBufferSize = instances.size() * sizeof(VkAccelerationStructureInstanceKHR);
-        assert(accel->instancesBufferSize >= instanceBufferSize);
+    const uint32_t instanceCount = asInstances.size();
+    accel->rangeInfos[0] = {instanceCount, 0, 0, 0};
+}
 
-        CCVKGPUBuffer gpuBuffer;
-        gpuBuffer.vkBuffer = accel->instancesBuffer;
-        gpuBuffer.usage = BufferUsageBit::TRANSFER_DST;
-        gpuBuffer.transferAccess = THSVS_ACCESS_TRANSFER_WRITE;
-        cmdFuncCCVKUpdateBuffer(device, &gpuBuffer, instances.data(), instanceBufferSize, gpuCommandBuffer);
-
-        const uint32_t instanceCount = asInstances.size();
-        VkAccelerationStructureBuildRangeInfoKHR buildRangeInfo{instanceCount, 0, 0, 0};
-        accel->rangeInfos[0] = buildRangeInfo;
-    }
-    
-    VkAccelerationStructureBuildGeometryInfoKHR &buildGeomInfo = accel->buildGeometryInfo;
-    buildGeomInfo.srcAccelerationStructure = VK_NULL_HANDLE;
-    buildGeomInfo.dstAccelerationStructure = accel->vkAccelerationStructure;
-    buildGeomInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
-
-    //Create Scratch Buffer (if needed)
-    if (!accel->scratchBuffer||accel->scratchBufferSize< accel->buildSizesInfo.buildScratchSize) {
+void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStructure *accel) {
+    // Create Scratch Buffer (if needed)
+    if (!accel->scratchBuffer || accel->scratchBufferSize < accel->buildSizesInfo.buildScratchSize) {
         if (accel->scratchBuffer) {
-            //Destroy old scrath Buffer
+            // Destroy old scrath Buffer
             vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, accel->scratchBuffer, accel->scratchVmaAllocation);
         }
         VkBufferCreateInfo scratchBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
@@ -1669,7 +1669,23 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
                                  &accel->scratchBuffer, &accel->scratchVmaAllocation, nullptr));
         accel->scratchBufferSize = scratchBufferCreateInfo.size;
     }
+}
+}
 
+void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+    if (!accel->vkAccelerationStructure) {
+        return;
+    }
+    if (accel->buildGeometryInfo.type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR) {
+        updateGPUInstanceDataBuffer(device, accel);
+    }
+    
+    auto &buildGeomInfo = accel->buildGeometryInfo;
+    buildGeomInfo.srcAccelerationStructure = VK_NULL_HANDLE;
+    buildGeomInfo.dstAccelerationStructure = accel->vkAccelerationStructure;
+    buildGeomInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+
+    checkScratchBufferRequirement(device, accel);
     buildGeomInfo.scratchData.deviceAddress = getVkBufferDeviceAddr(device->gpuDevice()->vkDevice, accel->scratchBuffer);
 
     const auto &accelRangeInfosConRef = accel->rangeInfos;
@@ -1693,13 +1709,13 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
             vkCmdResetQueryPool(gpuCommandBuffer->vkCommandBuffer, accel->vkCompactedSizeQueryPool, 0, 1);
         }
 
-        //VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
-        //barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
-        //barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
-        /*vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                             0, 1, &barrier, 0, nullptr, 0, nullptr);*/
+                             0, 1, &barrier, 0, nullptr, 0, nullptr);
 
         vkCmdWriteAccelerationStructuresPropertiesKHR(gpuCommandBuffer->vkCommandBuffer, 1, &accel->vkAccelerationStructure,
                                                       VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR, accel->vkCompactedSizeQueryPool, 0);
@@ -1713,26 +1729,7 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
     }
 
     if (accel->buildGeometryInfo.type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR) {
-        ccstd::vector<VkAccelerationStructureInstanceKHR> instances{};
-        const auto &asInstances = std::get<ccstd::vector<ASInstance>>(accel->geomtryInfos);
-        instances.reserve(asInstances.size());
-
-        for (const auto &instance : asInstances) {
-            instances.emplace_back(mapVkASInstance(device->gpuDevice(), instance));
-        }
-
-        const uint32_t instanceBufferSize = instances.size() * sizeof(VkAccelerationStructureInstanceKHR);
-        assert(accel->instancesBufferSize >= instanceBufferSize);
-        
-        CCVKGPUBuffer gpuBuffer;
-        gpuBuffer.vkBuffer = accel->instancesBuffer;
-        gpuBuffer.usage = BufferUsageBit::TRANSFER_DST;
-        gpuBuffer.transferAccess = THSVS_ACCESS_TRANSFER_WRITE;
-        cmdFuncCCVKUpdateBuffer(device, &gpuBuffer, instances.data(), instanceBufferSize, gpuCommandBuffer);
-
-        const uint32_t instanceCount = asInstances.size();
-        VkAccelerationStructureBuildRangeInfoKHR buildRangeInfo{instanceCount, 0, 0, 0};
-        accel->rangeInfos[0] = buildRangeInfo;
+        updateGPUInstanceDataBuffer(device, accel);
     }
 
     VkAccelerationStructureBuildGeometryInfoKHR &buildGeomInfo = accel->buildGeometryInfo;
@@ -1740,30 +1737,14 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
     buildGeomInfo.dstAccelerationStructure = accel->vkAccelerationStructure;
     buildGeomInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR;
 
-    // Create Scratch Buffer (if needed)
-    if (!accel->scratchBuffer || accel->scratchBufferSize < accel->buildSizesInfo.updateScratchSize) {
-        if (accel->scratchBuffer) {
-            // Destroy old scrath Buffer
-            vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, accel->scratchBuffer, accel->scratchVmaAllocation);
-        }
-        VkBufferCreateInfo scratchBufferCreateInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-        scratchBufferCreateInfo.size = accel->buildSizesInfo.updateScratchSize;
-        scratchBufferCreateInfo.usage = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-        VmaAllocationCreateInfo allocCreateInfo{};
-        allocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-        VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &scratchBufferCreateInfo, &allocCreateInfo,
-                                 &accel->scratchBuffer, &accel->scratchVmaAllocation, nullptr));
-        accel->scratchBufferSize = scratchBufferCreateInfo.size;
-    }
+    checkScratchBufferRequirement(device, accel);
 
-    VkBufferDeviceAddressInfo deviceAddressInfo = {VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
-    deviceAddressInfo.buffer = accel->scratchBuffer;
-
-    buildGeomInfo.scratchData.deviceAddress = vkGetBufferDeviceAddress(device->gpuDevice()->vkDevice, &deviceAddressInfo);
+    buildGeomInfo.scratchData.deviceAddress = getVkBufferDeviceAddr(device->gpuDevice()->vkDevice, accel->scratchBuffer);
 
     const auto &accelRangeInfosConRef = accel->rangeInfos;
     const size_t rangeInfoCount = accelRangeInfosConRef.size();
     ccstd::vector<const VkAccelerationStructureBuildRangeInfoKHR *> buildRangeInfoPtrs(rangeInfoCount);
+
     for (uint32_t i = 0; i < rangeInfoCount; ++i) {
         buildRangeInfoPtrs[i] = &accelRangeInfosConRef[i];
     }

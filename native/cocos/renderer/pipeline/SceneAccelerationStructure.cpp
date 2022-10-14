@@ -160,7 +160,6 @@ namespace cc
             while (blas_it!=blasMap.end()) {
                 if (blas_it->second->getRefCount()==0) {
                     blas_it = blasMap.erase(blas_it);
-                    // todo destory acceleration structure..
                     blas_it->second->destroy();
                 }else {
                     ++blas_it;
