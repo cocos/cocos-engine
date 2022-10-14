@@ -32,6 +32,7 @@
 #include <cocos/renderer/pipeline/custom/LayoutGraphGraphs.h>
 #include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/Range.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonSerialization.h"
 #include "cocos/renderer/pipeline/custom/SerializationUtils.h"
 
@@ -67,6 +68,9 @@ inline void save(OutputArchive& ar, const LayoutGraph& g) {
     save(ar, numEdges);
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
+    for (const auto& v : makeRange(vertices(g))) {
+        save(ar, get(LayoutGraph::Name, g, v));
+    }
 }
 
 inline void save(OutputArchive& ar, const UniformData& v) {
@@ -237,6 +241,8 @@ inline void save(OutputArchive& ar, const LayoutGraphData& g) {
     save(ar, numEdges);
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
+    for (const auto& v : makeRange(vertices(g))) {
+    }
 }
 
 } // namespace render

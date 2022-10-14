@@ -11872,24 +11872,20 @@ static bool js_cc_pipeline_InstancedBuffer_merge__SWIG_0(se::State& s)
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cc::pipeline::InstancedBuffer *arg1 = (cc::pipeline::InstancedBuffer *) NULL ;
-    cc::scene::Model *arg2 = (cc::scene::Model *) NULL ;
-    cc::scene::SubModel *arg3 = (cc::scene::SubModel *) NULL ;
-    uint32_t arg4 ;
+    cc::scene::SubModel *arg2 = (cc::scene::SubModel *) NULL ;
+    uint32_t arg3 ;
     
     arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedBuffer>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,2,SWIGTYPE_p_cc__scene__Model"); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,3,SWIGTYPE_p_cc__scene__SubModel"); 
+    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,2,SWIGTYPE_p_cc__scene__SubModel"); 
     
     // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,4,SWIGTYPE_uint32_t"); 
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,3,SWIGTYPE_uint32_t"); 
     
-    (arg1)->merge((cc::scene::Model const *)arg2,(cc::scene::SubModel const *)arg3,arg4);
+    (arg1)->merge(arg2,arg3);
     
     
     return true;
@@ -11902,28 +11898,24 @@ static bool js_cc_pipeline_InstancedBuffer_merge__SWIG_1(se::State& s)
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cc::pipeline::InstancedBuffer *arg1 = (cc::pipeline::InstancedBuffer *) NULL ;
-    cc::scene::Model *arg2 = (cc::scene::Model *) NULL ;
-    cc::scene::SubModel *arg3 = (cc::scene::SubModel *) NULL ;
-    uint32_t arg4 ;
-    cc::gfx::Shader *arg5 = (cc::gfx::Shader *) NULL ;
+    cc::scene::SubModel *arg2 = (cc::scene::SubModel *) NULL ;
+    uint32_t arg3 ;
+    cc::gfx::Shader *arg4 = (cc::gfx::Shader *) NULL ;
     
     arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedBuffer>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,2,SWIGTYPE_p_cc__scene__Model"); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,3,SWIGTYPE_p_cc__scene__SubModel"); 
+    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,2,SWIGTYPE_p_cc__scene__SubModel"); 
     
     // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,4,SWIGTYPE_uint32_t"); 
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,3,SWIGTYPE_uint32_t"); 
     
     // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,5,SWIGTYPE_p_cc__gfx__Shader"); 
-    (arg1)->merge((cc::scene::Model const *)arg2,(cc::scene::SubModel const *)arg3,arg4,arg5);
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "InstancedBuffer_merge,4,SWIGTYPE_p_cc__gfx__Shader"); 
+    (arg1)->merge(arg2,arg3,arg4);
     
     
     return true;
@@ -11937,13 +11929,13 @@ static bool js_cc_pipeline_InstancedBuffer_merge(se::State& s)
     size_t argc = args.size();
     
     // js_function_dispatch_case
-    if (argc == 3) {
+    if (argc == 2) {
         ok = js_cc_pipeline_InstancedBuffer_merge__SWIG_0(s);
         if (ok) {
             return true; 
         }
     } // js_function_dispatch_case
-    if (argc == 4) {
+    if (argc == 3) {
         ok = js_cc_pipeline_InstancedBuffer_merge__SWIG_1(s);
         if (ok) {
             return true; 
