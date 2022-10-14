@@ -119,7 +119,7 @@ minigame.getSafeArea = function () {
 };
 // #endregion SafeArea
 
-// HACK: adapt GL.getUniformLocation
+// TODO: adapt GL.getUniformLocation
 // Android return value: undefined.   iOS return value: {ID: -1}.
 if (!my.isIDE && my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') {
     // @ts-expect-error canvas defined in global

@@ -6,9 +6,9 @@ function doNothing (url, options, onComplete) {
     onComplete(null, url);
 }
 
+// TODO: Image can't load from cached downloaded file on Taobao IDE
 if (my.isIDE) {
     downloader.register({
-        // NOTE: Image can't load from cached downloaded file on Taobao
         '.png': doNothing,
         '.jpg': doNothing,
         '.bmp': doNothing,
@@ -21,8 +21,8 @@ if (my.isIDE) {
     });
 }
 
+// TODO: Audio can't load from cached downloaded file onTaoBao
 downloader.register({
-    // Note: Audio can't load from cached downloaded file onTaoBao
     '.mp3': doNothing,
     '.ogg': doNothing,
     '.wav': doNothing,
