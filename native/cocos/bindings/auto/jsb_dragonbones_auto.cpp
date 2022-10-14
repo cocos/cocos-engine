@@ -61,6 +61,8 @@
 #include "bindings/manual/jsb_global.h"
 
 
+#include "bindings/auto/jsb_2d_auto.h"
+#include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_dragonbones_auto.h"
 
 
@@ -12262,34 +12264,6 @@ static bool js_dragonBones_CCArmatureDisplay_getSharedBufferOffset(se::State& s)
 }
 SE_BIND_FUNC(js_dragonBones_CCArmatureDisplay_getSharedBufferOffset) 
 
-static bool js_dragonBones_CCArmatureDisplay_getParamsBuffer(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    dragonBones::CCArmatureDisplay *arg1 = (dragonBones::CCArmatureDisplay *) NULL ;
-    se_object_ptr result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((dragonBones::CCArmatureDisplay const *)arg1)->getParamsBuffer();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "CCArmatureDisplay_getParamsBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_dragonBones_CCArmatureDisplay_getParamsBuffer) 
-
 static bool js_dragonBones_CCArmatureDisplay_setColor(se::State& s)
 {
     // js_function
@@ -12494,6 +12468,58 @@ static bool js_dragonBones_CCArmatureDisplay_getRootDisplay(se::State& s)
 }
 SE_BIND_FUNC(js_dragonBones_CCArmatureDisplay_getRootDisplay) 
 
+static bool js_dragonBones_CCArmatureDisplay_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    dragonBones::CCArmatureDisplay *arg1 = (dragonBones::CCArmatureDisplay *) NULL ;
+    cc::Material *arg2 = (cc::Material *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CCArmatureDisplay_setMaterial,2,SWIGTYPE_p_cc__Material"); 
+    (arg1)->setMaterial(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_dragonBones_CCArmatureDisplay_setMaterial) 
+
+static bool js_dragonBones_CCArmatureDisplay_setRenderEntity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    dragonBones::CCArmatureDisplay *arg1 = (dragonBones::CCArmatureDisplay *) NULL ;
+    cc::RenderEntity *arg2 = (cc::RenderEntity *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<dragonBones::CCArmatureDisplay>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CCArmatureDisplay_setRenderEntity,2,SWIGTYPE_p_cc__RenderEntity"); 
+    (arg1)->setRenderEntity(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_dragonBones_CCArmatureDisplay_setRenderEntity) 
+
 bool js_register_dragonBones_CCArmatureDisplay(se::Object* obj) {
     auto* cls = se::Class::create("CCArmatureDisplay", obj, nullptr, _SE(js_new_dragonBones_CCArmatureDisplay)); 
     
@@ -12512,7 +12538,6 @@ bool js_register_dragonBones_CCArmatureDisplay(se::Object* obj) {
     cls->defineFunction("getAnimation", _SE(js_dragonBones_CCArmatureDisplay_getAnimation)); 
     cls->defineFunction("getDebugData", _SE(js_dragonBones_CCArmatureDisplay_getDebugData)); 
     cls->defineFunction("getSharedBufferOffset", _SE(js_dragonBones_CCArmatureDisplay_getSharedBufferOffset)); 
-    cls->defineFunction("getParamsBuffer", _SE(js_dragonBones_CCArmatureDisplay_getParamsBuffer)); 
     cls->defineFunction("setColor", _SE(js_dragonBones_CCArmatureDisplay_setColor)); 
     cls->defineFunction("setDebugBonesEnabled", _SE(js_dragonBones_CCArmatureDisplay_setDebugBonesEnabled)); 
     cls->defineFunction("setBatchEnabled", _SE(js_dragonBones_CCArmatureDisplay_setBatchEnabled)); 
@@ -12520,6 +12545,8 @@ bool js_register_dragonBones_CCArmatureDisplay(se::Object* obj) {
     cls->defineFunction("setOpacityModifyRGB", _SE(js_dragonBones_CCArmatureDisplay_setOpacityModifyRGB)); 
     cls->defineFunction("convertToRootSpace", _SE(js_dragonBones_CCArmatureDisplay_convertToRootSpace)); 
     cls->defineFunction("getRootDisplay", _SE(js_dragonBones_CCArmatureDisplay_getRootDisplay)); 
+    cls->defineFunction("setMaterial", _SE(js_dragonBones_CCArmatureDisplay_setMaterial)); 
+    cls->defineFunction("setRenderEntity", _SE(js_dragonBones_CCArmatureDisplay_setRenderEntity)); 
     
     
     cls->defineStaticFunction("create", _SE(js_dragonBones_CCArmatureDisplay_create_static)); 
@@ -14124,7 +14151,7 @@ static bool js_dragonBones_CCArmatureCacheDisplay_getSharedBufferOffset(se::Stat
 }
 SE_BIND_FUNC(js_dragonBones_CCArmatureCacheDisplay_getSharedBufferOffset) 
 
-static bool js_dragonBones_CCArmatureCacheDisplay_getParamsBuffer(se::State& s)
+static bool js_dragonBones_CCArmatureCacheDisplay_setMaterial(se::State& s)
 {
     // js_function
     
@@ -14132,25 +14159,49 @@ static bool js_dragonBones_CCArmatureCacheDisplay_getParamsBuffer(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     dragonBones::CCArmatureCacheDisplay *arg1 = (dragonBones::CCArmatureCacheDisplay *) NULL ;
-    se_object_ptr result;
+    cc::Material *arg2 = (cc::Material *) NULL ;
     
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
         return false;
     }
     arg1 = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((dragonBones::CCArmatureCacheDisplay const *)arg1)->getParamsBuffer();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "CCArmatureCacheDisplay_getParamsBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CCArmatureCacheDisplay_setMaterial,2,SWIGTYPE_p_cc__Material"); 
+    (arg1)->setMaterial(arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_dragonBones_CCArmatureCacheDisplay_getParamsBuffer) 
+SE_BIND_FUNC(js_dragonBones_CCArmatureCacheDisplay_setMaterial) 
+
+static bool js_dragonBones_CCArmatureCacheDisplay_setRenderEntity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    dragonBones::CCArmatureCacheDisplay *arg1 = (dragonBones::CCArmatureCacheDisplay *) NULL ;
+    cc::RenderEntity *arg2 = (cc::RenderEntity *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<dragonBones::CCArmatureCacheDisplay>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CCArmatureCacheDisplay_setRenderEntity,2,SWIGTYPE_p_cc__RenderEntity"); 
+    (arg1)->setRenderEntity(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_dragonBones_CCArmatureCacheDisplay_setRenderEntity) 
 
 bool js_register_dragonBones_CCArmatureCacheDisplay(se::Object* obj) {
     auto* cls = se::Class::create("CCArmatureCacheDisplay", obj, nullptr, _SE(js_new_dragonBones_CCArmatureCacheDisplay)); 
@@ -14179,7 +14230,8 @@ bool js_register_dragonBones_CCArmatureCacheDisplay(se::Object* obj) {
     cls->defineFunction("updateAnimationCache", _SE(js_dragonBones_CCArmatureCacheDisplay_updateAnimationCache)); 
     cls->defineFunction("updateAllAnimationCache", _SE(js_dragonBones_CCArmatureCacheDisplay_updateAllAnimationCache)); 
     cls->defineFunction("getSharedBufferOffset", _SE(js_dragonBones_CCArmatureCacheDisplay_getSharedBufferOffset)); 
-    cls->defineFunction("getParamsBuffer", _SE(js_dragonBones_CCArmatureCacheDisplay_getParamsBuffer)); 
+    cls->defineFunction("setMaterial", _SE(js_dragonBones_CCArmatureCacheDisplay_setMaterial)); 
+    cls->defineFunction("setRenderEntity", _SE(js_dragonBones_CCArmatureCacheDisplay_setRenderEntity)); 
     
     
     
