@@ -62,9 +62,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::UIMeshBuffer);
 extern se::Object *__jsb_cc_UIMeshBuffer_proto; // NOLINT
 extern se::Class * __jsb_cc_UIMeshBuffer_class; // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(cc::Batcher2d);
-extern se::Object *__jsb_cc_Batcher2d_proto; // NOLINT
-extern se::Class * __jsb_cc_Batcher2d_class; // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::Render2dLayout);
 extern se::Object *__jsb_cc_Render2dLayout_proto; // NOLINT
