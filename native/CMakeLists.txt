@@ -112,7 +112,6 @@ if(OPENHARMONY) # TODO:May be removed later
     set(USE_SE_NAPI ON)
     set(USE_VIDEO OFF)
     set(USE_AUDIO ON)
-    set(USE_SOCKET OFF)
     set(USE_WEBVIEW OFF)
     set(USE_EDIT_BOX OFF)
 endif()
@@ -891,7 +890,6 @@ cocos_source_files(
                  cocos/network/DownloaderImpl.h
 )
 # The xmlhttprequest module of OpenHarmony is implemented in the ts layer
-if(NOT OPENHARMONY)
 cocos_source_files(
                  cocos/network/HttpClient.h
                  cocos/network/HttpCookie.cpp
@@ -901,7 +899,6 @@ cocos_source_files(
                  cocos/network/Uri.cpp
                  cocos/network/Uri.h
     )
-endif()
 
 if(USE_SOCKET)
     cocos_source_files(
@@ -963,7 +960,7 @@ if(WINDOWS OR LINUX OR QNX OR OPENHARMONY)
     )
 endif()
 
-if(WINDOWS OR MACOSX OR LINUX OR QNX)
+if(WINDOWS OR MACOSX OR LINUX OR QNX OR OPENHARMONY)
     cocos_source_files(
         NO_WERROR   NO_UBUILD   cocos/network/HttpClient.cpp
     )
@@ -2479,16 +2476,13 @@ if(USE_MIDDLEWARE)
 endif()
 
 ######## manual
+cocos_source_files(
+    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
+                cocos/bindings/manual/jsb_network_manual.h
+    NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp
+                cocos/bindings/manual/jsb_xmlhttprequest.h
 
-if(NOT OPENHARMONY)
-    cocos_source_files(
-	    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
-	                 cocos/bindings/manual/jsb_network_manual.h
-	    NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp
-	                 cocos/bindings/manual/jsb_xmlhttprequest.h
-
-    )
-endif()
+)
 
 cocos_source_files(
             cocos/bindings/manual/jsb_classtype.cpp
