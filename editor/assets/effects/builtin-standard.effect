@@ -295,10 +295,11 @@ CCProgram standard-fs %{
     s.metallic = pbr.z;
     s.specularIntensity = pbr.w;
 
-    s.emissive = emissive.rgb * emissiveScaleParam.xyz;
+    s.emissive = emissive.rgb;
     #if USE_EMISSIVE_MAP
-      s.emissive *= SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
+      s.emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
     #endif
+    s.emissive *= emissiveScaleParam.xyz;
   }
 
   CC_STANDARD_SURFACE_ENTRY()
