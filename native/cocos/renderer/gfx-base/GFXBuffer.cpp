@@ -83,6 +83,7 @@ void Buffer::resize(uint32_t size) {
 }
 
 void Buffer::write(const uint8_t *value, uint32_t offset, uint32_t size) const {
+    CC_ASSERT(hasFlag(_flags, BufferFlagBit::ENABLE_STAGING_WRITE));
     uint8_t *dst = getStagingAddress();
     if (dst == nullptr || offset + size >= _size) {
         return;

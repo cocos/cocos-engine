@@ -84,7 +84,7 @@ protected:
     uint32_t _offset = 0U;
     BufferFlags _flags = BufferFlagBit::NONE;
     bool _isBufferView = false;
-    uint8_t rsv[3] = {0};
+    uint8_t _rsv[3] = {0};
     std::unique_ptr<uint8_t[]> _data;
 };
 

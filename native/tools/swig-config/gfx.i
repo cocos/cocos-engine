@@ -56,6 +56,7 @@ namespace cc { namespace gfx {
 
 %ignore Buffer::initialize;
 %ignore Buffer::update;
+%ignore Buffer::write;
 
 %ignore CommandBuffer::execute;
 %ignore CommandBuffer::updateBuffer;
