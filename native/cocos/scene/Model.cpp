@@ -362,8 +362,7 @@ void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
             gfx::MemoryUsageBit::DEVICE,
             pipeline::UBOLocal::SIZE,
             pipeline::UBOLocal::SIZE,
-            gfx::BufferFlagBit::USE_STAGING
-        });
+            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 
@@ -374,8 +373,7 @@ void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
             gfx::MemoryUsageBit::DEVICE,
             pipeline::UBOLocal::SIZE,
             pipeline::UBOLocal::SIZE,
-            gfx::BufferFlagBit::USE_STAGING
-        });
+            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 

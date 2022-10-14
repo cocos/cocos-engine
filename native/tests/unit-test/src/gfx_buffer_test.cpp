@@ -55,7 +55,7 @@ TEST_F(GFXTest, DynamicBufferTest) {
     info.usage = cc::gfx::BufferUsageBit::UNIFORM;
     info.memUsage = cc::gfx::MemoryUsageBit::HOST | cc::gfx::MemoryUsageBit::DEVICE;
     info.size = 128;
-    info.flags = cc::gfx::BufferFlagBit::USE_STAGING;
+    info.flags = cc::gfx::BufferFlagBit::ENABLE_STAGING_WRITE;
 
     cc::IntrusivePtr<cc::gfx::Buffer> dynamicBuffer = device->createBuffer(info);
 

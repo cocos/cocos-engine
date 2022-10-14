@@ -49,7 +49,7 @@ void Buffer::initialize(const BufferInfo &info) {
 
     doInit(info);
 
-    if (hasFlag(info.flags, BufferFlagBit::USE_STAGING) && getStagingAddress() == nullptr) {
+    if (hasFlag(info.flags, BufferFlagBit::ENABLE_STAGING_WRITE) && getStagingAddress() == nullptr) {
         _data = static_cast<uint8_t *>(malloc(_size));
     }
 }

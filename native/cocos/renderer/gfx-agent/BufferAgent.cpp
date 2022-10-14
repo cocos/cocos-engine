@@ -54,7 +54,7 @@ BufferAgent::~BufferAgent() {
 
 void BufferAgent::doInit(const BufferInfo &info) {
     uint32_t size = getSize();
-    if (hasFlag(info.flags, BufferFlagBit::USE_STAGING) || (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST))) {
+    if (hasFlag(info.flags, BufferFlagBit::ENABLE_STAGING_WRITE) || (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST))) {
         for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
             _stagingBuffers.push_back(reinterpret_cast<uint8_t *>(malloc(size)));
         }
