@@ -1126,6 +1126,12 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
     return true;
 }
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &v, cc::gfx::AccelerationStructure **ret, se::Object * /*unused*/) {
+    //todo
+    return true;
+}
 #endif
 
 #if CC_USE_MIDDLEWARE
