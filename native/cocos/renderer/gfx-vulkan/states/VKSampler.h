@@ -35,7 +35,7 @@ namespace gfx {
 class CC_VULKAN_API CCVKSampler final : public Sampler {
 public:
     explicit CCVKSampler(const SamplerInfo &info);
-    ~CCVKSampler() override;
+    ~CCVKSampler() override = default;
 
     inline CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }
 

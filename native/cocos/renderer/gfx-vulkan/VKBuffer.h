@@ -48,8 +48,8 @@ protected:
     void doDestroy() override;
     void doResize(uint32_t size, uint32_t count) override;
 
-    void createBuffer();
-    void createBufferView();
+    void createBuffer(uint32_t size, uint32_t count);
+    void createBufferView(uint32_t range);
 
     IntrusivePtr<CCVKGPUBuffer> _gpuBuffer;
     IntrusivePtr<CCVKGPUBufferView> _gpuBufferView;

@@ -41,32 +41,33 @@ CCVKBuffer::~CCVKBuffer() {
 }
 
 void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
-    _gpuBuffer = ccnew CCVKGPUBuffer;
-    _gpuBuffer->size = _size;
-    _gpuBuffer->count = _count;
-    createBuffer();
+    createBuffer(_size, _count);
 
-    _gpuBufferView = ccnew CCVKGPUBufferView;
-    _gpuBufferView->range = _size;
-    createBufferView();
+    createBufferView(_size);
 }
 
 void CCVKBuffer::doInit(const BufferViewInfo &info) {
     auto *buffer = static_cast<CCVKBuffer *>(info.buffer);
     _gpuBuffer = buffer->gpuBuffer();
-    _gpuBufferView = ccnew CCVKGPUBufferView;
-    _gpuBufferView->range = _size;
-    createBufferView();
+
+    createBufferView(_size);
 }
 
-void CCVKBuffer::createBuffer() {
+void CCVKBuffer::createBuffer(uint32_t size, uint32_t count) {
+    _gpuBuffer = ccnew CCVKGPUBuffer;
+    _gpuBuffer->size = size;
+    _gpuBuffer->count = count;
+
     _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
     _gpuBuffer->stride = _stride;
     _gpuBuffer->init();
 }
 
-void CCVKBuffer::createBufferView() {
+void CCVKBuffer::createBufferView(uint32_t range) {
+    _gpuBufferView = ccnew CCVKGPUBufferView;
+    _gpuBufferView->range = range;
+
     _gpuBufferView->gpuBuffer = _gpuBuffer;
     _gpuBufferView->offset = _offset;
 }
@@ -77,15 +78,10 @@ void CCVKBuffer::doDestroy() {
 }
 
 void CCVKBuffer::doResize(uint32_t size, uint32_t count) {
-    _gpuBuffer = ccnew CCVKGPUBuffer();
-    _gpuBuffer->size = size;
-    _gpuBuffer->count = count;
-    createBuffer();
+    createBuffer(size, count);
 
-    auto oldBufferView = _gpuBufferView;
-    _gpuBufferView = ccnew CCVKGPUBufferView();
-    _gpuBufferView->range = size;
-    createBufferView();
+    IntrusivePtr<CCVKGPUBufferView> oldBufferView = _gpuBufferView;
+    createBufferView(size);
     CCVKDevice::getInstance()->gpuDescriptorHub()->update(oldBufferView, _gpuBufferView);
     CCVKDevice::getInstance()->gpuIAHub()->update(oldBufferView, _gpuBufferView);
 }

@@ -45,10 +45,6 @@ CCVKSampler::CCVKSampler(const SamplerInfo &info) : Sampler(info) {
     _gpuSampler->init();
 }
 
-CCVKSampler::~CCVKSampler() {
-    _gpuSampler = nullptr;
-}
-
 void CCVKGPUSampler::init() {
     cmdFuncCCVKCreateSampler(CCVKDevice::getInstance(), this);
 }

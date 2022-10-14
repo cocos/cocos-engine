@@ -87,13 +87,13 @@ public:
     inline CCVKGPUDevice *gpuDevice() const { return _gpuDevice; }
     inline CCVKGPUContext *gpuContext() { return _gpuContext; }
 
-    inline CCVKGPUBufferHub *gpuBufferHub() { return _gpuBufferHub; }
-    inline CCVKGPUTransportHub *gpuTransportHub() { return _gpuTransportHub; }
-    inline CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
-    inline CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
-    inline CCVKGPUBarrierManager *gpuBarrierManager() { return _gpuBarrierManager; }
-    inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
-    inline CCVKGPUInputAssemblerHub *gpuIAHub() { return _gpuIAHub; }
+    inline CCVKGPUBufferHub *gpuBufferHub() const { return _gpuBufferHub; }
+    inline CCVKGPUTransportHub *gpuTransportHub() const { return _gpuTransportHub; }
+    inline CCVKGPUDescriptorHub *gpuDescriptorHub() const { return _gpuDescriptorHub; }
+    inline CCVKGPUSemaphorePool *gpuSemaphorePool() const { return _gpuSemaphorePool; }
+    inline CCVKGPUBarrierManager *gpuBarrierManager() const { return _gpuBarrierManager; }
+    inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() const { return _gpuDescriptorSetHub; }
+    inline CCVKGPUInputAssemblerHub *gpuIAHub() const { return _gpuIAHub; }
 
     CCVKGPUFencePool *gpuFencePool();
     CCVKGPURecycleBin *gpuRecycleBin();

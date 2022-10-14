@@ -538,7 +538,8 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuIAHub)
 
     if (_gpuDevice) {
-        for (uint32_t i = 0; i < _gpuDevice->backBufferCount; ++i) {
+        uint32_t backBufferCount = _gpuDevice->backBufferCount;
+        for (uint32_t i = 0U; i < backBufferCount; i++) {
             _gpuRecycleBins[i]->clear();
             CC_SAFE_DELETE(_gpuRecycleBins[i])
         }

@@ -907,21 +907,21 @@ public:
     }
 
     void connect(CCVKGPUDescriptorSet *set, const CCVKGPUBufferView *buffer, VkDescriptorBufferInfo *descriptor, uint32_t instanceIdx) {
-        _buffers[buffer].sets.insert(set);
-        _buffers[buffer].descriptors.push(descriptor);
+        _gpuBufferViewSet[buffer].sets.insert(set);
+        _gpuBufferViewSet[buffer].descriptors.push(descriptor);
         _bufferInstanceIndices[descriptor] = instanceIdx;
     }
     void connect(CCVKGPUDescriptorSet *set, const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
-        _textures[texture].sets.insert(set);
-        _textures[texture].descriptors.push(descriptor);
+        _gpuTextureViewSet[texture].sets.insert(set);
+        _gpuTextureViewSet[texture].descriptors.push(descriptor);
     }
     void connect(CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) {
         _samplers[sampler].push(descriptor);
     }
 
     void update(const CCVKGPUBufferView *buffer, VkDescriptorBufferInfo *descriptor) {
-        auto it = _buffers.find(buffer);
-        if (it == _buffers.end()) return;
+        auto it = _gpuBufferViewSet.find(buffer);
+        if (it == _gpuBufferViewSet.end()) return;
         auto &descriptors = it->second.descriptors;
         for (uint32_t i = 0U; i < descriptors.size(); i++) {
             if (descriptors[i] == descriptor) {
@@ -932,8 +932,8 @@ public:
     }
 
     void update(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
-        auto it = _textures.find(texture);
-        if (it == _textures.end()) return;
+        auto it = _gpuTextureViewSet.find(texture);
+        if (it == _gpuTextureViewSet.end()) return;
         auto &descriptors = it->second.descriptors;
         for (uint32_t i = 0U; i < descriptors.size(); i++) {
             if (descriptors[i] == descriptor) {
@@ -955,51 +955,51 @@ public:
     }
     // for resize events
     void update(const CCVKGPUBufferView *oldView, const CCVKGPUBufferView *newView) {
-        auto iter = _buffers.find(oldView);
-        if (iter != _buffers.end()) {
+        auto iter = _gpuBufferViewSet.find(oldView);
+        if (iter != _gpuBufferViewSet.end()) {
             auto &sets = iter->second.sets;
             for (auto *set : sets) {
                 set->update(oldView, newView);
             }
-            _buffers.erase(iter);
+            _gpuBufferViewSet.erase(iter);
         }
     }
 
     void update(const CCVKGPUTextureView *oldView, const CCVKGPUTextureView *newView) {
-        auto iter = _textures.find(oldView);
-        if (iter != _textures.end()) {
+        auto iter = _gpuTextureViewSet.find(oldView);
+        if (iter != _gpuTextureViewSet.end()) {
             auto &sets = iter->second.sets;
             for (auto *set : sets) {
                 set->update(oldView, newView);
             }
-            _textures.erase(iter);
+            _gpuTextureViewSet.erase(iter);
         }
     }
 
     void disengage(const CCVKGPUBufferView *buffer) {
-        auto it = _buffers.find(buffer);
-        if (it == _buffers.end()) return;
+        auto it = _gpuBufferViewSet.find(buffer);
+        if (it == _gpuBufferViewSet.end()) return;
         for (uint32_t i = 0; i < it->second.descriptors.size(); ++i) {
             _bufferInstanceIndices.erase(it->second.descriptors[i]);
         }
-        _buffers.erase(it);
+        _gpuBufferViewSet.erase(it);
     }
     void disengage(CCVKGPUDescriptorSet *set, const CCVKGPUBufferView *buffer, VkDescriptorBufferInfo *descriptor) {
-        auto it = _buffers.find(buffer);
-        if (it == _buffers.end()) return;
+        auto it = _gpuBufferViewSet.find(buffer);
+        if (it == _gpuBufferViewSet.end()) return;
         it->second.sets.erase(set);
         auto &descriptors = it->second.descriptors;
         descriptors.fastRemove(descriptors.indexOf(descriptor));
         _bufferInstanceIndices.erase(descriptor);
     }
     void disengage(const CCVKGPUTextureView *texture) {
-        auto it = _textures.find(texture);
-        if (it == _textures.end()) return;
-        _textures.erase(it);
+        auto it = _gpuTextureViewSet.find(texture);
+        if (it == _gpuTextureViewSet.end()) return;
+        _gpuTextureViewSet.erase(it);
     }
-    void disengage( CCVKGPUDescriptorSet *set, const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
-        auto it = _textures.find(texture);
-        if (it == _textures.end()) return;
+    void disengage(CCVKGPUDescriptorSet *set, const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
+        auto it = _gpuTextureViewSet.find(texture);
+        if (it == _gpuTextureViewSet.end()) return;
         it->second.sets.erase(set);
         auto &descriptors = it->second.descriptors;
         descriptors.fastRemove(descriptors.indexOf(descriptor));
@@ -1047,8 +1047,8 @@ private:
     };
 
     ccstd::unordered_map<const VkDescriptorBufferInfo *, uint32_t> _bufferInstanceIndices;
-    ccstd::unordered_map<const CCVKGPUBufferView *, DescriptorInfo<VkDescriptorBufferInfo>> _buffers;
-    ccstd::unordered_map<const CCVKGPUTextureView *, DescriptorInfo<VkDescriptorImageInfo>> _textures;
+    ccstd::unordered_map<const CCVKGPUBufferView *, DescriptorInfo<VkDescriptorBufferInfo>> _gpuBufferViewSet;
+    ccstd::unordered_map<const CCVKGPUTextureView *, DescriptorInfo<VkDescriptorImageInfo>> _gpuTextureViewSet;
     ccstd::unordered_map<const CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
 };
 
@@ -1174,13 +1174,14 @@ public:
 
     void disengage(CCVKGPUInputAssembler *set, const CCVKGPUBufferView *buffer) {
         auto iter = _ias.find(buffer);
-        if (iter == _ias.end()) return;
-        iter->second.erase(set);
+        if (iter != _ias.end()) {
+            iter->second.erase(set);
+        }
     }
 
 private:
-    CCVKGPUDevice *_gpuDevice;
-    ccstd::unordered_map<const CCVKGPUBufferView *, std::unordered_set<CCVKGPUInputAssembler *>> _ias;
+    CCVKGPUDevice *_gpuDevice = nullptr;
+    ccstd::unordered_map<const CCVKGPUBufferView *, ccstd::unordered_set<CCVKGPUInputAssembler *>> _ias;
 };
 
 /**
