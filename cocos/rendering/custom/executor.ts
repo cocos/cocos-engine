@@ -651,6 +651,13 @@ class DeviceRenderPass {
             }
         }
     }
+    getGlobalDescData (context: ExecutorContext) {
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
+        assert(stageId !== 0xFFFFFFFF);
+        const layout = context.layoutGraph.getLayout(stageId);
+        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
+        return layoutData;
+    }
     genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
         const vbData = new Float32Array(4 * 4);
 
@@ -965,7 +972,7 @@ class DevicePreSceneTask extends WebSceneTask {
     }
 
     private _bindGlobalDesc (context: ExecutorContext, binding: number, value) {
-        const layoutData = this._getGlobalDescData(context)!;
+        const layoutData = this._currentQueue.devicePass.getGlobalDescData(context)!;
         this._bindDescValue(layoutData.descriptorSet!, binding, value);
         const it = context.pipeline.globalDSManager.descriptorSetMap.values();
         let res = it.next();
@@ -977,7 +984,7 @@ class DevicePreSceneTask extends WebSceneTask {
     }
 
     private _bindDescriptor (context: ExecutorContext, descId: number, value) {
-        const layoutData = this._getGlobalDescData(context)!;
+        const layoutData = this._currentQueue.devicePass.getGlobalDescData(context)!;
         // find descriptor binding
         for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
             for (let i = 0; i !== block.descriptors.length; ++i) {
@@ -986,14 +993,6 @@ class DevicePreSceneTask extends WebSceneTask {
                 }
             }
         }
-    }
-
-    private _getGlobalDescData (context: ExecutorContext) {
-        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
-        assert(stageId !== 0xFFFFFFFF);
-        const layout = context.layoutGraph.getLayout(stageId);
-        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
-        return layoutData;
     }
 
     protected _updateGlobal (context: ExecutorContext, data: RenderData) {
@@ -1015,7 +1014,7 @@ class DevicePreSceneTask extends WebSceneTask {
         for (const [key, value] of samplers) {
             this._bindDescriptor(context, key, value);
         }
-        this._getGlobalDescData(context).descriptorSet!.update();
+        this._currentQueue.devicePass.getGlobalDescData(context).descriptorSet!.update();
         const it = context.pipeline.globalDSManager.descriptorSetMap.values();
         let res = it.next();
         while (!res.done) {
@@ -1233,12 +1232,8 @@ class DeviceSceneTask extends WebSceneTask {
     }
 
     private _endBindBlitUbo (devicePass) {
-        const stageId = devicePass.context.layoutGraph.locateChild(devicePass.context.layoutGraph.nullVertex(), 'default');
-        assert(stageId !== 0xFFFFFFFF);
-        const layout = devicePass.context.layoutGraph.getLayout(stageId);
-        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
         this.visitor.bindDescriptorSet(SetIndex.GLOBAL,
-            layoutData.descriptorSet!);
+            devicePass.getGlobalDescData(devicePass.context).descriptorSet!);
     }
 
     private _recordBlit () {
@@ -1321,6 +1316,8 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
             this._recordAdditiveLights();
         }
+        this.visitor.bindDescriptorSet(SetIndex.GLOBAL,
+            devicePass.getGlobalDescData(devicePass.context).descriptorSet!);
         if (graphSceneData.flags & SceneFlags.PLANAR_SHADOW) {
             this._recordPlanarShadows();
         }
