@@ -42,10 +42,6 @@ public:
 
     void update(const void *buffer, uint32_t size) override;
 
-    void flush(const void *buffer) override;
-
-    uint8_t *getStagingAddress() const override;
-
     static void getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint32_t size, uint8_t **pActorBuffer, bool *pNeedFreeing);
 
 private:
@@ -54,9 +50,12 @@ private:
     void doResize(uint32_t size, uint32_t count) override;
     void doDestroy() override;
 
+    void flush(const uint8_t *buffer) override;
+    uint8_t *getStagingAddress() const override;
+
     static constexpr uint32_t STAGING_BUFFER_THRESHOLD = MessageQueue::MEMORY_CHUNK_SIZE / 2;
 
-    ccstd::vector<uint8_t *> _stagingBuffers;
+    std::unique_ptr<uint8_t[]> _stagingBuffer;
 };
 
 } // namespace gfx

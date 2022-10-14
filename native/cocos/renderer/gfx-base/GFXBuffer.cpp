@@ -50,7 +50,7 @@ void Buffer::initialize(const BufferInfo &info) {
     doInit(info);
 
     if (hasFlag(info.flags, BufferFlagBit::ENABLE_STAGING_WRITE) && getStagingAddress() == nullptr) {
-        _data = static_cast<uint8_t *>(malloc(_size));
+        _data = std::make_unique<uint8_t[]>(_size);
     }
 }
 
@@ -69,10 +69,6 @@ void Buffer::initialize(const BufferViewInfo &info) {
 void Buffer::destroy() {
     doDestroy();
 
-     if (_data != nullptr) {
-         free(_data);
-         _data = nullptr;
-     }
     _offset = _size = _stride = _count = 0U;
 }
 
@@ -95,7 +91,15 @@ void Buffer::write(const uint8_t *value, uint32_t offset, uint32_t size) const {
 }
 
 void Buffer::update() {
-    update(getStagingAddress(), _size);
+    flush(getStagingAddress());
+}
+
+uint8_t *Buffer::getBufferStagingAddress(Buffer *buffer) {
+    return buffer->getStagingAddress();
+}
+
+void Buffer::flushBuffer(Buffer *buffer, const uint8_t *data) {
+    buffer->flush(data);
 }
 
 } // namespace gfx

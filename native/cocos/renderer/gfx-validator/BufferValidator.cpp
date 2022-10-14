@@ -166,10 +166,6 @@ void BufferValidator::update(const void *buffer, uint32_t size) {
     _actor->update(buffer, size);
 }
 
-void BufferValidator::flush(const void *buffer) {
-    _actor->flush(buffer);
-}
-
 void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     uint64_t cur = DeviceValidator::getInstance()->currentFrame();
 
@@ -201,8 +197,12 @@ void BufferValidator::onExpire() {
     _expired = true;
 }
 
+void BufferValidator::flush(const uint8_t *buffer) {
+    Buffer::flushBuffer(_actor, buffer);
+}
+
 uint8_t *BufferValidator::getStagingAddress() const {
-    return _actor->getStagingAddress();
+    return Buffer::getBufferStagingAddress(_actor);
 }
 
 
