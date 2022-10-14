@@ -73,6 +73,8 @@ VkGeometryFlagsKHR mapVkGeometryFlags(ASGeometryFlagBit flags);
 VkBuildAccelerationStructureFlagsKHR mapVkBuildAccelerationStructureFlags(ASBuildFlags flags);
 ccstd::string mapVendorName(uint32_t vendorID);
 VkTransformMatrixKHR mapVkTransformMatrix(const Mat4& matrix);
+VkAccelerationStructureGeometryTrianglesDataKHR mapVkASGeomTrianglesData(const ASTriangleMesh &mesh, const CCVKGPUDevice *gpuDevice);
+VkAccelerationStructureInstanceKHR mapVkASInstance(const CCVKGPUDevice *gpuDevice, const ASInstance &instance);
 
 void fullPipelineBarrier(VkCommandBuffer cmdBuff);
 const ThsvsAccessType *getAccessType(AccessFlagBit flag);

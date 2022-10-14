@@ -179,25 +179,6 @@ struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
     VkImageView vkImageView = VK_NULL_HANDLE;
 };
 
-struct CCVKGPUAccelerationStructure : public CCVKGPUDeviceObject{
-    ASBuildFlags buildFlags = ASBuildFlagBits::PREFER_FAST_BUILD | ASBuildFlagBits::ALLOW_UPDATE;
-    VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR};
-    VkAccelerationStructureBuildSizesInfoKHR buildSizesInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR};
-
-    std::variant<ccstd::vector<ASTriangleMesh>, ccstd::vector<ASAABB>, ccstd::vector<ASInstance>> geomtryInfos;
-    ccstd::vector<VkAccelerationStructureGeometryKHR> geometries;
-    ccstd::vector<VkAccelerationStructureBuildRangeInfoKHR> rangeInfos{};
-    // todo
-    Buffer *accelStructBuffer = nullptr;
-    Buffer *instancesBuffer = nullptr;
-    VkBuffer scratchBuffer = VK_NULL_HANDLE;
-    VkDeviceSize scratchBufferSize{0};
-    VmaAllocation scratchVmaAllocation{};
-
-    VkAccelerationStructureKHR vkAccelerationStructure = VK_NULL_HANDLE;
-    VkQueryPool vkCompactedSizeQueryPool = VK_NULL_HANDLE;
-};
-
 struct CCVKGPUSampler : public CCVKGPUDeviceObject {
     Filter minFilter = Filter::LINEAR;
     Filter magFilter = Filter::LINEAR;
@@ -333,6 +314,27 @@ struct CCVKGPUInputAssembler : public CCVKGPUDeviceObject {
     CCVKGPUBufferView *gpuIndirectBuffer = nullptr;
     ccstd::vector<VkBuffer> vertexBuffers;
     ccstd::vector<VkDeviceSize> vertexBufferOffsets;
+};
+
+struct CCVKGPUAccelerationStructure : public CCVKGPUDeviceObject {
+    ASBuildFlags buildFlags = ASBuildFlagBits::PREFER_FAST_BUILD | ASBuildFlagBits::ALLOW_UPDATE;
+    VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR};
+    VkAccelerationStructureBuildSizesInfoKHR buildSizesInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR};
+
+    std::variant<ccstd::vector<ASTriangleMesh>, ccstd::vector<ASAABB>, ccstd::vector<ASInstance>> geomtryInfos;
+    ccstd::vector<VkAccelerationStructureGeometryKHR> geometries;
+    ccstd::vector<VkAccelerationStructureBuildRangeInfoKHR> rangeInfos{};
+    // todo
+    VkBuffer scratchBuffer = VK_NULL_HANDLE;
+    VkDeviceSize scratchBufferSize{0};
+    VmaAllocation scratchVmaAllocation{};
+    VkBuffer accelStructBackingBuffer = VK_NULL_HANDLE;
+    VmaAllocation backingBufferAllocation{};
+    VkBuffer instancesBuffer = VK_NULL_HANDLE;
+    VkDeviceSize instancesBufferSize{0};
+    VmaAllocation instancesBufferAllocation{};
+    VkAccelerationStructureKHR vkAccelerationStructure = VK_NULL_HANDLE;
+    VkQueryPool vkCompactedSizeQueryPool = VK_NULL_HANDLE;
 };
 
 

@@ -24,7 +24,10 @@
 ****************************************************************************/
 
 #include "VKUtils.h"
+
+#include "VKBuffer.h"
 #include "VKGPUObjects.h"
+#include "gfx-base/GFXBuffer.h"
 
 namespace cc {
 namespace gfx {
@@ -396,6 +399,46 @@ VkTransformMatrixKHR mapVkTransformMatrix(const Mat4& matrix) {
     vkTransform.matrix[2][2] = matrix.m[10];
     vkTransform.matrix[2][3] = matrix.m[14];
     return vkTransform;
+}
+
+namespace {
+
+VkDeviceAddress getVkBufferDeviceAddr(VkDevice device, VkBuffer buffer) {
+    VkBufferDeviceAddressInfo bufferDeviceAddrInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
+    bufferDeviceAddrInfo.buffer = buffer;
+    return vkGetBufferDeviceAddress(device, &bufferDeviceAddrInfo);
+}
+
+VkDeviceAddress getVkBufferDeviceAddr(const CCVKGPUDevice * device, const CCVKBuffer * buffer) {
+    if (!buffer->gpuBuffer() || !buffer->gpuBuffer()->vkBuffer) return VkDeviceAddress{};
+    return getVkBufferDeviceAddr(device->vkDevice,buffer->gpuBuffer()->vkBuffer);
+}
+}
+
+VkAccelerationStructureGeometryTrianglesDataKHR mapVkASGeomTrianglesData(const ASTriangleMesh &mesh, const CCVKGPUDevice *gpuDevice) {
+    VkAccelerationStructureGeometryTrianglesDataKHR trianglesData{
+        VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR};
+    trianglesData.vertexFormat = mapVkFormat(mesh.vertexFormat, gpuDevice);
+    trianglesData.indexType = mesh.indexBuffer->getStride() == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
+    trianglesData.vertexStride = mesh.vertexStride;
+    trianglesData.transformData = {};
+    trianglesData.maxVertex = mesh.vertexCount;
+    trianglesData.vertexData.deviceAddress = getVkBufferDeviceAddr(gpuDevice,static_cast<CCVKBuffer *const>(mesh.vertexBuffer));
+    trianglesData.indexData.deviceAddress = getVkBufferDeviceAddr(gpuDevice, static_cast<CCVKBuffer *const>(mesh.indexBuffer));
+    return trianglesData;
+}
+
+VkAccelerationStructureInstanceKHR mapVkASInstance(const CCVKGPUDevice *gpuDevice,const ASInstance & instance) {
+    VkAccelerationStructureInstanceKHR inst{};
+    inst.transform = mapVkTransformMatrix(instance.transform);
+    inst.mask = instance.mask;
+    inst.instanceCustomIndex = instance.instanceCustomIdx;
+    inst.instanceShaderBindingTableRecordOffset = instance.shaderBindingTableRecordOffset;
+    inst.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    VkAccelerationStructureDeviceAddressInfoKHR deviceAddressInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR};
+    deviceAddressInfo.accelerationStructure = static_cast<CCVKAccelerationStructure *>(instance.accelerationStructureRef)->gpuAccelerationStructure()->vkAccelerationStructure;
+    inst.accelerationStructureReference = vkGetAccelerationStructureDeviceAddressKHR(gpuDevice->vkDevice, &deviceAddressInfo);
+    return inst;
 }
 
 const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING =

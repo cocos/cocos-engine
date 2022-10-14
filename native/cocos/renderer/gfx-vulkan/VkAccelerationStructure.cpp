@@ -88,13 +88,15 @@ void CCVKAccelerationStructure::doCompact() {
     device->waitAllFences();
 
     vkDestroyAccelerationStructureKHR(device->gpuDevice()->vkDevice, _gpuAccelerationStructure->vkAccelerationStructure, nullptr);
-    _gpuAccelerationStructure->accelStructBuffer->destroy();
+    vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, _gpuAccelerationStructure->accelStructBackingBuffer,_gpuAccelerationStructure->backingBufferAllocation);
 
     _gpuAccelerationStructure->vkAccelerationStructure = compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure;
-    _gpuAccelerationStructure->accelStructBuffer = compactedAccel->_gpuAccelerationStructure->accelStructBuffer;
+    _gpuAccelerationStructure->accelStructBackingBuffer = compactedAccel->_gpuAccelerationStructure->accelStructBackingBuffer;
+    _gpuAccelerationStructure->backingBufferAllocation = compactedAccel->_gpuAccelerationStructure->backingBufferAllocation;
 
     compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure = VK_NULL_HANDLE;
-    compactedAccel->_gpuAccelerationStructure->accelStructBuffer = nullptr;
+    compactedAccel->_gpuAccelerationStructure->accelStructBackingBuffer = VK_NULL_HANDLE;
+
     compactedAccel->destroy();
 }
 
