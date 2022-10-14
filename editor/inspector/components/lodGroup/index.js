@@ -4,6 +4,7 @@ const { readFileSync } = require('fs');
 const { join } = require('path');
 
 const lodItem = require('./components/lod-item/lod-item');
+const multiLodGroup = require('./components/multi-lod-group/multi-lod-group');
 
 module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
@@ -21,6 +22,7 @@ exports.$ = {
 
 exports.update = function(dump) {
     vm.dump = dump;
+    vm.multi = !!dump.value.LODs.values;
 };
 
 exports.ready = function() {
@@ -29,10 +31,12 @@ exports.ready = function() {
         template: readFileSync(join(__dirname, './index.html'), 'utf8'),
         components: {
             'lod-item': lodItem,
+            'multi-lod-group': multiLodGroup,
         },
         data() {
             return {
                 dump: {},
+                multi: false,
             };
         },
         methods: {
@@ -40,6 +44,27 @@ exports.ready = function() {
                 const that = this;
                 that.dump.value.size.value = event.target.value;
                 that.updateDump(that.dump.value.size);
+            },
+            updateDump(dump) {
+                const that = this;
+                that.$refs['lod-dump'].dump = dump;
+                that.$refs['lod-dump'].dispatch('change-dump');
+            },
+            recalculateBounds() {
+                const that = this;
+                Editor.Message.send('scene', 'execute-component-method', {
+                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                    name: 'recalculateBounds',
+                    args: [],
+                });
+            },
+            resetObjectSize() {
+                const that = this;
+                Editor.Message.send('scene', 'execute-component-method', {
+                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                    name: 'resetObjectSize',
+                    args: [],
+                });
             },
             updateLODs(operator, index) {
                 const that = this;
@@ -62,27 +87,6 @@ exports.ready = function() {
                     LODs.splice(index, 1);
                 }
                 that.updateDump(that.dump.value.LODs);
-            },
-            updateDump(dump) {
-                const that = this;
-                that.$refs['lod-dump'].dump = dump;
-                that.$refs['lod-dump'].dispatch('change-dump');
-            },
-            async recalculateBounds() {
-                const that = this;
-                await Editor.Message.request('scene', 'execute-component-method', {
-                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
-                    name: 'recalculateBounds',
-                    args: [],
-                });
-            },
-            async resetObjectSize() {
-                const that = this;
-                await Editor.Message.request('scene', 'execute-component-method', {
-                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
-                    name: 'resetObjectSize',
-                    args: [],
-                });
             },
             calculateRange(range, index) {
                 const that = this;

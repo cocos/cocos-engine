@@ -1,9 +1,8 @@
 <div class="lod-group">
-    <div>
+    <div v-if="!multi">
         <ui-prop>
             <ui-button slot="content" @confirm="recalculateBounds">Recalculate Bounds</ui-button>
         </ui-prop>
-    
         <ui-prop>
             <ui-label slot="label" value="Object Size"></ui-label>
             <div class="object-size-content" slot="content">
@@ -15,8 +14,7 @@
                 <ui-button @confirm="resetObjectSize">Reset Object Size</ui-button>
             </div>
         </ui-prop>
-
-        <ui-prop ref="lod-dump" type="dump"></ui-prop> 
+        <ui-prop ref="lod-dump" type="dump"></ui-prop>
         <template v-if="dump.value">
             <lod-item class="lod-item"
                 v-for="(data, index) in dump.value.LODs.value"
@@ -30,4 +28,9 @@
             ></lod-item>
         </template>
     </div>
+    <div class="multi-lod-group" v-else>
+        <multi-lod-group
+            :dump="dump"
+        ></multi-lod-group>
+    </div>    
 </div>

@@ -57,7 +57,7 @@ exports.methods = {
     },
     applyCameraSize() {
         const that = this;
-        // TODO: 
+        Editor.Message.send('scene', 'apply-current-camera-size', that.lodGroupId, that.index);
     },
 };
 

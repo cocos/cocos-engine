@@ -30,13 +30,14 @@
         <ui-prop ref="lod-item-dump" type="dump"></ui-prop>
         <ui-section whole class="mesh-list config" header="Mesh List">
             <template v-for="(mesh, meshIndex) in data.value.renderers.value">
-                <div class="mesh" :key="meshIndex">
-                    <ui-component class="component" slot="content"
-                        droppable="cc.MeshRenderer" placeholder="cc.MeshRenderer"
+                <div class="mesh"
+                    :key="meshIndex"
+                >
+                    <ui-component class="component" droppable="cc.MeshRenderer" placeholder="cc.MeshRenderer"
                         :value="mesh.value.uuid"
                         @change="onMeshConfirm($event, meshIndex)">
                     </ui-component>
-                    <ui-label class="label" slot="content"
+                    <ui-label class="label"
                         :value="`${ data.value.triangles.value[meshIndex] ? data.value.triangles.value[meshIndex].value : 0 } Triangles`"
                     ></ui-label>
                 </div>
