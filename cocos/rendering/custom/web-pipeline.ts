@@ -26,7 +26,7 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address } from '../../gfx/index';
-import { Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core/math';
+import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4 } from '../../core/math';
 import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
@@ -400,8 +400,8 @@ function setCameraUBOValues (setter: WebSetter,
     setter.setMat4('cc_matProjInv', camera.matProjInv);
     setter.setMat4('cc_matViewProj', camera.matViewProj);
     setter.setMat4('cc_matViewProjInv', camera.matViewProjInv);
-    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, 0.0));
-    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, 0.0, 0.0));
+    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, pipeline.getCombineSignY()));
+    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle()))));
     setter.setVec4('cc_screenScale', new Vec4(cfg.shadingScale, cfg.shadingScale, 1.0 / cfg.shadingScale, 1.0 / cfg.shadingScale));
     setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, cfg.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
 
@@ -789,6 +789,15 @@ export class WebPipeline implements Pipeline {
         return layoutData;
     }
 
+    private _initCombineSignY () {
+        const device = this._device;
+        this._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
+    }
+
+    public getCombineSignY () {
+        return this._combineSignY;
+    }
+
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
@@ -799,6 +808,7 @@ export class WebPipeline implements Pipeline {
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
+        this._initCombineSignY();
         const isFloat = supportsR32FloatTexture(this._device) ? 0 : 1;
         this.setMacroInt('CC_SHADOWMAP_FORMAT', isFloat);
         // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
@@ -1146,6 +1156,7 @@ export class WebPipeline implements Pipeline {
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
     public builder: PipelineBuilder | null = null;
+    private _combineSignY = 0;
     // csm uniform used vectors count
     public static CSM_UNIFORM_VECTORS = 61;
     // all global uniform used vectors count
