@@ -25,15 +25,11 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Vec4, Mat4 } from '../core/math';
+import { Vec3, Mat4 } from '../core/math';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
-import { Renderer } from './renderer';
-import { Camera, CameraProjection, Model } from '../render-scene/scene';
-import { Layers } from '../scene-graph/layers';
-import { ModelRenderer } from './model-renderer';
+import { Camera, CameraProjection } from '../render-scene/scene';
 import { Mesh, MeshRenderer } from '../3d';
-import { AABB } from '../core/geometry';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
 
