@@ -1,0 +1,30 @@
+<div>
+    <ui-prop ref="multi-lod-dump" type="dump"></ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="Object Size"></ui-label>
+        <div class="object-size-content" slot="content">
+            <ui-num-input min="0" max="1" step="0.01" preci="2"
+                :invalid="multiObjectSizeInvalid"
+                :value="multiObjectSizeInvalid && dump.value ? null : dump.value.size.values[0]"
+                @confirm="onMultiObjectSizeConfirm($event)"
+            ></ui-num-input>
+            <ui-button @confirm="resetMultiObjectSize">Reset Object Size</ui-button>
+        </div>
+    </ui-prop>
+    <template v-for="(screenSize, index) in multiLODs">
+        <ui-prop resize resize-group="screen-size-group"
+            :key="index"
+        >
+            <ui-label slot="label"
+                :value="`LOD ${index} Transition (% Screen Size)`"
+            ></ui-label>
+            <ui-num-input slot="content"
+                :min="calculateMultiRange('min', index)"
+                :max="calculateMultiRange('max', index)"
+                :invalid="screenSize === 'invalid'"
+                :value="screenSize === 'invalid' ? null : screenSize * 100"
+                @confirm="onMultiScreenSizeConfirm($event, index)"
+            ></ui-num-input>
+        </ui-prop>
+    </template>
+</div>
