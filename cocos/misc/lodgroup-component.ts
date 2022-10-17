@@ -211,18 +211,17 @@ export class LODGroup extends Component {
 
     recalculateBounds () {
         LODGroupEditorUtility.recalculateBounds(this);
-        
     }
 
     resetObjectSize () {
         LODGroupEditorUtility.resetObjectSize(this);
-        
     }
 
     get lodGroup () { return this._lodGroup; }
 
     onLoad () {
-        this._createLODGroup();
+        this._lodGroup.node = this.node;
+
         // generate default lod for lodGroup
         if (this.lodCount < 1) {
             const size = _DEFAULT_SCREEN_OCCUPATION.length;
@@ -243,68 +242,8 @@ export class LODGroup extends Component {
 
     onEnable () {
         this._attachToScene();
+        //   LODGroupEditorUtility.recalculateBounds(this);
 
-        // if (EDITOR) {
-        //     // Detach all mesh renderers from scene
-        //     const scene = this._getRenderScene();
-        //     if (scene) {
-        //         for (const lod of this._LODs) {
-        //             for (let j = 0; j < lod.rendererCount; ++j) {
-        //                 const renderer = lod.getRenderer(j);
-        //                 if (renderer && renderer.model && renderer.enabled) { scene.removeModel(renderer.model); }
-        //             }
-        //         }
-        //     }
-        // }
-    }
-
-    onDisable () {
-        this._detachFromScene();
-
-        // if (EDITOR) {
-        //     // Detach all mesh renderers from scene
-        //     const scene = this._getRenderScene();
-        //     if (scene) {
-        //         for (const lod of this._LODs) {
-        //             for (let j = 0; j < lod.rendererCount; ++j) {
-        //                 const renderer = lod.getRenderer(j);
-        //                 if (renderer && renderer.model && renderer.enabled) { scene.addModel(renderer.model); }
-        //             }
-        //         }
-        //     }
-        // }
-    }
-
-    onDestroy () {
-
-    }
-
-    /**
-     * ==============================================
-     * Internal members
-     * ==============================================
-     */
-    protected _createLODGroup () {
-        this._lodGroup.node = this.node;
-
-        // Engine unit test case.
-        // const renderers = LODGroupEditorUtility.getAvailableRenderers(this);
-
-        // const step = 1.0 / (1 + renderers.length);
-        // let levelCount = 1;
-        // for (const renderer of renderers) {
-        //     const lod = new LOD();
-        //     lod.screenRelativeTransitionHeight = 1.0 - step * levelCount;
-        //     lod.insertRenderer(-1, renderer);
-        //     this.insertLOD(-1, lod);
-
-        //     // const renderScene = renderer._getRenderScene();
-        //     // if (renderScene && renderer.model) renderScene.removeModel(renderer.model);
-
-        //     ++levelCount;
-        // }
-
-        LODGroupEditorUtility.recalculateBounds(this);
         // lod's model will be enabled while execute culling
         for (const lod of this._LODs) {
             for (const renderer of lod.renderers) {
@@ -317,6 +256,28 @@ export class LODGroup extends Component {
                 }
             }
         }
+
+        // cache lod for scene
+        if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
+            this._LODs.forEach((lod: LOD, index) => {
+                lod.lod.screenRelativeTransitionHeight = lod.screenRelativeTransitionHeight;
+                const renderers = lod.renderers;
+                if (renderers !== null && renderers.length > 0) {
+                    for (let i = 0; i < renderers.length; i++) {
+                        const lodInstance = lod.lod;
+                        const renderer = renderers[i];
+                        if (lodInstance && renderer && renderer.model) {
+                            lodInstance.models[i] = renderer.model;
+                        }
+                    }
+                }
+                this._lodGroup.LODs[index] = lod.lod;
+            });
+        }
+    }
+
+    onDisable () {
+        this._detachFromScene();
     }
 
     protected _attachToScene () {
@@ -441,10 +402,10 @@ export class LODGroupEditorUtility {
             lodGroup.size = Math.max(e.x, e.y, e.z) * 2.0;
         }
         this.emitChangeNode(lodGroup.node);
-
     }
+
     static emitChangeNode (node:Node) {
-        if(EDITOR){
+        if (EDITOR) {
             // @ts-expect-error Because EditorExtends is Editor only
             EditorExtends.Node.emit('change', node.uuid, node);
         }
