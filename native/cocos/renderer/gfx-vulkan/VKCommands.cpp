@@ -1527,7 +1527,8 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
     gpuAccelerationStructure->instancesBuffer = ccnew CCVKGPUBuffer;
     gpuAccelerationStructure->instancesBuffer->size = instanceBufferSize;
     gpuAccelerationStructure->instancesBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY | BufferUsageBit::TRANSFER_DST;
-    gpuAccelerationStructure->instancesBuffer->memUsage = MemoryUsageBit::DEVICE | MemoryUsageBit::HOST;
+    gpuAccelerationStructure->instancesBuffer->memUsage = MemoryUsageBit::DEVICE;
+    //| MemoryUsageBit::HOST;
     cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->instancesBuffer);
 
     VkAccelerationStructureGeometryInstancesDataKHR instancesData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR};
@@ -1630,7 +1631,7 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
 
 namespace {
 
-void updateInstanceDataGPUBuffer(CCVKDevice *device, CCVKGPUAccelerationStructure *accel) {
+void updateInstanceDataGPUBuffer(CCVKDevice *device, CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     static ccstd::vector<VkAccelerationStructureInstanceKHR> instances{};
     instances.clear();
     const auto &asInstances = std::get<ccstd::vector<ASInstance>>(accel->geomtryInfos);
@@ -1641,11 +1642,11 @@ void updateInstanceDataGPUBuffer(CCVKDevice *device, CCVKGPUAccelerationStructur
     const uint32_t instanceBufferSize = instances.size() * sizeof(VkAccelerationStructureInstanceKHR);
     assert(accel->instancesBuffer->size >= instanceBufferSize);
 
-    void *data;
-    vmaMapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBuffer->vmaAllocation, &data);
-    memcpy(data, instances.data(), instanceBufferSize);
-    vmaUnmapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBuffer->vmaAllocation);
-    //cmdFuncCCVKUpdateBuffer(device, accel->instancesBuffer, instances.data(), instanceBufferSize, nullptr);
+    //void *data;
+    //vmaMapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBuffer->vmaAllocation, &data);
+    //memcpy(data, instances.data(), instanceBufferSize);
+    //vmaUnmapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBuffer->vmaAllocation);
+    cmdFuncCCVKUpdateBuffer(device, accel->instancesBuffer, instances.data(), instanceBufferSize, nullptr);
 
     const uint32_t instanceCount = asInstances.size();
     accel->rangeInfos[0] = {instanceCount, 0, 0, 0};
@@ -1676,7 +1677,7 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
         return;
     }
     if (accel->buildGeometryInfo.type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR) {
-        updateInstanceDataGPUBuffer(device, accel);
+        updateInstanceDataGPUBuffer(device, accel,gpuCommandBuffer);
     }
     
     auto &buildGeomInfo = accel->buildGeometryInfo;
@@ -1727,7 +1728,7 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
     }
 
     if (accel->buildGeometryInfo.type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR) {
-        updateInstanceDataGPUBuffer(device, accel);
+        updateInstanceDataGPUBuffer(device, accel,gpuCommandBuffer);
     }
 
     VkAccelerationStructureBuildGeometryInfoKHR &buildGeomInfo = accel->buildGeometryInfo;
