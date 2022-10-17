@@ -205,6 +205,77 @@ const PixelFormat = cc.Enum({
      * @type {Number}
      */
     RGBA_ETC2: gfx.TEXTURE_FMT_RGBA_ETC2,
+
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 4x4 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 4x4
+     */
+    RGBA_ASTC_4x4: gfx.TEXTURE_FMT_RGBA_ASTC_4X4,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 5x4 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 5x4
+     */
+    RGBA_ASTC_5x4: gfx.TEXTURE_FMT_RGBA_ASTC_5X4,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 5x5 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 5x5
+     */
+    RGBA_ASTC_5x5: gfx.TEXTURE_FMT_RGBA_ASTC_5X5,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 6x5 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 6x5
+     */
+    RGBA_ASTC_6x5: gfx.TEXTURE_FMT_RGBA_ASTC_6X5,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 6x6 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 6x6
+     */
+    RGBA_ASTC_6x6: gfx.TEXTURE_FMT_RGBA_ASTC_6X6,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 8x5 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 8x5
+     */
+    RGBA_ASTC_8x5: gfx.TEXTURE_FMT_RGBA_ASTC_8X5,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 8x6 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 8x6
+     */
+    RGBA_ASTC_8x6: gfx.TEXTURE_FMT_RGBA_ASTC_8X6,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 8x8 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 8x8
+     */
+    RGBA_ASTC_8x8: gfx.TEXTURE_FMT_RGBA_ASTC_8X8,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 10x5 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 10x5
+     */
+    RGBA_ASTC_10x5: gfx.TEXTURE_FMT_RGBA_ASTC_10X5,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 10x6 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 10x6
+     */
+    RGBA_ASTC_10x6: gfx.TEXTURE_FMT_RGBA_ASTC_10X6,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 10x8 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 10x8
+     */
+    RGBA_ASTC_10x8: gfx.TEXTURE_FMT_RGBA_ASTC_10X8,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 10x10 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 10x10
+     */
+    RGBA_ASTC_10x10: gfx.TEXTURE_FMT_RGBA_ASTC_10X10,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 12x10 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 12x10
+     */
+    RGBA_ASTC_12x10: gfx.TEXTURE_FMT_RGBA_ASTC_12X10,
+    /**
+     * @en A pixel format containing red, green, blue, and alpha channels that is ASTC compressed with 12x12 block size.
+     * @zh 包含 RGBA 通道的 ASTC 压缩纹理格式，压缩分块大小为 12x12
+     */
+    RGBA_ASTC_12x12: gfx.TEXTURE_FMT_RGBA_ASTC_12X12,
 });
 
 /**
@@ -384,7 +455,7 @@ var Texture2D = cc.Class({
         Filter: Filter,
         _FilterIndex: FilterIndex,
         // predefined most common extnames
-        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'],
+        extnames: ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'],
 
         _parseExt (extIdStr, defaultFormat) {
             let device = cc.renderer.device;
@@ -402,11 +473,13 @@ var Texture2D = cc.Class({
 
                 let index = SupportTextureFormats.indexOf(tmpExt);
                 if (index !== -1 && index < bestIndex) {
-                    
-                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : defaultFormat;
 
+                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : defaultFormat;
                     // check whether or not support compressed texture
-                    if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
+                    if ( tmpExt === '.astc' && !device.ext('WEBGL_compressed_texture_astc')) {
+                        continue;
+                    }
+                    else if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
                         continue;
                     }
                     else if ((tmpFormat === PixelFormat.RGB_ETC1 || tmpFormat === PixelFormat.RGBA_ETC1) && !device.ext('WEBGL_compressed_texture_etc1')) {

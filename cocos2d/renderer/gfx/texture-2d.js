@@ -63,10 +63,10 @@ export default class Texture2D extends Texture {
       }
       if (options.format !== undefined) {
         this._format = options.format;
-        this._compressed = 
-          (this._format >= enums.TEXTURE_FMT_RGB_DXT1 && this._format <= enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1) || 
-          (this._format >= enums.TEXTURE_FMT_RGB_ETC2 && this._format <= enums.TEXTURE_FMT_RGBA_ETC2)
-        ;
+        this._compressed =
+          (this._format >= enums.TEXTURE_FMT_RGB_DXT1 && this._format <= enums.TEXTURE_FMT_RGBA_PVRTC_4BPPV1) ||
+          (this._format >= enums.TEXTURE_FMT_RGB_ETC2 && this._format <= enums.TEXTURE_FMT_RGBA_ETC2) ||
+          (this._format >= enums.TEXTURE_FMT_RGBA_ASTC_4X4 && this._format <= enums.TEXTURE_FMT_SRGBA_ASTC_12X12);
       }
 
       // check if generate mipmap

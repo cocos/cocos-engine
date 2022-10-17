@@ -148,6 +148,7 @@ const producers = {
     '.image' : createTexture,
     '.pvr': createTexture,
     '.pkm': createTexture,
+    '.astc': createTexture,
 
     // Audio
     '.mp3' : createAudioClip,

@@ -91,6 +91,38 @@ const enums = {
   TEXTURE_FMT_RGB_ETC2: 28,
   TEXTURE_FMT_RGBA_ETC2: 29,
 
+  // astc format (Adaptive Scalable Texture Compression)
+  TEXTURE_FMT_RGBA_ASTC_4X4: 30,
+  TEXTURE_FMT_RGBA_ASTC_5X4: 31,
+  TEXTURE_FMT_RGBA_ASTC_5X5: 32,
+  TEXTURE_FMT_RGBA_ASTC_6X5: 33,
+  TEXTURE_FMT_RGBA_ASTC_6X6: 34,
+  TEXTURE_FMT_RGBA_ASTC_8X5: 35,
+  TEXTURE_FMT_RGBA_ASTC_8X6: 36,
+  TEXTURE_FMT_RGBA_ASTC_8X8: 37,
+  TEXTURE_FMT_RGBA_ASTC_10X5: 38,
+  TEXTURE_FMT_RGBA_ASTC_10X6: 39,
+  TEXTURE_FMT_RGBA_ASTC_10X8: 40,
+  TEXTURE_FMT_RGBA_ASTC_10X10: 41,
+  TEXTURE_FMT_RGBA_ASTC_12X10: 42,
+  TEXTURE_FMT_RGBA_ASTC_12X12: 43,
+
+  // astc format (Adaptive Scalable Texture Compression) SRGB
+  TEXTURE_FMT_SRGBA_ASTC_4X4: 44,
+  TEXTURE_FMT_SRGBA_ASTC_5X4: 45,
+  TEXTURE_FMT_SRGBA_ASTC_5X5: 46,
+  TEXTURE_FMT_SRGBA_ASTC_6X5: 47,
+  TEXTURE_FMT_SRGBA_ASTC_6X6: 48,
+  TEXTURE_FMT_SRGBA_ASTC_8X5: 49,
+  TEXTURE_FMT_SRGBA_ASTC_8X6: 50,
+  TEXTURE_FMT_SRGBA_ASTC_8X8: 51,
+  TEXTURE_FMT_SRGBA_ASTC_10X5: 52,
+  TEXTURE_FMT_SRGBA_ASTC_10X6: 53,
+  TEXTURE_FMT_SRGBA_ASTC_10X8: 54,
+  TEXTURE_FMT_SRGBA_ASTC_10X10: 55,
+  TEXTURE_FMT_SRGBA_ASTC_12X10: 56,
+  TEXTURE_FMT_SRGBA_ASTC_12X12: 57,
+
   // depth and stencil function
   DS_FUNC_NEVER: 512,    // gl.NEVER
   DS_FUNC_LESS: 513,     // gl.LESS
@@ -449,6 +481,38 @@ var GFXFormat;
     GFXFormat[GFXFormat["PVRTC_RGBA4"] = 89] = "PVRTC_RGBA4";
     GFXFormat[GFXFormat["PVRTC2_2BPP"] = 90] = "PVRTC2_2BPP";
     GFXFormat[GFXFormat["PVRTC2_4BPP"] = 91] = "PVRTC2_4BPP";
+
+    // ASTC (Adaptive Scalable Texture Compression)
+    GFXFormat[GFXFormat["ASTC_RGBA_4x4"] = 92] = "ASTC_RGBA_4x4";
+    GFXFormat[GFXFormat["ASTC_RGBA_5x4"] = 92] = "ASTC_RGBA_5x4";
+    GFXFormat[GFXFormat["ASTC_RGBA_5x5"] = 92] = "ASTC_RGBA_5x5";
+    GFXFormat[GFXFormat["ASTC_RGBA_6x5"] = 92] = "ASTC_RGBA_6x5";
+    GFXFormat[GFXFormat["ASTC_RGBA_6x6"] = 92] = "ASTC_RGBA_6x6";
+    GFXFormat[GFXFormat["ASTC_RGBA_8x5"] = 92] = "ASTC_RGBA_8x5";
+    GFXFormat[GFXFormat["ASTC_RGBA_8x6"] = 92] = "ASTC_RGBA_8x6";
+    GFXFormat[GFXFormat["ASTC_RGBA_8x8"] = 92] = "ASTC_RGBA_8x8";
+    GFXFormat[GFXFormat["ASTC_RGBA_10x5"] = 92] = "ASTC_RGBA_10x5";
+    GFXFormat[GFXFormat["ASTC_RGBA_10x6"] = 92] = "ASTC_RGBA_10x6";
+    GFXFormat[GFXFormat["ASTC_RGBA_10x8"] = 92] = "ASTC_RGBA_10x8";
+    GFXFormat[GFXFormat["ASTC_RGBA_10x10"] = 92] = "ASTC_RGBA_10x10";
+    GFXFormat[GFXFormat["ASTC_RGBA_12x10"] = 92] = "ASTC_RGBA_12x10";
+    GFXFormat[GFXFormat["ASTC_RGBA_12x12"] = 92] = "ASTC_RGBA_12x12";
+
+    // ASTC (Adaptive Scalable Texture Compression) SRGB
+    GFXFormat[GFXFormat["ASTC_SRGBA_4x4"] = 92] = "ASTC_SRGBA_4x4";
+    GFXFormat[GFXFormat["ASTC_SRGBA_5x4"] = 92] = "ASTC_SRGBA_5x4";
+    GFXFormat[GFXFormat["ASTC_SRGBA_5x5"] = 92] = "ASTC_SRGBA_5x5";
+    GFXFormat[GFXFormat["ASTC_SRGBA_6x5"] = 92] = "ASTC_SRGBA_6x5";
+    GFXFormat[GFXFormat["ASTC_SRGBA_6x6"] = 92] = "ASTC_SRGBA_6x6";
+    GFXFormat[GFXFormat["ASTC_SRGBA_8x5"] = 92] = "ASTC_SRGBA_8x5";
+    GFXFormat[GFXFormat["ASTC_SRGBA_8x6"] = 92] = "ASTC_SRGBA_8x6";
+    GFXFormat[GFXFormat["ASTC_SRGBA_8x8"] = 92] = "ASTC_SRGBA_8x8";
+    GFXFormat[GFXFormat["ASTC_SRGBA_10x5"] = 92] = "ASTC_SRGBA_10x5";
+    GFXFormat[GFXFormat["ASTC_SRGBA_10x6"] = 92] = "ASTC_SRGBA_10x6";
+    GFXFormat[GFXFormat["ASTC_SRGBA_10x8"] = 92] = "ASTC_SRGBA_10x8";
+    GFXFormat[GFXFormat["ASTC_SRGBA_10x10"] = 92] = "ASTC_SRGBA_10x10";
+    GFXFormat[GFXFormat["ASTC_SRGBA_12x10"] = 92] = "ASTC_SRGBA_12x10";
+    GFXFormat[GFXFormat["ASTC_SRGBA_12x12"] = 92] = "ASTC_SRGBA_12x12";
 })(GFXFormat || (GFXFormat = {}));
 var GFXBufferUsageBit;
 (function (GFXBufferUsageBit) {

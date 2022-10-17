@@ -543,6 +543,7 @@ var downloaders = {
     '.image' : downloadImage,
     '.pvr': downloadArrayBuffer,
     '.pkm': downloadArrayBuffer,
+    '.astc': downloadArrayBuffer,
 
     // Audio
     '.mp3' : downloadAudio,
