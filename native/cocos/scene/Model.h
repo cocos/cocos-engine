@@ -2,7 +2,7 @@
  Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -113,8 +113,8 @@ public:
         _receiveShadow = value;
         onMacroPatchesStateChanged();
     }
-    inline void setShadowBias(float bias) { _shadowBias = bias; }
-    inline void setShadowNormalBias(float normalBias) { _shadowNormalBias = normalBias; }
+    inline void setShadowBias(float bias) { _shadowBias.x = bias; }
+    inline void setShadowNormalBias(float normalBias) { _shadowBias.y = normalBias; }
     inline void setTransform(Node *node) { _transform = node; }
     inline void setVisFlags(Layers::Enum flags) { _visFlags = flags; }
     inline void setBounds(geometry::AABB *world) {
@@ -133,7 +133,6 @@ public:
     inline bool isEnabled() const { return _enabled; }
     inline gfx::Buffer *getLocalBuffer() const { return _localBuffer.get(); }
     inline gfx::Buffer *getWorldBoundBuffer() const { return _worldBoundBuffer.get(); }
-    inline Float32Array getLocalData() const { return _localData; }
     inline geometry::AABB *getModelBounds() const { return _modelBounds; }
     inline Node *getNode() const { return _node.get(); }
     inline bool isReceiveShadow() const { return _receiveShadow; }
@@ -149,8 +148,8 @@ public:
     inline RenderScene *getScene() const { return _scene; }
     inline void setDynamicBatching(bool val) { _isDynamicBatching = val; }
     inline bool isDynamicBatching() const { return _isDynamicBatching; }
-    inline float getShadowBias() const { return _shadowBias; }
-    inline float getShadowNormalBias() const { return _shadowNormalBias; }
+    inline float getShadowBias() const { return _shadowBias.x; }
+    inline float getShadowNormalBias() const { return _shadowBias.y; }
     inline uint32_t getPriority() const { return _priority; }
     inline void setPriority(uint32_t value) { _priority = value; }
 
@@ -200,15 +199,11 @@ protected:
     // For JS
     bool _isCalledFromJS{false};
 
-    float _shadowBias{0.0F};
-    float _shadowNormalBias{0.0F};
-
+    Vec4 _shadowBias;
     Vec4 _lightmapUVParam;
 
     // For JS
     CallbacksInvoker _eventProcessor;
-
-    Float32Array _localData;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;
 
 private:

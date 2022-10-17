@@ -193,9 +193,18 @@ void BufferValidator::removeView(BufferValidator *view) {
 }
 
 void BufferValidator::onExpire() {
-    _source = nullptr; 
+    _source = nullptr;
     _expired = true;
 }
+
+void BufferValidator::flush(const uint8_t *buffer) {
+    Buffer::flushBuffer(_actor, buffer);
+}
+
+uint8_t *BufferValidator::getStagingAddress() const {
+    return Buffer::getBufferStagingAddress(_actor);
+}
+
 
 } // namespace gfx
 } // namespace cc
