@@ -122,7 +122,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("width", &Swapchain::getWidth)
         .property("height", &Swapchain::getHeight)
         .property("surfaceTransform", &Swapchain::getSurfaceTransform)
-        .property("objectID", &Swapchain::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&Swapchain::getObjectID));
     class_<CCWGPUSwapchain, base<Swapchain>>("CCWGPUSwapchain")
         .property("depthStencilTexture", &CCWGPUSwapchain::getDepthStencilTexture, &CCWGPUSwapchain::setDepthStencilTexture)
         .property("colorTexture", &CCWGPUSwapchain::getColorTexture, &CCWGPUSwapchain::setColorTexture);
@@ -186,7 +186,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("subpasses", &RenderPass::getSubpasses)
         .property("dependencies", &RenderPass::getDependencies)
         .property("hash", &RenderPass::getHash)
-        .property("objectID", &RenderPass::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&RenderPass::getObjectID));
     class_<CCWGPURenderPass, base<RenderPass>>("CCWGPURenderPass")
         .constructor<>();
 
@@ -202,7 +202,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("height", &Texture::getHeight)
         .property("size", &Texture::getSize)
         .property("isTextureView", &Texture::isTextureView)
-        .property("objectID", &Texture::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&Texture::getObjectID));
     class_<CCWGPUTexture, base<Texture>>("CCWGPUTexture")
         .property("depth", &CCWGPUTexture::getDepth)
         .property("layerCount", &CCWGPUTexture::getLayerCount)
@@ -218,7 +218,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .class_function("computeHash", select_overload<ccstd::hash_t(const FramebufferInfo &)>(&Framebuffer::computeHash), allow_raw_pointer<arg<0>>())
         .function("destroy", &Framebuffer::destroy)
         .function("initialize", &Framebuffer::initialize, allow_raw_pointer<arg<0>>())
-        .property("objectID", &Framebuffer::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&Framebuffer::getObjectID));
     class_<CCWGPUFramebuffer, base<Framebuffer>>("CCWGPUFramebuffer")
         .constructor<>()
         .property("renderPass", &CCWGPUFramebuffer::getRenderPass, &CCWGPUFramebuffer::setRenderPass)
@@ -228,7 +228,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     class_<Sampler>("Sampler")
         .function("getInfo", &Sampler::getInfo)
         .property("hash", &Sampler::getHash)
-        .property("objectID", &Sampler::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&Sampler::getObjectID));
     class_<CCWGPUSampler, base<Sampler>>("CCWGPUSampler")
         .constructor<const SamplerInfo &>();
 
@@ -241,7 +241,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("usage", &Buffer::getUsage)
         .property("memUsage", &Buffer::getMemUsage)
         .property("flags", &Buffer::getFlags)
-        .property("objectID", &Buffer::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&Buffer::getObjectID));
     class_<CCWGPUBuffer, base<Buffer>>("CCWGPUBuffer")
         // .function("update", select_overload<void(const DrawInfoList &infos)>(&CCWGPUBuffer::update), allow_raw_pointer<arg<0>>())
         .function("update", select_overload<void(const emscripten::val &v, uint32_t)>(&CCWGPUBuffer::update))
@@ -253,7 +253,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("bindings", &DescriptorSetLayout::getBindings)
         .property("bindingIndices", &DescriptorSetLayout::getBindingIndices)
         .property("descriptorIndices", &DescriptorSetLayout::getDescriptorIndices)
-        .property("objectID", &DescriptorSetLayout::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&DescriptorSetLayout::getObjectID));
     class_<CCWGPUDescriptorSetLayout, base<DescriptorSetLayout>>("CCWGPUDescriptorSetLayout")
         .constructor<>();
 
@@ -274,7 +274,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("getSampler", select_overload<Sampler *(uint32_t) const>(&DescriptorSet::getSampler), allow_raw_pointers())
         .function("getSampler", select_overload<Sampler *(uint32_t, uint32_t) const>(&DescriptorSet::getSampler), allow_raw_pointers())
         .property("layout", &DescriptorSet::getLayout)
-        .property("objectID", &DescriptorSet::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&DescriptorSet::getObjectID));
     class_<CCWGPUDescriptorSet, base<DescriptorSet>>("CCWGPUDescriptorSet")
         .constructor<>();
 
@@ -282,7 +282,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("initialize", &PipelineLayout::initialize)
         .function("destroy", &PipelineLayout::destroy)
         .property("setLayouts", &PipelineLayout::getSetLayouts)
-        .property("objectID", &PipelineLayout::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&PipelineLayout::getObjectID));
     class_<CCWGPUPipelineLayout, base<PipelineLayout>>("CCWGPUPipelineLayout")
         .constructor<>();
 
@@ -299,7 +299,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("textures", &Shader::getTextures)
         .property("images", &Shader::getImages)
         .property("subpassInputs", &Shader::getSubpassInputs)
-        .property("objectID", &Shader::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&Shader::getObjectID));
     class_<CCWGPUShader, base<Shader>>("CCWGPUShader")
         .constructor<>();
 
@@ -319,7 +319,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("vertexBuffers", &InputAssembler::getVertexBuffers)
         .property("indexBuffer", &InputAssembler::getIndexBuffer)
         .property("indirectBuffer", &InputAssembler::getIndirectBuffer)
-        .property("objectID", &InputAssembler::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&InputAssembler::getObjectID));
     class_<CCWGPUInputAssembler, base<InputAssembler>>("CCWGPUInputAssembler")
         .constructor<>();
 
@@ -350,7 +350,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("numDrawCalls", &CommandBuffer::getNumDrawCalls)
         .property("numInstances", &CommandBuffer::getNumInstances)
         .property("numTris", &CommandBuffer::getNumTris)
-        .property("objectID", &CommandBuffer::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&CommandBuffer::getObjectID));
     class_<CCWGPUCommandBuffer, base<CommandBuffer>>("CCWGPUCommandBuffer")
         .constructor<>()
         .function("setViewport", select_overload<void(const Viewport &)>(&CCWGPUCommandBuffer::setViewport))
@@ -368,7 +368,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("destroy", &Queue::destroy)
         .function("submit", select_overload<void(const CommandBufferList &cmdBuffs)>(&Queue::submit))
         .property("type", &Queue::getType)
-        .property("objectID", &Queue::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&Queue::getObjectID));
     class_<CCWGPUQueue, base<Queue>>("CCWGPUQueue")
         .constructor<>();
 
@@ -384,25 +384,25 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("inputState", &PipelineState::getInputState)
         .property("dynamicStates", &PipelineState::getDynamicStates)
         .property("renderPass", &PipelineState::getRenderPass)
-        .property("objectID", &PipelineState::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&PipelineState::getObjectID));
     class_<CCWGPUPipelineState, base<PipelineState>>("CCWGPUPipelineState")
         .constructor<>();
 
     class_<GeneralBarrier>("GeneralBarrier")
         .constructor<GeneralBarrierInfo>()
-        .property("objectID", &GeneralBarrier::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&GeneralBarrier::getObjectID));
     class_<WGPUGeneralBarrier>("WGPUGeneralBarrier")
         .constructor<GeneralBarrierInfo>();
 
     class_<BufferBarrier>("BufferBarrier")
         .constructor<BufferBarrierInfo>()
-        .property("objectID", &BufferBarrier::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&BufferBarrier::getObjectID));
     class_<WGPUBufferBarrier>("WGPUBufferBarrier")
         .constructor<BufferBarrierInfo>();
 
     class_<TextureBarrier>("TextureBarrier")
         .constructor<TextureBarrierInfo>()
-        .property("objectID", &TextureBarrier::getObjectID);
+        .property("objectID", select_overload<uint32_t(void) const>(&TextureBarrier::getObjectID));
     class_<WGPUTextureBarrier>("WGPUTextureBarrier")
         .constructor<TextureBarrierInfo>();
 };
