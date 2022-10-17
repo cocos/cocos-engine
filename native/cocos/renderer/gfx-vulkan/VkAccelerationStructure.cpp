@@ -6,7 +6,7 @@ namespace cc {
 namespace gfx {
 
 CCVKAccelerationStructure::CCVKAccelerationStructure() {
-    //todo
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 CCVKAccelerationStructure::~CCVKAccelerationStructure() {
@@ -69,7 +69,7 @@ void CCVKAccelerationStructure::doBuild() {
 
     device->flushCommands(&cmdBuf, 1);
     device->getQueue()->submit(&cmdBuf, 1);
-    device->waitAllFences();
+    //device->waitAllFences();
 }
 
 void CCVKAccelerationStructure::doCompact() {
@@ -85,14 +85,13 @@ void CCVKAccelerationStructure::doCompact() {
     device->flushCommands(&cmdBuf, 1);
     device->getQueue()->submit(&cmdBuf, 1);
 
-    device->waitAllFences();
+    //device->waitAllFences();
 
-    vkDestroyAccelerationStructureKHR(device->gpuDevice()->vkDevice, _gpuAccelerationStructure->vkAccelerationStructure, nullptr);
-    vmaDestroyBuffer(device->gpuDevice()->memoryAllocator, _gpuAccelerationStructure->accelStructBackingBuffer,_gpuAccelerationStructure->backingBufferAllocation);
-
+    device->gpuRecycleBin()->collect(_gpuAccelerationStructure);
+    device->gpuRecycleBin()->collect(_gpuAccelerationStructure->accelStructBackingBuffer);
+    //device->waitAllFences();
     _gpuAccelerationStructure->vkAccelerationStructure = compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure;
     _gpuAccelerationStructure->accelStructBackingBuffer = compactedAccel->_gpuAccelerationStructure->accelStructBackingBuffer;
-    _gpuAccelerationStructure->backingBufferAllocation = compactedAccel->_gpuAccelerationStructure->backingBufferAllocation;
 
     compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure = VK_NULL_HANDLE;
     compactedAccel->_gpuAccelerationStructure->accelStructBackingBuffer = VK_NULL_HANDLE;
@@ -101,11 +100,22 @@ void CCVKAccelerationStructure::doCompact() {
 }
 
 void CCVKAccelerationStructure::doDestroy() {
-    if (_gpuAccelerationStructure) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuAccelerationStructure);
-        _gpuAccelerationStructure = nullptr;
-    }
+    _gpuAccelerationStructure = nullptr;
 }
+
+void CCVKGPUAccelerationStructure::shutdown() {
+    if (vkCompactedSizeQueryPool)
+        vkDestroyQueryPool(CCVKDevice::getInstance()->gpuDevice()->vkDevice, vkCompactedSizeQueryPool, nullptr);
+    vkCompactedSizeQueryPool = VK_NULL_HANDLE;
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
+    if (instancesBuffer)
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(instancesBuffer);
+    if (scratchBuffer)
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(scratchBuffer);
+    if (accelStructBackingBuffer)
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(accelStructBackingBuffer);
+}
+
 
 } // namespace gfx
 } //namespace cc

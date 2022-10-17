@@ -317,6 +317,8 @@ struct CCVKGPUInputAssembler : public CCVKGPUDeviceObject {
 };
 
 struct CCVKGPUAccelerationStructure : public CCVKGPUDeviceObject {
+    void shutdown() override;
+
     ASBuildFlags buildFlags = ASBuildFlagBits::PREFER_FAST_BUILD | ASBuildFlagBits::ALLOW_UPDATE;
     VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR};
     VkAccelerationStructureBuildSizesInfoKHR buildSizesInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR};
@@ -325,16 +327,27 @@ struct CCVKGPUAccelerationStructure : public CCVKGPUDeviceObject {
     ccstd::vector<VkAccelerationStructureGeometryKHR> geometries;
     ccstd::vector<VkAccelerationStructureBuildRangeInfoKHR> rangeInfos{};
     // todo
+    /*
     VkBuffer scratchBuffer = VK_NULL_HANDLE;
     VkDeviceSize scratchBufferSize{0};
     VmaAllocation scratchVmaAllocation{};
+
     VkBuffer accelStructBackingBuffer = VK_NULL_HANDLE;
     VmaAllocation backingBufferAllocation{};
+
     VkBuffer instancesBuffer = VK_NULL_HANDLE;
     VkDeviceSize instancesBufferSize{0};
     VmaAllocation instancesBufferAllocation{};
-    VkAccelerationStructureKHR vkAccelerationStructure = VK_NULL_HANDLE;
+    */
     VkQueryPool vkCompactedSizeQueryPool = VK_NULL_HANDLE;
+    
+    IntrusivePtr<CCVKGPUBuffer> scratchBuffer;
+    IntrusivePtr<CCVKGPUBuffer> accelStructBackingBuffer;
+    IntrusivePtr<CCVKGPUBuffer> instancesBuffer;
+
+    //IntrusivePtr<CCVKGPUQueryPool> vkCompactedSizeQueryPool;
+
+    VkAccelerationStructureKHR vkAccelerationStructure = VK_NULL_HANDLE;
 };
 
 

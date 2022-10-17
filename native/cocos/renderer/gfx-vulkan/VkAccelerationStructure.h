@@ -23,7 +23,7 @@ protected:
     void doBuild() override;
     void doCompact() override;
 
-    CCVKGPUAccelerationStructure *_gpuAccelerationStructure = nullptr;
+    IntrusivePtr<CCVKGPUAccelerationStructure> _gpuAccelerationStructure = nullptr;
 };
 
 } // namespace gfx

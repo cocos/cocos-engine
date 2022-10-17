@@ -187,7 +187,7 @@ namespace cc
                     topLevelAccelerationStructure->build();
                     _needRebuild = false;
                 } else if (_needUpdate) {
-                    topLevelAccelerationStructure->build();
+                    topLevelAccelerationStructure->update();
                     _needUpdate = false;
                 }
             }

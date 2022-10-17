@@ -22,7 +22,6 @@ void AccelerationStructure::build() {
 }
 
 void AccelerationStructure::update(){
-    //todo
     doUpdate();
 }
 
