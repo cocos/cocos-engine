@@ -524,18 +524,6 @@
             "type": "boolean",
             "value": false,
             "internal": true
-        },
-        "XR_ENV": {
-            "comment": "Running in environment where using XR.\n- 0 CLOSE\n- 1 XR\n- 2 WEB_XR",
-            "type": "number",
-            "value": 0,
-            "internal": false
-        },
-        "XR_TYPE": {
-            "comment": "Different types in the XR environment.\n- 0 OFF\n- 1 VR\n- 2 AR",
-            "type": "number",
-            "value": 0,
-            "internal": false
         }
     }
 }
