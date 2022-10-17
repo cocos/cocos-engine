@@ -261,8 +261,8 @@ void CCVKSwapchain::doDestroy() {
 
     CCVKDevice::getInstance()->waitAllFences();
 
-    CC_SAFE_DESTROY(_depthStencilTexture)
-    CC_SAFE_DESTROY(_colorTexture)
+    _depthStencilTexture = nullptr;
+    _colorTexture = nullptr;
 
     auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
@@ -275,7 +275,7 @@ void CCVKSwapchain::doDestroy() {
     }
 
     gpuDevice->swapchains.erase(_gpuSwapchain);
-    CC_SAFE_DELETE(_gpuSwapchain)
+    _gpuSwapchain = nullptr;
 }
 
 void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {

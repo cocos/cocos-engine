@@ -65,8 +65,6 @@ public:
     void endQuery(QueryPool *queryPool, uint32_t id) override;
     void resetQueryPool(QueryPool *queryPool) override;
 
-    CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
-
 protected:
     friend class CCVKQueue;
 
@@ -78,7 +76,7 @@ protected:
 
     void bindDescriptorSets(VkPipelineBindPoint bindPoint);
 
-    CCVKGPUCommandBuffer *_gpuCommandBuffer = nullptr;
+    IntrusivePtr<CCVKGPUCommandBuffer> _gpuCommandBuffer;
 
     ConstPtr<CCVKGPUPipelineState> _curGPUPipelineState;
     ccstd::vector<ConstPtr<CCVKGPUDescriptorSet>> _curGPUDescriptorSets;
