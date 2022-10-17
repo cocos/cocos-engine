@@ -639,6 +639,7 @@ public:
     // For deserialization
     ccstd::string _id;
     Node *_parent{nullptr};
+    MobilityMode _mobility = MobilityMode::Static;
 
 private:
     static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
@@ -700,7 +701,6 @@ private:
     Vec3 _euler{0, 0, 0};
     Quaternion _worldRotation{Quaternion::identity()};
     Mat4 _worldMatrix{Mat4::IDENTITY};
-    MobilityMode _mobility = MobilityMode::Static;
 
     // Shared memory with JS
     // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout

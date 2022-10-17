@@ -477,21 +477,21 @@ void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *de
 void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS, subModelIndex, descriptorSet);
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_SH_DESCRIPTORS, subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
     }
 
     if (_localSHBuffer) {
-        descriptorSet->bindBuffer(pipeline::UBOLocal::BINDING, _localSHBuffer);
+        descriptorSet->bindBuffer(pipeline::UBOSH::BINDING, _localSHBuffer);
     }
 }
 
 void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS, subModelIndex, descriptorSet);
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS, subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
