@@ -89,9 +89,10 @@ export class WebGL2Texture extends Texture {
                 isSwapchainTexture: isSwapchainTexture || false,
             };
 
-            WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
-
-            WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isSwapchainTexture && this._gpuTexture) {
+                WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+                WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
 
             this._viewInfo.texture = this;
             this._viewInfo.type = info.type;
@@ -156,9 +157,11 @@ export class WebGL2Texture extends Texture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGL2CmdFuncResizeTexture(WebGL2DeviceManager.instance, this._gpuTexture);
-            WebGL2DeviceManager.instance.memoryStatus.textureSize -= oldSize;
-            WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isSwapchainTexture) {
+                WebGL2CmdFuncResizeTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+                WebGL2DeviceManager.instance.memoryStatus.textureSize -= oldSize;
+                WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
         }
     }
 

@@ -1040,7 +1040,6 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     switch (gpuTexture.type) {
     case TextureType.TEX2D: {
         gpuTexture.glTarget = gl.TEXTURE_2D;
-        if (gpuTexture.isSwapchainTexture) break;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
