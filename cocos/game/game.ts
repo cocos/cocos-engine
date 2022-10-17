@@ -432,6 +432,7 @@ export class Game extends EventTarget {
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;
     private _paused = true;
+    private _forcePaused = false;
     // frame control
     private _frameRate = 60;
     private _pacer: Pacer | null = null;
@@ -533,7 +534,10 @@ export class Game extends EventTarget {
      *
      * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
      */
-    public pause () {
+    public pause (forcePaused? : boolean) {
+        if (forcePaused !== undefined) {
+            this._forcePaused = forcePaused;
+        }
         if (this._paused) { return; }
         this._paused = true;
         this._pacer?.stop();
@@ -544,7 +548,11 @@ export class Game extends EventTarget {
      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      */
-    public resume () {
+    public resume (resumeForcePaused? : boolean) {
+        if (resumeForcePaused === undefined && this._forcePaused) {
+            return;
+        }
+        this._forcePaused = false;
         if (!this._paused) { return; }
         // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
