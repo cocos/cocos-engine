@@ -35,14 +35,6 @@ import { math } from '../../core';
 
 @ccclass('cc.LightProbesData')
 export class LightProbesData {
-    public build (points: Vec3[]) {
-        const delaunay = new Delaunay();
-        delaunay.build(points);
-
-        this._probes = delaunay.getProbes();
-        this._tetrahedrons = delaunay.getTetrahedrons();
-    }
-
     public get probes () {
         return this._probes;
     }
@@ -57,6 +49,14 @@ export class LightProbesData {
 
     public available () {
         return !this.empty() && this._probes[0].coefficients.length !== 0;
+    }
+
+    public build (points: Vec3[]) {
+        const delaunay = new Delaunay();
+        delaunay.build(points);
+
+        this._probes = delaunay.getProbes();
+        this._tetrahedrons = delaunay.getTetrahedrons();
     }
 
     public getInterpolationSHCoefficients (position: Vec3, tetIndex: number, coefficients: Vec3[]) {
@@ -91,7 +91,7 @@ export class LightProbesData {
         return tetIndex;
     }
 
-    public getInterpolationWeights (position: Vec3, tetIndex: number, weights: Vec4) {
+    private getInterpolationWeights (position: Vec3, tetIndex: number, weights: Vec4) {
         const tetrahedronCount = this._tetrahedrons.length;
         if (tetIndex < 0 || tetIndex >= tetrahedronCount) {
             tetIndex = 0;
@@ -233,6 +233,8 @@ export class LightProbesData {
     private _tetrahedrons: Tetrahedron[] = [];
 }
 
+legacyCC.LightProbesData = LightProbesData;
+
 /**
  * @en light probe data
  * @zh 光照探针数据
@@ -349,3 +351,5 @@ export class LightProbes {
         }
     }
 }
+
+legacyCC.LightProbes = LightProbes;

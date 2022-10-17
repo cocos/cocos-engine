@@ -39,7 +39,7 @@ ccstd::vector<Vec3> AutoPlacement::generate(const PlacementInfo &info) {
         default:
             CC_ASSERT(false);
     }
-    
+
     return {};
 }
 
@@ -56,13 +56,13 @@ ccstd::vector<Vec3> AutoPlacement::doGenerateUniform(const PlacementInfo &info) 
         (info.maxPos.z - info.minPos.z) / static_cast<float>(info.nProbesZ - 1U)};
 
     for (auto x = 0U; x < info.nProbesX; x++) {
-        position.x = static_cast<float>(x) * gridSize.x;
+        position.x = static_cast<float>(x) * gridSize.x + info.minPos.x;
 
         for (auto y = 0U; y < info.nProbesY; y++) {
-            position.y = static_cast<float>(y) * gridSize.y;
+            position.y = static_cast<float>(y) * gridSize.y + info.minPos.y;
 
             for (auto z = 0U; z < info.nProbesZ; z++) {
-                position.z = static_cast<float>(z) * gridSize.z;
+                position.z = static_cast<float>(z) * gridSize.z + info.minPos.z;
                 probes.push_back(position);
             }
         }

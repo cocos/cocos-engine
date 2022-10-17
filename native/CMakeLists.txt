@@ -2114,6 +2114,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_pipeline_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
                             cocos/bindings/auto/jsb_scene_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gi_auto.cpp
+                            cocos/bindings/auto/jsb_gi_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_assets_auto.cpp
                             cocos/bindings/auto/jsb_assets_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_geometry_auto.cpp

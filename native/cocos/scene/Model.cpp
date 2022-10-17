@@ -31,6 +31,7 @@
 #include "core/event/EventTypesToJS.h"
 #include "gfx-base/GFXTexture.h"
 #include "gi/light-probe/LightProbe.h"
+#include "gi/light-probe/SH.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
@@ -60,6 +61,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
+const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 } // namespace
 
 namespace cc {
@@ -163,6 +165,9 @@ void Model::updateUBOs(uint32_t stamp) {
         subModel->update();
     }
     _updateStamp = stamp;
+
+    updateSHUBOs();
+
     if (!_localDataUpdated) {
         return;
     }
@@ -313,25 +318,46 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
-void Model::updateSHUBOs() {
-    if (!_worldBounds) {
-        return;
+bool Model::isLightProbeAvailable() const {
+    if (!_useLightProbe) {
+        return false;
     }
 
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
-    const auto &data = lightProbes->getData();
+    if (!lightProbes->available()) {
+        return false;
+    }
 
-    ccstd::vector<Vec3> coefficients(9);
-    uint32_t offset = pipeline::UBOSH::SH_COEFFICIENTS;
-    _tetrahedronIndex = data.getInterpolationSHCoefficients(_worldBounds->getCenter(), _tetrahedronIndex, coefficients);
+    if (!_worldBounds) {
+        return false;
+    }
 
-    for (auto i = 0U; i < coefficients.size(); i++) {
-        const auto &coefficient = coefficients[i];
+    return true;
+}
 
-        _localSHData[offset++] = coefficient.x;
-        _localSHData[offset++] = coefficient.y;
-        _localSHData[offset++] = coefficient.z;
+void Model::updateSHUBOs() {
+    if (!isLightProbeAvailable()) {
+        return;
+    }
+
+    const auto center = _worldBounds->getCenter();
+#if !CC_EDITOR
+    if (center == _lastWorldBoundCenter) {
+        return;
+    }
+#endif
+
+    ccstd::vector<Vec3> coefficients;
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
+    _tetrahedronIndex = lightProbes->getData().getInterpolationSHCoefficients(center, _tetrahedronIndex, coefficients);
+    gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
+    _lastWorldBoundCenter.set(center);
+
+    if (!_localSHData.empty() && _localSHBuffer) {
+        gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
+        _localSHBuffer->update(_localSHData.buffer()->getData());
     }
 }
 
@@ -345,11 +371,20 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
+    ccstd::vector<IMacroPatch> patches;
     if (_receiveShadow) {
-        return SHADOW_MAP_PATCHES;
+        for (auto &patch : SHADOW_MAP_PATCHES) {
+            patches.push_back(patch);
+        }
     }
 
-    return {};
+    if (_useLightProbe) {
+        for (auto &patch : LIGHT_PROBE_PATCHES) {
+            patches.push_back(patch);
+        }
+    }
+
+    return patches;
 }
 
 void Model::updateAttributesAndBinding(index_t subModelIndex) {
@@ -357,6 +392,9 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     SubModel *subModel = _subModels[subModelIndex];
     initLocalDescriptors(subModelIndex);
     updateLocalDescriptors(subModelIndex, subModel->getDescriptorSet());
+
+    initLocalSHDescriptors(subModelIndex);
+    updateLocalSHDescriptors(subModelIndex, subModel->getDescriptorSet());
 
     initWorldBoundDescriptors(subModelIndex);
     if (subModel->getWorldBoundDescriptorSet()) {
@@ -390,6 +428,27 @@ void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
     }
 }
 
+void Model::initLocalSHDescriptors(index_t /*subModelIndex*/) {
+#if !CC_EDITOR
+    if (!_useLightProbe) {
+        return;
+    }
+#endif
+
+    if (_localSHData.empty()) {
+        _localSHData.reset(pipeline::UBOSH::COUNT);
+    }
+
+    if (!_localSHBuffer) {
+        _localSHBuffer = _device->createBuffer({
+            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::DEVICE,
+            pipeline::UBOSH::SIZE,
+            pipeline::UBOSH::SIZE,
+        });
+    }
+}
+
 void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
     if (!_worldBoundBuffer) {
         _worldBoundBuffer = _device->createBuffer({
@@ -412,6 +471,20 @@ void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *de
 
     if (_localBuffer) {
         descriptorSet->bindBuffer(pipeline::UBOLocal::BINDING, _localBuffer);
+    }
+}
+
+void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
+    if (isModelImplementedInJS()) {
+        if (!_isCalledFromJS) {
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS, subModelIndex, descriptorSet);
+            _isCalledFromJS = false;
+            return;
+        }
+    }
+
+    if (_localSHBuffer) {
+        descriptorSet->bindBuffer(pipeline::UBOLocal::BINDING, _localSHBuffer);
     }
 }
 

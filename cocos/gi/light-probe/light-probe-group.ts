@@ -24,6 +24,7 @@
  */
 
 import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, menu, range, serializable, tooltip, type } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { NodeEventType } from '../../core';
 import { Component } from '../../core/components/component';
 import { CCInteger } from '../../core/data/utils/attribute';
@@ -143,6 +144,10 @@ export class LightProbeGroup extends Component {
     }
 
     public onEnable () {
+        if (!EDITOR) {
+            return;
+        }
+
         if (!this.node) {
             return;
         }
@@ -155,6 +160,10 @@ export class LightProbeGroup extends Component {
     }
 
     public onDisable () {
+        if (!EDITOR) {
+            return;
+        }
+
         if (!this.node) {
             return;
         }

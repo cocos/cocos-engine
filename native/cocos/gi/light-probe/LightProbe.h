@@ -43,17 +43,24 @@ class LightProbesData {
 public:
     LightProbesData() = default;
 
-    void build(const ccstd::vector<Vec3> &points);
+    inline ccstd::vector<Vertex> &getProbes() { return _probes; }
+    inline void setProbes(const ccstd::vector<Vertex> &probes) { _probes = probes; }
+    inline ccstd::vector<Tetrahedron> getTetrahedrons() { return _tetrahedrons; }
+    inline void setTetrahedrons(const ccstd::vector<Tetrahedron> &tetrahedrons) { _tetrahedrons = tetrahedrons; }
 
+    inline bool empty() const { return _probes.empty() || _tetrahedrons.empty(); }
+    inline bool available() const { return !empty() && !_probes[0].coefficients.empty(); }
+    void build(const ccstd::vector<Vec3> &points);
     int32_t getInterpolationSHCoefficients(const Vec3 &position, int32_t tetIndex, ccstd::vector<Vec3> &coefficients) const;
-    int32_t getInterpolationWeights(const Vec3 &position, int32_t tetIndex, Vec4 &weights) const;
 
 private:
+    int32_t getInterpolationWeights(const Vec3 &position, int32_t tetIndex, Vec4 &weights) const;
     static Vec3 getTriangleBarycentricCoord(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &position);
-    Vec4 getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron) const;
-    Vec4 getTetrahedronBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron) const;
-    Vec4 getOuterCellBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron) const;
+    void getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
+    void getTetrahedronBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
+    void getOuterCellBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
 
+public:
     ccstd::vector<Vertex> _probes;
     ccstd::vector<Tetrahedron> _tetrahedrons;
 };
@@ -65,7 +72,22 @@ public:
 
     void initialize(LightProbeInfo *info);
 
-    inline void setEnabled(bool val) { _enabled = val; }
+    inline bool available() const {
+        if (!_enabled) {
+            return false;
+        }
+
+        return _data.available();
+    }
+
+    inline void setEnabled(bool val) {
+        if (_enabled == val) {
+            return;
+        }
+
+        _enabled = val;
+        _updatePipeline();
+    }
     inline bool isEnabled() const { return _enabled; }
 
     inline void setReduceRinging(float val) { _reduceRinging = val; }
@@ -84,6 +106,8 @@ public:
     inline const LightProbesData &getData() const { return _data; }
 
 private:
+    void _updatePipeline();
+
     bool _enabled{true};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
@@ -102,6 +126,10 @@ public:
     void activate(LightProbes *resource);
 
     inline void setEnabled(bool val) {
+        if (_enabled == val) {
+            return;
+        }
+
         _enabled = val;
         if (_resource) {
             _resource->setEnabled(val);
@@ -110,6 +138,10 @@ public:
     inline bool isEnabled() const { return _enabled; }
 
     inline void setReduceRinging(float val) {
+        if (_reduceRinging == val) {
+            return;
+        }
+
         _reduceRinging = val;
         if (_resource) {
             _resource->setReduceRinging(val);
@@ -118,6 +150,10 @@ public:
     inline float getReduceRinging() const { return _reduceRinging; }
 
     inline void setShowProbe(bool val) {
+        if (_showProbe == val) {
+            return;
+        }
+
         _showProbe = val;
         if (_resource) {
             _resource->setShowProbe(val);
@@ -126,6 +162,10 @@ public:
     inline bool isShowProbe() const { return _showProbe; }
 
     inline void setShowWireframe(bool val) {
+        if (_showWireframe == val) {
+            return;
+        }
+
         _showWireframe = val;
         if (_resource) {
             _resource->setShowWireframe(val);
@@ -134,6 +174,10 @@ public:
     inline bool isShowWireframe() const { return _showWireframe; }
 
     inline void setShowConvex(bool val) {
+        if (_showConvex == val) {
+            return;
+        }
+
         _showConvex = val;
         if (_resource) {
             _resource->setShowConvex(val);
@@ -150,10 +194,12 @@ public:
 
     inline const LightProbesData &getData() const { return _data; }
 
-private:
+    // add addGroup, removeGroup, update after the component module is ported to cpp
+
+    //cjh JSB need to bind the property, so need to make it public
     LightProbes *_resource{nullptr};
 
-    bool _enabled{true};
+    bool _enabled{false};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};

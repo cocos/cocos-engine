@@ -105,6 +105,9 @@ export class SH {
         0.173884,   // 0.546274 / Math.PI
     ];
 
+    /**
+     * update ubo data by coefficients
+     */
     public static updateUBOData (data: Float32Array, offset: number, coefficients: Vec3[]) {
         // cc_sh_linear_const_r
         data[offset++] = coefficients[3].x * this._basisOverPI[3];

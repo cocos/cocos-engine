@@ -25,6 +25,7 @@
 
 #include "core/scene-graph/SceneGlobals.h"
 #include "core/Root.h"
+#include "gi/light-probe/LightProbe.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Ambient.h"
@@ -32,7 +33,6 @@
 #include "scene/Octree.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-#include "gi/light-probe/LightProbe.h"
 
 namespace cc {
 
@@ -74,11 +74,28 @@ void SceneGlobals::activate() {
     Root::getInstance()->onGlobalPipelineStateChanged();
 }
 
-void SceneGlobals::setAmbientInfo(scene::AmbientInfo *info) { _ambientInfo = info; }
-void SceneGlobals::setShadowsInfo(scene::ShadowsInfo *info) { _shadowInfo = info; }
-void SceneGlobals::setSkyboxInfo(scene::SkyboxInfo *info) { _skyboxInfo = info; }
-void SceneGlobals::setFogInfo(scene::FogInfo *info) { _fogInfo = info; }
-void SceneGlobals::setOctreeInfo(scene::OctreeInfo *info) { _octreeInfo = info; }
-void SceneGlobals::setLightProbeInfo(gi::LightProbeInfo *info) { _lightProbeInfo = info; }
+void SceneGlobals::setAmbientInfo(scene::AmbientInfo *info) {
+    _ambientInfo = info;
+}
+
+void SceneGlobals::setShadowsInfo(scene::ShadowsInfo *info) {
+    _shadowInfo = info;
+}
+
+void SceneGlobals::setSkyboxInfo(scene::SkyboxInfo *info) {
+    _skyboxInfo = info;
+}
+
+void SceneGlobals::setFogInfo(scene::FogInfo *info) {
+    _fogInfo = info;
+}
+
+void SceneGlobals::setOctreeInfo(scene::OctreeInfo *info) {
+    _octreeInfo = info;
+}
+
+void SceneGlobals::setLightProbeInfo(gi::LightProbeInfo *info) {
+    _lightProbeInfo = info;
+}
 
 } // namespace cc

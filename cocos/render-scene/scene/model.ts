@@ -29,7 +29,7 @@ import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { AABB } from '../../core/geometry/aabb';
-import { MobilityMode, Node } from '../../scene-graph';
+import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';

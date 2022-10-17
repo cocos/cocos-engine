@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <tuple>
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
@@ -78,12 +79,14 @@ public:
     virtual void updateTransform(uint32_t stamp);
     virtual void updateUBOs(uint32_t stamp);
     virtual void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
+    virtual void updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
     virtual void updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet);
 
     void createBoundingShape(const ccstd::optional<Vec3> &minPos, const ccstd::optional<Vec3> &maxPos);
     void initialize();
     void initLightingmap(Texture2D *texture, const Vec4 &uvParam);
     void initLocalDescriptors(index_t subModelIndex);
+    void initLocalSHDescriptors(index_t subModelIndex);
     void initWorldBoundDescriptors(index_t subModelIndex);
     void onGlobalPipelineStateChanged() const;
     void onMacroPatchesStateChanged();
@@ -133,8 +136,14 @@ public:
     inline bool isInited() const { return _inited; }
     inline bool isCastShadow() const { return _castShadow; }
     inline bool isEnabled() const { return _enabled; }
+    inline bool getUseLightProbe() const { return _useLightProbe; }
+    inline void setUseLightProbe(bool val) {
+        _useLightProbe = val;
+        onMacroPatchesStateChanged();
+    }
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
     inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
+    inline bool showTetrahedron() const { return isLightProbeAvailable(); }
     inline gfx::Buffer *getLocalBuffer() const { return _localBuffer.get(); }
     inline gfx::Buffer *getLocalSHBuffer() const { return _localSHBuffer.get(); }
     inline gfx::Buffer *getWorldBoundBuffer() const { return _worldBoundBuffer.get(); }
@@ -174,6 +183,7 @@ protected:
     static SubModel *createSubModel();
 
     void updateAttributesAndBinding(index_t subModelIndex);
+    bool isLightProbeAvailable() const;
 
     // Please declare variables in descending order of memory size occupied by variables.
     Type _type{Type::DEFAULT};
@@ -198,6 +208,9 @@ protected:
     IntrusivePtr<Texture2D> _lightmap;
 
     int32_t _tetrahedronIndex{0};
+    Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
+    bool _useLightProbe = false;
+
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};

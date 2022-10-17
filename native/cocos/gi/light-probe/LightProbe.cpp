@@ -26,8 +26,10 @@
 
 #include "LightProbe.h"
 #include "PolynomialSolver.h"
+#include "core/Root.h"
 #include "math/Math.h"
 #include "math/Utils.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 namespace gi {
@@ -43,7 +45,8 @@ void LightProbesData::build(const ccstd::vector<Vec3> &points) {
 int32_t LightProbesData::getInterpolationSHCoefficients(const Vec3 &position, int32_t tetIndex, ccstd::vector<Vec3> &coefficients) const {
     Vec4 weights{0.0F, 0.0F, 0.0F, 0.0F};
     tetIndex = getInterpolationWeights(position, tetIndex, weights);
-    coefficients.resize(SH::getBasisCount());
+    const auto length = SH::getBasisCount();
+    coefficients.resize(length);
 
     const auto &tetrahedron = _tetrahedrons[tetIndex];
     const auto &c0 = _probes[tetrahedron.vertex0].coefficients;
@@ -53,11 +56,11 @@ int32_t LightProbesData::getInterpolationSHCoefficients(const Vec3 &position, in
     if (tetrahedron.vertex3 >= 0) {
         const auto &c3 = _probes[tetrahedron.vertex3].coefficients;
 
-        for (auto i = 0; i < coefficients.size(); i++) {
+        for (auto i = 0; i < length; i++) {
             coefficients[i] = c0[i] * weights.x + c1[i] * weights.y + c2[i] * weights.z + c3[i] * weights.w;
         }
     } else {
-        for (auto i = 0; i < coefficients.size(); i++) {
+        for (auto i = 0; i < length; i++) {
             coefficients[i] = c0[i] * weights.x + c1[i] * weights.y + c2[i] * weights.z;
         }
     }
@@ -76,7 +79,7 @@ int32_t LightProbesData::getInterpolationWeights(const Vec3 &position, int32_t t
 
     for (auto i = 0; i < tetrahedronCount; i++) {
         const auto &tetrahedron = _tetrahedrons[tetIndex];
-        weights = getBarycentricCoord(position, tetrahedron);
+        getBarycentricCoord(position, tetrahedron, weights);
         if (weights.x >= 0.0F && weights.y >= 0.0F && weights.z >= 0.0F && weights.w >= 0.0F) {
             break;
         }
@@ -127,22 +130,22 @@ Vec3 LightProbesData::getTriangleBarycentricCoord(const Vec3 &p0, const Vec3 &p1
     return Vec3(alpha, beta, 1.0F - alpha - beta);
 }
 
-Vec4 LightProbesData::getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron) const {
+void LightProbesData::getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const {
     if (tetrahedron.vertex3 >= 0) {
-        return getTetrahedronBarycentricCoord(position, tetrahedron);
+        getTetrahedronBarycentricCoord(position, tetrahedron, weights);
     } else {
-        return getOuterCellBarycentricCoord(position, tetrahedron);
+        getOuterCellBarycentricCoord(position, tetrahedron, weights);
     }
 }
 
-Vec4 LightProbesData::getTetrahedronBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron) const {
+void LightProbesData::getTetrahedronBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const {
     Vec3 result = position - _probes[tetrahedron.vertex3].position;
     result.transformMat3(result, tetrahedron.matrix);
 
-    return Vec4(result.x, result.y, result.z, 1.0F - result.x - result.y - result.z);
+    weights.set(result.x, result.y, result.z, 1.0F - result.x - result.y - result.z);
 }
 
-Vec4 LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron) const {
+void LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const {
     const auto &p0 = _probes[tetrahedron.vertex0].position;
     const auto &p1 = _probes[tetrahedron.vertex1].position;
     const auto &p2 = _probes[tetrahedron.vertex2].position;
@@ -154,7 +157,8 @@ Vec4 LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const T
     float t = Vec3::dot(position - p0, normal);
     if (t < 0.0F) {
         // test tetrahedron in next iterator
-        return Vec4(0.0F, 0.0F, 0.0F, -1.0F);
+        weights.set(0.0F, 0.0F, 0.0F, -1.0F);
+        return;
     }
 
     Vec3 coefficients;
@@ -172,7 +176,7 @@ Vec4 LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const T
     const auto v2 = p2 + _probes[tetrahedron.vertex2].normal * t;
     const auto result = getTriangleBarycentricCoord(v0, v1, v2, position);
 
-    return Vec4(result.x, result.y, result.z, 0.0F);
+    weights.set(result.x, result.y, result.z, 0.0F);
 }
 
 void LightProbes::initialize(LightProbeInfo *info) {
@@ -182,6 +186,16 @@ void LightProbes::initialize(LightProbeInfo *info) {
     _showWireframe = info->isShowWireframe();
     _showConvex = info->isShowConvex();
     _data = info->getData();
+
+    _updatePipeline();
+}
+
+void LightProbes::_updatePipeline() {
+    auto *root = Root::getInstance();
+    auto *pipeline = root->getPipeline();
+
+    pipeline->setValue("CC_LIGHT_PROBE_ENABLED", _enabled);
+    root->onGlobalPipelineStateChanged();
 }
 
 void LightProbeInfo::activate(LightProbes *resource) {

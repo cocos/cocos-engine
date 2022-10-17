@@ -378,8 +378,14 @@ struct CC_DLL UBOUILocal {
 };
 
 struct CC_DLL UBOSH {
-    static constexpr uint32_t SH_COEFFICIENTS = 0;
-    static constexpr uint32_t COUNT = UBOSH::SH_COEFFICIENTS + 28; // 3 * 9 sh float, 1 padding float
+    static constexpr uint32_t SH_LINEAR_CONST_R_OFFSET = 0;
+    static constexpr uint32_t SH_LINEAR_CONST_G_OFFSET = UBOSH::SH_LINEAR_CONST_R_OFFSET + 4;
+    static constexpr uint32_t SH_LINEAR_CONST_B_OFFSET = UBOSH::SH_LINEAR_CONST_G_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_R_OFFSET = UBOSH::SH_LINEAR_CONST_B_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_G_OFFSET = UBOSH::SH_QUADRATIC_R_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_B_OFFSET = UBOSH::SH_QUADRATIC_G_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_A_OFFSET = UBOSH::SH_QUADRATIC_B_OFFSET + 4;
+    static constexpr uint32_t COUNT = UBOSH::SH_QUADRATIC_A_OFFSET + 4;
     static constexpr uint32_t SIZE = UBOSH::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_SH);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;

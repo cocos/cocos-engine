@@ -29,6 +29,7 @@
 #include <cmath>
 #include <functional>
 #include "base/std/container/vector.h"
+#include "core/TypedArray.h"
 #include "math/Math.h"
 #include "math/Vec3.h"
 
@@ -63,6 +64,16 @@ public:
     using BasisFunction = std::function<float(const Vec3& v)>;
 
     /**
+     * update ubo data by coefficients
+     */
+    static void updateUBOData(Float32Array& data, int32_t offset, ccstd::vector<Vec3>& coefficients);
+
+    /**
+     * recreate a function from sh coefficients, which is same as SHEvaluate in shader
+     */
+    static Vec3 shaderEvaluate(const Vec3& normal, ccstd::vector<Vec3>& coefficients);
+
+    /**
      * recreate a function from sh coefficients
      */
     static Vec3 evaluate(const Vec3& sample, const ccstd::vector<Vec3>& coefficients);
@@ -95,6 +106,10 @@ public:
     }
 
     static inline void reduceRinging(ccstd::vector<Vec3>& coefficients, float lambda) {
+        if (lambda == 0.0F) {
+            return;
+        }
+
         for (int32_t l = 0; l <= _lmax; ++l) {
             float scale = 1.f / (1.f + lambda * l * l * (l + 1) * (l + 1));
             for (int32_t m = -l; m <= l; ++m) {
@@ -115,6 +130,7 @@ private:
 
     static constexpr int32_t _lmax = 2;
     static ccstd::vector<BasisFunction> _basisFunctions;
+    static ccstd::vector<float> _basisOverPI;
 };
 
 } // namespace gi
