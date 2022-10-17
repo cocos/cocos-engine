@@ -742,10 +742,12 @@ export class ParticleSystem2D extends UIRenderer {
     private declare _focused: boolean;
     private declare _plistFile;
     private declare _tiffReader;
+    private _useFile: boolean;
 
     constructor () {
         super();
         this.initProperties();
+        this._useFile = false;
     }
 
     public onEnable () {
@@ -1016,6 +1018,7 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _initWithDictionary (dict: any) {
+        this._useFile = true;
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
         // life span
@@ -1166,6 +1169,14 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateMaterial () {
+        if (!this._useFile) {
+            if (this._customMaterial) {
+                this.setMaterial(this._customMaterial, 0);
+                let target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+                this._dstBlendFactor = target.blendDst;
+                this._srcBlendFactor = target.blendSrc;
+            }
+        }
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
         if (mat && mat.passes.length > 0) {
