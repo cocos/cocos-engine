@@ -37,7 +37,6 @@ import { MacroRecord } from '../renderer/core/pass-utils';
 import { RenderWindow } from '../renderer/core/render-window';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Model } from '../renderer/scene/model';
-import { Root } from '../root';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
@@ -306,7 +305,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
 
         if (!(clearFlags & ClearFlagBit.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {
-                colorAttachment.loadOp = LoadOp.DISCARD;
+                colorAttachment.loadOp = LoadOp.CLEAR;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
                 colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(

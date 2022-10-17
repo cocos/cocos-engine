@@ -380,7 +380,12 @@
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
     CGContextSetTextDrawingMode(_context, kCGTextFill);
     if ([self isShadowEnabled]) {
-        CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, _shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
+        // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/GraphicsDrawingOverview/GraphicsDrawingOverview.html
+        /*  Core Graphics uses lower-left-origin coordinate system;
+            but the api CGContextSetShadowWithColor's parameter 'offset' accept base space(relative to view: upper-left-origin coordinate system),
+            and _shadowOffsetY is edited by lower-left-origin coordinate system, so here we need to multiply the change in y direction by -1
+        */
+        CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, -_shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
     }
 
     NSAttributedString *stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
@@ -423,7 +428,12 @@
 
     CGContextSetTextDrawingMode(_context, kCGTextStroke);
     if ([self isShadowEnabled]) {
-        CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, _shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
+        // https://developer.apple.com/library/archive/documentation/2DDrawing/Conceptual/DrawingPrintingiOS/GraphicsDrawingOverview/GraphicsDrawingOverview.html
+        /*  Core Graphics uses lower-left-origin coordinate system;
+            but the api CGContextSetShadowWithColor's parameter 'offset' accept base space(relative to view: upper-left-origin coordinate system),
+            and _shadowOffsetY is edited by lower-left-origin coordinate system, so here we need to multiply the change in y direction by -1
+        */
+        CGContextSetShadowWithColor(_context, CGSizeMake(_shadowOffsetX, -_shadowOffsetY), _shadowBlur, _shadowColor.CGColor);
     }
 
     NSAttributedString *stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
