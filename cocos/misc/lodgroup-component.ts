@@ -143,7 +143,7 @@ export class LODGroup extends Component {
      * @en Object Size in local space, may be auto-calculated value from object bounding box or value from user input.
      */
     @serializable
-    protected _size = 1;
+    protected _objectSize = 1;
 
     /**
      *@en The array of LODs
@@ -155,7 +155,7 @@ export class LODGroup extends Component {
 
     constructor () {
         super();
-        this._lodGroup.size = this._size;
+        this._lodGroup.size = this._objectSize;
     }
 
     set localReferencePoint (val: Vec3) {
@@ -168,12 +168,12 @@ export class LODGroup extends Component {
     get lodCount () { return this._LODs.length; }
 
     @type(Number)
-    set size (val: number) {
-        this._size = val;
+    set objectSize (val: number) {
+        this._objectSize = val;
         this._lodGroup.size = val;
     }
 
-    get size () { return this._size; }
+    get objectSize () { return this._objectSize; }
 
     @type([LOD])
     get LODs () {

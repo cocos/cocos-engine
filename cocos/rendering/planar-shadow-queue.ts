@@ -70,7 +70,7 @@ export class PlanarShadowQueue {
         {
             for (const g of scene.lodGroups) {
                 if (g.enabled) {
-                    const visIndex = LODGroupUtility.getVisibleLOD(g, camera);
+                    const visIndex = g.getVisibleLOD(camera);
                     if (visIndex >= 0) {
                         const lod = g.LODs[visIndex];
                         for (const model of lod.models) {
