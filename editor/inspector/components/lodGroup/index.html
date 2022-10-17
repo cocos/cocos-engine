@@ -7,7 +7,7 @@
         <ui-prop>
             <ui-label slot="label" value="Object Size"></ui-label>
             <div class="object-size-content" slot="content">
-                <ui-num-input min="0"
+                <ui-num-input min="0" max="1" step="0.01" preci="2"
                     :value="dump.value && dump.value.size.value"
                     @confirm="onObjectSizeConfirm($event)"
                 >
