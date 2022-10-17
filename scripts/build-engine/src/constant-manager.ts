@@ -7,7 +7,7 @@ export type PlatformType = 'HTML5' | 'NATIVE' |
         'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'BYTEDANCE' |
         'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
 export type InternalFlagType = 'SERVER_MODE' | 'NOT_PACK_PHYSX_LIBS' | 'WEBGPU';
-export type PublicFlagType = 'DEBUG' | 'NET_MODE' | 'XR_ENV' | 'XR_TYPE';
+export type PublicFlagType = 'DEBUG' | 'NET_MODE';
 export type FlagType = InternalFlagType | PublicFlagType;
 
 export type ValueType = number | boolean;
