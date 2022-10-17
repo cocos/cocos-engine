@@ -102,6 +102,7 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (!width || !height) return;
     createTexture(width, height, size);
 
+    // Hold reference to keep the old textureView alive during DescriptorHub::update.
     IntrusivePtr<CCVKGPUTextureView> oldTextureView = _gpuTextureView;
     createTextureView();
     CCVKDevice::getInstance()->gpuDescriptorHub()->update(oldTextureView, _gpuTextureView);

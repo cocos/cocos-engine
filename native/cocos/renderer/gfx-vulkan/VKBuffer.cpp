@@ -80,6 +80,7 @@ void CCVKBuffer::doDestroy() {
 void CCVKBuffer::doResize(uint32_t size, uint32_t count) {
     createBuffer(size, count);
 
+    // Hold reference to keep the old bufferView alive during DescriptorHub::update and IAHub::update.
     IntrusivePtr<CCVKGPUBufferView> oldBufferView = _gpuBufferView;
     createBufferView(size);
     CCVKDevice::getInstance()->gpuDescriptorHub()->update(oldBufferView, _gpuBufferView);
