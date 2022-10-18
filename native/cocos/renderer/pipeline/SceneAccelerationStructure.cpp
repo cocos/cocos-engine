@@ -75,7 +75,6 @@ namespace cc
                     //tlasGeom.stype = gfx::ASGeometryType::INSTANCE;
                     tlasGeom.instanceCustomIdx = 0;
 
-
                     if (pModel->getNode()->getName() == "Cube-001") {
                         tlasGeom.instanceCustomIdx = 1;
                     } else if (pModel->getNode()->getName() == "Cube-002") {
@@ -134,7 +133,7 @@ namespace cc
                         blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
                         gfx::AccelerationStructure* blas = device->createAccelerationStructure(blasInfo);
                         blas->build();
-                        blas->compact();
+                        //blas->compact();
                         
                         blasMap.emplace(mesh_uuid, blas);
                         tlasGeom.accelerationStructureRef = blas;
@@ -179,21 +178,24 @@ namespace cc
                         topLevelAccelerationStructure->destroy();
                     }
                     topLevelAccelerationStructure = device->createAccelerationStructure(tlasInfo);
-                    _needRecreate = false;
                 } else {
                     topLevelAccelerationStructure->setInfo(tlasInfo);
                 }
                 if (_needRebuild) {
                     topLevelAccelerationStructure->build();
-                    _needRebuild = false;
                 } else if (_needUpdate) {
                     topLevelAccelerationStructure->update();
-                    _needUpdate = false;
                 }
             }
 
-            _globalDSManager->bindAccelerationStructure(pipeline::TOPLEVELAS::BINDING, topLevelAccelerationStructure);
-            _globalDSManager->update();
+            if (_needRecreate) {
+                _globalDSManager->bindAccelerationStructure(pipeline::TOPLEVELAS::BINDING, topLevelAccelerationStructure);
+                _globalDSManager->update();
+            } else if (_needRebuild||_needUpdate) {
+                
+            }
+
+            _needRecreate = _needRebuild = _needUpdate = false;
 		}
 
         void SceneAccelerationStructure::destroy() {

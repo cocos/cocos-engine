@@ -111,8 +111,7 @@ void GlobalDSManager::bindTexture(uint32_t binding, gfx::Texture *texture) {
 
 void GlobalDSManager::bindAccelerationStructure(uint32_t binding, gfx::AccelerationStructure* accel) {
     if (!accel) {
-        // consider create a default as
-        return;
+        // consider create a default acceleration structure
     }
     if (_globalDescriptorSet!=nullptr) {
         _globalDescriptorSet->bindAccelerationStructure(binding, accel);
@@ -159,6 +158,10 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(const scene::Light
             auto *const texture = _globalDescriptorSet->getTexture(i);
             if (texture != nullptr) {
                 descriptorSet->bindTexture(i, texture);
+            }
+            auto *const accel = _globalDescriptorSet->getAccelerationStructure(i);
+            if (accel != nullptr) {
+                descriptorSet->bindAccelerationStructure(i, accel);
             }
         }
 

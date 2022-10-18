@@ -219,22 +219,21 @@ void CCVKDescriptorSet::update() {
                     }
                     binding.gpuSampler = sampler;
                 }
-            } else if (hasFlag(ACCELERATION_STRUCTURE_TYPE, binding.type)) {
+            }
+            else if (hasFlag(ACCELERATION_STRUCTURE_TYPE, binding.type)) {
                 if (_accels[i].ptr) {
                     CCVKGPUAccelerationStructure *accel = static_cast<CCVKAccelerationStructure *>(_accels[i].ptr)->gpuAccelerationStructure();
-                    if (binding.gpuAccelerrationStructure != accel) {
-                        for (auto &instance : _gpuDescriptorSet->instances) {
-                            CCVKDescriptorInfo &descriptorInfo = instance.descriptorInfos[i];
-                            if (binding.gpuAccelerrationStructure) {
-                                descriptorHub->disengage(binding.gpuAccelerrationStructure,&descriptorInfo.accelerationStructure);
-                            }
-                            if (accel) {
-                                descriptorHub->connect(_gpuDescriptorSet,accel, &descriptorInfo.accelerationStructure);
-                                descriptorHub->update(accel,&descriptorInfo.accelerationStructure);
-                            }
+                    for (auto &instance : _gpuDescriptorSet->instances) {
+                        CCVKDescriptorInfo &descriptorInfo = instance.descriptorInfos[i];
+                        if (binding.gpuAccelerrationStructure) {
+                            descriptorHub->disengage(binding.gpuAccelerrationStructure, &descriptorInfo.accelerationStructure);
                         }
-                        binding.gpuAccelerrationStructure = accel;
+                        if (accel) {
+                            descriptorHub->connect(_gpuDescriptorSet, accel, &descriptorInfo.accelerationStructure);
+                            descriptorHub->update(accel, &descriptorInfo.accelerationStructure);
+                        }
                     }
+                    binding.gpuAccelerrationStructure = accel;
                 }
             }
         }

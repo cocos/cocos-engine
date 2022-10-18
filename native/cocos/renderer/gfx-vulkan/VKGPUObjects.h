@@ -908,6 +908,14 @@ private:
     void update(const CCVKGPUDescriptorSet *gpuDescriptorSet) {
         const CCVKGPUDescriptorSet::Instance &instance = gpuDescriptorSet->instances[_device->curBackBufferIndex];
         if (gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate) {
+            /*
+            auto it = std::find_if(instance.descriptorInfos.cbegin(), instance.descriptorInfos.cend(), [](const CCVKDescriptorInfo &info) {
+                return info.accelerationStructure != VK_NULL_HANDLE;
+            });
+            if (it!=instance.descriptorInfos.cend()) {
+                CC_LOG_WARNING("wdwdw");
+            }*/
+
             _updateFn(_device->vkDevice, instance.vkDescriptorSet,
                       gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate, instance.descriptorInfos.data());
         } else {
@@ -1012,6 +1020,7 @@ public:
     }
 
     void update(const CCVKGPUAccelerationStructure *accel, VkAccelerationStructureKHR *descriptor) {
+        /*
         for (const auto &it : _accels) {
             if (it.first->vkAccelerationStructure != accel->vkAccelerationStructure) continue;
             const auto &info = it.second;
@@ -1021,7 +1030,10 @@ public:
             for (const auto *set : info.sets) {
                 _descriptorSetHub->record(set);
             }
-        }
+        }*/
+        auto it = _accels.find(accel);
+        if (it == _accels.end()) return;
+        doUpdate(accel, descriptor);
     }
     // for resize events
     void update(const CCVKGPUBuffer *buffer) {
