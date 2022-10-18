@@ -155,7 +155,7 @@ export class LODGroup extends Component {
 
     constructor () {
         super();
-        this._lodGroup.size = this._objectSize;
+        this._lodGroup.objectSize = this._objectSize;
     }
 
     set localReferencePoint (val: Vec3) {
@@ -170,7 +170,7 @@ export class LODGroup extends Component {
     @type(Number)
     set objectSize (val: number) {
         this._objectSize = val;
-        this._lodGroup.size = val;
+        this._lodGroup.objectSize = val;
     }
 
     get objectSize () { return this._objectSize; }
@@ -395,7 +395,7 @@ export class LODGroupEditorUtility {
 
             // Save the result
             lodGroup.localReferencePoint = c;
-            lodGroup.size = Math.max(e.x, e.y, e.z) * 2.0;
+            lodGroup.objectSize = Math.max(e.x, e.y, e.z) * 2.0;
         }
         this.emitChangeNode(lodGroup.node);
     }
@@ -407,12 +407,12 @@ export class LODGroupEditorUtility {
         }
     }
     static resetObjectSize (lodGroup: LODGroup): void {
-        if (lodGroup.size === 1.0) return;
+        if (lodGroup.objectSize === 1.0) return;
 
         // 1 will be new object size
-        const scale = 1.0 / lodGroup.size;
+        const scale = 1.0 / lodGroup.objectSize;
         // reset object size to 1
-        lodGroup.size = 1.0;
+        lodGroup.objectSize = 1.0;
 
         for (let i = 0; i < lodGroup.lodCount; ++i) {
             lodGroup.getLOD(i).screenRelativeTransitionHeight *= scale;
@@ -437,6 +437,6 @@ export class LODGroupEditorUtility {
     private static getWorldSpaceSize (lodGroup: LODGroup): number {
         const scale = lodGroup.node.scale;
         const maxScale = Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
-        return maxScale * lodGroup.size;
+        return maxScale * lodGroup.objectSize;
     }
 }
