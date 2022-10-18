@@ -64,12 +64,20 @@ export class OpenHarmonyPackTool extends NativePackTool {
         const moduleFile = ps.join(ohosProjDir, 'entry/src/main/module.json5');
         const moduleJSON = fs.readJSONSync(moduleFile);
         const cfg = this.params.platformParams.orientation;
-        if(cfg.landscapeLeft) {
-            moduleJSON.module.abilities.orientation = 'landscape_inverted';
-        } else if(cfg.landscape) {
-            moduleJSON.module.abilities.orientation = 'landscape';
-        } else if(cfg.portrait) {
-            moduleJSON.module.abilities.orientation = 'portrait';
+        if (cfg.landscapeLeft && cfg.landscapeRight && cfg.portrait) {
+            moduleJSON.module.abilities[0].orientation = 'auto_rotation';
+        }
+        else if (cfg.landscapeRight && !cfg.landscapeLeft) {
+            moduleJSON.module.abilities[0].orientation = 'landscape';
+        }
+        else if (!cfg.landscapeRight && cfg.landscapeLeft) {
+            moduleJSON.module.abilities[0].orientation = 'landscape_inverted';
+        }
+        else if (cfg.landscapeRight && cfg.landscapeLeft) {
+            moduleJSON.module.abilities[0].orientation = 'auto_rotation_landscape';
+        }
+        else if (cfg.portrait) {
+            moduleJSON.module.abilities[0].orientation = 'portrait';
         }
         outputJSONSync(moduleFile, moduleJSON, { spaces: 2 });
 
