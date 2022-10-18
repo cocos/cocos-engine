@@ -967,7 +967,7 @@ public:
     void connect(CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) {
         _samplers[sampler].push(descriptor);
     }
-    void connect(const CCVKGPUDescriptorSet *set, const CCVKGPUAccelerationStructure *accel, VkAccelerationStructureKHR *descriptor) {
+    void connect(CCVKGPUDescriptorSet *set, const CCVKGPUAccelerationStructure *accel, VkAccelerationStructureKHR *descriptor) {
         _accels[accel].sets.insert(set);
         _accels[accel].descriptors.push(descriptor);
     }
