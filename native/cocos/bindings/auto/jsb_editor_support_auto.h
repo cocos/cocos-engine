@@ -124,9 +124,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::middleware::Texture2D);
 extern se::Object *__jsb_cc_middleware_Texture2D_proto; // NOLINT
 extern se::Class * __jsb_cc_middleware_Texture2D_class; // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(cc::middleware::V3F_T2F_C4B);
-extern se::Object *__jsb_cc_middleware_V3F_T2F_C4B_proto; // NOLINT
-extern se::Class * __jsb_cc_middleware_V3F_T2F_C4B_class; // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(cc::middleware::SpriteFrame);
 extern se::Object *__jsb_cc_middleware_SpriteFrame_proto; // NOLINT

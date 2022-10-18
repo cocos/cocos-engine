@@ -53,12 +53,6 @@
             "category": "2d",
             "wechatPlugin": true
         },
-        "xr": {
-            "default": ["xr"],
-            "label": "i18n:ENGINE.features.xr.label",
-            "description": "i18n:ENGINE.features.xr.description",
-            "wechatPlugin": false
-        },
         "ui": {
             "default": ["ui"],
             "label": "i18n:ENGINE.features.ui.label",
@@ -245,6 +239,20 @@
             "wechatPlugin": false,
             "category": "animation"
         },
+        "xr": {
+            "default": [],
+            "label": "i18n:ENGINE.features.base_xr.label",
+            "description": "i18n:ENGINE.features.base_xr.description",
+            "wechatPlugin": false,
+            "category": "xr"
+        },
+        "ar": {
+            "default": [],
+            "label": "i18n:ENGINE.features.ar.label",
+            "description": "i18n:ENGINE.features.ar.description",
+            "wechatPlugin": false,
+            "category": "xr"
+        },
         "custom-pipeline": {
             "default": [],
             "label": "i18n:ENGINE.features.custom_pipeline.label",
@@ -268,6 +276,10 @@
         "network": {
             "label": "i18n:ENGINE.features.categories.network.label",
             "description": "i18n:ENGINE.features.categories.network.description"
+        },
+        "xr": {
+            "label": "i18n:ENGINE.features.categories.xr.label",
+            "description": "i18n:ENGINE.features.categories.xr.description"
         }
     }
 }

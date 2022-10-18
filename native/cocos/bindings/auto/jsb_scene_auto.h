@@ -144,14 +144,6 @@ extern se::Object *__jsb_cc_scene_Shadows_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_Shadows_class; // NOLINT
 
 
-extern se::Object *__jsb_cc_scene_InstancedAttributeBlock_proto;   // NOLINT
-extern se::Class *__jsb_cc_scene_InstancedAttributeBlock_class;    // NOLINT
-
-bool js_register_cc_scene_InstancedAttributeBlock(se::Object *obj); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &, cc::scene::InstancedAttributeBlock *, se::Object *ctx); //NOLINT
-
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SkyboxInfo);
 extern se::Object *__jsb_cc_scene_SkyboxInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_SkyboxInfo_class; // NOLINT
@@ -177,6 +169,11 @@ extern se::Object *__jsb_cc_scene_SphereLight_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_SphereLight_class; // NOLINT
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::scene::Model);
+extern se::Object *__jsb_cc_scene_Model_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_Model_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::scene::InstancedAttributeBlock);
 extern se::Object *__jsb_cc_scene_InstancedAttributeBlock_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_InstancedAttributeBlock_class; // NOLINT
@@ -184,11 +181,6 @@ extern se::Class * __jsb_cc_scene_InstancedAttributeBlock_class; // NOLINT
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::scene::InstancedAttributeBlock * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::scene::Model);
-extern se::Object *__jsb_cc_scene_Model_proto; // NOLINT
-extern se::Class * __jsb_cc_scene_Model_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SubModel);

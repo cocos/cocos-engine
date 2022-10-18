@@ -30,6 +30,7 @@
  */
 // clang-format off
 #pragma once
+#include <boost/container/pmr/memory_resource.hpp>
 #include <string_view>
 #include "cocos/renderer/pipeline/custom/ArchiveFwd.h"
 
@@ -49,6 +50,7 @@ public:
     virtual void writeBool(bool value) = 0;
     virtual void writeNumber(double value) = 0;
     virtual void writeString(std::string_view value) = 0;
+    virtual boost::container::pmr::memory_resource* scratch() const noexcept = 0;
 };
 
 class InputArchive {
@@ -63,6 +65,7 @@ public:
     virtual bool readBool() = 0;
     virtual double readNumber() = 0;
     virtual std::string_view readString() = 0;
+    virtual boost::container::pmr::memory_resource* scratch() const noexcept = 0;
 };
 
 } // namespace render

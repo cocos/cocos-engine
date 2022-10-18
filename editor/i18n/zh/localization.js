@@ -767,6 +767,10 @@ module.exports = {
                 label: '网络',
                 description: '网络模块。',
             },
+            xr: {
+                label: 'XR',
+                description: 'XR系统。',
+            },
         },
         core: {
             label: "核心功能",
@@ -912,9 +916,13 @@ module.exports = {
             label: "Marionette 动画系统",
             description: "启用 Marionette 动画系统。",
         },
-        xr: {
-            label: "XR",
-            description: "启用 XR 功能系统。",
+        base_xr: {
+            label: "基础 XR 功能",
+            description: "基础 XR 功能支持。",
+        },
+        ar: {
+            label: "AR 功能",
+            description: "AR 功能支持。",
         },
         custom_pipeline: {
             label: "自定义渲染管线（实验）",

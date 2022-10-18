@@ -382,7 +382,7 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
 
-    const auto *gpuIndirectBuffer = _curGPUInputAssembler->gpuIndirectBuffer;
+    const auto *gpuIndirectBuffer = _curGPUInputAssembler->gpuIndirectBuffer.get();
 
     if (gpuIndirectBuffer) {
         uint32_t drawInfoCount = gpuIndirectBuffer->range / gpuIndirectBuffer->gpuBuffer->stride;

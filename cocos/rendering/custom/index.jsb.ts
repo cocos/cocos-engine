@@ -25,9 +25,9 @@
 
 declare const render: any;
 
-import { legacyCC } from '../../core/global-exports';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder } from './custom-pipeline';
 
@@ -35,9 +35,9 @@ export * from './types';
 export * from './pipeline';
 
 export function createCustomPipeline (): Pipeline {
-    const root = legacyCC.director.root;
     const ppl = render.Factory.createPipeline();
-    if (root.useDeferredPipeline) {
+    const pplName = macro.CUSTOM_PIPELINE_NAME;
+    if (pplName === 'Deferred') {
         buildDeferredLayout(ppl);
     } else {
         buildForwardLayout(ppl);

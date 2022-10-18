@@ -1,4 +1,4 @@
-import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx/base/define';
+import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { intersect, Sphere } from '../../core/geometry';
 import { supportsR32FloatTexture } from '../define';

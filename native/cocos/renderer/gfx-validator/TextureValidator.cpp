@@ -67,6 +67,38 @@ void TextureValidator::doInit(const TextureInfo &info) {
         CC_ASSERT(hasAllFlags(DeviceValidator::getInstance()->getFormatFeatures(info.format), ff));
     }
 
+    switch (info.type) {
+        case TextureType::TEX2D: {
+            if (std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxTextureSize) {
+                CC_ASSERT(false);
+            }
+            break;
+        }
+        case TextureType::TEX2D_ARRAY: {
+            if (std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxTextureSize
+                || info.layerCount > DeviceValidator::getInstance()->getCapabilities().maxArrayTextureLayers) {
+                CC_ASSERT(false);
+            }
+            break;
+        }
+        case TextureType::CUBE: {
+            if (std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxCubeMapTextureSize || info.layerCount != 6) {
+                CC_ASSERT(false);
+            }
+            break;
+        }
+        case TextureType::TEX3D: {
+            if (std::max(std::max(info.width, info.height), info.depth) > DeviceValidator::getInstance()->getCapabilities().maxCubeMapTextureSize) {
+                CC_ASSERT(false);
+            }
+            break;
+        }
+        default: {
+            CC_ASSERT(false);
+            break;
+        }
+    }
+
     if (hasFlag(info.flags, TextureFlagBit::GEN_MIPMAP)) {
         CC_ASSERT(info.levelCount > 1);
 

@@ -1,7 +1,7 @@
-/****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,27 +21,6 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ */
 
-#pragma once
-
-#include "../VKStd.h"
-#include "gfx-base/states/GFXSampler.h"
-#include "gfx-vulkan/VKGPUObjects.h"
-
-namespace cc {
-namespace gfx {
-
-class CC_VULKAN_API CCVKSampler final : public Sampler {
-public:
-    explicit CCVKSampler(const SamplerInfo &info);
-    ~CCVKSampler() override = default;
-
-    inline CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }
-
-protected:
-    IntrusivePtr<CCVKGPUSampler> _gpuSampler;
-};
-
-} // namespace gfx
-} // namespace cc
+export * from '../cocos/xr/ar';

@@ -49,9 +49,6 @@ JSB_REGISTER_OBJECT_TYPE(dragonBones::Rectangle);
 extern se::Object *__jsb_dragonBones_Rectangle_proto; // NOLINT
 extern se::Class * __jsb_dragonBones_Rectangle_class; // NOLINT
 
-JSB_REGISTER_OBJECT_TYPE(dragonBones::BlendState);
-extern se::Object *__jsb_dragonBones_BlendState_proto; // NOLINT
-extern se::Class * __jsb_dragonBones_BlendState_class; // NOLINT
 
 JSB_REGISTER_OBJECT_TYPE(dragonBones::Transform);
 extern se::Object *__jsb_dragonBones_Transform_proto; // NOLINT

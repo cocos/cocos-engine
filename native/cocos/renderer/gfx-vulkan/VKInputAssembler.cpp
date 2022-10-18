@@ -46,17 +46,21 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(vbCount);
 
+    auto *hub = CCVKDevice::getInstance()->gpuIAHub();
     for (size_t i = 0U; i < vbCount; ++i) {
         auto *vb = static_cast<CCVKBuffer *>(_vertexBuffers[i]);
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBufferView();
+        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuVertexBuffers[i].get());
     }
 
     if (info.indexBuffer) {
         _gpuInputAssembler->gpuIndexBuffer = static_cast<CCVKBuffer *>(info.indexBuffer)->gpuBufferView();
+        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuIndexBuffer.get());
     }
 
     if (info.indirectBuffer) {
         _gpuInputAssembler->gpuIndirectBuffer = static_cast<CCVKBuffer *>(info.indirectBuffer)->gpuBufferView();
+        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuIndirectBuffer.get());
     }
 
     _gpuInputAssembler->vertexBuffers.resize(vbCount);
@@ -71,6 +75,34 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
 
 void CCVKInputAssembler::doDestroy() {
     _gpuInputAssembler = nullptr;
+}
+
+void CCVKGPUInputAssembler::shutdown() {
+    auto *hub = CCVKDevice::getInstance()->gpuIAHub();
+    for (auto& vb : gpuVertexBuffers) {
+        hub->disengage(this, vb);
+    }
+    if (gpuIndexBuffer) {
+        hub->disengage(this, gpuIndexBuffer);
+    }
+    if (gpuIndirectBuffer) {
+        hub->disengage(this, gpuIndirectBuffer);
+    }
+}
+
+void CCVKGPUInputAssembler::update(const CCVKGPUBufferView *oldBuffer, const CCVKGPUBufferView *newBuffer) {
+    for (uint32_t i = 0; i < gpuVertexBuffers.size(); ++i) {
+        if (gpuVertexBuffers[i].get() == oldBuffer) {
+            gpuVertexBuffers[i] = newBuffer;
+            vertexBuffers[i] = newBuffer->gpuBuffer->vkBuffer;
+        }
+    }
+    if (gpuIndexBuffer.get() == oldBuffer) {
+        gpuIndexBuffer = newBuffer;
+    }
+    if (gpuIndirectBuffer.get() == oldBuffer) {
+        gpuIndirectBuffer = newBuffer;
+    }
 }
 
 } // namespace gfx

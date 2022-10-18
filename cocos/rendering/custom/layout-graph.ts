@@ -31,9 +31,10 @@
 /* eslint-disable max-len */
 import * as impl from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
+import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ccclass } from '../../core/data/decorators';
-import { OutputArchive } from './archive';
+import { OutputArchive, InputArchive } from './archive';
+import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
 
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
@@ -602,7 +603,7 @@ export class DescriptorSetLayoutData {
 }
 
 export class DescriptorSetData {
-    constructor (descriptorSetLayoutData: DescriptorSetLayoutData, descriptorSetLayout: DescriptorSetLayout | null, descriptorSet: DescriptorSet | null) {
+    constructor (descriptorSetLayoutData: DescriptorSetLayoutData = new DescriptorSetLayoutData(), descriptorSetLayout: DescriptorSetLayout | null = null, descriptorSet: DescriptorSet | null = null) {
         this.descriptorSetLayoutData = descriptorSetLayoutData;
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
@@ -615,6 +616,23 @@ export class DescriptorSetData {
 
 export class PipelineLayoutData {
     readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
+}
+
+export class ShaderBindingData {
+    readonly descriptorBindings: Map<number, number> = new Map<number, number>();
+}
+
+export class ShaderLayoutData {
+    readonly layoutData: Map<UpdateFrequency, DescriptorSetLayoutData> = new Map<UpdateFrequency, DescriptorSetLayoutData>();
+    readonly bindingData: Map<UpdateFrequency, ShaderBindingData> = new Map<UpdateFrequency, ShaderBindingData>();
+}
+
+export class TechniqueData {
+    readonly passes: ShaderLayoutData[] = [];
+}
+
+export class EffectData {
+    readonly techniques: Map<string, TechniqueData> = new Map<string, TechniqueData>();
 }
 
 export class ShaderProgramData {
@@ -811,6 +829,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         this.attributeIndex.clear();
         this.constantIndex.clear();
         this.shaderLayoutIndex.clear();
+        this.effects.clear();
         // ComponentGraph
         this._names.length = 0;
         this._updateFrequencies.length = 0;
@@ -1178,4 +1197,321 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     readonly attributeIndex: Map<string, number> = new Map<string, number>();
     readonly constantIndex: Map<string, number> = new Map<string, number>();
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
+    readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
+}
+
+export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB) {
+    ar.writeNumber(v.blocks.size); // Map<string, DescriptorBlock>
+    for (const [k1, v1] of v.blocks) {
+        saveDescriptorBlockIndex(ar, JSON.parse(k1));
+        saveDescriptorBlock(ar, v1);
+    }
+}
+
+export function loadDescriptorDB (ar: InputArchive, v: DescriptorDB) {
+    let sz = 0;
+    sz = ar.readNumber(); // Map<string, DescriptorBlock>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = new DescriptorBlockIndex();
+        loadDescriptorBlockIndex(ar, k1);
+        const v1 = new DescriptorBlock();
+        loadDescriptorBlock(ar, v1);
+        v.blocks.set(JSON.stringify(k1), v1);
+    }
+}
+
+export function saveRenderPhase (ar: OutputArchive, v: RenderPhase) {
+    ar.writeNumber(v.shaders.size); // Set<string>
+    for (const v1 of v.shaders) {
+        ar.writeString(v1);
+    }
+}
+
+export function loadRenderPhase (ar: InputArchive, v: RenderPhase) {
+    let sz = 0;
+    sz = ar.readNumber(); // Set<string>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = ar.readString();
+        v.shaders.add(v1);
+    }
+}
+
+export function saveUniformData (ar: OutputArchive, v: UniformData) {
+    ar.writeNumber(v.uniformID);
+    ar.writeNumber(v.uniformType);
+    ar.writeNumber(v.offset);
+    ar.writeNumber(v.size);
+}
+
+export function loadUniformData (ar: InputArchive, v: UniformData) {
+    v.uniformID = ar.readNumber();
+    v.uniformType = ar.readNumber();
+    v.offset = ar.readNumber();
+    v.size = ar.readNumber();
+}
+
+export function saveUniformBlockData (ar: OutputArchive, v: UniformBlockData) {
+    ar.writeNumber(v.bufferSize);
+    ar.writeNumber(v.uniforms.length); // UniformData[]
+    for (const v1 of v.uniforms) {
+        saveUniformData(ar, v1);
+    }
+}
+
+export function loadUniformBlockData (ar: InputArchive, v: UniformBlockData) {
+    v.bufferSize = ar.readNumber();
+    let sz = 0;
+    sz = ar.readNumber(); // UniformData[]
+    v.uniforms.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new UniformData();
+        loadUniformData(ar, v1);
+        v.uniforms[i1] = v1;
+    }
+}
+
+export function saveDescriptorData (ar: OutputArchive, v: DescriptorData) {
+    ar.writeNumber(v.descriptorID);
+    ar.writeNumber(v.count);
+}
+
+export function loadDescriptorData (ar: InputArchive, v: DescriptorData) {
+    v.descriptorID = ar.readNumber();
+    v.count = ar.readNumber();
+}
+
+export function saveDescriptorBlockData (ar: OutputArchive, v: DescriptorBlockData) {
+    ar.writeNumber(v.type);
+    ar.writeNumber(v.visibility);
+    ar.writeNumber(v.offset);
+    ar.writeNumber(v.capacity);
+    ar.writeNumber(v.descriptors.length); // DescriptorData[]
+    for (const v1 of v.descriptors) {
+        saveDescriptorData(ar, v1);
+    }
+}
+
+export function loadDescriptorBlockData (ar: InputArchive, v: DescriptorBlockData) {
+    v.type = ar.readNumber();
+    v.visibility = ar.readNumber();
+    v.offset = ar.readNumber();
+    v.capacity = ar.readNumber();
+    let sz = 0;
+    sz = ar.readNumber(); // DescriptorData[]
+    v.descriptors.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new DescriptorData();
+        loadDescriptorData(ar, v1);
+        v.descriptors[i1] = v1;
+    }
+}
+
+export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSetLayoutData) {
+    ar.writeNumber(v.slot);
+    ar.writeNumber(v.capacity);
+    ar.writeNumber(v.descriptorBlocks.length); // DescriptorBlockData[]
+    for (const v1 of v.descriptorBlocks) {
+        saveDescriptorBlockData(ar, v1);
+    }
+    ar.writeNumber(v.uniformBlocks.size); // Map<number, UniformBlock>
+    for (const [k1, v1] of v.uniformBlocks) {
+        ar.writeNumber(k1);
+        saveUniformBlock(ar, v1);
+    }
+}
+
+export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetLayoutData) {
+    v.slot = ar.readNumber();
+    v.capacity = ar.readNumber();
+    let sz = 0;
+    sz = ar.readNumber(); // DescriptorBlockData[]
+    v.descriptorBlocks.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new DescriptorBlockData();
+        loadDescriptorBlockData(ar, v1);
+        v.descriptorBlocks[i1] = v1;
+    }
+    sz = ar.readNumber(); // Map<number, UniformBlock>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = new UniformBlock();
+        loadUniformBlock(ar, v1);
+        v.uniformBlocks.set(k1, v1);
+    }
+}
+
+export function saveDescriptorSetData (ar: OutputArchive, v: DescriptorSetData) {
+    saveDescriptorSetLayoutData(ar, v.descriptorSetLayoutData);
+    saveDescriptorSetLayoutInfo(ar, v.descriptorSetLayoutInfo);
+    // skip, v.descriptorSetLayout: DescriptorSetLayout
+    // skip, v.descriptorSet: DescriptorSet
+}
+
+export function loadDescriptorSetData (ar: InputArchive, v: DescriptorSetData) {
+    loadDescriptorSetLayoutData(ar, v.descriptorSetLayoutData);
+    loadDescriptorSetLayoutInfo(ar, v.descriptorSetLayoutInfo);
+    // skip, v.descriptorSetLayout: DescriptorSetLayout
+    // skip, v.descriptorSet: DescriptorSet
+}
+
+export function savePipelineLayoutData (ar: OutputArchive, v: PipelineLayoutData) {
+    ar.writeNumber(v.descriptorSets.size); // Map<UpdateFrequency, DescriptorSetData>
+    for (const [k1, v1] of v.descriptorSets) {
+        ar.writeNumber(k1);
+        saveDescriptorSetData(ar, v1);
+    }
+}
+
+export function loadPipelineLayoutData (ar: InputArchive, v: PipelineLayoutData) {
+    let sz = 0;
+    sz = ar.readNumber(); // Map<UpdateFrequency, DescriptorSetData>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = new DescriptorSetData();
+        loadDescriptorSetData(ar, v1);
+        v.descriptorSets.set(k1, v1);
+    }
+}
+
+export function saveShaderBindingData (ar: OutputArchive, v: ShaderBindingData) {
+    ar.writeNumber(v.descriptorBindings.size); // Map<number, number>
+    for (const [k1, v1] of v.descriptorBindings) {
+        ar.writeNumber(k1);
+        ar.writeNumber(v1);
+    }
+}
+
+export function loadShaderBindingData (ar: InputArchive, v: ShaderBindingData) {
+    let sz = 0;
+    sz = ar.readNumber(); // Map<number, number>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = ar.readNumber();
+        v.descriptorBindings.set(k1, v1);
+    }
+}
+
+export function saveShaderLayoutData (ar: OutputArchive, v: ShaderLayoutData) {
+    ar.writeNumber(v.layoutData.size); // Map<UpdateFrequency, DescriptorSetLayoutData>
+    for (const [k1, v1] of v.layoutData) {
+        ar.writeNumber(k1);
+        saveDescriptorSetLayoutData(ar, v1);
+    }
+    ar.writeNumber(v.bindingData.size); // Map<UpdateFrequency, ShaderBindingData>
+    for (const [k1, v1] of v.bindingData) {
+        ar.writeNumber(k1);
+        saveShaderBindingData(ar, v1);
+    }
+}
+
+export function loadShaderLayoutData (ar: InputArchive, v: ShaderLayoutData) {
+    let sz = 0;
+    sz = ar.readNumber(); // Map<UpdateFrequency, DescriptorSetLayoutData>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = new DescriptorSetLayoutData();
+        loadDescriptorSetLayoutData(ar, v1);
+        v.layoutData.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<UpdateFrequency, ShaderBindingData>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = new ShaderBindingData();
+        loadShaderBindingData(ar, v1);
+        v.bindingData.set(k1, v1);
+    }
+}
+
+export function saveTechniqueData (ar: OutputArchive, v: TechniqueData) {
+    ar.writeNumber(v.passes.length); // ShaderLayoutData[]
+    for (const v1 of v.passes) {
+        saveShaderLayoutData(ar, v1);
+    }
+}
+
+export function loadTechniqueData (ar: InputArchive, v: TechniqueData) {
+    let sz = 0;
+    sz = ar.readNumber(); // ShaderLayoutData[]
+    v.passes.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new ShaderLayoutData();
+        loadShaderLayoutData(ar, v1);
+        v.passes[i1] = v1;
+    }
+}
+
+export function saveEffectData (ar: OutputArchive, v: EffectData) {
+    ar.writeNumber(v.techniques.size); // Map<string, TechniqueData>
+    for (const [k1, v1] of v.techniques) {
+        ar.writeString(k1);
+        saveTechniqueData(ar, v1);
+    }
+}
+
+export function loadEffectData (ar: InputArchive, v: EffectData) {
+    let sz = 0;
+    sz = ar.readNumber(); // Map<string, TechniqueData>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = new TechniqueData();
+        loadTechniqueData(ar, v1);
+        v.techniques.set(k1, v1);
+    }
+}
+
+export function saveShaderProgramData (ar: OutputArchive, v: ShaderProgramData) {
+    savePipelineLayoutData(ar, v.layout);
+}
+
+export function loadShaderProgramData (ar: InputArchive, v: ShaderProgramData) {
+    loadPipelineLayoutData(ar, v.layout);
+}
+
+export function saveRenderStageData (ar: OutputArchive, v: RenderStageData) {
+    ar.writeNumber(v.descriptorVisibility.size); // Map<number, ShaderStageFlagBit>
+    for (const [k1, v1] of v.descriptorVisibility) {
+        ar.writeNumber(k1);
+        ar.writeNumber(v1);
+    }
+}
+
+export function loadRenderStageData (ar: InputArchive, v: RenderStageData) {
+    let sz = 0;
+    sz = ar.readNumber(); // Map<number, ShaderStageFlagBit>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = ar.readNumber();
+        v.descriptorVisibility.set(k1, v1);
+    }
+}
+
+export function saveRenderPhaseData (ar: OutputArchive, v: RenderPhaseData) {
+    ar.writeString(v.rootSignature);
+    ar.writeNumber(v.shaderPrograms.length); // ShaderProgramData[]
+    for (const v1 of v.shaderPrograms) {
+        saveShaderProgramData(ar, v1);
+    }
+    ar.writeNumber(v.shaderIndex.size); // Map<string, number>
+    for (const [k1, v1] of v.shaderIndex) {
+        ar.writeString(k1);
+        ar.writeNumber(v1);
+    }
+}
+
+export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
+    v.rootSignature = ar.readString();
+    let sz = 0;
+    sz = ar.readNumber(); // ShaderProgramData[]
+    v.shaderPrograms.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new ShaderProgramData();
+        loadShaderProgramData(ar, v1);
+        v.shaderPrograms[i1] = v1;
+    }
+    sz = ar.readNumber(); // Map<string, number>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = ar.readNumber();
+        v.shaderIndex.set(k1, v1);
+    }
 }
