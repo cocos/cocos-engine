@@ -62,8 +62,8 @@ export class OpenHarmonyPackTool extends NativePackTool {
         }
 
         const moduleFile = ps.join(ohosProjDir, 'entry/src/main/module.json5');
-        const moduleJSON = fs.readJSONSync(moduleFile);
-        const cfg = this.params.platformParams.orientation;
+        let moduleJSON = this.readJSON5Sync(moduleFile);
+        const cfg = platformParams.orientation;
         if (cfg.landscapeLeft && cfg.landscapeRight && cfg.portrait) {
             moduleJSON.module.abilities[0].orientation = 'auto_rotation';
         }
@@ -87,7 +87,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
         await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/web-adapter.js'), "", ps.join(mainDir, 'ets/cocos/jsb-adapter/web-adapter.js'));
 
         const cfgFile = ps.join(ohosProjDir, 'AppScope/app.json5');
-        const configJSON = fs.readJSONSync(cfgFile);
+        let configJSON = this.readJSON5Sync(cfgFile);
         configJSON.app.bundleName = platformParams.packageName;
         outputJSONSync(cfgFile, configJSON, { spaces: 2 });
 
@@ -134,7 +134,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
         const hdcExe = "hdc_std";
         const projectDir = this.paths.platformTemplateDirInPrj;
         const packageName = this.params.platformParams.packageName;
-        const configJson = fs.readJSONSync(ps.join(projectDir, 'AppScope/app.json5'));
+        let configJson = this.readJSON5Sync(ps.join(projectDir, 'AppScope/app.json5'));
         //const moduleId = configJson.module.package + configJson.module.abilities[0].name;
         const ability = configJson.module.abilities[0].name;
         const moduleName = configJson.module.name;
@@ -158,6 +158,11 @@ export class OpenHarmonyPackTool extends NativePackTool {
             throw new Error('Please install hdc_std tool fist, doc: https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/subsystems/subsys-toolchain-hdc-guide.md')
         }
         return ps.join(sdkPath, 'toolchains', versionList[0], 'hdc_std');
+    }
+
+    private readJSON5Sync(json5FilePath: string): any {
+        let json5FileContent = fs.readFileSync(json5FilePath);
+        return JSON5.parse(json5FileContent.toString());
     }
 
     private selectHapFile(projectDir: string): string {
