@@ -10,7 +10,6 @@ const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 @Entry
 @Component
 struct Index {
-  context = null;
 
   cocosWorker = WorkerManager.getInstance().getWorker();
   aboutToAppear(): void  {
@@ -40,21 +39,12 @@ struct Index {
       XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos'})
         .onLoad((context) => {
           // Set the cache directory in the ts layer.
-          var cacheContext = featureAbility.getContext();
-          cacheContext.getCacheDir((err, data) => {
-            if (err.code != 0) {
-              return;
-            }
-            engineUtils.writablePathInit(data);
-          });
-
-          this.context = context;
           this.cocosWorker.postMessage({type: "onXCLoad", data: "XComponent"});
         })
         .onDestroy(() => {
           console.log('cocos onDestroy')
         })
-   }
+    }
     .width('100%')
     .height('100%')
   }
