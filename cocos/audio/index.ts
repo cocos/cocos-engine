@@ -23,16 +23,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import './audio-downloader';
+import './inner/audio-downloader';
 
-import { AudioSource } from './audio-source';
-import { cclegacy, js } from '../core';
+import { legacyCC } from '../core/global-exports';
+import { js } from '../core/utils/js';
 import './deprecated';
 
 export { AudioClip } from './audio-clip';
-export { AudioPlayer } from './audio-player';
 export { AudioPCMDataView, AudioState } from './type';
-export type { OperationQueueable } from './pal/operation-queue';
-export { AudioSource as AudioSourceComponent };
-cclegacy.AudioSourceComponent = AudioSource;
-js.setClassAlias(AudioSource, 'cc.AudioSourceComponent');

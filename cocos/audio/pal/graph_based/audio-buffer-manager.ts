@@ -49,6 +49,35 @@ class AudioBufferManager {
             delete this._audioBufferDataMap[url];
         }
     }
-}
+    public loadNative (ctx: AudioContext, url: string): Promise<AudioBuffer> {
+        return new Promise((resolve, reject) => {
+            const cachedAudioBuffer = audioBufferManager.getCache(url);
+            if (cachedAudioBuffer) {
+                audioBufferManager.retainCache(url);
+                resolve(cachedAudioBuffer);
+                return;
+            }
+            const xhr = new XMLHttpRequest();
+            const errInfo = `load audio failed: ${url}, status: `;
+            xhr.open('GET', url, true);
+            xhr.responseType = 'arraybuffer';
 
+            xhr.onload = () => {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    ctx.decodeAudioData(xhr.response).then((decodedAudioBuffer) => {
+                        audioBufferManager.addCache(url, decodedAudioBuffer);
+                        resolve(decodedAudioBuffer);
+                    }).catch((e) => {});
+                } else {
+                    reject(new Error(`${errInfo}${xhr.status}(no response)`));
+                }
+            };
+            xhr.onerror = () => { reject(new Error(`${errInfo}${xhr.status}(error)`)); };
+            xhr.ontimeout = () => { reject(new Error(`${errInfo}${xhr.status}(time out)`)); };
+            xhr.onabort = () => { reject(new Error(`${errInfo}${xhr.status}(abort)`)); };
+
+            xhr.send(null);
+        });
+    }
+}
 export const audioBufferManager = new AudioBufferManager();

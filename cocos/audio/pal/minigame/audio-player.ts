@@ -23,33 +23,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import { minigame } from 'pal/minigame';
-import { DynamicPath, IAudioPlayer, stateGraph, StateLinks, TinyOGraph, TinyOLink } from '../../playable';
+import { DynamicPath, Playable, stateGraph, AudioAction } from '../../inner/playable';
 import { AudioClip } from '../../audio-clip';
 import { EventTarget } from '../../../core/event';
-import { AudioAction, AudioEvent, AudioState } from '../../type';
-import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { Director, director, game } from '../../../game';
+import { AudioEvent, AudioState } from '../../type';
+import { Director, director } from '../../../game';
+import { clamp, clamp01 } from '../../../core';
 
-export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements IAudioPlayer  {
+export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements Playable  {
     // override properties.
     _innerOperation = (action: AudioAction) => {
         this._isTranslating = true;
         switch (action) {
-            case AudioAction.PLAY:
-            case AudioAction.REPLAY:
-                this._ctx.play();
-                break;
-            case AudioAction.PAUSE:
-                this._ctx.pause();
-                break;
-            case AudioAction.STOP:
-                this._ctx.stop();
-            default:
-                console.warn('Action is invalid, unable to act');
-                break;
+        case AudioAction.PLAY:
+            this._ctx.play();
+            if (this._cachedCurrentTime) {
+                this._ctx.seek(this._cachedCurrentTime);
+            }
+            break;
+        case AudioAction.PAUSE:
+            this._ctx.pause();
+            break;
+        case AudioAction.STOP:
+            this._ctx.stop();
+            break;
+        default:
+            console.warn('Action is invalid, unable to act');
+            break;
         }
     }
-    private _onInnerOperationEnd() {
+    private _onInnerOperationEnd () {
         this._isTranslating = false;
         this._applyOnePath();
     }
@@ -69,7 +72,11 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
     get loop (): boolean {
         return this._loop;
     }
+    get duration (): number {
+        return this._clip.getDuration();
+    }
     set currentTime (time: number) {
+        time = clamp(time, 0, this.duration);
         this._cachedCurrentTime = time;
         if (this.state == AudioState.PLAYING) {
             this._ctx.seek(time);
@@ -100,6 +107,7 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
         return this._node;
     }
     set volume (val: number) {
+        val = clamp01(val);
         this._ctx.volume = val;
     }
     get volume (): number {
@@ -107,68 +115,77 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
     }
     play () {
         this._eventTarget.emit(AudioEvent.PLAYED);
-        // this._state = PlayableStateMap[this._state][0];
+        if (this._dynamicPath.length > 0 || this._isTranslating) {
+            this._updatePathWithLink(this._node, AudioState.PLAYING, AudioAction.PLAY);
+            return;
+        }
+        this._isTranslating;
+        this._innerOperation(AudioAction.PLAY);
     }
     pause () {
         this._eventTarget.emit(AudioEvent.PAUSED);
-        // this._updateStatePath(this._state, AudioState.PAUSED, 1);
-        // Ultra operations for cache
-        // if (this._state == AudioState.PLAYING) {
-        //     this._cachedCurrentTime = this._ctx.currentTime;
-        // }
+        if (this._dynamicPath.length > 0 || this._isTranslating) {
+            this._updatePathWithLink(this._node, AudioState.PAUSED, AudioAction.PAUSE);
+            return;
+        }
+        this._isTranslating;
+        this._innerOperation(AudioAction.PAUSE);
     }
 
     stop () {
         this._eventTarget.emit(AudioEvent.STOPPED);
-        // this._updateStatePath(this._state, AudioState.STOPPED, 2);
-        // Ultra operations for cache
+        if (this._dynamicPath.length > 0 || this._isTranslating) {
+            this._updatePathWithLink(this._node, AudioState.STOPPED, AudioAction.STOP);
+            return;
+        }
+        this._isTranslating;
+        this._innerOperation(AudioAction.STOP);
     }
-    
+
     constructor (clip: AudioClip) {
         super();
         this._clip = clip;
+        // TODO(timlyeee): AudioContext pool for reused ctx.
         this._ctx = minigame.createInnerAudioContext();
-        this._ctx.src = clip.nativeUrl;
-        this._isTranslating = true;
+        this._registerCtxEvent();
 
+        this._isTranslating = true;
+        this._ctx.src = clip.nativeUrl;
         // Dynamic path
         this._node = AudioState.READY;
         this._graph = stateGraph;
-        
-        this._registerCtxEvent();
-        
     }
-    
+
     // Should we really care about when will this innerCtx play and callback?
     private _registerCtxEvent () {
-        this._ctx.onCanplay(()=>{
+        if (this._ctx === null) {
+            console.error('InnerAudioContext was not created, API is missing?');
+            return;
+        }
+        this._ctx.onCanplay(() => {
             this._onInnerOperationEnd();
-            this._eventTarget.emit(AudioEvent.READY);
         });
-        this._ctx.onPlay(()=>{
+        this._ctx.onPlay(() => {
             this._onInnerOperationEnd();
-            this._eventTarget.emit(AudioEvent.PLAYED);
         });
-        this._ctx.onPause(()=>{
+        this._ctx.onPause(() => {
             this._onInnerOperationEnd();
-            this._eventTarget.emit(AudioEvent.PAUSED);
         });
-        this._ctx.onStop(()=>{
+        this._ctx.onStop(() => {
             this._onInnerOperationEnd();
-            this._eventTarget.emit(AudioEvent.STOPPED);
         });
-        this._ctx.onSeeked(()=>{
+        this._ctx.onSeeked(() => {
             this._onInnerOperationEnd();
-            this._eventTarget.emit(AudioEvent.SEEKED);
         });
-        this._ctx.onError((err)=>{
-            console.error('Error occurs' + err);
-        })
         this._ctx.onEnded(() => {
             this._onInnerOperationEnd();
-            this._eventTarget.emit(AudioEvent.ENDED);
         });
-        
+        this._ctx.onError((err) => {
+            console.error(`Error occurs to inner audio context with error ${err.toString()}`);
+            this._ctx && this._ctx.destroy();
+            // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'
+            this._ctx = null;
+        });
         director.on(Director.EVENT_END_FRAME, () => {
             this._update();
         });
@@ -179,11 +196,32 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
      * Also, event to emit will be concluded here so that innerAudioCtx could be in light use.
      */
     private _update () {
+        // On Minigame platform, apply one path will recursively apply all paths.
         this._applyOnePath();
+    }
+    private _onHide () {
+        // Hide is a special state that if is playing, all translate to Interrupted state.
 
+        if (this._node === AudioState.PLAYING) {
+            if (this._isTranslating) {
+                this._updatePathWithLink(this._node, AudioState.INTERRUPTED, AudioAction.PAUSE);
+                return;
+            }
+            this._isTranslating;
+            this._innerOperation(AudioAction.PAUSE);
+            this._node = AudioState.INTERRUPTED;
+        }
+    }
+    private _onShow () {
+        // Only interrupted if the old state is playing.
+        if (this._node === AudioState.INTERRUPTED) {
+            // No path should exist once it's already paused.
+            this._innerOperation(AudioAction.PLAY);
+            this._node = AudioState.PLAYING;
+        }
     }
     _node : AudioState = AudioState.READY;
-    _eventTarget: EventTarget = new EventTarget();
+    private _eventTarget: EventTarget = new EventTarget();
     private _clip: AudioClip;
     private _ctx: InnerAudioContext;
     private _loop = false;
@@ -193,6 +231,4 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
     */
     private _isTranslating = false;
     private _cachedCurrentTime = 0;
-    
-    
 }

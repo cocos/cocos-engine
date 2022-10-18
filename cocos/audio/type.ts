@@ -10,18 +10,6 @@ export enum AudioEvent {
     USER_GESTURE = 'on_gesture',  // only web needed
 }
 
-export enum AudioType {
-    DOM_AUDIO,
-    WEB_AUDIO,
-    MINIGAME_AUDIO,
-    NATIVE_AUDIO,
-    UNKNOWN_AUDIO,
-}
-
-export interface AudioLoadOptions {
-    audioLoadMode?: AudioType,
-}
-
 export enum AudioState {
     READY,
     PLAYING,
@@ -29,13 +17,7 @@ export enum AudioState {
     STOPPED,
     INTERRUPTED,
 }
-// All actions are positive
-export enum AudioAction {
-    PLAY,
-    REPLAY,
-    PAUSE,
-    STOP,
-}
+
 enum AudioErrorCode {
     LOAD_FAILED,
     LOAD_REJECTED,
@@ -43,12 +25,35 @@ enum AudioErrorCode {
     PLAY_REJECTED,
     //etc. TODO(timlyeee): Accomplish error mechanism
 }
+
+export interface PlayerOptions {
+    loop?: boolean;
+    volume?: number;
+    isDom?: boolean; //Only for web
+}
 export interface AudioOperationResult {
     success: boolean,
     error: AudioErrorCode,
 }
 export type AudioBufferView = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
-
+export enum AudioFormat {
+    UNKNOWN,
+    SIGNED_8,
+    UNSIGNED_8,
+    SIGNED_16,
+    UNSIGNED_16,
+    SIGNED_32,
+    UNSIGNED_32,
+    FLOAT_32,
+    FLOAT_64
+}
+export interface AudioPCMHeader {
+    totalFrames: number;
+    sampleRate: number;
+    bytesPerFrame: number;
+    audioFormat: AudioFormat;
+    channelCount: number;
+}
 export class AudioPCMDataView {
     private _bufferView: AudioBufferView;
     private _normalizeFactor = 1;

@@ -26,14 +26,13 @@
 import { ccclass, serializable, override } from 'cc.decorator';
 import { Asset } from '../asset/assets/asset';
 import { legacyCC } from '../core/global-exports';
-import { AudioType } from '../../pal/audio/type';
+import { AudioPCMHeader } from './type';
 
 export interface AudioMeta {
     // player: AudioPlayer | null,
     url: string;
-    type: AudioType;
     duration: number;
-    pcmHeader: Audio.PCMHeader;
+    pcmHeader: AudioPCMHeader;
 }
 
 /**
@@ -44,12 +43,8 @@ export interface AudioMeta {
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
-    public static AudioType = AudioType;
-
     @serializable
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
-
-    protected _loadMode: AudioType = AudioType.UNKNOWN_AUDIO;
 
     protected _meta: AudioMeta | null = null;
 
@@ -63,15 +58,12 @@ export class AudioClip extends Asset {
      */
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
-        if (meta) {
-            this._loadMode = meta.type;
-        } else {
+        if (!meta) {
             this._meta = null;
-            this._loadMode = AudioType.UNKNOWN_AUDIO;
             this._duration = 0;
         }
     }
-    get _nativeAsset () {
+    get _nativeAsset () : AudioMeta | null {
         return this._meta;
     }
 
@@ -82,14 +74,9 @@ export class AudioClip extends Asset {
     get _nativeDep () {
         return {
             uuid: this._uuid,
-            audioLoadMode: this.loadMode,
             ext: this._native,
             __isNative__: true,
         };
-    }
-
-    get loadMode (): AudioType {
-        return this._loadMode;
     }
 
     public validate () {

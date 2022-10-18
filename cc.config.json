@@ -274,16 +274,23 @@
             }
         },
         {
+            "test": "context.platform === 'NATIVE'",
+            "isVirtualModule": true,
+            "overrides": {
+                "cocos/audio": "cocos/audio/graph_based/index.ts"
+            }  
+        },
+        {
             "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
-                "pal/audio": "pal/audio/web/player.ts",
                 "pal/system-info": "pal/system-info/web/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
                 "pal/env": "pal/env/web/env.ts",
-                "pal/pacer": "pal/pacer/pacer-web.ts"
+                "pal/pacer": "pal/pacer/pacer-web.ts",
+                "cocos/audio": "cocos/audio/web/index.ts"
             }
         },
         {
@@ -304,12 +311,12 @@
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
-                "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "cocos/audio": "cocos/audio/minigame/index.ts"
             }
         },
         {
@@ -317,12 +324,12 @@
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/runtime.ts",
-                "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/runtime/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "cocos/audio": "cocos/audio/minigame/index.ts"
             }
         },
         {

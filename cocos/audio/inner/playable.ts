@@ -23,10 +23,8 @@
  THE SOFTWARE.
  */
 
-import { AudioClip } from './audio-clip';
-import { OperationQueueable } from './pal/operation-queue';
-import { AudioState , AudioAction} from './type';
-
+import { AudioClip } from '../audio-clip';
+import { AudioState } from '../type';
 
 /**
  * Link for action from one to another, for example play to pause, we treat action as AudioAction.PAUSE
@@ -39,24 +37,25 @@ export interface TinyOLink<T, ACTION> {
 }
 export class TinyOGraph<T, ACTION> {
     _links: TinyOLink<T, ACTION>[] = [];
-    findLink(src: T, dst: T, action: ACTION): TinyOLink<T, ACTION> | undefined {
-        return this._links.find((lk)=>{
+    findLink (src: T, dst: T, action: ACTION): TinyOLink<T, ACTION> | undefined {
+        return this._links.find((lk): boolean => {
             if (lk._src === src && lk._dst === dst && lk._action === action) {
                 return true;
             }
+            return false;
         });
     }
-    constructor(links: TinyOLink<T, ACTION>[]) {
+    constructor (links: TinyOLink<T, ACTION>[]) {
         this._links = links;
     }
 }
 
-/** 
+/**
  * Responsable to state change of AudioPlayer.
  * The dynamic path will update each time a link is added.
  */
 export class DynamicPath<T, ACTION> {
-    get currentNode(): T | null {
+    get currentNode (): T | null {
         return this._node;
     }
     _node: T | null = null;
@@ -76,7 +75,7 @@ export class DynamicPath<T, ACTION> {
                 if (innerLink) {
                     this._dynamicPath.splice(idx, this._dynamicPath.length - idx);
                     this._dynamicPath.push(innerLink);
-                    
+
                     return;
                 }
             }
@@ -84,43 +83,48 @@ export class DynamicPath<T, ACTION> {
         }
     }
     // Immediatly apply state change
-    _applyPath() {
+    _applyPath () {
         // Operate state changes.
         for (const link of this._dynamicPath) {
             this._innerOperation && this._innerOperation(link._action);
         }
         this._dynamicPath = [];
     }
-    _applyOnePath() {
+    _applyOnePath () {
         if (this._dynamicPath.length > 0) {
             this._innerOperation && this._innerOperation(this._dynamicPath[0]._action);
             this._dynamicPath.splice(0, 1);
         }
     }
-    _cleanPath() {
+    _cleanPath () {
         this._dynamicPath = [];
     }
     // Hope this function will never be used.
-    _forceSetNode(node : T) {
+    _forceSetNode (node : T) {
         this._node = node;
     }
 }
 
-
+// All actions are positive
+export enum AudioAction {
+    PLAY,
+    PAUSE,
+    STOP,
+}
 
 export const StateLinks = [
     { _src: AudioState.READY, _dst: AudioState.PLAYING, _action: AudioAction.PLAY },
-    { _src: AudioState.PLAYING, _dst: AudioState.PLAYING, _action: AudioAction.REPLAY},
+    { _src: AudioState.PLAYING, _dst: AudioState.PLAYING, _action: AudioAction.PLAY },
     { _src: AudioState.PLAYING, _dst: AudioState.PAUSED, _action: AudioAction.PAUSE },
     { _src: AudioState.PLAYING, _dst: AudioState.STOPPED, _action: AudioAction.STOP },
     { _src: AudioState.PAUSED, _dst: AudioState.PLAYING, _action: AudioAction.PLAY },
     { _src: AudioState.PAUSED, _dst: AudioState.STOPPED, _action: AudioAction.STOP },
     { _src: AudioState.STOPPED, _dst: AudioState.PLAYING, _action: AudioAction.PLAY },
-]
+];
 
-export const stateGraph = new TinyOGraph<AudioState,AudioAction>(StateLinks);
+export const stateGraph = new TinyOGraph<AudioState, AudioAction>(StateLinks);
 
-export interface IAudioPlayer {
+export interface Playable {
     set clip(clip: AudioClip);
     get clip(): AudioClip;
     set loop(loop: boolean);
@@ -133,6 +137,7 @@ export interface IAudioPlayer {
     get playbackRate(): number;
     set pan(pan: number);
     get pan(): number;
+    get state(): AudioState;
     play();
     pause();
     stop();

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { AudioSource } from './audio-source';
 import { replaceProperty, markAsWarning } from '../core';
+// import { AudioSource } from './audio-source';
 import { AudioClip } from './audio-clip';
 
 // remove AudioClip static property
@@ -32,7 +32,7 @@ replaceProperty(AudioClip, 'AudioClip', [
     {
         name: 'PlayingState',
         newName: 'AudioState',
-        target: AudioSource,
+        // target: AudioSource,
         targetName: 'AudioSource',
     },
 ]);

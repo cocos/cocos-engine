@@ -1,10 +1,39 @@
-import { systemInfo } from 'pal/system-info';
-import { AudioEvent, AudioState, AudioPCMDataView, AudioType } from '../../type';
-import { EventTarget } from '../../../cocos/core/event';
-import { clamp, clamp01 } from '../../../cocos/core';
-import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { BrowserType, OS } from '../../system-info/enum-type';
+/*
+Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
+https://www.cocos.com/
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated engine source code (the "Software"), a limited,
+worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+to use Cocos Creator solely to develop games on your target platforms. You shall
+not use Cocos Creator software for developing other software or tools that's
+used for developing games. You are not granted to publish, distribute,
+sublicense, and/or sell copies of Cocos Creator.
+
+The software or tools in this License Agreement are licensed, not sold.
+Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+import { systemInfo } from 'pal/system-info';
+import { DynamicPath, Playable, AudioAction, stateGraph, StateLinks, TinyOGraph, TinyOLink } from '../../inner/playable';
+import { AudioClip } from '../../audio-clip';
+import { EventTarget } from '../../../core/event';
+import { AudioEvent, AudioState, PlayerOptions } from '../../type';
+import { Director } from '../../../game';
+import { clamp, clamp01 } from '../../../core';
+import { AudioPlayer } from './audio-player';
+
+export function playOneShot (clip: AudioClip, volumeScale: number) {
+
+}
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     return new Promise((resolve) => {
         const promise = domAudio.play();
@@ -24,70 +53,62 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     });
 }
 
-export class OneShotAudioDOM {
-    private _domAudio: HTMLAudioElement;
-    private _onPlayCb?: () => void;
-    get onPlay () {
-        return this._onPlayCb;
-    }
-    set onPlay (cb) {
-        this._onPlayCb = cb;
-    }
-
-    private _onEndCb?: () => void;
-    get onEnd () {
-        return this._onEndCb;
-    }
-    set onEnd (cb) {
-        if (this._onEndCb) {
-            this._domAudio.removeEventListener('ended', this._onEndCb);
+export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> implements Playable {
+    _innerOperation = (action: AudioAction) => {
+        this._isTranslating = true;
+        switch (action) {
+        case AudioAction.PLAY:
+            ensurePlaying(this._domAudio).then(() => {
+                this._isTranslating = false;
+                this._applyPath();
+            }).catch((err:Error) => {
+                console.error(err.message);
+            });
+            break;
+        case AudioAction.PAUSE:
+            this._domAudio.pause();
+            break;
+        case AudioAction.STOP:
+            this._domAudio.pause();
+            this._domAudio.currentTime = 0;
+            break;
+        default:
+            console.warn('Action is invalid, unable to act');
+            break;
         }
-        this._onEndCb = cb;
-        if (cb) {
-            this._domAudio.addEventListener('ended', cb);
-        }
     }
-
-    private constructor (nativeAudio: HTMLAudioElement, volume: number) {
-        this._domAudio = nativeAudio;
-        nativeAudio.volume =  volume;
-    }
-    public play (): void {
-        ensurePlaying(this._domAudio).then(() => {
-            this.onPlay?.();
-        }).catch((e) => {});
-    }
-    public stop (): void {
-        this._domAudio.pause();
-    }
-}
-
-export class AudioPlayerDOM implements OperationQueueable {
-    private _domAudio: HTMLAudioElement;
-    private _state: AudioState = AudioState.INIT;
-    private _onEnded: () => void;
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _eventTarget: EventTarget = new EventTarget();
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _operationQueue: OperationInfo[] = [];
-
-    constructor (nativeAudio: HTMLAudioElement) {
-        this._domAudio = nativeAudio;
+    private _clip: AudioClip;
+    constructor (clip: AudioClip, options?: PlayerOptions) {
+        super();
+        this._clip = clip;
+        // TODO(timlyeee): AudioContext pool for reused audio.
+        this._domAudio = new Audio(clip.nativeUrl);
+        this._domAudio.src = clip.nativeUrl;
 
         // event
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
-        this._onEnded = () => {
-            this.seek(0).catch((e) => {});
-            this._state = AudioState.INIT;
-            this._eventTarget.emit(AudioEvent.ENDED);
-        };
+
         this._domAudio.addEventListener('ended', this._onEnded);
+    }
+    set clip (clip: AudioClip) {
+        this._domAudio.src = clip.nativeUrl;
+    }
+    get clip (): AudioClip {
+        return this.clip;
+    }
+    set playbackRate (rate: number) {
+        this._domAudio.playbackRate = rate;
+    }
+    get playbackRate (): number {
+        return this._domAudio.playbackRate;
+    }
+    set pan (pan: number) {
+        console.error('Pan setting is not supported on current platform');
+    }
+    get pan (): number {
+        console.error('Pan setting is not supported on current platform');
+        return 0; // 0 is center
     }
 
     destroy () {
@@ -97,85 +118,39 @@ export class AudioPlayerDOM implements OperationQueueable {
         // @ts-expect-error need to release DOM Audio instance
         this._domAudio = null;
     }
-    static load (url: string): Promise<AudioPlayerDOM> {
-        return new Promise((resolve) => {
-            AudioPlayerDOM.loadNative(url).then((domAudio) => {
-                resolve(new AudioPlayerDOM(domAudio));
-            }).catch((e) => {});
-        });
+    private _onEnded () {
+        this.currentTime = 0;
+        this._cleanPath();
+        this._forceSetNode(AudioState.READY);
+        this._eventTarget.emit(AudioEvent.ENDED);
     }
-    static loadNative (url: string): Promise<HTMLAudioElement> {
-        return new Promise((resolve, reject) => {
-            const domAudio = document.createElement('audio');
-            let loadedEvent = 'canplaythrough';
-            if (systemInfo.os === OS.IOS) {
-                // iOS no event that used to parse completed callback
-                // this time is not complete, can not play
-                loadedEvent = 'loadedmetadata';
-            } else if (systemInfo.browserType === BrowserType.FIREFOX) {
-                loadedEvent = 'canplay';
-            }
-
-            const timer = setTimeout(() => {
-                if (domAudio.readyState === 0) {
-                    failure();
-                } else {
-                    success();
-                }
-            }, 8000);
-            const clearEvent = () => {
-                clearTimeout(timer);
-                domAudio.removeEventListener(loadedEvent, success, false);
-                domAudio.removeEventListener('error', failure, false);
-            };
-            const success = () => {
-                clearEvent();
-                resolve(domAudio);
-            };
-            const failure = () => {
-                clearEvent();
-                const message = `load audio failure - ${url}`;
-                reject(message);
-            };
-            domAudio.addEventListener(loadedEvent, success, false);
-            domAudio.addEventListener('error', failure, false);
-            domAudio.src = url;
-        });
-    }
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioDOM> {
-        return new Promise((resolve, reject) => {
-            AudioPlayerDOM.loadNative(url).then((domAudio) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new OneShotAudioDOM(domAudio, volume);
-                resolve(oneShotAudio);
-            }).catch(reject);
-        });
-    }
-
     private _onHide () {
-        if (this._state === AudioState.PLAYING) {
-            this.pause().then(() => {
-                this._state = AudioState.INTERRUPTED;
-                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-            }).catch((e) => {});
+        // Hide is a special state that if is playing, all translate to Interrupted state.
+
+        if (this._node === AudioState.PLAYING) {
+            if (this._isTranslating) {
+                this._updatePathWithLink(this._node, AudioState.INTERRUPTED, AudioAction.PAUSE);
+                return;
+            }
+            this._isTranslating;
+            this._innerOperation(AudioAction.PAUSE);
+            this._node = AudioState.INTERRUPTED;
         }
     }
     private _onShow () {
-        if (this._state === AudioState.INTERRUPTED) {
-            this.play().then(() => {
-                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-            }).catch((e) => {});
+        // Only interrupted if the old state is playing.
+        if (this._node === AudioState.INTERRUPTED) {
+            // No path should exist once it's already paused.
+            this._innerOperation(AudioAction.PLAY);
+            this._node = AudioState.PLAYING;
         }
     }
 
     get src (): string {
         return this._domAudio ? this._domAudio.src : '';
     }
-    get type (): AudioType {
-        return AudioType.DOM_AUDIO;
-    }
     get state (): AudioState {
-        return this._state;
+        return this._node;
     }
     get loop (): boolean {
         return this._domAudio.loop;
@@ -191,54 +166,56 @@ export class AudioPlayerDOM implements OperationQueueable {
         this._domAudio.volume = val;
     }
     get duration (): number {
-        return this._domAudio.duration;
+        return this._clip.getDuration();
     }
     get currentTime (): number {
         return this._domAudio.currentTime;
     }
 
-    get sampleRate (): number {
-        return 0;
-    }
-
-    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
-        return undefined;
-    }
-
-    @enqueueOperation
-    seek (time: number): Promise<void> {
+    set currentTime (time: number) {
         time = clamp(time, 0, this.duration);
-        this._domAudio.currentTime = time;
-        return Promise.resolve();
+        this._domAudio.fastSeek ? this._domAudio.fastSeek(time) : this._domAudio.currentTime = time;
     }
 
-    @enqueueOperation
-    play (): Promise<void> {
-        return new Promise((resolve) => {
-            ensurePlaying(this._domAudio).then(() => {
-                this._state = AudioState.PLAYING;
-                resolve();
-            }).catch((e)  => {});
-        });
+    play () {
+        this._eventTarget.emit(AudioEvent.PLAYED);
+        if (this._dynamicPath.length > 0 || this._isTranslating) {
+            this._updatePathWithLink(this._node, AudioState.PLAYING, AudioAction.PLAY);
+            return;
+        }
+        this._isTranslating;
+        this._innerOperation(AudioAction.PLAY);
     }
 
-    @enqueueOperation
-    pause (): Promise<void> {
-        this._domAudio.pause();
-        this._state = AudioState.PAUSED;
-        return Promise.resolve();
+    pause () {
+        this._eventTarget.emit(AudioEvent.PAUSED);
+        if (this._dynamicPath.length > 0 || this._isTranslating) {
+            this._updatePathWithLink(this._node, AudioState.PAUSED, AudioAction.PAUSE);
+            return;
+        }
+        this._isTranslating;
+        this._innerOperation(AudioAction.PAUSE);
     }
 
-    @enqueueOperation
-    stop (): Promise<void> {
-        return new Promise((resolve) => {
-            this._domAudio.pause();
-            this._domAudio.currentTime = 0;
-            this._state = AudioState.STOPPED;
-            resolve();
-        });
+    stop () {
+        this._eventTarget.emit(AudioEvent.PLAYED);
+        if (this._dynamicPath.length > 0 || this._isTranslating) {
+            this._updatePathWithLink(this._node, AudioState.STOPPED, AudioAction.STOP);
+            return;
+        }
+        this._isTranslating;
+        this._innerOperation(AudioAction.STOP);
     }
-
+    private _domAudio: HTMLAudioElement;
+    private _eventTarget: EventTarget = new EventTarget();
+    _node : AudioState = AudioState.READY;
+    // private _clip: AudioClip;
+    private _loop = false;
+    /**
+     * When the last operation is not finished, and the next operation is coming, this parameter becomes important.
+     * For minigame, this situation happens all the time.
+    */
+    private _isTranslating = false;
     onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
     offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
     onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
