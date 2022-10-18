@@ -1473,6 +1473,8 @@ endif()
 
 if(CC_USE_GLES2)
     cocos_source_files(
+                     cocos/renderer/gfx-gles2/GLES2AccelerationStructure.cpp
+                     cocos/renderer/gfx-gles2/GLES2AccelerationStructure.h
                      cocos/renderer/gfx-gles2/GLES2Buffer.cpp
                      cocos/renderer/gfx-gles2/GLES2Buffer.h
                      cocos/renderer/gfx-gles2/GLES2CommandBuffer.cpp
@@ -1520,6 +1522,8 @@ endif()
 
 if(CC_USE_GLES3)
     cocos_source_files(
+                     cocos/renderer/gfx-gles3/GLES3AccelerationStructure.cpp
+                     cocos/renderer/gfx-gles3/GLES3AccelerationStructure.h
                      cocos/renderer/gfx-gles3/GLES3Buffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Buffer.h
                      cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp
@@ -1569,6 +1573,8 @@ endif()
 
 if(CC_USE_METAL)
     cocos_source_files(
+                             cocos/renderer/gfx-metal/MTLAccelerationStructure.h
+                             cocos/renderer/gfx-metal/MTLAccelerationStructure.mm
                              cocos/renderer/gfx-metal/MTLBuffer.h
                              cocos/renderer/gfx-metal/MTLBuffer.mm
                              cocos/renderer/gfx-metal/MTLCommandBuffer.h
