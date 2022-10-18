@@ -1269,6 +1269,8 @@ export function saveLayoutGraph (ar: OutputArchive, g: LayoutGraph) {
         case LayoutGraphValue.RenderPhase:
             numPhases += 1;
             break;
+        default:
+            break;
         }
     }
     ar.writeNumber(numStages);
@@ -1279,11 +1281,15 @@ export function saveLayoutGraph (ar: OutputArchive, g: LayoutGraph) {
         ar.writeString(g.getName(v));
         saveDescriptorDB(ar, g.getDescriptors(v));
         switch (g.id(v)) {
-        case LayoutGraphValue.RenderStage:
+        case LayoutGraphValue.RenderStage: {
             ar.writeNumber(g.getRenderStage(v));
             break;
-        case LayoutGraphValue.RenderPhase:
+        }
+        case LayoutGraphValue.RenderPhase: {
             saveRenderPhase(ar, g.getRenderPhase(v));
+            break;
+        }
+        default:
             break;
         }
     }
@@ -1309,6 +1315,8 @@ export function loadLayoutGraph (ar: InputArchive, g: LayoutGraph) {
             const renderPhase = new RenderPhase();
             loadRenderPhase(ar, renderPhase);
             g.addVertex<LayoutGraphValue.RenderPhase>(LayoutGraphValue.RenderPhase, renderPhase, name, descriptors, u);
+            break;
+        default:
             break;
         }
     }
@@ -1609,6 +1617,8 @@ export function saveLayoutGraphData (ar: OutputArchive, g: LayoutGraphData) {
         case LayoutGraphDataValue.RenderPhase:
             numPhases += 1;
             break;
+        default:
+            break;
         }
     }
     ar.writeNumber(numStages);
@@ -1620,11 +1630,15 @@ export function saveLayoutGraphData (ar: OutputArchive, g: LayoutGraphData) {
         ar.writeNumber(g.getUpdate(v));
         savePipelineLayoutData(ar, g.getLayout(v));
         switch (g.id(v)) {
-        case LayoutGraphDataValue.RenderStage:
+        case LayoutGraphDataValue.RenderStage: {
             saveRenderStageData(ar, g.getRenderStage(v));
             break;
-        case LayoutGraphDataValue.RenderPhase:
+        }
+        case LayoutGraphDataValue.RenderPhase: {
             saveRenderPhaseData(ar, g.getRenderPhase(v));
+            break;
+        }
+        default:
             break;
         }
     }
@@ -1676,6 +1690,8 @@ export function loadLayoutGraphData (ar: InputArchive, g: LayoutGraphData) {
             const renderPhase = new RenderPhaseData();
             loadRenderPhaseData(ar, renderPhase);
             g.addVertex<LayoutGraphDataValue.RenderPhase>(LayoutGraphDataValue.RenderPhase, renderPhase, name, update, layout, u);
+            break;
+        default:
             break;
         }
     }
