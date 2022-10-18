@@ -74,6 +74,13 @@ void TextureValidator::doInit(const TextureInfo &info) {
             }
             break;
         }
+        case TextureType::TEX1D_ARRAY: {
+            if (std::min(info.width, info.height) > 1 || std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxTextureSize
+                || info.layerCount > DeviceValidator::getInstance()->getCapabilities().maxArrayTextureLayers) {
+                CC_ASSERT(false);
+            }
+            break;
+        }
         case TextureType::TEX2D_ARRAY: {
             if (std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxTextureSize
                 || info.layerCount > DeviceValidator::getInstance()->getCapabilities().maxArrayTextureLayers) {
