@@ -1,5 +1,5 @@
 {
-  "apiType": 'faMode',
+  "apiType": 'stageMode',
   "buildOption": {
     "externalNativeOptions": {
       "path": "../CMakeLists.txt",

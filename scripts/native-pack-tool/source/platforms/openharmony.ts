@@ -61,15 +61,33 @@ export class OpenHarmonyPackTool extends NativePackTool {
             console.log(`rewrite buildCfgJson err: ${e}`);
         }
 
+        const moduleFile = ps.join(ohosProjDir, 'entry/src/main/module.json5');
+        let moduleJSON = this.readJSON5Sync(moduleFile);
+        const cfg = platformParams.orientation;
+        if (cfg.landscapeLeft && cfg.landscapeRight && cfg.portrait) {
+            moduleJSON.module.abilities[0].orientation = 'auto_rotation';
+        }
+        else if (cfg.landscapeRight && !cfg.landscapeLeft) {
+            moduleJSON.module.abilities[0].orientation = 'landscape';
+        }
+        else if (!cfg.landscapeRight && cfg.landscapeLeft) {
+            moduleJSON.module.abilities[0].orientation = 'landscape_inverted';
+        }
+        else if (cfg.landscapeRight && cfg.landscapeLeft) {
+            moduleJSON.module.abilities[0].orientation = 'auto_rotation_landscape';
+        }
+        else if (cfg.portrait) {
+            moduleJSON.module.abilities[0].orientation = 'portrait';
+        }
+        outputJSONSync(moduleFile, moduleJSON, { spaces: 2 });
 
-
-        // copy jsb-adapter to entry/src/main/ets/MainAbility/cocos/jsb-adapter
+        // copy jsb-adapter to entry/src/main/ets/cocos/jsb-adapter
         const mainDir = ps.join(ohosProjDir, 'entry/src/main');
-        await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/engine-adapter.js'), "", ps.join(mainDir, 'ets/MainAbility/cocos/jsb-adapter/engine-adapter.js'));
-        await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/web-adapter.js'), "", ps.join(mainDir, 'ets/MainAbility/cocos/jsb-adapter/web-adapter.js'));
+        await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/engine-adapter.js'), "", ps.join(mainDir, 'ets/cocos/jsb-adapter/engine-adapter.js'));
+        await cchelper.copyFileSync("", ps.join(assetsDir, 'jsb-adapter/web-adapter.js'), "", ps.join(mainDir, 'ets/cocos/jsb-adapter/web-adapter.js'));
 
-        const cfgFile = ps.join(ohosProjDir, 'entry/src/main/config.json');
-        const configJSON = fs.readJSONSync(cfgFile);
+        const cfgFile = ps.join(ohosProjDir, 'AppScope/app.json5');
+        let configJSON = this.readJSON5Sync(cfgFile);
         configJSON.app.bundleName = platformParams.packageName;
         outputJSONSync(cfgFile, configJSON, { spaces: 2 });
 
@@ -116,8 +134,10 @@ export class OpenHarmonyPackTool extends NativePackTool {
         const hdcExe = "hdc_std";
         const projectDir = this.paths.platformTemplateDirInPrj;
         const packageName = this.params.platformParams.packageName;
-        const configJson = fs.readJSONSync(ps.join(projectDir, 'entry/src/main/config.json'));
-        const moduleId = configJson.module.package + configJson.module.mainAbility;
+        let configJson = this.readJSON5Sync(ps.join(projectDir, 'AppScope/app.json5'));
+        //const moduleId = configJson.module.package + configJson.module.abilities[0].name;
+        const ability = configJson.module.abilities[0].name;
+        const moduleName = configJson.module.name;
         const hapFile = this.selectHapFile(projectDir);
         console.debug(`Start run hap ${hapFile} ...`);
         console.debug(`${hdc} uninstall ${packageName}`);
@@ -126,9 +146,9 @@ export class OpenHarmonyPackTool extends NativePackTool {
         console.debug(`${hdc} install -r ${hapFile}`);
         await cchelper.runCmd(
             hdcExe,['install', '-r', hapFile], false, hdcCwd);
-        console.debug(`${hdc} shell aa start -a ${moduleId} -b ${packageName}`);
+        console.debug(`${hdc} shell aa start -a ${ability} -b ${packageName}`);
         await cchelper.runCmd(
-            hdcExe, ['shell', 'aa', 'start', '-a', moduleId, '-b', packageName], false, hdcCwd);
+            hdcExe, ['shell', 'aa', 'start', '-a', ability, '-b', packageName, '-m', moduleName], false, hdcCwd);
         return true;
     }
 
@@ -138,6 +158,11 @@ export class OpenHarmonyPackTool extends NativePackTool {
             throw new Error('Please install hdc_std tool fist, doc: https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/subsystems/subsys-toolchain-hdc-guide.md')
         }
         return ps.join(sdkPath, 'toolchains', versionList[0], 'hdc_std');
+    }
+
+    private readJSON5Sync(json5FilePath: string): any {
+        let json5FileContent = fs.readFileSync(json5FilePath);
+        return JSON5.parse(json5FileContent.toString());
     }
 
     private selectHapFile(projectDir: string): string {
