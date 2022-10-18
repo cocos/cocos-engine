@@ -1,9 +1,37 @@
 'use strict';
 
-const { readFileSync } = require('fs');
-const { join } = require('path');
-
-exports.template = readFileSync(join(__dirname, './multi-lod-group.html'), 'utf8');
+exports.template = `
+<div>
+    <ui-prop ref="multi-lod-dump" type="dump"></ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="Object Size"></ui-label>
+        <div class="object-size-content" slot="content">
+            <ui-num-input min="0" max="1" step="0.01" preci="2"
+                :invalid="multiObjectSizeInvalid"
+                :value="multiObjectSizeInvalid && dump.value && dump.value.objectSize ? null : dump.value.objectSize.values[0]"
+                @confirm="onMultiObjectSizeConfirm($event)"
+            ></ui-num-input>
+            <ui-button @confirm="resetMultiObjectSize">Reset Object Size</ui-button>
+        </div>
+    </ui-prop>
+    <template v-for="(screenSize, index) in multiLODs">
+        <ui-prop resize resize-group="screen-size-group"
+            :key="index"
+        >
+            <ui-label slot="label"
+                :value="handleMultiScreenSize(index)"
+            ></ui-label>
+            <ui-num-input slot="content"
+                :min="calculateMultiRange('min', index)"
+                :max="calculateMultiRange('max', index)"
+                :invalid="screenSize === 'invalid'"
+                :value="screenSize === 'invalid' ? null : screenSize * 100"
+                @confirm="onMultiScreenSizeConfirm($event, index)"
+            ></ui-num-input>
+        </ui-prop>
+    </template>
+</div>
+`;
 
 exports.props = ['dump'];
 
@@ -30,7 +58,7 @@ exports.methods = {
     refresh() {
         const that = this;
         if (that.dump.value) {
-            that.multiObjectSizeInvalid = that.dump.value.size.values.some((val) => val !== that.dump.value.size.values[0]);
+            that.multiObjectSizeInvalid = that.dump.value.objectSize.values.some((val) => val !== that.dump.value.objectSize.values[0]);
             const multiLodGroups = that.dump.value.LODs.values;
             that.multiLen = multiLodGroups.reduce((pre, next) => {
                 return pre.length < next.length ? pre.length : next.length;
@@ -51,9 +79,9 @@ exports.methods = {
     },
     onMultiObjectSizeConfirm(event) {
         const that = this;
-        that.dump.value.size.values = that.dump.value.size.values.fill(event.target.value);
+        that.dump.value.objectSize.values = that.dump.value.objectSize.values.fill(event.target.value);
         that.multiObjectSizeInvalid = false;
-        that.updateDump(that.dump.value.size);
+        that.updateDump(that.dump.value.objectSize);
     },
     onMultiScreenSizeConfirm(event, index) {
         const that = this;
@@ -99,6 +127,10 @@ exports.methods = {
             return max * 100;
         }
         return null;
+    },
+    handleMultiScreenSize(index) {
+        const that = this;
+        return `LOD ${index} Transition (% Screen Size)`;
     },
 };
 
