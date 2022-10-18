@@ -136,14 +136,14 @@ export default class XMLHttpRequest extends EventTarget {
           _triggerEvent.call(this, 'load')
           _triggerEvent.call(this, 'loadend')
         },
-        fail: ({ errMsg }) => {
+        fail: ({ error, errorMessage }) => {
           // TODO 规范错误
-          if (errMsg.indexOf('abort') !== -1) {
+          if (9 === error || errorMessage.indexOf('abort') !== -1) {
             _triggerEvent.call(this, 'abort')
-          } else if (errMsg.indexOf('timeout') !== -1) {
+          } else if (13 === error || errorMessage.indexOf('超时') !== -1) {
             _triggerEvent.call(this, 'timeout')
           } else {
-            _triggerEvent.call(this, 'error', errMsg)
+            _triggerEvent.call(this, 'error', errorMessage)
           }
           _triggerEvent.call(this, 'loadend')
         }

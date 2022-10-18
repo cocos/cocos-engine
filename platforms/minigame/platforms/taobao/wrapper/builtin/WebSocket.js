@@ -1,5 +1,10 @@
-const _socketTask = new WeakMap()
+const _utils = require('../utils');
 
+function _triggerEvent(type, ...args) {
+  if (typeof this[`on${type}`] === 'function') {
+    this[`on${type}`].apply(this, args)
+  }
+}
 export default class WebSocket {
   static CONNECTING = 0 // The connection is not yet open.
   static OPEN = 1 // The connection is open and ready to communicate.
@@ -10,10 +15,15 @@ export default class WebSocket {
   bufferedAmount = 0 // TODO 更新 bufferedAmount
   extensions = ''
 
-  onclose = null
-  onerror = null
-  onmessage = null
   onopen = null
+  onmessage = null
+  onerror = null
+  onclose = null
+
+  _onmessage = null
+  _onopen = null
+  _onerror = null
+  _onclose = null
 
   protocol = '' // TODO 小程序内目前获取不到，实际上需要根据服务器选择的 sub-protocol 返回
   readyState = 3
@@ -26,62 +36,76 @@ export default class WebSocket {
     this.url = url
     this.readyState = WebSocket.CONNECTING
 
-    const socketTask = my.connectSocket({
+    my.connectSocket({
       url,
-      protocols: Array.isArray(protocols) ? protocols : [protocols],
-      tcpNoDelay: true
-    })
-
-    _socketTask.set(this, socketTask)
-
-    socketTask.onClose((res) => {
-      this.readyState = WebSocket.CLOSED
-      if (typeof this.onclose === 'function') {
-        this.onclose(res)
+      fail: function fail(res) {
+        _triggerEvent.call(this, 'error', res)
       }
     })
 
-    socketTask.onMessage((res) => {
-      if (typeof this.onmessage === 'function') {
-        this.onmessage(res)
-      }
-    })
-
-    socketTask.onOpen(() => {
+    this._onopen = () => {
       this.readyState = WebSocket.OPEN
-      if (typeof this.onopen === 'function') {
-        this.onopen()
-      }
-    })
+      _triggerEvent.call(this, 'open')
+    }
+    my.onSocketOpen(this._onopen)
 
-    socketTask.onError((res) => {
-      if (typeof this.onerror === 'function') {
-        this.onerror(new Error(res.errMsg))
+    this._onmessage = (res) => {
+      if (res && res.data && res.isBuffer) {
+        res.data = _utils.base64ToArrayBuffer(res.data);
       }
-    })
+      _triggerEvent.call(this, 'message', res)
+    }
+    my.onSocketMessage(this._onmessage)
+
+    this._onerror = (res) => {
+      _triggerEvent.call(this, 'error', res)
+    }
+    my.onSocketError(this._onerror)
+
+    this._onclose = () => {
+      this.readyState = WebSocket.CLOSED
+      _triggerEvent.call(this, 'close')
+      this._removeAllSocketListenr();
+    }
+    my.onSocketClose(this._onclose)
 
     return this
   }
 
-  close(code, reason) {
+  close() {
     this.readyState = WebSocket.CLOSING
-    const socketTask = _socketTask.get(this)
-
-    socketTask.close({
-      code,
-      reason
-    })
+    my.closeSocket()
   }
 
   send(data) {
     if (typeof data !== 'string' && !(data instanceof ArrayBuffer) && !ArrayBuffer.isView(data)) {
       throw new TypeError(`Failed to send message: The data ${data} is invalid`)
+    }else{
+      var isBuffer = false;
+      if (data instanceof ArrayBuffer) {
+          data = _utils.arrayBufferToBase64(data);
+          isBuffer = true;
+      }
+  
+      my.sendSocketMessage({
+          data,
+          isBuffer,
+          fail: function (res) {
+            _triggerEvent.call(this, 'error', res)
+          }
+      });
     }
+  }
 
-    const socketTask = _socketTask.get(this)
+  _removeAllSocketListenr(){
+    my.offSocketOpen(this._onopen)
+    my.offSocketMessage(this._onmessage)
+    my.offSocketError(this._onerror)
+    my.offSocketClose(this._onclose)
 
-    socketTask.send({
-      data
-    })
+    this._onopen = null;
+    this._onmessage = null;
+    this._onerror = null;
+    this._onclose = null;
   }
 }
