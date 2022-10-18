@@ -23,33 +23,36 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "VKStd.h"
-#include "gfx-base/GFXAccelerationStructure.h"
+#include "MTLAccelerationStructure.h"
 
 namespace cc {
 
 namespace gfx {
 
-struct CCVKGPUAccelerationStructure;
+CCMTLAccelerationStructure::CCMTLAccelerationStructure()= default;
 
-class CC_VULKAN_API CCVKAccelerationStructure final : public AccelerationStructure {
-public:
-    CCVKAccelerationStructure();
-    ~CCVKAccelerationStructure() override;
+CCMTLAccelerationStructure::~CCMTLAccelerationStructure() = default;
 
-    inline CCVKGPUAccelerationStructure *gpuAccelerationStructure() const { return _gpuAccelerationStructure; }
+void CCMTLAccelerationStructure::doInit(const AccelerationStructureInfo& info) {
 
-protected:
-    void doInit(const AccelerationStructureInfo &info) override;
-    void doDestroy() override;
-    void doUpdate() override;
-    void doBuild() override;
-    void doCompact() override;
+}
 
-    IntrusivePtr<CCVKGPUAccelerationStructure> _gpuAccelerationStructure = nullptr;
-};
+void CCMTLAccelerationStructure::doUpdate() {
+
+}
+
+void CCMTLAccelerationStructure::doBuild() {
+
+}
+
+void CCMTLAccelerationStructure::doCompact() {
+
+}
+
+void CCMTLAccelerationStructure::doDestroy(){
+    
+}
 
 } // namespace gfx
 } // namespace cc
+

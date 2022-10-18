@@ -25,30 +25,26 @@
 
 #pragma once
 
-#include "VKStd.h"
+#include "GLES2Std.h"
 #include "gfx-base/GFXAccelerationStructure.h"
 
 namespace cc {
 
 namespace gfx {
 
-struct CCVKGPUAccelerationStructure;
-
-class CC_VULKAN_API CCVKAccelerationStructure final : public AccelerationStructure {
+class CC_GLES2_API GLES2AccelerationStructure final : public AccelerationStructure {
 public:
-    CCVKAccelerationStructure();
-    ~CCVKAccelerationStructure() override;
+    GLES2AccelerationStructure();
+    ~GLES2AccelerationStructure() override;
 
-    inline CCVKGPUAccelerationStructure *gpuAccelerationStructure() const { return _gpuAccelerationStructure; }
 
+    
 protected:
     void doInit(const AccelerationStructureInfo &info) override;
+    void doBuild() override;
     void doDestroy() override;
     void doUpdate() override;
-    void doBuild() override;
     void doCompact() override;
-
-    IntrusivePtr<CCVKGPUAccelerationStructure> _gpuAccelerationStructure = nullptr;
 };
 
 } // namespace gfx

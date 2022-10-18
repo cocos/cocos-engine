@@ -23,33 +23,36 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "VKStd.h"
-#include "gfx-base/GFXAccelerationStructure.h"
+#include "GLES3AccelerationStructure.h"
 
 namespace cc {
 
 namespace gfx {
 
-struct CCVKGPUAccelerationStructure;
+GLES3AccelerationStructure::GLES3AccelerationStructure()= default;
 
-class CC_VULKAN_API CCVKAccelerationStructure final : public AccelerationStructure {
-public:
-    CCVKAccelerationStructure();
-    ~CCVKAccelerationStructure() override;
+GLES3AccelerationStructure::~GLES3AccelerationStructure() = default;
 
-    inline CCVKGPUAccelerationStructure *gpuAccelerationStructure() const { return _gpuAccelerationStructure; }
+void GLES3AccelerationStructure::doInit(const AccelerationStructureInfo& info) {
 
-protected:
-    void doInit(const AccelerationStructureInfo &info) override;
-    void doDestroy() override;
-    void doUpdate() override;
-    void doBuild() override;
-    void doCompact() override;
+}
 
-    IntrusivePtr<CCVKGPUAccelerationStructure> _gpuAccelerationStructure = nullptr;
-};
+void GLES3AccelerationStructure::doUpdate() {
+
+}
+
+void GLES3AccelerationStructure::doBuild() {
+
+}
+
+void GLES3AccelerationStructure::doCompact() {
+
+}
+
+void GLES3AccelerationStructure::doDestroy(){
+    
+}
 
 } // namespace gfx
 } // namespace cc
+

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,30 +25,26 @@
 
 #pragma once
 
-#include "VKStd.h"
 #include "gfx-base/GFXAccelerationStructure.h"
 
 namespace cc {
-
 namespace gfx {
 
-struct CCVKGPUAccelerationStructure;
-
-class CC_VULKAN_API CCVKAccelerationStructure final : public AccelerationStructure {
+class CCMTLAccelerationStructure final : public AccelerationStructure {
 public:
-    CCVKAccelerationStructure();
-    ~CCVKAccelerationStructure() override;
-
-    inline CCVKGPUAccelerationStructure *gpuAccelerationStructure() const { return _gpuAccelerationStructure; }
+    explicit CCMTLAccelerationStructure();
+    ~CCMTLAccelerationStructure() override;
+    CCMTLAccelerationStructure(const CCMTLAccelerationStructure &) = delete;
+    CCMTLAccelerationStructure(CCMTLAccelerationStructure &&) = delete;
+    CCMTLAccelerationStructure &operator=(const CCMTLAccelerationStructure &) = default;
+    CCMTLAccelerationStructure &operator=(CCMTLAccelerationStructure &&) = delete;
 
 protected:
     void doInit(const AccelerationStructureInfo &info) override;
+    void doBuild() override;
     void doDestroy() override;
     void doUpdate() override;
-    void doBuild() override;
     void doCompact() override;
-
-    IntrusivePtr<CCVKGPUAccelerationStructure> _gpuAccelerationStructure = nullptr;
 };
 
 } // namespace gfx
