@@ -1,5 +1,8 @@
 const _utils = require('../utils');
 
+const MAX_VALUE_WEBSOCkET = 1;
+let CURR_VALUE_WEBSOCKET = 0;
+
 export default class WebSocket {
   static CONNECTING = 0 // The connection is not yet open.
   static OPEN = 1 // The connection is open and ready to communicate.
@@ -15,21 +18,28 @@ export default class WebSocket {
   onerror = null
   onclose = null
 
-  _onmessage = null
-  _onopen = null
-  _onerror = null
-  _onclose = null
+  _onMessage = null
+  _onOpen = null
+  _onError = null
+  _onClose = null
+  _isReduced = false;
 
   protocol = '' // TODO 小程序内目前获取不到，实际上需要根据服务器选择的 sub-protocol 返回
   readyState = 3
 
   constructor(url, protocols = []) {
+    if(this._isMaxRef()){
+      console.warn(`Failed to construct 'WebSocket': Only ${CURR_VALUE_WEBSOCKET} WebSocket can be created at the same time on TaoBao.`);
+      return this;
+    }
+
     if (typeof url !== 'string' || !(/(^ws:\/\/)|(^wss:\/\/)/).test(url)) {
       throw new TypeError(`Failed to construct 'WebSocket': The URL '${url}' is invalid`)
     }
 
     this.url = url
     this.readyState = WebSocket.CONNECTING
+    this._addRef();
 
     my.connectSocket({
       url,
@@ -38,31 +48,33 @@ export default class WebSocket {
       }
     })
 
-    this._onopen = () => {
+    this._onOpen = (res) => {
       this.readyState = WebSocket.OPEN
       this._triggerEvent('open')
     }
-    my.onSocketOpen(this._onopen)
+    my.onSocketOpen(this._onOpen)
 
-    this._onmessage = (res) => {
+    this._onMessage = (res) => {
       if (res && res.data && res.isBuffer) {
-        res.data = _utils.base64ToArrayBuffer(res.data);
+        res.data = _utils.base64ToArrayBuffer(res.data)
       }
       this._triggerEvent('message', res)
     }
-    my.onSocketMessage(this._onmessage)
+    my.onSocketMessage(this._onMessage)
 
-    this._onerror = (res) => {
+    this._onError = (res) => {
       this._triggerEvent('error', res)
+      this._reduceRef();
     }
-    my.onSocketError(this._onerror)
+    my.onSocketError(this._onError)
 
-    this._onclose = () => {
+    this._onClose = (res) => {
       this.readyState = WebSocket.CLOSED
       this._triggerEvent('close')
-      this._removeAllSocketListenr();
+      this._removeAllSocketListenr()
+      this._reduceRef();
     }
-    my.onSocketClose(this._onclose)
+    my.onSocketClose(this._onClose)
 
     return this
   }
@@ -78,8 +90,8 @@ export default class WebSocket {
     }else{
       var isBuffer = false;
       if (data instanceof ArrayBuffer) {
-          data = _utils.arrayBufferToBase64(data);
-          isBuffer = true;
+          data = _utils.arrayBufferToBase64(data)
+          isBuffer = true
       }
   
       my.sendSocketMessage({
@@ -99,14 +111,29 @@ export default class WebSocket {
   }
 
   _removeAllSocketListenr(){
-    my.offSocketOpen(this._onopen)
-    my.offSocketMessage(this._onmessage)
-    my.offSocketError(this._onerror)
-    my.offSocketClose(this._onclose)
+    my.offSocketOpen(this._onOpen)
+    my.offSocketMessage(this._onMessage)
+    my.offSocketError(this._onError)
+    my.offSocketClose(this._onClose)
 
-    this._onopen = null;
-    this._onmessage = null;
-    this._onerror = null;
-    this._onclose = null;
+    this._onOpen = null
+    this._onMessage = null
+    this._onError = null
+    this._onClose = null
+  }
+
+  _addRef(){
+    CURR_VALUE_WEBSOCKET += 1
+  }
+
+  _reduceRef(){
+    if(!this._isReduced){
+      CURR_VALUE_WEBSOCKET -= 1
+      _isReduced = true;
+    }
+  }
+
+  _isMaxRef(){
+    return CURR_VALUE_WEBSOCKET >= MAX_VALUE_WEBSOCkET
   }
 }
