@@ -23,26 +23,26 @@
  THE SOFTWARE.
  */
 
-import { Pool } from './memop';
-import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from '../rendering';
-import { DebugView } from '../rendering/debug-view';
-import { Camera, Light, Model } from '../render-scene/scene';
-import type { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
-import { LightType } from '../render-scene/scene/light';
-import { IRenderSceneInfo, RenderScene } from '../render-scene/core/render-scene';
-import { DirectionalLight } from '../render-scene/scene/directional-light';
-import { SphereLight } from '../render-scene/scene/sphere-light';
-import { SpotLight } from '../render-scene/scene/spot-light';
-import { legacyCC } from './global-exports';
-import { RenderWindow, IRenderWindowInfo } from '../render-scene/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from '../gfx';
-import { warnID } from './platform/debug';
-import { Pipeline, PipelineRuntime } from '../rendering/custom/pipeline';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { IPipelineEvent } from '../rendering/pipeline-event';
-import { settings, Settings } from './settings';
-import { localDescriptorSetLayout_ResizeMaxJoints } from '../rendering/define';
-import { macro } from './platform/macro';
+import { Pool } from './core/memop';
+import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
+import { DebugView } from './rendering/debug-view';
+import { Camera, Light, Model } from './render-scene/scene';
+import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
+import { LightType } from './render-scene/scene/light';
+import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene';
+import { DirectionalLight } from './render-scene/scene/directional-light';
+import { SphereLight } from './render-scene/scene/sphere-light';
+import { SpotLight } from './render-scene/scene/spot-light';
+import { legacyCC } from './core/global-exports';
+import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
+import { warnID } from './core/platform/debug';
+import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
+import { Batcher2D } from './2d/renderer/batcher-2d';
+import { IPipelineEvent } from './rendering/pipeline-event';
+import { settings, Settings } from './core/settings';
+import { localDescriptorSetLayout_ResizeMaxJoints } from './rendering/define';
+import { macro } from './core/platform/macro';
 
 /**
  * @en Initialization information for the Root
@@ -234,6 +234,10 @@ export class Root {
         return this._useDeferredPipeline;
     }
 
+    public get cameraList (): Camera[] {
+        return this._cameraList;
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -269,6 +273,7 @@ export class Root {
     private _cumulativeTime = 0;
     private _frameTime = 0;
     private declare _naitveObj: any;
+    private _cameraList: Camera[] = [];
 
     /**
      * @en The constructor of the root, user shouldn't create the root instance, it's managed by the [[Director]].
@@ -341,8 +346,9 @@ export class Root {
      * @zh 重置在屏窗口的大小。
      * @param width The new width of the window.
      * @param height The new height of the window.
+     * @param windowId The system window ID, optional for now.
      */
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number, windowId?: number) {
         for (const window of this._windows) {
             if (window.swapchain) {
                 window.resize(width, height);
@@ -380,8 +386,8 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (this.usesCustomPipeline && legacyCC.internal.createCustomPipeline) {
-            this._customPipeline = legacyCC.internal.createCustomPipeline();
+        if (this.usesCustomPipeline && legacyCC.rendering) {
+            this._customPipeline = legacyCC.rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {
@@ -484,7 +490,9 @@ export class Root {
         }
 
         const windows = this._windows;
-        const cameraList: Camera[] = [];
+        const cameraList = this._cameraList;
+        cameraList.length = 0;
+
         for (let i = 0; i < windows.length; i++) {
             const window = windows[i];
             window.extractRenderCameras(cameraList);
@@ -509,6 +517,7 @@ export class Root {
             for (let i = 0; i < cameraList.length; ++i) {
                 cameraList[i].geometryRenderer?.update();
             }
+            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
             this._pipeline.render(cameraList);
             this._device.present();
         }

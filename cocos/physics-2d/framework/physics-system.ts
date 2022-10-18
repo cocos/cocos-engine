@@ -1,17 +1,16 @@
-
-
-import { EDITOR, DEBUG } from 'internal:constants';
-import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
+import { EDITOR } from 'internal:constants';
+import { System, Vec2, IVec2Like, Rect, Eventify, Enum } from '../../core';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { createPhysicsWorld } from './instance';
 import { physicsEngineId } from './physics-selector';
 import { DelayEvent } from './physics-internal-types';
-import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
+import { ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
 import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
 import { legacyCC } from '../../core/global-exports';
 import { Settings, settings } from '../../core/settings';
+import { director, Director } from '../../game';
 
 let instance: PhysicsSystem2D | null = null;
 legacyCC.internal.PhysicsGroup2D = PhysicsGroup;

@@ -24,7 +24,10 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
+#include "base/std/container/map.h"
 #include "base/std/container/set.h"
 #include "gfx-base/GFXPipelineState.h"
 
@@ -33,18 +36,22 @@ namespace gfx {
 
 struct CCWGPUPipelineStateObject;
 
-class CCWGPUPipelineState final : public emscripten::wrapper<PipelineState> {
+class CCWGPUPipelineState final : public PipelineState {
 public:
     CCWGPUPipelineState();
-    ~CCWGPUPipelineState() = default;
+    ~CCWGPUPipelineState();
 
     inline CCWGPUPipelineStateObject *gpuPipelineStateObject() { return _gpuPipelineStateObj; }
 
-    void check(RenderPass *renderPass);
-
+    void check(RenderPass *renderPass, bool forceUpdate = false);
     void prepare(const ccstd::set<uint8_t> &setInUse);
+    PipelineLayout *layout() const { return _pipelineLayout; }
 
     void *ppl() const { return _ppl; }
+
+    static ccstd::map<ccstd::hash_t, void *> pipelineMap;
+
+    inline ccstd::hash_t getHash() const { return _hash; }
 
 protected:
     void doInit(const PipelineStateInfo &info) override;
@@ -54,6 +61,7 @@ protected:
 
     void *_ppl = nullptr;
     bool _forceUpdate = false;
+    ccstd::hash_t _hash{0};
 };
 
 } // namespace gfx

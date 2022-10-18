@@ -24,7 +24,6 @@
  */
 
 import { Mat4, Vec3 } from '../math';
-import { Camera } from '../../render-scene/scene';
 import enums from './enums';
 import { Plane } from './plane';
 import { AABB } from './aabb';
@@ -123,23 +122,22 @@ export class Frustum {
     }
 
     /**
-     * @en Calculate the splitted frustum.
-     * @zh 创建一个新的截锥体。
-     * @param out @en The output frustum @zh 输出的新截锥体
-     * @param camera @en The camera of the frustum @zh 相机参数
-     * @param m @en The transform matrix @zh 变换矩阵
+     * @en Calculate a split frustum.
+     * @zh 计算出一个分割的视锥体。
      * @param start @en The split start position @zh 分割开始位置
      * @param end @en The split end position @zh 分割末尾位置
-     * @return @en The out object @zh 返回新截锥体.
+     * @param aspect @en The aspect ratio of the camera @zh 相机视图的长宽比
+     * @param fov @en Field of view of the camera @zh 相机的视角大小
+     * @param m @en The transform matrix @zh 变换矩阵
      */
-    public static split (out: Frustum, camera: Camera, m: Mat4, start: number, end: number): Frustum {
+    public split (start: number, end: number, aspect: number, fov: number, m: Mat4) {
         // 0: cameraNear  1:cameraFar
-        const h = Math.tan(camera.fov * 0.5);
-        const w = h * camera.aspect;
+        const h = Math.tan(fov * 0.5);
+        const w = h * aspect;
         _nearTemp.set(start * w,  start * h, start);
         _farTemp.set(end * w, end * h, end);
 
-        const vertexes = out.vertices;
+        const vertexes = this.vertices;
         // startHalfWidth startHalfHeight
         _temp_v3.set(_nearTemp.x, _nearTemp.y, _nearTemp.z);
         Vec3.transformMat4(vertexes[0], _temp_v3, m);
@@ -160,8 +158,7 @@ export class Frustum {
         _temp_v3.set(_farTemp.x, -_farTemp.y, _farTemp.z);
         Vec3.transformMat4(vertexes[7], _temp_v3, m);
 
-        out.updatePlanes();
-        return out;
+        this.updatePlanes();
     }
 
     /**

@@ -1,4 +1,4 @@
-import { director } from "../../cocos/core/director";
+import { director } from "../../cocos/game/director";
 import { find, Node, Scene } from "../../cocos/scene-graph";
 
 test('cc.find', function () {

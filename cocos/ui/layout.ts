@@ -29,7 +29,7 @@ import { Component } from '../scene-graph/component';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
-import { director, Director } from '../core/director';
+import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
 import { warn } from '../core';
 import { NodeEventType } from '../scene-graph/node-event';

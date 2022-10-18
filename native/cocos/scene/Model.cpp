@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,53 +40,6 @@
 #include "scene/SubModel.h"
 
 namespace {
-cc::TypedArray getTypedArrayConstructor(const cc::gfx::FormatInfo &info, cc::ArrayBuffer *buffer, uint32_t byteOffset, uint32_t length) {
-    const uint32_t stride = info.size / info.count;
-    switch (info.type) {
-        case cc::gfx::FormatType::UNORM:
-        case cc::gfx::FormatType::UINT: {
-            switch (stride) {
-                case 1: return cc::Uint8Array(buffer, byteOffset, length);
-                case 2: return cc::Uint16Array(buffer, byteOffset, length);
-                case 4: return cc::Uint32Array(buffer, byteOffset, length);
-                default:
-                    break;
-            }
-            break;
-        }
-        case cc::gfx::FormatType::SNORM:
-        case cc::gfx::FormatType::INT: {
-            switch (stride) {
-                case 1: return cc::Int8Array(buffer, byteOffset, length);
-                case 2: return cc::Int16Array(buffer, byteOffset, length);
-                case 4: return cc::Int32Array(buffer, byteOffset, length);
-                default:
-                    break;
-            }
-            break;
-        }
-        case cc::gfx::FormatType::FLOAT: {
-            return cc::Float32Array(buffer, byteOffset, length);
-        }
-        default:
-            break;
-    }
-    return cc::Float32Array(buffer, byteOffset, length);
-}
-
-cc::Float32Array &vec4ToFloat32Array(const cc::Vec4 &v, cc::Float32Array &out, index_t ofs = 0) {
-    out[ofs + 0] = v.x;
-    out[ofs + 1] = v.y;
-    out[ofs + 2] = v.z;
-    out[ofs + 3] = v.w;
-    return out;
-}
-
-cc::Float32Array &mat4ToFloat32Array(const cc::Mat4 &mat, cc::Float32Array &out, index_t ofs = 0) {
-    memcpy(reinterpret_cast<float *>(const_cast<uint8_t *>(out.buffer()->getData())) + ofs, mat.m, 16 * sizeof(float));
-    return out;
-}
-
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
     cc::gfx::Filter::LINEAR,
     cc::gfx::Filter::LINEAR,
@@ -106,7 +59,6 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
-const ccstd::string INST_MAT_WORLD = "a_matWorld0";
 } // namespace
 
 namespace cc {
@@ -125,7 +77,6 @@ void Model::initialize() {
     _enabled = true;
     _visFlags = Layers::Enum::NONE;
     _inited = true;
-    _localData.reset(pipeline::UBOLocal::COUNT);
 }
 
 void Model::destroy() {
@@ -144,23 +95,6 @@ void Model::destroy() {
     _transform = nullptr;
     _node = nullptr;
     _isDynamicBatching = false;
-}
-
-void Model::uploadMat4AsVec4x3(const Mat4 &mat, Float32Array &v1, Float32Array &v2, Float32Array &v3) {
-    uint32_t copyBytes = sizeof(float) * 3;
-    auto *buffer = const_cast<uint8_t *>(v1.buffer()->getData());
-
-    uint8_t *dst = buffer + v1.byteOffset();
-    memcpy(dst, mat.m, copyBytes);
-    v1[3] = mat.m[12];
-
-    dst = buffer + v2.byteOffset();
-    memcpy(dst, mat.m + 4, copyBytes);
-    v2[3] = mat.m[13];
-
-    dst = buffer + v3.byteOffset();
-    memcpy(dst, mat.m + 8, copyBytes);
-    v3[3] = mat.m[14];
 }
 
 void Model::updateTransform(uint32_t stamp) {
@@ -233,17 +167,27 @@ void Model::updateUBOs(uint32_t stamp) {
     _localDataUpdated = false;
     getTransform()->updateWorldTransform();
     const auto &worldMatrix = getTransform()->getWorldMatrix();
-    int idx = _instMatWorldIdx;
-    if (idx >= 0) {
-        ccstd::vector<TypedArray> &attrs = getInstancedAttributeBlock().views;
-        uploadMat4AsVec4x3(worldMatrix, ccstd::get<Float32Array>(attrs[idx]), ccstd::get<Float32Array>(attrs[idx + 1]), ccstd::get<Float32Array>(attrs[idx + 2]));
-    } else if (_localBuffer) {
+    bool hasNonInstancingPass = false;
+    for (const auto &subModel : _subModels) {
+        const auto idx = subModel->getInstancedWorldMatrixIndex();
+        if (idx >= 0) {
+            ccstd::vector<TypedArray> &attrs = subModel->getInstancedAttributeBlock().views;
+            subModel->updateInstancedWorldMatrix(worldMatrix, idx);
+        } else {
+            hasNonInstancingPass = true;
+        }
+    }
+
+    if (hasNonInstancingPass && _localBuffer) {
         Mat4 mat4;
-        mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
-        mat4ToFloat32Array(mat4, _localData, pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
-        _localBuffer->update(_localData.buffer()->getData());
+        _localBuffer->write(worldMatrix,      sizeof(float) * pipeline::UBOLocal::MAT_WORLD_OFFSET);
+        _localBuffer->write(mat4,             sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
+        _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
+        _localBuffer->write(_shadowBias,      sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+
+        _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
         if (enableOcclusionQuery) {
             updateWorldBoundUBOs();
@@ -260,14 +204,13 @@ void Model::updateOctree() {
 
 void Model::updateWorldBoundUBOs() {
     if (_worldBoundBuffer) {
-        ccstd::array<float, pipeline::UBOWorldBound::COUNT> worldBoundBufferView;
         const Vec3 &center = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
         const Vec3 &halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
         const Vec4 worldBoundCenter{center.x, center.y, center.z, 0.0F};
         const Vec4 worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
-        memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_CENTER, &worldBoundCenter.x, sizeof(Vec4));
-        memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_HALF_EXTENTS, &worldBoundHalfExtents.x, sizeof(Vec4));
-        _worldBoundBuffer->update(worldBoundBufferView.data(), pipeline::UBOWorldBound::SIZE);
+        _worldBoundBuffer->write(worldBoundCenter, sizeof(float) * pipeline::UBOWorldBound::WORLD_BOUND_CENTER);
+        _worldBoundBuffer->write(worldBoundHalfExtents, sizeof(float) * pipeline::UBOWorldBound::WORLD_BOUND_HALF_EXTENTS);
+        _worldBoundBuffer->update();
     }
 }
 
@@ -294,14 +237,12 @@ SubModel *Model::createSubModel() {
 
 void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Material *mat) {
     initialize();
-    bool isNewSubModel = false;
-    if (idx >= _subModels.size()) {
-        _subModels.resize(idx + 1, nullptr);
+    if (idx >= static_cast<index_t>(_subModels.size())) {
+        _subModels.resize(1 + idx, nullptr);
     }
 
     if (_subModels[idx] == nullptr) {
         _subModels[idx] = createSubModel();
-        isNewSubModel = true;
     } else {
         CC_SAFE_DESTROY(_subModels[idx]);
     }
@@ -349,7 +290,6 @@ void Model::initLightingmap(Texture2D *texture, const Vec4 &uvParam) {
 }
 
 void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
-    vec4ToFloat32Array(uvParam, _localData, pipeline::UBOLocal::LIGHTINGMAP_UVPARAM); //TODO(xwx): toArray not implemented in Math
     _localDataUpdated = true;
     _lightmap = texture;
     _lightmapUVParam = uvParam;
@@ -400,63 +340,18 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     }
 
     gfx::Shader *shader = subModel->getPasses()[0]->getShaderVariant(subModel->getPatches());
-    updateInstancedAttributes(shader->getAttributes(), subModel->getPasses()[0]);
+    updateInstancedAttributes(shader->getAttributes(), subModel);
 }
 
-index_t Model::getInstancedAttributeIndex(const ccstd::string &name) const {
-    const auto &attributes = _instanceAttributeBlock.attributes;
-    for (index_t i = 0; i < attributes.size(); ++i) {
-        if (attributes[i].name == name) {
-            return i;
-        }
-    }
-    return CC_INVALID_INDEX;
-}
-
-void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, Pass *pass) {
+void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel* subModel) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, pass);
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, subModel);
             _isCalledFromJS = false;
             return;
         }
     }
-
-    if (!pass->getDevice()->hasFeature(gfx::Feature::INSTANCED_ARRAYS)) return;
-    // free old data
-
-    uint32_t size = 0;
-    for (const gfx::Attribute &attribute : attributes) {
-        if (!attribute.isInstanced) continue;
-        size += gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)].size;
-    }
-    auto &attrs = _instanceAttributeBlock;
-    attrs.buffer = Uint8Array(size);
-    attrs.views.clear();
-    attrs.attributes.clear();
-    attrs.views.reserve(attributes.size());
-    attrs.attributes.reserve(attributes.size());
-
-    uint32_t offset = 0;
-
-    for (const gfx::Attribute &attribute : attributes) {
-        if (!attribute.isInstanced) continue;
-        gfx::Attribute attr;
-        attr.format = attribute.format;
-        attr.name = attribute.name;
-        attr.isNormalized = attribute.isNormalized;
-        attr.location = attribute.location;
-        attrs.attributes.emplace_back(attr);
-        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
-        auto *buffer = attrs.buffer.buffer();
-        auto typeViewArray = getTypedArrayConstructor(info, buffer, offset, info.count);
-        attrs.views.emplace_back(typeViewArray);
-        offset += info.size;
-    }
-    if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
-        pass->getInstancedBuffer()->destroy();
-    }
-    setInstMatWorldIdx(getInstancedAttributeIndex(INST_MAT_WORLD));
+    subModel->updateInstancedAttributes(attributes);
     _localDataUpdated = true;
 }
 
@@ -467,7 +362,7 @@ void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
             gfx::MemoryUsageBit::DEVICE,
             pipeline::UBOLocal::SIZE,
             pipeline::UBOLocal::SIZE,
-        });
+            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 
@@ -478,7 +373,7 @@ void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
             gfx::MemoryUsageBit::DEVICE,
             pipeline::UBOLocal::SIZE,
             pipeline::UBOLocal::SIZE,
-        });
+            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 
@@ -509,46 +404,14 @@ void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSe
         descriptorSet->bindBuffer(pipeline::UBOLocal::BINDING, _worldBoundBuffer);
     }
 }
-void Model::setInstancedAttributesViewData(index_t viewIdx, index_t arrIdx, float value) {
-    ccstd::get<Float32Array>(_instanceAttributeBlock.views[viewIdx])[arrIdx] = value;
-}
 
 void Model::updateLocalShadowBias() {
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 0] = _shadowBias;
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1] = _shadowNormalBias;
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
     _localDataUpdated = true;
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
-    const auto &attributes = getInstancedAttributeBlock().attributes;
-    auto &views = getInstancedAttributeBlock().views;
-
-    for (size_t i = 0, len = attributes.size(); i < len; ++i) {
-        const auto &attribute = attributes[i];
-        if (attribute.name == name) {
-            const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
-            switch (info.type) {
-                case gfx::FormatType::NONE:
-                case gfx::FormatType::UNORM:
-                case gfx::FormatType::SNORM:
-                case gfx::FormatType::UINT:
-                case gfx::FormatType::INT: {
-                    CC_ASSERT(false); // NOLINT
-                } break;
-                case gfx::FormatType::FLOAT:
-                case gfx::FormatType::UFLOAT: {
-                    CC_ASSERT(ccstd::holds_alternative<Float32Array>(views[i]));
-                    auto &view = ccstd::get<Float32Array>(views[i]);
-                    auto *dstData = reinterpret_cast<float *>(view.buffer()->getData() + view.byteOffset());
-                    CC_ASSERT(byteLength <= view.byteLength());
-                    memcpy(dstData, value, byteLength);
-                } break;
-                default:
-                    break;
-            }
-        }
+    for (const auto &subModel : _subModels) {
+        subModel->setInstancedAttribute(name, value, byteLength);
     }
 }
 

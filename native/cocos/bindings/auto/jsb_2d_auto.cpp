@@ -75,10 +75,6 @@
 #define cc_UIMeshBuffer_iData_set(self_, val_) self_->setIData(val_)
   
 
-#define cc_UIMeshBuffer_useLinkData_get(self_) self_->getUseLinkData()
-#define cc_UIMeshBuffer_useLinkData_set(self_, val_) self_->setUseLinkData(val_)
-  
-
 #define cc_RenderDrawInfo_vbBuffer_get(self_) self_->getVbBuffer()
 #define cc_RenderDrawInfo_vbBuffer_set(self_, val_) self_->setVbBuffer(val_)
   
@@ -402,48 +398,78 @@ static bool js_delete_cc_UIMeshBuffer(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_UIMeshBuffer) 
 
-static bool js_cc_UIMeshBuffer_initialize(se::State& s)
+static bool js_cc_UIMeshBuffer_initialize__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::UIMeshBuffer *arg1 = (cc::UIMeshBuffer *) NULL ;
-    cc::gfx::Device *arg2 = (cc::gfx::Device *) NULL ;
-    ccstd::vector< cc::gfx::Attribute > *arg3 = 0 ;
-    uint32_t arg4 ;
-    uint32_t arg5 ;
-    ccstd::vector< cc::gfx::Attribute > temp3 ;
+    ccstd::vector< cc::gfx::Attribute > *arg2 = 0 ;
+    bool arg3 ;
+    ccstd::vector< cc::gfx::Attribute > temp2 ;
     
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,2,SWIGTYPE_p_cc__gfx__Device"); 
     // %typemap(in) SWIGTYPE&&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,3,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
-    arg3 = &temp3;
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,2,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
+    arg2 = &temp2;
     
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,4,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,5,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->initialize(arg2,(ccstd::vector< cc::gfx::Attribute > &&)*arg3,arg4,arg5);
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[1], &arg3);
+    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,3,SWIGTYPE_bool"); 
+    (arg1)->initialize((ccstd::vector< cc::gfx::Attribute > &&)*arg2,arg3);
     
     
     return true;
+}
+
+static bool js_cc_UIMeshBuffer_initialize__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::UIMeshBuffer *arg1 = (cc::UIMeshBuffer *) NULL ;
+    ccstd::vector< cc::gfx::Attribute > *arg2 = 0 ;
+    ccstd::vector< cc::gfx::Attribute > temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "UIMeshBuffer_initialize,2,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
+    arg2 = &temp2;
+    
+    (arg1)->initialize((ccstd::vector< cc::gfx::Attribute > &&)*arg2);
+    
+    
+    return true;
+}
+
+static bool js_cc_UIMeshBuffer_initialize(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_UIMeshBuffer_initialize__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_UIMeshBuffer_initialize__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
 }
 SE_BIND_FUNC(js_cc_UIMeshBuffer_initialize) 
 
@@ -617,49 +643,11 @@ static bool js_cc_UIMeshBuffer_iData_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_UIMeshBuffer_iData_get) 
 
-static bool js_cc_UIMeshBuffer_useLinkData_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::UIMeshBuffer *arg1 = (cc::UIMeshBuffer *) NULL ;
-    bool arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "UIMeshBuffer_useLinkData_set,2,SWIGTYPE_bool"); 
-    cc_UIMeshBuffer_useLinkData_set(arg1,arg2);
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_UIMeshBuffer_useLinkData_set) 
-
-static bool js_cc_UIMeshBuffer_useLinkData_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::UIMeshBuffer *arg1 = (cc::UIMeshBuffer *) NULL ;
-    bool result;
-    
-    arg1 = SE_THIS_OBJECT<cc::UIMeshBuffer>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)cc_UIMeshBuffer_useLinkData_get(arg1);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_UIMeshBuffer_useLinkData_get) 
-
 bool js_register_cc_UIMeshBuffer(se::Object* obj) {
     auto* cls = se::Class::create("UIMeshBuffer", obj, nullptr, _SE(js_new_cc_UIMeshBuffer)); 
     
     cls->defineProperty("vData", _SE(js_cc_UIMeshBuffer_vData_get), _SE(js_cc_UIMeshBuffer_vData_set)); 
     cls->defineProperty("iData", _SE(js_cc_UIMeshBuffer_iData_get), _SE(js_cc_UIMeshBuffer_iData_set)); 
-    cls->defineProperty("useLinkData", _SE(js_cc_UIMeshBuffer_useLinkData_get), _SE(js_cc_UIMeshBuffer_useLinkData_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_UIMeshBuffer_initialize)); 
     cls->defineFunction("reset", _SE(js_cc_UIMeshBuffer_reset)); 
@@ -1640,6 +1628,32 @@ static bool js_cc_RenderDrawInfo_setStride(se::State& s)
 }
 SE_BIND_FUNC(js_cc_RenderDrawInfo_setStride) 
 
+static bool js_cc_RenderDrawInfo_setMeshBuffer(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    cc::UIMeshBuffer *arg2 = (cc::UIMeshBuffer *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setMeshBuffer,2,SWIGTYPE_p_cc__UIMeshBuffer"); 
+    (arg1)->setMeshBuffer(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_RenderDrawInfo_setMeshBuffer) 
+
 static bool js_cc_RenderDrawInfo_getMeshBuffer(se::State& s)
 {
     // js_function
@@ -2281,6 +2295,7 @@ bool js_register_cc_RenderDrawInfo(se::Object* obj) {
     cls->defineFunction("getIsMeshBuffer", _SE(js_cc_RenderDrawInfo_getIsMeshBuffer)); 
     cls->defineFunction("setIsMeshBuffer", _SE(js_cc_RenderDrawInfo_setIsMeshBuffer)); 
     cls->defineFunction("setStride", _SE(js_cc_RenderDrawInfo_setStride)); 
+    cls->defineFunction("setMeshBuffer", _SE(js_cc_RenderDrawInfo_setMeshBuffer)); 
     cls->defineFunction("getMeshBuffer", _SE(js_cc_RenderDrawInfo_getMeshBuffer)); 
     cls->defineFunction("changeMeshBuffer", _SE(js_cc_RenderDrawInfo_changeMeshBuffer)); 
     cls->defineFunction("setRender2dBufferToNative", _SE(js_cc_RenderDrawInfo_setRender2dBufferToNative)); 

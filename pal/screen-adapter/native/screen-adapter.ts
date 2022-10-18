@@ -118,7 +118,7 @@ class ScreenAdapter extends EventTarget {
             if (event.width === 0 || event.height === 0) return;
             // TODO: remove this function calling
             window.resize(event.width / this.devicePixelRatio, event.height / this.devicePixelRatio);
-            this.emit('window-resize', event);
+            this.emit('window-resize', event.width, event.height, event.windowId);
         };
         jsb.onOrientationChanged = (event) => {
             this.emit('orientation-change');

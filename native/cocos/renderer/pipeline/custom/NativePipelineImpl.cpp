@@ -23,46 +23,46 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/utility/string_view_fwd.hpp>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include "DebugUtils.h"
+#include "GslUtils.h"
+#include "LayoutGraphFwd.h"
 #include "LayoutGraphGraphs.h"
+#include "LayoutGraphNames.h"
+#include "LayoutGraphTypes.h"
+#include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
-#include "base/Macros.h"
-#include "base/Ptr.h"
-#include "base/std/container/string.h"
-#include "boost/utility/string_view_fwd.hpp"
+#include "Pmr.h"
+#include "Range.h"
+#include "RenderCommonTypes.h"
+#include "RenderGraphGraphs.h"
+#include "RenderGraphTypes.h"
+#include "RenderInterfaceFwd.h"
+#include "RenderInterfaceTypes.h"
+#include "cocos/base/Macros.h"
+#include "cocos/base/Ptr.h"
 #include "cocos/base/StringUtil.h"
+#include "cocos/base/std/container/string.h"
+#include "cocos/math/Mat4.h"
+#include "cocos/renderer/gfx-base/GFXBuffer.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/renderer/gfx-base/GFXSwapchain.h"
+#include "cocos/renderer/gfx-base/states/GFXSampler.h"
 #include "cocos/renderer/pipeline/Enum.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/RenderPipeline.h"
-#include "cocos/renderer/pipeline/custom/DebugUtils.h"
-#include "cocos/renderer/pipeline/custom/GslUtils.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphNames.h"
-#include "cocos/renderer/pipeline/custom/Pmr.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
-#include "gfx-base/GFXBuffer.h"
-#include "gfx-base/GFXDef-common.h"
-#include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXSwapchain.h"
-#include "gfx-base/states/GFXSampler.h"
-#include "math/Mat4.h"
-#include "pipeline/custom/LayoutGraphFwd.h"
-#include "pipeline/custom/LayoutGraphTypes.h"
-#include "pipeline/custom/NativePipelineFwd.h"
-#include "pipeline/custom/Range.h"
-#include "pipeline/custom/RenderGraphTypes.h"
-#include "pipeline/custom/RenderInterfaceTypes.h"
+
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -87,6 +87,13 @@ NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 
 gfx::Device *NativePipeline::getDevice() const {
     return device;
+}
+
+void NativePipeline::beginSetup() {
+    renderGraph = RenderGraph(get_allocator());
+}
+
+void NativePipeline::endSetup() {
 }
 
 bool NativePipeline::containsResource(const ccstd::string &name) const {
@@ -117,6 +124,7 @@ uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format
             std::forward_as_tuple(desc),
             std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
             std::forward_as_tuple(),
+            std::forward_as_tuple(),
             std::forward_as_tuple(IntrusivePtr<gfx::Framebuffer>(renderWindow->getFramebuffer())),
             resourceGraph);
     }
@@ -128,6 +136,7 @@ uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{ResourceResidency::BACKBUFFER}),
+        std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain()}),
         resourceGraph);
@@ -153,6 +162,7 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
         std::forward_as_tuple(ResourceTraits{residency}),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
+        std::forward_as_tuple(),
         resourceGraph);
 }
 
@@ -171,18 +181,22 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED && residency == ResourceResidency::MEMORYLESS);
 
+    gfx::SamplerInfo samplerInfo{};
+    samplerInfo.magFilter = gfx::Filter::POINT;
+    samplerInfo.minFilter = gfx::Filter::POINT;
+    samplerInfo.mipFilter = gfx::Filter::NONE;
     return addVertex(
         ManagedTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{residency}),
         std::forward_as_tuple(),
+        std::forward_as_tuple(samplerInfo),
         std::forward_as_tuple(),
         resourceGraph);
 }
 
 void NativePipeline::beginFrame() {
-    renderGraph = RenderGraph(get_allocator());
 }
 
 void NativePipeline::endFrame() {
@@ -289,7 +303,7 @@ LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
-    auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
+    auto iter = layoutGraph.shaderLayoutIndex.find(std::string_view(shaderName));
     if (iter != layoutGraph.shaderLayoutIndex.end()) {
         const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);
@@ -370,6 +384,8 @@ void NativePipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     std::ignore = cameras;
     const auto *sceneData = pipelineSceneData.get();
     auto *commandBuffer = device->getCommandBuffer();
+
+    executeRenderGraph(renderGraph);
 }
 
 const MacroRecord &NativePipeline::getMacros() const {

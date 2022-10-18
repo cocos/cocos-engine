@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { DirectionalLight } from '../scene/directional-light';

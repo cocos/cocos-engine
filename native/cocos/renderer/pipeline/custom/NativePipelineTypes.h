@@ -35,8 +35,10 @@
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
@@ -456,6 +458,9 @@ public:
 
     NativePipeline(const allocator_type& alloc) noexcept; // NOLINT
 
+    void beginSetup() override;
+    void endSetup() override;
+
     bool containsResource(const ccstd::string& name) const override;
     uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
     uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
@@ -512,6 +517,7 @@ public:
     void resetRenderQueue(bool reset) override;
     bool isRenderQueueReset() const override;
 
+    void executeRenderGraph(const RenderGraph& rg);
 private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;
 

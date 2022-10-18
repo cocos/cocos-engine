@@ -1,7 +1,6 @@
 import { CachedArray } from '../../core';
 import { TextureBase } from '../../asset/assets/texture-base';
-import { Device } from '../../gfx';
-import { Attribute } from '../../gfx/base/define';
+import { Device, Attribute } from '../../gfx';
 import { Camera } from '../../render-scene/scene/camera';
 import { Model } from '../../render-scene/scene/model';
 import { SpriteFrame } from '../assets/sprite-frame';

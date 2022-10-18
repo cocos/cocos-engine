@@ -1086,6 +1086,7 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXSwapchain.h
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
+                 cocos/renderer/gfx-base/GFXDeviceObject.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
@@ -1260,9 +1261,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
+                 cocos/renderer/pipeline/custom/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
+                 cocos/renderer/pipeline/custom/ArchiveFwd.h
+                 cocos/renderer/pipeline/custom/ArchiveTypes.cpp
+                 cocos/renderer/pipeline/custom/ArchiveTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1273,6 +1278,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.h
+                 cocos/renderer/pipeline/custom/LayoutGraphSerialization.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
@@ -1289,6 +1295,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonNames.h
                  cocos/renderer/pipeline/custom/RenderCommonReflection.cpp
                  cocos/renderer/pipeline/custom/RenderCommonReflection.h
+                 cocos/renderer/pipeline/custom/RenderCommonSerialization.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
@@ -1642,6 +1649,7 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKUtils.h
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
+                     cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp
@@ -2956,7 +2964,7 @@ if(MSVC)
     file(GLOB V8_DLLS
         ${CWD}/external/win64/libs/v8/Release/*.dll
     )
-    
+
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll

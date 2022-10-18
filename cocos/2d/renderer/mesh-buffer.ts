@@ -124,17 +124,6 @@ export class MeshBuffer {
         }
     }
 
-    protected _useLinkedData = false;
-    get useLinkedData () {
-        return this._useLinkedData;
-    }
-    set useLinkedData (val:boolean) {
-        if (JSB && this._useLinkedData !== val) {
-            this._nativeObj.useLinkData = val;
-        }
-        this._useLinkedData = val;
-    }
-
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
     private _initIDataCount = 0;
@@ -193,7 +182,7 @@ export class MeshBuffer {
         // Initialize the first ia
         this._iaPool.push(this.createNewIA(device));
         if (JSB) {
-            this._nativeObj.initialize(device, attrs, vFloatCount, iCount);
+            this._nativeObj.initialize(attrs);
         }
     }
 

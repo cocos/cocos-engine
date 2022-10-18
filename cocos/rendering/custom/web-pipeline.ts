@@ -25,10 +25,10 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address } from '../../gfx/index';
-import { Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core/math';
-import { ComputeView, LightInfo, LightingMode, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Blit, ClearView, ComputePass, CopyPair, CopyPass, Dispatch, ManagedResource, MovePair, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address } from '../../gfx';
+import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4 } from '../../core/math';
+import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
@@ -41,7 +41,7 @@ import { assert } from '../../core/platform/debug';
 import { macro } from '../../core/platform/macro';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { supportsR32FloatTexture } from '../define';
+import { supportsR32FloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -400,8 +400,8 @@ function setCameraUBOValues (setter: WebSetter,
     setter.setMat4('cc_matProjInv', camera.matProjInv);
     setter.setMat4('cc_matViewProj', camera.matViewProj);
     setter.setMat4('cc_matViewProjInv', camera.matViewProjInv);
-    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, 0.0));
-    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, 0.0, 0.0));
+    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, pipeline.getCombineSignY()));
+    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle()))));
     setter.setVec4('cc_screenScale', new Vec4(cfg.shadingScale, cfg.shadingScale, 1.0 / cfg.shadingScale, 1.0 / cfg.shadingScale));
     setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, cfg.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
 
@@ -706,9 +706,8 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     private readonly _pipeline: PipelineSceneData;
 }
 
-export class WebMovePassBuilder extends MovePassBuilder {
+export class WebMovePassBuilder implements MovePassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: MovePass) {
-        super();
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
@@ -721,9 +720,8 @@ export class WebMovePassBuilder extends MovePassBuilder {
     private readonly _pass: MovePass;
 }
 
-export class WebCopyPassBuilder extends CopyPassBuilder {
+export class WebCopyPassBuilder implements CopyPassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: CopyPass) {
-        super();
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
@@ -741,7 +739,7 @@ function isManaged (residency: ResourceResidency): boolean {
     || residency === ResourceResidency.MEMORYLESS;
 }
 
-export class WebPipeline extends Pipeline {
+export class WebPipeline implements Pipeline {
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -772,6 +770,8 @@ export class WebPipeline extends Pipeline {
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this._device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
         str += `#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES ${macro.ENABLE_WEBGL_HIGHP_STRUCT_VALUES ? 1 : 0}\n`;
+        const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
+        str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
         this._constantMacros = str;
     }
     public setCustomPipelineName (name: string) {
@@ -789,6 +789,15 @@ export class WebPipeline extends Pipeline {
         return layoutData;
     }
 
+    private _initCombineSignY () {
+        const device = this._device;
+        this._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
+    }
+
+    public getCombineSignY () {
+        return this._combineSignY;
+    }
+
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
@@ -799,6 +808,7 @@ export class WebPipeline extends Pipeline {
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
+        this._initCombineSignY();
         const isFloat = supportsR32FloatTexture(this._device) ? 0 : 1;
         this.setMacroInt('CC_SHADOWMAP_FORMAT', isFloat);
         // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
@@ -915,6 +925,12 @@ export class WebPipeline extends Pipeline {
     public onGlobalPipelineStateChanged (): void {
         // do nothing
     }
+    beginSetup (): void {
+        this._renderGraph = new RenderGraph();
+    }
+    endSetup (): void {
+        this.compile();
+    }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
@@ -934,6 +950,7 @@ export class WebPipeline extends Pipeline {
                 name, desc,
                 new ResourceTraits(ResourceResidency.EXTERNAL),
                 new ResourceStates(),
+                new SamplerInfo(),
             );
         } else {
             return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
@@ -942,6 +959,7 @@ export class WebPipeline extends Pipeline {
                 name, desc,
                 new ResourceTraits(ResourceResidency.BACKBUFFER),
                 new ResourceStates(),
+                new SamplerInfo(),
             );
         }
     }
@@ -962,6 +980,7 @@ export class WebPipeline extends Pipeline {
             name, desc,
             new ResourceTraits(residency),
             new ResourceStates(),
+            new SamplerInfo(),
         );
     }
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
@@ -979,10 +998,11 @@ export class WebPipeline extends Pipeline {
             name, desc,
             new ResourceTraits(residency),
             new ResourceStates(),
+            new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
         );
     }
     beginFrame () {
-        this._renderGraph = new RenderGraph();
+        // noop
     }
     endFrame () {
         this._renderGraph = null;
@@ -1037,14 +1057,6 @@ export class WebPipeline extends Pipeline {
         decideProfilerCamera(cameras);
         // build graph
         this.beginFrame();
-        if (this.builder) {
-            this.builder.setup(cameras, this);
-        } else if (this.usesDeferredPipeline) {
-            this._deferred.setup(cameras, this);
-        } else {
-            this._forward.setup(cameras, this);
-        }
-        this.compile();
         this.execute();
         this.endFrame();
     }
@@ -1144,6 +1156,7 @@ export class WebPipeline extends Pipeline {
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
     public builder: PipelineBuilder | null = null;
+    private _combineSignY = 0;
     // csm uniform used vectors count
     public static CSM_UNIFORM_VECTORS = 61;
     // all global uniform used vectors count

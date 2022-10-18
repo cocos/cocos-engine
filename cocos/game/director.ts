@@ -29,21 +29,23 @@
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import System from './system';
-import { CCObject } from './data/object';
-import { EventTarget } from './event';
+import System from '../core/system';
+import { CCObject } from '../core/data/object';
+import { EventTarget } from '../core/event';
 import { input } from '../input';
-import { Root } from './root';
+import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';
 import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
-import { Scheduler } from './scheduler';
-import { js } from './utils/js';
-import { legacyCC } from './global-exports';
-import { errorID, error, assertID, warnID } from './platform/debug';
-import { containerManager } from './memop/container-manager';
+import { Scheduler } from '../core/scheduler';
+import { js } from '../core/utils/js';
+import { legacyCC } from '../core/global-exports';
+import { errorID, error, assertID, warnID } from '../core/platform/debug';
+import { containerManager } from '../core/memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { deviceManager } from '../gfx';
+import { PipelineBuilder } from '../rendering/custom/pipeline';
+import { macro } from '../core/platform/macro';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -165,6 +167,13 @@ export class Director extends EventTarget {
      * @event Director.EVENT_BEFORE_COMMIT
      */
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
+
+    /**
+     * @en The event which will be triggered before the pipeline render.
+     * @zh 当前渲染帧渲染前所触发的事件。
+     * @event Director.EVENT_BEFORE_RENDER
+     */
+    public static readonly EVENT_BEFORE_RENDER = 'director_before_render';
 
     /**
      * @en The event which will be triggered before the physics process.<br/>
@@ -431,10 +440,6 @@ export class Director extends EventTarget {
         if (scene instanceof SceneAsset) scene = scene.scene!;
         assertID(scene, 1205);
         assertID(scene instanceof Scene, 1216);
-
-        // ensure scene initialized
-        // @ts-expect-error run private method
-        scene._load();
 
         // Delay run / replace scene to the end of the frame
         this.once(Director.EVENT_END_FRAME, () => {
@@ -731,6 +736,21 @@ export class Director extends EventTarget {
         }
     }
 
+    private buildRenderPipeline () {
+        if (this._root) {
+            this._root.customPipeline.beginSetup();
+            const builder = legacyCC.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+            builder.setup(this._root.cameraList, this._root.customPipeline);
+            this._root.customPipeline.endSetup();
+        }
+    }
+
+    private setupRenderPipelineBuilder () {
+        if (this._root && this._root.usesCustomPipeline && legacyCC.rendering) {
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+        }
+    }
+
     /**
      * @internal
      */
@@ -743,6 +763,9 @@ export class Director extends EventTarget {
         this._root = new Root(deviceManager.gfxDevice);
         const rootInfo = {};
         this._root.initialize(rootInfo);
+
+        this.setupRenderPipelineBuilder();
+
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }

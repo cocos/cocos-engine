@@ -103,6 +103,14 @@ export enum TrackingType {
     ROTATION = 3,
 }
 
+export enum CameraUsage {
+    EDITOR,
+    GAME_VIEW,
+    SCENE_VIEW,
+    PREVIEW,
+    GAME = 100,
+}
+
 export interface ICameraInfo {
     name: string;
     node: Node;

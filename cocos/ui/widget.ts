@@ -30,7 +30,7 @@ import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework/ui-transform';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { errorID } from '../core/platform/debug';
-import { View } from '../core/platform/view';
+import { View } from './view';
 import visibleRect from '../core/platform/visible-rect';
 import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';

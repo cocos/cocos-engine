@@ -28,7 +28,7 @@ import { EDITOR } from 'internal:constants';
 import { Component, Node } from '../../scene-graph';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
-import { Director, director } from '../../core/director';
+import { Director, director } from '../../game/director';
 import { warnID } from '../../core/platform/debug';
 import { NodeEventType } from '../../scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';

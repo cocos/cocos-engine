@@ -67,7 +67,6 @@ public class CocosActivity extends GameActivity {
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        setTheme( R.style.Theme_AppCompat_Light_NoActionBar);
         super.onCreate(savedInstanceState);
 
         GlobalObject.setActivity(this);

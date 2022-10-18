@@ -32,7 +32,7 @@ import { Mesh } from '../assets/mesh';
 import { Vec4 } from '../../core/math';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../core/value-types';
 import { builtinResMgr } from '../../asset/asset-manager';
@@ -476,11 +476,15 @@ export class MeshRenderer extends ModelRenderer {
         if (JSB) {
             (this.model as any)._setInstancedAttribute(name, value);
         } else {
-            const { attributes, views } = this.model.instancedAttributes;
-            for (let i = 0; i < attributes.length; i++) {
-                if (attributes[i].name === name) {
-                    views[i].set(value);
-                    break;
+            const subModels = this.model.subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const subModel = subModels[i];
+                const { attributes, views } = subModel.instancedAttributeBlock;
+                for (let i = 0; i < attributes.length; i++) {
+                    if (attributes[i].name === name) {
+                        views[i].set(value);
+                        break;
+                    }
                 }
             }
         }
