@@ -301,7 +301,7 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
 
         // it's buffer data layout
         WGPUTextureDataLayout texDataLayout = {
-            .offset = 0, // we always create a non-offset staging buffer or give interface a non-offset buffer address
+            .offset = 0,
             .bytesPerRow = bufferBytesPerRow,
             .rowsPerImage = bufferPixelHeight,
         };
@@ -353,6 +353,10 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
                 }
             }
         }
+    }
+
+    if (hasFlag(ccTexture->getInfo().flags, TextureFlags::GEN_MIPMAP)) {
+        genMipMap(ccTexture, 1, ccTexture->getInfo().levelCount, _cmdBuff);
     }
 }
 

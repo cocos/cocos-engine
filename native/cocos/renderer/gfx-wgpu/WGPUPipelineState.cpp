@@ -88,8 +88,6 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
         hash_combine(hash, desc.depthStencil->depthBias);
         hash_combine(hash, desc.depthStencil->depthBiasSlopeScale);
         hash_combine(hash, desc.depthStencil->depthBiasClamp);
-    } else {
-        hash_combine(hash, 0);
     }
 
     hash_combine(hash, desc.multisample.count);
@@ -107,6 +105,7 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
         hash_combine(hash, desc.fragment->targetCount);
         for (uint32_t i = 0; i < desc.fragment->targetCount; ++i) {
             hash_combine(hash, desc.fragment->targets[i].format);
+            hash_combine(hash, desc.fragment->targets[i].blend);
             if (desc.fragment->targets[i].blend) {
                 hash_combine(hash, desc.fragment->targets[i].blend->color.operation);
                 hash_combine(hash, desc.fragment->targets[i].blend->color.srcFactor);
@@ -114,8 +113,6 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
                 hash_combine(hash, desc.fragment->targets[i].blend->alpha.operation);
                 hash_combine(hash, desc.fragment->targets[i].blend->alpha.srcFactor);
                 hash_combine(hash, desc.fragment->targets[i].blend->alpha.dstFactor);
-            } else {
-                hash_combine(hash, 0);
             }
             hash_combine(hash, desc.fragment->targets[i].writeMask);
         }
@@ -335,7 +332,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 .dstFactor = toWGPUBlendFactor(alphaBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendDstAlpha),
             };
             // only textureSampleType with float can be blended.
-            colorTargetStates[i].blend = textureSampleTypeTrait(colors[i].format) == WGPUTextureSampleType_Float ? &blendState[i] : nullptr;
+            colorTargetStates[i].blend = (_blendState.targets[targetIndex].blend && (textureSampleTypeTrait(colors[i].format) == WGPUTextureSampleType_Float)) ? &blendState[i] : nullptr;
             colorTargetStates[i].writeMask = toWGPUColorWriteMask(_blendState.targets[targetIndex].blendColorMask);
             if (targetIndex < _blendState.targets.size() - 1) {
                 ++targetIndex;
