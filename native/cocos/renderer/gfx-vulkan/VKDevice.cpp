@@ -402,30 +402,33 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     }
 
     _gpuBufferHub = ccnew CCVKGPUBufferHub(_gpuDevice);
+    _gpuIAHub = ccnew CCVKGPUInputAssemblerHub(_gpuDevice);
     _gpuTransportHub = ccnew CCVKGPUTransportHub(_gpuDevice, static_cast<CCVKQueue *>(_queue)->gpuQueue());
     _gpuDescriptorHub = ccnew CCVKGPUDescriptorHub(_gpuDevice);
     _gpuSemaphorePool = ccnew CCVKGPUSemaphorePool(_gpuDevice);
     _gpuBarrierManager = ccnew CCVKGPUBarrierManager(_gpuDevice);
     _gpuDescriptorSetHub = ccnew CCVKGPUDescriptorSetHub(_gpuDevice);
 
-    _gpuDescriptorHub->link(_gpuDescriptorSetHub);
+    _gpuDescriptorSetHub = ccnew CCVKGPUDescriptorSetHub(_gpuDevice);
+    _gpuDevice->defaultSampler = ccnew CCVKGPUSampler();
+    _gpuDevice->defaultSampler->init();
 
-    cmdFuncCCVKCreateSampler(this, &_gpuDevice->defaultSampler);
+    _gpuDevice->defaultTexture = ccnew CCVKGPUTexture();
+    _gpuDevice->defaultTexture->format = Format::RGBA8;
+    _gpuDevice->defaultTexture->usage = TextureUsageBit::SAMPLED | TextureUsage::STORAGE;
+    _gpuDevice->defaultTexture->width = _gpuDevice->defaultTexture->height = 1U;
+    _gpuDevice->defaultTexture->size = formatSize(Format::RGBA8, 1U, 1U, 1U);
+    _gpuDevice->defaultTexture->init();
 
-    _gpuDevice->defaultTexture.format = Format::RGBA8;
-    _gpuDevice->defaultTexture.usage = TextureUsageBit::SAMPLED | TextureUsage::STORAGE;
-    _gpuDevice->defaultTexture.width = _gpuDevice->defaultTexture.height = 1U;
-    _gpuDevice->defaultTexture.size = formatSize(Format::RGBA8, 1U, 1U, 1U);
-    cmdFuncCCVKCreateTexture(this, &_gpuDevice->defaultTexture);
-
-    _gpuDevice->defaultTextureView.gpuTexture = &_gpuDevice->defaultTexture;
-    _gpuDevice->defaultTextureView.format = Format::RGBA8;
-    cmdFuncCCVKCreateTextureView(this, &_gpuDevice->defaultTextureView);
+    _gpuDevice->defaultTextureView = ccnew CCVKGPUTextureView();
+    _gpuDevice->defaultTextureView->gpuTexture = _gpuDevice->defaultTexture;
+    _gpuDevice->defaultTextureView->format = Format::RGBA8;
+    _gpuDevice->defaultTextureView->init();
 
     ThsvsImageBarrier barrier{};
     barrier.nextAccessCount = 1;
     barrier.pNextAccesses = getAccessType(AccessFlagBit::VERTEX_SHADER_READ_TEXTURE);
-    barrier.image = _gpuDevice->defaultTexture.vkImage;
+    barrier.image = _gpuDevice->defaultTexture->vkImage;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -437,11 +440,12 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         },
         true);
 
-    _gpuDevice->defaultBuffer.usage = BufferUsage::UNIFORM | BufferUsage::STORAGE;
-    _gpuDevice->defaultBuffer.memUsage = MemoryUsage::HOST | MemoryUsage::DEVICE;
-    _gpuDevice->defaultBuffer.size = _gpuDevice->defaultBuffer.stride = 16U;
-    _gpuDevice->defaultBuffer.count = 1U;
-    cmdFuncCCVKCreateBuffer(this, &_gpuDevice->defaultBuffer);
+    _gpuDevice->defaultBuffer = ccnew CCVKGPUBuffer();
+    _gpuDevice->defaultBuffer->usage = BufferUsage::UNIFORM | BufferUsage::STORAGE;
+    _gpuDevice->defaultBuffer->memUsage = MemoryUsage::HOST | MemoryUsage::DEVICE;
+    _gpuDevice->defaultBuffer->size = _gpuDevice->defaultBuffer->stride = 16U;
+    _gpuDevice->defaultBuffer->count = 1U;
+    _gpuDevice->defaultBuffer->init();
 
     getAccessTypes(AccessFlagBit::COLOR_ATTACHMENT_WRITE, _gpuDevice->defaultColorBarrier.nextAccesses);
     cmdFuncCCVKCreateGeneralBarrier(this, &_gpuDevice->defaultColorBarrier);
@@ -505,27 +509,43 @@ void CCVKDevice::doDestroy() {
     }
     _depthStencilTextures.clear();
 
+    if (_gpuDevice) {
+        _gpuDevice->defaultBuffer = nullptr;
+        _gpuDevice->defaultTexture = nullptr;
+        _gpuDevice->defaultTextureView = nullptr;
+        _gpuDevice->defaultSampler = nullptr;
+    }
+
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue)
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
+
+    if (_gpuDevice) {
+        uint32_t backBufferCount = _gpuDevice->backBufferCount;
+        for (uint32_t i = 0; i < backBufferCount; i++) {
+            CC_SAFE_DELETE(_gpuStagingBufferPools[i])
+            CC_SAFE_DELETE(_gpuFencePools[i])
+        }
+    }
+    _gpuStagingBufferPools.clear();
+    _gpuFencePools.clear();
+
+
     CC_SAFE_DELETE(_gpuBufferHub)
     CC_SAFE_DELETE(_gpuTransportHub)
     CC_SAFE_DELETE(_gpuSemaphorePool)
     CC_SAFE_DELETE(_gpuDescriptorHub)
     CC_SAFE_DELETE(_gpuBarrierManager)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
+    CC_SAFE_DELETE(_gpuIAHub)
 
     if (_gpuDevice) {
         uint32_t backBufferCount = _gpuDevice->backBufferCount;
         for (uint32_t i = 0U; i < backBufferCount; i++) {
             _gpuRecycleBins[i]->clear();
-
-            CC_SAFE_DELETE(_gpuStagingBufferPools[i])
             CC_SAFE_DELETE(_gpuRecycleBins[i])
-            CC_SAFE_DELETE(_gpuFencePools[i])
         }
     }
-
     _gpuStagingBufferPools.clear();
     _gpuRecycleBins.clear();
     _gpuFencePools.clear();
@@ -535,22 +555,6 @@ void CCVKDevice::doDestroy() {
             vkDestroyPipelineCache(_gpuDevice->vkDevice, _gpuDevice->vkPipelineCache, nullptr);
             _gpuDevice->vkPipelineCache = VK_NULL_HANDLE;
         }
-
-        if (_gpuDevice->defaultBuffer.vkBuffer) {
-            vmaDestroyBuffer(_gpuDevice->memoryAllocator, _gpuDevice->defaultBuffer.vkBuffer, _gpuDevice->defaultBuffer.vmaAllocation);
-            _gpuDevice->defaultBuffer.vkBuffer = VK_NULL_HANDLE;
-            _gpuDevice->defaultBuffer.vmaAllocation = VK_NULL_HANDLE;
-        }
-        if (_gpuDevice->defaultTextureView.vkImageView) {
-            vkDestroyImageView(_gpuDevice->vkDevice, _gpuDevice->defaultTextureView.vkImageView, nullptr);
-            _gpuDevice->defaultTextureView.vkImageView = VK_NULL_HANDLE;
-        }
-        if (_gpuDevice->defaultTexture.vkImage) {
-            vmaDestroyImage(_gpuDevice->memoryAllocator, _gpuDevice->defaultTexture.vkImage, _gpuDevice->defaultTexture.vmaAllocation);
-            _gpuDevice->defaultTexture.vkImage = VK_NULL_HANDLE;
-            _gpuDevice->defaultTexture.vmaAllocation = VK_NULL_HANDLE;
-        }
-        cmdFuncCCVKDestroySampler(_gpuDevice, &_gpuDevice->defaultSampler);
 
         if (_gpuDevice->memoryAllocator != VK_NULL_HANDLE) {
             VmaStats stats;
@@ -892,17 +896,15 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
         totalSize += regionSize;
     }
 
-    CCVKGPUBuffer stagingBuffer;
-    stagingBuffer.size = totalSize;
     uint32_t texelSize = GFX_FORMAT_INFOS[toNumber(format)].size;
-    gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
+    IntrusivePtr<CCVKGPUBufferView> stagingBuffer = gpuStagingBufferPool()->alloc(totalSize, texelSize);
 
     // make sure the src texture is up-to-date
     waitAllFences();
 
     _gpuTransportHub->checkIn(
         [&](CCVKGPUCommandBuffer *cmdBuffer) {
-            cmdFuncCCVKCopyTextureToBuffers(this, static_cast<CCVKTexture *>(srcTexture)->gpuTexture(), &stagingBuffer, regions, count, cmdBuffer);
+            cmdFuncCCVKCopyTextureToBuffers(this, static_cast<const CCVKTexture *>(srcTexture)->gpuTexture(), stagingBuffer, regions, count, cmdBuffer);
         },
         true);
 
@@ -910,7 +912,7 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
         uint32_t regionOffset = 0;
         uint32_t regionSize = 0;
         std::tie(regionOffset, regionSize) = regionOffsetSizes[i];
-        memcpy(buffers[i], stagingBuffer.mappedData + regionOffset, regionSize);
+        memcpy(buffers[i], stagingBuffer->mappedData() + regionOffset, regionSize);
     }
 }
 
