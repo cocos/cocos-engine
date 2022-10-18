@@ -114,6 +114,8 @@ void CCVKGPUAccelerationStructure::shutdown() {
         CCVKDevice::getInstance()->gpuRecycleBin()->collect(scratchBuffer);
     if (accelStructBackingBuffer)
         CCVKDevice::getInstance()->gpuRecycleBin()->collect(accelStructBackingBuffer);
+    if (aabbsBuffer)
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(aabbsBuffer);
 }
 
 

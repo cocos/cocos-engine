@@ -344,6 +344,7 @@ struct CCVKGPUAccelerationStructure : public CCVKGPUDeviceObject {
     IntrusivePtr<CCVKGPUBuffer> scratchBuffer;
     IntrusivePtr<CCVKGPUBuffer> accelStructBackingBuffer;
     IntrusivePtr<CCVKGPUBuffer> instancesBuffer;
+    IntrusivePtr<CCVKGPUBuffer> aabbsBuffer;
 
     //IntrusivePtr<CCVKGPUQueryPool> vkCompactedSizeQueryPool;
 

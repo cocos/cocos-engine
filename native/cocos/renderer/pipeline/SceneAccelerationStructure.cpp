@@ -98,38 +98,50 @@ namespace cc
                     uint64_t mesh_uuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
 
                     auto it = blasMap.find(mesh_uuid);
-                    if (it != blasMap.cend()) {
+                    if (it != blasMap.cend() && pModel->getNode()->getName() != "AABB") {
                         // Blas could be reused.
                         tlasGeom.accelerationStructureRef = it->second;
                     } else {
                         // New Blas should be create and build.
-                        for (const auto& pSubModel : subModels) {
-                            gfx::ASTriangleMesh blasGeom{};
-                            const auto* inputAssembler = pSubModel->getInputAssembler();
-                            //blasGeom.stype = gfx::ASGeometryType::TRIANGLE_MESH;
+                        if (pModel->getNode()->getName() == "AABB1") {
+                            gfx::ASAABB blasGeom{};
                             blasGeom.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
-                            blasGeom.vertexCount = inputAssembler->getVertexCount();
-                            blasGeom.indexCount = inputAssembler->getIndexCount();
-                            blasGeom.indexBuffer = inputAssembler->getIndexBuffer();
+                            blasGeom.maxX = 0.5;
+                            blasGeom.maxY = 0.5;
+                            blasGeom.maxZ = 0.5;
+                            blasGeom.minX = -0.5;
+                            blasGeom.minZ = -0.5;
+                            blasGeom.minY = -0.5;
+                            blasInfo.aabbs.push_back(blasGeom);
+                        }else {
+                            for (const auto& pSubModel : subModels) {
+                                gfx::ASTriangleMesh blasGeom{};
+                                const auto* inputAssembler = pSubModel->getInputAssembler();
+                                blasGeom.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
+                                blasGeom.vertexCount = inputAssembler->getVertexCount();
+                                blasGeom.indexCount = inputAssembler->getIndexCount();
+                                blasGeom.indexBuffer = inputAssembler->getIndexBuffer();
 
-                            const auto& attributes = inputAssembler->getAttributes();
+                                const auto& attributes = inputAssembler->getAttributes();
 
-                            auto pred = [](const gfx::Attribute& attr) {
-                                return attr.name == gfx::ATTR_NAME_POSITION;
-                            };
+                                auto pred = [](const gfx::Attribute& attr) {
+                                    return attr.name == gfx::ATTR_NAME_POSITION;
+                                };
 
-                            auto posAttribute = std::find_if(attributes.cbegin(), attributes.cend(), pred);
+                                auto posAttribute = std::find_if(attributes.cbegin(), attributes.cend(), pred);
 
-                            if (posAttribute != attributes.cend()) {
-                                const auto vertexBufferList = inputAssembler->getVertexBuffers();
-                                auto* const posBuffer = vertexBufferList[posAttribute->stream];
-                                blasGeom.vertexBuffer = posBuffer;
-                                blasGeom.vertexFormat = posAttribute->format;
-                                blasGeom.vertexStride = posBuffer->getStride();
+                                if (posAttribute != attributes.cend()) {
+                                    const auto vertexBufferList = inputAssembler->getVertexBuffers();
+                                    auto* const posBuffer = vertexBufferList[posAttribute->stream];
+                                    blasGeom.vertexBuffer = posBuffer;
+                                    blasGeom.vertexFormat = posAttribute->format;
+                                    blasGeom.vertexStride = posBuffer->getStride();
+                                }
+
+                                blasInfo.triangels.push_back(blasGeom);
                             }
-
-                            blasInfo.triangels.push_back(blasGeom);
                         }
+                        
                         blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
                         gfx::AccelerationStructure* blas = device->createAccelerationStructure(blasInfo);
                         blas->build();
@@ -173,7 +185,6 @@ namespace cc
                     tlasInfo.instances.push_back(inst.second.second);
                 }
                 if (_needRecreate) {
-                    //todo Safely destroy current tlas
                     if (topLevelAccelerationStructure) {
                         topLevelAccelerationStructure->destroy();
                     }
@@ -191,8 +202,6 @@ namespace cc
             if (_needRecreate) {
                 _globalDSManager->bindAccelerationStructure(pipeline::TOPLEVELAS::BINDING, topLevelAccelerationStructure);
                 _globalDSManager->update();
-            } else if (_needRebuild||_needUpdate) {
-                
             }
 
             _needRecreate = _needRebuild = _needUpdate = false;

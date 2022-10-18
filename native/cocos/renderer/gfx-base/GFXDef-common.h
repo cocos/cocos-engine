@@ -1285,7 +1285,7 @@ struct ASTriangleMesh {
 
 struct ASAABB {
     ASGeometryFlags flag;
-    Buffer *aabbsBuffer;
+    //Buffer *aabbsBuffer;
     float minX;
     float minY;
     float minZ;
