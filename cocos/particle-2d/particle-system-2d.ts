@@ -1147,7 +1147,9 @@ export class ParticleSystem2D extends UIRenderer {
         this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
             if (this._renderSpriteFrame.texture) {
-                this._simulator.updateUVs(true);
+                if (this._simulator) {
+                    this._simulator.updateUVs(true);
+                }
                 this._syncAspect();
                 this._updateMaterial();
                 this._stopped = false;
