@@ -1233,15 +1233,6 @@ struct Attribute {
     EXPOSE_COPY_FN(Attribute)
 };
 
-/*
-enum class ASGeometryType : uint32_t {
-    TRIANGLE_MESH,
-    AABB,
-    INSTANCE,
-    COUNT
-};
-*/
-
 enum class ASGeometryFlagBit : uint32_t {
     GEOMETRY_OPAQUE = 0x1,
     COUNT
@@ -1262,10 +1253,10 @@ CC_ENUM_BITWISE_OPERATORS(ASBuildFlagBits);
 using ASBuildFlags = ASBuildFlagBits;
 
 enum class GeometryInstanceFlagBits : uint32_t {
-    TRIANGLE_FACING_CULL_DISABLE,
-    TRIANGLE_FLIP_FACING,
-    FORCE_OPAQUE,
-    FORCE_NO_OPAQUE,
+    TRIANGLE_FACING_CULL_DISABLE = 0x1,
+    TRIANGLE_FLIP_FACING = 0x2,
+    FORCE_OPAQUE = 0x4,
+    FORCE_NO_OPAQUE = 0x8,
     TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR = TRIANGLE_FLIP_FACING,
     COUNT
 };

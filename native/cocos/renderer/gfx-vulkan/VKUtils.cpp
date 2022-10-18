@@ -369,6 +369,15 @@ VkBuildAccelerationStructureFlagsKHR mapVkBuildAccelerationStructureFlags(ASBuil
     return static_cast<VkBuildAccelerationStructureFlagsKHR>( _flags);
 }
 
+VkGeometryInstanceFlagsKHR mapVkGeomtryInstanceFlags(GeometryInstanceFlags flags) {
+    VkGeometryInstanceFlagsKHR _flags = 0U;
+    if (hasFlag(flags, GeometryInstanceFlags::FORCE_NO_OPAQUE)) _flags |= VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR;
+    if (hasFlag(flags, GeometryInstanceFlags::FORCE_OPAQUE)) _flags |= VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR;
+    if (hasFlag(flags, GeometryInstanceFlags::TRIANGLE_FACING_CULL_DISABLE)) _flags |= VK_GEOMETRY_INSTANCE_TRIANGLE_CULL_DISABLE_BIT_NV;
+    if (hasFlag(flags, GeometryInstanceFlags::TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR)) _flags |= VK_GEOMETRY_INSTANCE_TRIANGLE_FRONT_COUNTERCLOCKWISE_BIT_KHR;
+    return static_cast<VkGeometryInstanceFlagsKHR>(_flags);
+}
+
 ccstd::string mapVendorName(uint32_t vendorID) {
     switch (vendorID) {
         case 0x1002: return "Advanced Micro Devices, Inc.";
@@ -434,7 +443,7 @@ VkAccelerationStructureInstanceKHR mapVkASInstance(const CCVKGPUDevice *gpuDevic
     inst.mask = instance.mask;
     inst.instanceCustomIndex = instance.instanceCustomIdx;
     inst.instanceShaderBindingTableRecordOffset = instance.shaderBindingTableRecordOffset;
-    inst.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    inst.flags = mapVkGeomtryInstanceFlags(instance.flags);
     VkAccelerationStructureDeviceAddressInfoKHR deviceAddressInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR};
     deviceAddressInfo.accelerationStructure = static_cast<CCVKAccelerationStructure *>(instance.accelerationStructureRef)->gpuAccelerationStructure()->vkAccelerationStructure;
     inst.accelerationStructureReference = vkGetAccelerationStructureDeviceAddressKHR(gpuDevice->vkDevice, &deviceAddressInfo);

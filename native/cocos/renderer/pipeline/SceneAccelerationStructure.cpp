@@ -94,24 +94,31 @@ namespace cc
                     tlasGeom.shaderBindingTableRecordOffset = 0;
                     tlasGeom.mask = 0xFF;
                     tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
+                    tlasGeom.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
+
+                    if (pModel->getNode()->getName() == "AABB")
+                        tlasGeom.flags = gfx::GeometryInstanceFlagBits::FORCE_OPAQUE;
 
                     uint64_t mesh_uuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
 
+                    if (pModel->getNode()->getName() == "AABB")
+                        mesh_uuid += 1024;
+
                     auto it = blasMap.find(mesh_uuid);
-                    if (it != blasMap.cend() && pModel->getNode()->getName() != "AABB") {
+                    if (it != blasMap.cend()) {
                         // Blas could be reused.
                         tlasGeom.accelerationStructureRef = it->second;
                     } else {
                         // New Blas should be create and build.
-                        if (pModel->getNode()->getName() == "AABB1") {
+                        if (pModel->getNode()->getName() == "AABB") {
                             gfx::ASAABB blasGeom{};
                             blasGeom.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
+                            blasGeom.minX = -0.5;
+                            blasGeom.minY = -0.5;
+                            blasGeom.minZ = -0.5;
                             blasGeom.maxX = 0.5;
                             blasGeom.maxY = 0.5;
                             blasGeom.maxZ = 0.5;
-                            blasGeom.minX = -0.5;
-                            blasGeom.minZ = -0.5;
-                            blasGeom.minY = -0.5;
                             blasInfo.aabbs.push_back(blasGeom);
                         }else {
                             for (const auto& pSubModel : subModels) {
@@ -141,11 +148,11 @@ namespace cc
                                 blasInfo.triangels.push_back(blasGeom);
                             }
                         }
-                        
+
                         blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
                         gfx::AccelerationStructure* blas = device->createAccelerationStructure(blasInfo);
                         blas->build();
-                        //blas->compact();
+                        blas->compact();
                         
                         blasMap.emplace(mesh_uuid, blas);
                         tlasGeom.accelerationStructureRef = blas;
@@ -170,8 +177,8 @@ namespace cc
             auto blas_it = blasMap.begin();
             while (blas_it!=blasMap.end()) {
                 if (blas_it->second->getRefCount()==0) {
-                    blas_it = blasMap.erase(blas_it);
-                    blas_it->second->destroy();
+                    //blas_it = blasMap.erase(blas_it);
+                    //blas_it->second->destroy();
                 }else {
                     ++blas_it;
                 }

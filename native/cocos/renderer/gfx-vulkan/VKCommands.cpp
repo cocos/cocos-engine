@@ -1553,7 +1553,7 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
     }
 }
 
-void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure, VkAccelerationStructureGeometryKHR &accelerationStructureGeom, std::vector<ASAABB> &aabbs) {
+void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure, VkAccelerationStructureGeometryKHR &accelerationStructureGeom, const std::vector<ASAABB> &aabbs) {
     gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
     accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_AABBS_KHR;
     accelerationStructureGeom.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
@@ -1579,6 +1579,7 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
 
     VkAccelerationStructureGeometryAabbsDataKHR aabbsData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR};
     aabbsData.data.deviceAddress = getVkBufferDeviceAddr(device,gpuAccelerationStructure->aabbsBuffer);
+    aabbsData.stride = sizeof(VkAabbPositionsKHR);
     accelerationStructureGeom.geometry.aabbs = aabbsData;
     gpuAccelerationStructure->geometries.push_back(accelerationStructureGeom);
     gpuAccelerationStructure->rangeInfos.push_back({aabbsCount, 0, 0, 0});
@@ -1599,7 +1600,7 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
                    [&](const std::vector<ASTriangleMesh> &mesh) {
                        fillGeometryInfo(device, gpuAccelerationStructure, accelerationStructureGeom,mesh);
                    },
-                   [&](std::vector<ASAABB> &aabbs) {
+                   [&](const std::vector<ASAABB> &aabbs) {
                        fillGeometryInfo(device, gpuAccelerationStructure, accelerationStructureGeom, aabbs);
                    }},
                gpuAccelerationStructure->geomtryInfos);
