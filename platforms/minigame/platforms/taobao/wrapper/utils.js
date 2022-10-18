@@ -24,14 +24,14 @@ const utils = {
         let currentIndex = 0;
         let sum = void 0;
         while (string.charAt(0 | currentIndex) || (encodings = '=', currentIndex % 1)) {
-          currentIndex += 0.75; // 每次移动3/4个位置
-          const currentCode = string.charCodeAt(currentIndex); // 获取code point
+          currentIndex += 0.75;
+          const currentCode = string.charCodeAt(currentIndex);
           if (currentCode > 255) {
-            // 大于255无法处理
+            // Cannot handle when it is greater than 255
             throw new Error('"btoa" failed');
           }
-          sum = sum << 8 | currentCode; // 每次在上次的基础上左移8位再加上当前code point
-          const encodeIndex = 63 & sum >> 8 - currentIndex % 1 * 8; // 去除多余的位数，再去最后6位
+          sum = sum << 8 | currentCode;
+          const encodeIndex = 63 & sum >> 8 - currentIndex % 1 * 8;
           result += encodings.charAt(encodeIndex);
         }
 

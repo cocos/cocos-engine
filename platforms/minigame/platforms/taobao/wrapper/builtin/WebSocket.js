@@ -1,10 +1,5 @@
 const _utils = require('../utils');
 
-function _triggerEvent(type, ...args) {
-  if (typeof this[`on${type}`] === 'function') {
-    this[`on${type}`].apply(this, args)
-  }
-}
 export default class WebSocket {
   static CONNECTING = 0 // The connection is not yet open.
   static OPEN = 1 // The connection is open and ready to communicate.
@@ -39,13 +34,13 @@ export default class WebSocket {
     my.connectSocket({
       url,
       fail: function fail(res) {
-        _triggerEvent.call(this, 'error', res)
+        this._triggerEvent('error', res)
       }
     })
 
     this._onopen = () => {
       this.readyState = WebSocket.OPEN
-      _triggerEvent.call(this, 'open')
+      this._triggerEvent('open')
     }
     my.onSocketOpen(this._onopen)
 
@@ -53,18 +48,18 @@ export default class WebSocket {
       if (res && res.data && res.isBuffer) {
         res.data = _utils.base64ToArrayBuffer(res.data);
       }
-      _triggerEvent.call(this, 'message', res)
+      this._triggerEvent('message', res)
     }
     my.onSocketMessage(this._onmessage)
 
     this._onerror = (res) => {
-      _triggerEvent.call(this, 'error', res)
+      this._triggerEvent('error', res)
     }
     my.onSocketError(this._onerror)
 
     this._onclose = () => {
       this.readyState = WebSocket.CLOSED
-      _triggerEvent.call(this, 'close')
+      this._triggerEvent('close')
       this._removeAllSocketListenr();
     }
     my.onSocketClose(this._onclose)
@@ -91,9 +86,15 @@ export default class WebSocket {
           data,
           isBuffer,
           fail: function (res) {
-            _triggerEvent.call(this, 'error', res)
+            this._triggerEvent('error', res)
           }
       });
+    }
+  }
+
+  _triggerEvent(type, ...args) {
+    if (typeof this[`on${type}`] === 'function') {
+      this[`on${type}`].apply(this, args)
     }
   }
 
