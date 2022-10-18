@@ -20,11 +20,11 @@ namespace pipeline
         void update(const scene::RenderScene* scene);
         void destroy();
     protected:
-        IntrusivePtr<gfx::AccelerationStructure> topLevelAccelerationStructure;
-        IntrusivePtr<gfx::Buffer> sceneDescBuffer;
-        ccstd::vector<IntrusivePtr<gfx::AccelerationStructure>> bottomLevelAccelerationStructures;
-        ccstd::unordered_map<uint64_t,IntrusivePtr<gfx::AccelerationStructure>> blasMap;
-        ccstd::unordered_map<ccstd::string,std::pair<bool,gfx::ASInstance>> modelMap;
+        IntrusivePtr<gfx::AccelerationStructure> _topLevelAccelerationStructure;
+        IntrusivePtr<gfx::Buffer> _sceneDescBuffer;
+        ccstd::vector<IntrusivePtr<gfx::AccelerationStructure>> _bottomLevelAccelerationStructures;
+        ccstd::unordered_map<uint64_t,IntrusivePtr<gfx::AccelerationStructure>> _blasMap;
+        ccstd::unordered_map<ccstd::string,std::pair<bool,gfx::ASInstance>> _modelMap;
          
         pipeline::GlobalDSManager* _globalDSManager{nullptr};
     private:

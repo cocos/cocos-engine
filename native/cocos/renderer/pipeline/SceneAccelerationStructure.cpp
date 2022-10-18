@@ -20,9 +20,9 @@ namespace cc
 
         void SceneAccelerationStructure::update(const scene::RenderScene* scene) {
 
-            bool _needRebuild = false;
-            bool _needUpdate = false;
-            bool _needRecreate = false;
+            bool needRebuild = false;
+            bool needUpdate = false;
+            bool needRecreate = false;
 
             auto* device = gfx::Device::getInstance();
 
@@ -33,44 +33,47 @@ namespace cc
 
                 const auto name = pModel->getNode()->getName();
 
-                const auto model_uuid = pModel->getNode()->getUuid();
-                auto model_it = modelMap.find(model_uuid);
+                const auto modelUuid = pModel->getNode()->getUuid();
+                auto modelIt = _modelMap.find(modelUuid);
 
-                if (model_it != modelMap.cend()) {
+                if (modelIt != _modelMap.cend()) {
                     // set alive flag true
-                    model_it->second.first = true;
+                    modelIt->second.first = true;
 
                     if (pModel->getTransform()->getChangedFlags()) {
                         // Instance transform changed, tlas should be updated.
-                        auto last_update_transfrom = &model_it->second.second.transform;
-                        auto current_transfrom = &pModel->getTransform()->getWorldMatrix();
+
+                        auto* lastUpdateTransfrom = &modelIt->second.second.transform;
+                        const auto* currentTransfrom = &pModel->getTransform()->getWorldMatrix();
 
                         auto similarTransform = [](const Mat4* mat1, const Mat4* mat2) -> bool {
-                            Vec3 v1, v2;
-                            mat1->getScale(&v1);
-                            mat2->getScale(&v2);
-                            bool similarScale = (v1 - v2).lengthSquared() < 1;
-                            mat1->getTranslation(&v1);
-                            mat2->getTranslation(&v2);
-                            bool similarTranslate = (v1 - v2).lengthSquared() < 1;
-                            Quaternion q1, q2;
+                            Vec3 vec1;
+                            Vec3 vec2;
+                            mat1->getScale(&vec1);
+                            mat2->getScale(&vec2);
+                            bool similarScale = (vec1 - vec2).lengthSquared() < 1;
+                            mat1->getTranslation(&vec1);
+                            mat2->getTranslation(&vec2);
+                            bool similarTranslate = (vec1 - vec2).lengthSquared() < 1;
+                            //Quaternion quat1;
+                            //Quaternion quat2;
                             return similarScale && similarTranslate;
                         };
 
-                        if (similarTransform(last_update_transfrom, current_transfrom)) {
-                            _needUpdate = true;
+                        if (similarTransform(lastUpdateTransfrom, currentTransfrom)) {
+                            needUpdate = true;
                         } else {
-                            _needRebuild = true;
+                            needRebuild = true;
                         }
-                        model_it->second.second.transform = *current_transfrom;
+                        modelIt->second.second.transform = *currentTransfrom;
                     }
                 }else {
                     gfx::AccelerationStructureInfo blasInfo{};
                     const auto& subModels = pModel->getSubModels();
                     // New instance should be added to top-level acceleration structure.
                     // Tlas should be recreate and rebuild.
-                    _needRecreate = true;
-                    _needRebuild = true;
+                    needRecreate = true;
+                    needRebuild = true;
                     gfx::ASInstance tlasGeom{};
                     //tlasGeom.stype = gfx::ASGeometryType::INSTANCE;
                     tlasGeom.instanceCustomIdx = 0;
@@ -96,18 +99,20 @@ namespace cc
                     tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
                     tlasGeom.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
 
-                    if (pModel->getNode()->getName() == "AABB")
+                    if (pModel->getNode()->getName() == "AABB") {
                         tlasGeom.flags = gfx::GeometryInstanceFlagBits::FORCE_OPAQUE;
+                    }       
 
-                    uint64_t mesh_uuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
+                    auto meshUuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
 
-                    if (pModel->getNode()->getName() == "AABB")
-                        mesh_uuid += 1024;
+                    if (pModel->getNode()->getName() == "AABB") {
+                        meshUuid += 1024;
+                    }
 
-                    auto it = blasMap.find(mesh_uuid);
-                    if (it != blasMap.cend()) {
+                    auto blasIt = _blasMap.find(meshUuid);
+                    if (blasIt != _blasMap.cend()) {
                         // Blas could be reused.
-                        tlasGeom.accelerationStructureRef = it->second;
+                        tlasGeom.accelerationStructureRef = blasIt->second;
                     } else {
                         // New Blas should be create and build.
                         if (pModel->getNode()->getName() == "AABB") {
@@ -154,69 +159,69 @@ namespace cc
                         blas->build();
                         blas->compact();
                         
-                        blasMap.emplace(mesh_uuid, blas);
+                        _blasMap.emplace(meshUuid, blas);
                         tlasGeom.accelerationStructureRef = blas;
                     }
-                    modelMap.emplace(model_uuid, std::pair{true, tlasGeom});
+                    _modelMap.emplace(modelUuid, std::pair{true, tlasGeom});
                 }
             }
 
             //sweep deactive model entries
-            auto model_it = modelMap.begin();
-            while (model_it != modelMap.end()) {
-                if (model_it->second.first) {
-                    model_it->second.first = false;
-                    ++model_it;
+            auto modelIt = _modelMap.begin();
+            while (modelIt != _modelMap.end()) {
+                if (modelIt->second.first) {
+                    modelIt->second.first = false;
+                    ++modelIt;
                 } else {
-                    model_it = modelMap.erase(model_it);
-                    _needRebuild = true;
+                    modelIt = _modelMap.erase(modelIt);
+                    needRebuild = true;
                 }
             } 
 
             //sweep deactive blas
-            auto blas_it = blasMap.begin();
-            while (blas_it!=blasMap.end()) {
-                if (blas_it->second->getRefCount()==0) {
+            auto blasIt = _blasMap.begin();
+            while (blasIt != _blasMap.end()) {
+                if (blasIt->second->getRefCount()==0) {
                     //blas_it = blasMap.erase(blas_it);
                     //blas_it->second->destroy();
                 }else {
-                    ++blas_it;
+                    ++blasIt;
                 }
             }
 
-            if (_needRebuild||_needUpdate) {
+            if (needRebuild||needUpdate) {
                 gfx::AccelerationStructureInfo tlasInfo{};
                 tlasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_UPDATE | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
-                tlasInfo.instances.reserve(modelMap.size());
-                for (const auto& inst : modelMap) {
+                tlasInfo.instances.reserve(_modelMap.size());
+                for (const auto& inst : _modelMap) {
                     tlasInfo.instances.push_back(inst.second.second);
                 }
-                if (_needRecreate) {
-                    if (topLevelAccelerationStructure) {
-                        topLevelAccelerationStructure->destroy();
+                if (needRecreate) {
+                    if (_topLevelAccelerationStructure) {
+                        _topLevelAccelerationStructure->destroy();
                     }
-                    topLevelAccelerationStructure = device->createAccelerationStructure(tlasInfo);
+                    _topLevelAccelerationStructure = device->createAccelerationStructure(tlasInfo);
                 } else {
-                    topLevelAccelerationStructure->setInfo(tlasInfo);
+                    _topLevelAccelerationStructure->setInfo(tlasInfo);
                 }
-                if (_needRebuild) {
-                    topLevelAccelerationStructure->build();
-                } else if (_needUpdate) {
-                    topLevelAccelerationStructure->update();
+                if (needRebuild) {
+                    _topLevelAccelerationStructure->build();
+                } else if (needUpdate) {
+                    _topLevelAccelerationStructure->update();
                 }
             }
 
-            if (_needRecreate) {
-                _globalDSManager->bindAccelerationStructure(pipeline::TOPLEVELAS::BINDING, topLevelAccelerationStructure);
+            if (needRecreate) {
+                _globalDSManager->bindAccelerationStructure(pipeline::TOPLEVELAS::BINDING, _topLevelAccelerationStructure);
                 _globalDSManager->update();
             }
 
-            _needRecreate = _needRebuild = _needUpdate = false;
+            needRecreate = needRebuild = needUpdate = false;
 		}
 
         void SceneAccelerationStructure::destroy() {
             
         }
 
-	} // namespace scene
+	}  // namespace pipeline
 } // namespace cc

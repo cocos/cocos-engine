@@ -1493,9 +1493,9 @@ void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcText
 
 namespace {
 template <class... Ts>
-struct overloaded : Ts... { using Ts::operator()...; };
+struct Overloaded : Ts... { using Ts::operator()...; };
 template <class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
+Overloaded(Ts...) -> Overloaded<Ts...>;
 
 // Acceleration Structure Helper Functions
 VkDeviceAddress getVkBufferDeviceAddr(VkDevice device, VkBuffer buffer) {
@@ -1544,7 +1544,7 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
 
 void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure, VkAccelerationStructureGeometryKHR &accelerationStructureGeom, const std::vector<ASTriangleMesh> &mesh) {
     gpuAccelerationStructure->buildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
-    for (auto &triangles : mesh) {
+    for (const auto &triangles : mesh) {
         accelerationStructureGeom.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
         accelerationStructureGeom.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
         accelerationStructureGeom.geometry.triangles = mapVkASGeomTrianglesData(triangles, device->gpuDevice());
@@ -1589,10 +1589,9 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
 
 void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccelerationStructure) {
     const auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
-    const VkDevice _device = gpuDevice->vkDevice;
     VkAccelerationStructureGeometryKHR accelerationStructureGeom{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR};
 
-    std::visit(overloaded{
+    std::visit(Overloaded{
                    [](auto arg) {},
                    [&](const std::vector<ASInstance> &instances) {
                        fillGeometryInfo(device, gpuAccelerationStructure, accelerationStructureGeom, instances);
@@ -1611,8 +1610,9 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
 
     const auto &pRangeInfo = gpuAccelerationStructure->rangeInfos;
 
-    for (auto i = 0; i < maxPrimitiveCount.size(); ++i)
+    for (auto i = 0; i < maxPrimitiveCount.size(); ++i) {
         maxPrimitiveCount[i] = pRangeInfo[i].primitiveCount;
+    }
 
     VkAccelerationStructureBuildGeometryInfoKHR &geomInfo = gpuAccelerationStructure->buildGeometryInfo;
 
