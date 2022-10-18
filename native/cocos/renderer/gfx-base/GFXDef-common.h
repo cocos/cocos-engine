@@ -385,6 +385,7 @@ enum class Type : uint32_t {
     MAT3X2,
     MAT3,
     MAT3X4,
+    MAT4X2,
     MAT4X3,
     MAT4,
     // combined image samplers
