@@ -108,6 +108,7 @@ protected:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *createPipelineLayout() override;
     PipelineState *createPipelineState() override;
+    AccelerationStructure *createAccelerationStructure() override;
     Sampler *createSampler(const SamplerInfo &info) override;
     Swapchain *createSwapchain() override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;

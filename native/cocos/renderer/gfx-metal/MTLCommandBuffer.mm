@@ -1095,6 +1095,16 @@ void CCMTLCommandBuffer::completeQueryPool(QueryPool *queryPool) {
     }];
 }
 
+void CCMTLCommandBuffer::buildAccelerationStructure(AccelerationStructure *accel){
+
+}
+void CCMTLCommandBuffer::updateAccelerationStructure(AccelerationStructure *accel){
+
+}
+void CCMTLCommandBuffer::compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res){
+
+}
+
 } // namespace gfx
 } // namespace cc
 
