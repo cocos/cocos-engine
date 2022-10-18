@@ -82,7 +82,7 @@ inline void save(OutputArchive& ar, const LayoutGraph& g) {
         visitObject(
             v, g,
             overload(
-                [&](auto& object) {
+                [&](const auto& object) {
                     save(ar, object);
                 }));
     }
@@ -321,7 +321,7 @@ inline void save(OutputArchive& ar, const LayoutGraphData& g) {
         visitObject(
             v, g,
             overload(
-                [&](auto& object) {
+                [&](const auto& object) {
                     save(ar, object);
                 }));
     }
