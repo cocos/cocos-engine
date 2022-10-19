@@ -681,6 +681,7 @@ module.exports = {
         rotationOvertimeModule: 'Particle rotation module',
         textureAnimationModule: 'Texture animation module',
         trailModule: 'Trail module (only support on CPU)',
+        noiseModule: 'Noise module (only support on CPU)',
         renderer: 'Particle render module',
         renderCulling: 'Whether to enable the particle culling feature. <br>If enabled, a particle emitter bounding box will be generated, <br>and the particle emitter will be culled if the bounding box is not in the visible range of the camera. <br>Please refer to the cullingMode option below for the behavior settings after particle culling.',
         cullingMode: 'Sets the behavior of the particle emitter after it has been culled. <br>The available options include Pause, Pause and Catchup, and Always Simulate.<br>When the Pause is selected, the particle will pause the simulation if the particle emitter bounding box is not in the camera\'s visible range. <br>If it resumes visibility, the particle will continue simulating at the time of last pause.<br>When the Pause and Catchup is selected, if the particle emitter bounding box is not in the camera\'s visible range, the particle will pause the simulation.  If visible again, the particle will start simulating at the current time.<br>When the Always Simulate is selected, the particle will keep simulating regardless of whether the particle emitter bounding box is in the camera\'s visible range, but will not render when it is not in the camera\'s visible range.',

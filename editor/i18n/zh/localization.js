@@ -665,6 +665,7 @@ module.exports = {
         rotationOvertimeModule: '粒子旋转模块',
         textureAnimationModule: '贴图动画模块',
         trailModule: '粒子轨迹模块（只支持 CPU 粒子）',
+        noiseModule: '粒子噪声动画模块（只支持 CPU 粒子）',
         renderer: '粒子渲染模块',
         renderCulling: '是否开启粒子剔除功能。<br>开启该项将会生成一个粒子发射器包围盒，若包围盒不在摄像机的可见范围内，该粒子发射器便会被剔除。<br>粒子发射器被剔除后的行为请参考下面的 Culling Mode。',
         cullingMode: '粒子发射器被剔除之后的行为，可设置的选项包括 Pause, Pause and Catchup, Always Simulate。<br>选择 Pause 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会接着上次暂停的时间继续模拟；<br>选择 Pause and Catchup 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会以当前的时间开始模拟；<br>选择 Always Simulate 时，无论粒子发射器包围盒是否在摄像机的可见范围内，粒子都会一直模拟，只是不在摄像机的可见范围内时不进行渲染。',
