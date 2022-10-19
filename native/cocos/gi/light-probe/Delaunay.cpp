@@ -100,7 +100,7 @@ void Delaunay::tetrahedralize() {
     // remove all tetrahedrons which contain the super tetrahedron's vertices
     _tetrahedrons.erase(std::remove_if(_tetrahedrons.begin(), _tetrahedrons.end(),
                                        [probeCount](Tetrahedron &tetrahedron) {
-                                           int32_t vertexIndex = probeCount;
+                                           auto vertexIndex = static_cast<int32_t>(probeCount);
                                            return (tetrahedron.contain(vertexIndex) ||
                                                    tetrahedron.contain(vertexIndex + 1) ||
                                                    tetrahedron.contain(vertexIndex + 2) ||

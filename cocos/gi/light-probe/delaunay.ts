@@ -24,7 +24,6 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
 import { Mat3 } from '../../core/math/mat3';
 import { EPSILON } from '../../core/math/utils';
 import { Vec3 } from '../../core/math/vec3';
@@ -43,7 +42,6 @@ export class Vertex {
         this.position.set(pos);
     }
 }
-legacyCC.Vertex = Vertex;
 
 class Edge {
     @serializable
@@ -67,7 +65,6 @@ class Edge {
                 || (this.vertex0 === other.vertex1 && this.vertex1 === other.vertex0));
     }
 }
-legacyCC.Edge = Edge;
 
 class Triangle {
     @serializable
@@ -105,7 +102,6 @@ class Triangle {
                 || (this.vertex0 === other.vertex2 && this.vertex1 === other.vertex1 && this.vertex2 === other.vertex0));
     }
 }
-legacyCC.Triangle = Triangle;
 
 @ccclass('cc.CircumSphere')
 export class CircumSphere {
@@ -134,7 +130,6 @@ export class CircumSphere {
         this.radiusSquared = Vec3.squaredDistance(p0, this.center);
     }
 }
-legacyCC.CircumSphere = CircumSphere;
 
 /**
  * inner tetrahedron or outer cell structure
@@ -197,7 +192,6 @@ export class Tetrahedron {
         return this.vertex3 < 0;    // -1 or -2
     }
 }
-legacyCC.Tetrahedron = Tetrahedron;
 
 export class Delaunay {
     private _probes: Vertex[] = [];
@@ -546,4 +540,3 @@ export class Delaunay {
         tetrahedron.offset.set(m[9], m[10], m[11]);
     }
 }
-legacyCC.Delaunay = Delaunay;

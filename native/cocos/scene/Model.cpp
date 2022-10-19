@@ -373,7 +373,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
 
     ccstd::vector<IMacroPatch> patches;
     if (_receiveShadow) {
-        for (auto &patch : SHADOW_MAP_PATCHES) {
+        for (const auto &patch : SHADOW_MAP_PATCHES) {
             patches.push_back(patch);
         }
     }

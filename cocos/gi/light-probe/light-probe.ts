@@ -233,8 +233,6 @@ export class LightProbesData {
     private _tetrahedrons: Tetrahedron[] = [];
 }
 
-legacyCC.LightProbesData = LightProbesData;
-
 /**
  * @en light probe data
  * @zh 光照探针数据
@@ -351,5 +349,3 @@ export class LightProbes {
         }
     }
 }
-
-legacyCC.LightProbes = LightProbes;
