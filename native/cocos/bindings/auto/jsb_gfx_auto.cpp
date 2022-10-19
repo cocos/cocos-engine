@@ -29374,98 +29374,6 @@ bool js_register_cc_gfx_Device(se::Object* obj) {
 }
 
 
-se::Class* __jsb_cc_gfx_DefaultResource_class = nullptr;
-se::Object* __jsb_cc_gfx_DefaultResource_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_DefaultResource) 
-
-// js_ctor
-static bool js_new_cc_gfx_DefaultResource(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    if (argc != 1) {
-        SE_REPORT_ERROR("js_new_cc_gfx_DefaultResource: wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    
-    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
-    cc::gfx::DefaultResource *result;
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_DefaultResource,1,SWIGTYPE_p_cc__gfx__Device"); 
-    result = (cc::gfx::DefaultResource *)new cc::gfx::DefaultResource(arg1);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_gfx_DefaultResource, __jsb_cc_gfx_DefaultResource_class, js_delete_cc_gfx_DefaultResource)
-
-static bool js_delete_cc_gfx_DefaultResource(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_DefaultResource) 
-
-static bool js_cc_gfx_DefaultResource_getTexture(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::DefaultResource *arg1 = (cc::gfx::DefaultResource *) NULL ;
-    cc::gfx::TextureType arg2 ;
-    int32_t temp2 ;
-    cc::gfx::Texture *result = 0 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gfx::DefaultResource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp2)
-    ok &= sevalue_to_native(args[0], &temp2);
-    SE_PRECONDITION2(ok, false, "DefaultResource_getTexture,2,SWIGTYPE_cc__gfx__TextureType");
-    arg2 = (cc::gfx::TextureType)temp2;
-    result = (cc::gfx::Texture *)((cc::gfx::DefaultResource const *)arg1)->getTexture(arg2);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "DefaultResource_getTexture, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_DefaultResource_getTexture) 
-
-bool js_register_cc_gfx_DefaultResource(se::Object* obj) {
-    auto* cls = se::Class::create("DefaultResource", obj, nullptr, _SE(js_new_cc_gfx_DefaultResource)); 
-    
-    
-    cls->defineFunction("getTexture", _SE(js_cc_gfx_DefaultResource_getTexture)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_DefaultResource));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::gfx::DefaultResource>(cls);
-    
-    __jsb_cc_gfx_DefaultResource_proto = cls->getProto();
-    __jsb_cc_gfx_DefaultResource_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
 se::Class* __jsb_cc_gfx_DeviceManager_class = nullptr;
 se::Object* __jsb_cc_gfx_DeviceManager_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_DeviceManager) 
@@ -29727,7 +29635,6 @@ bool register_all_gfx(se::Object* obj) {
     js_register_cc_gfx_TextureBarrier(ns); 
     js_register_cc_gfx_BufferBarrier(ns); 
     js_register_cc_gfx_Device(ns); 
-    js_register_cc_gfx_DefaultResource(ns); 
     js_register_cc_gfx_DeviceManager(ns); 
     
     /* Register global variables & global functions */
