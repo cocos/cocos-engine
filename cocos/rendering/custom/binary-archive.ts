@@ -1,4 +1,4 @@
-import { OutputArchive, InputArchive} from './archive';
+import { OutputArchive, InputArchive } from './archive';
 
 export class BinaryOutputArchive implements OutputArchive {
     constructor () {
