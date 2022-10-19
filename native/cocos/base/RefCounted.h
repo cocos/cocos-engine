@@ -72,9 +72,9 @@ public:
     /**
      * @deprecated since v3.7.0, use decRef() instead.
      */
-    //    void release() {
-    //        decRef();
-    //    }
+    void release() {
+        decRef();
+    }
 
     /**
      * Returns the Ref's current reference count.
