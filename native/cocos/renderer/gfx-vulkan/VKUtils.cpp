@@ -26,6 +26,8 @@
 #include "VKUtils.h"
 
 #include "VKBuffer.h"
+#include "VKAccelerationStructure.h"
+
 #include "VKGPUObjects.h"
 #include "gfx-base/GFXBuffer.h"
 

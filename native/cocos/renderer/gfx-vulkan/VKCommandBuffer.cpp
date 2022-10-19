@@ -40,6 +40,7 @@
 #include "states/VKBufferBarrier.h"
 #include "states/VKGeneralBarrier.h"
 #include "states/VKTextureBarrier.h"
+#include "VKAccelerationStructure.h"
 
 namespace cc {
 namespace gfx {

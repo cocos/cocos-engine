@@ -32,6 +32,7 @@
 #include "VKShader.h"
 #include "VKTexture.h"
 #include "states/VKSampler.h"
+#include "VKAccelerationStructure.h"
 
 namespace cc {
 namespace gfx {

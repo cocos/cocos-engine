@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "VKDevice.h"
+
+#include "VKAccelerationStructure.h"
 #include "VKBuffer.h"
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
