@@ -6,6 +6,7 @@
             "description": "i18n:ENGINE.features.core.description",
             "required": true,
             "default": ["base"],
+            "simulatorRequired":["base"],
             "wechatPlugin": true
         },
         "graphcis": {

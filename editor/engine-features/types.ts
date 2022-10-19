@@ -80,6 +80,8 @@ export interface BaseItem {
      */
     description?: string;
 
+    simulatorRequired?: string[];
+
     required?: boolean;
 
     native?: string;
