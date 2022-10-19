@@ -589,7 +589,7 @@ static WGPUFlags toWGPUColorWriteMask(ColorMask mask) {
 }
 
 static ccstd::string getAdapterTypeName(WGPUAdapterType type) {
-    switch(type) {
+    switch (type) {
         case WGPUAdapterType_DiscreteGPU:
             return "WGPUAdapterType_DiscreteGPU";
         case WGPUAdapterType_IntegratedGPU:
@@ -597,14 +597,14 @@ static ccstd::string getAdapterTypeName(WGPUAdapterType type) {
         case WGPUAdapterType_CPU:
             return "WGPUAdapterType_CPU";
         case WGPUAdapterType_Unknown:
-            return "WGPUAdapterType_Unknown"; 
+            return "WGPUAdapterType_Unknown";
         default:
             return "unknown adapter by cc.gfx!";
     }
 }
 
 static ccstd::string getBackendTypeName(WGPUBackendType type) {
-    switch(type) {
+    switch (type) {
         case WGPUBackendType_Null:
             return "WGPUBackendType_Null";
         case WGPUBackendType_WebGPU:
@@ -630,6 +630,10 @@ class DescriptorSet;
 class PipelineLayout;
 // descriptor set layout in descriptor set not consistent with the binding in pipeline layout.
 void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout);
+
+class Texture;
+class CommandBuffer;
+void clearRect(CommandBuffer* cmdBuffer, Texture* texture, uint32_t x, uint32_t y, uint32_t w, uint32_t h, const Color& color);
 
 static constexpr WGPUColor defaultClearColor{0.2, 0.2, 0.2, 1.0};
 

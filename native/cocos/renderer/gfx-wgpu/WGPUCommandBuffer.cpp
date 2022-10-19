@@ -87,6 +87,8 @@ void CCWGPUCommandBuffer::begin(RenderPass * /*renderPass*/, uint32_t /*subpass*
     _numInstances = 0;
 
     _gpuCommandBufferObj->wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
+
+    _attachmentSet.clear();
 }
 
 void CCWGPUCommandBuffer::end() {
@@ -113,12 +115,20 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     _frameBuffer = fbo;
 
     CCWGPUFramebuffer *ccFrameBuffer = static_cast<CCWGPUFramebuffer *>(fbo);
-
     const ColorAttachmentList &colorConfigs = renderPass->getColorAttachments();
     const DepthStencilAttachment &depthStencilConfig = renderPass->getDepthStencilAttachment();
     const TextureList &textures = ccFrameBuffer->getColorTextures();
     Texture *dsTexture = ccFrameBuffer->getDepthStencilTexture();
     CCWGPUSwapchain *swapchain = ccFrameBuffer->swapchain();
+
+    bool renderingFullScreen = true;
+    bool needPartialClear = false;
+    for (size_t i = 0; i < textures.size(); ++i) {
+        if (renderArea.x != 0 || renderArea.y != 0 || renderArea.width != textures[i]->getWidth() || renderArea.height != textures[i]->getHeight()) {
+            renderingFullScreen = false;
+            break;
+        }
+    }
 
     WGPURenderPassDescriptor &renderPassDesc = _gpuCommandBufferObj->renderPassDescriptor;
     ccstd::vector<WGPURenderPassColorAttachment> colorAttachments;
@@ -139,14 +149,19 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
 
         for (size_t i = 0; i < colorConfigs.size(); i++) {
             WGPURenderPassColorAttachment *colorAttchments = ccnew WGPURenderPassColorAttachment[colorConfigs.size()];
+            auto loadOp = toWGPULoadOp(colorConfigs[i].loadOp);
+            if (!renderingFullScreen) {
+                loadOp = _attachmentSet.find(textures[i]) == _attachmentSet.end() ? loadOp : WGPULoadOp_Load;
+            }
             WGPURenderPassColorAttachment color = {
                 .view = static_cast<CCWGPUTexture *>(textures[i])->gpuTextureObject()->selfView,
                 .resolveTarget = nullptr, // TODO_Zeqiang: wgpu offscr msaa
-                .loadOp = toWGPULoadOp(colorConfigs[i].loadOp),
+                .loadOp = loadOp,
                 .storeOp = toWGPUStoreOp(colorConfigs[i].storeOp),
                 .clearValue = toWGPUColor(colors[i]),
             };
             colorAttachments.emplace_back(color);
+            _attachmentSet.insert(textures[i]);
         }
     }
 
@@ -154,7 +169,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     if (dsTexture) {
         WGPURenderPassDepthStencilAttachment depthStencil = {
             .view = static_cast<CCWGPUTexture *>(dsTexture)->gpuTextureObject()->selfView,
-            .depthLoadOp = WGPULoadOp_Clear, // toWGPULoadOp(depthStencilConfig.depthLoadOp),
+            .depthLoadOp = toWGPULoadOp(depthStencilConfig.depthLoadOp),
             .depthStoreOp = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
             .depthClearValue = depth,
             .depthReadOnly = false,
@@ -170,7 +185,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
         } else {
             WGPURenderPassDepthStencilAttachment depthStencil = {
                 .view = swapchain->gpuSwapchainObject()->swapchainDepthStencil->gpuTextureObject()->selfView,
-                .depthLoadOp = WGPULoadOp_Clear, // toWGPULoadOp(depthStencilConfig.depthLoadOp),
+                .depthLoadOp = toWGPULoadOp(depthStencilConfig.depthLoadOp),
                 .depthStoreOp = toWGPUStoreOp(depthStencilConfig.depthStoreOp),
                 .depthClearValue = depth,
                 .depthReadOnly = false,
@@ -185,6 +200,12 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
 
     setViewport({renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.0F, 1.0F});
     setScissor(renderArea);
+
+    if (!renderingFullScreen && needPartialClear) {
+        for (size_t i = 0; i < textures.size(); ++i) {
+            clearRect(this, textures[i], renderArea.x, renderArea.y, renderArea.width, renderArea.height, colors[i]);
+        }
+    }
 
     _gpuCommandBufferObj->renderPassBegan = true;
 
