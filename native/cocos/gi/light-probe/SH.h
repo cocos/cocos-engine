@@ -121,7 +121,7 @@ public:
 
 private:
     static inline float lambda(int32_t l) {
-        return std::sqrtf((4.0F * math::PI) / (2.0F * static_cast<float>(l) + 1.0F));
+        return std::sqrt((4.0F * math::PI) / (2.0F * static_cast<float>(l) + 1.0F));
     }
 
     static inline int32_t toIndex(int32_t l, int32_t m) {

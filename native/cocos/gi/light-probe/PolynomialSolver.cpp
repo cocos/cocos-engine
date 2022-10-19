@@ -60,20 +60,20 @@ float PolynomialSolver::getCubicUniqueRoot(float b, float c, float d) {
 
     if (delta > 0.0F) {
         // only one real root
-        const auto sqrtDelta = std::sqrtf(delta);
-        roots.push_back(std::cbrtf(-q + sqrtDelta) + std::cbrtf(-q - sqrtDelta));
+        const auto sqrtDelta = std::sqrt(delta);
+        roots.push_back(std::cbrt(-q + sqrtDelta) + std::cbrt(-q - sqrtDelta));
     } else if (delta < 0.0F) {
         // three different real roots
-        const auto angle = std::acosf(-q * std::sqrtf(-p) / (p * p)) / 3.0F;
-        roots.push_back(2.0F * std::sqrtf(-p) * std::cosf(angle));
-        roots.push_back(2.0F * std::sqrtf(-p) * std::cosf(angle + 2.0F * math::PI / 3.0F));
-        roots.push_back(2.0F * std::sqrtf(-p) * std::cosf(angle + 4.0F * math::PI / 3.0F));
+        const auto angle = std::acos(-q * std::sqrt(-p) / (p * p)) / 3.0F;
+        roots.push_back(2.0F * std::sqrt(-p) * std::cos(angle));
+        roots.push_back(2.0F * std::sqrt(-p) * std::cos(angle + 2.0F * math::PI / 3.0F));
+        roots.push_back(2.0F * std::sqrt(-p) * std::cos(angle + 4.0F * math::PI / 3.0F));
     } else {
         // three real roots, at least two equal roots
         if (q == 0.0F) {
             roots.push_back(0.0F);
         } else {
-            const auto root = std::cbrtf(q);
+            const auto root = std::cbrt(q);
             roots.push_back(root);
             roots.push_back(-2.0F * root);
         }

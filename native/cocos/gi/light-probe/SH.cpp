@@ -32,11 +32,11 @@ namespace gi {
 
 Vec3 LightProbeSampler::uniformSampleSphere(float u1, float u2) {
     float z = 1.0F - 2.0F * u1;
-    float r = std::sqrtf(std::max(0.0F, 1.0F - z * z));
+    float r = std::sqrt(std::max(0.0F, 1.0F - z * z));
     float phi = 2.0F * math::PI * u2;
 
-    float x = r * std::cosf(phi);
-    float y = r * std::sinf(phi);
+    float x = r * std::cos(phi);
+    float y = r * std::sin(phi);
 
     return Vec3(x, y, z);
 }
@@ -62,15 +62,15 @@ ccstd::vector<Vec3> LightProbeSampler::uniformSampleSphereAll(uint32_t uCount1, 
 }
 
 ccstd::vector<SH::BasisFunction> SH::_basisFunctions = {
-    [](const Vec3& v) -> float { return 0.282095F; },                             // 0.5F * std::sqrtf(math::PI_INV)
-    [](const Vec3& v) -> float { return 0.488603F * v.y; },                       // 0.5F * std::sqrtf(3.0F * math::PI_INV) * v.y
-    [](const Vec3& v) -> float { return 0.488603F * v.z; },                       // 0.5F * std::sqrtf(3.0F * math::PI_INV) * v.z
-    [](const Vec3& v) -> float { return 0.488603F * v.x; },                       // 0.5F * std::sqrtf(3.0F * math::PI_INV) * v.x
-    [](const Vec3& v) -> float { return 1.09255F * v.y * v.x; },                  // 0.5F * std::sqrtf(15.0F * math::PI_INV) * v.y * v.x
-    [](const Vec3& v) -> float { return 1.09255F * v.y * v.z; },                  // 0.5F * std::sqrtf(15.0F * math::PI_INV) * v.y * v.z
-    [](const Vec3& v) -> float { return 0.946175F * (v.z * v.z - 1.0F / 3.0F); }, // 0.75F * std::sqrtf(5.0F * math::PI_INV) * (v.z * v.z - 1.0F / 3.0F)
-    [](const Vec3& v) -> float { return 1.09255F * v.z * v.x; },                  // 0.5F * std::sqrtf(15.0F * math::PI_INV) * v.z * v.x
-    [](const Vec3& v) -> float { return 0.546274F * (v.x * v.x - v.y * v.y); },   // 0.25F * std::sqrtf(15.0F * math::PI_INV) * (v.x * v.x - v.y * v.y)
+    [](const Vec3& v) -> float { return 0.282095F; },                             // 0.5F * std::sqrt(math::PI_INV)
+    [](const Vec3& v) -> float { return 0.488603F * v.y; },                       // 0.5F * std::sqrt(3.0F * math::PI_INV) * v.y
+    [](const Vec3& v) -> float { return 0.488603F * v.z; },                       // 0.5F * std::sqrt(3.0F * math::PI_INV) * v.z
+    [](const Vec3& v) -> float { return 0.488603F * v.x; },                       // 0.5F * std::sqrt(3.0F * math::PI_INV) * v.x
+    [](const Vec3& v) -> float { return 1.09255F * v.y * v.x; },                  // 0.5F * std::sqrt(15.0F * math::PI_INV) * v.y * v.x
+    [](const Vec3& v) -> float { return 1.09255F * v.y * v.z; },                  // 0.5F * std::sqrt(15.0F * math::PI_INV) * v.y * v.z
+    [](const Vec3& v) -> float { return 0.946175F * (v.z * v.z - 1.0F / 3.0F); }, // 0.75F * std::sqrt(5.0F * math::PI_INV) * (v.z * v.z - 1.0F / 3.0F)
+    [](const Vec3& v) -> float { return 1.09255F * v.z * v.x; },                  // 0.5F * std::sqrt(15.0F * math::PI_INV) * v.z * v.x
+    [](const Vec3& v) -> float { return 0.546274F * (v.x * v.x - v.y * v.y); },   // 0.25F * std::sqrt(15.0F * math::PI_INV) * (v.x * v.x - v.y * v.y)
 };
 
 ccstd::vector<float> SH::_basisOverPI = {
