@@ -134,19 +134,10 @@ void CCVKGPUAccelerationStructure::shutdown() {
     }
     vkCompactedSizeQueryPool = VK_NULL_HANDLE;
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
-    /*
-    if (instancesBuffer) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(instancesBuffer);
-    }
-    if (scratchBuffer) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(scratchBuffer);
-    }
-    if (accelStructBackingBuffer) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(accelStructBackingBuffer);
-    }
-    if (aabbsBuffer) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(aabbsBuffer);
-    }*/
+    accelStructBackingBuffer = nullptr;
+    instancesBuffer = nullptr;
+    scratchBuffer = nullptr;
+    aabbsBuffer = nullptr;
 }
 
 

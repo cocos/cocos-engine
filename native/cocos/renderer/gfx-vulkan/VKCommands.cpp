@@ -1525,7 +1525,8 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
     gpuAccelerationStructure->instancesBuffer->size = instanceBufferSize;
     gpuAccelerationStructure->instancesBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY | BufferUsageBit::TRANSFER_DST;
     gpuAccelerationStructure->instancesBuffer->memUsage = MemoryUsageBit::DEVICE;
-    cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->instancesBuffer);
+    //cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->instancesBuffer);
+    gpuAccelerationStructure->instancesBuffer->init();
 
     VkAccelerationStructureGeometryInstancesDataKHR instancesData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR};
     instancesData.data.deviceAddress = getVkBufferDeviceAddr(device, gpuAccelerationStructure->instancesBuffer);
@@ -1560,7 +1561,8 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
     gpuAccelerationStructure->aabbsBuffer->size = aabbsBufferSize;
     gpuAccelerationStructure->aabbsBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY | BufferUsageBit::TRANSFER_DST;
     gpuAccelerationStructure->aabbsBuffer->memUsage = MemoryUsageBit::DEVICE;
-    cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->aabbsBuffer);
+    //cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->aabbsBuffer);
+    gpuAccelerationStructure->aabbsBuffer->init();
 
     ccstd::vector<VkAabbPositionsKHR> aabbPositions{};
     aabbPositions.reserve(aabbsCount);
@@ -1625,7 +1627,8 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
     gpuAccelerationStructure->accelStructBackingBuffer->size = accelerationStructureCreateInfo.size;
     gpuAccelerationStructure->accelStructBackingBuffer->usage = BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE | BufferUsageBit::TRANSFER_DST;
     gpuAccelerationStructure->accelStructBackingBuffer->memUsage = MemoryUsageBit::DEVICE;
-    cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->accelStructBackingBuffer);
+    gpuAccelerationStructure->accelStructBackingBuffer->init();
+    //cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->accelStructBackingBuffer);
 
     accelerationStructureCreateInfo.buffer = gpuAccelerationStructure->accelStructBackingBuffer->vkBuffer;
     accelerationStructureCreateInfo.type = gpuAccelerationStructure->buildGeometryInfo.type;
@@ -1647,10 +1650,6 @@ void updateInstanceDataGPUBuffer(CCVKDevice *device, CCVKGPUAccelerationStructur
     const uint32_t instanceBufferSize = instances.size() * sizeof(VkAccelerationStructureInstanceKHR);
     assert(accel->instancesBuffer->size >= instanceBufferSize);
 
-    //void *data;
-    //vmaMapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBuffer->vmaAllocation, &data);
-    //memcpy(data, instances.data(), instanceBufferSize);
-    //vmaUnmapMemory(device->gpuDevice()->memoryAllocator, accel->instancesBuffer->vmaAllocation);
     cmdFuncCCVKUpdateBuffer(device, accel->instancesBuffer, instances.data(), instanceBufferSize, gpuCommandBuffer);
 
     const uint32_t instanceCount = asInstances.size();
@@ -1662,7 +1661,7 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
     if (!accel->scratchBuffer || accel->scratchBuffer->size < accel->buildSizesInfo.buildScratchSize) {
         if (accel->scratchBuffer) {
             // clean old scrath Buffer
-            device->gpuRecycleBin()->collect(accel->scratchBuffer);
+            accel->scratchBuffer = nullptr;
         }
         else {
             accel->scratchBuffer = ccnew CCVKGPUBuffer;
@@ -1671,8 +1670,8 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
         accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize;
         accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::STORAGE;
         accel->scratchBuffer->memUsage = MemoryUsageBit::DEVICE;
-        
-        cmdFuncCCVKCreateBuffer(device, accel->scratchBuffer);
+        accel->scratchBuffer->init();
+        //cmdFuncCCVKCreateBuffer(device, accel->scratchBuffer);
     }
 }
 }

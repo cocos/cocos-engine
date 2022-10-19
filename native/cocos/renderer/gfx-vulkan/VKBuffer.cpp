@@ -96,7 +96,7 @@ void CCVKGPUBuffer::shutdown() {
     CCVKDevice::getInstance()->gpuBarrierManager()->cancel(this);
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
     CCVKDevice::getInstance()->gpuBufferHub()->erase(this);
-
+    CC_ASSERT(CCVKDevice::getInstance()->getMemoryStatus().bufferSize >= size);
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= size;
     CC_PROFILE_MEMORY_DEC(Buffer, size);
 }

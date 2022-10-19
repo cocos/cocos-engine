@@ -43,7 +43,7 @@ namespace cc
                     if (pModel->getTransform()->getChangedFlags()) {
                         // Instance transform changed, tlas should be updated.
 
-                        auto* lastUpdateTransfrom = &modelIt->second.second.transform;
+                        auto lastUpdateTransfrom = &modelIt->second.second.transform;
                         const auto* currentTransfrom = &pModel->getTransform()->getWorldMatrix();
 
                         auto similarTransform = [](const Mat4* mat1, const Mat4* mat2) -> bool {
@@ -75,7 +75,6 @@ namespace cc
                     needRecreate = true;
                     needRebuild = true;
                     gfx::ASInstance tlasGeom{};
-                    //tlasGeom.stype = gfx::ASGeometryType::INSTANCE;
                     tlasGeom.instanceCustomIdx = 0;
 
                     if (pModel->getNode()->getName() == "Cube-001") {
@@ -182,8 +181,8 @@ namespace cc
             auto blasIt = _blasMap.begin();
             while (blasIt != _blasMap.end()) {
                 if (blasIt->second->getRefCount()==0) {
-                    //blas_it = blasMap.erase(blas_it);
-                    //blas_it->second->destroy();
+                    blasIt = _blasMap.erase(blasIt);
+                    //blasIt->second->destroy();
                 }else {
                     ++blasIt;
                 }
@@ -197,9 +196,6 @@ namespace cc
                     tlasInfo.instances.push_back(inst.second.second);
                 }
                 if (needRecreate) {
-                    if (_topLevelAccelerationStructure) {
-                        _topLevelAccelerationStructure->destroy();
-                    }
                     _topLevelAccelerationStructure = device->createAccelerationStructure(tlasInfo);
                 } else {
                     _topLevelAccelerationStructure->setInfo(tlasInfo);
@@ -220,7 +216,10 @@ namespace cc
 		}
 
         void SceneAccelerationStructure::destroy() {
-            
+            _topLevelAccelerationStructure = nullptr;
+            _bottomLevelAccelerationStructures.clear();
+            _blasMap.clear();
+            _modelMap.clear();
         }
 
 	}  // namespace pipeline
