@@ -32,9 +32,9 @@ namespace gi {
 
 ccstd::vector<Vec3> AutoPlacement::generate(const PlacementInfo &info) {
     switch (info.method) {
-        case PlaceMethod::Uniform:
+        case PlaceMethod::UNIFORM:
             return doGenerateUniform(info);
-        case PlaceMethod::Adaptive:
+        case PlaceMethod::ADAPTIVE:
             return doGenerateAdaptive(info);
         default:
             CC_ASSERT(false);
@@ -72,7 +72,6 @@ ccstd::vector<Vec3> AutoPlacement::doGenerateUniform(const PlacementInfo &info) 
 }
 
 ccstd::vector<Vec3> AutoPlacement::doGenerateAdaptive(const PlacementInfo &info) {
-    // TODO
     return doGenerateUniform(info);
 }
 

@@ -115,7 +115,7 @@ Vec3 LightProbesData::getTriangleBarycentricCoord(const Vec3 &p0, const Vec3 &p1
     }
 
     const Vec3 n = normal.getNormalized();
-    const float area012Inv = 1.0f / (n.dot(normal));
+    const float area012Inv = 1.0F / (n.dot(normal));
 
     Vec3 crossP12;
     Vec3::cross(p1 - position, p2 - position, &crossP12);
@@ -187,10 +187,10 @@ void LightProbes::initialize(LightProbeInfo *info) {
     _showConvex = info->isShowConvex();
     _data = info->getData();
 
-    _updatePipeline();
+    updatePipeline();
 }
 
-void LightProbes::_updatePipeline() {
+void LightProbes::updatePipeline() const {
     auto *root = Root::getInstance();
     auto *pipeline = root->getPipeline();
 

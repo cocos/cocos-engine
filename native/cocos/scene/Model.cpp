@@ -189,10 +189,10 @@ void Model::updateUBOs(uint32_t stamp) {
         Mat4 mat4;
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
-        _localBuffer->write(worldMatrix,      sizeof(float) * pipeline::UBOLocal::MAT_WORLD_OFFSET);
-        _localBuffer->write(mat4,             sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
+        _localBuffer->write(worldMatrix, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_OFFSET);
+        _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
-        _localBuffer->write(_shadowBias,      sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+        _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
@@ -379,7 +379,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     }
 
     if (_useLightProbe) {
-        for (auto &patch : LIGHT_PROBE_PATCHES) {
+        for (const auto &patch : LIGHT_PROBE_PATCHES) {
             patches.push_back(patch);
         }
     }
@@ -405,7 +405,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     updateInstancedAttributes(shader->getAttributes(), subModel);
 }
 
-void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel* subModel) {
+void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, subModel);
@@ -419,12 +419,11 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
 
 void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
     if (!_localBuffer) {
-        _localBuffer = _device->createBuffer({
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOLocal::SIZE,
-            pipeline::UBOLocal::SIZE,
-            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
+        _localBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                                              gfx::MemoryUsageBit::DEVICE,
+                                              pipeline::UBOLocal::SIZE,
+                                              pipeline::UBOLocal::SIZE,
+                                              gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 
@@ -451,12 +450,11 @@ void Model::initLocalSHDescriptors(index_t /*subModelIndex*/) {
 
 void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
     if (!_worldBoundBuffer) {
-        _worldBoundBuffer = _device->createBuffer({
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOWorldBound::SIZE,
-            pipeline::UBOWorldBound::SIZE,
-            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
+        _worldBoundBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                                                   gfx::MemoryUsageBit::DEVICE,
+                                                   pipeline::UBOWorldBound::SIZE,
+                                                   pipeline::UBOWorldBound::SIZE,
+                                                   gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 

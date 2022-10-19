@@ -25,20 +25,20 @@
 ****************************************************************************/
 
 #pragma once
-#include "math/Vec3.h"
-#include "base/std/container/vector.h"
 #include "base/std/container/array.h"
+#include "base/std/container/vector.h"
+#include "math/Vec3.h"
 
 namespace cc {
 namespace gi {
 
 enum class PlaceMethod {
-    Uniform     = 0,
-    Adaptive    = 1,
+    UNIFORM = 0,
+    ADAPTIVE = 1,
 };
 
 struct PlacementInfo {
-    PlaceMethod method = PlaceMethod::Uniform;
+    PlaceMethod method = PlaceMethod::UNIFORM;
     uint32_t nProbesX{3U};
     uint32_t nProbesY{3U};
     uint32_t nProbesZ{3U};

@@ -86,7 +86,7 @@ public:
         }
 
         _enabled = val;
-        _updatePipeline();
+        updatePipeline();
     }
     inline bool isEnabled() const { return _enabled; }
 
@@ -113,7 +113,7 @@ public:
     LightProbesData _data;
 
 private:
-    void _updatePipeline();
+    void updatePipeline() const;
 };
 
 class LightProbeInfo : public RefCounted {

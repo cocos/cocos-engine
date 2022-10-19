@@ -100,7 +100,7 @@ public:
      */
     static inline float evaluateBasis(uint32_t index, const Vec3& sample) {
         CC_ASSERT(index < getBasisCount());
-        const auto& func = _basisFunctions[index];
+        const auto& func = basisFunctions[index];
 
         return func(sample);
     }
@@ -110,8 +110,9 @@ public:
             return;
         }
 
-        for (int32_t l = 0; l <= _lmax; ++l) {
-            float scale = 1.f / (1.f + lambda * l * l * (l + 1) * (l + 1));
+        for (int32_t l = 0; l <= LMAX; ++l) {
+            auto level = static_cast<float>(l);
+            float scale = 1.0F / (1.0F + lambda * level * level * (level + 1) * (level + 1));
             for (int32_t m = -l; m <= l; ++m) {
                 const int32_t i = toIndex(l, m);
                 coefficients[i] *= scale;
@@ -128,9 +129,9 @@ private:
         return l * l + l + m;
     }
 
-    static constexpr int32_t _lmax = 2;
-    static ccstd::vector<BasisFunction> _basisFunctions;
-    static ccstd::vector<float> _basisOverPI;
+    static constexpr int32_t LMAX = 2;
+    static ccstd::vector<BasisFunction> basisFunctions;
+    static ccstd::vector<float> basisOverPI;
 };
 
 } // namespace gi

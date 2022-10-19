@@ -61,8 +61,8 @@ ccstd::vector<Vec3> LightProbeSampler::uniformSampleSphereAll(uint32_t uCount1, 
     return samples;
 }
 
-ccstd::vector<SH::BasisFunction> SH::_basisFunctions = {
-    [](const Vec3& v) -> float { return 0.282095F; },                             // 0.5F * std::sqrt(math::PI_INV)
+ccstd::vector<SH::BasisFunction> SH::basisFunctions = {
+    [](const Vec3& /*v*/) -> float { return 0.282095F; },                         // 0.5F * std::sqrt(math::PI_INV)
     [](const Vec3& v) -> float { return 0.488603F * v.y; },                       // 0.5F * std::sqrt(3.0F * math::PI_INV) * v.y
     [](const Vec3& v) -> float { return 0.488603F * v.z; },                       // 0.5F * std::sqrt(3.0F * math::PI_INV) * v.z
     [](const Vec3& v) -> float { return 0.488603F * v.x; },                       // 0.5F * std::sqrt(3.0F * math::PI_INV) * v.x
@@ -73,7 +73,7 @@ ccstd::vector<SH::BasisFunction> SH::_basisFunctions = {
     [](const Vec3& v) -> float { return 0.546274F * (v.x * v.x - v.y * v.y); },   // 0.25F * std::sqrt(15.0F * math::PI_INV) * (v.x * v.x - v.y * v.y)
 };
 
-ccstd::vector<float> SH::_basisOverPI = {
+ccstd::vector<float> SH::basisOverPI = {
     0.0897936F, // 0.282095 / Math.PI
     0.155527F,  // 0.488603 / Math.PI
     0.155527F,  // 0.488603 / Math.PI
@@ -87,89 +87,89 @@ ccstd::vector<float> SH::_basisOverPI = {
 
 void SH::updateUBOData(Float32Array& data, int32_t offset, ccstd::vector<Vec3>& coefficients) {
     // cc_sh_linear_const_r
-    data[offset++] = coefficients[3].x * _basisOverPI[3];
-    data[offset++] = coefficients[1].x * _basisOverPI[1];
-    data[offset++] = coefficients[2].x * _basisOverPI[2];
-    data[offset++] = coefficients[0].x * _basisOverPI[0] - coefficients[6].x * _basisOverPI[6] / 3.0F;
+    data[offset++] = coefficients[3].x * basisOverPI[3];
+    data[offset++] = coefficients[1].x * basisOverPI[1];
+    data[offset++] = coefficients[2].x * basisOverPI[2];
+    data[offset++] = coefficients[0].x * basisOverPI[0] - coefficients[6].x * basisOverPI[6] / 3.0F;
 
     // cc_sh_linear_const_g
-    data[offset++] = coefficients[3].y * _basisOverPI[3];
-    data[offset++] = coefficients[1].y * _basisOverPI[1];
-    data[offset++] = coefficients[2].y * _basisOverPI[2];
-    data[offset++] = coefficients[0].y * _basisOverPI[0] - coefficients[6].y * _basisOverPI[6] / 3.0F;
+    data[offset++] = coefficients[3].y * basisOverPI[3];
+    data[offset++] = coefficients[1].y * basisOverPI[1];
+    data[offset++] = coefficients[2].y * basisOverPI[2];
+    data[offset++] = coefficients[0].y * basisOverPI[0] - coefficients[6].y * basisOverPI[6] / 3.0F;
 
     // cc_sh_linear_const_b
-    data[offset++] = coefficients[3].z * _basisOverPI[3];
-    data[offset++] = coefficients[1].z * _basisOverPI[1];
-    data[offset++] = coefficients[2].z * _basisOverPI[2];
-    data[offset++] = coefficients[0].z * _basisOverPI[0] - coefficients[6].z * _basisOverPI[6] / 3.0F;
+    data[offset++] = coefficients[3].z * basisOverPI[3];
+    data[offset++] = coefficients[1].z * basisOverPI[1];
+    data[offset++] = coefficients[2].z * basisOverPI[2];
+    data[offset++] = coefficients[0].z * basisOverPI[0] - coefficients[6].z * basisOverPI[6] / 3.0F;
 
     // cc_sh_quadratic_r
-    data[offset++] = coefficients[4].x * _basisOverPI[4];
-    data[offset++] = coefficients[5].x * _basisOverPI[5];
-    data[offset++] = coefficients[6].x * _basisOverPI[6];
-    data[offset++] = coefficients[7].x * _basisOverPI[7];
+    data[offset++] = coefficients[4].x * basisOverPI[4];
+    data[offset++] = coefficients[5].x * basisOverPI[5];
+    data[offset++] = coefficients[6].x * basisOverPI[6];
+    data[offset++] = coefficients[7].x * basisOverPI[7];
 
     // cc_sh_quadratic_g
-    data[offset++] = coefficients[4].y * _basisOverPI[4];
-    data[offset++] = coefficients[5].y * _basisOverPI[5];
-    data[offset++] = coefficients[6].y * _basisOverPI[6];
-    data[offset++] = coefficients[7].y * _basisOverPI[7];
+    data[offset++] = coefficients[4].y * basisOverPI[4];
+    data[offset++] = coefficients[5].y * basisOverPI[5];
+    data[offset++] = coefficients[6].y * basisOverPI[6];
+    data[offset++] = coefficients[7].y * basisOverPI[7];
 
     // cc_sh_quadratic_b
-    data[offset++] = coefficients[4].z * _basisOverPI[4];
-    data[offset++] = coefficients[5].z * _basisOverPI[5];
-    data[offset++] = coefficients[6].z * _basisOverPI[6];
-    data[offset++] = coefficients[7].z * _basisOverPI[7];
+    data[offset++] = coefficients[4].z * basisOverPI[4];
+    data[offset++] = coefficients[5].z * basisOverPI[5];
+    data[offset++] = coefficients[6].z * basisOverPI[6];
+    data[offset++] = coefficients[7].z * basisOverPI[7];
 
     // cc_sh_quadratic_a
-    data[offset++] = coefficients[8].x * _basisOverPI[8];
-    data[offset++] = coefficients[8].y * _basisOverPI[8];
-    data[offset++] = coefficients[8].z * _basisOverPI[8];
+    data[offset++] = coefficients[8].x * basisOverPI[8];
+    data[offset++] = coefficients[8].y * basisOverPI[8];
+    data[offset++] = coefficients[8].z * basisOverPI[8];
     data[offset++] = 0.0;
 }
 
 Vec3 SH::shaderEvaluate(const Vec3& normal, ccstd::vector<Vec3>& coefficients) {
     const Vec4 linearConstR = {
-        coefficients[3].x * _basisOverPI[3],
-        coefficients[1].x * _basisOverPI[1],
-        coefficients[2].x * _basisOverPI[2],
-        coefficients[0].x * _basisOverPI[0] - coefficients[6].x * _basisOverPI[6] / 3.0F};
+        coefficients[3].x * basisOverPI[3],
+        coefficients[1].x * basisOverPI[1],
+        coefficients[2].x * basisOverPI[2],
+        coefficients[0].x * basisOverPI[0] - coefficients[6].x * basisOverPI[6] / 3.0F};
 
     const Vec4 linearConstG = {
-        coefficients[3].y * _basisOverPI[3],
-        coefficients[1].y * _basisOverPI[1],
-        coefficients[2].y * _basisOverPI[2],
-        coefficients[0].y * _basisOverPI[0] - coefficients[6].y * _basisOverPI[6] / 3.0F};
+        coefficients[3].y * basisOverPI[3],
+        coefficients[1].y * basisOverPI[1],
+        coefficients[2].y * basisOverPI[2],
+        coefficients[0].y * basisOverPI[0] - coefficients[6].y * basisOverPI[6] / 3.0F};
 
     const Vec4 linearConstB = {
-        coefficients[3].z * _basisOverPI[3],
-        coefficients[1].z * _basisOverPI[1],
-        coefficients[2].z * _basisOverPI[2],
-        coefficients[0].z * _basisOverPI[0] - coefficients[6].z * _basisOverPI[6] / 3.0F};
+        coefficients[3].z * basisOverPI[3],
+        coefficients[1].z * basisOverPI[1],
+        coefficients[2].z * basisOverPI[2],
+        coefficients[0].z * basisOverPI[0] - coefficients[6].z * basisOverPI[6] / 3.0F};
 
     const Vec4 quadraticR = {
-        coefficients[4].x * _basisOverPI[4],
-        coefficients[5].x * _basisOverPI[5],
-        coefficients[6].x * _basisOverPI[6],
-        coefficients[7].x * _basisOverPI[7]};
+        coefficients[4].x * basisOverPI[4],
+        coefficients[5].x * basisOverPI[5],
+        coefficients[6].x * basisOverPI[6],
+        coefficients[7].x * basisOverPI[7]};
 
     const Vec4 quadraticG = {
-        coefficients[4].y * _basisOverPI[4],
-        coefficients[5].y * _basisOverPI[5],
-        coefficients[6].y * _basisOverPI[6],
-        coefficients[7].y * _basisOverPI[7]};
+        coefficients[4].y * basisOverPI[4],
+        coefficients[5].y * basisOverPI[5],
+        coefficients[6].y * basisOverPI[6],
+        coefficients[7].y * basisOverPI[7]};
 
     const Vec4 quadraticB = {
-        coefficients[4].z * _basisOverPI[4],
-        coefficients[5].z * _basisOverPI[5],
-        coefficients[6].z * _basisOverPI[6],
-        coefficients[7].z * _basisOverPI[7]};
+        coefficients[4].z * basisOverPI[4],
+        coefficients[5].z * basisOverPI[5],
+        coefficients[6].z * basisOverPI[6],
+        coefficients[7].z * basisOverPI[7]};
 
     const Vec3 quadraticA = {
-        coefficients[8].x * _basisOverPI[8],
-        coefficients[8].y * _basisOverPI[8],
-        coefficients[8].z * _basisOverPI[8]};
+        coefficients[8].x * basisOverPI[8],
+        coefficients[8].y * basisOverPI[8],
+        coefficients[8].z * basisOverPI[8]};
 
     Vec3 result{0.0F, 0.0F, 0.0F};
     Vec4 normal4{normal.x, normal.y, normal.z, 1.0F};
@@ -204,7 +204,7 @@ Vec3 SH::evaluate(const Vec3& sample, const ccstd::vector<Vec3>& coefficients) {
 }
 
 ccstd::vector<Vec3> SH::project(const ccstd::vector<Vec3>& samples, const ccstd::vector<Vec3>& values) {
-    CC_ASSERT(samples.size() > 0 && samples.size() == values.size());
+    CC_ASSERT(!samples.empty() && samples.size() == values.size());
 
     // integral using Monte Carlo method
     const auto basisCount = getBasisCount();
@@ -229,13 +229,13 @@ ccstd::vector<Vec3> SH::project(const ccstd::vector<Vec3>& samples, const ccstd:
 }
 
 ccstd::vector<Vec3> SH::convolveCosine(const ccstd::vector<Vec3>& radianceCoefficients) {
-    static const float cosTheta[3] = {0.8862268925F, 1.0233267546F, 0.4954159260F};
+    static const float COS_THETA[3] = {0.8862268925F, 1.0233267546F, 0.4954159260F};
     ccstd::vector<Vec3> irradianceCoefficients;
 
-    for (auto l = 0; l <= _lmax; l++) {
+    for (auto l = 0; l <= LMAX; l++) {
         for (auto m = -l; m <= l; m++) {
             auto i = toIndex(l, m);
-            Vec3 coefficient = lambda(l) * cosTheta[l] * radianceCoefficients[i];
+            Vec3 coefficient = lambda(l) * COS_THETA[l] * radianceCoefficients[i];
             irradianceCoefficients.push_back(coefficient);
         }
     }

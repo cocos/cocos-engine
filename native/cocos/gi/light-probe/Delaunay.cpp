@@ -115,11 +115,11 @@ void Delaunay::tetrahedralize() {
 }
 
 Vec3 Delaunay::initTetrahedron() {
-    constexpr float MIN_FLOAT = std::numeric_limits<float>::min();
-    constexpr float MAX_FLOAT = std::numeric_limits<float>::max();
+    constexpr float minFloat = std::numeric_limits<float>::min();
+    constexpr float maxFloat = std::numeric_limits<float>::max();
 
-    Vec3 minPos = {MAX_FLOAT, MAX_FLOAT, MAX_FLOAT};
-    Vec3 maxPos = {MIN_FLOAT, MIN_FLOAT, MIN_FLOAT};
+    Vec3 minPos = {maxFloat, maxFloat, maxFloat};
+    Vec3 maxPos = {minFloat, minFloat, minFloat};
 
     for (const auto &probe : _probes) {
         const auto &position = probe.position;
@@ -142,7 +142,7 @@ Vec3 Delaunay::initTetrahedron() {
     Vec3 p2 = center + Vec3(-offset, -offset, offset);
     Vec3 p3 = center + Vec3(offset, -offset, 0.0F);
 
-    int32_t index = static_cast<int32_t>(_probes.size());
+    auto index = static_cast<int32_t>(_probes.size());
     _probes.emplace_back(p0);
     _probes.emplace_back(p1);
     _probes.emplace_back(p2);
@@ -162,10 +162,10 @@ void Delaunay::addProbe(int32_t vertexIndex) {
         if (tetrahedron.isInCircumSphere(probe.position)) {
             tetrahedron.invalid = true;
 
-            triangles.push_back(Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
-            triangles.push_back(Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
-            triangles.push_back(Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
-            triangles.push_back(Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
+            triangles.emplace_back(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
+            triangles.emplace_back(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
+            triangles.emplace_back(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
+            triangles.emplace_back(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
         }
     }
 
@@ -210,10 +210,10 @@ void Delaunay::computeAdjacency() {
     for (auto i = 0; i < _tetrahedrons.size(); i++) {
         const auto &tetrahedron = _tetrahedrons[i];
 
-        triangles.push_back(Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
-        triangles.push_back(Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
-        triangles.push_back(Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
-        triangles.push_back(Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
+        triangles.emplace_back(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
+        triangles.emplace_back(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
+        triangles.emplace_back(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
+        triangles.emplace_back(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
     }
 
     for (auto i = 0; i < triangles.size(); i++) {
@@ -266,9 +266,9 @@ void Delaunay::computeAdjacency() {
     for (auto i = tetrahedronCount; i < _tetrahedrons.size(); i++) {
         const auto &tetrahedron = _tetrahedrons[i];
 
-        edges.push_back(Edge(i, 0, tetrahedron.vertex1, tetrahedron.vertex2));
-        edges.push_back(Edge(i, 1, tetrahedron.vertex2, tetrahedron.vertex0));
-        edges.push_back(Edge(i, 2, tetrahedron.vertex0, tetrahedron.vertex1));
+        edges.emplace_back(i, 0, tetrahedron.vertex1, tetrahedron.vertex2);
+        edges.emplace_back(i, 1, tetrahedron.vertex2, tetrahedron.vertex0);
+        edges.emplace_back(i, 2, tetrahedron.vertex0, tetrahedron.vertex1);
     }
 
     for (auto i = 0; i < edges.size(); i++) {
@@ -357,8 +357,8 @@ void Delaunay::computeOuterCellMatrix(Tetrahedron &tetrahedron) {
 
     if (std::abs(c) > mathutils::EPSILON) {
         // t^3 + p * t^2 + q * t + r = 0
-        for (auto k = 0; k < 12; k++) {
-            m[k] /= c;
+        for (float &k : m) {
+            k /= c;
         }
     } else {
         // set last vertex index of outer cell to -2

@@ -80,9 +80,9 @@ float PolynomialSolver::getCubicUniqueRoot(float b, float c, float d) {
     }
 
     // return the unique positive root
-    for (auto i = 0U; i < roots.size(); i++) {
-        if (roots[i] + offset >= 0.0F) {
-            return roots[i] + offset;
+    for (float root : roots) {
+        if (root + offset >= 0.0F) {
+            return root + offset;
         }
     }
 

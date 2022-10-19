@@ -77,9 +77,9 @@ export class LightProbeSampler {
  * Spherical Harmonics utility class
  */
 export class SH {
-    private static _lmax = 2;
+    private static LMAX = 2;
 
-    private static _basisFunctions: { (v: Vec3): number }[] =
+    private static basisFunctions: { (v: Vec3): number }[] =
     [
         (v: Vec3): number => 0.282095,                              // 0.5 * Math.sqrt(1.0 / Math.PI)
         (v: Vec3): number => 0.488603 * v.y,                        // 0.5 * Math.sqrt(3.0 / Math.PI) * v.y
@@ -92,7 +92,7 @@ export class SH {
         (v: Vec3): number => 0.546274 * (v.x * v.x - v.y * v.y),    // 0.25 * Math.sqrt(15.0 / Math.PI) * (v.x * v.x - v.y * v.y)
     ];
 
-    private static _basisOverPI: number[] =
+    private static basisOverPI: number[] =
     [
         0.0897936,  // 0.282095 / Math.PI
         0.155527,   // 0.488603 / Math.PI
@@ -110,45 +110,45 @@ export class SH {
      */
     public static updateUBOData (data: Float32Array, offset: number, coefficients: Vec3[]) {
         // cc_sh_linear_const_r
-        data[offset++] = coefficients[3].x * this._basisOverPI[3];
-        data[offset++] = coefficients[1].x * this._basisOverPI[1];
-        data[offset++] = coefficients[2].x * this._basisOverPI[2];
-        data[offset++] = coefficients[0].x * this._basisOverPI[0] - coefficients[6].x * this._basisOverPI[6] / 3.0;
+        data[offset++] = coefficients[3].x * this.basisOverPI[3];
+        data[offset++] = coefficients[1].x * this.basisOverPI[1];
+        data[offset++] = coefficients[2].x * this.basisOverPI[2];
+        data[offset++] = coefficients[0].x * this.basisOverPI[0] - coefficients[6].x * this.basisOverPI[6] / 3.0;
 
         // cc_sh_linear_const_g
-        data[offset++] = coefficients[3].y * this._basisOverPI[3];
-        data[offset++] = coefficients[1].y * this._basisOverPI[1];
-        data[offset++] = coefficients[2].y * this._basisOverPI[2];
-        data[offset++] = coefficients[0].y * this._basisOverPI[0] - coefficients[6].y * this._basisOverPI[6] / 3.0;
+        data[offset++] = coefficients[3].y * this.basisOverPI[3];
+        data[offset++] = coefficients[1].y * this.basisOverPI[1];
+        data[offset++] = coefficients[2].y * this.basisOverPI[2];
+        data[offset++] = coefficients[0].y * this.basisOverPI[0] - coefficients[6].y * this.basisOverPI[6] / 3.0;
 
         // cc_sh_linear_const_b
-        data[offset++] = coefficients[3].z * this._basisOverPI[3];
-        data[offset++] = coefficients[1].z * this._basisOverPI[1];
-        data[offset++] = coefficients[2].z * this._basisOverPI[2];
-        data[offset++] = coefficients[0].z * this._basisOverPI[0] - coefficients[6].z * this._basisOverPI[6] / 3.0;
+        data[offset++] = coefficients[3].z * this.basisOverPI[3];
+        data[offset++] = coefficients[1].z * this.basisOverPI[1];
+        data[offset++] = coefficients[2].z * this.basisOverPI[2];
+        data[offset++] = coefficients[0].z * this.basisOverPI[0] - coefficients[6].z * this.basisOverPI[6] / 3.0;
 
         // cc_sh_quadratic_r
-        data[offset++] = coefficients[4].x * this._basisOverPI[4];
-        data[offset++] = coefficients[5].x * this._basisOverPI[5];
-        data[offset++] = coefficients[6].x * this._basisOverPI[6];
-        data[offset++] = coefficients[7].x * this._basisOverPI[7];
+        data[offset++] = coefficients[4].x * this.basisOverPI[4];
+        data[offset++] = coefficients[5].x * this.basisOverPI[5];
+        data[offset++] = coefficients[6].x * this.basisOverPI[6];
+        data[offset++] = coefficients[7].x * this.basisOverPI[7];
 
         // cc_sh_quadratic_g
-        data[offset++] = coefficients[4].y * this._basisOverPI[4];
-        data[offset++] = coefficients[5].y * this._basisOverPI[5];
-        data[offset++] = coefficients[6].y * this._basisOverPI[6];
-        data[offset++] = coefficients[7].y * this._basisOverPI[7];
+        data[offset++] = coefficients[4].y * this.basisOverPI[4];
+        data[offset++] = coefficients[5].y * this.basisOverPI[5];
+        data[offset++] = coefficients[6].y * this.basisOverPI[6];
+        data[offset++] = coefficients[7].y * this.basisOverPI[7];
 
         // cc_sh_quadratic_b
-        data[offset++] = coefficients[4].z * this._basisOverPI[4];
-        data[offset++] = coefficients[5].z * this._basisOverPI[5];
-        data[offset++] = coefficients[6].z * this._basisOverPI[6];
-        data[offset++] = coefficients[7].z * this._basisOverPI[7];
+        data[offset++] = coefficients[4].z * this.basisOverPI[4];
+        data[offset++] = coefficients[5].z * this.basisOverPI[5];
+        data[offset++] = coefficients[6].z * this.basisOverPI[6];
+        data[offset++] = coefficients[7].z * this.basisOverPI[7];
 
         // cc_sh_quadratic_a
-        data[offset++] = coefficients[8].x * this._basisOverPI[8];
-        data[offset++] = coefficients[8].y * this._basisOverPI[8];
-        data[offset++] = coefficients[8].z * this._basisOverPI[8];
+        data[offset++] = coefficients[8].x * this.basisOverPI[8];
+        data[offset++] = coefficients[8].y * this.basisOverPI[8];
+        data[offset++] = coefficients[8].z * this.basisOverPI[8];
         data[offset++] = 0.0;
     }
 
@@ -157,51 +157,51 @@ export class SH {
      */
     public static shaderEvaluate (normal: Vec3, coefficients: Vec3[]) {
         const linearConstR = new Vec4(
-            coefficients[3].x * this._basisOverPI[3],
-            coefficients[1].x * this._basisOverPI[1],
-            coefficients[2].x * this._basisOverPI[2],
-            coefficients[0].x * this._basisOverPI[0] - coefficients[6].x * this._basisOverPI[6] / 3.0,
+            coefficients[3].x * this.basisOverPI[3],
+            coefficients[1].x * this.basisOverPI[1],
+            coefficients[2].x * this.basisOverPI[2],
+            coefficients[0].x * this.basisOverPI[0] - coefficients[6].x * this.basisOverPI[6] / 3.0,
         );
 
         const linearConstG = new Vec4(
-            coefficients[3].y * this._basisOverPI[3],
-            coefficients[1].y * this._basisOverPI[1],
-            coefficients[2].y * this._basisOverPI[2],
-            coefficients[0].y * this._basisOverPI[0] - coefficients[6].y * this._basisOverPI[6] / 3.0,
+            coefficients[3].y * this.basisOverPI[3],
+            coefficients[1].y * this.basisOverPI[1],
+            coefficients[2].y * this.basisOverPI[2],
+            coefficients[0].y * this.basisOverPI[0] - coefficients[6].y * this.basisOverPI[6] / 3.0,
         );
 
         const linearConstB = new Vec4(
-            coefficients[3].z * this._basisOverPI[3],
-            coefficients[1].z * this._basisOverPI[1],
-            coefficients[2].z * this._basisOverPI[2],
-            coefficients[0].z * this._basisOverPI[0] - coefficients[6].z * this._basisOverPI[6] / 3.0,
+            coefficients[3].z * this.basisOverPI[3],
+            coefficients[1].z * this.basisOverPI[1],
+            coefficients[2].z * this.basisOverPI[2],
+            coefficients[0].z * this.basisOverPI[0] - coefficients[6].z * this.basisOverPI[6] / 3.0,
         );
 
         const quadraticR = new Vec4(
-            coefficients[4].x * this._basisOverPI[4],
-            coefficients[5].x * this._basisOverPI[5],
-            coefficients[6].x * this._basisOverPI[6],
-            coefficients[7].x * this._basisOverPI[7],
+            coefficients[4].x * this.basisOverPI[4],
+            coefficients[5].x * this.basisOverPI[5],
+            coefficients[6].x * this.basisOverPI[6],
+            coefficients[7].x * this.basisOverPI[7],
         );
 
         const quadraticG = new Vec4(
-            coefficients[4].y * this._basisOverPI[4],
-            coefficients[5].y * this._basisOverPI[5],
-            coefficients[6].y * this._basisOverPI[6],
-            coefficients[7].y * this._basisOverPI[7],
+            coefficients[4].y * this.basisOverPI[4],
+            coefficients[5].y * this.basisOverPI[5],
+            coefficients[6].y * this.basisOverPI[6],
+            coefficients[7].y * this.basisOverPI[7],
         );
 
         const quadraticB = new Vec4(
-            coefficients[4].z * this._basisOverPI[4],
-            coefficients[5].z * this._basisOverPI[5],
-            coefficients[6].z * this._basisOverPI[6],
-            coefficients[7].z * this._basisOverPI[7],
+            coefficients[4].z * this.basisOverPI[4],
+            coefficients[5].z * this.basisOverPI[5],
+            coefficients[6].z * this.basisOverPI[6],
+            coefficients[7].z * this.basisOverPI[7],
         );
 
         const quadraticA = new Vec3(
-            coefficients[8].x * this._basisOverPI[8],
-            coefficients[8].y * this._basisOverPI[8],
-            coefficients[8].z * this._basisOverPI[8],
+            coefficients[8].x * this.basisOverPI[8],
+            coefficients[8].y * this.basisOverPI[8],
+            coefficients[8].z * this.basisOverPI[8],
         );
 
         const result = new Vec3(0.0, 0.0, 0.0);
@@ -273,7 +273,7 @@ export class SH {
         const cosTheta: number[] = [0.8862268925, 1.0233267546, 0.4954159260];
         const irradianceCoefficients: Vec3[] = [];
 
-        for (let l = 0; l <= this._lmax; l++) {
+        for (let l = 0; l <= this.LMAX; l++) {
             for (let m = -l; m <= l; m++) {
                 const i = this.toIndex(l, m);
 
@@ -298,7 +298,7 @@ export class SH {
      */
     public static evaluateBasis (index: number, sample: Vec3) {
         assertIsTrue(index < this.getBasisCount());
-        const func = this._basisFunctions[index];
+        const func = this.basisFunctions[index];
 
         return func(sample);
     }
@@ -308,7 +308,7 @@ export class SH {
             return;
         }
 
-        for (let l = 0; l <= this._lmax; ++l) {
+        for (let l = 0; l <= this.LMAX; ++l) {
             const scale = 1.0 / (1.0 + lambda * l * l * (l + 1) * (l + 1));
             for (let m = -l; m <= l; ++m) {
                 const i = this.toIndex(l, m);

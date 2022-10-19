@@ -44,7 +44,7 @@ export class LightProbeGroup extends Component {
     protected _probes: Vec3[] = [];
 
     @serializable
-    protected _method = PlaceMethod.Uniform;
+    protected _method = PlaceMethod.UNIFORM;
 
     @serializable
     protected _minPos = new Vec3(-10, -10, -10);

@@ -27,8 +27,8 @@ import { Vec3 } from '../../core/math/vec3';
 import { Enum } from '../../core/value-types';
 
 export const PlaceMethod = Enum({
-    Uniform: 0,
-    Adaptive: 1,
+    UNIFORM: 0,
+    ADAPTIVE: 1,
 });
 
 export interface PlacementInfo {
@@ -43,9 +43,9 @@ export interface PlacementInfo {
 export class AutoPlacement {
     public static generate (info: PlacementInfo) {
         switch (info.method) {
-        case PlaceMethod.Uniform:
+        case PlaceMethod.UNIFORM:
             return this.doGenerateUniform(info);
-        case PlaceMethod.Adaptive:
+        case PlaceMethod.ADAPTIVE:
             return this.doGenerateAdaptive(info);
         default:
             return [];

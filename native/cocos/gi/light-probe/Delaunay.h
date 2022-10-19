@@ -42,7 +42,7 @@ struct Vertex {
     Vec3 normal;
     ccstd::vector<Vec3> coefficients;
 
-    Vertex() {}
+    Vertex() = default;
     explicit Vertex(const Vec3 &pos)
     : position(pos) {
     }
@@ -54,12 +54,12 @@ struct Edge {
     int32_t vertex0{-1};
     int32_t vertex1{-1};
 
-    Edge() {}
+    Edge() = default;
     Edge(int32_t tet, int32_t i, int32_t v0, int32_t v1)
     : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1) {
     }
 
-    inline bool isSame(const Edge &other) {
+    inline bool isSame(const Edge &other) const {
         return ((vertex0 == other.vertex0 && vertex1 == other.vertex1) ||
                 (vertex0 == other.vertex1 && vertex1 == other.vertex0));
     }
@@ -75,7 +75,7 @@ struct Triangle {
     int32_t vertex2{-1};
     int32_t vertex3{-1}; // tetrahedron's last vertex index used to compute normal direction
 
-    Triangle() {}
+    Triangle() = default;
     Triangle(int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3)
     : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
     }
@@ -115,7 +115,7 @@ struct Tetrahedron {
 
     // inner tetrahedron or outer cell constructor
     Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32_t v2, int32_t v3 = -1);
-    Tetrahedron() {}
+    Tetrahedron() = default;
 
     inline bool isInCircumSphere(const Vec3 &point) const {
         return point.distanceSquared(sphere.center) < sphere.radiusSquared - mathutils::EPSILON;
