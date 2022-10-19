@@ -47,7 +47,7 @@ AttachmentVertices::AttachmentVertices(middleware::Texture2D *texture, int verti
 AttachmentVertices::~AttachmentVertices() {
     delete[] _triangles->verts;
     delete _triangles;
-    if (_texture) _texture->release();
+    if (_texture) _texture->decRef();
 }
 
 } // namespace spine

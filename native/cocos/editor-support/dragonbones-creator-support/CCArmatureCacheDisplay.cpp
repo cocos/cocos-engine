@@ -22,6 +22,8 @@
  */
 
 #include "CCArmatureCacheDisplay.h"
+#include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/RenderEntity.h"
 #include "ArmatureCacheMgr.h"
 #include "CCFactory.h"
 #include "MiddlewareManager.h"
@@ -30,8 +32,6 @@
 #include "base/memory/Memory.h"
 #include "gfx-base/GFXDef.h"
 #include "math/Math.h"
-#include "2d/renderer/RenderDrawInfo.h"
-#include "2d/renderer/RenderEntity.h"
 #include "renderer/core/MaterialInstance.h"
 
 using namespace cc;      // NOLINT(google-build-using-namespace)
@@ -69,18 +69,18 @@ CCArmatureCacheDisplay::~CCArmatureCacheDisplay() {
         delete _sharedBufferOffset;
         _sharedBufferOffset = nullptr;
     }
-    for (auto* draw : _drawInfoArray) {
+    for (auto *draw : _drawInfoArray) {
         CC_SAFE_DELETE(draw);
     }
 
-    for (auto& item : _materialCaches) {
+    for (auto &item : _materialCaches) {
         CC_SAFE_DELETE(item.second);
     }
 }
 
 void CCArmatureCacheDisplay::dispose() {
     if (_armatureCache) {
-        _armatureCache->release();
+        _armatureCache->decRef();
         _armatureCache = nullptr;
     }
     if (_eventObject) {
@@ -190,8 +190,8 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
     bool needColor = false;
     int curBlendSrc = -1;
     int curBlendDst = -1;
-    cc::Texture2D* curTexture = nullptr;
-    RenderDrawInfo* curDrawInfo = nullptr;
+    cc::Texture2D *curTexture = nullptr;
+    RenderDrawInfo *curDrawInfo = nullptr;
 
     if (abs(_nodeColor.r - 1.0F) > 0.0001F ||
         abs(_nodeColor.g - 1.0F) > 0.0001F ||
@@ -221,7 +221,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
         curDrawInfo = requestDrawInfo(segmentCount++);
         entity->addDynamicRenderDrawInfo(curDrawInfo);
         // fill new texture index
-        curTexture = static_cast<cc::Texture2D*>(segment->getTexture()->getRealTexture());
+        curTexture = static_cast<cc::Texture2D *>(segment->getTexture()->getRealTexture());
         gfx::Texture *texture = curTexture->getGFXTexture();
         gfx::Sampler *sampler = curTexture->getGFXSampler();
         curDrawInfo->setTexture(texture);
@@ -292,7 +292,7 @@ void CCArmatureCacheDisplay::render(float /*dt*/) {
         srcIndexBytesOffset += indexBytes;
 
         // fill new index and vertex buffer id
-        UIMeshBuffer* uiMeshBuffer = mb->getUIMeshBuffer();
+        UIMeshBuffer *uiMeshBuffer = mb->getUIMeshBuffer();
         curDrawInfo->setMeshBuffer(uiMeshBuffer);
 
         // fill new index offset
@@ -396,7 +396,7 @@ void CCArmatureCacheDisplay::setAttachEnabled(bool enabled) {
 
 void CCArmatureCacheDisplay::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
-        for (auto& item : _materialCaches) {
+        for (auto &item : _materialCaches) {
             CC_SAFE_DELETE(item.second);
         }
         _materialCaches.clear();
@@ -411,7 +411,7 @@ se_object_ptr CCArmatureCacheDisplay::getSharedBufferOffset() const {
     return nullptr;
 }
 
-void CCArmatureCacheDisplay::setRenderEntity(cc::RenderEntity* entity) {
+void CCArmatureCacheDisplay::setRenderEntity(cc::RenderEntity *entity) {
     _entity = entity;
 }
 
@@ -419,8 +419,7 @@ void CCArmatureCacheDisplay::setMaterial(cc::Material *material) {
     _material = material;
 }
 
-
-cc::RenderDrawInfo* CCArmatureCacheDisplay::requestDrawInfo(int idx) {
+cc::RenderDrawInfo *CCArmatureCacheDisplay::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
         draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
@@ -432,11 +431,10 @@ cc::RenderDrawInfo* CCArmatureCacheDisplay::requestDrawInfo(int idx) {
 cc::Material *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
-        const IMaterialInstanceInfo info {
-            (Material*)_material,
-            0
-        };
-        MaterialInstance* materialInstance = new MaterialInstance(info);
+        const IMaterialInstanceInfo info{
+            (Material *)_material,
+            0};
+        MaterialInstance *materialInstance = new MaterialInstance(info);
         PassOverrides overrides;
         BlendStateInfo stateInfo;
         stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
@@ -447,11 +445,11 @@ cc::Material *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_
         targetInfo.blendDst = (gfx::BlendFactor)blendDst;
         targetInfo.blendSrcAlpha = (gfx::BlendFactor)blendSrc;
         targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
-        BlendTargetInfoList targetList {targetInfo};
+        BlendTargetInfoList targetList{targetInfo};
         stateInfo.targets = targetList;
         overrides.blendState = stateInfo;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"USE_LOCAL", false}};
+        const MacroRecord macros{{"USE_LOCAL", false}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = materialInstance;
     }

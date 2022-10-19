@@ -79,8 +79,7 @@ public:
     /**
      *  Constructor.
      *   Because HttpRequest object will be used between UI thread and network thread,
-         requestObj->autorelease() is forbidden to avoid crashes in AutoreleasePool
-         new/retain/release still works, which means you need to release it manually
+         new/addRef/decRef still works, which means you need to release it manually
          Please refer to HttpRequestTest.cpp to find its usage.
      */
     HttpRequest()

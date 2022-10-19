@@ -111,12 +111,12 @@ public:
 
 #define CC_SAFE_RELEASE(p) \
     if (p) {               \
-        (p)->release();    \
+        (p)->decRef();     \
     }
 
 #define CC_SAFE_RELEASE_NULL(p) \
     if (p) {                    \
-        (p)->release();         \
+        (p)->decRef();          \
         (p) = nullptr;          \
     }
 

@@ -118,7 +118,7 @@ public:
 
     ~IntrusivePtr() {
         if (_ptr) {
-            _ptr->release();
+            _ptr->decRef();
         }
     }
 
@@ -172,7 +172,7 @@ public:
 
     void reset() noexcept {
         if (_ptr) {
-            _ptr->release();
+            _ptr->decRef();
         }
         _ptr = nullptr;
     }
@@ -183,7 +183,7 @@ public:
             p->addRef();
         }
         if (_ptr) {
-            _ptr->release();
+            _ptr->decRef();
         }
         _ptr = p;
     }

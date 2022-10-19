@@ -154,7 +154,7 @@ void TextureCube::setMipmapAtlas(const TextureCubeMipmapAtlasInfo &value) {
 
             assignImage(tempAsset, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
             CC_SAFE_DELETE_ARRAY(buffer);
-            tempAsset->release();
+            tempAsset->decRef();
             tempAsset = nullptr;
         });
     }

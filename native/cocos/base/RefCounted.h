@@ -55,25 +55,26 @@ public:
     virtual ~RefCounted();
 
     /**
-     * Retains the ownership.
+     * Increase rerefence count.
      *
      * This increases the Ref's reference count.
-     *
-     * @see release, autorelease
      */
     void addRef();
 
     /**
-     * Releases the ownership immediately.
-     *
      * This decrements the Ref's reference count.
      *
-     * If the reference count reaches 0 after the decrement, this Ref is
+     * If the reference count reaches 0 after the decrement, this object is
      * destructed.
-     *
-     * @see retain, autorelease
      */
-    void release();
+    void decRef();
+
+    /**
+     * @deprecated since v3.7.0, use decRef() instead.
+     */
+    //    void release() {
+    //        decRef();
+    //    }
 
     /**
      * Returns the Ref's current reference count.

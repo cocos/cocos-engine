@@ -31,7 +31,7 @@ void CCTextureAtlasData::_onClear() {
     TextureAtlasData::_onClear();
 
     if (_renderTexture != nullptr) {
-        _renderTexture->release();
+        _renderTexture->decRef();
         _renderTexture = nullptr;
     }
 }
@@ -69,7 +69,7 @@ void CCTextureAtlasData::setRenderTexture(middleware::Texture2D *value) {
             const auto textureData = static_cast<CCTextureData *>(pair.second);
 
             if (textureData->spriteFrame != nullptr) {
-                textureData->spriteFrame->release();
+                textureData->spriteFrame->decRef();
                 textureData->spriteFrame = nullptr;
             }
         }
@@ -80,7 +80,7 @@ void CCTextureData::_onClear() {
     TextureData::_onClear();
 
     if (spriteFrame != nullptr) {
-        spriteFrame->release();
+        spriteFrame->decRef();
         spriteFrame = nullptr;
     }
 }

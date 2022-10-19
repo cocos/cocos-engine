@@ -383,7 +383,7 @@ void SIOClientImpl::handshake() {
     }
     HttpClient::getInstance()->send(request);
 
-    request->release();
+    request->decRef();
 }
 
 void SIOClientImpl::handshakeResponse(HttpClient * /*sender*/, HttpResponse *response) {
@@ -888,7 +888,7 @@ void SIOClientImpl::onClose(WebSocket * /*ws*/, uint16_t /*code*/, const ccstd::
         _clients.clear();
     }
 
-    this->release();
+    this->decRef();
 }
 
 void SIOClientImpl::onError(WebSocket * /*ws*/, const WebSocket::ErrorCode &error) {
@@ -947,7 +947,7 @@ void SIOClient::socketClosed() {
 
     _delegate->onClose(this);
 
-    this->release();
+    this->decRef();
 }
 
 void SIOClient::on(const ccstd::string &eventName, SIOEvent e) {

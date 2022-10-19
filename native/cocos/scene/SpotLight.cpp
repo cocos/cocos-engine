@@ -43,8 +43,8 @@ SpotLight::SpotLight() {
 }
 
 SpotLight::~SpotLight() {
-    _aabb->release();
-    _frustum->release();
+    _aabb->decRef();
+    _frustum->decRef();
 }
 
 void SpotLight::initialize() {

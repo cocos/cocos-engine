@@ -159,7 +159,7 @@ ArmatureCache::ArmatureCache(const std::string &armatureName, const std::string 
 
 ArmatureCache::~ArmatureCache() {
     if (_armatureDisplay) {
-        _armatureDisplay->release();
+        _armatureDisplay->decRef();
         _armatureDisplay = nullptr;
     }
 

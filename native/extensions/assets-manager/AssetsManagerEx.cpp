@@ -556,7 +556,7 @@ void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, 
         auto *event = ccnew EventAssetsManagerEx(_eventName, this, code, assetId, message, curleCode, curlmCode);
         event->addRef();
         _eventCallback(event);
-        event->release();
+        event->decRef();
     }
 }
 

@@ -123,7 +123,7 @@ void Cocos2dTextureLoader::load(AtlasPage &page, const spine::String &path) {
 
 void Cocos2dTextureLoader::unload(void *texture) {
     if (texture) {
-        (static_cast<Texture2D *>(texture))->release();
+        (static_cast<Texture2D *>(texture))->decRef();
     }
 }
 

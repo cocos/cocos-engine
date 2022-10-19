@@ -66,7 +66,7 @@ public:
         if (getRefCount() == 1) {
             cc::DeferredReleasePool::add(this);
         } else {
-            release();
+            decRef();
         }
     }
 
@@ -142,7 +142,7 @@ static bool SocketIO_finalize(se::State &s) { // NOLINT(readability-identifier-n
     if (delegate->getRefCount() == 1) {
         cc::DeferredReleasePool::add(delegate);
     } else {
-        delegate->release();
+        delegate->decRef();
     }
     return true;
 }
@@ -301,7 +301,7 @@ static bool SocketIO_connect(se::State &s) { // NOLINT(readability-identifier-na
 
             return true;
         }
-        siodelegate->release();
+        siodelegate->decRef();
         SE_REPORT_ERROR("SocketIO.connect return nullptr!");
         return false;
     }

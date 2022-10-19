@@ -963,7 +963,7 @@ bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer **to, se::Object *
         obj->getProperty("buffer", &bufferVal);
         ab->setJSArrayBuffer(bufferVal.toObject());
     } else {
-        ab->release();
+        ab->decRef();
         return false;
     }
 
@@ -1487,7 +1487,6 @@ bool nativevalue_to_se(const cc::gfx::FormatInfo *from, se::Value &to, se::Objec
     }
     return true;
 }
-
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/) {

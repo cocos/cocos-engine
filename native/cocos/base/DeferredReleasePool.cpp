@@ -37,7 +37,7 @@ void DeferredReleasePool::add(RefCounted *object) {
 
 void DeferredReleasePool::clear() {
     for (const auto &obj : DeferredReleasePool::managedObjectArray) {
-        obj->release();
+        obj->decRef();
     }
     DeferredReleasePool::managedObjectArray.clear();
 }

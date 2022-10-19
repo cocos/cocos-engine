@@ -56,7 +56,7 @@ void RefCounted::addRef() {
     ++_referenceCount;
 }
 
-void RefCounted::release() {
+void RefCounted::decRef() {
     CC_ASSERT(_referenceCount > 0);
     --_referenceCount;
 

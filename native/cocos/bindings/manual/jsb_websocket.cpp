@@ -197,8 +197,8 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
 
     } while (false);
 
-    ws->release();
-    release(); // Release delegate self at last
+    ws->decRef();
+    decRef(); // Release delegate self at last
 }
 
 void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network::WebSocket::ErrorCode & /*error*/) {
@@ -247,7 +247,7 @@ static bool webSocketFinalize(se::State &s) {
         cobj->closeAsync();
     }
 
-    static_cast<JsbWebSocketDelegate *>(cobj->getDelegate())->release();
+    static_cast<JsbWebSocketDelegate *>(cobj->getDelegate())->decRef();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(webSocketFinalize)
@@ -305,8 +305,8 @@ static bool webSocketConstructor(se::State &s) {
                 cobj->addRef();     // release in finalize function and onClose delegate method
                 delegate->addRef(); // release in finalize function and onClose delegate method
             } else {
-                cobj->release();
-                delegate->release();
+                cobj->decRef();
+                delegate->decRef();
                 SE_REPORT_ERROR("WebSocket init failed!");
                 return false;
             }
@@ -319,8 +319,8 @@ static bool webSocketConstructor(se::State &s) {
                 cobj->addRef();     // release in finalize function and onClose delegate method
                 delegate->addRef(); // release in finalize function and onClose delegate method
             } else {
-                cobj->release();
-                delegate->release();
+                cobj->decRef();
+                delegate->decRef();
                 SE_REPORT_ERROR("WebSocket init failed!");
                 return false;
             }
@@ -346,7 +346,7 @@ static bool webSocketConstructor(se::State &s) {
 }
 SE_BIND_CTOR(webSocketConstructor, jsbWebSocketClass, webSocketFinalize)
 
-static bool webSocketSend(se::State& s) {
+static bool webSocketSend(se::State &s) {
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
 

@@ -136,7 +136,7 @@ Scheduler::~Scheduler() {
 void Scheduler::removeHashElement(HashTimerEntry *element) {
     if (element) {
         for (auto &timer : element->timers) {
-            timer->release();
+            timer->decRef();
         }
         element->timers.clear();
 
@@ -209,7 +209,7 @@ void Scheduler::unschedule(const ccstd::string &key, void *target) {
                 }
 
                 timers.erase(timers.begin() + i);
-                timer->release();
+                timer->decRef();
 
                 // update timerIndex in case we are in tick:, looping over the actions
                 if (element->timerIndex >= i) {
@@ -278,7 +278,7 @@ void Scheduler::unscheduleAllForTarget(void *target) {
         }
 
         for (auto *t : timers) {
-            t->release();
+            t->decRef();
         }
         timers.clear();
 
@@ -356,7 +356,7 @@ void Scheduler::update(float dt) {
                     // The currentTimer told the remove itself. To prevent the timer from
                     // accidentally deallocating itself before finishing its step, we retained
                     // it. Now that step is done, it's safe to release it.
-                    elt->currentTimer->release();
+                    elt->currentTimer->decRef();
                 }
 
                 elt->currentTimer = nullptr;

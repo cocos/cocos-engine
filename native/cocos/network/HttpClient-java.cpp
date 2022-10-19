@@ -773,9 +773,9 @@ void HttpClient::networkThreadAlone(HttpRequest *request, HttpResponse *response
                 callback(this, response);
             }
 
-            response->release();
+            response->decRef();
             // do not release in other thread
-            request->release();
+            request->decRef();
         });
     }
     _schedulerMutex.unlock();
@@ -923,9 +923,9 @@ void HttpClient::dispatchResponseCallbacks() {
             callback(this, response);
         }
 
-        response->release();
+        response->decRef();
         // do not release in other thread
-        request->release();
+        request->decRef();
     }
 }
 

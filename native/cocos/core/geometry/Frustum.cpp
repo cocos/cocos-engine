@@ -188,7 +188,7 @@ Frustum::Frustum(const Frustum &rhs) : ShapeBase(rhs) {
 
 Frustum::~Frustum() {
     for (auto *plane : planes) {
-        plane->release();
+        plane->decRef();
     }
 }
 

@@ -41,7 +41,7 @@ void CCObject::deferredDestroy() {
         CCObject *obj = objectsToDestroy[i];
         if (!(obj->_objFlags & Flags::DESTROYED)) {
             obj->destroyImmediate();
-            obj->release();
+            obj->decRef();
         }
     }
     // if we called b.destory() in a.onDestroy(), objectsToDestroy will be resized,

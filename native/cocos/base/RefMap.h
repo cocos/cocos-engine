@@ -36,7 +36,7 @@ namespace cc {
 
 /**
  * Similar to ccstd::unordered_map, but it will manage reference count automatically internally.
- * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::release() when removing an element.
+ * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::decRef() when removing an element.
  * @warning The element should be `RefCounted` or its sub-class.
  */
 template <class K, class V>
@@ -218,7 +218,7 @@ public:
      */
     iterator erase(const_iterator position) {
         CC_ASSERT(position != _data.cend());
-        position->second->release();
+        position->second->decRef();
         return _data.erase(position);
     }
 
@@ -232,7 +232,7 @@ public:
     size_t erase(const K &k) {
         auto iter = _data.find(k);
         if (iter != _data.end()) {
-            iter->second->release();
+            iter->second->decRef();
             _data.erase(iter);
             return 1;
         }
@@ -257,7 +257,7 @@ public:
      */
     void clear() {
         for (const auto &element : _data) {
-            element.second->release();
+            element.second->decRef();
         }
 
         _data.clear();

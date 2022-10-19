@@ -83,7 +83,7 @@ ccstd::vector<cc::network::WebSocket *> websocketInstances;
     _ccws->addRef();
     _delegate->onClose(_ccws, 1000, "close_normal", true);
     [_ws close];
-    _ccws->release();
+    _ccws->decRef();
 }
 
 - (void)closeAsync {

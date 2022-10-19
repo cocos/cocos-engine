@@ -59,9 +59,9 @@ private:
      * The underlying array of object managed by the pool.
      *
      * Although Array retains the object once when an object is added, proper
-     * Ref::release() is called outside the array to make sure that the pool
+     * RefCounted::decRef() is called outside the array to make sure that the pool
      * does not affect the managed object's reference count. So an object can
-     * be destructed properly by calling Ref::release() even if the object
+     * be destructed properly by calling RefCounted::decRef() even if the object
      * is in the pool.
      */
     static ccstd::vector<RefCounted *> managedObjectArray;

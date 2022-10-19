@@ -66,7 +66,7 @@ public:
      */
     virtual ~HttpResponse() {
         if (_pHttpRequest) {
-            _pHttpRequest->release();
+            _pHttpRequest->decRef();
         }
     }
 

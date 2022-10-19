@@ -618,7 +618,7 @@ static bool XMLHttpRequest_constructor(se::State &s) { //NOLINT(readability-iden
             thiz.toObject()->unroot();
         } else {
             SE_LOGD("XMLHttpRequest (%p) onloadend after restart ScriptEngine.\n", request);
-            request->release();
+            request->decRef();
         }
     };
     request->onreadystatechange = [=]() {

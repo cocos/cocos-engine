@@ -43,7 +43,7 @@ namespace cc {
 
 /*
  * Similar to ccstd::vector, but it will manage reference count automatically internally.
- * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::release() when removing an element.
+ * Which means it will invoke RefCounted::addRef() when adding an element, and invoke RefCounted::decRef() when removing an element.
  * @warn The element should be `RefCounted` or its sub-class.
  */
 template <class T>
@@ -389,7 +389,7 @@ public:
         CC_ASSERT(!_data.empty());
         auto last = _data.back();
         _data.pop_back();
-        last->release();
+        last->decRef();
     }
 
     /** Remove a certain object in Vector.
@@ -404,7 +404,7 @@ public:
             for (auto iter = _data.begin(); iter != _data.end();) {
                 if ((*iter) == object) {
                     iter = _data.erase(iter);
-                    object->release();
+                    object->decRef();
                 } else {
                     ++iter;
                 }
@@ -413,7 +413,7 @@ public:
             auto iter = std::find(_data.begin(), _data.end(), object);
             if (iter != _data.end()) {
                 _data.erase(iter);
-                object->release();
+                object->decRef();
             }
         }
     }
@@ -425,7 +425,7 @@ public:
      */
     iterator erase(iterator position) {
         CC_ASSERT(position >= _data.begin() && position < _data.end());
-        (*position)->release();
+        (*position)->decRef();
         return _data.erase(position);
     }
 
@@ -437,7 +437,7 @@ public:
      */
     iterator erase(iterator first, iterator last) {
         for (auto iter = first; iter != last; ++iter) {
-            (*iter)->release();
+            (*iter)->decRef();
         }
 
         return _data.erase(first, last);
@@ -450,7 +450,7 @@ public:
     iterator erase(uint32_t index) {
         CC_ASSERT(!_data.empty() && index < size());
         auto it = std::next(begin(), index);
-        (*it)->release();
+        (*it)->decRef();
         return _data.erase(it);
     }
 
@@ -461,7 +461,7 @@ public:
         for (auto it = std::begin(_data); it != std::end(_data); ++it) {
             auto *ptr = *it;
             if (ptr) {
-                ptr->release();
+                ptr->decRef();
             }
         }
         _data.clear();
