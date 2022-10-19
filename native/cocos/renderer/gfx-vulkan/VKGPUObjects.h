@@ -31,7 +31,6 @@
 #include "base/std/container/unordered_set.h"
 #include "core/memop/CachedArray.h"
 #include "gfx-base/GFXDeviceObject.h"
-#include "gfx-vulkan/VKAccelerationStructure.h"
 #include "vulkan/vulkan_core.h"
 
 #define TBB_USE_EXCEPTIONS 0 // no-rtti for now
