@@ -274,6 +274,19 @@ export class LODGroup extends Component {
 
     onDisable () {
         this._detachFromScene();
+        if (EDITOR) {
+            for (const lod of this._LODs) {
+                for (const renderer of lod.renderers) {
+                    if (!renderer) {
+                        continue;
+                    }
+                    const renderScene = renderer._getRenderScene();
+                    if (renderScene && renderer.model) {
+                        renderScene.removeModel(renderer.model);
+                    }
+                }
+            }
+        }
     }
 
     protected _attachToScene () {
