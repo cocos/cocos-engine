@@ -612,9 +612,9 @@ bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *ctx
 
 bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
-bool sevalue_to_native(const se::Value &v, cc::gfx::AccelerationStructure**ret, se::Object *ctx); // NOLINT(readability-identifier-naming)
-
 #endif
+
+bool sevalue_to_native(const se::Value &v, cc::gfx::AccelerationStructure **ret, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 inline bool nativevalue_to_se(const se::Object *from, se::Value &to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     to.setObject(const_cast<se::Object *>(from));
