@@ -255,8 +255,21 @@ export class PhysicsSystem extends System implements IWorldInitData {
     */
     public readonly raycastResults: PhysicsRayResult[] = [];
 
-    public curveRaycastResults: PhysicsRayResult[] = [];
-    public curveRaycastClosestResult = new PhysicsRayResult();
+    /**
+     * @en
+     * Gets the lineSegmentsRaycastClosest test result.
+     * @zh
+     * 获取 lineSegmentsRaycastClosest 的检测结果。
+     */
+    public lineSegmentsRaycastClosestResult = new PhysicsRayResult();
+
+    /**
+    * @en
+    * Gets the lineSegmentsRaycast test results.
+    * @zh
+    * 获取 lineSegmentsRaycast 的检测结果。
+    */
+    public lineSegmentsRaycastResults: PhysicsRayResult[] = [];
 
     /**
     * @en
@@ -483,9 +496,10 @@ export class PhysicsSystem extends System implements IWorldInitData {
 
     /**
     * @en
-    * Walks through the line segments, casting from one point to the next.
+    * Collision detect all collider and record all the detected results, using
+    * PhysicsSystem.Instance.lineSegmentsRaycastResults to access the results.
     * @zh
-    * 遍历直线段，每个线段做射线检测，并记录所有检测结果。通过 PhysicsSystem.instance.curveRaycastResults 访问结果。
+    * 逐线段检测所有的碰撞盒，并记录所有检测结果。通过 PhysicsSystem.instance.lineSegmentsRaycastResults 访问结果。
     * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
     * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
@@ -493,9 +507,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
     */
-    approximatedCurveRaycast (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    lineSegmentsRaycast (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (samplePointsWorldSpace.length < 2) return false;
-        this.curveRaycastResults = [];
+        this.lineSegmentsRaycastResults = [];
         let distance = 0;
         const ray = new Ray();
         for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
@@ -516,19 +530,19 @@ export class PhysicsSystem extends System implements IWorldInitData {
                     const hitPos = this.raycastResults[re].hitPoint;
                     //if ray starts inside shape, hit point equals to start point, and this should be ignored
                     if (re === 0 && Vec3.equals(fromPoint, hitPos)) { continue; }
-                    this.curveRaycastResults.push(this.raycastResults[re].clone());
+                    this.lineSegmentsRaycastResults.push(this.raycastResults[re].clone());
                 }
             }
         }
-        return this.curveRaycastResults.length > 0;
+        return this.lineSegmentsRaycastResults.length > 0;
     }
 
     /**
      * @en
-     * Collision detect all collider, and record and ray test results with the shortest distance
-     * by PhysicsSystem.Instance.curveRaycastClosestResult access to the results.
+     * Collision detect all collider, and record the ray test results with the shortest distance.
+     * Using PhysicsSystem.Instance.curveRaycastClosestResult to access the result.
      * @zh
-     * 逐个直线段检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.curveRaycastClosestResult 访问结果。
+     * 逐线段检测所有的碰撞盒，并记录沿这些线段距离最短的检测结果，通过 PhysicsSystem.instance.lineSegmentsRaycastClosestResult 访问结果。
      * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
      * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
      * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
@@ -536,7 +550,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    approximatedCurveRaycastClosest (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    lineSegmentsRaycastClosest (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (samplePointsWorldSpace.length < 2) return false;
 
         let distance = 0;
@@ -556,7 +570,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
             ray.o = fromPoint;
             hit = this.raycastClosest(ray, mask, stepLength, queryTrigger);
             if (hit) {
-                this.curveRaycastClosestResult = this.raycastClosestResult.clone();
+                this.lineSegmentsRaycastClosestResult = this.raycastClosestResult.clone();
                 break;
             }
         }
