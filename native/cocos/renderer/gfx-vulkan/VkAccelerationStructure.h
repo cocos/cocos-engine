@@ -36,6 +36,7 @@ struct CCVKGPUAccelerationStructure;
 
 class CC_VULKAN_API CCVKAccelerationStructure final : public AccelerationStructure {
 public:
+
     CCVKAccelerationStructure();
     ~CCVKAccelerationStructure() override;
 
