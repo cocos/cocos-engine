@@ -358,7 +358,7 @@ inline void load(InputArchive& ar, LayoutGraphData& g) {
         SizeT id = std::numeric_limits<SizeT>::max();
         VertexT u = Graph::null_vertex();
         ccstd::pmr::string name(g.get_allocator());
-        UpdateFrequency update;
+        UpdateFrequency update{};
         PipelineLayoutData layout(g.get_allocator());
         load(ar, id);
         load(ar, u);
