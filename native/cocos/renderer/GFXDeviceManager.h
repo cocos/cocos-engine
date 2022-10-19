@@ -62,7 +62,6 @@
 
 namespace cc {
 namespace gfx {
-
 class CC_DLL DeviceManager final {
     static constexpr bool DETACH_DEVICE_THREAD{true};
     static constexpr bool FORCE_DISABLE_VALIDATION{false};
