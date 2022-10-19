@@ -60,16 +60,80 @@ inline void save(OutputArchive& ar, const LayoutGraph& g) {
     using Graph = LayoutGraph;
     using VertexT = Graph::vertex_descriptor;
     using SizeT = Graph::vertices_size_type;
-    static_assert(std::is_same_v<VertexT, SizeT>);
+    static_assert(std::is_same_v<SizeT, VertexT>);
 
     const auto numVertices = num_vertices(g);
     const auto numEdges = num_edges(g);
     save(ar, numVertices);
     save(ar, numEdges);
+
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
+
+    const auto nameMap = get(Graph::Name, g);
+    const auto descriptorsMap = get(Graph::Descriptors, g);
     for (const auto& v : makeRange(vertices(g))) {
-        save(ar, get(LayoutGraph::Name, g, v));
+        const auto typeID = static_cast<SizeT>(tag(v, g).index());
+        static_assert(std::is_same_v<decltype(typeID), const SizeT>);
+        save(ar, typeID);
+        save(ar, parent(v, g));
+        save(ar, get(nameMap, v));
+        save(ar, get(descriptorsMap, v));
+        visitObject(
+            v, g,
+            overload(
+                [&](const auto& object) {
+                    save(ar, object);
+                }));
+    }
+}
+
+inline void load(InputArchive& ar, LayoutGraph& g) {
+    using Graph = LayoutGraph;
+    using VertexT = Graph::vertex_descriptor;
+    using SizeT = Graph::vertices_size_type;
+    static_assert(std::is_same_v<SizeT, VertexT>);
+
+    SizeT numVertices = 0;
+    SizeT numEdges = 0;
+    load(ar, numVertices);
+    load(ar, numEdges);
+    g.reserve(numVertices);
+
+    SizeT stages = 0;
+    SizeT phases = 0;
+    load(ar, stages);
+    load(ar, phases);
+    g.stages.reserve(stages);
+    g.phases.reserve(phases);
+
+    const auto nameMap = get(Graph::Name, g);
+    const auto descriptorsMap = get(Graph::Descriptors, g);
+    for (SizeT v = 0; v != numVertices; ++v) {
+        SizeT id = std::numeric_limits<SizeT>::max();
+        VertexT u = Graph::null_vertex();
+        ccstd::pmr::string name(g.get_allocator());
+        DescriptorDB descriptors(g.get_allocator());
+        load(ar, id);
+        load(ar, u);
+        load(ar, name);
+        load(ar, descriptors);
+        switch(id) {
+        case 0: {
+            uint32_t val;
+            load(ar, val);
+            addVertex(std::move(name), std::move(descriptors), val, g, u);
+            break;
+        }
+        case 1: {
+            RenderPhase val(g.get_allocator());
+            load(ar, val);
+            addVertex(std::move(name), std::move(descriptors), std::move(val), g, u);
+            break;
+        }
+        default:
+            throw std::runtime_error("load graph failed");
+        }
     }
 }
 
@@ -233,16 +297,96 @@ inline void save(OutputArchive& ar, const LayoutGraphData& g) {
     using Graph = LayoutGraphData;
     using VertexT = Graph::vertex_descriptor;
     using SizeT = Graph::vertices_size_type;
-    static_assert(std::is_same_v<VertexT, SizeT>);
+    static_assert(std::is_same_v<SizeT, VertexT>);
 
     const auto numVertices = num_vertices(g);
     const auto numEdges = num_edges(g);
     save(ar, numVertices);
     save(ar, numEdges);
+
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
+
+    const auto nameMap = get(Graph::Name, g);
+    const auto updateMap = get(Graph::Update, g);
+    const auto layoutMap = get(Graph::Layout, g);
     for (const auto& v : makeRange(vertices(g))) {
+        const auto typeID = static_cast<SizeT>(tag(v, g).index());
+        static_assert(std::is_same_v<decltype(typeID), const SizeT>);
+        save(ar, typeID);
+        save(ar, parent(v, g));
+        save(ar, get(nameMap, v));
+        save(ar, get(updateMap, v));
+        save(ar, get(layoutMap, v));
+        visitObject(
+            v, g,
+            overload(
+                [&](const auto& object) {
+                    save(ar, object);
+                }));
     }
+    save(ar, g.valueNames);
+    save(ar, g.attributeIndex);
+    save(ar, g.constantIndex);
+    save(ar, g.shaderLayoutIndex);
+    save(ar, g.effects);
+}
+
+inline void load(InputArchive& ar, LayoutGraphData& g) {
+    using Graph = LayoutGraphData;
+    using VertexT = Graph::vertex_descriptor;
+    using SizeT = Graph::vertices_size_type;
+    static_assert(std::is_same_v<SizeT, VertexT>);
+
+    SizeT numVertices = 0;
+    SizeT numEdges = 0;
+    load(ar, numVertices);
+    load(ar, numEdges);
+    g.reserve(numVertices);
+
+    SizeT stages = 0;
+    SizeT phases = 0;
+    load(ar, stages);
+    load(ar, phases);
+    g.stages.reserve(stages);
+    g.phases.reserve(phases);
+
+    const auto nameMap = get(Graph::Name, g);
+    const auto updateMap = get(Graph::Update, g);
+    const auto layoutMap = get(Graph::Layout, g);
+    for (SizeT v = 0; v != numVertices; ++v) {
+        SizeT id = std::numeric_limits<SizeT>::max();
+        VertexT u = Graph::null_vertex();
+        ccstd::pmr::string name(g.get_allocator());
+        UpdateFrequency update{};
+        PipelineLayoutData layout(g.get_allocator());
+        load(ar, id);
+        load(ar, u);
+        load(ar, name);
+        load(ar, update);
+        load(ar, layout);
+        switch(id) {
+        case 0: {
+            RenderStageData val(g.get_allocator());
+            load(ar, val);
+            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+            break;
+        }
+        case 1: {
+            RenderPhaseData val(g.get_allocator());
+            load(ar, val);
+            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+            break;
+        }
+        default:
+            throw std::runtime_error("load graph failed");
+        }
+    }
+    load(ar, g.valueNames);
+    load(ar, g.attributeIndex);
+    load(ar, g.constantIndex);
+    load(ar, g.shaderLayoutIndex);
+    load(ar, g.effects);
 }
 
 } // namespace render

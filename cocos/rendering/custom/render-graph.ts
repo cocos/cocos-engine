@@ -310,6 +310,15 @@ export class ResourceGraph implements impl.BidirectionalGraph
         return this._vertices.length;
     }
     //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
+    }
+    //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
         // Members
@@ -819,6 +828,15 @@ export class SubpassGraph implements impl.BidirectionalGraph
         return this._vertices.length;
     }
     //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
+    }
+    //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
         // ComponentGraph
@@ -1323,6 +1341,15 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     numVertices (): number {
         return this._vertices.length;
+    }
+    //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
     }
     //-----------------------------------------------------------------
     // MutableGraph

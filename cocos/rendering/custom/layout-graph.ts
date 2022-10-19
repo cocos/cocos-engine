@@ -203,6 +203,15 @@ export class LayoutGraph implements impl.BidirectionalGraph
         return this._vertices.length;
     }
     //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
+    }
+    //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
         // ComponentGraph
@@ -822,6 +831,15 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         return this._vertices.length;
     }
     //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
+    }
+    //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
         // Members
@@ -1236,6 +1254,74 @@ export function loadRenderPhase (ar: InputArchive, v: RenderPhase) {
     }
 }
 
+export function saveLayoutGraph (ar: OutputArchive, g: LayoutGraph) {
+    const numVertices = g.numVertices();
+    const numEdges = g.numEdges();
+    ar.writeNumber(numVertices);
+    ar.writeNumber(numEdges);
+    let numStages = 0;
+    let numPhases = 0;
+    for (const v of g.vertices()) {
+        switch (g.id(v)) {
+        case LayoutGraphValue.RenderStage:
+            numStages += 1;
+            break;
+        case LayoutGraphValue.RenderPhase:
+            numPhases += 1;
+            break;
+        default:
+            break;
+        }
+    }
+    ar.writeNumber(numStages);
+    ar.writeNumber(numPhases);
+    for (const v of g.vertices()) {
+        ar.writeNumber(g.id(v));
+        ar.writeNumber(g.getParent(v));
+        ar.writeString(g.getName(v));
+        saveDescriptorDB(ar, g.getDescriptors(v));
+        switch (g.id(v)) {
+        case LayoutGraphValue.RenderStage:
+            ar.writeNumber(g.getRenderStage(v));
+            break;
+        case LayoutGraphValue.RenderPhase:
+            saveRenderPhase(ar, g.getRenderPhase(v));
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+export function loadLayoutGraph (ar: InputArchive, g: LayoutGraph) {
+    const numVertices = ar.readNumber();
+    const numEdges = ar.readNumber();
+    const numStages = ar.readNumber();
+    const numPhases = ar.readNumber();
+    for (let v = 0; v !== numVertices; ++v) {
+        const id = ar.readNumber();
+        const u = ar.readNumber();
+        const name = ar.readString();
+        const descriptors = new DescriptorDB();
+        loadDescriptorDB(ar, descriptors);
+        switch (id) {
+        case LayoutGraphValue.RenderStage: {
+            const renderStage = ar.readNumber();
+            g.addVertex<LayoutGraphValue.RenderStage>(LayoutGraphValue.RenderStage, renderStage, name, descriptors, u);
+            break;
+        }
+        case LayoutGraphValue.RenderPhase: {
+            const renderPhase = new RenderPhase();
+            loadRenderPhase(ar, renderPhase);
+            g.addVertex<LayoutGraphValue.RenderPhase>(LayoutGraphValue.RenderPhase, renderPhase, name, descriptors, u);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
 export function saveUniformData (ar: OutputArchive, v: UniformData) {
     ar.writeNumber(v.uniformID);
     ar.writeNumber(v.uniformType);
@@ -1513,5 +1599,131 @@ export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
         const k1 = ar.readString();
         const v1 = ar.readNumber();
         v.shaderIndex.set(k1, v1);
+    }
+}
+
+export function saveLayoutGraphData (ar: OutputArchive, g: LayoutGraphData) {
+    const numVertices = g.numVertices();
+    const numEdges = g.numEdges();
+    ar.writeNumber(numVertices);
+    ar.writeNumber(numEdges);
+    let numStages = 0;
+    let numPhases = 0;
+    for (const v of g.vertices()) {
+        switch (g.id(v)) {
+        case LayoutGraphDataValue.RenderStage:
+            numStages += 1;
+            break;
+        case LayoutGraphDataValue.RenderPhase:
+            numPhases += 1;
+            break;
+        default:
+            break;
+        }
+    }
+    ar.writeNumber(numStages);
+    ar.writeNumber(numPhases);
+    for (const v of g.vertices()) {
+        ar.writeNumber(g.id(v));
+        ar.writeNumber(g.getParent(v));
+        ar.writeString(g.getName(v));
+        ar.writeNumber(g.getUpdate(v));
+        savePipelineLayoutData(ar, g.getLayout(v));
+        switch (g.id(v)) {
+        case LayoutGraphDataValue.RenderStage:
+            saveRenderStageData(ar, g.getRenderStage(v));
+            break;
+        case LayoutGraphDataValue.RenderPhase:
+            saveRenderPhaseData(ar, g.getRenderPhase(v));
+            break;
+        default:
+            break;
+        }
+    }
+    ar.writeNumber(g.valueNames.length); // string[]
+    for (const v1 of g.valueNames) {
+        ar.writeString(v1);
+    }
+    ar.writeNumber(g.attributeIndex.size); // Map<string, number>
+    for (const [k1, v1] of g.attributeIndex) {
+        ar.writeString(k1);
+        ar.writeNumber(v1);
+    }
+    ar.writeNumber(g.constantIndex.size); // Map<string, number>
+    for (const [k1, v1] of g.constantIndex) {
+        ar.writeString(k1);
+        ar.writeNumber(v1);
+    }
+    ar.writeNumber(g.shaderLayoutIndex.size); // Map<string, number>
+    for (const [k1, v1] of g.shaderLayoutIndex) {
+        ar.writeString(k1);
+        ar.writeNumber(v1);
+    }
+    ar.writeNumber(g.effects.size); // Map<string, EffectData>
+    for (const [k1, v1] of g.effects) {
+        ar.writeString(k1);
+        saveEffectData(ar, v1);
+    }
+}
+
+export function loadLayoutGraphData (ar: InputArchive, g: LayoutGraphData) {
+    const numVertices = ar.readNumber();
+    const numEdges = ar.readNumber();
+    const numStages = ar.readNumber();
+    const numPhases = ar.readNumber();
+    for (let v = 0; v !== numVertices; ++v) {
+        const id = ar.readNumber();
+        const u = ar.readNumber();
+        const name = ar.readString();
+        const update = ar.readNumber();
+        const layout = new PipelineLayoutData();
+        loadPipelineLayoutData(ar, layout);
+        switch (id) {
+        case LayoutGraphDataValue.RenderStage: {
+            const renderStage = new RenderStageData();
+            loadRenderStageData(ar, renderStage);
+            g.addVertex<LayoutGraphDataValue.RenderStage>(LayoutGraphDataValue.RenderStage, renderStage, name, update, layout, u);
+            break;
+        }
+        case LayoutGraphDataValue.RenderPhase: {
+            const renderPhase = new RenderPhaseData();
+            loadRenderPhaseData(ar, renderPhase);
+            g.addVertex<LayoutGraphDataValue.RenderPhase>(LayoutGraphDataValue.RenderPhase, renderPhase, name, update, layout, u);
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    let sz = 0;
+    sz = ar.readNumber(); // string[]
+    g.valueNames.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        g.valueNames[i1] = ar.readString();
+    }
+    sz = ar.readNumber(); // Map<string, number>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = ar.readNumber();
+        g.attributeIndex.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<string, number>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = ar.readNumber();
+        g.constantIndex.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<string, number>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = ar.readNumber();
+        g.shaderLayoutIndex.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<string, EffectData>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = new EffectData();
+        loadEffectData(ar, v1);
+        g.effects.set(k1, v1);
     }
 }
