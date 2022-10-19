@@ -432,7 +432,7 @@ export class Game extends EventTarget {
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;
     private _paused = true;
-    private _forcePaused = false;
+    private _pausedByEngine = false;
     // frame control
     private _frameRate = 60;
     private _pacer: Pacer | null = null;
@@ -520,6 +520,24 @@ export class Game extends EventTarget {
     }
 
     /**
+     * @en Called by the engine to pause the game and will not be automatically resumed.
+     * @zh 提供给引擎调用暂停游戏接口，不会主动恢复。
+     */
+    public pauseByEngine () {
+        this._pausedByEngine = true;
+        this.pause();
+    }
+
+    /**
+     * @en Resume paused game by engine call.
+     * @zh 提供给引擎调用恢复暂停游戏接口。
+     */
+    public resumeByEngine () {
+        this.resume();
+        this._pausedByEngine = false;
+    }
+
+    /**
      * @en Pause the game main loop. This will pause:
      * - game logic execution
      * - rendering process
@@ -534,10 +552,7 @@ export class Game extends EventTarget {
      *
      * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
      */
-    public pause (forcePaused? : boolean) {
-        if (forcePaused !== undefined) {
-            this._forcePaused = forcePaused;
-        }
+    public pause () {
         if (this._paused) { return; }
         this._paused = true;
         this._pacer?.stop();
@@ -548,11 +563,11 @@ export class Game extends EventTarget {
      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      */
-    public resume (resumeForcePaused? : boolean) {
-        if (resumeForcePaused === undefined && this._forcePaused) {
+    public resume () {
+        if (this._pausedByEngine) {
             return;
         }
-        this._forcePaused = false;
+        this._pausedByEngine = false;
         if (!this._paused) { return; }
         // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
