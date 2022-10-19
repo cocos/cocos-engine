@@ -42,7 +42,7 @@ import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
  * @en Shadow projection mode.
@@ -717,8 +717,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _updateUseLightProbe () {
         if (!this._model) { return; }
         const node = this.node;
-        if (this._mesh && !this._model.isInstancingEnabled
-            && node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
+        if (this._mesh && node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
             this._model.useLightProbe = true;
         } else {
             this._model.useLightProbe = false;

@@ -26,7 +26,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
 import { PolynomialSolver } from './polynomial-solver';
-import { LightProbeInfo } from '../../core/scene-graph/scene-globals';
+import { LightProbeInfo } from '../../scene-graph/scene-globals';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
 import { legacyCC } from '../../core/global-exports';

@@ -38,6 +38,7 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
+#include "bindings/auto/jsb_gi_auto.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "core/scene-graph/Scene.h"

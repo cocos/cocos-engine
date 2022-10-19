@@ -45,7 +45,7 @@ public:
 
     inline ccstd::vector<Vertex> &getProbes() { return _probes; }
     inline void setProbes(const ccstd::vector<Vertex> &probes) { _probes = probes; }
-    inline ccstd::vector<Tetrahedron> getTetrahedrons() { return _tetrahedrons; }
+    inline ccstd::vector<Tetrahedron> &getTetrahedrons() { return _tetrahedrons; }
     inline void setTetrahedrons(const ccstd::vector<Tetrahedron> &tetrahedrons) { _tetrahedrons = tetrahedrons; }
 
     inline bool empty() const { return _probes.empty() || _tetrahedrons.empty(); }
@@ -105,9 +105,6 @@ public:
     inline void setData(const LightProbesData &data) { _data = data; }
     inline const LightProbesData &getData() const { return _data; }
 
-private:
-    void _updatePipeline();
-
     bool _enabled{true};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
@@ -115,7 +112,8 @@ private:
     bool _showConvex{false};
     LightProbesData _data;
 
-    CC_DISALLOW_COPY_MOVE_ASSIGN(LightProbes);
+private:
+    void _updatePipeline();
 };
 
 class LightProbeInfo : public RefCounted {
@@ -197,14 +195,15 @@ public:
     // add addGroup, removeGroup, update after the component module is ported to cpp
 
     //cjh JSB need to bind the property, so need to make it public
-    LightProbes *_resource{nullptr};
-
     bool _enabled{false};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};
     bool _showConvex{false};
     LightProbesData _data;
+
+private:
+    LightProbes *_resource{nullptr};
 };
 
 } // namespace gi

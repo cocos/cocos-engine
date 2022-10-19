@@ -108,7 +108,7 @@ class Triangle {
 legacyCC.Triangle = Triangle;
 
 @ccclass('cc.CircumSphere')
-class CircumSphere {
+export class CircumSphere {
     @serializable
     public center = new Vec3(0, 0, 0);
     @serializable

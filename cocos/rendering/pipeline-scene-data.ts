@@ -31,7 +31,7 @@ import { Light } from '../render-scene/scene/light';
 import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
-import { LightProbes } from '../../gi/light-probe';
+import { LightProbes } from '../gi/light-probe';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 

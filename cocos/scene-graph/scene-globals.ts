@@ -31,13 +31,14 @@ import { Shadows, ShadowType, ShadowSize } from '../render-scene/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../render-scene/scene/skybox';
 import { Octree } from '../render-scene/scene/octree';
 import { Fog, FogType } from '../render-scene/scene/fog';
-import { LightProbesData, LightProbes } from '../../gi/light-probe/light-probe';
+import { LightProbesData, LightProbes } from '../gi/light-probe/light-probe';
 import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
-import { LightProbeGroup, Tetrahedron, Vertex } from '../../gi/light-probe';
+import { Tetrahedron, Vertex } from '../gi/light-probe/delaunay';
+import { LightProbeGroup } from '../gi/light-probe/light-probe-group';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();

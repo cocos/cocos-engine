@@ -123,6 +123,9 @@ using namespace cc;
 #define cc_pipeline_PipelineSceneData_shadows_get(self_) self_->getShadows()
   
 
+#define cc_pipeline_PipelineSceneData_lightProbes_get(self_) self_->getLightProbes()
+  
+
 #define cc_pipeline_BloomStage_threshold_get(self_) self_->getThreshold()
 #define cc_pipeline_BloomStage_threshold_set(self_, val_) self_->setThreshold(val_)
   
@@ -4100,6 +4103,136 @@ bool js_register_cc_pipeline_UBOUILocal(se::Object* obj) {
     
     __jsb_cc_pipeline_UBOUILocal_proto = cls->getProto();
     __jsb_cc_pipeline_UBOUILocal_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_pipeline_UBOSH_class = nullptr;
+se::Object* __jsb_cc_pipeline_UBOSH_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_pipeline_UBOSH) 
+
+static bool js_cc_pipeline_UBOSH_DESCRIPTOR_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSetLayoutBinding result;
+    
+    result = cc::pipeline::UBOSH::DESCRIPTOR;
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "UBOSH_DESCRIPTOR_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_UBOSH_DESCRIPTOR_get) 
+
+static bool js_cc_pipeline_UBOSH_LAYOUT_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::UniformBlock result;
+    
+    result = cc::pipeline::UBOSH::LAYOUT;
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "UBOSH_LAYOUT_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_UBOSH_LAYOUT_get) 
+
+static bool js_cc_pipeline_UBOSH_NAME_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    ccstd::string result;
+    
+    result = (ccstd::string)cc::pipeline::UBOSH::NAME;
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "UBOSH_NAME_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_UBOSH_NAME_get) 
+
+// js_ctor
+static bool js_new_cc_pipeline_UBOSH(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::pipeline::UBOSH *result;
+    result = (cc::pipeline::UBOSH *)new cc::pipeline::UBOSH();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_pipeline_UBOSH, __jsb_cc_pipeline_UBOSH_class, js_delete_cc_pipeline_UBOSH)
+
+static bool js_delete_cc_pipeline_UBOSH(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_pipeline_UBOSH) 
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::UBOSH * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::pipeline::UBOSH*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    
+    return ok;
+}
+
+
+bool js_register_cc_pipeline_UBOSH(se::Object* obj) {
+    auto* cls = se::Class::create("UBOSH", obj, nullptr, _SE(js_new_cc_pipeline_UBOSH)); 
+    
+    
+    
+    cls->defineStaticProperty("SH_LINEAR_CONST_R_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("SH_LINEAR_CONST_G_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("SH_LINEAR_CONST_B_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("SH_QUADRATIC_R_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("SH_QUADRATIC_G_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("SH_QUADRATIC_B_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("SH_QUADRATIC_A_OFFSET", nullptr, nullptr); 
+    cls->defineStaticProperty("COUNT", nullptr, nullptr); 
+    cls->defineStaticProperty("SIZE", nullptr, nullptr); 
+    cls->defineStaticProperty("BINDING", nullptr, nullptr); 
+    cls->defineStaticProperty("DESCRIPTOR", _SE(js_cc_pipeline_UBOSH_DESCRIPTOR_get), nullptr); 
+    cls->defineStaticProperty("LAYOUT", _SE(js_cc_pipeline_UBOSH_LAYOUT_get), nullptr); 
+    cls->defineStaticProperty("NAME", _SE(js_cc_pipeline_UBOSH_NAME_get), nullptr); 
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_pipeline_UBOSH));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::UBOSH>(cls);
+    
+    __jsb_cc_pipeline_UBOSH_proto = cls->getProto();
+    __jsb_cc_pipeline_UBOSH_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13900,6 +14033,25 @@ static bool js_cc_pipeline_PipelineSceneData_shadows_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_pipeline_PipelineSceneData_shadows_get) 
 
+static bool js_cc_pipeline_PipelineSceneData_lightProbes_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::PipelineSceneData *arg1 = (cc::pipeline::PipelineSceneData *) NULL ;
+    cc::gi::LightProbes *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::PipelineSceneData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::gi::LightProbes *)cc_pipeline_PipelineSceneData_lightProbes_get(arg1);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "PipelineSceneData_lightProbes_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_PipelineSceneData_lightProbes_get) 
+
 bool js_register_cc_pipeline_PipelineSceneData(se::Object* obj) {
     auto* cls = se::Class::create("PipelineSceneData", obj, nullptr, _SE(js_new_cc_pipeline_PipelineSceneData)); 
     
@@ -13909,6 +14061,7 @@ bool js_register_cc_pipeline_PipelineSceneData(se::Object* obj) {
     cls->defineProperty("ambient", _SE(js_cc_pipeline_PipelineSceneData_ambient_get), nullptr); 
     cls->defineProperty("skybox", _SE(js_cc_pipeline_PipelineSceneData_skybox_get), nullptr); 
     cls->defineProperty("shadows", _SE(js_cc_pipeline_PipelineSceneData_shadows_get), nullptr); 
+    cls->defineProperty("lightProbes", _SE(js_cc_pipeline_PipelineSceneData_lightProbes_get), nullptr); 
     
     cls->defineFunction("activate", _SE(js_cc_pipeline_PipelineSceneData_activate)); 
     cls->defineFunction("destroy", _SE(js_cc_pipeline_PipelineSceneData_destroy)); 
@@ -21505,6 +21658,7 @@ bool register_all_pipeline(se::Object* obj) {
     js_register_cc_pipeline_UBOSkinning(ns); 
     js_register_cc_pipeline_UBOMorph(ns); 
     js_register_cc_pipeline_UBOUILocal(ns); 
+    js_register_cc_pipeline_UBOSH(ns); 
     js_register_cc_pipeline_UBOGlobal(ns); 
     js_register_cc_pipeline_UBOCamera(ns); 
     js_register_cc_pipeline_UBOShadow(ns); 

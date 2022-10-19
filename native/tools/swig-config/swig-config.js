@@ -21,6 +21,7 @@ const configList = [
     [ 'webview.i', 'jsb_webview_auto.cpp' ],
     [ 'video.i', 'jsb_video_auto.cpp' ],
     [ 'renderer.i', 'jsb_render_auto.cpp' ],
+    [ 'gi.i', 'jsb_gi_auto.cpp' ],
 ];
 
 const cocosNativeRoot = path.resolve(path.join(__dirname, '..', '..'));

@@ -25,8 +25,8 @@
 
 import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, menu, range, serializable, tooltip, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { NodeEventType } from '../../core';
-import { Component } from '../../core/components/component';
+import { NodeEventType } from '../../scene-graph/node-event';
+import { Component } from '../../scene-graph/component';
 import { CCInteger } from '../../core/data/utils/attribute';
 import { Vec3 } from '../../core/math';
 import { AutoPlacement, PlaceMethod } from './auto-placement';

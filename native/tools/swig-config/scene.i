@@ -9,6 +9,7 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
+#include "bindings/auto/jsb_gi_auto.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "core/scene-graph/Scene.h"
@@ -178,6 +179,8 @@ using namespace cc;
 
 %rename(_initLocalDescriptors) cc::scene::Model::initLocalDescriptors;
 %rename(_updateLocalDescriptors) cc::scene::Model::updateLocalDescriptors;
+%rename(_initLocalSHDescriptors) cc::scene::Model::initLocalSHDescriptors;
+%rename(_updateLocalSHDescriptors) cc::scene::Model::updateLocalSHDescriptors;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
@@ -267,6 +270,7 @@ using namespace cc;
 %attribute_writeonly(cc::Node, Mat4&, matrix, setMatrix);
 %attribute(cc::Node, uint32_t, hasChangedFlags, getChangedFlags, setChangedFlags);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
+%attribute(cc::Node, cc::MobilityMode, _mobility, getMobility, setMobility);
 
 %attribute(cc::scene::Ambient, cc::Vec4&, skyColor, getSkyColor, setSkyColor);
 %attribute(cc::scene::Ambient, float, skyIllum, getSkyIllum, setSkyIllum);
@@ -417,6 +421,7 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::scene::Model::Type, type, getType, setType);
 %attribute(cc::scene::Model, bool, isDynamicBatching, isDynamicBatching, setDynamicBatching);
 %attribute(cc::scene::Model, uint32_t, priority, getPriority, setPriority);
+%attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 
 %attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);

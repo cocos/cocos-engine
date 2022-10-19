@@ -24,7 +24,7 @@
 */
 
 import { legacyCC } from '../core/global-exports';
-import { Enum } from '../value-types';
+import { Enum } from '../core/value-types';
 
 /**
  * @en Node's coordinate space

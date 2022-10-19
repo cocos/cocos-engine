@@ -40,7 +40,8 @@ import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayCons
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
-import { SH } from '../../../gi/light-probe/sh';
+import { SH } from '../../gi/light-probe/sh';
+import { legacyCC } from '../../core/global-exports';
 
 const m4_1 = new Mat4();
 
@@ -55,12 +56,6 @@ const lightMapPatches: IMacroPatch[] = [
 const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
-
-export interface IInstancedAttributeBlock {
-    buffer: Uint8Array;
-    views: TypedArray[];
-    attributes: Attribute[];
-}
 
 export enum ModelType {
     DEFAULT,
@@ -405,11 +400,6 @@ export class Model {
      */
     protected _localSHBuffer: Buffer | null = null;
 
-    /**
-     * @en Instance matrix id
-     * @zh 实例矩阵索引
-     */
-    private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
