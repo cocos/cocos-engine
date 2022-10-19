@@ -629,7 +629,7 @@ static ccstd::string getBackendTypeName(WGPUBackendType type) {
 class Texture;
 class CommandBuffer;
 // fromLevel and toLevel is included.
-void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t toLevel, CommandBuffer* cmdBuffer);
+void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t baseLayer, CommandBuffer* cmdBuffer);
 
 class DescriptorSet;
 class PipelineLayout;

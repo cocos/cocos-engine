@@ -352,11 +352,10 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
                     }
                 }
             }
+            if (hasFlag(ccTexture->getInfo().flags, TextureFlags::GEN_MIPMAP)) {
+                genMipMap(ccTexture, 1, ccTexture->getInfo().levelCount - 1, l, _cmdBuff);
+            }
         }
-    }
-
-    if (hasFlag(ccTexture->getInfo().flags, TextureFlags::GEN_MIPMAP)) {
-        genMipMap(ccTexture, 1, ccTexture->getInfo().levelCount, _cmdBuff);
     }
 }
 
@@ -482,9 +481,9 @@ void CCWGPUDevice::getQueryPoolResults(QueryPool *queryPool) {
 }
 
 void CCWGPUDevice::debug() {
-    auto wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
-    auto wgpuCommandBuffer = wgpuCommandEncoderFinish(wgpuCommandEncoder, nullptr);
-    wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
+    // auto wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
+    // auto wgpuCommandBuffer = wgpuCommandEncoderFinish(wgpuCommandEncoder, nullptr);
+    // wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
 }
 
 void CCWGPUDevice::initConfigs() {

@@ -59,10 +59,11 @@ struct MipmapPassData {
     WGPURenderPipeline pipeline = wgpuDefaultHandle;
 };
 
+// no need to release
 thread_local MipmapPassData mipmapData;
 } // namespace
 
-void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t toLevel, CommandBuffer* cmdBuff) {
+void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t baseLayer, CommandBuffer* cmdBuff) {
     auto wgpuDevice = CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice;
     auto* ccTexture = static_cast<CCWGPUTexture*>(texture);
     auto format = toWGPUTextureFormat(ccTexture->getFormat());
@@ -81,10 +82,7 @@ void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t toLevel, CommandBuff
         // wgpuBufferUnmap(mipmapData.vertexBuffer);
 
         // https://github.com/austinEng/webgpu-samples/blob/main/src/shaders/fullscreenTexturedQuad.wgsl
-        const char* fullscreenTexturedQuad = R"(
-@group(0) @binding(0) var mySampler : sampler;
-@group(0) @binding(1) var myTexture : texture_2d<f32>;
-
+        const char* textureQuadVert = R"(
 struct VertexOutput {
   @builtin(position) Position : vec4<f32>,
   @location(0) fragUV : vec2<f32>,
@@ -115,6 +113,11 @@ fn vert_main(@builtin(vertex_index) VertexIndex : u32) -> VertexOutput {
   output.fragUV = uv[VertexIndex];
   return output;
 }
+        )";
+
+        const char* textureQuadFrag = R"(
+@group(0) @binding(0) var mySampler : sampler;
+@group(0) @binding(1) var myTexture : texture_2d<f32>;
 
 @fragment
 fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
@@ -136,25 +139,39 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         samplerDesc.maxAnisotropy = 1;
         mipmapData.sampler = wgpuDeviceCreateSampler(wgpuDevice, &samplerDesc);
 
-        WGPUShaderModuleWGSLDescriptor wgslShaderDesc;
-        wgslShaderDesc.source = fullscreenTexturedQuad;
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescVert;
+        wgslShaderDescVert.source = textureQuadVert;
+        wgslShaderDescVert.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+        WGPUShaderModuleDescriptor shaderDescVert;
+        shaderDescVert.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescVert);
+        shaderDescVert.label = "textureQuadVert";
+        mipmapData.vertShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescVert);
 
-        WGPUShaderModuleDescriptor shaderDesc;
-        shaderDesc.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDesc);
-        shaderDesc.label = "fullscreenTexturedQuad";
-        mipmapData.vertShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDesc);
-
-        mipmapData.fragShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDesc);
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescFrag;
+        wgslShaderDescFrag.source = textureQuadFrag;
+        wgslShaderDescFrag.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+        WGPUShaderModuleDescriptor shaderDescFrag;
+        shaderDescFrag.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescFrag);
+        shaderDescFrag.label = "textureQuadFrag";
+        mipmapData.fragShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescFrag);
 
         WGPUBindGroupLayoutEntry samplerEntry;
         samplerEntry.binding = 0;
         samplerEntry.visibility = WGPUShaderStage_Fragment;
-        samplerEntry.sampler = {nullptr, WGPUSamplerBindingType_Filtering};
+        samplerEntry.sampler.type = WGPUSamplerBindingType_Filtering;
+        samplerEntry.buffer.type = WGPUBufferBindingType_Undefined;
+        samplerEntry.texture.sampleType = WGPUTextureSampleType_Undefined;
+        samplerEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
 
         WGPUBindGroupLayoutEntry textureEntry;
         textureEntry.binding = 1;
         textureEntry.visibility = WGPUShaderStage_Fragment;
-        textureEntry.texture = {nullptr, textureSampleTypeTrait(ccTexture->getFormat()), toWGPUTextureViewDimension(ccTexture->getTextureType()), false};
+        textureEntry.texture.sampleType = textureSampleTypeTrait(ccTexture->getFormat());
+        textureEntry.texture.viewDimension = WGPUTextureViewDimension_2D;
+        textureEntry.texture.multisampled = false;
+        textureEntry.buffer.type = WGPUBufferBindingType_Undefined;
+        textureEntry.sampler.type = WGPUSamplerBindingType_Undefined;
+        textureEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
         WGPUBindGroupLayoutEntry entries[2] = {samplerEntry, textureEntry};
 
         WGPUBindGroupLayoutDescriptor bgLayoutDesc;
@@ -189,6 +206,11 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         fragState.targetCount = 1;
         fragState.targets = &colorState;
 
+        WGPUMultisampleState multisample;
+        multisample.count = 1;
+        multisample.alphaToCoverageEnabled = false;
+        multisample.mask = 0xFFFFFFFF;
+
         WGPURenderPipelineDescriptor pipelineDesc;
         pipelineDesc.label = "fullscreenTexturedQuadPipeline";
         pipelineDesc.layout = mipmapData.pipelineLayout;
@@ -196,16 +218,17 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         pipelineDesc.primitive = primitiveState;
         pipelineDesc.fragment = &fragState;
         pipelineDesc.depthStencil = nullptr;
+        pipelineDesc.multisample = multisample;
         mipmapData.pipeline = wgpuDeviceCreateRenderPipeline(wgpuDevice, &pipelineDesc);
     }
 
     WGPUTextureViewDescriptor desc;
     desc.format = format;
-    desc.dimension = toWGPUTextureViewDimension(ccTexture->getTextureType());
+    desc.dimension = WGPUTextureViewDimension_2D;
     desc.baseMipLevel = fromLevel;
     desc.mipLevelCount = 1;
-    desc.baseArrayLayer = 0;
-    desc.arrayLayerCount = ccTexture->getLayerCount();
+    desc.baseArrayLayer = baseLayer;
+    desc.arrayLayerCount = 1;
     desc.aspect = WGPUTextureAspect_All;
 
     CC_ASSERT(i > 0);
@@ -214,10 +237,13 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
     if (!cmdBuffCommandEncoder) {
         commandEncoder = wgpuDeviceCreateCommandEncoder(wgpuDevice, nullptr);
     }
-    for (uint8_t i = fromLevel; i < toLevel; ++i) {
+
+    for (uint8_t i = fromLevel; i < fromLevel + levelCount; ++i) {
         desc.baseMipLevel = i - 1;
         auto srcView = wgpuTextureCreateView(wgpuTexture, &desc);
         desc.baseMipLevel = i;
+        desc.baseArrayLayer = baseLayer;
+        desc.arrayLayerCount = 1;
         auto dstView = wgpuTextureCreateView(wgpuTexture, &desc);
 
         WGPUBindGroupEntry entries[2];
@@ -263,7 +289,10 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         wgpuRenderPassEncoderEnd(renderPassEncoder);
         wgpuRenderPassEncoderRelease(renderPassEncoder);
         wgpuBindGroupRelease(bindGroup);
+        wgpuTextureViewRelease(srcView);
+        wgpuTextureViewRelease(dstView);
     }
+
     if (!cmdBuffCommandEncoder) {
         auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, nullptr);
         wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &commandBuffer);
