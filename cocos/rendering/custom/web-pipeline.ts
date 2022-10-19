@@ -143,6 +143,7 @@ export class WebSetter {
         }
         if (!this._data.constants.get(num)) {
             const value = new Array(this._currCount);
+            value.fill(0);
             this._data.constants.set(num, value);
         }
         this.setCurrConstant(block);
@@ -198,6 +199,7 @@ function setShadowUBOLightView (setter: WebSetter,
     const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
     const cap = pipeline.device.capabilities;
     const _vec4ShadowInfo = new Vec4();
+    setter.addConstant('CCCSM');
     // ShadowMap
     setter.addConstant('CCShadow');
     switch (light.type) {

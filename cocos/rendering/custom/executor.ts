@@ -1312,7 +1312,7 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.DRAW_INSTANCING) {
             this._recordInstences();
         }
-        this._recordBatches();
+        // this._recordBatches();
         if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
             this._recordAdditiveLights();
         }
