@@ -156,7 +156,7 @@ namespace cc
                         blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
                         gfx::AccelerationStructure* blas = device->createAccelerationStructure(blasInfo);
                         blas->build();
-                        //blas->compact();
+                        blas->compact();
                         
                         _blasMap.emplace(meshUuid, blas);
                         tlasGeom.accelerationStructureRef = blas;

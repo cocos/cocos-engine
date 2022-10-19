@@ -99,29 +99,23 @@ void CCVKAccelerationStructure::doBuild() {
 
 void CCVKAccelerationStructure::doCompact() {
     auto* device = CCVKDevice::getInstance();
-    auto* cmdBuf = device->getCommandBuffer();
 
-    cmdBuf->begin();
-    auto* compactedAccel = ccnew CCVKAccelerationStructure;
+    IntrusivePtr<CCVKAccelerationStructure> compactedAccel = ccnew CCVKAccelerationStructure;
     compactedAccel->_gpuAccelerationStructure = ccnew CCVKGPUAccelerationStructure;
+
+    auto* cmdBuf = device->getCommandBuffer();
+    cmdBuf->begin();
     cmdBuf->compactAccelerationStructure(this,compactedAccel);
     cmdBuf->end();
-
     device->flushCommands(&cmdBuf, 1);
     device->getQueue()->submit(&cmdBuf, 1);
 
     //device->waitAllFences();
-
+    
     device->gpuRecycleBin()->collect(_gpuAccelerationStructure);
-    device->gpuRecycleBin()->collect(_gpuAccelerationStructure->accelStructBackingBuffer);
-    //device->waitAllFences();
     _gpuAccelerationStructure->vkAccelerationStructure = compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure;
     _gpuAccelerationStructure->accelStructBackingBuffer = compactedAccel->_gpuAccelerationStructure->accelStructBackingBuffer;
-
     compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure = VK_NULL_HANDLE;
-    compactedAccel->_gpuAccelerationStructure->accelStructBackingBuffer = VK_NULL_HANDLE;
-
-    compactedAccel->destroy();
 }
 
 void CCVKAccelerationStructure::doDestroy() {

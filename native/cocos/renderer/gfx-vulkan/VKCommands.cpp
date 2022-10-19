@@ -1771,8 +1771,7 @@ void cmdFuncCCVKCompactAccelerationStructure(CCVKDevice *device, CCVKGPUAccelera
     res->accelStructBackingBuffer->size = compactedSize;
     res->accelStructBackingBuffer->usage = BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE | BufferUsageBit::TRANSFER_DST;
     res->accelStructBackingBuffer->memUsage = MemoryUsageBit::DEVICE;
-
-    cmdFuncCCVKCreateBuffer(device, res->accelStructBackingBuffer);
+    res->accelStructBackingBuffer->init();
 
     VkAccelerationStructureCreateInfoKHR compactedAccelCreateInfo = {VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR};
     compactedAccelCreateInfo.size = compactedSize;
