@@ -60,7 +60,7 @@ export function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: Attac
     if (!(clearFlag & ClearFlagBit.COLOR)
         && attachment === AttachmentType.RENDER_TARGET) {
         if (clearFlag & SKYBOX_FLAG) {
-            loadOp = LoadOp.DISCARD;
+            loadOp = LoadOp.CLEAR;
         } else {
             loadOp = LoadOp.LOAD;
         }
@@ -437,7 +437,7 @@ export function buildForwardPass (camera: Camera,
     const passDSView = new RasterView('_',
         AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
         isOffScreen ? LoadOp.CLEAR : getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
-        StoreOp.STORE,
+        StoreOp.DISCARD,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0, 0));
     forwardPass.addRasterView(forwardPassRTName, passView);
@@ -447,14 +447,13 @@ export function buildForwardPass (camera: Camera,
         .addSceneOfCamera(camera, new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
              | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+    let sceneFlags = SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY;
+    if (!isOffScreen) {
+        sceneFlags |= SceneFlags.UI | SceneFlags.PROFILER;
+    }
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
-    if (!isOffScreen) {
-        forwardPass
-            .addQueue(QueueHint.RENDER_TRANSPARENT)
-            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.UI | SceneFlags.PROFILER);
-    }
+        .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
     return { rtName: forwardPassRTName, dsName: forwardPassDSName };
 }
 
