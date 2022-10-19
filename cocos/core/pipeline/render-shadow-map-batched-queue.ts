@@ -100,12 +100,14 @@ export class RenderShadowMapBatchedQueue {
                 // eslint-disable-next-line no-case-declarations
                 const spotLight = light as SpotLight;
                 if (spotLight.shadowEnabled) {
+                    const visibility = spotLight.visibility;
                     const castShadowObjects = sceneData.csmLayers.castShadowObjects;
                     for (let i = 0; i < castShadowObjects.length; i++) {
                         const ro = castShadowObjects[i];
                         const model = ro.model;
                         if (model.worldBounds) {
-                            if (!intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
+                            if (((visibility & model.node.layer) !== model.node.layer)
+                            || !intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
                         }
 
                         this.add(model);

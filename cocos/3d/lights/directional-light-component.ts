@@ -112,6 +112,20 @@ export class DirectionalLight extends Light {
     }
 
     /**
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light(directional has not).
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合（该功能不包括方向光的设置）。
+     * @internal
+     * @deprecated
+     */
+    @visible(false)
+    set visibility (vis: number) {
+        this._visibility = vis;
+    }
+    get visibility (): number {
+        return this._visibility;
+    }
+
+    /**
      * @en Whether activate real time shadow.
      * @zh 是否启用实时阴影？
      */

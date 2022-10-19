@@ -29,6 +29,7 @@
 #include "base/RefCounted.h"
 #include "base/std/container/string.h"
 #include "math/Vec3.h"
+#include "pipeline/Define.h"
 
 namespace cc {
 class Node;
@@ -75,6 +76,9 @@ public:
         setColorTemperatureRGB(colorTemperatureToRGB(val));
     }
 
+    inline uint32_t getVisibility() const { return _visibility; }
+    inline void setVisibility(uint32_t visibility) { _visibility = visibility; }
+
     inline Node *getNode() const { return _node.get(); }
     void setNode(Node *node);
 
@@ -93,6 +97,7 @@ public:
     static Vec3 colorTemperatureToRGB(float kelvin);
 
 protected:
+    uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
     bool _useColorTemperature{false};
     bool _baked{false};
     IntrusivePtr<Node> _node;

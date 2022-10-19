@@ -30,6 +30,8 @@ import { Enum } from '../../core/value-types';
 import { scene } from '../../core/renderer';
 import { Root } from '../../core/root';
 import { legacyCC } from '../../core/global-exports';
+import { CAMERA_DEFAULT_MASK } from '../../core/pipeline/define';
+import { Layers } from '../../core/scene-graph/layers';
 
 const _color_tmp = new Vec3();
 
@@ -138,6 +140,8 @@ export class Light extends Component {
     protected _colorTemperature = 6550;
     @serializable
     protected _staticSettings: StaticLightSettings = new StaticLightSettings();
+    @serializable
+    protected _visibility = CAMERA_DEFAULT_MASK;
 
     protected _type = scene.LightType.UNKNOWN;
     protected _lightType: typeof scene.Light;
@@ -233,6 +237,21 @@ export class Light extends Component {
         }
     }
 
+    /**
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
+     */
+    @tooltip('i18n:light.visibility')
+    @displayOrder(255)
+    @type(Layers.BitMask)
+    set visibility (vis: number) {
+        this._visibility = vis;
+        if (this._light) { this._light.visibility = vis; }
+    }
+    get visibility (): number {
+        return this._visibility;
+    }
+
     constructor () {
         super();
         this._lightType = scene.Light;
@@ -263,6 +282,7 @@ export class Light extends Component {
         this.colorTemperature = this._colorTemperature;
         this._light.node = this.node;
         this._light.baked = this.baked;
+        this._light.visibility = this.visibility;
     }
 
     protected _destroyLight () {
