@@ -28,8 +28,8 @@
  * @module gfx
  */
 
-import { legacyCC } from '../global-exports';
-import { gfx, webgpuAdapter } from '../../webgpu/instantiated';
+import { legacyCC } from '../core/global-exports';
+import { gfx, webgpuAdapter } from '../webgpu/instantiated';
 
 import './deprecated-3.0.0';
 

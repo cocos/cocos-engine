@@ -252,7 +252,7 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.WEBGPU",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.ems.ts"
+                "cocos/gfx/index.ts": "cocos/gfx/index.ems.ts"
             }
         },
         {

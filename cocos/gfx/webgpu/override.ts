@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable import/no-mutable-exports */
 import { WEBGPU } from 'internal:constants';
-import { gfx, promiseForWebGPUInstantiation } from '../../../webgpu/instantiated';
+import { gfx, promiseForWebGPUInstantiation } from '../../webgpu/instantiated';
 
 export let Device: any;
 export let WebGPUDevice: any;

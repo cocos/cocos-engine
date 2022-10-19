@@ -82,7 +82,7 @@ inline void save(OutputArchive& ar, const LayoutGraph& g) {
         visitObject(
             v, g,
             overload(
-                [&](auto& object) {
+                [&](const auto& object) {
                     save(ar, object);
                 }));
     }
@@ -321,7 +321,7 @@ inline void save(OutputArchive& ar, const LayoutGraphData& g) {
         visitObject(
             v, g,
             overload(
-                [&](auto& object) {
+                [&](const auto& object) {
                     save(ar, object);
                 }));
     }
@@ -358,7 +358,7 @@ inline void load(InputArchive& ar, LayoutGraphData& g) {
         SizeT id = std::numeric_limits<SizeT>::max();
         VertexT u = Graph::null_vertex();
         ccstd::pmr::string name(g.get_allocator());
-        UpdateFrequency update;
+        UpdateFrequency update{};
         PipelineLayoutData layout(g.get_allocator());
         load(ar, id);
         load(ar, u);
