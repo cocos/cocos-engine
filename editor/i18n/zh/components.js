@@ -24,6 +24,11 @@ module.exports = {
             change_children: '连同修改子节点',
             change_self: '只修改节点自身',
         },
+        lightProbeGroup:{
+            generateTip: '重新生成场景里的探针数据',
+            generateWarnTip: '继续自动生成新探针会覆盖已有探针，该节点的已有探针数据会全部丢失，请问是否仍要继续？',
+            editTip: '切换场景中的探针编辑模式',
+        },
 
         missScriptTip: "脚本编译失败，请检查报错信息并进行修正，该组件将在修正后自动还原。",
     },

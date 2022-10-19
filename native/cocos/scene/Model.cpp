@@ -30,6 +30,8 @@
 #include "core/assets/Material.h"
 #include "core/event/EventTypesToJS.h"
 #include "gfx-base/GFXTexture.h"
+#include "gi/light-probe/LightProbe.h"
+#include "gi/light-probe/SH.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
@@ -59,6 +61,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
+const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 } // namespace
 
 namespace cc {
@@ -86,6 +89,7 @@ void Model::destroy() {
     _subModels.clear();
 
     CC_SAFE_DESTROY_NULL(_localBuffer);
+    CC_SAFE_DESTROY_NULL(_localSHBuffer);
     CC_SAFE_DESTROY_NULL(_worldBoundBuffer);
 
     _worldBounds = nullptr;
@@ -161,6 +165,9 @@ void Model::updateUBOs(uint32_t stamp) {
         subModel->update();
     }
     _updateStamp = stamp;
+
+    updateSHUBOs();
+
     if (!_localDataUpdated) {
         return;
     }
@@ -182,10 +189,10 @@ void Model::updateUBOs(uint32_t stamp) {
         Mat4 mat4;
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
-        _localBuffer->write(worldMatrix,      sizeof(float) * pipeline::UBOLocal::MAT_WORLD_OFFSET);
-        _localBuffer->write(mat4,             sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
+        _localBuffer->write(worldMatrix, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_OFFSET);
+        _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
-        _localBuffer->write(_shadowBias,      sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+        _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
@@ -311,6 +318,49 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
+bool Model::isLightProbeAvailable() const {
+    if (!_useLightProbe) {
+        return false;
+    }
+
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
+    if (!lightProbes->available()) {
+        return false;
+    }
+
+    if (!_worldBounds) {
+        return false;
+    }
+
+    return true;
+}
+
+void Model::updateSHUBOs() {
+    if (!isLightProbeAvailable()) {
+        return;
+    }
+
+    const auto center = _worldBounds->getCenter();
+#if !CC_EDITOR
+    if (center == _lastWorldBoundCenter) {
+        return;
+    }
+#endif
+
+    ccstd::vector<Vec3> coefficients;
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
+    _tetrahedronIndex = lightProbes->getData().getInterpolationSHCoefficients(center, _tetrahedronIndex, coefficients);
+    gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
+    _lastWorldBoundCenter.set(center);
+
+    if (!_localSHData.empty() && _localSHBuffer) {
+        gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
+        _localSHBuffer->update(_localSHData.buffer()->getData());
+    }
+}
+
 ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
@@ -321,11 +371,20 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
+    ccstd::vector<IMacroPatch> patches;
     if (_receiveShadow) {
-        return SHADOW_MAP_PATCHES;
+        for (const auto &patch : SHADOW_MAP_PATCHES) {
+            patches.push_back(patch);
+        }
     }
 
-    return {};
+    if (_useLightProbe) {
+        for (const auto &patch : LIGHT_PROBE_PATCHES) {
+            patches.push_back(patch);
+        }
+    }
+
+    return patches;
 }
 
 void Model::updateAttributesAndBinding(index_t subModelIndex) {
@@ -333,6 +392,9 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     SubModel *subModel = _subModels[subModelIndex];
     initLocalDescriptors(subModelIndex);
     updateLocalDescriptors(subModelIndex, subModel->getDescriptorSet());
+
+    initLocalSHDescriptors(subModelIndex);
+    updateLocalSHDescriptors(subModelIndex, subModel->getDescriptorSet());
 
     initWorldBoundDescriptors(subModelIndex);
     if (subModel->getWorldBoundDescriptorSet()) {
@@ -343,7 +405,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     updateInstancedAttributes(shader->getAttributes(), subModel);
 }
 
-void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel* subModel) {
+void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, subModel);
@@ -357,23 +419,42 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
 
 void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
     if (!_localBuffer) {
-        _localBuffer = _device->createBuffer({
+        _localBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                                              gfx::MemoryUsageBit::DEVICE,
+                                              pipeline::UBOLocal::SIZE,
+                                              pipeline::UBOLocal::SIZE,
+                                              gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
+    }
+}
+
+void Model::initLocalSHDescriptors(index_t /*subModelIndex*/) {
+#if !CC_EDITOR
+    if (!_useLightProbe) {
+        return;
+    }
+#endif
+
+    if (_localSHData.empty()) {
+        _localSHData.reset(pipeline::UBOSH::COUNT);
+    }
+
+    if (!_localSHBuffer) {
+        _localSHBuffer = _device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOLocal::SIZE,
-            pipeline::UBOLocal::SIZE,
-            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
+            pipeline::UBOSH::SIZE,
+            pipeline::UBOSH::SIZE,
+        });
     }
 }
 
 void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
     if (!_worldBoundBuffer) {
-        _worldBoundBuffer = _device->createBuffer({
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOLocal::SIZE,
-            pipeline::UBOLocal::SIZE,
-            gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
+        _worldBoundBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                                                   gfx::MemoryUsageBit::DEVICE,
+                                                   pipeline::UBOWorldBound::SIZE,
+                                                   pipeline::UBOWorldBound::SIZE,
+                                                   gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 
@@ -391,10 +472,24 @@ void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *de
     }
 }
 
+void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
+    if (isModelImplementedInJS()) {
+        if (!_isCalledFromJS) {
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_SH_DESCRIPTORS, subModelIndex, descriptorSet);
+            _isCalledFromJS = false;
+            return;
+        }
+    }
+
+    if (_localSHBuffer) {
+        descriptorSet->bindBuffer(pipeline::UBOSH::BINDING, _localSHBuffer);
+    }
+}
+
 void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS, subModelIndex, descriptorSet);
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS, subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }

@@ -221,7 +221,7 @@ exports.updatePropByDump = function(panel, dump) {
                 $prop.setAttribute('type', 'dump');
             }
 
-            const _displayOrder = info.group?.displayOrder || info.displayOrder;
+            const _displayOrder = info.group?.displayOrder ?? info.displayOrder;
             $prop.displayOrder = _displayOrder === undefined ? index : Number(_displayOrder);
 
             if (element && element.displayOrder !== undefined) {

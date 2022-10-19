@@ -31,11 +31,14 @@ import { Shadows, ShadowType, ShadowSize } from '../render-scene/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../render-scene/scene/skybox';
 import { Octree } from '../render-scene/scene/octree';
 import { Fog, FogType } from '../render-scene/scene/fog';
+import { LightProbesData, LightProbes } from '../gi/light-probe/light-probe';
 import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
+import { Tetrahedron, Vertex } from '../gi/light-probe/delaunay';
+import { LightProbeGroup } from '../gi/light-probe/light-probe-group';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1051,6 +1054,197 @@ export class OctreeInfo {
         this._resource.initialize(this);
     }
 }
+legacyCC.OctreeInfo = OctreeInfo;
+
+/**
+ * @en light probe configuration
+ * @zh 光照探针配置
+ */
+@ccclass('cc.LightProbeInfo')
+export class LightProbeInfo {
+    /**
+     * @en Whether activate light probe
+     * @zh 是否启用光照探针
+     */
+    @editable
+    @tooltip('i18n:light_probe.enabled')
+    set enabled (val: boolean) {
+        if (this._enabled === val) return;
+        this._enabled = val;
+        if (this._resource) {
+            this._resource.enabled = val;
+        }
+    }
+    get enabled (): boolean {
+        return this._enabled;
+    }
+
+    /**
+     * @en Reduce ringing of light probe
+     * @zh 减少光照探针的振铃效果
+     */
+    @editable
+    @range([0.0, 0.05, 0.001])
+    @slide
+    @type(CCFloat)
+    @tooltip('i18n:light_probe.reduceRinging')
+    set reduceRinging (val: number) {
+        if (this._reduceRinging === val) return;
+        this._reduceRinging = val;
+        if (this._resource) {
+            this._resource.reduceRinging = val;
+        }
+    }
+    get reduceRinging (): number {
+        return this._reduceRinging;
+    }
+
+    /**
+     * @en Whether to show light probe
+     * @zh 是否显示光照探针
+     */
+    @editable
+    @tooltip('i18n:light_probe.showProbe')
+    set showProbe (val: boolean) {
+        if (this._showProbe === val) return;
+        this._showProbe = val;
+        if (this._resource) {
+            this._resource.showProbe = val;
+        }
+    }
+    get showProbe (): boolean {
+        return this._showProbe;
+    }
+
+    /**
+     * @en Whether to show light probe's connection
+     * @zh 是否显示光照探针连线
+     */
+    @editable
+    @tooltip('i18n:light_probe.showWireframe')
+    set showWireframe (val: boolean) {
+        if (this._showWireframe === val) return;
+        this._showWireframe = val;
+        if (this._resource) {
+            this._resource.showWireframe = val;
+        }
+    }
+    get showWireframe (): boolean {
+        return this._showWireframe;
+    }
+
+    /**
+     * @en Whether to show light probe's convex
+     * @zh 是否显示光照探针凸包
+     */
+    @editable
+    @tooltip('i18n:light_probe.showConvex')
+    set showConvex (val: boolean) {
+        if (this._showConvex === val) return;
+        this._showConvex = val;
+        if (this._resource) {
+            this._resource.showConvex = val;
+        }
+    }
+    get showConvex (): boolean {
+        return this._showConvex;
+    }
+
+    /**
+     * @en light probe's vertex and tetrahedron data
+     * @zh 光照探针顶点及四面体数据
+     */
+    set data (val: LightProbesData | null) {
+        if (this._data === val) return;
+        this._data = val;
+        if (this._resource) {
+            this._resource.data = val;
+        }
+    }
+    get data (): LightProbesData | null {
+        return this._data;
+    }
+
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _reduceRinging = 0.0;
+    @serializable
+    protected _showProbe = true;
+    @serializable
+    protected _showWireframe = true;
+    @serializable
+    protected _showConvex = false;
+    @serializable
+    protected _data: LightProbesData | null = null;
+    @serializable
+    protected _lightProbeGroups: LightProbeGroup[] = [];
+
+    protected _resource: LightProbes | null = null;
+
+    public activate (resource: LightProbes) {
+        this._resource = resource;
+        this._resource.initialize(this);
+    }
+
+    public addGroup (group: LightProbeGroup): boolean {
+        if (!group) {
+            return false;
+        }
+
+        if (this._lightProbeGroups.includes(group)) {
+            return false;
+        }
+
+        this._lightProbeGroups.push(group);
+
+        return true;
+    }
+
+    public removeGroup (group: LightProbeGroup): boolean {
+        if (!group) {
+            return false;
+        }
+
+        const index = this._lightProbeGroups.findIndex((element) => element === group);
+        if (index === -1) {
+            return false;
+        }
+
+        this._lightProbeGroups.splice(index, 1);
+
+        return true;
+    }
+
+    public update () {
+        if (!this._data) {
+            this._data = new LightProbesData();
+            if (this._resource) {
+                this._resource.data = this._data;
+            }
+        }
+
+        const probes: Vec3[] = [];
+        for (let i = 0; i < this._lightProbeGroups.length; i++) {
+            const group = this._lightProbeGroups[i];
+            if (!group.node) {
+                continue;
+            }
+
+            const worldPosition = group.node.worldPosition;
+            const count = group.probes.length;
+
+            for (let j = 0; j < count; j++) {
+                const position = new Vec3(0, 0, 0);
+                Vec3.add(position, group.probes[j], worldPosition);
+                probes.push(position);
+            }
+        }
+
+        this._data.build(probes);
+    }
+}
+//legacyCC.LightProbeInfo = LightProbeInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -1107,6 +1301,14 @@ export class SceneGlobals {
     public octree = new OctreeInfo();
 
     /**
+     * @en Light probe related configuration
+     * @zh 光照探针相关配置
+     */
+    @editable
+    @serializable
+    public lightProbeInfo = new LightProbeInfo();
+
+    /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
      * @zh 启用和初始化场景全局配置，不需要手动调用
      */
@@ -1118,6 +1320,7 @@ export class SceneGlobals {
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
+        this.lightProbeInfo.activate(sceneData.lightProbes);
 
         const root = legacyCC.director.root as Root;
         root.onGlobalPipelineStateChanged();
