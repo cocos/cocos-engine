@@ -81,6 +81,8 @@ namespace cc { namespace gfx {
 
 %ignore FormatInfo;
 
+%ignore DefaultResource;
+
 }} // namespace cc { namespace gfx {
 
 // ----- Module Macro Section ------
