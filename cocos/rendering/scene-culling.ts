@@ -188,10 +188,11 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         for (const g of scene.lodGroups) {
             if (g.enabled) {
                 const visIndex = g.getVisibleLOD(camera);
+                g.disableInVisibleLOD(visIndex);
                 if (visIndex >= 0) {
                     const lod = g.LODs[visIndex];
                     for (const model of lod.models) {
-                        if (model !== null) {
+                        if (model !== null && model.node.active) {
                             enqueueRenderObject(model);
                         }
                     }

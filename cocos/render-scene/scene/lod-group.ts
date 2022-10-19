@@ -114,6 +114,19 @@ export class LODGroup {
         return lodIndex;
     }
 
+    disableInVisibleLOD (visibleLODIndex: number) {
+        for (let i = 0; i < this.lodCount; ++i) {
+            if (i !== visibleLODIndex) {
+                const lod = this.LODs[i];
+                lod.models.forEach((model) => {
+                    if (this.scene) {
+                        this.scene.removeModel(model);
+                    }
+                });
+            }
+        }
+    }
+
     /**
      *
      * @param camera current perspective camera

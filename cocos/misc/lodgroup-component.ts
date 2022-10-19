@@ -32,6 +32,7 @@ import { Camera, CameraProjection } from '../render-scene/scene';
 import { Mesh, MeshRenderer } from '../3d';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
+import { NodeEventType } from '../scene-graph/node-event';
 
 const _DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.2, 0.07];
 @ccclass('cc.LOD')
@@ -153,6 +154,8 @@ export class LODGroup extends Component {
 
     protected _lodGroup = new scene.LODGroup();
 
+    private _eventRegistered = false;
+
     constructor () {
         super();
         this._lodGroup.objectSize = this._objectSize;
@@ -217,7 +220,9 @@ export class LODGroup extends Component {
 
     onLoad () {
         this._lodGroup.node = this.node;
-
+        if (!this._eventRegistered) {
+            this.node.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._removeUnneededModel, this);
+        }
         // generate default lod for lodGroup
         if (this.lodCount < 1) {
             const size = _DEFAULT_SCREEN_OCCUPATION.length;
@@ -240,19 +245,6 @@ export class LODGroup extends Component {
         this._attachToScene();
         //   LODGroupEditorUtility.recalculateBounds(this);
 
-        // lod's model will be enabled while execute culling
-        for (const lod of this._LODs) {
-            for (const renderer of lod.renderers) {
-                if (!renderer) {
-                    continue;
-                }
-                const renderScene = renderer._getRenderScene();
-                if (renderScene && renderer.model) {
-                    renderScene.removeModel(renderer.model);
-                }
-            }
-        }
-
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
             this._LODs.forEach((lod: LOD, index) => {
@@ -274,16 +266,18 @@ export class LODGroup extends Component {
 
     onDisable () {
         this._detachFromScene();
-        if (EDITOR) {
-            for (const lod of this._LODs) {
-                for (const renderer of lod.renderers) {
-                    if (!renderer) {
-                        continue;
-                    }
-                    const renderScene = renderer._getRenderScene();
-                    if (renderScene && renderer.model) {
-                        renderScene.removeModel(renderer.model);
-                    }
+    }
+
+    // lod's model will be enabled while execute culling
+    private _removeUnneededModel () {
+        for (const lod of this._LODs) {
+            for (const renderer of lod.renderers) {
+                if (!renderer) {
+                    continue;
+                }
+                const renderScene = this.node.scene?.renderScene;
+                if (renderScene && renderer.model) {
+                    renderScene.removeModel(renderer.model);
                 }
             }
         }
