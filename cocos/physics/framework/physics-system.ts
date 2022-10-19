@@ -255,6 +255,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
     */
     public readonly raycastResults: PhysicsRayResult[] = [];
 
+    public curveRaycastResults: PhysicsRayResult[] = [];
+    public curveRaycastClosestResult = new PhysicsRayResult();
+
     /**
     * @en
     * Gets the collision matrix that used for initialization only.
@@ -476,6 +479,88 @@ export class PhysicsSystem extends System implements IWorldInitData {
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
+    }
+
+    /**
+    * @en
+    * Walks through the line segments, casting from one point to the next.
+    * @zh
+    * 遍历直线段，每个线段做射线检测，并记录所有检测结果。通过 PhysicsSystem.instance.curveRaycastResults 访问结果。
+    * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
+    * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+    * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+    *                    @en Maximum detection distance along the line segments, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+    * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+    * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+    */
+    approximatedCurveRaycast (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (samplePointsWorldSpace.length < 2) return false;
+        this.curveRaycastResults = [];
+        let distance = 0;
+        const ray = new Ray();
+        for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
+            if (distance > maxDistance) break;
+
+            const fromPoint = samplePointsWorldSpace[i - 1];
+            const toPoint = samplePointsWorldSpace[i];
+            const direction = new Vec3();
+            Vec3.subtract(direction, toPoint, fromPoint);
+            const stepLength = Vec3.len(direction);
+            distance += stepLength;
+            Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
+            ray.d = direction;
+            ray.o = fromPoint;
+            const hit = this.raycast(ray, mask, stepLength, queryTrigger);
+            if (hit) {
+                for (let re = 0; re < this.raycastResults.length; re++) {
+                    const hitPos = this.raycastResults[re].hitPoint;
+                    //if ray starts inside shape, hit point equals to start point, and this should be ignored
+                    if (re === 0 && Vec3.equals(fromPoint, hitPos)) { continue; }
+                    this.curveRaycastResults.push(this.raycastResults[re].clone());
+                }
+            }
+        }
+        return this.curveRaycastResults.length > 0;
+    }
+
+    /**
+     * @en
+     * Collision detect all collider, and record and ray test results with the shortest distance
+     * by PhysicsSystem.Instance.curveRaycastClosestResult access to the results.
+     * @zh
+     * 逐个直线段检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.curveRaycastClosestResult 访问结果。
+     * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                    @en Maximum detection distance along the line segments, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    approximatedCurveRaycastClosest (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (samplePointsWorldSpace.length < 2) return false;
+
+        let distance = 0;
+        const ray = new Ray();
+        let hit = false;
+        for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
+            if (distance > maxDistance) break;
+
+            const fromPoint = samplePointsWorldSpace[i - 1];
+            const toPoint = samplePointsWorldSpace[i];
+            const direction = new Vec3();
+            Vec3.subtract(direction, toPoint, fromPoint);
+            const stepLength = Vec3.len(direction);
+            distance += stepLength;
+            Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
+            ray.d = direction;
+            ray.o = fromPoint;
+            hit = this.raycastClosest(ray, mask, stepLength, queryTrigger);
+            if (hit) {
+                this.curveRaycastClosestResult = this.raycastClosestResult.clone();
+                break;
+            }
+        }
+        return hit;
     }
 
     private _updateMaterial () {
