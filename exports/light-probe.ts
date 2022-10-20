@@ -1,1 +1,1 @@
-export * from '../cocos/gi/light-probe';
+import * as gi from '../cocos/gi/light-probe';

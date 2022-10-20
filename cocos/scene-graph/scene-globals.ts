@@ -1244,7 +1244,7 @@ export class LightProbeInfo {
         this._data.build(probes);
     }
 }
-legacyCC.LightProbeInfo = LightProbeInfo;
+//legacyCC.LightProbeInfo = LightProbeInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene

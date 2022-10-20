@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2022-10-20T08:54:33.462Z"
+        "stamp": "2022-10-19T14:04:52.759Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -133,10 +133,6 @@
         "cc.Layout",
         "cc.LayoutComponent",
         "cc.LightComponent",
-        "cc.LightProbeGroup",
-        "cc.LightProbeInfo",
-        "cc.LightProbes",
-        "cc.LightProbesData",
         "cc.LineComponent",
         "cc.LoadingItems",
         "cc.Mask",
@@ -216,7 +212,6 @@
         "cc.SystemEvent",
         "cc.SystemEventType",
         "cc.TTFFont",
-        "cc.Tetrahedron",
         "cc.TextAsset",
         "cc.Texture2D",
         "cc.TextureBase",
@@ -236,7 +231,6 @@
         "cc.Vec2",
         "cc.Vec3",
         "cc.Vec4",
-        "cc.Vertex",
         "cc.ViewGroup",
         "cc.VisibilityFlags",
         "cc.WebGL2Device",

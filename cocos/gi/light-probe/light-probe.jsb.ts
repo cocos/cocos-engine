@@ -24,14 +24,11 @@
 */
 import { serializable } from 'cc.decorator';
 import { ccclass } from "../../core/data/class-decorator";
-import { legacyCC } from '../../core/global-exports';
 
 export const LightProbes = jsb.LightProbes;
-legacyCC.LightProbes = LightProbes;
 ccclass('cc.LightProbes')(LightProbes);
 
 export const LightProbesData = jsb.LightProbesData;
-legacyCC.LightProbesData = LightProbesData;
 const LightProbesDataProto = LightProbesData.prototype;
 serializable(LightProbesDataProto, '_probes');
 serializable(LightProbesDataProto, '_tetrahedrons');

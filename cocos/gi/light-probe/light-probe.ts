@@ -232,7 +232,6 @@ export class LightProbesData {
     @serializable
     private _tetrahedrons: Tetrahedron[] = [];
 }
-legacyCC.LightProbesData = LightProbesData;
 
 /**
  * @en light probe data
@@ -350,4 +349,3 @@ export class LightProbes {
         }
     }
 }
-legacyCC.LightProbes = LightProbes;
