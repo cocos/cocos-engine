@@ -33,6 +33,7 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 
 export * from './types';
 export * from './pipeline';
+export * from './archive';
 
 export function createCustomPipeline (): Pipeline {
     const ppl = render.Factory.createPipeline();

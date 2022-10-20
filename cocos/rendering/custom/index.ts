@@ -34,6 +34,8 @@ let _pipeline: WebPipeline | null = null;
 
 export * from './types';
 export * from './pipeline';
+export * from './archive';
+export * from './binary-archive';
 
 export function createCustomPipeline (): Pipeline {
     const ppl = new WebPipeline();
