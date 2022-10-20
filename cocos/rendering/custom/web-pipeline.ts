@@ -1003,6 +1003,9 @@ export class WebPipeline implements Pipeline {
             new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
         );
     }
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void {
+
+    }
     beginFrame () {
         // noop
     }
