@@ -28,8 +28,8 @@
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
 #include "WGPUUtils.h"
-#define USE_NATRIVE_SPIRV 0
-#if USE_NATRIVE_SPIRV
+#define USE_NATIVE_SPIRV 0
+#if USE_NATIVE_SPIRV
     #include "gfx-base/SPIRVUtils.h"
     #ifndef SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
         #define SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS
@@ -89,7 +89,7 @@ void CCWGPUShader::initialize(const ShaderInfo &info, const std::vector<std::vec
 }
 
 const std::string spirvProcess(const uint32_t *data, size_t size, const UniformSamplerTextureList &list) {
-#if USE_NATRIVE_SPIRV
+#if USE_NATIVE_SPIRV
     spirv_cross::CompilerMSL compiler(data, size);
     auto executionModel = compiler.get_execution_model();
 
@@ -141,7 +141,7 @@ const std::string spirvProcess(const uint32_t *data, size_t size, const UniformS
 }
 
 void CCWGPUShader::doInit(const ShaderInfo &info) {
-#if USE_NATRIVE_SPIRV
+#if USE_NATIVE_SPIRV
     _gpuShaderObject = ccnew CCWGPUShaderObject;
     if (!spirv) {
         spirv = SPIRVUtils::getInstance();

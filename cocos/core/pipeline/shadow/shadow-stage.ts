@@ -128,7 +128,7 @@ export class ShadowStage extends RenderStage {
             } else {
                 const screenSpaceSignY = device.capabilities.screenSpaceSignY;
                 this._renderArea.x = level % 2 * 0.5 * shadowMapSize.x;
-                if (screenSpaceSignY > 1.0) {
+                if (screenSpaceSignY > 0.0) {
                     this._renderArea.y = (1 - Math.floor(level / 2)) * 0.5 * shadowMapSize.y;
                 } else {
                     this._renderArea.y = Math.floor(level / 2) * 0.5 * shadowMapSize.y;

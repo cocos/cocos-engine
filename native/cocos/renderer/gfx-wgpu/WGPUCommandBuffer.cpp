@@ -135,11 +135,15 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     if (colorConfigs.empty()) {
         renderPassDesc.nextInChain = nullptr;
         renderPassDesc.label = "swapchain";
+        auto *targetTex = swapchain->gpuSwapchainObject()->swapchainColor;
+        auto loadOp = WGPULoadOp_Clear;
+        loadOp = _attachmentSet.find(targetTex) == _attachmentSet.end() ? loadOp : WGPULoadOp_Load;
+        needPartialClear = !renderingFullScreen;
         WGPURenderPassColorAttachment color = {
             .view = swapchain->gpuSwapchainObject()->swapchainColor->gpuTextureObject()->selfView,
-            .resolveTarget = nullptr,       // TODO_Zeqiang: wgpu offscr msaa
-            .loadOp = WGPULoadOp_Clear,     // toWGPULoadOp(colorConfigs[0].loadOp),
-            .storeOp = WGPUStoreOp_Discard, // toWGPUStoreOp(colorConfigs[0].storeOp),
+            .resolveTarget = nullptr, // TODO_Zeqiang: wgpu offscr msaa
+            .loadOp = loadOp,
+            .storeOp = toWGPUStoreOp(colorConfigs[0].storeOp),
             .clearValue = WGPUColor{0.2, 0.2, 0.2, 1.0},
         };
         colorAttachments.emplace_back(color);
@@ -151,6 +155,7 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
             WGPURenderPassColorAttachment *colorAttchments = ccnew WGPURenderPassColorAttachment[colorConfigs.size()];
             auto loadOp = toWGPULoadOp(colorConfigs[i].loadOp);
             if (!renderingFullScreen) {
+                needPartialClear = loadOp == WGPULoadOp_Clear;
                 loadOp = _attachmentSet.find(textures[i]) == _attachmentSet.end() ? loadOp : WGPULoadOp_Load;
             }
             WGPURenderPassColorAttachment color = {
@@ -202,8 +207,13 @@ void CCWGPUCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *f
     setScissor(renderArea);
 
     if (!renderingFullScreen && needPartialClear) {
-        for (size_t i = 0; i < textures.size(); ++i) {
-            clearRect(this, textures[i], renderArea.x, renderArea.y, renderArea.width, renderArea.height, colors[i]);
+        if (textures.size()) {
+            for (size_t i = 0; i < textures.size(); ++i) {
+                clearRect(this, textures[i], renderArea, colors[i]);
+            }
+        } else {
+            auto *swapchainTex = swapchain->gpuSwapchainObject()->swapchainColor;
+            clearRect(this, swapchainTex, renderArea, colors[0]);
         }
     }
 
