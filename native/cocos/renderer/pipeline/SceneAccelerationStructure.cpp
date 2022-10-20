@@ -1,5 +1,4 @@
 #include "SceneAccelerationStructure.h"
-
 #include "GlobalDescriptorSetManager.h"
 #include "3d/assets/Mesh.h"
 #include "gfx-base/GFXDevice.h"
@@ -87,18 +86,18 @@ namespace cc
             auto* device = gfx::Device::getInstance();
 
             for (const auto& pModel : scene->getModels()) {
+
                 if (!pModel->getNode()->isValid() || !pModel->getNode()->isActive() || pModel->getNode()->getName() == "Profiler_Root") {
                     continue;
                 }
 
-                const auto name = pModel->getNode()->getName();
-
                 const auto modelUuid = pModel->getNode()->getUuid();
-                auto modelIt = _modelMap.find(modelUuid);
 
+                auto modelIt = _modelMap.find(modelUuid);
                 if (modelIt != _modelMap.cend()) {
                     // set alive flag true
                     modelIt->second.first = true;
+
                     if (pModel->getTransform()->getChangedFlags()) {
                         // Instance transform changed, tlas should be updated.
                         auto lastUpdateTransfrom = &modelIt->second.second.transform;
@@ -106,27 +105,28 @@ namespace cc
                         similarTransform(lastUpdateTransfrom, currentTransfrom) ? needUpdate = true : needRebuild = true;
                         modelIt->second.second.transform = *currentTransfrom;
                     }
+
                 }else {
                     // New instance should be added to top-level acceleration structure.
                     // Tlas should be recreate and rebuild.
-                    needRecreate = true;
-                    needRebuild = true;
+                    needRecreate = needRebuild = true;
                     gfx::ASInstance tlasGeom{};
 
                     tlasGeom.instanceCustomIdx = 0;
-                    if (pModel->getNode()->getName() == "Cube-001") {
+                    const auto name = pModel->getNode()->getName();
+                    if (name == "Cube-001") {
                         tlasGeom.instanceCustomIdx = 1;
-                    } else if (pModel->getNode()->getName() == "Cube-002") {
+                    } else if (name == "Cube-002") {
                         tlasGeom.instanceCustomIdx = 2;
-                    } else if (pModel->getNode()->getName() == "Cube-003") {
+                    } else if (name == "Cube-003") {
                         tlasGeom.instanceCustomIdx = 3;
-                    } else if (pModel->getNode()->getName() == "Cube-004"){
+                    } else if (name == "Cube-004"){
                         tlasGeom.instanceCustomIdx = 4;
-                    } else if (pModel->getNode()->getName() == "stenford_dragon_high") {
+                    } else if (name == "stenford_dragon_high") {
                         tlasGeom.instanceCustomIdx = 5;
-                    } else if (pModel->getNode()->getName() == "Cube") {
+                    } else if (name == "Cube") {
                         tlasGeom.instanceCustomIdx = 6;
-                    } else if (pModel->getNode()->getName() == "wall3") {
+                    } else if (name == "wall3") {
                         tlasGeom.instanceCustomIdx = 7;
                     }
                     
@@ -135,14 +135,14 @@ namespace cc
                     tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
                     tlasGeom.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
 
-                    if (pModel->getNode()->getName() == "AABB") {
+                    if (name == "AABB") {
                         tlasGeom.flags = gfx::GeometryInstanceFlagBits::FORCE_OPAQUE;
                     }       
 
-                     const auto& subModels = pModel->getSubModels();
+                    const auto& subModels = pModel->getSubModels();
                     auto meshUuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
 
-                    if (pModel->getNode()->getName() == "AABB") {
+                    if (name == "AABB") {
                         meshUuid += 1024;
                     }
 
@@ -193,7 +193,7 @@ namespace cc
                 tlasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_UPDATE | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
                 tlasInfo.instances.reserve(_modelMap.size());
                 for (const auto& inst : _modelMap) {
-                    tlasInfo.instances.push_back(inst.second.second);
+                    tlasInfo.instances.emplace_back(inst.second.second);
                 }
                 if (needRecreate) {
                     _topLevelAccelerationStructure = device->createAccelerationStructure(tlasInfo);
