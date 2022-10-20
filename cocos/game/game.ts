@@ -523,7 +523,8 @@ export class Game extends EventTarget {
      * @en Called by the engine to pause the game and will not be automatically resumed.
      * @zh 提供给引擎调用暂停游戏接口，不会主动恢复。
      */
-    public pauseByEngine () {
+    private pauseByEngine () {
+        if (this._paused) { return; }
         this._pausedByEngine = true;
         this.pause();
     }
@@ -532,9 +533,11 @@ export class Game extends EventTarget {
      * @en Resume paused game by engine call.
      * @zh 提供给引擎调用恢复暂停游戏接口。
      */
-    public resumeByEngine () {
-        this.resume();
-        this._pausedByEngine = false;
+    private resumeByEngine () {
+        if (this._pausedByEngine) {
+            this.resume();
+            this._pausedByEngine = false;
+        }
     }
 
     /**
@@ -564,10 +567,6 @@ export class Game extends EventTarget {
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      */
     public resume () {
-        if (this._pausedByEngine) {
-            return;
-        }
-        this._pausedByEngine = false;
         if (!this._paused) { return; }
         // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
@@ -986,12 +985,12 @@ export class Game extends EventTarget {
 
     private _onHide () {
         this.emit(Game.EVENT_HIDE);
-        this.pause();
+        this.pauseByEngine();
     }
 
     private _onShow () {
         this.emit(Game.EVENT_SHOW);
-        this.resume();
+        this.resumeByEngine();
     }
 
     //  @ Persist root node section
