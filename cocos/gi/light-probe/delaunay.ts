@@ -24,6 +24,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { legacyCC } from '../../core/global-exports';
 import { Mat3 } from '../../core/math/mat3';
 import { EPSILON } from '../../core/math/utils';
 import { Vec3 } from '../../core/math/vec3';
@@ -42,6 +43,7 @@ export class Vertex {
         this.position.set(pos);
     }
 }
+legacyCC.Vertex = Vertex;
 
 class Edge {
     @serializable
@@ -192,6 +194,7 @@ export class Tetrahedron {
         return this.vertex3 < 0;    // -1 or -2
     }
 }
+legacyCC.Tetrahedron = Tetrahedron;
 
 export class Delaunay {
     private _probes: Vertex[] = [];

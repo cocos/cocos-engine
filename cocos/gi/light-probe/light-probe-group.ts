@@ -30,6 +30,7 @@ import { Component } from '../../scene-graph/component';
 import { CCInteger } from '../../core/data/utils/attribute';
 import { Vec3 } from '../../core/math';
 import { AutoPlacement, PlaceMethod } from './auto-placement';
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en The light probe group component.
@@ -208,3 +209,5 @@ export class LightProbeGroup extends Component {
         this.onProbeChanged();
     }
 }
+
+legacyCC.LightProbeGroup = LightProbeGroup;
