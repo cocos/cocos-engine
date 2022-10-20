@@ -28,13 +28,12 @@ namespace cc
                 return attr.name == gfx::ATTR_NAME_POSITION;
             });
 
-            blasGeomMesh.vertexFormat = posAttribute->format;
-
             if (posAttribute != attributes.cend()) {
                 const auto vertexBufferList = inputAssembler->getVertexBuffers();
                 auto* const posBuffer = vertexBufferList[posAttribute->stream];
                 blasGeomMesh.vertexBuffer = posBuffer;
                 blasGeomMesh.vertexStride = posBuffer->getStride();
+                blasGeomMesh.vertexFormat = posAttribute->format;
             }
         }
 
@@ -58,6 +57,19 @@ namespace cc
             }
             blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
         }
+
+        auto similarTransform = [](const Mat4* mat1, const Mat4* mat2) -> bool {
+            Vec3 vec1;
+            Vec3 vec2;
+            mat1->getScale(&vec1);
+            mat2->getScale(&vec2);
+            bool similarScale = (vec1 - vec2).lengthSquared() < 1;
+            mat1->getTranslation(&vec1);
+            mat2->getTranslation(&vec2);
+            bool similarTranslate = (vec1 - vec2).lengthSquared() < 1;
+            // Quaternion quat1;//Quaternion quat2;
+            return similarScale && similarTranslate;
+        };
 
         }
 
@@ -87,31 +99,11 @@ namespace cc
                 if (modelIt != _modelMap.cend()) {
                     // set alive flag true
                     modelIt->second.first = true;
-
                     if (pModel->getTransform()->getChangedFlags()) {
                         // Instance transform changed, tlas should be updated.
-
                         auto lastUpdateTransfrom = &modelIt->second.second.transform;
                         const auto* currentTransfrom = &pModel->getTransform()->getWorldMatrix();
-
-                        auto similarTransform = [](const Mat4* mat1, const Mat4* mat2) -> bool {
-                            Vec3 vec1;
-                            Vec3 vec2;
-                            mat1->getScale(&vec1);
-                            mat2->getScale(&vec2);
-                            bool similarScale = (vec1 - vec2).lengthSquared() < 1;
-                            mat1->getTranslation(&vec1);
-                            mat2->getTranslation(&vec2);
-                            bool similarTranslate = (vec1 - vec2).lengthSquared() < 1;
-                            //Quaternion quat1;//Quaternion quat2;
-                            return similarScale && similarTranslate;
-                        };
-
-                        if (similarTransform(lastUpdateTransfrom, currentTransfrom)) {
-                            needUpdate = true;
-                        } else {
-                            needRebuild = true;
-                        }
+                        similarTransform(lastUpdateTransfrom, currentTransfrom) ? needUpdate = true : needRebuild = true;
                         modelIt->second.second.transform = *currentTransfrom;
                     }
                 }else {
