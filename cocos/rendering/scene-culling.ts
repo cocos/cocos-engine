@@ -35,6 +35,9 @@ import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { warnID } from '../core/platform';
 import { MeshRenderer } from '../3d';
+import { array } from '../core/utils/js';
+import { LOD } from '../misc';
+import { scene } from '../render-scene';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -160,22 +163,32 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     // Enqueue models contained in LOD groups into renderObjects
     // eslint-disable-next-line no-lone-blocks
-    {
-        for (const g of scene.lodGroups) {
-            if (g.enabled) {
-                const visIndex = g.getVisibleLOD(camera);
-                g.disableInVisibleLOD(visIndex);
-                if (visIndex >= 0) {
-                    const lod = g.LODs[visIndex];
-                    for (const model of lod.models) {
-                        if (model !== null && model.node.active) {
-                            scene.removeModel(model);
-                            scene.addModel(model);
-                            // enqueueRenderObject(model);
-                        }
+    const lodInvisibleModels: Model[] = [];
+    const lodVisibleModels : Model[] = [];
+    for (const g of scene.lodGroups) {
+        if (g.enabled) {
+            const visIndex = g.getVisibleLOD(camera);
+            for (let index = 0; index < g.lodCount; index++) {
+                const lod = g.LODs[index];
+                for (const model of lod.models) {
+                    console.log('bf test visIndex=', visIndex, ' index=', index, model);
+                    if (visIndex === index && model && model.node.active) {
+                        lodVisibleModels.push(model);
+                    } else {
+                        lodInvisibleModels.push(model);
                     }
                 }
             }
+            // g.LODs.forEach((lod: scene.LOD, index) => {
+            //     for (const model of lod.models) {
+            //         if (visIndex === index && model && model.node.active) {
+            //             lodVisibleModels.push(model);
+            //         } else {
+            //             lodInvisibleModels.push(model);
+            //         }
+            //     }
+            // });
+            // g.disableInVisibleLOD(visIndex);
         }
     }
 
@@ -185,6 +198,9 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             if (model.castShadow) {
                 castShadowObjects.push(getRenderObject(model, camera));
                 csmLayerObjects.push(getRenderObject(model, camera));
+            }
+            if (lodInvisibleModels.indexOf(model) >= 0 && lodVisibleModels.indexOf(model) < 0) {
+                return;
             }
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)

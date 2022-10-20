@@ -221,7 +221,8 @@ export class LODGroup extends Component {
     onLoad () {
         this._lodGroup.node = this.node;
         if (!this._eventRegistered) {
-            this.node.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._removeUnneededModel, this);
+            // this.node.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._removeUnneededModel, this);
+            this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
         }
         // generate default lod for lodGroup
@@ -232,6 +233,12 @@ export class LODGroup extends Component {
                 lod.screenRelativeTransitionHeight = _DEFAULT_SCREEN_OCCUPATION[i];
                 this.insertLOD(i, lod);
             }
+        }
+    }
+
+    _onRemove (comp: Component) {
+        if (comp === this) {
+            this.onDisable();
         }
     }
 
@@ -267,7 +274,6 @@ export class LODGroup extends Component {
 
     onDisable () {
         this._detachFromScene();
-        LODGroupEditorUtility.setLODVisibility(this, -1);
     }
 
     // lod's model will be enabled while execute culling
