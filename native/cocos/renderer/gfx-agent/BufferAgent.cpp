@@ -44,7 +44,7 @@ BufferAgent::~BufferAgent() {
         actor, _actor,
         stagingBuffer, std::move(_stagingBuffer),
         {
-            actor->release();
+            CC_SAFE_RELEASE(actor);
         });
 }
 

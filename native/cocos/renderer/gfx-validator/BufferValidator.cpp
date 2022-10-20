@@ -49,7 +49,7 @@ BufferValidator::~BufferValidator() {
         view->onExpire();
     }
 
-    _actor->release();
+    CC_SAFE_RELEASE_NULL(_actor);
 
     uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
     // skip those that have never been updated
