@@ -51,14 +51,13 @@ inline const char* getName(const PersistentBufferTag& /*v*/) noexcept { return "
 inline const char* getName(const PersistentTextureTag& /*v*/) noexcept { return "PersistentTexture"; }
 inline const char* getName(const FramebufferTag& /*v*/) noexcept { return "Framebuffer"; }
 inline const char* getName(const SwapchainTag& /*v*/) noexcept { return "Swapchain"; }
+inline const char* getName(const SamplerTag& /*v*/) noexcept { return "Sampler"; }
 inline const char* getName(const ResourceGraph& /*v*/) noexcept { return "ResourceGraph"; }
 inline const char* getName(const RasterSubpass& /*v*/) noexcept { return "RasterSubpass"; }
 inline const char* getName(const SubpassGraph& /*v*/) noexcept { return "SubpassGraph"; }
 inline const char* getName(const RasterPass& /*v*/) noexcept { return "RasterPass"; }
 inline const char* getName(const ComputePass& /*v*/) noexcept { return "ComputePass"; }
-inline const char* getName(const CopyPair& /*v*/) noexcept { return "CopyPair"; }
 inline const char* getName(const CopyPass& /*v*/) noexcept { return "CopyPass"; }
-inline const char* getName(const MovePair& /*v*/) noexcept { return "MovePair"; }
 inline const char* getName(const MovePass& /*v*/) noexcept { return "MovePass"; }
 inline const char* getName(const RaytracePass& /*v*/) noexcept { return "RaytracePass"; }
 inline const char* getName(const QueueTag& /*v*/) noexcept { return "Queue"; }

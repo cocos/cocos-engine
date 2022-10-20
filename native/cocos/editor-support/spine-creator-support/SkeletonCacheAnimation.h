@@ -35,6 +35,12 @@
 #include "middleware-adapter.h"
 #include "spine/spine.h"
 
+namespace cc {
+class RenderEntity;
+class RenderDrawInfo;
+class Material;
+};
+
 namespace spine {
 
 class SkeletonCacheAnimation : public cc::RefCounted, public cc::middleware::IMiddleware {
@@ -44,7 +50,6 @@ public:
 
     void update(float dt) override;
     void render(float dt) override;
-    uint32_t getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 
@@ -95,12 +100,11 @@ public:
 		 * format |render info offset|attach info offset|
          */
     se_object_ptr getSharedBufferOffset() const;
-    /**
-         * @return js send to cpp parameters, it's a Uint32Array
-		 * format |render order|world matrix|
-         */
-    se_object_ptr getParamsBuffer() const;
 
+    cc::RenderDrawInfo *requestDrawInfo(int idx);
+    cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(cc::Material *material);
+    void setRenderEntity(cc::RenderEntity* entity);
 private:
     float _timeScale = 1;
     bool _paused = false;
@@ -122,6 +126,7 @@ private:
     bool _isAniComplete = true;
     std::string _animationName;
     bool _useTint = true;
+    bool _enableBatch = false;
 
     struct AniQueueData {
         std::string animationName;
@@ -132,7 +137,9 @@ private:
     AniQueueData *_headAnimation = nullptr;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
-    // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
-    cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
+    cc::RenderEntity *_entity = nullptr;
+    cc::Material *_material = nullptr;
+    ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
+    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
 };
 } // namespace spine

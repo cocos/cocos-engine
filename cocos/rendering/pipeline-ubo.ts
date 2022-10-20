@@ -514,7 +514,7 @@ export class PipelineUBO {
         globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         globalDS.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         globalDS.update();
-        globalDS.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
+        this._pipeline.commandBuffers[0].updateBuffer(globalDS.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
     public updateShadowUBORange (offset: number, data: Mat4 | Color) {

@@ -27,7 +27,7 @@ import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
 import { BlendState, DepthStencilState, RasterizerState,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager } from '../../gfx';
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo } from '../../gfx';
 import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
@@ -60,6 +60,7 @@ export declare namespace EffectAsset {
         propertyIndex?: number;
         switch?: string;
         properties?: Record<string, IPropertyInfo>;
+        shader?: IShaderInfo;
     }
     export interface ITechniqueInfo {
         passes: IPassInfo[];
@@ -135,6 +136,7 @@ export declare namespace EffectAsset {
     export interface IBuiltin {
         name: string;
         defines: string[];
+        binding?: number;
     }
     export interface IBuiltinInfo {
         buffers: IBuiltin[];

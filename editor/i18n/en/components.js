@@ -14,7 +14,6 @@ module.exports = {
             export_error: 'This resource does not support exports outside of the project.',
             export_tips: 'Export custom particle data to plist file.',
         },
-
         prefab_link: {
             brief_help:
                 'Since the new Prefab system is not yet complete, the prefab that has a large difference with prefab asset cannot be automatically migrated. ' +
@@ -28,6 +27,11 @@ module.exports = {
             confirm_message: 'Do you want to set layer for all child objects as well?',
             change_children: 'Yes, change children',
             change_self: 'No, this object only',
+        },
+        lightProbeGroup:{
+            generateTip: 'Regenerate probes in the scene',
+            generateWarnTip: 'Continuing to automatically generate a new probe will overwrite the existing probe, and all the data of the existing probe on this node will be lost. Do you want to continue?',
+            editTip: 'Toggle the probe editing mode in the scene',
         },
 
         missScriptTip: 'Script compilation fails, please check the error message and correct it, the component will be automatically restored after correction.',

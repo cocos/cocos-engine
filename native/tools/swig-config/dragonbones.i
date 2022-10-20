@@ -14,6 +14,8 @@
 
 // Insert code at the beginning of generated source file (.cpp)
 %{
+#include "bindings/auto/jsb_2d_auto.h"
+#include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_dragonbones_auto.h"
 %}
 
@@ -57,7 +59,6 @@
 %ignore dragonBones::CCFactory::destroyInstance;
 %ignore dragonBones::CCFactory::loadDragonBonesData;
 %ignore dragonBones::CCFactory::loadTextureAtlasData;
-%ignore dragonBones::CCFactory::getRenderOrder;
 
 %ignore dragonBones::BaseFactory::replaceDisplay;
 %ignore dragonBones::BaseFactory::getAllTextureAtlasData;
@@ -80,7 +81,6 @@
 %ignore dragonBones::Armature::getSlots;
 %ignore dragonBones::Armature::getDisplay;
 %ignore dragonBones::Armature::getTypeIndex;
-%ignore dragonBones::Armature::getRenderOrder;
 %ignore dragonBones::Armature::_dragonBones;
 %ignore dragonBones::Armature::_constraints;
 
@@ -314,7 +314,8 @@
 
 %ignore dragonBones::CCArmatureDisplay::render;
 %ignore dragonBones::CCArmatureDisplay::update;
-%ignore dragonBones::CCArmatureDisplay::getRenderOrder;
+%ignore dragonBones::CCArmatureDisplay::requestDrawInfo;
+%ignore dragonBones::CCArmatureDisplay::requestMaterial;
 
 %ignore dragonBones::RealTimeAttachUtil::syncAttachedNode;
 
@@ -322,7 +323,8 @@
 
 %ignore dragonBones::AttachUtilBase::releaseAttachedNode;
 
-%ignore dragonBones::CCArmatureCacheDisplay::getRenderOrder;
+%ignore dragonBones::CCArmatureCacheDisplay::requestDrawInfo;
+%ignore dragonBones::CCArmatureCacheDisplay::requestMaterial;
 
 %ignore dragonBones::ArmatureCache::SegmentData;
 %ignore dragonBones::ArmatureCache::BoneData;

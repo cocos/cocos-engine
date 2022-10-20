@@ -2223,6 +2223,58 @@ static bool js_cc_middleware_Texture2D_setTexParamCallback(se::State& s)
 }
 SE_BIND_FUNC(js_cc_middleware_Texture2D_setTexParamCallback) 
 
+static bool js_cc_middleware_Texture2D_setRealTexture(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::middleware::Texture2D *arg1 = (cc::middleware::Texture2D *) NULL ;
+    void *arg2 = (void *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Texture2D_setRealTexture,2,SWIGTYPE_p_void");
+    (arg1)->setRealTexture(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_middleware_Texture2D_setRealTexture) 
+
+static bool js_cc_middleware_Texture2D_getRealTexture(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::middleware::Texture2D *arg1 = (cc::middleware::Texture2D *) NULL ;
+    void *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (void *)((cc::middleware::Texture2D const *)arg1)->getRealTexture();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Texture2D_getRealTexture, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_middleware_Texture2D_getRealTexture) 
+
 bool js_register_cc_middleware_Texture2D(se::Object* obj) {
     auto* cls = se::Class::create("Texture2D", obj, nullptr, _SE(js_new_cc_middleware_Texture2D)); 
     
@@ -2234,6 +2286,8 @@ bool js_register_cc_middleware_Texture2D(se::Object* obj) {
     cls->defineFunction("setPixelsHigh", _SE(js_cc_middleware_Texture2D_setPixelsHigh)); 
     cls->defineFunction("setRealTextureIndex", _SE(js_cc_middleware_Texture2D_setRealTextureIndex)); 
     cls->defineFunction("setTexParamCallback", _SE(js_cc_middleware_Texture2D_setTexParamCallback)); 
+    cls->defineFunction("setRealTexture", _SE(js_cc_middleware_Texture2D_setRealTexture)); 
+    cls->defineFunction("getRealTexture", _SE(js_cc_middleware_Texture2D_getRealTexture)); 
     
     
     
@@ -2742,41 +2796,12 @@ static bool js_cc_middleware_IMiddleware_render(se::State& s)
 }
 SE_BIND_FUNC(js_cc_middleware_IMiddleware_render) 
 
-static bool js_cc_middleware_IMiddleware_getRenderOrder(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::middleware::IMiddleware *arg1 = (cc::middleware::IMiddleware *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::middleware::IMiddleware>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::middleware::IMiddleware const *)arg1)->getRenderOrder();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IMiddleware_getRenderOrder, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_middleware_IMiddleware_getRenderOrder) 
-
 bool js_register_cc_middleware_IMiddleware(se::Object* obj) {
     auto* cls = se::Class::create("IMiddleware", obj, nullptr, nullptr); 
     
     
     cls->defineFunction("update", _SE(js_cc_middleware_IMiddleware_update)); 
     cls->defineFunction("render", _SE(js_cc_middleware_IMiddleware_render)); 
-    cls->defineFunction("getRenderOrder", _SE(js_cc_middleware_IMiddleware_getRenderOrder)); 
     
     
     

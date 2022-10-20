@@ -25,7 +25,7 @@
 
 #pragma once
 #include <boost/container_hash/hash.hpp>
-#include <boost/utility/string_view.hpp>
+#include <string_view>
 
 // transparent hash
 // see https://stackoverflow.com/questions/20317413/what-are-transparent-comparators
@@ -35,7 +35,7 @@ namespace cc {
 template <class Char>
 struct TransparentStringHash {
     using is_transparent = void;
-    using string_view_type = boost::basic_string_view<Char>;
+    using string_view_type = std::basic_string_view<Char>;
 
     size_t operator()(string_view_type str) const noexcept {
         return boost::hash<string_view_type>{}(str);

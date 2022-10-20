@@ -40,6 +40,8 @@
 %ignore cc::middleware::SharedBufferManager::getBuffer;
 %ignore cc::middleware::SharedBufferManager::reset;
 %ignore cc::middleware::Texture2D::setTexParameters;
+%ignore cc::middleware::MeshBuffer::getUIMeshBuffer;
+%ignore cc::middleware::MeshBuffer::uiMeshBuffers;
 
 
 

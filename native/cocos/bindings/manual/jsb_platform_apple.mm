@@ -42,53 +42,6 @@ const ccstd::unordered_map<ccstd::string, ccstd::string> &getFontFamilyNameMap()
     return _fontFamilyNameMap;
 }
 
-static ccstd::vector<ccstd::string> getAvailableFontFamilyNames() {
-    ccstd::vector<ccstd::string> ret;
-
-#if CC_PLATFORM == CC_PLATFORM_MACOS
-    CFArrayRef allFamilyNames = CTFontManagerCopyAvailableFontFamilyNames();
-#else
-    CFArrayRef allFamilyNames = (CFArrayRef)[[NSClassFromString(@"UIFont") familyNames] retain];
-#endif
-
-    char buf[256] = {0};
-    for (CFIndex i = 0; i < CFArrayGetCount(allFamilyNames); i++) {
-        CFStringRef fontName = (CFStringRef)CFArrayGetValueAtIndex(allFamilyNames, i);
-        if (CFStringGetCString(fontName, buf, sizeof(buf), kCFStringEncodingUTF8) != 0) {
-            ret.push_back(buf);
-        }
-    }
-
-    CFRelease(allFamilyNames);
-    return ret;
-}
-
-static ccstd::string getFontFamilyByCompareAvailableFontFamilyNames(const ccstd::vector<ccstd::string> &before, const ccstd::vector<ccstd::string> &after) {
-    ccstd::string ret;
-    size_t beforeLen = before.size();
-    size_t afterLen = after.size();
-    if (afterLen > beforeLen) {
-        for (size_t i = 0; i < afterLen; ++i) {
-            bool hasFont = false;
-            for (size_t j = 0; j < beforeLen; ++j) {
-                if (after[i] == before[j]) {
-                    hasFont = true;
-                    break;
-                }
-            }
-
-            if (!hasFont) {
-                ret = after[i];
-                break;
-            }
-
-            if (ret.empty())
-                ret = after.back();
-        }
-    }
-    return ret;
-}
-
 static bool JSB_loadFont(se::State &s) {
     const auto &args = s.args();
     size_t argc = args.size();
@@ -123,14 +76,11 @@ static bool JSB_loadFont(se::State &s) {
             return true;
         }
 
-        NSURL *url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:fontFilePath.c_str()]];
-        NSData *dynamicFontData = [NSData dataWithContentsOfURL:url];
+        NSData *dynamicFontData = [NSData dataWithContentsOfFile:[NSString stringWithUTF8String:fontFilePath.c_str()]];
         if (!dynamicFontData) {
             SE_LOGE("load font (%s) failed!", source.c_str());
             return true;
         }
-
-        const auto &familyNamesBeforeRegister = getAvailableFontFamilyNames();
 
         bool succeed = true;
         CFErrorRef error;
@@ -145,12 +95,14 @@ static bool JSB_loadFont(se::State &s) {
         }
 
         if (succeed) {
-            const auto &familyNamesAfterRegister = getAvailableFontFamilyNames();
-            ccstd::string familyName = getFontFamilyByCompareAvailableFontFamilyNames(familyNamesBeforeRegister, familyNamesAfterRegister);
+            CFStringRef fontName = CGFontCopyFullName(font);
+            ccstd::string familyName([(NSString *)fontName UTF8String]);
+
             if (!familyName.empty()) {
                 _fontFamilyNameMap.emplace(originalFamilyName, familyName);
                 s.rval().setString(familyName);
             }
+            CFRelease(fontName);
         }
 
         CFRelease(font);

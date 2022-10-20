@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include "cocos/base/Ptr.h"
+#include "cocos/base/std/container/map.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
@@ -131,17 +132,19 @@ enum class TaskType {
 
 enum class SceneFlags : uint32_t {
     NONE = 0,
-    OPAQUE_OBJECT = 1,
-    CUTOUT_OBJECT = 2,
-    TRANSPARENT_OBJECT = 4,
-    SHADOW_CASTER = 8,
-    UI = 16,
-    DEFAULT_LIGHTING = 32,
-    VOLUMETRIC_LIGHTING = 64,
-    CLUSTERED_LIGHTING = 128,
-    PLANAR_SHADOW = 256,
-    GEOMETRY = 512,
-    PROFILER = 1024,
+    OPAQUE_OBJECT = 0x1,
+    CUTOUT_OBJECT = 0x2,
+    TRANSPARENT_OBJECT = 0x4,
+    SHADOW_CASTER = 0x8,
+    UI = 0x10,
+    DEFAULT_LIGHTING = 0x20,
+    VOLUMETRIC_LIGHTING = 0x40,
+    CLUSTERED_LIGHTING = 0x80,
+    PLANAR_SHADOW = 0x100,
+    GEOMETRY = 0x200,
+    PROFILER = 0x400,
+    DRAW_INSTANCING = 0x800,
+    DRAW_NON_INSTANCING = 0x1000,
     ALL = 0xFFFFFFFF,
 };
 
@@ -271,6 +274,115 @@ struct LightInfo {
 
     IntrusivePtr<scene::Light> light;
     uint32_t level{0};
+};
+
+enum class DescriptorTypeOrder {
+    UNIFORM_BUFFER,
+    DYNAMIC_UNIFORM_BUFFER,
+    SAMPLER_TEXTURE,
+    SAMPLER,
+    TEXTURE,
+    STORAGE_BUFFER,
+    DYNAMIC_STORAGE_BUFFER,
+    STORAGE_IMAGE,
+    INPUT_ATTACHMENT,
+};
+
+struct Descriptor {
+    Descriptor() = default;
+    Descriptor(gfx::Type typeIn) noexcept // NOLINT
+    : type(typeIn) {}
+
+    gfx::Type type{gfx::Type::UNKNOWN};
+    uint32_t count{1};
+};
+
+struct DescriptorBlock {
+    ccstd::map<ccstd::string, Descriptor> descriptors;
+    ccstd::map<ccstd::string, gfx::UniformBlock> uniformBlocks;
+    uint32_t capacity{0};
+    uint32_t count{0};
+};
+
+struct DescriptorBlockFlattened {
+    ccstd::vector<ccstd::string> descriptorNames;
+    ccstd::vector<ccstd::string> uniformBlockNames;
+    ccstd::vector<Descriptor> descriptors;
+    ccstd::vector<gfx::UniformBlock> uniformBlocks;
+    uint32_t capacity{0};
+    uint32_t count{0};
+};
+
+struct DescriptorBlockIndex {
+    DescriptorBlockIndex() = default;
+    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorTypeOrder descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
+    : updateFrequency(updateFrequencyIn),
+      parameterType(parameterTypeIn),
+      descriptorType(descriptorTypeIn),
+      visibility(visibilityIn) {}
+
+    UpdateFrequency updateFrequency{UpdateFrequency::PER_INSTANCE};
+    ParameterType parameterType{ParameterType::CONSTANTS};
+    DescriptorTypeOrder descriptorType{DescriptorTypeOrder::UNIFORM_BUFFER};
+    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
+};
+
+inline bool operator<(const DescriptorBlockIndex& lhs, const DescriptorBlockIndex& rhs) noexcept {
+    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.descriptorType, lhs.visibility) <
+           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.descriptorType, rhs.visibility);
+}
+
+struct CopyPair {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {source.get_allocator().resource()};
+    }
+
+    CopyPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    CopyPair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t sourceMostDetailedMipIn, uint32_t sourceFirstSliceIn, uint32_t sourcePlaneSliceIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    CopyPair(CopyPair&& rhs, const allocator_type& alloc);
+    CopyPair(CopyPair const& rhs, const allocator_type& alloc);
+
+    CopyPair(CopyPair&& rhs) noexcept = default;
+    CopyPair(CopyPair const& rhs) = delete;
+    CopyPair& operator=(CopyPair&& rhs) = default;
+    CopyPair& operator=(CopyPair const& rhs) = default;
+
+    ccstd::pmr::string source;
+    ccstd::pmr::string target;
+    uint32_t mipLevels{0xFFFFFFFF};
+    uint32_t numSlices{0xFFFFFFFF};
+    uint32_t sourceMostDetailedMip{0};
+    uint32_t sourceFirstSlice{0};
+    uint32_t sourcePlaneSlice{0};
+    uint32_t targetMostDetailedMip{0};
+    uint32_t targetFirstSlice{0};
+    uint32_t targetPlaneSlice{0};
+};
+
+struct MovePair {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {source.get_allocator().resource()};
+    }
+
+    MovePair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    MovePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    MovePair(MovePair&& rhs, const allocator_type& alloc);
+    MovePair(MovePair const& rhs, const allocator_type& alloc);
+
+    MovePair(MovePair&& rhs) noexcept = default;
+    MovePair(MovePair const& rhs) = delete;
+    MovePair& operator=(MovePair&& rhs) = default;
+    MovePair& operator=(MovePair const& rhs) = default;
+
+    ccstd::pmr::string source;
+    ccstd::pmr::string target;
+    uint32_t mipLevels{0xFFFFFFFF};
+    uint32_t numSlices{0xFFFFFFFF};
+    uint32_t targetMostDetailedMip{0};
+    uint32_t targetFirstSlice{0};
+    uint32_t targetPlaneSlice{0};
 };
 
 } // namespace render

@@ -24,7 +24,10 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
+#include "WGPUDef.h"
 #include "gfx-base/GFXTexture.h"
 
 namespace cc {
@@ -33,13 +36,12 @@ namespace gfx {
 struct CCWGPUTextureObject;
 class CCWGPUSwapchain;
 
-class CCWGPUTexture final : public emscripten::wrapper<Texture> {
+class CCWGPUTexture final : public Texture {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUTexture);
     CCWGPUTexture();
-    ~CCWGPUTexture() = default;
+    ~CCWGPUTexture();
 
-    inline CCWGPUTextureObject *gpuTextureObject() { return _gpuTextureObj; }
+    inline CCWGPUTextureObject *gpuTextureObject() const { return _gpuTextureObj; }
 
     static CCWGPUTexture *defaultCommonTexture();
 
@@ -52,6 +54,15 @@ public:
 
     // resource handler changed?
     inline bool internalChanged() const { return _internalChanged; }
+
+    inline uint32_t getDepth() const { return _info.depth; };
+    inline uint32_t getLayerCount() const { return _info.layerCount; };
+    inline uint32_t getLevelCount() const { return _info.levelCount; };
+    inline auto getTextureType() const { return _info.type; };
+    inline auto getTextureUsage() const { return _info.usage; };
+    inline auto getTextureFormat() const { return _info.format; };
+    inline auto getTextureSamples() const { return _info.samples; };
+    inline auto getTextureFlags() const { return _info.flags; };
 
 protected:
     void doInit(const TextureInfo &info) override;
