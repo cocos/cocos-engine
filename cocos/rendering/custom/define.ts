@@ -414,6 +414,9 @@ export function buildForwardPass (camera: Camera,
         }
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
+    if (!isOffScreen) {
+        ppl.updateRenderWindow(forwardPassRTName, camera.window);
+    }
     const forwardPass = ppl.addRasterPass(width, height, 'default', `CameraForwardPass${cameraID}`);
     forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
@@ -437,7 +440,7 @@ export function buildForwardPass (camera: Camera,
     const passDSView = new RasterView('_',
         AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
         isOffScreen ? LoadOp.CLEAR : getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
-        StoreOp.DISCARD,
+        StoreOp.STORE,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0, 0));
     forwardPass.addRasterView(forwardPassRTName, passView);

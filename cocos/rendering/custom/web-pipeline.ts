@@ -742,6 +742,13 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline implements Pipeline {
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void {
+        const resId = this.resourceGraph.vertex(name);
+        const currFbo = this.resourceGraph._vertices[resId]._object;
+        if (currFbo !== renderWindow.framebuffer) {
+            this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
+        }
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -1002,9 +1009,6 @@ export class WebPipeline implements Pipeline {
             new ResourceStates(),
             new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
         );
-    }
-    updateRenderWindow (name: string, renderWindow: RenderWindow): void {
-
     }
     beginFrame () {
         // noop
