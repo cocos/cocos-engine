@@ -24,7 +24,7 @@ ReflectionComp::~ReflectionComp() {
 
     CC_SAFE_DESTROY_AND_DELETE(_localDescriptorSetLayout);
 
-    CC_SAFE_DESTROY_AND_DELETE(_compConstantsBuffer);
+    CC_SAFE_DESTROY_AND_RELEASE_NULL(_compConstantsBuffer);
 }
 
 namespace {
