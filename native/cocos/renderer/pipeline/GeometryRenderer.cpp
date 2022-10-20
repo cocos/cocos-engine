@@ -115,7 +115,7 @@ private:
 
     inline void destroy() {
         _vertices.clear();
-        CC_SAFE_DESTROY_AND_DELETE(_buffer);
+        CC_SAFE_DESTROY_AND_RELEASE_NULL(_buffer);
         CC_SAFE_DESTROY_AND_DELETE(_inputAssembler);
         CC_PROFILE_MEMORY_DEC(GeometryVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(T)));
     }

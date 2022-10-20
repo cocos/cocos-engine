@@ -85,10 +85,10 @@ void RenderDrawInfo::resetMeshIA() {
 void RenderDrawInfo::destroy() {
     _nextFreeIAHandle = 0;
     if (_iaInfo) {
-        CC_SAFE_DELETE(_iaInfo->indexBuffer);
+        CC_SAFE_RELEASE_NULL(_iaInfo->indexBuffer);
         if (!_iaInfo->vertexBuffers.empty()) {
             // only one vb
-            CC_SAFE_DELETE(_iaInfo->vertexBuffers[0]);
+            CC_SAFE_RELEASE_NULL(_iaInfo->vertexBuffers[0]);
             _iaInfo->vertexBuffers.clear();
         }
         CC_SAFE_DELETE(_iaInfo);
@@ -104,7 +104,7 @@ void RenderDrawInfo::destroy() {
 
     if (_localDSBF) {
         CC_SAFE_DELETE(_localDSBF->ds);
-        CC_SAFE_DELETE(_localDSBF->uboBuf);
+        CC_SAFE_RELEASE_NULL(_localDSBF->uboBuf);
         CC_SAFE_DELETE(_localDSBF);
     }
 }
