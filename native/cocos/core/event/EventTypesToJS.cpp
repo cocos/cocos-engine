@@ -38,30 +38,32 @@ const CallbacksInvoker::KeyType EventTypesToJS::NODE_UI_TRANSFORM_DIRTY{107};   
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_ACTIVE_NODE{108};              //{"NODE_ACTIVE_NODE"};
 const CallbacksInvoker::KeyType EventTypesToJS::NODE_ON_BATCH_CREATED{109};         //{"NODE_ON_BATCH_CREATED"};
 
-const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_TRANSFORM{110};            //{"MODEL_UPDATE_TRANSFORM"};
-const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_UBO{111};                  //{"MODEL_UPDATE_UBO"};
-const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS{112};    //{"MODEL_UPDATE_LOCAL_DESCRIPTORS"};
-const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES{113}; //{"MODEL_UPDATE_INSTANCED_ATTRIBUTES"};
-const CallbacksInvoker::KeyType EventTypesToJS::MODEL_GET_MACRO_PATCHES{114};           //{"MODEL_GET_MACRO_PATCHES"};
+const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_TRANSFORM{110};               //{"MODEL_UPDATE_TRANSFORM"};
+const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_UBO{111};                     //{"MODEL_UPDATE_UBO"};
+const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS{112};       //{"MODEL_UPDATE_LOCAL_DESCRIPTORS"};
+const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_LOCAL_SH_DESCRIPTORS{113};    //{"MODEL_UPDATE_LOCAL_SH_DESCRIPTORS"};
+const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS{114}; //{"MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS"};
+const CallbacksInvoker::KeyType EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES{115};    //{"MODEL_UPDATE_INSTANCED_ATTRIBUTES"};
+const CallbacksInvoker::KeyType EventTypesToJS::MODEL_GET_MACRO_PATCHES{116};              //{"MODEL_GET_MACRO_PATCHES"};
 
-const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_COMMIT{115}; //{"MODEL_GET_MACRO_PATCHES"};
+const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_COMMIT{117}; //{"MODEL_GET_MACRO_PATCHES"};
 
-const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED{116};
-const CallbacksInvoker::KeyType EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED{117};
+const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED{118};
+const CallbacksInvoker::KeyType EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED{119};
 
-const CallbacksInvoker::KeyType EventTypesToJS::NODE_SCENE_UPDATED{118};
+const CallbacksInvoker::KeyType EventTypesToJS::NODE_SCENE_UPDATED{120};
 
-const CallbacksInvoker::KeyType EventTypesToJS::MATERIAL_PASSES_UPDATED{119};
+const CallbacksInvoker::KeyType EventTypesToJS::MATERIAL_PASSES_UPDATED{121};
 
-const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_POSITION_UPDATED{120};
-const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_ROTATION_UPDATED{121};
-const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_SCALE_UPDATED{122};
-const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCALE_UPDATED{123};
+const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_POSITION_UPDATED{122};
+const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_ROTATION_UPDATED{123};
+const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_SCALE_UPDATED{124};
+const CallbacksInvoker::KeyType EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCALE_UPDATED{125};
 
-const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE{124};
+const CallbacksInvoker::KeyType EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE{126};
 
-const CallbacksInvoker::KeyType EventTypesToJS::NODE_EDITOR_ATTACHED{125};
+const CallbacksInvoker::KeyType EventTypesToJS::NODE_EDITOR_ATTACHED{127};
 
-const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_RENDER{126};
+const CallbacksInvoker::KeyType EventTypesToJS::DIRECTOR_BEFORE_RENDER{128};
 
 } // namespace cc

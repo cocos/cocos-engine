@@ -16,6 +16,10 @@
   #endif
 #endif
 
+#if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
+#include <common/lighting/sh>
+#endif
+
 float GGXMobile (float roughness, float NoH, vec3 H, vec3 N) {
   vec3 NxH = cross(N, H);
   float OneMinusNoHSqr = dot(NxH, NxH);
@@ -147,7 +151,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
 
   #if CC_USE_IBL
-    #if CC_USE_DIFFUSEMAP
+    #if CC_USE_DIFFUSEMAP && (!CC_LIGHT_PROBE_ENABLED || !CC_USE_LIGHT_PROBE)
       // Diffuse reflection irradiance
       vec4 diffuseMap = texture(cc_diffuseMap, N);
       #if CC_USE_DIFFUSEMAP == IBL_RGBE
@@ -175,7 +179,12 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     finalColor += env * cc_ambientSky.w * specular * s.occlusion;
   #endif
 
+#if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
+  ambDiff = SHEvaluate(N);
+  finalColor += ambDiff.rgb * diffuse * s.occlusion;
+#else
   finalColor += ambDiff.rgb * cc_ambientSky.w * diffuse * s.occlusion;
+#endif
 
   finalColor += s.emissive;
 
