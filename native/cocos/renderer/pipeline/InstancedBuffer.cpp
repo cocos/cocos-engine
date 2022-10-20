@@ -43,7 +43,7 @@ InstancedBuffer::~InstancedBuffer() = default;
 
 void InstancedBuffer::destroy() {
     for (auto &instance : _instances) {
-        CC_SAFE_DESTROY_AND_DELETE(instance.vb);
+        CC_SAFE_DESTROY_AND_RELEASE_NULL(instance.vb);
         CC_SAFE_DESTROY_AND_DELETE(instance.ia);
         CC_FREE(instance.data);
     }

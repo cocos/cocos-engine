@@ -49,7 +49,7 @@ BufferValidator::~BufferValidator() {
         view->onExpire();
     }
 
-    CC_SAFE_DELETE(_actor);
+    CC_SAFE_RELEASE_NULL(_actor);
 
     uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
     // skip those that have never been updated
@@ -204,7 +204,6 @@ void BufferValidator::flush(const uint8_t *buffer) {
 uint8_t *BufferValidator::getStagingAddress() const {
     return Buffer::getBufferStagingAddress(_actor);
 }
-
 
 } // namespace gfx
 } // namespace cc

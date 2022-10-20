@@ -118,14 +118,14 @@ void RenderPipeline::onGlobalPipelineStateChanged() {
 }
 
 void RenderPipeline::destroyQuadInputAssembler() {
-    CC_SAFE_DESTROY_AND_DELETE(_quadIB);
+    CC_SAFE_DESTROY_AND_RELEASE_NULL(_quadIB);
 
     for (auto *node : _quadVB) {
-        CC_SAFE_DESTROY_AND_DELETE(node);
+        CC_SAFE_DESTROY_AND_RELEASE(node);
     }
 
     for (auto node : _quadIA) {
-        CC_SAFE_DESTROY_AND_DELETE(node.second);
+        CC_SAFE_DESTROY_AND_RELEASE(node.second);
     }
     _quadVB.clear();
     _quadIA.clear();
