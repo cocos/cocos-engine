@@ -97,17 +97,23 @@ public:
     static Vec3 colorTemperatureToRGB(float kelvin);
 
 protected:
-    uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
     bool _useColorTemperature{false};
     bool _baked{false};
-    IntrusivePtr<Node> _node;
-    float _colorTemp{6550.F};
+
     LightType _type{LightType::UNKNOWN};
-    ccstd::string _name;
+
+    uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
+
+    IntrusivePtr<Node> _node;
     RenderScene *_scene{nullptr};
+
+    float _colorTemp{6550.F};
+
     Vec3 _color{1, 1, 1};
     Vec3 _colorTemperatureRGB;
     Vec3 _forward{0, 0, -1};
+
+    ccstd::string _name;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(Light);

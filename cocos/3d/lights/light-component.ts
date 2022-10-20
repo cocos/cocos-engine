@@ -241,7 +241,7 @@ export class Light extends Component {
      * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
      * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
      */
-    @tooltip('i18n:light.visibility')
+    @tooltip('i18n:camera.visibility')
     @displayOrder(255)
     @type(Layers.BitMask)
     set visibility (vis: number) {
