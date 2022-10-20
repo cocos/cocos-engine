@@ -103,6 +103,9 @@ protected:
     RenderPass *_renderPass = nullptr;
     Framebuffer *_frameBuffer = nullptr;
 
+    // first meet?
+    std::set<void *> _attachmentSet;
+
     // command buffer inner impl
     // std::queue<EncodeFunc> _renderPassFuncQ;
     // std::queue<EncodeFunc> _computeFuncQ;
