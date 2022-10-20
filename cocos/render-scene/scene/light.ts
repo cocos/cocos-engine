@@ -134,6 +134,7 @@ export class Light {
     /**
      * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
      * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
+     * @engineInternal
      */
     set visibility (vis: number) {
         this._visibility = vis;
