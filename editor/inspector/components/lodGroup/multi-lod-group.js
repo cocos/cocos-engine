@@ -129,11 +129,6 @@ exports.methods = {
         return null;
     },
     handleMultiScreenSize(index) {
-        const that = this;
         return `LOD ${index} Transition (% Screen Size)`;
     },
-};
-
-exports.mounted = function() {
-    const that = this;
 };

@@ -112,7 +112,7 @@ exports.methods = {
     },
     updateLODs(operator) {
         const that = this;
-        // emit 方法建议全部小写，驼峰式的话可能会被自动转化为小写导致匹配不到
+        // emit method is recommended to all lowercase, camel case may be automatically converted to lowercase resulting in failure to match
         that.$emit('update-lods', operator, that.index);
     },
     applyCameraSize() {
@@ -123,8 +123,4 @@ exports.methods = {
         const that = this;
         return `${ that.data.value.triangles.value[meshIndex] ? that.data.value.triangles.value[meshIndex].value : 0 } Triangles`;
     },
-};
-
-exports.mounted = function() {
-    const that = this;
 };
