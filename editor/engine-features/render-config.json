@@ -192,7 +192,8 @@
             "description": "i18n:ENGINE.features.websocket.description",
             "native": "USE_SOCKET",
             "wechatPlugin": false,
-            "category": "network"
+            "category": "network",
+            "nativeOnly": true
         },
         "websocket-server": {
             "default": [],
@@ -200,7 +201,8 @@
             "description": "i18n:ENGINE.features.websocket_server.description",
             "native": "USE_WEBSOCKET_SERVER",
             "wechatPlugin": false,
-            "category": "network"
+            "category": "network",
+            "nativeOnly": true
         },
         "terrain": {
             "default": ["terrain"],
