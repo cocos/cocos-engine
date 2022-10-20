@@ -238,6 +238,10 @@ using namespace cc;
 #define cc_Node__persistNode_set(self_, val_) self_->setPersistNode(val_)
   
 
+#define cc_Node__mobility_get(self_) self_->getMobility()
+#define cc_Node__mobility_set(self_, val_) self_->setMobility(val_)
+  
+
 #define cc_scene_Ambient_skyColor_get(self_) self_->getSkyColor()
 #define cc_scene_Ambient_skyColor_set(self_, val_) self_->setSkyColor(val_)
   
@@ -765,6 +769,10 @@ using namespace cc;
 
 #define cc_scene_Model_priority_get(self_) self_->getPriority()
 #define cc_scene_Model_priority_set(self_, val_) self_->setPriority(val_)
+  
+
+#define cc_scene_Model_useLightProbe_get(self_) self_->getUseLightProbe()
+#define cc_scene_Model_useLightProbe_set(self_, val_) self_->setUseLightProbe(val_)
   
 
 #define cc_scene_SubModel_passes_get(self_) self_->getPasses()
@@ -3999,6 +4007,46 @@ static bool js_cc_Node__persistNode_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_Node__persistNode_get) 
 
+static bool js_cc_Node__mobility_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Node *arg1 = (cc::Node *) NULL ;
+    cc::MobilityMode arg2 ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "Node__mobility_set,2,SWIGTYPE_cc__MobilityMode");
+    arg2 = (cc::MobilityMode)temp2;
+    cc_Node__mobility_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_Node__mobility_set) 
+
+static bool js_cc_Node__mobility_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::Node *arg1 = (cc::Node *) NULL ;
+    cc::MobilityMode result;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::MobilityMode)cc_Node__mobility_get(arg1);
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(result));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_Node__mobility_get) 
+
 bool js_register_cc_Node(se::Object* obj) {
     auto* cls = se::Class::create("Node", obj, __jsb_cc_CCObject_proto, _SE(js_new_Node)); 
     
@@ -4010,6 +4058,7 @@ bool js_register_cc_Node(se::Object* obj) {
     cls->defineProperty("matrix", nullptr, _SE(js_cc_Node_matrix_set)); 
     cls->defineProperty("hasChangedFlags", _SE(js_cc_Node_hasChangedFlags_get), _SE(js_cc_Node_hasChangedFlags_set)); 
     cls->defineProperty("_persistNode", _SE(js_cc_Node__persistNode_get), _SE(js_cc_Node__persistNode_set)); 
+    cls->defineProperty("_mobility", _SE(js_cc_Node__mobility_get), _SE(js_cc_Node__mobility_set)); 
     
     cls->defineFunction("onPostActivated", _SE(js_cc_Node_onPostActivated)); 
     cls->defineFunction("setParent", _SE(js_cc_Node_setParent)); 
@@ -4603,6 +4652,33 @@ static bool js_cc_SceneGlobals_getOctreeInfo(se::State& s)
 }
 SE_BIND_FUNC(js_cc_SceneGlobals_getOctreeInfo) 
 
+static bool js_cc_SceneGlobals_getLightProbeInfo(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SceneGlobals *arg1 = (cc::SceneGlobals *) NULL ;
+    cc::gi::LightProbeInfo *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::SceneGlobals>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::gi::LightProbeInfo *)((cc::SceneGlobals const *)arg1)->getLightProbeInfo();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "SceneGlobals_getLightProbeInfo, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_SceneGlobals_getLightProbeInfo) 
+
 static bool js_cc_SceneGlobals_setAmbientInfo(se::State& s)
 {
     // js_function
@@ -4733,6 +4809,32 @@ static bool js_cc_SceneGlobals_setOctreeInfo(se::State& s)
 }
 SE_BIND_FUNC(js_cc_SceneGlobals_setOctreeInfo) 
 
+static bool js_cc_SceneGlobals_setLightProbeInfo(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SceneGlobals *arg1 = (cc::SceneGlobals *) NULL ;
+    cc::gi::LightProbeInfo *arg2 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::SceneGlobals>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SceneGlobals_setLightProbeInfo,2,SWIGTYPE_p_cc__gi__LightProbeInfo"); 
+    (arg1)->setLightProbeInfo(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_SceneGlobals_setLightProbeInfo) 
+
 bool js_register_cc_SceneGlobals(se::Object* obj) {
     auto* cls = se::Class::create("SceneGlobals", obj, nullptr, _SE(js_new_cc_SceneGlobals)); 
     
@@ -4743,11 +4845,13 @@ bool js_register_cc_SceneGlobals(se::Object* obj) {
     cls->defineFunction("getSkyboxInfo", _SE(js_cc_SceneGlobals_getSkyboxInfo)); 
     cls->defineFunction("getFogInfo", _SE(js_cc_SceneGlobals_getFogInfo)); 
     cls->defineFunction("getOctreeInfo", _SE(js_cc_SceneGlobals_getOctreeInfo)); 
+    cls->defineFunction("getLightProbeInfo", _SE(js_cc_SceneGlobals_getLightProbeInfo)); 
     cls->defineFunction("setAmbientInfo", _SE(js_cc_SceneGlobals_setAmbientInfo)); 
     cls->defineFunction("setShadowsInfo", _SE(js_cc_SceneGlobals_setShadowsInfo)); 
     cls->defineFunction("setSkyboxInfo", _SE(js_cc_SceneGlobals_setSkyboxInfo)); 
     cls->defineFunction("setFogInfo", _SE(js_cc_SceneGlobals_setFogInfo)); 
     cls->defineFunction("setOctreeInfo", _SE(js_cc_SceneGlobals_setOctreeInfo)); 
+    cls->defineFunction("setLightProbeInfo", _SE(js_cc_SceneGlobals_setLightProbeInfo)); 
     
     
     
@@ -13196,6 +13300,38 @@ static bool js_cc_scene_Model__updateLocalDescriptors(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model__updateLocalDescriptors) 
 
+static bool js_cc_scene_Model__updateLocalSHDescriptors(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    index_t arg2 ;
+    cc::gfx::DescriptorSet *arg3 = (cc::gfx::DescriptorSet *) NULL ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model__updateLocalSHDescriptors,2,SWIGTYPE_int32_t"); 
+    
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model__updateLocalSHDescriptors,3,SWIGTYPE_p_cc__gfx__DescriptorSet"); 
+    (arg1)->updateLocalSHDescriptors(arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model__updateLocalSHDescriptors) 
+
 static bool js_cc_scene_Model_updateWorldBoundDescriptors(se::State& s)
 {
     // js_function
@@ -13346,6 +13482,34 @@ static bool js_cc_scene_Model__initLocalDescriptors(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_Model__initLocalDescriptors) 
+
+static bool js_cc_scene_Model__initLocalSHDescriptors(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    index_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model__initLocalSHDescriptors,2,SWIGTYPE_int32_t"); 
+    
+    (arg1)->initLocalSHDescriptors(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model__initLocalSHDescriptors) 
 
 static bool js_cc_scene_Model_initWorldBoundDescriptors(se::State& s)
 {
@@ -13629,6 +13793,28 @@ static bool js_cc_scene_Model_updateLightingmap(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_updateLightingmap) 
 
+static bool js_cc_scene_Model_updateSHUBOs(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->updateSHUBOs();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_updateSHUBOs) 
+
 static bool js_cc_scene_Model_updateWorldBoundUBOs(se::State& s)
 {
     // js_function
@@ -13721,6 +13907,32 @@ static bool js_cc_scene_Model_detachFromScene(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_detachFromScene) 
 
+static bool js_cc_scene_Model_setLocalSHBuffer(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::gfx::Buffer *arg2 = (cc::gfx::Buffer *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_setLocalSHBuffer,2,SWIGTYPE_p_cc__gfx__Buffer"); 
+    (arg1)->setLocalSHBuffer(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_setLocalSHBuffer) 
+
 static bool js_cc_scene_Model_setBounds(se::State& s)
 {
     // js_function
@@ -13746,6 +13958,143 @@ static bool js_cc_scene_Model_setBounds(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_Model_setBounds) 
+
+static bool js_cc_scene_Model_getTetrahedronIndex(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    int32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::scene::Model const *)arg1)->getTetrahedronIndex();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Model_getTetrahedronIndex, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_getTetrahedronIndex) 
+
+static bool js_cc_scene_Model_setTetrahedronIndex(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    int32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_setTetrahedronIndex,2,SWIGTYPE_int32_t"); 
+    
+    (arg1)->setTetrahedronIndex(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_setTetrahedronIndex) 
+
+static bool js_cc_scene_Model_showTetrahedron(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)((cc::scene::Model const *)arg1)->showTetrahedron();
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_showTetrahedron) 
+
+static bool js_cc_scene_Model_getLocalSHBuffer(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::gfx::Buffer *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::gfx::Buffer *)((cc::scene::Model const *)arg1)->getLocalSHBuffer();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Model_getLocalSHBuffer, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_getLocalSHBuffer) 
+
+static bool js_cc_scene_Model_getLocalSHData(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::Float32Array result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::scene::Model const *)arg1)->getLocalSHData();
+    
+    // %typemap(out) cc::Float32Array
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Model_getLocalSHData, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_getLocalSHData) 
 
 static bool js_cc_scene_Model_setCalledFromJS(se::State& s)
 {
@@ -14607,6 +14956,43 @@ static bool js_cc_scene_Model_priority_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Model_priority_get) 
 
+static bool js_cc_scene_Model_useLightProbe_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Model_useLightProbe_set,2,SWIGTYPE_bool"); 
+    cc_scene_Model_useLightProbe_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_useLightProbe_set) 
+
+static bool js_cc_scene_Model_useLightProbe_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)cc_scene_Model_useLightProbe_get(arg1);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_useLightProbe_get) 
+
 bool js_register_cc_scene_Model(se::Object* obj) {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_new_cc_scene_Model)); 
     
@@ -14633,6 +15019,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_scene_Model_type_get), _SE(js_cc_scene_Model_type_set)); 
     cls->defineProperty("isDynamicBatching", _SE(js_cc_scene_Model_isDynamicBatching_get), _SE(js_cc_scene_Model_isDynamicBatching_set)); 
     cls->defineProperty("priority", _SE(js_cc_scene_Model_priority_get), _SE(js_cc_scene_Model_priority_set)); 
+    cls->defineProperty("useLightProbe", _SE(js_cc_scene_Model_useLightProbe_get), _SE(js_cc_scene_Model_useLightProbe_set)); 
     
     cls->defineFunction("destroy", _SE(js_cc_scene_Model_destroy)); 
     cls->defineFunction("initSubModel", _SE(js_cc_scene_Model_initSubModel)); 
@@ -14642,11 +15029,13 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateTransform", _SE(js_cc_scene_Model_updateTransform)); 
     cls->defineFunction("updateUBOs", _SE(js_cc_scene_Model_updateUBOs)); 
     cls->defineFunction("_updateLocalDescriptors", _SE(js_cc_scene_Model__updateLocalDescriptors)); 
+    cls->defineFunction("_updateLocalSHDescriptors", _SE(js_cc_scene_Model__updateLocalSHDescriptors)); 
     cls->defineFunction("updateWorldBoundDescriptors", _SE(js_cc_scene_Model_updateWorldBoundDescriptors)); 
     cls->defineFunction("createBoundingShape", _SE(js_cc_scene_Model_createBoundingShape)); 
     cls->defineFunction("initialize", _SE(js_cc_scene_Model_initialize)); 
     cls->defineFunction("initLightingmap", _SE(js_cc_scene_Model_initLightingmap)); 
     cls->defineFunction("_initLocalDescriptors", _SE(js_cc_scene_Model__initLocalDescriptors)); 
+    cls->defineFunction("_initLocalSHDescriptors", _SE(js_cc_scene_Model__initLocalSHDescriptors)); 
     cls->defineFunction("initWorldBoundDescriptors", _SE(js_cc_scene_Model_initWorldBoundDescriptors)); 
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_cc_scene_Model_onGlobalPipelineStateChanged)); 
     cls->defineFunction("onMacroPatchesStateChanged", _SE(js_cc_scene_Model_onMacroPatchesStateChanged)); 
@@ -14657,11 +15046,18 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateWorldBoundsForJSSkinningModel", _SE(js_cc_scene_Model_updateWorldBoundsForJSSkinningModel)); 
     cls->defineFunction("updateWorldBoundsForJSBakedSkinningModel", _SE(js_cc_scene_Model_updateWorldBoundsForJSBakedSkinningModel)); 
     cls->defineFunction("updateLightingmap", _SE(js_cc_scene_Model_updateLightingmap)); 
+    cls->defineFunction("updateSHUBOs", _SE(js_cc_scene_Model_updateSHUBOs)); 
     cls->defineFunction("updateWorldBoundUBOs", _SE(js_cc_scene_Model_updateWorldBoundUBOs)); 
     cls->defineFunction("updateLocalShadowBias", _SE(js_cc_scene_Model_updateLocalShadowBias)); 
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Model_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Model_detachFromScene)); 
+    cls->defineFunction("setLocalSHBuffer", _SE(js_cc_scene_Model_setLocalSHBuffer)); 
     cls->defineFunction("setBounds", _SE(js_cc_scene_Model_setBounds)); 
+    cls->defineFunction("getTetrahedronIndex", _SE(js_cc_scene_Model_getTetrahedronIndex)); 
+    cls->defineFunction("setTetrahedronIndex", _SE(js_cc_scene_Model_setTetrahedronIndex)); 
+    cls->defineFunction("showTetrahedron", _SE(js_cc_scene_Model_showTetrahedron)); 
+    cls->defineFunction("getLocalSHBuffer", _SE(js_cc_scene_Model_getLocalSHBuffer)); 
+    cls->defineFunction("getLocalSHData", _SE(js_cc_scene_Model_getLocalSHData)); 
     cls->defineFunction("setCalledFromJS", _SE(js_cc_scene_Model_setCalledFromJS)); 
     cls->defineFunction("isModelImplementedInJS", _SE(js_cc_scene_Model_isModelImplementedInJS)); 
     

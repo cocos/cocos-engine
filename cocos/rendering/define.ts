@@ -133,6 +133,7 @@ export enum ModelLocalBindings {
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
     UBO_UI_LOCAL,
+    UBO_SH,
 
     SAMPLER_JOINTS,
     SAMPLER_MORPH_POSITION,
@@ -566,6 +567,37 @@ export class UBOUILocal { // pre one vec4
 }
 localDescriptorSetLayout.layouts[UBOUILocal.NAME] = UBOUILocal.LAYOUT;
 localDescriptorSetLayout.bindings[UBOUILocal.BINDING] = UBOUILocal.DESCRIPTOR;
+
+/**
+ * @en The SH uniform buffer object
+ * @zh 球谐 UBO。
+ */
+export class UBOSH {
+    public static readonly SH_LINEAR_CONST_R_OFFSET = 0;
+    public static readonly SH_LINEAR_CONST_G_OFFSET = UBOSH.SH_LINEAR_CONST_R_OFFSET + 4;
+    public static readonly SH_LINEAR_CONST_B_OFFSET = UBOSH.SH_LINEAR_CONST_G_OFFSET + 4;
+    public static readonly SH_QUADRATIC_R_OFFSET = UBOSH.SH_LINEAR_CONST_B_OFFSET + 4;
+    public static readonly SH_QUADRATIC_G_OFFSET = UBOSH.SH_QUADRATIC_R_OFFSET + 4;
+    public static readonly SH_QUADRATIC_B_OFFSET = UBOSH.SH_QUADRATIC_G_OFFSET + 4;
+    public static readonly SH_QUADRATIC_A_OFFSET = UBOSH.SH_QUADRATIC_B_OFFSET + 4;
+    public static readonly COUNT = UBOSH.SH_QUADRATIC_A_OFFSET + 4;
+    public static readonly SIZE = UBOSH.COUNT * 4;
+
+    public static readonly NAME = 'CCSH';
+    public static readonly BINDING = ModelLocalBindings.UBO_SH;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSH.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.FRAGMENT);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSH.BINDING, UBOSH.NAME, [
+        new Uniform('cc_sh_linear_const_r', Type.FLOAT4, 1),
+        new Uniform('cc_sh_linear_const_g', Type.FLOAT4, 1),
+        new Uniform('cc_sh_linear_const_b', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_r', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_g', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_b', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_a', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOSH.NAME] = UBOSH.LAYOUT;
+localDescriptorSetLayout.bindings[UBOSH.BINDING] = UBOSH.DESCRIPTOR;
 
 /**
  * @en The sampler for joint texture

@@ -739,6 +739,35 @@ static bool js_cc_network_Downloader_setOnTaskProgress(se::State& s)
 }
 SE_BIND_FUNC(js_cc_network_Downloader_setOnTaskProgress) 
 
+static bool js_cc_network_Downloader_abort(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::network::Downloader *arg1 = (cc::network::Downloader *) NULL ;
+    std::shared_ptr< cc::network::DownloadTask const > *arg2 = 0 ;
+    std::shared_ptr< cc::network::DownloadTask const > temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::network::Downloader>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Downloader_abort,2,SWIGTYPE_p_std__shared_ptrT_cc__network__DownloadTask_const_t");
+    arg2 = &temp2;
+    
+    (arg1)->abort((std::shared_ptr< cc::network::DownloadTask const > const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_network_Downloader_abort) 
+
 static bool js_cc_network_Downloader_onProgress_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -772,6 +801,7 @@ bool js_register_cc_network_Downloader(se::Object* obj) {
     cls->defineProperty("onProgress", nullptr, _SE(js_cc_network_Downloader_onProgress_set)); 
     
     cls->defineFunction("setOnTaskProgress", _SE(js_cc_network_Downloader_setOnTaskProgress)); 
+    cls->defineFunction("abort", _SE(js_cc_network_Downloader_abort)); 
     
     
     

@@ -747,10 +747,10 @@ function assignInstanceRef (data: IFileData, owner: any, key: string, value: Ins
 
 function genArrayParser<T> (parser: ParseFunction<T>): ParseFunction<T[]> {
     return (data: IFileData, owner: any, key: string, value: T[]) => {
-        owner[key] = value;
         for (let i = 0; i < value.length; ++i) {
             parser(data, value, i as unknown as string, value[i]);
         }
+        owner[key] = value;
     };
 }
 
@@ -807,7 +807,6 @@ function parseDict (data: IFileData, owner: any, key: string, value: IDictData) 
 
 function parseArray (data: IFileData, owner: any, key: string, value: IArrayData) {
     const array = value[ARRAY_ITEM_VALUES];
-    owner[key] = array;
     for (let i = 0; i < array.length; ++i) {
         const subValue = array[i];
         const type = value[i + 1] as DataTypeID;
@@ -816,6 +815,8 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
             op(data, array, i, subValue);
         }
     }
+
+    owner[key] = array;
 }
 
 // function parseTypedArray (data: IFileData, owner: any, key: string, value: ITypedArrayData) {

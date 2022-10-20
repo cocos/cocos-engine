@@ -347,6 +347,30 @@ const gfx::UniformBlock UBOUILocal::LAYOUT = {
     1,
 };
 
+const ccstd::string UBOSH::NAME = "CCSH";
+const gfx::DescriptorSetLayoutBinding UBOSH::DESCRIPTOR = {
+    UBOSH::BINDING,
+    gfx::DescriptorType::UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformBlock UBOSH::LAYOUT = {
+    localSet,
+    UBOSH::BINDING,
+    UBOSH::NAME,
+    {
+        {"cc_sh_linear_const_r", gfx::Type::FLOAT4, 1},
+        {"cc_sh_linear_const_g", gfx::Type::FLOAT4, 1},
+        {"cc_sh_linear_const_b", gfx::Type::FLOAT4, 1},
+        {"cc_sh_quadratic_r", gfx::Type::FLOAT4, 1},
+        {"cc_sh_quadratic_g", gfx::Type::FLOAT4, 1},
+        {"cc_sh_quadratic_b", gfx::Type::FLOAT4, 1},
+        {"cc_sh_quadratic_a", gfx::Type::FLOAT4, 1},
+    },
+    1,
+};
+
 const ccstd::string SHADOWMAP::NAME = "cc_shadowMap";
 const gfx::DescriptorSetLayoutBinding SHADOWMAP::DESCRIPTOR = {
     SHADOWMAP::BINDING,

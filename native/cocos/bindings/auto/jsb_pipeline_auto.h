@@ -246,6 +246,15 @@ template<>
 bool sevalue_to_native(const se::Value &from, cc::pipeline::UBOUILocal * to, se::Object *ctx);
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::UBOSH);
+extern se::Object *__jsb_cc_pipeline_UBOSH_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_UBOSH_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::pipeline::UBOSH * to, se::Object *ctx);
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::UBOGlobal);
 extern se::Object *__jsb_cc_pipeline_UBOGlobal_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_UBOGlobal_class; // NOLINT
