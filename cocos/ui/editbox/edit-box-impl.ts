@@ -28,10 +28,10 @@
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
-import { director } from '../../core/director';
-import { game } from '../../core/game';
-import { Color, Mat4, Size, Vec3 } from '../../core/math';
-import { view } from '../../core/platform';
+import { director } from '../../game/director';
+import { game } from '../../game';
+import { Mat4, Vec3 } from '../../core/math';
+import { view } from '../view';
 import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
@@ -40,9 +40,7 @@ import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../core/platform/sys';
 import visibleRect from '../../core/platform/visible-rect';
-import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
-import { legacyCC } from '../../core/global-exports';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 
 // https://segmentfault.com/q/1010000002914610

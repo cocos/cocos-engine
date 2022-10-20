@@ -77,7 +77,7 @@ export class MouseInputSource {
         eventMouse.movementX = location.x - this._preMousePos.x;
         eventMouse.movementY = this._preMousePos.y - location.y;
 
-        eventMouse.setScrollData(event.deltaX, event.deltaY);
+        eventMouse.setScrollData(event.deltaX, -event.deltaY);
         // update previous mouse position.
         this._preMousePos.set(location.x, location.y);
         this._eventTarget.emit(InputEventType.MOUSE_WHEEL, eventMouse);

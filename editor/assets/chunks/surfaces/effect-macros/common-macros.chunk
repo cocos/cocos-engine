@@ -1,11 +1,9 @@
 // Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
 #pragma define-meta USE_INSTANCING editor(elevated: true)
-#pragma define-meta USE_BATCHING editor(elevated: true)
-// these two macros must be non-const
+// this macro must be non-const
 // use #pragma define to rename a macro with editor flag
 //#pragma define CC_SURFACES_USE_INSTANCING USE_INSTANCING
-//#pragma define CC_SURFACES_USE_BATCHING USE_BATCHING
 
 
 

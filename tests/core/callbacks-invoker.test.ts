@@ -1,7 +1,7 @@
 import { CallbacksInvoker } from '../../cocos/core/event/callbacks-invoker';
 import { Event } from '../../cocos/input/types';
-import { Node } from '../../cocos/core/scene-graph/node';
-import { Component } from '../../cocos/core/components/component';
+import { Node } from '../../cocos/scene-graph/node';
+import { Component } from '../../cocos/scene-graph/component';
 import { CCObject } from '../../cocos/core/data/object';
 
 test('test', function () {

@@ -26,6 +26,7 @@
 #include <cstdarg>
 #include "cocos/application/ApplicationManager.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/jswrapper/HandleObject.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
@@ -40,8 +41,17 @@ se::Object *jsMouseEventObj = nullptr;
 se::Object *jsKeyboardEventObj = nullptr;
 se::Object *jsControllerEventArray = nullptr;
 se::Object *jsResizeEventObj = nullptr;
-se::Object *jsOrientationEventObj = nullptr;
 bool inited = false;
+
+// attach the argument object to the function
+void accessCacheArgObj(se::Object *func, se::Value *argObj, const char *cacheKey = "__reusedArgumentObject") {
+    func->getProperty(cacheKey, argObj);
+    if (argObj->isUndefined()) {
+        se::HandleObject argumentObj(se::Object::createPlainObject());
+        argObj->setObject(argumentObj);
+    }
+}
+
 } // namespace
 namespace cc {
 
@@ -98,11 +108,6 @@ void EventDispatcher::destroy() {
         jsResizeEventObj = nullptr;
     }
 
-    if (jsOrientationEventObj != nullptr) {
-        jsOrientationEventObj->unroot();
-        jsOrientationEventObj->decRef();
-        jsOrientationEventObj = nullptr;
-    }
     inited = false;
     tickVal.setUndefined();
 }
@@ -362,18 +367,15 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
     se::AutoHandleScope scope;
     CC_ASSERT(inited);
 
-    if (jsOrientationEventObj == nullptr) {
-        jsOrientationEventObj = se::Object::createPlainObject();
-        jsOrientationEventObj->root();
-    }
-
     se::Value func;
     __jsbObj->getProperty("onOrientationChanged", &func);
     if (func.isObject() && func.toObject()->isFunction()) {
-        jsOrientationEventObj->setProperty("orientation", se::Value(orientation));
+        se::Value evtObj;
+        accessCacheArgObj(func.toObject(), &evtObj);
+        evtObj.toObject()->setProperty("orientation", se::Value(orientation));
 
         se::ValueArray args;
-        args.emplace_back(se::Value(jsOrientationEventObj));
+        args.emplace_back(evtObj);
         func.toObject()->call(args, nullptr);
     }
 }
@@ -405,17 +407,15 @@ void EventDispatcher::dispatchCloseEvent() {
 
 void EventDispatcher::dispatchDestroyWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_MAIN_SYSTEM_WINDOW()->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, ISystemWindow::mainWindowId);
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
 #endif
 }
 
-
 void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, reinterpret_cast<void *>(window->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, window->getWindowId());
 #else
     CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
@@ -424,8 +424,7 @@ void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
 
 void EventDispatcher::dispatchRecreateWindowEvent() {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1,
-                                         reinterpret_cast<void *>(CC_GET_MAIN_SYSTEM_WINDOW()->getWindowHandle()));
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, ISystemWindow::mainWindowId);
 #else
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
 #endif
@@ -433,8 +432,7 @@ void EventDispatcher::dispatchRecreateWindowEvent() {
 
 void EventDispatcher::dispatchRecreateWindowEvent(cc::ISystemWindow *window) {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    auto windowId = static_cast<uintptr_t>(window->getWindowId());
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, reinterpret_cast<void *>(windowId));
+    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, window->getWindowId());
 #else
     CC_UNUSED_PARAM(window);
     EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
@@ -533,7 +531,7 @@ void EventDispatcher::removeAllEventListeners() {
         delete node.second;
     }
     listeners.clear();
-    //start from 1 cuz 0 represents pause and resume
+    // start from 1 cuz 0 represents pause and resume
     hashListenerId = 1;
 }
 

@@ -26,7 +26,7 @@
 import { Color, Mat4 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { FormatInfos } from '../../gfx';
 import { clamp } from '../../core';
 

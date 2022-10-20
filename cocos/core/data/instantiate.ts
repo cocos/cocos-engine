@@ -32,7 +32,7 @@ import { js } from '../utils/js';
 import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../../asset/assets/prefab';
-import { Node } from '../scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 import { isCCClassOrFastDefined } from './class';
 

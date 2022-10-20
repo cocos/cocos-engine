@@ -26,6 +26,8 @@
 #include "platform/mac/modules/SystemWindow.h"
 #import <AppKit/AppKit.h>
 #include "platform/mac/AppDelegate.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 
 namespace cc {
 
@@ -40,26 +42,30 @@ SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
-    _width = w;
-    _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
     _window = [delegate createLeftBottomWindow:aString width:w height:h];
     NSView *view = [_window contentView];
     _windowHandle = reinterpret_cast<uintptr_t>(view);
+    
+    auto dpr = BasePlatform::getPlatform()->getInterface<IScreen>()->getDevicePixelRatio();
+    _width  = w * dpr;
+    _height = h * dpr;
     return true;
 }
 
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
-    _width = w;
-    _height = h;
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
     _window = [delegate createWindow:aString xPos:x yPos:y width:w height:h];
     NSView *view = [_window contentView];
     _windowHandle = reinterpret_cast<uintptr_t>(view);
+    
+    auto dpr = BasePlatform::getPlatform()->getInterface<IScreen>()->getDevicePixelRatio();
+    _width  = w * dpr;
+    _height = h * dpr;
     return true;
 }
 

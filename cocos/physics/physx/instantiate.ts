@@ -40,7 +40,7 @@ import { PhysXConeShape } from './shapes/physx-cone-shape';
 // import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXDistanceJoint } from './joints/physx-distance-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
-import { Game, game } from '../../core';
+import { Game, game } from '../../game';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('physx', {

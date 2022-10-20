@@ -21,9 +21,7 @@
 #include "bindings/auto/jsb_assets_auto.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "renderer/pipeline/custom/RenderCommonJsb.h"
-#include "renderer/pipeline/custom/RenderGraphJsb.h"
 
 using namespace cc;
 using namespace cc::render;
@@ -93,7 +91,7 @@ using namespace cc::render;
 %attribute(cc::render::PipelineRuntime, cc::pipeline::GlobalDSManager*, globalDSManager, getGlobalDSManager);
 %attribute(cc::render::PipelineRuntime, cc::gfx::DescriptorSetLayout*, descriptorSetLayout, getDescriptorSetLayout);
 %attribute(cc::render::PipelineRuntime, cc::gfx::DescriptorSet*, descriptorSet, getDescriptorSet);
-%attribute(cc::render::PipelineRuntime, ccstd::vector<cc::gfx::CommandBuffer*>, commandBuffers, getCommandBuffers);
+%attribute(cc::render::PipelineRuntime, ccstd::vector<cc::gfx::CommandBuffer*>&, commandBuffers, getCommandBuffers);
 %attribute(cc::render::PipelineRuntime, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
 %attribute(cc::render::PipelineRuntime, ccstd::string&, constantMacros, getConstantMacros);
 %attribute(cc::render::PipelineRuntime, cc::scene::Model*, profiler, getProfiler, setProfiler);

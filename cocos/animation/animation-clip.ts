@@ -31,10 +31,10 @@ import { errorID, warnID } from '../core/platform/debug';
 import { binarySearchEpsilon } from '../core/algorithm/binary-search';
 import { murmurhash2_32_gc } from '../core/algorithm/murmurhash2_gc';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
-import { WrapMode as AnimationWrapMode, WrapMode, WrapModeMask } from './types';
+import { WrapMode as AnimationWrapMode, WrapMode } from './types';
 import { legacyCC } from '../core/global-exports';
 import { approx, clamp, Mat4, Quat, Vec3 } from '../core/math';
-import { Node } from '../core/scene-graph/node';
+import { Node } from '../scene-graph/node';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import type { PoseOutput } from './pose-output';
 import * as legacy from './legacy-clip-data';
@@ -50,6 +50,7 @@ import { array } from '../core/utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
+import { WrapModeMask } from '../core/geometry/curve';
 
 export declare namespace AnimationClip {
     export interface IEvent {

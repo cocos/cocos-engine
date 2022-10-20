@@ -24,6 +24,11 @@
 ****************************************************************************/
 
 #include "HelperMacros.h"
+#include "../State.h"
+#include "ScriptEngine.h"
+#include "Utils.h"
+#include "Object.h"
+#include "../ValueArrayPool.h"
 
 #if defined(RECORD_JSB_INVOKING)
 
@@ -68,7 +73,7 @@ void printJSBInvoke() {
 #if defined(RECORD_JSB_INVOKING)
     static ccstd::vector<std::pair<const char *, std::tuple<int, uint64_t>>> pairs;
     for (const auto &it : __jsbFunctionInvokedRecords) {
-        pairs.emplace_back(it); //NOLINT
+        pairs.emplace_back(it); // NOLINT
     }
 
     std::sort(pairs.begin(), pairs.end(), cmp);
@@ -79,4 +84,82 @@ void printJSBInvoke() {
     pairs.clear();
     cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG, "End print JSB function record info.......\n");
 #endif
+}
+
+SE_HOT void jsbFunctionWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
+    bool ret = false;
+    v8::Isolate *isolate = v8args.GetIsolate();
+    v8::HandleScope scope(isolate);
+    bool needDeleteValueArray{false};
+    se::ValueArray &args = se::gValueArrayPool.get(v8args.Length(), needDeleteValueArray);
+    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
+    se::internal::jsToSeArgs(v8args, args);
+    se::Object *thisObject = se::internal::getPrivate(isolate, v8args.This());
+    se::State state(thisObject, args);
+    ret = func(state);
+    if (!ret) {
+        SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
+    }
+    se::internal::setReturnValue(state.rval(), v8args);
+}
+
+SE_HOT void jsbFinalizeWrapper(se::Object *thisObject, se_function_ptr func, const char *funcName) {
+    auto *engine = se::ScriptEngine::getInstance();
+    engine->_setGarbageCollecting(true);
+    se::State state(thisObject);
+    bool ret = func(state);
+    if (!ret) {
+        SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
+    }
+    engine->_setGarbageCollecting(false);
+}
+SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args, se_function_ptr func, se_finalize_ptr finalizeCb, se::Class *cls, const char *funcName) {
+    v8::Isolate *isolate = v8args.GetIsolate();
+    v8::HandleScope scope(isolate);
+    bool ret = true;
+    bool needDeleteValueArray{false};
+    se::ValueArray &args = se::gValueArrayPool.get(v8args.Length(), needDeleteValueArray);
+    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
+    se::internal::jsToSeArgs(v8args, args);
+    se::Object *thisObject = se::Object::_createJSObject(cls, v8args.This());
+    thisObject->_setFinalizeCallback(finalizeCb);
+    se::State state(thisObject, args);
+    ret = func(state);
+    if (!ret) {
+        SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
+    }
+    se::Value property;
+    bool found = false;
+    found = thisObject->getProperty("_ctor", &property);
+    if (found) property.toObject()->call(args, thisObject);
+}
+
+SE_HOT void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
+    v8::Isolate *isolate = v8args.GetIsolate();
+    v8::HandleScope scope(isolate);
+    bool ret = true;
+    se::Object *thisObject = se::internal::getPrivate(isolate, v8args.This());
+    se::State state(thisObject);
+    ret = func(state);
+    if (!ret) {
+        SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
+    }
+    se::internal::setReturnValue(state.rval(), v8args);
+}
+
+SE_HOT void jsbSetterWrapper(v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &v8args, se_function_ptr func, const char *funcName) {
+    v8::Isolate *isolate = v8args.GetIsolate();
+    v8::HandleScope scope(isolate);
+    bool ret = true;
+    se::Object *thisObject = se::internal::getPrivate(isolate, v8args.This());
+    bool needDeleteValueArray{false};
+    se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);
+    se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
+    se::Value &data{args[0]};
+    se::internal::jsToSeValue(isolate, value, &data);
+    se::State state(thisObject, args);
+    ret = func(state);
+    if (!ret) {
+        SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
+    }
 }

@@ -24,11 +24,11 @@
 */
 
 import { ccclass, tooltip, range, slide, type, displayOrder, serializable, editable } from 'cc.decorator';
-import { Component } from '../../core/components/component';
+import { Component } from '../../scene-graph/component';
 import { Color, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { scene } from '../../render-scene';
-import { Root } from '../../core/root';
+import { Root } from '../../root';
 import { legacyCC } from '../../core/global-exports';
 
 const _color_tmp = new Vec3();

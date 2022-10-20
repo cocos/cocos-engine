@@ -80,16 +80,16 @@ protected:
 
     CCVKGPUCommandBuffer *_gpuCommandBuffer = nullptr;
 
-    CCVKGPUPipelineState *_curGPUPipelineState = nullptr;
-    ccstd::vector<CCVKGPUDescriptorSet *> _curGPUDescriptorSets;
+    ConstPtr<CCVKGPUPipelineState> _curGPUPipelineState;
+    ccstd::vector<ConstPtr<CCVKGPUDescriptorSet>> _curGPUDescriptorSets;
     ccstd::vector<VkDescriptorSet> _curVkDescriptorSets;
     ccstd::vector<uint32_t> _curDynamicOffsets;
     ccstd::vector<ccstd::vector<uint32_t>> _curDynamicOffsetsArray;
     uint32_t _firstDirtyDescriptorSet = UINT_MAX;
 
-    CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;
-    CCVKGPUFramebuffer *_curGPUFBO = nullptr;
-    CCVKGPURenderPass *_curGPURenderPass = nullptr;
+    ConstPtr<CCVKGPUInputAssembler> _curGPUInputAssembler;
+    ConstPtr<CCVKGPUFramebuffer> _curGPUFBO;
+    IntrusivePtr<CCVKGPURenderPass> _curGPURenderPass;
 
     bool _secondaryRP = false;
 

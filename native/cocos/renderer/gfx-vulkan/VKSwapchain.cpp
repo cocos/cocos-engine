@@ -33,9 +33,9 @@
 #include "VKUtils.h"
 
 #include "application/ApplicationManager.h"
-#include "platform/interfaces/modules/IXRInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #if CC_SWAPPY_ENABLED
     #include "platform/android/AndroidPlatform.h"
@@ -363,6 +363,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         _gpuSwapchain->swapchainImages.resize(imageCount);
         VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
     }
+    ++_generation;
 
     // should skip size check, since the old swapchain has already been destroyed
     static_cast<CCVKTexture *>(_colorTexture.get())->_info.width = 1;
@@ -417,14 +418,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
 void CCVKSwapchain::destroySwapchain(CCVKGPUDevice *gpuDevice) {
     if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
-        for (auto &it : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-            FramebufferList &list = it.second;
-            for (VkFramebuffer framebuffer : list) {
-                vkDestroyFramebuffer(gpuDevice->vkDevice, framebuffer, nullptr);
-            }
-            list.clear();
-        }
-
         _gpuSwapchain->swapchainImages.clear();
 
 #if CC_SWAPPY_ENABLED

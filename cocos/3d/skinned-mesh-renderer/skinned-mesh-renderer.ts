@@ -29,7 +29,7 @@ import {
 import type { AnimationClip } from '../../animation/animation-clip';
 import { Material } from '../../asset/assets';
 import { Skeleton } from '../assets/skeleton';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { MeshRenderer } from '../framework/mesh-renderer';
 import type { SkeletalAnimation } from '../skeletal-animation';
 import { legacyCC } from '../../core/global-exports';
@@ -138,6 +138,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._updateModels();
             this._updateCastShadow();
             this._updateReceiveShadow();
+            this._updateUseLightProbe();
             if (this.enabledInHierarchy) {
                 this._attachToScene();
             }

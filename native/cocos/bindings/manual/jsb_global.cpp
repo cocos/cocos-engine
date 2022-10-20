@@ -411,7 +411,7 @@ static bool JSB_setCursorEnabled(se::State &s) { // NOLINT
     ok &= sevalue_to_native(args[0], &value);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    auto *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+    auto *systemWindowIntf = CC_GET_SYSTEM_WINDOW(ISystemWindow::mainWindowId);
     CC_ASSERT(systemWindowIntf != nullptr);
     systemWindowIntf->setCursorEnabled(value);
     return true;
@@ -581,7 +581,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
             auto app = CC_CURRENT_APPLICATION();
             if (!app) {
                 delete imgInfo;
-                delete img;
+                img->release();
                 return;
             }
             auto engine = app->getEngine();
@@ -606,7 +606,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
                 }
                 callbackPtr->toObject()->call(seArgs, nullptr);
-                delete img;
+                img->release();
             });
         });
     };
@@ -712,7 +712,7 @@ static bool js_saveImageData(se::State &s) { // NOLINT
                 }
                 uint8ArrayObj->unroot();
                 uint8ArrayObj->decRef();
-                delete img;
+                img->release();
             });
         });
         return true;

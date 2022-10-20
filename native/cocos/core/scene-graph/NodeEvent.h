@@ -45,6 +45,8 @@ public:
     static const CallbacksInvoker::KeyType KEY_UP;
     static const CallbacksInvoker::KeyType DEVICEMOTION;
     static const CallbacksInvoker::KeyType TRANSFORM_CHANGED;
+    static const CallbacksInvoker::KeyType ANCESTOR_TRANSFORM_CHANGED;
+    static const CallbacksInvoker::KeyType MOBILITY_CHANGED;
     static const CallbacksInvoker::KeyType SCENE_CHANGED_FOR_PERSISTS;
     static const CallbacksInvoker::KeyType SIZE_CHANGED;
     static const CallbacksInvoker::KeyType ANCHOR_CHANGED;
@@ -56,6 +58,7 @@ public:
     static const CallbacksInvoker::KeyType LAYER_CHANGED;
     static const CallbacksInvoker::KeyType SIBLING_ORDER_CHANGED;
     static const CallbacksInvoker::KeyType ACTIVE_IN_HIERARCHY_CHANGED;
+    static const CallbacksInvoker::KeyType LIGHT_PROBE_CHANGED;
 };
 
 } // namespace cc

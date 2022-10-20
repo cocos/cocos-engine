@@ -37,7 +37,7 @@ class CC_DLL SystemWindow : public ISystemWindow {
     friend class SystemWindowManager;
 
 public:
-    explicit SystemWindow(uint32_t windowId, void *externalHandle);
+    explicit SystemWindow(uint32_t windowId, void* externalHandle);
     ~SystemWindow() override;
 
     void swapWindow();

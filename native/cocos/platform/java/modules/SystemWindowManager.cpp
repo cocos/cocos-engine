@@ -42,10 +42,12 @@ void SystemWindowManager::swapWindows() {
 }
 
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
-    if (!info.externalHandle || !isExternalHandleExist(info.externalHandle)) {
+    if (!isExternalHandleExist(info.externalHandle)) {
         ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
         if (window) {
-            window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+            if (!info.externalHandle) {
+                window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+            }
             _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
             _nextWindowId++;
         }

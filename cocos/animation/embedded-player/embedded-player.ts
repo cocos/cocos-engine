@@ -1,6 +1,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { EditorExtendable } from '../../core/data/editor-extendable';
-import type { Node } from '../../core/scene-graph';
+import type { Node } from '../../scene-graph';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}EmbeddedPlayer`)

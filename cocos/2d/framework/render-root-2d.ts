@@ -25,7 +25,7 @@
 
 import { ccclass, disallowMultiple, executeInEditMode,
     executionOrder, menu, requireComponent } from 'cc.decorator';
-import { Component } from '../../core/components/component';
+import { Component } from '../../scene-graph/component';
 import { legacyCC } from '../../core/global-exports';
 import { UITransform } from './ui-transform';
 

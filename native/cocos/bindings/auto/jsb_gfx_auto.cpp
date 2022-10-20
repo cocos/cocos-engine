@@ -1100,6 +1100,82 @@ static bool js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_get) 
 
+static bool js_cc_gfx_DeviceCaps_maxArrayTextureLayers_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->maxArrayTextureLayers, s.thisObject());
+    SE_PRECONDITION2(ok, false, "DeviceCaps_maxArrayTextureLayers_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_set) 
+
+static bool js_cc_gfx_DeviceCaps_maxArrayTextureLayers_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->maxArrayTextureLayers, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "DeviceCaps_maxArrayTextureLayers_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->maxArrayTextureLayers, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_get) 
+
+static bool js_cc_gfx_DeviceCaps_max3DTextureSize_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->max3DTextureSize, s.thisObject());
+    SE_PRECONDITION2(ok, false, "DeviceCaps_max3DTextureSize_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_DeviceCaps_max3DTextureSize_set) 
+
+static bool js_cc_gfx_DeviceCaps_max3DTextureSize_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->max3DTextureSize, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "DeviceCaps_max3DTextureSize_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->max3DTextureSize, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_max3DTextureSize_get) 
+
 static bool js_cc_gfx_DeviceCaps_uboOffsetAlignment_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1574,6 +1650,18 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceCaps * to, se::Obje
     }
     
     
+    json->getProperty("maxArrayTextureLayers", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxArrayTextureLayers), ctx);
+    }
+    
+    
+    json->getProperty("max3DTextureSize", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->max3DTextureSize), ctx);
+    }
+    
+    
     json->getProperty("uboOffsetAlignment", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->uboOffsetAlignment), ctx);
@@ -1648,6 +1736,8 @@ bool js_register_cc_gfx_DeviceCaps(se::Object* obj) {
     cls->defineProperty("maxUniformBlockSize", _SE(js_cc_gfx_DeviceCaps_maxUniformBlockSize_get), _SE(js_cc_gfx_DeviceCaps_maxUniformBlockSize_set)); 
     cls->defineProperty("maxTextureSize", _SE(js_cc_gfx_DeviceCaps_maxTextureSize_get), _SE(js_cc_gfx_DeviceCaps_maxTextureSize_set)); 
     cls->defineProperty("maxCubeMapTextureSize", _SE(js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_get), _SE(js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_set)); 
+    cls->defineProperty("maxArrayTextureLayers", _SE(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_get), _SE(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_set)); 
+    cls->defineProperty("max3DTextureSize", _SE(js_cc_gfx_DeviceCaps_max3DTextureSize_get), _SE(js_cc_gfx_DeviceCaps_max3DTextureSize_set)); 
     cls->defineProperty("uboOffsetAlignment", _SE(js_cc_gfx_DeviceCaps_uboOffsetAlignment_get), _SE(js_cc_gfx_DeviceCaps_uboOffsetAlignment_set)); 
     cls->defineProperty("maxComputeSharedMemorySize", _SE(js_cc_gfx_DeviceCaps_maxComputeSharedMemorySize_get), _SE(js_cc_gfx_DeviceCaps_maxComputeSharedMemorySize_set)); 
     cls->defineProperty("maxComputeWorkGroupInvocations", _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupInvocations_get), _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupInvocations_set)); 
@@ -21431,6 +21521,35 @@ static bool js_delete_cc_gfx_GFXObject(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_GFXObject) 
 
+static bool js_cc_gfx_GFXObject_getObjectID_static(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::GFXObject *arg1 = (cc::gfx::GFXObject *) NULL ;
+    uint32_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "GFXObject_getObjectID,1,SWIGTYPE_p_cc__gfx__GFXObject"); 
+    result = cc::gfx::GFXObject::getObjectID((cc::gfx::GFXObject const *)arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "GFXObject_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_GFXObject_getObjectID_static) 
+
 static bool js_cc_gfx_GFXObject_objectType_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -21498,6 +21617,7 @@ bool js_register_cc_gfx_GFXObject(se::Object* obj) {
     
     
     
+    cls->defineStaticFunction("getObjectID", _SE(js_cc_gfx_GFXObject_getObjectID_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_GFXObject));
@@ -21516,13 +21636,6 @@ bool js_register_cc_gfx_GFXObject(se::Object* obj) {
 se::Class* __jsb_cc_gfx_Buffer_class = nullptr;
 se::Object* __jsb_cc_gfx_Buffer_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_Buffer) 
-
-static bool js_delete_cc_gfx_Buffer(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_Buffer) 
 
 static bool js_cc_gfx_Buffer_computeHash_static(se::State& s)
 {
@@ -21761,9 +21874,6 @@ bool js_register_cc_gfx_Buffer(se::Object* obj) {
     
     
     cls->defineStaticFunction("computeHash", _SE(js_cc_gfx_Buffer_computeHash_static)); 
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_Buffer));
     
     
     cls->install();
@@ -26588,6 +26698,34 @@ static bool js_cc_gfx_Swapchain_getVSyncMode(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Swapchain_getVSyncMode) 
 
+static bool js_cc_gfx_Swapchain_getGeneration(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::Swapchain *arg1 = (cc::gfx::Swapchain *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::Swapchain>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::gfx::Swapchain const *)arg1)->getGeneration();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Swapchain_getGeneration, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_Swapchain_getGeneration) 
+
 static bool js_cc_gfx_Swapchain_width_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -26701,6 +26839,7 @@ bool js_register_cc_gfx_Swapchain(se::Object* obj) {
     cls->defineFunction("getWindowId", _SE(js_cc_gfx_Swapchain_getWindowId)); 
     cls->defineFunction("getWindowHandle", _SE(js_cc_gfx_Swapchain_getWindowHandle)); 
     cls->defineFunction("getVSyncMode", _SE(js_cc_gfx_Swapchain_getVSyncMode)); 
+    cls->defineFunction("getGeneration", _SE(js_cc_gfx_Swapchain_getGeneration)); 
     
     
     

@@ -1,11 +1,13 @@
 
 import { SkeletalAnimationState } from '../../cocos/3d/skeletal-animation/skeletal-animation-state';
 import { SkeletalAnimation } from '../../cocos/3d/skeletal-animation/skeletal-animation';
-import { CCObject, director, game, Node, Scene } from '../../cocos/core';
+import { CCObject } from '../../cocos/core';
 import { AnimationClip } from '../../cocos/animation/animation-clip';
 import { VectorTrack } from '../../cocos/animation/animation';
 import { JointAnimationInfo } from '../../cocos/3d/skeletal-animation/skeletal-animation-utils';
 import { SkinnedMeshRenderer } from '../../cocos/3d/skinned-mesh-renderer';
+import { Node, Scene } from '../../cocos/scene-graph';
+import { director, game } from '../../cocos/game';
 
 describe('Skeletal animation state', () => {
     function createSimpleClip(name: string, duration: number, from: number, to: number, path = '') {

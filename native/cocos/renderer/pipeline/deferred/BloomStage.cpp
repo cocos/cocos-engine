@@ -106,12 +106,11 @@ void BloomStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void BloomStage::destroy() {
-    CC_SAFE_DELETE(_prefilterUBO);
-    CC_SAFE_DELETE(_combineUBO);
+    CC_SAFE_RELEASE_NULL(_prefilterUBO);
+    CC_SAFE_RELEASE_NULL(_combineUBO);
     for (int i = 0; i < MAX_BLOOM_FILTER_PASS_NUM; ++i) {
-        CC_SAFE_DELETE(_downsampleUBO[i]);
-
-        CC_SAFE_DELETE(_upsampleUBO[i]);
+        CC_SAFE_RELEASE_NULL(_downsampleUBO[i]);
+        CC_SAFE_RELEASE_NULL(_upsampleUBO[i]);
     }
 }
 

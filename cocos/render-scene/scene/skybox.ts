@@ -27,13 +27,13 @@ import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../../3d/assets/mesh';
 import { TextureCube } from '../../asset/assets/texture-cube';
-import { UNIFORM_ENVIRONMENT_BINDING, UNIFORM_DIFFUSEMAP_BINDING } from '../../core/pipeline/define';
+import { UNIFORM_ENVIRONMENT_BINDING, UNIFORM_DIFFUSEMAP_BINDING } from '../../rendering/define';
 import { MaterialInstance } from '../core/material-instance';
 import { Model } from './model';
 import { legacyCC } from '../../core/global-exports';
-import type { SkyboxInfo } from '../../core/scene-graph/scene-globals';
-import { Root } from '../../core/root';
-import { GlobalDSManager } from '../../core/pipeline/global-descriptor-set-manager';
+import type { SkyboxInfo } from '../../scene-graph/scene-globals';
+import { Root } from '../../root';
+import { GlobalDSManager } from '../../rendering/global-descriptor-set-manager';
 import { deviceManager } from '../../gfx';
 import { Enum } from '../../core/value-types';
 

@@ -1,4 +1,4 @@
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { AnimationMask } from './animation-mask';
 import { createEval } from './create-eval';
 import type { BindContext } from './parametric';

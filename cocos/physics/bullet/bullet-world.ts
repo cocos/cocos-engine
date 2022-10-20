@@ -34,12 +34,13 @@ import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial } from '../framework';
-import { error, Node, RecyclePool, Vec3 } from '../../core';
+import { error, RecyclePool, Vec3 } from '../../core';
 import { IVec3Like } from '../../core/math/type-define';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { fastRemoveAt } from '../../core/utils/array';
 import { bt } from './instantiated';
+import { Node } from '../../scene-graph';
 
 const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;

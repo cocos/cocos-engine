@@ -73,6 +73,7 @@ System::LanguageType System::getCurrentLanguage() const {
     if ([languageCode isEqualToString:@"uk"]) return LanguageType::UKRAINIAN;
     if ([languageCode isEqualToString:@"ro"]) return LanguageType::ROMANIAN;
     if ([languageCode isEqualToString:@"bg"]) return LanguageType::BULGARIAN;
+    if ([languageCode isEqualToString:@"hi"]) return LanguageType::HINDI;
     return LanguageType::ENGLISH;
 }
 

@@ -25,7 +25,7 @@
 
 import { Vec4 } from '../../core/math';
 import { legacyCC } from '../../core/global-exports';
-import { AmbientInfo } from '../../core/scene-graph/scene-globals';
+import { AmbientInfo } from '../../scene-graph/scene-globals';
 
 /**
  * @en Ambient lighting representation in the render scene.

@@ -2,7 +2,7 @@ import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, Node, game, CCObject, find, director, Layers } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 import { array } from '../../core/utils/js';
 import { Canvas } from '../../2d/framework';
@@ -17,6 +17,8 @@ import { Contact2DType, Collider2D, RaycastResult2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 import { legacyCC } from '../../core/global-exports';
+import { Node, find, Layers } from '../../scene-graph';
+import { director } from '../../game';
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();
@@ -81,7 +83,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
-                const scene = director.getScene() as any;
+                const scene = director.getScene();
                 if (!scene) {
                     return;
                 }

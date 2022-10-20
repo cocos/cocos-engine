@@ -26,6 +26,8 @@
 #include "MiddlewareManager.h"
 #include <algorithm>
 #include "SeApi.h"
+#include "2d/renderer/Batcher2d.h"
+#include "core/Root.h"
 
 MIDDLEWARE_BEGIN
 
@@ -67,49 +69,26 @@ void MiddlewareManager::clearRemoveList() {
 void MiddlewareManager::update(float dt) {
     isUpdating = true;
 
-    _renderInfo.reset();
-    auto *renderBuffer = _renderInfo.getBuffer();
-    if (renderBuffer) {
-        renderBuffer->writeUint32(0);
-    }
-
     _attachInfo.reset();
     auto *attachBuffer = _attachInfo.getBuffer();
     if (attachBuffer) {
         attachBuffer->writeUint32(0);
     }
 
-    auto isOrderDirty = false;
-    uint32_t maxRenderOrder = 0;
     for (auto *editor : _updateList) {
-        uint32_t renderOrder = maxRenderOrder;
         if (!_removeList.empty()) {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
             if (removeIt == _removeList.end()) {
                 editor->update(dt);
-                renderOrder = editor->getRenderOrder();
             }
         } else {
             editor->update(dt);
-            renderOrder = editor->getRenderOrder();
-        }
-
-        if (maxRenderOrder > renderOrder) {
-            isOrderDirty = true;
-        } else {
-            maxRenderOrder = renderOrder;
         }
     }
 
     isUpdating = false;
 
     clearRemoveList();
-
-    if (isOrderDirty) {
-        std::sort(_updateList.begin(), _updateList.end(), [](IMiddleware *it1, IMiddleware *it2) {
-            return it1->getRenderOrder() < it2->getRenderOrder();
-        });
-    }
 }
 
 void MiddlewareManager::render(float dt) {
@@ -141,6 +120,18 @@ void MiddlewareManager::render(float dt) {
             buffer->uploadIB();
             buffer->uploadVB();
         }
+
+        uint16_t accID = 65534;
+        auto* batch2d = Root::getInstance()->getBatcher2D();
+        if (it.first == VF_XYZUVCC) {
+            accID = 65535;
+        }
+        ccstd::vector<UIMeshBuffer *> uiMeshArray;
+        auto &uiBufArray = buffer->uiMeshBuffers();
+        for (auto &item : uiBufArray) {
+            uiMeshArray.push_back((UIMeshBuffer *)item);
+        }
+        batch2d->syncMeshBuffersToNative(accID, std::move(uiMeshArray));
     }
 
     clearRemoveList();

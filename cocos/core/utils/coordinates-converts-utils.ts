@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { Camera } from '../components/camera-component';
+import { Camera } from '../../misc/camera-component';
 import { Vec3 } from '../math';
-import { Node } from '../scene-graph';
+import { Node } from '../../scene-graph';
 import { replaceProperty } from './x-deprecated';
 import { legacyCC } from '../global-exports';
 

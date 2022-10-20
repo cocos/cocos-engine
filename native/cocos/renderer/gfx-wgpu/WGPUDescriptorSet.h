@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXDescriptorSet.h"
@@ -36,31 +37,29 @@ struct CCWGPUBindGroupObject;
 
 using Pairs = ccstd::vector<std::pair<uint8_t, uint8_t>>;
 
-class CCWGPUDescriptorSet final : public emscripten::wrapper<DescriptorSet> {
+class CCWGPUDescriptorSet final : public DescriptorSet {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUDescriptorSet);
     CCWGPUDescriptorSet();
-    ~CCWGPUDescriptorSet() = default;
+    ~CCWGPUDescriptorSet();
 
     inline CCWGPUBindGroupObject *gpuBindGroupObject() { return _gpuBindGroupObj; }
-
-    void update() override;
-
-    uint8_t dynamicOffsetCount() const;
-
-    void prepare();
-
-    static void *defaultBindGroup();
-
     inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
 
-    // void* bgl() const{return _bgl;}
+    void update() override;
+    void forceUpdate() override{};
+    uint8_t dynamicOffsetCount() const;
+    void prepare();
+    ccstd::hash_t getHash() { return _bornHash; };
 
-    // DescriptorSetLayout* local()const {return _local;}
+    static void *defaultBindGroup();
+    static void clearCache();
+
+    std::string label;
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;
+    ccstd::hash_t hash() const;
 
     CCWGPUBindGroupObject *_gpuBindGroupObj = nullptr;
 
@@ -70,10 +69,8 @@ protected:
 
     // dynamic offsets, inuse ? 1 : 0;
     Pairs _dynamicOffsets;
-
-    // void* _bgl = nullptr;
-
-    // DescriptorSetLayout* _local = nullptr;
+    ccstd::hash_t _hash{0};
+    ccstd::hash_t _bornHash{0}; // hash when created, this relate to reuse bindgroup layout
 };
 
 } // namespace gfx

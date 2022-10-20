@@ -23,8 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <thread>
+#include "platform/android/AndroidPlatform.h"
 #include <android/native_window_jni.h>
+#include <thread>
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"
@@ -34,7 +35,6 @@
 #include "modules/Screen.h"
 #include "modules/System.h"
 #include "platform/BasePlatform.h"
-#include "platform/android/AndroidPlatform.h"
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
@@ -46,9 +46,9 @@
 #include "platform/java/modules/Vibrator.h"
 #include "platform/java/modules/XRInterface.h"
 
+#include "base/StringUtil.h"
 #include "bindings/event/EventDispatcher.h"
 #include "paddleboat.h"
-#include "base/StringUtil.h"
 
 #define ABORT_GAME                          \
     {                                       \
@@ -318,7 +318,7 @@ public:
                     _launched = true;
 
                     ISystemWindowInfo info;
-                    info.width  = ANativeWindow_getWidth(nativeWindow);
+                    info.width = ANativeWindow_getWidth(nativeWindow);
                     info.height = ANativeWindow_getHeight(nativeWindow);
                     info.externalHandle = nativeWindow;
                     _androidPlatform->getInterface<SystemWindowManager>()->createWindow(info);
@@ -343,7 +343,7 @@ public:
 
                     cc::CustomEvent event;
                     event.name = EVENT_RECREATE_WINDOW;
-                    event.args->ptrVal = reinterpret_cast<void *>(ISystemWindow::mainWindowId);
+                    event.args[0].intVal = ISystemWindow::mainWindowId;
                     _androidPlatform->dispatchEvent(event);
                 }
                 break;
@@ -358,7 +358,7 @@ public:
                 }
                 cc::CustomEvent event;
                 event.name = EVENT_DESTROY_WINDOW;
-                event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
+                event.args[0].intVal = ISystemWindow::mainWindowId;
                 _androidPlatform->dispatchEvent(event);
                 break;
             }

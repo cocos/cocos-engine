@@ -26,7 +26,7 @@
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
+import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
 import { logID } from '../core/platform/debug';
@@ -34,11 +34,11 @@ import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
-import { Node } from '../core/scene-graph/node';
-import { director, Director } from '../core/director';
-import { TransformBit } from '../core/scene-graph/node-enum';
+import { Node } from '../scene-graph/node';
+import { director, Director } from '../game/director';
+import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { NodeEventType } from '../scene-graph/node-event';
 import { Input, input } from '../input/input';
 import { DeviceType, XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 
@@ -1833,7 +1833,7 @@ export class ScrollView extends ViewGroup {
         }
     }
 
-    protected _xrHoverEnter(event: XrUIPressEvent) {
+    protected _xrHoverEnter (event: XrUIPressEvent) {
         if (event.deviceType === DeviceType.Left) {
             this._hoverIn = XrhoverType.LEFT;
         } else if (event.deviceType === DeviceType.Right) {
@@ -1843,13 +1843,13 @@ export class ScrollView extends ViewGroup {
         this._dispatchEvent(EventType.SCROLL_BEGAN);
     }
 
-    protected _xrHoverExit() {
+    protected _xrHoverExit () {
         this._hoverIn = XrhoverType.NONE;
         this._autoScrolling = true;
         this._dispatchEvent(EventType.SCROLL_ENDED);
     }
 
-    private _dispatchEventHandleInput(event: EventHandle | EventGamepad) {
+    private _dispatchEventHandleInput (event: EventHandle | EventGamepad) {
         let handleInputDevice;
         if (event instanceof EventGamepad) {
             handleInputDevice = event.gamepad;
@@ -1880,7 +1880,7 @@ export class ScrollView extends ViewGroup {
         }
     }
 
-    protected _xrThumbStickMove(event: Vec2) {
+    protected _xrThumbStickMove (event: Vec2) {
         const deltaMove = new Vec3();
         const wheelPrecision = -62.5;
         const scrollY = event.y;
@@ -1895,7 +1895,7 @@ export class ScrollView extends ViewGroup {
         this._dispatchEvent(EventType.SCROLLING);
     }
 
-    protected _xrThumbStickMoveEnd() {
+    protected _xrThumbStickMoveEnd () {
         this._autoScrolling = true;
         this._dispatchEvent(EventType.TOUCH_UP);
     }

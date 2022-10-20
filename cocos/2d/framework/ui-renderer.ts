@@ -36,17 +36,18 @@ import { BlendFactor } from '../../gfx';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
-import { Node } from '../../core/scene-graph';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { Node } from '../../scene-graph';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { UITransform } from './ui-transform';
 import { Stage } from '../renderer/stencil-manager';
 import { legacyCC } from '../../core/global-exports';
-import { NodeEventType } from '../../core/scene-graph/node-event';
-import { Renderer } from '../../core/components/renderer';
+import { NodeEventType } from '../../scene-graph/node-event';
+import { Renderer } from '../../misc/renderer';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
-import { assert, director } from '../../core';
+import { assert } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import { director } from '../../game';
 
 // hack
 ccenum(BlendFactor);

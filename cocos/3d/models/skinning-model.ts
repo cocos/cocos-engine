@@ -30,17 +30,18 @@ import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
 import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute, FormatFeatureBit, Format } from '../../gfx';
 import { Mat4, Vec3 } from '../../core/math';
-import { UBOSkinning, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { Node } from '../../core/scene-graph/node';
+import { UBOSkinning, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING } from '../../rendering/define';
+import { Node } from '../../scene-graph/node';
 import { ModelType } from '../../render-scene/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../animation/skeletal-animation-utils';
 import { IMacroPatch, BatchingSchemes, Pass } from '../../render-scene';
 import { warnID } from '../../core/platform/debug';
-import { director } from '../../core';
+import { director } from '../../game';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
+import { SubModel } from '../../render-scene/scene';
 
 const uniformPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -264,12 +265,13 @@ export class SkinningModel extends MorphModel {
         }
     }
 
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
+        const pass = subModel.passes[0];
         if (pass.batchingScheme !== BatchingSchemes.NONE) {
             // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
             warnID(3936, this.node.getPathInHierarchy());
         }
-        super._updateInstancedAttributes(attributes, pass);
+        super._updateInstancedAttributes(attributes, subModel);
     }
 
     private _ensureEnoughBuffers (count: number) {

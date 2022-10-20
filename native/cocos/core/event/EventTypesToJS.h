@@ -48,10 +48,13 @@ public:
     static const CallbacksInvoker::KeyType MODEL_UPDATE_TRANSFORM;
     static const CallbacksInvoker::KeyType MODEL_UPDATE_UBO;
     static const CallbacksInvoker::KeyType MODEL_UPDATE_LOCAL_DESCRIPTORS;
+    static const CallbacksInvoker::KeyType MODEL_UPDATE_LOCAL_SH_DESCRIPTORS;
+    static const CallbacksInvoker::KeyType MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS;
     static const CallbacksInvoker::KeyType MODEL_UPDATE_INSTANCED_ATTRIBUTES;
     static const CallbacksInvoker::KeyType MODEL_GET_MACRO_PATCHES;
 
     static const CallbacksInvoker::KeyType DIRECTOR_BEFORE_COMMIT;
+    static const CallbacksInvoker::KeyType DIRECTOR_BEFORE_RENDER;
 
     static const CallbacksInvoker::KeyType SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED;
     static const CallbacksInvoker::KeyType TEXTURE_BASE_GFX_SAMPLER_UPDATED;

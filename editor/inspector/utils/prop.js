@@ -221,7 +221,7 @@ exports.updatePropByDump = function(panel, dump) {
                 $prop.setAttribute('type', 'dump');
             }
 
-            const _displayOrder = info.group?.displayOrder || info.displayOrder;
+            const _displayOrder = info.group?.displayOrder ?? info.displayOrder;
             $prop.displayOrder = _displayOrder === undefined ? index : Number(_displayOrder);
 
             if (element && element.displayOrder !== undefined) {
@@ -329,39 +329,6 @@ exports.getName = function(dump) {
     name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
 
     return name.trim();
-};
-
-exports.setTooltip = function(element, dump) {
-    if (dump.tooltip) {
-        let tooltip = dump.tooltip;
-        if (tooltip.startsWith('i18n:')) {
-            tooltip = Editor.I18n.t('ENGINE.' + tooltip.substr(5));
-            // If ENGINE doesn't translate, use extension's translation data and try to translate directly
-            if (!tooltip || tooltip === dump.tooltip) {
-                tooltip = Editor.I18n.t(dump.tooltip.substr(5)) || dump.tooltip;
-            }
-        }
-        element.setAttribute('tooltip', tooltip);
-    } else {
-        element.removeAttribute('tooltip');
-    }
-};
-
-/**
- * Sets the generic property Label in prop
- * name and tooltip
- */
-exports.setLabel = function($label, dump) {
-    if (!dump) {
-        dump = this.dump;
-    }
-
-    if (!$label || !dump) {
-        return;
-    }
-
-    $label.innerHTML = exports.getName(dump);
-    exports.setTooltip($label, dump);
 };
 
 exports.createTabGroup = function(dump, panel) {

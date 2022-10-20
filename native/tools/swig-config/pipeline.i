@@ -53,6 +53,8 @@ using namespace cc;
 //
 %ignore cc::pipeline::convertQueueSortFunc;
 %ignore cc::pipeline::RenderPipeline::getFrameGraph;
+%ignore cc::pipeline::RenderPipeline::setPipelineRuntime;
+%ignore cc::pipeline::RenderPipeline::getPipelineRuntime;
 %ignore cc::pipeline::PipelineSceneData::getRenderObjects;
 %ignore cc::pipeline::PipelineSceneData::setRenderObjects;
 %ignore cc::pipeline::PipelineSceneData::getShadowObjects;
@@ -155,6 +157,7 @@ using namespace cc;
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Ambient*, ambient, getAmbient);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Skybox*, skybox, getSkybox);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Shadows*, shadows, getShadows);
+%attribute(cc::pipeline::PipelineSceneData, cc::gi::LightProbes*, lightProbes, getLightProbes);
 
 %attribute(cc::pipeline::BloomStage, float, threshold, getThreshold, setThreshold);
 %attribute(cc::pipeline::BloomStage, float, intensity, getIntensity, setIntensity);

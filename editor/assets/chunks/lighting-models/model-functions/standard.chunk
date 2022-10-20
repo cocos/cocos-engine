@@ -1,5 +1,8 @@
 #include <common/lighting/brdf>
 #include <common/lighting/functions>
+#if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
+#include <common/lighting/sh>
+#endif
 
 bool CCSurfacesLightingEnableShadow(in float NoL)
 {
@@ -82,7 +85,7 @@ void CCSurfacesLightingCalculateEnvironment(inout LightingResult lightingResult,
   vec3 envSpec = vec3(0.0);
 
   #if CC_USE_IBL
-    #if CC_USE_DIFFUSEMAP
+    #if CC_USE_DIFFUSEMAP && (!CC_LIGHT_PROBE_ENABLED || !CC_USE_LIGHT_PROBE)
       // Diffuse irradiance
       vec4 diffuseMap = texture(cc_diffuseMap, lightingData.N);
       #if CC_USE_DIFFUSEMAP == IBL_RGBE
@@ -109,7 +112,13 @@ void CCSurfacesLightingCalculateEnvironment(inout LightingResult lightingResult,
     #endif
   #endif
 
+#if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
+  ambDiff = SHEvaluate(lightingData.N);
+  lightingResult.environmentDiffuse = ambDiff;
+#else
   lightingResult.environmentDiffuse = ambDiff.rgb * cc_ambientSky.w;
+#endif
+
   lightingResult.environmentSpecular = envSpec * cc_ambientSky.w;
 }
 

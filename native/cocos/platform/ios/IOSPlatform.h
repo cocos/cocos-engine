@@ -56,7 +56,7 @@ public:
     void onPause() override;
     void onResume() override;
     void onClose() override;
-    
+
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:
