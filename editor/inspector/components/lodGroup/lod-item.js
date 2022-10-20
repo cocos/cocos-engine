@@ -112,7 +112,8 @@ exports.methods = {
     },
     updateLODs(operator) {
         const that = this;
-        that.$emit('updateLODs', operator, that.index);
+        // emit 方法建议全部小写，驼峰式的话可能会被自动转化为小写导致匹配不到
+        that.$emit('update-lods', operator, that.index);
     },
     applyCameraSize() {
         const that = this;

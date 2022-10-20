@@ -166,7 +166,7 @@ exports.template = `
                     :lodGroupId="dump.value.uuid.value"
                     :min="calculateRange('min', index)"
                     :max="calculateRange('max', index)"
-                    @updateLODs="updateLODs"
+                    @update-lods="updateLODs"
                 ></lod-item>
             </template>
         </div>   
