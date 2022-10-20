@@ -222,6 +222,7 @@ export class LODGroup extends Component {
         this._lodGroup.node = this.node;
         if (!this._eventRegistered) {
             this.node.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._removeUnneededModel, this);
+            this._eventRegistered = true;
         }
         // generate default lod for lodGroup
         if (this.lodCount < 1) {
@@ -266,21 +267,12 @@ export class LODGroup extends Component {
 
     onDisable () {
         this._detachFromScene();
+        LODGroupEditorUtility.setLODVisibility(this, -1);
     }
 
     // lod's model will be enabled while execute culling
     private _removeUnneededModel () {
-        for (const lod of this._LODs) {
-            for (const renderer of lod.renderers) {
-                if (!renderer) {
-                    continue;
-                }
-                const renderScene = this.node.scene?.renderScene;
-                if (renderScene && renderer.model) {
-                    renderScene.removeModel(renderer.model);
-                }
-            }
-        }
+        LODGroupEditorUtility.setLODVisibility(this, -1);
     }
 
     protected _attachToScene () {
@@ -425,6 +417,25 @@ export class LODGroupEditorUtility {
             lodGroup.getLOD(i).screenRelativeTransitionHeight *= scale;
         }
         this.emitChangeNode(lodGroup.node);
+    }
+
+    static setLODVisibility (lodGroup: LODGroup, visibleIndex: number) {
+        lodGroup.LODs.forEach((lod: LOD, index) => {
+            for (const renderer of lod.renderers) {
+                if (!renderer) {
+                    continue;
+                }
+                const renderScene = lodGroup.node.scene?.renderScene;
+                if (renderScene && renderer.model) {
+                    if (visibleIndex === index) {
+                        renderScene.removeModel(renderer.model);
+                        renderScene.addModel(renderer.model);
+                    } else {
+                        renderScene.removeModel(renderer.model);
+                    }
+                }
+            }
+        });
     }
 
     private static distanceToRelativeHeight (camera: Camera, distance: number | undefined, size: number): number {

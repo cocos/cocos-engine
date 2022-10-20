@@ -34,6 +34,7 @@ import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { warnID } from '../core/platform';
+import { MeshRenderer } from '../3d';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -157,6 +158,27 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const models = scene.models;
     const visibility = camera.visibility;
 
+    // Enqueue models contained in LOD groups into renderObjects
+    // eslint-disable-next-line no-lone-blocks
+    {
+        for (const g of scene.lodGroups) {
+            if (g.enabled) {
+                const visIndex = g.getVisibleLOD(camera);
+                g.disableInVisibleLOD(visIndex);
+                if (visIndex >= 0) {
+                    const lod = g.LODs[visIndex];
+                    for (const model of lod.models) {
+                        if (model !== null && model.node.active) {
+                            scene.removeModel(model);
+                            scene.addModel(model);
+                            // enqueueRenderObject(model);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
@@ -180,24 +202,5 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
         enqueueRenderObject(model);
-    }
-
-    // Enqueue models contained in LOD groups into renderObjects
-    // eslint-disable-next-line no-lone-blocks
-    {
-        for (const g of scene.lodGroups) {
-            if (g.enabled) {
-                const visIndex = g.getVisibleLOD(camera);
-                g.disableInVisibleLOD(visIndex);
-                if (visIndex >= 0) {
-                    const lod = g.LODs[visIndex];
-                    for (const model of lod.models) {
-                        if (model !== null && model.node.active) {
-                            enqueueRenderObject(model);
-                        }
-                    }
-                }
-            }
-        }
     }
 }
