@@ -171,7 +171,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             for (let index = 0; index < g.lodCount; index++) {
                 const lod = g.LODs[index];
                 for (const model of lod.models) {
-                    console.log('bf test visIndex=', visIndex, ' index=', index, model);
                     if (visIndex === index && model && model.node.active) {
                         lodVisibleModels.push(model);
                     } else {
@@ -179,16 +178,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                     }
                 }
             }
-            // g.LODs.forEach((lod: scene.LOD, index) => {
-            //     for (const model of lod.models) {
-            //         if (visIndex === index && model && model.node.active) {
-            //             lodVisibleModels.push(model);
-            //         } else {
-            //             lodInvisibleModels.push(model);
-            //         }
-            //     }
-            // });
-            // g.disableInVisibleLOD(visIndex);
         }
     }
 

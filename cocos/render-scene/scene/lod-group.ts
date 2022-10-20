@@ -78,21 +78,10 @@ export class LODGroup {
 
     attachToScene (scene: RenderScene) {
         this.scene = scene;
-
-        for (const lod of this._LODs) {
-            for (const m of lod.models) {
-                m?.attachToScene(scene);
-            }
-        }
     }
 
     detachFromScene () {
         this.scene = null!;
-        for (const lod of this._LODs) {
-            for (const m of lod.models) {
-                m?.detachFromScene();
-            }
-        }
     }
 
     /**
@@ -112,19 +101,6 @@ export class LODGroup {
             }
         }
         return lodIndex;
-    }
-
-    disableInVisibleLOD (visibleLODIndex: number) {
-        for (let i = 0; i < this.lodCount; ++i) {
-            if (i !== visibleLODIndex) {
-                const lod = this.LODs[i];
-                lod.models.forEach((model) => {
-                    if (this.scene) {
-                        this.scene.removeModel(model);
-                    }
-                });
-            }
-        }
     }
 
     /**
