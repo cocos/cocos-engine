@@ -28,7 +28,6 @@ namespace pipeline
          
         pipeline::GlobalDSManager* _globalDSManager{nullptr};
     private:
-        static void fillBlasInfo(gfx::AccelerationStructureInfo& blasInfo, const IntrusivePtr<scene::Model>& pModel);
     };
 } // namespace pipeline
 } // namespace cc

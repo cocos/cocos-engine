@@ -13,6 +13,54 @@ namespace cc
 	namespace pipeline
 	{
 
+        namespace{
+
+        void fillblasGeomMesh(gfx::ASTriangleMesh& blasGeomMesh, const IntrusivePtr<scene::SubModel>& pSubModel) {
+            blasGeomMesh.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
+            const auto* inputAssembler = pSubModel->getInputAssembler();
+            blasGeomMesh.vertexCount = inputAssembler->getVertexCount();
+            blasGeomMesh.indexCount = inputAssembler->getIndexCount();
+            blasGeomMesh.indexBuffer = inputAssembler->getIndexBuffer();
+
+            const auto& attributes = inputAssembler->getAttributes();
+
+            auto posAttribute = std::find_if(attributes.cbegin(), attributes.cend(), [](const gfx::Attribute& attr) {
+                return attr.name == gfx::ATTR_NAME_POSITION;
+            });
+
+            blasGeomMesh.vertexFormat = posAttribute->format;
+
+            if (posAttribute != attributes.cend()) {
+                const auto vertexBufferList = inputAssembler->getVertexBuffers();
+                auto* const posBuffer = vertexBufferList[posAttribute->stream];
+                blasGeomMesh.vertexBuffer = posBuffer;
+                blasGeomMesh.vertexStride = posBuffer->getStride();
+            }
+        }
+
+        void fillBlasInfo(gfx::AccelerationStructureInfo& blasInfo, const IntrusivePtr<scene::Model>& pModel) {
+            if (pModel->getNode()->getName() == "AABB") {
+                gfx::ASAABB blasGeomAABB{};
+                blasGeomAABB.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
+                blasGeomAABB.minX = -0.5;
+                blasGeomAABB.minY = -0.5;
+                blasGeomAABB.minZ = -0.5;
+                blasGeomAABB.maxX = 0.5;
+                blasGeomAABB.maxY = 0.5;
+                blasGeomAABB.maxZ = 0.5;
+                blasInfo.aabbs.push_back(blasGeomAABB);
+            } else {
+                for (const auto& pSubModel : pModel->getSubModels()) {
+                    gfx::ASTriangleMesh blasGeomMesh{};
+                    fillblasGeomMesh(blasGeomMesh, pSubModel);
+                    blasInfo.triangels.push_back(blasGeomMesh);
+                }
+            }
+            blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
+        }
+
+        }
+
         SceneAccelerationStructure::SceneAccelerationStructure() {
             auto* pipelineRuntime = Root::getInstance()->getPipeline();
             _globalDSManager = pipelineRuntime->getGlobalDSManager(); 
@@ -118,6 +166,7 @@ namespace cc
                         blas->build();
                         blas->compact();
                         _blasMap.emplace(meshUuid, blas);
+
                         tlasGeom.accelerationStructureRef = blas;
                     }
                     _modelMap.emplace(modelUuid, std::pair{true, tlasGeom});
@@ -175,53 +224,10 @@ namespace cc
 		}
 
         void SceneAccelerationStructure::destroy() {
-                    _topLevelAccelerationStructure = nullptr;
-                    _bottomLevelAccelerationStructures.clear();
-                    _blasMap.clear();
-                    _modelMap.clear();
-        }
-
-        void SceneAccelerationStructure::fillBlasInfo(gfx::AccelerationStructureInfo& blasInfo, const IntrusivePtr<scene::Model>& pModel) {
-
-            if (pModel->getNode()->getName() == "AABB") {
-                gfx::ASAABB blasGeom{};
-                blasGeom.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
-                blasGeom.minX = -0.5;
-                blasGeom.minY = -0.5;
-                blasGeom.minZ = -0.5;
-                blasGeom.maxX = 0.5;
-                blasGeom.maxY = 0.5;
-                blasGeom.maxZ = 0.5;
-                blasInfo.aabbs.push_back(blasGeom);
-            } else {
-                const auto& subModels = pModel->getSubModels();
-                for (const auto& pSubModel : subModels) {
-                    gfx::ASTriangleMesh blasGeom{};
-                    const auto* inputAssembler = pSubModel->getInputAssembler();
-                    blasGeom.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
-                    blasGeom.vertexCount = inputAssembler->getVertexCount();
-                    blasGeom.indexCount = inputAssembler->getIndexCount();
-                    blasGeom.indexBuffer = inputAssembler->getIndexBuffer();
-
-                    const auto& attributes = inputAssembler->getAttributes();
-
-                    auto pred = [](const gfx::Attribute& attr) {
-                        return attr.name == gfx::ATTR_NAME_POSITION;
-                    };
-
-                    auto posAttribute = std::find_if(attributes.cbegin(), attributes.cend(), pred);
-
-                    if (posAttribute != attributes.cend()) {
-                        const auto vertexBufferList = inputAssembler->getVertexBuffers();
-                        auto* const posBuffer = vertexBufferList[posAttribute->stream];
-                        blasGeom.vertexBuffer = posBuffer;
-                        blasGeom.vertexFormat = posAttribute->format;
-                        blasGeom.vertexStride = posBuffer->getStride();
-                    }
-                    blasInfo.triangels.push_back(blasGeom);
-                }
-            }
-            blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
+            _topLevelAccelerationStructure = nullptr;
+            _bottomLevelAccelerationStructures.clear();
+            _blasMap.clear();
+            _modelMap.clear();
         }
 
 	}  // namespace pipeline
