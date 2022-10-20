@@ -48,7 +48,7 @@ void CCVKQueue::doInit(const QueueInfo & /*info*/) {
 }
 
 void CCVKQueue::doDestroy() {
-    _gpuQueue.reset();
+    _gpuQueue = nullptr;
 }
 
 void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {

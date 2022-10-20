@@ -516,13 +516,13 @@ void CCVKDevice::doDestroy() {
     _gpuStagingBufferPools.clear();
     _gpuFencePools.clear();
 
-    _gpuBufferHub.reset();
-    _gpuTransportHub.reset();
-    _gpuSemaphorePool.reset();
-    _gpuDescriptorHub.reset();
-    _gpuBarrierManager.reset();
-    _gpuDescriptorSetHub.reset();
-    _gpuIAHub.reset();
+    _gpuBufferHub = nullptr;
+    _gpuTransportHub = nullptr;
+    _gpuSemaphorePool = nullptr;
+    _gpuDescriptorHub = nullptr;
+    _gpuBarrierManager = nullptr;
+    _gpuDescriptorSetHub = nullptr;
+    _gpuIAHub = nullptr;
 
     if (_gpuDevice) {
         uint32_t backBufferCount = _gpuDevice->backBufferCount;
@@ -562,10 +562,10 @@ void CCVKDevice::doDestroy() {
             _gpuDevice->vkDevice = VK_NULL_HANDLE;
         }
 
-        _gpuDevice.reset();
+        _gpuDevice = nullptr;
     }
 
-    _gpuContext.reset();
+    _gpuContext = nullptr;
 }
 
 namespace {
