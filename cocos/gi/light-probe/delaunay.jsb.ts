@@ -24,8 +24,10 @@
 */
 import { serializable } from 'cc.decorator';
 import { ccclass } from "../../core/data/class-decorator";
+import { legacyCC } from '../../core/global-exports';
 
 export const Vertex = jsb.Vertex;
+legacyCC.Vertex = Vertex;
 const VertexProto = Vertex.prototype;
 serializable(VertexProto, 'position');
 serializable(VertexProto, 'normal');
@@ -39,6 +41,7 @@ serializable(CircumSphereProto, 'radiusSquared');
 ccclass('cc.CircumSphere')(CircumSphere);
 
 export const Tetrahedron = jsb.Tetrahedron;
+legacyCC.Tetrahedron = Tetrahedron;
 const TetrahedronProto = Tetrahedron.prototype;
 serializable(TetrahedronProto, 'invalid');
 serializable(TetrahedronProto, 'vertex0');

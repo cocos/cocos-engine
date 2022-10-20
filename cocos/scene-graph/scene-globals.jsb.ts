@@ -165,7 +165,7 @@ legacyCC.OctreeInfo = OctreeInfo;
 
 // @ts-ignore
 export const LightProbeInfo = jsb.LightProbeInfo;
-//legacyCC.LightProbeInfo = LightProbeInfo;
+legacyCC.LightProbeInfo = LightProbeInfo;
 
 // @ts-ignore
 export const SceneGlobals = jsb.SceneGlobals;
