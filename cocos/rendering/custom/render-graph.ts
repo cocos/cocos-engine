@@ -323,6 +323,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     clear (): void {
         // Members
         this.nextFenceValue = 1;
+        this.version = 0;
         // UuidGraph
         this._valueIndex.clear();
         // ComponentGraph
@@ -700,6 +701,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _samplerInfo: SamplerInfo[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
     nextFenceValue = 1;
+    version = 0;
 }
 
 export class RasterSubpass {
