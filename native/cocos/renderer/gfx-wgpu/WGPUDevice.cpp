@@ -267,6 +267,10 @@ PipelineState *CCWGPUDevice::createPipelineState() {
     return ccnew CCWGPUPipelineState;
 }
 
+TransientPool *CCWGPUDevice::createTransientPool() {
+    return nullptr;
+}
+
 CommandBuffer *CCWGPUDevice::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     return ccnew CCWGPUCommandBuffer;
 }

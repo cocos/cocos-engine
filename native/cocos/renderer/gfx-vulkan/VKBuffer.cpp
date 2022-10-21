@@ -61,6 +61,7 @@ void CCVKBuffer::createBuffer(uint32_t size, uint32_t count) {
     _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
     _gpuBuffer->stride = _stride;
+    _gpuBuffer->allocateMemory = !hasFlag(_flags, BufferFlagBit::TRANSIENT);
     _gpuBuffer->init();
 }
 

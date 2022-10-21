@@ -46,6 +46,7 @@
 #include "ShaderAgent.h"
 #include "SwapchainAgent.h"
 #include "TextureAgent.h"
+#include "TransientPoolAgent.h"
 
 namespace cc {
 namespace gfx {
@@ -274,6 +275,11 @@ PipelineLayout *DeviceAgent::createPipelineLayout() {
 PipelineState *DeviceAgent::createPipelineState() {
     PipelineState *actor = _actor->createPipelineState();
     return ccnew PipelineStateAgent(actor);
+}
+
+TransientPool *DeviceAgent::createTransientPool() {
+    TransientPool *actor = _actor->createTransientPool();
+    return ccnew TransientPoolAgent(actor);
 }
 
 Sampler *DeviceAgent::getSampler(const SamplerInfo &info) {

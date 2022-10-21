@@ -64,6 +64,7 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
         _gpuTexture->memoryless = true;
     }
 
+    _gpuTexture->memoryless = hasFlag(_info.flags, TextureFlagBit::TRANSIENT);
     _gpuTexture->type = _info.type;
     _gpuTexture->format = _info.format;
     _gpuTexture->usage = _info.usage;

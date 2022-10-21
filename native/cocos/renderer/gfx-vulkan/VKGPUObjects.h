@@ -208,8 +208,8 @@ struct CCVKGPUBuffer : public CCVKGPUDeviceObject {
     MemoryUsage memUsage = MemoryUsage::NONE;
     uint32_t stride = 0U;
     uint32_t count = 0U;
-    void *buffer = nullptr;
 
+    bool allocateMemory = true;
     bool isDrawIndirectByIndex = false;
     ccstd::vector<VkDrawIndirectCommand> indirectCmds;
     ccstd::vector<VkDrawIndexedIndirectCommand> indexedIndirectCmds;

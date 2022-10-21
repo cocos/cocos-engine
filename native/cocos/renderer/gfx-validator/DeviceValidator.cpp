@@ -41,6 +41,7 @@
 #include "SwapchainValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "TransientPoolValidator.h"
 
 #include <algorithm>
 #include <cstring>
@@ -253,6 +254,13 @@ PipelineState *DeviceValidator::createPipelineState() {
     PipelineState *actor = _actor->createPipelineState();
     PipelineState *result = ccnew PipelineStateValidator(actor);
     DeviceResourceTracker<PipelineState>::push(result);
+    return result;
+}
+
+TransientPool *DeviceValidator::createTransientPool() {
+    TransientPool *actor = _actor->createTransientPool();
+    TransientPool *result = ccnew TransientPoolValidator(actor);
+    DeviceResourceTracker<TransientPool>::push(result);
     return result;
 }
 

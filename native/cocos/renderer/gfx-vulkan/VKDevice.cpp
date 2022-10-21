@@ -41,6 +41,7 @@
 #include "VKSwapchain.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
+#include "VKTransientPool.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef-common.h"
 #include "states/VKGeneralBarrier.h"
@@ -846,6 +847,10 @@ PipelineLayout *CCVKDevice::createPipelineLayout() {
 
 PipelineState *CCVKDevice::createPipelineState() {
     return ccnew CCVKPipelineState;
+}
+
+TransientPool *CCVKDevice::createTransientPool() {
+    return ccnew VKTransientPool;
 }
 
 Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {

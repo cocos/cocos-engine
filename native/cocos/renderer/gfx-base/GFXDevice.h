@@ -40,6 +40,7 @@
 #include "GFXShader.h"
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
+#include "GFXTransientPool.h"
 #include "base/RefCounted.h"
 #include "base/std/container/array.h"
 #include "states/GFXBufferBarrier.h"
@@ -86,6 +87,7 @@ public:
     inline DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info);
     inline PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info);
     inline PipelineState *createPipelineState(const PipelineStateInfo &info);
+    inline TransientPool *createTransientPool(const TransientPoolInfo &info);
 
     virtual Sampler *getSampler(const SamplerInfo &info);
     virtual GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info);
@@ -149,6 +151,7 @@ protected:
     virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
     virtual PipelineLayout *createPipelineLayout() = 0;
     virtual PipelineState *createPipelineState() = 0;
+    virtual TransientPool *createTransientPool() { return nullptr; }
 
     virtual Sampler *createSampler(const SamplerInfo &info) { return ccnew Sampler(info); }
     virtual GeneralBarrier *createGeneralBarrier(const GeneralBarrierInfo &info) { return ccnew GeneralBarrier(info); }
@@ -303,6 +306,12 @@ PipelineLayout *Device::createPipelineLayout(const PipelineLayoutInfo &info) {
 
 PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
     PipelineState *res = createPipelineState();
+    res->initialize(info);
+    return res;
+}
+
+TransientPool *Device::createTransientPool(const TransientPoolInfo &info) {
+    TransientPool *res = createTransientPool();
     res->initialize(info);
     return res;
 }

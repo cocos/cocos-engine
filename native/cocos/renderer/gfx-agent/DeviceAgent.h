@@ -82,6 +82,7 @@ public:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *createPipelineLayout() override;
     PipelineState *createPipelineState() override;
+    TransientPool *createTransientPool() override;
 
     Sampler *getSampler(const SamplerInfo &info) override;
     GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info) override;

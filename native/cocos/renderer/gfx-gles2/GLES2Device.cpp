@@ -509,6 +509,10 @@ Sampler *GLES2Device::createSampler(const SamplerInfo &info) {
     return ccnew GLES2Sampler(info);
 }
 
+TransientPool *GLES2Device::createTransientPool() {
+    return nullptr;
+}
+
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     CC_PROFILE(GLES2DeviceCopyBuffersToTexture);
     cmdFuncGLES2CopyBuffersToTexture(this, buffers, static_cast<GLES2Texture *>(dst)->gpuTexture(), regions, count);

@@ -579,6 +579,10 @@ GeneralBarrier *GLES3Device::createGeneralBarrier(const GeneralBarrierInfo &info
     return ccnew GLES3GeneralBarrier(info);
 }
 
+TransientPool *GLES3Device::createTransientPool() {
+    return nullptr;
+}
+
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     CC_PROFILE(GLES3DeviceCopyBuffersToTexture);
     cmdFuncGLES3CopyBuffersToTexture(this, buffers, static_cast<GLES3Texture *>(dst)->gpuTexture(), regions, count);

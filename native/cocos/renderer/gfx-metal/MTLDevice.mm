@@ -164,12 +164,12 @@ void CCMTLDevice::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
-    
+
     if(_inFlightSemaphore) {
         _inFlightSemaphore->trySyncAll(1000);
         CC_SAFE_DELETE(_inFlightSemaphore);
         _inFlightSemaphore = nullptr;
-    }    
+    }
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
@@ -307,6 +307,10 @@ Sampler *CCMTLDevice::createSampler(const SamplerInfo &info) {
 
 Swapchain *CCMTLDevice::createSwapchain() {
     return ccnew CCMTLSwapchain;
+}
+
+TransientPool *CCMTLDevice::createTransientPool() {
+    return nullptr;
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
