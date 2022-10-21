@@ -359,6 +359,7 @@ export function buildPostprocessPass (camera: Camera,
         ppl.addRenderTexture(postprocessPassRTName, Format.RGBA8, width, height, camera.window);
         ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
+    ppl.updateRenderWindow(postprocessPassRTName, camera.window);
     const postprocessPass = ppl.addRasterPass(width, height, 'Postprocess', `CameraPostprocessPass${cameraID}`);
     postprocessPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputTex)) {
