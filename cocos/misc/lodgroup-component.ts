@@ -67,8 +67,18 @@ export class LOD {
         return this._renderers;
     }
 
+    /**
+     * engineInternal, for editor only
+     */
     set renderers (meshList) {
-        this._renderers = meshList;
+        this._renderers = meshList || [];
+        this._LOD.models.splice(0, this._LOD.models.length);
+        for (let i = 0; i < this._renderers.length; i++) {
+            const model = this._renderers[i]?.model;
+            if (model) {
+                this._LOD.models.splice(i, 0, model);
+            }
+        }
     }
 
     @editable
@@ -91,6 +101,7 @@ export class LOD {
     }
 
     /**
+     * engineInternal
      * @en Insert a [[MeshRenderer]] before specific index position.
      * @zh 在指定的数组索引处插入一个[[MeshRenderer]]
      * @param index 0 indexed position in renderer array, when -1 is specified, append to the tail of the list
@@ -107,6 +118,7 @@ export class LOD {
     }
 
     /**
+     * engineInternal
      * @en Delete the [[MeshRenderer]] at specific index position.
      * @zh 删除指定索引处的[[MeshRenderer]]
      * @param index 0 indexed position in renderer array, when -1 is specified, the last element will be deleted
@@ -123,6 +135,9 @@ export class LOD {
         return this._renderers[index];
     }
 
+    /**
+     * engineInternal
+     */
     setRenderer (index: number, renderer: MeshRenderer) {
         this._renderers[index] = renderer;
         this._LOD.models[index] = renderer.model!;
@@ -130,6 +145,9 @@ export class LOD {
 
     get rendererCount () { return this._renderers.length; }
 
+    /**
+     * engineInternal
+     */
     get lod () { return this._LOD; }
 }
 
@@ -237,7 +255,7 @@ export class LODGroup extends Component {
             const size = _DEFAULT_SCREEN_OCCUPATION.length;
             for (let i = 0; i < size; i++) {
                 const lod = new LOD();
-                this.insertLOD(i,_DEFAULT_SCREEN_OCCUPATION[i], lod);
+                this.insertLOD(i, _DEFAULT_SCREEN_OCCUPATION[i], lod);
             }
         }
     }
