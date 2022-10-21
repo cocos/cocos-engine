@@ -161,7 +161,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const models = scene.models;
     const visibility = camera.visibility;
 
-    // Enqueue models contained in LOD groups into renderObjects
+    // Insert visible LOD models into lodVisibleModels, the others insert into lodInvisibleModels
     // eslint-disable-next-line no-lone-blocks
     const lodInvisibleModels: Model[] = [];
     const lodVisibleModels : Model[] = [];
@@ -184,12 +184,13 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
+            if (lodInvisibleModels.indexOf(model) >= 0 && lodVisibleModels.indexOf(model) < 0) {
+                return;
+            }
+
             if (model.castShadow) {
                 castShadowObjects.push(getRenderObject(model, camera));
                 csmLayerObjects.push(getRenderObject(model, camera));
-            }
-            if (lodInvisibleModels.indexOf(model) >= 0 && lodVisibleModels.indexOf(model) < 0) {
-                return;
             }
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)

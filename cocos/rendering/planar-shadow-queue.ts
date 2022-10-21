@@ -59,26 +59,35 @@ export class PlanarShadowQueue {
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
+        // Insert visible LOD models into lodVisibleModels, the others insert into lodInvisibleModels
+        // eslint-disable-next-line no-lone-blocks
+        const lodInvisibleModels: Model[] = [];
+        const lodVisibleModels : Model[] = [];
+        if (scene) {
+            for (const g of scene.lodGroups) {
+                if (g.enabled) {
+                    const visIndex = g.getVisibleLOD(camera);
+                    for (let index = 0; index < g.lodCount; index++) {
+                        const lod = g.LODs[index];
+                        for (const model of lod.models) {
+                            if (visIndex === index && model && model.node.active) {
+                                lodVisibleModels.push(model);
+                            } else {
+                                lodInvisibleModels.push(model);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
+            if (lodInvisibleModels.indexOf(model) >= 0 && lodVisibleModels.indexOf(model) < 0) {
+                continue;
+            }
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
-        }
-
-        // Get model(s) contained in LOD Groups
-        // eslint-disable-next-line no-lone-blocks
-        {
-            // for (const g of scene.lodGroups) {
-            //     if (g.enabled) {
-            //         const visIndex = g.getVisibleLOD(camera);
-            //         if (visIndex >= 0) {
-            //             const lod = g.LODs[visIndex];
-            //             for (const model of lod.models) {
-            //                 if (model &&  model.enabled && model.node && model.castShadow) this._castModels.push(model);
-            //             }
-            //         }
-            //     }
-            // }
         }
 
         const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
