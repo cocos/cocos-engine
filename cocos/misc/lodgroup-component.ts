@@ -34,7 +34,7 @@ import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
 import { NodeEventType } from '../scene-graph/node-event';
 
-const _DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.2, 0.07];
+const _DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.25, 0.125];
 @ccclass('cc.LOD')
 export class LOD {
     // The relative minimum transition height in screen space.
@@ -97,7 +97,10 @@ export class LOD {
      * @param renderer the mesh-renderer object
      * @returns The renderer inserted
      */
-    insertRenderer (index: number, renderer: MeshRenderer): MeshRenderer {
+    insertRenderer (index: number, renderer: MeshRenderer | null): MeshRenderer {
+        if (!renderer) {
+            renderer = new MeshRenderer();
+        }
         this._renderers.splice(index, 0, renderer);
         this._LOD.models.splice(index, 0, renderer.model!);
         return renderer;
@@ -187,7 +190,11 @@ export class LODGroup extends Component {
         this._LODs = LODs;
     }
 
-    insertLOD (index: number, lod: LOD): LOD {
+    insertLOD (index: number, screenSize: number, lod: LOD | null): LOD {
+        if (!lod) {
+            lod = new LOD();
+        }
+        lod.screenRelativeTransitionHeight = screenSize;
         this._LODs.splice(index, 0, lod);
         this._lodGroup.LODs.splice(index, 0, lod.lod);
         return lod;
