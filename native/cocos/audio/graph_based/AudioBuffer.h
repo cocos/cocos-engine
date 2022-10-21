@@ -1,19 +1,21 @@
 #pragma once
 #include "base/std/container/vector.h"
 #include "audio/graph_based/AudioNode.h"
+#include "base/Log.h"
 #include "LabSound/core/AudioBus.h"
 #include "LabSound/core/AudioArray.h"
 #include "LabSound/core/AudioChannel.h"
 
 namespace cc {
-struct AudioBufferOptions : AudioNodeOptions {
-    unsigned numberOfChannels{1};
-    unsigned length{1};
+struct AudioBufferOptions {
+    uint32_t numberOfChannels{1};
+    uint32_t length{1};
     float sampleRate{44100};
 };
 /* An AudioBuffer in cpp is a reference to real buffer, without translate to ts layer. The translation task is heavy. */
 class AudioBuffer {
 public:
+    
     AudioBuffer(const AudioBufferOptions& options = {});
     /* Duration in seconds */
     double duration();
@@ -26,7 +28,13 @@ public:
     void copyToChannel(ccstd::vector<float>& source, uint32_t channelNumber, size_t startInChannel);
     ccstd::vector<float> getChannelData(uint32_t channel);
 
+protected:
+    // This constructor takes a constructed bus from clip.
+    AudioBuffer(lab::AudioBus* bus);
+    friend class AudioClip;
+
 private:
+    friend class SourceNode;
     std::shared_ptr<lab::AudioBus> _bus;
 };
 }

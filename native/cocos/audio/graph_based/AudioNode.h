@@ -12,8 +12,9 @@ struct AudioNodeOptions {
 class AudioNode {
 public:
     AudioNode() = delete;
-    ~AudioNode();
-    AudioContext* context() { return _ctx.get(); };
+
+    virtual ~AudioNode() = default;
+    BaseAudioContext* context() { return _ctx.get(); };
     uint32_t numberOfInputs() { return _node->numberOfInputs(); };
     uint32_t numberOfOutputs() { return _node->numberOfOutputs(); };
     uint32_t channelCount() { return _node->channelCount(); };
@@ -21,10 +22,10 @@ public:
     void setChannelCount(uint32_t count);
 
     /* Channel Count mode means nothing in moments, this interface is about to lose */
-    lab::ChannelCountMode channelCountMode();
-    void setChannelCountMode(lab::ChannelCountMode mode);
-    lab::ChannelInterpretation channelInterpretation();
-    void setChannelInterpretation(lab::ChannelInterpretation interpretation);
+    uint32_t channelCountMode();
+    void setChannelCountMode(uint32_t mode);
+    uint32_t channelInterpretation();
+    void setChannelInterpretation(uint32_t interpretation);
 
     /**
     * Usage:
@@ -37,14 +38,18 @@ public:
     *   bufferNode.connect(audioCtx.destination);
     *   ```
     * return value: a reference to the destination AudioNode object, allowing you to chain multiple connect() calls.or undefined for param.
+    *
+    * OutputIndex is the index of current node, and inputIndex is the index of destination node.
     */
-    AudioNode& connect(AudioNode* node, uint32_t outputIndex = 0, uint32_t inputIndex = 0);
-    void connect(AudioParam* param, uint32_t outputIndex = 0, uint32_t inputIndex = 0);
-    AudioNode& disconnect(AudioParam* param);
-    AudioNode& disconnect(AudioNode* node = nullptr, uint32_t output = 0, uint32_t input = 0);
+    virtual AudioNode* connect(AudioNode* node, uint32_t outputIndex = 0, uint32_t inputIndex = 0);
+    virtual void connect(AudioParam* param, uint32_t outputIndex = 0, uint32_t inputIndex = 0);
+    virtual void disconnect(AudioParam* param, uint32_t outputIndex = 0, uint32_t inputIndex = 0);
+    virtual void disconnect(AudioNode* node = nullptr, uint32_t outputIndex = 0, uint32_t inputIndex = 0);
 
 protected:
-    std::shared_ptr<AudioContext> _ctx;
+    friend class AudioContext;
+    explicit AudioNode(BaseAudioContext* ctx);
+    std::shared_ptr<BaseAudioContext> _ctx;
     std::shared_ptr<lab::AudioNode> _node;
 };
 }

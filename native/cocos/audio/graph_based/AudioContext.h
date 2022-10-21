@@ -15,38 +15,16 @@ struct AudioTimestamp {
 //class MediaStreamTrack;
 //class MediaStreamTrackAudioSourceNode;
 
-enum class AudioContextLatencyCategory {
-    BALANCED,
-    INTERACTIVE,
-    PLAYBACK,
-};
-enum class AudioContextState {
-    SUSPENDED,
-    RUNNING,
-    CLOSED
-};
-//// Using AudioContextLatencyCategoryStr[cat] to get string back
-//static ccstd::string AudioContextLatencyStr[] = {
-//    "Balanced", "Interactive", "Playback"
-//};
-//// Using AudioContextStateStr[cat] to get string back
-//static ccstd::string AudioContextStateStr[] = {
-//    "Suspended", "Running", "Closed"};
-struct AudioContextOptions {
-    ccstd::variant<AudioContextLatencyCategory, double> latencyHint{AudioContextLatencyCategory::INTERACTIVE};
-    ccstd::optional<float> sampleRate;
-};
-class AudioContext : BaseAudioContext {
+class AudioContext : public BaseAudioContext {
 public:
-    AudioContext();
-    AudioContext(const AudioContextOptions &options);
+    AudioContext(const AudioContextOptions& options = {});
     /* a double that represents the number of seconds of processing latency incurred by the AudioContext passing an audio buffer from
     the AudioDestinationNode — i.e. the end of the audio graph — into the host system's audio subsystem ready for playing.*/
     double baseLatency(); // need realtime calculate, readonly
     double outputLatency();
     //AudioListener* listener();
 
-    //bool close(CommonCallback cb);
+    //Close for the audio context should be implemented as delete inner context and all resources.
     bool close();
     bool resume();
     bool suspend();
@@ -54,9 +32,10 @@ public:
     //MediaStreamAudioSourceNode* createMediaStreamSource();
     //MediaStreamTrackAudioSourceNode* createMediaStreamTrackNode(MediaStreamTrack* track);
 
-    AudioTimestamp& getOutputTimeStamp();
+    //AudioTimestamp& getOutputTimeStamp();
     
 
 private:
+    friend class AudioNode;
 };
 }

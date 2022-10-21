@@ -9,7 +9,16 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
-#include "audio/include/AudioEngine.h"
+#include "audio/graph_based/AudioContext.h"
+#include "audio/graph_based/AudioBuffer.h"
+#include "audio/graph_based/AudioDestinationNode.h"
+#include "audio/graph_based/AudioNode.h"
+#include "audio/graph_based/AudioScheduledSourceNode.h"
+#include "audio/graph_based/GainNode.h"
+#include "audio/graph_based/StereoPannerNode.h"
+#include "audio/graph_based/SourceNode.h"
+#include "audio/graph_based/BaseAudioContext.h"
+
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -30,10 +39,10 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
-%ignore cc::AudioEngine::getPCMHeader;
-%ignore cc::AudioEngine::getOriginalPCMBuffer;
-%ignore cc::AudioEngine::getPCMBufferByFormat;
-
+// %ignore cc::AudioEngine::getPCMHeader;
+// %ignore cc::AudioEngine::getOriginalPCMBuffer;
+// %ignore cc::AudioEngine::getPCMBufferByFormat;
+%ignore cc::BaseAudioContext::getInnerContext;
 
 
 // ----- Rename Section ------
@@ -80,20 +89,65 @@
 //  3. If using reference, add '&' suffix for cpp_member_variable_type to avoid generated code using value assignment
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
+// AudioContext
+%attribute(cc::AudioContext, double, baseLatency, baseLatency);
+%attribute(cc::AudioContext, double, outputLatency, outputLatency);
 
-
+// AudioBuffer
+%attribute(cc::AudioBuffer, double, duration, duration);
+%attribute(cc::AudioBuffer, size_t, length, length);
+%attribute(cc::AudioBuffer, uint32_t, numberOfChannels, numberOfChannels);
+%attribute(cc::AudioBuffer, uint32_t, sampleRate, sampleRate);
+// AudioNode
+%attribute(cc::AudioNode, uint32_t, numberOfInputs, numberOfChannels);
+%attribute(cc::AudioNode, uint32_t, numberOfOutputs, numberOfOutputs);
+%attribute(cc::AudioNode, uint32_t, channelCount, channelCount, setChannelCount);
+%attribute(cc::AudioNode, uint32_t, channelCountMode, channelCountMode, setChannelCountMode);
+%attribute(cc::AudioNode, uint32_t, channelInterpretation, channelInterpretation, setChannelInterpretation);
+// AudioDestinationNode
+%attribute(cc::AudioDestinationNode, uint32_t, maxChannelCount, maxChannelCount, setMaxChannelCount);
+// AudioParam
+%attribute(cc::AudioParam, float, value, value, setValue);
+%attribute(cc::AudioParam, float, defaultValue, defaultValue);
+%attribute(cc::AudioParam, float, maxValue, maxValue)
+%attribute(cc::AudioParam, float, minValue, minValue)
+// BaseAudioContext
+%attribute(cc::BaseAudioContext, double, currentTime, currentTime);
+%attribute(cc::BaseAudioContext, cc::AudioDestinationNode, destination, destination);
+%attribute(cc::BaseAudioContext, float, sampleRate, sampleRate);
+%attribute(cc::BaseAudioContext, uint32_t, state, state);
+// GainNode
+%attribute(cc::GainNode, cc::AudioParam*, gain, gain);
+// StereoPannerNode
+%attribute(cc::StereoPannerNode, cc::AudioParam*, pan, pan);
+// SourceNode
+%attribute(cc::SourceNode, cc::AudioParam*, detune, detune);
+%attribute(cc::SourceNode, cc::AudioParam*, playbackRate, playbackRate);
+%attribute(cc::SourceNode, bool, loop, loop, setLoop);
+%attribute(cc::SourceNode, float, currentTime, currentTime, setCurrentTime);
+%attribute(cc::SourceNode, float, loopStart, loopStart, setLoopStart);
+%attribute(cc::SourceNode, float, loopEnd, loopEnd, setLoopEnd);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note: 
 //   %import "your_header_file.h" will not generate code for that header file
 //
-%import "audio/include/Export.h"
+%import "audio/Export.h"
+
 
 
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
-%include "audio/include/AudioEngine.h"
-
+// %include "audio/include/AudioEngine.h"
+%include "audio/graph_based/AudioContext.h"
+%include "audio/graph_based/AudioBuffer.h"
+%include "audio/graph_based/AudioDestinationNode.h"
+%include "audio/graph_based/AudioNode.h"
+%include "audio/graph_based/AudioScheduledSourceNode.h"
+%include "audio/graph_based/GainNode.h"
+%include "audio/graph_based/StereoPannerNode.h"
+%include "audio/graph_based/SourceNode.h"
+%include "audio/graph_based/BaseAudioContext.h"
 

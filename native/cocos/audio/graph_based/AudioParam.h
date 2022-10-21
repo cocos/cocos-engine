@@ -7,7 +7,9 @@ namespace cc {
 
 class AudioParam {
 public:
-    AudioParam(ccstd::string &name, ccstd::string &shortName, double defaultValue, double minValue, double maxValue);
+    //AudioParam(ccstd::string &name, ccstd::string &shortName, double defaultValue, double minValue, double maxValue);
+
+    // AudioParam can only be used to set the internal value of lab::AudioParam of specified node.
     AudioParam(lab::AudioParam* param);
     // AudioParam & operator=(const AudioParam& param) = default;
     AudioParam() = delete;
@@ -31,8 +33,8 @@ public:
     //void setValueCurveAtTime(std::vector<float> values, double startTime, double duration);
 
 private:
+    friend class AudioNode;
     // All self defined audio param descriptor will be saved here. Normally there's no need to construct a desc yourself.
-    std::shared_ptr<lab::AudioParam> _param;
-
+    std::shared_ptr<lab::AudioParam> _param{nullptr};
 };
 }

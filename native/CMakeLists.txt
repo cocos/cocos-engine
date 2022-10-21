@@ -231,22 +231,20 @@ include(${EXTERNAL_ROOT}/CMakeLists.txt)
 
 ##### audio
 if(USE_AUDIO)
-    cocos_source_files(
-            cocos/audio/AudioEngine.cpp
-            cocos/audio/AudioEngine.h
-            cocos/audio/AudioDef.h
-            cocos/audio/Export.h
-    )
+    # cocos_source_files(
+    #         cocos/audio/AudioEngine.cpp
+    #         cocos/audio/AudioEngine.h
+    #         cocos/audio/AudioDef.h
+    #         cocos/audio/Export.h
+    # )
     if(WINDOWS)
         cocos_source_files(
             cocos/audio/AudioClip.cpp
             cocos/audio/AudioClip.h
-            cocos/audio/AudioPlayer.cpp
-            cocos/audio/AudioPlayer.h
             cocos/audio/graph_based/AudioBuffer.h
             cocos/audio/graph_based/AudioBuffer.cpp
-            cocos/audio/graph_based/AudioBufferSourceNode.h
-            cocos/audio/graph_based/AudioBufferSourceNode.cpp
+            cocos/audio/graph_based/SourceNode.h
+            cocos/audio/graph_based/SourceNode.cpp
             cocos/audio/graph_based/AudioContext.h
             cocos/audio/graph_based/AudioContext.cpp
             cocos/audio/graph_based/AudioDestinationNode.h
@@ -261,13 +259,10 @@ if(USE_AUDIO)
             cocos/audio/graph_based/BaseAudioContext.cpp
             cocos/audio/graph_based/GainNode.h
             cocos/audio/graph_based/GainNode.cpp
-            cocos/audio/graph_based/PannerNode.cpp
-            cocos/audio/graph_based/PannerNode.h
+            # cocos/audio/graph_based/PannerNode.cpp
+            # cocos/audio/graph_based/PannerNode.h
             cocos/audio/graph_based/StereoPannerNode.cpp
             cocos/audio/graph_based/StereoPannerNode.h
-            
-
-
         )
     elseif(LINUX OR QNX)
         cocos_source_files(
@@ -729,7 +724,7 @@ elseif(IOS)
                             cocos/platform/ios/modules/Screen.h
                             cocos/platform/ios/modules/Network.mm
                             cocos/platform/ios/modules/Network.h
-                            cocos/platform/ios/modules/Vibrator.mm
+                            cocos/platform/ios/modules/Vib·rator.mm
                             cocos/platform/ios/modules/Vibrator.h
                             cocos/platform/ios/modules/System.mm
                             cocos/platform/ios/modules/System.h

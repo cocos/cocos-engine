@@ -6,10 +6,9 @@ public:
     void setMaxChannelCount(uint32_t channelCount);
 
 private:
-    friend class AudioContext;
-    AudioDestinationNode(AudioContext* ctx, lab::AudioDevice* device);
+    friend class BaseAudioContext;
+    AudioDestinationNode(BaseAudioContext* ctx, lab::AudioNode* node);
     uint32_t _maxChannelCount;
-    std::shared_ptr<lab::AudioDevice> _device;
 };
 }
 

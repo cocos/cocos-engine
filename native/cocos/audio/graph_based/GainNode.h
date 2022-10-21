@@ -8,12 +8,10 @@ struct GainNodeOptions : AudioNodeOptions {
 };
 class GainNode : AudioNode {
 public:
-    GainNode(BaseAudioContext* ctx, const GainNodeOptions& = {});
-    AudioParam& gain();
-    void setGain(float gain) { _gainNode->gain()->setValue(gain); } /*Only way to set value*/
+    GainNode(BaseAudioContext* ctx, const GainNodeOptions& options = {});
+    AudioParam* gain();
 
 private:
-    std::shared_ptr<lab::GainNode> _gainNode;
-    std::shared_ptr<AudioParam> _gainRef;
+    std::shared_ptr<AudioParam> _gain;
 };
 }; // namespace cc

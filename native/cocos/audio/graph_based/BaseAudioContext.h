@@ -4,13 +4,14 @@
 #include "LabSound/core/AudioContext.h"
 namespace cc {
 typedef std::function<void()> CommonCallback;
+typedef std::function<void(AudioContextState)> StateChangeCallback;
 
 class AudioBuffer;
-class AudioBufferSourceNode;
+class SourceNode;
 class AudioDestinationNode;
 class GainNode;
 class PannerNode;
-class StereoPannerNode;
+//class StereoPannerNode;
 
 enum class AudioContextLatencyCategory {
     BALANCED,
@@ -35,25 +36,29 @@ struct AudioContextOptions {
 };
 class BaseAudioContext {
 public:
-    BaseAudioContext() = delete;
+    explicit BaseAudioContext() = default;
+    ~BaseAudioContext();
     double currentTime() { return _ctx->currentTime(); }
     AudioDestinationNode* destination() { return _dest.get(); }
     //AudioListener* listener();
     float sampleRate() { return _ctx->sampleRate(); };
     AudioContextState state();
-    void onStateChanged(CommonCallback cb); // TODO(timlyeee): This function should be called in TS
+    void onStateChanged(StateChangeCallback cb); // TODO(timlyeee): This function should be called in TS
 
     // Normally inheritaged from BaseAudioContext
-    AudioBuffer* createBuffer();
-    AudioBufferSourceNode* createBufferSource();
+    AudioBuffer* createBuffer(uint32_t numOfChannels = 1, uint32_t length = 0, float sampleRate = 44100);
+    SourceNode* createBufferSource();
     GainNode* createGain();
-    PannerNode* createPanner();
-    StereoPannerNode* createStereoPanner();
+    //PannerNode* createPanner();
+    //StereoPannerNode* createStereoPanner();
     //bool decodeAudioData();// Implement in TS?
+    lab::AudioContext* getInnerContext() { return _ctx.get(); }
 
-
-private:
-    std::unique_ptr<lab::AudioContext> _ctx;
-    std::unique_ptr<AudioDestinationNode> _dest;
+protected:
+    friend class AudioNode;
+    std::unique_ptr<lab::AudioContext> _ctx{nullptr};
+    std::shared_ptr<AudioDestinationNode> _dest{nullptr};
+    AudioContextState _state{AudioContextState::RUNNING};
+    StateChangeCallback _stateChangeCb;
 };
 }

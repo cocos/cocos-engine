@@ -7,9 +7,10 @@ struct StereoPannerOptions : AudioNodeOptions {
 };
 class StereoPannerNode : AudioNode {
 public:
-    StereoPannerNode(AudioContext* ctx, const StereoPannerOptions& options = {});
-    AudioParam& pan();
+    StereoPannerNode( BaseAudioContext* ctx, const StereoPannerOptions& options = {});
+    AudioParam* pan();
 
 private:
+    std::shared_ptr<AudioParam> _pan{nullptr};
 };
 }
