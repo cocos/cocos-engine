@@ -86,6 +86,9 @@ public:
     HttpRequest()
     : _callback(nullptr) {}
 
+    /** Destructor. */
+    ~HttpRequest() override = default;
+
     // setter/getters for properties
 
     /**
@@ -244,9 +247,6 @@ public:
     }
 
 protected:
-    /** Destructor. */
-    ~HttpRequest() override = default;
-
     // properties
     Type _requestType{Type::UNKNOWN};      /// kHttpRequestGet, kHttpRequestPost or other enums
     ccstd::string _url;                    /// target url that this request is sent to
