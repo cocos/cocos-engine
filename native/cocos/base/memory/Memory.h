@@ -103,19 +103,6 @@ public:
         (ptr) = nullptr;                \
     }
 
-#define CC_SAFE_DESTROY_AND_RELEASE(ptr) \
-    if (ptr) {                           \
-        (ptr)->destroy();                \
-        (ptr)->release();                \
-    }
-
-#define CC_SAFE_DESTROY_AND_RELEASE_NULL(ptr) \
-    if (ptr) {                                \
-        (ptr)->destroy();                     \
-        (ptr)->release();                     \
-        (ptr) = nullptr;                      \
-    }
-
 #define CC_SAFE_DESTROY_NULL(ptr) \
     if (ptr) {                    \
         (ptr)->destroy();         \
