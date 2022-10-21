@@ -48,7 +48,10 @@ ccstd::hash_t Texture::computeHash(const TextureViewInfo &info) {
 
 ccstd::hash_t Texture::computeHash(const Texture *texture) {
     ccstd::hash_t hash = texture->isTextureView() ? computeHash(texture->getViewInfo()) : computeHash(texture->getInfo());
-    if (texture->_swapchain) ccstd::hash_combine(hash, texture->_swapchain->getObjectID());
+    if (texture->_swapchain) {
+        ccstd::hash_combine(hash, texture->_swapchain->getObjectID());
+        ccstd::hash_combine(hash, texture->_swapchain->getGeneration());
+    }
     return hash;
 }
 
@@ -114,6 +117,12 @@ void Texture::destroy() {
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
 void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
+    updateTextureInfo(info, out);
+    out->doInit(info);
+}
+
+void Texture::updateTextureInfo(const SwapchainTextureInfo &info, Texture *out)
+{
     out->_info.type = TextureType::TEX2D;
     out->_info.format = info.format;
     out->_info.width = info.width;
@@ -126,7 +135,6 @@ void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
     out->_info.usage = GFX_FORMAT_INFOS[toNumber(info.format)].hasDepth
                            ? TextureUsageBit::DEPTH_STENCIL_ATTACHMENT
                            : TextureUsageBit::COLOR_ATTACHMENT;
-
     out->_swapchain = info.swapchain;
     out->_size = formatSize(info.format, info.width, info.height, 1);
     out->_hash = computeHash(out);
@@ -138,8 +146,6 @@ void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
     out->_viewInfo.layerCount = out->_info.layerCount;
     out->_viewInfo.baseLevel = 0;
     out->_viewInfo.levelCount = out->_info.levelCount;
-
-    out->doInit(info);
 }
 
 } // namespace gfx

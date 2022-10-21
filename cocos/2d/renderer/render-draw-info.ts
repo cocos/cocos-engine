@@ -1,7 +1,7 @@
 import { JSB } from 'internal:constants';
 import { IRenderData } from './render-data';
 import { NativeRenderDrawInfo } from './native-2d';
-import { Node } from '../../core';
+import { Node } from '../../scene-graph';
 import { Sampler, Texture } from '../../gfx';
 import { Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets';
@@ -32,7 +32,7 @@ export enum AttrUInt32ArrayView {
 export enum RenderDrawInfoType {
     COMP,
     MODEL,
-    IA,
+    MIDDLEWARE,
     SUB_NODE,
 }
 

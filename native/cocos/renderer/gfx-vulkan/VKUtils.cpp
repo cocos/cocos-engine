@@ -254,7 +254,6 @@ VkImageCreateFlags mapVkImageCreateFlags(TextureType type) {
     uint32_t res = 0U;
     switch (type) {
         case TextureType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
-        case TextureType::TEX2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
         default: break;
     }
     return static_cast<VkImageCreateFlags>(res);

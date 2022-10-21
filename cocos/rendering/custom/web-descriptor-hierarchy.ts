@@ -25,9 +25,9 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets';
-import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { DescriptorDB, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
-import { ParameterType, UpdateFrequency } from './types';
+import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOCSM, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor } from './graph';
 import { ccclass } from '../../core/data/decorators';
@@ -293,6 +293,8 @@ export class WebDescriptorHierarchy {
                     this.setDescriptor(localSamplerVertTarget, 'cc_jointTexture', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_PositionDisplacements') {
                     this.setDescriptor(localSamplerVertTarget, 'cc_PositionDisplacements', Type.SAMPLER2D);
+                } else if (samplerName === 'cc_realtimeJoint') {
+                    this.setDescriptor(localSamplerVertTarget, 'cc_realtimeJoint', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_NormalDisplacements') {
                     this.setDescriptor(localSamplerVertTarget, 'cc_NormalDisplacements', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_TangentDisplacements') {
@@ -314,7 +316,18 @@ export class WebDescriptorHierarchy {
             }
 
             dbsMap.set(shader.name, queueDB);
+
+            this.merge(queueDB);
+            this.sort(queueDB);
+
+            const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
+            if (this.dbsToMerge.get(parentDB) === undefined) {
+                this.dbsToMerge.set(parentDB, []);
+            }
+            this.dbsToMerge.get(parentDB)?.push(queueDB);
         }
+
+        const pName = this._layoutGraph.getName(parent);
 
         for (let i = 0; i < asset.techniques.length; ++i) {
             const tech = asset.techniques[i];
@@ -323,7 +336,7 @@ export class WebDescriptorHierarchy {
                 const passPhase = pass.phase;
                 let phase = '';
                 if (passPhase === undefined) {
-                    phase = '_';
+                    phase = `${pName}_`;
                 } else if (typeof passPhase === 'number') {
                     phase = passPhase.toString();
                 } else {
@@ -331,7 +344,7 @@ export class WebDescriptorHierarchy {
                 }
                 const db2add = dbsMap.get(pass.program);
                 if (db2add) {
-                    const v2add = this._layoutGraph.locate(`/default/${phase}`);
+                    const v2add = this._layoutGraph.locate(`/${pName}/${phase}`);
                     if (v2add === 0xFFFFFFFF) {
                         const v = this.addRenderPhase(phase, parent);
                         const dbStored = this._layoutGraph.getDescriptors(v);
@@ -375,32 +388,71 @@ export class WebDescriptorHierarchy {
                                     dbStored.blocks.set(blockIndex, b2add);
                                 }
                             } else {
-                                for (const dd of block.descriptors) {
-                                    if (blockStored.descriptors.get(dd[0]) === undefined) {
-                                        blockStored.descriptors.set(dd[0], dd[1]);
-                                        blockStored.count++;
-                                        blockStored.capacity++;
+                                const index = JSON.parse(blockIndex) as DescriptorBlockIndex;
+                                if (index.descriptorType !== DescriptorTypeOrder.UNIFORM_BUFFER && index.descriptorType !== DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+                                    if (index.updateFrequency <= UpdateFrequency.PER_BATCH) {
+                                        let capacityToAdd = 0;
+                                        for (const dd of block.descriptors) {
+                                            capacityToAdd++;
+                                        }
+                                        if (capacityToAdd > blockStored.capacity) {
+                                            blockStored.capacity = capacityToAdd;
+                                            blockStored.count = capacityToAdd;
+                                        }
+
+                                        let capacityStored = 0;
+                                        for (const dd of blockStored.descriptors) {
+                                            capacityStored++;
+                                        }
+                                        for (const dd of block.descriptors) {
+                                            if (blockStored.descriptors.get(dd[0]) === undefined /*&& capacityStored < capacityToAdd*/) {
+                                                blockStored.descriptors.set(dd[0], dd[1]);
+                                                capacityStored++;
+                                            }
+                                        }
+                                    } else {
+                                        for (const dd of block.descriptors) {
+                                            if (blockStored.descriptors.get(dd[0]) === undefined) {
+                                                blockStored.descriptors.set(dd[0], dd[1]);
+                                                blockStored.count++;
+                                                blockStored.capacity++;
+                                            }
+                                        }
                                     }
-                                }
-                                for (const uu of block.uniformBlocks) {
-                                    if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
-                                        blockStored.uniformBlocks.set(uu[0], uu[1]);
-                                        blockStored.count++;
-                                        blockStored.capacity++;
+                                } else if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER || index.descriptorType === DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+                                    if (index.updateFrequency <= UpdateFrequency.PER_BATCH) {
+                                        let capacityToAdd = 0;
+                                        for (const uu of block.uniformBlocks) {
+                                            capacityToAdd++;
+                                        }
+                                        if (capacityToAdd > blockStored.capacity) {
+                                            blockStored.capacity = capacityToAdd;
+                                            blockStored.count = capacityToAdd;
+                                        }
+
+                                        let capacityStored = 0;
+                                        for (const dd of blockStored.uniformBlocks) {
+                                            capacityStored++;
+                                        }
+                                        for (const uu of block.uniformBlocks) {
+                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined /*&& capacityStored < capacityToAdd*/) {
+                                                blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                                capacityStored++;
+                                            }
+                                        }
+                                    } else {
+                                        for (const uu of block.uniformBlocks) {
+                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined) {
+                                                blockStored.uniformBlocks.set(uu[0], uu[1]);
+                                                blockStored.count++;
+                                                blockStored.capacity++;
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-
-                    this.merge(db2add);
-                    this.sort(db2add);
-
-                    const parentDB: DescriptorDB = this._layoutGraph.getDescriptors(parent);
-                    if (this.dbsToMerge.get(parentDB) === undefined) {
-                        this.dbsToMerge.set(parentDB, []);
-                    }
-                    this.dbsToMerge.get(parentDB)?.push(db2add);
                 }
             }
         }
@@ -499,6 +551,7 @@ export class WebDescriptorHierarchy {
         }
 
         this.merge(passDB);
+        this.sort(passDB);
 
         const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(
             LayoutGraphValue.RenderStage, RenderPassStage.DEFAULT, vName, passDB,
@@ -559,7 +612,7 @@ export class CollectVisitor extends DefaultVisitor {
         if (g.holds(LayoutGraphValue.RenderStage, v)) {
             freq = UpdateFrequency.PER_PASS;
         } else {
-            freq = UpdateFrequency.PER_QUEUE;
+            freq = UpdateFrequency.PER_PHASE;
         }
         return freq;
     }

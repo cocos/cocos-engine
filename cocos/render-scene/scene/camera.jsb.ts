@@ -25,7 +25,7 @@
 import { Ray } from '../../core/geometry';
 import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
-import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../core/scene-graph/utils.jsb';
+import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../scene-graph/utils.jsb';
 import { Mat4, Vec3 } from '../../core/math';
 
 declare const jsb: any;
@@ -101,6 +101,14 @@ export enum TrackingType {
     POSITION_AND_ROTATION = 1,
     POSITION = 2,
     ROTATION = 3,
+}
+
+export enum CameraUsage {
+    EDITOR,
+    GAME_VIEW,
+    SCENE_VIEW,
+    PREVIEW,
+    GAME = 100,
 }
 
 export interface ICameraInfo {

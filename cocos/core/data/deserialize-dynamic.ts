@@ -30,7 +30,7 @@ import * as js from '../utils/js';
 import * as misc from '../utils/misc';
 import { CCClass, ENUM_TAG, BITMASK_TAG } from './class';
 import * as Attr from './utils/attribute';
-import MissingScript from '../components/missing-script';
+import { MissingScript } from '../../misc/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../../pal/system-info/enum-type';
 import { sys } from '../platform/sys';

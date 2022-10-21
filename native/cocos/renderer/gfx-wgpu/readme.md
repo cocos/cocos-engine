@@ -1,6 +1,6 @@
 # WebGPU on WASM by Emscripten
 
-Based on Cocos Creator v3.4.0, emsdk 2.0.26.
+Based on Cocos Creator v3.6.2, emsdk 3.1.17.
 
 WebGPU explainer:  https://gpuweb.github.io/gpuweb/explainer/
 
@@ -18,7 +18,7 @@ There it is.
 
 #### Why not write in typescript
 
-Same to "why do it in c++ and then compile into wasm", in which way we can share framegraph implementation instead of implement framegraph again in typescript. 
+Same to "why do it in c++ and then compile into wasm", in which way we can share other upper-level scheduler logic implementation instead of implement it again in typescript. 
 
 ## Native Implementation
 
@@ -26,8 +26,7 @@ Same to "why do it in c++ and then compile into wasm", in which way we can share
 
 ##### Environment
 
-
-emsdk latest, unix make is needed because of emscripten compile tool chain, so extra environment deployment on Windows has to be done:
+unix make is needed because of emscripten compile tool chain, so we have set up extra environment deployment on Windows:
 
 [make](http://gnuwin32.sourceforge.net/packages/make.htm) [coreutils](http://gnuwin32.sourceforge.net/packages/coreutils.htm) [libiconv](http://gnuwin32.sourceforge.net/packages/libiconv.htm) [libintl](http://gnuwin32.sourceforge.net/packages/libintl.htm)
 
@@ -35,8 +34,8 @@ see details at [emscripten](https://emscripten.org/docs/getting_started/download
 
 after emscripten is deployed, type `emcc -v` in cmd/zsh, shown as below:
 ```
-emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.0 (8e1e305519e1027726a48861a1fec5662f7e18a2)
-clang version 14.0.0 (https://github.com/llvm/llvm-project 1a929525e86a20d0b3455a400d0dbed40b325a13)
+emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 3.1.17 (fbc532773d84d2bd7da876275671970e792ad1cd)
+clang version 15.0.0 (https://github.com/llvm/llvm-project 17e4c217b66305e60657a48f10fe3c428c2fe4d2)
 Target: wasm32-unknown-emscripten
 Thread model: posix
 InstalledDir: D:\project\emsdk\upstream\bin
@@ -44,11 +43,11 @@ InstalledDir: D:\project\emsdk\upstream\bin
 the output is slightly different from on mac.
 ##### Custom
 
-All the WGPU C++ files are in engine-native\cocos\renderer\gfx-wgpu, while glue code in engine\cocos\core\gfx\webgpu. Modifications are applied only after manually compiling(next phrase), you need to copy the generated .js and .wasm to engine\cocos\core\gfx\webgpu\lib and replace the original.
+All the WGPU C++ files are in engine-native\cocos\renderer\gfx-wgpu. Modifications are applied only after manually compiling(next phrase), you need to copy the generated .js and .wasm to engine\native\external\emscripten\webgpu and engine\cocos\webgpu respectively and replace the original.
 
 ##### Compile
 
-If any modification wants to applied in C++, cd to engine-native\cocos\renderer\gfx-wgpu and run successively:
+If any modification wants to applied in C++, cd to engine-native\cocos\renderer\gfx-wgpu and run:
 
 `emcmake cmake .`
 

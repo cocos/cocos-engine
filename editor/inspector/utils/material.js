@@ -15,13 +15,13 @@ exports.buildEffect = function(index, passData) {
         childMap: {},
     };
 
-    const hideAttrs = ['USE_INSTANCING', 'USE_BATCHING'];
+    const hideAttrs = ['USE_INSTANCING'];
 
     function encode(item) {
         let current = tree;
 
         /**
-         * USE_INSTANCING and USE_BATCHING are common to every child in passes
+         * USE_INSTANCING is common to every child in passes
          * To make editing easier, they are referred to the outside of the passes
          * At this point, you need to set each of the passes to be non-editable and invisible
          */
@@ -172,7 +172,6 @@ exports.buildEffect = function(index, passData) {
 
 exports.materialTechniquePolyfill = function(origin) {
     let useInstancing;
-    let useBatching;
     const passes = origin.passes.map((data, index) => {
         // Merge data.defines and data.props
         const pass = exports.buildEffect(index, data);
@@ -183,17 +182,11 @@ exports.materialTechniquePolyfill = function(origin) {
             useInstancing = JSON.parse(JSON.stringify(pass.childMap.USE_INSTANCING));
             useInstancing.visible = true;
         }
-
-        if (!useBatching && pass.childMap.USE_BATCHING) {
-            useBatching = JSON.parse(JSON.stringify(pass.childMap.USE_BATCHING));
-            useBatching.visible = true;
-        }
-
         return pass;
     });
 
     /**
-     * USE_INSTANCING and USE_BATCHING are common to every child in passes
+     * USE_INSTANCING is common to every child in passes
      * For ease of editing, they are referred to outside of the passes
      * Two external variables useInstancing, useBatching are provided to dock
      * The value of the first pass takes precedence
@@ -202,7 +195,6 @@ exports.materialTechniquePolyfill = function(origin) {
         name: origin.name,
         passes,
         useInstancing,
-        useBatching,
     };
 
     return technique;

@@ -1,5 +1,7 @@
-import { director, Node, Vec3 } from "../../cocos/core";
+import { Vec3 } from "../../cocos/core";
 import { physics } from "../../exports/physics-framework";
+import { Node } from "../../cocos/scene-graph";
+import { director } from "../../cocos/game";
 
 /**
  * This function is used to test the behavior of different volume ratios

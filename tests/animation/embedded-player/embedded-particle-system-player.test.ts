@@ -1,4 +1,4 @@
-import { Node } from "../../../cocos/core";
+import { Node } from "../../../cocos/scene-graph";
 import { EmbeddedPlayer } from "../../../cocos/animation/embedded-player/embedded-player";
 import { EmbeddedParticleSystemPlayable } from "../../../cocos/animation/embedded-player/embedded-particle-system-player";
 import { EmbeddedPlayerHostMock } from "./util";

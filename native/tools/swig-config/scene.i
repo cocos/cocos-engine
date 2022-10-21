@@ -61,7 +61,7 @@ using namespace cc;
 //  %ignore your_namespace::your_class_name::your_method_name;
 //  %ignore your_namespace::your_class_name::your_attribute_name;
 //
-// Note: 
+// Note:
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
@@ -72,7 +72,15 @@ using namespace cc;
 %ignore cc::Node::setRTS;
 %ignore cc::scene::Camera::syncCameraEditor;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
-%ignore cc::scene::Model::getLocalData; 
+%ignore cc::scene::SubModel::getInstancedAttributeBlock;
+%ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::setInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::getInstancedAttributeIndex;
+%ignore cc::scene::SubModel::setInstancedAttributeIndex;
+%ignore cc::scene::SubModel::updateInstancedAttributes;
+%ignore cc::scene::SubModel::updateInstancedWorldMatrix;
+
+%ignore cc::scene::Model::getLocalData;
 %ignore cc::scene::Model::getEventProcessor;
 %ignore cc::scene::Model::getOctreeNode;
 %ignore cc::scene::Model::setOctreeNode;
@@ -129,6 +137,9 @@ using namespace cc;
 %ignore cc::scene::Camera::getMatViewProj;
 %ignore cc::scene::Camera::getMatViewProjInv;
 
+%ignore cc::scene::RenderWindow::onNativeWindowDestroy;
+%ignore cc::scene::RenderWindow::onNativeWindowResume;
+
 %ignore cc::JointTexturePool::getDefaultPoseTexture;
 //
 %ignore cc::Layers::addLayer;
@@ -148,7 +159,7 @@ using namespace cc;
 //  %rename(rename_to_name) your_namespace::original_class_name;
 //  %rename(rename_to_name) your_namespace::original_class_name::method_name;
 //  %rename(rename_to_name) your_namespace::original_class_name::attribute_name;
-// 
+//
 // Note:
 //  1. 'Rename Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
@@ -167,8 +178,6 @@ using namespace cc;
 
 %rename(_initLocalDescriptors) cc::scene::Model::initLocalDescriptors;
 %rename(_updateLocalDescriptors) cc::scene::Model::updateLocalDescriptors;
-%rename(_updateInstancedAttributes) cc::scene::Model::updateInstancedAttributes;
-%rename(_getInstancedAttributeIndex) cc::scene::Model::getInstancedAttributeIndex;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
@@ -196,7 +205,7 @@ using namespace cc;
 //    %attribute_writeonly(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_setter_name)
 //
 // Note:
-//  1. Don't need to add 'const' prefix for cpp_member_variable_type 
+//  1. Don't need to add 'const' prefix for cpp_member_variable_type
 //  2. The return type of getter should keep the same as the type of setter's parameter
 //  3. If using reference, add '&' suffix for cpp_member_variable_type to avoid generated code using value assignment
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
@@ -218,6 +227,7 @@ using namespace cc;
 %attribute(cc::Root, bool, usesCustomPipeline, usesCustomPipeline);
 %attribute(cc::Root, cc::render::PipelineRuntime *, pipeline, getPipeline);
 %attribute(cc::Root, cc::render::Pipeline*, customPipeline, getCustomPipeline);
+%attribute(cc::Root, %arg(ccstd::vector<cc::scene::Camera*> &), cameraList, getCameraList);
 
 %attribute(cc::scene::RenderWindow, uint32_t, width, getWidth);
 %attribute(cc::scene::RenderWindow, uint32_t, height, getHeight);
@@ -235,7 +245,7 @@ using namespace cc;
 %attribute(cc::scene::Pass, index_t, passIndex, getPassIndex);
 %attribute(cc::scene::Pass, index_t, propertyIndex, getPropertyIndex);
 %attribute(cc::scene::Pass, cc::scene::IPassDynamics &, dynamics, getDynamics);
-%attribute(cc::scene::Pass, bool, rootBufferDirty, isRootBufferDirty); 
+%attribute(cc::scene::Pass, bool, rootBufferDirty, isRootBufferDirty);
 %attribute(cc::scene::Pass, bool, _rootBufferDirty, isRootBufferDirty, _setRootBufferDirty);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPriority, priority, getPriority);
 %attribute(cc::scene::Pass, cc::gfx::PrimitiveMode, primitive, getPrimitive);
@@ -355,6 +365,7 @@ using namespace cc;
 %attribute(cc::scene::Camera, cc::gfx::SurfaceTransform, surfaceTransform, getSurfaceTransform);
 %attribute(cc::scene::Camera, cc::pipeline::GeometryRenderer *, geometryRenderer, getGeometryRenderer);
 %attribute(cc::scene::Camera, uint32_t, systemWindowId, getSystemWindowId);
+%attribute(cc::scene::Camera, cc::scene::CameraUsage, cameraUsage, getCameraUsage, setCameraUsage);
 
 %attribute(cc::scene::RenderScene, ccstd::string&, name, getName);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Camera>>&, cameras, getCameras);
@@ -395,7 +406,6 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::gfx::Buffer *, worldBoundBuffer, getWorldBoundBuffer, setWorldBoundBuffer);
 %attribute(cc::scene::Model, cc::gfx::Buffer *, localBuffer, getLocalBuffer, setLocalBuffer);
 %attribute(cc::scene::Model, uint32_t, updateStamp, getUpdateStamp);
-%attribute(cc::scene::Model, bool, isInstancingEnabled, isInstancingEnabled);
 %attribute(cc::scene::Model, bool, receiveShadow, isReceiveShadow, setReceiveShadow);
 %attribute(cc::scene::Model, bool, castShadow, isCastShadow, setCastShadow);
 %attribute(cc::scene::Model, float, shadowBias, getShadowBias, setShadowBias);
@@ -405,7 +415,6 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::Layers::Enum, visFlags, getVisFlags, setVisFlags);
 %attribute(cc::scene::Model, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::Model, cc::scene::Model::Type, type, getType, setType);
-%attribute(cc::scene::Model, cc::scene::InstancedAttributeBlock&, instancedAttributes, getInstancedAttributeBlock, setInstancedAttributeBlock);
 %attribute(cc::scene::Model, bool, isDynamicBatching, isDynamicBatching, setDynamicBatching);
 %attribute(cc::scene::Model, uint32_t, priority, getPriority, setPriority);
 
@@ -480,7 +489,7 @@ using namespace cc;
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
-// Note: 
+// Note:
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"

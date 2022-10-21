@@ -69,8 +69,8 @@ void PhysXCone::updateGeometry() {
     pxSetVec3Ext(scale.scale, node->getWorldScale());
     scale.scale.y *= std::max(0.0001F, _mData.height / 2);
     const auto radius = std::max(0.0001F, _mData.radius * 2);
-    const auto xzNorm = std::max(scale.scale.x, scale.scale.z);
-    scale.scale.x = scale.scale.z = radius * xzNorm;
+    const auto xzMaxNorm = std::max(scale.scale.x, scale.scale.z);
+    scale.scale.x = scale.scale.z = radius * xzMaxNorm;
     Quaternion quat;
     switch (_mData.direction) {
         case EAxisDirection::X_AXIS:

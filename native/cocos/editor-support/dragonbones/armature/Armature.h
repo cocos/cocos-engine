@@ -190,10 +190,6 @@ public:
      */
     void render() override;
     /**
-     * @inheritDoc
-     */
-    uint32_t getRenderOrder() const override;
-    /**
      * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
      * @param boneName - The bone name. (If not set, all bones will be update)
      * @param updateSlot - Whether to update the bone's slots. (Default: false)

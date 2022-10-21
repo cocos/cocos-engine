@@ -111,7 +111,7 @@ CCProgram terrain-fs %{
   #include <builtin/uniforms/cc-global>
   #include <legacy/standard-surface-entry>
   #include <legacy/fog-fs>
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     #include <legacy/lightingmap-fs>
   #endif
   #pragma define-meta LAYERS range([0, 4])
@@ -261,7 +261,7 @@ CCProgram terrain-fs %{
     #endif
     s.emissive = vec3(0.0, 0.0, 0.0);
 
-    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, luv.xy);
       s.lightmap = lightColor.xyz * luv.z;
       s.lightmap_test = luv.z; /*lum*/

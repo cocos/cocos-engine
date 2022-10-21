@@ -40,6 +40,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace pipeline {
@@ -99,17 +100,17 @@ void GbufferStage::dispenseRenderObject2Queues() {
     for (auto ro : renderObjects) {
         const auto *const model = ro.model;
         const auto &subModels = model->getSubModels();
-        auto subModelCount = subModels.size();
+        const auto subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
             const auto &subModel = subModels[subModelIdx];
             const auto &passes = subModel->getPasses();
-            auto passCount = passes.size();
+            const auto passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                     auto *instancedBuffer = pass->getInstancedBuffer();
-                    instancedBuffer->merge(model, subModel, passIdx);
+                    instancedBuffer->merge(subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
                     auto *batchedBuffer = pass->getBatchedBuffer();

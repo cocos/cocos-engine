@@ -1,5 +1,6 @@
 #pragma once
 #include <webgpu/webgpu.h>
+#include "base/std/container/vector.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/TypeDef.h"
 #include "gfx-base/GFXDef-common.h"
@@ -146,6 +147,10 @@ static WGPUTextureSampleType textureSampleTypeTrait(Format format) {
     }
 }
 
+static bool isFilterable(Format format) {
+    return textureSampleTypeTrait(format) != WGPUTextureSampleType_UnfilterableFloat;
+}
+
 static WGPUTextureAspect textureAspectTrait(Format format) {
     switch (format) {
         case Format::DEPTH:
@@ -283,7 +288,7 @@ static WGPUAddressMode toWGPUAddressMode(Address addrMode) {
 static WGPUFilterMode toWGPUFilterMode(Filter filter) {
     switch (filter) {
         case Filter::NONE:
-            return WGPUFilterMode::WGPUFilterMode_Linear;
+            return WGPUFilterMode::WGPUFilterMode_Nearest;
         case Filter::POINT:
             return WGPUFilterMode::WGPUFilterMode_Nearest;
         case Filter::LINEAR:
@@ -364,9 +369,9 @@ static WGPUShaderStageFlags toWGPUShaderStageFlag(ShaderStageFlagBit flag) {
     return result;
 }
 
-//TODO_Zeqiang: more flexible strategy
+// TODO_Zeqiang: more flexible strategy
 static uint32_t toWGPUSampleCount(SampleCount sampleCount) {
-    //TODO_Zeqiang: msaa
+    // TODO_Zeqiang: msaa
     return 1;
     switch (sampleCount) {
         case SampleCount::ONE:
@@ -433,7 +438,7 @@ static WGPUBufferUsageFlags toWGPUBufferUsage(BufferUsageBit usage) {
     return res;
 }
 
-static WGPUColor toWGPUColor(const Color &color) {
+static WGPUColor toWGPUColor(const Color& color) {
     return WGPUColor{color.x, color.y, color.z, color.w};
 }
 
@@ -582,6 +587,49 @@ static WGPUFlags toWGPUColorWriteMask(ColorMask mask) {
 
     return result;
 }
+
+static ccstd::string getAdapterTypeName(WGPUAdapterType type) {
+    switch(type) {
+        case WGPUAdapterType_DiscreteGPU:
+            return "WGPUAdapterType_DiscreteGPU";
+        case WGPUAdapterType_IntegratedGPU:
+            return "WGPUAdapterType_IntegratedGPU";
+        case WGPUAdapterType_CPU:
+            return "WGPUAdapterType_CPU";
+        case WGPUAdapterType_Unknown:
+            return "WGPUAdapterType_Unknown"; 
+        default:
+            return "unknown adapter by cc.gfx!";
+    }
+}
+
+static ccstd::string getBackendTypeName(WGPUBackendType type) {
+    switch(type) {
+        case WGPUBackendType_Null:
+            return "WGPUBackendType_Null";
+        case WGPUBackendType_WebGPU:
+            return "WGPUBackendType_WebGPU";
+        case WGPUBackendType_D3D11:
+            return "WGPUBackendType_D3D11";
+        case WGPUBackendType_D3D12:
+            return "WGPUBackendType_D3D12";
+        case WGPUBackendType_Metal:
+            return "WGPUBackendType_Metal";
+        case WGPUBackendType_Vulkan:
+            return "WGPUBackendType_Vulkan";
+        case WGPUBackendType_OpenGL:
+            return "WGPUBackendType_OpenGL";
+        case WGPUBackendType_OpenGLES:
+            return "WGPUBackendType_OpenGLES";
+        default:
+            return "unknown backend by cc.gfx!";
+    }
+}
+
+class DescriptorSet;
+class PipelineLayout;
+// descriptor set layout in descriptor set not consistent with the binding in pipeline layout.
+void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout);
 
 static constexpr WGPUColor defaultClearColor{0.2, 0.2, 0.2, 1.0};
 

@@ -132,9 +132,6 @@ protected:
 
     Device();
 
-    void destroySurface(void *windowHandle);
-    void createSurface(void *windowHandle);
-
     virtual bool doInit(const DeviceInfo &info) = 0;
     virtual void doDestroy() = 0;
 
@@ -192,6 +189,23 @@ protected:
 
 private:
     ccstd::vector<Swapchain *> _swapchains; // weak reference
+};
+
+class DefaultResource {
+public:
+    explicit DefaultResource(Device *device);
+
+    ~DefaultResource() = default;
+
+    const Texture *getTexture(TextureType type) const;
+
+private:
+    IntrusivePtr<Texture> _texture1D;
+    IntrusivePtr<Texture> _texture2D;
+    IntrusivePtr<Texture> _texture1DArray;
+    IntrusivePtr<Texture> _texture2DArray;
+    IntrusivePtr<Texture> _textureCube;
+    IntrusivePtr<Texture> _texture3D;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -65,6 +65,7 @@ public:
     inline SurfaceTransform getSurfaceTransform() const { return _transform; }
     inline uint32_t getWidth() const { return _colorTexture->getWidth(); }
     inline uint32_t getHeight() const { return _colorTexture->getHeight(); }
+    inline uint32_t getGeneration() const { return _generation; }
 
 protected:
     virtual void doInit(const SwapchainInfo &info) = 0;
@@ -74,12 +75,14 @@ protected:
     virtual void doCreateSurface(void *windowHandle) = 0;
 
     static inline void initTexture(const SwapchainTextureInfo &info, Texture *texture);
+    static inline void updateTextureInfo(const SwapchainTextureInfo &info, Texture *texture);
 
     uint32_t _windowId{0};
     void *_windowHandle{nullptr};
     VsyncMode _vsyncMode{VsyncMode::RELAXED};
     SurfaceTransform _transform{SurfaceTransform::IDENTITY};
     bool _preRotationEnabled{false};
+    uint32_t _generation{0};
 
     IntrusivePtr<Texture> _colorTexture;
     IntrusivePtr<Texture> _depthStencilTexture;
@@ -99,6 +102,10 @@ void Swapchain::createSurface(void *windowHandle) {
 
 void Swapchain::initTexture(const SwapchainTextureInfo &info, Texture *texture) {
     Texture::initialize(info, texture);
+}
+
+void Swapchain::updateTextureInfo(const SwapchainTextureInfo &info, Texture *texture) {
+    Texture::updateTextureInfo(info, texture);
 }
 
 } // namespace gfx

@@ -1,8 +1,9 @@
-import { js, Node, Component, Vec3 } from '../../cocos/core';
+import { js, Vec3 } from '../../cocos/core';
 import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/animation';
 import { ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, VectorTrack } from '../../cocos/animation/animation';
 import { ccclass } from 'cc.decorator';
 import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
+import { Node,Component } from '../../cocos/scene-graph';
 
 test('Common target', () => {
     @ccclass('TestComponent')

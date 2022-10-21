@@ -131,6 +131,14 @@ enum class TrackingType {
     ROTATION = 3,
 };
 
+enum class CameraUsage {
+    EDITOR,
+    GAME_VIEW,
+    SCENE_VIEW,
+    PREVIEW,
+    GAME = 100,
+};
+
 struct ICameraInfo {
     ccstd::string name;
     Node *node{nullptr};
@@ -141,6 +149,7 @@ struct ICameraInfo {
     ccstd::optional<ccstd::string> pipeline;
     CameraType cameraType{CameraType::DEFAULT};
     TrackingType trackingType{TrackingType::NO_TRACKING};
+    CameraUsage usage{CameraUsage::GAME};
 };
 
 class Camera : public RefCounted {
@@ -350,6 +359,9 @@ public:
     inline TrackingType getTrackingType() const { return _trackingType; }
     inline void setTrackingType(TrackingType type) { _trackingType = type; }
 
+    inline CameraUsage getCameraUsage() const { return _usage; }
+    inline void setCameraUsage(CameraUsage usage) { _usage = usage; }
+
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
 
@@ -403,6 +415,7 @@ private:
     float _clearDepth{1.0F};
     CameraType _cameraType{CameraType::DEFAULT};
     TrackingType _trackingType{TrackingType::NO_TRACKING};
+    CameraUsage _usage{CameraUsage::GAME};
 
 #if CC_USE_GEOMETRY_RENDERER
     IntrusivePtr<pipeline::GeometryRenderer> _geometryRenderer;

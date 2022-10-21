@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
@@ -23,7 +24,7 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
+import { JSB, WEBGPU } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { error, getError } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
@@ -88,6 +89,7 @@ export enum RenderType {
 /**
  * @internal
  */
+
 export class DeviceManager {
     private initialized = false;
     private _gfxDevice!: Device;
@@ -127,6 +129,9 @@ export class DeviceManager {
                 }
 
                 const deviceCtors: Constructor<Device>[] = [];
+                if (WEBGPU) {
+                    deviceCtors.push(legacyCC.WebGPUDevice);
+                }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
                     deviceCtors.push(legacyCC.WebGL2Device);
                 }
@@ -161,7 +166,7 @@ export class DeviceManager {
     }
 
     private _initSwapchain () {
-        const swapchainInfo = new SwapchainInfo(this._canvas!);
+        const swapchainInfo = new SwapchainInfo(1, this._canvas!);
         const windowSize = screen.windowSize;
         swapchainInfo.width = windowSize.width;
         swapchainInfo.height = windowSize.height;

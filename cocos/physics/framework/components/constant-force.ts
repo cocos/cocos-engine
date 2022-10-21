@@ -35,7 +35,7 @@ import {
     serializable,
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Component } from '../../../core/components/component';
+import { Component } from '../../../scene-graph/component';
 import { RigidBody } from './rigid-body';
 import { Vec3 } from '../../../core/math/vec3';
 import { legacyCC } from '../../../core/global-exports';

@@ -35,7 +35,7 @@ import { Color } from '../../core/math/color';
 import { warnID } from '../../core/platform/debug';
 import { Vec4 } from '../../core/math';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
-import { Renderer } from '../../core/components/renderer';
+import { Renderer } from '../../misc/renderer';
 
 const v4_1 = new Vec4();
 

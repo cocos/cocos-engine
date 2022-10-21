@@ -87,8 +87,8 @@ export class PhysXCylinderShape extends PhysXShape implements ICylinderShape {
         Vec3.copy(scale, collider.node.worldScale);
         scale.y *= Math.max(0.0001, h / 2);
         const radius = Math.max(0.0001, r / 0.5);
-        const xzNorm = Math.max(scale.x, scale.z);
-        scale.x = scale.z = xzNorm * radius;
+        const xzMaxNorm = Math.max(scale.x, scale.z);
+        scale.x = scale.z = xzMaxNorm * radius;
         const quat = _trans.rotation;
         switch (a) {
         case EAxisDirection.X_AXIS:

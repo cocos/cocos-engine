@@ -25,16 +25,15 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Component } from '../../core/components';
+import { Component, Node } from '../../scene-graph';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
-import { Node } from '../../core/scene-graph';
-import { Director, director } from '../../core/director';
+import { Director, director } from '../../game/director';
 import { warnID } from '../../core/platform/debug';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeEventType } from '../../scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
 import { approx, EPSILON } from '../../core/math/utils';
-import { IMask } from '../../core/scene-graph/node-event-processor';
+import { IMask } from '../../scene-graph/node-event-processor';
 import { Mask } from '../components/mask';
 
 const _vec2a = new Vec2();
@@ -451,7 +450,7 @@ export class UITransform extends Component {
      *
      * @param screenPoint point in Screen Space.
      */
-    public hitTest (screenPoint: Vec2, windowId: number = 0) {
+    public hitTest (screenPoint: Vec2, windowId = 0) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const v3WorldPt = _vec3a;
@@ -461,8 +460,7 @@ export class UITransform extends Component {
         const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
-            if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) 
-                continue;
+            if (!(camera.visibility & this.node.layer) || (camera.window && !camera.window.swapchain)) { continue; }
             if (camera.systemWindowId !== windowId) {
                 continue;
             }

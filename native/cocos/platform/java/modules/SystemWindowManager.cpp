@@ -42,7 +42,7 @@ void SystemWindowManager::swapWindows() {
 }
 
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
-    if (!info.externalHandle || !isExternalHandleExist(info.externalHandle)) {
+    if (!isExternalHandleExist(info.externalHandle)) {
         ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
         if (window) {
             if (!info.externalHandle) {

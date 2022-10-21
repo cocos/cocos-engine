@@ -37,21 +37,120 @@
 
 namespace cc {
 namespace gfx {
+ccstd::map<ccstd::hash_t, void *> CCWGPUPipelineState::pipelineMap;
 
-using namespace emscripten;
+namespace {
+using ccstd::hash_combine;
+ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
+    ccstd::hash_t hash = 9527;
+    hash_combine(hash, desc.layout);
+    hash_combine(hash, desc.vertex.module);
+    hash_combine(hash, desc.vertex.entryPoint);
+    hash_combine(hash, desc.vertex.constantCount);
+    for (uint32_t i = 0; i < desc.vertex.constantCount; ++i) {
+        hash_combine(hash, desc.vertex.constants[i].key);
+        hash_combine(hash, desc.vertex.constants[i].value);
+    }
 
-CCWGPUPipelineState::CCWGPUPipelineState() : wrapper<PipelineState>(val::object()) {
+    hash_combine(hash, desc.vertex.bufferCount);
+    for (size_t i = 0; i < desc.vertex.bufferCount; ++i) {
+        const auto &buffer = desc.vertex.buffers[i];
+        hash_combine(hash, buffer.arrayStride);
+        hash_combine(hash, buffer.stepMode);
+        hash_combine(hash, buffer.attributeCount);
+        for (size_t j = 0; j < buffer.attributeCount; ++j) {
+            const auto &attribute = buffer.attributes[j];
+            hash_combine(hash, attribute.shaderLocation);
+            hash_combine(hash, attribute.offset);
+            hash_combine(hash, attribute.format);
+        }
+    }
+
+    hash_combine(hash, desc.primitive.topology);
+    hash_combine(hash, desc.primitive.stripIndexFormat);
+    hash_combine(hash, desc.primitive.frontFace);
+    hash_combine(hash, desc.primitive.cullMode);
+
+    if (desc.depthStencil) {
+        hash_combine(hash, desc.depthStencil->format);
+        hash_combine(hash, desc.depthStencil->depthWriteEnabled);
+        hash_combine(hash, desc.depthStencil->depthCompare);
+        hash_combine(hash, desc.depthStencil->stencilFront.compare);
+        hash_combine(hash, desc.depthStencil->stencilFront.failOp);
+        hash_combine(hash, desc.depthStencil->stencilFront.depthFailOp);
+        hash_combine(hash, desc.depthStencil->stencilFront.passOp);
+        hash_combine(hash, desc.depthStencil->stencilBack.compare);
+        hash_combine(hash, desc.depthStencil->stencilBack.failOp);
+        hash_combine(hash, desc.depthStencil->stencilBack.depthFailOp);
+        hash_combine(hash, desc.depthStencil->stencilBack.passOp);
+        hash_combine(hash, desc.depthStencil->stencilReadMask);
+        hash_combine(hash, desc.depthStencil->stencilWriteMask);
+        hash_combine(hash, desc.depthStencil->depthBias);
+        hash_combine(hash, desc.depthStencil->depthBiasSlopeScale);
+        hash_combine(hash, desc.depthStencil->depthBiasClamp);
+    } else {
+        hash_combine(hash, 0);
+    }
+
+    hash_combine(hash, desc.multisample.count);
+    hash_combine(hash, desc.multisample.mask);
+    hash_combine(hash, desc.multisample.alphaToCoverageEnabled);
+
+    if (desc.fragment) {
+        hash_combine(hash, desc.fragment->module);
+        hash_combine(hash, desc.fragment->entryPoint);
+        hash_combine(hash, desc.fragment->constantCount);
+        for (uint32_t i = 0; i < desc.fragment->constantCount; ++i) {
+            hash_combine(hash, desc.fragment->constants[i].key);
+            hash_combine(hash, desc.fragment->constants[i].value);
+        }
+        hash_combine(hash, desc.fragment->targetCount);
+        for (uint32_t i = 0; i < desc.fragment->targetCount; ++i) {
+            hash_combine(hash, desc.fragment->targets[i].format);
+            if (desc.fragment->targets[i].blend) {
+                hash_combine(hash, desc.fragment->targets[i].blend->color.operation);
+                hash_combine(hash, desc.fragment->targets[i].blend->color.srcFactor);
+                hash_combine(hash, desc.fragment->targets[i].blend->color.dstFactor);
+                hash_combine(hash, desc.fragment->targets[i].blend->alpha.operation);
+                hash_combine(hash, desc.fragment->targets[i].blend->alpha.srcFactor);
+                hash_combine(hash, desc.fragment->targets[i].blend->alpha.dstFactor);
+            } else {
+                hash_combine(hash, 0);
+            }
+            hash_combine(hash, desc.fragment->targets[i].writeMask);
+        }
+    } else {
+        hash_combine(hash, 0);
+    }
+    return hash;
+}
+
+ccstd::hash_t hash(const WGPUComputePipelineDescriptor &desc) {
+    ccstd::hash_t hash = 9527;
+    hash_combine(hash, desc.layout);
+    // hash_combine(hash, desc.compute);
+    return hash;
+}
+
+} // namespace
+
+CCWGPUPipelineState::CCWGPUPipelineState() : PipelineState() {
+}
+
+CCWGPUPipelineState::~CCWGPUPipelineState() {
+    doDestroy();
 }
 
 void CCWGPUPipelineState::doInit(const PipelineStateInfo &info) {
     _gpuPipelineStateObj = ccnew CCWGPUPipelineStateObject;
 }
 
-void CCWGPUPipelineState::check(RenderPass *renderPass) {
+void CCWGPUPipelineState::check(RenderPass *renderPass, bool forceUpdate) {
     if (_renderPass != renderPass) {
         _renderPass = renderPass;
-        _forceUpdate = true;
+        // _forceUpdate = true;
     }
+    _forceUpdate |= forceUpdate;
 }
 
 void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
@@ -61,6 +160,10 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
     if (_bindPoint == PipelineBindPoint::GRAPHICS) {
         if (_gpuPipelineStateObj->wgpuRenderPipeline && !_forceUpdate) {
             return;
+        }
+
+        if (!_gpuPipelineStateObj->redundantAttr.empty()) {
+            _gpuPipelineStateObj->redundantAttr.clear();
         }
 
         auto maxStreamAttr = std::max_element(_inputState.attributes.begin(), _inputState.attributes.end(), [&](const Attribute &lhs, const Attribute &rhs) {
@@ -80,9 +183,31 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         const AttributeList &attrs = _shader->getAttributes();
         uint64_t offset[256] = {0};
         // ccstd::vector<WGPUVertexAttribute> wgpuAttrs;
-        bool isInstance = attrs.empty() ? false : attrs[0].isInstanced;
-        uint8_t index = 0;
 
+        for (size_t i = 0; i < _inputState.attributes.size(); ++i) {
+            const auto &attr = _inputState.attributes[i];
+            const auto &attrName = attr.name;
+            auto iter = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute &attr) {
+                return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
+            });
+            if (iter != attrs.end()) {
+                Format format = attr.format;
+                WGPUVertexAttribute attrInfo = {
+                    .format = toWGPUVertexFormat(format),
+                    .offset = offset[attr.stream],
+                    .shaderLocation = (*iter).location,
+                };
+                wgpuAttrsVec[attr.stream].push_back(attrInfo);
+                offset[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
+                vbLayouts[attr.stream].stepMode = attr.isInstanced ? WGPUVertexStepMode_Instance : WGPUVertexStepMode_Vertex;
+            } else {
+                // all none-input attr are put in 1st buffer layout with offset = 0;
+                Format format = attr.format;
+                offset[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
+            }
+        }
+
+        // printf("cr shname %s %d\n", _shader->getName().c_str(), streamCount);
         // wgpuAttrsVec[0] ∪ wgpuAttrsVec[1] ∪ ... ∪ wgpuAttrsVec[n] == shader.attrs
         for (size_t i = 0; i < attrs.size(); i++) {
             ccstd::string attrName = attrs[i].name;
@@ -90,16 +215,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
             });
 
-            if (iter != _inputState.attributes.end()) {
-                Format format = (*iter).format;
-                WGPUVertexAttribute attr = {
-                    .format = toWGPUVertexFormat(format),
-                    .offset = offset[(*iter).stream],
-                    .shaderLocation = attrs[i].location,
-                };
-                wgpuAttrsVec[(*iter).stream].push_back(attr);
-                offset[(*iter).stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
-            } else {
+            if (iter == _inputState.attributes.end()) {
                 // all none-input attr are put in 1st buffer layout with offset = 0;
                 Format format = attrs[i].format;
                 WGPUVertexAttribute attr = {
@@ -109,8 +225,8 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                 };
 
                 if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].size) {
-                    printf("found attr %s %s in shader exceed size of longest attr %s %s\n", attrName.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].name.c_str(),
-                           (*longestAttr).name.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].name.c_str());
+                    // printf("found attr %s %s in shader exceed size of longest attr %s %s\n", attrName.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].name.c_str(),
+                    //        (*longestAttr).name.c_str(), GFX_FORMAT_INFOS[static_cast<uint32_t>((*longestAttr).format)].name.c_str());
                     _gpuPipelineStateObj->redundantAttr.push_back(attr);
                     if (GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size > _gpuPipelineStateObj->maxAttrLength) {
                         _gpuPipelineStateObj->maxAttrLength = GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
@@ -119,41 +235,32 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
                     wgpuAttrsVec[mostToleranceStream].push_back(attr);
                 }
             }
-        }
 
-        // input state has attr which shader hasnt.
-        for (size_t i = 0; i < _inputState.attributes.size(); ++i) {
-            ccstd::string attrName = _inputState.attributes[i].name;
-            const auto &attribute = _inputState.attributes[i];
-            auto iter = std::find_if(attrs.begin(), attrs.end(), [attrName](const Attribute &attr) {
-                return strcmp(attrName.c_str(), attr.name.c_str()) == 0;
-            });
-            if (iter == attrs.end()) {
-                Format format = attribute.format;
-                offset[attribute.stream] += GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size;
-            }
+            // printf("sl %s, %d, %d\n", attrName.c_str(), attrs[i].location, attrs[i].stream);
         }
 
         if (_gpuPipelineStateObj->maxAttrLength > 0) {
             wgpuAttrsVec.push_back(_gpuPipelineStateObj->redundantAttr);
             vbLayouts.resize(vbLayouts.size() + 1);
         }
+        // _gpuPipelineStateObj->slotCount = vbLayouts.size();
 
+        // std::set<uint32_t> locSet;
         for (size_t i = 0; i < wgpuAttrsVec.size(); ++i) {
-            vbLayouts[i] = {
-                .arrayStride = offset[i],
-                .stepMode = isInstance ? WGPUVertexStepMode_Instance : WGPUVertexStepMode_Vertex,
-                .attributeCount = wgpuAttrsVec[i].size(),
-                .attributes = wgpuAttrsVec[i].data(),
-            };
-        }
+            vbLayouts[i].arrayStride = offset[i];
+            vbLayouts[i].attributeCount = static_cast<uint32_t>(wgpuAttrsVec[i].size());
+            vbLayouts[i].attributes = wgpuAttrsVec[i].data();
+            // for (size_t j = 0; j < wgpuAttrsVec[i].size(); ++j) {
+            //     printf("wg %d, %llu, %d\n", wgpuAttrsVec[i][j].shaderLocation, wgpuAttrsVec[i][j].offset, wgpuAttrsVec[i][j].format);
 
-        // WGPUVertexBufferLayout vertexBufferLayout = {
-        //     .arrayStride    = stride, // TODO_Zeqiang: ???
-        //     .stepMode       = isInstance ? WGPUVertexStepMode_Instance : WGPUVertexStepMode_Vertex,
-        //     .attributeCount = wgpuAttrs.size(),
-        //     .attributes     = wgpuAttrs.data(),
-        // };
+            //     // if (locSet.find(wgpuAttrsVec[i][j].shaderLocation) != locSet.end() && wgpuAttrsVec[i][j].shaderLocation != 0) {
+            //     //     printf("duplicate location %d\n", wgpuAttrsVec[i][j].shaderLocation);
+            //     //     while (1) {
+            //     //     }
+            //     // }
+            //     // locSet.insert(wgpuAttrsVec[i][j].shaderLocation);
+            // }
+        }
 
         WGPUVertexState vertexState = {
             .nextInChain = nullptr,
@@ -168,7 +275,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
         WGPUPrimitiveState primitiveState = {
             .nextInChain = nullptr,
             .topology = toWGPUPrimTopology(_primitive),
-            .stripIndexFormat = stripTopology ? WGPUIndexFormat_Uint16 : WGPUIndexFormat_Undefined, //TODO_Zeqiang: ???
+            .stripIndexFormat = stripTopology ? WGPUIndexFormat_Uint16 : WGPUIndexFormat_Undefined, // TODO_Zeqiang: ???
             .frontFace = _rasterizerState.isFrontFaceCCW ? WGPUFrontFace::WGPUFrontFace_CCW : WGPUFrontFace::WGPUFrontFace_CW,
             .cullMode = _rasterizerState.cullMode == CullMode::FRONT  ? WGPUCullMode::WGPUCullMode_Front
                         : _rasterizerState.cullMode == CullMode::BACK ? WGPUCullMode::WGPUCullMode_Back
@@ -181,7 +288,6 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .depthFailOp = toWGPUStencilOperation(_depthStencilState.stencilZFailOpFront),
             .passOp = toWGPUStencilOperation(_depthStencilState.stencilPassOpFront),
         };
-
         WGPUStencilFaceState stencilBack = {
             .compare = toWGPUCompareFunction(_depthStencilState.stencilFuncBack),
             .failOp = toWGPUStencilOperation(_depthStencilState.stencilFailOpBack),
@@ -216,17 +322,20 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
 
         for (size_t i = 0, targetIndex = 0; i < colors.size(); i++) {
             colorTargetStates[i].format = toWGPUTextureFormat(colors[i].format);
+            auto colorBO = _blendState.targets[targetIndex].blendEq;
             blendState[i].color = {
-                .operation = toWGPUBlendOperation(_blendState.targets[targetIndex].blendEq),
-                .srcFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendSrc),
-                .dstFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendDst),
+                .operation = toWGPUBlendOperation(colorBO),
+                .srcFactor = toWGPUBlendFactor(colorBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendSrc),
+                .dstFactor = toWGPUBlendFactor(colorBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendDst),
             };
+            auto alphaBO = _blendState.targets[targetIndex].blendAlphaEq;
             blendState[i].alpha = {
-                .operation = toWGPUBlendOperation(_blendState.targets[targetIndex].blendAlphaEq),
-                .srcFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendSrcAlpha),
-                .dstFactor = toWGPUBlendFactor(_blendState.targets[targetIndex].blendDstAlpha),
+                .operation = toWGPUBlendOperation(alphaBO),
+                .srcFactor = toWGPUBlendFactor(alphaBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendSrcAlpha),
+                .dstFactor = toWGPUBlendFactor(alphaBO == BlendOp::MAX ? BlendFactor::ONE : _blendState.targets[targetIndex].blendDstAlpha),
             };
-            colorTargetStates[i].blend = &blendState[i];
+            // only textureSampleType with float can be blended.
+            colorTargetStates[i].blend = textureSampleTypeTrait(colors[i].format) == WGPUTextureSampleType_Float ? &blendState[i] : nullptr;
             colorTargetStates[i].writeMask = toWGPUColorWriteMask(_blendState.targets[targetIndex].blendColorMask);
             if (targetIndex < _blendState.targets.size() - 1) {
                 ++targetIndex;
@@ -240,19 +349,11 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .targets = colorTargetStates.data(),
         };
 
-        pipelineLayout->prepare(setInUse);
-        // const auto setLayouts = pipelineLayout->getSetLayouts();
-        // for (size_t i = 0; i < setLayouts.size(); ++i) {
-        //     const auto* layout = setLayouts[i];
-        //     if (layout) {
-        //         printf("---set %d---\n", i);
-        //         static_cast<const CCWGPUDescriptorSetLayout*>(layout)->print();
-        //     }
-        // }
+        // pipelineLayout->prepare(setInUse);
 
         WGPURenderPipelineDescriptor piplineDesc = {
             .nextInChain = nullptr,
-            .label = nullptr,
+            .label = static_cast<CCWGPUShader *>(_shader)->getName().c_str(),
             .layout = pipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout,
             .vertex = vertexState,
             .primitive = primitiveState,
@@ -260,22 +361,45 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .multisample = msState,
             .fragment = &fragmentState,
         };
-        _gpuPipelineStateObj->wgpuRenderPipeline = wgpuDeviceCreateRenderPipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+
+        auto hashVal = hash(piplineDesc);
+        _hash = hashVal;
+
+        auto iter = pipelineMap.find(hashVal);
+        if (iter == pipelineMap.end()) {
+            _gpuPipelineStateObj->wgpuRenderPipeline = wgpuDeviceCreateRenderPipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+            printf("ppl %s\n", static_cast<CCWGPUShader *>(_shader)->getName().c_str());
+            pipelineMap[hashVal] = _gpuPipelineStateObj->wgpuRenderPipeline;
+        } else {
+            _gpuPipelineStateObj->wgpuRenderPipeline = static_cast<WGPURenderPipeline>(iter->second);
+        }
         _ppl = pipelineLayout;
         _forceUpdate = false;
     } else if (_bindPoint == PipelineBindPoint::COMPUTE) {
-        if (_gpuPipelineStateObj->wgpuComputePipeline)
+        if (_gpuPipelineStateObj->wgpuComputePipeline && !_forceUpdate)
             return;
         WGPUProgrammableStageDescriptor psDesc = {
             .module = static_cast<CCWGPUShader *>(_shader)->gpuShaderObject()->wgpuShaderComputeModule,
             .entryPoint = "main",
         };
-        pipelineLayout->prepare(setInUse);
+        // pipelineLayout->prepare(setInUse);
         WGPUComputePipelineDescriptor piplineDesc = {
             .layout = pipelineLayout->gpuPipelineLayoutObject()->wgpuPipelineLayout,
             .compute = psDesc,
         };
-        _gpuPipelineStateObj->wgpuComputePipeline = wgpuDeviceCreateComputePipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+        auto hashVal = hash(piplineDesc);
+        _hash = hashVal;
+
+        auto iter = pipelineMap.find(hashVal);
+        if (iter == pipelineMap.end()) {
+            _gpuPipelineStateObj->wgpuComputePipeline = wgpuDeviceCreateComputePipeline(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &piplineDesc);
+            printf("ppl %s\n", static_cast<CCWGPUShader *>(_shader)->getName().c_str());
+            pipelineMap[hashVal] = _gpuPipelineStateObj->wgpuComputePipeline;
+        } else {
+            _gpuPipelineStateObj->wgpuComputePipeline = static_cast<WGPUComputePipeline>(iter->second);
+        }
+        _ppl = pipelineLayout;
+        _forceUpdate = false;
     } else {
         printf("unsupport pipeline bind point");
     }
@@ -291,6 +415,7 @@ void CCWGPUPipelineState::doDestroy() {
         }
 
         delete _gpuPipelineStateObj;
+        _gpuPipelineStateObj = nullptr;
     }
 }
 
