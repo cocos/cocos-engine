@@ -520,8 +520,8 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Called by the engine to pause the game and will not be automatically resumed.
-     * @zh 提供给引擎调用暂停游戏接口，不会主动恢复。
+     * @en Called by the engine to pause the game.
+     * @zh 提供给引擎调用暂停游戏接口。
      */
     private pauseByEngine () {
         if (this._paused) { return; }
