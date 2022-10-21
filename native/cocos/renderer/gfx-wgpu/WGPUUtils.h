@@ -633,7 +633,8 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
 
 class Texture;
 class CommandBuffer;
-void clearRect(CommandBuffer* cmdBuffer, Texture* texture, uint32_t x, uint32_t y, uint32_t w, uint32_t h, const Color& color);
+void clearRect(CommandBuffer* cmdBuffer, Texture* texture, const Rect& renderArea, const Color& color);
+void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t baseLayer, CommandBuffer* cmdBuffer);
 
 static constexpr WGPUColor defaultClearColor{0.2, 0.2, 0.2, 1.0};
 

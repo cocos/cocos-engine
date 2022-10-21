@@ -352,6 +352,9 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
                     }
                 }
             }
+            if (hasFlag(ccTexture->getInfo().flags, TextureFlags::GEN_MIPMAP)) {
+                genMipMap(ccTexture, 1, ccTexture->getInfo().levelCount - 1, l, _cmdBuff);
+            }
         }
     }
 }
