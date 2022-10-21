@@ -33,7 +33,7 @@ import {
     Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader
 } from './override';
 import {
-    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo,
+    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
 } from '../base/define';
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
@@ -85,22 +85,30 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
     const oldUpdateBuffer = Buffer.prototype.update;
     Buffer.prototype.update = function (data: BufferSource, size?: number) {
-        const updateSize = size === undefined ? data.byteLength : size;
-        if ('buffer' in data) {
-            oldUpdateBuffer.call(this, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+        if (this.usage & BufferUsageBit.INDIRECT) {
+            this.updateIndirect(((data as unknown) as IndirectBuffer).drawInfos);
         } else {
-            oldUpdateBuffer.call(this, new Uint8Array(data), updateSize);
+            const updateSize = size === undefined ? data.byteLength : size;
+            if ('buffer' in data) {
+                oldUpdateBuffer.call(this, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+            } else {
+                oldUpdateBuffer.call(this, new Uint8Array(data), updateSize);
+            }
         }
+
     };
 
     const oldCmdUpdateBuffer = CommandBuffer.prototype.updateBuffer;
     CommandBuffer.prototype.updateBuffer = function (buffer: typeof Buffer, data: BufferSource, size?: number) {
-        const updateSize = size === undefined ? data.byteLength : size;
-
-        if ('buffer' in data) {
-            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+        if (this.usage & BufferUsageBit.INDIRECT) {
+            this.updateIndirect(buffer, ((data as unknown) as IndirectBuffer).drawInfos);
         } else {
-            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data), updateSize);
+            const updateSize = size === undefined ? data.byteLength : size;
+            if ('buffer' in data) {
+                oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+            } else {
+                oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data), updateSize);
+            }
         }
     };
 
@@ -200,7 +208,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
             // let textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
             const textureNameRegExpStr = '(?<=uniform(.*?)sampler\\w* )(\\w+)(?=;)';
             let textureName = (new RegExp(textureNameRegExpStr, 'g')).exec(str)![0];
-        
+
             let samplerStr = str.replace(textureName, `${textureName}Sampler`);
 
             // let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
@@ -221,7 +229,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                 const samplerBindingStr = samplerReg.exec(str)![0];
                 const samplerBinding = Number(samplerBindingStr) + 16;
                 samplerStr = samplerStr.replace(samplerReg, samplerBinding.toString());
-                
+
                 const textureReg = new RegExp('(?<=uniform(.*?))(sampler)(?=\\w*)', 'g');
                 const textureStr = str.replace(textureReg, 'texture');
                 code = code.replace(str, `${textureStr}\n${samplerStr}`);
