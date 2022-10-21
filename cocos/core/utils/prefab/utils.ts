@@ -36,7 +36,6 @@ import { ValueType } from '../../value-types';
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
     const prefabInfo = node._prefab;
-
     if (!prefabInfo) {
         return;
     }
@@ -431,6 +430,7 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
 export function expandNestedPrefabInstanceNode (node: Node) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
+
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
