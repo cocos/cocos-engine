@@ -64,7 +64,6 @@ exports.props = ['data', 'index', 'min', 'max', 'lodGroupId'];
 exports.data = function() {
     return {
         totalTriangles: 0,
-        cacheExpandId: null,
     };
 };
 
@@ -79,9 +78,12 @@ exports.watch = {
             that.totalTriangles = res;
         },
     },
-    lodGroupId(val) {
+};
+
+exports.computed = {
+    cacheExpandId() {
         const that = this;
-        that.cacheExpandId = `${that.lodGroupId}-lod-${that.index}`;
+        return `${that.lodGroupId}-lod-${that.index}`;
     },
 };
 
@@ -94,7 +96,7 @@ exports.methods = {
     onMeshConfirm(event, meshIndex) {
         const that = this;
         that.data.value.renderers.value[meshIndex].value.uuid = event.target.value;
-        that.updateDump(that.data.value.renderers.value[meshIndex]);
+        that.updateDump(that.data.value.renderers);
     },
     updateRenderers(operator) {
         const that = this;

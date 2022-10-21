@@ -163,7 +163,7 @@ exports.template = `
                     :data="data"
                     :index="index"
                     :key="index"
-                    :lodGroupId="dump.value.uuid.value"
+                    :lod-group-id="dump.value.uuid.value"
                     :min="calculateRange('min', index)"
                     :max="calculateRange('max', index)"
                     @update-lods="updateLODs"
@@ -237,19 +237,24 @@ exports.ready = function() {
                         console.warn('Maximum 8 LOD, Can\'t add more LOD');
                         return;
                     }
-                    const lodItemData = Object.assign({}, that.dump.value.LODs.elementTypeData);
                     const preValue = LODs[index].value.screenRelativeTransitionHeight.value;
                     const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenRelativeTransitionHeight.value : 0;
-                    lodItemData.value.screenRelativeTransitionHeight.value = (preValue + nextValue) / 2;
-                    LODs.splice(index + 1, 0, lodItemData);
+                    Editor.Message.send('scene', 'execute-component-method', {
+                        uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                        name: 'insertLOD',
+                        args: [index + 1, (preValue + nextValue) / 2, null],
+                    });
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
-                    LODs.splice(index, 1);
+                    Editor.Message.send('scene', 'execute-component-method', {
+                        uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                        name: 'deleteLOD',
+                        args: [index],
+                    });
                 }
-                that.updateDump(that.dump.value.LODs);
             },
             calculateRange(range, index) {
                 const that = this;

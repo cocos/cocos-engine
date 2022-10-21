@@ -52,7 +52,7 @@ export class LOD {
     }
 
     /**
-     * @en The relvative (minimum) transition height of this LOD level in screen space
+     * @en The relative (minimum) transition height of this LOD level in screen space
      * @zh 本层级（最小）相对屏幕区域的过渡高度
      */
     @type(Number)
@@ -108,10 +108,7 @@ export class LOD {
      * @param renderer the mesh-renderer object
      * @returns The renderer inserted
      */
-    insertRenderer (index: number, renderer: MeshRenderer | null): MeshRenderer {
-        if (!renderer) {
-            renderer = new MeshRenderer();
-        }
+    insertRenderer (index: number, renderer: MeshRenderer): MeshRenderer {
         this._renderers.splice(index, 0, renderer);
         this._LOD.models.splice(index, 0, renderer.model!);
         return renderer;
@@ -215,6 +212,7 @@ export class LODGroup extends Component {
         lod.screenRelativeTransitionHeight = screenSize;
         this._LODs.splice(index, 0, lod);
         this._lodGroup.LODs.splice(index, 0, lod.lod);
+        LODGroupEditorUtility.emitChangeNode(this.node);
         return lod;
     }
 
@@ -222,6 +220,7 @@ export class LODGroup extends Component {
         const lod = this._LODs[index];
         this._LODs.splice(index, 1);
         this._lodGroup.LODs.splice(index, 1);
+        LODGroupEditorUtility.emitChangeNode(this.node);
         return lod;
     }
 
