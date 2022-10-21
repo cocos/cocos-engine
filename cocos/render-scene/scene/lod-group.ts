@@ -56,6 +56,11 @@ export class LODGroup {
      */
     protected _LODs: LOD[] = [];
 
+    /**
+     * For editor only, users maybe operate several LOD's object
+     */
+    protected _lockLODLev: number[] = [];
+
     constructor () {
         this._device = deviceManager.gfxDevice;
     }
@@ -82,6 +87,14 @@ export class LODGroup {
 
     detachFromScene () {
         this.scene = null!;
+    }
+
+    lockLODLevels (lockLev: number[]) {
+        this._lockLODLev = lockLev;
+    }
+
+    getLockLODLevels (): number[] {
+        return this._lockLODLev;
     }
 
     /**

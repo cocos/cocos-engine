@@ -426,6 +426,7 @@ export class LODGroupEditorUtility {
     }
 
     static setLODVisibility (lodGroup: LODGroup, visibleIndex: number) {
+        lodGroup.lodGroup.lockLODLevels(visibleIndex < 0 ? [] : [visibleIndex]);
         lodGroup.LODs.forEach((lod: LOD, index) => {
             for (const renderer of lod.renderers) {
                 if (!renderer) {
@@ -437,6 +438,33 @@ export class LODGroupEditorUtility {
                         renderScene.removeModel(renderer.model);
                         renderScene.addModel(renderer.model);
                     } else {
+                        renderScene.removeModel(renderer.model);
+                    }
+                }
+            }
+        });
+    }
+
+    static setLODsVisibility (lodGroup: LODGroup, visibleArray: number[]) {
+        lodGroup.lodGroup.lockLODLevels(visibleArray);
+        lodGroup.LODs.forEach((lod: LOD, index) => {
+            for (const renderer of lod.renderers) {
+                if (!renderer) {
+                    continue;
+                }
+                const renderScene = lodGroup.node.scene?.renderScene;
+                if (renderScene && renderer.model) {
+                    let visible = false;
+                    for (let i = 0; i < visibleArray.length; i++) {
+                        const lodLev = visibleArray[i];
+                        if (index === lodLev) {
+                            visible = true;
+                            // model maybe exist at multiple LODGroup
+                            renderScene.removeModel(renderer.model);
+                            renderScene.addModel(renderer.model);
+                        }
+                    }
+                    if (!visible) {
                         renderScene.removeModel(renderer.model);
                     }
                 }

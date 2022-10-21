@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+import { EDITOR } from 'internal:constants';
 import { intersect, Sphere } from '../core/geometry';
 import { Model } from '../render-scene/scene/model';
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
@@ -167,6 +167,31 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const lodVisibleModels : Model[] = [];
     for (const g of scene.lodGroups) {
         if (g.enabled) {
+            if (EDITOR) {
+                const LODLevels = g.getLockLODLevels();
+                const count = LODLevels.length;
+                if (count > 0) {
+                    for (let index = 0; index < g.lodCount; index++) {
+                        const lod = g.LODs[index];
+                        for (const model of lod.models) {
+                            let hasInserted = false;
+                            for (let i = 0; i < count; i++) {
+                                if (LODLevels[i] === index) {
+                                    if (model && model.node.active) {
+                                        lodVisibleModels.push(model);
+                                        hasInserted = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!hasInserted) {
+                                lodInvisibleModels.push(model);
+                            }
+                        }
+                    }
+                    continue;
+                }
+            }
             const visIndex = g.getVisibleLOD(camera);
             for (let index = 0; index < g.lodCount; index++) {
                 const lod = g.LODs[index];
