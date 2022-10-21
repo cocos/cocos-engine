@@ -28,7 +28,7 @@ import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
-import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass,
+import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     PresentPass, RasterPass, RaytracePass, RenderGraph, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { AccessType, RasterView, ResourceResidency } from './types';
@@ -52,6 +52,9 @@ class PassVisitor implements RenderGraphVisitor {
     }
     protected _isScene (u: number): boolean {
         return !!this.context.renderGraph.tryGetScene(u);
+    }
+    protected _isBlit(u: number): boolean {
+        return !!this.context.renderGraph.tryGetBlit(u);
     }
     private _fetchValidPass () {
         const rg = this.context.renderGraph;
@@ -107,16 +110,16 @@ class PassVisitor implements RenderGraphVisitor {
             this.passID = id;
         } else if (this._isQueue(id)) {
             this.queueID = id;
-        } else if (this._isScene(id)) {
+        } else if (this._isScene(id) || this._isBlit(id)) {
             this.sceneID = id;
         }
     }
-    raster (pass: RasterPass): unknown {
-        const rg = this.context.renderGraph;
+    raster (pass: RasterPass) {
+        // const rg = this.context.renderGraph;
         // Since the pass is valid, there is no need to continue traversing.
-        if (rg.getValid(this.passID)) {
-            return;
-        }
+        // if (rg.getValid(this.passID)) {
+        //     return;
+        // }
         this._currPass = pass;
     }
     compute (value: ComputePass) {}
@@ -162,6 +165,12 @@ class ResourceVisitor implements ResourceGraphVisitor {
     public resID = 0xFFFFFFFF;
     constructor (context: CompilerContext) {
         this._context = context;
+    }
+    managedBuffer(value: ManagedBuffer) {
+        // noop
+    }
+    managedTexture(value: ManagedTexture) {
+        // noop
     }
     managed (value: ManagedResource) {
         this.dependency();

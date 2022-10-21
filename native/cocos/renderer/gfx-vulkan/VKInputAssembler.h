@@ -27,6 +27,7 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXInputAssembler.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
@@ -44,7 +45,7 @@ protected:
     void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUInputAssembler *_gpuInputAssembler = nullptr;
+    IntrusivePtr<CCVKGPUInputAssembler> _gpuInputAssembler;
 };
 
 } // namespace gfx

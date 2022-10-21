@@ -1,7 +1,8 @@
-import { Color, Component, Node, Quat, Size, Vec3 } from '../../cocos/core';
+import { Color, Quat, Size, Vec3 } from '../../cocos/core';
 import { ColorTrack, ObjectTrack, QuatTrack, RealTrack, SizeTrack, TrackPath, VectorTrack } from '../../cocos/animation/animation';
 import { AnimationClip, searchForRootBonePathSymbol } from '../../cocos/animation/animation-clip';
 import { TargetPath } from '../../cocos/animation/target-path';
+import { Node, Component } from "../../cocos/scene-graph";
 
 describe('Animation Clip', () => {
     describe('Evaluation', () => {

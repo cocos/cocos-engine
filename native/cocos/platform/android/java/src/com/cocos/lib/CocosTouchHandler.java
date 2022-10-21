@@ -33,10 +33,10 @@ import android.view.SurfaceView;
 public class CocosTouchHandler {
     public final static String TAG = "CocosTouchHandler";
     private boolean mStopHandleTouchAndKeyEvents = false;
-    private long mNativeHandle;
+    private int mWindowId;
 
-    public CocosTouchHandler(long handle) {
-        mNativeHandle = handle;
+    public CocosTouchHandler(int windowId) {
+        mWindowId = windowId;
     }
 
     boolean onTouchEvent(MotionEvent pMotionEvent) {
@@ -66,7 +66,7 @@ public class CocosTouchHandler {
                 CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
-                        handleActionDown(mNativeHandle, idPointerDown, xPointerDown, yPointerDown);
+                        handleActionDown(mWindowId, idPointerDown, xPointerDown, yPointerDown);
                     }
                 });
                 break;
@@ -85,7 +85,7 @@ public class CocosTouchHandler {
                 CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
-                        handleActionDown(mNativeHandle, idDown, xDown, yDown);
+                        handleActionDown(mWindowId, idDown, xDown, yDown);
                     }
                 });
 
@@ -95,7 +95,7 @@ public class CocosTouchHandler {
                 CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
-                        handleActionMove(mNativeHandle, ids, xs, ys);
+                        handleActionMove(mWindowId, ids, xs, ys);
                     }
                 });
 
@@ -109,7 +109,7 @@ public class CocosTouchHandler {
                 CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
-                        handleActionUp(mNativeHandle, idPointerUp, xPointerUp, yPointerUp);
+                        handleActionUp(mWindowId, idPointerUp, xPointerUp, yPointerUp);
                     }
                 });
 
@@ -123,7 +123,7 @@ public class CocosTouchHandler {
                 CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
-                        handleActionUp(mNativeHandle, idUp, xUp, yUp);
+                        handleActionUp(mWindowId, idUp, xUp, yUp);
                     }
                 });
 
@@ -133,7 +133,7 @@ public class CocosTouchHandler {
                 CocosHelper.runOnGameThreadAtForeground(new Runnable() {
                     @Override
                     public void run() {
-                        handleActionCancel(mNativeHandle, ids, xs, ys);
+                        handleActionCancel(mWindowId, ids, xs, ys);
                     }
                 });
                 break;
@@ -173,12 +173,12 @@ public class CocosTouchHandler {
         Log.d(TAG, sb.toString());
     }
 
-    private native void handleActionDown(long handle, final int id, final float x, final float y);
+    private native void handleActionDown(int windowId, final int id, final float x, final float y);
 
-    private native void handleActionMove(long handle, final int[] ids, final float[] xPointerList, final float[] yPointerList);
+    private native void handleActionMove(int windowId, final int[] ids, final float[] xPointerList, final float[] yPointerList);
 
-    private native void handleActionUp(long handle, final int id, final float x, final float y);
+    private native void handleActionUp(int windowId, final int id, final float x, final float y);
 
-    private native void handleActionCancel(long handle, final int[] ids, final float[] xPointerList, final float[] yPointerList);
+    private native void handleActionCancel(int windowId, final int[] ids, final float[] xPointerList, final float[] yPointerList);
 
 }

@@ -39,7 +39,7 @@
  */
 
 import { ccclass, executionOrder } from 'cc.decorator';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.ViewGroup')

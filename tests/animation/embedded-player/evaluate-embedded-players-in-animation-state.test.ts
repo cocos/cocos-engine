@@ -1,4 +1,4 @@
-import { Node } from "../../../cocos/core";
+import { Node } from "../../../cocos/scene-graph";
 import { AnimationClip } from "../../../cocos/animation/animation-clip";
 import { AnimationState } from "../../../cocos/animation/animation-state";
 

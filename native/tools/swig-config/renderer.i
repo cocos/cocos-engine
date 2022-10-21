@@ -21,9 +21,7 @@
 #include "bindings/auto/jsb_assets_auto.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "renderer/pipeline/custom/RenderCommonJsb.h"
-#include "renderer/pipeline/custom/RenderGraphJsb.h"
 
 using namespace cc;
 using namespace cc::render;

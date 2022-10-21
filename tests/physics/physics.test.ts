@@ -1,4 +1,4 @@
-import { director, game, Game, Node, Scene } from "../../cocos/core";
+import { director, game, Game } from "../../cocos/game";
 import { physics, PhysicsSystem } from "../../exports/physics-framework";
 
 import "../../exports/physics-physx";
@@ -16,6 +16,7 @@ import StableTest from "./stability";
 import VolumeTest from "./volume";
 import FilterTest from "./filtering";
 import DynamicTest from "./dynamic";
+import { Node, Scene } from "../../cocos/scene-graph";
 
 game.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
 

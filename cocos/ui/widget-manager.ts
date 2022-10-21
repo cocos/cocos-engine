@@ -26,12 +26,12 @@
 
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Director, director } from '../core/director';
+import { Director, director } from '../game/director';
 import { Vec2, Vec3 } from '../core/math';
-import { View } from '../core/platform/view';
+import { View } from './view';
 import visibleRect from '../core/platform/visible-rect';
-import { Scene } from '../core/scene-graph';
-import { Node } from '../core/scene-graph/node';
+import { Scene } from '../scene-graph';
+import { Node } from '../scene-graph/node';
 import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';

@@ -1,13 +1,12 @@
-
-
 import { EDITOR } from 'internal:constants';
-import { Component, Vec2 } from '../../../../core';
+import { Vec2 } from '../../../../core';
 import { property, type, ccclass } from '../../../../core/data/class-decorator';
 import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
 import { createJoint } from '../../instance';
 import { legacyCC } from '../../../../core/global-exports';
+import { Component } from '../../../../scene-graph';
 
 @ccclass('cc.Joint2D')
 export class Joint2D extends Component {

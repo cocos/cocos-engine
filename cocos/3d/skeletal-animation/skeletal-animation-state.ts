@@ -26,7 +26,7 @@
 import { JSB } from 'internal:constants';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import type { AnimationClip } from '../../animation/animation-clip';
 import { AnimationState } from '../../animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
@@ -97,8 +97,7 @@ export class SkeletalAnimationState extends AnimationState {
             this.duration = this.clip.duration;
             if (!this._curvesInited) {
                 this._curveLoaded = false;
-                super.initialize(this._targetNode!
-                    );
+                super.initialize(this._targetNode!);
                 this._curvesInited = true;
             }
         }

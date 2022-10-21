@@ -25,10 +25,9 @@
  THE SOFTWARE.
  */
 
-import * as js from '../../core/utils/js';
-import { errorID, logID, assertID } from '../../core/platform/debug';
+import { errorID, logID } from '../../core/platform/debug';
 import { Action } from './action';
-import { Node, CCObject } from '../../core';
+import { Node } from '../../scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
 

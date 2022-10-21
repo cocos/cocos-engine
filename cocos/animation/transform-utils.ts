@@ -24,7 +24,7 @@
 */
 
 import { Mat4 } from '../core/math';
-import { Node } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 
 const m4_1 = new Mat4();
 

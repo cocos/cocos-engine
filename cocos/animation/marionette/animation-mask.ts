@@ -1,5 +1,5 @@
 import { ccclass, serializable, editable } from 'cc.decorator';
-import type { Node } from '../../core/scene-graph/node';
+import type { Node } from '../../scene-graph/node';
 import { Asset } from '../../asset/assets/asset';
 import { removeIf } from '../../core/utils/array';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';

@@ -34,7 +34,7 @@ namespace render {
 
 template <class GraphT>
 struct AddressableView {
-    explicit AddressableView(GraphT& g) noexcept
+    explicit AddressableView(const GraphT& g) noexcept
     : mGraph(g) {}
 
     // GraphT
@@ -73,7 +73,7 @@ struct AddressableView {
     using edges_size_type = typename GraphT::ownerships_size_type;
 
     // Member
-    GraphT& mGraph;
+    const GraphT& mGraph;
 };
 
 // IncidenceGraph
@@ -104,7 +104,7 @@ inline typename AddressableView<GraphT>::degree_size_type
 out_degree( // NOLINT(readability-identifier-naming)
     typename AddressableView<GraphT>::vertex_descriptor u,
     const AddressableView<GraphT>& g) noexcept {
-    return num_children(u, g.mGraph);
+    return numChildren(u, g.mGraph);
 }
 
 template <class GraphT>
@@ -129,7 +129,7 @@ inline typename AddressableView<GraphT>::degree_size_type
 in_degree( // NOLINT(readability-identifier-naming)
     typename AddressableView<GraphT>::vertex_descriptor u,
     const AddressableView<GraphT>& g) noexcept {
-    return num_parents(u, g.mGraph);
+    return numParents(u, g.mGraph);
 }
 
 template <class GraphT>

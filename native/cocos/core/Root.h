@@ -76,10 +76,11 @@ public:
     /**
      * @zh
      * 重置大小
-     * @param width 屏幕宽度
-     * @param height 屏幕高度
+     * @param width 窗口宽度
+     * @param height 窗口高度
+     * @param windowId 窗口 ID
      */
-    void resize(uint32_t windowId, uint32_t width, uint32_t height);
+    void resize(uint32_t width, uint32_t height, uint32_t windowId);
 
     bool setRenderPipeline(pipeline::RenderPipeline *rppl = nullptr);
     void onGlobalPipelineStateChanged();
@@ -291,11 +292,16 @@ public:
     scene::RenderWindow *createRenderWindowFromSystemWindow(uint32_t windowId);
     scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
 
+    const ccstd::vector<scene::Camera *> &getCameraList() const {
+        return _cameraList;
+    }
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
     void frameMoveEnd();
     void doXRFrameMove(int32_t totalFrames);
+    void addWindowEventListener();
+    void removeWindowEventListener() const;
 
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
@@ -319,6 +325,8 @@ private:
     bool _usesCustomPipeline{false};
     CallbacksInvoker *_eventProcessor{nullptr};
     IXRInterface *_xr{nullptr};
+    uint32_t _windowDestroyEventId{0};
+    uint32_t _windowResumeEventId{0};
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;

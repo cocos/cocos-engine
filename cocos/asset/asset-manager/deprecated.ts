@@ -25,8 +25,8 @@
 
 import { BUILD } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { director } from '../../core/director';
-import { game } from '../../core/game';
+import { director } from '../../game/director';
+import { game } from '../../game';
 import { legacyCC } from '../../core/global-exports';
 import { getError } from '../../core/platform/debug';
 import { macro } from '../../core/platform/macro';

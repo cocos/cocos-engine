@@ -41,6 +41,7 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/Set.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -48,6 +49,11 @@ namespace cc {
 namespace render {
 
 struct NullTag {};
+
+struct LeafStatus {
+    bool isExternal{false};
+    bool needCulling{false};
+};
 
 struct BufferRange {
     uint32_t offset{0};
@@ -94,7 +100,7 @@ struct ResourceAccessNode {
 struct ResourceAccessGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {vertices.get_allocator().resource()};
+        return {_vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -146,29 +152,29 @@ struct ResourceAccessGraph {
 
     // VertexList help functions
     inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -218,7 +224,7 @@ struct ResourceAccessGraph {
     } static constexpr AccessNode{}; // NOLINT
 
     // Vertices
-    ccstd::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> _vertices;
     // Components
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
     ccstd::pmr::vector<ResourceAccessNode> access;
@@ -228,7 +234,8 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<ccstd::pmr::string> resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
     RenderGraph::vertex_descriptor presentPassID{0xFFFFFFFF};
-    ccstd::pmr::vector<RenderGraph::vertex_descriptor> externalPasses;
+    PmrFlatMap<RenderGraph::vertex_descriptor, LeafStatus> leafPasses;
+    PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses;
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
 };
 
@@ -278,29 +285,29 @@ struct EmptyGraph {
 
     // VertexList help functions
     inline std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline std::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const std::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -316,7 +323,7 @@ struct EmptyGraph {
         std::vector<InEdge> inEdges;
     };
     // Vertices
-    std::vector<Vertex> vertices;
+    std::vector<Vertex> _vertices;
 };
 
 struct Barrier {

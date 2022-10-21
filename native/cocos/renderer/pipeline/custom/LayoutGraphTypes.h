@@ -51,62 +51,6 @@ namespace cc {
 
 namespace render {
 
-enum class DescriptorTypeOrder {
-    UNIFORM_BUFFER,
-    DYNAMIC_UNIFORM_BUFFER,
-    SAMPLER_TEXTURE,
-    SAMPLER,
-    TEXTURE,
-    STORAGE_BUFFER,
-    DYNAMIC_STORAGE_BUFFER,
-    STORAGE_IMAGE,
-    INPUT_ATTACHMENT,
-};
-
-struct Descriptor {
-    Descriptor() = default;
-    Descriptor(gfx::Type typeIn) noexcept // NOLINT
-    : type(typeIn) {}
-
-    gfx::Type type{gfx::Type::UNKNOWN};
-    uint32_t count{1};
-};
-
-struct DescriptorBlock {
-    ccstd::map<ccstd::string, Descriptor> descriptors;
-    ccstd::map<ccstd::string, gfx::UniformBlock> uniformBlocks;
-    uint32_t capacity{0};
-    uint32_t count{0};
-};
-
-struct DescriptorBlockFlattened {
-    ccstd::vector<ccstd::string> descriptorNames;
-    ccstd::vector<ccstd::string> uniformBlockNames;
-    ccstd::vector<Descriptor> descriptors;
-    ccstd::vector<gfx::UniformBlock> uniformBlocks;
-    uint32_t capacity{0};
-    uint32_t count{0};
-};
-
-struct DescriptorBlockIndex {
-    DescriptorBlockIndex() = default;
-    DescriptorBlockIndex(UpdateFrequency updateFrequencyIn, ParameterType parameterTypeIn, DescriptorTypeOrder descriptorTypeIn, gfx::ShaderStageFlagBit visibilityIn) noexcept
-    : updateFrequency(updateFrequencyIn),
-      parameterType(parameterTypeIn),
-      descriptorType(descriptorTypeIn),
-      visibility(visibilityIn) {}
-
-    UpdateFrequency updateFrequency{UpdateFrequency::PER_INSTANCE};
-    ParameterType parameterType{ParameterType::CONSTANTS};
-    DescriptorTypeOrder descriptorType{DescriptorTypeOrder::UNIFORM_BUFFER};
-    gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-};
-
-inline bool operator<(const DescriptorBlockIndex& lhs, const DescriptorBlockIndex& rhs) noexcept {
-    return std::forward_as_tuple(lhs.updateFrequency, lhs.parameterType, lhs.descriptorType, lhs.visibility) <
-           std::forward_as_tuple(rhs.updateFrequency, rhs.parameterType, rhs.descriptorType, rhs.visibility);
-}
-
 struct DescriptorDB {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -149,7 +93,7 @@ struct RenderPhase {
 struct LayoutGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {vertices.get_allocator().resource()};
+        return {_vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -204,29 +148,29 @@ struct LayoutGraph {
 
     // VertexList help functions
     inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -252,17 +196,17 @@ struct LayoutGraph {
 
     // AddressableGraph help functions
     inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     // PolymorphicGraph
@@ -303,7 +247,7 @@ struct LayoutGraph {
     } static constexpr Descriptors{}; // NOLINT
 
     // Vertices
-    ccstd::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> _vertices;
     // Components
     ccstd::pmr::vector<ccstd::pmr::string> names;
     ccstd::pmr::vector<DescriptorDB> descriptors;
@@ -453,6 +397,75 @@ struct PipelineLayoutData {
     ccstd::pmr::map<UpdateFrequency, DescriptorSetData> descriptorSets;
 };
 
+struct ShaderBindingData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {descriptorBindings.get_allocator().resource()};
+    }
+
+    ShaderBindingData(const allocator_type& alloc) noexcept; // NOLINT
+    ShaderBindingData(ShaderBindingData&& rhs, const allocator_type& alloc);
+
+    ShaderBindingData(ShaderBindingData&& rhs) noexcept = default;
+    ShaderBindingData(ShaderBindingData const& rhs) = delete;
+    ShaderBindingData& operator=(ShaderBindingData&& rhs) = default;
+    ShaderBindingData& operator=(ShaderBindingData const& rhs) = delete;
+
+    PmrFlatMap<NameLocalID, uint32_t> descriptorBindings;
+};
+
+struct ShaderLayoutData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {layoutData.get_allocator().resource()};
+    }
+
+    ShaderLayoutData(const allocator_type& alloc) noexcept; // NOLINT
+    ShaderLayoutData(ShaderLayoutData&& rhs, const allocator_type& alloc);
+
+    ShaderLayoutData(ShaderLayoutData&& rhs) noexcept = default;
+    ShaderLayoutData(ShaderLayoutData const& rhs) = delete;
+    ShaderLayoutData& operator=(ShaderLayoutData&& rhs) = default;
+    ShaderLayoutData& operator=(ShaderLayoutData const& rhs) = delete;
+
+    ccstd::pmr::map<UpdateFrequency, DescriptorSetLayoutData> layoutData;
+    ccstd::pmr::map<UpdateFrequency, ShaderBindingData> bindingData;
+};
+
+struct TechniqueData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {passes.get_allocator().resource()};
+    }
+
+    TechniqueData(const allocator_type& alloc) noexcept; // NOLINT
+    TechniqueData(TechniqueData&& rhs, const allocator_type& alloc);
+
+    TechniqueData(TechniqueData&& rhs) noexcept = default;
+    TechniqueData(TechniqueData const& rhs) = delete;
+    TechniqueData& operator=(TechniqueData&& rhs) = default;
+    TechniqueData& operator=(TechniqueData const& rhs) = delete;
+
+    ccstd::pmr::vector<ShaderLayoutData> passes;
+};
+
+struct EffectData {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {techniques.get_allocator().resource()};
+    }
+
+    EffectData(const allocator_type& alloc) noexcept; // NOLINT
+    EffectData(EffectData&& rhs, const allocator_type& alloc);
+
+    EffectData(EffectData&& rhs) noexcept = default;
+    EffectData(EffectData const& rhs) = delete;
+    EffectData& operator=(EffectData&& rhs) = default;
+    EffectData& operator=(EffectData const& rhs) = delete;
+
+    ccstd::pmr::map<ccstd::pmr::string, TechniqueData> techniques;
+};
+
 struct ShaderProgramData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -509,7 +522,7 @@ struct RenderPhaseData {
 struct LayoutGraphData {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {vertices.get_allocator().resource()};
+        return {_vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -563,29 +576,29 @@ struct LayoutGraphData {
 
     // VertexList help functions
     inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -611,17 +624,17 @@ struct LayoutGraphData {
 
     // AddressableGraph help functions
     inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     // PolymorphicGraph
@@ -664,7 +677,7 @@ struct LayoutGraphData {
     } static constexpr Layout{}; // NOLINT
 
     // Vertices
-    ccstd::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> _vertices;
     // Components
     ccstd::pmr::vector<ccstd::pmr::string> names;
     ccstd::pmr::vector<UpdateFrequency> updateFrequencies;
@@ -677,6 +690,7 @@ struct LayoutGraphData {
     PmrFlatMap<ccstd::pmr::string, NameLocalID> attributeIndex;
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
+    PmrFlatMap<ccstd::pmr::string, EffectData> effects;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

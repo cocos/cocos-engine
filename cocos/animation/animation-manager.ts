@@ -24,10 +24,10 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import System from '../core/components/system';
-import { director, Director } from '../core/director';
+import System from '../core/system';
+import { director, Director } from '../game/director';
 import { errorID } from '../core/platform/debug';
-import { Node } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 import { MutableForwardIterator } from '../core/utils/array';
 import { LegacyBlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';

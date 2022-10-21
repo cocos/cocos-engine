@@ -68,6 +68,15 @@ enum class ClearValueType;
 struct ComputeView;
 struct LightInfo;
 
+enum class DescriptorTypeOrder;
+
+struct Descriptor;
+struct DescriptorBlock;
+struct DescriptorBlockFlattened;
+struct DescriptorBlockIndex;
+struct CopyPair;
+struct MovePair;
+
 } // namespace render
 
 } // namespace cc

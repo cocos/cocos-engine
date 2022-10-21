@@ -24,10 +24,9 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3, RecyclePool, game, Enum } from '../../core';
+import { Vec3, RecyclePool, Enum, System } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { director, Director } from '../../core/director';
-import { System } from '../../core/components';
+import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
 import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';

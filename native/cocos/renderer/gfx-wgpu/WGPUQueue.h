@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "gfx-base/GFXQueue.h"
 
 namespace cc {
@@ -33,21 +35,28 @@ namespace gfx {
 
 struct CCWGPUQueueObject;
 
-class CCWGPUQueue final : public emscripten::wrapper<Queue> {
+class CCWGPUQueue final : public Queue {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUQueue);
     CCWGPUQueue();
-    ~CCWGPUQueue() = default;
+    ~CCWGPUQueue();
 
     void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
-
     inline CCWGPUQueueObject *gpuQueueObject() { return _gpuQueueObject; }
+    inline uint32_t getNumDrawCalls() const { return _numDrawCalls; }
+    inline uint32_t getNumInstances() const { return _numInstances; }
+    inline uint32_t getNumTris() const { return _numTriangles; }
+
+    inline void resetStatus() { _numDrawCalls = _numInstances = _numTriangles = 0; }
 
 protected:
     void doInit(const QueueInfo &info) override;
     void doDestroy() override;
 
     CCWGPUQueueObject *_gpuQueueObject = nullptr;
+
+    uint32_t _numDrawCalls = 0;
+    uint32_t _numInstances = 0;
+    uint32_t _numTriangles = 0;
 };
 
 } // namespace gfx

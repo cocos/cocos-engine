@@ -31,9 +31,10 @@
 // clang-format off
 #pragma once
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
+#include "cocos/scene/Camera.h"
 
 namespace cc {
 
@@ -283,6 +284,9 @@ class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
 
+    virtual void beginSetup() = 0;
+    virtual void endSetup() = 0;
+
     virtual bool containsResource(const ccstd::string& name) const = 0;
     virtual uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
     virtual uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
@@ -317,7 +321,7 @@ public:
 
 class Factory {
 public:
-    static Pipeline            *createPipeline();
+    static Pipeline *createPipeline();
 };
 
 } // namespace render

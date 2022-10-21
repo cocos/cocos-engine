@@ -62,7 +62,6 @@
 
 namespace cc {
 namespace gfx {
-
 class CC_DLL DeviceManager final {
     static constexpr bool DETACH_DEVICE_THREAD{true};
     static constexpr bool FORCE_DISABLE_VALIDATION{false};
@@ -134,17 +133,6 @@ public:
     }
 
 private:
-    static void addSurfaceEventListener() {
-        Device *device = Device::instance;
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
-            device->destroySurface(e.args->ptrVal);
-        });
-
-        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
-            device->createSurface(e.args->ptrVal);
-        });
-    }
-
     template <typename DeviceCtor, typename Enable = std::enable_if_t<std::is_base_of<Device, DeviceCtor>::value>>
     static bool tryCreate(const DeviceInfo &info, Device **pDevice) {
         Device *device = ccnew DeviceCtor;
@@ -163,8 +151,6 @@ private:
             CC_SAFE_DELETE(device);
             return false;
         }
-
-        addSurfaceEventListener();
         *pDevice = device;
 
         return true;

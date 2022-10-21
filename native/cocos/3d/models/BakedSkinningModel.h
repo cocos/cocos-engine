@@ -60,7 +60,7 @@ public:
     void updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) override;
     void updateTransform(uint32_t stamp) override;
     void updateUBOs(uint32_t stamp) override;
-    void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::Pass *pass) override;
+    void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, scene::SubModel *subModel) override;
     void updateInstancedJointTextureInfo();
     // void                             uploadAnimation(AnimationClip *anim); // TODO(xwx): AnimationClip not define
 

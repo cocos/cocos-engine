@@ -33,7 +33,6 @@
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
-#include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
 #include "renderer/pipeline/Define.h"
@@ -46,6 +45,8 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/event/CustomEventTypes.h"
 
 namespace cc {
 
@@ -86,7 +87,7 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     }
     _curRenderWindow = _mainRenderWindow;
     _xr = CC_GET_XR_INTERFACE();
-
+    addWindowEventListener();
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 
@@ -104,16 +105,13 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
         return nullptr;
     }
 
-    auto *screen = CC_GET_PLATFORM_INTERFACE(IScreen);
-    float pixelRatio = screen->getDevicePixelRatio();
-
     uint32_t windowId = window->getWindowId();
     auto handle = window->getWindowHandle();
     const auto &size = window->getViewSize();
 
     gfx::SwapchainInfo info;
-    info.width = static_cast<uint32_t>(size.x) * pixelRatio;
-    info.height = static_cast<uint32_t>(size.y) * pixelRatio;
+    info.width = static_cast<uint32_t>(size.x);
+    info.height = static_cast<uint32_t>(size.y);
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
 
@@ -150,7 +148,7 @@ cc::scene::RenderWindow *Root::createRenderWindowFromSystemWindow(uint32_t windo
 
 void Root::destroy() {
     destroyScenes();
-
+    removeWindowEventListener();
     if (_usesCustomPipeline && _pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
@@ -169,7 +167,7 @@ void Root::destroy() {
     //    this.dataPoolManager.clear();
 }
 
-void Root::resize(uint32_t windowId, uint32_t width, uint32_t height) {
+void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) {
     for (const auto &window : _renderWindows) {
         auto *swapchain = window->getSwapchain();
         if (swapchain && (swapchain->getWindowId() == windowId)) {
@@ -429,7 +427,7 @@ void Root::frameMoveEnd() {
             }
         }
     #endif
-
+        _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_RENDER, this);
         _pipelineRuntime->render(_cameraList);
 #endif
         _device->present();
@@ -634,6 +632,25 @@ void Root::doXRFrameMove(int32_t totalFrames) {
     } else {
         CC_LOG_WARNING("[XR] isRenderAllowable is false !!!");
     }
+}
+
+void Root::addWindowEventListener() {
+    _windowDestroyEventId = EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &e) -> void {
+        for (const auto &window : _renderWindows) {
+            window->onNativeWindowDestroy(static_cast<uint32_t>(e.args[0].intVal));
+        }
+    });
+
+    _windowResumeEventId = EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &e) -> void {
+        for (const auto &window : _renderWindows) {
+            window->onNativeWindowResume(static_cast<uint32_t>(e.args[0].intVal));
+        }
+    });
+}
+
+void Root::removeWindowEventListener() const {
+    EventDispatcher::removeCustomEventListener(EVENT_DESTROY_WINDOW, _windowDestroyEventId);
+    EventDispatcher::removeCustomEventListener(EVENT_RECREATE_WINDOW, _windowResumeEventId);
 }
 
 } // namespace cc

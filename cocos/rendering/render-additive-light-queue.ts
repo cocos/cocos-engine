@@ -301,7 +301,7 @@ export class RenderAdditiveLightQueue {
         const { batchingScheme } = pass;
         if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
             const buffer = pass.getInstancedBuffer();
-            buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
+            buffer.merge(subModel, lightPassIdx);
             buffer.dynamicOffsets[0] = this._lightBufferStride;
             this._instancedQueue.queue.add(buffer);
         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging

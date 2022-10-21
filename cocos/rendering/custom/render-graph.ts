@@ -32,8 +32,8 @@
 import * as impl from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
-import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, SamplerInfo, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -94,6 +94,8 @@ export class ManagedResource {
 // PolymorphicGraph Concept
 export const enum ResourceGraphValue {
     Managed,
+    ManagedBuffer,
+    ManagedTexture,
     PersistentBuffer,
     PersistentTexture,
     Framebuffer,
@@ -103,6 +105,8 @@ export const enum ResourceGraphValue {
 export function getResourceGraphValueName (e: ResourceGraphValue): string {
     switch (e) {
     case ResourceGraphValue.Managed: return 'Managed';
+    case ResourceGraphValue.ManagedBuffer: return 'ManagedBuffer';
+    case ResourceGraphValue.ManagedTexture: return 'ManagedTexture';
     case ResourceGraphValue.PersistentBuffer: return 'PersistentBuffer';
     case ResourceGraphValue.PersistentTexture: return 'PersistentTexture';
     case ResourceGraphValue.Framebuffer: return 'Framebuffer';
@@ -113,6 +117,8 @@ export function getResourceGraphValueName (e: ResourceGraphValue): string {
 
 interface ResourceGraphValueType {
     [ResourceGraphValue.Managed]: ManagedResource
+    [ResourceGraphValue.ManagedBuffer]: ManagedBuffer
+    [ResourceGraphValue.ManagedTexture]: ManagedTexture
     [ResourceGraphValue.PersistentBuffer]: Buffer
     [ResourceGraphValue.PersistentTexture]: Texture
     [ResourceGraphValue.Framebuffer]: Framebuffer
@@ -121,6 +127,8 @@ interface ResourceGraphValueType {
 
 export interface ResourceGraphVisitor {
     managed(value: ManagedResource): unknown;
+    managedBuffer(value: ManagedBuffer): unknown;
+    managedTexture(value: ManagedTexture): unknown;
     persistentBuffer(value: Buffer): unknown;
     persistentTexture(value: Texture): unknown;
     framebuffer(value: Framebuffer): unknown;
@@ -128,6 +136,8 @@ export interface ResourceGraphVisitor {
 }
 
 type ResourceGraphObject = ManagedResource
+| ManagedBuffer
+| ManagedTexture
 | Buffer
 | Texture
 | Framebuffer
@@ -191,6 +201,16 @@ export class ResourceGraphStatesMap implements impl.PropertyMap {
     readonly _states: ResourceStates[];
 }
 
+export class ResourceGraphSamplerMap implements impl.PropertyMap {
+    constructor (readonly samplerInfo: SamplerInfo[]) {
+        this._samplerInfo = samplerInfo;
+    }
+    get (v: number): SamplerInfo {
+        return this._samplerInfo[v];
+    }
+    readonly _samplerInfo: SamplerInfo[];
+}
+
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
@@ -198,6 +218,7 @@ export const enum ResourceGraphComponent {
     Desc,
     Traits,
     States,
+    Sampler,
 }
 
 interface ResourceGraphComponentType {
@@ -205,6 +226,7 @@ interface ResourceGraphComponentType {
     [ResourceGraphComponent.Desc]: ResourceDesc;
     [ResourceGraphComponent.Traits]: ResourceTraits;
     [ResourceGraphComponent.States]: ResourceStates;
+    [ResourceGraphComponent.Sampler]: SamplerInfo;
 }
 
 interface ResourceGraphComponentPropertyMap {
@@ -212,6 +234,7 @@ interface ResourceGraphComponentPropertyMap {
     [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
     [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
     [ResourceGraphComponent.States]: ResourceGraphStatesMap;
+    [ResourceGraphComponent.Sampler]: ResourceGraphSamplerMap;
 }
 
 //-----------------------------------------------------------------
@@ -287,6 +310,15 @@ export class ResourceGraph implements impl.BidirectionalGraph
         return this._vertices.length;
     }
     //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
+    }
+    //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
         // Members
@@ -298,6 +330,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._descs.length = 0;
         this._traits.length = 0;
         this._states.length = 0;
+        this._samplerInfo.length = 0;
         // Graph Vertices
         this._vertices.length = 0;
     }
@@ -308,6 +341,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         desc: ResourceDesc,
         traits: ResourceTraits,
         states: ResourceStates,
+        sampler: SamplerInfo,
     ): number {
         const vert = new ResourceGraphVertex(id, object);
         const v = this._vertices.length;
@@ -316,6 +350,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._descs.push(desc);
         this._traits.push(traits);
         this._states.push(states);
+        this._samplerInfo.push(sampler);
         // UuidGraph
         this._valueIndex.set(name, v);
         return v;
@@ -361,6 +396,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._descs.splice(u, 1);
         this._traits.splice(u, 1);
         this._states.splice(u, 1);
+        this._samplerInfo.splice(u, 1);
 
         const sz = this._vertices.length;
         if (u === sz) {
@@ -431,7 +467,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap {
+    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap | ResourceGraphSamplerMap {
         switch (tag) {
         // Components
         case 'Name':
@@ -442,6 +478,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return new ResourceGraphTraitsMap(this._traits);
         case 'States':
             return new ResourceGraphStatesMap(this._states);
+        case 'Sampler':
+            return new ResourceGraphSamplerMap(this._samplerInfo);
         default:
             throw Error('property map not found');
         }
@@ -458,6 +496,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return this._traits[v] as ResourceGraphComponentType[T];
         case ResourceGraphComponent.States:
             return this._states[v] as ResourceGraphComponentType[T];
+        case ResourceGraphComponent.Sampler:
+            return this._samplerInfo[v] as ResourceGraphComponentType[T];
         default:
             throw Error('component not found');
         }
@@ -472,6 +512,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return new ResourceGraphTraitsMap(this._traits) as ResourceGraphComponentPropertyMap[T];
         case ResourceGraphComponent.States:
             return new ResourceGraphStatesMap(this._states) as ResourceGraphComponentPropertyMap[T];
+        case ResourceGraphComponent.Sampler:
+            return new ResourceGraphSamplerMap(this._samplerInfo) as ResourceGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
         }
@@ -487,6 +529,9 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     getStates (v: number): ResourceStates {
         return this._states[v];
+    }
+    getSampler (v: number): SamplerInfo {
+        return this._samplerInfo[v];
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
@@ -518,6 +563,10 @@ export class ResourceGraph implements impl.BidirectionalGraph
         switch (vert._id) {
         case ResourceGraphValue.Managed:
             return visitor.managed(vert._object as ManagedResource);
+        case ResourceGraphValue.ManagedBuffer:
+            return visitor.managedBuffer(vert._object as ManagedBuffer);
+        case ResourceGraphValue.ManagedTexture:
+            return visitor.managedTexture(vert._object as ManagedTexture);
         case ResourceGraphValue.PersistentBuffer:
             return visitor.persistentBuffer(vert._object as Buffer);
         case ResourceGraphValue.PersistentTexture:
@@ -533,6 +582,20 @@ export class ResourceGraph implements impl.BidirectionalGraph
     getManaged (v: number): ManagedResource {
         if (this._vertices[v]._id === ResourceGraphValue.Managed) {
             return this._vertices[v]._object as ManagedResource;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getManagedBuffer (v: number): ManagedBuffer {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
+            return this._vertices[v]._object as ManagedBuffer;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getManagedTexture (v: number): ManagedTexture {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
+            return this._vertices[v]._object as ManagedTexture;
         } else {
             throw Error('value id not match');
         }
@@ -568,6 +631,20 @@ export class ResourceGraph implements impl.BidirectionalGraph
     tryGetManaged (v: number): ManagedResource | null {
         if (this._vertices[v]._id === ResourceGraphValue.Managed) {
             return this._vertices[v]._object as ManagedResource;
+        } else {
+            return null;
+        }
+    }
+    tryGetManagedBuffer (v: number): ManagedBuffer | null {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
+            return this._vertices[v]._object as ManagedBuffer;
+        } else {
+            return null;
+        }
+    }
+    tryGetManagedTexture (v: number): ManagedTexture | null {
+        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
+            return this._vertices[v]._object as ManagedTexture;
         } else {
             return null;
         }
@@ -614,12 +691,13 @@ export class ResourceGraph implements impl.BidirectionalGraph
         return v;
     }
 
-    readonly components: string[] = ['Name', 'Desc', 'Traits', 'States'];
+    readonly components: string[] = ['Name', 'Desc', 'Traits', 'States', 'Sampler'];
     readonly _vertices: ResourceGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descs: ResourceDesc[] = [];
     readonly _traits: ResourceTraits[] = [];
     readonly _states: ResourceStates[] = [];
+    readonly _samplerInfo: SamplerInfo[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
     nextFenceValue = 1;
 }
@@ -748,6 +826,15 @@ export class SubpassGraph implements impl.BidirectionalGraph
     }
     numVertices (): number {
         return this._vertices.length;
+    }
+    //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
     }
     //-----------------------------------------------------------------
     // MutableGraph
@@ -930,71 +1017,8 @@ export class ComputePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
-export class CopyPair {
-    constructor (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        sourceMostDetailedMip = 0,
-        sourceFirstSlice = 0,
-        sourcePlaneSlice = 0,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
-    ) {
-        this.source = source;
-        this.target = target;
-        this.mipLevels = mipLevels;
-        this.numSlices = numSlices;
-        this.sourceMostDetailedMip = sourceMostDetailedMip;
-        this.sourceFirstSlice = sourceFirstSlice;
-        this.sourcePlaneSlice = sourcePlaneSlice;
-        this.targetMostDetailedMip = targetMostDetailedMip;
-        this.targetFirstSlice = targetFirstSlice;
-        this.targetPlaneSlice = targetPlaneSlice;
-    }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    sourceMostDetailedMip: number;
-    sourceFirstSlice: number;
-    sourcePlaneSlice: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
-}
-
 export class CopyPass {
     readonly copyPairs: CopyPair[] = [];
-}
-
-export class MovePair {
-    constructor (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
-    ) {
-        this.source = source;
-        this.target = target;
-        this.mipLevels = mipLevels;
-        this.numSlices = numSlices;
-        this.targetMostDetailedMip = targetMostDetailedMip;
-        this.targetFirstSlice = targetFirstSlice;
-        this.targetPlaneSlice = targetPlaneSlice;
-    }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
 }
 
 export class MovePass {
@@ -1317,6 +1341,15 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     numVertices (): number {
         return this._vertices.length;
+    }
+    //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
     }
     //-----------------------------------------------------------------
     // MutableGraph
