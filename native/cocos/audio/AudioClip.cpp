@@ -4,12 +4,14 @@ namespace cc {
 AudioClip::AudioClip(const ccstd::string& url) {
     auto itr = bufferMap.find(url);
     if (itr != bufferMap.end()) {
-        buffer = std::make_unique<AudioBuffer>(itr->second);
+        buffer = std::shared_ptr<AudioBuffer>(itr->second);
         return;
     }
     auto buf = lab::MakeBusFromFile(url, false);
-    buffer = std::make_unique<AudioBuffer>(new AudioBuffer(buf.get()));
-    bufferMap[url] = buffer.get();
     
+    auto tmpBuf = new AudioBuffer(buf.get());
+
+    bufferMap[url] = tmpBuf;
+    buffer = std::shared_ptr<AudioBuffer>(tmpBuf);
 }
 }

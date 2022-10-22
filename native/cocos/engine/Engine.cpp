@@ -39,9 +39,9 @@
 #include "renderer/core/ProgramLib.h"
 #include "renderer/pipeline/RenderPipeline.h"
 
-#if CC_USE_AUDIO
-    #include "cocos/audio/include/AudioEngine.h"
-#endif
+//#if CC_USE_AUDIO
+//    #include "cocos/audio/include/AudioEngine.h"
+//#endif
 
 #if CC_USE_SOCKET
     #include "cocos/network/WebSocket.h"
@@ -147,9 +147,9 @@ void Engine::destroy() {
     _scheduler->unscheduleAll();
     CCObject::deferredDestroy();
 
-#if CC_USE_AUDIO
-    AudioEngine::end();
-#endif
+//#if CC_USE_AUDIO
+//    AudioEngine::end();
+//#endif
 
     EventDispatcher::destroy();
 
@@ -220,9 +220,9 @@ int Engine::restart() {
 
 void Engine::close() { // NOLINT
 
-#if CC_USE_AUDIO
-    cc::AudioEngine::stopAll();
-#endif
+//#if CC_USE_AUDIO
+//    cc::AudioEngine::stopAll();
+//#endif
 
     //#if CC_USE_SOCKET
     //    cc::network::WebSocket::closeAllConnections();

@@ -25,7 +25,7 @@ export class SourceNode {
         // TODO(timlyeee): check frame count instead to choose absn or mediastream
         this._ctx = ctx;
         this._absn = ctx.createBufferSource();
-        this._absn.addEventListener('ended', this._onEnded);
+        this._absn.addEventListener('ended' , this._onEnded);
         this._clip = clip;
         audioBufferManager.loadNative(ctx, clip.nativeUrl).then((buffer) => {
             this._buffer = buffer;

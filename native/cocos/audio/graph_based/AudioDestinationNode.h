@@ -4,6 +4,7 @@ class AudioDestinationNode : AudioNode {
 public:
     uint32_t maxChannelCount() { return _maxChannelCount; };
     void setMaxChannelCount(uint32_t channelCount);
+    static AudioDestinationNode* createDestination(BaseAudioContext* ctx, lab::AudioNode* node);
 
 private:
     friend class BaseAudioContext;

@@ -10,10 +10,10 @@ public:
     //AudioParam(ccstd::string &name, ccstd::string &shortName, double defaultValue, double minValue, double maxValue);
 
     // AudioParam can only be used to set the internal value of lab::AudioParam of specified node.
-    AudioParam(lab::AudioParam* param);
+
     // AudioParam & operator=(const AudioParam& param) = default;
     AudioParam() = delete;
-    ~AudioParam();
+    ~AudioParam() = default;
     float defaultValue() { return _param->defaultValue(); }
     float maxValue() { return _param->maxValue(); };
     float minValue() { return _param->minValue(); }
@@ -31,8 +31,11 @@ public:
     //void setTargetAtTime(double target, double startTime, float timeConstant);
     //void setValueAtTime(float val, double startTime);
     //void setValueCurveAtTime(std::vector<float> values, double startTime, double duration);
+    static AudioParam* createParam(lab::AudioParam* param);
+    
 
 private:
+    AudioParam(lab::AudioParam* param);
     friend class AudioNode;
     // All self defined audio param descriptor will be saved here. Normally there's no need to construct a desc yourself.
     std::shared_ptr<lab::AudioParam> _param{nullptr};

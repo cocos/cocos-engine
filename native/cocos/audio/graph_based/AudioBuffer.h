@@ -12,11 +12,12 @@ struct AudioBufferOptions {
     uint32_t length{1};
     float sampleRate{44100};
 };
-/* An AudioBuffer in cpp is a reference to real buffer, without translate to ts layer. The translation task is heavy. */
+static AudioBufferOptions defaultOptions = AudioBufferOptions{1, 1, 44100};
+    /* An AudioBuffer in cpp is a reference to real buffer, without translate to ts layer. The translation task is heavy. */
 class AudioBuffer {
 public:
     
-    AudioBuffer(const AudioBufferOptions& options = {});
+    AudioBuffer(const AudioBufferOptions& options = defaultOptions);
     /* Duration in seconds */
     double duration();
     size_t length();
@@ -28,13 +29,10 @@ public:
     void copyToChannel(ccstd::vector<float>& source, uint32_t channelNumber, size_t startInChannel);
     ccstd::vector<float> getChannelData(uint32_t channel);
 
-protected:
-    // This constructor takes a constructed bus from clip.
-    AudioBuffer(lab::AudioBus* bus);
-    friend class AudioClip;
-
 private:
+    AudioBuffer(lab::AudioBus* bus);
     friend class SourceNode;
+    friend class AudioClip;
     std::shared_ptr<lab::AudioBus> _bus;
 };
 }

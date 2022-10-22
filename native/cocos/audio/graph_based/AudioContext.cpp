@@ -1,4 +1,5 @@
 #include "audio/graph_based/AudioContext.h"
+#include "audio/graph_based/AudioDestinationNode.h"
 #include "LabSound/LabSound.h"
 #include "base/Log.h"+
 namespace cc {
@@ -7,7 +8,7 @@ AudioContext::AudioContext(const AudioContextOptions& options) {
     auto outputConfig = lab::GetDefaultOutputAudioDeviceConfiguration();
     _ctx = std::unique_ptr<lab::AudioContext>(lab::MakeRealtimeAudioContext(outputConfig, inputConfig));
     // The destination node of LabSound is the device node of audio context, as described in examples.
-    _dest = std::make_shared<AudioDestinationNode>(this, _ctx->device());
+    _dest = std::shared_ptr<AudioDestinationNode>(AudioDestinationNode::createDestination( this, _ctx->device().get()));
 }
 double AudioContext::baseLatency() {
     return 0.0;
@@ -18,6 +19,7 @@ double AudioContext::outputLatency() {
 bool AudioContext::suspend() {
     _state = AudioContextState::SUSPENDED;
     _ctx->suspend();
+    return true;
 }
 bool AudioContext::resume() {
     if (_state != AudioContextState::SUSPENDED) {
@@ -27,6 +29,7 @@ bool AudioContext::resume() {
 
     _state = AudioContextState::RUNNING;
     _ctx->resume();
+    return true;
 }
 bool AudioContext::close() {
     if (_state == AudioContextState::CLOSED) {
@@ -34,5 +37,6 @@ bool AudioContext::close() {
         return false;
     }
     _ctx->suspend();//LabSound has no close interface.
+    return true;
 }
 }

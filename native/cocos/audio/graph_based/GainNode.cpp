@@ -1,10 +1,10 @@
 #include "audio/graph_based/GainNode.h"
 #include "LabSound/extended/AudioContextLock.h"
 namespace cc {
-GainNode::GainNode(BaseAudioContext* ctx, const GainNodeOptions& options = {}) : AudioNode(ctx) {
+GainNode::GainNode(BaseAudioContext* ctx, const GainNodeOptions& options) : AudioNode(ctx) {
     _node = std::make_shared<lab::GainNode>(*ctx->getInnerContext());
     if (options.gain) {
-        _gain = std::make_shared<AudioParam>(std::dynamic_pointer_cast<lab::GainNode>(_node)->gain().get(), _node.get());
+        _gain = std::shared_ptr<AudioParam>(AudioParam::createParam(std::dynamic_pointer_cast<lab::GainNode>(_node)->gain().get()));
     };
     lab::ContextGraphLock lck(_ctx->getInnerContext(), "initNode");
     if (options.channelCount.is_initialized()) {

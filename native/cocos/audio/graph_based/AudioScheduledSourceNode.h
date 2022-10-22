@@ -8,8 +8,8 @@ public:
     virtual ~AudioScheduledSourceNode();
     virtual void start(float when = 0);
     virtual void stop(float when = 0);
-    virtual void onEnded(CommonCallback cb);
-    virtual void offEnded(CommonCallback cb);
+    virtual void onEnded(const CommonCallback& cb);
+    virtual void offEnded(const CommonCallback& cb);
 
 protected:
     std::vector<CommonCallback> _cbs;

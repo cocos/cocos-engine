@@ -122,6 +122,9 @@ struct FramebufferInfo;
 struct CommandBufferInfo;
 struct InputAssemblerInfo;
 } // namespace gfx
+class BaseAudioContext;
+class AudioClip;
+struct AudioContextOptions;
 } // namespace cc
 
 #if CC_USE_SPINE
@@ -605,7 +608,12 @@ inline bool nativevalue_to_se(se::Object *from, se::Value &to, se::Object * /*ct
 #if CC_USE_MIDDLEWARE
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret); // NOLINT(readability-identifier-naming)
 #endif                                                                                                         //CC_USE_MIDDLEWARE
+#if CC_USE_AUDIO
+bool sevalue_to_native(const se::Value &from, cc::BaseAudioContext **to, se::Object * /*ctx*/);
 
+bool sevalue_to_native(const se::Value &from, cc::AudioClip **to, se::Object * /*ctx*/);
+bool sevalue_to_native(const se::Value &from, cc::AudioContextOptions *to, se::Object *);
+#endif
 #if CC_USE_PHYSICS_PHYSX
 
 bool nativevalue_to_se(const ccstd::vector<std::shared_ptr<cc::physics::TriggerEventPair>> &from, se::Value &to, se::Object * /*ctx*/);

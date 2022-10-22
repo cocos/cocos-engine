@@ -11,12 +11,12 @@ SourceNode::SourceNode(BaseAudioContext* ctx, AudioClip* clip) :AudioScheduledSo
     if (clip) {
         // Set buffer if clip is ready.
         lab::ContextRenderLock lck(_ctx->getInnerContext(), "setBus");
-        auto buf = std::make_shared<lab::AudioBus>(_clip->buffer->_bus);
-        static_cast<lab::SampledAudioNode*>(_node.get())->setBus(lck, buf);
+        auto bus = _clip->buffer->_bus;
+        std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->setBus(lck, bus);
     }
-    
-    _detune = std::make_shared<AudioParam>(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->detune());
-    _playbackRate = std::make_shared<AudioParam>(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->playbackRate());
+    auto detune = AudioParam::createParam(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->detune().get());
+    _detune = std::shared_ptr<AudioParam>(detune);
+    _playbackRate = std::shared_ptr<AudioParam>(AudioParam::createParam(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->playbackRate().get()));
     static_cast<lab::SampledAudioNode*>(_node.get())->setOnEnded([this]() {
         for each (auto cb in _cbs) {
             cb();
@@ -72,14 +72,14 @@ void SourceNode::setCurrentTime(float time) {
 }
 void SourceNode::setLoopStart(float loopStart) {
     _loopStart = loopStart;
-    if (loop) {
-        static_cast<lab::SampledAudioNode*>(_node.get())->schedule(0, _loopStart, _loopEnd - _loopStart, -1);
+    if (_loop) {
+        std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->schedule(0, _loopStart, _loopEnd - _loopStart, -1);
     }
 }
 void SourceNode::setLoopEnd(float loopEnd) {
     _loopEnd = loopEnd;
-    if (loop) {
-        static_cast<lab::SampledAudioNode*>(_node.get())->schedule(0, _loopStart, _loopEnd - _loopStart, -1);
+    if (_loop) {
+        std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->schedule(0, _loopStart, _loopEnd - _loopStart, -1);
     }
 }
 } // namespace cc

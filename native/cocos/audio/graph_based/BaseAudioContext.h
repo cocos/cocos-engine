@@ -3,8 +3,7 @@
 #include "base/std/optional.h"
 #include "LabSound/core/AudioContext.h"
 namespace cc {
-typedef std::function<void()> CommonCallback;
-typedef std::function<void(AudioContextState)> StateChangeCallback;
+
 
 class AudioBuffer;
 class SourceNode;
@@ -23,6 +22,8 @@ enum class AudioContextState {
     RUNNING,
     CLOSED
 };
+typedef std::function<void()> CommonCallback;
+typedef std::function<void(AudioContextState)> StateChangeCallback;
 //// Using AudioContextLatencyCategoryStr[cat] to get string back
 //static ccstd::string AudioContextLatencyStr[] = {
 //    "Balanced", "Interactive", "Playback"
@@ -31,13 +32,13 @@ enum class AudioContextState {
 //static ccstd::string AudioContextStateStr[] = {
 //    "Suspended", "Running", "Closed"};
 struct AudioContextOptions {
-    ccstd::variant<AudioContextLatencyCategory, double> latencyHint{AudioContextLatencyCategory::INTERACTIVE};
+    AudioContextLatencyCategory latencyHint{AudioContextLatencyCategory::INTERACTIVE};
     ccstd::optional<float> sampleRate;
 };
 class BaseAudioContext {
 public:
     explicit BaseAudioContext() = default;
-    ~BaseAudioContext();
+    virtual ~BaseAudioContext() = default;
     double currentTime() { return _ctx->currentTime(); }
     AudioDestinationNode* destination() { return _dest.get(); }
     //AudioListener* listener();

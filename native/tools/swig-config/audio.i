@@ -42,9 +42,9 @@
 // %ignore cc::AudioEngine::getPCMHeader;
 // %ignore cc::AudioEngine::getOriginalPCMBuffer;
 // %ignore cc::AudioEngine::getPCMBufferByFormat;
-%ignore cc::BaseAudioContext::getInnerContext;
-
-
+%ignore cc::AudioContext::getInnerContext;
+%ignore cc::BaseAudioContext;
+// %ignore cc::AudioParam::createParam;
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
 //
@@ -99,7 +99,7 @@
 %attribute(cc::AudioBuffer, uint32_t, numberOfChannels, numberOfChannels);
 %attribute(cc::AudioBuffer, uint32_t, sampleRate, sampleRate);
 // AudioNode
-%attribute(cc::AudioNode, uint32_t, numberOfInputs, numberOfChannels);
+%attribute(cc::AudioNode, uint32_t, numberOfInputs, numberOfInputs);
 %attribute(cc::AudioNode, uint32_t, numberOfOutputs, numberOfOutputs);
 %attribute(cc::AudioNode, uint32_t, channelCount, channelCount, setChannelCount);
 %attribute(cc::AudioNode, uint32_t, channelCountMode, channelCountMode, setChannelCountMode);
@@ -134,7 +134,7 @@
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "audio/Export.h"
-
+%import "audio/graph_based/BaseAudioContext.h"
 
 
 
@@ -143,11 +143,10 @@
 // %include "audio/include/AudioEngine.h"
 %include "audio/graph_based/AudioContext.h"
 %include "audio/graph_based/AudioBuffer.h"
+%include "audio/graph_based/AudioParam.h"
 %include "audio/graph_based/AudioDestinationNode.h"
 %include "audio/graph_based/AudioNode.h"
 %include "audio/graph_based/AudioScheduledSourceNode.h"
 %include "audio/graph_based/GainNode.h"
 %include "audio/graph_based/StereoPannerNode.h"
 %include "audio/graph_based/SourceNode.h"
-%include "audio/graph_based/BaseAudioContext.h"
-

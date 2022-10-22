@@ -1,10 +1,11 @@
 #include "audio/graph_based/AudioBuffer.h"
 namespace cc {
-AudioBuffer::AudioBuffer(lab::AudioBus* bus):_bus(bus) {
+AudioBuffer::AudioBuffer(lab::AudioBus* bus) {
+    _bus = std::shared_ptr<lab::AudioBus>(bus);
 }
 
 AudioBuffer::AudioBuffer(const AudioBufferOptions& options) {
-    _bus = std::make_shared<lab::AudioBus>(new lab::AudioBus(options.numberOfChannels, options.length, true));
+    _bus = std::make_shared<lab::AudioBus>(options.numberOfChannels, options.length, true);
     _bus->setSampleRate(options.sampleRate);
 }
 

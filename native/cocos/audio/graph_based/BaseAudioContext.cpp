@@ -6,11 +6,6 @@
 #include "audio/graph_based/PannerNode.h"
 #include "LabSound/LabSound.h"
 namespace cc {
-
-BaseAudioContext::~BaseAudioContext() {
-    delete _ctx.get();
-    delete _dest.get();
-}
 AudioContextState BaseAudioContext::state() {
     return _state;
 }

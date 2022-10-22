@@ -5,8 +5,7 @@ namespace cc {
 class AudioClip {
 public:
     AudioClip(const ccstd::string& url);
-    std::unique_ptr<AudioBuffer> buffer;
-
+    std::shared_ptr<AudioBuffer> buffer;
 private:
     static ccstd::unordered_map<ccstd::string, AudioBuffer*> bufferMap;
 };
