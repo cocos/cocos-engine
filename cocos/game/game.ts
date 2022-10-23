@@ -45,6 +45,7 @@ import { garbageCollectionManager } from '../core/data/garbage-collection';
 import { screen } from '../core/platform/screen';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Settings, settings } from '../core/settings';
+import { EffectSettings, effectSettings } from '../core/effect-settings';
 import { Director, director } from './director';
 import { bindingMappingInfo } from '../rendering/define';
 import { assert } from '../core/platform/debug';
@@ -66,6 +67,14 @@ export interface IGameConfig {
      * The path of settings.json
      */
     settingsPath?: string;
+
+    /**
+     * @zh
+     * 引擎内 Effect 配置文件路径
+     * @en
+     * The path of effectSettings.json
+     */
+    effectSettingsPath?: string;
 
     /**
      * @zh
@@ -704,6 +713,12 @@ export class Game extends EventTarget {
                 this._initEvents();
             })
             .then(() => settings.init(config.settingsPath, config.overrideSettings))
+            .then(() => effectSettings.init(config.effectSettingsPath))
+            .then(() => {
+                // 查询配置，后续应该要注册到某个管理器
+                const setting = effectSettings.querySettings('a', 'b');
+                debugger;
+            })
             .then(() => {
                 if (DEBUG) {
                     console.timeEnd('Init Base');

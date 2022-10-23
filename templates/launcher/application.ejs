@@ -3,6 +3,7 @@ let cc;
 export class Application {
     constructor () {
         this.settingsPath = '<%= settingsJsonPath %>';
+        this.effectSettingsPath = '<%= effectSettingsJsonPath %>';
         this.showFPS = <%= showFPS %>;
     }
     
@@ -25,6 +26,7 @@ export class Application {
         return cc.game.init({
             debugMode: <%= debugMode %> ? cc.DebugMode.INFO : cc.DebugMode.ERROR,
             settingsPath: this.settingsPath,
+            effectSettingsPath: this.effectSettingsPath,
             overrideSettings: {
                 // assets: {
                 //      preloadBundles: [{ bundle: 'main', version: 'xxx' }],
