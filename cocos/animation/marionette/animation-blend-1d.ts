@@ -14,12 +14,12 @@ class AnimationBlend1DItem extends AnimationBlendItem {
 
     public clone () {
         const that = new AnimationBlend1DItem();
-        this._assign(that);
+        this._copyTo(that);
         return that;
     }
 
-    protected _assign (that: AnimationBlend1DItem) {
-        super._assign(that);
+    protected _copyTo (that: AnimationBlend1DItem) {
+        super._copyTo(that);
         that.threshold = this.threshold;
         return that;
     }
@@ -46,6 +46,7 @@ export class AnimationBlend1D extends AnimationBlend {
 
     public clone () {
         const that = new AnimationBlend1D();
+        this.copyTo(that);
         that._items = this._items.map((item) => item.clone());
         that.param = this.param.clone();
         return that;
