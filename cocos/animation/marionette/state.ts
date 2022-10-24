@@ -28,7 +28,7 @@ export class State extends EditorExtendable implements OwnedBy<Layer | StateMach
         super();
     }
 
-    public assign (that: State) {
+    public copyTo (that: State) {
         that.name = this.name;
         that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
     }
@@ -61,8 +61,8 @@ export class InteractiveState extends State {
         return instantiatedComponents;
     }
 
-    public assign (that: InteractiveState) {
-        super.assign(that);
+    public copyTo (that: InteractiveState) {
+        super.copyTo(that);
         that._components = this.instantiateComponents();
     }
 

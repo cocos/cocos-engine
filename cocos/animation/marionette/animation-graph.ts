@@ -52,7 +52,7 @@ class Transition extends EditorExtendable implements OwnedBy<StateMachine>, Tran
         }
     }
 
-    public assign (that: Transition) {
+    public copyTo (that: Transition) {
         that.conditions = this.conditions.map((condition) => condition.clone());
     }
 
@@ -134,8 +134,8 @@ class AnimationTransition extends Transition {
             : TransitionInterruptionSource.NONE;
     }
 
-    public assign (that: AnimationTransition) {
-        super.assign(that);
+    public copyTo (that: AnimationTransition) {
+        super.copyTo(that);
         that.duration = this.duration;
         that.relativeDuration = this.relativeDuration;
         that.exitConditionEnabled = this.exitConditionEnabled;
@@ -173,7 +173,7 @@ export class EmptyState extends State {
     public _clone () {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         const that = new EmptyState();
-        this.assign(that);
+        this.copyTo(that);
         return that;
     }
 }
@@ -203,8 +203,8 @@ export class EmptyStateTransition extends Transition {
     @serializable
     public relativeDestinationStart = false;
 
-    public assign (that: EmptyStateTransition) {
-        super.assign(that);
+    public copyTo (that: EmptyStateTransition) {
+        super.copyTo(that);
         that.duration = this.duration;
         that.destinationStart = this.destinationStart;
         that.relativeDestinationStart = this.relativeDestinationStart;
@@ -586,7 +586,7 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    public assign (that: StateMachine) {
+    public copyTo (that: StateMachine) {
         // Clear that first
         const thatStatesOld = that._states.filter((state) => {
             switch (state) {
@@ -633,19 +633,19 @@ export class StateMachine extends EditorExtendable {
             thatTransition.conditions = transition.conditions.map((condition) => condition.clone());
             if (thatTransition instanceof AnimationTransition) {
                 assertIsTrue(transition instanceof AnimationTransition);
-                transition.assign(thatTransition);
+                transition.copyTo(thatTransition);
             } else if (thatTransition instanceof EmptyStateTransition) {
                 assertIsTrue(transition instanceof EmptyStateTransition);
-                transition.assign(thatTransition);
+                transition.copyTo(thatTransition);
             } else {
-                transition.assign(thatTransition);
+                transition.copyTo(thatTransition);
             }
         }
     }
 
     public clone () {
         const that = new StateMachine();
-        this.assign(that);
+        this.copyTo(that);
         return that;
     }
 
@@ -662,14 +662,14 @@ export class SubStateMachine extends InteractiveState {
         return this._stateMachine;
     }
 
-    public assign (that: SubStateMachine) {
-        super.assign(that);
-        this._stateMachine.assign(that._stateMachine);
+    public copyTo (that: SubStateMachine) {
+        super.copyTo(that);
+        this._stateMachine.copyTo(that._stateMachine);
     }
 
     public _clone () {
         const that = new SubStateMachine();
-        this.assign(that);
+        this.copyTo(that);
         return that;
     }
 

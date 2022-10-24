@@ -21,11 +21,11 @@ export class AnimationBlendItem {
 
     public clone () {
         const that = new AnimationBlendItem();
-        this._assign(that);
+        this._copyTo(that);
         return that;
     }
 
-    protected _assign (that: AnimationBlendItem) {
+    protected _copyTo (that: AnimationBlendItem) {
         that.motion = this.motion?.clone() ?? null;
         return that;
     }
@@ -36,7 +36,7 @@ export class AnimationBlend extends EditorExtendable implements Motion {
     @serializable
     name = '';
 
-    public assign (that: AnimationBlend) {
+    public copyTo (that: AnimationBlend) {
         that.name = this.name;
         that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
     }

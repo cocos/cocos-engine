@@ -21,8 +21,8 @@ export class MotionState extends InteractiveState {
     @serializable
     public speedMultiplierEnabled = false;
 
-    public assign (that: MotionState) {
-        super.assign(that);
+    public copyTo (that: MotionState) {
+        super.copyTo(that);
         that.motion = this.motion?.clone() ?? null;
         that.speed = this.speed;
         that.speedMultiplier = this.speedMultiplier;
@@ -32,7 +32,7 @@ export class MotionState extends InteractiveState {
 
     public _clone () {
         const that = new MotionState();
-        this.assign(that);
+        this.copyTo(that);
         return that;
     }
 }

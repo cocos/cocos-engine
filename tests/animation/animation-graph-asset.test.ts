@@ -11,7 +11,7 @@ import { Bindable } from "../../cocos/animation/marionette/parametric";
 import { assertIsTrue } from "../../cocos/core/data/utils/asserts";
 
 describe('Animation graph asset', () => {
-    test('Asset operation: clone or assign', () => {
+    test('Asset operation: clone or copy', () => {
         const animationGraph = new AnimationGraph();
         const mainLayer = animationGraph.addLayer();
 
@@ -24,7 +24,7 @@ describe('Animation graph asset', () => {
             motionState.speedMultiplierEnabled = true;
             motionState.motion = null;
             const newMotionState = mainLayer.stateMachine.addMotion();
-            motionState.assign(newMotionState);
+            motionState.copyTo(newMotionState);
             assertsEqualMotionState(newMotionState, motionState);
         }
         
@@ -73,7 +73,7 @@ describe('Animation graph asset', () => {
             const emptyState = mainLayer.stateMachine.addEmpty();
             emptyState.name = 'EmptyStateX';
             const newEmptyState = mainLayer.stateMachine.addEmpty();
-            emptyState.assign(newEmptyState);
+            emptyState.copyTo(newEmptyState);
             assertsEqualEmptyState(newEmptyState, emptyState);
         }
 
@@ -86,7 +86,7 @@ describe('Animation graph asset', () => {
             subStateMachine.stateMachine.connect(subStateMachine.stateMachine.entryState, m);
             subStateMachine.stateMachine.connect(m, subStateMachine.stateMachine.exitState);
             const newSubStateMachine = mainLayer.stateMachine.addSubStateMachine();
-            subStateMachine.assign(newSubStateMachine);
+            subStateMachine.copyTo(newSubStateMachine);
             assertsEqualSubStateMachine(newSubStateMachine, subStateMachine);
         }
 
@@ -108,7 +108,7 @@ describe('Animation graph asset', () => {
             t1.interruptible = true;
             const t2 = mainLayer.stateMachine.connect(m1, m2);
             // @ts-expect-error Type mismatch
-            t1.assign(t2);
+            t1.copyTo(t2);
             assertsEqualAnimationTransition(t1, t2);
         }
 
@@ -125,7 +125,7 @@ describe('Animation graph asset', () => {
             t1.destinationStart = 0.3;
             t1.relativeDestinationStart = true;
             const t2 = mainLayer.stateMachine.connect(m1, m2);
-            t1.assign(t2);
+            t1.copyTo(t2);
             assertsEqualEmptyStateTransition(t1, t2);
         }
 
@@ -138,7 +138,7 @@ describe('Animation graph asset', () => {
             cond.lhs.variable = 'Lhs';
             cond.rhs.value = 0.618;
             const t2 = mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, m2);
-            t1.assign(t2);
+            t1.copyTo(t2);
             assertsEqualBaseTransition(t1, t2);
         }
 
