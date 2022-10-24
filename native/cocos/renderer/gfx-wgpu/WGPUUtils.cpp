@@ -132,20 +132,20 @@ fn frag_main() -> @location(0) vec4<f32> {
         shaderDescFrag.label = "clearQuadFrag";
         clearPassData.fragShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescFrag);
 
-        WGPUBindGroupLayoutEntry textureEntry;
-        textureEntry.binding = 0;
-        textureEntry.visibility = WGPUShaderStage_Fragment;
-        textureEntry.texture.sampleType = WGPUTextureSampleType_Undefined;
-        textureEntry.texture.viewDimension = WGPUTextureViewDimension_2D;
-        textureEntry.texture.multisampled = false;
-        textureEntry.buffer.type = WGPUBufferBindingType_Uniform;
-        textureEntry.sampler.type = WGPUSamplerBindingType_Undefined;
-        textureEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
+        WGPUBindGroupLayoutEntry bufferEntry;
+        bufferEntry.binding = 0;
+        bufferEntry.visibility = WGPUShaderStage_Fragment;
+        bufferEntry.texture.sampleType = WGPUTextureSampleType_Undefined;
+        bufferEntry.buffer.type = WGPUBufferBindingType_Uniform;
+        bufferEntry.buffer.hasDynamicOffset = false;
+        bufferEntry.buffer.minBindingSize = 16;
+        bufferEntry.sampler.type = WGPUSamplerBindingType_Undefined;
+        bufferEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
 
         WGPUBindGroupLayoutDescriptor bgLayoutDesc;
         bgLayoutDesc.label = "clearPassBGLayout";
         bgLayoutDesc.entryCount = 1;
-        bgLayoutDesc.entries = &textureEntry;
+        bgLayoutDesc.entries = &bufferEntry;
         clearPassData.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(wgpuDevice, &bgLayoutDesc);
 
         WGPUPipelineLayoutDescriptor pipelineLayoutDesc;
