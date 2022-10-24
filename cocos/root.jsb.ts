@@ -1,5 +1,5 @@
 import { Pool } from './core/memop';
-import { assert, warnID } from './core/platform/debug';
+import { warnID } from './core/platform/debug';
 import { macro } from './core/platform/macro';
 import legacyCC from '../predefine';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
