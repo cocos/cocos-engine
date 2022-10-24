@@ -21637,6 +21637,13 @@ se::Class* __jsb_cc_gfx_Buffer_class = nullptr;
 se::Object* __jsb_cc_gfx_Buffer_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_Buffer) 
 
+static bool js_delete_cc_gfx_Buffer(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_Buffer) 
+
 static bool js_cc_gfx_Buffer_computeHash_static(se::State& s)
 {
     // js_function
@@ -21874,6 +21881,9 @@ bool js_register_cc_gfx_Buffer(se::Object* obj) {
     
     
     cls->defineStaticFunction("computeHash", _SE(js_cc_gfx_Buffer_computeHash_static)); 
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_Buffer));
     
     
     cls->install();

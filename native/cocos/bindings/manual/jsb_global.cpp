@@ -581,7 +581,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
             auto app = CC_CURRENT_APPLICATION();
             if (!app) {
                 delete imgInfo;
-                img->release();
+                delete img;
                 return;
             }
             auto engine = app->getEngine();
@@ -606,7 +606,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
                 }
                 callbackPtr->toObject()->call(seArgs, nullptr);
-                img->release();
+                delete img;
             });
         });
     };
@@ -712,7 +712,7 @@ static bool js_saveImageData(se::State &s) { // NOLINT
                 }
                 uint8ArrayObj->unroot();
                 uint8ArrayObj->decRef();
-                img->release();
+                delete img;
             });
         });
         return true;

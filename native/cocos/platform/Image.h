@@ -36,6 +36,7 @@ namespace cc {
 class Image : public RefCounted {
 public:
     Image();
+    ~Image() override;
 
     /** Supported formats for Image */
     enum class Format {
@@ -89,7 +90,6 @@ public:
     bool saveToFile(const std::string &filename, bool isToRGB = true);
 
 protected:
-    ~Image() override;
     bool initWithJpgData(const unsigned char *data, uint32_t dataLen);
     bool initWithPngData(const unsigned char *data, uint32_t dataLen);
 #if CC_USE_WEBP

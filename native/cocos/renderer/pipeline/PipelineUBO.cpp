@@ -474,7 +474,7 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline) {
 
 void PipelineUBO::destroy() {
     for (auto &ubo : _ubos) {
-        CC_SAFE_RELEASE(ubo)
+        CC_SAFE_DELETE(ubo)
     }
     _ubos.clear();
 }
@@ -506,7 +506,7 @@ void PipelineUBO::updateMultiCameraUBO(GlobalDSManager *globalDSMgr, const ccstd
 
         if (_cameraBufferView != nullptr) {
             _ubos.erase(std::remove(_ubos.begin(), _ubos.end(), _cameraBufferView), _ubos.end());
-            CC_SAFE_RELEASE_NULL(_cameraBufferView);
+            CC_SAFE_DELETE(_cameraBufferView);
         }
         _cameraBufferView = _device->createBuffer({
             _cameraBuffer,

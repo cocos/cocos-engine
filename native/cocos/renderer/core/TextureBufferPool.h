@@ -62,6 +62,7 @@ class TextureBufferPool : public RefCounted {
 public:
     TextureBufferPool();
     explicit TextureBufferPool(gfx::Device *device);
+    ~TextureBufferPool() override;
 
     void initialize(const ITextureBufferPoolInfo &info);
     void destroy();
@@ -73,7 +74,6 @@ public:
     void update(const ITextureBufferHandle &handle, ArrayBuffer *buffer);
 
 private:
-    ~TextureBufferPool() override;
     index_t findAvailableSpace(uint32_t size, index_t chunkIdx) const;
 
     // [McDonald 12] Efficient Buffer Management
