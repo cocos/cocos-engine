@@ -84,6 +84,7 @@ class DeviceTexture extends DeviceResource {
     protected _desc: ResourceDesc | null = null;
     protected _trait: ResourceTraits | null = null;
     get texture () { return this._texture; }
+    set framebuffer (val: Framebuffer | null) { this._framebuffer = val; }
     get framebuffer () { return this._framebuffer; }
     get description () { return this._desc; }
     get trait () { return this._trait; }
@@ -566,6 +567,13 @@ class DeviceRenderPass {
                 const resourceVisitor = new ResourceVisitor(resName, context);
                 resourceGraph.visitVertex(resourceVisitor, vertId);
                 resTex = context.deviceTextures.get(resName)!;
+            } else {
+                const resGraph = this.context.resourceGraph;
+                const resId = resGraph.vertex(resName);
+                const resFbo = resGraph._vertices[resId]._object;
+                if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
+                    resTex.framebuffer = resFbo;
+                }
             }
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
@@ -759,9 +767,18 @@ class DeviceRenderPass {
             queue.postRecord();
         }
     }
-    resetQueues (id: number, pass: RasterPass) {
+    resetResource (id: number, pass: RasterPass) {
         this._rasterInfo.applyInfo(id, pass);
         this._deviceQueues.length = 0;
+        for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
+            const deviceTex = this.context.deviceTextures.get(resName);
+            const resGraph = this.context.resourceGraph;
+            const resId = resGraph.vertex(resName);
+            const resFbo = resGraph._vertices[resId]._object;
+            if (deviceTex!.framebuffer && resFbo instanceof Framebuffer && deviceTex!.framebuffer !== resFbo) {
+                this._framebuffer = deviceTex!.framebuffer = resFbo;
+            }
+        }
     }
 }
 
@@ -1312,7 +1329,7 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.DRAW_INSTANCING) {
             this._recordInstences();
         }
-        this._recordBatches();
+        // this._recordBatches();
         if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
             this._recordAdditiveLights();
         }
@@ -1444,7 +1461,7 @@ export class Executor {
         }
         this._context.deviceTextures.clear();
     }
-    private readonly _context: ExecutorContext;
+    readonly _context: ExecutorContext;
 }
 
 class BaseRenderVisitor {
@@ -1497,7 +1514,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
             this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
             devicePasses.set(passHash, this.currPass);
         } else {
-            this.currPass.resetQueues(this.passID, pass);
+            this.currPass.resetResource(this.passID, pass);
         }
     }
     compute (value: ComputePass) {}

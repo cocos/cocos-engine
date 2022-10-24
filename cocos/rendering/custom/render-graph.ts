@@ -156,7 +156,7 @@ export class ResourceGraphVertex {
     readonly _outEdges: impl.OutE[] = [];
     readonly _inEdges: impl.OutE[] = [];
     readonly _id: ResourceGraphValue;
-    readonly _object: ResourceGraphObject;
+    _object: ResourceGraphObject;
 }
 
 //-----------------------------------------------------------------
@@ -323,6 +323,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     clear (): void {
         // Members
         this.nextFenceValue = 1;
+        this.version = 0;
         // UuidGraph
         this._valueIndex.clear();
         // ComponentGraph
@@ -700,6 +701,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _samplerInfo: SamplerInfo[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
     nextFenceValue = 1;
+    version = 0;
 }
 
 export class RasterSubpass {
@@ -1201,7 +1203,7 @@ export class RenderGraphVertex {
     readonly _children: impl.OutE[] = [];
     readonly _parents: impl.OutE[] = [];
     readonly _id: RenderGraphValue;
-    readonly _object: RenderGraphObject;
+    _object: RenderGraphObject;
 }
 
 //-----------------------------------------------------------------
