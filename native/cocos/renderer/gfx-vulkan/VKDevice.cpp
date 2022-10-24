@@ -101,9 +101,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     if (_xr) {
         _xr->preGFXDeviceInitialize(_api);
     }
-    _gpuContext = ccnew CCVKGPUContext;
+    _gpuContext = std::make_unique<CCVKGPUContext>();
     if (!_gpuContext->initialize()) {
-        CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
         return false;
     }
 
@@ -114,7 +113,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     ///////////////////// Device Creation /////////////////////
 
-    _gpuDevice = ccnew CCVKGPUDevice;
+    _gpuDevice = std::make_unique<CCVKGPUDevice>();
     _gpuDevice->minorVersion = _gpuContext->minorVersion;
 
     // only enable the absolute essentials
@@ -396,20 +395,19 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     uint32_t backBufferCount = _gpuDevice->backBufferCount;
     for (uint32_t i = 0U; i < backBufferCount; i++) {
-        _gpuFencePools.push_back(ccnew CCVKGPUFencePool(_gpuDevice));
-        _gpuRecycleBins.push_back(ccnew CCVKGPURecycleBin(_gpuDevice));
-        _gpuStagingBufferPools.push_back(ccnew CCVKGPUStagingBufferPool(_gpuDevice));
+        _gpuFencePools.push_back(std::make_unique<CCVKGPUFencePool>(_gpuDevice.get()));
+        _gpuRecycleBins.push_back(std::make_unique<CCVKGPURecycleBin>(_gpuDevice.get()));
+        _gpuStagingBufferPools.push_back(std::make_unique<CCVKGPUStagingBufferPool>(_gpuDevice.get()));
     }
 
-    _gpuBufferHub = ccnew CCVKGPUBufferHub(_gpuDevice);
-    _gpuIAHub = ccnew CCVKGPUInputAssemblerHub(_gpuDevice);
-    _gpuTransportHub = ccnew CCVKGPUTransportHub(_gpuDevice, static_cast<CCVKQueue *>(_queue)->gpuQueue());
-    _gpuDescriptorHub = ccnew CCVKGPUDescriptorHub(_gpuDevice);
-    _gpuSemaphorePool = ccnew CCVKGPUSemaphorePool(_gpuDevice);
-    _gpuBarrierManager = ccnew CCVKGPUBarrierManager(_gpuDevice);
-    _gpuDescriptorSetHub = ccnew CCVKGPUDescriptorSetHub(_gpuDevice);
+    _gpuBufferHub = std::make_unique<CCVKGPUBufferHub>(_gpuDevice.get());
+    _gpuIAHub = std::make_unique<CCVKGPUInputAssemblerHub>(_gpuDevice.get());
+    _gpuTransportHub = std::make_unique<CCVKGPUTransportHub>(_gpuDevice.get(), static_cast<CCVKQueue *>(_queue)->gpuQueue());
+    _gpuDescriptorHub = std::make_unique<CCVKGPUDescriptorHub>(_gpuDevice.get());
+    _gpuSemaphorePool = std::make_unique<CCVKGPUSemaphorePool>(_gpuDevice.get());
+    _gpuBarrierManager = std::make_unique<CCVKGPUBarrierManager>(_gpuDevice.get());
+    _gpuDescriptorSetHub = std::make_unique<CCVKGPUDescriptorSetHub>(_gpuDevice.get());
 
-    _gpuDescriptorSetHub = ccnew CCVKGPUDescriptorSetHub(_gpuDevice);
     _gpuDevice->defaultSampler = ccnew CCVKGPUSampler();
     _gpuDevice->defaultSampler->init();
 
@@ -504,11 +502,6 @@ void CCVKDevice::doDestroy() {
 
     SPIRVUtils::getInstance()->destroy();
 
-    for (CCVKTexture *texture : _depthStencilTextures) {
-        CC_SAFE_DESTROY_AND_DELETE(texture)
-    }
-    _depthStencilTextures.clear();
-
     if (_gpuDevice) {
         _gpuDevice->defaultBuffer = nullptr;
         _gpuDevice->defaultTexture = nullptr;
@@ -520,30 +513,21 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_queue)
     CC_SAFE_DESTROY_AND_DELETE(_cmdBuff)
 
-    if (_gpuDevice) {
-        uint32_t backBufferCount = _gpuDevice->backBufferCount;
-        for (uint32_t i = 0; i < backBufferCount; i++) {
-            CC_SAFE_DELETE(_gpuStagingBufferPools[i])
-            CC_SAFE_DELETE(_gpuFencePools[i])
-        }
-    }
     _gpuStagingBufferPools.clear();
     _gpuFencePools.clear();
 
-
-    CC_SAFE_DELETE(_gpuBufferHub)
-    CC_SAFE_DELETE(_gpuTransportHub)
-    CC_SAFE_DELETE(_gpuSemaphorePool)
-    CC_SAFE_DELETE(_gpuDescriptorHub)
-    CC_SAFE_DELETE(_gpuBarrierManager)
-    CC_SAFE_DELETE(_gpuDescriptorSetHub)
-    CC_SAFE_DELETE(_gpuIAHub)
+    _gpuBufferHub = nullptr;
+    _gpuTransportHub = nullptr;
+    _gpuSemaphorePool = nullptr;
+    _gpuDescriptorHub = nullptr;
+    _gpuBarrierManager = nullptr;
+    _gpuDescriptorSetHub = nullptr;
+    _gpuIAHub = nullptr;
 
     if (_gpuDevice) {
         uint32_t backBufferCount = _gpuDevice->backBufferCount;
         for (uint32_t i = 0U; i < backBufferCount; i++) {
             _gpuRecycleBins[i]->clear();
-            CC_SAFE_DELETE(_gpuRecycleBins[i])
         }
     }
     _gpuStagingBufferPools.clear();
@@ -578,11 +562,10 @@ void CCVKDevice::doDestroy() {
             _gpuDevice->vkDevice = VK_NULL_HANDLE;
         }
 
-        delete _gpuDevice;
         _gpuDevice = nullptr;
     }
 
-    CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
+    _gpuContext = nullptr;
 }
 
 namespace {
@@ -733,22 +716,22 @@ void CCVKDevice::present() {
     }
 }
 
-CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex]; }
-CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuDevice->curBackBufferIndex]; }
-CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuDevice->curBackBufferIndex]; }
+CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex].get(); }
+CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuDevice->curBackBufferIndex].get(); }
+CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuDevice->curBackBufferIndex].get(); }
 
 void CCVKDevice::waitAllFences() {
     static ccstd::vector<VkFence> fences;
     fences.clear();
 
-    for (auto *fencePool : _gpuFencePools) {
+    for (auto &fencePool : _gpuFencePools) {
         fences.insert(fences.end(), fencePool->data(), fencePool->data() + fencePool->size());
     }
 
     if (!fences.empty()) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, utils::toUint(fences.size()), fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
 
-        for (auto *fencePool : _gpuFencePools) {
+        for (auto &fencePool : _gpuFencePools) {
             fencePool->reset();
         }
     }
@@ -757,9 +740,9 @@ void CCVKDevice::waitAllFences() {
 void CCVKDevice::updateBackBufferCount(uint32_t backBufferCount) {
     if (backBufferCount <= _gpuDevice->backBufferCount) return;
     for (uint32_t i = _gpuDevice->backBufferCount; i < backBufferCount; i++) {
-        _gpuFencePools.push_back(ccnew CCVKGPUFencePool(_gpuDevice));
-        _gpuRecycleBins.push_back(ccnew CCVKGPURecycleBin(_gpuDevice));
-        _gpuStagingBufferPools.push_back(ccnew CCVKGPUStagingBufferPool(_gpuDevice));
+        _gpuFencePools.push_back(std::make_unique<CCVKGPUFencePool>(_gpuDevice.get()));
+        _gpuRecycleBins.push_back(std::make_unique<CCVKGPURecycleBin>(_gpuDevice.get()));
+        _gpuStagingBufferPools.push_back(std::make_unique<CCVKGPUStagingBufferPool>(_gpuDevice.get()));
     }
     _gpuBufferHub->updateBackBufferCount(backBufferCount);
     _gpuDescriptorSetHub->updateBackBufferCount(backBufferCount);
@@ -773,7 +756,7 @@ void CCVKDevice::initFormatFeature() {
     VkFormatFeatureFlags formatFeature = {};
     for (uint32_t i = toNumber(Format::R8); i < formatLen; ++i) {
         if (static_cast<Format>(i) == Format::ETC_RGB8) continue;
-        format = mapVkFormat(static_cast<Format>(i), _gpuDevice);
+        format = mapVkFormat(static_cast<Format>(i), _gpuDevice.get());
         vkGetPhysicalDeviceFormatProperties(_gpuContext->physicalDevice, format, &properties);
 
         // render buffer support

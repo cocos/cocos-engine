@@ -33,15 +33,11 @@ namespace gfx {
 CCVKGeneralBarrier::CCVKGeneralBarrier(const GeneralBarrierInfo &info) : GeneralBarrier(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuBarrier = ccnew CCVKGPUGeneralBarrier;
+    _gpuBarrier = std::make_unique<CCVKGPUGeneralBarrier>();
     getAccessTypes(info.prevAccesses, _gpuBarrier->prevAccesses);
     getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 
-    cmdFuncCCVKCreateGeneralBarrier(CCVKDevice::getInstance(), _gpuBarrier);
-}
-
-CCVKGeneralBarrier::~CCVKGeneralBarrier() {
-    CC_SAFE_DELETE(_gpuBarrier);
+    cmdFuncCCVKCreateGeneralBarrier(CCVKDevice::getInstance(), _gpuBarrier.get());
 }
 
 } // namespace gfx
