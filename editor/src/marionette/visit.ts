@@ -43,7 +43,7 @@ export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph)
         if (motion instanceof AnimationBlend1D ||
             motion instanceof AnimationBlend2D ||
             motion instanceof AnimationBlendDirect) {
-            for (const { motion:childMotion } of motion.items) {
+            for (const { motion: childMotion } of motion.items) {
                 if (childMotion) {
                     yield* visitMotion(childMotion);
                 }
