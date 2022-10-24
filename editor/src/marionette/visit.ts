@@ -1,6 +1,5 @@
 
 import { AnimationClip } from "../../../cocos/animation/animation-clip";
-import { AnimationBlend } from "../../../cocos/animation/marionette/animation-blend";
 import { AnimationBlend1D } from "../../../cocos/animation/marionette/animation-blend-1d";
 import { AnimationBlend2D } from "../../../cocos/animation/marionette/animation-blend-2d";
 import { AnimationBlendDirect } from "../../../cocos/animation/marionette/animation-blend-direct";
@@ -79,7 +78,7 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
         } else if (motion instanceof AnimationBlend1D || motion instanceof AnimationBlend2D || motion instanceof AnimationBlendDirect) {
             for (const { motion: childMotion } of motion.items) {
                 if (childMotion) {
-                    yield* visitMotion(motion);
+                    yield* visitMotion(childMotion);
                 }
             }
         }
