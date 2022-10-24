@@ -39,7 +39,7 @@ export default class WebSocket {
 
     this.url = url
     this.readyState = WebSocket.CONNECTING
-    this._addCount();
+    this._increaseCount();
 
     my.connectSocket({
       url,
@@ -64,7 +64,7 @@ export default class WebSocket {
 
     this._onError = (res) => {
       this._triggerEvent('error', res)
-      this._reduceCount();
+      this._decreaseCount();
     }
     my.onSocketError(this._onError)
 
@@ -72,7 +72,7 @@ export default class WebSocket {
       this.readyState = WebSocket.CLOSED
       this._triggerEvent('close')
       this._removeAllSocketListenr()
-      this._reduceCount();
+      this._decreaseCount();
     }
     my.onSocketClose(this._onClose)
 
@@ -122,11 +122,11 @@ export default class WebSocket {
     this._onClose = null
   }
 
-  _addCount(){
+  _increaseCount(){
     CURR_AMOUNT_WEBSOCKET += 1
   }
 
-  _reduceCount(){
+  _decreaseCount(){
     if(!this._isReduced){
       CURR_AMOUNT_WEBSOCKET -= 1
       this._isReduced = true
