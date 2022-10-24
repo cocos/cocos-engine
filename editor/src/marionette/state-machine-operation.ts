@@ -10,19 +10,19 @@ import {
 import { MotionState } from "../../../cocos/animation/marionette/motion-state";
 import { assertIsTrue } from "../../../cocos/core/data/utils/asserts";
 
-function assignTransitionConditions(lhs: Transition, rhs: Transition) {
+function copyTransitionConditions(lhs: Transition, rhs: Transition) {
     lhs.conditions = rhs.conditions.map((condition) => condition.clone());
 }
 
-function assignTransition<T extends Transition>(lhs: T, rhs: T) {
+function copyTransition<T extends Transition>(lhs: T, rhs: T) {
     if (isAnimationTransition(lhs)) {
         assertIsTrue(isAnimationTransition(rhs));
-        rhs.assign(lhs);
+        rhs.copyTo(lhs);
     } else if (lhs instanceof EmptyStateTransition) {
         assertIsTrue(rhs instanceof EmptyStateTransition);
-        rhs.assign(lhs);
+        rhs.copyTo(lhs);
     } else {
-        rhs.assign(lhs);
+        rhs.copyTo(lhs);
     }
 }
 
@@ -71,24 +71,24 @@ export function cloneState(stateMachine: StateMachine, state: MotionState | Empt
     let newState: State;
     if (state instanceof MotionState) {
         const newMotionState = newState = newStateOwner.addMotion();
-        state.assign(newMotionState);
+        state.copyTo(newMotionState);
     } else if (state instanceof EmptyState) {
         const newEmptyState = newState = newStateOwner.addEmpty();
-        state.assign(newEmptyState);
+        state.copyTo(newEmptyState);
     } else /* if (state instanceof SubStateMachine) */ {
         const newSubStateMachine = newState = newStateOwner.addSubStateMachine();
-        state.assign(newSubStateMachine);
+        state.copyTo(newSubStateMachine);
     }
     if (includeTransitions && stateMachine === newStateOwner) {
         const incomings = stateMachine.getIncomings(state);
         for (const incoming of incomings) {
             const newIncoming = stateMachine.connect(incoming.from, newState);
-            assignTransition(newIncoming, incoming);
+            copyTransition(newIncoming, incoming);
         }
         const outgoings = stateMachine.getOutgoings(state);
         for (const outgoing of outgoings) {
             const newOutgoing = stateMachine.connect(newState, outgoing.to);
-            assignTransition(newOutgoing, outgoing);
+            copyTransition(newOutgoing, outgoing);
         }
     }
     return newState;
@@ -106,23 +106,23 @@ export function turnMotionStateIntoSubStateMachine(stateMachine: StateMachine, s
     subStateMachine.name = state.name;
 
     const newMotionState = subStateMachine.stateMachine.addMotion();
-    state.assign(newMotionState);
+    state.copyTo(newMotionState);
     subStateMachine.stateMachine.connect(subStateMachine.stateMachine.entryState, newMotionState);
 
     // Connect.
     const incomings = stateMachine.getIncomings(state);
     for (const incoming of incomings) {
         const newIncoming = stateMachine.connect(incoming.from, subStateMachine);
-        assignTransition(newIncoming, incoming);
+        copyTransition(newIncoming, incoming);
     }
     const outgoings = stateMachine.getOutgoings(state);
     for (const outgoing of outgoings) {
         const newOutgoingInternal = subStateMachine.stateMachine.connect(
             newMotionState, subStateMachine.stateMachine.exitState);
-        assignTransition(newOutgoingInternal, outgoing);
+        copyTransition(newOutgoingInternal, outgoing);
         const newOutgoingExternal = stateMachine.connect(
             subStateMachine, outgoing.to);
-        assignTransitionConditions(newOutgoingExternal, outgoing);
+        copyTransitionConditions(newOutgoingExternal, outgoing);
     }
 
     // Remove old one.
