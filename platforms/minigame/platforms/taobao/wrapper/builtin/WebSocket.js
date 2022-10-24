@@ -1,7 +1,7 @@
 const _utils = require('../utils');
 
-const MAX_REF_WEBSOCKET = 1  // The maximum number of WEBSOCKET
-let CURR_REF_WEBSOCKET = 0   // The current number of WEBSOCKET
+const MAX_AMOUNT_WEBSOCKET = 1   // The maximum number of WEBSOCKET
+let CURR_AMOUNT_WEBSOCKET = 0    // The current number of WEBSOCKET
 
 export default class WebSocket {
   static CONNECTING = 0 // The connection is not yet open.
@@ -28,8 +28,8 @@ export default class WebSocket {
   readyState = 3
 
   constructor(url, protocols = []) {
-    if(this._isMaxRef()){
-      console.warn(`Failed to construct 'WebSocket': Only ${CURR_REF_WEBSOCKET} WebSocket can be created at the same time on TaoBao.`);
+    if(this._isMaxCount()){
+      console.warn(`Failed to construct 'WebSocket': Only ${CURR_AMOUNT_WEBSOCKET} WebSocket can be created at the same time on TaoBao.`);
       return this;
     }
 
@@ -39,7 +39,7 @@ export default class WebSocket {
 
     this.url = url
     this.readyState = WebSocket.CONNECTING
-    this._addRef();
+    this._addCount();
 
     my.connectSocket({
       url,
@@ -64,7 +64,7 @@ export default class WebSocket {
 
     this._onError = (res) => {
       this._triggerEvent('error', res)
-      this._reduceRef();
+      this._reduceCount();
     }
     my.onSocketError(this._onError)
 
@@ -72,7 +72,7 @@ export default class WebSocket {
       this.readyState = WebSocket.CLOSED
       this._triggerEvent('close')
       this._removeAllSocketListenr()
-      this._reduceRef();
+      this._reduceCount();
     }
     my.onSocketClose(this._onClose)
 
@@ -122,18 +122,18 @@ export default class WebSocket {
     this._onClose = null
   }
 
-  _addRef(){
-    CURR_REF_WEBSOCKET += 1
+  _addCount(){
+    CURR_AMOUNT_WEBSOCKET += 1
   }
 
-  _reduceRef(){
+  _reduceCount(){
     if(!this._isReduced){
-      CURR_REF_WEBSOCKET -= 1
+      CURR_AMOUNT_WEBSOCKET -= 1
       this._isReduced = true
     }
   }
 
-  _isMaxRef(){
-    return CURR_REF_WEBSOCKET >= MAX_REF_WEBSOCKET
+  _isMaxCount(){
+    return CURR_AMOUNT_WEBSOCKET >= MAX_AMOUNT_WEBSOCKET
   }
 }
