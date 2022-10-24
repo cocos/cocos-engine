@@ -28,7 +28,7 @@ import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder } from './custom-pipeline';
+import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -68,6 +68,7 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
+    map.set('Native', new NativePipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

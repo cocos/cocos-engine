@@ -714,3 +714,50 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
         SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
     return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
 }
+
+export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    // Resources
+    const forwardPassRTName = `dsForwardPassColor${cameraName}`;
+    const forwardPassDSName = `dsForwardPassDS${cameraName}`;
+    if (!ppl.containsResource(forwardPassRTName)) {
+        ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
+        ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+
+    // Passes
+    const forwardPass = ppl.addRasterPass(width, height, 'default', `CameraForwardPass${cameraID}`);
+    forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
+
+    const passView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    forwardPass.addRasterView(forwardPassRTName, passView);
+    forwardPass.addRasterView(forwardPassDSName, passDSView);
+    forwardPass
+        .addQueue(QueueHint.RENDER_OPAQUE)
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
+             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+    forwardPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT)
+        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+    forwardPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT)
+        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.UI | SceneFlags.PROFILER);
+    return { rtName: forwardPassRTName, dsName: forwardPassDSName };
+}
