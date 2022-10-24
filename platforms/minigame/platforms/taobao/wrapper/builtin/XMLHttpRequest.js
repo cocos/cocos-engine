@@ -52,7 +52,7 @@ export default class XMLHttpRequest extends EventTarget {
     super();
 
     _requestHeader.set(this, {
-      'content-type': 'application/x-www-form-urlencoded'
+      'content-type': 'application/json'
     })
     _responseHeader.set(this, {})
   }
