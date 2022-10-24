@@ -64,7 +64,7 @@ void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
 }
 
 void CCVKCommandBuffer::doDestroy() {
-    CC_SAFE_DELETE(_gpuCommandBuffer);
+    _gpuCommandBuffer = nullptr;
 }
 
 void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) {
