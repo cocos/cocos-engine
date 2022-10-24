@@ -398,14 +398,18 @@ export class SubModel {
 
         // update draw info
         const drawInfo = this._subMesh.drawInfo;
+
+        // to invoke getter/setter function for wasm object
         if (this._inputAssembler && drawInfo) {
-            this._inputAssembler.drawInfo.vertexCount = drawInfo.vertexCount;
-            this._inputAssembler.drawInfo.firstVertex = drawInfo.firstVertex;
-            this._inputAssembler.drawInfo.indexCount = drawInfo.indexCount;
-            this._inputAssembler.drawInfo.firstIndex = drawInfo.firstIndex;
-            this._inputAssembler.drawInfo.vertexOffset = drawInfo.vertexOffset;
-            this._inputAssembler.drawInfo.instanceCount = drawInfo.instanceCount;
-            this._inputAssembler.drawInfo.firstInstance = drawInfo.firstInstance;
+            const dirtyDrawInfo = this._inputAssembler.drawInfo; //drawinfo getter
+            dirtyDrawInfo.vertexCount = drawInfo.vertexCount;
+            dirtyDrawInfo.firstVertex = drawInfo.firstVertex;
+            dirtyDrawInfo.indexCount = drawInfo.indexCount;
+            dirtyDrawInfo.firstIndex = drawInfo.firstIndex;
+            dirtyDrawInfo.vertexOffset = drawInfo.vertexOffset;
+            dirtyDrawInfo.instanceCount = drawInfo.instanceCount;
+            dirtyDrawInfo.firstInstance = drawInfo.firstInstance;
+            this._inputAssembler.drawInfo = dirtyDrawInfo; //drawinfo setter
         }
     }
 
