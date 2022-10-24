@@ -31,6 +31,14 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.metallic = pbr.z;
   surfaceData.specularIntensity = pbr.w;
 
+#if CC_SURFACES_LIGHTING_TRANSMITTENCE
+  surfaceData.transmittenceParams =SurfacesFragmentModifytransmittenceParamss();
+#endif
+#if CC_SURFACES_LIGHTING_TRT
+  vec4 trt = SurfacesFragmentModifyTRTParams();
+  surfaceData.roughnessTRT = trt.x;
+#endif
+
   SurfacesFragmentModifySharedData(surfaceData);
 
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
@@ -86,7 +94,20 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
 void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, vec3 lightDirWithDist)
 {
   CCSurfacesLightingGetIntermediateData_PerLight(lightingData, lightDirWithDist);
+#if CC_SURFACES_LIGHTING_TRANSMITTENCE
+  lightingData.transmittenceParams = surfaceData.transmittenceParams;
+#endif
 }
+
+// pass original lightingData, get TRT lightingData
+#if CC_SURFACES_LIGHTING_TRT
+void CCSurfacesGetLightingIntermediateDataTRT(out LightingIntermediateData lightingDataTRT, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+{
+  lightingDataTRT = lightingData;
+  lightingDataTRT.specularParam = surfaceData.roughnessTRT;
+}
+#endif
+
 
 // Copy material data to lighting results
 void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData)
@@ -124,12 +145,19 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   color.xyz +=
     ( lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting
     + lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.directSpecular * lightingResult.specularColorWithLighting)
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting
+  #if CC_SURFACES_LIGHTING_TRT
+    + lightingResult.directTRT * lightingResult.specularColorWithLighting
+  #endif
+    )
     * lightingResult.shadow;
 
   color.xyz +=
     ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting)
+  #if CC_SURFACES_LIGHTING_TRT
+    + lightingResult.environmentTRT * lightingResult.specularColorWithLighting
+  #endif
     * lightingResult.ao;
 
   color.xyz += lightingResult.emissive;
