@@ -14,24 +14,6 @@ else:
 
 defaultSections = [
     'xr',
-    'cocos',
-    'video',
-    'webview',
-    'audio' ,
-    'extension',
-    'network',
-    'gfx',
-    'pipeline',
-    'render',
-    'physics',
-    'scene',
-    'geometry',
-    'assets',
-    '2d',
-    'editor_support',
-    'spine',
-    'dragonbones',
-    'gi'
 ]
 
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))

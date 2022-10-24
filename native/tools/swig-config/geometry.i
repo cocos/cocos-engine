@@ -47,10 +47,6 @@
 %ignore cc::geometry::AABB::setHalfExtents;
 
 %ignore cc::geometry::Frustum::update;
-%ignore cc::geometry::Frustum::type;
-
-%ignore cc::geometry::Plane::getSpotAngle;
-%ignore cc::geometry::Plane::fromNormalAndPoint;
 
 %ignore cc::geometry::Ray::computeHit;
 
