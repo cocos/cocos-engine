@@ -77,12 +77,14 @@
 
 %rename(_getProperty) cc::Material::getProperty;
 %rename(_propsInternal) cc::Material::_props;
+%rename(getHash) cc::Material::getHashForMaterial;
 
 %rename(_getBindposes) cc::Skeleton::getBindposes;
 %rename(_setBindposes) cc::Skeleton::setBindposes;
 
-%rename(_data) cc::IMemoryImageSource::data;
-%rename(_compressed) cc::IMemoryImageSource::compressed;
+// remove it?
+// %rename(_data) cc::IMemoryImageSource::data;
+// %rename(_compressed) cc::IMemoryImageSource::compressed;
 
 %rename(buffer) cc::BufferAsset::getBuffer;
 
