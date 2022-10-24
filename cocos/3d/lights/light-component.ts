@@ -30,8 +30,8 @@ import { Enum } from '../../core/value-types';
 import { scene } from '../../render-scene';
 import { Root } from '../../root';
 import { legacyCC } from '../../core/global-exports';
-import { CAMERA_DEFAULT_MASK } from '../../core/pipeline/define';
-import { Layers } from '../../core/scene-graph/layers';
+import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
+import { Layers } from '../../scene-graph/layers';
 
 const _color_tmp = new Vec3();
 

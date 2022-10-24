@@ -27,7 +27,7 @@ import { Vec3 } from '../../core/math';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from '../core/render-scene';
 import { Node } from '../../scene-graph';
-import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
+import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
