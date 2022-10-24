@@ -216,7 +216,7 @@ exports.ready = function() {
             recalculateBounds() {
                 const that = this;
                 Editor.Message.send('scene', 'execute-component-method', {
-                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                    uuid: that.dump.value.uuid.value,
                     name: 'recalculateBounds',
                     args: [],
                 });
@@ -224,7 +224,7 @@ exports.ready = function() {
             resetObjectSize() {
                 const that = this;
                 Editor.Message.send('scene', 'execute-component-method', {
-                    uuid: that.dump.value.uuid && that.dump.value.uuid.value,
+                    uuid: that.dump.value.uuid.value,
                     name: 'resetObjectSize',
                     args: [],
                 });
@@ -233,27 +233,20 @@ exports.ready = function() {
                 const that = this;
                 const LODs = that.dump.value.LODs.value;
                 if (operator === 'insert') {
+                    // insert after
                     if (LODs.length >= 8) {
                         console.warn('Maximum 8 LOD, Can\'t add more LOD');
                         return;
                     }
                     const preValue = LODs[index].value.screenRelativeTransitionHeight.value;
                     const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenRelativeTransitionHeight.value : 0;
-                    Editor.Message.send('scene', 'execute-component-method', {
-                        uuid: that.dump.value.uuid && that.dump.value.uuid.value,
-                        name: 'insertLOD',
-                        args: [index + 1, (preValue + nextValue) / 2, null],
-                    });
+                    Editor.Message.request('scene', 'lod:insert-lod', that.dump.value.uuid.value, index + 1, (preValue + nextValue) / 2, null);
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
-                    Editor.Message.send('scene', 'execute-component-method', {
-                        uuid: that.dump.value.uuid && that.dump.value.uuid.value,
-                        name: 'deleteLOD',
-                        args: [index],
-                    });
+                    Editor.Message.request('scene', 'lod:delete-lod', that.dump.value.uuid.value, index);
                 }
             },
             calculateRange(range, index) {
