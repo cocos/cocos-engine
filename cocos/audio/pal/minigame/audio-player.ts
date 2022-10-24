@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import { minigame } from 'pal/minigame';
-import { DynamicPath, Playable, stateGraph, AudioAction } from '../../inner/playable';
+import { DynamicPath, Playable, stateGraph, AudioAction } from '../shared/playable';
 import { AudioClip } from '../../audio-clip';
 import { EventTarget } from '../../../core/event';
 import { AudioEvent, AudioState } from '../../type';

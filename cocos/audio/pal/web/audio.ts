@@ -1,16 +1,19 @@
 import { clamp } from '../../../core/math';
 import { AudioClip } from '../../audio-clip';
-import { audioBufferManager } from './audio-buffer-manager';
+import { audioBufferManager } from '../shared/audio-buffer-manager';
 
 export const AudioContext =  window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
-export const defaultContext = new AudioContext();
+// export const AudioBuffer = window.AudioBuffer || window.webkitAudioBuffer || window.mozAudioBuffer;
+// export const AudioNode = window.AudioNode || window.webkitAudioNode || window.mozAudioNode;
+// export const AudioDestinationNode = window.AudioDestinationNode || window.webkitAudioDestinationNode || window.mozAudioDestinationNode;
+// export const GainNode = window.GainNode || window.webkitGainNode || window.mozGainNode;
+
 /**
  * SourceNode is a node that we eclaspe as a source, it contains absn and stream source node
  * When you hit sourcenode.start, it will automatically start to play with certain node.
  */
 export class SourceNode {
     private _absn: AudioBufferSourceNode;
-    private _clip: AudioClip;
     private _buffer: AudioBuffer | null = null;
     private _ctx: AudioContext;
     // When the source node start, we will save the context current time.
@@ -21,13 +24,13 @@ export class SourceNode {
 
     private _cbLists: (() => void)[] = [];
     // private mediaStreamNode: MediaStreamAudioSourceNode;
-    constructor (ctx: AudioContext, clip: AudioClip) {
+    constructor (ctx: AudioContext, url: string) {
         // TODO(timlyeee): check frame count instead to choose absn or mediastream
         this._ctx = ctx;
         this._absn = ctx.createBufferSource();
-        this._absn.addEventListener('ended' , this._onEnded);
-        this._clip = clip;
-        audioBufferManager.loadNative(ctx, clip.nativeUrl).then((buffer) => {
+        this._absn.addEventListener('ended', this._onEnded);
+
+        audioBufferManager.loadNative(ctx, url).then((buffer) => {
             this._buffer = buffer;
             this._absn.buffer = buffer;
         }).catch((err: Error) => {
@@ -43,12 +46,7 @@ export class SourceNode {
     disconnect () {
         this._absn.disconnect();
     }
-    set clip (clip: AudioClip) {
 
-    }
-    get clip () : AudioClip {
-        return this._clip;
-    }
     set loop (val: boolean) {
         this._absn.loop = val;
     }

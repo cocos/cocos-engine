@@ -1,15 +1,12 @@
-import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { audioBufferManager } from './audio-buffer-manager';
-import { DynamicPath, Playable, AudioAction, stateGraph, StateLinks, TinyOGraph, TinyOLink } from '../../inner/playable';
+import { AudioContext, SourceNode, GainNode } from 'audio';
+import { DynamicPath, Playable, AudioAction } from './playable';
+import { AudioEvent, AudioState, PlayerOptions } from '../../type';
 import { AudioClip } from '../../audio-clip';
 import { EventTarget } from '../../../core/event';
-import { AudioEvent, AudioState, PlayerOptions } from '../../type';
-import { Director, director } from '../../../game';
 import { clamp, clamp01 } from '../../../core';
-import { AudioPlayerDom } from '../web/player-dom';
-import { defaultContext, SourceNode } from './audio';
 
+export const defaultContext = new AudioContext();
 /**
  *
  */
@@ -41,10 +38,12 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     private _sourceNode: SourceNode;
     private _gainNode: GainNode;
     private _ctx: AudioContext;
+    private _clip: AudioClip;
 
     constructor (clip: AudioClip, options?: PlayerOptions) {
         super();
-        this._sourceNode = new SourceNode(defaultContext, clip);
+        this._sourceNode = new SourceNode(defaultContext, clip._nativeUrl);
+        this._clip = clip;
         this._ctx = defaultContext;
         this._gainNode = defaultContext.createGain();
 
@@ -60,15 +59,21 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
     }
+    set clip (clip: AudioClip) {
+        throw new Error('Method not implemented.');
+    }
+    get clip (): AudioClip {
+        throw new Error('Method not implemented.');
+    }
     get state (): AudioState {
         return this._node;
     }
-    set clip (clip: AudioClip) {
-        this._sourceNode.clip = clip;
-    }
-    get clip (): AudioClip {
-        return this._sourceNode.clip;
-    }
+    // set clip (clip: AudioClip) {
+    //     this._sourceNode.url = clip._nativeUrl;
+    // }
+    // get clip (): AudioClip {
+    //     return this._sourceNode.clip;
+    // }
     set playbackRate (rate: number) {
         this._sourceNode.playbackRate = rate;
     }
@@ -120,7 +125,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         this._gainNode.gain.value = val;
     }
     get duration (): number {
-        return this._sourceNode.clip.getDuration();
+        return this._clip.getDuration();
     }
     get currentTime (): number {
         return this._sourceNode.currentTime;

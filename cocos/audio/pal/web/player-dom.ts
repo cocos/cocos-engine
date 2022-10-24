@@ -27,9 +27,7 @@ import { DynamicPath, Playable, AudioAction, stateGraph, StateLinks, TinyOGraph,
 import { AudioClip } from '../../audio-clip';
 import { EventTarget } from '../../../core/event';
 import { AudioEvent, AudioState, PlayerOptions } from '../../type';
-import { Director } from '../../../game';
 import { clamp, clamp01 } from '../../../core';
-import { AudioPlayer } from './audio-player';
 
 export function playOneShot (clip: AudioClip, volumeScale: number) {
 

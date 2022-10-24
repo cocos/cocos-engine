@@ -1,14 +1,8 @@
-import { EDITOR } from 'internal:constants';
-import { systemInfo } from 'pal/system-info';
-import { audioBufferManager } from '../graph_based/audio-buffer-manager';
-import { Playable } from '../../inner/playable';
+import { Playable } from '../shared/playable';
 import { AudioClip } from '../../audio-clip';
-import { EventTarget } from '../../../core/event';
-import { AudioEvent, AudioState, PlayerOptions } from '../../type';
-import { Director, director } from '../../../game';
-import { clamp, clamp01 } from '../../../core';
+import { AudioState, PlayerOptions } from '../../type';
 import { AudioPlayerDom } from './player-dom';
-import { AudioPlayerX } from '../graph_based/audio-player';
+import { AudioPlayerX } from '../shared/audio-player';
 
 const WebAudioSupport = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 export abstract class AudioPlayer implements Playable {

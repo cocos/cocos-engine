@@ -3,20 +3,27 @@
 #include "LabSound/core/SampledAudioNode.h"
 #include "LabSound/extended/AudioContextLock.h"
 namespace cc {
-SourceNode::SourceNode(BaseAudioContext* ctx, AudioClip* clip) :AudioScheduledSourceNode(ctx) {
-    _clip = std::shared_ptr<AudioClip>(clip);
+
+SourceNode::SourceNode(BaseAudioContext* ctx, const char* url = nullptr, const SourceOptions& options) : AudioScheduledSourceNode(ctx) {
     _ctx = std::shared_ptr<BaseAudioContext>(ctx);
     _node = std::make_shared<lab::SampledAudioNode>(*ctx->getInnerContext());
 
-    if (clip) {
+    if (url) {
         // Set buffer if clip is ready.
+        _buffer = std::shared_ptr<AudioBuffer>(AudioClip::bufferMap[url]);
         lab::ContextRenderLock lck(_ctx->getInnerContext(), "setBus");
-        auto bus = _clip->buffer->_bus;
+        auto bus = _buffer->_bus;
         std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->setBus(lck, bus);
     }
     auto detune = AudioParam::createParam(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->detune().get());
     _detune = std::shared_ptr<AudioParam>(detune);
+    if (options.detune) {
+        _detune->setValue(options.detune);
+    }
     _playbackRate = std::shared_ptr<AudioParam>(AudioParam::createParam(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->playbackRate().get()));
+    if (options.playbackRate) {
+        _playbackRate->setValue(options.playbackRate);
+    }
     static_cast<lab::SampledAudioNode*>(_node.get())->setOnEnded([this]() {
         for each (auto cb in _cbs) {
             cb();

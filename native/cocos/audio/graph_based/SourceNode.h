@@ -6,7 +6,7 @@ namespace cc {
 class AudioBuffer;
 class AudioClip;
 struct SourceOptions : AudioNodeOptions {
-    AudioBuffer* buffer;
+    /*AudioBuffer* buffer;*/
     /* K rate */
     float detune{0};
     bool loop{false};
@@ -18,7 +18,7 @@ struct SourceOptions : AudioNodeOptions {
 class SourceNode : public AudioScheduledSourceNode {
 public:
     SourceNode() = delete;
-    SourceNode(BaseAudioContext* ctx, AudioClip* clip = nullptr);
+    SourceNode(BaseAudioContext* ctx, const char* url = nullptr, const SourceOptions& options = {});
     /*
     JSB binding methods, work for AudioPlayerX.
     */
@@ -44,8 +44,7 @@ public:
     void setLoopEnd(float loopEnd);
 
 private:
-    std::shared_ptr<AudioClip> _clip{nullptr};
-    std::shared_ptr<AudioBuffer> buffer{nullptr};
+    std::shared_ptr<AudioBuffer> _buffer{nullptr};
     bool _loop{false};
     float _loopStart{0.f};
     float _loopEnd{0.f};

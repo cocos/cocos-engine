@@ -1,3 +1,36 @@
+enum AudioErrorCode {
+    LOAD_FAILED,
+    LOAD_REJECTED,
+    PLAY_FAILED,
+    PLAY_REJECTED,
+    //etc. TODO(timlyeee): Accomplish error mechanism
+}
+export enum AudioChannelMode{
+    MAX,
+    CLAMPEDMAX,
+    EXPLICIT,
+    END
+}
+export enum AudioInterpretation {
+    SPEAKERS,
+    DISCRETE,
+}
+export interface SourceOptions {
+    loop: boolean;
+    loopEnd: number;
+    loopStart: number;
+    /* K rate */
+    detune: number;
+    /* A rate */
+    playbackRate: number;
+}
+export enum AudioState {
+    READY,
+    PLAYING,
+    PAUSED,
+    STOPPED,
+    INTERRUPTED,
+}
 export enum AudioEvent {
     READY = 'ready',
     PLAYED = 'play',
@@ -9,27 +42,23 @@ export enum AudioEvent {
     INTERRUPTION_END = 'interruptionEnd',
     USER_GESTURE = 'on_gesture',  // only web needed
 }
-
-export enum AudioState {
-    READY,
-    PLAYING,
-    PAUSED,
-    STOPPED,
-    INTERRUPTED,
-}
-
-enum AudioErrorCode {
-    LOAD_FAILED,
-    LOAD_REJECTED,
-    PLAY_FAILED,
-    PLAY_REJECTED,
-    //etc. TODO(timlyeee): Accomplish error mechanism
-}
-
 export interface PlayerOptions {
     loop?: boolean;
     volume?: number;
     isDom?: boolean; //Only for web
+}
+export enum AudioContextState {
+    SUSPENDED,
+    RUNNING,
+    CLOSEDvb
+}
+
+export interface PCMHeader {
+    totalFrames: number;
+    sampleRate: number;
+    bytesPerFrame: number;
+    audioFormat: AudioFormat;
+    channelCount: number;
 }
 export interface AudioOperationResult {
     success: boolean,

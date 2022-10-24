@@ -264,6 +264,7 @@
                 "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts",
                 "cocos/gi/light-probe/light-probe.ts": "cocos/gi/light-probe/light-probe.jsb.ts",
                 "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts"
+                "cocos/audio/pal/web/index.ts": "cocos/audio/pal/native/index.ts"
             }
         },
         {
@@ -277,7 +278,7 @@
             "test": "context.platform === 'NATIVE'",
             "isVirtualModule": true,
             "overrides": {
-                "cocos/audio": "cocos/audio/graph_based/index.ts"
+                "audio": "cocos/audio/native/index.ts"
             }  
         },
         {
@@ -290,7 +291,7 @@
                 "pal/input": "pal/input/web/index.ts",
                 "pal/env": "pal/env/web/env.ts",
                 "pal/pacer": "pal/pacer/pacer-web.ts",
-                "cocos/audio": "cocos/audio/web/index.ts"
+                "audio": "cocos/audio/web/index.ts"
             }
         },
         {
@@ -315,8 +316,14 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts",
-                "cocos/audio": "cocos/audio/minigame/index.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/audio/pal/web/index.ts": "cocos/audio/pal/minigame/index.ts"
             }
         },
         {
@@ -329,7 +336,7 @@
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/runtime/env.ts",
                 "pal/pacer": "pal/pacer/pacer-minigame.ts",
-                "cocos/audio": "cocos/audio/minigame/index.ts"
+                "audio": "cocos/audio/minigame/index.ts"
             }
         },
         {

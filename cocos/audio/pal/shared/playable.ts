@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { AudioClip } from '../audio-clip';
-import { AudioState } from '../type';
+import { AudioClip } from '../../audio-clip';
+import { AudioState } from '../../type';
 
 /**
  * Link for action from one to another, for example play to pause, we treat action as AudioAction.PAUSE

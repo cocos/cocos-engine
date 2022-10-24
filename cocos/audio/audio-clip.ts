@@ -83,7 +83,7 @@ export class AudioClip extends Asset {
         return !!this._meta;
     }
 
-    public getDuration () {
+    public getDuration (): number {
         // Dynamicly loaded audioClip._duration is 0
         if (this._duration) {
             return this._duration;
