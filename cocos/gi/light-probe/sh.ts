@@ -25,6 +25,7 @@
 
 import { Vec4 } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 
 const SH_BASIS_COUNT = 9;
@@ -325,3 +326,4 @@ export class SH {
         return l * l + l + m;
     }
 }
+legacyCC.internal.SH = SH;
