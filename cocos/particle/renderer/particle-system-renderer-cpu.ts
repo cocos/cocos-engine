@@ -376,7 +376,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         if (ps.node.parent) {
-            const r:Quat = ps.node.parent.getRotation();
+            const r:Quat = ps.node.parent.getWorldRotation();
             Mat4.fromQuat(_tempParentInverse, r);
             _tempParentInverse.transpose();
         }
