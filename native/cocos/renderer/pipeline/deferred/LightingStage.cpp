@@ -98,8 +98,8 @@ const RenderStageInfo &LightingStage::getInitializeInfo() { return LightingStage
 LightingStage::LightingStage() = default;
 
 LightingStage::~LightingStage() {
-    CC_SAFE_DESTROY_AND_RELEASE_NULL(_deferredLitsBufs);
-    CC_SAFE_DESTROY_AND_RELEASE_NULL(_deferredLitsBufView);
+    CC_SAFE_DESTROY_AND_DELETE(_deferredLitsBufs);
+    CC_SAFE_DESTROY_AND_DELETE(_deferredLitsBufView);
 }
 
 bool LightingStage::initialize(const RenderStageInfo &info) {

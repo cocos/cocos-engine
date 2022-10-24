@@ -152,13 +152,13 @@ gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
     bool success = image->initWithImageFile(path);
     if (!success) {
         CC_LOG_WARNING("BitmapFontFace initWithImageFile failed, path: %s.", path.c_str());
-        image->release();
+        delete image;
         return nullptr;
     }
 
     if (image->getRenderFormat() != gfx::Format::R8 && image->getRenderFormat() != gfx::Format::L8) {
         CC_LOG_WARNING("BitmapFontFace loadTexture with invalid format, path: %s.", path.c_str());
-        image->release();
+        delete image;
         return nullptr;
     }
 
@@ -181,7 +181,7 @@ gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
                                            {0U, 0U, 1U}}};
 
     device->copyBuffersToTexture(buffers, texture, regions);
-    image->release();
+    delete image;
 
     return texture;
 }

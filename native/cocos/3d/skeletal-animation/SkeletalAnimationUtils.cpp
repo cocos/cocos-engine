@@ -488,7 +488,7 @@ IAnimInfo JointAnimationInfo::getData(const ccstd::string &nodeID) {
 
 void JointAnimationInfo::destroy(const ccstd::string &nodeID) {
     if (_pool.find(nodeID) != _pool.end()) {
-        CC_SAFE_DESTROY_AND_RELEASE_NULL(_pool[nodeID].buffer);
+        CC_SAFE_DESTROY_AND_DELETE(_pool[nodeID].buffer);
         _pool.erase(nodeID);
     }
 }
@@ -503,7 +503,7 @@ const IAnimInfo &JointAnimationInfo::switchClip(IAnimInfo &info /*, AnimationCli
 
 void JointAnimationInfo::clear() {
     for (auto pool : _pool) {
-        CC_SAFE_DESTROY_AND_RELEASE_NULL(pool.second.buffer);
+        CC_SAFE_DESTROY_AND_DELETE(pool.second.buffer);
     }
     _pool.clear();
 }

@@ -49,7 +49,7 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute>&& attrs, bool needCreateLayout) {
+void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute> &&attrs, bool needCreateLayout) {
     _attributes = attrs;
     _vertexFormatBytes = getAttributesStride(attrs);
     if (needCreateLayout) {
@@ -74,29 +74,23 @@ void UIMeshBuffer::resetIA() {
 void UIMeshBuffer::destroy() {
     reset();
     _attributes.clear();
-
     for (auto* vb : _iaInfo.vertexBuffers) {
-        vb->release();
+        delete vb;
     }
     _iaInfo.vertexBuffers.clear();
-
-    CC_SAFE_RELEASE_NULL(_iaInfo.indexBuffer);
-
+    CC_SAFE_DELETE(_iaInfo.indexBuffer);
     if (_needDeleteVData) {
         delete _vData;
         delete _iData;
     }
-
     _vData = nullptr;
     _iData = nullptr;
-
     // Destroy InputAssemblers
     for (auto* ia : _iaPool) {
         ia->destroy();
         delete ia;
     }
     _iaPool.clear();
-
     if (_needDeleteLayout) {
         CC_SAFE_DELETE(_meshBufferLayout);
     }
