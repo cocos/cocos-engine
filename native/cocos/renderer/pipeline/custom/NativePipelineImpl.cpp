@@ -124,6 +124,7 @@ uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format
             std::forward_as_tuple(desc),
             std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
             std::forward_as_tuple(),
+            std::forward_as_tuple(),
             std::forward_as_tuple(IntrusivePtr<gfx::Framebuffer>(renderWindow->getFramebuffer())),
             resourceGraph);
     }
@@ -135,6 +136,7 @@ uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{ResourceResidency::BACKBUFFER}),
+        std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain()}),
         resourceGraph);
@@ -160,6 +162,7 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
         std::forward_as_tuple(ResourceTraits{residency}),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
+        std::forward_as_tuple(),
         resourceGraph);
 }
 
@@ -178,12 +181,17 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
 
     CC_EXPECTS(residency == ResourceResidency::MANAGED && residency == ResourceResidency::MEMORYLESS);
 
+    gfx::SamplerInfo samplerInfo{};
+    samplerInfo.magFilter = gfx::Filter::POINT;
+    samplerInfo.minFilter = gfx::Filter::POINT;
+    samplerInfo.mipFilter = gfx::Filter::NONE;
     return addVertex(
         ManagedTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{residency}),
         std::forward_as_tuple(),
+        std::forward_as_tuple(samplerInfo),
         std::forward_as_tuple(),
         resourceGraph);
 }
@@ -295,7 +303,7 @@ LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
-    auto iter = layoutGraph.shaderLayoutIndex.find(boost::string_view(shaderName));
+    auto iter = layoutGraph.shaderLayoutIndex.find(std::string_view(shaderName));
     if (iter != layoutGraph.shaderLayoutIndex.end()) {
         const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);

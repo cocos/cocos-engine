@@ -318,6 +318,7 @@ nodeProto.hasEventListener = function (type: string, callback?, target?: unknown
 };
 
 nodeProto.targetOff = function (target: string | unknown) {
+    this._eventProcessor.targetOff(target);
     // Check for event mask reset
     if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
         this._eventMask &= ~TRANSFORM_ON;
@@ -1358,12 +1359,15 @@ serializable(NodeProto, '_prefab');
 serializable(NodeProto, '_lpos');
 serializable(NodeProto, '_lrot');
 serializable(NodeProto, '_lscale');
+serializable(NodeProto, '_mobility');
 serializable(NodeProto, '_layer');
 serializable(NodeProto, '_euler');
 const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
 type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
 const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
 editable(NodeProto, 'angle', angleDescriptor);
+const mobilityDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'mobility');
+editable(NodeProto, 'mobility', mobilityDescriptor);
 const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
 editable(NodeProto, 'layer', layerDescriptor);
 

@@ -460,6 +460,20 @@ cocos_source_files(
     cocos/engine/Engine.h
 )
 
+############ gi
+cocos_source_files(
+    cocos/gi/light-probe/AutoPlacement.cpp
+    cocos/gi/light-probe/AutoPlacement.h
+    cocos/gi/light-probe/Delaunay.cpp
+    cocos/gi/light-probe/Delaunay.h
+    cocos/gi/light-probe/LightProbe.cpp
+    cocos/gi/light-probe/LightProbe.h
+    cocos/gi/light-probe/PolynomialSolver.cpp
+    cocos/gi/light-probe/PolynomialSolver.h
+    cocos/gi/light-probe/SH.cpp
+    cocos/gi/light-probe/SH.h
+)
+
 ############ main
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
@@ -1260,10 +1274,15 @@ cocos_source_files(
                  cocos/renderer/pipeline/UIPhase.h
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
+                 cocos/renderer/pipeline/custom/BinaryArchive.h
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
+                 cocos/renderer/pipeline/custom/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
+                 cocos/renderer/pipeline/custom/ArchiveFwd.h
+                 cocos/renderer/pipeline/custom/ArchiveTypes.cpp
+                 cocos/renderer/pipeline/custom/ArchiveTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1274,6 +1293,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.h
+                 cocos/renderer/pipeline/custom/LayoutGraphSerialization.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
@@ -1290,6 +1310,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonNames.h
                  cocos/renderer/pipeline/custom/RenderCommonReflection.cpp
                  cocos/renderer/pipeline/custom/RenderCommonReflection.h
+                 cocos/renderer/pipeline/custom/RenderCommonSerialization.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
@@ -2094,6 +2115,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_pipeline_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
                             cocos/bindings/auto/jsb_scene_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gi_auto.cpp
+                            cocos/bindings/auto/jsb_gi_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_assets_auto.cpp
                             cocos/bindings/auto/jsb_assets_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_geometry_auto.cpp
@@ -2972,6 +2995,7 @@ if(MSVC)
         /wd4309 # truncation of constant value
         /wd4819 # file contains a character that cannot be represented in the current code page
         /wd4996 # deprecated
+        /wd4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
     )
 endif()
 

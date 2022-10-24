@@ -32,7 +32,6 @@
 //
 %ignore cc::network::Downloader::createDataTask;
 %ignore cc::network::Downloader::createDownloadTask;
-%ignore cc::network::Downloader::abort;
 %ignore cc::network::Downloader::setOnError;
 %ignore cc::network::Downloader::setOnSuccess;
 

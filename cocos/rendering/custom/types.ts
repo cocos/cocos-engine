@@ -29,10 +29,13 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { ClearFlagBit, Color, LoadOp, StoreOp } from '../../gfx';
+import { ClearFlagBit, Color, LoadOp, ShaderStageFlagBit, StoreOp, Type, UniformBlock } from '../../gfx';
 import { Light } from '../../render-scene/scene';
+import { OutputArchive, InputArchive } from './archive';
+import { saveColor, loadColor, saveUniformBlock, loadUniformBlock } from './serialization';
+import { ccclass } from '../../core/data/decorators';
 
-export const enum UpdateFrequency {
+export enum UpdateFrequency {
     PER_INSTANCE,
     PER_BATCH,
     PER_PHASE,
@@ -57,7 +60,7 @@ export function getUpdateFrequencyName (e: UpdateFrequency): string {
     }
 }
 
-export const enum ParameterType {
+export enum ParameterType {
     CONSTANTS,
     CBV,
     UAV,
@@ -85,7 +88,7 @@ export function getParameterTypeName (e: ParameterType): string {
     }
 }
 
-export const enum ResourceResidency {
+export enum ResourceResidency {
     MANAGED,
     MEMORYLESS,
     PERSISTENT,
@@ -110,7 +113,7 @@ export function getResourceResidencyName (e: ResourceResidency): string {
     }
 }
 
-export const enum QueueHint {
+export enum QueueHint {
     NONE,
     RENDER_OPAQUE,
     RENDER_CUTOUT,
@@ -132,7 +135,7 @@ export function getQueueHintName (e: QueueHint): string {
     }
 }
 
-export const enum ResourceDimension {
+export enum ResourceDimension {
     BUFFER,
     TEXTURE1D,
     TEXTURE2D,
@@ -154,7 +157,7 @@ export function getResourceDimensionName (e: ResourceDimension): string {
     }
 }
 
-export const enum ResourceFlags {
+export enum ResourceFlags {
     NONE = 0,
     UNIFORM = 0x1,
     INDIRECT = 0x2,
@@ -165,7 +168,7 @@ export const enum ResourceFlags {
     INPUT_ATTACHMENT = 0x40,
 }
 
-export const enum TaskType {
+export enum TaskType {
     SYNC,
     ASYNC,
 }
@@ -181,23 +184,25 @@ export function getTaskTypeName (e: TaskType): string {
     }
 }
 
-export const enum SceneFlags {
+export enum SceneFlags {
     NONE = 0,
-    OPAQUE_OBJECT = 1,
-    CUTOUT_OBJECT = 2,
-    TRANSPARENT_OBJECT = 4,
-    SHADOW_CASTER = 8,
-    UI = 16,
-    DEFAULT_LIGHTING = 32,
-    VOLUMETRIC_LIGHTING = 64,
-    CLUSTERED_LIGHTING = 128,
-    PLANAR_SHADOW = 256,
-    GEOMETRY = 512,
-    PROFILER = 1024,
+    OPAQUE_OBJECT = 0x1,
+    CUTOUT_OBJECT = 0x2,
+    TRANSPARENT_OBJECT = 0x4,
+    SHADOW_CASTER = 0x8,
+    UI = 0x10,
+    DEFAULT_LIGHTING = 0x20,
+    VOLUMETRIC_LIGHTING = 0x40,
+    CLUSTERED_LIGHTING = 0x80,
+    PLANAR_SHADOW = 0x100,
+    GEOMETRY = 0x200,
+    PROFILER = 0x400,
+    DRAW_INSTANCING = 0x800,
+    DRAW_NON_INSTANCING = 0x1000,
     ALL = 0xFFFFFFFF,
 }
 
-export const enum LightingMode {
+export enum LightingMode {
     NONE,
     DEFAULT,
     CLUSTERED,
@@ -216,7 +221,7 @@ export function getLightingModeName (e: LightingMode): string {
     }
 }
 
-export const enum AttachmentType {
+export enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
 }
@@ -232,7 +237,7 @@ export function getAttachmentTypeName (e: AttachmentType): string {
     }
 }
 
-export const enum AccessType {
+export enum AccessType {
     READ,
     READ_WRITE,
     WRITE,
@@ -278,7 +283,7 @@ export class RasterView {
     readonly clearColor: Color;
 }
 
-export const enum ClearValueType {
+export enum ClearValueType {
     FLOAT_TYPE,
     INT_TYPE,
 }
@@ -309,4 +314,344 @@ export class LightInfo {
     }
     /*refcount*/ light: Light | null;
     level: number;
+}
+
+export enum DescriptorTypeOrder {
+    UNIFORM_BUFFER,
+    DYNAMIC_UNIFORM_BUFFER,
+    SAMPLER_TEXTURE,
+    SAMPLER,
+    TEXTURE,
+    STORAGE_BUFFER,
+    DYNAMIC_STORAGE_BUFFER,
+    STORAGE_IMAGE,
+    INPUT_ATTACHMENT,
+}
+
+export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
+    switch (e) {
+    case DescriptorTypeOrder.UNIFORM_BUFFER:
+        return 'UNIFORM_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+        return 'DYNAMIC_UNIFORM_BUFFER';
+    case DescriptorTypeOrder.SAMPLER_TEXTURE:
+        return 'SAMPLER_TEXTURE';
+    case DescriptorTypeOrder.SAMPLER:
+        return 'SAMPLER';
+    case DescriptorTypeOrder.TEXTURE:
+        return 'TEXTURE';
+    case DescriptorTypeOrder.STORAGE_BUFFER:
+        return 'STORAGE_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+        return 'DYNAMIC_STORAGE_BUFFER';
+    case DescriptorTypeOrder.STORAGE_IMAGE:
+        return 'STORAGE_IMAGE';
+    case DescriptorTypeOrder.INPUT_ATTACHMENT:
+        return 'INPUT_ATTACHMENT';
+    default:
+        return '';
+    }
+}
+
+export class Descriptor {
+    constructor (type: Type = Type.UNKNOWN) {
+        this.type = type;
+    }
+    type: Type;
+    count = 1;
+}
+
+export class DescriptorBlock {
+    readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
+    readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
+    capacity = 0;
+    count = 0;
+}
+
+@ccclass('cc.DescriptorBlockFlattened')
+export class DescriptorBlockFlattened {
+    readonly descriptorNames: string[] = [];
+    readonly uniformBlockNames: string[] = [];
+    readonly descriptors: Descriptor[] = [];
+    readonly uniformBlocks: UniformBlock[] = [];
+    capacity = 0;
+    count = 0;
+}
+
+export class DescriptorBlockIndex {
+    constructor (updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE, parameterType: ParameterType = ParameterType.CONSTANTS, descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE) {
+        this.updateFrequency = updateFrequency;
+        this.parameterType = parameterType;
+        this.descriptorType = descriptorType;
+        this.visibility = visibility;
+    }
+    updateFrequency: UpdateFrequency;
+    parameterType: ParameterType;
+    descriptorType: DescriptorTypeOrder;
+    visibility: ShaderStageFlagBit;
+}
+
+export class CopyPair {
+    constructor (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        sourceMostDetailedMip = 0,
+        sourceFirstSlice = 0,
+        sourcePlaneSlice = 0,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ) {
+        this.source = source;
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.sourceMostDetailedMip = sourceMostDetailedMip;
+        this.sourceFirstSlice = sourceFirstSlice;
+        this.sourcePlaneSlice = sourcePlaneSlice;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
+    source: string;
+    target: string;
+    mipLevels: number;
+    numSlices: number;
+    sourceMostDetailedMip: number;
+    sourceFirstSlice: number;
+    sourcePlaneSlice: number;
+    targetMostDetailedMip: number;
+    targetFirstSlice: number;
+    targetPlaneSlice: number;
+}
+
+export class MovePair {
+    constructor (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ) {
+        this.source = source;
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
+    source: string;
+    target: string;
+    mipLevels: number;
+    numSlices: number;
+    targetMostDetailedMip: number;
+    targetFirstSlice: number;
+    targetPlaneSlice: number;
+}
+
+export function saveRasterView (ar: OutputArchive, v: RasterView) {
+    ar.writeString(v.slotName);
+    ar.writeNumber(v.accessType);
+    ar.writeNumber(v.attachmentType);
+    ar.writeNumber(v.loadOp);
+    ar.writeNumber(v.storeOp);
+    ar.writeNumber(v.clearFlags);
+    saveColor(ar, v.clearColor);
+}
+
+export function loadRasterView (ar: InputArchive, v: RasterView) {
+    v.slotName = ar.readString();
+    v.accessType = ar.readNumber();
+    v.attachmentType = ar.readNumber();
+    v.loadOp = ar.readNumber();
+    v.storeOp = ar.readNumber();
+    v.clearFlags = ar.readNumber();
+    loadColor(ar, v.clearColor);
+}
+
+export function saveComputeView (ar: OutputArchive, v: ComputeView) {
+    ar.writeString(v.name);
+    ar.writeNumber(v.accessType);
+    ar.writeNumber(v.clearFlags);
+    saveColor(ar, v.clearColor);
+    ar.writeNumber(v.clearValueType);
+}
+
+export function loadComputeView (ar: InputArchive, v: ComputeView) {
+    v.name = ar.readString();
+    v.accessType = ar.readNumber();
+    v.clearFlags = ar.readNumber();
+    loadColor(ar, v.clearColor);
+    v.clearValueType = ar.readNumber();
+}
+
+export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
+    // skip, v.light: Light
+    ar.writeNumber(v.level);
+}
+
+export function loadLightInfo (ar: InputArchive, v: LightInfo) {
+    // skip, v.light: Light
+    v.level = ar.readNumber();
+}
+
+export function saveDescriptor (ar: OutputArchive, v: Descriptor) {
+    ar.writeNumber(v.type);
+    ar.writeNumber(v.count);
+}
+
+export function loadDescriptor (ar: InputArchive, v: Descriptor) {
+    v.type = ar.readNumber();
+    v.count = ar.readNumber();
+}
+
+export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
+    ar.writeNumber(v.descriptors.size); // Map<string, Descriptor>
+    for (const [k1, v1] of v.descriptors) {
+        ar.writeString(k1);
+        saveDescriptor(ar, v1);
+    }
+    ar.writeNumber(v.uniformBlocks.size); // Map<string, UniformBlock>
+    for (const [k1, v1] of v.uniformBlocks) {
+        ar.writeString(k1);
+        saveUniformBlock(ar, v1);
+    }
+    ar.writeNumber(v.capacity);
+    ar.writeNumber(v.count);
+}
+
+export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock) {
+    let sz = 0;
+    sz = ar.readNumber(); // Map<string, Descriptor>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = new Descriptor();
+        loadDescriptor(ar, v1);
+        v.descriptors.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<string, UniformBlock>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readString();
+        const v1 = new UniformBlock();
+        loadUniformBlock(ar, v1);
+        v.uniformBlocks.set(k1, v1);
+    }
+    v.capacity = ar.readNumber();
+    v.count = ar.readNumber();
+}
+
+export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened) {
+    ar.writeNumber(v.descriptorNames.length); // string[]
+    for (const v1 of v.descriptorNames) {
+        ar.writeString(v1);
+    }
+    ar.writeNumber(v.uniformBlockNames.length); // string[]
+    for (const v1 of v.uniformBlockNames) {
+        ar.writeString(v1);
+    }
+    ar.writeNumber(v.descriptors.length); // Descriptor[]
+    for (const v1 of v.descriptors) {
+        saveDescriptor(ar, v1);
+    }
+    ar.writeNumber(v.uniformBlocks.length); // UniformBlock[]
+    for (const v1 of v.uniformBlocks) {
+        saveUniformBlock(ar, v1);
+    }
+    ar.writeNumber(v.capacity);
+    ar.writeNumber(v.count);
+}
+
+export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened) {
+    let sz = 0;
+    sz = ar.readNumber(); // string[]
+    v.descriptorNames.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        v.descriptorNames[i1] = ar.readString();
+    }
+    sz = ar.readNumber(); // string[]
+    v.uniformBlockNames.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        v.uniformBlockNames[i1] = ar.readString();
+    }
+    sz = ar.readNumber(); // Descriptor[]
+    v.descriptors.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new Descriptor();
+        loadDescriptor(ar, v1);
+        v.descriptors[i1] = v1;
+    }
+    sz = ar.readNumber(); // UniformBlock[]
+    v.uniformBlocks.length = sz;
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const v1 = new UniformBlock();
+        loadUniformBlock(ar, v1);
+        v.uniformBlocks[i1] = v1;
+    }
+    v.capacity = ar.readNumber();
+    v.count = ar.readNumber();
+}
+
+export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockIndex) {
+    ar.writeNumber(v.updateFrequency);
+    ar.writeNumber(v.parameterType);
+    ar.writeNumber(v.descriptorType);
+    ar.writeNumber(v.visibility);
+}
+
+export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIndex) {
+    v.updateFrequency = ar.readNumber();
+    v.parameterType = ar.readNumber();
+    v.descriptorType = ar.readNumber();
+    v.visibility = ar.readNumber();
+}
+
+export function saveCopyPair (ar: OutputArchive, v: CopyPair) {
+    ar.writeString(v.source);
+    ar.writeString(v.target);
+    ar.writeNumber(v.mipLevels);
+    ar.writeNumber(v.numSlices);
+    ar.writeNumber(v.sourceMostDetailedMip);
+    ar.writeNumber(v.sourceFirstSlice);
+    ar.writeNumber(v.sourcePlaneSlice);
+    ar.writeNumber(v.targetMostDetailedMip);
+    ar.writeNumber(v.targetFirstSlice);
+    ar.writeNumber(v.targetPlaneSlice);
+}
+
+export function loadCopyPair (ar: InputArchive, v: CopyPair) {
+    v.source = ar.readString();
+    v.target = ar.readString();
+    v.mipLevels = ar.readNumber();
+    v.numSlices = ar.readNumber();
+    v.sourceMostDetailedMip = ar.readNumber();
+    v.sourceFirstSlice = ar.readNumber();
+    v.sourcePlaneSlice = ar.readNumber();
+    v.targetMostDetailedMip = ar.readNumber();
+    v.targetFirstSlice = ar.readNumber();
+    v.targetPlaneSlice = ar.readNumber();
+}
+
+export function saveMovePair (ar: OutputArchive, v: MovePair) {
+    ar.writeString(v.source);
+    ar.writeString(v.target);
+    ar.writeNumber(v.mipLevels);
+    ar.writeNumber(v.numSlices);
+    ar.writeNumber(v.targetMostDetailedMip);
+    ar.writeNumber(v.targetFirstSlice);
+    ar.writeNumber(v.targetPlaneSlice);
+}
+
+export function loadMovePair (ar: InputArchive, v: MovePair) {
+    v.source = ar.readString();
+    v.target = ar.readString();
+    v.mipLevels = ar.readNumber();
+    v.numSlices = ar.readNumber();
+    v.targetMostDetailedMip = ar.readNumber();
+    v.targetFirstSlice = ar.readNumber();
+    v.targetPlaneSlice = ar.readNumber();
 }

@@ -8,8 +8,9 @@ const configList = [
     [ 'assets.i', 'jsb_assets_auto.cpp' ],
     [ 'audio.i', 'jsb_audio_auto.cpp' ],
     [ 'cocos.i', 'jsb_cocos_auto.cpp' ],
-    [ 'dragonbones.i', 'jsb_dragonbones_auto.cpp' ],
     [ 'editor_support.i', 'jsb_editor_support_auto.cpp' ],
+    [ 'dragonbones.i', 'jsb_dragonbones_auto.cpp' ],
+    [ 'spine.i', 'jsb_spine_auto.cpp' ],
     [ 'extension.i', 'jsb_extension_auto.cpp' ],
     [ 'geometry.i', 'jsb_geometry_auto.cpp' ],
     [ 'gfx.i', 'jsb_gfx_auto.cpp' ],
@@ -17,10 +18,10 @@ const configList = [
     [ 'physics.i', 'jsb_physics_auto.cpp' ],
     [ 'pipeline.i', 'jsb_pipeline_auto.cpp' ],
     [ 'scene.i', 'jsb_scene_auto.cpp' ],
-    [ 'spine.i', 'jsb_spine_auto.cpp' ],
     [ 'webview.i', 'jsb_webview_auto.cpp' ],
     [ 'video.i', 'jsb_video_auto.cpp' ],
     [ 'renderer.i', 'jsb_render_auto.cpp' ],
+    [ 'gi.i', 'jsb_gi_auto.cpp' ],
 ];
 
 const cocosNativeRoot = path.resolve(path.join(__dirname, '..', '..'));

@@ -14,7 +14,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             // forward pass
             const forwardInfo = buildForwardPass(camera, ppl, isGameView);
             if (!isGameView) {
-                return;
+                continue;
             }
             // bloom passes
             const bloomInfo = buildBloomPasses(camera, ppl, forwardInfo.rtName);
