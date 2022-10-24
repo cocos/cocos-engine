@@ -292,6 +292,8 @@ public:
     virtual uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     virtual uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
 
+    virtual void updateRenderWindow(const ccstd::string& name, scene::RenderWindow* renderWindow) = 0;
+
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
     virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) = 0;

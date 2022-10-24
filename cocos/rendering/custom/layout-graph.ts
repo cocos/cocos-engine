@@ -86,7 +86,7 @@ export class LayoutGraphVertex {
     readonly _outEdges: impl.OutE[] = [];
     readonly _inEdges: impl.OutE[] = [];
     readonly _id: LayoutGraphValue;
-    readonly _object: LayoutGraphObject;
+    _object: LayoutGraphObject;
 }
 
 //-----------------------------------------------------------------
@@ -700,7 +700,7 @@ export class LayoutGraphDataVertex {
     readonly _outEdges: impl.OutE[] = [];
     readonly _inEdges: impl.OutE[] = [];
     readonly _id: LayoutGraphDataValue;
-    readonly _object: LayoutGraphDataObject;
+    _object: LayoutGraphDataObject;
 }
 
 //-----------------------------------------------------------------

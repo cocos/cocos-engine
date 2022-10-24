@@ -209,6 +209,13 @@
             "wechatPlugin": true,
             "category": "3d"
         },
+        "light-probe": {
+            "default": ["light-probe"],
+            "label": "i18n:ENGINE.features.light_probe.label",
+            "description": "i18n:ENGINE.features.light_probe.description",
+            "wechatPlugin": true,
+            "category": "3d"
+        },
         "tiled-map": {
             "default": ["tiled-map"],
             "label": "i18n:ENGINE.features.tiled_map.label",

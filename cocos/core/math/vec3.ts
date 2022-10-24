@@ -748,12 +748,9 @@ export class Vec3 extends ValueType {
      */
     public equals (other: Vec3, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - other.x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
-            && Math.abs(this.y - other.y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
-            && Math.abs(this.z - other.z)
-            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
+            Math.abs(this.x - other.x) <= epsilon
+            && Math.abs(this.y - other.y) <= epsilon
+            && Math.abs(this.z - other.z) <= epsilon
         );
     }
 
@@ -768,12 +765,9 @@ export class Vec3 extends ValueType {
      */
     public equals3f (x: number, y: number, z: number, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
-            && Math.abs(this.y - y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
-            && Math.abs(this.z - z)
-            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
+            Math.abs(this.x - x) <= epsilon
+            && Math.abs(this.y - y) <= epsilon
+            && Math.abs(this.z - z) <= epsilon
         );
     }
 
