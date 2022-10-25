@@ -1,7 +1,7 @@
 const _utils = require('../utils');
 
-const MAX_VALUE_WEBSOCkET = 1;
-let CURR_VALUE_WEBSOCKET = 0;
+const MAX_AMOUNT_WEBSOCKET = 1   // The maximum number of WEBSOCKET
+let CURR_AMOUNT_WEBSOCKET = 0    // The current number of WEBSOCKET
 
 export default class WebSocket {
   static CONNECTING = 0 // The connection is not yet open.
@@ -22,14 +22,14 @@ export default class WebSocket {
   _onOpen = null
   _onError = null
   _onClose = null
-  _isReduced = false;
+  _isReduced = false
 
   protocol = '' // TODO 小程序内目前获取不到，实际上需要根据服务器选择的 sub-protocol 返回
   readyState = 3
 
   constructor(url, protocols = []) {
-    if(this._isMaxRef()){
-      console.warn(`Failed to construct 'WebSocket': Only ${CURR_VALUE_WEBSOCKET} WebSocket can be created at the same time on TaoBao.`);
+    if(this._isMaxCount()){
+      console.warn(`Failed to construct 'WebSocket': Only ${CURR_AMOUNT_WEBSOCKET} WebSocket can be created at the same time on TaoBao.`);
       return this;
     }
 
@@ -39,7 +39,7 @@ export default class WebSocket {
 
     this.url = url
     this.readyState = WebSocket.CONNECTING
-    this._addRef();
+    this._increaseCount();
 
     my.connectSocket({
       url,
@@ -64,7 +64,7 @@ export default class WebSocket {
 
     this._onError = (res) => {
       this._triggerEvent('error', res)
-      this._reduceRef();
+      this._decreaseCount();
     }
     my.onSocketError(this._onError)
 
@@ -72,7 +72,7 @@ export default class WebSocket {
       this.readyState = WebSocket.CLOSED
       this._triggerEvent('close')
       this._removeAllSocketListenr()
-      this._reduceRef();
+      this._decreaseCount();
     }
     my.onSocketClose(this._onClose)
 
@@ -122,18 +122,18 @@ export default class WebSocket {
     this._onClose = null
   }
 
-  _addRef(){
-    CURR_VALUE_WEBSOCKET += 1
+  _increaseCount(){
+    CURR_AMOUNT_WEBSOCKET += 1
   }
 
-  _reduceRef(){
+  _decreaseCount(){
     if(!this._isReduced){
-      CURR_VALUE_WEBSOCKET -= 1
-      _isReduced = true;
+      CURR_AMOUNT_WEBSOCKET -= 1
+      this._isReduced = true
     }
   }
 
-  _isMaxRef(){
-    return CURR_VALUE_WEBSOCKET >= MAX_VALUE_WEBSOCkET
+  _isMaxCount(){
+    return CURR_AMOUNT_WEBSOCKET >= MAX_AMOUNT_WEBSOCKET
   }
 }
