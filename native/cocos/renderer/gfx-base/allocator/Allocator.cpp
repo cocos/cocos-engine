@@ -74,6 +74,11 @@ Allocator::Handle Allocator::allocate(uint32_t size, uint32_t alignment) {
     }
 
     // allocate new block
+    if (_impl != nullptr) {
+        if (!_impl->allocateBlock()) {
+            return INVALID_HANDLE;
+        }
+    }
     _blocks.emplace_back(Block{0});
     return allocateFromBlock(static_cast<uint32_t>(_blocks.size() - 1), alignedSize);
 }
@@ -90,6 +95,20 @@ const Allocator::Allocation *Allocator::getAllocation(Handle handle) const {
         return nullptr;
     }
     return &_allocations[handle];
+}
+
+void Allocator::setBlockImpl(IBlock *impl) {
+    _impl = impl;
+}
+
+void Allocator::reset() {
+    uint32_t blockSize = static_cast<uint32_t>(_blocks.size());
+    for (uint32_t i = 0; i < blockSize; ++i) {
+        if (_impl != nullptr) {
+            _impl->freeBlock(i);
+        }
+    }
+    _blocks.clear();
 }
 
 }

@@ -48,6 +48,15 @@ public:
         uint32_t size;
     };
 
+    class IBlock {
+    public:
+        IBlock() = default;
+        virtual ~IBlock() = default;
+
+        virtual bool allocateBlock() = 0;
+        virtual void freeBlock(uint32_t index) = 0;
+    };
+
     struct Block {
         uint32_t used;
     };
@@ -58,6 +67,10 @@ public:
 
     const Allocation *getAllocation(Handle) const;
 
+    void setBlockImpl(IBlock *impl);
+
+    void reset();
+
 private:
     Handle allocateFromBlock(uint32_t blockIndex, uint32_t size);
 
@@ -65,6 +78,7 @@ private:
     ccstd::vector<Block> _blocks;
     ccstd::vector<Allocation> _allocations;
     ccstd::list<Handle> _freelist;
+    IBlock *_impl = nullptr;
 };
 
 } // namespace cc::gfx
