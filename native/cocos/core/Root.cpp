@@ -26,6 +26,8 @@
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
 #include "application/ApplicationManager.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
 #include "platform/interfaces/modules/IScreen.h"
@@ -45,8 +47,6 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-#include "bindings/event/EventDispatcher.h"
-#include "bindings/event/CustomEventTypes.h"
 
 namespace cc {
 
@@ -149,7 +149,7 @@ cc::scene::RenderWindow *Root::createRenderWindowFromSystemWindow(uint32_t windo
 void Root::destroy() {
     destroyScenes();
     removeWindowEventListener();
-    if (_usesCustomPipeline && _pipelineRuntime) {
+    if (_pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
     _pipelineRuntime.reset();
@@ -297,16 +297,9 @@ public:
 } // namespace
 
 bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
-    if (!_usesCustomPipeline) {
-        if (rppl != nullptr && dynamic_cast<pipeline::DeferredPipeline *>(rppl) != nullptr) {
+    if (rppl) {
+        if (dynamic_cast<pipeline::DeferredPipeline *>(rppl) != nullptr) {
             _useDeferredPipeline = true;
-        }
-
-        bool isCreateDefaultPipeline{false};
-        if (!rppl) {
-            rppl = ccnew pipeline::ForwardPipeline();
-            rppl->initialize({});
-            isCreateDefaultPipeline = true;
         }
 
         _pipeline = rppl;
@@ -321,10 +314,6 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
         _pipeline->setBloomEnabled(false);
 
         if (!_pipeline->activate(_mainRenderWindow->getSwapchain())) {
-            if (isCreateDefaultPipeline) {
-                CC_SAFE_DESTROY(_pipeline);
-            }
-
             _pipeline = nullptr;
             return false;
         }

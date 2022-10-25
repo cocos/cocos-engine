@@ -425,6 +425,7 @@ export class Game extends EventTarget {
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;
     private _paused = true;
+    private _pausedByEngine = false;
     // frame control
     private _frameRate = 60;
     private _pacer: Pacer | null = null;
@@ -509,6 +510,27 @@ export class Game extends EventTarget {
      */
     public step () {
         director.tick(this.frameTime / 1000);
+    }
+
+    /**
+     * @en Called by the engine to pause the game.
+     * @zh 提供给引擎调用暂停游戏接口。
+     */
+    private pauseByEngine () {
+        if (this._paused) { return; }
+        this._pausedByEngine = true;
+        this.pause();
+    }
+
+    /**
+     * @en Resume paused game by engine call.
+     * @zh 提供给引擎调用恢复暂停游戏接口。
+     */
+    private resumeByEngine () {
+        if (this._pausedByEngine) {
+            this.resume();
+            this._pausedByEngine = false;
+        }
     }
 
     /**
@@ -956,12 +978,12 @@ export class Game extends EventTarget {
 
     private _onHide () {
         this.emit(Game.EVENT_HIDE);
-        this.pause();
+        this.pauseByEngine();
     }
 
     private _onShow () {
         this.emit(Game.EVENT_SHOW);
-        this.resume();
+        this.resumeByEngine();
     }
 
     //  @ Persist root node section

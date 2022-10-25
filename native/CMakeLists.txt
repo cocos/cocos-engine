@@ -1274,6 +1274,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/UIPhase.h
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
+                 cocos/renderer/pipeline/custom/BinaryArchive.h
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
                  cocos/renderer/pipeline/custom/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
@@ -1302,7 +1303,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativePipelineImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
-                 cocos/renderer/pipeline/custom/NativeRenderGraphSetup.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/RenderCommonFwd.h
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h

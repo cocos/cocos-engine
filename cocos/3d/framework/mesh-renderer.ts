@@ -279,7 +279,6 @@ export class MeshRenderer extends ModelRenderer {
      * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
      */
     @type(CCBoolean)
-    @property({ group: { id: 'Probe', name: 'ProbeSettings', displayOrder: 0 } })
     // eslint-disable-next-line func-names
     @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility === MobilityMode.Movable); })
     get useLightProbe () {

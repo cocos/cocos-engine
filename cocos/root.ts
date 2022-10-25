@@ -115,7 +115,7 @@ export class Root {
      * 启用自定义渲染管线
      */
     public get usesCustomPipeline (): boolean {
-        return this._usesCustomPipeline && macro.CUSTOM_PIPELINE_NAME !== '';
+        return this._usesCustomPipeline;
     }
 
     /**
@@ -382,7 +382,7 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (this.usesCustomPipeline && cclegacy.rendering) {
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this.usesCustomPipeline) {
             this._customPipeline = cclegacy.rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;

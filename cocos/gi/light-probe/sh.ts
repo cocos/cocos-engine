@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Vec4, Vec3 } from '../../core';
+import { Vec4, Vec3， cclegacy } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 
 const SH_BASIS_COUNT = 9;
@@ -324,3 +324,4 @@ export class SH {
         return l * l + l + m;
     }
 }
+legacyCC.internal.SH = SH;
