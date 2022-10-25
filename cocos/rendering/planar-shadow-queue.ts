@@ -33,6 +33,7 @@ import { ShadowType } from '../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 import { BatchingSchemes } from '../render-scene/core/pass';
+import { updateCachedLODModels, isLODModelCulled } from './lod-models-utils';
 
 const _ab = new AABB();
 
@@ -59,32 +60,11 @@ export class PlanarShadowQueue {
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
-        // Insert visible LOD models into lodVisibleModels, the others insert into lodInvisibleModels
-        // eslint-disable-next-line no-lone-blocks
-        const lodInvisibleModels: Model[] = [];
-        const lodVisibleModels : Model[] = [];
-        if (scene) {
-            for (const g of scene.lodGroups) {
-                if (g.enabled) {
-                    const visIndex = g.getVisibleLOD(camera);
-                    for (let index = 0; index < g.lodCount; index++) {
-                        const lod = g.LODs[index];
-                        for (const model of lod.models) {
-                            if (visIndex === index && model && model.node.active) {
-                                lodVisibleModels.push(model);
-                            } else {
-                                lodInvisibleModels.push(model);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+        updateCachedLODModels(scene.lodGroups, camera);
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            if (lodInvisibleModels.indexOf(model) >= 0 && lodVisibleModels.indexOf(model) < 0) {
+            if (isLODModelCulled(model)) {
                 continue;
             }
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }

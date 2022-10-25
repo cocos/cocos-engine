@@ -238,8 +238,8 @@ exports.ready = function() {
                         console.warn('Maximum 8 LOD, Can\'t add more LOD');
                         return;
                     }
-                    const preValue = LODs[index].value.screenRelativeTransitionHeight.value;
-                    const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenRelativeTransitionHeight.value : 0;
+                    const preValue = LODs[index].value.screenUsagePercentage.value;
+                    const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value : 0;
                     Editor.Message.request('scene', 'lod:insert-lod', that.dump.value.uuid.value, index + 1, (preValue + nextValue) / 2, null);
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
@@ -253,9 +253,9 @@ exports.ready = function() {
                 const that = this;
                 const LODs = that.dump.value.LODs.value;
                 if (range === 'min') {
-                    return LODs[index + 1] ? LODs[index + 1].value.screenRelativeTransitionHeight.value * 100 : 0;
+                    return LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value * 100 : 0;
                 } else if (range === 'max') {
-                    return LODs[index - 1] ? LODs[index - 1].value.screenRelativeTransitionHeight.value * 100 : 100;
+                    return LODs[index - 1] ? LODs[index - 1].value.screenUsagePercentage.value * 100 : 100;
                 }
                 return null;
             },

@@ -29,9 +29,11 @@ import { Device, deviceManager } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera, CameraProjection } from './camera';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { AABB } from '../../core/geometry';
 
-export class LOD {
-    screenRelativeTransitionHeight = 1;
+export class LODData {
+    // Range in [0, 1].
+    screenUsagePercentage = 1.0;
     models: Model[] = [];
 }
 
@@ -44,7 +46,7 @@ export class LODGroup {
 
     public enabled = true;
 
-    private _localReferencePoint: Vec3 = new Vec3(0, 0, 0);
+    private _localBoundaryCenter: Vec3 = new Vec3(0, 0, 0);
 
     /**
      * @en Object Size in local space, may be auto-calculated value from object bounding box or value from user input.
@@ -54,20 +56,20 @@ export class LODGroup {
     /**
      *@en The array of LODs
      */
-    protected _LODs: LOD[] = [];
+    protected _LODs: LODData[] = [];
 
     /**
      * For editor only, users maybe operate several LOD's object
      */
-    protected _lockLODLev: number[] = [];
+    protected _lockedLODLevelVec : number[] = [];
 
     constructor () {
         this._device = deviceManager.gfxDevice;
     }
 
-    set localReferencePoint (val: Vec3) {  this._localReferencePoint.set(val); }
+    set localBoundaryCenter (val: Vec3) {  this._localBoundaryCenter.set(val); }
 
-    get localReferencePoint () { return this._localReferencePoint.clone(); }
+    get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
     get lodCount () { return this._LODs.length; }
 
@@ -77,7 +79,7 @@ export class LODGroup {
 
     get objectSize () { return this._objectSize; }
 
-    set LODs (val: LOD[]) { this._LODs = val; }
+    set LODs (val: LODData[]) { this._LODs = val; }
 
     get LODs () { return this._LODs; }
 
@@ -90,11 +92,11 @@ export class LODGroup {
     }
 
     lockLODLevels (lockLev: number[]) {
-        this._lockLODLev = lockLev;
+        this._lockedLODLevelVec  = lockLev;
     }
 
     getLockLODLevels (): number[] {
-        return this._lockLODLev;
+        return this._lockedLODLevelVec;
     }
 
     /**
@@ -108,7 +110,7 @@ export class LODGroup {
         let lodIndex = -1;
         for (let i = 0; i < this.lodCount; ++i) {
             const lod = this.LODs[i];
-            if (relativeHeight >= lod.screenRelativeTransitionHeight) {
+            if (relativeHeight >= lod.screenUsagePercentage) {
                 lodIndex = i;
                 break;
             }
@@ -126,7 +128,7 @@ export class LODGroup {
 
         let distance: number | undefined;
         if (camera.projectionType === CameraProjection.PERSPECTIVE) {
-            distance =  Vec3.len(this.localReferencePoint.transformMat4(this.node.worldMatrix).subtract(camera.node.position));
+            distance =  Vec3.len(this.localBoundaryCenter.transformMat4(this.node.worldMatrix).subtract(camera.node.position));
         }
 
         return this.distanceToRelativeHeight(camera, distance, this.getWorldSpaceSize());

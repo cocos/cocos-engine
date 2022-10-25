@@ -32,6 +32,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
+import { updateCachedLODModels, isLODModelCulled } from '../lod-models-utils';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -109,34 +110,14 @@ export class WebSceneTask implements SceneTask {
         const models = scene!.models;
         const visibility = camera.visibility;
 
-        // Insert visible LOD models into lodVisibleModels, the others insert into lodInvisibleModels
-        // eslint-disable-next-line no-lone-blocks
-        const lodInvisibleModels: Model[] = [];
-        const lodVisibleModels : Model[] = [];
-        if (scene) {
-            for (const g of scene.lodGroups) {
-                if (g.enabled) {
-                    const visIndex = g.getVisibleLOD(camera);
-                    for (let index = 0; index < g.lodCount; index++) {
-                        const lod = g.LODs[index];
-                        for (const model of lod.models) {
-                            if (visIndex === index && model && model.node.active) {
-                                lodVisibleModels.push(model);
-                            } else {
-                                lodInvisibleModels.push(model);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        updateCachedLODModels(scene ? scene.lodGroups : [], camera);
 
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
 
             // filter model by view visibility
             if (model.enabled) {
-                if (lodInvisibleModels.indexOf(model) >= 0 && lodVisibleModels.indexOf(model) < 0) {
+                if (isLODModelCulled(model)) {
                     continue;
                 }
 

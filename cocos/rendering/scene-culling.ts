@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { EDITOR } from 'internal:constants';
 import { intersect, Sphere } from '../core/geometry';
 import { Model } from '../render-scene/scene/model';
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
@@ -34,10 +33,7 @@ import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { warnID } from '../core/platform';
-import { MeshRenderer } from '../3d';
-import { array } from '../core/utils/js';
-import { LOD } from '../misc';
-import { scene } from '../render-scene';
+import { updateCachedLODModels, isLODModelCulled } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -161,55 +157,10 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const models = scene.models;
     const visibility = camera.visibility;
 
-    // Insert visible LOD models into lodVisibleModels, the others insert into lodInvisibleModels
-    // eslint-disable-next-line no-lone-blocks
-    const lodInvisibleModels: Model[] = [];
-    const lodVisibleModels : Model[] = [];
-    for (const g of scene.lodGroups) {
-        if (g.enabled) {
-            if (EDITOR) {
-                const LODLevels = g.getLockLODLevels();
-                const count = LODLevels.length;
-                if (count > 0) {
-                    for (let index = 0; index < g.lodCount; index++) {
-                        const lod = g.LODs[index];
-                        for (const model of lod.models) {
-                            let hasInserted = false;
-                            for (let i = 0; i < count; i++) {
-                                if (LODLevels[i] === index) {
-                                    if (model && model.node.active) {
-                                        lodVisibleModels.push(model);
-                                        hasInserted = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!hasInserted) {
-                                lodInvisibleModels.push(model);
-                            }
-                        }
-                    }
-                    continue;
-                }
-            }
-            const visIndex = g.getVisibleLOD(camera);
-            for (let index = 0; index < g.lodCount; index++) {
-                const lod = g.LODs[index];
-                for (const model of lod.models) {
-                    if (visIndex === index && model && model.node.active) {
-                        lodVisibleModels.push(model);
-                    } else {
-                        lodInvisibleModels.push(model);
-                    }
-                }
-            }
-        }
-    }
-
     function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
-            if (lodInvisibleModels.indexOf(model) >= 0 && lodVisibleModels.indexOf(model) < 0) {
+            if (isLODModelCulled(model)) {
                 return;
             }
 
@@ -230,6 +181,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         }
     }
 
+    updateCachedLODModels(scene.lodGroups, camera);
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
         enqueueRenderObject(model);

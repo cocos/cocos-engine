@@ -31,7 +31,7 @@ import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
-import { LOD, LODGroup } from '../scene/lod-group';
+import { LODData, LODGroup } from '../scene/lod-group';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -132,13 +132,13 @@ export class RenderScene {
      * @en All LOD groups of the render scene
      * @zh 渲染场景管理的所有 LOD 组
      */
-    get lodGroups () { return this._lodgroups; }
+    get lodGroups () { return this._lodGroups; }
 
     private _root: Root;
     private _name = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
-    private _lodgroups: LODGroup[] = []; // LOD Group gathered
+    private _lodGroups: LODGroup[] = []; // LOD Group gathered
     private _batches: DrawBatch2D[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
@@ -457,7 +457,7 @@ export class RenderScene {
      * @param lodGroup the LOD group
      */
     addLODGroup (lodGroup: LODGroup) {
-        this._lodgroups.push(lodGroup);
+        this._lodGroups.push(lodGroup);
         lodGroup.attachToScene(this);
     }
 
@@ -467,9 +467,9 @@ export class RenderScene {
      * @param lodGroup the LOD group
      */
     removeLODGroup (lodGroup: LODGroup) {
-        const index = this._lodgroups.indexOf(lodGroup);
+        const index = this._lodGroups.indexOf(lodGroup);
         if (index >= 0) {
-            this._lodgroups.splice(index, 1);
+            this._lodGroups.splice(index, 1);
             lodGroup.detachFromScene();
         }
     }
@@ -479,7 +479,7 @@ export class RenderScene {
      * @zh 删除所有LOD 组。
      */
     removeLODGroups () {
-        this._lodgroups.length = 0;
+        this._lodGroups.length = 0;
     }
 
     /**

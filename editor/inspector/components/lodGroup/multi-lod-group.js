@@ -67,12 +67,12 @@ exports.methods = {
             for (let i = 0; i < that.multiLen; i++) {
                 let multiScreenSizeInvalid = false;
                 for (let j = 1; j < multiLodGroups.length; j++) {
-                    if (multiLodGroups[j][i].value.screenRelativeTransitionHeight.value !== multiLodGroups[0][i].value.screenRelativeTransitionHeight.value) {
+                    if (multiLodGroups[j][i].value.screenUsagePercentage.value !== multiLodGroups[0][i].value.screenUsagePercentage.value) {
                         multiScreenSizeInvalid = true;
                         break;
                     }
                 }
-                multiLods[i] = multiScreenSizeInvalid ? 'invalid' : multiLodGroups[0][i].value.screenRelativeTransitionHeight.value;
+                multiLods[i] = multiScreenSizeInvalid ? 'invalid' : multiLodGroups[0][i].value.screenUsagePercentage.value;
             }
             that.multiLODs = multiLods;
         }
@@ -86,7 +86,7 @@ exports.methods = {
     onMultiScreenSizeConfirm(event, index) {
         const that = this;
         that.dump.value.LODs.values.forEach((lod) => {
-            lod[index].value.screenRelativeTransitionHeight.value = event.target.value / 100;
+            lod[index].value.screenUsagePercentage.value = event.target.value / 100;
         });
         that.updateDump(that.dump.value.LODs);
     },
@@ -108,20 +108,20 @@ exports.methods = {
     calculateMultiRange(range, index) {
         const that = this;
         if (range === 'min') {
-            let min = that.dump.value.LODs.values[0][index + 1] ? that.dump.value.LODs.values[0][index + 1].value.screenRelativeTransitionHeight.value : 0;
+            let min = that.dump.value.LODs.values[0][index + 1] ? that.dump.value.LODs.values[0][index + 1].value.screenUsagePercentage.value : 0;
             for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
                 const multiLods = that.dump.value.LODs.values[i];
-                if (multiLods[index + 1] && multiLods[index + 1].value.screenRelativeTransitionHeight.value > min) {
-                    min = multiLods[index + 1].value.screenRelativeTransitionHeight.value;
+                if (multiLods[index + 1] && multiLods[index + 1].value.screenUsagePercentage.value > min) {
+                    min = multiLods[index + 1].value.screenUsagePercentage.value;
                 }
             }
             return min * 100;
         } else if (range === 'max') {
-            let max = that.dump.value.LODs.values[0][index - 1] ? that.dump.value.LODs.values[0][index - 1].value.screenRelativeTransitionHeight.value : 1;
+            let max = that.dump.value.LODs.values[0][index - 1] ? that.dump.value.LODs.values[0][index - 1].value.screenUsagePercentage.value : 1;
             for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
                 const multiLods = that.dump.value.LODs.values[i];
-                if (multiLods[index - 1] && multiLods[index - 1].value.screenRelativeTransitionHeight.value < max) {
-                    max = multiLods[index - 1].value.screenRelativeTransitionHeight.value;
+                if (multiLods[index - 1] && multiLods[index - 1].value.screenUsagePercentage.value < max) {
+                    max = multiLods[index - 1].value.screenUsagePercentage.value;
                 }
             }
             return max * 100;

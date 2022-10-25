@@ -21,7 +21,7 @@ exports.template = `
             <ui-label slot="label" value="Screen Size (%)"></ui-label>
             <div class="screen-size-content" slot="content">
                 <ui-num-input
-                    :value="data.value.screenRelativeTransitionHeight.value * 100"
+                    :value="data.value.screenUsagePercentage.value * 100"
                     :min="min"
                     :max="max"
                     @confirm="onScreenSizeConfirm($event)">
@@ -68,11 +68,11 @@ exports.data = function() {
 };
 
 exports.watch = {
-    'data.value.triangles': {
+    'data.value.trianglesCount': {
         immediate: true,
-        handler(triangles) {
+        handler(trianglesCount) {
             const that = this;
-            const res = triangles.value.reduce((sum, item) => {
+            const res = trianglesCount.value.reduce((sum, item) => {
                 return sum += item.value;
             }, 0);
             that.totalTriangles = res;
@@ -90,8 +90,8 @@ exports.computed = {
 exports.methods = {
     onScreenSizeConfirm(event) {
         const that = this;
-        that.data.value.screenRelativeTransitionHeight.value = event.target.value / 100;
-        that.updateDump(that.data.value.screenRelativeTransitionHeight);
+        that.data.value.screenUsagePercentage.value = event.target.value / 100;
+        that.updateDump(that.data.value.screenUsagePercentage);
     },
     onMeshConfirm(event, meshIndex) {
         const that = this;
@@ -123,6 +123,6 @@ exports.methods = {
     },
     handleTriangleLabel(meshIndex) {
         const that = this;
-        return `${ that.data.value.triangles.value[meshIndex] ? that.data.value.triangles.value[meshIndex].value : 0 } Triangles`;
+        return `${ that.data.value.trianglesCount.value[meshIndex] ? that.data.value.trianglesCount.value[meshIndex].value : 0 } Triangles`;
     },
 };

@@ -34,56 +34,64 @@ import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
 import { NodeEventType } from '../scene-graph/node-event';
 
-const _DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.25, 0.125];
+// Ratio of objects occupying the screen
+const DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.25, 0.125];
 @ccclass('cc.LOD')
 export class LOD {
-    // The relative minimum transition height in screen space.
+    // Minimum percentage of screen usage for the current lod in effect, range in [0, 1]
     @serializable
-    protected _screenRelativeTransitionHeight = 1;
+    protected _screenUsagePercentage = 1.0;
     // Mesh renderers components contained in this LOD level.
     @type([MeshRenderer])
     @serializable
-    protected _renderers: (MeshRenderer | null)[] = [];
+    protected _renderers: MeshRenderer[] = [];
     // renderer internal LOD data block.
-    protected _LOD: scene.LOD = new scene.LOD();
+    protected _LODData: scene.LODData = new scene.LODData();
 
     constructor () {
-        this._LOD.screenRelativeTransitionHeight = this._screenRelativeTransitionHeight;
+        this._LODData.screenUsagePercentage = this._screenUsagePercentage;
     }
 
     /**
-     * @en The relative (minimum) transition height of this LOD level in screen space
-     * @zh 本层级（最小）相对屏幕区域的过渡高度
+     * @en Minimum percentage of screen usage for the current lod in effect, range in [0, 1]
+     * @zh 本层级生效时，占用屏幕的最小百分比, 取值范围[0, 1]
      */
     @type(Number)
-    get screenRelativeTransitionHeight () { return this._screenRelativeTransitionHeight; }
-    set screenRelativeTransitionHeight (val) {
-        this._screenRelativeTransitionHeight = val;
-        this._LOD.screenRelativeTransitionHeight = val;
+    get screenUsagePercentage () : number { return this._screenUsagePercentage; }
+    set screenUsagePercentage (val: number) {
+        this._screenUsagePercentage = val;
+        this._LODData.screenUsagePercentage = val;
     }
 
     @type([MeshRenderer])
-    get renderers () {
+    get renderers (): readonly MeshRenderer[]  {
         return this._renderers;
     }
 
     /**
-     * engineInternal, for editor only
+     * @en reset _renderers to meshList or [], LODData's model will be reset too.
+     * @zh 重置 _renderers 为 meshList或空数组, LODData上的model也会被重置
      */
-    set renderers (meshList) {
-        this._renderers = meshList || [];
-        this._LOD.models.splice(0, this._LOD.models.length);
-        for (let i = 0; i < this._renderers.length; i++) {
-            const model = this._renderers[i]?.model;
+    set renderers (meshList: readonly MeshRenderer[]) {
+        this._renderers.length = 0;
+        this._LODData.models.length = 0;
+        for (let i = 0; i < meshList.length; i++) {
+            this._renderers[i] = meshList[i];
+            const model = meshList[i]?.model;
             if (model) {
-                this._LOD.models.splice(i, 0, model);
+                this._LODData.models.splice(0, 0, model);
             }
         }
     }
 
+    /**
+     * @engineInternal
+     * @en Get the total number of all mesh's triangle.
+     * @zh 获取所有模型的三角形总数
+     */
     @editable
     @type([Number])
-    get triangles () {
+    get trianglesCount () : number[] {
         const tris: number[] = [];
         this._renderers.forEach((meshRenderer: MeshRenderer | null) => {
             let count = 0;
@@ -101,7 +109,18 @@ export class LOD {
     }
 
     /**
-     * engineInternal
+     * @en Get the number of LOD.
+     * @zh 获取LOD的数量
+     */
+    get rendererCount () : number { return this._renderers.length; }
+
+    /**
+      * @engineInternal
+      * @en Get internal LOD object.
+      */
+    get lodData () { return this._LODData; }
+
+    /**
      * @en Insert a [[MeshRenderer]] before specific index position.
      * @zh 在指定的数组索引处插入一个[[MeshRenderer]]
      * @param index 0 indexed position in renderer array, when -1 is specified, append to the tail of the list
@@ -109,43 +128,59 @@ export class LOD {
      * @returns The renderer inserted
      */
     insertRenderer (index: number, renderer: MeshRenderer): MeshRenderer {
+        // make sure insert at the tail of the list.
+        if (index < 0 || index > this._renderers.length) {
+            index = this._renderers.length;
+        }
         this._renderers.splice(index, 0, renderer);
-        this._LOD.models.splice(index, 0, renderer.model!);
+        if (renderer.model) {
+            this._LODData.models.splice(0, 0, renderer.model);
+        }
         return renderer;
     }
 
     /**
-     * engineInternal
      * @en Delete the [[MeshRenderer]] at specific index position.
      * @zh 删除指定索引处的[[MeshRenderer]]
      * @param index 0 indexed position in renderer array, when -1 is specified, the last element will be deleted
      * @returns The renderer deleted
      */
-    deleteRenderer (index: number): MeshRenderer | null {
-        const renderer = this._renderers[index];
-        this._renderers.splice(index, 1);
-        this._LOD.models.splice(index, 1);
+    public deleteRenderer (index: number): MeshRenderer | null {
+        const renderer = this._renderers[index] || null;
+        const renders = this._renderers.splice(index, 1);
+        const model = renders.length > 0 ? renders[0]?.model : null;
+        if (model) {
+            const removeIndex = this._LODData.models.indexOf(model);
+            if (removeIndex >= 0) {
+                this._LODData.models.splice(removeIndex, 1);
+            }
+        }
+
         return renderer;
     }
 
-    getRenderer (index: number): MeshRenderer | null {
-        return this._renderers[index];
+    /**
+     * @en Get the [[MeshRenderer]] at specific index position.
+     * @zh 获取指定索引处的[[MeshRenderer]]
+     * @param index's value range from 0 to _renderers's length
+     */
+    public getRenderer (index: number): MeshRenderer | null {
+        return this._renderers[index] || null;
     }
 
     /**
-     * engineInternal
+     * @en Update the [[MeshRenderer]] at specific index position.
+     * @zh 更新指定索引处的 [[MeshRenderer]]
+     * @param index's value range from 0 to _renderers's length
      */
-    setRenderer (index: number, renderer: MeshRenderer) {
-        this._renderers[index] = renderer;
-        this._LOD.models[index] = renderer.model!;
+    public setRenderer (index: number, renderer: MeshRenderer) {
+        if (index < 0 || index >= this.rendererCount) {
+            console.error('setRenderer to LOD error, index out of range');
+            return;
+        }
+        this.deleteRenderer(index);
+        this.insertRenderer(index, renderer);
     }
-
-    get rendererCount () { return this._renderers.length; }
-
-    /**
-     * engineInternal
-     */
-    get lod () { return this._LOD; }
 }
 
 @ccclass('cc.LODGroup')
@@ -156,7 +191,7 @@ export class LODGroup extends Component {
      * @en Object reference point in local space, e.g. center of the bound volume for all LODs
      */
     @serializable
-    protected _localReferencePoint: Vec3 = new Vec3(0, 0, 0);
+    protected _localBoundaryCenter: Vec3 = new Vec3(0, 0, 0);
 
     /**
      * @en Object Size in local space, may be auto-calculated value from object bounding box or value from user input.
@@ -179,14 +214,14 @@ export class LODGroup extends Component {
         this._lodGroup.objectSize = this._objectSize;
     }
 
-    set localReferencePoint (val: Vec3) {
-        this._localReferencePoint.set(val);
-        this._lodGroup.localReferencePoint = val;
+    set localBoundaryCenter (val: Vec3) {
+        this._localBoundaryCenter.set(val);
+        this._lodGroup.localBoundaryCenter = val;
     }
 
-    get localReferencePoint () { return this._localReferencePoint.clone(); }
+    get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
-    get lodCount () { return this._LODs.length; }
+    get lodCount () : number { return this._LODs.length; }
 
     @type(Number)
     set objectSize (val: number) {
@@ -205,18 +240,67 @@ export class LODGroup extends Component {
         this._LODs = LODs;
     }
 
-    insertLOD (index: number, screenSize: number, lod: LOD | null): LOD {
+    /**
+     * @engineInternal
+     */
+    get lodGroup () { return this._lodGroup; }
+
+    /**
+     * @en Insert the [[LOD]] at specific index position.
+     * @zh 在指定索引处插入 [[LOD]]
+     * @param index, location where lod is added.
+     * @param screenSize, the minimum screenSize that the currently set lod starts to use.
+     * @param lod, if this parameter is not set, it will be created by default
+     * @returns the new lod added.
+     */
+    public insertLOD (index: number, screenSize?: number, lod?: LOD): LOD {
+        if (index < 0) {
+            if (this.lodCount > 0) {
+                index = this.lodCount - 1;
+            } else {
+                index = 0;
+            }
+        } else if (index > this.lodCount) {
+            index = this.lodCount;
+        }
+
         if (!lod) {
             lod = new LOD();
         }
-        lod.screenRelativeTransitionHeight = screenSize;
+        if (!screenSize) {
+            const preLod = this.getLOD(index - 1);
+            const nextLod = this.getLOD(index);
+            if (preLod && nextLod) {
+                screenSize = (preLod.screenUsagePercentage + nextLod.screenUsagePercentage) / 2;
+            } else if (preLod && !nextLod) { // insert at last position
+                screenSize = preLod.screenUsagePercentage / 2;
+            } else if (nextLod && !preLod) {
+                //insert at first position
+                screenSize = nextLod.screenUsagePercentage;
+                const curNextLOD = this.getLOD(index + 1);
+                nextLod.screenUsagePercentage = (screenSize + (curNextLOD ? curNextLOD.screenUsagePercentage : 0)) / 2;
+            } else { //lod count is zero
+                screenSize = DEFAULT_SCREEN_OCCUPATION[0];
+            }
+        }
+        lod.screenUsagePercentage = screenSize;
         this._LODs.splice(index, 0, lod);
-        this._lodGroup.LODs.splice(index, 0, lod.lod);
+        this._lodGroup.LODs.splice(index, 0, lod.lodData);
         LODGroupEditorUtility.emitChangeNode(this.node);
         return lod;
     }
 
-    deleteLOD (index: number) : LOD {
+    /**
+     * @en Erase the [[LOD]] at specific index position.
+     * @zh 删除指定索引处的 [[LOD]]
+     * @param index, index of the erased lod.
+     * @returns Erased lod.
+     */
+    public eraseLOD (index: number) : LOD | null {
+        if (index < 0 || index >= this.lodCount) {
+            console.warn('eraseLOD error, index out of range');
+            return null;
+        }
         const lod = this._LODs[index];
         this._LODs.splice(index, 1);
         this._lodGroup.LODs.splice(index, 1);
@@ -224,37 +308,61 @@ export class LODGroup extends Component {
         return lod;
     }
 
-    getLOD (index: number): LOD {
+    /**
+     * @en Get [[LOD]] at specific index position.
+     * @zh 获取指定索引处的 [[LOD]]
+     * @param index, get lod from the specified index.
+     * @returns Lod at specified index.
+     */
+    public getLOD (index: number): LOD | null {
+        if (index < 0 || index >= this.lodCount) {
+            console.warn('getLOD error, index out of range');
+            return null;
+        }
         return this._LODs[index];
     }
 
-    setLOD (index: number, lod: LOD) {
+    /**
+     * @en Update the [[LOD]] at specific index position.
+     * @zh 更新指定索引处的 [[LOD]]
+     * @param index, update lod at specified index.
+     * @param lod, the updated lod.
+     */
+    public setLOD (index: number, lod: LOD) {
+        if (index < 0 || index >= this.lodCount) {
+            console.warn('setLOD error, index out of range');
+            return;
+        }
         this._LODs[index] = lod;
     }
 
-    recalculateBounds () {
+    /**
+     * @en Recalculate the bounding box, and the interface will recalculate the localBoundaryCenter and objectSize
+     * @zh 重新计算包围盒，该接口会更新 localBoundaryCenter 和 objectSize
+     */
+    public recalculateBounds () {
         LODGroupEditorUtility.recalculateBounds(this);
     }
 
-    resetObjectSize () {
+    /**
+     * @en reset current objectSize to 1, and recalculate screenUsagePercentage.
+     * @zh 重置 objectSize 的大小为1，该接口会重新计算 screenUsagePercentage
+     */
+    public resetObjectSize () {
         LODGroupEditorUtility.resetObjectSize(this);
     }
-
-    get lodGroup () { return this._lodGroup; }
 
     onLoad () {
         this._lodGroup.node = this.node;
         if (!this._eventRegistered) {
-            // this.node.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._removeUnneededModel, this);
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
         }
         // generate default lod for lodGroup
         if (this.lodCount < 1) {
-            const size = _DEFAULT_SCREEN_OCCUPATION.length;
+            const size = DEFAULT_SCREEN_OCCUPATION.length;
             for (let i = 0; i < size; i++) {
-                const lod = new LOD();
-                this.insertLOD(i, _DEFAULT_SCREEN_OCCUPATION[i], lod);
+                this.insertLOD(i, DEFAULT_SCREEN_OCCUPATION[i]);
             }
         }
     }
@@ -279,29 +387,26 @@ export class LODGroup extends Component {
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
             this._LODs.forEach((lod: LOD, index) => {
-                lod.lod.screenRelativeTransitionHeight = lod.screenRelativeTransitionHeight;
+                lod.lodData.screenUsagePercentage = lod.screenUsagePercentage;
                 const renderers = lod.renderers;
+                let modelCount = 0;
                 if (renderers !== null && renderers.length > 0) {
                     for (let i = 0; i < renderers.length; i++) {
-                        const lodInstance = lod.lod;
+                        const lodInstance = lod.lodData;
                         const renderer = renderers[i];
                         if (lodInstance && renderer && renderer.model) {
-                            lodInstance.models[i] = renderer.model;
+                            lodInstance.models[modelCount] = renderer.model;
+                            modelCount += 1;
                         }
                     }
                 }
-                this._lodGroup.LODs[index] = lod.lod;
+                this._lodGroup.LODs[index] = lod.lodData;
             });
         }
     }
 
     onDisable () {
         this._detachFromScene();
-    }
-
-    // lod's model will be enabled while execute culling
-    private _removeUnneededModel () {
-        LODGroupEditorUtility.setLODVisibility(this, -1);
     }
 
     protected _attachToScene () {
@@ -321,18 +426,19 @@ export class LODGroup extends Component {
 
 export class LODGroupEditorUtility {
     /**
-     *
-     * @param lodGroup current LOD Group component
-     * @param camera current perspective camera
-     * @returns visible LOD index in lodGroup
+     * @en Get the lod level used under the current camera, -1 indicates no lod is used.
+     * @zh 获取当前摄像机下，使用哪一级的LOD，-1 表示没有lod被使用
+     * @param lodGroup current LOD Group component.
+     * @param camera current perspective camera.
+     * @returns visible LOD index in lodGroup.
      */
     static getVisibleLOD (lodGroup: LODGroup, camera: Camera): number {
-        const relativeHeight = this.getRelativeHeight(lodGroup, camera) || 0;
+        const screenOccupancyPercentage = this.getRelativeHeight(lodGroup, camera) || 0;
 
         let lodIndex = -1;
         for (let i = 0; i < lodGroup.lodCount; ++i) {
             const lod = lodGroup.getLOD(i);
-            if (relativeHeight >= lod.screenRelativeTransitionHeight) {
+            if (lod && screenOccupancyPercentage >= lod.screenUsagePercentage) {
                 lodIndex = i;
                 break;
             }
@@ -341,21 +447,26 @@ export class LODGroupEditorUtility {
     }
 
     /**
-         *
-         * @param lodGroup current LOD Group component
-         * @param camera current perspective camera
-         * @returns height of current lod group relvative to camera position in screen space, aka. relativeHeight
-         */
+     * @en Get the percentage of objects used on the screen under the current camera.
+     * @zh 获取当前摄像机下，物体在屏幕上的占用比率
+     * @param lodGroup current LOD Group component
+     * @param camera current perspective camera
+     * @returns height of current lod group relative to camera position in screen space, aka. relativeHeight
+     */
     static getRelativeHeight (lodGroup: LODGroup, camera: Camera): number|null {
         if (!lodGroup.node) return null;
 
         let distance: number | undefined;
         if (camera.projectionType === scene.CameraProjection.PERSPECTIVE) {
-            distance =  Vec3.len(lodGroup.localReferencePoint.transformMat4(lodGroup.node.worldMatrix).subtract(camera.node.position));
+            distance =  Vec3.len(lodGroup.localBoundaryCenter.transformMat4(lodGroup.node.worldMatrix).subtract(camera.node.position));
         }
         return this.distanceToRelativeHeight(camera, distance, this.getWorldSpaceSize(lodGroup));
     }
 
+    /**
+     * @en Recalculate all LOD's boundary from LODGroup, and then reset new value to localBoundaryCenter and objectSize.
+     * @zh 重新计算LODGroup上所有LOD的包围盒，并且重新设置localBoundaryCenter和objectSize
+     */
     static recalculateBounds (lodGroup: LODGroup): void {
         function getTransformedBoundary (c: /* center */Vec3, e: /*extents*/Vec3, transform: Mat4): [Vec3, Vec3] {
             let minPos: Vec3;
@@ -389,21 +500,23 @@ export class LODGroupEditorUtility {
 
         for (let i = 0; i < lodGroup.lodCount; ++i) {
             const lod = lodGroup.getLOD(i);
-            for (let j = 0; j < lod.rendererCount; ++j) {
-                const renderer = lod.getRenderer(j);
-                if (!renderer) {
-                    continue;
-                }
-                const worldBounds = renderer.model?.worldBounds;
-                if (worldBounds) {
-                    worldBounds.getBoundary(minPos, maxPos);
+            if (lod) {
+                for (let j = 0; j < lod.rendererCount; ++j) {
+                    const renderer = lod.getRenderer(j);
+                    if (!renderer) {
+                        continue;
+                    }
+                    const worldBounds = renderer.model?.worldBounds;
+                    if (worldBounds) {
+                        worldBounds.getBoundary(minPos, maxPos);
 
-                    if (boundsMin) {
-                        Vec3.min(boundsMin, boundsMin, minPos);
-                        Vec3.max(boundsMax, boundsMax, maxPos);
-                    } else {
-                        boundsMin = minPos.clone();
-                        boundsMax = maxPos.clone();
+                        if (boundsMin) {
+                            Vec3.min(boundsMin, boundsMin, minPos);
+                            Vec3.max(boundsMax, boundsMax, maxPos);
+                        } else {
+                            boundsMin = minPos.clone();
+                            boundsMax = maxPos.clone();
+                        }
                     }
                 }
             }
@@ -422,7 +535,7 @@ export class LODGroupEditorUtility {
             e.set((maxPos.x - minPos.x) * 0.5, (maxPos.y - minPos.y) * 0.5, (maxPos.z - minPos.z) * 0.5);
 
             // Save the result
-            lodGroup.localReferencePoint = c;
+            lodGroup.localBoundaryCenter = c;
             lodGroup.objectSize = Math.max(e.x, e.y, e.z) * 2.0;
         }
         this.emitChangeNode(lodGroup.node);
@@ -434,6 +547,11 @@ export class LODGroupEditorUtility {
             EditorExtends.Node.emit('change', node.uuid, node);
         }
     }
+
+    /**
+     * @en reset objectSize to 1.
+     * @zh 重置objectSize为1
+     */
     static resetObjectSize (lodGroup: LODGroup): void {
         if (lodGroup.objectSize === 1.0) return;
 
@@ -443,15 +561,24 @@ export class LODGroupEditorUtility {
         lodGroup.objectSize = 1.0;
 
         for (let i = 0; i < lodGroup.lodCount; ++i) {
-            lodGroup.getLOD(i).screenRelativeTransitionHeight *= scale;
+            const lod = lodGroup.getLOD(i);
+            if (lod) {
+                lod.screenUsagePercentage *= scale;
+            }
         }
         this.emitChangeNode(lodGroup.node);
     }
 
+    /**
+     * 锁定指定的LOD，编辑器使用
+     */
     static setLODVisibility (lodGroup: LODGroup, visibleIndex: number) {
         lodGroup.lodGroup.lockLODLevels(visibleIndex < 0 ? [] : [visibleIndex]);
     }
 
+    /**
+     * 锁定多个LOD，编辑器使用
+     */
     static setLODsVisibility (lodGroup: LODGroup, visibleArray: number[]) {
         lodGroup.lodGroup.lockLODLevels(visibleArray);
     }
