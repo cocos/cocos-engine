@@ -149,7 +149,7 @@ cc::scene::RenderWindow *Root::createRenderWindowFromSystemWindow(uint32_t windo
 void Root::destroy() {
     destroyScenes();
     removeWindowEventListener();
-    if (_usesCustomPipeline && _pipelineRuntime) {
+    if (_pipelineRuntime) {
         _pipelineRuntime->destroy();
     }
     _pipelineRuntime.reset();
@@ -297,16 +297,9 @@ public:
 } // namespace
 
 bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
-    if (!_usesCustomPipeline) {
-        if (rppl != nullptr && dynamic_cast<pipeline::DeferredPipeline *>(rppl) != nullptr) {
+    if (rppl) {
+        if (dynamic_cast<pipeline::DeferredPipeline *>(rppl) != nullptr) {
             _useDeferredPipeline = true;
-        }
-
-        bool isCreateDefaultPipeline{false};
-        if (!rppl) {
-            rppl = ccnew pipeline::ForwardPipeline();
-            rppl->initialize({});
-            isCreateDefaultPipeline = true;
         }
 
         _pipeline = rppl;
@@ -321,10 +314,6 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
         _pipeline->setBloomEnabled(false);
 
         if (!_pipeline->activate(_mainRenderWindow->getSwapchain())) {
-            if (isCreateDefaultPipeline) {
-                CC_SAFE_DESTROY(_pipeline);
-            }
-
             _pipeline = nullptr;
             return false;
         }

@@ -119,7 +119,7 @@ export class Root {
      * 启用自定义渲染管线
      */
     public get usesCustomPipeline (): boolean {
-        return this._usesCustomPipeline && macro.CUSTOM_PIPELINE_NAME !== '';
+        return this._usesCustomPipeline;
     }
 
     /**
