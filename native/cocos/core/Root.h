@@ -295,6 +295,7 @@ public:
     const ccstd::vector<scene::Camera *> &getCameraList() const {
         return _cameraList;
     }
+
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);

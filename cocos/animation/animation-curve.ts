@@ -24,13 +24,11 @@
  */
 
 import { binarySearchEpsilon as binarySearch } from '../core/algorithm/binary-search';
-import { lerp, Quat } from '../core/math';
-import { errorID } from '../core/platform/debug';
+import { lerp, Quat, errorID, cclegacy } from '../core';
 import { ValueType } from '../core/value-types';
 import { bezierByTime, BezierControlPoints } from '../core/curves/bezier';
 import * as easing from '../core/algorithm/easing';
 import { ILerpable, isLerpable } from './types';
-import { legacyCC } from '../core/global-exports';
 import type * as legacy from './legacy-clip-data';
 
 /**
@@ -64,7 +62,7 @@ export class RatioSampler {
         return this._findRatio(this.ratios, ratio);
     }
 }
-legacyCC.RatioSampler = RatioSampler;
+cclegacy.RatioSampler = RatioSampler;
 
 /**
  * @en
@@ -216,7 +214,7 @@ export class AnimCurve {
         return this._values.length === 1;
     }
 }
-legacyCC.AnimCurve = AnimCurve;
+cclegacy.AnimCurve = AnimCurve;
 
 export class EventInfo {
     public events: any[] = [];
@@ -261,7 +259,7 @@ export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, r
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return curve.valueAt(index);
 }
-legacyCC.sampleAnimationCurve = sampleAnimationCurve;
+cclegacy.sampleAnimationCurve = sampleAnimationCurve;
 
 /**
  * @en

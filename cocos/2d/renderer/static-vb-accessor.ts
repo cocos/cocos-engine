@@ -27,10 +27,8 @@ import { JSB } from 'internal:constants';
 import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { assertID, errorID } from '../../core/platform/debug';
+import { assertID, errorID, Pool, macro } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { Pool } from '../../core/memop/pool';
-import { macro } from '../../core/platform/macro';
 import { director } from '../../game';
 
 interface IFreeEntry {

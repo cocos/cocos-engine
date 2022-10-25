@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { clamp01 } from '../core/math/utils';
+import { clamp01 } from '../core';
 import { remove } from '../core/utils/array';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';

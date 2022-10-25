@@ -33,7 +33,7 @@ import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter, deviceManager } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { errorID } from '../../core/platform/debug';
-import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../core';
 import { ccenum } from '../../core/value-types/enum';
 
 ccenum(Format);
