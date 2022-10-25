@@ -669,8 +669,7 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
         }
     };
 
-    auto createShader = [&](gfx::Shader *shader) {
-        auto *device = gfx::Device::getInstance();
+    auto createShader = [&](gfx::Device *device, gfx::Shader *shader) {
         auto it = _shaderVariantSources.find(key);
         if (it != _shaderVariantSources.end()) {
             for (auto &stage : _templateInfo.shaderInfo.stages) {
@@ -713,7 +712,7 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
     if (it != _shaderVariants.end()) {
         shader = it->second;
     } else {
-        shader = createShader(shader);
+        shader = createShader(device, shader);
         _shaderVariants[key] = shader;
     }
     return shader;

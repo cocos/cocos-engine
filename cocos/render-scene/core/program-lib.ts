@@ -33,7 +33,8 @@ import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
-import { debug } from '../../core/platform/debug';
+import { debug, error } from '../../core/platform/debug';
+import { gfx } from '../../../typedoc-index';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -77,6 +78,17 @@ function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolea
     case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
     default:
         console.warn(`unknown define type '${info.type}'`);
+        return '-1'; // should neven happen
+    }
+}
+
+function getDefaultDefineInfo (def: EffectAsset.IDefineInfo) : string {
+    switch (def.type) {
+    case 'boolean': return '0';
+    case 'string': return def.options![0];
+    case 'number': return def.range![0].toString();
+    default:
+        console.warn(`unknown define type '${def.type}'`);
         return '-1'; // should neven happen
     }
 }
@@ -177,6 +189,260 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
         out.push(gfxAttributes[i]);
     }
     return out;
+}
+
+class ShaderSource {
+    public vert : gfx.ShaderStage | null = null;
+    public frag : gfx.ShaderStage | null = null;
+    public comp : gfx.ShaderStage | null = null;
+
+    public getStage (stage: gfx.ShaderStageFlagBit) {
+        switch (stage) {
+        case gfx.ShaderStageFlagBit.VERTEX: return this.vert;
+        case gfx.ShaderStageFlagBit.FRAGMENT: return this.frag;
+        case gfx.ShaderStageFlagBit.COMPUTE: return this.comp;
+        default: return null;
+        }
+    }
+}
+
+export type MacroValue = string | number | boolean;
+
+class ShaderCollection {
+    protected _shaderInfo : IProgramInfo | null = null;
+    protected _templateInfo : ITemplateInfo | null = null;
+    protected _templateMacros : Record<string, MacroValue> = {};
+    protected _defaultMacros : IMacroInfo[] = [];
+    protected _shaderVariants: Record<string, gfx.Shader> = {};
+    protected _shaderVariantSources : Record<string, ShaderSource> = {};
+
+    constructor (shaderIndo : EffectAsset.IShaderInfo) {
+        const tmpl = ({ ...shaderIndo }) as IProgramInfo;
+        this._shaderInfo = tmpl;
+        let offset = 0;
+        for (let i = 0; i < tmpl.defines.length; i++) {
+            const def = tmpl.defines[i];
+            let cnt = 1;
+            if (def.type === 'number') {
+                const range = def.range!;
+                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
+                def._map = (value: number) => value - range[0];
+            } else if (def.type === 'string') {
+                cnt = getBitCount(def.options!.length);
+                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
+            } else if (def.type === 'boolean') {
+                def._map = (value: any) => (value ? 1 : 0);
+            }
+            def._offset = offset;
+            offset += cnt;
+        }
+        if (offset > 31) { tmpl.uber = true; }
+        // generate constant macros
+        tmpl.constantMacros = '';
+        for (const key in tmpl.builtins.statistics) {
+            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
+        }
+        const tmplInfo = {} as ITemplateInfo;
+        this._templateInfo = tmplInfo;
+        tmplInfo.shaderInfo = new ShaderInfo();
+
+        tmplInfo.samplerStartBinding = tmpl.blocks.length;
+        tmplInfo.shaderInfo = new ShaderInfo();
+        tmplInfo.blockSizes = []; tmplInfo.bindings = [];
+        for (let i = 0; i < tmpl.blocks.length; i++) {
+            const block = tmpl.blocks[i];
+            tmplInfo.blockSizes.push(getSize(block));
+            tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
+                DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
+            tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
+                block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+        }
+        for (let i = 0; i < tmpl.samplerTextures.length; i++) {
+            const samplerTexture = tmpl.samplerTextures[i];
+            tmplInfo.bindings.push(new DescriptorSetLayoutBinding(samplerTexture.binding,
+                DescriptorType.SAMPLER_TEXTURE, samplerTexture.count, samplerTexture.stageFlags));
+            tmplInfo.shaderInfo.samplerTextures.push(new UniformSamplerTexture(
+                SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
+            ));
+        }
+        for (let i = 0; i < tmpl.samplers.length; i++) {
+            const sampler = tmpl.samplers[i];
+            tmplInfo.bindings.push(new DescriptorSetLayoutBinding(sampler.binding,
+                DescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
+            tmplInfo.shaderInfo.samplers.push(new UniformSampler(
+                SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.count,
+            ));
+        }
+        for (let i = 0; i < tmpl.textures.length; i++) {
+            const texture = tmpl.textures[i];
+            tmplInfo.bindings.push(new DescriptorSetLayoutBinding(texture.binding,
+                DescriptorType.TEXTURE, texture.count, texture.stageFlags));
+            tmplInfo.shaderInfo.textures.push(new UniformTexture(
+                SetIndex.MATERIAL, texture.binding, texture.name, texture.type, texture.count,
+            ));
+        }
+        for (let i = 0; i < tmpl.buffers.length; i++) {
+            const buffer = tmpl.buffers[i];
+            tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
+                DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
+            tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(
+                SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess,
+            )); // effect compiler guarantees buffer count = 1
+        }
+        for (let i = 0; i < tmpl.images.length; i++) {
+            const image = tmpl.images[i];
+            tmplInfo.bindings.push(new DescriptorSetLayoutBinding(image.binding,
+                DescriptorType.STORAGE_IMAGE, image.count, image.stageFlags));
+            tmplInfo.shaderInfo.images.push(new UniformStorageImage(
+                SetIndex.MATERIAL, image.binding, image.name, image.type, image.count, image.memoryAccess,
+            ));
+        }
+        for (let i = 0; i < tmpl.subpassInputs.length; i++) {
+            const subpassInput = tmpl.subpassInputs[i];
+            tmplInfo.bindings.push(new DescriptorSetLayoutBinding(subpassInput.binding,
+                DescriptorType.INPUT_ATTACHMENT, subpassInput.count, subpassInput.stageFlags));
+            tmplInfo.shaderInfo.subpassInputs.push(new UniformInputAttachment(
+                SetIndex.MATERIAL, subpassInput.binding, subpassInput.name, subpassInput.count,
+            ));
+        }
+        tmplInfo.gfxAttributes = [];
+        for (let i = 0; i < tmpl.attributes.length; i++) {
+            const attr = tmpl.attributes[i];
+            tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
+        }
+        insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals');
+
+        this._templateInfo.shaderInfo.stages = this._shaderInfo.stages.map((stage) => new ShaderStage(stage.stage));
+
+        tmplInfo.handleMap = genHandles(tmpl);
+        tmplInfo.setLayouts = [];
+
+        tmpl.defines.forEach((def) => {
+            const val = getDefaultDefineInfo(def);
+            this._defaultMacros.push({
+                name: def.name,
+                value: val,
+                isDefault: false,
+            });
+            this._templateMacros[def.name] = val;
+        });
+
+        // TODO yiwen: extract the shader source from the raw buffer
+    }
+
+    public get templateInfo () {
+        return this._templateInfo;
+    }
+
+    public get template () {
+        return this._shaderInfo;
+    }
+
+    public getKey (defines: MacroRecord) {
+        const tmpl = this.template!;
+        const tmplDefs = tmpl.defines;
+        if (tmpl.uber) {
+            let key = '';
+            for (let i = 0; i < tmplDefs.length; i++) {
+                const tmplDef = tmplDefs[i];
+                const value = defines[tmplDef.name];
+                if (!value || !tmplDef._map) {
+                    continue;
+                }
+                const mapped = tmplDef._map(value);
+                const offset = tmplDef._offset;
+                key += `${offset}${mapped}|`;
+            }
+            return `${key}${tmpl.hash}`;
+        }
+        let key = 0;
+        for (let i = 0; i < tmplDefs.length; i++) {
+            const tmplDef = tmplDefs[i];
+            const value = defines[tmplDef.name];
+            if (!value || !tmplDef._map) {
+                continue;
+            }
+            const mapped = tmplDef._map(value);
+            const offset = tmplDef._offset;
+            key |= mapped << offset;
+        }
+        return `${key.toString(16)}|${tmpl.hash}`;
+    }
+
+    public getShaderVariant (device: Device, macros: MacroRecord, pipeline: PipelineRuntime, keyOut?: string) {
+        const tmpl = this._shaderInfo!;
+        const tmplInfo = this._templateInfo!;
+
+        const defines = macros;
+        Object.assign(defines, pipeline.macros);
+
+        const key = this.getKey(defines);
+        if (!(this._templateInfo!.pipelineLayout)) {
+            this.getDescriptorSetLayout(device);
+            insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
+            tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            tmplInfo.pipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo(tmplInfo.setLayouts));
+        }
+
+        const macroArray = prepareDefines(defines, tmpl.defines);
+        const prefix = pipeline.constantMacros + tmpl.constantMacros
+        + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+
+        const preCompile = (shaderSource: string, stage: ShaderStage) => {
+            error('Shader preCompile not implemented');
+        };
+
+        const createShader = (device: Device, shader: Shader) => {
+            const source = this._shaderVariantSources[key];
+            if (!source) {
+                error('Shader source not found');
+                // return null;
+            } else {
+                this._templateInfo!.shaderInfo.stages.forEach((stage) => {
+                    stage.source = source[stage.stage].source;
+                });
+            }
+            this._templateInfo!.shaderInfo.name = getShaderInstanceName(this._shaderInfo!.name, macroArray);
+            shader = device.createShader(this._templateInfo!.shaderInfo);
+            return shader;
+        };
+
+        let shader: Shader =  this._shaderVariants[key];
+        if (!shader) {
+            shader = createShader(device, shader);
+            this._shaderVariants[key] = shader;
+        }
+        return shader;
+    }
+
+    getDescriptorSetLayout (device: Device, isLocal = false) {
+        const tmpl = this._shaderInfo!;
+        const tmplInfo = this._templateInfo!;
+        if (!tmplInfo.setLayouts.length) {
+            _dsLayoutInfo.bindings = tmplInfo.bindings;
+            tmplInfo.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
+            _dsLayoutInfo.bindings = localDescriptorSetLayout.bindings;
+            tmplInfo.setLayouts[SetIndex.LOCAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
+        }
+        return tmplInfo.setLayouts[isLocal ? SetIndex.LOCAL : SetIndex.MATERIAL];
+    }
+
+    public destroyShaderByDefines (defines: MacroRecord) {
+        const names = Object.keys(defines); if (!names.length) { return; }
+        const regexes = names.map((cur) => {
+            let val = defines[cur];
+            if (typeof val === 'boolean') { val = val ? '1' : '0'; }
+            return new RegExp(`${cur}${val}`);
+        });
+        const keys = Object.keys(this._shaderVariants).filter((k) => regexes.every((re) => re.test(this._shaderVariants[k].name)));
+        for (let i = 0; i < keys.length; i++) {
+            const k = keys[i];
+            const prog = this._shaderVariants[k];
+            debug(`destroyed shader ${prog.name}`);
+            prog.destroy();
+            delete this._shaderVariants[k];
+        }
+    }
 }
 
 /**
