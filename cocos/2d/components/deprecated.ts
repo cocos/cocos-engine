@@ -32,30 +32,28 @@ import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIStaticBatch } from './ui-static-batch';
 import { UIOpacity } from './ui-opacity';
-import { js } from '../../core/utils/js';
-import { legacyCC } from '../../core/global-exports';
-import { replaceProperty } from '../../core/utils';
+import { js, cclegacy, replaceProperty } from '../../core';
 
 /**
  * Alias of [[Mask]]
  * @deprecated Since v1.2
  */
 export { Mask as MaskComponent };
-legacyCC.MaskComponent = Mask;
+cclegacy.MaskComponent = Mask;
 js.setClassAlias(Mask, 'cc.MaskComponent');
 /**
  * Alias of [[Label]]
  * @deprecated Since v1.2
  */
 export { Label as LabelComponent };
-legacyCC.LabelComponent = Label;
+cclegacy.LabelComponent = Label;
 js.setClassAlias(Label, 'cc.LabelComponent');
 /**
  * Alias of [[LabelOutline]]
  * @deprecated Since v1.2
  */
 export { LabelOutline as LabelOutlineComponent };
-legacyCC.LabelOutlineComponent = LabelOutline;
+cclegacy.LabelOutlineComponent = LabelOutline;
 js.setClassAlias(LabelOutline, 'cc.LabelOutlineComponent');
 
 /**
@@ -63,28 +61,28 @@ js.setClassAlias(LabelOutline, 'cc.LabelOutlineComponent');
  * @deprecated Since v1.2
  */
 export { RichText as RichTextComponent };
-legacyCC.RichTextComponent = RichText;
+cclegacy.RichTextComponent = RichText;
 js.setClassAlias(RichText, 'cc.RichTextComponent');
 /**
  * Alias of [[Sprite]]
  * @deprecated Since v1.2
  */
 export { Sprite as SpriteComponent };
-legacyCC.SpriteComponent = Sprite;
+cclegacy.SpriteComponent = Sprite;
 js.setClassAlias(Sprite, 'cc.SpriteComponent');
 /**
  * Alias of [[UIMeshRenderer]]
  * @deprecated Since v1.2
  */
 export { UIMeshRenderer as UIModelComponent };
-legacyCC.UIModelComponent = UIMeshRenderer;
+cclegacy.UIModelComponent = UIMeshRenderer;
 js.setClassAlias(UIMeshRenderer, 'cc.UIModelComponent');
 /**
  * Alias of [[Graphics]]
  * @deprecated Since v1.2
  */
 export { Graphics as GraphicsComponent };
-legacyCC.GraphicsComponent = Graphics;
+cclegacy.GraphicsComponent = Graphics;
 js.setClassAlias(Graphics, 'cc.GraphicsComponent');
 /**
  * Alias of [[UIStaticBatch]]

@@ -29,18 +29,15 @@ import { JSB } from 'internal:constants';
 import { Texture2D } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
-import { Vec4 } from '../../core/math';
+import { Vec4, Enum, cclegacy, CCBoolean, CCFloat } from '../../core';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
 import { MobilityMode, TransformBit } from '../../scene-graph/node-enum';
-import { Enum } from '../../core/value-types';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { ModelRenderer } from '../../misc/model-renderer';
 import { MorphRenderingInstance } from '../assets/morph-rendering';
-import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
 import { NodeEventType } from '../../scene-graph/node-event';
 
@@ -416,7 +413,7 @@ export class MeshRenderer extends ModelRenderer {
 
     public onDestroy () {
         if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -571,7 +568,7 @@ export class MeshRenderer extends ModelRenderer {
         // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
         // So we should take care of the edge case.
         const modelType = (preferMorphOverPlain && this._modelType === scene.Model) ? MorphModel : this._modelType;
-        const model = this._model = (legacyCC.director.root as Root).createModel(modelType);
+        const model = this._model = (cclegacy.director.root as Root).createModel(modelType);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;

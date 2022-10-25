@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { legacyCC } from "../../core/global-exports";
+import { legacyCC } from "../../core";
 
 export const MeshUtils = jsb.MeshUtils;
 export const createMesh = MeshUtils.createMesh;

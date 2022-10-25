@@ -24,7 +24,7 @@
  */
 
 import { AudioSource } from './audio-source';
-import { replaceProperty, markAsWarning } from '../core/utils/x-deprecated';
+import { replaceProperty, markAsWarning } from '../core';
 import { AudioClip } from './audio-clip';
 
 // remove AudioClip static property

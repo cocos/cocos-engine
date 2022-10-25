@@ -29,17 +29,13 @@ import { IDynamicGeometry } from '../../primitive/define';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { AABB } from '../../core/geometry';
-import { legacyCC } from '../../core/global-exports';
+import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3 } from '../../core';
 import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
-import { sys } from '../../core/platform/sys';
-import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../asset/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
     FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager,
 } from '../../gfx';
-import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
 
@@ -153,7 +149,7 @@ export declare namespace Mesh {
           * @en dynamic submesh bounds
           * @zh 动态子模型包围盒。
           */
-        bounds: AABB[];
+        bounds: geometry.AABB[];
     }
 
     /**
@@ -344,7 +340,7 @@ export class Mesh extends Asset {
 
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
 
-    private _boneSpaceBounds: Map<number, (AABB | null)[]> = new Map();
+    private _boneSpaceBounds: Map<number, (geometry.AABB | null)[]> = new Map();
 
     private _jointBufferIndices: number[] | null = null;
 
@@ -510,9 +506,9 @@ export class Mesh extends Asset {
      * @en update dynamic sub mesh geometry
      * @zh 更新动态子网格的几何数据
      * @param primitiveIndex @en sub mesh index @zh 子网格索引
-     * @param geometry @en sub mesh geometry data @zh 子网格几何数据
+     * @param dynamicGeometry @en sub mesh geometry data @zh 子网格几何数据
      */
-    public updateSubMesh (primitiveIndex: number, geometry: IDynamicGeometry) {
+    public updateSubMesh (primitiveIndex: number, dynamicGeometry: IDynamicGeometry) {
         if (!this._struct.dynamic) {
             warnID(14200);
             return;
@@ -524,29 +520,29 @@ export class Mesh extends Asset {
         }
 
         const buffers: Float32Array[] = [];
-        if (geometry.positions.length > 0) {
-            buffers.push(geometry.positions);
+        if (dynamicGeometry.positions.length > 0) {
+            buffers.push(dynamicGeometry.positions);
         }
 
-        if (geometry.normals && geometry.normals.length > 0) {
-            buffers.push(geometry.normals);
+        if (dynamicGeometry.normals && dynamicGeometry.normals.length > 0) {
+            buffers.push(dynamicGeometry.normals);
         }
 
-        if (geometry.uvs && geometry.uvs.length > 0) {
-            buffers.push(geometry.uvs);
+        if (dynamicGeometry.uvs && dynamicGeometry.uvs.length > 0) {
+            buffers.push(dynamicGeometry.uvs);
         }
 
-        if (geometry.tangents && geometry.tangents.length > 0) {
-            buffers.push(geometry.tangents);
+        if (dynamicGeometry.tangents && dynamicGeometry.tangents.length > 0) {
+            buffers.push(dynamicGeometry.tangents);
         }
 
-        if (geometry.colors && geometry.colors.length > 0) {
-            buffers.push(geometry.colors);
+        if (dynamicGeometry.colors && dynamicGeometry.colors.length > 0) {
+            buffers.push(dynamicGeometry.colors);
         }
 
-        if (geometry.customAttributes) {
-            for (let k = 0; k < geometry.customAttributes.length; k++) {
-                buffers.push(geometry.customAttributes[k].values);
+        if (dynamicGeometry.customAttributes) {
+            for (let k = 0; k < dynamicGeometry.customAttributes.length; k++) {
+                buffers.push(dynamicGeometry.customAttributes[k].values);
             }
         }
 
@@ -580,11 +576,11 @@ export class Mesh extends Asset {
         if (primitive.indexView) {
             const indexView = primitive.indexView;
             const stride       = indexView.stride;
-            const indexCount   = (stride === 2) ? geometry.indices16!.length : geometry.indices32!.length;
+            const indexCount   = (stride === 2) ? dynamicGeometry.indices16!.length : dynamicGeometry.indices32!.length;
             const updateSize   = indexCount * stride;
             const dstBuffer   = new Uint8Array(this._data.buffer, indexView.offset, updateSize);
-            const srcBuffer    = (stride === 2) ? new Uint8Array(geometry.indices16!.buffer, geometry.indices16!.byteOffset, updateSize)
-                : new Uint8Array(geometry.indices32!.buffer, geometry.indices32!.byteOffset, updateSize);
+            const srcBuffer    = (stride === 2) ? new Uint8Array(dynamicGeometry.indices16!.buffer, dynamicGeometry.indices16!.byteOffset, updateSize)
+                : new Uint8Array(dynamicGeometry.indices32!.buffer, dynamicGeometry.indices32!.byteOffset, updateSize);
             const indexBuffer  = subMesh.indexBuffer!;
             assertIsTrue(indexCount <= info.maxSubMeshIndices, 'Too many indices.');
 
@@ -598,15 +594,15 @@ export class Mesh extends Asset {
         }
 
         // update bound
-        if (geometry.minPos && geometry.maxPos) {
-            const minPos = new Vec3(geometry.minPos.x, geometry.minPos.y, geometry.minPos.z);
-            const maxPos = new Vec3(geometry.maxPos.x, geometry.maxPos.y, geometry.maxPos.z);
+        if (dynamicGeometry.minPos && dynamicGeometry.maxPos) {
+            const minPos = new Vec3(dynamicGeometry.minPos.x, dynamicGeometry.minPos.y, dynamicGeometry.minPos.z);
+            const maxPos = new Vec3(dynamicGeometry.maxPos.x, dynamicGeometry.maxPos.y, dynamicGeometry.maxPos.z);
 
             if (!dynamic.bounds[primitiveIndex]) {
-                dynamic.bounds[primitiveIndex] = new AABB();
+                dynamic.bounds[primitiveIndex] = new geometry.AABB();
             }
 
-            AABB.fromPoints(dynamic.bounds[primitiveIndex], minPos, maxPos);
+            geometry.AABB.fromPoints(dynamic.bounds[primitiveIndex], minPos, maxPos);
 
             const subMin = new Vec3();
             const subMax = new Vec3();
@@ -685,12 +681,12 @@ export class Mesh extends Asset {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
         }
-        const bounds: (AABB | null)[] = [];
+        const bounds: (geometry.AABB | null)[] = [];
         this._boneSpaceBounds.set(skeleton.hash, bounds);
         const valid: boolean[] = [];
         const { bindposes } = skeleton;
         for (let i = 0; i < bindposes.length; i++) {
-            bounds.push(new AABB(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
+            bounds.push(new geometry.AABB(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
             valid.push(false);
         }
         const { primitives } = this._struct;
@@ -716,7 +712,7 @@ export class Mesh extends Asset {
         }
         for (let i = 0; i < bindposes.length; i++) {
             const b = bounds[i]!;
-            if (!valid[i]) { bounds[i] = null; } else { AABB.fromPoints(b, b.center, b.halfExtents); }
+            if (!valid[i]) { bounds[i] = null; } else { geometry.AABB.fromPoints(b, b.center, b.halfExtents); }
         }
         return bounds;
     }
@@ -738,7 +734,7 @@ export class Mesh extends Asset {
 
         const vec3_temp = new Vec3();
         const rotate = worldMatrix && new Quat();
-        const boundingBox = worldMatrix && new AABB();
+        const boundingBox = worldMatrix && new geometry.AABB();
         if (rotate) {
             worldMatrix!.getRotation(rotate);
         }
@@ -751,7 +747,7 @@ export class Mesh extends Asset {
                     Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
                     Vec3.subtract(boundingBox!.halfExtents, struct.maxPosition, struct.minPosition);
                     Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
-                    AABB.transform(boundingBox!, boundingBox!, worldMatrix);
+                    geometry.AABB.transform(boundingBox!, boundingBox!, worldMatrix);
                     Vec3.add(struct.maxPosition, boundingBox!.center, boundingBox!.halfExtents);
                     Vec3.subtract(struct.minPosition, boundingBox!.center, boundingBox!.halfExtents);
                 }
@@ -997,7 +993,7 @@ export class Mesh extends Asset {
                 Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
                 Vec3.subtract(boundingBox!.halfExtents, mesh._struct.maxPosition, mesh._struct.minPosition);
                 Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
-                AABB.transform(boundingBox!, boundingBox!, worldMatrix);
+                geometry.AABB.transform(boundingBox!, boundingBox!, worldMatrix);
                 Vec3.add(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);
                 Vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, vec3_temp);
                 Vec3.subtract(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);
@@ -1329,7 +1325,7 @@ export class Mesh extends Asset {
         this._data = globalEmptyMeshBuffer;
     }
 }
-legacyCC.Mesh = Mesh;
+cclegacy.Mesh = Mesh;
 
 function getOffset (attributes: Attribute[], attributeIndex: number) {
     let result = 0;

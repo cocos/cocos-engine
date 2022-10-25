@@ -23,9 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Vec4 } from '../../core';
+import { Vec4, Vec3 } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { Vec3 } from '../../core/math/vec3';
 
 const SH_BASIS_COUNT = 9;
 
