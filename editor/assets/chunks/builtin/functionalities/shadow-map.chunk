@@ -268,19 +268,21 @@ float CCGetLinearDepth(vec3 worldPos) {
             clipPos.y >= (0.0 + layerThreshold) && clipPos.y <= (1.0 - layerThreshold) &&
             clipPos.z >= 0.0 && clipPos.z <= 1.0 && layer < 0) {
           #if CC_CASCADED_LAYERS_TRANSITION
-            if (clipPos.x <= 0.15 - layerThreshold || clipPos.x >= (1.0 - 0.15 + layerThreshold) ||
-                clipPos.y <= 0.15 - layerThreshold || clipPos.y >= (0.85) + layerThreshold) {
-              if (clipPos.x >= layerThreshold && clipPos.x <= 0.15 - layerThreshold) {
-                ratio = (clipPos.x - layerThreshold) / (0.15 - layerThreshold);
+            highp float maxRange = 1.0 - cc_csmSplitsInfo.x - layerThreshold;
+            highp float minRange = cc_csmSplitsInfo.x - layerThreshold;
+            if (clipPos.x <= minRange || clipPos.x >= maxRange ||
+                clipPos.y <= minRange || clipPos.y >= maxRange) {
+              if (clipPos.x >= layerThreshold && clipPos.x <= cc_csmSplitsInfo.x) {
+                ratio = (clipPos.x - layerThreshold) / (cc_csmSplitsInfo.x - layerThreshold);
               }
-              if (clipPos.x >= (0.85) && clipPos.x <= (1.0 - layerThreshold)) {
-                ratio = (clipPos.x - (0.85)) / (0.15 - layerThreshold);
+              if (clipPos.x >= maxRange && clipPos.x <= 1.0 - layerThreshold) {
+                ratio = (clipPos.x - maxRange) / (cc_csmSplitsInfo.x - layerThreshold);
               }
-              if (clipPos.y >= layerThreshold && clipPos.y <= 0.15 - layerThreshold) {
-                ratio = min((clipPos.y  + layerThreshold + layerThreshold) / (0.15), 1.0);
+              if (clipPos.y >= 0.0 && clipPos.y <= cc_csmSplitsInfo.x) {
+                ratio = min((clipPos.y - layerThreshold) / (cc_csmSplitsInfo.x - layerThreshold), 1.0);
               }
-              if (clipPos.y >= (0.85) && clipPos.y <= (1.0 - layerThreshold)) {
-                ratio = (clipPos.y - (0.85)) / (0.15 - layerThreshold);
+              if (clipPos.y >= maxRange && clipPos.y <= 1.0 - layerThreshold) {
+                ratio = (clipPos.y - maxRange) / (cc_csmSplitsInfo.x - layerThreshold);
               }
             transitionArea = true;
           }

@@ -38,6 +38,8 @@ const _v3 = new Vec3();
  * @zh 渲染场景中的方向光抽象，这是场景中的主光源。作为主光源，每个场景只能有一个方向光，它也包含阴影配置，用来生成实时阴影。
  */
 export class DirectionalLight extends Light {
+    public static readonly CSM_TRANSITION_RANGE = 0.05;
+
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
     protected _illuminanceLDR = 1.0;
@@ -58,7 +60,6 @@ export class DirectionalLight extends Light {
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
 
     protected _csmLayersTransition = false;
-    protected _pcss = false;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -302,18 +303,6 @@ export class DirectionalLight extends Light {
         this._activate();
     }
 
-    /**
-     * @en Enabled percentage closer soft shadows
-     * @zh 是否启用更紧密的百分比软影？
-     */
-    get pcss () {
-        return this._pcss;
-    }
-    set pcss (val) {
-        this._pcss = val;
-        this._activate();
-    }
-
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
@@ -345,7 +334,6 @@ export class DirectionalLight extends Light {
             } else if (this.csmLevel > 1) {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 2;
                 pipeline.macros.CC_CASCADED_LAYERS_TRANSITION = this._csmLayersTransition;
-                pipeline.macros.CC_PERCENTAGE_CLOSER_SOFT_SHADOWS = this._pcss;
             } else {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
             }

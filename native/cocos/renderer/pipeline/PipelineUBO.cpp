@@ -239,34 +239,35 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                 } else {
                     const auto layerThreshold = PipelineUBO::getPCFRadius(shadowInfo, mainLight);
                     for (uint32_t i = 0; i < static_cast<uint32_t>(mainLight->getCSMLevel()); ++i) {
-                        const Mat4 &matShadowView = csmLayers->getLayers()[i]->getMatShadowView();
+                        const auto *layer = csmLayers->getLayers()[i];
+                        const Mat4 &matShadowView = layer->getMatShadowView();
                         const float csmViewDir0[4] = {matShadowView.m[0], matShadowView.m[4], matShadowView.m[8], layerThreshold};
                         memcpy(cv.data() + UBOCSM::CSM_VIEW_DIR_0_OFFSET + i * 4, &csmViewDir0, sizeof(csmViewDir0));
 
-                        const float csmViewDir1[4] = {matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], 0.0F};
+                        const float csmViewDir1[4] = {matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], layer->getSplitCameraNear()};
                         memcpy(cv.data() + UBOCSM::CSM_VIEW_DIR_1_OFFSET + i * 4, &csmViewDir1, sizeof(csmViewDir1));
 
-                        const float csmViewDir2[4] = {matShadowView.m[2], matShadowView.m[6], matShadowView.m[10], 0.0F};
+                        const float csmViewDir2[4] = {matShadowView.m[2], matShadowView.m[6], matShadowView.m[10], layer->getSplitCameraFar()};
                         memcpy(cv.data() + UBOCSM::CSM_VIEW_DIR_2_OFFSET + i * 4, &csmViewDir2, sizeof(csmViewDir2));
 
-                        const auto &csmAtlas = csmLayers->getLayers()[i]->getCSMAtlas();
+                        const auto &csmAtlas = layer->getCSMAtlas();
                         const float csmAtlasOffsets[4] = {csmAtlas.x, csmAtlas.y, csmAtlas.z, csmAtlas.w};
                         memcpy(cv.data() + UBOCSM::CSM_ATLAS_OFFSET + i * 4, &csmAtlasOffsets, sizeof(csmAtlasOffsets));
 
-                        cv[UBOCSM::CSM_SPLITS_INFO_OFFSET + i] = csmLayers->getLayers()[i]->getSplitCameraFar() / mainLight->getShadowDistance();
-
-                        const Mat4 &matShadowViewProj = csmLayers->getLayers()[i]->getMatShadowViewProj();
+                        const Mat4 &matShadowViewProj = layer->getMatShadowViewProj();
                         memcpy(cv.data() + UBOCSM::MAT_CSM_VIEW_PROJ_LEVELS_OFFSET + i * 16, matShadowViewProj.m, sizeof(matShadowViewProj));
 
-                        const Mat4 &matShadowProj = csmLayers->getLayers()[i]->getMatShadowProj();
+                        const Mat4 &matShadowProj = layer->getMatShadowProj();
                         const float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
                         memcpy(cv.data() + UBOCSM::CSM_PROJ_DEPTH_INFO_LEVELS_OFFSET + i * 4, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
 
                         const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
                         memcpy(cv.data() + UBOCSM::CSM_PROJ_INFO_LEVELS_OFFSET + i * 4, &shadowProjInfos, sizeof(shadowProjInfos));
                     }
+                    const float csmInfo[4] = {scene::DirectionalLight::CSM_TRANSITION_RANGE, 0.0F, 0.0F, 0.0F};
+                    memcpy(cv.data() + UBOCSM::CSM_SPLITS_INFO_OFFSET, &csmInfo, sizeof(csmInfo));
 
-                    const float shadowNFLSInfos[4] = {0.0F, 0.0F, 0.0F, 1.0F - mainLight->getShadowSaturation()};
+                    const float shadowNFLSInfos[4] = {0.1F, mainLight->getShadowDistance(), 0.0F, 1.0F - mainLight->getShadowSaturation()};
                     memcpy(sv.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                     const float shadowLPNNInfos[4] = {0.0F, packing, mainLight->getShadowNormalBias(), static_cast<float>(mainLight->getCSMLevel())};

@@ -78,8 +78,6 @@ export class DirectionalLight extends Light {
     protected _csmAdvancedOptions = false;
     @serializable
     protected _csmLayersTransition = false;
-    @serializable
-    protected _pcss = false;
 
     // fixed area properties
     @serializable
@@ -492,26 +490,6 @@ export class DirectionalLight extends Light {
         this._csmLayersTransition = val;
     }
 
-    /**
-     * @en Enabled percentage closer soft shadows
-     * @zh 是否启用更紧密的百分比软影？
-     */
-    @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
-         && this._csmLevel > CSMLevel.LEVEL_1
-         && this._csmAdvancedOptions;
-    })
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
-    @editable
-    @type(CCBoolean)
-    get pcss () {
-        return this._pcss;
-    }
-    set pcss (val) {
-        this._pcss = val;
-    }
-
     constructor () {
         super();
         this._lightType = scene.DirectionalLight;
@@ -538,7 +516,6 @@ export class DirectionalLight extends Light {
             this._light.csmLayerLambda = this._csmLayerLambda;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
             this._light.csmLayersTransition = this._csmLayersTransition;
-            this._light.pcss = this._pcss;
         }
     }
 }
