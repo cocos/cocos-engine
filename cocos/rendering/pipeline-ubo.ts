@@ -58,6 +58,7 @@ export class PipelineUBO {
         fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
         fv[UBOGlobal.TIME_OFFSET + 1] = root.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = director.getTotalFrames();
+        fv[UBOGlobal.TIME_OFFSET + 3] = root.cumulativeTime - Math.floor(root.frameTime);
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = shadingWidth;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = shadingHeight;
