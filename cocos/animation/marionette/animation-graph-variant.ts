@@ -1,4 +1,4 @@
-import { ccclass, serializable, type } from 'cc.decorator';
+import { ccclass, editable, serializable, type } from 'cc.decorator';
 import { removeIf } from '../../core/utils/array';
 import { AnimationClip } from '../animation-clip';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
@@ -19,10 +19,21 @@ export interface AnimationGraphVariantRunTime {
     readonly __brand: 'AnimationGraphVariant';
 }
 
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationGraphOverrideEntry`)
+class AnimationGraphOverrideEntry {
+    @serializable
+    public original: AnimationClip = null!;
+
+    @serializable
+    public substitution: AnimationClip = null!;
+}
+
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationGraphVariant`)
 export class AnimationGraphVariant extends AnimationGraphLike implements AnimationGraphVariantRunTime {
     declare __brand: 'AnimationGraphVariant';
 
+    @type(AnimationGraph)
+    @editable
     get original () {
         return this._graph;
     }
@@ -83,13 +94,4 @@ class ClipOverrideMap implements ReadonlyClipOverrideMap {
 
     @serializable
     private _entries: AnimationGraphOverrideEntry[] = [];
-}
-
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationGraphOverrideEntry`)
-class AnimationGraphOverrideEntry {
-    @serializable
-    public original: AnimationClip = null!;
-
-    @serializable
-    public substitution: AnimationClip = null!;
 }
