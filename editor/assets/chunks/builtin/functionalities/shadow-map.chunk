@@ -270,14 +270,14 @@ float CCGetLinearDepth(vec3 worldPos) {
           #if CC_CASCADED_LAYERS_TRANSITION
             if (clipPos.x <= 0.15 - layerThreshold || clipPos.x >= (1.0 - 0.15 + layerThreshold) ||
                 clipPos.y <= 0.15 - layerThreshold || clipPos.y >= (0.85) + layerThreshold) {
-              if (clipPos.x >= layerThreshold && clipPos.x <= 0.15) {
+              if (clipPos.x >= layerThreshold && clipPos.x <= 0.15 - layerThreshold) {
                 ratio = (clipPos.x - layerThreshold) / (0.15 - layerThreshold);
               }
               if (clipPos.x >= (0.85) && clipPos.x <= (1.0 - layerThreshold)) {
                 ratio = (clipPos.x - (0.85)) / (0.15 - layerThreshold);
               }
-              if (clipPos.y >= layerThreshold && clipPos.y <= 0.15) {
-                ratio = (clipPos.y - layerThreshold) / (0.15 - layerThreshold);
+              if (clipPos.y >= layerThreshold && clipPos.y <= 0.15 - layerThreshold) {
+                ratio = min((clipPos.y  + layerThreshold + layerThreshold) / (0.15), 1.0);
               }
               if (clipPos.y >= (0.85) && clipPos.y <= (1.0 - layerThreshold)) {
                 ratio = (clipPos.y - (0.85)) / (0.15 - layerThreshold);
@@ -322,11 +322,12 @@ float CCGetLinearDepth(vec3 worldPos) {
       return hasNext;
     }
 
-    float CCCSMFactorBase(vec3 worldPos, vec3 N, vec2 shadowBias)
+    // output csmPos is non-biased position that can be used for sampling shadow map after homogeneous divid
+    float CCCSMFactorBase(out vec4 csmPos, out vec4 csmNDCPosWithBias, vec3 worldPos, vec3 N, vec2 shadowBias)
     {
       bool transitionArea = false;
       float ratio = 0.0;
-      vec4 csmPos = vec4(1.0);
+      csmPos = vec4(1.0);
       vec4 shadowProjDepthInfo, shadowProjInfo;
       vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
       int level = -1;
@@ -339,6 +340,7 @@ float CCGetLinearDepth(vec3 worldPos) {
 
       vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
       pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
+      csmNDCPosWithBias = pos;
 
       float realtimeShadow = 1.0;
       #if CC_DIR_SHADOW_PCF_TYPE == CC_SHADOW_PCF_SOFT_5X
