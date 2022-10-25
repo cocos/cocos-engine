@@ -1,5 +1,5 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioContext, SourceNode, GainNode } from 'audio';
+import { AudioContext, SourceNode } from './audio';
 import { DynamicPath, Playable, AudioAction } from './playable';
 import { AudioEvent, AudioState, PlayerOptions } from '../../type';
 import { AudioClip } from '../../audio-clip';

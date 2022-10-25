@@ -1,6 +1,6 @@
 import { clamp } from '../../../core/math';
 import { AudioClip } from '../../audio-clip';
-import { audioBufferManager } from '../shared/audio-buffer-manager';
+import { audioBufferManager } from './audio-buffer-manager';
 
 export const AudioContext =  window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
 // export const AudioBuffer = window.AudioBuffer || window.webkitAudioBuffer || window.mozAudioBuffer;

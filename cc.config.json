@@ -263,8 +263,8 @@
                 "cocos/3d/models/baked-skinning-model.ts": "cocos/3d/models/baked-skinning-model.jsb.ts",
                 "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts",
                 "cocos/gi/light-probe/light-probe.ts": "cocos/gi/light-probe/light-probe.jsb.ts",
-                "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts"
-                "cocos/audio/pal/web/index.ts": "cocos/audio/pal/native/index.ts"
+                "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts",
+                "cocos/audio/pal/shared/audio.ts": "cocos/audio/pal/shared/audio.jsb.ts"
             }
         },
         {
@@ -299,7 +299,6 @@
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
-                "pal/audio": "pal/audio/native/player.ts",
                 "pal/system-info": "pal/system-info/native/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
@@ -316,14 +315,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
-            }
-        },
-        {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
-            "isVirtualModule": false,
-            "overrides": {
-                "cocos/audio/pal/web/index.ts": "cocos/audio/pal/minigame/index.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "audio":"cocos/audio/pal/minigame/index.ts"
             }
         },
         {
