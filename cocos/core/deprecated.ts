@@ -28,7 +28,7 @@ import * as math from './math';
 import { Scheduler } from './scheduler';
 import { legacyCC } from './global-exports';
 
-import System from './system';
+import { System } from './system';
 
 // VMATH
 

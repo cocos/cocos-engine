@@ -30,7 +30,7 @@ import { Enum } from './value-types/enum';
  * @en Base class for all functional system managed by [[Director]].
  * @zh 功能系统的基类，由 [[Director]] 管理。
  */
-export default class System implements ISchedulable {
+export class System implements ISchedulable {
     static Priority = Enum({
         LOW: 0,
         MEDIUM: 100,

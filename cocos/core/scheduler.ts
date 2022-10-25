@@ -26,7 +26,7 @@
 
 import IdGenerator from './utils/id-generator';
 import { createMap } from './utils/js';
-import System from './system';
+import { System } from './system';
 import { legacyCC } from './global-exports';
 import { errorID, warnID, logID, assertID } from './platform/debug';
 

@@ -26,7 +26,7 @@
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs } from 'cc.decorator';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { Camera } from '../../render-scene/scene';
 import { Root } from '../../root';
 
@@ -61,7 +61,7 @@ export class SphereLight extends Light {
     @displayOrder(-1)
     @tooltip('i18n:lights.luminous_flux')
     get luminousFlux () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(this._size);
         } else {
@@ -69,7 +69,7 @@ export class SphereLight extends Light {
         }
     }
     set luminousFlux (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
             this._luminanceHDR = val / scene.nt2lm(this._size);
@@ -88,7 +88,7 @@ export class SphereLight extends Light {
     @displayOrder(-1)
     @tooltip('i18n:lights.luminance')
     get luminance () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -96,7 +96,7 @@ export class SphereLight extends Light {
         }
     }
     set luminance (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
             this._light && (this._light.luminanceHDR = this._luminanceHDR);
