@@ -188,7 +188,6 @@ CCProgram ray-query-fs %{
 
   #if __VERSION__ >= 460
     #include <builtin/uniforms/cc-acceleration-structure>
-    
   #endif
 
   in vec3 v_position;
@@ -374,7 +373,6 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
                 tMin = 0.01f;
 
                 if(instanceId != 0 && instanceId != 7){
-
                     if(instanceId == 1){
                       s.albedo.rgb = vec3(0.0,0.0,1.0);
                     }else if(instanceId == 2){
