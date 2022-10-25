@@ -1134,6 +1134,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.h
                  cocos/renderer/gfx-base/states/GFXBufferBarrier.h
                  cocos/renderer/gfx-base/states/GFXBufferBarrier.cpp
+                 cocos/renderer/gfx-base/allocator/Allocator.h
+                 cocos/renderer/gfx-base/allocator/Allocator.cpp
 
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
