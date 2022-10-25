@@ -123,7 +123,7 @@ export class LOD {
     /**
      * @en Insert a [[MeshRenderer]] before specific index position.
      * @zh 在指定的数组索引处插入一个[[MeshRenderer]]
-     * @param index 0 indexed position in renderer array, when -1 is specified, append to the tail of the list
+     * @param index, the rendering array is indexed from 0. If - 1 is passed, it will be added to the end of the list.
      * @param renderer the mesh-renderer object
      * @returns The renderer inserted
      */
