@@ -1665,6 +1665,8 @@ if(CC_USE_METAL)
                              cocos/renderer/gfx-metal/MTLSemaphore.h
                              cocos/renderer/gfx-metal/MTLSwapchain.h
                              cocos/renderer/gfx-metal/MTLSwapchain.mm
+                             cocos/renderer/gfx-metal/MTLTransientPool.h
+                             cocos/renderer/gfx-metal/MTLTransientPool.mm
     )
 endif()
 
