@@ -25,10 +25,16 @@
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
+          vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
-            vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-            shadow = CCSpotShadowFactorBase(shadowPos, worldPos, shadowBias);
+            shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+            shadow = CCSpotShadowFactorBase(shadowNDCPosWithBias, shadowPos, worldPos, shadowBias);
           }
+          #if CC_SURFACES_LIGHTING_TRANSMITTENCE
+            lightingData.shadowPosAndDepth.xy = shadowNDCPosWithBias.xy;
+            lightingData.shadowPosAndDepth.z = shadowPos.z;
+            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Perspective(SampleShadowMap(shadowNDCPosWithBias.xyz, cc_spotShadowMap), shadowNDCPosWithBias.w, cc_shadowInvProjDepthInfo.x, cc_shadowInvProjDepthInfo.y);
+          #endif
         }
       #endif
       
@@ -49,6 +55,13 @@
 
         lightingResult.directDiffuse += diffuseLighting * multiplier;
         lightingResult.directSpecular += specularLighting * multiplier;
+
+        #if CC_SURFACES_LIGHTING_TRANSMITTENCE
+          lightingResult.transmittence = CCSurfacesLightingCalculateDirectTransmittence(lightingResult, lightingData, cc_lightColor[i]);
+        #endif
+        #if CC_SURFACES_LIGHTING_TRT
+          CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingData, cc_lightColor[i]);
+        #endif
       }
     }
   #else
@@ -66,18 +79,24 @@
       lightingResult.shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_mainLitDir.w > 0.0) {
+          vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             if (cc_shadowLPNNInfo.w > 0.0) {
               #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
-                lightingResult.shadow = CCCSMFactorBase(surfaceData.worldPos, lightingData.N, shadowBias);
+                lightingResult.shadow = CCCSMFactorBase(shadowPos, shadowNDCPosWithBias, surfaceData.worldPos, lightingData.N, shadowBias);
               #endif
             } else {
               #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_UNIFORM
-                vec4 shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
-                lightingResult.shadow = CCShadowFactorBase(shadowPos, lightingData.N, shadowBias);
+                shadowPos = cc_matLightViewProj * vec4(surfaceData.worldPos, 1.0);
+                lightingResult.shadow = CCShadowFactorBase(shadowPos, shadowNDCPosWithBias, lightingData.N, shadowBias);
               #endif
             }
           }
+          #if CC_SURFACES_LIGHTING_TRANSMITTENCE
+            lightingData.shadowPosAndDepth.xy = shadowNDCPosWithBias.xy;
+            lightingData.shadowPosAndDepth.z = shadowPos.z;
+            lightingData.shadowPosAndDepth.w = GetViewSpaceDepthFromNDCDepth_Orthgraphic(SampleShadowMap(shadowNDCPosWithBias.xyz, cc_shadowMap), cc_shadowProjDepthInfo.x, cc_shadowProjDepthInfo.y);
+          #endif
         }
       #endif
 
@@ -98,9 +117,18 @@
       #endif
 
       // apply SSR, local probe & global probe
-      CCSurfacesLightingCalculateEnvironment(lightingResult, lightingData);
+      CCSurfacesLightingCalculateEnvironment(lightingResult.environmentDiffuse, lightingResult.environmentSpecular, lightingData, cc_ambientSky.w);
       
-      // CCSurfacesLightingCalculateTransmittence(lightingResult, lightingData, shadowPos);
+      #if CC_SURFACES_LIGHTING_TRANSMITTENCE
+        lightingResult.transmittence = CCSurfacesLightingCalculateDirectTransmittence(lightingResult, lightingData, cc_mainLitColor);
+        lightingResult.transmittence += CCSurfacesLightingCalculateEnvironmentTransmittence(lightingResult, lightingData, cc_ambientSky.w);
+      #endif
+      #if CC_SURFACES_LIGHTING_TRT
+      LightingIntermediateData lightingDataTRT;
+        CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
+        CCSurfacesLightingCalculateDirectTRT(lightingResult.directTRT, lightingDataTRT, cc_mainLitColor);
+        CCSurfacesLightingCalculateEnvironmentTRT(lightingResult.environmentTRT, lightingDataTRT, cc_ambientSky.w);
+      #endif
 
       // apply screen-space shadow and ao
       // lightingResult.shadow/ao *= XXX;

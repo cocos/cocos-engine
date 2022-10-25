@@ -68,8 +68,6 @@ public:
     void updateAccelerationStructure(AccelerationStructure* accel) override;
     void compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) override;
 
-    CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
-
 protected:
     friend class CCVKQueue;
 
@@ -81,7 +79,7 @@ protected:
 
     void bindDescriptorSets(VkPipelineBindPoint bindPoint);
 
-    CCVKGPUCommandBuffer *_gpuCommandBuffer = nullptr;
+    IntrusivePtr<CCVKGPUCommandBuffer> _gpuCommandBuffer;
 
     ConstPtr<CCVKGPUPipelineState> _curGPUPipelineState;
     ccstd::vector<ConstPtr<CCVKGPUDescriptorSet>> _curGPUDescriptorSets;

@@ -196,6 +196,10 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
         resourceGraph);
 }
 
+void NativePipeline::updateRenderWindow(const ccstd::string& name, scene::RenderWindow* renderWindow) {
+
+}
+
 void NativePipeline::beginFrame() {
 }
 
