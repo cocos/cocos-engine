@@ -746,7 +746,7 @@ export class Director extends EventTarget {
     }
 
     private setupRenderPipelineBuilder () {
-        if (this._root && this._root.usesCustomPipeline && legacyCC.rendering) {
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this._root && this._root.usesCustomPipeline) {
             legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
     }
