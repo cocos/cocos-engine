@@ -401,15 +401,11 @@ export class SubModel {
 
         // to invoke getter/setter function for wasm object
         if (this._inputAssembler && drawInfo) {
-            const dirtyDrawInfo = this._inputAssembler.drawInfo; //drawinfo getter
-            dirtyDrawInfo.vertexCount = drawInfo.vertexCount;
-            dirtyDrawInfo.firstVertex = drawInfo.firstVertex;
-            dirtyDrawInfo.indexCount = drawInfo.indexCount;
-            dirtyDrawInfo.firstIndex = drawInfo.firstIndex;
-            dirtyDrawInfo.vertexOffset = drawInfo.vertexOffset;
-            dirtyDrawInfo.instanceCount = drawInfo.instanceCount;
-            dirtyDrawInfo.firstInstance = drawInfo.firstInstance;
-            this._inputAssembler.drawInfo = dirtyDrawInfo; //drawinfo setter
+            const dirtyDrawInfo = this._inputAssembler.drawInfo;
+            Object.keys(drawInfo).forEach((key) => {
+                dirtyDrawInfo[key] = drawInfo[key];
+            });
+            this._inputAssembler.drawInfo = dirtyDrawInfo;
         }
     }
 
