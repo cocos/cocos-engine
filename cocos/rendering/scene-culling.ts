@@ -183,7 +183,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     updateCachedLODModels(scene.lodGroups, camera);
     for (let i = 0; i < models.length; i++) {
-        const model = models[i];
-        enqueueRenderObject(model);
+        enqueueRenderObject(models[i]);
     }
 }
