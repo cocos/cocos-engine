@@ -40,7 +40,6 @@ import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayCons
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
-import { SH } from '../../gi/light-probe/sh';
 import { legacyCC } from '../../core/global-exports';
 
 const m4_1 = new Mat4();
@@ -618,7 +617,7 @@ export class Model {
         }
 
         const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
-        if (!lightProbes.available()) {
+        if (!lightProbes || !lightProbes.available()) {
             return false;
         }
 
@@ -648,13 +647,13 @@ export class Model {
         }
 
         const coefficients: Vec3[] = [];
-        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes!;
         this._tetrahedronIndex = lightProbes.data!.getInterpolationSHCoefficients(center, this._tetrahedronIndex, coefficients);
-        SH.reduceRinging(coefficients, lightProbes.reduceRinging);
+        legacyCC.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
         this._lastWorldBoundCenter.set(center);
 
         if (this._localSHData && this._localSHBuffer) {
-            SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
+            legacyCC.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
             this._localSHBuffer.update(this._localSHData);
         }
     }

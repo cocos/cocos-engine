@@ -27,9 +27,7 @@ import { DEBUG, JSB } from 'internal:constants';
 import { director } from '../../game/director';
 import { Material } from '../../asset/assets/material';
 import { TextureBase } from '../../asset/assets/texture-base';
-import { Color } from '../../core/math';
-import { Pool, RecyclePool } from '../../core/memop';
-import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
+import { Color, Pool, RecyclePool, murmurhash2_32_gc, assert } from '../../core';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
@@ -39,7 +37,6 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
 import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
-import { assert } from '../../core';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.

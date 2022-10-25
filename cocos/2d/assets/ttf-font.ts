@@ -25,9 +25,8 @@
 */
 
 import { ccclass, string, override, serializable } from 'cc.decorator';
-import { extname } from '../../core/utils/path';
+import { path, cclegacy } from '../../core';
 import { Font } from './font';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en Class for TTFFont asset.
@@ -58,7 +57,7 @@ export class TTFFont extends Font {
      */
     @override
     get _nativeDep () {
-        return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };
+        return { uuid: this._uuid, __nativeName__: this._native, ext: path.extname(this._native), __isNative__: true };
     }
 
     public initDefault (uuid?: string) {
@@ -67,4 +66,4 @@ export class TTFFont extends Font {
     }
 }
 
-legacyCC.TTFFont = TTFFont;
+cclegacy.TTFFont = TTFFont;

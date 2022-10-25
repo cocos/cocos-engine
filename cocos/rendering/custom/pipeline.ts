@@ -168,6 +168,7 @@ export interface Pipeline extends PipelineRuntime {
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void;
     beginFrame (): void;
     endFrame (): void;
     addRasterPass (width: number, height: number, layoutName: string, name: string): RasterPassBuilder;

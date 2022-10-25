@@ -28,19 +28,16 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multil
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID } from '../../core/platform';
+import { assert, warnID, Color, Vec2, CCObject, cclegacy } from '../../core';
+import Pool from '../../core/utils/pool';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
-import Pool from '../../core/utils/pool';
-import { Color, Vec2 } from '../../core/math';
 import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
 import { UITransform } from '../framework';
-import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../scene-graph/component';
-import { CCObject } from '../../core';
 import { NodeEventType } from '../../scene-graph/node-event';
 
 const _htmlTextParser = new HtmlTextParser();
@@ -54,7 +51,7 @@ const labelPool = new Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    if (!legacyCC.isValid(seg.node)) {
+    if (!cclegacy.isValid(seg.node)) {
         return false;
     } else {
         const outline = seg.node.getComponent(LabelOutline);
@@ -69,7 +66,7 @@ const imagePool = new Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    return legacyCC.isValid(seg.node) as boolean;
+    return cclegacy.isValid(seg.node) as boolean;
 }, 10);
 
 //
@@ -1284,4 +1281,4 @@ export class RichText extends Component {
     }
 }
 
-legacyCC.RichText = RichText;
+cclegacy.RichText = RichText;

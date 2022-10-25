@@ -27,7 +27,7 @@ import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
 } from 'cc.decorator';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
-import { Mat4 } from '../../core/math';
+import { Mat4, cclegacy, js } from '../../core';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../../animation/animation-clip';
@@ -35,8 +35,6 @@ import { Animation } from '../../animation/animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
-import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core/utils/js';
 import type { AnimationState } from '../../animation/animation-state';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getGlobalAnimationManager } from '../../animation/global-animation-manager';
@@ -180,7 +178,7 @@ export class SkeletalAnimation extends Animation {
 
     public onDestroy () {
         super.onDestroy();
-        (legacyCC.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
+        (cclegacy.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
         getGlobalAnimationManager().removeSockets(this.node, this._sockets);
         this._removeAllUsers();
     }

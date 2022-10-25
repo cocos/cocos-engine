@@ -16,7 +16,6 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 
-
 namespace cc {
 
 namespace render {
@@ -592,6 +591,9 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         RenderGraphCullVisitor visitor{{}, validPasses};
         for (const auto& vertID : fgd.resourceAccessGraph.culledPasses) {
             const auto passID = get(ResourceAccessGraph::PassID, fgd.resourceAccessGraph, vertID);
+            if (passID == RenderGraph::null_vertex()) {
+                continue;
+            }
             boost::depth_first_visit(graphView, passID, visitor, get(colors, rg));
         }
         colors.clear();

@@ -3517,6 +3517,39 @@ static bool js_cc_render_Pipeline_addDepthStencil(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addDepthStencil) 
 
+static bool js_cc_render_Pipeline_updateRenderWindow(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    cc::scene::RenderWindow *arg3 = (cc::scene::RenderWindow *) NULL ;
+    ccstd::string temp2 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_updateRenderWindow,2,SWIGTYPE_p_ccstd__string");
+    arg2 = &temp2;
+    
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_updateRenderWindow,3,SWIGTYPE_p_cc__scene__RenderWindow"); 
+    (arg1)->updateRenderWindow((ccstd::string const &)*arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_updateRenderWindow) 
+
 static bool js_cc_render_Pipeline_beginFrame(se::State& s)
 {
     // js_function
@@ -3963,6 +3996,7 @@ bool js_register_cc_render_Pipeline(se::Object* obj) {
     cls->defineFunction("addRenderTexture", _SE(js_cc_render_Pipeline_addRenderTexture)); 
     cls->defineFunction("addRenderTarget", _SE(js_cc_render_Pipeline_addRenderTarget)); 
     cls->defineFunction("addDepthStencil", _SE(js_cc_render_Pipeline_addDepthStencil)); 
+    cls->defineFunction("updateRenderWindow", _SE(js_cc_render_Pipeline_updateRenderWindow)); 
     cls->defineFunction("beginFrame", _SE(js_cc_render_Pipeline_beginFrame)); 
     cls->defineFunction("endFrame", _SE(js_cc_render_Pipeline_endFrame)); 
     cls->defineFunction("addRasterPass", _SE(js_cc_render_Pipeline_addRasterPass)); 

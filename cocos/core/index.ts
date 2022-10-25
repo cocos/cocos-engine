@@ -48,7 +48,8 @@ export * from './scheduler';
 export * from './algorithm/murmurhash2_gc';
 export * from './curves';
 export * from './settings';
-export { default as System } from './system';
+export * from './system';
+export { legacyCC as cclegacy } from './global-exports';
 
 export * from './curves/bezier';
 export { easing };

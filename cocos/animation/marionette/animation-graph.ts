@@ -1,6 +1,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { remove, removeIf } from '../../core/utils/array';
+import { remove, removeIf, removeAt } from '../../core/utils/array';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
@@ -13,7 +13,6 @@ import { MotionState } from './motion-state';
 import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
 import { AnimationMask } from './animation-mask';
 import { EditorExtendable } from '../../core/data/editor-extendable';
-import { array } from '../../core/utils/js';
 import { move } from '../../core/algorithm/move';
 import { onAfterDeserializedTag } from '../../core/data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
@@ -898,7 +897,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param index Index to the layer to remove.
      */
     public removeLayer (index: number) {
-        array.removeAt(this._layers, index);
+        removeAt(this._layers, index);
     }
 
     /**

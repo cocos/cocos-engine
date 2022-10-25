@@ -33,7 +33,7 @@ import {
 import { RenderData, MeshRenderData } from './renderer/render-data';
 import { MeshBuffer } from './renderer/mesh-buffer';
 import { StencilManager } from './renderer/stencil-manager';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import './event';
 
 import './renderer/batcher-2d';
@@ -56,7 +56,7 @@ export {
     earcut,
 };
 
-legacyCC.UI = {
+cclegacy.UI = {
     MeshBuffer,
     spriteAssembler,
     graphicsAssembler,

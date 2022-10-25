@@ -143,6 +143,7 @@ export class WebSetter {
         }
         if (!this._data.constants.get(num)) {
             const value = new Array(this._currCount);
+            value.fill(0);
             this._data.constants.set(num, value);
         }
         this.setCurrConstant(block);
@@ -198,6 +199,7 @@ function setShadowUBOLightView (setter: WebSetter,
     const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
     const cap = pipeline.device.capabilities;
     const _vec4ShadowInfo = new Vec4();
+    setter.addConstant('CCCSM');
     // ShadowMap
     setter.addConstant('CCShadow');
     switch (light.type) {
@@ -740,6 +742,13 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline implements Pipeline {
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void {
+        const resId = this.resourceGraph.vertex(name);
+        const currFbo = this.resourceGraph._vertices[resId]._object;
+        if (currFbo !== renderWindow.framebuffer) {
+            this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
+        }
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }

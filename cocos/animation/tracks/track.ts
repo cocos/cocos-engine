@@ -1,11 +1,10 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import { SUPPORT_JIT } from 'internal:constants';
 import type { Component } from '../../scene-graph/component';
-import type { ObjectCurve, QuatCurve, RealCurve } from '../../core/curves';
+import type { ObjectCurve, QuatCurve, RealCurve } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { errorID, warnID } from '../../core/platform';
+import { errorID, warnID, js } from '../../core';
 import { Node } from '../../scene-graph';
-import { js } from '../../core/utils/js';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import type { AnimationMask } from '../marionette/animation-mask';
 import { PoseOutput } from '../pose-output';
