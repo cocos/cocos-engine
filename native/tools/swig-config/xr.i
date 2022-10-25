@@ -6,8 +6,6 @@
 
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
-// TODO(): need to insert macro_judgement
-// #if (CC_USE_XR > 0)
 #pragma once
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
@@ -18,8 +16,6 @@
 
 // Insert code at the beginning of generated source file (.cpp)
 %{
-// TODO(): need to insert macro_judgement
-// #if (CC_USE_XR > 0)
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "xr/Xr.h"
