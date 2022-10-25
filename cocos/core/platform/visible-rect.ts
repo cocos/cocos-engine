@@ -29,6 +29,7 @@ import { legacyCC } from '../global-exports';
 
 /**
  * `visibleRect` is a singleton object which defines the actual visible rect of the current view
+ * @engineInternal
  */
 export const visibleRect = {
     /**
