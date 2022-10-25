@@ -26,8 +26,7 @@
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include <functional>
 #include <future>
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
 #include "platform/IEventDispatch.h"
 #include "platform/java/jni/JniImp.h"
@@ -150,22 +149,6 @@ int JniNativeGlue::readCommandWithTimeout(CommandMsg* cmd, int delayMS) {
     return _messagePipe->readCommandWithTimeout(cmd, sizeof(CommandMsg), delayMS);
 }
 
-void JniNativeGlue::setEventDispatch(IEventDispatch* eventDispatcher) {
-    _eventDispatcher = eventDispatcher;
-}
-
-void JniNativeGlue::dispatchEvent(const OSEvent& ev) {
-    if (_eventDispatcher) {
-        _eventDispatcher->dispatchEvent(ev);
-    }
-}
-
-void JniNativeGlue::dispatchTouchEvent(const TouchEvent& ev) {
-    if (_eventDispatcher) {
-        _eventDispatcher->dispatchTouchEvent(ev);
-    }
-}
-
 bool JniNativeGlue::isPause() const {
     if (!_animating) {
         return true;
@@ -236,38 +219,24 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
                 isWindowInitialized = true;
                 return;
             }
-            cc::CustomEvent event;
-            event.name = EVENT_RECREATE_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandle());
-            dispatchEvent(event);
+            cc::event::broadcast<cc::events::WindowRecreated>(reinterpret_cast<void*>(getWindowHandle()));
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
-            cc::CustomEvent event;
-            event.name = EVENT_DESTROY_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandle());
-            dispatchEvent(event);
+            cc::event::broadcast<cc::events::WindowDestroy>(reinterpret_cast<void*>(getWindowHandle()));
         } break;
         case JniCommand::JNI_CMD_RESUME: {
-            WindowEvent ev;
-            ev.type = WindowEvent::Type::SHOW;
-            dispatchEvent(ev);
+            cc::event::broadcast<events::WindowChanged>(WindowEvent::Type::SHOW);
         } break;
         case JniCommand::JNI_CMD_PAUSE: {
-            WindowEvent ev;
-            ev.type = WindowEvent::Type::HIDDEN;
-            dispatchEvent(ev);
+            cc::event::broadcast<events::WindowChanged>(WindowEvent::Type::HIDDEN);
         } break;
         case JniCommand::JNI_CMD_DESTROY: {
             LOGV("APP_CMD_DESTROY");
-            WindowEvent ev;
-            ev.type = WindowEvent::Type::CLOSE;
-            dispatchEvent(ev);
+            cc::event::broadcast<events::WindowChanged>(WindowEvent::Type::CLOSE);
             setRunning(false);
         } break;
         case JniCommand::JNI_CMD_LOW_MEMORY: {
-            DeviceEvent ev;
-            ev.type = DeviceEvent::Type::MEMORY;
-            dispatchEvent(ev);
+            cc::event::broadcast<events::LowMemory>(); 
             break;
         }
         default:

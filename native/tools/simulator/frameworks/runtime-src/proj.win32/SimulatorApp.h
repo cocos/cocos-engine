@@ -30,6 +30,7 @@
 #include "ProjectConfig/SimulatorConfig.h"
 #include "Resource.h"
 #include "stdafx.h"
+#include "CustomAppEvent.h"
 
 #include <memory>
 
@@ -60,6 +61,8 @@ protected:
     HWND                 _hwndConsole;
 
     FILE *_writeDebugLogFile;
+
+    cc::event::Listener<SimulatorAppEvent> _appListener;
 
     //
     void setupUI();

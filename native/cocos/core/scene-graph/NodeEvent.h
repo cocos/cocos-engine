@@ -28,7 +28,6 @@
 #include "core/event/CallbacksInvoker.h"
 
 namespace cc {
-
 class NodeEventType {
 public:
     static const CallbacksInvoker::KeyType TOUCH_START;

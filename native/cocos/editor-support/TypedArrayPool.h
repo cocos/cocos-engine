@@ -28,6 +28,7 @@
 #include <vector>
 #include "MiddlewareMacro.h"
 #include "SeApi.h"
+#include "bindings/event/EventDispatcher.h"
 
 MIDDLEWARE_BEGIN
 /** 
@@ -74,6 +75,8 @@ private:
 
     typeMap _pool;
     bool _allowPush = true;
+
+    cc::event::Listener<cc::events::Close> _closeListener;
 
 public:
     /**

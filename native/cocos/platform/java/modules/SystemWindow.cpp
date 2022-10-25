@@ -101,7 +101,7 @@ void SystemWindow::closeWindow() {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     finishActivity();
 #else
-    cc::EventDispatcher::dispatchCloseEvent();
+    cc::event::broadcast<cc::events::Close>();
     exit(0); //TODO(cc): better exit for ohos
 #endif
 }

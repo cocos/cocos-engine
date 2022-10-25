@@ -29,7 +29,6 @@
 #include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
 #include "core/event/CallbacksInvoker.h"
-#include "core/event/EventTypesToJS.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -47,6 +46,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
+#include "engine/EngineEvents.h"
 
 namespace cc {
 
@@ -61,7 +61,6 @@ Root *Root::getInstance() {
 Root::Root(gfx::Device *device)
 : _device(device) {
     instance = this;
-    _eventProcessor = new CallbacksInvoker();
     // TODO(minggo):
     //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
 
@@ -71,7 +70,6 @@ Root::Root(gfx::Device *device)
 
 Root::~Root() {
     destroy();
-    CC_SAFE_DELETE(_eventProcessor);
     instance = nullptr;
 }
 
@@ -402,8 +400,7 @@ void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const c
 
 void Root::frameMoveEnd() {
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
-        _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_COMMIT, this);
-
+        emit<BeforeCommit>();
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
             return a->getPriority() < b->getPriority();
         });
@@ -416,7 +413,7 @@ void Root::frameMoveEnd() {
             }
         }
     #endif
-        _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_RENDER, this);
+        emit<BeforeRender>();
         _pipelineRuntime->render(_cameraList);
 #endif
         _device->present();
@@ -624,22 +621,24 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 }
 
 void Root::addWindowEventListener() {
-    _windowDestroyEventId = EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &e) -> void {
+    _windowDestroyEventId.bind([this](void * ptr) -> void {
+        auto intVal = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ptr));
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowDestroy(static_cast<uint32_t>(e.args[0].intVal));
+            window->onNativeWindowDestroy(static_cast<uint32_t>(intVal));
         }
     });
 
-    _windowResumeEventId = EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &e) -> void {
+    _windowRecreatedEventId.bind([this](void * ptr) -> void {
+        auto intVal = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ptr));
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowResume(static_cast<uint32_t>(e.args[0].intVal));
+            window->onNativeWindowResume(static_cast<uint32_t>(intVal));
         }
     });
 }
 
 void Root::removeWindowEventListener() const {
-    EventDispatcher::removeCustomEventListener(EVENT_DESTROY_WINDOW, _windowDestroyEventId);
-    EventDispatcher::removeCustomEventListener(EVENT_RECREATE_WINDOW, _windowResumeEventId);
+    _windowDestroyEventId.reset();
+    _windowRecreatedEventId.reset();
 }
 
 } // namespace cc

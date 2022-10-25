@@ -384,6 +384,16 @@ cocos_source_files(
     cocos/plugins/bus/EventBus.cpp
 )
 
+cocos_source_files(
+    cocos/event/Event.h
+    cocos/event/EventBus.h
+    cocos/event/EventBus.cpp
+    cocos/event/EventTarget.h
+    cocos/event/intl/EventIntl.h
+    cocos/event/intl/EventTargetMacros.h
+    cocos/event/intl/EventBusMacros.h
+)
+
 ##### base
 cocos_source_files(
     cocos/base/Agent.h
@@ -484,7 +494,6 @@ endif()
 
 ############ platform
 cocos_source_files(
-    cocos/platform/IEventDispatch.h
     cocos/platform/BasePlatform.cpp
     cocos/platform/BasePlatform.h
     cocos/platform/UniversalPlatform.cpp
@@ -1990,8 +1999,8 @@ cocos_source_files(
 
     cocos/core/event/CallbacksInvoker.cpp
     cocos/core/event/CallbacksInvoker.h
-    cocos/core/event/EventTypesToJS.h
-    cocos/core/event/EventTypesToJS.cpp
+    # cocos/core/event/EventTypesToJS.h
+    # cocos/core/event/EventTypesToJS.cpp
     # cocos/core/event/Event.cpp
     # cocos/core/event/Event.h
     # cocos/core/scene-graph/Find.cpp
@@ -2004,10 +2013,10 @@ cocos_source_files(
     # cocos/core/scene-graph/NodeActivator.cpp
     # cocos/core/scene-graph/NodeActivator.h
     cocos/core/scene-graph/NodeEnum.h
-    cocos/core/scene-graph/NodeEvent.cpp
-    cocos/core/scene-graph/NodeEvent.h
-    cocos/core/scene-graph/NodeEventProcessor.cpp
-    cocos/core/scene-graph/NodeEventProcessor.h
+    # cocos/core/scene-graph/NodeEvent.cpp
+    # cocos/core/scene-graph/NodeEvent.h
+    # cocos/core/scene-graph/NodeEventProcessor.cpp
+    # cocos/core/scene-graph/NodeEventProcessor.h
     # cocos/core/scene-graph/NodeUIProperties.cpp
     # cocos/core/scene-graph/NodeUIProperties.h
     cocos/core/scene-graph/Scene.cpp
@@ -2635,7 +2644,6 @@ cocos_source_files(
 )
 
 cocos_source_files(
-                 cocos/bindings/event/CustomEventTypes.h
                  cocos/bindings/event/EventDispatcher.cpp
                  cocos/bindings/event/EventDispatcher.h
 )

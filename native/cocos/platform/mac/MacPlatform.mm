@@ -148,7 +148,7 @@ void MacPlatform::onPause() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
-    dispatchEvent(ev);
+    cc::event::broadcast<cc::events::WindowEvent>(ev);
 }
 
 void MacPlatform::onResume() {
@@ -156,13 +156,13 @@ void MacPlatform::onResume() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
-    dispatchEvent(ev);
+    cc::event::broadcast<cc::events::WindowEvent>(ev);
 }
 
 void MacPlatform::onClose() {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::CLOSE;
-    dispatchEvent(ev);
+    cc::event::broadcast<cc::events::WindowEvent>(ev);
 }
 
 cc::ISystemWindow *MacPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) { 

@@ -36,7 +36,7 @@ class ISystemWindow;
 
 class SystemWindowManager : public ISystemWindowManager {
 public:
-    SystemWindowManager(IEventDispatch *delegate);
+    SystemWindowManager() = default;
 
     int init() override;
     void processEvent(bool *quit) override;

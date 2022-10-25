@@ -36,6 +36,7 @@
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
+#include "engine/BaseEngine.h"
 
 namespace cc {
 
@@ -581,6 +582,8 @@ public:
     void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
+private:
+    BaseEngine::EngineStatusChange::eventid_type _engineListener;
 protected:
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
     static ccstd::vector<MacroRecord> generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value);

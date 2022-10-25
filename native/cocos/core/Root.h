@@ -26,7 +26,9 @@
 
 #include <cstdint>
 //#include "3d/skeletal-animation/DataPoolManager.h"
+#include "bindings/event/EventDispatcher.h"
 #include "core/memop/Pool.h"
+#include "event/Event.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
@@ -34,6 +36,7 @@
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
+
 
 namespace cc {
 class IXRInterface;
@@ -63,9 +66,12 @@ struct CC_DLL DebugViewConfig {
 struct ISystemWindowInfo;
 class ISystemWindow;
 
-class Root final {
+class Root final : public cc::event::EventTarget {
+    IMPL_EVENT_TARGET(Root)
+    DECLARE_TARGET_EVENT0(BeforeCommit, Root)
+    DECLARE_TARGET_EVENT0(BeforeRender, Root)
 public:
-    static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
+    static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
     ~Root();
 
@@ -156,7 +162,7 @@ public:
 #ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
-        //cjh TODO: need use model pool?
+        // cjh TODO: need use model pool?
         T *model = ccnew T();
         model->initialize();
         return model;
@@ -168,7 +174,7 @@ public:
 #ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
-        //TODO(xwx): need use model pool?
+        // TODO(xwx): need use model pool?
         T *light = ccnew T();
         light->initialize();
         return light;
@@ -287,8 +293,6 @@ public:
 
     inline bool isUsingDeferredPipeline() const { return _useDeferredPipeline; }
 
-    inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
-
     scene::RenderWindow *createRenderWindowFromSystemWindow(uint32_t windowId);
     scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
 
@@ -324,10 +328,10 @@ private:
     uint32_t _fixedFPS{0};
     bool _useDeferredPipeline{false};
     bool _usesCustomPipeline{true};
-    CallbacksInvoker *_eventProcessor{nullptr};
     IXRInterface *_xr{nullptr};
-    uint32_t _windowDestroyEventId{0};
-    uint32_t _windowResumeEventId{0};
+    mutable cc::event::Listener<events::WindowDestroy> _windowDestroyEventId;
+    mutable cc::event::Listener<events::WindowRecreated> _windowRecreatedEventId;
+
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;

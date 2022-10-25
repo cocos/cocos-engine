@@ -29,13 +29,11 @@
 
 #include "base/Scheduler.h"
 #include "base/TypeDef.h"
-#include "core/event/CallbacksInvoker.h"
 #include "platform/BasePlatform.h"
 
 namespace cc {
 
-class CC_DLL BaseEngine : public CallbacksInvoker,
-                          public std::enable_shared_from_this<BaseEngine> {
+class CC_DLL BaseEngine : public std::enable_shared_from_this<BaseEngine>, public cc::event::EventTarget {
 public:
     enum EngineStatus {
         ON_START,
@@ -44,9 +42,11 @@ public:
         ON_CLOSE,
         UNKNOWN,
     };
-    ~BaseEngine() override;
+    virtual ~BaseEngine();
     using Ptr = std::shared_ptr<BaseEngine>;
 
+    IMPL_EVENT_TARGET(BaseEngine)
+    DECLARE_TARGET_EVENT1(EngineStatusChange, BaseEngine, EngineStatus)
     /**
      @brief Get operating system interface template.
      */
@@ -93,16 +93,6 @@ public:
      * @param fps The preferred frame rate for main loop callback.
      */
     virtual void setPreferredFramesPerSecond(int fps) = 0;
-
-    using EventCb = std::function<void(const OSEvent &)>;
-    /**
-     @brief Add listening event callback.
-     */
-    virtual void addEventCallback(OSEventType evtype, const EventCb &cb) = 0;
-    /**
-     @brief Remove listening event callback.
-     */
-    virtual void removeEventCallback(OSEventType evtype) = 0;
 
     using SchedulerPtr = std::shared_ptr<Scheduler>;
     /**

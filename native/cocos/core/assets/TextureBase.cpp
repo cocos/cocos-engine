@@ -26,7 +26,6 @@
 #include "core/assets/TextureBase.h"
 #include "base/StringUtil.h"
 #include "cocos/core/platform/Debug.h"
-#include "core/event/EventTypesToJS.h"
 #include "core/utils/IDGenerator.h"
 
 #include "renderer/gfx-base/GFXDevice.h"
@@ -185,7 +184,8 @@ bool TextureBase::isCompressed() const {
 }
 
 void TextureBase::notifySamplerUpdated() {
-    emit(EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED, _gfxSampler);
+    // emit(EventTypesToJS::TEXTURE_BASE_GFX_SAMPLER_UPDATED, _gfxSampler);
+    emit<SamplerUpdated>(_gfxSampler);
 }
 
 } // namespace cc

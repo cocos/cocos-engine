@@ -29,7 +29,6 @@
 #include "MiddlewareMacro.h"
 #include "base/Log.h"
 #include "base/Macros.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 
 #define POOL_DEBUG 0
@@ -51,7 +50,7 @@ const static std::size_t MAX_POOL_SIZE = 50;
 TypedArrayPool *TypedArrayPool::instance = nullptr;
 
 TypedArrayPool::TypedArrayPool() {
-    cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [this](const CustomEvent &) {
+    _closeListener.bind([this]() {
         clearPool();
     });
 }

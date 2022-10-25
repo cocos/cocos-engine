@@ -30,30 +30,3 @@
 //
 
 #include "CustomAppEvent.h"
-
-CustomAppEvent::CustomAppEvent(const std::string& eventName, int type)
-: CustomEvent()
-, _eventName(eventName)
-{
-    name = eventName;
-    setEventType(type);
-}
-
-void CustomAppEvent::setEventType(int type)
-{
-    _eventType = type;
-}
-int  CustomAppEvent::getEventType()
-{
-    return _eventType;
-}
-
-void CustomAppEvent::setDataString(std::string data)
-{
-    _dataString = data;
-}
-
-std::string CustomAppEvent::getDataString()
-{
-    return _dataString;
-}

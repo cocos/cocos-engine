@@ -26,12 +26,13 @@
 #include "base/std/container/string.h"
 #include "JsbBridge.h"
 #include "JsbBridgeWrapper.h"
-#include "cocos/bindings/event/EventDispatcher.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
+#include "engine/EngineEvents.h"
+#include "event/Event.h"
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;
     NSMutableDictionary<NSString*, NSMutableArray<OnScriptEventListener>*>* cbDictionnary;
+    cc::event::Listener<cc::events::Close> closeListener;
 }
 
 static JsbBridgeWrapper* instance = nil;
@@ -116,7 +117,7 @@ static ICallback cb = ^void(NSString* _event, NSString* _arg) {
             return nil;
         }
         [jb setCallback:cb];
-        cc::EventDispatcher::addCustomEventListener(EVENT_CLOSE, [&](const cc::CustomEvent& event){
+        closeListener.bind([&](){
             if ([JsbBridgeWrapper sharedInstance] != nil) {
                 [[JsbBridgeWrapper sharedInstance] release];
             }

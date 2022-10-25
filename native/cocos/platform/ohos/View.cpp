@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 #include "View.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/Application.h"
 #include "platform/ohos//jni/JniCocosAbility.h"
 #include "platform/ohos/jni/AbilityConsts.h"
@@ -44,17 +43,11 @@ void View::engineHandleCmd(int cmd) {
                 isWindowInitialized = true;
                 return;
             } else {
-                cc::CustomEvent event;
-                event.name = EVENT_RECREATE_WINDOW;
-                event.args->ptrVal = cocosApp.pendingWindow;
-                cc::EventDispatcher::dispatchCustomEvent(event);
+                cc::event::broadcast<events::WindowRecreated>(cocosApp.pendingWindow);
             }
             break;
         case ABILITY_CMD_TERM_WINDOW: {
-            cc::CustomEvent event;
-            event.name = EVENT_DESTROY_WINDOW;
-            event.args->ptrVal = cocosApp.pendingWindow;
-            cc::EventDispatcher::dispatchCustomEvent(event);
+            cc::event::broadcast<events::WindowDestroy>(cocosApp.pendingWindow);
         } break;
         case ABILITY_CMD_RESUME:
             if (Application::getInstance()) {
@@ -67,7 +60,7 @@ void View::engineHandleCmd(int cmd) {
             }
             break;
         case ABILITY_CMD_LOW_MEMORY:
-            cc::EventDispatcher::dispatchMemoryWarningEvent();
+            cc::event::broadcast<events::LowMemory>();
             break;
         default:
             break;

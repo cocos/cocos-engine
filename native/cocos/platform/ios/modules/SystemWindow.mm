@@ -46,7 +46,7 @@ void SystemWindow::copyTextToClipboard(const std::string& text) {
 }
 void SystemWindow::closeWindow() {
     // Force quit as there's no API to exit UIApplication
-    cc::EventDispatcher::dispatchCloseEvent();
+    cc::event::broadcast<cc::events::Close>();
     exit(0);
 }
 uintptr_t SystemWindow::getWindowHandle() const {

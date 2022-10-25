@@ -33,10 +33,10 @@
 #include "core/assets/RenderingSubMesh.h"
 #include "core/assets/Texture2D.h"
 #include "core/builtin/BuiltinResMgr.h"
-#include "core/event/CallbacksInvoker.h"
 #include "core/geometry/AABB.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/Node.h"
+#include "event/Event.h"
 #include "renderer/gfx-base/GFXBuffer.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/gfx-base/GFXTexture.h"
@@ -57,7 +57,16 @@ class Octree;
 class Pass;
 struct IMacroPatch;
 
-class Model : public RefCounted {
+class Model : public RefCounted, public cc::event::EventTarget {
+    IMPL_EVENT_TARGET(Model)
+
+    DECLARE_TARGET_EVENT1(UpdateTransform, Model, uint32_t)
+    DECLARE_TARGET_EVENT1(UpdateUBO, Model, uint32_t)
+    DECLARE_TARGET_EVENT2(UpdateLocalSHDescriptor, Model, index_t, gfx::DescriptorSet *)
+    DECLARE_TARGET_EVENT2(UpdateLocalDescriptors, Model, index_t, gfx::DescriptorSet *)
+    DECLARE_TARGET_EVENT2(UpdateWorldBound, Model, index_t, gfx::DescriptorSet *)
+    DECLARE_TARGET_EVENT2(UpdateInstancedAttributes, Model, const std::vector<gfx::Attribute> &, SubModel *)
+    DECLARE_TARGET_EVENT2(GetMacroPatches, Model, index_t, std::vector<IMacroPatch> *)
 public:
     enum class Type {
         DEFAULT,
@@ -170,7 +179,6 @@ public:
 
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }
-    inline CallbacksInvoker &getEventProcessor() { return _eventProcessor; }
     inline void setLocalDataUpdated(bool v) { _localDataUpdated = v; }
     inline void setWorldBounds(geometry::AABB *bounds) {
         _worldBounds = bounds;

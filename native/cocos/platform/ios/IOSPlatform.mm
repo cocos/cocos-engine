@@ -133,7 +133,7 @@ void IOSPlatform::onPause() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
-    dispatchEvent(ev);
+    cc::event::broadcast<cc::events::WindowEvent>(ev);
 }
 
 void IOSPlatform::onResume() {
@@ -141,13 +141,13 @@ void IOSPlatform::onResume() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
-    dispatchEvent(ev);
+    cc::event::broadcast<cc::events::WindowEvent>(ev);
 }
 
 void IOSPlatform::onClose() {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::CLOSE;
-    dispatchEvent(ev);
+    cc::event::broadcast<cc::events::WindowEvent>(ev);
 }
 
 ISystemWindow *IOSPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {

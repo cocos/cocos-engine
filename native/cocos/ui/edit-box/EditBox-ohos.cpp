@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "EditBox.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
 //#include "platform/Application.h"
