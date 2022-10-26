@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { js, markAsWarning } from "./utils";
+import { js, markAsWarning } from './utils';
 
- markAsWarning(js, 'js', [
+markAsWarning(js, 'js', [
     {
         name: 'js',
         suggest: `'js.js' is deprecated since v3.7.0, please access 'js' directly instead.`,

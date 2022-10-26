@@ -102,7 +102,7 @@ export function fastRemove<T> (array: T[], value: T) {
  * @en
  * Removes the first occurrence of a specific object from the array where `predicate` is `true`.
  * @param array @zh 被操作的数组。@en The array to be operated.
- * @param predicate @zh 一元谓词，如果要元素的话，需要返回 true。@en unary predicate which returns ​true if the element should be removed.
+ * @param predicate @zh 一元谓词，如果要元素的话，需要返回 true。@en unary predicate which returns true if the element should be removed.
  */
 export function removeIf<T> (array: T[], predicate: (value: T) => boolean) {
     const index = array.findIndex(predicate);
