@@ -35,7 +35,7 @@ import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../core/global-exports';
 import { Camera } from './camera-component';
 import { scene } from '../render-scene';
-import { ProbeClearFlag, ProbeType } from '../render-scene/scene';
+import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 
 export const ProbeResolution = Enum({
     /**
