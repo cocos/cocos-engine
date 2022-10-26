@@ -253,7 +253,7 @@ export class ReflectionProbe extends Component {
         }
     }
 
-    public async bakeTexture () {
+    public async bakeCubemap () {
         if (this.probeType === ProbeType.CUBE) {
             await this.captureCube();
         }
