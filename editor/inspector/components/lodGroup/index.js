@@ -148,7 +148,7 @@ exports.template = `
             <ui-prop>
                 <ui-label slot="label" value="Object Size"></ui-label>
                 <div class="object-size-content" slot="content">
-                    <ui-num-input min="0" max="1" step="0.01" preci="2"
+                    <ui-num-input min="0" step="0.01"
                         :value="dump.value && dump.value.objectSize && dump.value.objectSize.value"
                         @confirm="onObjectSizeConfirm($event)"
                     >
