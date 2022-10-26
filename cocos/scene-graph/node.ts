@@ -40,7 +40,7 @@ import { CCObject } from '../core/data/object';
 import * as js from '../core/utils/js';
 import IdGenerator from '../core/utils/id-generator';
 import type { Scene } from './scene';
-import { PrefabInfo } from '../core/utils/prefab/prefab-info';
+import { PrefabInfo } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
 import { Event } from '../input/types';
 
