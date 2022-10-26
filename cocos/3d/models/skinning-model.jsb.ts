@@ -1,4 +1,4 @@
-import { legacyCC } from "../../core/global-exports";
+import { cclegacy } from "../../core";
 
 export const SkinningModel = jsb.SkinningModel;
-legacyCC.SkinningModel = jsb.SkinningModel;
+cclegacy.SkinningModel = jsb.SkinningModel;

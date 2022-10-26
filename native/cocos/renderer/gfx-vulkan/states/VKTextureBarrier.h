@@ -25,23 +25,23 @@
 
 #pragma once
 
+#include <memory>
 #include "../VKStd.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
 
 namespace cc {
 namespace gfx {
-
 struct CCVKGPUTextureBarrier;
 
 class CC_VULKAN_API CCVKTextureBarrier : public TextureBarrier {
 public:
     explicit CCVKTextureBarrier(const TextureBarrierInfo &info);
-    ~CCVKTextureBarrier() override;
+    ~CCVKTextureBarrier() override = default;
 
-    inline const CCVKGPUTextureBarrier *gpuBarrier() const { return _gpuBarrier; }
+    inline const CCVKGPUTextureBarrier *gpuBarrier() const { return _gpuBarrier.get(); }
 
 protected:
-    CCVKGPUTextureBarrier *_gpuBarrier = nullptr;
+    std::unique_ptr<CCVKGPUTextureBarrier> _gpuBarrier;
 };
 
 } // namespace gfx

@@ -143,6 +143,7 @@ export class WebSetter {
         }
         if (!this._data.constants.get(num)) {
             const value = new Array(this._currCount);
+            value.fill(0);
             this._data.constants.set(num, value);
         }
         this.setCurrConstant(block);
@@ -198,6 +199,7 @@ function setShadowUBOLightView (setter: WebSetter,
     const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
     const cap = pipeline.device.capabilities;
     const _vec4ShadowInfo = new Vec4();
+    setter.addConstant('CCCSM');
     // ShadowMap
     setter.addConstant('CCShadow');
     switch (light.type) {
@@ -505,6 +507,12 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name = 'Camera'): void {
         const sceneData = new SceneData(name, sceneFlags, light);
         sceneData.camera = camera;
@@ -578,6 +586,12 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addRasterView (name: string, view: RasterView) {
         this._pass.rasterViews.set(name, view);
     }
@@ -641,6 +655,12 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         this._queue = queue;
         this._pipeline = pipeline;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addDispatch (shader: string,
         threadGroupCountX: number,
         threadGroupCountY: number,
@@ -671,6 +691,12 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
     }
     addComputeView (name: string, view: ComputeView) {
         if (this._pass.computeViews.has(name)) {
@@ -712,6 +738,12 @@ export class WebMovePassBuilder implements MovePassBuilder {
         this._vertID = vertID;
         this._pass = pass;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addPair (pair: MovePair) {
         this._pass.movePairs.push(pair);
     }
@@ -725,6 +757,12 @@ export class WebCopyPassBuilder implements CopyPassBuilder {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
     }
     addPair (pair: CopyPair) {
         this._pass.copyPairs.push(pair);
@@ -740,6 +778,13 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline implements Pipeline {
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void {
+        const resId = this.resourceGraph.vertex(name);
+        const currFbo = this.resourceGraph._vertices[resId]._object;
+        if (currFbo !== renderWindow.framebuffer) {
+            this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
+        }
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }

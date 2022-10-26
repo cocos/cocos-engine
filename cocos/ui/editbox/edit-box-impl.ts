@@ -30,7 +30,7 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../game/director';
 import { game } from '../../game';
-import { Mat4, Vec3 } from '../../core/math';
+import { Mat4, Vec3, visibleRect, sys } from '../../core';
 import { view } from '../view';
 import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
@@ -38,8 +38,6 @@ import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../core/platform/sys';
-import visibleRect from '../../core/platform/visible-rect';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 

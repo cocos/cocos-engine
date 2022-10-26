@@ -179,7 +179,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
 
-    CC_EXPECTS(residency == ResourceResidency::MANAGED && residency == ResourceResidency::MEMORYLESS);
+    CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
 
     gfx::SamplerInfo samplerInfo{};
     samplerInfo.magFilter = gfx::Filter::POINT;
@@ -194,6 +194,9 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
         std::forward_as_tuple(samplerInfo),
         std::forward_as_tuple(),
         resourceGraph);
+}
+
+void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) {
 }
 
 void NativePipeline::beginFrame() {
@@ -221,7 +224,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
         renderGraph);
 
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
-    CC_EXPECTS(passLayoutID);
+    CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
 
     return ccnew NativeRasterPassBuilder(&renderGraph, passID, &layoutGraph, passLayoutID);
 }

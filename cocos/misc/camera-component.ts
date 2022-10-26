@@ -28,8 +28,7 @@ import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, se
 import { RenderTexture } from '../asset/assets/render-texture';
 import { UITransform } from '../2d/framework';
 import { Component } from '../scene-graph';
-import { Ray } from '../core/geometry';
-import { Color, Rect, toRadian, Vec3 } from '../core/math';
+import { Color, Rect, toRadian, Vec3, cclegacy, geometry } from '../core';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { scene } from '../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
@@ -38,7 +37,6 @@ import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
 import { Enum } from '../core/value-types';
 import { TransformBit } from '../scene-graph/node-enum';
-import { legacyCC } from '../core/global-exports';
 import { RenderWindow } from '../render-scene/core/render-window';
 import { ClearFlagBit } from '../gfx';
 
@@ -457,7 +455,7 @@ export class Camera extends Component {
         this._updateTargetTexture();
 
         if (!value && this._camera) {
-            this._camera.changeTargetWindow(EDITOR ? legacyCC.director.root.tempWindow : null);
+            this._camera.changeTargetWindow(EDITOR ? cclegacy.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
         this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
@@ -487,8 +485,8 @@ export class Camera extends Component {
     set inEditorMode (value) {
         this._inEditorMode = value;
         if (this._camera) {
-            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow
-                : legacyCC.director.root && legacyCC.director.root.tempWindow);
+            this._camera.changeTargetWindow(value ? cclegacy.director.root && cclegacy.director.root.mainWindow
+                : cclegacy.director.root && cclegacy.director.root.tempWindow);
         }
     }
 
@@ -556,8 +554,8 @@ export class Camera extends Component {
      * @param out The output ray object.
      * @returns Return the output ray object.
      */
-    public screenPointToRay (x: number, y: number, out?: Ray) {
-        if (!out) { out = Ray.create(); }
+    public screenPointToRay (x: number, y: number, out?: geometry.Ray) {
+        if (!out) { out = geometry.Ray.create(); }
         if (this._camera) { this._camera.screenPointToRay(out, x, y); }
         return out;
     }
@@ -610,11 +608,11 @@ export class Camera extends Component {
 
         this.worldToScreen(wpos, _temp_vec3_1);
         const cmp = uiNode.getComponent('cc.UITransform') as UITransform;
-        const designSize = legacyCC.view.getVisibleSize();
+        const designSize = cclegacy.view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera.height * 0.5;
-        _temp_vec3_1.x = xoffset / legacyCC.view.getScaleX() + designSize.width * 0.5;
-        _temp_vec3_1.y = yoffset / legacyCC.view.getScaleY() + designSize.height * 0.5;
+        _temp_vec3_1.x = xoffset / cclegacy.view.getScaleX() + designSize.width * 0.5;
+        _temp_vec3_1.y = yoffset / cclegacy.view.getScaleY() + designSize.height * 0.5;
 
         if (cmp) {
             cmp.convertToNodeSpaceAR(_temp_vec3_1, out);
@@ -628,13 +626,13 @@ export class Camera extends Component {
      */
     public _createCamera () {
         if (!this._camera) {
-            this._camera = (legacyCC.director.root).createCamera();
+            this._camera = (cclegacy.director.root).createCamera();
             this._camera!.initialize({
                 name: this.node.name,
                 node: this.node,
                 projection: this._projection,
-                window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow
-                    : legacyCC.director.root && legacyCC.director.root.tempWindow,
+                window: this._inEditorMode ? cclegacy.director.root && cclegacy.director.root.mainWindow
+                    : cclegacy.director.root && cclegacy.director.root.tempWindow,
                 priority: this._priority,
                 cameraType: this.cameraType,
                 trackingType: this.trackingType,
@@ -703,4 +701,4 @@ export class Camera extends Component {
     }
 }
 
-legacyCC.Camera = Camera;
+cclegacy.Camera = Camera;

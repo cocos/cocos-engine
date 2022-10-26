@@ -1,26 +1,28 @@
 // Define module
 // target_namespace means the name exported to JS, could be same as which in other modules
-// editor_support at the last means the suffix of binding function name, different modules should use unique name
+// 'your_module' at the last means the suffix of binding function name, different modules should use unique name
 // Note: doesn't support number prefix
-%module(target_namespace="middleware") editor_support
+%module(target_namespace="jsb") xr
 
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
-#include "bindings/jswrapper/SeApi.h"
-#include "bindings/manual/jsb_conversions.h"
-#include "editor-support/middleware-adapter.h"
-#include "editor-support/MiddlewareManager.h"
-#include "editor-support/SharedBufferManager.h"
+#include <type_traits>
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/xr/Xr.h"
 
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
 %{
-#include "bindings/auto/jsb_editor_support_auto.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/manual/jsb_global.h"
+#include "xr/Xr.h"
+
 %}
 
-// ----- Ignore Section Begin ------
+// ----- Ignore Section ------
 // Brief: Classes, methods or attributes need to be ignored
 //
 // Usage:
@@ -33,20 +35,11 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
-
-%ignore cc::middleware::MiddlewareManager::addTimer;
-%ignore cc::middleware::MiddlewareManager::removeTimer;
-%ignore cc::middleware::MiddlewareManager::getMeshBuffer;
-
-%ignore cc::middleware::SharedBufferManager::getBuffer;
-%ignore cc::middleware::SharedBufferManager::reset;
-
-%ignore cc::middleware::Texture2D::setTexParameters;
-
-%ignore cc::middleware::MeshBuffer::getUIMeshBuffer;
-%ignore cc::middleware::MeshBuffer::uiMeshBuffers;
-
-
+%ignore cc::xr::XrEntry::setGamepadCallback;
+%ignore cc::xr::XrEntry::setHandleCallback;
+%ignore cc::xr::XrEntry::setHMDCallback;
+%ignore cc::xr::XrEntry::setXRConfig;
+%ignore cc::xr::XrEntry::getXRConfig;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -62,7 +55,6 @@
 //  2. namespace is needed
 
 
-
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
 // Usage:
@@ -73,7 +65,6 @@
 // Note: Should be placed before 'Attribute Section'
 
 // Write your code bellow
-
 
 
 // ----- Attribute Section ------
@@ -93,21 +84,12 @@
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
 
-
-
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note: 
 //   %import "your_header_file.h" will not generate code for that header file
-//
-%import "editor-support/MiddlewareMacro.h"
-%import "editor-support/MeshBuffer.h"
-
-
+%import "cocos/platform/interfaces/modules/XRCommon.h"
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
-%include "editor-support/middleware-adapter.h"
-%include "editor-support/SharedBufferManager.h"
-%include "editor-support/MiddlewareManager.h"
-
+%include "cocos/xr/Xr.h"

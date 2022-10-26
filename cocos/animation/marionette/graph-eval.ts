@@ -3,6 +3,7 @@ import {
     AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
     SubStateMachine, EmptyState, EmptyStateTransition, TransitionInterruptionSource,
 } from './animation-graph';
+//TODO(minggo): core should export it.
 import { assertIsTrue, assertIsNonNullable } from '../../core/data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Node } from '../../scene-graph/node';
@@ -12,7 +13,7 @@ import { BindContext, validateVariableExistence, validateVariableType, VariableT
 import { ConditionEval, TriggerCondition } from './condition';
 import { MotionState } from './motion-state';
 import { AnimationMask } from './animation-mask';
-import { warnID } from '../../core/platform/debug';
+import { warnID } from '../../core';
 import { BlendStateBuffer, LayeredBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { MAX_ANIMATION_LAYER } from '../../3d/skeletal-animation/limits';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';

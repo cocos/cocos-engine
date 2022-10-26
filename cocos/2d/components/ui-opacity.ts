@@ -26,7 +26,7 @@
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { Component } from '../../scene-graph/component';
-import { clampf } from '../../core/utils/misc';
+import { misc } from '../../core';
 import { UIRenderer } from '../framework/ui-renderer';
 import { Node } from '../../scene-graph';
 
@@ -63,7 +63,7 @@ export class UIOpacity extends Component {
         if (this._opacity === value) {
             return;
         }
-        value = clampf(value, 0, 255);
+        value = misc.clampf(value, 0, 255);
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
 

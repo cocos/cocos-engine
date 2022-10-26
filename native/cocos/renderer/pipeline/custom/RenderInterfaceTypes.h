@@ -114,14 +114,22 @@ public:
     virtual bool isRenderQueueReset() const = 0;
 };
 
-class Setter {
+class RenderNode {
+public:
+    RenderNode() noexcept = default;
+    RenderNode(RenderNode&& rhs) = delete;
+    RenderNode(RenderNode const& rhs) = delete;
+    RenderNode& operator=(RenderNode&& rhs) = delete;
+    RenderNode& operator=(RenderNode const& rhs) = delete;
+    virtual ~RenderNode() noexcept = default;
+
+    virtual ccstd::string getName() const = 0;
+    virtual void setName(const ccstd::string& name) = 0;
+};
+
+class Setter : public RenderNode {
 public:
     Setter() noexcept = default;
-    Setter(Setter&& rhs) = delete;
-    Setter(Setter const& rhs) = delete;
-    Setter& operator=(Setter&& rhs) = delete;
-    Setter& operator=(Setter const& rhs) = delete;
-    virtual ~Setter() noexcept = default;
 
     virtual void setMat4(const ccstd::string& name, const cc::Mat4& mat) = 0;
     virtual void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) = 0;
@@ -188,26 +196,16 @@ public:
     virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
-class MovePassBuilder {
+class MovePassBuilder : public RenderNode {
 public:
     MovePassBuilder() noexcept = default;
-    MovePassBuilder(MovePassBuilder&& rhs) = delete;
-    MovePassBuilder(MovePassBuilder const& rhs) = delete;
-    MovePassBuilder& operator=(MovePassBuilder&& rhs) = delete;
-    MovePassBuilder& operator=(MovePassBuilder const& rhs) = delete;
-    virtual ~MovePassBuilder() noexcept = default;
 
     virtual void addPair(const MovePair& pair) = 0;
 };
 
-class CopyPassBuilder {
+class CopyPassBuilder : public RenderNode {
 public:
     CopyPassBuilder() noexcept = default;
-    CopyPassBuilder(CopyPassBuilder&& rhs) = delete;
-    CopyPassBuilder(CopyPassBuilder const& rhs) = delete;
-    CopyPassBuilder& operator=(CopyPassBuilder&& rhs) = delete;
-    CopyPassBuilder& operator=(CopyPassBuilder const& rhs) = delete;
-    virtual ~CopyPassBuilder() noexcept = default;
 
     virtual void addPair(const CopyPair& pair) = 0;
 };
@@ -291,6 +289,8 @@ public:
     virtual uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) = 0;
     virtual uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     virtual uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
+
+    virtual void updateRenderWindow(const ccstd::string& name, scene::RenderWindow* renderWindow) = 0;
 
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;

@@ -98,6 +98,9 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
+
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t queueID{RenderGraph::null_vertex()};
@@ -135,6 +138,9 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
+
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
@@ -164,6 +170,9 @@ public:
     void setReadWriteBuffer(const ccstd::string& name, gfx::Buffer* buffer) override;
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
 
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
@@ -200,6 +209,9 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
+
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
@@ -215,6 +227,9 @@ public:
 
     void addPair(const MovePair& pair) override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
+
     RenderGraph* renderGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
 };
@@ -227,6 +242,9 @@ public:
       passID(passIDIn) {}
 
     void addPair(const CopyPair& pair) override;
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
 
     RenderGraph* renderGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
@@ -465,6 +483,8 @@ public:
     uint32_t addRenderTexture(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow* renderWindow) override;
     uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+
+    void updateRenderWindow(const ccstd::string& name, scene::RenderWindow* renderWindow) override;
 
     void beginFrame() override;
     void endFrame() override;

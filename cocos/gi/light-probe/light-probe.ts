@@ -27,11 +27,8 @@ import { ccclass, serializable } from 'cc.decorator';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
 import { PolynomialSolver } from './polynomial-solver';
 import { LightProbeInfo } from '../../scene-graph/scene-globals';
-import { Vec3 } from '../../core/math/vec3';
-import { Vec4 } from '../../core/math/vec4';
-import { legacyCC } from '../../core/global-exports';
+import { Vec3, Vec4, cclegacy, math } from '../../core';
 import { SH } from './sh';
-import { math } from '../../core';
 
 @ccclass('cc.LightProbesData')
 export class LightProbesData {
@@ -232,6 +229,7 @@ export class LightProbesData {
     @serializable
     private _tetrahedrons: Tetrahedron[] = [];
 }
+cclegacy.internal.LightProbesData = LightProbesData;
 
 /**
  * @en light probe data
@@ -340,7 +338,7 @@ export class LightProbes {
     }
 
     protected _updatePipeline () {
-        const root = legacyCC.director.root;
+        const root = cclegacy.director.root;
         const pipeline = root.pipeline;
 
         if (pipeline.macros.CC_LIGHT_PROBE_ENABLED !== this.enabled) {
@@ -349,3 +347,4 @@ export class LightProbes {
         }
     }
 }
+cclegacy.internal.LightProbes = LightProbes;

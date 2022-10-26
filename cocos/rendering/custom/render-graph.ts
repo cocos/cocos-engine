@@ -156,7 +156,7 @@ export class ResourceGraphVertex {
     readonly _outEdges: impl.OutE[] = [];
     readonly _inEdges: impl.OutE[] = [];
     readonly _id: ResourceGraphValue;
-    readonly _object: ResourceGraphObject;
+    _object: ResourceGraphObject;
 }
 
 //-----------------------------------------------------------------
@@ -167,6 +167,9 @@ export class ResourceGraphNameMap implements impl.PropertyMap {
     }
     get (v: number): string {
         return this._names[v];
+    }
+    set (v: number, names: string): void {
+        this._names[v] = names;
     }
     readonly _names: string[];
 }
@@ -323,6 +326,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     clear (): void {
         // Members
         this.nextFenceValue = 1;
+        this.version = 0;
         // UuidGraph
         this._valueIndex.clear();
         // ComponentGraph
@@ -521,6 +525,9 @@ export class ResourceGraph implements impl.BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
+    setName (v: number, value: string) {
+        this._names[v] = value;
+    }
     getDesc (v: number): ResourceDesc {
         return this._descs[v];
     }
@@ -700,6 +707,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _samplerInfo: SamplerInfo[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
     nextFenceValue = 1;
+    version = 0;
 }
 
 export class RasterSubpass {
@@ -726,6 +734,9 @@ export class SubpassGraphNameMap implements impl.PropertyMap {
     }
     get (v: number): string {
         return this._names[v];
+    }
+    set (v: number, names: string): void {
+        this._names[v] = names;
     }
     readonly _names: string[];
 }
@@ -994,6 +1005,9 @@ export class SubpassGraph implements impl.BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
+    setName (v: number, value: string) {
+        this._names[v] = value;
+    }
     getSubpass (v: number): RasterSubpass {
         return this._subpasses[v];
     }
@@ -1201,7 +1215,7 @@ export class RenderGraphVertex {
     readonly _children: impl.OutE[] = [];
     readonly _parents: impl.OutE[] = [];
     readonly _id: RenderGraphValue;
-    readonly _object: RenderGraphObject;
+    _object: RenderGraphObject;
 }
 
 //-----------------------------------------------------------------
@@ -1213,6 +1227,9 @@ export class RenderGraphNameMap implements impl.PropertyMap {
     get (v: number): string {
         return this._names[v];
     }
+    set (v: number, names: string): void {
+        this._names[v] = names;
+    }
     readonly _names: string[];
 }
 
@@ -1222,6 +1239,9 @@ export class RenderGraphLayoutMap implements impl.PropertyMap {
     }
     get (v: number): string {
         return this._layoutNodes[v];
+    }
+    set (v: number, layoutNodes: string): void {
+        this._layoutNodes[v] = layoutNodes;
     }
     readonly _layoutNodes: string[];
 }
@@ -1242,6 +1262,9 @@ export class RenderGraphValidMap implements impl.PropertyMap {
     }
     get (v: number): boolean {
         return this._valid[v];
+    }
+    set (v: number, valid: boolean): void {
+        this._valid[v] = valid;
     }
     readonly _valid: boolean[];
 }
@@ -1570,6 +1593,9 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     getName (v: number): string {
         return this._names[v];
+    }
+    setName (v: number, value: string) {
+        this._names[v] = value;
     }
     getLayout (v: number): string {
         return this._layoutNodes[v];
