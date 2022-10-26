@@ -11,6 +11,14 @@ namespace cc {
 
 namespace render {
 
+ccstd::string NativeRasterPassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeRasterPassBuilder::setName(const ccstd::string& name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+}
+
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
     auto &pass = get(RasterTag{}, passID, *renderGraph);
     pass.rasterViews.emplace(
@@ -31,6 +39,14 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
         CC_ENSURES(added);
     }
     iter->second.emplace_back(view);
+}
+
+ccstd::string NativeRasterQueueBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, queueID));
+}
+
+void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
 }
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string &name) {
@@ -405,6 +421,14 @@ void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler
 }
 
 // NativeComputeQueue
+ccstd::string NativeComputeQueueBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, queueID));
+}
+
+void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
+}
+
 void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string &name) {
     addVertex(
         DispatchTag{},
@@ -477,6 +501,14 @@ void NativeComputeQueueBuilder::setReadWriteTexture(const ccstd::string &name, g
 void NativeComputeQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
     auto &data = get(RenderGraph::Data, *renderGraph, queueID);
     addSampler(*layoutGraph, name, sampler, data);
+}
+
+ccstd::string NativeComputePassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeComputePassBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
 }
 
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
@@ -594,9 +626,25 @@ void NativeComputePassBuilder::setSampler(const ccstd::string &name, gfx::Sample
     addSampler(*layoutGraph, name, sampler, data);
 }
 
+ccstd::string NativeMovePassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeMovePassBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+}
+
 void NativeMovePassBuilder::addPair(const MovePair &pair) {
     auto &movePass = get(MoveTag{}, passID, *renderGraph);
     movePass.movePairs.emplace_back(pair);
+}
+
+ccstd::string NativeCopyPassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeCopyPassBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
 }
 
 void NativeCopyPassBuilder::addPair(const CopyPair &pair) {

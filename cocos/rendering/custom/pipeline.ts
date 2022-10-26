@@ -67,7 +67,11 @@ export interface PipelineRuntime {
     readonly macros: MacroRecord;
 }
 
-export interface Setter {
+export interface RenderNode {
+    name: string;
+}
+
+export interface Setter extends RenderNode {
     setMat4 (name: string, mat: Mat4): void;
     setQuaternion (name: string, quat: Quat): void;
     setColor (name: string, color: Color): void;
@@ -118,11 +122,11 @@ export interface ComputePassBuilder extends Setter {
     addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export interface MovePassBuilder {
+export interface MovePassBuilder extends RenderNode {
     addPair (pair: MovePair): void;
 }
 
-export interface CopyPassBuilder {
+export interface CopyPassBuilder extends RenderNode {
     addPair (pair: CopyPair): void;
 }
 
