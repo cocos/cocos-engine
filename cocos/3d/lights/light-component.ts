@@ -237,8 +237,8 @@ export class Light extends Component {
     }
 
     /**
-     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
-     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light(The setting of this function does not include directional light and does not take effect for directional light).
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合（该功能的设置不包含方向光，对方向光不生效）。
      */
     @tooltip('i18n:lights.visibility')
     @displayOrder(255)

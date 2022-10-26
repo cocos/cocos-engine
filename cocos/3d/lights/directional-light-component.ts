@@ -110,8 +110,8 @@ export class DirectionalLight extends Light {
     }
 
     /**
-     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light(directional has not).
-     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合（该功能不包括方向光的设置）。
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light(The setting of this function does not include directional light and does not take effect for directional light).
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合（该功能不包括方向光的设置,对方向光不生效）。
      * @engineInternal
      */
     @visible(false)

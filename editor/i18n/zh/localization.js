@@ -150,7 +150,7 @@ module.exports = {
         illuminance: '光源强度',
         luminous_flux: '光通量',
         luminance: '光亮度',
-        visibility: '可见性掩码，声明在当前精确光源中可见的节点层级集合',
+        visibility: '可见性掩码，声明在当前精确光源中可见的节点层级集合（该功能的设置不包含方向光，对方向光不生效）',
         term: '当前使用的光度学计量单位',
         size: '光源大小',
         range: '光源范围',
