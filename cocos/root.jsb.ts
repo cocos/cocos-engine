@@ -1,12 +1,9 @@
-import { Pool } from './core/memop';
-import { warnID } from './core/platform/debug';
-import { macro } from './core/platform/macro';
 import legacyCC from '../predefine';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
 import { DebugView } from './rendering/debug-view';
 import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
-import { settings, Settings } from './core/settings';
+import { settings, Settings, warnID, Pool, macro } from './core';
 import { ForwardPipeline } from './rendering';
 
 declare const nr: any;

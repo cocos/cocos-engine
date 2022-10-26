@@ -25,11 +25,9 @@
 
 import { ccclass, tooltip, range, slide, type, displayOrder, serializable, editable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, Vec3 } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { Color, Vec3, Enum, cclegacy } from '../../core';
 import { scene } from '../../render-scene';
 import { Root } from '../../root';
-import { legacyCC } from '../../core/global-exports';
 
 const _color_tmp = new Vec3();
 
@@ -256,7 +254,7 @@ export class Light extends Component {
 
     protected _createLight () {
         if (!this._light) {
-            this._light = (legacyCC.director.root as Root).createLight(this._lightType);
+            this._light = (cclegacy.director.root as Root).createLight(this._lightType);
         }
         this.color = this._color;
         this.useColorTemperature = this._useColorTemperature;
@@ -267,7 +265,7 @@ export class Light extends Component {
 
     protected _destroyLight () {
         if (this._light) {
-            legacyCC.director.root.recycleLight(this._light);
+            cclegacy.director.root.recycleLight(this._light);
             this._light = null;
         }
     }

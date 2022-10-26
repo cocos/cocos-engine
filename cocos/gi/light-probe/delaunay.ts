@@ -24,10 +24,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { Mat3 } from '../../core/math/mat3';
-import { EPSILON } from '../../core/math/utils';
-import { Vec3 } from '../../core/math/vec3';
-import { warnID } from '../../core/platform/debug';
+import { Mat3, EPSILON, Vec3, warnID } from '../../core';
 
 @ccclass('cc.Vertex')
 export class Vertex {

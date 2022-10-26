@@ -23,13 +23,12 @@
  THE SOFTWARE.
 */
 
-import { addon } from '../../../core/utils/js';
+import { js, Color } from '../../../core';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
 import { letterFont } from './letter-font';
-import { Color } from '../../../core/math/color';
 
 const tempColor = new Color(255, 255, 255, 255);
 
@@ -56,4 +55,4 @@ export const letter = {
     appendQuad: bmfont.appendQuad,
 };
 
-addon(letter, letterFont);
+js.addon(letter, letterFont);

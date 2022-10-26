@@ -26,10 +26,9 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable, editable } from 'cc.decorator';
-import * as js from '../../core/utils/js';
 import { Asset } from '../../asset/assets';
 import { SpriteFrame } from './sprite-frame';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy, js } from '../../core';
 
 interface ISpriteAtlasSerializeData{
     name: string;
@@ -138,4 +137,4 @@ export class SpriteAtlas extends Asset {
     }
 }
 
-legacyCC.SpriteAtlas = SpriteAtlas;
+cclegacy.SpriteAtlas = SpriteAtlas;

@@ -51,6 +51,11 @@ extern se::Object *__jsb_cc_render_PipelineRuntime_proto; // NOLINT
 extern se::Class * __jsb_cc_render_PipelineRuntime_class; // NOLINT
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::render::RenderNode);
+extern se::Object *__jsb_cc_render_RenderNode_proto; // NOLINT
+extern se::Class * __jsb_cc_render_RenderNode_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::render::Setter);
 extern se::Object *__jsb_cc_render_Setter_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Setter_class; // NOLINT

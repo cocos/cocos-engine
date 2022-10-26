@@ -25,8 +25,7 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
-import { Color, Vec2 } from '../../core';
-import { legacyCC } from '../../core/global-exports';
+import { Color, Vec2, cclegacy } from '../../core';
 import { ModelLocalBindings } from '../../rendering/define';
 import { Model } from '../../render-scene/scene';
 import { Root } from '../../root';
@@ -134,7 +133,7 @@ export class SpriteRenderer extends ModelRenderer {
 
     public onDestroy () {
         if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -163,7 +162,7 @@ export class SpriteRenderer extends ModelRenderer {
     }
 
     protected _createModel () {
-        const model = this._model = (legacyCC.director.root as Root).createModel<Model>(Model);
+        const model = this._model = (cclegacy.director.root as Root).createModel<Model>(Model);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;

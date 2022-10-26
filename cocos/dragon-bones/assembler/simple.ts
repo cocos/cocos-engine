@@ -24,7 +24,7 @@
  */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, Vec3 } from '../../core';
+import { Color, Mat4, Vec3, cclegacy } from '../../core';
 import { BlendFactor } from '../../gfx';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { MaterialInstance } from '../../render-scene/core/material-instance';
@@ -33,7 +33,6 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame } from '../ArmatureCache';
 import { ArmatureDisplay } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
-import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
 import { Texture2D } from '../../asset/assets';
@@ -494,4 +493,4 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     _comp = undefined;
 }
 
-legacyCC.internal.DragonBonesAssembler = simple;
+cclegacy.internal.DragonBonesAssembler = simple;

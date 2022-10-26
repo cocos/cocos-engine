@@ -26,7 +26,7 @@
 import type { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { AABB } from '../../core/geometry';
+import { geometry, cclegacy } from '../../core';
 import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../gfx';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../rendering/define';
 import { Node } from '../../scene-graph';
@@ -35,7 +35,6 @@ import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { ModelType } from '../../render-scene/scene/model';
 import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { legacyCC } from '../../core/global-exports';
 import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 import { SubModel } from '../../render-scene/scene';
 
@@ -44,7 +43,7 @@ interface IJointsInfo {
     jointTextureInfo: Float32Array;
     texture: IJointTextureHandle | null;
     animInfo: IAnimInfo;
-    boundsInfo: AABB[] | null;
+    boundsInfo: geometry.AABB[] | null;
 }
 
 const myPatches = [
@@ -75,7 +74,7 @@ export class BakedSkinningModel extends MorphModel {
     constructor () {
         super();
         this.type = ModelType.BAKED_SKINNING;
-        this._dataPoolManager = legacyCC.director.root.dataPoolManager;
+        this._dataPoolManager = cclegacy.director.root.dataPoolManager;
         const jointTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
