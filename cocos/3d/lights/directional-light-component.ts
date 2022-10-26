@@ -455,6 +455,7 @@ export class DirectionalLight extends Light {
      * @en Enabled shadow advanced options
      * @zh 是否启用高级选项？
      */
+    @tooltip('i18n:lights.shadowAdvancedOptions')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
          && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
@@ -474,6 +475,7 @@ export class DirectionalLight extends Light {
      * @en Enabled csm layers transition
      * @zh 是否启用级联阴影层级过渡？
      */
+    @tooltip('i18n:lights.csmLayersTransition')
     @visible(function (this: DirectionalLight) {
         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
          && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
@@ -488,6 +490,7 @@ export class DirectionalLight extends Light {
     }
     set csmLayersTransition (val) {
         this._csmLayersTransition = val;
+        if (this._light) { this._light.csmLayersTransition = val; }
     }
 
     constructor () {

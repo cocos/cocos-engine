@@ -168,6 +168,8 @@ module.exports = {
         shadowNear: 'Fix area start',
         shadowFar: 'Fix area end',
         shadowOrthoSize: 'Fix area size, the larger value, the lower precision of shadows',
+        shadowAdvancedOptions: 'shadow advanced options',
+        csmLayersTransition: 'Enable or disable CSM layers transition(Improve quality, reduce performance)',
     },
     model: {
         shadow_receiving_model: 'Shadow receive mode',
