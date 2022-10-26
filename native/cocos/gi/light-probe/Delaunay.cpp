@@ -166,7 +166,7 @@ void Delaunay::addProbe(int32_t vertexIndex) {
     const auto &probe = _probes[vertexIndex];
 
     auto triangleIndex = 0;
-    for (auto i = 0; i < _tetrahedrons.size(); i++) {
+    for (auto i = 0; i < static_cast<int32_t>(_tetrahedrons.size()); i++) {
         auto &tetrahedron = _tetrahedrons[i];
         if (tetrahedron.isInCircumSphere(probe.position)) {
             tetrahedron.invalid = true;
@@ -211,10 +211,10 @@ void Delaunay::reorder(const Vec3 &center) {
 void Delaunay::computeAdjacency() {
     Vec3 normal;
 
-    const auto tetrahedronCount = _tetrahedrons.size();
+    const auto tetrahedronCount = static_cast<int32_t>(_tetrahedrons.size());
 
     auto triangleIndex = 0;
-    for (auto i = 0; i < _tetrahedrons.size(); i++) {
+    for (auto i = 0; i < static_cast<int32_t>(_tetrahedrons.size()); i++) {
         const auto &tetrahedron = _tetrahedrons[i];
 
         addTriangle(triangleIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
@@ -272,7 +272,7 @@ void Delaunay::computeAdjacency() {
 
     // start from outer cell index
     auto edgeIndex = 0;
-    for (auto i = tetrahedronCount; i < _tetrahedrons.size(); i++) {
+    for (auto i = tetrahedronCount; i < static_cast<int32_t>(_tetrahedrons.size()); i++) {
         const auto &tetrahedron = _tetrahedrons[i];
 
         addEdge(edgeIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex2);
