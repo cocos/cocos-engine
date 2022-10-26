@@ -62,3 +62,4 @@ export * from './curves';
 export * from './settings';
 
 export * from './pipeline/custom/builtin-pipelines';
+export * from './reflectionProbeManager';

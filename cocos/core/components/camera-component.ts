@@ -522,7 +522,7 @@ export class Camera extends Component {
     }
 
     public onLoad () {
-         this._createCamera();
+        this._createCamera();
     }
 
     public onEnable () {

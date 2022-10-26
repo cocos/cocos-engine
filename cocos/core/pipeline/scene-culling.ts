@@ -25,7 +25,7 @@
 
 import { intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
-import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
+import { Camera, CameraType, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Vec3 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
@@ -33,6 +33,7 @@ import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
+import { ReflectionProbeManager } from '../reflectionProbeManager';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -170,6 +171,33 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 }
 
                 renderObjects.push(getRenderObject(model, camera));
+            }
+        }
+    }
+}
+
+export function reflectionProbeCulling (sceneData: PipelineSceneData, camera: Camera) {
+    const scene = camera.scene!;
+    const skybox = sceneData.skybox;
+
+    ReflectionProbeManager.probeManager.clearRenderObject(camera);
+
+    if (skybox.enabled && skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
+        ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(skybox.model, camera), true);
+    }
+
+    const models = scene.models;
+    const visibility = camera.visibility;
+
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        // filter model by view visibility
+        if (model.enabled) {
+            if (model.node && ((visibility & model.node.layer) === model.node.layer)
+                  || (visibility & model.visFlags)) {
+                if (model.bakeToReflectionProbe) {
+                    ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(model, camera));
+                }
             }
         }
     }

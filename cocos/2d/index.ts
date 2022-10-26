@@ -38,8 +38,6 @@ import './event';
 
 import './renderer/batcher-2d';
 
-import { ReflectionProbeManager } from '../core/reflectionProbeManager';
-
 export * from './assets';
 export * from './framework';
 export * from './components';
@@ -56,7 +54,6 @@ export {
     labelAssembler,
     graphicsAssembler,
     earcut,
-    ReflectionProbeManager,
 };
 
 legacyCC.UI = {

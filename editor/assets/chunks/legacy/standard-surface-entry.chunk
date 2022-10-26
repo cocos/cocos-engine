@@ -35,6 +35,9 @@
     #if CC_USE_FOG != CC_FOG_NONE                                  \
       CC_APPLY_FOG(color, s.position.xyz);                         \
     #endif                                                         \
+    #if CC_USE_RGBE_OUTPUT                                         \
+      color = packRGBE(color.rgb);                                 \
+    #endif                                                         \
     fragColorX = color;                                            \
   }                                                                \
                                                                    \
