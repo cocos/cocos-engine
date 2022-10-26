@@ -197,7 +197,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                         if (!childNode[editorExtrasTag]) {
                             childNode[editorExtrasTag] = {};
                         }
-                        // @ts-expect-error: private member access
+                        // @ts-expect-error editor polyfill
                         childNode[editorExtrasTag].mountedRoot = node;
                     }
                     // mounted node need to add to the target map
@@ -237,7 +237,7 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
                         if (!comp[editorExtrasTag]) {
                             comp[editorExtrasTag] = {};
                         }
-                        // @ts-expect-error: private member access
+                        // @ts-expect-error editor polyfill
                         comp[editorExtrasTag].mountedRoot = node;
                     }
                     // @ts-expect-error private member access
