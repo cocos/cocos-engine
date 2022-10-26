@@ -87,10 +87,15 @@ export interface Setter extends RenderNode {
 
 export interface RasterQueueBuilder extends Setter {
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
+    addSceneOfCamera (camera: Camera, light: LightInfo/*, SceneFlags.NONE*/): void;
     addScene (name: string, sceneFlags: SceneFlags): void;
+    addScene (name: string/*, SceneFlags.NONE*/): void;
     addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addFullscreenQuad (material: Material, passID: number/*, SceneFlags.NONE*/): void;
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number/*, SceneFlags.NONE*/): void;
     clearRenderTarget (name: string, color: Color): void;
+    clearRenderTarget (name: string/*, new Color()*/): void;
     setViewport (viewport: Viewport): void;
 }
 
@@ -98,6 +103,7 @@ export interface RasterPassBuilder extends Setter {
     addRasterView (name: string, view: RasterView): void;
     addComputeView (name: string, view: ComputeView): void;
     addQueue (hint: QueueHint): RasterQueueBuilder;
+    addQueue (/*QueueHint.NONE*/): RasterQueueBuilder;
     setViewport (viewport: Viewport): void;
 }
 
@@ -159,11 +165,14 @@ export interface Pipeline extends PipelineRuntime {
     containsResource (name: string): boolean;
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addRenderTarget (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addDepthStencil (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
     beginFrame (): void;
     endFrame (): void;
     addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
+    addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
