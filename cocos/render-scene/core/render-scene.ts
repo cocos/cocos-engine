@@ -133,7 +133,7 @@ export class RenderScene {
      * @en All LOD groups of the render scene
      * @zh 渲染场景管理的所有 LOD 组
      */
-    get lodGroups () { return this._lodGroups; }
+    get lodGroups () : readonly LODGroup[] { return this._lodGroups; }
 
     private _root: Root;
     private _name = '';

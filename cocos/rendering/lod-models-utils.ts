@@ -25,8 +25,8 @@
 
 import { EDITOR } from 'internal:constants';
 import { Model } from '../render-scene/scene/model';
-import { LODGroup } from '../render-scene/scene/lod-group';
 import { Camera } from '../render-scene/scene/camera';
+import { RenderScene } from '../render-scene';
 
 /**
  * @engineInternal
@@ -43,58 +43,56 @@ const visibleModelsByAnyLODGroup = new Map<Model, boolean>();
 
 /**
  * @engineInternal
- * @en Insert visible LOD models into visibleModelsByAnyLODGroup, Add all models on lodGroups to modelsInAnyLODGroup
  */
-export function updateCachedLODModels (lodGroups: LODGroup[], camera: Camera) {
-    // eslint-disable-next-line no-lone-blocks
-    for (const lodGroup of lodGroups) {
-        if (lodGroup.enabled) {
-            if (EDITOR) {
-                const LODLevels = lodGroup.getLockLODLevels();
-                const count = LODLevels.length;
-                if (count > 0) {
-                    for (let index = 0; index < lodGroup.lodCount; index++) {
-                        const lod = lodGroup.LODs[index];
-                        for (const model of lod.models) {
-                            for (let i = 0; i < count; i++) {
-                                if (LODLevels[i] === index) {
-                                    if (model && model.node.active) {
-                                        visibleModelsByAnyLODGroup.set(model, true);
-                                        break;
+export class LODModesCachedUtils {
+    /**
+     * @en Insert visible LOD models into visibleModelsByAnyLODGroup, Add all models on lodGroups to modelsInAnyLODGroup
+     */
+    public static updateCachedLODModels (scene: RenderScene, camera: Camera) {
+        // eslint-disable-next-line no-lone-blocks
+        for (const lodGroup of scene.lodGroups) {
+            if (lodGroup.enabled) {
+                if (EDITOR) {
+                    const LODLevels = lodGroup.getLockLODLevels();
+                    const count = LODLevels.length;
+                    if (count > 0) {
+                        for (let index = 0; index < lodGroup.lodCount; index++) {
+                            const lod = lodGroup.LODs[index];
+                            for (const model of lod.models) {
+                                for (let i = 0; i < count; i++) {
+                                    if (LODLevels[i] === index) {
+                                        if (model && model.node.active) {
+                                            visibleModelsByAnyLODGroup.set(model, true);
+                                            break;
+                                        }
                                     }
                                 }
+                                modelsInAnyLODGroup.set(model, true);
                             }
-                            modelsInAnyLODGroup.set(model, true);
                         }
+                        continue;
                     }
-                    continue;
                 }
-            }
-            const visIndex = lodGroup.getVisibleLOD(camera);
-            for (let index = 0; index < lodGroup.lodCount; index++) {
-                const lod = lodGroup.LODs[index];
-                for (const model of lod.models) {
-                    if (visIndex === index && model && model.node.active) {
-                        visibleModelsByAnyLODGroup.set(model, true);
+                const visIndex = lodGroup.getVisibleLOD(camera);
+                for (let index = 0; index < lodGroup.lodCount; index++) {
+                    const lod = lodGroup.LODs[index];
+                    for (const model of lod.models) {
+                        if (visIndex === index && model && model.node.active) {
+                            visibleModelsByAnyLODGroup.set(model, true);
+                        }
+                        modelsInAnyLODGroup.set(model, true);
                     }
-                    modelsInAnyLODGroup.set(model, true);
                 }
             }
         }
     }
-}
 
-/**
- * @engineInternal
- */
-export function isLODModelCulled (model: Model) {
-    return modelsInAnyLODGroup.get(model) && !visibleModelsByAnyLODGroup.get(model);
-}
+    public static isLODModelCulled (model: Model) {
+        return modelsInAnyLODGroup.get(model) && !visibleModelsByAnyLODGroup.get(model);
+    }
 
-/**
- * @engineInternal
- */
-export function clearCachedLODModels () {
-    modelsInAnyLODGroup.clear();
-    visibleModelsByAnyLODGroup.clear();
+    public static clearCachedLODModels () {
+        modelsInAnyLODGroup.clear();
+        visibleModelsByAnyLODGroup.clear();
+    }
 }
