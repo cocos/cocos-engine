@@ -104,6 +104,22 @@ export class LODGroup {
         return this._lockedLODLevelVec;
     }
 
+    clearLODs () {
+        this._LODs.length = 0;
+    }
+
+    insertLOD (index: number, lod: LODData) {
+        this._LODs.splice(index, 0, lod);
+    }
+
+    updateLOD (index: number, lod: LODData) {
+        this._LODs[index] = lod;
+    }
+
+    eraseLOD (index: number) {
+        this._LODs.splice(index, 1);
+    }
+
     /**
      *
      * @param camera current perspective camera

@@ -27,11 +27,10 @@ import { ccclass, editable, executeInEditMode, menu, serializable, type } from '
 import { Vec3, Mat4, geometry } from '../core';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
-import { Camera, CameraProjection } from '../render-scene/scene';
 import { Mesh, MeshRenderer } from '../3d';
-import { assertIsTrue } from '../core/data/utils/asserts';
 import { scene } from '../render-scene';
 import { NodeEventType } from '../scene-graph/node-event';
+import { array } from '../core/utils/js';
 
 // Ratio of objects occupying the screen
 const DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.25, 0.125];
@@ -225,30 +224,61 @@ export class LODGroup extends Component {
         this._lodGroup.objectSize = this._objectSize;
     }
 
+    /**
+     * @engineInternal
+     */
     set localBoundaryCenter (val: Vec3) {
         this._localBoundaryCenter.set(val);
         this._lodGroup.localBoundaryCenter = val;
     }
 
+    /**
+     * @en Obtain the center point of AABB composed of all models
+     * @zh 获取所有模型组成的AABB的中心点
+     */
     get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
+    /**
+     * @en Obtain LOD level numbers.
+     * @zh 获取LOD层级数
+     */
     get lodCount () : number { return this._LODs.length; }
 
+    /**
+     * @en Set current AABB's size.
+     * @zh 设置当前包围盒的大小
+     */
     @type(Number)
     set objectSize (val: number) {
         this._objectSize = val;
         this._lodGroup.objectSize = val;
     }
 
+    /**
+     * @en Get current AABB's size.
+     * @zh 获取当前包围盒的大小
+     */
     get objectSize () { return this._objectSize; }
 
+    /**
+     * @en Get LOD array config.
+     * @zh 获取当前包围盒的大小
+     */
     @type([LOD])
-    get LODs () : LOD[] {
+    get LODs () : readonly LOD[] {
         return this._LODs;
     }
 
-    set LODs (LODs: LOD[]) {
-        this._LODs = LODs;
+    /**
+     * @en Reset current LODs to new value
+     */
+    set LODs (valArray: readonly LOD[]) {
+        this._LODs.length = 0;
+        this.lodGroup.clearLODs();
+        valArray.forEach((lod: LOD, index: number) => {
+            this.lodGroup.insertLOD(index, lod.lodData);
+            this._LODs[index] = lod;
+        });
     }
 
     /**
@@ -291,8 +321,8 @@ export class LODGroup extends Component {
         }
         lod.screenUsagePercentage = screenUsagePercentage;
         this._LODs.splice(index, 0, lod);
-        this._lodGroup.LODs.splice(index, 0, lod.lodData);
-        LODGroupEditorUtility.emitChangeNode(this.node);
+        this._lodGroup.insertLOD(index, lod.lodData);
+        this._emitChangeNode(this.node);
         return lod;
     }
 
@@ -308,9 +338,13 @@ export class LODGroup extends Component {
             return null;
         }
         const lod = this._LODs[index];
+        if (!lod) {
+            console.warn('eraseLOD error, LOD not exist at specified index.');
+            return null;
+        }
         this._LODs.splice(index, 1);
-        this._lodGroup.LODs.splice(index, 1);
-        LODGroupEditorUtility.emitChangeNode(this.node);
+        this._lodGroup.eraseLOD(index);
+        this._emitChangeNode(this.node);
         return lod;
     }
 
@@ -340,6 +374,7 @@ export class LODGroup extends Component {
             return;
         }
         this._LODs[index] = lod;
+        this.lodGroup.updateLOD(index, lod.lodData);
     }
 
     /**
@@ -347,7 +382,82 @@ export class LODGroup extends Component {
      * @zh 重新计算包围盒，该接口会更新 localBoundaryCenter 和 objectSize
      */
     public recalculateBounds () {
-        LODGroupEditorUtility.recalculateBounds(this);
+        function getTransformedBoundary (c: /* center */Vec3, e: /*extents*/Vec3, transform: Mat4): [Vec3, Vec3] {
+            let minPos: Vec3;
+            let maxPos: Vec3;
+
+            const pts = new Array<Vec3>(
+                new Vec3(c.x - e.x, c.y - e.y, c.z - e.z),
+                new Vec3(c.x - e.x, c.y + e.y, c.z - e.z),
+                new Vec3(c.x + e.x, c.y + e.y, c.z - e.z),
+                new Vec3(c.x + e.x, c.y - e.y, c.z - e.z),
+                new Vec3(c.x - e.x, c.y - e.y, c.z + e.z),
+                new Vec3(c.x - e.x, c.y + e.y, c.z + e.z),
+                new Vec3(c.x + e.x, c.y + e.y, c.z + e.z),
+                new Vec3(c.x + e.x, c.y - e.y, c.z + e.z),
+            );
+
+            minPos = pts[0].transformMat4(transform);
+            maxPos = minPos.clone();
+            for (let i = 1; i < 8; ++i) {
+                const pt = pts[i].transformMat4(transform);
+                minPos = Vec3.min(minPos, minPos, pt);
+                maxPos = Vec3.max(maxPos, maxPos, pt);
+            }
+            return [minPos, maxPos];
+        }
+
+        const minPos = new Vec3();
+        const maxPos = new Vec3();
+        let boundsMin: Vec3 | null = null;
+        let boundsMax: Vec3 = new Vec3();
+
+        for (let i = 0; i < this.lodCount; ++i) {
+            const lod = this.getLOD(i);
+            if (lod) {
+                for (let j = 0; j < lod.rendererCount; ++j) {
+                    const renderer = lod.getRenderer(j);
+                    if (!renderer) {
+                        continue;
+                    }
+                    let worldBounds = renderer.model?.worldBounds;
+                    if (worldBounds) {
+                        if (JSB) {
+                            const center = worldBounds.center;
+                            const halfExtents = worldBounds.halfExtents;
+                            worldBounds = geometry.AABB.create(center.x, center.y, center.z, halfExtents.x, halfExtents.y, halfExtents.z);
+                        }
+                        worldBounds.getBoundary(minPos, maxPos);
+
+                        if (boundsMin) {
+                            Vec3.min(boundsMin, boundsMin, minPos);
+                            Vec3.max(boundsMax, boundsMax, maxPos);
+                        } else {
+                            boundsMin = minPos.clone();
+                            boundsMax = maxPos.clone();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (boundsMin) {
+            // Transform world bounds to local space bounds
+            const boundsMin2 = boundsMin;
+            const c = new Vec3((boundsMax.x + boundsMin2.x) * 0.5, (boundsMax.y + boundsMin2.y) * 0.5, (boundsMax.z + boundsMin2.z) * 0.5);
+            const e = new Vec3((boundsMax.x - boundsMin2.x) * 0.5, (boundsMax.y - boundsMin2.y) * 0.5, (boundsMax.z - boundsMin2.z) * 0.5);
+
+            const [minPos, maxPos] = getTransformedBoundary(c, e, this.node.worldMatrix.clone().invert());
+
+            // Set bounding volume center and extents in local space
+            c.set((maxPos.x + minPos.x) * 0.5, (maxPos.y + minPos.y) * 0.5, (maxPos.z + minPos.z) * 0.5);
+            e.set((maxPos.x - minPos.x) * 0.5, (maxPos.y - minPos.y) * 0.5, (maxPos.z - minPos.z) * 0.5);
+
+            // Save the result
+            this.localBoundaryCenter = c;
+            this.objectSize = Math.max(e.x, e.y, e.z) * 2.0;
+        }
+        this._emitChangeNode(this.node);
     }
 
     /**
@@ -355,7 +465,29 @@ export class LODGroup extends Component {
      * @zh 重置 objectSize 的大小为1，该接口会重新计算 screenUsagePercentage
      */
     public resetObjectSize () {
-        LODGroupEditorUtility.resetObjectSize(this);
+        if (this.objectSize === 1.0) return;
+
+        // 1 will be new object size
+        const scale = 1.0 / this.objectSize;
+        // reset object size to 1
+        this.objectSize = 1.0;
+
+        for (let i = 0; i < this.lodCount; ++i) {
+            const lod = this.getLOD(i);
+            if (lod) {
+                lod.screenUsagePercentage *= scale;
+            }
+        }
+        this._emitChangeNode(this.node);
+    }
+
+    /**
+     * @zh 强制使用某一级的LOD
+     * @en Force LOD level to use.
+     * lodLevel @en The LOD level to use. Passing lodLevel < 0 will return to standard LOD processing. @zh 要使用的LOD层级，为负数时使用标准的处理流程
+     */
+    public forceLOD (lodLevel: number) {
+        this.lodGroup.lockLODLevels(lodLevel < 0 ? [] : [lodLevel]);
     }
 
     onLoad () {
@@ -388,7 +520,7 @@ export class LODGroup extends Component {
 
     onEnable () {
         this._attachToScene();
-        //   LODGroupEditorUtility.recalculateBounds(this);
+        //   this.recalculateBounds(this);
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
@@ -428,189 +560,14 @@ export class LODGroup extends Component {
     private _detachFromScene () {
         if (this._lodGroup.scene) { this._lodGroup.scene.removeLODGroup(this._lodGroup); }
     }
-}
-
-export class LODGroupEditorUtility {
-    /**
-     * @en Get the lod level used under the current camera, -1 indicates no lod is used.
-     * @zh 获取当前摄像机下，使用哪一级的LOD，-1 表示没有lod被使用
-     * @param lodGroup current LOD Group component.
-     * @param camera current perspective camera.
-     * @returns visible LOD index in lodGroup.
-     */
-    static getVisibleLOD (lodGroup: LODGroup, camera: Camera): number {
-        const screenOccupancyPercentage = this.getRelativeHeight(lodGroup, camera) || 0;
-
-        let lodIndex = -1;
-        for (let i = 0; i < lodGroup.lodCount; ++i) {
-            const lod = lodGroup.getLOD(i);
-            if (lod && screenOccupancyPercentage >= lod.screenUsagePercentage) {
-                lodIndex = i;
-                break;
-            }
-        }
-        return lodIndex;
-    }
 
     /**
-     * @en Get the percentage of objects used on the screen under the current camera.
-     * @zh 获取当前摄像机下，物体在屏幕上的占用比率
-     * @param lodGroup current LOD Group component
-     * @param camera current perspective camera
-     * @returns height of current lod group relative to camera position in screen space, aka. relativeHeight
+     * @engineInternal
      */
-    static getRelativeHeight (lodGroup: LODGroup, camera: Camera): number|null {
-        if (!lodGroup.node) return null;
-
-        let distance: number | undefined;
-        if (camera.projectionType === scene.CameraProjection.PERSPECTIVE) {
-            distance =  Vec3.len(lodGroup.localBoundaryCenter.transformMat4(lodGroup.node.worldMatrix).subtract(camera.node.position));
-        }
-        return this.distanceToRelativeHeight(camera, distance, this.getWorldSpaceSize(lodGroup));
-    }
-
-    /**
-     * @en Recalculate all LOD's boundary from LODGroup, and then reset new value to localBoundaryCenter and objectSize.
-     * @zh 重新计算LODGroup上所有LOD的包围盒，并且重新设置localBoundaryCenter和objectSize
-     */
-    static recalculateBounds (lodGroup: LODGroup): void {
-        function getTransformedBoundary (c: /* center */Vec3, e: /*extents*/Vec3, transform: Mat4): [Vec3, Vec3] {
-            let minPos: Vec3;
-            let maxPos: Vec3;
-
-            const pts = new Array<Vec3>(
-                new Vec3(c.x - e.x, c.y - e.y, c.z - e.z),
-                new Vec3(c.x - e.x, c.y + e.y, c.z - e.z),
-                new Vec3(c.x + e.x, c.y + e.y, c.z - e.z),
-                new Vec3(c.x + e.x, c.y - e.y, c.z - e.z),
-                new Vec3(c.x - e.x, c.y - e.y, c.z + e.z),
-                new Vec3(c.x - e.x, c.y + e.y, c.z + e.z),
-                new Vec3(c.x + e.x, c.y + e.y, c.z + e.z),
-                new Vec3(c.x + e.x, c.y - e.y, c.z + e.z),
-            );
-
-            minPos = pts[0].transformMat4(transform);
-            maxPos = minPos.clone();
-            for (let i = 1; i < 8; ++i) {
-                const pt = pts[i].transformMat4(transform);
-                minPos = Vec3.min(minPos, minPos, pt);
-                maxPos = Vec3.max(maxPos, maxPos, pt);
-            }
-            return [minPos, maxPos];
-        }
-
-        const minPos = new Vec3();
-        const maxPos = new Vec3();
-        let boundsMin: Vec3 | null = null;
-        let boundsMax: Vec3 = new Vec3();
-
-        for (let i = 0; i < lodGroup.lodCount; ++i) {
-            const lod = lodGroup.getLOD(i);
-            if (lod) {
-                for (let j = 0; j < lod.rendererCount; ++j) {
-                    const renderer = lod.getRenderer(j);
-                    if (!renderer) {
-                        continue;
-                    }
-                    let worldBounds = renderer.model?.worldBounds;
-                    if (worldBounds) {
-                        if (JSB) {
-                            const center = worldBounds.center;
-                            const halfExtents = worldBounds.halfExtents;
-                            worldBounds = geometry.AABB.create(center.x, center.y, center.z, halfExtents.x, halfExtents.y, halfExtents.z);
-                        }
-                        worldBounds.getBoundary(minPos, maxPos);
-
-                        if (boundsMin) {
-                            Vec3.min(boundsMin, boundsMin, minPos);
-                            Vec3.max(boundsMax, boundsMax, maxPos);
-                        } else {
-                            boundsMin = minPos.clone();
-                            boundsMax = maxPos.clone();
-                        }
-                    }
-                }
-            }
-        }
-
-        if (boundsMin) {
-            // Transform world bounds to local space bounds
-            const boundsMin2 = boundsMin;
-            const c = new Vec3((boundsMax.x + boundsMin2.x) * 0.5, (boundsMax.y + boundsMin2.y) * 0.5, (boundsMax.z + boundsMin2.z) * 0.5);
-            const e = new Vec3((boundsMax.x - boundsMin2.x) * 0.5, (boundsMax.y - boundsMin2.y) * 0.5, (boundsMax.z - boundsMin2.z) * 0.5);
-
-            const [minPos, maxPos] = getTransformedBoundary(c, e, lodGroup.node.worldMatrix.clone().invert());
-
-            // Set bounding volume center and extents in local space
-            c.set((maxPos.x + minPos.x) * 0.5, (maxPos.y + minPos.y) * 0.5, (maxPos.z + minPos.z) * 0.5);
-            e.set((maxPos.x - minPos.x) * 0.5, (maxPos.y - minPos.y) * 0.5, (maxPos.z - minPos.z) * 0.5);
-
-            // Save the result
-            lodGroup.localBoundaryCenter = c;
-            lodGroup.objectSize = Math.max(e.x, e.y, e.z) * 2.0;
-        }
-        this.emitChangeNode(lodGroup.node);
-    }
-
-    static emitChangeNode (node:Node) {
+    private _emitChangeNode (node: Node) {
         if (EDITOR) {
             // @ts-expect-error Because EditorExtends is Editor only
             EditorExtends.Node.emit('change', node.uuid, node);
         }
-    }
-
-    /**
-     * @en reset objectSize to 1.
-     * @zh 重置objectSize为1
-     */
-    static resetObjectSize (lodGroup: LODGroup): void {
-        if (lodGroup.objectSize === 1.0) return;
-
-        // 1 will be new object size
-        const scale = 1.0 / lodGroup.objectSize;
-        // reset object size to 1
-        lodGroup.objectSize = 1.0;
-
-        for (let i = 0; i < lodGroup.lodCount; ++i) {
-            const lod = lodGroup.getLOD(i);
-            if (lod) {
-                lod.screenUsagePercentage *= scale;
-            }
-        }
-        this.emitChangeNode(lodGroup.node);
-    }
-
-    /**
-     * 锁定指定的LOD，编辑器使用
-     */
-    static setLODVisibility (lodGroup: LODGroup, visibleIndex: number) {
-        lodGroup.lodGroup.lockLODLevels(visibleIndex < 0 ? [] : [visibleIndex]);
-    }
-
-    /**
-     * 锁定多个LOD，编辑器使用
-     */
-    static setLODsVisibility (lodGroup: LODGroup, visibleArray: number[]) {
-        lodGroup.lodGroup.lockLODLevels(visibleArray);
-    }
-
-    private static distanceToRelativeHeight (camera: Camera, distance: number | undefined, size: number): number {
-        if (camera.projectionType === CameraProjection.PERSPECTIVE) {
-            assertIsTrue(typeof distance === 'number', 'distance must be present for perspective projection');
-            return (size * camera.matProj.m05) / (distance * 2.0); // note: matProj.m05 is 1 / tan(fov / 2.0)
-        } else {
-            return size * camera.matProj.m05 * 0.5;
-        }
-    }
-
-    private static relativeHeightToDistance (camera: Camera, relativeHeight: number, size: number): number {
-        assertIsTrue(camera.projectionType === CameraProjection.PERSPECTIVE, 'Camera type must be perspective.');
-        return (size * camera.matProj.m05) / (relativeHeight * 2.0); // note: matProj.m05 is 1 / tan(fov / 2.0)
-    }
-
-    private static getWorldSpaceSize (lodGroup: LODGroup): number {
-        const scale = lodGroup.node.scale;
-        const maxScale = Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
-        return maxScale * lodGroup.objectSize;
     }
 }

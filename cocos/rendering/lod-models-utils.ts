@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
 import { Model } from '../render-scene/scene/model';
 import { Camera } from '../render-scene/scene/camera';
 import { RenderScene } from '../render-scene';
@@ -52,27 +51,28 @@ export class LODModesCachedUtils {
         // eslint-disable-next-line no-lone-blocks
         for (const lodGroup of scene.lodGroups) {
             if (lodGroup.enabled) {
-                if (EDITOR) {
-                    const LODLevels = lodGroup.getLockLODLevels();
-                    const count = LODLevels.length;
-                    if (count > 0) {
-                        for (let index = 0; index < lodGroup.lodCount; index++) {
-                            const lod = lodGroup.LODs[index];
-                            for (const model of lod.models) {
-                                for (let i = 0; i < count; i++) {
-                                    if (LODLevels[i] === index) {
-                                        if (model && model.node.active) {
-                                            visibleModelsByAnyLODGroup.set(model, true);
-                                            break;
-                                        }
+                const LODLevels = lodGroup.getLockLODLevels();
+                const count = LODLevels.length;
+                //count == 0 will return to standard LOD processing.
+                if (count > 0) {
+                    for (let index = 0; index < lodGroup.lodCount; index++) {
+                        const lod = lodGroup.LODs[index];
+                        for (const model of lod.models) {
+                            for (let i = 0; i < count; i++) {
+                                // The LOD level to use.
+                                if (LODLevels[i] === index) {
+                                    if (model && model.node.active) {
+                                        visibleModelsByAnyLODGroup.set(model, true);
+                                        break;
                                     }
                                 }
-                                modelsInAnyLODGroup.set(model, true);
                             }
+                            modelsInAnyLODGroup.set(model, true);
                         }
-                        continue;
                     }
+                    continue;
                 }
+
                 const visIndex = lodGroup.getVisibleLOD(camera);
                 for (let index = 0; index < lodGroup.lodCount; index++) {
                     const lod = lodGroup.LODs[index];
