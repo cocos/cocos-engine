@@ -33,7 +33,7 @@ import { ShadowType } from '../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 import { BatchingSchemes } from '../render-scene/core/pass';
-import { updateCachedLODModels, isLODModelCulled } from './lod-models-utils';
+import { updateCachedLODModels, isLODModelCulled, clearCachedLODModels } from './lod-models-utils';
 
 const _ab = new AABB();
 
@@ -69,6 +69,7 @@ export class PlanarShadowQueue {
             }
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
+        clearCachedLODModels();
 
         const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
         this._instancedQueue.queue.add(instancedBuffer);

@@ -33,7 +33,7 @@ import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { warnID } from '../core/platform';
-import { updateCachedLODModels, isLODModelCulled } from './lod-models-utils';
+import { updateCachedLODModels, isLODModelCulled, clearCachedLODModels } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -185,4 +185,5 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     for (let i = 0; i < models.length; i++) {
         enqueueRenderObject(models[i]);
     }
+    clearCachedLODModels();
 }

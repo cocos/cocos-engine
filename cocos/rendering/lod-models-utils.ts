@@ -28,17 +28,24 @@ import { Model } from '../render-scene/scene/model';
 import { LODGroup } from '../render-scene/scene/lod-group';
 import { Camera } from '../render-scene/scene/camera';
 
-// LOD所有级别中存储的model集合；包含多个LODGroup的所有LOD
+/**
+ * @engineInternal
+ * @zh LOD所有级别中存储的model集合；包含多个LODGroup的所有LOD
+ * @en The collection of models stored in all levels of LOD, All LODs containing multiple LODGroups.
+ */
 const modelsInAnyLODGroup = new Map<Model, boolean>();
-// 指定相机下，某一级LOD使用的model集合；可能包含多个LODGroup的某一级LOD
+/**
+ * @engineInternal
+ * @zh 指定相机下，某一级LOD使用的model集合；可能包含多个LODGroup的某一级LOD
+ * @en Specify the model set used by a level of LOD under the camera, LOD of a level that may contain multiple LODGroups.
+ */
 const visibleModelsByAnyLODGroup = new Map<Model, boolean>();
 
 /**
- * Insert visible LOD models into visibleModelsByAnyLODGroup, Add all models on lodGroups to modelsInAnyLODGroup
+ * @engineInternal
+ * @en Insert visible LOD models into visibleModelsByAnyLODGroup, Add all models on lodGroups to modelsInAnyLODGroup
  */
 export function updateCachedLODModels (lodGroups: LODGroup[], camera: Camera) {
-    modelsInAnyLODGroup.clear();
-    visibleModelsByAnyLODGroup.clear();
     // eslint-disable-next-line no-lone-blocks
     for (const lodGroup of lodGroups) {
         if (lodGroup.enabled) {
@@ -77,6 +84,17 @@ export function updateCachedLODModels (lodGroups: LODGroup[], camera: Camera) {
     }
 }
 
+/**
+ * @engineInternal
+ */
 export function isLODModelCulled (model: Model) {
     return modelsInAnyLODGroup.get(model) && !visibleModelsByAnyLODGroup.get(model);
+}
+
+/**
+ * @engineInternal
+ */
+export function clearCachedLODModels () {
+    modelsInAnyLODGroup.clear();
+    visibleModelsByAnyLODGroup.clear();
 }

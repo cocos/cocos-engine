@@ -32,7 +32,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
-import { updateCachedLODModels, isLODModelCulled } from '../lod-models-utils';
+import { updateCachedLODModels, isLODModelCulled, clearCachedLODModels } from '../lod-models-utils';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -137,6 +137,7 @@ export class WebSceneTask implements SceneTask {
                 }
             }
         }
+        clearCachedLODModels();
     }
 
     public start (): void {

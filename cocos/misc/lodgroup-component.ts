@@ -22,10 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Mat4 } from '../core/math';
+import { Vec3, Mat4, geometry } from '../core';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
 import { Camera, CameraProjection } from '../render-scene/scene';
@@ -46,7 +45,10 @@ export class LOD {
     @serializable
     protected _renderers: MeshRenderer[] = [];
     // renderer internal LOD data block.
-    protected _LODData: scene.LODData = new scene.LODData();
+    /**
+     * @engineInternal
+     */
+    private _LODData: scene.LODData = new scene.LODData();
 
     constructor () {
         this._LODData.screenUsagePercentage = this._screenUsagePercentage;
@@ -91,7 +93,7 @@ export class LOD {
      */
     @editable
     @type([Number])
-    get trianglesCount () : number[] {
+    get triangleCount () : number[] {
         const tris: number[] = [];
         this._renderers.forEach((meshRenderer: MeshRenderer | null) => {
             let count = 0;
@@ -123,9 +125,10 @@ export class LOD {
     /**
      * @en Insert a [[MeshRenderer]] before specific index position.
      * @zh 在指定的数组索引处插入一个[[MeshRenderer]]
-     * @param index, the rendering array is indexed from 0. If - 1 is passed, it will be added to the end of the list.
-     * @param renderer the mesh-renderer object
-     * @returns The renderer inserted
+     * @param index @en The rendering array is indexed from 0. If - 1 is passed, it will be added to the end of the list.
+     * @zh renderers数组从0开始索引，若传递-1将会被添加到列表末尾。
+     * @param renderer @en The mesh-renderer object. @zh [[MeshRenderer]] 对象
+     * @returns @en The inserted [[MeshRenderer]] @zh 返回被插入的 [[MeshRenderer]] 对象
      */
     insertRenderer (index: number, renderer: MeshRenderer): MeshRenderer {
         // make sure insert at the tail of the list.
@@ -142,11 +145,11 @@ export class LOD {
     /**
      * @en Delete the [[MeshRenderer]] at specific index position.
      * @zh 删除指定索引处的[[MeshRenderer]]
-     * @param index 0 indexed position in renderer array, when -1 is specified, the last element will be deleted
-     * @returns The renderer deleted
+     * @param index @en 0 indexed position in renderer array, when -1 is specified, the last element will be deleted.
+     * @zh _renderers从0开始索引，传递-1则最后一个元素会被删除。
+     * @returns @en The deleted [[MeshRenderer]], or null if the specified index does not exist. @zh 如果指定索引处的对象存在，返回被删除对象否则返回null。
      */
     public deleteRenderer (index: number): MeshRenderer | null {
-        const renderer = this._renderers[index] || null;
         const renders = this._renderers.splice(index, 1);
         const model = renders.length > 0 ? renders[0]?.model : null;
         if (model) {
@@ -156,13 +159,14 @@ export class LOD {
             }
         }
 
-        return renderer;
+        return renders[0];
     }
 
     /**
      * @en Get the [[MeshRenderer]] at specific index position.
      * @zh 获取指定索引处的[[MeshRenderer]]
-     * @param index's value range from 0 to _renderers's length
+     * @param index @en Value range from 0 to _renderers's length. @zh 取值范围是[0, _renderers长度]
+     * @return @en Returns the [[MeshRenderer]] at the specified index, or null if the specified index does not exist. @zh 返回指定索引处的对象，若不存在则返回null。
      */
     public getRenderer (index: number): MeshRenderer | null {
         return this._renderers[index] || null;
@@ -171,7 +175,7 @@ export class LOD {
     /**
      * @en Update the [[MeshRenderer]] at specific index position.
      * @zh 更新指定索引处的 [[MeshRenderer]]
-     * @param index's value range from 0 to _renderers's length
+     * @param index @en Value range from 0 to _renderers's length @zh 取值范围是 [0, _renderers数组长度]
      */
     public setRenderer (index: number, renderer: MeshRenderer) {
         if (index < 0 || index >= this.rendererCount) {
@@ -205,6 +209,9 @@ export class LODGroup extends Component {
     @serializable
     protected _LODs: LOD[] = [];
 
+    /**
+     * @engineInternal
+     */
     protected _lodGroup = new scene.LODGroup();
 
     private _eventRegistered = false;
@@ -246,44 +253,39 @@ export class LODGroup extends Component {
     get lodGroup () { return this._lodGroup; }
 
     /**
-     * @en Insert the [[LOD]] at specific index position.
-     * @zh 在指定索引处插入 [[LOD]]
-     * @param index, location where lod is added.
-     * @param screenSize, the minimum screenSize that the currently set lod starts to use.
-     * @param lod, if this parameter is not set, it will be created by default
-     * @returns the new lod added.
+     * @en Insert the [[LOD]] at specific index position, [[LOD]] will be inserted to the last position if index less than 0 or greater than lodCount.
+     * @zh 在指定索引处插入 [[LOD]], 若索引为负或超过lodCount，则在末尾添加
+     * @param index @en location where lod is added. @zh lod被插入的位置
+     * @param screenUsagePercentage @en The minimum screen usage percentage that the currently set lod starts to use, range in[0, 1].
+     * @zh lod生效时的最低屏幕显示百分比要求，取值范围[0, 1]
+     * @param lod @en If this parameter is not set, it will be created by default. @zh 如果参数没传，则内部创建
+     * @returns @en The new lod added. @zh 返回被添加的lod
      */
-    public insertLOD (index: number, screenSize?: number, lod?: LOD): LOD {
-        if (index < 0) {
-            if (this.lodCount > 0) {
-                index = this.lodCount - 1;
-            } else {
-                index = 0;
-            }
-        } else if (index > this.lodCount) {
+    public insertLOD (index: number, screenUsagePercentage?: number, lod?: LOD): LOD {
+        if (index < 0 || index > this.lodCount) {
             index = this.lodCount;
         }
 
         if (!lod) {
             lod = new LOD();
         }
-        if (!screenSize) {
+        if (!screenUsagePercentage) {
             const preLod = this.getLOD(index - 1);
             const nextLod = this.getLOD(index);
             if (preLod && nextLod) {
-                screenSize = (preLod.screenUsagePercentage + nextLod.screenUsagePercentage) / 2;
+                screenUsagePercentage = (preLod.screenUsagePercentage + nextLod.screenUsagePercentage) / 2;
             } else if (preLod && !nextLod) { // insert at last position
-                screenSize = preLod.screenUsagePercentage / 2;
+                screenUsagePercentage = preLod.screenUsagePercentage / 2;
             } else if (nextLod && !preLod) {
                 //insert at first position
-                screenSize = nextLod.screenUsagePercentage;
+                screenUsagePercentage = nextLod.screenUsagePercentage;
                 const curNextLOD = this.getLOD(index + 1);
-                nextLod.screenUsagePercentage = (screenSize + (curNextLOD ? curNextLOD.screenUsagePercentage : 0)) / 2;
+                nextLod.screenUsagePercentage = (screenUsagePercentage + (curNextLOD ? curNextLOD.screenUsagePercentage : 0)) / 2;
             } else { //lod count is zero
-                screenSize = DEFAULT_SCREEN_OCCUPATION[0];
+                screenUsagePercentage = DEFAULT_SCREEN_OCCUPATION[0];
             }
         }
-        lod.screenUsagePercentage = screenSize;
+        lod.screenUsagePercentage = screenUsagePercentage;
         this._LODs.splice(index, 0, lod);
         this._lodGroup.LODs.splice(index, 0, lod.lodData);
         LODGroupEditorUtility.emitChangeNode(this.node);
@@ -293,8 +295,8 @@ export class LODGroup extends Component {
     /**
      * @en Erase the [[LOD]] at specific index position.
      * @zh 删除指定索引处的 [[LOD]]
-     * @param index, index of the erased lod.
-     * @returns Erased lod.
+     * @param index @en Index of the erased lod, range in [0, lodCount]. @zh 被删除对象索引, 取值范围[0, lodCount]
+     * @returns @en Erased lod. @zh 被删除的对象
      */
     public eraseLOD (index: number) : LOD | null {
         if (index < 0 || index >= this.lodCount) {
@@ -311,8 +313,8 @@ export class LODGroup extends Component {
     /**
      * @en Get [[LOD]] at specific index position.
      * @zh 获取指定索引处的 [[LOD]]
-     * @param index, get lod from the specified index.
-     * @returns Lod at specified index.
+     * @param index @en Range in [0, lodCount]. @zh 取值范围[0, lodCount]
+     * @returns @en Lod at specified index, or null. @zh 返回指定索引的lod或null
      */
     public getLOD (index: number): LOD | null {
         if (index < 0 || index >= this.lodCount) {
@@ -409,7 +411,7 @@ export class LODGroup extends Component {
         this._detachFromScene();
     }
 
-    protected _attachToScene () {
+    private _attachToScene () {
         if (!this.node.scene) { return; }
 
         const renderScene = this._getRenderScene();
@@ -419,7 +421,7 @@ export class LODGroup extends Component {
         renderScene.addLODGroup(this._lodGroup);
     }
 
-    protected _detachFromScene () {
+    private _detachFromScene () {
         if (this._lodGroup.scene) { this._lodGroup.scene.removeLODGroup(this._lodGroup); }
     }
 }
@@ -506,8 +508,13 @@ export class LODGroupEditorUtility {
                     if (!renderer) {
                         continue;
                     }
-                    const worldBounds = renderer.model?.worldBounds;
+                    let worldBounds = renderer.model?.worldBounds;
                     if (worldBounds) {
+                        if (JSB) {
+                            const center = worldBounds.center;
+                            const halfExtents = worldBounds.halfExtents;
+                            worldBounds = geometry.AABB.create(center.x, center.y, center.z, halfExtents.x, halfExtents.y, halfExtents.z);
+                        }
                         worldBounds.getBoundary(minPos, maxPos);
 
                         if (boundsMin) {

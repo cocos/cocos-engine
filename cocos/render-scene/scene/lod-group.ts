@@ -23,20 +23,25 @@
  THE SOFTWARE.
  */
 import { Model } from './model';
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core';
 import { RenderScene } from '..';
 import { Device, deviceManager } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera, CameraProjection } from './camera';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { AABB } from '../../core/geometry';
 
+/**
+ * @engineInternal
+ */
 export class LODData {
     // Range in [0, 1].
     screenUsagePercentage = 1.0;
     models: Model[] = [];
 }
 
+/**
+ * @engineInternal
+ */
 export class LODGroup {
     public scene?: RenderScene;
 
@@ -50,7 +55,7 @@ export class LODGroup {
 
     /**
      * @en Object Size in local space, may be auto-calculated value from object bounding box or value from user input.
-     */
+    */
     protected _objectSize = 1;
 
     /**

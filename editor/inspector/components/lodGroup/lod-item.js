@@ -68,11 +68,11 @@ exports.data = function() {
 };
 
 exports.watch = {
-    'data.value.trianglesCount': {
+    'data.value.triangleCount': {
         immediate: true,
-        handler(trianglesCount) {
+        handler(triangleCount) {
             const that = this;
-            const res = trianglesCount.value.reduce((sum, item) => {
+            const res = triangleCount.value.reduce((sum, item) => {
                 return sum += item.value;
             }, 0);
             that.totalTriangles = res;
@@ -123,6 +123,6 @@ exports.methods = {
     },
     handleTriangleLabel(meshIndex) {
         const that = this;
-        return `${ that.data.value.trianglesCount.value[meshIndex] ? that.data.value.trianglesCount.value[meshIndex].value : 0 } Triangles`;
+        return `${ that.data.value.triangleCount.value[meshIndex] ? that.data.value.triangleCount.value[meshIndex].value : 0 } Triangles`;
     },
 };
