@@ -507,6 +507,12 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name = 'Camera'): void {
         const sceneData = new SceneData(name, sceneFlags, light);
         sceneData.camera = camera;
@@ -580,6 +586,12 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addRasterView (name: string, view: RasterView) {
         this._pass.rasterViews.set(name, view);
     }
@@ -643,6 +655,12 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         this._queue = queue;
         this._pipeline = pipeline;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addDispatch (shader: string,
         threadGroupCountX: number,
         threadGroupCountY: number,
@@ -673,6 +691,12 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
     }
     addComputeView (name: string, view: ComputeView) {
         if (this._pass.computeViews.has(name)) {
@@ -714,6 +738,12 @@ export class WebMovePassBuilder implements MovePassBuilder {
         this._vertID = vertID;
         this._pass = pass;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addPair (pair: MovePair) {
         this._pass.movePairs.push(pair);
     }
@@ -727,6 +757,12 @@ export class WebCopyPassBuilder implements CopyPassBuilder {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
     }
     addPair (pair: CopyPair) {
         this._pass.copyPairs.push(pair);
@@ -752,15 +788,13 @@ export class WebPipeline implements Pipeline {
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
-    public addComputePass(layoutName: string, name: string): ComputePassBuilder;
-    public addComputePass(layoutName: string): ComputePassBuilder;
-    public addComputePass (layoutName: any, name?: any): ComputePassBuilder {
+    public addComputePass (layoutName: string): ComputePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addMovePass (name: string): MovePassBuilder {
+    public addMovePass (): MovePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addCopyPass (name: string): CopyPassBuilder {
+    public addCopyPass (): CopyPassBuilder {
         throw new Error('Method not implemented.');
     }
     public presentAll (): void {
@@ -1070,7 +1104,8 @@ export class WebPipeline implements Pipeline {
         this.endFrame();
     }
 
-    addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
+    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder {
+        const name = 'Raster';
         const pass = new RasterPass();
         pass.viewport.width = width;
         pass.viewport.height = height;

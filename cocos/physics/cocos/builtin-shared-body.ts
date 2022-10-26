@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Mat4, Quat, Vec3, js } from '../../core';
 import { intersect } from '../../core/geometry';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';
@@ -32,7 +32,6 @@ import { Node } from '../../scene-graph';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { PhysicsSystem } from '../framework';
 import { PhysicsGroup } from '../framework/physics-enum';
-import { fastRemoveAt } from '../../core/utils/array';
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -143,7 +142,7 @@ export class BuiltinSharedBody extends BuiltinObject {
     removeShape (shape: BuiltinShape): void {
         const i = this.shapes.indexOf(shape);
         if (i >= 0) {
-            fastRemoveAt(this.shapes, i);
+            js.array.fastRemoveAt(this.shapes, i);
         }
     }
 

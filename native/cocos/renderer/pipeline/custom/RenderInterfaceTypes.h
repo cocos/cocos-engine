@@ -114,14 +114,22 @@ public:
     virtual bool isRenderQueueReset() const = 0;
 };
 
-class Setter {
+class RenderNode {
+public:
+    RenderNode() noexcept = default;
+    RenderNode(RenderNode&& rhs) = delete;
+    RenderNode(RenderNode const& rhs) = delete;
+    RenderNode& operator=(RenderNode&& rhs) = delete;
+    RenderNode& operator=(RenderNode const& rhs) = delete;
+    virtual ~RenderNode() noexcept = default;
+
+    virtual ccstd::string getName() const = 0;
+    virtual void setName(const ccstd::string& name) = 0;
+};
+
+class Setter : public RenderNode {
 public:
     Setter() noexcept = default;
-    Setter(Setter&& rhs) = delete;
-    Setter(Setter const& rhs) = delete;
-    Setter& operator=(Setter&& rhs) = delete;
-    Setter& operator=(Setter const& rhs) = delete;
-    virtual ~Setter() noexcept = default;
 
     virtual void setMat4(const ccstd::string& name, const cc::Mat4& mat) = 0;
     virtual void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) = 0;
@@ -141,12 +149,9 @@ class RasterQueueBuilder : public Setter {
 public:
     RasterQueueBuilder() noexcept = default;
 
-    virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) = 0;
     virtual void addScene(const ccstd::string& name, SceneFlags sceneFlags) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
     virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
@@ -158,12 +163,7 @@ public:
 
     virtual void addRasterView(const ccstd::string& name, const RasterView& view) = 0;
     virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
-    virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& name) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) = 0;
-    virtual void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
 };
 
@@ -171,7 +171,6 @@ class ComputeQueueBuilder : public Setter {
 public:
     ComputeQueueBuilder() noexcept = default;
 
-    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) = 0;
     virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
@@ -181,33 +180,19 @@ public:
 
     virtual void addComputeView(const ccstd::string& name, const ComputeView& view) = 0;
 
-    virtual ComputeQueueBuilder *addQueue(const ccstd::string& name) = 0;
     virtual ComputeQueueBuilder *addQueue() = 0;
-
-    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) = 0;
-    virtual void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) = 0;
 };
 
-class MovePassBuilder {
+class MovePassBuilder : public RenderNode {
 public:
     MovePassBuilder() noexcept = default;
-    MovePassBuilder(MovePassBuilder&& rhs) = delete;
-    MovePassBuilder(MovePassBuilder const& rhs) = delete;
-    MovePassBuilder& operator=(MovePassBuilder&& rhs) = delete;
-    MovePassBuilder& operator=(MovePassBuilder const& rhs) = delete;
-    virtual ~MovePassBuilder() noexcept = default;
 
     virtual void addPair(const MovePair& pair) = 0;
 };
 
-class CopyPassBuilder {
+class CopyPassBuilder : public RenderNode {
 public:
     CopyPassBuilder() noexcept = default;
-    CopyPassBuilder(CopyPassBuilder&& rhs) = delete;
-    CopyPassBuilder(CopyPassBuilder const& rhs) = delete;
-    CopyPassBuilder& operator=(CopyPassBuilder&& rhs) = delete;
-    CopyPassBuilder& operator=(CopyPassBuilder const& rhs) = delete;
-    virtual ~CopyPassBuilder() noexcept = default;
 
     virtual void addPair(const CopyPair& pair) = 0;
 };
@@ -296,12 +281,10 @@ public:
 
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
-    virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) = 0;
     virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) = 0;
-    virtual ComputePassBuilder *addComputePass(const ccstd::string& layoutName, const ccstd::string& name) = 0;
     virtual ComputePassBuilder *addComputePass(const ccstd::string& layoutName) = 0;
-    virtual MovePassBuilder *addMovePass(const ccstd::string& name) = 0;
-    virtual CopyPassBuilder *addCopyPass(const ccstd::string& name) = 0;
+    virtual MovePassBuilder *addMovePass() = 0;
+    virtual CopyPassBuilder *addCopyPass() = 0;
     virtual void presentAll() = 0;
 
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;

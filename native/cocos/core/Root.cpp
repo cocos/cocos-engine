@@ -26,6 +26,8 @@
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
 #include "application/ApplicationManager.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 #include "core/event/CallbacksInvoker.h"
 #include "core/event/EventTypesToJS.h"
 #include "platform/interfaces/modules/IScreen.h"
@@ -45,8 +47,6 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-#include "bindings/event/EventDispatcher.h"
-#include "bindings/event/CustomEventTypes.h"
 
 namespace cc {
 

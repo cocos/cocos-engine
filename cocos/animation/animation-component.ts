@@ -26,15 +26,11 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Component } from '../scene-graph/component';
-import { Eventify } from '../core/event';
-import { warnID } from '../core/platform/debug';
-import * as ArrayUtils from '../core/utils/array';
+import { Eventify, warnID, js, cclegacy } from '../core';
 import { createMap } from '../core/utils/js-typed';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { legacyCC } from '../core/global-exports';
-import { js } from '../core/utils/js';
 
 /**
  * @en
@@ -176,7 +172,7 @@ export class Animation extends Eventify(Component) {
     }
 
     public start () {
-        if ((!EDITOR || legacyCC.GAME_VIEW) && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
+        if ((!EDITOR || cclegacy.GAME_VIEW) && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }
@@ -322,7 +318,7 @@ export class Animation extends Eventify(Component) {
      * @returns The created animation state
      */
     public addClip (clip: AnimationClip, name?: string): AnimationState {
-        if (!ArrayUtils.contains(this._clips, clip)) {
+        if (js.array.contains(this._clips, clip)) {
             this._clips.push(clip);
         }
         return this.createState(clip, name);
@@ -502,12 +498,12 @@ function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     return !!clip1 && !!clip2 && (clip1._uuid === clip2._uuid) && clip1._uuid;
 }
 
-legacyCC.Animation = Animation;
+cclegacy.Animation = Animation;
 
 /**
  * Alias of [[Animation]]
  * @deprecated Since v1.2
  */
 export { Animation as AnimationComponent };
-legacyCC.AnimationComponent = Animation;
+cclegacy.AnimationComponent = Animation;
 js.setClassAlias(Animation, 'cc.AnimationComponent');

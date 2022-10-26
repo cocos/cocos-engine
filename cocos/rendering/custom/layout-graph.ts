@@ -98,6 +98,7 @@ export class LayoutGraphNameMap implements impl.PropertyMap {
     get (v: number): string {
         return this._names[v];
     }
+    // skip set, name is constant in AddressableGraph
     readonly _names: string[];
 }
 
@@ -376,6 +377,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
             throw Error('component map not found');
         }
     }
+    // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
     }
@@ -712,6 +714,7 @@ export class LayoutGraphDataNameMap implements impl.PropertyMap {
     get (v: number): string {
         return this._names[v];
     }
+    // skip set, name is constant in AddressableGraph
     readonly _names: string[];
 }
 
@@ -721,6 +724,9 @@ export class LayoutGraphDataUpdateMap implements impl.PropertyMap {
     }
     get (v: number): UpdateFrequency {
         return this._updateFrequencies[v];
+    }
+    set (v: number, updateFrequencies: UpdateFrequency): void {
+        this._updateFrequencies[v] = updateFrequencies;
     }
     readonly _updateFrequencies: UpdateFrequency[];
 }
@@ -1020,6 +1026,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
             throw Error('component map not found');
         }
     }
+    // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
     }

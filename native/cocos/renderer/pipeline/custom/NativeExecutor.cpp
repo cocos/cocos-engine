@@ -16,7 +16,6 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 
-
 namespace cc {
 
 namespace render {

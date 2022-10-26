@@ -72,7 +72,7 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuf
 
     CCVKDevice::getInstance()->gpuDevice()->getCommandBufferPool()->request(_gpuCommandBuffer);
 
-    _curGPUPipelineState  = nullptr;
+    _curGPUPipelineState = nullptr;
     _curGPUInputAssembler = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
     _curDynamicOffsetsArray.assign(_curDynamicOffsetsArray.size(), {});

@@ -67,7 +67,11 @@ export interface PipelineRuntime {
     readonly macros: MacroRecord;
 }
 
-export interface Setter {
+export interface RenderNode {
+    name: string;
+}
+
+export interface Setter extends RenderNode {
     setMat4 (name: string, mat: Mat4): void;
     setQuaternion (name: string, quat: Quat): void;
     setColor (name: string, color: Color): void;
@@ -82,12 +86,9 @@ export interface Setter {
 }
 
 export interface RasterQueueBuilder extends Setter {
-    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name: string): void;
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
     addScene (name: string, sceneFlags: SceneFlags): void;
-    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
     addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
     clearRenderTarget (name: string, color: Color): void;
     setViewport (viewport: Viewport): void;
@@ -96,33 +97,24 @@ export interface RasterQueueBuilder extends Setter {
 export interface RasterPassBuilder extends Setter {
     addRasterView (name: string, view: RasterView): void;
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (hint: QueueHint, name: string): RasterQueueBuilder;
     addQueue (hint: QueueHint): RasterQueueBuilder;
-    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
     setViewport (viewport: Viewport): void;
 }
 
 export interface ComputeQueueBuilder extends Setter {
-    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
     addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
 export interface ComputePassBuilder extends Setter {
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (name: string): ComputeQueueBuilder;
     addQueue (): ComputeQueueBuilder;
-    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
-    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export interface MovePassBuilder {
+export interface MovePassBuilder extends RenderNode {
     addPair (pair: MovePair): void;
 }
 
-export interface CopyPassBuilder {
+export interface CopyPassBuilder extends RenderNode {
     addPair (pair: CopyPair): void;
 }
 
@@ -171,12 +163,10 @@ export interface Pipeline extends PipelineRuntime {
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
     beginFrame (): void;
     endFrame (): void;
-    addRasterPass (width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
     addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
-    addComputePass (layoutName: string, name: string): ComputePassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
-    addMovePass (name: string): MovePassBuilder;
-    addCopyPass (name: string): CopyPassBuilder;
+    addMovePass (): MovePassBuilder;
+    addCopyPass (): CopyPassBuilder;
     presentAll (): void;
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
     readonly layoutGraphBuilder: LayoutGraphBuilder;

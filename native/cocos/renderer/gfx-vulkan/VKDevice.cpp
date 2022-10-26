@@ -47,8 +47,8 @@
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
 
-#include "gfx-base/SPIRVUtils.h"
 #include "application/ApplicationManager.h"
+#include "gfx-base/SPIRVUtils.h"
 #include "platform/interfaces/modules/IXRInterface.h"
 #include "profiler/Profiler.h"
 
