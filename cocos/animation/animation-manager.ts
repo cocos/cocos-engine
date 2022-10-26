@@ -24,15 +24,12 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import System from '../core/system';
+import { System, errorID, cclegacy, js } from '../core';
 import { director, Director } from '../game/director';
-import { errorID } from '../core/platform/debug';
 import { Node } from '../scene-graph';
-import { MutableForwardIterator } from '../core/utils/array';
 import { LegacyBlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import type { CrossFade } from './cross-fade';
-import { legacyCC } from '../core/global-exports';
 import { IJointTransform, deleteTransform, getTransform, getWorldMatrix } from './skeletal-animation-utils';
 import { Socket } from '../3d/skeletal-animation/skeletal-animation';
 
@@ -48,8 +45,8 @@ export class AnimationManager extends System {
     }
 
     public static ID = 'animation';
-    private _anims = new MutableForwardIterator<AnimationState>([]);
-    private _crossFades = new MutableForwardIterator<CrossFade>([]);
+    private _anims = new js.array.MutableForwardIterator<AnimationState>([]);
+    private _crossFades = new js.array.MutableForwardIterator<CrossFade>([]);
     private _delayEvents: {
         fn: (...args: any[]) => void;
         thisArg: any;
@@ -95,7 +92,7 @@ export class AnimationManager extends System {
         }
         this._blendStateBuffer.apply();
 
-        const stamp = legacyCC.director.getTotalFrames();
+        const stamp = cclegacy.director.getTotalFrames();
         for (let i = 0, l = _sockets.length; i < l; i++) {
             const { target, transform } = _sockets[i];
             target.matrix = getWorldMatrix(transform, stamp);
@@ -169,4 +166,4 @@ director.on(Director.EVENT_INIT, () => {
     director.registerSystem(AnimationManager.ID, animationManager, System.Priority.HIGH);
 });
 
-legacyCC.AnimationManager = AnimationManager;
+cclegacy.AnimationManager = AnimationManager;

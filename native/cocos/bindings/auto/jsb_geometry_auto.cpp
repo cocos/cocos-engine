@@ -1262,6 +1262,236 @@ static bool js_cc_geometry_Plane_create_static(se::State& s)
 }
 SE_BIND_FUNC(js_cc_geometry_Plane_create_static) 
 
+static bool js_cc_geometry_Plane_clone_static__SWIG_0(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Plane *arg1 = 0 ;
+    cc::geometry::Plane temp1 ;
+    cc::geometry::Plane *result = 0 ;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_clone,1,SWIGTYPE_p_cc__geometry__Plane");
+    arg1 = &temp1;
+    
+    result = (cc::geometry::Plane *)cc::geometry::Plane::clone((cc::geometry::Plane const &)*arg1);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Plane_clone, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Plane_copy_static(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::geometry::Plane *arg1 = (cc::geometry::Plane *) NULL ;
+    cc::geometry::Plane *arg2 = 0 ;
+    cc::geometry::Plane temp2 ;
+    cc::geometry::Plane *result = 0 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_copy,1,SWIGTYPE_p_cc__geometry__Plane"); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_copy,2,SWIGTYPE_p_cc__geometry__Plane");
+    arg2 = &temp2;
+    
+    result = (cc::geometry::Plane *)cc::geometry::Plane::copy(arg1,(cc::geometry::Plane const &)*arg2);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Plane_copy, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_geometry_Plane_copy_static) 
+
+static bool js_cc_geometry_Plane_fromPoints_static(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::geometry::Plane *arg1 = (cc::geometry::Plane *) NULL ;
+    cc::Vec3 *arg2 = 0 ;
+    cc::Vec3 *arg3 = 0 ;
+    cc::Vec3 *arg4 = 0 ;
+    cc::Vec3 temp2 ;
+    cc::Vec3 temp3 ;
+    cc::Vec3 temp4 ;
+    cc::geometry::Plane *result = 0 ;
+    
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_fromPoints,1,SWIGTYPE_p_cc__geometry__Plane"); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_fromPoints,2,SWIGTYPE_p_cc__Vec3");
+    arg2 = &temp2;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_fromPoints,3,SWIGTYPE_p_cc__Vec3");
+    arg3 = &temp3;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_fromPoints,4,SWIGTYPE_p_cc__Vec3");
+    arg4 = &temp4;
+    
+    result = (cc::geometry::Plane *)cc::geometry::Plane::fromPoints(arg1,(cc::Vec3 const &)*arg2,(cc::Vec3 const &)*arg3,(cc::Vec3 const &)*arg4);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Plane_fromPoints, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_geometry_Plane_fromPoints_static) 
+
+static bool js_cc_geometry_Plane_set_static(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::geometry::Plane *arg1 = (cc::geometry::Plane *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    cc::geometry::Plane *result = 0 ;
+    
+    if(argc != 5) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
+        return false;
+    }
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_set,1,SWIGTYPE_p_cc__geometry__Plane"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "Plane_set,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "Plane_set,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "Plane_set,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "Plane_set,5,SWIGTYPE_float"); 
+    result = (cc::geometry::Plane *)cc::geometry::Plane::set(arg1,arg2,arg3,arg4,arg5);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Plane_set, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_geometry_Plane_set_static) 
+
+static bool js_cc_geometry_Plane_fromNormalAndPoint_static(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::geometry::Plane *arg1 = (cc::geometry::Plane *) NULL ;
+    cc::Vec3 *arg2 = 0 ;
+    cc::Vec3 *arg3 = 0 ;
+    cc::Vec3 temp2 ;
+    cc::Vec3 temp3 ;
+    cc::geometry::Plane *result = 0 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_fromNormalAndPoint,1,SWIGTYPE_p_cc__geometry__Plane"); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_fromNormalAndPoint,2,SWIGTYPE_p_cc__Vec3");
+    arg2 = &temp2;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_fromNormalAndPoint,3,SWIGTYPE_p_cc__Vec3");
+    arg3 = &temp3;
+    
+    result = (cc::geometry::Plane *)cc::geometry::Plane::fromNormalAndPoint(arg1,(cc::Vec3 const &)*arg2,(cc::Vec3 const &)*arg3);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Plane_fromNormalAndPoint, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_geometry_Plane_fromNormalAndPoint_static) 
+
+static bool js_cc_geometry_Plane_normalize_static(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::geometry::Plane *arg1 = (cc::geometry::Plane *) NULL ;
+    cc::geometry::Plane *arg2 = 0 ;
+    cc::geometry::Plane temp2 ;
+    cc::geometry::Plane *result = 0 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_normalize,1,SWIGTYPE_p_cc__geometry__Plane"); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Plane_normalize,2,SWIGTYPE_p_cc__geometry__Plane");
+    arg2 = &temp2;
+    
+    result = (cc::geometry::Plane *)cc::geometry::Plane::normalize(arg1,(cc::geometry::Plane const &)*arg2);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Plane_normalize, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_geometry_Plane_normalize_static) 
+
 static bool js_cc_geometry_Plane_setX(se::State& s)
 {
     // js_function
@@ -1773,6 +2003,53 @@ static bool js_cc_geometry_Plane_distance(se::State& s)
 }
 SE_BIND_FUNC(js_cc_geometry_Plane_distance) 
 
+static bool js_cc_geometry_Plane_clone__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::geometry::Plane *arg1 = (cc::geometry::Plane *) NULL ;
+    cc::geometry::Plane result;
+    
+    arg1 = SE_THIS_OBJECT<cc::geometry::Plane>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::geometry::Plane const *)arg1)->clone();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Plane_clone, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+
+static bool js_cc_geometry_Plane_clone(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_geometry_Plane_clone_static__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 0) {
+        ok = js_cc_geometry_Plane_clone__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_geometry_Plane_clone) 
+
 static bool js_delete_cc_geometry_Plane(se::State& s)
 {
     // js_dtoroverride
@@ -1797,9 +2074,15 @@ bool js_register_cc_geometry_Plane(se::Object* obj) {
     cls->defineFunction("transform", _SE(js_cc_geometry_Plane_transform)); 
     cls->defineFunction("define", _SE(js_cc_geometry_Plane_define)); 
     cls->defineFunction("distance", _SE(js_cc_geometry_Plane_distance)); 
+    cls->defineFunction("clone", _SE(js_cc_geometry_Plane_clone)); 
     
     
     cls->defineStaticFunction("create", _SE(js_cc_geometry_Plane_create_static)); 
+    cls->defineStaticFunction("copy", _SE(js_cc_geometry_Plane_copy_static)); 
+    cls->defineStaticFunction("fromPoints", _SE(js_cc_geometry_Plane_fromPoints_static)); 
+    cls->defineStaticFunction("set", _SE(js_cc_geometry_Plane_set_static)); 
+    cls->defineStaticFunction("fromNormalAndPoint", _SE(js_cc_geometry_Plane_fromNormalAndPoint_static)); 
+    cls->defineStaticFunction("normalize", _SE(js_cc_geometry_Plane_normalize_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_geometry_Plane));
@@ -2152,6 +2435,51 @@ static bool js_cc_geometry_Frustum_createOrtho(se::State& s)
 }
 SE_BIND_FUNC(js_cc_geometry_Frustum_createOrtho) 
 
+static bool js_cc_geometry_Frustum_split(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::geometry::Frustum *arg1 = (cc::geometry::Frustum *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    cc::Mat4 *arg6 = 0 ;
+    cc::Mat4 temp6 ;
+    
+    if(argc != 5) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::geometry::Frustum>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "Frustum_split,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "Frustum_split,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "Frustum_split,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "Frustum_split,5,SWIGTYPE_float"); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Frustum_split,6,SWIGTYPE_p_cc__Mat4");
+    arg6 = &temp6;
+    
+    (arg1)->split(arg2,arg3,arg4,arg5,(cc::Mat4 const &)*arg6);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_geometry_Frustum_split) 
+
 static bool js_cc_geometry_Frustum_updatePlanes(se::State& s)
 {
     // js_function
@@ -2284,6 +2612,7 @@ bool js_register_cc_geometry_Frustum(se::Object* obj) {
     
     cls->defineFunction("transform", _SE(js_cc_geometry_Frustum_transform)); 
     cls->defineFunction("createOrtho", _SE(js_cc_geometry_Frustum_createOrtho)); 
+    cls->defineFunction("split", _SE(js_cc_geometry_Frustum_split)); 
     cls->defineFunction("updatePlanes", _SE(js_cc_geometry_Frustum_updatePlanes)); 
     cls->defineFunction("setAccurate", _SE(js_cc_geometry_Frustum_setAccurate)); 
     

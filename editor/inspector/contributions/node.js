@@ -910,7 +910,7 @@ const Elements = {
             panel.$.nodePosition.render(panel.dump.position);
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
-            // panel.$.nodeMobility.render(panel.dump.mobility);
+            panel.$.nodeMobility.render(panel.dump.mobility);
             panel.$.nodeLayer.render(panel.dump.layer);
 
             // 查找需要渲染的 component 列表

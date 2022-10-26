@@ -67,7 +67,7 @@ void SceneGlobals::activate() {
         _octreeInfo->activate(sceneData->getOctree());
     }
 
-    if (_lightProbeInfo != nullptr) {
+    if (_lightProbeInfo != nullptr && sceneData->getLightProbes() != nullptr) {
         _lightProbeInfo->activate(sceneData->getLightProbes());
     }
 

@@ -1,6 +1,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { remove, removeIf } from '../../core/utils/array';
+import { js, clamp } from '../../core';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
@@ -13,11 +13,9 @@ import { MotionState } from './motion-state';
 import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
 import { AnimationMask } from './animation-mask';
 import { EditorExtendable } from '../../core/data/editor-extendable';
-import { array } from '../../core/utils/js';
 import { move } from '../../core/algorithm/move';
 import { onAfterDeserializedTag } from '../../core/data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { clamp } from '../../core/math';
 
 export { State };
 
@@ -375,7 +373,7 @@ export class StateMachine extends EditorExtendable {
         }
 
         this.eraseTransitionsIncludes(state);
-        remove(this._states, state);
+        js.array.remove(this._states, state);
 
         markAsDangling(state);
     }
@@ -451,12 +449,12 @@ export class StateMachine extends EditorExtendable {
             ++iOTransitionToRemove
         ) {
             const oTransition = oTransitionsToRemove[iOTransitionToRemove];
-            remove(oTransitions, oTransition);
+            js.array.remove(oTransitions, oTransition);
             assertIsTrue(
-                remove(transitions, oTransition),
+                js.array.remove(transitions, oTransition),
             );
             assertIsNonNullable(
-                removeIf(iTransitions, (transition) => transition === oTransition),
+                js.array.removeIf(iTransitions, (transition) => transition === oTransition),
             );
             markAsDangling(oTransition);
         }
@@ -464,13 +462,13 @@ export class StateMachine extends EditorExtendable {
 
     public removeTransition (removal: Transition) {
         assertIsTrue(
-            remove(this._transitions, removal),
+            js.array.remove(this._transitions, removal),
         );
         assertIsNonNullable(
-            removeIf(removal.from[outgoingsSymbol], (transition) => transition === removal),
+            js.array.removeIf(removal.from[outgoingsSymbol], (transition) => transition === removal),
         );
         assertIsNonNullable(
-            removeIf(removal.to[incomingsSymbol], (transition) => transition === removal),
+            js.array.removeIf(removal.to[incomingsSymbol], (transition) => transition === removal),
         );
         markAsDangling(removal);
     }
@@ -483,10 +481,10 @@ export class StateMachine extends EditorExtendable {
             const oTransition = oTransitions[iOTransition];
             const to = oTransition.to;
             assertIsTrue(
-                remove(this._transitions, oTransition),
+                js.array.remove(this._transitions, oTransition),
             );
             assertIsNonNullable(
-                removeIf(to[incomingsSymbol], (transition) => transition === oTransition),
+                js.array.removeIf(to[incomingsSymbol], (transition) => transition === oTransition),
             );
             markAsDangling(oTransition);
         }
@@ -501,10 +499,10 @@ export class StateMachine extends EditorExtendable {
             const iTransition = iTransitions[iITransition];
             const from = iTransition.from;
             assertIsTrue(
-                remove(this._transitions, iTransition),
+                js.array.remove(this._transitions, iTransition),
             );
             assertIsNonNullable(
-                removeIf(from[outgoingsSymbol], (transition) => transition === iTransition),
+                js.array.removeIf(from[outgoingsSymbol], (transition) => transition === iTransition),
             );
             markAsDangling(iTransition);
         }
@@ -896,7 +894,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
      * @param index Index to the layer to remove.
      */
     public removeLayer (index: number) {
-        array.removeAt(this._layers, index);
+        js.array.removeAt(this._layers, index);
     }
 
     /**

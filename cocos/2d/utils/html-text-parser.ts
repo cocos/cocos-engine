@@ -25,7 +25,7 @@
 */
 
 import { TEST } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -431,5 +431,5 @@ export class HtmlTextParser {
 }
 
 if (TEST) {
-    legacyCC._Test.HtmlTextParser = HtmlTextParser;
+    cclegacy._Test.HtmlTextParser = HtmlTextParser;
 }

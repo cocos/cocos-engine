@@ -29,23 +29,16 @@
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import System from '../core/system';
+import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, cclegacy } from '../core';
 import { CCObject } from '../core/data/object';
-import { EventTarget } from '../core/event';
 import { input } from '../input';
 import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';
 import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
-import { Scheduler } from '../core/scheduler';
-import { js } from '../core/utils/js';
-import { legacyCC } from '../core/global-exports';
-import { errorID, error, assertID, warnID } from '../core/platform/debug';
 import { containerManager } from '../core/memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { deviceManager } from '../gfx';
-import { PipelineBuilder } from '../rendering/custom/pipeline';
-import { macro } from '../core/platform/macro';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -296,7 +289,7 @@ export class Director extends EventTarget {
         this._nodeActivator.reset();
 
         if (!EDITOR) {
-            if (legacyCC.isValid(this._scene)) {
+            if (cclegacy.isValid(this._scene)) {
                 this._scene!.destroy();
             }
             this._scene = null;
@@ -305,7 +298,7 @@ export class Director extends EventTarget {
         this.stopAnimation();
 
         // Clear all caches
-        legacyCC.assetManager.releaseAll();
+        cclegacy.assetManager.releaseAll();
     }
 
     /**
@@ -379,7 +372,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Destroy');
         }
-        if (legacyCC.isValid(oldScene)) {
+        if (cclegacy.isValid(oldScene)) {
             oldScene!.destroy();
         }
         if (!EDITOR) {
@@ -387,7 +380,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, this._persistRootNodes);
+            cclegacy.assetManager._releaseManager._autoRelease(oldScene, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -460,7 +453,7 @@ export class Director extends EventTarget {
             warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        const bundle = legacyCC.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
+        const bundle = cclegacy.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
@@ -518,7 +511,7 @@ export class Director extends EventTarget {
         onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
         onLoaded?: Director.OnSceneLoaded,
     ) {
-        const bundle = legacyCC.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
+        const bundle = cclegacy.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             bundle.preloadScene(sceneName, null, onProgress, onLoaded);
         } else {
@@ -565,7 +558,7 @@ export class Director extends EventTarget {
      * @deprecated since v3.3.0, please use game.deltaTime instead
      */
     public getDeltaTime () {
-        return legacyCC.game.deltaTime as number;
+        return cclegacy.game.deltaTime as number;
     }
 
     /**
@@ -574,7 +567,7 @@ export class Director extends EventTarget {
      * @deprecated since v3.3.0, please use game.totalTime instead
      */
     public getTotalTime () {
-        return legacyCC.game.totalTime as number;
+        return cclegacy.game.totalTime as number;
     }
 
     /**
@@ -583,7 +576,7 @@ export class Director extends EventTarget {
      * @deprecated since v3.3.0, please use game.frameStartTime instead
      */
     public getCurrentTime () {
-        return legacyCC.game.frameStartTime as number;
+        return cclegacy.game.frameStartTime as number;
     }
 
     /**
@@ -652,7 +645,7 @@ export class Director extends EventTarget {
      * @deprecated since 3.0.0
      */
     public getAnimationManager (): any {
-        return this.getSystem(legacyCC.AnimationManager.ID);
+        return this.getSystem(cclegacy.AnimationManager.ID);
     }
 
     // Loop management
@@ -679,10 +672,10 @@ export class Director extends EventTarget {
      */
     public mainLoop (now: number) {
         let dt;
-        if (EDITOR && !legacyCC.GAME_VIEW || TEST) {
+        if (EDITOR && !cclegacy.GAME_VIEW || TEST) {
             dt = now;
         } else {
-            dt = legacyCC.game._calculateDT(now);
+            dt = cclegacy.game._calculateDT(now);
         }
         this.tick(dt);
     }
@@ -695,7 +688,7 @@ export class Director extends EventTarget {
     public tick (dt: number) {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
-            if (!EDITOR || legacyCC.GAME_VIEW) {
+            if (!EDITOR || cclegacy.GAME_VIEW) {
                 // @ts-expect-error _frameDispatchEvents is a private method.
                 input._frameDispatchEvents();
             }
@@ -739,15 +732,15 @@ export class Director extends EventTarget {
     private buildRenderPipeline () {
         if (this._root) {
             this._root.customPipeline.beginSetup();
-            const builder = legacyCC.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+            const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
             builder.setup(this._root.cameraList, this._root.customPipeline);
             this._root.customPipeline.endSetup();
         }
     }
 
     private setupRenderPipelineBuilder () {
-        if (this._root && this._root.usesCustomPipeline && legacyCC.rendering) {
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
     }
 
@@ -783,14 +776,14 @@ export class Director extends EventTarget {
      * @param node - The node to be made persistent
      */
     public addPersistRootNode (node: Node) {
-        if (!legacyCC.Node.isNode(node) || !node.uuid) {
+        if (!cclegacy.Node.isNode(node) || !node.uuid) {
             warnID(3800);
             return;
         }
         const id = node.uuid;
         if (!this._persistRootNodes[id]) {
             const scene = this._scene as any;
-            if (legacyCC.isValid(scene)) {
+            if (cclegacy.isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
                     node._originalSceneId = scene.uuid;
@@ -806,7 +799,7 @@ export class Director extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
+            cclegacy.assetManager._releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -821,7 +814,7 @@ export class Director extends EventTarget {
             delete this._persistRootNodes[id];
             node._persistNode = false;
             node._originalSceneId = '';
-            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
+            cclegacy.assetManager._releaseManager._removePersistNodeRef(node);
         }
     }
 
@@ -852,10 +845,10 @@ export declare namespace Director {
     export type OnLoadSceneProgress = (completedCount: number, totalCount: number, item: any) => void;
 }
 
-legacyCC.Director = Director;
+cclegacy.Director = Director;
 
 /**
  * @en Director of the game, used to control game update loop and scene management
  * @zh 游戏的导演，用于控制游戏更新循环与场景管理。
  */
-export const director: Director = Director.instance = legacyCC.director = new Director();
+export const director: Director = Director.instance = cclegacy.director = new Director();
