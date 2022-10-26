@@ -69,7 +69,7 @@ export { default as Pool } from './pool';
 export { array };
 
 /**
- * @deprecated all functions expect deprecated function are exported by core.js
+ * @deprecated since 3.7.0, all functions expect deprecated function are exported by core.js
  */
 export const js = {
     IDGenerator,
