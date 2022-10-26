@@ -105,6 +105,10 @@ using namespace cc::render;
 #define cc_render_PipelineRuntime_shadingScale_set(self_, val_) self_->setShadingScale(val_)
   
 
+#define cc_render_RenderNode_name_get(self_) self_->getName()
+#define cc_render_RenderNode_name_set(self_, val_) self_->setName(val_)
+  
+
 #define cc_render_SceneVisitor_pipelineSceneData_get(self_) self_->getPipelineSceneData()
   
 
@@ -709,16 +713,84 @@ bool js_register_cc_render_PipelineRuntime(se::Object* obj) {
 }
 
 
-se::Class* __jsb_cc_render_Setter_class = nullptr;
-se::Object* __jsb_cc_render_Setter_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_Setter) 
+se::Class* __jsb_cc_render_RenderNode_class = nullptr;
+se::Object* __jsb_cc_render_RenderNode_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_RenderNode) 
 
-static bool js_delete_cc_render_Setter(se::State& s)
+static bool js_delete_cc_render_RenderNode(se::State& s)
 {
     // js_dtoroverride
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_delete_cc_render_Setter) 
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_RenderNode) 
+
+static bool js_cc_render_RenderNode_name_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderNode *arg1 = (cc::render::RenderNode *) NULL ;
+    ccstd::string arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RenderNode>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderNode_name_set,2,SWIGTYPE_ccstd__string"); 
+    
+    cc_render_RenderNode_name_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_render_RenderNode_name_set) 
+
+static bool js_cc_render_RenderNode_name_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::render::RenderNode *arg1 = (cc::render::RenderNode *) NULL ;
+    ccstd::string result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RenderNode>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_render_RenderNode_name_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderNode_name_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_render_RenderNode_name_get) 
+
+bool js_register_cc_render_RenderNode(se::Object* obj) {
+    auto* cls = se::Class::create("RenderNode", obj, nullptr, nullptr); 
+    
+    cls->defineProperty("name", _SE(js_cc_render_RenderNode_name_get), _SE(js_cc_render_RenderNode_name_set)); 
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_render_RenderNode));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::render::RenderNode>(cls);
+    
+    __jsb_cc_render_RenderNode_proto = cls->getProto();
+    __jsb_cc_render_RenderNode_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_render_Setter_class = nullptr;
+se::Object* __jsb_cc_render_Setter_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_Setter) 
 
 static bool js_cc_render_Setter_setMat4(se::State& s)
 {
@@ -1098,8 +1170,15 @@ static bool js_cc_render_Setter_setSampler(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Setter_setSampler) 
 
+static bool js_delete_cc_render_Setter(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_Setter) 
+
 bool js_register_cc_render_Setter(se::Object* obj) {
-    auto* cls = se::Class::create("Setter", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("Setter", obj, __jsb_cc_render_RenderNode_proto, nullptr); 
     
     
     cls->defineFunction("setMat4", _SE(js_cc_render_Setter_setMat4)); 
@@ -2399,13 +2478,6 @@ se::Class* __jsb_cc_render_MovePassBuilder_class = nullptr;
 se::Object* __jsb_cc_render_MovePassBuilder_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_MovePassBuilder) 
 
-static bool js_delete_cc_render_MovePassBuilder(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_render_MovePassBuilder) 
-
 static bool js_cc_render_MovePassBuilder_addPair(se::State& s)
 {
     // js_function
@@ -2435,8 +2507,15 @@ static bool js_cc_render_MovePassBuilder_addPair(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_MovePassBuilder_addPair) 
 
+static bool js_delete_cc_render_MovePassBuilder(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_MovePassBuilder) 
+
 bool js_register_cc_render_MovePassBuilder(se::Object* obj) {
-    auto* cls = se::Class::create("MovePassBuilder", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("MovePassBuilder", obj, __jsb_cc_render_RenderNode_proto, nullptr); 
     
     
     cls->defineFunction("addPair", _SE(js_cc_render_MovePassBuilder_addPair)); 
@@ -2460,13 +2539,6 @@ bool js_register_cc_render_MovePassBuilder(se::Object* obj) {
 se::Class* __jsb_cc_render_CopyPassBuilder_class = nullptr;
 se::Object* __jsb_cc_render_CopyPassBuilder_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_CopyPassBuilder) 
-
-static bool js_delete_cc_render_CopyPassBuilder(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_render_CopyPassBuilder) 
 
 static bool js_cc_render_CopyPassBuilder_addPair(se::State& s)
 {
@@ -2497,8 +2569,15 @@ static bool js_cc_render_CopyPassBuilder_addPair(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_CopyPassBuilder_addPair) 
 
+static bool js_delete_cc_render_CopyPassBuilder(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_CopyPassBuilder) 
+
 bool js_register_cc_render_CopyPassBuilder(se::Object* obj) {
-    auto* cls = se::Class::create("CopyPassBuilder", obj, nullptr, nullptr); 
+    auto* cls = se::Class::create("CopyPassBuilder", obj, __jsb_cc_render_RenderNode_proto, nullptr); 
     
     
     cls->defineFunction("addPair", _SE(js_cc_render_CopyPassBuilder_addPair)); 
@@ -4177,6 +4256,7 @@ bool register_all_render(se::Object* obj) {
     se::Object* ns = nsVal.toObject();
     /* Register classes */
     js_register_cc_render_PipelineRuntime(ns); 
+    js_register_cc_render_RenderNode(ns); 
     js_register_cc_render_Setter(ns); 
     js_register_cc_render_RasterQueueBuilder(ns); 
     js_register_cc_render_RasterPassBuilder(ns); 
