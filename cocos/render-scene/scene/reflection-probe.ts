@@ -275,13 +275,11 @@ export class ReflectionProbe {
     }
 
     public initBakedTextures () {
-        if (EDITOR) {
-            //wait for scene data initialize, so create rendertexture in the start function
-            if (this.bakedCubeTextures.length === 0) {
-                for (let i = 0; i < 6; i++) {
-                    const renderTexture = this._createTargetTexture(this._resolution, this._resolution);
-                    this.bakedCubeTextures.push(renderTexture);
-                }
+        //wait for scene data initialize, so create rendertexture in the start function
+        if (this.bakedCubeTextures.length === 0) {
+            for (let i = 0; i < 6; i++) {
+                const renderTexture = this._createTargetTexture(this._resolution, this._resolution);
+                this.bakedCubeTextures.push(renderTexture);
             }
         }
     }

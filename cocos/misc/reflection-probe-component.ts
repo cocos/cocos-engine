@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, readOnly, serializable, tooltip, type, visible } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { CCBoolean, Color, Enum, Vec3 } from '../core';
 import { BufferTextureCopy } from '../gfx/base/define';
 
@@ -225,18 +226,26 @@ export class ReflectionProbe extends Component {
     }
 
     public onLoad () {
-        this._createProbe();
+        if (EDITOR || this.probeType === ProbeType.PLANAR) {
+            this._createProbe();
+        }
     }
 
     onEnable () {
-        ReflectionProbeManager.probeManager.register(this._probe!);
+        if (EDITOR || this.probeType === ProbeType.PLANAR) {
+            ReflectionProbeManager.probeManager.register(this._probe!);
+        }
     }
     onDisable () {
-        ReflectionProbeManager.probeManager.unregister(this._probe!);
+        if (EDITOR || this.probeType === ProbeType.PLANAR) {
+            ReflectionProbeManager.probeManager.unregister(this._probe!);
+        }
     }
 
     public start () {
-        this.probe.initBakedTextures();
+        if (EDITOR) {
+            this.probe.initBakedTextures();
+        }
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
             this.probe.switchProbeType(this.probeType, this.sourceCamera.camera);
         }
