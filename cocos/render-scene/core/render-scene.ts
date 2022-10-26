@@ -31,7 +31,7 @@ import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
-import { LODData, LODGroup } from '../scene/lod-group';
+import { LODGroup } from '../scene/lod-group';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -129,6 +129,7 @@ export class RenderScene {
     }
 
     /**
+     * @engineInternal
      * @en All LOD groups of the render scene
      * @zh 渲染场景管理的所有 LOD 组
      */
@@ -452,6 +453,7 @@ export class RenderScene {
     }
 
     /**
+     * @engineInternal
      * @en Add a LOD group， all LOD groups attached to the render scene will be submitted for rendering.
      * @zh 增加一个LOD 组，渲染场景上挂载的所有LOD 组都会被提交渲染。
      * @param lodGroup the LOD group
@@ -462,6 +464,7 @@ export class RenderScene {
     }
 
     /**
+     * @engineInternal
      * @en Remove a LOD group, the LOD group removed will no longer be submitted for rendering.
      * @zh 删除一个LOD 组，移除的LOD 组将不再被提交渲染。
      * @param lodGroup the LOD group
@@ -475,6 +478,7 @@ export class RenderScene {
     }
 
     /**
+     * @engineInternal
      * @en Remove all LOD groups.
      * @zh 删除所有LOD 组。
      */
