@@ -65,6 +65,10 @@ export class LOD {
         this._LODData.screenUsagePercentage = val;
     }
 
+    /**
+     * @en Get the list of [[MeshRenderer]] used by the current lod.
+     * @zh 获取当前lod使用的 [[MeshRenderer]] 列表
+     */
     @type([MeshRenderer])
     get renderers (): readonly MeshRenderer[]  {
         return this._renderers;
@@ -239,7 +243,7 @@ export class LODGroup extends Component {
     get objectSize () { return this._objectSize; }
 
     @type([LOD])
-    get LODs () {
+    get LODs () : LOD[] {
         return this._LODs;
     }
 
