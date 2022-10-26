@@ -307,6 +307,7 @@ using namespace cc;
 %attribute(cc::scene::DirectionalLight, bool, csmNeedUpdate, isCSMNeedUpdate, setCSMNeedUpdate);
 %attribute(cc::scene::DirectionalLight, float, csmLayerLambda, getCSMLayerLambda, setCSMLayerLambda);
 %attribute(cc::scene::DirectionalLight, cc::scene::CSMOptimizationMode, csmOptimizationMode, getCSMOptimizationMode, setCSMOptimizationMode);
+%attribute(cc::scene::DirectionalLight, bool, csmLayersTransition, getCSMLayersTransition, setCSMLayersTransition);
 
 %attribute(cc::scene::SpotLight, cc::Vec3&, position, getPosition);
 %attribute(cc::scene::SpotLight, float, range, getRange, setRange);

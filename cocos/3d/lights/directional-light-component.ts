@@ -468,8 +468,8 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.shadowAdvancedOptions')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
          && this._csmLevel > CSMLevel.LEVEL_1;
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 19 } })
@@ -488,8 +488,8 @@ export class DirectionalLight extends Light {
      */
     @tooltip('i18n:lights.csmLayersTransition')
     @visible(function (this: DirectionalLight) {
-        return (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
-         && (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
          && this._csmLevel > CSMLevel.LEVEL_1
          && this._csmAdvancedOptions;
     })
