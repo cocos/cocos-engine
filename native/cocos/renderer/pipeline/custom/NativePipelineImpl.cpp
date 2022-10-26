@@ -207,7 +207,8 @@ void NativePipeline::endFrame() {
 
 RasterPassBuilder *NativePipeline::addRasterPass(
     uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
-    const ccstd::string &layoutName, const ccstd::string &name) {
+    const ccstd::string &layoutName) {
+    std::string_view name("Raster");
     RasterPass pass(renderGraph.get_allocator());
     pass.width = width;
     pass.height = height;
@@ -216,7 +217,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
 
     auto passID = addVertex(
         RasterTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(layoutName.c_str()),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -230,16 +231,11 @@ RasterPassBuilder *NativePipeline::addRasterPass(
 }
 
 // NOLINTNEXTLINE
-RasterPassBuilder *NativePipeline::addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) {
-    return addRasterPass(width, height, layoutName, "Raster");
-}
-
-// NOLINTNEXTLINE
-ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName,
-                                                   const ccstd::string &name) {
+ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
+    std::string_view name("Compute");
     auto passID = addVertex(
         ComputeTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(layoutName.c_str()),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -252,15 +248,11 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
-    return addComputePass(layoutName, "Compute");
-}
-
-// NOLINTNEXTLINE
-MovePassBuilder *NativePipeline::addMovePass(const ccstd::string &name) {
+MovePassBuilder *NativePipeline::addMovePass() {
+    std::string_view name("Move");
     auto passID = addVertex(
         MoveTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -271,10 +263,11 @@ MovePassBuilder *NativePipeline::addMovePass(const ccstd::string &name) {
 }
 
 // NOLINTNEXTLINE
-CopyPassBuilder *NativePipeline::addCopyPass(const ccstd::string &name) {
+CopyPassBuilder *NativePipeline::addCopyPass() {
+    std::string_view name("Copy");
     auto passID = addVertex(
         CopyTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
