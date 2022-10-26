@@ -1,7 +1,7 @@
 import { ccclass, serializable, editable } from 'cc.decorator';
 import type { Node } from '../../scene-graph/node';
 import { Asset } from '../../asset/assets/asset';
-import { removeIf } from '../../core/utils/array';
+import { js } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationMask`)
@@ -38,7 +38,7 @@ export class AnimationMask extends Asset {
     }
 
     public removeJoint (removal: string) {
-        removeIf(this._jointMasks, ({ path }) => path === removal);
+        js.array.removeIf(this._jointMasks, ({ path }) => path === removal);
     }
 
     public clear () {
