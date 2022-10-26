@@ -154,19 +154,18 @@ bool CCMTLTexture::createMTLTexture() {
     if (mtlFormat == MTLPixelFormatInvalid)
         return false;
 
-    MTLTextureDescriptor *descriptor = nullptr;
     auto mtlTextureType = mu::toMTLTextureType(_info.type);
     switch (mtlTextureType) {
         case MTLTextureType2D:
         case MTLTextureType2DArray:
             // No need to set mipmapped flag since mipmapLevelCount was explicty set via `_levelCount`.
-            descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
+            _descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
                                                                             width:_info.width
                                                                            height:_info.height
                                                                         mipmapped:NO];
             break;
         case MTLTextureTypeCube:
-            descriptor = [MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:mtlFormat
+            _descriptor = [MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:mtlFormat
                                                                                size:_info.width
                                                                           mipmapped:NO];
             break;
@@ -175,14 +174,14 @@ bool CCMTLTexture::createMTLTexture() {
             break;
     }
 
-    if (descriptor == nullptr)
+    if (_descriptor == nil)
         return false;
 
-    descriptor.usage = mu::toMTLTextureUsage(_info.usage);
-    descriptor.sampleCount = mu::toMTLSampleCount(_info.samples);
-    descriptor.textureType = descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_info.type);
-    descriptor.mipmapLevelCount = _info.levelCount;
-    descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
+    _descriptor.usage = mu::toMTLTextureUsage(_info.usage);
+    _descriptor.sampleCount = mu::toMTLSampleCount(_info.samples);
+    _descriptor.textureType = _descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_info.type);
+    _descriptor.mipmapLevelCount = _info.levelCount;
+    _descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
     if (hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
 #if MEMLESS_ON
@@ -198,16 +197,36 @@ bool CCMTLTexture::createMTLTexture() {
         descriptor.storageMode = MTLStorageModePrivate;
     #endif
 #else
-        descriptor.storageMode = MTLStorageModePrivate;
+        _descriptor.storageMode = MTLStorageModePrivate;
 #endif
     } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT)) {
-        descriptor.storageMode = MTLStorageModePrivate;
+        _descriptor.storageMode = MTLStorageModePrivate;
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
+    _mtlTexture = [mtlDevice newTextureWithDescriptor:_descriptor];
 
     return _mtlTexture != nil;
+}
+
+void CCMTLTexture::initFromHeap(id<MTLHeap> heap, uint32_t offset) {
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+
+    _mtlTexture = [heap newTextureWithDescriptor:_descriptor offset:offset];
+    _mtlTextureView = _mtlTexture;
+}
+
+MTLSizeAndAlign CCMTLTexture::getSizeAndAlign() const {
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+    return [mtlDevice heapTextureSizeAndAlignWithDescriptor: _descriptor];
+}
+
+void CCMTLTexture::setAllocation(Allocator::Handle handle) {
+    _allocation = handle;
+}
+
+Allocator::Handle CCMTLTexture::getAllocation() const {
+    return _allocation;
 }
 
 CCMTLSwapchain *CCMTLTexture::swapChain() {

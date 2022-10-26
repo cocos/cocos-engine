@@ -42,6 +42,7 @@
 #import "MTLShader.h"
 #import "MTLSwapchain.h"
 #import "MTLTexture.h"
+#import "MTLTransientPool.h"
 #import "base/Log.h"
 #import "profiler/Profiler.h"
 
@@ -310,7 +311,7 @@ Swapchain *CCMTLDevice::createSwapchain() {
 }
 
 TransientPool *CCMTLDevice::createTransientPool() {
-    return nullptr;
+    return ccnew CCMTLTransientPool;
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {

@@ -30,14 +30,15 @@ class GFXTest : public ::testing::Test {
 public:
     static void SetUpTestSuite()
     {
-//        if (!device) {
-//            device.reset(cc::gfx::DeviceManager::create());
-//        }
+        if (!device) {
+            device.reset(cc::gfx::DeviceManager::create());
+        }
     }
 
     static void TearDownTestSuite()
     {
-//        device.reset();
+        device->destroy();
+        device.reset();
     }
 
     void SetUp()
@@ -54,18 +55,18 @@ public:
 std::unique_ptr<cc::gfx::Device> GFXTest::device;
 
 TEST_F(GFXTest, TransientPoolTest) {
-//    auto device = GFXTest::device.get();
-//
-//    cc::IntrusivePtr<cc::gfx::TransientPool> pool = device->createTransientPool({});
-//
-//    cc::gfx::BufferInfo bufferInfo = {};
-//    bufferInfo.size  = 128;
-//    bufferInfo.usage = cc::gfx::BufferUsageBit::STORAGE;
-//    bufferInfo.flags = cc::gfx::BufferFlagBit::TRANSIENT;
-//    bufferInfo.memUsage = cc::gfx::MemoryUsageBit::DEVICE;
-//    cc::IntrusivePtr<cc::gfx::Buffer> buffer1 = pool->requestBuffer(bufferInfo);
-//    pool->resetBuffer(buffer1);
-//
-//    cc::IntrusivePtr<cc::gfx::Buffer> buffer2 = pool->requestBuffer(bufferInfo);
-//    pool->resetBuffer(buffer2);
+    auto device = GFXTest::device.get();
+
+    cc::IntrusivePtr<cc::gfx::TransientPool> pool = device->createTransientPool({});
+
+    cc::gfx::BufferInfo bufferInfo = {};
+    bufferInfo.size  = 128;
+    bufferInfo.usage = cc::gfx::BufferUsageBit::STORAGE;
+    bufferInfo.flags = cc::gfx::BufferFlagBit::TRANSIENT;
+    bufferInfo.memUsage = cc::gfx::MemoryUsageBit::DEVICE;
+    cc::IntrusivePtr<cc::gfx::Buffer> buffer1 = pool->requestBuffer(bufferInfo);
+    pool->resetBuffer(buffer1);
+
+    cc::IntrusivePtr<cc::gfx::Buffer> buffer2 = pool->requestBuffer(bufferInfo);
+    pool->resetBuffer(buffer2);
 }

@@ -97,7 +97,7 @@ void CCMTLBuffer::doInit(const BufferViewInfo &info) {
 }
 
 bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
-    if (!size) {
+    if (!size || hasFlag(_flags, BufferFlagBit::TRANSIENT)) {
         return false;
     }
 
@@ -123,6 +123,29 @@ bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
         return false;
     }
     return true;
+}
+
+MTLSizeAndAlign CCMTLBuffer::getSizeAndAlign() const {
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+    return [mtlDevice heapBufferSizeAndAlignWithLength:_size options:_mtlResourceOptions];
+}
+
+void CCMTLBuffer::initFromHeap(id<MTLHeap> heap, uint32_t alignedSize, uint32_t offset) {
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+
+    _gpuBuffer->mtlBuffer = [heap newBufferWithLength:alignedSize
+                                              options:_mtlResourceOptions
+                                               offset:offset];
+
+//    auto address = [_gpuBuffer->mtlBuffer gpuAddress];
+}
+
+void CCMTLBuffer::setAllocation(Allocator::Handle handle) {
+    _allocation = handle;
+}
+
+Allocator::Handle CCMTLBuffer::getAllocation() const {
+    return _allocation;
 }
 
 void CCMTLBuffer::doDestroy() {

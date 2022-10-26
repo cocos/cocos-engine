@@ -26,14 +26,16 @@ THE SOFTWARE.
 #pragma once
 
 #include "gfx-base/GFXTransientPool.h"
+#include "gfx-base/allocator/Allocator.h"
+#import <Metal/MTLHeap.h>
 
 namespace cc {
 namespace gfx {
 
-class MTLTransientPool : public TransientPool {
+class CCMTLTransientPool : public TransientPool, public Allocator::IBlock {
 public:
-    MTLTransientPool();
-    ~MTLTransientPool() override;
+    CCMTLTransientPool();
+    ~CCMTLTransientPool() override;
 
 private:
     void doInit(const TransientPoolInfo &info) override;
@@ -42,7 +44,13 @@ private:
     void doInitTexture(Texture *texture) override;
     void doResetTexture(Texture *texture) override;
 
-    void initMemoryRequirements(const TransientPoolInfo &info);
+    bool allocateBlock() override;
+    void freeBlock(uint32_t index) override;
+
+    void initAllocator(const TransientPoolInfo &info);
+
+    std::unique_ptr<Allocator> _allocator;
+    ccstd::vector<id<MTLHeap>> _heaps;
 };
 
 } // namespace gfx

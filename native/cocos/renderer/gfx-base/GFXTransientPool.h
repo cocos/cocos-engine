@@ -37,6 +37,7 @@ class Texture;
 struct TransientPoolInfo {
     bool enableImage = true;
     bool enableBuffer = true;
+    uint32_t blockSize = 64 * 1024 * 1024;
 };
 
 class TransientPool : public GFXObject, public RefCounted {
@@ -61,6 +62,8 @@ protected:
     virtual void doResetBuffer(Buffer *buffer) {}
     virtual void doInitTexture(Texture *texture) {}
     virtual void doResetTexture(Texture *texture) {}
+    
+    TransientPoolInfo _info;
 };
 
 } // namespace gfx

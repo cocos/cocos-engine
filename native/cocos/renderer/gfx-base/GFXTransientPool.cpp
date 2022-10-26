@@ -33,6 +33,7 @@ TransientPool::TransientPool() : GFXObject(ObjectType::TRANSIENT_POOL) {
 }
 
 void TransientPool::initialize(const TransientPoolInfo &info) {
+    _info = info;
     doInit(info);
 }
 

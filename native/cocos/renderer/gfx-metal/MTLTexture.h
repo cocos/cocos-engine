@@ -26,8 +26,11 @@
 #pragma once
 
 #import "gfx-base/GFXTexture.h"
+#import "gfx-base/allocator/Allocator.h"
 
 #import <Metal/MTLTexture.h>
+#import <Metal/MTLHeap.h>
+#import <Metal/MTLDevice.h>
 
 namespace cc {
 namespace gfx {
@@ -60,6 +63,12 @@ public:
     static CCMTLTexture *getDefaultTexture();
     static void deleteDefaultTexture();
 
+    void initFromHeap(id<MTLHeap> heap, uint32_t offset);
+    MTLSizeAndAlign getSizeAndAlign() const;
+
+    void setAllocation(Allocator::Handle handle);
+    Allocator::Handle getAllocation() const;
+
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
@@ -73,6 +82,9 @@ protected:
     bool _isArray = false;
     bool _isPVRTC = false;
 
+    Allocator::Handle _allocation = Allocator::INVALID_HANDLE;
+    MTLTextureDescriptor *_descriptor = nil;
+    
     id<MTLTexture> _mtlTexture = nil;
     id<MTLTexture> _mtlTextureView = nil;
 };
