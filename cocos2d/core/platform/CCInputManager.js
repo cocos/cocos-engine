@@ -540,7 +540,7 @@ let inputManager = {
 
                         eventManager.dispatchEvent(mouseEvent);
                         event.stopPropagation();
-                        event.preventDefault();
+                        event.cancelable && event.preventDefault();
                     }, false);
                 }
             }
@@ -594,7 +594,7 @@ let inputManager = {
                     canvasBoundingRect.adjustedTop = canvasBoundingRect.top - (body.scrollTop || window.scrollY || 0);
                     handler(selfPointer.getTouchesByEvent(event, canvasBoundingRect));
                     event.stopPropagation();
-                    event.preventDefault();
+                    event.cancelable && event.preventDefault();
                 }), false);
             };
             for (let eventName in _touchEventsMap) {
