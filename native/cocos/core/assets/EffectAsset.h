@@ -537,13 +537,7 @@ struct IShaderStage {
 struct IShaderInfo {
     ccstd::string name;
     ccstd::hash_t hash{0xFFFFFFFFU};
-
-    IShaderSource glsl1;
-    IShaderSource glsl3;
-    IShaderSource glsl4;
-
     ccstd::vector<IShaderStage> stages;
-
     ccstd::vector<IDefineInfo> defines;
     IBuiltins builtins;
     ccstd::vector<IAttributeInfo> attributes;

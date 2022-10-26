@@ -27,7 +27,7 @@ import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
 import { BlendState, DepthStencilState, RasterizerState,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo } from '../../gfx';
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo, ShaderStageFlagBit } from '../../gfx';
 import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
@@ -163,7 +163,7 @@ export declare namespace EffectAsset {
     }
 
     export interface IShaderStage {
-        stage: gfx.ShaderStageFlagBit;
+        stage: ShaderStageFlagBit;
         source: IShaderSourceCode;
         collection: IShaderSourceCollection;
     }
@@ -171,9 +171,6 @@ export declare namespace EffectAsset {
     export interface IShaderInfo {
         name: string;
         hash: number;
-        glsl4: { vert: string, frag: string };
-        glsl3: { vert: string, frag: string };
-        glsl1: { vert: string, frag: string };
         stages: IShaderStage[];
         builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
         defines: IDefineInfo[];

@@ -34,7 +34,6 @@ import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
 import { debug, error } from '../../core/platform/debug';
-import { gfx } from '../../../typedoc-index';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -192,15 +191,15 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
 }
 
 class ShaderSource {
-    public vert : gfx.ShaderStage | null = null;
-    public frag : gfx.ShaderStage | null = null;
-    public comp : gfx.ShaderStage | null = null;
+    public vert : ShaderStage = new ShaderStage();
+    public frag : ShaderStage = new ShaderStage();
+    public comp : ShaderStage = new ShaderStage();
 
-    public getStage (stage: gfx.ShaderStageFlagBit) {
+    public getStage (stage: ShaderStageFlagBit) {
         switch (stage) {
-        case gfx.ShaderStageFlagBit.VERTEX: return this.vert;
-        case gfx.ShaderStageFlagBit.FRAGMENT: return this.frag;
-        case gfx.ShaderStageFlagBit.COMPUTE: return this.comp;
+        case ShaderStageFlagBit.VERTEX: return this.vert;
+        case ShaderStageFlagBit.FRAGMENT: return this.frag;
+        case ShaderStageFlagBit.COMPUTE: return this.comp;
         default: return null;
         }
     }
@@ -213,11 +212,11 @@ class ShaderCollection {
     protected _templateInfo : ITemplateInfo | null = null;
     protected _templateMacros : Record<string, MacroValue> = {};
     protected _defaultMacros : IMacroInfo[] = [];
-    protected _shaderVariants: Record<string, gfx.Shader> = {};
+    protected _shaderVariants: Record<string, Shader> = {};
     protected _shaderVariantSources : Record<string, ShaderSource> = {};
 
-    constructor (shaderIndo : EffectAsset.IShaderInfo) {
-        const tmpl = ({ ...shaderIndo }) as IProgramInfo;
+    constructor (shaderInfo : EffectAsset.IShaderInfo) {
+        const tmpl = ({ ...shaderInfo }) as IProgramInfo;
         this._shaderInfo = tmpl;
         let offset = 0;
         for (let i = 0; i < tmpl.defines.length; i++) {
@@ -312,7 +311,7 @@ class ShaderCollection {
         }
         insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals');
 
-        this._templateInfo.shaderInfo.stages = this._shaderInfo.stages.map((stage) => new ShaderStage(stage.stage));
+        // this._templateInfo.shaderInfo.stages = this._shaderInfo.stages.map((stage) => new ShaderStage(stage.stage));
 
         tmplInfo.handleMap = genHandles(tmpl);
         tmplInfo.setLayouts = [];
@@ -330,16 +329,16 @@ class ShaderCollection {
         // TODO yiwen: extract the shader source from the raw buffer
     }
 
-    public get templateInfo () {
-        return this._templateInfo;
+    public get templateInfo (): ITemplateInfo {
+        return this._templateInfo!;
     }
 
-    public get template () {
-        return this._shaderInfo;
+    public get template (): IProgramInfo {
+        return this._shaderInfo!;
     }
 
     public getKey (defines: MacroRecord) {
-        const tmpl = this.template!;
+        const tmpl = this.template;
         const tmplDefs = tmpl.defines;
         if (tmpl.uber) {
             let key = '';
@@ -388,18 +387,31 @@ class ShaderCollection {
         const prefix = pipeline.constantMacros + tmpl.constantMacros
         + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
-        const preCompile = (shaderSource: string, stage: ShaderStage) => {
-            error('Shader preCompile not implemented');
+        const preCompile = (shaderSource: string, stage: ShaderStageFlagBit) => {
         };
 
         const createShader = (device: Device, shader: Shader) => {
             const source = this._shaderVariantSources[key];
             if (!source) {
+                const macroArray = prepareDefines(defines, tmpl.defines);
+                const prefix = pipeline.constantMacros + tmpl.constantMacros
+                + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+
+                const variantSource = new ShaderSource();
+                for (const stage of this._shaderInfo!.stages) {
+                    const stageSource = variantSource.getStage(stage.stage);
+                    stageSource!.stage = stage.stage;
+                    stageSource!.source = prefix + stage.source.glsl3;
+                    preCompile(stageSource!.source, stage.stage);
+                    this._templateInfo!.shaderInfo.stages[stage.stage] = stageSource!;
+                }
+
+                this._shaderVariantSources[key] = variantSource;
                 error('Shader source not found');
                 // return null;
             } else {
                 this._templateInfo!.shaderInfo.stages.forEach((stage) => {
-                    stage.source = source[stage.stage].source;
+                    stage.source = source.getStage(stage.stage)!.source;
                 });
             }
             this._templateInfo!.shaderInfo.name = getShaderInstanceName(this._shaderInfo!.name, macroArray);
@@ -453,6 +465,7 @@ class ProgramLib {
     protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, Shader> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
+    protected _shaderCollection: Record<string, ShaderCollection> = {};
 
     public register (effect: EffectAsset) {
         for (let i = 0; i < effect.shaders.length; i++) {
@@ -476,113 +489,11 @@ class ProgramLib {
      * @zh 注册 shader 模板。
      */
     public define (shader: EffectAsset.IShaderInfo) {
-        const curTmpl = this._templates[shader.name];
-        if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
-        const tmpl = ({ ...shader }) as IProgramInfo;
-        // calculate option mask offset
-        let offset = 0;
-        for (let i = 0; i < tmpl.defines.length; i++) {
-            const def = tmpl.defines[i];
-            let cnt = 1;
-            if (def.type === 'number') {
-                const range = def.range!;
-                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                def._map = (value: number) => value - range[0];
-            } else if (def.type === 'string') {
-                cnt = getBitCount(def.options!.length);
-                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-            } else if (def.type === 'boolean') {
-                def._map = (value: any) => (value ? 1 : 0);
-            }
-            def._offset = offset;
-            offset += cnt;
+        const shaderCollection = this._shaderCollection[shader.name];
+        if (!shaderCollection) {
+            this._shaderCollection[shader.name] = new ShaderCollection(shader);
         }
-        if (offset > 31) { tmpl.uber = true; }
-        // generate constant macros
-        tmpl.constantMacros = '';
-        for (const key in tmpl.builtins.statistics) {
-            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
-        }
-        // store it
-        this._templates[shader.name] = tmpl;
-        if (!this._templateInfos[tmpl.hash]) {
-            const tmplInfo = {} as ITemplateInfo;
-            // cache material-specific descriptor set layout
-            tmplInfo.samplerStartBinding = tmpl.blocks.length;
-            tmplInfo.shaderInfo = new ShaderInfo();
-            tmplInfo.blockSizes = []; tmplInfo.bindings = [];
-            for (let i = 0; i < tmpl.blocks.length; i++) {
-                const block = tmpl.blocks[i];
-                tmplInfo.blockSizes.push(getSize(block));
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
-                    DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
-                tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
-                    block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
-            }
-            for (let i = 0; i < tmpl.samplerTextures.length; i++) {
-                const samplerTexture = tmpl.samplerTextures[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(samplerTexture.binding,
-                    DescriptorType.SAMPLER_TEXTURE, samplerTexture.count, samplerTexture.stageFlags));
-                tmplInfo.shaderInfo.samplerTextures.push(new UniformSamplerTexture(
-                    SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
-                ));
-            }
-            for (let i = 0; i < tmpl.samplers.length; i++) {
-                const sampler = tmpl.samplers[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(sampler.binding,
-                    DescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
-                tmplInfo.shaderInfo.samplers.push(new UniformSampler(
-                    SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.count,
-                ));
-            }
-            for (let i = 0; i < tmpl.textures.length; i++) {
-                const texture = tmpl.textures[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(texture.binding,
-                    DescriptorType.TEXTURE, texture.count, texture.stageFlags));
-                tmplInfo.shaderInfo.textures.push(new UniformTexture(
-                    SetIndex.MATERIAL, texture.binding, texture.name, texture.type, texture.count,
-                ));
-            }
-            for (let i = 0; i < tmpl.buffers.length; i++) {
-                const buffer = tmpl.buffers[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
-                    DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
-                tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(
-                    SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess,
-                )); // effect compiler guarantees buffer count = 1
-            }
-            for (let i = 0; i < tmpl.images.length; i++) {
-                const image = tmpl.images[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(image.binding,
-                    DescriptorType.STORAGE_IMAGE, image.count, image.stageFlags));
-                tmplInfo.shaderInfo.images.push(new UniformStorageImage(
-                    SetIndex.MATERIAL, image.binding, image.name, image.type, image.count, image.memoryAccess,
-                ));
-            }
-            for (let i = 0; i < tmpl.subpassInputs.length; i++) {
-                const subpassInput = tmpl.subpassInputs[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(subpassInput.binding,
-                    DescriptorType.INPUT_ATTACHMENT, subpassInput.count, subpassInput.stageFlags));
-                tmplInfo.shaderInfo.subpassInputs.push(new UniformInputAttachment(
-                    SetIndex.MATERIAL, subpassInput.binding, subpassInput.name, subpassInput.count,
-                ));
-            }
-            tmplInfo.gfxAttributes = [];
-            for (let i = 0; i < tmpl.attributes.length; i++) {
-                const attr = tmpl.attributes[i];
-                tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
-            }
-            insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals');
-
-            tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
-            tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
-            tmplInfo.handleMap = genHandles(tmpl);
-            tmplInfo.setLayouts = [];
-
-            this._templateInfos[tmpl.hash] = tmplInfo;
-        }
-
-        return tmpl;
+        return this.getTemplate(shader.name);
     }
 
     /**
@@ -591,7 +502,8 @@ class ProgramLib {
      * @param name Target shader name
      */
     public getTemplate (name: string) {
-        return this._templates[name];
+        const shaderCollection = this._shaderCollection[name];
+        return shaderCollection.template;
     }
 
     /**
@@ -600,8 +512,8 @@ class ProgramLib {
      * @param name Target shader name
      */
     public getTemplateInfo (name: string) {
-        const hash = this._templates[name].hash;
-        return this._templateInfos[hash];
+        const shaderCollection = this._shaderCollection[name];
+        return shaderCollection.templateInfo;
     }
 
     /**
@@ -610,15 +522,8 @@ class ProgramLib {
      * @param name Target shader name
      */
     public getDescriptorSetLayout (device: Device, name: string, isLocal = false) {
-        const tmpl = this._templates[name];
-        const tmplInfo = this._templateInfos[tmpl.hash];
-        if (!tmplInfo.setLayouts.length) {
-            _dsLayoutInfo.bindings = tmplInfo.bindings;
-            tmplInfo.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
-            _dsLayoutInfo.bindings = localDescriptorSetLayout.bindings;
-            tmplInfo.setLayouts[SetIndex.LOCAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
-        }
-        return tmplInfo.setLayouts[isLocal ? SetIndex.LOCAL : SetIndex.MATERIAL];
+        const shaderCollection = this._shaderCollection[name];
+        return shaderCollection.getDescriptorSetLayout(device, isLocal);
     }
 
     /**
@@ -629,7 +534,7 @@ class ProgramLib {
      * @param name Target shader name
      */
     public hasProgram (name: string) {
-        return this._templates[name] !== undefined;
+        return this._shaderCollection[name] !== undefined;
     }
 
     /**
@@ -639,34 +544,8 @@ class ProgramLib {
      * @param defines The combination of preprocess macros
      */
     public getKey (name: string, defines: MacroRecord) {
-        const tmpl = this._templates[name];
-        const tmplDefs = tmpl.defines;
-        if (tmpl.uber) {
-            let key = '';
-            for (let i = 0; i < tmplDefs.length; i++) {
-                const tmplDef = tmplDefs[i];
-                const value = defines[tmplDef.name];
-                if (!value || !tmplDef._map) {
-                    continue;
-                }
-                const mapped = tmplDef._map(value);
-                const offset = tmplDef._offset;
-                key += `${offset}${mapped}|`;
-            }
-            return `${key}${tmpl.hash}`;
-        }
-        let key = 0;
-        for (let i = 0; i < tmplDefs.length; i++) {
-            const tmplDef = tmplDefs[i];
-            const value = defines[tmplDef.name];
-            if (!value || !tmplDef._map) {
-                continue;
-            }
-            const mapped = tmplDef._map(value);
-            const offset = tmplDef._offset;
-            key |= mapped << offset;
-        }
-        return `${key.toString(16)}|${tmpl.hash}`;
+        const shaderCollection = this._shaderCollection[name];
+        return shaderCollection.getKey(defines);
     }
 
     /**
@@ -675,20 +554,11 @@ class ProgramLib {
      * @param defines The preprocess macros as filter
      */
     public destroyShaderByDefines (defines: MacroRecord) {
-        const names = Object.keys(defines); if (!names.length) { return; }
-        const regexes = names.map((cur) => {
-            let val = defines[cur];
-            if (typeof val === 'boolean') { val = val ? '1' : '0'; }
-            return new RegExp(`${cur}${val}`);
+        const name = Object.keys(this._shaderCollection);
+        name.forEach((name) => {
+            const shaderCollection = this._shaderCollection[name];
+            shaderCollection.destroyShaderByDefines(defines);
         });
-        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].name)));
-        for (let i = 0; i < keys.length; i++) {
-            const k = keys[i];
-            const prog = this._cache[k];
-            debug(`destroyed shader ${prog.name}`);
-            prog.destroy();
-            delete this._cache[k];
-        }
     }
 
     /**
@@ -700,39 +570,8 @@ class ProgramLib {
      * @param key The shader cache key, if already known
      */
     public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string) {
-        Object.assign(defines, pipeline.macros);
-        if (!key) key = this.getKey(name, defines);
-        const res = this._cache[key];
-        if (res) { return res; }
-
-        const tmpl = this._templates[name];
-        const tmplInfo = this._templateInfos[tmpl.hash];
-        if (!tmplInfo.pipelineLayout) {
-            this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
-            insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
-            tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
-            tmplInfo.pipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo(tmplInfo.setLayouts));
-        }
-
-        const macroArray = prepareDefines(defines, tmpl.defines);
-        const prefix = pipeline.constantMacros + tmpl.constantMacros
-            + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
-
-        let src = tmpl.glsl3;
-        const deviceShaderVersion = getDeviceShaderVersion(device);
-        if (deviceShaderVersion) {
-            src = tmpl[deviceShaderVersion];
-        } else {
-            console.error('Invalid GFX API!');
-        }
-        tmplInfo.shaderInfo.stages[0].source = prefix + src.vert;
-        tmplInfo.shaderInfo.stages[1].source = prefix + src.frag;
-
-        // strip out the active attributes only, instancing depend on this
-        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo, defines);
-
-        tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
-        return this._cache[key] = device.createShader(tmplInfo.shaderInfo);
+        const shaderCollection = this._shaderCollection[name];
+        return shaderCollection.getShaderVariant(device, defines, pipeline, key);
     }
 }
 

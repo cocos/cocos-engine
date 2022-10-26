@@ -301,7 +301,8 @@ ProgramLib *ProgramLib::getInstance() {
 
 void ProgramLib::registerEffect(EffectAsset *effect) {
     for (auto &shader : effect->_shaders) {
-        _shaderCollections[shader.name] = new ShaderCollection(shader);
+        auto * tmpl = define(shader);
+        tmpl->effectName = shader.name;
     }
 
     for (auto &tech : effect->_techniques) {
@@ -319,7 +320,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
     if (!shaderCollection) {
         shaderCollection = new ShaderCollection(shader);
     }
-    return /*shaderCollection*/ nullptr;
+    return getTemplate(shader.name);
 }
 
 /**
@@ -578,9 +579,9 @@ ShaderCollection::ShaderCollection(const IShaderInfo &shaderInfo) {
 
     // TODO: yiwenxue : here we need to extract the shader sources from the raw buffer, and store them to the sourceCache, discard the others, the original shader source will still be kept in the shader collection
 
-    std::transform(_shaderInfo.stages.begin(), _shaderInfo.stages.end(), std::back_inserter(_templateInfo.shaderInfo.stages), [](const auto &stage) {
-        return gfx::ShaderStage{stage.stage, std::string("")};
-    });
+    // std::transform(_shaderInfo.stages.begin(), _shaderInfo.stages.end(), std::back_inserter(_templateInfo.shaderInfo.stages), [](const auto &stage) {
+    //     return gfx::ShaderStage{stage.stage, std::string("")};
+    // });
 
     _templateInfo.handleMap = genHandles(_shaderInfo);
     _templateInfo.setLayouts = {};
@@ -689,12 +690,12 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
             auto prefix = pipeline->getConstantMacros() + _shaderInfo.constantMacros + ss.str();
 
             // Shader preprocessing -- shader precompile and optimize
-            gfx::SPIRVUtils *spirvUtils = gfx::SPIRVUtils::getInstance();
             ShaderSource source{};
 
             for (uint32_t i = 0; i < _shaderInfo.stages.size(); i++) {
                 auto &stage = _templateInfo.shaderInfo.stages[i];
                 auto &sourceStage = source.getStage(stage.stage);
+                // better use different shader source for different gfx backend
                 auto sourceCode = prefix + _shaderInfo.stages[i].source.glsl3;
                 preCompile(sourceCode, stage);
                 sourceStage = stage;
