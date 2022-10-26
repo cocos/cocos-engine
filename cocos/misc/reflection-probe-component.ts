@@ -33,7 +33,6 @@ import { RenderTexture, TextureCube } from '../asset/assets';
 import { ReflectionProbeManager } from '../rendering/reflectionProbeManager';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../core/global-exports';
-import { BoxCollider } from '../physics/framework/components/colliders/box-collider';
 import { Camera } from './camera-component';
 import { scene } from '../render-scene';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene';
@@ -79,9 +78,6 @@ export const ProbeResolution = Enum({
 @playOnFocus
 export class ReflectionProbe extends Component {
     @serializable
-    protected _generate = true;
-
-    @serializable
     protected _resolution = 512;
     @serializable
     protected _clearFlag = ProbeClearFlag.SKYBOX;
@@ -109,42 +105,22 @@ export class ReflectionProbe extends Component {
 
     protected _probe: scene.ReflectionProbe | null = null;
 
-    @readOnly
-    @type(CCBoolean)
-    set generate (val) {
-        this._generate = val;
-        if (val) {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.bakeTexture();
-        }
-    }
-    get generate () {
-        return this._generate;
-    }
-
     /**
      * @en
-     * Gets or sets the size of the box, in local space.
+     * Gets or sets the size of the box
      * @zh
      * 获取或设置包围盒的大小。
      */
-    @type(Vec3)
     set size (value) {
         this._size = value;
         this.probe.size = this._size;
-
-        //test code
-        const collider = this.getComponent(BoxCollider);
-        if (collider) {
-            collider.size = new Vec3(this._size.x * 2, this._size.y * 2, this._size.z * 2);
-        }
     }
     get size () {
         return this._size;
     }
 
     /**
-     * @en Environment reflection or plane reflection
+     * @en Environment reflection or plane reflection.
      * @zh 设置探针类型，环境反射或者平面反射
      */
     @type(ProbeType)
