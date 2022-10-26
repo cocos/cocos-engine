@@ -293,6 +293,10 @@ using namespace cc;
 #define cc_scene_Light_scene_get(self_) self_->getScene()
   
 
+#define cc_scene_Light_visibility_get(self_) self_->getVisibility()
+#define cc_scene_Light_visibility_set(self_, val_) self_->setVisibility(val_)
+  
+
 #define cc_scene_DirectionalLight_direction_get(self_) self_->getDirection()
 #define cc_scene_DirectionalLight_direction_set(self_, val_) self_->setDirection(val_)
   
@@ -7118,6 +7122,48 @@ static bool js_cc_scene_Light_scene_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Light_scene_get) 
 
+static bool js_cc_scene_Light_visibility_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Light *arg1 = (cc::scene::Light *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Light>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Light_visibility_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_scene_Light_visibility_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Light_visibility_set) 
+
+static bool js_cc_scene_Light_visibility_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Light *arg1 = (cc::scene::Light *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Light>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_scene_Light_visibility_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Light_visibility_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Light_visibility_get) 
+
 bool js_register_cc_scene_Light(se::Object* obj) {
     auto* cls = se::Class::create("Light", obj, nullptr, _SE(js_new_cc_scene_Light)); 
     
@@ -7129,6 +7175,7 @@ bool js_register_cc_scene_Light(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_scene_Light_type_get), _SE(js_cc_scene_Light_type_set)); 
     cls->defineProperty("name", _SE(js_cc_scene_Light_name_get), _SE(js_cc_scene_Light_name_set)); 
     cls->defineProperty("scene", _SE(js_cc_scene_Light_scene_get), nullptr); 
+    cls->defineProperty("visibility", _SE(js_cc_scene_Light_visibility_get), _SE(js_cc_scene_Light_visibility_set)); 
     
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Light_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Light_detachFromScene)); 

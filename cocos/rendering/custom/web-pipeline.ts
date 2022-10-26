@@ -788,15 +788,13 @@ export class WebPipeline implements Pipeline {
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
-    public addComputePass(layoutName: string, name: string): ComputePassBuilder;
-    public addComputePass(layoutName: string): ComputePassBuilder;
-    public addComputePass (layoutName: any, name?: any): ComputePassBuilder {
+    public addComputePass (layoutName: string): ComputePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addMovePass (name: string): MovePassBuilder {
+    public addMovePass (): MovePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addCopyPass (name: string): CopyPassBuilder {
+    public addCopyPass (): CopyPassBuilder {
         throw new Error('Method not implemented.');
     }
     public presentAll (): void {
@@ -1106,7 +1104,8 @@ export class WebPipeline implements Pipeline {
         this.endFrame();
     }
 
-    addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
+    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder {
+        const name = 'Raster';
         const pass = new RasterPass();
         pass.viewport.width = width;
         pass.viewport.height = height;

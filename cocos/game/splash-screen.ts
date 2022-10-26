@@ -24,9 +24,8 @@
  */
 
 import { EDITOR, PREVIEW } from 'internal:constants';
-import * as easing from '../core/algorithm/easing';
 import { Material } from '../asset/assets/material';
-import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy } from '../core';
+import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing } from '../core';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
