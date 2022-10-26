@@ -62,7 +62,7 @@ export class ReflectionProbeStage extends RenderStage {
      * @param probe
      * @param frameBuffer
      */
-    public setUsageInfo (probe:ReflectionProbe, frameBuffer:Framebuffer) {
+    public setUsageInfo (probe: ReflectionProbe, frameBuffer: Framebuffer) {
         this._probe = probe;
         this._frameBuffer = frameBuffer;
     }
@@ -83,7 +83,7 @@ export class ReflectionProbeStage extends RenderStage {
         const size = this._probe!.resolution;
         this._renderArea.x = vp.x * size;
         this._renderArea.y = vp.y * size;
-        this._renderArea.width =  vp.width * size * shadingScale;
+        this._renderArea.width = vp.width * size * shadingScale;
         this._renderArea.height = vp.height * size * shadingScale;
         const cmdBuff = pipeline.commandBuffers[0];
         const renderPass = this._frameBuffer.renderPass;

@@ -73,7 +73,7 @@ export class ReflectionProbe {
     protected _cubemap: TextureCube | null = null;
     protected _size = new Vec3();
     /**
-     * @en objects inside bouding box
+     * @en Objects inside bouding box.
      * @zh 包围盒范围内的物体
      */
     private _renderObjects: IRenderObject[] = [];
@@ -85,7 +85,7 @@ export class ReflectionProbe {
     private _camera: Camera | null = null;
 
     /**
-     * @en unique id of probe
+     * @en Unique id of probe.
      * @zh probe的唯一id
      */
     private _probeId = 0;
@@ -128,8 +128,8 @@ export class ReflectionProbe {
     private _up = new Vec3();
 
     /**
-     * @en set probe type,cube or planar
-     * @zh 设置探针类型,cube或者planar
+     * @en Set probe type,cube or planar.
+     * @zh 设置探针类型，cube或者planar
      */
     set probeType (value: number) {
         this._probeType = value;
@@ -190,10 +190,8 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en
-     * Gets or sets the size of the box, in local space.
-     * @zh
-     * 获取或设置盒的大小。
+     * @en Gets or sets the size of the box, in local space.
+     * @zh 获取或设置盒的大小。
      */
     set size (value) {
         this._size = value;
@@ -213,6 +211,10 @@ export class ReflectionProbe {
         return this._cubemap!;
     }
 
+    /**
+     * @en Object to be render by probe
+     * @zh probe需要渲染的物体。
+     */
     set renderObjects (val) {
         this._renderObjects = val;
     }
@@ -233,6 +235,10 @@ export class ReflectionProbe {
         return this._camera!;
     }
 
+    /**
+     * @en Refresh the objects that use this probe.
+     * @zh 刷新使用该probe的物体
+     */
     set needRefresh (value: boolean) {
         this._needRefresh = value;
     }
