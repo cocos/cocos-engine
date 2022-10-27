@@ -25,6 +25,7 @@
 
 #include "jsb_scene_manual.h"
 #include "bindings/auto/jsb_scene_auto.h"
+#include "bindings/auto/jsb_gfx_auto.h"
 #include "core/Root.h"
 #include "core/event/EventTypesToJS.h"
 #include "core/scene-graph/Node.h"

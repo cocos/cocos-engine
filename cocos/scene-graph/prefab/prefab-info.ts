@@ -1,9 +1,10 @@
 import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../global-exports';
-import { Prefab } from '../../../asset/assets';
-import { CCObject } from '../../data';
-import { Component, Node } from '../../../scene-graph';
+import { cclegacy } from '../../core';
+import { Prefab } from './prefab';
+import { CCObject } from '../../core/data';
+import { Component } from '../component';
+import { Node } from '../node';
 
 function compareStringArray (array1: string[] | undefined, array2: string[] | undefined) {
     if (!array1 || !array2) {
@@ -204,4 +205,4 @@ export class PrefabInfo {
     public nestedPrefabInstanceRoots?: Node[];
 }
 
-legacyCC._PrefabInfo = PrefabInfo;
+cclegacy._PrefabInfo = PrefabInfo;

@@ -62,28 +62,21 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
     }
 }
 
-void Delaunay::build(const ccstd::vector<Vec3> &points) {
+ccstd::vector<Tetrahedron> Delaunay::build(const ccstd::vector<Vertex> &probes) {
+    _probes = probes;
+
     reset();
-
-    const auto pointCount = points.size();
-    if (pointCount < 4) {
-        debug::warnID(17000);
-        return;
-    }
-
-    _probes.reserve(pointCount);
-    for (const auto &point : points) {
-        _probes.emplace_back(point);
-    }
-
     tetrahedralize();
     computeAdjacency();
     computeMatrices();
+
+    return _tetrahedrons;
 }
 
 void Delaunay::reset() {
-    _probes.clear();
     _tetrahedrons.clear();
+    _triangles.clear();
+    _edges.clear();
 }
 
 void Delaunay::tetrahedralize() {
@@ -153,42 +146,58 @@ Vec3 Delaunay::initTetrahedron() {
     return center;
 }
 
+void Delaunay::addTriangle(uint32_t index, int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3) {
+    if (index < static_cast<uint32_t>(_triangles.size())) {
+        _triangles[index].set(tet, i, v0, v1, v2, v3);
+    } else {
+        _triangles.emplace_back(tet, i, v0, v1, v2, v3);
+    }
+}
+
+void Delaunay::addEdge(uint32_t index, int32_t tet, int32_t i, int32_t v0, int32_t v1) {
+    if (index < static_cast<uint32_t>(_edges.size())) {
+        _edges[index].set(tet, i, v0, v1);
+    } else {
+        _edges.emplace_back(tet, i, v0, v1);
+    }
+}
+
 void Delaunay::addProbe(int32_t vertexIndex) {
-    ccstd::vector<Triangle> triangles;
     const auto &probe = _probes[vertexIndex];
 
-    for (auto i = 0; i < _tetrahedrons.size(); i++) {
+    auto triangleIndex = 0;
+    for (auto i = 0; i < static_cast<int32_t>(_tetrahedrons.size()); i++) {
         auto &tetrahedron = _tetrahedrons[i];
         if (tetrahedron.isInCircumSphere(probe.position)) {
             tetrahedron.invalid = true;
 
-            triangles.emplace_back(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
-            triangles.emplace_back(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
-            triangles.emplace_back(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
-            triangles.emplace_back(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
+            addTriangle(triangleIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
+            addTriangle(triangleIndex + 1, i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
+            addTriangle(triangleIndex + 2, i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
+            addTriangle(triangleIndex + 3, i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
+            triangleIndex += 4;
         }
     }
 
-    for (auto i = 0; i < triangles.size(); i++) {
-        for (auto k = i + 1; k < triangles.size(); k++) {
-            if (triangles[i].isSame(triangles[k])) {
-                triangles[i].invalid = true;
-                triangles[k].invalid = true;
+    for (auto i = 0; i < triangleIndex; i++) {
+        for (auto k = i + 1; k < triangleIndex; k++) {
+            if (_triangles[i].isSame(_triangles[k])) {
+                _triangles[i].invalid = true;
+                _triangles[k].invalid = true;
             }
         }
     }
 
-    // remove all duplicated triangles.
-    triangles.erase(std::remove_if(triangles.begin(), triangles.end(),
-                                   [](Triangle &triangle) { return triangle.invalid; }),
-                    triangles.end());
     // remove containing tetrahedron
     _tetrahedrons.erase(std::remove_if(_tetrahedrons.begin(), _tetrahedrons.end(),
                                        [](Tetrahedron &tetrahedron) { return tetrahedron.invalid; }),
                         _tetrahedrons.end());
 
-    for (const auto &triangle : triangles) {
-        _tetrahedrons.emplace_back(this, triangle.vertex0, triangle.vertex1, triangle.vertex2, vertexIndex);
+    for (auto i = 0; i < triangleIndex; i++) {
+        const auto &triangle = _triangles[i];
+        if (!triangle.invalid) {
+            _tetrahedrons.emplace_back(this, triangle.vertex0, triangle.vertex1, triangle.vertex2, vertexIndex);
+        }
     }
 }
 
@@ -200,39 +209,38 @@ void Delaunay::reorder(const Vec3 &center) {
 }
 
 void Delaunay::computeAdjacency() {
-    ccstd::vector<Triangle> triangles;
-    ccstd::vector<Edge> edges;
     Vec3 normal;
 
-    const auto tetrahedronCount = _tetrahedrons.size();
-    triangles.reserve(tetrahedronCount * 4);
+    const auto tetrahedronCount = static_cast<int32_t>(_tetrahedrons.size());
 
-    for (auto i = 0; i < _tetrahedrons.size(); i++) {
+    auto triangleIndex = 0;
+    for (auto i = 0; i < static_cast<int32_t>(_tetrahedrons.size()); i++) {
         const auto &tetrahedron = _tetrahedrons[i];
 
-        triangles.emplace_back(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
-        triangles.emplace_back(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
-        triangles.emplace_back(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
-        triangles.emplace_back(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
+        addTriangle(triangleIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
+        addTriangle(triangleIndex + 1, i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
+        addTriangle(triangleIndex + 2, i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
+        addTriangle(triangleIndex + 3, i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
+        triangleIndex += 4;
     }
 
-    for (auto i = 0; i < triangles.size(); i++) {
-        for (auto k = i + 1; k < triangles.size(); k++) {
-            if (triangles[i].isSame(triangles[k])) {
+    for (auto i = 0; i < triangleIndex; i++) {
+        for (auto k = i + 1; k < triangleIndex; k++) {
+            if (_triangles[i].isSame(_triangles[k])) {
                 // update adjacency between tetrahedrons
-                _tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = triangles[k].tetrahedron;
-                _tetrahedrons[triangles[k].tetrahedron].neighbours[triangles[k].index] = triangles[i].tetrahedron;
-                triangles[i].isOuterFace = false;
-                triangles[k].isOuterFace = false;
+                _tetrahedrons[_triangles[i].tetrahedron].neighbours[_triangles[i].index] = _triangles[k].tetrahedron;
+                _tetrahedrons[_triangles[k].tetrahedron].neighbours[_triangles[k].index] = _triangles[i].tetrahedron;
+                _triangles[i].isOuterFace = false;
+                _triangles[k].isOuterFace = false;
                 break;
             }
         }
 
-        if (triangles[i].isOuterFace) {
-            auto &probe0 = _probes[triangles[i].vertex0];
-            auto &probe1 = _probes[triangles[i].vertex1];
-            auto &probe2 = _probes[triangles[i].vertex2];
-            auto &probe3 = _probes[triangles[i].vertex3];
+        if (_triangles[i].isOuterFace) {
+            auto &probe0 = _probes[_triangles[i].vertex0];
+            auto &probe1 = _probes[_triangles[i].vertex1];
+            auto &probe2 = _probes[_triangles[i].vertex2];
+            auto &probe3 = _probes[_triangles[i].vertex3];
 
             auto edge1 = probe1.position - probe0.position;
             auto edge2 = probe2.position - probe0.position;
@@ -250,33 +258,35 @@ void Delaunay::computeAdjacency() {
             probe2.normal += normal;
 
             // create an outer cell with normal facing out
-            auto v0 = triangles[i].vertex0;
-            auto v1 = negative > 0.0F ? triangles[i].vertex2 : triangles[i].vertex1;
-            auto v2 = negative > 0.0F ? triangles[i].vertex1 : triangles[i].vertex2;
+            auto v0 = _triangles[i].vertex0;
+            auto v1 = negative > 0.0F ? _triangles[i].vertex2 : _triangles[i].vertex1;
+            auto v2 = negative > 0.0F ? _triangles[i].vertex1 : _triangles[i].vertex2;
             Tetrahedron tetrahedron(this, v0, v1, v2);
 
             // update adjacency between tetrahedron and outer cell
-            tetrahedron.neighbours[3] = triangles[i].tetrahedron;
-            _tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = static_cast<int32_t>(_tetrahedrons.size());
+            tetrahedron.neighbours[3] = _triangles[i].tetrahedron;
+            _tetrahedrons[_triangles[i].tetrahedron].neighbours[_triangles[i].index] = static_cast<int32_t>(_tetrahedrons.size());
             _tetrahedrons.push_back(tetrahedron);
         }
     }
 
     // start from outer cell index
-    for (auto i = tetrahedronCount; i < _tetrahedrons.size(); i++) {
+    auto edgeIndex = 0;
+    for (auto i = tetrahedronCount; i < static_cast<int32_t>(_tetrahedrons.size()); i++) {
         const auto &tetrahedron = _tetrahedrons[i];
 
-        edges.emplace_back(i, 0, tetrahedron.vertex1, tetrahedron.vertex2);
-        edges.emplace_back(i, 1, tetrahedron.vertex2, tetrahedron.vertex0);
-        edges.emplace_back(i, 2, tetrahedron.vertex0, tetrahedron.vertex1);
+        addEdge(edgeIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex2);
+        addEdge(edgeIndex + 1, i, 1, tetrahedron.vertex2, tetrahedron.vertex0);
+        addEdge(edgeIndex + 2, i, 2, tetrahedron.vertex0, tetrahedron.vertex1);
+        edgeIndex += 3;
     }
 
-    for (auto i = 0; i < edges.size(); i++) {
-        for (auto k = i + 1; k < edges.size(); k++) {
-            if (edges[i].isSame(edges[k])) {
+    for (auto i = 0; i < edgeIndex; i++) {
+        for (auto k = i + 1; k < edgeIndex; k++) {
+            if (_edges[i].isSame(_edges[k])) {
                 // update adjacency between outer cells
-                _tetrahedrons[edges[i].tetrahedron].neighbours[edges[i].index] = edges[k].tetrahedron;
-                _tetrahedrons[edges[k].tetrahedron].neighbours[edges[k].index] = edges[i].tetrahedron;
+                _tetrahedrons[_edges[i].tetrahedron].neighbours[_edges[i].index] = _edges[k].tetrahedron;
+                _tetrahedrons[_edges[k].tetrahedron].neighbours[_edges[k].index] = _edges[i].tetrahedron;
             }
         }
     }
