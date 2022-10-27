@@ -1213,6 +1213,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/Define.cpp
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.h
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.cpp
+                 cocos/renderer/pipeline/LODModelsUtil.cpp
+                 cocos/renderer/pipeline/LODModelsUtil.h
                  cocos/renderer/pipeline/InstancedBuffer.cpp
                  cocos/renderer/pipeline/InstancedBuffer.h
                  cocos/renderer/pipeline/PipelineStateManager.cpp
@@ -1365,6 +1367,8 @@ cocos_source_files(
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h
                  cocos/scene/Light.cpp
+                 cocos/scene/LODGroup.h
+                 cocos/scene/LODGroup.cpp
                  cocos/scene/Model.h
                  cocos/scene/Model.cpp
                  cocos/scene/Pass.h
