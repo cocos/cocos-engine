@@ -25,8 +25,10 @@
 #pragma once
 
 #include <memory>
+#include "base/Macros.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
+
 
 namespace cc {
 namespace event {
@@ -215,7 +217,7 @@ public:
 
     template <typename TgtEvent, typename Fn>
     TargetEventID<TgtEvent> addEventListener(Fn &&func, bool useCapture, bool once) {
-        // assert(!_emittingEvent);
+        // CC_ASSERT(!_emittingEvent);
         using func_type = std::conditional_t<intl::FunctionTrait<Fn>::IS_LAMBDA,
                                              typename intl::lambda_without_class_t<Fn>, Fn>;
         using wrap_type = intl::TgtEvtFnTrait<func_type>;
@@ -244,7 +246,7 @@ public:
 
     template <typename TgtEvent, typename Fn, typename O>
     TargetEventID<TgtEvent> addEventListener(Fn &&func, O *ctx, bool useCapture, bool once) {
-        // assert(!_emittingEvent);
+        // CC_ASSERT(!_emittingEvent);
         using wrap_type = event::intl::TgtEvtFnTrait<Fn>;
         auto stdfn = wrap_type::template wrapWithContext<TgtEvent>(std::forward<Fn>(func), ctx);
         auto *newHandler = new event::TargetEventListener<TgtEvent>(stdfn);
@@ -271,10 +273,10 @@ public:
 
     template <typename TgtEvent>
     bool off(TargetEventID<TgtEvent> eventId) {
-        assert(!_emittingEvent);
+        CC_ASSERT(!_emittingEvent);
         EVENT_LIST_LOOP_REV_BEGIN(handle, _bubblingHandlers)
         if (handle && handle->id == eventId.value()) {
-            assert(handle->getEventTypeID() == TgtEvent::TypeID());
+            CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());
             intl::detachFromList(&_bubblingHandlers, handle);
             delete handle;
             return true;
@@ -282,7 +284,7 @@ public:
         EVENT_LIST_LOOP_REV_END(handle, _bubblingHandlers)
         EVENT_LIST_LOOP_REV_BEGIN(handle, _capturingHandlers)
         if (handle && handle->id == eventId.value()) {
-            assert(handle->getEventTypeID() == TgtEvent::TypeID());
+            CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());
             intl::detachFromList(&_capturingHandlers, handle);
             delete handle;
             return true;
@@ -292,7 +294,7 @@ public:
     }
 
     void offAll() {
-        assert(!_emittingEvent);
+        CC_ASSERT(!_emittingEvent);
         EVENT_LIST_LOOP_REV_BEGIN(handle, _bubblingHandlers)
         delete handle;
         EVENT_LIST_LOOP_REV_END(handle, _bubblingHandlers)
@@ -307,7 +309,7 @@ public:
     template <typename TgtEvent>
     void off() {
         static_assert(std::is_base_of_v<TgtEventTraitClass, TgtEvent>, "incorrect template argument");
-        assert(!_emittingEvent);
+        CC_ASSERT(!_emittingEvent);
         EVENT_LIST_LOOP_REV_BEGIN(handle, _bubblingHandlers)
         if (handle && handle->getEventTypeID() == TgtEvent::TypeID()) {
             intl::detachFromList(&_bubblingHandlers, handle);
@@ -501,7 +503,7 @@ protected:
     public:                                                                             \
         using base_type = cc::event::TgtEventTrait<EmitterType, __VA_ARGS__>;           \
         using event_type = cc::event::Event<EventType>;                                 \
-        using EventID = cc::event::TargetEventID<EventType>;                       \
+        using EventID = cc::event::TargetEventID<EventType>;                            \
         using persist_function_type = std::function<void(EmitterType *, event_type *)>; \
         using handler_type = std::function<void(event_type *)>;                         \
         constexpr static const char *EVENT_NAME = #EventType;                           \

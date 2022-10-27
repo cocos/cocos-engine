@@ -25,7 +25,7 @@
 
 #include "JsbBridge.h"
 #import <Foundation/Foundation.h>
-#include "event/Event.h"
+#include "core/event/Event.h"
 #include "base/std/container/string.h"
 #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 #include "engine/EngineEvents.h"

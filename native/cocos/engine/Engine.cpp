@@ -280,7 +280,7 @@ void Engine::tick() {
         _scheduler->update(dt);
 
         se::ScriptEngine::getInstance()->handlePromiseExceptions();
-        cc::event::broadcast<events::Tick>(dt);
+        event::broadcast<events::Tick>(dt);
         se::ScriptEngine::getInstance()->mainLoopUpdate();
 
         cc::DeferredReleasePool::clear();
@@ -294,7 +294,7 @@ void Engine::tick() {
 }
 
 void Engine::doRestart() {
-    cc::event::broadcast<events::RestartVM>();
+    event::broadcast<events::RestartVM>();
     destroy();
     CC_CURRENT_APPLICATION()->init();
 }
@@ -309,13 +309,13 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
         ev.type == WindowEvent::Type::RESTORED) {
         static_cast<BaseEngine*>(this)->emit<EngineStatusChange>(ON_RESUME);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::event::broadcast<events::WindowRecreated>(ev.windowId);
+        event::broadcast<events::WindowRecreated>(ev.windowId);
 #endif
-        cc::event::broadcast<events::EnterForeground>();
+        event::broadcast<events::EnterForeground>();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
-        cc::event::broadcast<events::Resize>(ev.width, ev.height, ev.windowId);
+        event::broadcast<events::Resize>(ev.width, ev.height, ev.windowId);
         auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
         CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
@@ -324,9 +324,9 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
                ev.type == WindowEvent::Type::MINIMIZED) {
         static_cast<BaseEngine*>(this)->emit<EngineStatusChange>(ON_PAUSE);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::event::broadcast<events::WindowDestroy>(ev.windowId);
+        event::broadcast<events::WindowDestroy>(ev.windowId);
 #endif
-        cc::event::broadcast<events::EnterBackground>();
+        event::broadcast<events::EnterBackground>();
 
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {

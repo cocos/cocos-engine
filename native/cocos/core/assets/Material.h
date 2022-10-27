@@ -31,7 +31,7 @@
 #include "base/std/optional.h"
 #include "base/std/variant.h"
 #include "core/assets/EffectAsset.h"
-#include "event/Event.h"
+#include "core/event/Event.h"
 
 namespace cc {
 
@@ -89,7 +89,7 @@ struct IMaterialInfo {
 
 class Material : public Asset {
     IMPL_EVENT_TARGET(Material)
-    DECLARE_TARGET_EVENT0(Material_Passes_Updated, Material)
+    DECLARE_TARGET_EVENT0(PassesUpdated, Material)
 public:
     using Super = Asset;
     /**

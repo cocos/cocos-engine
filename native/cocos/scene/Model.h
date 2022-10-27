@@ -36,7 +36,7 @@
 #include "core/geometry/AABB.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/Node.h"
-#include "event/Event.h"
+#include "core/event/Event.h"
 #include "renderer/gfx-base/GFXBuffer.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/gfx-base/GFXTexture.h"
@@ -57,7 +57,7 @@ class Octree;
 class Pass;
 struct IMacroPatch;
 
-class Model : public RefCounted, public cc::event::EventTarget {
+class Model : public RefCounted, public event::EventTarget {
     IMPL_EVENT_TARGET(Model)
 
     DECLARE_TARGET_EVENT1(UpdateTransform, Model, uint32_t)
@@ -233,7 +233,7 @@ protected:
     Vec4 _lightmapUVParam;
 
     // For JS
-    CallbacksInvoker _eventProcessor;
+    // CallbacksInvoker _eventProcessor;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;
 
 private:

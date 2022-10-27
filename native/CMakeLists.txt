@@ -385,13 +385,13 @@ cocos_source_files(
 )
 
 cocos_source_files(
-    cocos/event/Event.h
-    cocos/event/EventBus.h
-    cocos/event/EventBus.cpp
-    cocos/event/EventTarget.h
-    cocos/event/intl/EventIntl.h
-    cocos/event/intl/EventTargetMacros.h
-    cocos/event/intl/EventBusMacros.h
+    cocos/core/event/Event.h
+    cocos/core/event/EventBus.h
+    cocos/core/event/EventBus.cpp
+    cocos/core/event/EventTarget.h
+    cocos/core/event/intl/EventIntl.h
+    cocos/core/event/intl/EventTargetMacros.h
+    cocos/core/event/intl/EventBusMacros.h
 )
 
 ##### base
@@ -1964,61 +1964,14 @@ cocos_source_files(
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp
     cocos/core/builtin/BuiltinResMgr.h
-    # cocos/core/builtin/ShaderSourceAssembly.cpp
-    # cocos/core/builtin/ShaderSourceAssembly.h
-    # cocos/core/builtin/Effects.cpp # generated
-    # cocos/core/builtin/Effects.h
-    # cocos/core/builtin/shader-sources/glsl1.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl1.h
-    # cocos/core/builtin/shader-sources/glsl3.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl3.h
-    # cocos/core/builtin/shader-sources/glsl4.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl4.h
-    #
 
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
     cocos/core/data/JSBNativeDataHolder.h
-    # cocos/core/data/deserializer/EffectAssetDeserializer.cpp
-    # cocos/core/data/deserializer/EffectAssetDeserializer.h
-    # cocos/core/data/deserializer/MeshDeserializer.cpp
-    # cocos/core/data/deserializer/MeshDeserializer.h
-    # cocos/core/data/deserializer/MaterialDeserializer.cpp
-    # cocos/core/data/deserializer/MaterialDeserializer.h
-    # cocos/core/data/deserializer/ImageAssetDeserializer.cpp
-    # cocos/core/data/deserializer/ImageAssetDeserializer.h
-    # cocos/core/data/deserializer/TextureBaseDeserializer.h
-    # cocos/core/data/deserializer/TextureBaseDeserializer.cpp
-    # cocos/core/data/deserializer/Texture2DDeserializer.cpp
-    # cocos/core/data/deserializer/Texture2DDeserializer.h
-    # cocos/core/data/deserializer/TerrainAssetDeserializer.cpp
-    # cocos/core/data/deserializer/TerrainAssetDeserializer.h
-    # cocos/core/data/deserializer/IAssetDeserializer.h
-    # cocos/core/data/deserializer/AssetDeserializerFactory.cpp
-    # cocos/core/data/deserializer/AssetDeserializerFactory.h
-
-    cocos/core/event/CallbacksInvoker.cpp
-    cocos/core/event/CallbacksInvoker.h
-    # cocos/core/event/EventTypesToJS.h
-    # cocos/core/event/EventTypesToJS.cpp
-    # cocos/core/event/Event.cpp
-    # cocos/core/event/Event.h
-    # cocos/core/scene-graph/Find.cpp
-    # cocos/core/scene-graph/Find.h
     cocos/core/scene-graph/Layers.h
     cocos/core/scene-graph/Node.cpp
     cocos/core/scene-graph/Node.h
-    # cocos/core/scene-graph/ComponentScheduler.h
-    # cocos/core/scene-graph/ComponentScheduler.cpp
-    # cocos/core/scene-graph/NodeActivator.cpp
-    # cocos/core/scene-graph/NodeActivator.h
     cocos/core/scene-graph/NodeEnum.h
-    # cocos/core/scene-graph/NodeEvent.cpp
-    # cocos/core/scene-graph/NodeEvent.h
-    # cocos/core/scene-graph/NodeEventProcessor.cpp
-    # cocos/core/scene-graph/NodeEventProcessor.h
-    # cocos/core/scene-graph/NodeUIProperties.cpp
-    # cocos/core/scene-graph/NodeUIProperties.h
     cocos/core/scene-graph/Scene.cpp
     cocos/core/scene-graph/Scene.h
     cocos/core/scene-graph/SceneGlobals.cpp

@@ -33,7 +33,7 @@
 
 namespace cc {
 
-class CC_DLL BaseEngine : public std::enable_shared_from_this<BaseEngine>, public cc::event::EventTarget {
+class CC_DLL BaseEngine : public std::enable_shared_from_this<BaseEngine>, public event::EventTarget {
 public:
     enum EngineStatus {
         ON_START,

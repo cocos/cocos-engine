@@ -27,7 +27,6 @@
 #include "bindings/auto/jsb_scene_auto.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
-#include "core/scene-graph/NodeEvent.h"
 #include "scene/Model.h"
 
 #ifndef JSB_ALLOC

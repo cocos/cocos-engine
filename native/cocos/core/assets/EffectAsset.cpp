@@ -171,7 +171,7 @@ void EffectAsset::onLoaded() {
     if (CC_CURRENT_ENGINE()->isInited()) {
         precompile();
     } else {
-        _engineListener = CC_CURRENT_ENGINE()->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status) {
+        _engineEventId = CC_CURRENT_ENGINE()->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status) {
             if (status == BaseEngine::EngineStatus::ON_START) {
                 this->precompile();
             }
@@ -183,7 +183,7 @@ void EffectAsset::onLoaded() {
 bool EffectAsset::destroy() {
     EffectAsset::remove(this);
     if (CC_CURRENT_ENGINE()->isInited()) {
-        CC_CURRENT_ENGINE()->off(_engineListener);
+        CC_CURRENT_ENGINE()->off(_engineEventId);
     }
     return Super::destroy();
 }

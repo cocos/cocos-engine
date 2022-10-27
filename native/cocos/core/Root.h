@@ -28,7 +28,7 @@
 //#include "3d/skeletal-animation/DataPoolManager.h"
 #include "bindings/event/EventDispatcher.h"
 #include "core/memop/Pool.h"
-#include "event/Event.h"
+#include "core/event/Event.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
@@ -52,7 +52,6 @@ namespace render {
 class PipelineRuntime;
 class Pipeline;
 } // namespace render
-class CallbacksInvoker;
 class Batcher2d;
 
 struct CC_DLL DebugViewConfig {
@@ -66,7 +65,7 @@ struct CC_DLL DebugViewConfig {
 struct ISystemWindowInfo;
 class ISystemWindow;
 
-class Root final : public cc::event::EventTarget {
+class Root final : public event::EventTarget {
     IMPL_EVENT_TARGET(Root)
     DECLARE_TARGET_EVENT0(BeforeCommit, Root)
     DECLARE_TARGET_EVENT0(BeforeRender, Root)
@@ -306,7 +305,7 @@ private:
     void frameMoveEnd();
     void doXRFrameMove(int32_t totalFrames);
     void addWindowEventListener();
-    void removeWindowEventListener() const;
+    void removeWindowEventListener();
 
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
@@ -329,8 +328,8 @@ private:
     bool _useDeferredPipeline{false};
     bool _usesCustomPipeline{true};
     IXRInterface *_xr{nullptr};
-    mutable cc::event::Listener<events::WindowDestroy> _windowDestroyEventId;
-    mutable cc::event::Listener<events::WindowRecreated> _windowRecreatedEventId;
+    cc::event::Listener<events::WindowDestroy> _windowDestroyListener;
+    cc::event::Listener<events::WindowRecreated> _windowRecreatedListener;
 
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
@@ -338,5 +337,4 @@ private:
     ccstd::vector<gfx::Swapchain *> _swapchains;
     //
 };
-
 } // namespace cc

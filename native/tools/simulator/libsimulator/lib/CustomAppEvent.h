@@ -39,7 +39,7 @@
 #include "json/stringbuffer.h"
 #include "json/writer.h"
 
-#include "cocos/event/Event.h"
+#include "cocos/core/event/Event.h"
 
 enum {
     APP_EVENT_MENU = 1,

@@ -33,8 +33,7 @@
 #include "core/data/Object.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/NodeEnum.h"
-#include "core/scene-graph/NodeEvent.h"
-#include "event/Event.h"
+#include "core/event/Event.h"
 #include "math/Mat3.h"
 #include "math/Mat4.h"
 #include "math/Quaternion.h"
@@ -52,7 +51,7 @@ class Scene;
  */
 using TransformDirtyBit = TransformBit;
 
-class Node : public CCObject, public cc::event::EventTarget {
+class Node : public CCObject, public event::EventTarget {
     IMPL_EVENT_TARGET_WITH_PARENT(Node, getParent)
     DECLARE_TARGET_EVENT0(TouchStart, Node)
     DECLARE_TARGET_EVENT0(TouchMove, Node)

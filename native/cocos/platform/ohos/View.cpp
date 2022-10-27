@@ -44,12 +44,12 @@ void View::engineHandleCmd(int cmd) {
                 return;
             } else {
                 // FIXME: getWindowId
-                cc::event::broadcast<events::WindowRecreated>((uint32_t)(uintptr_t)cocosApp.pendingWindow);
+                event::broadcast<events::WindowRecreated>((uint32_t)(uintptr_t)cocosApp.pendingWindow);
             }
             break;
         case ABILITY_CMD_TERM_WINDOW: {
             // FIXME: getWindowId
-            cc::event::broadcast<events::WindowDestroy>((uint32_t)(uintptr_t)cocosApp.pendingWindow);
+            event::broadcast<events::WindowDestroy>((uint32_t)(uintptr_t)cocosApp.pendingWindow);
         } break;
         case ABILITY_CMD_RESUME:
             if (Application::getInstance()) {
@@ -62,7 +62,7 @@ void View::engineHandleCmd(int cmd) {
             }
             break;
         case ABILITY_CMD_LOW_MEMORY:
-            cc::event::broadcast<events::LowMemory>();
+            event::broadcast<events::LowMemory>();
             break;
         default:
             break;

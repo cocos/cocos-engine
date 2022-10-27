@@ -167,36 +167,36 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
     switch (wevent.event) {
         case SDL_WINDOWEVENT_SHOWN: {
             ev.type = WindowEvent::Type::SHOW;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESTORED: {
             ev.type = WindowEvent::Type::RESTORED;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
             ev.type = WindowEvent::Type::SIZE_CHANGED;
             ev.width = wevent.data1;
             ev.height = wevent.data2;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESIZED: {
             ev.type = WindowEvent::Type::RESIZED;
             ev.width = wevent.data1;
             ev.height = wevent.data2;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
         case SDL_WINDOWEVENT_HIDDEN: {
             ev.type = WindowEvent::Type::HIDDEN;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
         case SDL_WINDOWEVENT_MINIMIZED: {
             ev.type = WindowEvent::Type::MINIMIZED;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
         case SDL_WINDOWEVENT_ENTER: {
@@ -205,7 +205,7 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
         }
         case SDL_WINDOWEVENT_CLOSE: {
             ev.type = WindowEvent::Type::CLOSE;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
     }
@@ -229,7 +229,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             }
             WindowEvent ev;
             ev.type = WindowEvent::Type::QUIT;
-            cc::event::broadcast<cc::events::WindowEvent>(ev);
+            event::broadcast<events::WindowEvent>(ev);
             break;
         }
         case SDL_WINDOWEVENT: {
@@ -248,7 +248,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = event.button - 1;
-            cc::event::broadcast<cc::events::Mouse>(mouse);
+            event::broadcast<events::Mouse>(mouse);
             break;
         }
         case SDL_MOUSEBUTTONUP: {
@@ -257,7 +257,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = event.button - 1;
-            cc::event::broadcast<cc::events::Mouse>(mouse);
+            event::broadcast<events::Mouse>(mouse);
             break;
         }
         case SDL_MOUSEMOTION: {
@@ -266,7 +266,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = 0;
-            cc::event::broadcast<cc::events::Mouse>(mouse);
+            event::broadcast<events::Mouse>(mouse);
             break;
         }
         case SDL_MOUSEWHEEL: {
@@ -275,28 +275,28 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = 0; //TODO: direction
-            cc::event::broadcast<cc::events::Mouse>(mouse);
+            event::broadcast<events::Mouse>(mouse);
             break;
         }
         case SDL_FINGERUP: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::ENDED;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            cc::event::broadcast<cc::events::Touch>(touch);
+            event::broadcast<events::Touch>(touch);
             break;
         }
         case SDL_FINGERDOWN: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::BEGAN;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            cc::event::broadcast<cc::events::Touch>(touch);
+            event::broadcast<events::Touch>(touch);
             break;
         }
         case SDL_FINGERMOTION: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::MOVED;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            cc::event::broadcast<cc::events::Touch>(touch);
+            event::broadcast<events::Touch>(touch);
             break;
         }
         case SDL_KEYDOWN: {
@@ -308,7 +308,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             keyboard.ctrlKeyActive = mode & KMOD_CTRL;
             keyboard.shiftKeyActive = mode & KMOD_SHIFT;
             //CC_LOG_DEBUG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
-            cc::event::broadcast<cc::events::Keyboard>(keyboard);
+            event::broadcast<events::Keyboard>(keyboard);
             break;
         }
         case SDL_KEYUP: {
@@ -319,7 +319,7 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
             keyboard.altKeyActive = mode & KMOD_ALT;
             keyboard.ctrlKeyActive = mode & KMOD_CTRL;
             keyboard.shiftKeyActive = mode & KMOD_SHIFT;
-            cc::event::broadcast<cc::events::Keyboard>(keyboard);
+            event::broadcast<events::Keyboard>(keyboard);
             break;
             break;
         }

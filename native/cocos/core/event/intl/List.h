@@ -24,7 +24,7 @@
  ****************************************************************************/
  #pragma once
 
-#include <cassert>
+#include "base/Macros.h"
 namespace cc {
 namespace event {
 namespace intl {
@@ -32,7 +32,7 @@ namespace intl {
 template <typename ListNode>
 bool listAppend(ListNode **head, ListNode *newNode) {
     if (newNode->next != nullptr || newNode->prev != nullptr) {
-        assert(false);
+        CC_ASSERT(false);
         return false;
     }
     if (*head == nullptr) {
@@ -53,11 +53,11 @@ bool listAppend(ListNode **head, ListNode *newNode) {
 template <typename ListNode>
 bool detachFromList(ListNode **head, ListNode *node) {
     if (*head == nullptr || node->prev == nullptr || node->next == nullptr) {
-        assert(false);
+        CC_ASSERT(false);
         return false;
     }
     if (node->prev == node && node->next == node) { // the only node
-        assert(node == *head);                      // should be the first
+        CC_ASSERT(node == *head);                      // should be the first
         *head = nullptr;
     } else {
         auto *nextNode = node->next;

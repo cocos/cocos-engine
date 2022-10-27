@@ -24,7 +24,6 @@
  ****************************************************************************/
 #pragma once
 
-#include <cassert>
 #include <cstddef>
 #include <iostream>
 #include <type_traits>

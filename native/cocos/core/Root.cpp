@@ -26,9 +26,7 @@
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
 #include "application/ApplicationManager.h"
-#include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
-#include "core/event/CallbacksInvoker.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -621,22 +619,22 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 }
 
 void Root::addWindowEventListener() {
-    _windowDestroyEventId.bind([this](uint32_t windowId) -> void {
+    _windowDestroyListener.bind([this](uint32_t windowId) -> void {
         for (const auto &window : _renderWindows) {
             window->onNativeWindowDestroy(windowId);
         }
     });
 
-    _windowRecreatedEventId.bind([this](uint32_t windowId) -> void {
+    _windowRecreatedListener.bind([this](uint32_t windowId) -> void {
         for (const auto &window : _renderWindows) {
             window->onNativeWindowResume(windowId);
         }
     });
 }
 
-void Root::removeWindowEventListener() const {
-    _windowDestroyEventId.reset();
-    _windowRecreatedEventId.reset();
+void Root::removeWindowEventListener() {
+    _windowDestroyListener.reset();
+    _windowRecreatedListener.reset();
 }
 
 } // namespace cc

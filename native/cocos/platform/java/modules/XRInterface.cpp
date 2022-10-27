@@ -168,7 +168,7 @@ static void dispatchGamepadEventInternal(const xr::XRControllerEvent &xrControll
     controllerInfo->napdId = 0; // xr only one gamepad connection
     controllerEvent.controllerInfos.emplace_back(controllerInfo);
     controllerEvent.type = ControllerEvent::Type::GAMEPAD;
-    cc::event::broadcast<cc::events::Controller>(controllerEvent);
+    event::broadcast<events::Controller>(controllerEvent);
     controllerEvent.type = ControllerEvent::Type::UNKNOWN;
     controllerEvent.controllerInfos.clear();
 }
@@ -304,7 +304,7 @@ static void dispatchHandleEventInternal(const xr::XRControllerEvent &xrControlle
         controllerInfo->napdId = 0; // xr only one handle connection
         controllerEvent.controllerInfos.emplace_back(controllerInfo);
         controllerEvent.type = ControllerEvent::Type::HANDLE;
-        cc::event::broadcast<cc::events::Controller>(controllerEvent);
+        event::broadcast<events::Controller>(controllerEvent);
 
         controllerEvent.type = ControllerEvent::Type::UNKNOWN;
         controllerEvent.controllerInfos.clear();

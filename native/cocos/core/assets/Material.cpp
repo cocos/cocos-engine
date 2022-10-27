@@ -93,7 +93,7 @@ void Material::doDestroy() {
         }
     }
     passes.clear();
-    emit<Material_Passes_Updated>();
+    emit<PassesUpdated>();
 }
 
 void Material::recompileShaders(const MacroRecord & /*overrides*/, index_t /*passIdx*/) {
@@ -303,7 +303,7 @@ void Material::update(bool keepProps /* = true*/) {
             }
         }
 
-        emit<Material_Passes_Updated>();
+        emit<PassesUpdated>();
     }
     _hash = Material::getHashForMaterial(this);
 }

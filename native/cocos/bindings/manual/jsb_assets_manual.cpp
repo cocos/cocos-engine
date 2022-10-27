@@ -111,7 +111,7 @@ static bool js_assets_Material_registerPassesUpdatedListener(se::State &s) // NO
     auto *cobj = SE_THIS_OBJECT<cc::Material>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     auto *thisObj = s.thisObject();
-    cobj->on<cc::Material::Material_Passes_Updated>([thisObj](cc::Material * /*emitter*/ ){
+    cobj->on<cc::Material::PassesUpdated>([thisObj](cc::Material * /*emitter*/ ){
         se::AutoHandleScope hs;
         se::ScriptEngine::getInstance()->callFunction(thisObj, "_onPassesUpdated", 0, nullptr);
     });

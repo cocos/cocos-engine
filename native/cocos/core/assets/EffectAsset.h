@@ -33,10 +33,11 @@
 #include "base/Value.h"
 #include "core/Types.h"
 #include "core/assets/Asset.h"
+#include "engine/BaseEngine.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
-#include "engine/BaseEngine.h"
+
 
 namespace cc {
 
@@ -349,7 +350,7 @@ using PassOverrides = IPassStates;
 
 using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
 
-struct IPassInfoFull final { //cjh } : public IPassInfo {
+struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassStates
     ccstd::optional<int32_t> priority;
     ccstd::optional<gfx::PrimitiveMode> primitive;
@@ -466,7 +467,7 @@ struct IAttributeInfo {
 struct IDefineInfo {
     ccstd::string name;
     ccstd::string type;
-    ccstd::optional<ccstd::vector<int32_t>> range; //cjh number is float?  ?: number[];
+    ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
 };
@@ -582,9 +583,9 @@ public:
     void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
     bool validate() const override;
 
-private:
-    BaseEngine::EngineStatusChange::EventID _engineListener;
 protected:
+    BaseEngine::EngineStatusChange::EventID _engineEventId;
+
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
     static ccstd::vector<MacroRecord> generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value);
     static ccstd::vector<MacroRecord> insertInfoValue(const ccstd::vector<MacroRecord> &records,
@@ -620,7 +621,7 @@ public:
     ccstd::vector<IPreCompileInfo> _combinations;
     //
 protected:
-    static RegisteredEffectAssetMap effects; //cjh TODO: how to clear when game exits.
+    static RegisteredEffectAssetMap effects; // cjh TODO: how to clear when game exits.
     static bool layoutValid;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(EffectAsset);

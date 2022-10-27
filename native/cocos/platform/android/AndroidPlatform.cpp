@@ -257,7 +257,7 @@ public:
                 }
             }
 
-            cc::event::broadcast<events::Touch>(touchEvent);
+            event::broadcast<events::Touch>(touchEvent);
             touchEvent.touches.clear();
             return true;
         }
@@ -273,7 +273,7 @@ public:
             keyboardEvent.action = 0 == keyEvent->action ? cc::KeyboardEvent::Action::PRESS
                                                          : cc::KeyboardEvent::Action::RELEASE;
             keyboardEvent.key = action.actionCode;
-            cc::event::broadcast<events::Keyboard>(keyboardEvent);
+            event::broadcast<events::Keyboard>(keyboardEvent);
             return true;
         }
         return false;
@@ -288,11 +288,11 @@ public:
         if (wentUp) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
-            cc::event::broadcast<events::Keyboard>(keyboardEvent);
+            event::broadcast<events::Keyboard>(keyboardEvent);
         } else if (wentDown) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
-            cc::event::broadcast<events::Keyboard>(keyboardEvent);
+            event::broadcast<events::Keyboard>(keyboardEvent);
         }
     }
 
@@ -342,7 +342,7 @@ public:
                     auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
                     auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
                     window->setWindowHandle(nativeWindow);
-                    cc::event::broadcast<cc::events::WindowRecreated>(ISystemWindow::mainWindowId);
+                    event::broadcast<events::WindowRecreated>(ISystemWindow::mainWindowId);
                 }
                 break;
             }
@@ -355,7 +355,7 @@ public:
                     xr->onRenderPause();
                 }
                 // NOLINTNEXTLINE
-                cc::event::broadcast<cc::events::WindowDestroy>(ISystemWindow::mainWindowId);
+                event::broadcast<events::WindowDestroy>(ISystemWindow::mainWindowId);
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
@@ -383,7 +383,7 @@ public:
                 }
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
-                cc::event::broadcast<cc::events::WindowEvent>(ev);
+                event::broadcast<events::WindowEvent>(ev);
                 _androidPlatform->onDestroy();
                 break;
             }
@@ -393,7 +393,7 @@ public:
                 Paddleboat_onStop(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::HIDDEN;
-                cc::event::broadcast<cc::events::WindowEvent>(ev);
+                event::broadcast<events::WindowEvent>(ev);
                 break;
             }
             case APP_CMD_START: {
@@ -402,7 +402,7 @@ public:
                 Paddleboat_onStart(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::SHOW;
-                cc::event::broadcast<cc::events::WindowEvent>(ev);
+                event::broadcast<events::WindowEvent>(ev);
                 break;
             }
             case APP_CMD_WINDOW_RESIZED: {
@@ -411,7 +411,7 @@ public:
                 ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
                 ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
                 ev.height = ANativeWindow_getHeight(_androidPlatform->_app->window);
-                cc::event::broadcast<cc::events::WindowEvent>(ev);
+                event::broadcast<events::WindowEvent>(ev);
                 break;
             }
             case APP_CMD_CONFIG_CHANGED:
@@ -425,7 +425,7 @@ public:
                 // system told us we have low memory. So if we are not visible, let's
                 // cooperate by deallocating all of our graphic resources.
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
-                cc::event::broadcast<events::LowMemory>();
+                event::broadcast<events::LowMemory>();
                 break;
             }
             case APP_CMD_CONTENT_RECT_CHANGED:

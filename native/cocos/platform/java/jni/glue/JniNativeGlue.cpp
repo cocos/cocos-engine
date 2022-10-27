@@ -219,25 +219,25 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
                 return;
             }
             // FIXME: getWindowId
-            cc::event::broadcast<cc::events::WindowRecreated>((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
+            event::broadcast<events::WindowRecreated>((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
             // FIXME: getWindowId
-            cc::event::broadcast<cc::events::WindowDestroy>((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
+            event::broadcast<events::WindowDestroy>((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
         } break;
         case JniCommand::JNI_CMD_RESUME: {
-            cc::event::broadcast<events::WindowChanged>(WindowEvent::Type::SHOW);
+            event::broadcast<events::WindowChanged>(WindowEvent::Type::SHOW);
         } break;
         case JniCommand::JNI_CMD_PAUSE: {
-            cc::event::broadcast<events::WindowChanged>(WindowEvent::Type::HIDDEN);
+            event::broadcast<events::WindowChanged>(WindowEvent::Type::HIDDEN);
         } break;
         case JniCommand::JNI_CMD_DESTROY: {
             LOGV("APP_CMD_DESTROY");
-            cc::event::broadcast<events::WindowChanged>(WindowEvent::Type::CLOSE);
+            event::broadcast<events::WindowChanged>(WindowEvent::Type::CLOSE);
             setRunning(false);
         } break;
         case JniCommand::JNI_CMD_LOW_MEMORY: {
-            cc::event::broadcast<events::LowMemory>(); 
+            event::broadcast<events::LowMemory>(); 
             break;
         }
         default:

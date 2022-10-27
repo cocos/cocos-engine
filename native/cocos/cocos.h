@@ -34,4 +34,4 @@
 #include "bindings/manual/jsb_classtype.h"
 #include "bindings/manual/jsb_global.h"
 #include "bindings/manual/jsb_module_register.h"
-#include "event/Event.h"
+#include "core/event/Event.h"

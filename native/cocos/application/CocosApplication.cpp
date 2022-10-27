@@ -76,7 +76,7 @@ int CocosApplication::init() {
                 this->onClose();
                 break;
             default:
-                assert(false);
+                CC_ASSERT(false);
         }
     });
 
@@ -98,7 +98,7 @@ int CocosApplication::init() {
     IScreen *screen = _engine->getInterface<IScreen>();
     float pixelRatio = screen->getDevicePixelRatio();
     uint32_t windowId = _systemWindow->getWindowId();
-    cc::event::broadcast<cc::events::Resize>(logicSize.x * pixelRatio, logicSize.y * pixelRatio, windowId);
+    event::broadcast<events::Resize>(logicSize.x * pixelRatio, logicSize.y * pixelRatio, windowId);
 #endif
     return 0;
 }
