@@ -3,12 +3,9 @@
 
     "features": {
         "base": { "modules": [ "base" ], "dependentAssets": [
-            "ff9be190-20a4-4e48-b68c-76e3c7cff085",
-            "970b0598-bcb0-4714-91fb-2e81440dccd8",
             "bcd64cc6-2dd9-43f6-abbe-66318d332032",
             "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
-            "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
-            "9361fd90-ba52-4f84-aa93-6e878fd576ca"
+            "a3cd009f-0ab0-420d-9278-b9fdab939bbc"
         ]},
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
@@ -16,10 +13,6 @@
             "modules": [ "3d" ], 
             "dependentAssets": [
                 "1baf0fc9-befa-459c-8bdd-af1a450a0319",
-                "511d2633-09a7-4bdd-ac42-f778032124b3",
-                "5d45aa00-e064-4938-b314-4265f0c2258c",
-                "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
-                "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
                 "620b6bf3-0369-4560-837f-2a2c00b73c26"
             ] 
         },
@@ -46,11 +39,9 @@
             "modules": [ "particle" ], 
             "dependentAssets": [ 
                 "d1346436-ac96-4271-b863-1f4fdead95b0", 
-                "971bdb23-3ff6-43eb-b422-1c30165a3663", 
                 "17debcc3-0a6b-4b8a-b00b-dc58b885581e", 
                 "711ebe11-f673-4cd9-9a83-63c60ba54c5b",
                 "c0143906-9aed-447e-9436-2ae8512d1b6e",
-                "14da1725-c4c2-42b4-ab08-ee0aeb6898b3",
                 "081cab31-dccd-428e-8652-f2404cc81c47",
                 "78e0584a-4343-4727-8f37-e14e65c2a2db" 
             ]
@@ -88,6 +79,7 @@
 	    "debug-renderer": { 
             "modules": [], 
             "dependentAssets": [
+                "ff9be190-20a4-4e48-b68c-76e3c7cff085",
                 "0835f102-5471-47a3-9a76-01c07ac9cdb2", 
                 "b5475517-23b9-4873-bc1a-968d96616081", 
                 "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", 

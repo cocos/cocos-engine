@@ -22,6 +22,7 @@ export class Application {
     }
 
     start () {
+        console.time('game init');
         return cc.game.init({
             debugMode: <%= debugMode %> ? cc.DebugMode.INFO : cc.DebugMode.ERROR,
             settingsPath: this.settingsPath,
@@ -33,6 +34,13 @@ export class Application {
                     showFPS: this.showFPS,
                 }
             }
-        }).then(() => cc.game.run());
+        }).then(
+        () => {
+            console.timeEnd('game init');
+            console.time('game run');
+            cc.game.run()
+            console.timeEnd('game run')
+        }
+        );
     }
 }

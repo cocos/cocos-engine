@@ -11,12 +11,18 @@ function topLevelImport (url) {
 }
 
 const application = new Application();
-
+console.time('import cc');
 topLevelImport('cc')
 .then((engine) => {
+    console.timeEnd('import cc');
+    console.time('index:application init');
     return application.init(engine);
 }).then(() => {
+    console.timeEnd('index:application init');
+    console.time('application start:game init');
     return application.start();
+}).then(() => {
+    console.timeEnd('application start:game init');
 }).catch((err) => {
     console.error(err);
 });
