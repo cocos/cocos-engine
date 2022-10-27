@@ -28,7 +28,6 @@ import './deprecation';
 
 export { Asset } from './asset';
 export { BufferAsset } from './buffer-asset';
-export { Prefab } from './prefab';
 export * from './scripts';
 export { RenderingSubMesh } from './rendering-sub-mesh';
 export { SceneAsset } from './scene-asset';

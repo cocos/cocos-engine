@@ -286,6 +286,7 @@ using namespace cc;
 %attribute(cc::scene::Light, cc::scene::LightType, type, getType, setType);
 %attribute(cc::scene::Light, ccstd::string&, name, getName, setName);
 %attribute(cc::scene::Light, cc::scene::RenderScene*, scene, getScene);
+%attribute(cc::scene::Light, uint32_t, visibility, getVisibility, setVisibility);
 
 %attribute(cc::scene::DirectionalLight, cc::Vec3&, direction, getDirection, setDirection);
 %attribute(cc::scene::DirectionalLight, float, illuminance, getIlluminance, setIlluminance);

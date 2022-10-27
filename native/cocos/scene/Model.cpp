@@ -325,7 +325,7 @@ bool Model::isLightProbeAvailable() const {
 
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
-    if (!lightProbes->available()) {
+    if (!lightProbes || lightProbes->empty()) {
         return false;
     }
 
@@ -349,13 +349,19 @@ void Model::updateSHUBOs() {
 #endif
 
     ccstd::vector<Vec3> coefficients;
+    Vec4 weights(0.0F, 0.0F, 0.0F, 0.0F);
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
-    _tetrahedronIndex = lightProbes->getData().getInterpolationSHCoefficients(center, _tetrahedronIndex, coefficients);
-    gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
+
     _lastWorldBoundCenter.set(center);
+    _tetrahedronIndex = lightProbes->getData().getInterpolationWeights(center, _tetrahedronIndex, weights);
+    bool result = lightProbes->getData().getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    if (!result) {
+        return;
+    }
 
     if (!_localSHData.empty() && _localSHBuffer) {
+        gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
         gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
         _localSHBuffer->update(_localSHData.buffer()->getData());
     }

@@ -1213,56 +1213,22 @@ se::Class* __jsb_cc_render_RasterQueueBuilder_class = nullptr;
 se::Object* __jsb_cc_render_RasterQueueBuilder_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_RasterQueueBuilder) 
 
-static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_0(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera(se::State& s)
 {
-    // js_overloaded_function
+    // js_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
-    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
-    LightInfo arg3 ;
-    SceneFlags arg4 ;
-    ccstd::string *arg5 = 0 ;
-    ccstd::string temp5 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addSceneOfCamera,2,SWIGTYPE_p_cc__scene__Camera"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addSceneOfCamera,3,SWIGTYPE_LightInfo"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addSceneOfCamera,4,SWIGTYPE_SceneFlags"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addSceneOfCamera,5,SWIGTYPE_p_ccstd__string");
-    arg5 = &temp5;
-    
-    (arg1)->addSceneOfCamera(arg2,arg3,arg4,(ccstd::string const &)*arg5);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
+    size_t argc = args.size();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     LightInfo arg3 ;
     SceneFlags arg4 ;
     
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
@@ -1282,30 +1248,6 @@ static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_1(se::State& 
     
     
     return true;
-}
-
-static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 3) {
-        ok = js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
 }
 SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addSceneOfCamera) 
 
@@ -1344,56 +1286,22 @@ static bool js_cc_render_RasterQueueBuilder_addScene(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addScene) 
 
-static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_0(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad(se::State& s)
 {
-    // js_overloaded_function
+    // js_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
-    cc::Material *arg2 = (cc::Material *) NULL ;
-    uint32_t arg3 ;
-    SceneFlags arg4 ;
-    ccstd::string *arg5 = 0 ;
-    ccstd::string temp5 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,2,SWIGTYPE_p_cc__Material"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,4,SWIGTYPE_SceneFlags"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,5,SWIGTYPE_p_ccstd__string");
-    arg5 = &temp5;
-    
-    (arg1)->addFullscreenQuad(arg2,arg3,arg4,(ccstd::string const &)*arg5);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
+    size_t argc = args.size();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::Material *arg2 = (cc::Material *) NULL ;
     uint32_t arg3 ;
     SceneFlags arg4 ;
     
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
@@ -1414,87 +1322,25 @@ static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(se::State&
     
     return true;
 }
+SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addFullscreenQuad) 
 
-static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_addCameraQuad(se::State& s)
 {
-    // js_function_dispatcher
+    // js_function
+    
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 3) {
-        ok = js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addFullscreenQuad) 
-
-static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
-    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
-    cc::Material *arg3 = (cc::Material *) NULL ;
-    uint32_t arg4 ;
-    SceneFlags arg5 ;
-    ccstd::string *arg6 = 0 ;
-    ccstd::string temp6 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,2,SWIGTYPE_p_cc__scene__Camera"); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,3,SWIGTYPE_p_cc__Material"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,5,SWIGTYPE_SceneFlags"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,6,SWIGTYPE_p_ccstd__string");
-    arg6 = &temp6;
-    
-    (arg1)->addCameraQuad(arg2,arg3,arg4,arg5,(ccstd::string const &)*arg6);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     cc::Material *arg3 = (cc::Material *) NULL ;
     uint32_t arg4 ;
     SceneFlags arg5 ;
     
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
@@ -1517,30 +1363,6 @@ static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(se::State& s)
     
     
     return true;
-}
-
-static bool js_cc_render_RasterQueueBuilder_addCameraQuad(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 5) {
-        ok = js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
 }
 SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addCameraQuad) 
 
@@ -1719,50 +1541,21 @@ static bool js_cc_render_RasterPassBuilder_addComputeView(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addComputeView) 
 
-static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_0(se::State& s)
+static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
 {
-    // js_overloaded_function
+    // js_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
-    QueueHint arg2 ;
-    ccstd::string *arg3 = 0 ;
-    ccstd::string temp3 ;
-    cc::render::RasterQueueBuilder *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addQueue,2,SWIGTYPE_QueueHint"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addQueue,3,SWIGTYPE_p_ccstd__string");
-    arg3 = &temp3;
-    
-    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue(arg2,(ccstd::string const &)*arg3);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addQueue, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
+    size_t argc = args.size();
     cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
     QueueHint arg2 ;
     cc::render::RasterQueueBuilder *result = 0 ;
     
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
@@ -1779,231 +1572,7 @@ static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_1(se::State& s)
     
     return true;
 }
-
-static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_render_RasterPassBuilder_addQueue__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_render_RasterPassBuilder_addQueue__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addQueue) 
-
-static bool js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
-    cc::Material *arg2 = (cc::Material *) NULL ;
-    uint32_t arg3 ;
-    SceneFlags arg4 ;
-    ccstd::string *arg5 = 0 ;
-    ccstd::string temp5 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,2,SWIGTYPE_p_cc__Material"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,4,SWIGTYPE_SceneFlags"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,5,SWIGTYPE_p_ccstd__string");
-    arg5 = &temp5;
-    
-    (arg1)->addFullscreenQuad(arg2,arg3,arg4,(ccstd::string const &)*arg5);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
-    cc::Material *arg2 = (cc::Material *) NULL ;
-    uint32_t arg3 ;
-    SceneFlags arg4 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,2,SWIGTYPE_p_cc__Material"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addFullscreenQuad,4,SWIGTYPE_SceneFlags"); 
-    
-    (arg1)->addFullscreenQuad(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterPassBuilder_addFullscreenQuad(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 3) {
-        ok = js_cc_render_RasterPassBuilder_addFullscreenQuad__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addFullscreenQuad) 
-
-static bool js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
-    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
-    cc::Material *arg3 = (cc::Material *) NULL ;
-    uint32_t arg4 ;
-    SceneFlags arg5 ;
-    ccstd::string *arg6 = 0 ;
-    ccstd::string temp6 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,2,SWIGTYPE_p_cc__scene__Camera"); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,3,SWIGTYPE_p_cc__Material"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,5,SWIGTYPE_SceneFlags"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,6,SWIGTYPE_p_ccstd__string");
-    arg6 = &temp6;
-    
-    (arg1)->addCameraQuad(arg2,arg3,arg4,arg5,(ccstd::string const &)*arg6);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
-    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
-    cc::Material *arg3 = (cc::Material *) NULL ;
-    uint32_t arg4 ;
-    SceneFlags arg5 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,2,SWIGTYPE_p_cc__scene__Camera"); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,3,SWIGTYPE_p_cc__Material"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addCameraQuad,5,SWIGTYPE_SceneFlags"); 
-    
-    (arg1)->addCameraQuad(arg2,arg3,arg4,arg5);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_RasterPassBuilder_addCameraQuad(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 5) {
-        ok = js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_RasterPassBuilder_addCameraQuad__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addCameraQuad) 
 
 static bool js_cc_render_RasterPassBuilder_setViewport(se::State& s)
 {
@@ -2048,8 +1617,6 @@ bool js_register_cc_render_RasterPassBuilder(se::Object* obj) {
     cls->defineFunction("addRasterView", _SE(js_cc_render_RasterPassBuilder_addRasterView)); 
     cls->defineFunction("addComputeView", _SE(js_cc_render_RasterPassBuilder_addComputeView)); 
     cls->defineFunction("addQueue", _SE(js_cc_render_RasterPassBuilder_addQueue)); 
-    cls->defineFunction("addFullscreenQuad", _SE(js_cc_render_RasterPassBuilder_addFullscreenQuad)); 
-    cls->defineFunction("addCameraQuad", _SE(js_cc_render_RasterPassBuilder_addCameraQuad)); 
     cls->defineFunction("setViewport", _SE(js_cc_render_RasterPassBuilder_setViewport)); 
     
     
@@ -2072,60 +1639,13 @@ se::Class* __jsb_cc_render_ComputeQueueBuilder_class = nullptr;
 se::Object* __jsb_cc_render_ComputeQueueBuilder_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_ComputeQueueBuilder) 
 
-static bool js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_0(se::State& s)
+static bool js_cc_render_ComputeQueueBuilder_addDispatch(se::State& s)
 {
-    // js_overloaded_function
+    // js_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cc::render::ComputeQueueBuilder *arg1 = (cc::render::ComputeQueueBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    uint32_t arg3 ;
-    uint32_t arg4 ;
-    uint32_t arg5 ;
-    ccstd::string *arg6 = 0 ;
-    ccstd::string temp2 ;
-    ccstd::string temp6 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::ComputeQueueBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputeQueueBuilder_addDispatch,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputeQueueBuilder_addDispatch,3,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputeQueueBuilder_addDispatch,4,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputeQueueBuilder_addDispatch,5,SWIGTYPE_uint32_t"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputeQueueBuilder_addDispatch,6,SWIGTYPE_p_ccstd__string");
-    arg6 = &temp6;
-    
-    (arg1)->addDispatch((ccstd::string const &)*arg2,arg3,arg4,arg5,(ccstd::string const &)*arg6);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
+    size_t argc = args.size();
     cc::render::ComputeQueueBuilder *arg1 = (cc::render::ComputeQueueBuilder *) NULL ;
     ccstd::string *arg2 = 0 ;
     uint32_t arg3 ;
@@ -2133,6 +1653,10 @@ static bool js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_1(se::State& s)
     uint32_t arg5 ;
     ccstd::string temp2 ;
     
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::ComputeQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
@@ -2159,30 +1683,6 @@ static bool js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_1(se::State& s)
     
     
     return true;
-}
-
-static bool js_cc_render_ComputeQueueBuilder_addDispatch(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 5) {
-        ok = js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_ComputeQueueBuilder_addDispatch__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
 }
 SE_BIND_FUNC(js_cc_render_ComputeQueueBuilder_addDispatch) 
 
@@ -2255,43 +1755,20 @@ static bool js_cc_render_ComputePassBuilder_addComputeView(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_ComputePassBuilder_addComputeView) 
 
-static bool js_cc_render_ComputePassBuilder_addQueue__SWIG_0(se::State& s)
+static bool js_cc_render_ComputePassBuilder_addQueue(se::State& s)
 {
-    // js_overloaded_function
+    // js_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cc::render::ComputePassBuilder *arg1 = (cc::render::ComputePassBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
-    cc::render::ComputeQueueBuilder *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addQueue,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    result = (cc::render::ComputeQueueBuilder *)(arg1)->addQueue((ccstd::string const &)*arg2);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addQueue, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-
-static bool js_cc_render_ComputePassBuilder_addQueue__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
+    size_t argc = args.size();
     cc::render::ComputePassBuilder *arg1 = (cc::render::ComputePassBuilder *) NULL ;
     cc::render::ComputeQueueBuilder *result = 0 ;
     
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     result = (cc::render::ComputeQueueBuilder *)(arg1)->addQueue();
@@ -2303,145 +1780,7 @@ static bool js_cc_render_ComputePassBuilder_addQueue__SWIG_1(se::State& s)
     
     return true;
 }
-
-static bool js_cc_render_ComputePassBuilder_addQueue(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_render_ComputePassBuilder_addQueue__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 0) {
-        ok = js_cc_render_ComputePassBuilder_addQueue__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
 SE_BIND_FUNC(js_cc_render_ComputePassBuilder_addQueue) 
-
-static bool js_cc_render_ComputePassBuilder_addDispatch__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::ComputePassBuilder *arg1 = (cc::render::ComputePassBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    uint32_t arg3 ;
-    uint32_t arg4 ;
-    uint32_t arg5 ;
-    ccstd::string *arg6 = 0 ;
-    ccstd::string temp2 ;
-    ccstd::string temp6 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,3,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,4,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,5,SWIGTYPE_uint32_t"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[4], &temp6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,6,SWIGTYPE_p_ccstd__string");
-    arg6 = &temp6;
-    
-    (arg1)->addDispatch((ccstd::string const &)*arg2,arg3,arg4,arg5,(ccstd::string const &)*arg6);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_ComputePassBuilder_addDispatch__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::ComputePassBuilder *arg1 = (cc::render::ComputePassBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    uint32_t arg3 ;
-    uint32_t arg4 ;
-    uint32_t arg5 ;
-    ccstd::string temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::ComputePassBuilder>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,3,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,4,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ComputePassBuilder_addDispatch,5,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->addDispatch((ccstd::string const &)*arg2,arg3,arg4,arg5);
-    
-    
-    return true;
-}
-
-static bool js_cc_render_ComputePassBuilder_addDispatch(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 5) {
-        ok = js_cc_render_ComputePassBuilder_addDispatch__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_ComputePassBuilder_addDispatch__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_render_ComputePassBuilder_addDispatch) 
 
 static bool js_delete_cc_render_ComputePassBuilder(se::State& s)
 {
@@ -2456,7 +1795,6 @@ bool js_register_cc_render_ComputePassBuilder(se::Object* obj) {
     
     cls->defineFunction("addComputeView", _SE(js_cc_render_ComputePassBuilder_addComputeView)); 
     cls->defineFunction("addQueue", _SE(js_cc_render_ComputePassBuilder_addQueue)); 
-    cls->defineFunction("addDispatch", _SE(js_cc_render_ComputePassBuilder_addDispatch)); 
     
     
     
@@ -3673,59 +3011,13 @@ static bool js_cc_render_Pipeline_endFrame(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_endFrame) 
 
-static bool js_cc_render_Pipeline_addRasterPass__SWIG_0(se::State& s)
+static bool js_cc_render_Pipeline_addRasterPass(se::State& s)
 {
-    // js_overloaded_function
+    // js_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
-    uint32_t arg2 ;
-    uint32_t arg3 ;
-    ccstd::string *arg4 = 0 ;
-    ccstd::string *arg5 = 0 ;
-    ccstd::string temp4 ;
-    ccstd::string temp5 ;
-    cc::render::RasterPassBuilder *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass,2,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass,3,SWIGTYPE_uint32_t"); 
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass,4,SWIGTYPE_p_ccstd__string");
-    arg4 = &temp4;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass,5,SWIGTYPE_p_ccstd__string");
-    arg5 = &temp5;
-    
-    result = (cc::render::RasterPassBuilder *)(arg1)->addRasterPass(arg2,arg3,(ccstd::string const &)*arg4,(ccstd::string const &)*arg5);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-
-static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
+    size_t argc = args.size();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
     uint32_t arg2 ;
     uint32_t arg3 ;
@@ -3733,6 +3025,10 @@ static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
     ccstd::string temp4 ;
     cc::render::RasterPassBuilder *result = 0 ;
     
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
@@ -3759,78 +3055,24 @@ static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
     
     return true;
 }
+SE_BIND_FUNC(js_cc_render_Pipeline_addRasterPass) 
 
-static bool js_cc_render_Pipeline_addRasterPass(se::State& s)
+static bool js_cc_render_Pipeline_addComputePass(se::State& s)
 {
-    // js_function_dispatcher
+    // js_function
+    
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_render_Pipeline_addRasterPass__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 3) {
-        ok = js_cc_render_Pipeline_addRasterPass__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_render_Pipeline_addRasterPass) 
-
-static bool js_cc_render_Pipeline_addComputePass__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string *arg3 = 0 ;
-    ccstd::string temp2 ;
-    ccstd::string temp3 ;
-    cc::render::ComputePassBuilder *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addComputePass,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addComputePass,3,SWIGTYPE_p_ccstd__string");
-    arg3 = &temp3;
-    
-    result = (cc::render::ComputePassBuilder *)(arg1)->addComputePass((ccstd::string const &)*arg2,(ccstd::string const &)*arg3);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Pipeline_addComputePass, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-
-static bool js_cc_render_Pipeline_addComputePass__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
     ccstd::string *arg2 = 0 ;
     ccstd::string temp2 ;
     cc::render::ComputePassBuilder *result = 0 ;
     
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
@@ -3847,30 +3089,6 @@ static bool js_cc_render_Pipeline_addComputePass__SWIG_1(se::State& s)
     
     return true;
 }
-
-static bool js_cc_render_Pipeline_addComputePass(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_render_Pipeline_addComputePass__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_render_Pipeline_addComputePass__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
 SE_BIND_FUNC(js_cc_render_Pipeline_addComputePass) 
 
 static bool js_cc_render_Pipeline_addMovePass(se::State& s)
@@ -3881,22 +3099,15 @@ static bool js_cc_render_Pipeline_addMovePass(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
     cc::render::MovePassBuilder *result = 0 ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addMovePass,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    result = (cc::render::MovePassBuilder *)(arg1)->addMovePass((ccstd::string const &)*arg2);
+    result = (cc::render::MovePassBuilder *)(arg1)->addMovePass();
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Pipeline_addMovePass, Error processing arguments");
@@ -3915,22 +3126,15 @@ static bool js_cc_render_Pipeline_addCopyPass(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
     cc::render::CopyPassBuilder *result = 0 ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pipeline_addCopyPass,2,SWIGTYPE_p_ccstd__string");
-    arg2 = &temp2;
-    
-    result = (cc::render::CopyPassBuilder *)(arg1)->addCopyPass((ccstd::string const &)*arg2);
+    result = (cc::render::CopyPassBuilder *)(arg1)->addCopyPass();
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Pipeline_addCopyPass, Error processing arguments");

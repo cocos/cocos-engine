@@ -24,7 +24,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Quat, Vec3 } from '../../core';
+import { Quat, Vec3, js } from '../../core';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
@@ -38,7 +38,6 @@ import { VEC3_0 } from '../utils/util';
 import { ERigidBodyType, PhysicsSystem } from '../framework';
 import { PhysXJoint } from './joints/physx-joint';
 import { PhysicsGroup } from '../framework/physics-enum';
-import { fastRemoveAt } from '../../core/utils/array';
 import { Node } from '../../scene-graph';
 
 export class PhysXSharedBody {
@@ -223,7 +222,7 @@ export class PhysXSharedBody {
         if (index >= 0) {
             ws.setIndex(-1);
             this.impl.detachShape(ws.impl, true);
-            fastRemoveAt(this.wrappedShapes, index);
+            js.array.fastRemoveAt(this.wrappedShapes, index);
             if (!ws.collider.isTrigger) {
                 if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
                 if (this.isDynamic) setMassAndUpdateInertia(this.impl, this._wrappedBody!.rigidBody.mass);
@@ -244,10 +243,10 @@ export class PhysXSharedBody {
     removeJoint (v: PhysXJoint, type: 0 | 1) {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints1, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints1, i);
         } else {
             const i = this.wrappedJoints0.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints0, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints0, i);
         }
     }
 
