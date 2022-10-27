@@ -150,6 +150,7 @@ using namespace cc;
 %ignore cc::JointInfo;
 %ignore cc::BakedJointInfo;
 %ignore cc::ITemplateInfo;
+%ignore cc::ShaderCollection;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed

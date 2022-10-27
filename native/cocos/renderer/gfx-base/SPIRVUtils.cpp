@@ -32,17 +32,14 @@
 #include "glslang/StandAlone/ResourceLimits.h"
 #include "spirv/spirv.h"
 
-#include <type_traits>
-#include "spirv-cross/spirv_glsl.hpp"
+#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
 #include "spirv-cross/spirv_msl.hpp"
-#include "spirv-tools/optimizer.hpp"
+#endif
 
 namespace cc {
 namespace gfx {
 
 namespace {
-
-static_assert(sizeof(std::underlying_type<spv_target_env>) <= sizeof(uint32_t));
 
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
@@ -188,21 +185,6 @@ glslang::EShTargetLanguageVersion getLanguageVersion(gfx::SpirvClientVersion ver
     };
 }
 
-spv_target_env getTargetEnv(gfx::SpirvClientVersion version) {
-    switch (version) {
-        case gfx::SpirvClientVersion::OPENGL_ES_2_0:
-        case gfx::SpirvClientVersion::OPENGL_ES_3_0:
-        case gfx::SpirvClientVersion::OPENGL_ES_3_1: return SPV_ENV_OPENGL_4_5;
-        case gfx::SpirvClientVersion::VULKAN_1_0: return SPV_ENV_VULKAN_1_0;
-        case gfx::SpirvClientVersion::VULKAN_1_1: return SPV_ENV_VULKAN_1_1;
-        case gfx::SpirvClientVersion::VULKAN_1_2:
-        case gfx::SpirvClientVersion::VULKAN_1_3: return SPV_ENV_VULKAN_1_2;
-        default:
-            CC_LOG_ERROR("Unsupported SPIRV version: %d", version);
-            return SPV_ENV_UNIVERSAL_1_0;
-    }
-}
-
 // https://www.khronos.org/registry/spir-v/specs/1.0/SPIRV.pdf
 struct Id {
     uint32_t opcode{0};
@@ -220,7 +202,6 @@ void SPIRVUtils::initialize(gfx::SpirvClientVersion clientVersion) {
     _clientVersion = getClientVersion(clientVersion);
     _languageVersion = getLanguageVersion(clientVersion);
     _targetVersion = getTargetVersion(clientVersion);
-    _optimizerEnv = getTargetEnv(clientVersion);
 }
 
 void SPIRVUtils::destroy() {
@@ -373,146 +354,27 @@ ccstd::vector<uint32_t> SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const c
 
 ccstd::vector<uint32_t> SPIRVUtils::compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source) {
     return compileGLSL(type, source);
-    EShLanguage stage = getShaderStage(type);
-    const char *string = source.c_str();
-
-    auto _shader = std::make_unique<glslang::TShader>(stage);
-    _shader->setStrings(&string, 1);
-    _shader->setEnvInput(glslang::EShSourceGlsl, stage, _clientPlatform, _clientVersion);
-    _shader->setEnvClient(_clientPlatform, _clientVersion);
-    _shader->setEnvTarget(glslang::EShTargetSpv, _languageVersion);
-    _shader->setEntryPoint("main");
-
-    if (_clientPlatform == glslang::EShClientOpenGL) {
-        _shader->setAutoMapBindings(true);
-        _shader->setAutoMapLocations(true);
-    }
-
-    auto messages = static_cast<EShMessages>(EShMsgSpvRules);
-
-    if (!_shader->parse(&glslang::DefaultTBuiltInResource, _languageVersion, false, messages)) {
-        CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", _shader->getInfoLog(), _shader->getInfoDebugLog());
-    }
-
-    _program = std::make_unique<glslang::TProgram>();
-    _program->addShader(_shader.get());
-
-    if (!_program->link(messages)) {
-        CC_LOG_ERROR("GLSL Linking Failed:\n%s\n%s", _program->getInfoLog(), _program->getInfoDebugLog());
-    }
-
-    _output.clear();
-    spv::SpvBuildLogger logger;
-    glslang::SpvOptions spvOptions;
-    spvOptions.disableOptimizer = false;
-    spvOptions.optimizeSize = true;
-#if CC_DEBUG > 0
-    spvOptions.validate = true;
-#else
-    spvOptions.stripDebugInfo = true;
-#endif
-    glslang::GlslangToSpv(*_program->getIntermediate(stage), _output, &logger, &spvOptions);
-    return _output;
 }
 
 ccstd::string SPIRVUtils::compileSPIRV2GLSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
-    auto isOpenGLES = [](uint32_t targetVersion) {
-        return targetVersion == 300 || targetVersion == 310 || targetVersion == 450;
-    };
-
-    spirv_cross::CompilerGLSL glsl(source);
-    spirv_cross::CompilerGLSL::Options options;
-    options.version = _targetVersion;
-    options.es = isOpenGLES(_targetVersion);
-    glsl.set_common_options(options);
-
-    std::string output = glsl.compile();
-    if (output.empty()) {
-        printf("Failed to compile shader to GLSL");
-    }
-    return output;
+    CC_ASSERT(false);
+    return {};
 }
 
 ccstd::string SPIRVUtils::compileSPIRV2MSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
-    spirv_cross::CompilerMSL msl(source);
-
-    spirv_cross::CompilerMSL::Options options;
-    options.platform = spirv_cross::CompilerMSL::Options::macOS;
-    options.set_msl_version(2, 3, 0);
-    options.emulate_subgroups = true;
-
-    msl.set_msl_options(options);
-
-    std::string output = msl.compile();
-    if (output.empty()) {
-        printf("Failed to compile shader to MSL");
-    }
-    return output;
+    CC_ASSERT(false);
+    return {};
 }
 
 ccstd::string compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
-    // not supported yet
     CC_ASSERT(false);
     return {};
 }
 
 
 ccstd::string SPIRVUtils::compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+    CC_ASSERT(false);
     return {};
-}
-
-ccstd::vector<uint32_t> SPIRVUtils::optimizeSPIRV(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
-    std::vector<uint32_t> output;
-    spvtools::Optimizer optimizer(static_cast<spv_target_env>(_optimizerEnv));
-
-    // enable all optimizations
-    optimizer.RegisterPass(spvtools::CreateWrapOpKillPass());
-    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
-    optimizer.RegisterPass(spvtools::CreateMergeReturnPass());
-    optimizer.RegisterPass(spvtools::CreateInlineExhaustivePass());
-    optimizer.RegisterPass(spvtools::CreateEliminateDeadFunctionsPass());
-    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
-    optimizer.RegisterPass(spvtools::CreatePrivateToLocalPass());
-    optimizer.RegisterPass(spvtools::CreateLocalSingleBlockLoadStoreElimPass());
-    optimizer.RegisterPass(spvtools::CreateLocalSingleStoreElimPass());
-    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
-    optimizer.RegisterPass(spvtools::CreateScalarReplacementPass(100));
-    optimizer.RegisterPass(spvtools::CreateLocalAccessChainConvertPass());
-    optimizer.RegisterPass(spvtools::CreateLocalSingleBlockLoadStoreElimPass());
-    optimizer.RegisterPass(spvtools::CreateLocalSingleStoreElimPass());
-    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
-    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
-    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
-    optimizer.RegisterPass(spvtools::CreateCCPPass());
-    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
-    optimizer.RegisterPass(spvtools::CreateLoopUnrollPass(true));
-    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
-    optimizer.RegisterPass(spvtools::CreateRedundancyEliminationPass());
-    optimizer.RegisterPass(spvtools::CreateCombineAccessChainsPass());
-    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
-    optimizer.RegisterPass(spvtools::CreateScalarReplacementPass(100));
-    optimizer.RegisterPass(spvtools::CreateLocalAccessChainConvertPass());
-    optimizer.RegisterPass(spvtools::CreateLocalSingleBlockLoadStoreElimPass());
-    optimizer.RegisterPass(spvtools::CreateLocalSingleStoreElimPass());
-    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
-    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
-    optimizer.RegisterPass(spvtools::CreateVectorDCEPass());
-    optimizer.RegisterPass(spvtools::CreateDeadInsertElimPass());
-    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
-    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
-    optimizer.RegisterPass(spvtools::CreateIfConversionPass());
-    optimizer.RegisterPass(spvtools::CreateCopyPropagateArraysPass());
-    optimizer.RegisterPass(spvtools::CreateReduceLoadSizePass());
-    optimizer.RegisterPass(spvtools::CreateAggressiveDCEPass());
-    optimizer.RegisterPass(spvtools::CreateBlockMergePass());
-    optimizer.RegisterPass(spvtools::CreateRedundancyEliminationPass());
-    optimizer.RegisterPass(spvtools::CreateDeadBranchElimPass());
-    optimizer.RegisterPass(spvtools::CreateBlockMergePass());
-    optimizer.RegisterPass(spvtools::CreateSimplificationPass());
-
-    // optimize the shader
-    optimizer.Run(source.data(), source.size(), &output);
-    return output;
 }
 
 } // namespace gfx

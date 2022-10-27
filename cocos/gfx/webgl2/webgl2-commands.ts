@@ -1569,7 +1569,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         const glShader = gl.createShader(glShaderType);
         if (glShader) {
             gpuStage.glShader = glShader;
-            gl.shaderSource(gpuStage.glShader, `#version 300 es\n${gpuStage.source}`);
+            gl.shaderSource(gpuStage.glShader, gpuStage.source);
             gl.compileShader(gpuStage.glShader);
 
             if (!gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS)) {

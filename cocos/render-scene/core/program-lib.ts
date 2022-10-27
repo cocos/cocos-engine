@@ -195,12 +195,14 @@ class ShaderSource {
     public frag : ShaderStage = new ShaderStage();
     public comp : ShaderStage = new ShaderStage();
 
-    public getStage (stage: ShaderStageFlagBit) {
+    public getStage (stage: ShaderStageFlagBit): ShaderStage {
         switch (stage) {
         case ShaderStageFlagBit.VERTEX: return this.vert;
         case ShaderStageFlagBit.FRAGMENT: return this.frag;
         case ShaderStageFlagBit.COMPUTE: return this.comp;
-        default: return null;
+        default:
+            error('Invalid shader stage.');
+            return null!;
         }
     }
 }
@@ -311,7 +313,7 @@ class ShaderCollection {
         }
         insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals');
 
-        // this._templateInfo.shaderInfo.stages = this._shaderInfo.stages.map((stage) => new ShaderStage(stage.stage));
+        this._templateInfo.shaderInfo.stages = this._shaderInfo.stages.map((stage) => new ShaderStage(stage.stage));
 
         tmplInfo.handleMap = genHandles(tmpl);
         tmplInfo.setLayouts = [];
@@ -387,7 +389,18 @@ class ShaderCollection {
         const prefix = pipeline.constantMacros + tmpl.constantMacros
         + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
-        const preCompile = (shaderSource: string, stage: ShaderStageFlagBit) => {
+        const preCompile = (prefix: string, shaderSource: EffectAsset.IShaderSourceCode, stage: ShaderStage) => {
+            switch (device.gfxAPI) {
+            case API.WEBGL:
+                stage.source = `${prefix}${shaderSource.glsl1}`;
+                break;
+            case API.WEBGL2:
+                stage.source = `#version 300 es\n${prefix}${shaderSource.glsl3}`;
+                break;
+            default:
+                error('Unsupported gfxAPI');
+                break;
+            }
         };
 
         const createShader = (device: Device, shader: Shader) => {
@@ -398,17 +411,14 @@ class ShaderCollection {
                 + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
                 const variantSource = new ShaderSource();
-                for (const stage of this._shaderInfo!.stages) {
+                for (let i = 0; i < tmpl.stages.length; i++) {
+                    const stage = tmpl.stages[i];
                     const stageSource = variantSource.getStage(stage.stage);
-                    stageSource!.stage = stage.stage;
-                    stageSource!.source = prefix + stage.source.glsl3;
-                    preCompile(stageSource!.source, stage.stage);
-                    this._templateInfo!.shaderInfo.stages[stage.stage] = stageSource!;
+                    stageSource.stage = stage.stage;
+                    preCompile(prefix, stage.source, stageSource);
+                    this._templateInfo!.shaderInfo.stages[i] = stageSource;
                 }
-
                 this._shaderVariantSources[key] = variantSource;
-                error('Shader source not found');
-                // return null;
             } else {
                 this._templateInfo!.shaderInfo.stages.forEach((stage) => {
                     stage.source = source.getStage(stage.stage)!.source;

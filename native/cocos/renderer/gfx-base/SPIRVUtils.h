@@ -28,7 +28,6 @@
 #include <memory>
 #include "gfx-base/GFXDef.h"
 #include "glslang/Public/ShaderLang.h"
-#include "spirv-tools/optimizer.hpp"
 
 namespace cc {
 namespace gfx {
@@ -43,15 +42,10 @@ public:
 
     ccstd::vector<uint32_t> compileGLSL(ShaderStageFlagBit type, const ccstd::string &source);
 
-    // SPIRVUtils &compileSPV(ShaderStageFlagBit type, const ccstd::string &source);
-    // SPIRVUtils &optimize();
-    // SPIRVUtils &crossCompile(gfx::API api);
-
     ccstd::vector<uint32_t> compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source);
     ccstd::string compileSPIRV2GLSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source);
     ccstd::string compileSPIRV2MSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source);
     ccstd::string compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source);
-    ccstd::vector<uint32_t> optimizeSPIRV(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source);
 
     ccstd::vector<uint32_t> compressInputLocations(gfx::AttributeList &attributes);
 
@@ -76,7 +70,6 @@ private:
     glslang::EShTargetClientVersion _clientVersion{glslang::EShTargetClientVersion::EShTargetVulkan_1_0};
     uint32_t _targetVersion{100};
     glslang::EShTargetLanguageVersion _languageVersion{glslang::EShTargetLanguageVersion::EShTargetSpv_1_0};
-    uint32_t _optimizerEnv{0};
 
     std::unique_ptr<glslang::TShader> _shader{nullptr};
     std::unique_ptr<glslang::TProgram> _program{nullptr};

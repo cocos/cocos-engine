@@ -513,7 +513,7 @@ struct IShaderSource {
  1. spv, msl, hlsl
  */
 
-using CompressedShaderSource = std::vector<uint8_t>;
+using CompressedShaderSource = ccstd::string;
 
 struct IShaderSourceCode { // shader source code
     ccstd::string glsl1;

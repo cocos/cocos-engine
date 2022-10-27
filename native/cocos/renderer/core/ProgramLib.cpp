@@ -579,9 +579,9 @@ ShaderCollection::ShaderCollection(const IShaderInfo &shaderInfo) {
 
     // TODO: yiwenxue : here we need to extract the shader sources from the raw buffer, and store them to the sourceCache, discard the others, the original shader source will still be kept in the shader collection
 
-    // std::transform(_shaderInfo.stages.begin(), _shaderInfo.stages.end(), std::back_inserter(_templateInfo.shaderInfo.stages), [](const auto &stage) {
-    //     return gfx::ShaderStage{stage.stage, std::string("")};
-    // });
+    std::transform(_shaderInfo.stages.begin(), _shaderInfo.stages.end(), std::back_inserter(_templateInfo.shaderInfo.stages), [](const auto &stage) {
+        return gfx::ShaderStage{stage.stage};
+    });
 
     _templateInfo.handleMap = genHandles(_shaderInfo);
     _templateInfo.setLayouts = {};
@@ -633,37 +633,33 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
     ccstd::vector<IMacroInfo> macroArray = prepareDefines(defines, _shaderInfo.defines);
     _templateInfo.shaderInfo.attributes = getActiveAttributes(_shaderInfo, _templateInfo, defines);
 
-    auto preCompile = [&](const ccstd::string &sourceCode, gfx::ShaderStage &stage) {
+    auto preCompile = [&](const ccstd::string &prefix, const IShaderSourceCode &sourceCode, gfx::ShaderStage &stage) {
         gfx::SPIRVUtils *spirvUtils = gfx::SPIRVUtils::getInstance();
         ccstd::string srcCode;
         ccstd::vector<uint32_t> spvCode; 
         switch (device->getGfxAPI()) {
             case gfx::API::GLES2:
-                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 300 es\n" + sourceCode);
-                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
-                srcCode = spirvUtils->compileSPIRV2GLSL(stage.stage, spvCode);
-                stage.source = srcCode;
+                stage.source = "#version 300 es\n" + prefix + sourceCode.glsl1;
 
             case gfx::API::GLES3:
-                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 310 es\n" + sourceCode);
-                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
-                srcCode = spirvUtils->compileSPIRV2GLSL(stage.stage, spvCode);
-                stage.source = srcCode;
+                stage.source = "#version 310 es\n" + prefix + sourceCode.glsl3;
                 break;
 
             case gfx::API::VULKAN:
-                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 460\n" + sourceCode);
-                spvCode = spirvUtils->compressInputLocations(_templateInfo.shaderInfo.attributes);
-                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
+                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 460\n" + prefix + sourceCode.glsl4);
+                if (stage.stage == gfx::ShaderStageFlagBit::VERTEX) {
+                    spvCode = spirvUtils->compressInputLocations(_templateInfo.shaderInfo.attributes);
+                }
                 stage.byteCode = spvCode;
                 break;
 
+#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
             case gfx::API::METAL:
-                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, sourceCode);
-                spvCode = spirvUtils->optimizeSPIRV(stage.stage, spvCode);
+                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, prefix + sourceCode.glsl4);
                 srcCode = spirvUtils->compileSPIRV2MSL(stage.stage, spvCode);
                 stage.source = srcCode;
                 break;
+#endif
 
             default:
                 break;
@@ -694,11 +690,10 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
 
             for (uint32_t i = 0; i < _shaderInfo.stages.size(); i++) {
                 auto &stage = _templateInfo.shaderInfo.stages[i];
-                auto &sourceStage = source.getStage(stage.stage);
+                auto &stageSource = source.getStage(stage.stage);
                 // better use different shader source for different gfx backend
-                auto sourceCode = prefix + _shaderInfo.stages[i].source.glsl3;
-                preCompile(sourceCode, stage);
-                sourceStage = stage;
+                preCompile(prefix, _shaderInfo.stages[i].source, stage);
+                stageSource = stage;
             }
             _shaderVariantSources[key] = source;
 #endif
