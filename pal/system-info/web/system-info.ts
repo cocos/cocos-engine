@@ -20,6 +20,7 @@ class SystemInfo extends EventTarget {
     public readonly isXR: boolean;
     private _battery?: any;
     private _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[];
 
     constructor () {
         super();
@@ -168,14 +169,7 @@ class SystemInfo extends EventTarget {
                 }
             }
         }
-        let supportImageBitmap = false;
-        if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
-            _tmpCanvas1.width = _tmpCanvas1.height = 2;
-            createImageBitmap(_tmpCanvas1, {}).then((imageBitmap) => {
-                supportImageBitmap = true;
-                imageBitmap?.close();
-            }).catch((err) => {});
-        }
+        const supportImageBitmap = false;  // Initialize in Promise
 
         const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
         const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
@@ -197,7 +191,27 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_HMD]: this.isXR,
         };
 
+        this._initPromise = [];
+        this._initPromise.push(this._supportsImageBitmapPromise());
+
         this._registerEvent();
+    }
+
+    private _supportsImageBitmapPromise (): Promise<void> {
+        if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 2;
+            const promise = createImageBitmap(canvas, {});
+            if (promise instanceof Promise) {
+                return promise.then((imageBitmap) => {
+                    this._setFeature(Feature.IMAGE_BITMAP, true);
+                    imageBitmap?.close();
+                });
+            } else if (DEBUG) {
+                console.warn('The return value of createImageBitmap is not Promise.');
+            }
+        }
+        return Promise.resolve();
     }
 
     private _registerEvent () {
@@ -266,6 +280,14 @@ class SystemInfo extends EventTarget {
             document.addEventListener('pagehide', onHidden);
             document.addEventListener('pageshow', onShown);
         }
+    }
+
+    private _setFeature (feature: Feature, value: boolean) {
+        return this._featureMap[feature] = value;
+    }
+
+    public init (): Promise<void[]> {
+        return Promise.all(this._initPromise);
     }
 
     public hasFeature (feature: Feature): boolean {
