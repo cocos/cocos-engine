@@ -583,7 +583,7 @@ public:
     bool validate() const override;
 
 private:
-    BaseEngine::EngineStatusChange::eventid_type _engineListener;
+    BaseEngine::EngineStatusChange::EventID _engineListener;
 protected:
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
     static ccstd::vector<MacroRecord> generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value);

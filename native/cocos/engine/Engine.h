@@ -135,7 +135,7 @@ private:
     ProgramLib *_programLib{nullptr};
 
     cc::event::Listener<events::WindowEvent> _windowEvents;
-    // std::map<OSEventType, EventCb> _eventCallbacks;
+    
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
 

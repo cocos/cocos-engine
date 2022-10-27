@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -501,7 +501,7 @@ protected:
     public:                                                                             \
         using base_type = cc::event::TgtEventTrait<EmitterType, __VA_ARGS__>;           \
         using event_type = cc::event::Event<EventType>;                                 \
-        using eventid_type = cc::event::TargetEventID<EventType>;                       \
+        using EventID = cc::event::TargetEventID<EventType>;                       \
         using persist_function_type = std::function<void(EmitterType *, event_type *)>; \
         using handler_type = std::function<void(event_type *)>;                         \
         constexpr static const char *EVENT_NAME = #EventType;                           \
