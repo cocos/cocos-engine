@@ -33,6 +33,7 @@ import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { warnID } from '../core/platform';
+import { ReflectionProbeManager } from './reflectionProbeManager';
 import { LODModesCachedUtils } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
@@ -186,4 +187,31 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         enqueueRenderObject(models[i]);
     }
     LODModesCachedUtils.clearCachedLODModels();
+}
+
+export function reflectionProbeCulling (sceneData: PipelineSceneData, camera: Camera) {
+    const scene = camera.scene!;
+    const skybox = sceneData.skybox;
+
+    ReflectionProbeManager.probeManager.clearRenderObject(camera);
+
+    if (skybox.enabled && skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
+        ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(skybox.model, camera), true);
+    }
+
+    const models = scene.models;
+    const visibility = camera.visibility;
+
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        // filter model by view visibility
+        if (model.enabled) {
+            if (model.node && ((visibility & model.node.layer) === model.node.layer)
+                  || (visibility & model.visFlags)) {
+                if (model.bakeToReflectionProbe) {
+                    ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(model, camera));
+                }
+            }
+        }
+    }
 }

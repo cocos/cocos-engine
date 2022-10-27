@@ -37,10 +37,11 @@ import { SubModel } from './submodel';
 import { IMacroPatch, BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../core/math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
-    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../rendering/define';
+    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager, Texture } from '../../gfx';
+import { INST_MAT_WORLD, UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { legacyCC } from '../../core/global-exports';
+import { TextureCube } from '../../asset/assets';
 
 const m4_1 = new Mat4();
 
@@ -298,6 +299,30 @@ export class Model {
     }
 
     /**
+     * @en Whether the model can be render by the reflection probe
+     * @zh 模型是否能被反射探针渲染
+     */
+    get bakeToReflectionProbe () {
+        return this._bakeToReflectionProbe;
+    }
+
+    set bakeToReflectionProbe (val) {
+        this._bakeToReflectionProbe = val;
+    }
+
+    /**
+     * @en Reflection probe type
+     * @zh 反射探针类型。
+     */
+    get reflectionProbeType () {
+        return this._reflectionProbeType;
+    }
+
+    set reflectionProbeType (val) {
+        this._reflectionProbeType = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -453,6 +478,18 @@ export class Model {
     protected _visFlags = Layers.Enum.NONE;
 
     protected _priority = 0;
+
+    /**
+     * @en Whether the model can be render by the reflection probe
+     * @zh 模型是否能被反射探针渲染
+     */
+    protected _bakeToReflectionProbe = true;
+
+    /**
+     * @en Reflection probe type.
+     * @zh 反射探针类型。
+     */
+    protected _reflectionProbeType = 0;
 
     /**
      * @internal
@@ -794,6 +831,66 @@ export class Model {
                 const { descriptorSet } = subModels[i];
                 descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
                 descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
+                descriptorSet.update();
+            }
+        }
+    }
+
+    /**
+     * @en Update the cube map of the reflection probe
+     * @zh 更新反射探针的立方体贴图
+     * @param texture probe cubemap
+     */
+    public updateReflctionProbeCubemap (texture: TextureCube) {
+        this._localDataUpdated = true;
+        this.onMacroPatchesStateChanged();
+
+        if (!texture) {
+            texture = builtinResMgr.get<TextureCube>('default-cube-texture');
+        }
+
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture) {
+            const reflectionSampler = this._device.getSampler(texture.getSamplerInfo());
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const { descriptorSet } = subModels[i];
+                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, reflectionSampler);
+                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, gfxTexture);
+                descriptorSet.update();
+            }
+        }
+    }
+
+    /**
+     * @en Update the planar relflection map of the reflection probe
+     * @zh 更新反射探针的平面反射贴图
+     * @param texture planar relflection map
+     */
+    public updateReflctionProbePlanarMap (texture: Texture) {
+        this._localDataUpdated = true;
+        this.onMacroPatchesStateChanged();
+
+        const sampler = this._device.getSampler(new SamplerInfo(
+            Filter.LINEAR,
+            Filter.LINEAR,
+            Filter.NONE,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
+        ));
+        let bindingTexture: Texture | null = null;
+        if (!texture) {
+            bindingTexture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture();
+        } else {
+            bindingTexture = texture;
+        }
+        if (bindingTexture) {
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const { descriptorSet } = subModels[i];
+                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, bindingTexture);
+                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
             }
         }
