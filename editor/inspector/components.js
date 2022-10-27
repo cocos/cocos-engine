@@ -21,4 +21,5 @@ module.exports = {
     'cc.Widget': join(__dirname, './components/widget.js'),
     'cc.Class': join(__dirname, './components/class.js'),
     'cc.ReflectionProbe': join(__dirname, './components/reflection-probe.js'),
+    'cc.LODGroup': join(__dirname, './components/lodGroup/index.js'),
 };

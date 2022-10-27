@@ -32,7 +32,7 @@ import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Component } from './component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../core/utils/prefab/utils';
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';
 
 /**
  * @en

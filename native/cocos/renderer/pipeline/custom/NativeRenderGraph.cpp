@@ -49,7 +49,8 @@ void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
     get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
 }
 
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string &name) {
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
+    std::string_view name = "Camera";
     SceneData scene(renderGraph->get_allocator());
     scene.name = name;
     scene.flags = sceneFlags;
@@ -57,17 +58,13 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
     scene.light = std::move(light);
     auto sceneID = addVertex(
         SceneTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(scene)),
         *renderGraph, queueID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
-}
-
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
-    addSceneOfCamera(camera, std::move(light), sceneFlags, "Camera");
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
@@ -87,10 +84,11 @@ void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sc
 }
 
 void NativeRasterQueueBuilder::addFullscreenQuad(
-    Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string &name) {
+    Material *material, uint32_t passID, SceneFlags sceneFlags) {
+    std::string_view name = "FullscreenQuad";
     auto drawID = addVertex(
         BlitTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -99,13 +97,10 @@ void NativeRasterQueueBuilder::addFullscreenQuad(
     CC_ENSURES(drawID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    addFullscreenQuad(material, passID, sceneFlags, "FullscreenQuad");
-}
-
 void NativeRasterQueueBuilder::addCameraQuad(
     scene::Camera *camera, cc::Material *material, uint32_t passID,
-    SceneFlags sceneFlags, const ccstd::string &name) {
+    SceneFlags sceneFlags) {
+    std::string_view name = "CameraQuad";
     auto drawID = addVertex(
         BlitTag{},
         std::forward_as_tuple(name),
@@ -115,11 +110,6 @@ void NativeRasterQueueBuilder::addCameraQuad(
         std::forward_as_tuple(material, passID, sceneFlags, camera),
         *renderGraph, queueID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
-}
-
-void NativeRasterQueueBuilder::addCameraQuad(
-    scene::Camera *camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    addCameraQuad(camera, material, passID, sceneFlags, "CameraQuad");
 }
 
 void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {
@@ -289,11 +279,11 @@ void NativeRasterQueueBuilder::setSampler(const ccstd::string &name, gfx::Sample
     addSampler(*layoutGraph, name, sampler, data);
 }
 
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
-    QueueHint hint, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
+    std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -301,63 +291,6 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
         *renderGraph, passID);
 
     return new NativeRasterQueueBuilder(renderGraph, queueID, layoutGraph);
-}
-
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
-    return addQueue(hint, "Queue");
-}
-
-void NativeRasterPassBuilder::addFullscreenQuad(
-    Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
-    auto queueID = addVertex(
-        QueueTag{},
-        std::forward_as_tuple("Queue"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::RENDER_TRANSPARENT),
-        *renderGraph, passID);
-
-    addVertex(
-        BlitTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(material, passID, sceneFlags, nullptr),
-        *renderGraph, queueID);
-}
-
-void NativeRasterPassBuilder::addFullscreenQuad(
-    Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    return addFullscreenQuad(material, passID, sceneFlags, "FullscreenQuad");
-}
-
-void NativeRasterPassBuilder::addCameraQuad(
-    scene::Camera *camera, cc::Material *material, uint32_t passID,
-    SceneFlags sceneFlags, const ccstd::string &name) {
-    auto queueID = addVertex(
-        QueueTag{},
-        std::forward_as_tuple("Queue"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::RENDER_TRANSPARENT),
-        *renderGraph, passID);
-
-    addVertex(
-        BlitTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(material, passID, sceneFlags, camera),
-        *renderGraph, queueID);
-}
-
-void NativeRasterPassBuilder::addCameraQuad(
-    scene::Camera *camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    return addCameraQuad(camera, material, passID, sceneFlags, "CameraQuad");
 }
 
 void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
@@ -429,10 +362,11 @@ void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
     get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
 }
 
-void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string &name) {
+void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+    std::string_view name("Dispatch");
     addVertex(
         DispatchTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -442,10 +376,6 @@ void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_
             threadGroupCountY,
             threadGroupCountZ),
         *renderGraph);
-}
-
-void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
-    addDispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ, "Dispatch");
 }
 
 void NativeComputeQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
@@ -525,10 +455,11 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
     iter->second.emplace_back(view);
 }
 
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &name) {
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
+    std::string_view name("Queue");
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -536,39 +467,6 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &nam
         *renderGraph, passID);
 
     return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);
-}
-
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
-    return addQueue("Queue");
-}
-
-void NativeComputePassBuilder::addDispatch(
-    const ccstd::string &shader,
-    uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
-    const ccstd::string &name) {
-    auto queueID = addVertex(
-        QueueTag{},
-        std::forward_as_tuple("Queue"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        *renderGraph, passID);
-
-    addVertex(
-        DispatchTag{},
-        std::forward_as_tuple(name.c_str()),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(shader.c_str(), threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-        *renderGraph, queueID);
-}
-
-void NativeComputePassBuilder::addDispatch(
-    const ccstd::string &shader,
-    uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
-    addDispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ, "Dispatch");
 }
 
 void NativeComputePassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
