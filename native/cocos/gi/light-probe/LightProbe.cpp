@@ -190,6 +190,9 @@ void LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const T
 
 void LightProbes::initialize(LightProbeInfo *info) {
     _enabled = info->isEnabled();
+    _giScale = info->getGIScale();
+    _giSamples = info->getGISamples();
+    _bounces = info->getBounces();
     _reduceRinging = info->getReduceRinging();
     _showProbe = info->isShowProbe();
     _showWireframe = info->isShowWireframe();
