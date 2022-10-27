@@ -13,6 +13,7 @@ import { BuiltinContact } from './builtin-contact';
 import { legacyCC } from '../../core/global-exports';
 import { Node, find } from '../../scene-graph';
 import { director } from '../../game';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const contactResults: BuiltinContact[] = [];
 const testIntersectResults: Collider2D[] = [];
@@ -59,8 +60,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index >= 0) {
-            shapes.splice(index, 1);
-
+            fastRemoveAt(shapes, index);
             const contacts = this._contacts;
             for (let i = contacts.length - 1; i >= 0; i--) {
                 const contact = contacts[i];
@@ -69,7 +69,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                         this._emitCollide(contact, Contact2DType.END_CONTACT);
                     }
 
-                    contacts.splice(i, 1);
+                    fastRemoveAt(contacts, i);
                 }
             }
         }
