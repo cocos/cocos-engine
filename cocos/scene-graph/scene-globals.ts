@@ -1079,6 +1079,63 @@ export class LightProbeInfo {
     }
 
     /**
+     * @en GI multiplier
+     * @zh GI乘数
+     */
+    @editable
+    @range([0.1, 10, 0.1])
+    @type(CCFloat)
+    @tooltip('i18n:light_probe.GIScale')
+    set GIScale (val: number) {
+        if (this._GIScale === val) return;
+        this._GIScale = val;
+        if (this._resource) {
+            this._resource.GIScale = val;
+        }
+    }
+    get GIScale (): number {
+        return this._GIScale;
+    }
+
+    /**
+     * @en GI sample counts
+     * @zh GI 采样数量
+     */
+    @editable
+    @range([64, 4096, 1])
+    @type(CCInteger)
+    @tooltip('i18n:light_probe.GISamples')
+    set GISamples (val: number) {
+        if (this._GISamples === val) return;
+        this._GISamples = val;
+        if (this._resource) {
+            this._resource.GISamples = val;
+        }
+    }
+    get GISamples (): number {
+        return this._GISamples;
+    }
+
+    /**
+     * @en light bounces
+     * @zh 光照反弹次数
+     */
+    @editable
+    @range([1, 4, 1])
+    @type(CCInteger)
+    @tooltip('i18n:light_probe.Bounces')
+    set Bounces (val: number) {
+        if (this._Bounces === val) return;
+        this._Bounces = val;
+        if (this._resource) {
+            this._resource.Bounces = val;
+        }
+    }
+    get Bounces (): number {
+        return this._Bounces;
+    }
+
+    /**
      * @en Reduce ringing of light probe
      * @zh 减少光照探针的振铃效果
      */
@@ -1166,6 +1223,12 @@ export class LightProbeInfo {
 
     @serializable
     protected _enabled = false;
+    @serializable
+    protected _GIScale = 1.0;
+    @serializable
+    protected _GISamples = 1024;
+    @serializable
+    protected _Bounces = 2;
     @serializable
     protected _reduceRinging = 0.0;
     @serializable
