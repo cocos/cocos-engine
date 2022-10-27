@@ -1015,9 +1015,9 @@ module.exports = {
     },
     light_probe: {
         enabled: '光照探针开关',
-        GIScale: 'GI乘数',
-        GISamples: 'GI采样数量',
-        Bounces: '光照反弹次数',
+        giScale: 'GI乘数',
+        giSamples: 'GI采样数量',
+        bounces: '光照反弹次数',
         reduceRinging: '减少光照探针的振铃效果',
         showProbe: '是否显示光照探针',
         showWireframe: '是否显示光照探针连线',

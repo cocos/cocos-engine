@@ -1085,16 +1085,17 @@ export class LightProbeInfo {
     @editable
     @range([0.1, 10, 0.1])
     @type(CCFloat)
-    @tooltip('i18n:light_probe.GIScale')
-    set GIScale (val: number) {
-        if (this._GIScale === val) return;
-        this._GIScale = val;
+    @tooltip('i18n:light_probe.giScale')
+    @displayName('GIScale')
+    set giScale (val: number) {
+        if (this._giScale === val) return;
+        this._giScale = val;
         if (this._resource) {
-            this._resource.GIScale = val;
+            this._resource.giScale = val;
         }
     }
-    get GIScale (): number {
-        return this._GIScale;
+    get giScale (): number {
+        return this._giScale;
     }
 
     /**
@@ -1104,16 +1105,17 @@ export class LightProbeInfo {
     @editable
     @range([64, 4096, 1])
     @type(CCInteger)
-    @tooltip('i18n:light_probe.GISamples')
-    set GISamples (val: number) {
-        if (this._GISamples === val) return;
-        this._GISamples = val;
+    @tooltip('i18n:light_probe.giSamples')
+    @displayName('GISamples')
+    set giSamples (val: number) {
+        if (this._giSamples === val) return;
+        this._giSamples = val;
         if (this._resource) {
-            this._resource.GISamples = val;
+            this._resource.giSamples = val;
         }
     }
-    get GISamples (): number {
-        return this._GISamples;
+    get giSamples (): number {
+        return this._giSamples;
     }
 
     /**
@@ -1123,16 +1125,16 @@ export class LightProbeInfo {
     @editable
     @range([1, 4, 1])
     @type(CCInteger)
-    @tooltip('i18n:light_probe.Bounces')
-    set Bounces (val: number) {
-        if (this._Bounces === val) return;
-        this._Bounces = val;
+    @tooltip('i18n:light_probe.bounces')
+    set bounces (val: number) {
+        if (this._bounces === val) return;
+        this._bounces = val;
         if (this._resource) {
-            this._resource.Bounces = val;
+            this._resource.bounces = val;
         }
     }
-    get Bounces (): number {
-        return this._Bounces;
+    get bounces (): number {
+        return this._bounces;
     }
 
     /**
@@ -1224,11 +1226,11 @@ export class LightProbeInfo {
     @serializable
     protected _enabled = false;
     @serializable
-    protected _GIScale = 1.0;
+    protected _giScale = 1.0;
     @serializable
-    protected _GISamples = 1024;
+    protected _giSamples = 1024;
     @serializable
-    protected _Bounces = 2;
+    protected _bounces = 2;
     @serializable
     protected _reduceRinging = 0.0;
     @serializable

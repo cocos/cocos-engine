@@ -1034,9 +1034,9 @@ module.exports = {
     },
     light_probe: {
         enabled: 'The switch of light probe.',
-        GIScale: 'The value of GI multiplier.',
-        GISamples: 'The value of GI sample counts.',
-        Bounces: 'The value of light bounces.',
+        giScale: 'The value of GI multiplier.',
+        giSamples: 'The value of GI sample counts.',
+        bounces: 'The value of light bounces.',
         reduceRinging: 'The value to reduce ringing of light probe.',
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',

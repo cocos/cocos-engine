@@ -96,14 +96,14 @@ public:
     }
     inline bool isEnabled() const { return _enabled; }
 
-    inline void setGIScale(float val) { _GIScale = val; }
-    inline float getGIScale() const { return _GIScale; }
+    inline void setGIScale(float val) { _giScale = val; }
+    inline float getGIScale() const { return _giScale; }
 
-    inline void setGISamples(uint32_t val) { _GISamples = val; }
-    inline uint32_t getGISamples() const { return _GISamples; }
+    inline void setGISamples(uint32_t val) { _giSamples = val; }
+    inline uint32_t getGISamples() const { return _giSamples; }
 
-    inline void setBounces(uint32_t val) { _Bounces = val; }
-    inline uint32_t getBounces() const { return _Bounces; }
+    inline void setBounces(uint32_t val) { _bounces = val; }
+    inline uint32_t getBounces() const { return _bounces; }
 
     inline void setReduceRinging(float val) { _reduceRinging = val; }
     inline float getReduceRinging() const { return _reduceRinging; }
@@ -121,9 +121,9 @@ public:
     inline const LightProbesData &getData() const { return _data; }
 
     bool _enabled{true};
-    float _GIScale{1.0F};
-    uint32_t _GISamples{1024U};
-    uint32_t _Bounces{2U};
+    float _giScale{1.0F};
+    uint32_t _giSamples{1024U};
+    uint32_t _bounces{2U};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};
@@ -154,40 +154,40 @@ public:
     inline bool isEnabled() const { return _enabled; }
 
     inline void setGIScale(float val) {
-        if (_GIScale == val) {
+        if (_giScale == val) {
             return;
         }
 
-        _GIScale = val;
+        _giScale = val;
         if (_resource) {
             _resource->setGIScale(val);
         }
     }
-    inline float getGIScale() const { return _GIScale; }
+    inline float getGIScale() const { return _giScale; }
 
     inline void setGISamples(uint32_t val) {
-        if (_GISamples == val) {
+        if (_giSamples == val) {
             return;
         }
 
-        _GISamples = val;
+        _giSamples = val;
         if (_resource) {
             _resource->setGISamples(val);
         }
     }
-    inline uint32_t getGISamples() const { return _GISamples; }
+    inline uint32_t getGISamples() const { return _giSamples; }
 
     inline void setBounces(uint32_t val) {
-        if (_Bounces == val) {
+        if (_bounces == val) {
             return;
         }
 
-        _Bounces = val;
+        _bounces = val;
         if (_resource) {
             _resource->setBounces(val);
         }
     }
-    inline uint32_t getBounces() const { return _Bounces; }
+    inline uint32_t getBounces() const { return _bounces; }
 
     inline void setReduceRinging(float val) {
         if (_reduceRinging == val) {
@@ -250,9 +250,9 @@ public:
 
     //cjh JSB need to bind the property, so need to make it public
     bool _enabled{false};
-    float _GIScale{1.0F};
-    uint32_t _GISamples{1024U};
-    uint32_t _Bounces{2U};
+    float _giScale{1.0F};
+    uint32_t _giSamples{1024U};
+    uint32_t _bounces{2U};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};
