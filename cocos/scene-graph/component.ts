@@ -36,7 +36,7 @@ import * as RF from '../core/data/utils/requiring-frame';
 import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { errorID, warnID, assertID } from '../core/platform/debug';
-import { CompPrefabInfo } from '../core/utils/prefab/prefab-info';
+import { CompPrefabInfo } from './prefab/prefab-info';
 import { EventHandler } from './component-event-handler';
 
 const idGenerator = new IDGenerator('Comp');

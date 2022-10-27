@@ -61,6 +61,8 @@
 #include "bindings/manual/jsb_global.h"
 
 
+#include "bindings/auto/jsb_2d_auto.h"
+#include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_spine_auto.h"
 using namespace spine;
 
@@ -19499,34 +19501,6 @@ static bool js_spine_SkeletonRenderer_getSharedBufferOffset(se::State& s)
 }
 SE_BIND_FUNC(js_spine_SkeletonRenderer_getSharedBufferOffset) 
 
-static bool js_spine_SkeletonRenderer_getParamsBuffer(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    spine::SkeletonRenderer *arg1 = (spine::SkeletonRenderer *) NULL ;
-    se_object_ptr result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((spine::SkeletonRenderer const *)arg1)->getParamsBuffer();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "SkeletonRenderer_getParamsBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_spine_SkeletonRenderer_getParamsBuffer) 
-
 static bool js_spine_SkeletonRenderer_setColor(se::State& s)
 {
     // js_function
@@ -20339,6 +20313,58 @@ static bool js_spine_SkeletonRenderer_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_spine_SkeletonRenderer_initialize) 
 
+static bool js_spine_SkeletonRenderer_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::SkeletonRenderer *arg1 = (spine::SkeletonRenderer *) NULL ;
+    cc::Material *arg2 = (cc::Material *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SkeletonRenderer_setMaterial,2,SWIGTYPE_p_cc__Material"); 
+    (arg1)->setMaterial(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_SkeletonRenderer_setMaterial) 
+
+static bool js_spine_SkeletonRenderer_setRenderEntity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::SkeletonRenderer *arg1 = (spine::SkeletonRenderer *) NULL ;
+    cc::RenderEntity *arg2 = (cc::RenderEntity *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::SkeletonRenderer>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SkeletonRenderer_setRenderEntity,2,SWIGTYPE_p_cc__RenderEntity"); 
+    (arg1)->setRenderEntity(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_SkeletonRenderer_setRenderEntity) 
+
 bool js_register_spine_SkeletonRenderer(se::Object* obj) {
     auto* cls = se::Class::create("SkeletonRenderer", obj, nullptr, _SE(js_new_SkeletonRenderer)); 
     
@@ -20364,7 +20390,6 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj) {
     cls->defineFunction("setSlotsRange", _SE(js_spine_SkeletonRenderer_setSlotsRange)); 
     cls->defineFunction("getDebugData", _SE(js_spine_SkeletonRenderer_getDebugData)); 
     cls->defineFunction("getSharedBufferOffset", _SE(js_spine_SkeletonRenderer_getSharedBufferOffset)); 
-    cls->defineFunction("getParamsBuffer", _SE(js_spine_SkeletonRenderer_getParamsBuffer)); 
     cls->defineFunction("setColor", _SE(js_spine_SkeletonRenderer_setColor)); 
     cls->defineFunction("setBatchEnabled", _SE(js_spine_SkeletonRenderer_setBatchEnabled)); 
     cls->defineFunction("setDebugBonesEnabled", _SE(js_spine_SkeletonRenderer_setDebugBonesEnabled)); 
@@ -20380,6 +20405,8 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj) {
     cls->defineFunction("initWithUUID", _SE(js_spine_SkeletonRenderer_initWithUUID)); 
     cls->defineFunction("initWithSkeleton", _SE(js_spine_SkeletonRenderer_initWithSkeleton)); 
     cls->defineFunction("initialize", _SE(js_spine_SkeletonRenderer_initialize)); 
+    cls->defineFunction("setMaterial", _SE(js_spine_SkeletonRenderer_setMaterial)); 
+    cls->defineFunction("setRenderEntity", _SE(js_spine_SkeletonRenderer_setRenderEntity)); 
     
     
     cls->defineStaticFunction("create", _SE(js_spine_SkeletonRenderer_create_static)); 
@@ -22871,7 +22898,7 @@ static bool js_spine_SkeletonCacheAnimation_getSharedBufferOffset(se::State& s)
 }
 SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_getSharedBufferOffset) 
 
-static bool js_spine_SkeletonCacheAnimation_getParamsBuffer(se::State& s)
+static bool js_spine_SkeletonCacheAnimation_setMaterial(se::State& s)
 {
     // js_function
     
@@ -22879,25 +22906,49 @@ static bool js_spine_SkeletonCacheAnimation_getParamsBuffer(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     spine::SkeletonCacheAnimation *arg1 = (spine::SkeletonCacheAnimation *) NULL ;
-    se_object_ptr result;
+    cc::Material *arg2 = (cc::Material *) NULL ;
     
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
         return false;
     }
     arg1 = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((spine::SkeletonCacheAnimation const *)arg1)->getParamsBuffer();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "SkeletonCacheAnimation_getParamsBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SkeletonCacheAnimation_setMaterial,2,SWIGTYPE_p_cc__Material"); 
+    (arg1)->setMaterial(arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_getParamsBuffer) 
+SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setMaterial) 
+
+static bool js_spine_SkeletonCacheAnimation_setRenderEntity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    spine::SkeletonCacheAnimation *arg1 = (spine::SkeletonCacheAnimation *) NULL ;
+    cc::RenderEntity *arg2 = (cc::RenderEntity *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<spine::SkeletonCacheAnimation>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SkeletonCacheAnimation_setRenderEntity,2,SWIGTYPE_p_cc__RenderEntity"); 
+    (arg1)->setRenderEntity(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_spine_SkeletonCacheAnimation_setRenderEntity) 
 
 bool js_register_spine_SkeletonCacheAnimation(se::Object* obj) {
     auto* cls = se::Class::create("SkeletonCacheAnimation", obj, nullptr, _SE(js_new_spine_SkeletonCacheAnimation)); 
@@ -22935,7 +22986,8 @@ bool js_register_spine_SkeletonCacheAnimation(se::Object* obj) {
     cls->defineFunction("setBonesToSetupPose", _SE(js_spine_SkeletonCacheAnimation_setBonesToSetupPose)); 
     cls->defineFunction("setSlotsToSetupPose", _SE(js_spine_SkeletonCacheAnimation_setSlotsToSetupPose)); 
     cls->defineFunction("getSharedBufferOffset", _SE(js_spine_SkeletonCacheAnimation_getSharedBufferOffset)); 
-    cls->defineFunction("getParamsBuffer", _SE(js_spine_SkeletonCacheAnimation_getParamsBuffer)); 
+    cls->defineFunction("setMaterial", _SE(js_spine_SkeletonCacheAnimation_setMaterial)); 
+    cls->defineFunction("setRenderEntity", _SE(js_spine_SkeletonCacheAnimation_setRenderEntity)); 
     
     
     

@@ -130,7 +130,7 @@ export class ShadowLayerVolume {
     }
 
     public calculateSplitFrustum (camera: Camera, m: Mat4, start: number, end: number) {
-        Frustum.split(this._splitFrustum, camera, m, start, end);
+        this._splitFrustum.split(start, end, camera.aspect, camera.fov, m);
     }
 
     public destroy () {

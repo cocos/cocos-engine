@@ -43,9 +43,18 @@ public:
     void resize(uint32_t size);
     void destroy();
 
+    template <typename T>
+    void write(const T& value, uint32_t offset) const {
+        write(reinterpret_cast<const uint8_t*>(&value), offset, sizeof(T));
+    }
+
+    void write(const uint8_t *value, uint32_t offset, uint32_t size) const;
+
     virtual void update(const void *buffer, uint32_t size) = 0;
 
     inline void update(const void *buffer) { update(buffer, _size); }
+
+    void update();
 
     inline BufferUsage getUsage() const { return _usage; }
     inline MemoryUsage getMemUsage() const { return _memUsage; }
@@ -61,6 +70,12 @@ protected:
     virtual void doResize(uint32_t size, uint32_t count) = 0;
     virtual void doDestroy() = 0;
 
+    static uint8_t *getBufferStagingAddress(Buffer *buffer);
+    static void flushBuffer(Buffer *buffer, const uint8_t *data);
+
+    virtual void flush(const uint8_t *data) { update(reinterpret_cast<const void*>(data), _size); }
+    virtual uint8_t *getStagingAddress() const { return _data.get(); }
+
     BufferUsage _usage = BufferUsageBit::NONE;
     MemoryUsage _memUsage = MemoryUsageBit::NONE;
     uint32_t _stride = 0U;
@@ -69,6 +84,8 @@ protected:
     uint32_t _offset = 0U;
     BufferFlags _flags = BufferFlagBit::NONE;
     bool _isBufferView = false;
+    uint8_t _rsv[3] = {0};
+    std::unique_ptr<uint8_t[]> _data;
 };
 
 } // namespace gfx

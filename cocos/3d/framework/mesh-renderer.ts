@@ -29,19 +29,17 @@ import { JSB } from 'internal:constants';
 import { Texture2D } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
-import { Vec4 } from '../../core/math';
+import { Vec4, Enum, cclegacy, CCBoolean, CCFloat } from '../../core';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
-import { TransformBit } from '../../scene-graph/node-enum';
-import { Enum } from '../../core/value-types';
+import { MobilityMode, TransformBit } from '../../scene-graph/node-enum';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { ModelRenderer } from '../../misc/model-renderer';
 import { MorphRenderingInstance } from '../assets/morph-rendering';
-import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { CCFloat } from '../../core/data/utils/attribute';
 import { property } from '../../core/data/class-decorator';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
  * @en Shadow projection mode.
@@ -181,6 +179,8 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     @editable
     @disallowAnimation
+    // eslint-disable-next-line func-names
+    @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility !== MobilityMode.Movable); })
     public lightmapSettings = new ModelLightmapSettings();
 
     @serializable
@@ -198,6 +198,9 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _shadowNormalBias = 0;
 
+    @serializable
+    protected _useLightProbe = false;
+
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
 
@@ -207,7 +210,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 0 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 } })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -225,7 +228,7 @@ export class MeshRenderer extends ModelRenderer {
    */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 1 } })
     @disallowAnimation
     get shadowNormalBias () {
         return this._shadowNormalBias;
@@ -243,7 +246,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 } })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -260,7 +263,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
-    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 3 } })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;
@@ -269,6 +272,22 @@ export class MeshRenderer extends ModelRenderer {
     set receiveShadow (val) {
         this._shadowReceivingMode = val;
         this._updateReceiveShadow();
+    }
+
+    /**
+     * @en Whether to use light probe which provides indirect light to dynamic objects.
+     * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
+     */
+    @type(CCBoolean)
+    // eslint-disable-next-line func-names
+    @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility === MobilityMode.Movable); })
+    get useLightProbe () {
+        return this._useLightProbe;
+    }
+
+    set useLightProbe (val) {
+        this._useLightProbe = val;
+        this._updateUseLightProbe();
     }
 
     /**
@@ -296,6 +315,7 @@ export class MeshRenderer extends ModelRenderer {
         }
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateUseLightProbe();
     }
 
     /**
@@ -352,6 +372,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveShadow();
         this._updateShadowBias();
         this._updateShadowNormalBias();
+        this._updateUseLightProbe();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -364,10 +385,12 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveShadow();
         this._updateShadowBias();
         this._updateShadowNormalBias();
+        this._updateUseLightProbe();
     }
 
     public onEnable () {
         super.onEnable();
+        this.node.on(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
         if (!this._model) {
             this._updateModels();
         }
@@ -376,6 +399,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowBias();
         this._updateShadowNormalBias();
         this._onUpdateLocalShadowBias();
+        this._updateUseLightProbe();
         this._attachToScene();
     }
 
@@ -383,11 +407,12 @@ export class MeshRenderer extends ModelRenderer {
         if (this._model) {
             this._detachFromScene();
         }
+        this.node.off(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
     }
 
     public onDestroy () {
         if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -476,11 +501,15 @@ export class MeshRenderer extends ModelRenderer {
         if (JSB) {
             (this.model as any)._setInstancedAttribute(name, value);
         } else {
-            const { attributes, views } = this.model.instancedAttributes;
-            for (let i = 0; i < attributes.length; i++) {
-                if (attributes[i].name === name) {
-                    views[i].set(value);
-                    break;
+            const subModels = this.model.subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const subModel = subModels[i];
+                const { attributes, views } = subModel.instancedAttributeBlock;
+                for (let i = 0; i < attributes.length; i++) {
+                    if (attributes[i].name === name) {
+                        views[i].set(value);
+                        break;
+                    }
                 }
             }
         }
@@ -521,6 +550,7 @@ export class MeshRenderer extends ModelRenderer {
             // Initialize lighting map before model initializing
             // because the lighting map will influence the model's shader
             this._model.initLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+            this._updateUseLightProbe();
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
@@ -537,7 +567,7 @@ export class MeshRenderer extends ModelRenderer {
         // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
         // So we should take care of the edge case.
         const modelType = (preferMorphOverPlain && this._modelType === scene.Model) ? MorphModel : this._modelType;
-        const model = this._model = (legacyCC.director.root as Root).createModel(modelType);
+        const model = this._model = (cclegacy.director.root as Root).createModel(modelType);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;
@@ -673,6 +703,20 @@ export class MeshRenderer extends ModelRenderer {
             this._model.receiveShadow = false;
         } else {
             this._model.receiveShadow = true;
+        }
+    }
+
+    protected onMobilityChanged () {
+        this._updateUseLightProbe();
+    }
+
+    protected _updateUseLightProbe () {
+        if (!this._model) { return; }
+        const node = this.node;
+        if (this._mesh && node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
+            this._model.useLightProbe = true;
+        } else {
+            this._model.useLightProbe = false;
         }
     }
 

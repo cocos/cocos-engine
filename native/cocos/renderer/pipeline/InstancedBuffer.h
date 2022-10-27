@@ -61,8 +61,8 @@ public:
     ~InstancedBuffer() override;
 
     void destroy();
-    void merge(const scene::Model *, const scene::SubModel *, uint32_t);
-    void merge(const scene::Model *, const scene::SubModel *, uint32_t, gfx::Shader *);
+    void merge(scene::SubModel *, uint32_t);
+    void merge(scene::SubModel *, uint32_t, gfx::Shader *);
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void clear();
     void setDynamicOffset(uint32_t idx, uint32_t value);

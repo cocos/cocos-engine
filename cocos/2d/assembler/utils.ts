@@ -23,12 +23,11 @@
  THE SOFTWARE.
  */
 
-import { Color, Mat4 } from '../../core/math';
+import { Color, Mat4, clamp } from '../../core';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../scene-graph/node';
 import { FormatInfos } from '../../gfx';
-import { clamp } from '../../core';
 
 const m = new Mat4();
 

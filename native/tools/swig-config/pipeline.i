@@ -157,6 +157,7 @@ using namespace cc;
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Ambient*, ambient, getAmbient);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Skybox*, skybox, getSkybox);
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Shadows*, shadows, getShadows);
+%attribute(cc::pipeline::PipelineSceneData, cc::gi::LightProbes*, lightProbes, getLightProbes);
 
 %attribute(cc::pipeline::BloomStage, float, threshold, getThreshold, setThreshold);
 %attribute(cc::pipeline::BloomStage, float, intensity, getIntensity, setIntensity);

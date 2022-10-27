@@ -27,8 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject } from '../core';
-import { EventTarget } from '../core/event';
+import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy } from '../core';
 import { BlendFactor } from '../gfx';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
@@ -39,13 +38,13 @@ import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MaterialInstance } from '../render-scene/core/material-instance';
-import { legacyCC } from '../core/global-exports';
 import { ArmatureSystem } from './ArmatureSystem';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
 import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
+import { builtinResMgr } from '../asset/asset-manager';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -182,7 +181,7 @@ export class ArmatureDisplay extends UIRenderer {
         this._dragonAsset = value;
         this.destroyRenderData();
         this._refresh();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             this._defaultArmatureIndex = 0;
             this._animationIndex = 0;
         }
@@ -217,7 +216,7 @@ export class ArmatureDisplay extends UIRenderer {
         const animNames = this.getAnimationNames(this._armatureName);
 
         if (!this.animationName || animNames.indexOf(this.animationName) < 0) {
-            if (EDITOR && !legacyCC.GAME_VIEW) {
+            if (EDITOR && !cclegacy.GAME_VIEW) {
                 this.animationName = animNames[0];
             } else {
                 // Not use default animation name at runtime
@@ -392,6 +391,20 @@ export class ArmatureDisplay extends UIRenderer {
         this._updateDebugDraw();
     }
 
+    /*
+     * @en Enabled batch model, if mesh is complex, do not enable batch, or will lower performance.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的龙骨动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+    */
+    @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
+    @editable
+    get enableBatch () { return this._enableBatch; }
+    set enableBatch (value) {
+        if (value !== this._enableBatch) {
+            this._enableBatch = value;
+            this._updateBatch();
+        }
+    }
+
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
@@ -446,6 +459,10 @@ export class ArmatureDisplay extends UIRenderer {
 
     @serializable
     protected _debugBones = false;
+
+    @serializable
+    protected _enableBatch = false;
+
     /* protected */ _debugDraw: Graphics | null = null;
 
     // DragonBones data store key.
@@ -573,20 +590,29 @@ export class ArmatureDisplay extends UIRenderer {
         super.destroyRenderData();
     }
 
+    private getMaterialTemplate () : Material {
+        let material = this.customMaterial;
+        if (material === null) {
+            material = builtinResMgr.get<Material>('default-spine-material');
+        }
+        return material;
+    }
+
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
         const key = `${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
             return inst;
         }
-        const material = this.getMaterial(0)!;
+        const material = this.getMaterialTemplate();
         const matInfo = {
             parent: material,
             subModelIdx: 0,
             owner: this,
         };
+
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: true }, 0); // TODO: not supported by ui
+        inst.recompileShaders({ TWO_COLORED: false, USE_LOCAL: false });
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -613,6 +639,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     protected _render (batcher: Batcher2D) {
+        let indicesCount = 0;
         if (this.renderData && this._drawList) {
             const rd = this.renderData;
             const chunk = rd.chunk;
@@ -620,20 +647,17 @@ export class ArmatureDisplay extends UIRenderer {
             const meshBuffer = rd.getMeshBuffer()!;
             const origin = meshBuffer.indexOffset;
             // Fill index buffer
-            accessor.appendIndices(chunk.bufferId, rd.indices!);
             for (let i = 0; i < this._drawList.length; i++) {
                 this._drawIdx = i;
                 const dc = this._drawList.data[i];
                 if (dc.texture) {
-                    // Construct IA
-                    const ia = meshBuffer.requireFreeIA(batcher.device);
-                    ia.firstIndex = origin + dc.indexOffset;
-                    ia.indexCount = dc.indexCount;
-                    // Commit IA
-                    batcher.commitIA(this, ia, dc.texture, dc.material!, this.node);
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
+                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
+                indicesCount += dc.indexCount;
             }
-            // this.node._static = true;
+            const subIndices = rd.indices!.subarray(0, indicesCount);
+            accessor.appendIndices(chunk.bufferId, subIndices);
         }
     }
 
@@ -643,7 +667,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     _init () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             const Flags = CCObject.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
@@ -720,7 +744,7 @@ export class ArmatureDisplay extends UIRenderer {
      * @return {Boolean}
      */
     isAnimationCached () {
-        if (EDITOR && !legacyCC.GAME_VIEW) return false;
+        if (EDITOR && !cclegacy.GAME_VIEW) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
@@ -835,7 +859,7 @@ export class ArmatureDisplay extends UIRenderer {
         this._materialInstances = this._materialInstances.filter((instance) => !!instance);
         this._inited = false;
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._armatureCache!.dispose();
                 this._armatureCache = null;
@@ -874,13 +898,18 @@ export class ArmatureDisplay extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    protected _updateBatch () {
+        this._cleanMaterialCache();
+        this.markForUpdateRenderData();
+    }
+
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
         // Switch Asset or Atlas or cacheMode will rebuild armature.
         if (this._armature) {
             // dispose pre build armature
-            if (!EDITOR || legacyCC.GAME_VIEW) {
+            if (!EDITOR || cclegacy.GAME_VIEW) {
                 if (this._preCacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                     this._armatureCache!.dispose();
                 } else if (this._preCacheMode === AnimationCacheMode.REALTIME) {
@@ -899,7 +928,7 @@ export class ArmatureDisplay extends UIRenderer {
             this._preCacheMode = -1;
         }
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -920,7 +949,7 @@ export class ArmatureDisplay extends UIRenderer {
         }
 
         this._preCacheMode = this._cacheMode;
-        if (EDITOR && !legacyCC.GAME_VIEW || this._cacheMode === AnimationCacheMode.REALTIME) {
+        if (EDITOR && !cclegacy.GAME_VIEW || this._cacheMode === AnimationCacheMode.REALTIME) {
             this._displayProxy = this._factory!.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
@@ -983,7 +1012,7 @@ export class ArmatureDisplay extends UIRenderer {
     _refresh () {
         this._buildArmature();
         this._indexBoneSockets();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             // update inspector
             this._updateArmatureEnum();
             this._updateAnimEnum();
@@ -1341,7 +1370,7 @@ export class ArmatureDisplay extends UIRenderer {
 
     protected createRenderEntity () {
         const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
-        renderEntity.setUseLocal(true);
+        renderEntity.setUseLocal(false);
         return renderEntity;
     }
 
@@ -1353,4 +1382,4 @@ export class ArmatureDisplay extends UIRenderer {
     }
 }
 
-legacyCC.internal.ArmatureDisplay = ArmatureDisplay;
+cclegacy.internal.ArmatureDisplay = ArmatureDisplay;

@@ -34,7 +34,7 @@ import { IBulletBodyStruct, IBulletGhostStruct } from './bullet-interface';
 import { CC_V3_0, CC_QUAT_0, BulletCache } from './bullet-cache';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
-import { fastRemoveAt } from '../../core/utils/array';
+import { js } from '../../core';
 import { bt } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 
@@ -346,7 +346,7 @@ export class BulletSharedBody {
         if (isTrigger) {
             const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
-                fastRemoveAt(this.ghostStruct.wrappedShapes, index);
+                js.array.fastRemoveAt(this.ghostStruct.wrappedShapes, index);
                 v.setCompound(0);
                 this.ghostEnabled = false;
             }
@@ -360,7 +360,7 @@ export class BulletSharedBody {
                 }
                 bt.CollisionObject_activate(this.body, true);
                 this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
-                fastRemoveAt(this.bodyStruct.wrappedShapes, index);
+                js.array.fastRemoveAt(this.bodyStruct.wrappedShapes, index);
                 this.bodyEnabled = false;
             }
         }
@@ -379,10 +379,10 @@ export class BulletSharedBody {
     removeJoint (v: BulletConstraint, type: 0 | 1) {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints1, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints1, i);
         } else {
             const i = this.wrappedJoints0.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints0, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints0, i);
         }
     }
 

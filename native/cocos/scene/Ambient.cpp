@@ -63,7 +63,7 @@ const Color &AmbientInfo::getSkyLightingColor() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     Vec4 v4(isHDR ? _skyColorHDR : _skyColorLDR);
     normalizeHDRColor(v4);
-    col.set(static_cast<uint8_t>(v4.x) * 255, static_cast<uint8_t>(v4.y) * 255, static_cast<uint8_t>(v4.z) * 255, 255);
+    col.set(static_cast<uint8_t>(v4.x * 255.F), static_cast<uint8_t>(v4.y * 255.F), static_cast<uint8_t>(v4.z * 255.F), 255);
     return col;
 }
 
@@ -116,7 +116,7 @@ const Color &AmbientInfo::getGroundLightingColor() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     Vec4 v4(isHDR ? _groundAlbedoHDR : _groundAlbedoLDR);
     normalizeHDRColor(v4);
-    col.set(static_cast<uint8_t>(v4.x) * 255, static_cast<uint8_t>(v4.y) * 255, static_cast<uint8_t>(v4.z) * 255, 255);
+    col.set(static_cast<uint8_t>(v4.x * 255.F), static_cast<uint8_t>(v4.y * 255.F), static_cast<uint8_t>(v4.z * 255.F), 255);
     return col;
 }
 

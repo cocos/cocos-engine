@@ -40,6 +40,12 @@
 #include "spine-creator-support/VertexEffectDelegate.h"
 #include "spine/spine.h"
 
+namespace cc {
+class RenderEntity;
+class RenderDrawInfo;
+class Material;
+};
+
 namespace spine {
 
 class AttachmentVertices;
@@ -56,7 +62,6 @@ public:
     void update(float deltaTime) override {}
     void render(float deltaTime) override;
     virtual cc::Rect getBoundingBox() const;
-    uint32_t getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 
@@ -108,11 +113,6 @@ public:
 		 * format |render info offset|attach info offset|
          */
     se_object_ptr getSharedBufferOffset() const;
-    /**
-         * @return js send to cpp parameters, it's a Uint32Array
-		 * format |render order|world matrix|
-         */
-    se_object_ptr getParamsBuffer() const;
 
     void setColor(float r, float g, float b, float a);
     void setBatchEnabled(bool enabled);
@@ -145,6 +145,11 @@ public:
     void initWithBinaryFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
     virtual void initialize();
+ 
+    cc::RenderDrawInfo *requestDrawInfo(int idx);
+    cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(cc::Material *material);
+    void setRenderEntity(cc::RenderEntity* entity);
 
 protected:
     void setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData);
@@ -167,6 +172,7 @@ protected:
     bool _premultipliedAlpha = false;
     SkeletonClipping *_clipper = nullptr;
     bool _useTint = false;
+    bool _enableBatch = false;
     std::string _uuid;
 
     int _startSlotIndex = -1;
@@ -174,8 +180,11 @@ protected:
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
     cc::middleware::IOTypedArray *_debugBuffer = nullptr;
-    // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
-    cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
+
+    cc::RenderEntity *_entity = nullptr;
+    cc::Material *_material = nullptr;
+    ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
+    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
 };
 
 } // namespace spine

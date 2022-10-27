@@ -40,3 +40,4 @@ export { EventHandler } from './component-event-handler';
 export { Component } from './component';
 export * from './deprecated';
 export { default as NodeActivator } from './node-activator';
+export { Prefab } from './prefab';

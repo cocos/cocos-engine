@@ -27,13 +27,9 @@ import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { errorID, warnID } from '../core/platform/debug';
-import { binarySearchEpsilon } from '../core/algorithm/binary-search';
-import { murmurhash2_32_gc } from '../core/algorithm/murmurhash2_gc';
+import { errorID, warnID, cclegacy, js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon } from '../core';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode } from './types';
-import { legacyCC } from '../core/global-exports';
-import { approx, clamp, Mat4, Quat, Vec3 } from '../core/math';
 import { Node } from '../scene-graph/node';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import type { PoseOutput } from './pose-output';
@@ -46,11 +42,9 @@ import { Range } from './tracks/utils';
 import { ObjectTrack } from './tracks/object-track';
 import type { ExoticAnimation } from './exotic-animation/exotic-animation';
 import './exotic-animation/exotic-animation';
-import { array } from '../core/utils/js';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
-import { WrapModeMask } from '../core/geometry/curve';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -392,8 +386,8 @@ export class AnimationClip extends Asset {
     }
 
     public destroy () {
-        if (legacyCC.director.root?.dataPoolManager) {
-            (legacyCC.director.root.dataPoolManager).releaseAnimationClip(this);
+        if (cclegacy.director.root?.dataPoolManager) {
+            (cclegacy.director.root.dataPoolManager).releaseAnimationClip(this);
         }
         SkelAnimDataHub.destroy(this);
         return super.destroy();
@@ -497,7 +491,7 @@ export class AnimationClip extends Asset {
         }
         const nRemovalTracks = removals.length;
         for (let iRemovalTrack = 0; iRemovalTrack < nRemovalTracks; ++iRemovalTrack) {
-            array.remove(tracks, removals[iRemovalTrack]);
+            js.array.remove(tracks, removals[iRemovalTrack]);
         }
         tracks.push(...newTracks);
     }
@@ -898,7 +892,7 @@ export declare namespace AnimationClip {
     export type WrapMode = WrapMode_;
 }
 
-legacyCC.AnimationClip = AnimationClip;
+cclegacy.AnimationClip = AnimationClip;
 
 interface TrackEvalStatus {
     binding: RuntimeBinding;
@@ -1425,14 +1419,14 @@ class EventEvaluator {
             do {
                 if (lastIndex !== eventIndex) {
                     if (direction === -1 && lastIndex === 0 && eventIndex > 0) {
-                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
+                        if ((wrapMode & geometry.WrapModeMask.PingPong) === geometry.WrapModeMask.PingPong) {
                             direction *= -1;
                         } else {
                             lastIndex = length;
                         }
                         lastIterations++;
                     } else if (direction === 1 && lastIndex === length - 1 && eventIndex < length - 1) {
-                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
+                        if ((wrapMode & geometry.WrapModeMask.PingPong) === geometry.WrapModeMask.PingPong) {
                             direction *= -1;
                         } else {
                             lastIndex = -1;

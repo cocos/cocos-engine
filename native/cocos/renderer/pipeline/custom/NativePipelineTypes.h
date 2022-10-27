@@ -35,8 +35,10 @@
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
@@ -73,12 +75,9 @@ public:
       layoutGraph(layoutGraphIn),
       queueID(queueIDIn) {}
 
-    void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addSceneOfCamera(scene::Camera* camera, LightInfo light, SceneFlags sceneFlags) override;
     void addScene(const ccstd::string& name, SceneFlags sceneFlags) override;
-    void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
-    void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
     void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
     void setViewport(const gfx::Viewport &viewport) override;
@@ -96,6 +95,9 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
+
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t queueID{RenderGraph::null_vertex()};
@@ -112,12 +114,7 @@ public:
 
     void addRasterView(const ccstd::string& name, const RasterView& view) override;
     void addComputeView(const ccstd::string& name, const ComputeView& view) override;
-    RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string& name) override;
     RasterQueueBuilder *addQueue(QueueHint hint) override;
-    void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addFullscreenQuad(cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
-    void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string& name) override;
-    void addCameraQuad(scene::Camera* camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void setViewport(const gfx::Viewport &viewport) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
@@ -133,6 +130,9 @@ public:
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
+
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
@@ -147,7 +147,6 @@ public:
       layoutGraph(layoutGraphIn),
       queueID(queueIDIn) {}
 
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) override;
     void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
@@ -162,6 +161,9 @@ public:
     void setReadWriteBuffer(const ccstd::string& name, gfx::Buffer* buffer) override;
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
 
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
@@ -179,11 +181,7 @@ public:
 
     void addComputeView(const ccstd::string& name, const ComputeView& view) override;
 
-    ComputeQueueBuilder *addQueue(const ccstd::string& name) override;
     ComputeQueueBuilder *addQueue() override;
-
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string& name) override;
-    void addDispatch(const ccstd::string& shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) override;
 
     void setMat4(const ccstd::string& name, const cc::Mat4& mat) override;
     void setQuaternion(const ccstd::string& name, const cc::Quaternion& quat) override;
@@ -197,6 +195,9 @@ public:
     void setReadWriteBuffer(const ccstd::string& name, gfx::Buffer* buffer) override;
     void setReadWriteTexture(const ccstd::string& name, gfx::Texture* texture) override;
     void setSampler(const ccstd::string& name, gfx::Sampler* sampler) override;
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
 
     RenderGraph* renderGraph{nullptr};
     const LayoutGraphData* layoutGraph{nullptr};
@@ -213,6 +214,9 @@ public:
 
     void addPair(const MovePair& pair) override;
 
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
+
     RenderGraph* renderGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
 };
@@ -225,6 +229,9 @@ public:
       passID(passIDIn) {}
 
     void addPair(const CopyPair& pair) override;
+
+    ccstd::string getName() const override;
+    void setName(const ccstd::string& name) override;
 
     RenderGraph* renderGraph{nullptr};
     uint32_t passID{RenderGraph::null_vertex()};
@@ -464,14 +471,14 @@ public:
     uint32_t addRenderTarget(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     uint32_t addDepthStencil(const ccstd::string& name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
 
+    void updateRenderWindow(const ccstd::string& name, scene::RenderWindow* renderWindow) override;
+
     void beginFrame() override;
     void endFrame() override;
-    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName, const ccstd::string& name) override;
     RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string& layoutName) override;
-    ComputePassBuilder *addComputePass(const ccstd::string& layoutName, const ccstd::string& name) override;
     ComputePassBuilder *addComputePass(const ccstd::string& layoutName) override;
-    MovePassBuilder *addMovePass(const ccstd::string& name) override;
-    CopyPassBuilder *addCopyPass(const ccstd::string& name) override;
+    MovePassBuilder *addMovePass() override;
+    CopyPassBuilder *addCopyPass() override;
     void presentAll() override;
 
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;

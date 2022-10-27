@@ -32,7 +32,7 @@ import { deviceManager, Type } from '../../gfx';
 import { Pass } from '../../render-scene/core/pass';
 import { getDefaultFromType, getStringFromType } from '../../render-scene/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
-import { warn } from '../../core/platform/debug';
+import { warn } from '../../core';
 
 /**
  * @en

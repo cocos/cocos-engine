@@ -12,7 +12,7 @@
             "label": "i18n:ENGINE.features.graphics.label",
             "multi": true,
             "description": "i18n:ENGINE.features.graphics.description",
-            "default": ["gfx-webgl", "gfx-webgl2"],
+            "default": ["gfx-webgl", "gfx-webgl2", "gfx-webgpu"],
             "options": {
                 "gfx-webgl": {
                     "required": true,
@@ -52,12 +52,6 @@
             "description": "i18n:ENGINE.features.base_2d.description",
             "category": "2d",
             "wechatPlugin": true
-        },
-        "xr": {
-            "default": ["xr"],
-            "label": "i18n:ENGINE.features.xr.label",
-            "description": "i18n:ENGINE.features.xr.description",
-            "wechatPlugin": false
         },
         "ui": {
             "default": ["ui"],
@@ -215,6 +209,13 @@
             "wechatPlugin": true,
             "category": "3d"
         },
+        "light-probe": {
+            "default": ["light-probe"],
+            "label": "i18n:ENGINE.features.light_probe.label",
+            "description": "i18n:ENGINE.features.light_probe.description",
+            "wechatPlugin": true,
+            "category": "3d"
+        },
         "tiled-map": {
             "default": ["tiled-map"],
             "label": "i18n:ENGINE.features.tiled_map.label",
@@ -245,6 +246,20 @@
             "wechatPlugin": false,
             "category": "animation"
         },
+        "xr": {
+            "default": [],
+            "label": "i18n:ENGINE.features.base_xr.label",
+            "description": "i18n:ENGINE.features.base_xr.description",
+            "wechatPlugin": false,
+            "category": "xr"
+        },
+        "ar": {
+            "default": [],
+            "label": "i18n:ENGINE.features.ar.label",
+            "description": "i18n:ENGINE.features.ar.description",
+            "wechatPlugin": false,
+            "category": "xr"
+        },
         "custom-pipeline": {
             "default": [],
             "label": "i18n:ENGINE.features.custom_pipeline.label",
@@ -268,6 +283,10 @@
         "network": {
             "label": "i18n:ENGINE.features.categories.network.label",
             "description": "i18n:ENGINE.features.categories.network.description"
+        },
+        "xr": {
+            "label": "i18n:ENGINE.features.categories.xr.label",
+            "description": "i18n:ENGINE.features.categories.xr.description"
         }
     }
 }

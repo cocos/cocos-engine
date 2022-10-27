@@ -25,9 +25,9 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets';
-import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorDB, DescriptorTypeOrder, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
+import { DescriptorDB, LayoutGraph, LayoutGraphValue, RenderPhase } from './layout-graph';
 import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
-import { ParameterType, UpdateFrequency } from './types';
+import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOCSM, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor } from './graph';
 import { ccclass } from '../../core/data/decorators';
@@ -293,6 +293,8 @@ export class WebDescriptorHierarchy {
                     this.setDescriptor(localSamplerVertTarget, 'cc_jointTexture', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_PositionDisplacements') {
                     this.setDescriptor(localSamplerVertTarget, 'cc_PositionDisplacements', Type.SAMPLER2D);
+                } else if (samplerName === 'cc_realtimeJoint') {
+                    this.setDescriptor(localSamplerVertTarget, 'cc_realtimeJoint', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_NormalDisplacements') {
                     this.setDescriptor(localSamplerVertTarget, 'cc_NormalDisplacements', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_TangentDisplacements') {
@@ -403,7 +405,7 @@ export class WebDescriptorHierarchy {
                                             capacityStored++;
                                         }
                                         for (const dd of block.descriptors) {
-                                            if (blockStored.descriptors.get(dd[0]) === undefined && capacityStored < capacityToAdd) {
+                                            if (blockStored.descriptors.get(dd[0]) === undefined /*&& capacityStored < capacityToAdd*/) {
                                                 blockStored.descriptors.set(dd[0], dd[1]);
                                                 capacityStored++;
                                             }
@@ -433,7 +435,7 @@ export class WebDescriptorHierarchy {
                                             capacityStored++;
                                         }
                                         for (const uu of block.uniformBlocks) {
-                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined && capacityStored < capacityToAdd) {
+                                            if (blockStored.uniformBlocks.get(uu[0]) === undefined /*&& capacityStored < capacityToAdd*/) {
                                                 blockStored.uniformBlocks.set(uu[0], uu[1]);
                                                 capacityStored++;
                                             }
@@ -549,6 +551,7 @@ export class WebDescriptorHierarchy {
         }
 
         this.merge(passDB);
+        this.sort(passDB);
 
         const vid = this._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(
             LayoutGraphValue.RenderStage, RenderPassStage.DEFAULT, vName, passDB,

@@ -28,20 +28,20 @@ import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder } from './custom-pipeline';
+import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 
 let _pipeline: WebPipeline | null = null;
 
 export * from './types';
-export { Descriptor, DescriptorTypeOrder, DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
-export { CopyPair, MovePair } from './render-graph';
 export * from './pipeline';
+export * from './archive';
+export * from './binary-archive';
 
 export function createCustomPipeline (): Pipeline {
     const ppl = new WebPipeline();
     const pplName = macro.CUSTOM_PIPELINE_NAME;
     ppl.setCustomPipelineName(pplName);
-    if (ppl.usesDeferredPipeline) {
+    if (pplName === 'Deferred') {
         buildDeferredLayout(ppl);
     } else {
         buildForwardLayout(ppl);
@@ -68,6 +68,7 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
+    map.set('Native', new NativePipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

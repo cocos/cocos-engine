@@ -27,6 +27,7 @@ import { Vec3 } from '../../core/math';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from '../core/render-scene';
 import { Node } from '../../scene-graph';
+import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
@@ -130,6 +131,18 @@ export class Light {
         return this._colorTempRGB;
     }
 
+    /**
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
+     * @engineInternal
+     */
+    set visibility (vis: number) {
+        this._visibility = vis;
+    }
+    get visibility (): number {
+        return this._visibility;
+    }
+
     set node (n) {
         this._node = n;
         if (this._node) {
@@ -190,6 +203,8 @@ export class Light {
     protected _useColorTemperature = false;
 
     protected _type: LightType = LightType.UNKNOWN;
+
+    protected _visibility = CAMERA_DEFAULT_MASK;
 
     public initialize () {
         this.color = new Vec3(1, 1, 1);

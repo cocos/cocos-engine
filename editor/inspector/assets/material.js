@@ -35,7 +35,6 @@ exports.template = /* html */ `
 <div class="default">
     <section class="section">
         <ui-prop class="useInstancing" type="dump"></ui-prop>
-        <ui-prop class="useBatching" type="dump"></ui-prop>
     </section>
     <section class="material-dump"></section>
 </div>
@@ -49,7 +48,6 @@ exports.$ = {
     location: '.location',
     technique: '.technique',
     useInstancing: '.useInstancing',
-    useBatching: '.useBatching',
     materialDump: '.material-dump',
 
     custom: '.custom',
@@ -289,11 +287,6 @@ exports.methods = {
         if (firstPass.childMap.USE_INSTANCING) {
             technique.useInstancing.value = firstPass.childMap.USE_INSTANCING.value;
 
-            if (firstPass.childMap.USE_BATCHING) {
-                technique.useBatching.value = firstPass.childMap.USE_BATCHING.value;
-                technique.useBatching.visible = !technique.useInstancing.value;
-            }
-
             this.changeInstancing(technique.useInstancing.value);
         }
 
@@ -301,12 +294,6 @@ exports.methods = {
             this.$.useInstancing.render(technique.useInstancing);
             setHidden(technique.useInstancing && !technique.useInstancing.visible, this.$.useInstancing);
             setReadonly(this.asset.readonly, this.$.useInstancing);
-        }
-
-        if (technique.useBatching) {
-            this.$.useBatching.render(technique.useBatching);
-            setHidden(technique.useInstancing.value || (technique.useBatching && !technique.useBatching.visible), this.$.useBatching);
-            setReadonly(this.asset.readonly, this.$.useBatching);
         }
     },
 
@@ -320,21 +307,6 @@ exports.methods = {
         this.technique.passes.forEach((pass) => {
             if (pass.childMap.USE_INSTANCING) {
                 pass.childMap.USE_INSTANCING.value = checked;
-            }
-        });
-
-        // if Instancing show, Batching hidden
-        setHidden(checked, this.$.useBatching);
-        if (checked) {
-            this.changeBatching(false);
-            this.$.useBatching.render(this.technique.useBatching);
-        }
-    },
-
-    changeBatching(checked) {
-        this.technique.passes.forEach((pass) => {
-            if (pass.childMap.USE_BATCHING) {
-                pass.childMap.USE_BATCHING.value = checked;
             }
         });
     },
@@ -538,13 +510,6 @@ exports.ready = function() {
     // The event is triggered when the useInstancing is modified
     this.$.useInstancing.addEventListener('change-dump', (event) => {
         this.changeInstancing(event.target.dump.value);
-        this.storeCache(event.target.dump);
-        this.change();
-    });
-
-    //  The event is triggered when the useBatching is modified
-    this.$.useBatching.addEventListener('change-dump', (event) => {
-        this.changeBatching(event.target.dump.value);
         this.storeCache(event.target.dump);
         this.change();
     });

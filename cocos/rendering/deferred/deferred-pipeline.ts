@@ -316,8 +316,8 @@ export class DeferredPipeline extends RenderPipeline {
         // Listens when the attachment texture is scaled
         this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, (val: number) => {
             data.sampler = val < 1 ? this.globalDSManager.pointSampler : this.globalDSManager.linearSampler;
-            this.applyFramebufferRatio(data.gbufferFrameBuffer);
-            this.applyFramebufferRatio(data.outputFrameBuffer);
+            data.gbufferFrameBuffer = this.newFramebufferByRatio(data.gbufferFrameBuffer);
+            data.gbufferFrameBuffer = this.newFramebufferByRatio(data.outputFrameBuffer);
         });
     }
 }

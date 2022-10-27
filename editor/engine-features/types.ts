@@ -3,11 +3,11 @@
 export type EngineFeature =
     | 'gfx-webgl'
     | 'gfx-webgl2'
+    | 'gfx-webgpu'
     | 'base'
     | 'graphcis'
     | '3d'
     | '2d'
-    | 'xr'
     | 'ui'
     | 'particle'
     | 'physics'
@@ -32,7 +32,9 @@ export type EngineFeature =
     | 'profiler'
     | 'marionette'
     | 'animation'
-    | 'skeletal-animation';
+    | 'skeletal-animation'
+    | 'xr'
+    | 'ar';
 export interface ModuleRenderConfig {
     $schema?: string;
 

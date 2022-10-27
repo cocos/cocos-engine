@@ -9,6 +9,7 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
+#include "bindings/auto/jsb_gi_auto.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "core/scene-graph/Scene.h"
@@ -72,6 +73,14 @@ using namespace cc;
 %ignore cc::Node::setRTS;
 %ignore cc::scene::Camera::syncCameraEditor;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
+%ignore cc::scene::SubModel::getInstancedAttributeBlock;
+%ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::setInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::getInstancedAttributeIndex;
+%ignore cc::scene::SubModel::setInstancedAttributeIndex;
+%ignore cc::scene::SubModel::updateInstancedAttributes;
+%ignore cc::scene::SubModel::updateInstancedWorldMatrix;
+
 %ignore cc::scene::Model::getLocalData;
 %ignore cc::scene::Model::getEventProcessor;
 %ignore cc::scene::Model::getOctreeNode;
@@ -170,8 +179,8 @@ using namespace cc;
 
 %rename(_initLocalDescriptors) cc::scene::Model::initLocalDescriptors;
 %rename(_updateLocalDescriptors) cc::scene::Model::updateLocalDescriptors;
-%rename(_updateInstancedAttributes) cc::scene::Model::updateInstancedAttributes;
-%rename(_getInstancedAttributeIndex) cc::scene::Model::getInstancedAttributeIndex;
+%rename(_initLocalSHDescriptors) cc::scene::Model::initLocalSHDescriptors;
+%rename(_updateLocalSHDescriptors) cc::scene::Model::updateLocalSHDescriptors;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
@@ -261,6 +270,7 @@ using namespace cc;
 %attribute_writeonly(cc::Node, Mat4&, matrix, setMatrix);
 %attribute(cc::Node, uint32_t, hasChangedFlags, getChangedFlags, setChangedFlags);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
+%attribute(cc::Node, cc::MobilityMode, _mobility, getMobility, setMobility);
 
 %attribute(cc::scene::Ambient, cc::Vec4&, skyColor, getSkyColor, setSkyColor);
 %attribute(cc::scene::Ambient, float, skyIllum, getSkyIllum, setSkyIllum);
@@ -276,6 +286,7 @@ using namespace cc;
 %attribute(cc::scene::Light, cc::scene::LightType, type, getType, setType);
 %attribute(cc::scene::Light, ccstd::string&, name, getName, setName);
 %attribute(cc::scene::Light, cc::scene::RenderScene*, scene, getScene);
+%attribute(cc::scene::Light, uint32_t, visibility, getVisibility, setVisibility);
 
 %attribute(cc::scene::DirectionalLight, cc::Vec3&, direction, getDirection, setDirection);
 %attribute(cc::scene::DirectionalLight, float, illuminance, getIlluminance, setIlluminance);
@@ -400,7 +411,6 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::gfx::Buffer *, worldBoundBuffer, getWorldBoundBuffer, setWorldBoundBuffer);
 %attribute(cc::scene::Model, cc::gfx::Buffer *, localBuffer, getLocalBuffer, setLocalBuffer);
 %attribute(cc::scene::Model, uint32_t, updateStamp, getUpdateStamp);
-%attribute(cc::scene::Model, bool, isInstancingEnabled, isInstancingEnabled);
 %attribute(cc::scene::Model, bool, receiveShadow, isReceiveShadow, setReceiveShadow);
 %attribute(cc::scene::Model, bool, castShadow, isCastShadow, setCastShadow);
 %attribute(cc::scene::Model, float, shadowBias, getShadowBias, setShadowBias);
@@ -410,9 +420,9 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::Layers::Enum, visFlags, getVisFlags, setVisFlags);
 %attribute(cc::scene::Model, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::Model, cc::scene::Model::Type, type, getType, setType);
-%attribute(cc::scene::Model, cc::scene::InstancedAttributeBlock&, instancedAttributes, getInstancedAttributeBlock, setInstancedAttributeBlock);
 %attribute(cc::scene::Model, bool, isDynamicBatching, isDynamicBatching, setDynamicBatching);
 %attribute(cc::scene::Model, uint32_t, priority, getPriority, setPriority);
+%attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 
 %attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
