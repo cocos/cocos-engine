@@ -79,12 +79,12 @@ export class LOD {
      */
     set renderers (meshList: readonly MeshRenderer[]) {
         this._renderers.length = 0;
-        this._LODData.models.length = 0;
+        this._LODData.clearModels();
         for (let i = 0; i < meshList.length; i++) {
             this._renderers[i] = meshList[i];
             const model = meshList[i]?.model;
             if (model) {
-                this._LODData.models.splice(0, 0, model);
+                this._LODData.addModel(model);
             }
         }
     }
@@ -140,7 +140,7 @@ export class LOD {
         }
         this._renderers.splice(index, 0, renderer);
         if (renderer.model) {
-            this._LODData.models.splice(0, 0, renderer.model);
+            this._LODData.addModel(renderer.model);
         }
         return renderer;
     }
@@ -156,10 +156,7 @@ export class LOD {
         const renders = this._renderers.splice(index, 1);
         const model = renders.length > 0 ? renders[0]?.model : null;
         if (model) {
-            const removeIndex = this._LODData.models.indexOf(model);
-            if (removeIndex >= 0) {
-                this._LODData.models.splice(removeIndex, 1);
-            }
+            this._LODData.eraseModel(model);
         }
 
         return renders[0];
@@ -270,7 +267,8 @@ export class LODGroup extends Component {
     }
 
     /**
-     * @en Reset current LODs to new value
+     * @en Reset current LODs to new value.
+     * @ 重置 LODs 为当前新设置的值。
      */
     set LODs (valArray: readonly LOD[]) {
         this._LODs.length = 0;
@@ -527,18 +525,16 @@ export class LODGroup extends Component {
             this._LODs.forEach((lod: LOD, index) => {
                 lod.lodData.screenUsagePercentage = lod.screenUsagePercentage;
                 const renderers = lod.renderers;
-                let modelCount = 0;
                 if (renderers !== null && renderers.length > 0) {
                     for (let i = 0; i < renderers.length; i++) {
                         const lodInstance = lod.lodData;
                         const renderer = renderers[i];
                         if (lodInstance && renderer && renderer.model) {
-                            lodInstance.models[modelCount] = renderer.model;
-                            modelCount += 1;
+                            lodInstance.addModel(renderer.model);
                         }
                     }
                 }
-                this._lodGroup.LODs[index] = lod.lodData;
+                this._lodGroup.updateLOD(index, lod.lodData);
             });
         }
     }

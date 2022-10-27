@@ -36,7 +36,27 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 export class LODData {
     // Range in [0, 1].
     screenUsagePercentage = 1.0;
-    models: Model[] = [];
+
+    private _models: Model[] = [];
+
+    get models () : readonly Model[] {
+        return this._models;
+    }
+
+    public addModel (model: Model) {
+        this._models.splice(0, 0, model);
+    }
+
+    public eraseModel (model: Model) {
+        const removeIndex = this._models.indexOf(model);
+        if (removeIndex >= 0) {
+            this._models.splice(removeIndex, 1);
+        }
+    }
+
+    public clearModels () {
+        this._models.length = 0;
+    }
 }
 
 /**
@@ -84,9 +104,7 @@ export class LODGroup {
 
     get objectSize () { return this._objectSize; }
 
-    set LODs (val: LODData[]) { this._LODs = val; }
-
-    get LODs () { return this._LODs; }
+    get LODs () : readonly LODData[] { return this._LODs; }
 
     attachToScene (scene: RenderScene) {
         this.scene = scene;
