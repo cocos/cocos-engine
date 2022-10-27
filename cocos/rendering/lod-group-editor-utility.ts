@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -68,9 +68,6 @@ export class LODGroupEditorUtility {
         return this.distanceToRelativeHeight(camera, distance, this.getWorldSpaceSize(lodGroup));
     }
 
-    /**
-     * 锁定多个LOD，编辑器使用
-     */
     /**
      * @zh 强制使用某几级的LOD
      * @en Force multi LOD level to use.
