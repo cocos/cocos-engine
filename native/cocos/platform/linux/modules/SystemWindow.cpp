@@ -34,7 +34,6 @@
 #include "SDL2/SDL_main.h"
 #include "SDL2/SDL_syswm.h"
 #include "engine/EngineEvents.h"
-#include "platform/IEventDispatch.h"
 #include "platform/SDLHelper.h"
 
 namespace cc {

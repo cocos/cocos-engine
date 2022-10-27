@@ -58,6 +58,7 @@
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
+#include "bindings/event/EventDispatcher.h"
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
 #include "platform/UniversalPlatform.h"
