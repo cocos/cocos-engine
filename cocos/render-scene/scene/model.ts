@@ -686,6 +686,7 @@ export class Model {
         const coefficients: Vec3[] = [];
         const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
         const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+
         this._lastWorldBoundCenter.set(center);
         this._tetrahedronIndex = lightProbes.data!.getInterpolationWeights(center, this._tetrahedronIndex, weights);
         const result = lightProbes.data!.getInterpolationSHCoefficients(this._tetrahedronIndex, weights, coefficients);
