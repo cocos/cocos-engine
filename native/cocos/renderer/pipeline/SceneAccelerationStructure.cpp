@@ -189,6 +189,7 @@ namespace cc
             }
 
             if (needRebuild||needUpdate) {
+
                 gfx::AccelerationStructureInfo tlasInfo{};
                 tlasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_UPDATE | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
                 tlasInfo.instances.reserve(_modelMap.size());

@@ -225,7 +225,7 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
       rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsOpaqueEXT, 0xFF, origin, tMin, direction, tMax);
 
       bool miss = true;
-      for(int i = 0;i<5;++i){
+      for(int i = 0;i<10;++i){
           while(rayQueryProceedEXT(rayQuery));
           if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
           {
@@ -255,7 +255,8 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
                   }else if(hit.instanceId == 6){
                       hs.albedo.rgb = vec3(1.0,1.0,1.0);
                   }
-                    //todo shade hit point
+                    //shade hit point
+                    //s.albedo = CCStandardShadingBaseShadowRay(hs,-direction,cc_topLevelAS);
                     #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
                         s.albedo += CCClusterShadingAdditive(hs,vec4(0.0));
                     #else
@@ -300,12 +301,18 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
                     CCStandardShadingAdditive(s, shadowPos);
     #endif
 #else
-   vec4 color = CCStandardShadingBase(s, shadowPos) +
+    vec4 color;
+    if(albedoMap.r < 0.01&&albedoMap.g < 0.01&&albedoMap.b < 0.01){
+      color = s.albedo;
+    }else{
+    color = CCStandardShadingBaseShadowRay(s,normalize(cc_cameraPos.xyz - s.position),cc_topLevelAS) +
+    //vec4 color = CCStandardShadingBase(s, shadowPos) +
     #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
                     CCClusterShadingAdditive(s, shadowPos);
     #else
                     CCStandardShadingAdditiveShadowRay(s,normalize(cc_cameraPos.xyz - s.position),cc_topLevelAS);
     #endif
+    }
 #endif
 
     CC_APPLY_FOG_BASE(color, fogFactor);
