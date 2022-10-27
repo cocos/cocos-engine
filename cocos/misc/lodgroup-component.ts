@@ -77,6 +77,7 @@ export class LOD {
      * @zh 重置 _renderers 为 meshList或空数组, LODData上的model也会被重置
      */
     set renderers (meshList: readonly MeshRenderer[]) {
+        if (meshList === this._renderers) return;
         const oldSize = this._renderers.length;
         this._LODData.clearModels();
         for (let i = 0; i < meshList.length; i++) {
@@ -271,6 +272,7 @@ export class LODGroup extends Component {
      * @ 重置 LODs 为当前新设置的值。
      */
     set LODs (valArray: readonly LOD[]) {
+        if (valArray === this._LODs) return;
         const oldSize = this._LODs.length;
         this.lodGroup.clearLODs();
         valArray.forEach((lod: LOD, index: number) => {
