@@ -112,8 +112,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNativ
     sysWindow->setWindowHandle(nativeWindow);
     if (oldNativeWindow) {
         auto func = [sysWindow]() -> void {
-            void *windowId = reinterpret_cast<void *>(static_cast<uintptr_t>(sysWindow->getWindowId()));
-            cc::event::broadcast<cc::events::WindowRecreated>(windowId);
+            cc::event::broadcast<cc::events::WindowRecreated>(sysWindow->getWindowId());
         };
         CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
     }
@@ -147,8 +146,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNativ
             sysWindow->setWindowHandle(newNativeWindow);
 
             auto func = [sysWindow]() -> void {
-                void *windowId = reinterpret_cast<void *>(static_cast<uintptr_t>(sysWindow->getWindowId()));
-                cc::event::broadcast<cc::events::WindowRecreated>(windowId);
+                cc::event::broadcast<cc::events::WindowRecreated>(sysWindow->getWindowId());
             };
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
         }
@@ -169,8 +167,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceDestroyedNat
         auto *windowMgr = platform->getInterface<cc::SystemWindowManager>();
         cc::ISystemWindow *window = windowMgr->getWindowFromANativeWindow(nativeWindow);
 
-        void *windowId = reinterpret_cast<void *>(static_cast<uintptr_t>(window->getWindowId()));
-        cc::event::broadcast<cc::events::WindowDestroy>(windowId);
+        cc::event::broadcast<cc::events::WindowDestroy>(window->getWindowId());
     };
     CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
 }

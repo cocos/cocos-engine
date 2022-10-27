@@ -309,8 +309,7 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
         ev.type == WindowEvent::Type::RESTORED) {
         static_cast<BaseEngine*>(this)->emit<EngineStatusChange>(ON_RESUME);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        ISystemWindow *window = CC_GET_SYSTEM_WINDOW(ev.windowId);
-        cc::event::broadcast<events::WindowRecreated>(window);
+        cc::event::broadcast<events::WindowRecreated>(ev.windowId);
 #endif
         cc::event::broadcast<events::EnterForeground>();
         isHandled = true;
@@ -325,8 +324,7 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
                ev.type == WindowEvent::Type::MINIMIZED) {
         static_cast<BaseEngine*>(this)->emit<EngineStatusChange>(ON_PAUSE);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        ISystemWindow *window = CC_GET_SYSTEM_WINDOW(ev.windowId);
-        cc::event::broadcast<events::WindowDestroy>(window);
+        cc::event::broadcast<events::WindowDestroy>(ev.windowId);
 #endif
         cc::event::broadcast<events::EnterBackground>();
 

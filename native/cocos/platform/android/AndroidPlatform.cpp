@@ -216,6 +216,7 @@ public:
         return (addedControllerEvent != 0);
     }
 
+    // NOLINTNEXTLINE
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
             touchEvent.windowId = ISystemWindow::mainWindowId; // must be main window here
@@ -263,6 +264,7 @@ public:
         return false;
     }
 
+    // NOLINTNEXTLINE
     bool cookGameActivityKeyEvent(GameActivityKeyEvent *keyEvent) {
         for (const auto &action : INPUT_KEY_ACTIONS) {
             if (action.buttonMask != keyEvent->keyCode) {
@@ -277,6 +279,7 @@ public:
         return false;
     }
 
+    // NOLINTNEXTLINE
     void reportKeyState(int keyCode, bool state) {
         bool wentDown = !keyState[keyCode] && state;
         bool wentUp = keyState[keyCode] && !state;
@@ -339,8 +342,7 @@ public:
                     auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
                     auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
                     window->setWindowHandle(nativeWindow);
-
-                    cc::event::broadcast<cc::events::WindowRecreated>(reinterpret_cast<void*>(static_cast<uintptr_t>(ISystemWindow::mainWindowId)));
+                    cc::event::broadcast<cc::events::WindowRecreated>(ISystemWindow::mainWindowId);
                 }
                 break;
             }
@@ -352,7 +354,8 @@ public:
                 if (xr) {
                     xr->onRenderPause();
                 }
-                cc::event::broadcast<cc::events::WindowDestroy>(reinterpret_cast<void*>(ISystemWindow::mainWindowId));
+                // NOLINTNEXTLINE
+                cc::event::broadcast<cc::events::WindowDestroy>(ISystemWindow::mainWindowId);
                 break;
             }
             case APP_CMD_GAINED_FOCUS:

@@ -621,17 +621,15 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 }
 
 void Root::addWindowEventListener() {
-    _windowDestroyEventId.bind([this](void * ptr) -> void {
-        auto intVal = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ptr));
+    _windowDestroyEventId.bind([this](uint32_t windowId) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowDestroy(static_cast<uint32_t>(intVal));
+            window->onNativeWindowDestroy(windowId);
         }
     });
 
-    _windowRecreatedEventId.bind([this](void * ptr) -> void {
-        auto intVal = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ptr));
+    _windowRecreatedEventId.bind([this](uint32_t windowId) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowResume(static_cast<uint32_t>(intVal));
+            window->onNativeWindowResume(windowId);
         }
     });
 }

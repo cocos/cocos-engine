@@ -28,7 +28,6 @@
 #include <future>
 #include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
-#include "platform/IEventDispatch.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/MessagePipe.h"
 #include "platform/java/jni/log.h"
@@ -219,10 +218,12 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
                 isWindowInitialized = true;
                 return;
             }
-            cc::event::broadcast<cc::events::WindowRecreated>(reinterpret_cast<void*>(getWindowHandle()));
+            // FIXME: getWindowId
+            cc::event::broadcast<cc::events::WindowRecreated>((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
-            cc::event::broadcast<cc::events::WindowDestroy>(reinterpret_cast<void*>(getWindowHandle()));
+            // FIXME: getWindowId
+            cc::event::broadcast<cc::events::WindowDestroy>((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
         } break;
         case JniCommand::JNI_CMD_RESUME: {
             cc::event::broadcast<events::WindowChanged>(WindowEvent::Type::SHOW);

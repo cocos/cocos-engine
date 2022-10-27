@@ -29,7 +29,7 @@
 #include "platform/ohos//jni/JniCocosAbility.h"
 #include "platform/ohos/jni/AbilityConsts.h"
 
-//NOLINTNEXTLINE
+// NOLINTNEXTLINE
 using namespace cc::ohos;
 
 namespace cc {
@@ -43,11 +43,13 @@ void View::engineHandleCmd(int cmd) {
                 isWindowInitialized = true;
                 return;
             } else {
-                cc::event::broadcast<events::WindowRecreated>(cocosApp.pendingWindow);
+                // FIXME: getWindowId
+                cc::event::broadcast<events::WindowRecreated>((uint32_t)(uintptr_t)cocosApp.pendingWindow);
             }
             break;
         case ABILITY_CMD_TERM_WINDOW: {
-            cc::event::broadcast<events::WindowDestroy>(cocosApp.pendingWindow);
+            // FIXME: getWindowId
+            cc::event::broadcast<events::WindowDestroy>((uint32_t)(uintptr_t)cocosApp.pendingWindow);
         } break;
         case ABILITY_CMD_RESUME:
             if (Application::getInstance()) {

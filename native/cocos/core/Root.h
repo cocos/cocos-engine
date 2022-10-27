@@ -73,7 +73,7 @@ class Root final : public cc::event::EventTarget {
 public:
     static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
-    ~Root();
+    ~Root() override;
 
     // @minggo IRootInfo seems is not use, and how to return Promise?
     void initialize(gfx::Swapchain *swapchain);

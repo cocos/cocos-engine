@@ -356,9 +356,7 @@ void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t window
         jsResizeEventObj->root();
     }
 
-    if (windowId != UINT32_MAX) {
-        jsResizeEventObj->setProperty("windowId", se::Value(width));
-    }
+    jsResizeEventObj->setProperty("windowId", se::Value(windowId));
     jsResizeEventObj->setProperty("width", se::Value(width));
     jsResizeEventObj->setProperty("height", se::Value(height));
 
