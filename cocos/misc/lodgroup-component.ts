@@ -30,7 +30,6 @@ import { Component } from '../scene-graph/component';
 import { Mesh, MeshRenderer } from '../3d';
 import { scene } from '../render-scene';
 import { NodeEventType } from '../scene-graph/node-event';
-import { array } from '../core/utils/js';
 
 // Ratio of objects occupying the screen
 const DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.25, 0.125];
@@ -78,7 +77,7 @@ export class LOD {
      * @zh 重置 _renderers 为 meshList或空数组, LODData上的model也会被重置
      */
     set renderers (meshList: readonly MeshRenderer[]) {
-        this._renderers.length = 0;
+        const oldSize = this._renderers.length;
         this._LODData.clearModels();
         for (let i = 0; i < meshList.length; i++) {
             this._renderers[i] = meshList[i];
@@ -87,6 +86,7 @@ export class LOD {
                 this._LODData.addModel(model);
             }
         }
+        this._renderers.splice(oldSize, oldSize - meshList.length);
     }
 
     /**
@@ -263,11 +263,7 @@ export class LODGroup extends Component {
      */
     @type([LOD])
     get LODs () : readonly LOD[] {
-        const tmp: LOD[] = [];
-        for (let i = 0; i < this.lodCount; i++) {
-            tmp[i] = this._LODs[i];
-        }
-        return tmp;
+        return this._LODs;
     }
 
     /**
@@ -275,12 +271,13 @@ export class LODGroup extends Component {
      * @ 重置 LODs 为当前新设置的值。
      */
     set LODs (valArray: readonly LOD[]) {
-        this._LODs.length = 0;
+        const oldSize = this._LODs.length;
         this.lodGroup.clearLODs();
         valArray.forEach((lod: LOD, index: number) => {
             this.lodGroup.insertLOD(index, lod.lodData);
             this._LODs[index] = lod;
         });
+        this._LODs.splice(oldSize, oldSize - valArray.length);
     }
 
     /**
