@@ -78,7 +78,7 @@ export class LOD {
      */
     set renderers (meshList: readonly MeshRenderer[]) {
         if (meshList === this._renderers) return;
-        const oldSize = this._renderers.length;
+        this._renderers.length = 0;
         this._LODData.clearModels();
         for (let i = 0; i < meshList.length; i++) {
             this._renderers[i] = meshList[i];
@@ -87,7 +87,6 @@ export class LOD {
                 this._LODData.addModel(model);
             }
         }
-        this._renderers.splice(oldSize, oldSize - meshList.length);
     }
 
     /**
@@ -273,13 +272,12 @@ export class LODGroup extends Component {
      */
     set LODs (valArray: readonly LOD[]) {
         if (valArray === this._LODs) return;
-        const oldSize = this._LODs.length;
+        this._LODs.length = 0;
         this.lodGroup.clearLODs();
         valArray.forEach((lod: LOD, index: number) => {
             this.lodGroup.insertLOD(index, lod.lodData);
             this._LODs[index] = lod;
         });
-        this._LODs.splice(oldSize, oldSize - valArray.length);
     }
 
     /**
