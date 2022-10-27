@@ -256,6 +256,7 @@ export class ReflectionProbe extends Component {
     }
 
     public update (dt: number) {
+        if (!EDITOR && this.probeType === ProbeType.CUBE) return;
         if (this.node.hasChangedFlags) {
             this.probe.updateBoundingBox();
             ReflectionProbeManager.probeManager.updateModes(this.probe);
