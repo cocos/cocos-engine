@@ -2,7 +2,6 @@ import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO,
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { debug } from '../../../typedoc-index';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 // NOTE: register minigame platform here
@@ -98,12 +97,9 @@ class SystemInfo extends EventTarget {
 
         this.isXR = false;
 
-        // init capability
-        const supportWebp = false;  // Initialize in Promise
-
         const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
         this._featureMap = {
-            [Feature.WEBP]: supportWebp,
+            [Feature.WEBP]: false,      // Initialize in Promise,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: false,
             [Feature.VIDEO_PLAYER]: WECHAT || OPPO,
@@ -136,20 +132,27 @@ class SystemInfo extends EventTarget {
 
     private _supportsWebp (): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            const img = document.createElement('img');
-            const timer = setTimeout(() => {
+            try {
+                const img = document.createElement('img');
+                const timer = setTimeout(() => {
+                    resolve(false);
+                }, 500);
+                img.onload = function onload () {
+                    clearTimeout(timer);
+                    const result = (img.width > 0) && (img.height > 0);
+                    resolve(result);
+                };
+                img.onerror = function onerror (err) {
+                    clearTimeout(timer);
+                    if (DEBUG) {
+                        console.warn('Create Webp image failed, message: '.concat(err.toString()));
+                    }
+                    resolve(false);
+                };
+                img.src = 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
+            } catch (error) {
                 resolve(false);
-            }, 500);
-            img.onload = function onload () {
-                clearTimeout(timer);
-                const result = (img.width > 0) && (img.height > 0);
-                resolve(result);
-            };
-            img.onerror = function onerror (err) {
-                clearTimeout(timer);
-                resolve(false);
-            };
-            img.src = 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
+            }
         });
     }
 

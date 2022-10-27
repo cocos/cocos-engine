@@ -285,7 +285,7 @@ export const sys = {
     },
 
     /**
-     * @internal
+     * @engineInternal
      */
     init (): Promise<void> {
         return Promise.resolve()

@@ -169,13 +169,12 @@ class SystemInfo extends EventTarget {
                 }
             }
         }
-        const supportImageBitmap = false;  // Initialize in Promise
 
         const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
         const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
-            [Feature.IMAGE_BITMAP]: supportImageBitmap,
+            [Feature.IMAGE_BITMAP]: false,      // Initialize in Promise
             [Feature.WEB_VIEW]: true,
             [Feature.VIDEO_PLAYER]: true,
             [Feature.SAFE_AREA]: false,
