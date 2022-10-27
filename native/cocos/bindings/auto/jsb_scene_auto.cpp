@@ -779,6 +779,14 @@ using namespace cc;
 #define cc_scene_Model_useLightProbe_set(self_, val_) self_->setUseLightProbe(val_)
   
 
+#define cc_scene_Model_bakeToReflectionProbe_get(self_) self_->getBakeToReflectionProbe()
+#define cc_scene_Model_bakeToReflectionProbe_set(self_, val_) self_->setBakeToReflectionProbe(val_)
+  
+
+#define cc_scene_Model_reflectionProbeType_get(self_) self_->getReflectionProbeType()
+#define cc_scene_Model_reflectionProbeType_set(self_, val_) self_->setReflectionProbeType(val_)
+  
+
 #define cc_scene_SubModel_passes_get(self_) self_->getPasses()
 #define cc_scene_SubModel_passes_set(self_, val_) self_->setPasses(val_)
   
@@ -13906,6 +13914,58 @@ static bool js_cc_scene_Model_updateLocalShadowBias(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_updateLocalShadowBias) 
 
+static bool js_cc_scene_Model_updateReflctionProbeCubemap(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::TextureCube *arg2 = (cc::TextureCube *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_updateReflctionProbeCubemap,2,SWIGTYPE_p_cc__TextureCube"); 
+    (arg1)->updateReflctionProbeCubemap(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbeCubemap) 
+
+static bool js_cc_scene_Model_updateReflctionProbePlanarMap(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::gfx::Texture *arg2 = (cc::gfx::Texture *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_updateReflctionProbePlanarMap,2,SWIGTYPE_p_cc__gfx__Texture"); 
+    (arg1)->updateReflctionProbePlanarMap(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbePlanarMap) 
+
 static bool js_cc_scene_Model_attachToScene(se::State& s)
 {
     // js_function
@@ -15040,6 +15100,85 @@ static bool js_cc_scene_Model_useLightProbe_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Model_useLightProbe_get) 
 
+static bool js_cc_scene_Model_bakeToReflectionProbe_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Model_bakeToReflectionProbe_set,2,SWIGTYPE_bool"); 
+    cc_scene_Model_bakeToReflectionProbe_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_bakeToReflectionProbe_set) 
+
+static bool js_cc_scene_Model_bakeToReflectionProbe_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)cc_scene_Model_bakeToReflectionProbe_get(arg1);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_bakeToReflectionProbe_get) 
+
+static bool js_cc_scene_Model_reflectionProbeType_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_reflectionProbeType_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_scene_Model_reflectionProbeType_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_reflectionProbeType_set) 
+
+static bool js_cc_scene_Model_reflectionProbeType_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_scene_Model_reflectionProbeType_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Model_reflectionProbeType_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_reflectionProbeType_get) 
+
 bool js_register_cc_scene_Model(se::Object* obj) {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_new_cc_scene_Model)); 
     
@@ -15067,6 +15206,8 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineProperty("isDynamicBatching", _SE(js_cc_scene_Model_isDynamicBatching_get), _SE(js_cc_scene_Model_isDynamicBatching_set)); 
     cls->defineProperty("priority", _SE(js_cc_scene_Model_priority_get), _SE(js_cc_scene_Model_priority_set)); 
     cls->defineProperty("useLightProbe", _SE(js_cc_scene_Model_useLightProbe_get), _SE(js_cc_scene_Model_useLightProbe_set)); 
+    cls->defineProperty("bakeToReflectionProbe", _SE(js_cc_scene_Model_bakeToReflectionProbe_get), _SE(js_cc_scene_Model_bakeToReflectionProbe_set)); 
+    cls->defineProperty("reflectionProbeType", _SE(js_cc_scene_Model_reflectionProbeType_get), _SE(js_cc_scene_Model_reflectionProbeType_set)); 
     
     cls->defineFunction("destroy", _SE(js_cc_scene_Model_destroy)); 
     cls->defineFunction("initSubModel", _SE(js_cc_scene_Model_initSubModel)); 
@@ -15096,6 +15237,8 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateSHUBOs", _SE(js_cc_scene_Model_updateSHUBOs)); 
     cls->defineFunction("updateWorldBoundUBOs", _SE(js_cc_scene_Model_updateWorldBoundUBOs)); 
     cls->defineFunction("updateLocalShadowBias", _SE(js_cc_scene_Model_updateLocalShadowBias)); 
+    cls->defineFunction("updateReflctionProbeCubemap", _SE(js_cc_scene_Model_updateReflctionProbeCubemap)); 
+    cls->defineFunction("updateReflctionProbePlanarMap", _SE(js_cc_scene_Model_updateReflctionProbePlanarMap)); 
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Model_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Model_detachFromScene)); 
     cls->defineFunction("setLocalSHBuffer", _SE(js_cc_scene_Model_setLocalSHBuffer)); 
