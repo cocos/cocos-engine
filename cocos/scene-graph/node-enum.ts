@@ -24,6 +24,7 @@
 */
 
 import { legacyCC } from '../core/global-exports';
+import { Enum } from '../core/value-types';
 
 /**
  * @en Node's coordinate space
@@ -77,3 +78,27 @@ export enum TransformBit {
 }
 
 legacyCC.internal.TransformBit = TransformBit;
+
+/**
+ * @en Node's mobility
+ * @zh 节点的移动性
+ */
+export const MobilityMode = Enum({
+    /**
+     * @en Static node
+     * @zh 静态节点
+     */
+    Static: 0,
+
+    /**
+     * @en Stationary node
+     * @zh 固定节点
+     */
+    Stationary: 1,
+
+    /**
+     * @en Movable node
+     * @zh 可移动节点
+     */
+    Movable: 2,
+});

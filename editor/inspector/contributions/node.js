@@ -305,6 +305,7 @@ exports.template = /* html*/`
         <ui-prop class="position" type="dump"></ui-prop>
         <ui-prop class="rotation" type="dump"></ui-prop>
         <ui-prop class="scale" type="dump"></ui-prop>
+        <ui-prop class="mobility" type="dump"></ui-prop>
         <ui-prop class="layer" type="dump" html="false">
             <ui-label slot="label" value="Layer"></ui-label>
             <div class="layer-content" slot="content">
@@ -367,6 +368,7 @@ exports.$ = {
     nodePosition: '.node > .position',
     nodeRotation: '.node > .rotation',
     nodeScale: '.node > .scale',
+    nodeMobility: '.node > .mobility',
     nodeLayer: '.node > .layer',
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
@@ -908,6 +910,7 @@ const Elements = {
             panel.$.nodePosition.render(panel.dump.position);
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
+            panel.$.nodeMobility.render(panel.dump.mobility);
             panel.$.nodeLayer.render(panel.dump.layer);
 
             // 查找需要渲染的 component 列表
@@ -1885,4 +1888,5 @@ exports.beforeClose = async function beforeClose() {
 
 exports.config = {
     section: require('../components.js'),
+    footer: require('../components-footer.js'),
 };

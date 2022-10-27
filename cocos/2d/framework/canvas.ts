@@ -29,13 +29,9 @@ import { ccclass, help, disallowMultiple, executeInEditMode,
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
-import { Vec3 } from '../../core/math';
+import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
 import { view } from '../../ui/view';
-import { legacyCC } from '../../core/global-exports';
-import { Enum } from '../../core/value-types/enum';
-import visibleRect from '../../core/platform/visible-rect';
 import { RenderRoot2D } from './render-root-2d';
-import { screen } from '../../core';
 import { NodeEventType } from '../../scene-graph/node-event';
 
 const _worldPos = new Vec3();
@@ -177,12 +173,12 @@ export class Canvas extends RenderRoot2D {
 
         if (EDITOR) {
             // Constantly align canvas node in edit mode
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
             // (anchor in uiTransform, but it can edit, this is different from cocos creator)
-            this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
+            this._objFlags |= cclegacy.Object.Flags.IsPositionLocked | cclegacy.Object.Flags.IsSizeLocked | cclegacy.Object.Flags.IsAnchorLocked;
         } else {
             // In Editor dont need resized camera when scene window resize
             this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
@@ -207,7 +203,7 @@ export class Canvas extends RenderRoot2D {
         super.onDestroy();
 
         if (EDITOR) {
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
         } else {
             this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
         }
@@ -238,4 +234,4 @@ export class Canvas extends RenderRoot2D {
     }
 }
 
-legacyCC.Canvas = Canvas;
+cclegacy.Canvas = Canvas;

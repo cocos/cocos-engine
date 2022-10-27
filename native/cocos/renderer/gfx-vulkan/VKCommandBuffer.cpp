@@ -64,7 +64,7 @@ void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
 }
 
 void CCVKCommandBuffer::doDestroy() {
-    CC_SAFE_DELETE(_gpuCommandBuffer);
+    _gpuCommandBuffer = nullptr;
 }
 
 void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) {
@@ -72,7 +72,7 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuf
 
     CCVKDevice::getInstance()->gpuDevice()->getCommandBufferPool()->request(_gpuCommandBuffer);
 
-    _curGPUPipelineState  = nullptr;
+    _curGPUPipelineState = nullptr;
     _curGPUInputAssembler = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
     _curDynamicOffsetsArray.assign(_curDynamicOffsetsArray.size(), {});
@@ -382,7 +382,7 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
 
-    const auto *gpuIndirectBuffer = _curGPUInputAssembler->gpuIndirectBuffer;
+    const auto *gpuIndirectBuffer = _curGPUInputAssembler->gpuIndirectBuffer.get();
 
     if (gpuIndirectBuffer) {
         uint32_t drawInfoCount = gpuIndirectBuffer->range / gpuIndirectBuffer->gpuBuffer->stride;

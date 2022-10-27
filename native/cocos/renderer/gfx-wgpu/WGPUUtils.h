@@ -589,7 +589,7 @@ static WGPUFlags toWGPUColorWriteMask(ColorMask mask) {
 }
 
 static ccstd::string getAdapterTypeName(WGPUAdapterType type) {
-    switch(type) {
+    switch (type) {
         case WGPUAdapterType_DiscreteGPU:
             return "WGPUAdapterType_DiscreteGPU";
         case WGPUAdapterType_IntegratedGPU:
@@ -597,14 +597,14 @@ static ccstd::string getAdapterTypeName(WGPUAdapterType type) {
         case WGPUAdapterType_CPU:
             return "WGPUAdapterType_CPU";
         case WGPUAdapterType_Unknown:
-            return "WGPUAdapterType_Unknown"; 
+            return "WGPUAdapterType_Unknown";
         default:
             return "unknown adapter by cc.gfx!";
     }
 }
 
 static ccstd::string getBackendTypeName(WGPUBackendType type) {
-    switch(type) {
+    switch (type) {
         case WGPUBackendType_Null:
             return "WGPUBackendType_Null";
         case WGPUBackendType_WebGPU:
@@ -625,6 +625,11 @@ static ccstd::string getBackendTypeName(WGPUBackendType type) {
             return "unknown backend by cc.gfx!";
     }
 }
+
+class Texture;
+class CommandBuffer;
+// fromLevel and toLevel is included.
+void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t baseLayer, CommandBuffer* cmdBuffer);
 
 class DescriptorSet;
 class PipelineLayout;

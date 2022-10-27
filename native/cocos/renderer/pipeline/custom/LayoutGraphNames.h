@@ -50,6 +50,10 @@ inline const char* getName(const DescriptorBlockData& /*v*/) noexcept { return "
 inline const char* getName(const DescriptorSetLayoutData& /*v*/) noexcept { return "DescriptorSetLayoutData"; }
 inline const char* getName(const DescriptorSetData& /*v*/) noexcept { return "DescriptorSetData"; }
 inline const char* getName(const PipelineLayoutData& /*v*/) noexcept { return "PipelineLayoutData"; }
+inline const char* getName(const ShaderBindingData& /*v*/) noexcept { return "ShaderBindingData"; }
+inline const char* getName(const ShaderLayoutData& /*v*/) noexcept { return "ShaderLayoutData"; }
+inline const char* getName(const TechniqueData& /*v*/) noexcept { return "TechniqueData"; }
+inline const char* getName(const EffectData& /*v*/) noexcept { return "EffectData"; }
 inline const char* getName(const ShaderProgramData& /*v*/) noexcept { return "ShaderProgramData"; }
 inline const char* getName(const RenderStageData& /*v*/) noexcept { return "RenderStageData"; }
 inline const char* getName(const RenderPhaseData& /*v*/) noexcept { return "RenderPhaseData"; }

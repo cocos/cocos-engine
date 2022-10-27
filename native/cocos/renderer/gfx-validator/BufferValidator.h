@@ -50,6 +50,9 @@ protected:
     void doResize(uint32_t size, uint32_t count) override;
     void doDestroy() override;
 
+    void flush(const uint8_t *buffer) override;
+    uint8_t *getStagingAddress() const override;
+
     void addView(BufferValidator *view);
     void removeView(BufferValidator *view);
     void onExpire();

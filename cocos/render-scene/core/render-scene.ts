@@ -31,6 +31,7 @@ import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
+import { LODGroup } from '../scene/lod-group';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -127,10 +128,18 @@ export class RenderScene {
         return this._batches;
     }
 
+    /**
+     * @engineInternal
+     * @en All LOD groups of the render scene
+     * @zh 渲染场景管理的所有 LOD 组
+     */
+    get lodGroups () : readonly LODGroup[] { return this._lodGroups; }
+
     private _root: Root;
     private _name = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
+    private _lodGroups: LODGroup[] = []; // LOD Group gathered
     private _batches: DrawBatch2D[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
@@ -204,6 +213,7 @@ export class RenderScene {
         this.removeSphereLights();
         this.removeSpotLights();
         this.removeModels();
+        this.removeLODGroups();
     }
 
     /**
@@ -440,6 +450,40 @@ export class RenderScene {
      */
     public removeBatches () {
         this._batches.length = 0;
+    }
+
+    /**
+     * @engineInternal
+     * @en Add a LOD group， all LOD groups attached to the render scene will be submitted for rendering.
+     * @zh 增加一个LOD 组，渲染场景上挂载的所有LOD 组都会被提交渲染。
+     * @param lodGroup the LOD group
+     */
+    addLODGroup (lodGroup: LODGroup) {
+        this._lodGroups.push(lodGroup);
+        lodGroup.attachToScene(this);
+    }
+
+    /**
+     * @engineInternal
+     * @en Remove a LOD group, the LOD group removed will no longer be submitted for rendering.
+     * @zh 删除一个LOD 组，移除的LOD 组将不再被提交渲染。
+     * @param lodGroup the LOD group
+     */
+    removeLODGroup (lodGroup: LODGroup) {
+        const index = this._lodGroups.indexOf(lodGroup);
+        if (index >= 0) {
+            this._lodGroups.splice(index, 1);
+            lodGroup.detachFromScene();
+        }
+    }
+
+    /**
+     * @engineInternal
+     * @en Remove all LOD groups.
+     * @zh 删除所有LOD 组。
+     */
+    removeLODGroups () {
+        this._lodGroups.length = 0;
     }
 
     /**

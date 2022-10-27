@@ -61,6 +61,9 @@
                 "animation": {
                     "$ref": "#/definitions/Item"
                 },
+                "ar": {
+                    "$ref": "#/definitions/Item"
+                },
                 "audio": {
                     "$ref": "#/definitions/Item"
                 },
@@ -146,6 +149,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "webview": {
+                    "$ref": "#/definitions/Item"
+                },
+                "xr": {
                     "$ref": "#/definitions/Item"
                 }
             },
@@ -205,6 +211,9 @@
                 "animation": {
                     "$ref": "#/definitions/BaseItem"
                 },
+                "ar": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "audio": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -290,6 +299,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "webview": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "xr": {
                     "$ref": "#/definitions/BaseItem"
                 }
             },

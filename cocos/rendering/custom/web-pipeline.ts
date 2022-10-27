@@ -25,8 +25,8 @@
 
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address } from '../../gfx/index';
-import { Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core/math';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address } from '../../gfx';
+import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4 } from '../../core/math';
 import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
@@ -143,6 +143,7 @@ export class WebSetter {
         }
         if (!this._data.constants.get(num)) {
             const value = new Array(this._currCount);
+            value.fill(0);
             this._data.constants.set(num, value);
         }
         this.setCurrConstant(block);
@@ -198,6 +199,7 @@ function setShadowUBOLightView (setter: WebSetter,
     const packing = supportsR32FloatTexture(device) ? 0.0 : 1.0;
     const cap = pipeline.device.capabilities;
     const _vec4ShadowInfo = new Vec4();
+    setter.addConstant('CCCSM');
     // ShadowMap
     setter.addConstant('CCShadow');
     switch (light.type) {
@@ -400,8 +402,8 @@ function setCameraUBOValues (setter: WebSetter,
     setter.setMat4('cc_matProjInv', camera.matProjInv);
     setter.setMat4('cc_matViewProj', camera.matViewProj);
     setter.setMat4('cc_matViewProjInv', camera.matViewProjInv);
-    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, 0.0));
-    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, 0.0, 0.0));
+    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, pipeline.getCombineSignY()));
+    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle()))));
     setter.setVec4('cc_screenScale', new Vec4(cfg.shadingScale, cfg.shadingScale, 1.0 / cfg.shadingScale, 1.0 / cfg.shadingScale));
     setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, cfg.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
 
@@ -505,6 +507,12 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name = 'Camera'): void {
         const sceneData = new SceneData(name, sceneFlags, light);
         sceneData.camera = camera;
@@ -578,6 +586,12 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addRasterView (name: string, view: RasterView) {
         this._pass.rasterViews.set(name, view);
     }
@@ -641,6 +655,12 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         this._queue = queue;
         this._pipeline = pipeline;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addDispatch (shader: string,
         threadGroupCountX: number,
         threadGroupCountY: number,
@@ -671,6 +691,12 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
     }
     addComputeView (name: string, view: ComputeView) {
         if (this._pass.computeViews.has(name)) {
@@ -712,6 +738,12 @@ export class WebMovePassBuilder implements MovePassBuilder {
         this._vertID = vertID;
         this._pass = pass;
     }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
+    }
     addPair (pair: MovePair) {
         this._pass.movePairs.push(pair);
     }
@@ -725,6 +757,12 @@ export class WebCopyPassBuilder implements CopyPassBuilder {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
         this._pass = pass;
+    }
+    get name () {
+        return this._renderGraph.getName(this._vertID);
+    }
+    set name (name: string) {
+        this._renderGraph.setName(this._vertID, name);
     }
     addPair (pair: CopyPair) {
         this._pass.copyPairs.push(pair);
@@ -740,18 +778,23 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline implements Pipeline {
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void {
+        const resId = this.resourceGraph.vertex(name);
+        const currFbo = this.resourceGraph._vertices[resId]._object;
+        if (currFbo !== renderWindow.framebuffer) {
+            this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
+        }
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
-    public addComputePass(layoutName: string, name: string): ComputePassBuilder;
-    public addComputePass(layoutName: string): ComputePassBuilder;
-    public addComputePass (layoutName: any, name?: any): ComputePassBuilder {
+    public addComputePass (layoutName: string): ComputePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addMovePass (name: string): MovePassBuilder {
+    public addMovePass (): MovePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addCopyPass (name: string): CopyPassBuilder {
+    public addCopyPass (): CopyPassBuilder {
         throw new Error('Method not implemented.');
     }
     public presentAll (): void {
@@ -789,6 +832,15 @@ export class WebPipeline implements Pipeline {
         return layoutData;
     }
 
+    private _initCombineSignY () {
+        const device = this._device;
+        this._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
+    }
+
+    public getCombineSignY () {
+        return this._combineSignY;
+    }
+
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         this._globalDSManager = new GlobalDSManager(this._device);
@@ -799,6 +851,7 @@ export class WebPipeline implements Pipeline {
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
+        this._initCombineSignY();
         const isFloat = supportsR32FloatTexture(this._device) ? 0 : 1;
         this.setMacroInt('CC_SHADOWMAP_FORMAT', isFloat);
         // 0: SHADOWMAP_LINER_DEPTH_OFF, 1: SHADOWMAP_LINER_DEPTH_ON.
@@ -1051,7 +1104,8 @@ export class WebPipeline implements Pipeline {
         this.endFrame();
     }
 
-    addRasterPass (width: number, height: number, layoutName: string, name = 'Raster'): RasterPassBuilder {
+    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder {
+        const name = 'Raster';
         const pass = new RasterPass();
         pass.viewport.width = width;
         pass.viewport.height = height;
@@ -1146,6 +1200,7 @@ export class WebPipeline implements Pipeline {
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
     public builder: PipelineBuilder | null = null;
+    private _combineSignY = 0;
     // csm uniform used vectors count
     public static CSM_UNIFORM_VECTORS = 61;
     // all global uniform used vectors count

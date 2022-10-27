@@ -4,8 +4,10 @@ import type { Layer, StateMachine, TransitionInternal } from './animation-graph'
 import { EditorExtendable } from '../../core/data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
-import { remove } from '../../core/utils/array';
+import { js } from '../../core';
 import { instantiate } from '../../core/data/instantiate';
+import { editorExtrasTag } from '../../core/data';
+import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
 
 export const outgoingsSymbol = Symbol('[[Outgoing transitions]]');
 
@@ -25,6 +27,11 @@ export class State extends EditorExtendable implements OwnedBy<Layer | StateMach
     constructor () {
         super();
     }
+
+    public copyTo (that: State) {
+        that.name = this.name;
+        that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
+    }
 }
 
 type StateMachineComponentConstructor<T extends StateMachineComponent> = Constructor<T>;
@@ -42,7 +49,7 @@ export class InteractiveState extends State {
     }
 
     public removeComponent (component: StateMachineComponent) {
-        remove(this._components, component);
+        js.array.remove(this._components, component);
     }
 
     public instantiateComponents (): StateMachineComponent[] {
@@ -52,6 +59,11 @@ export class InteractiveState extends State {
             return instantiated;
         });
         return instantiatedComponents;
+    }
+
+    public copyTo (that: InteractiveState) {
+        super.copyTo(that);
+        that._components = this.instantiateComponents();
     }
 
     @serializable

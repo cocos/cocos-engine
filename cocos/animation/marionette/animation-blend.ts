@@ -7,6 +7,8 @@ import { ClipStatus } from './graph-eval';
 import { EditorExtendable } from '../../core/data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
+import { editorExtrasTag } from '../../core/data';
+import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
 
 export interface AnimationBlend extends Motion, EditorExtendable {
     [createEval] (_context: MotionEvalContext): MotionEval | null;
@@ -19,11 +21,11 @@ export class AnimationBlendItem {
 
     public clone () {
         const that = new AnimationBlendItem();
-        this._assign(that);
+        this._copyTo(that);
         return that;
     }
 
-    protected _assign (that: AnimationBlendItem) {
+    protected _copyTo (that: AnimationBlendItem) {
         that.motion = this.motion?.clone() ?? null;
         return that;
     }
@@ -33,6 +35,11 @@ export class AnimationBlendItem {
 export class AnimationBlend extends EditorExtendable implements Motion {
     @serializable
     name = '';
+
+    public copyTo (that: AnimationBlend) {
+        that.name = this.name;
+        that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
+    }
 }
 
 export class AnimationBlendEval implements MotionEval {

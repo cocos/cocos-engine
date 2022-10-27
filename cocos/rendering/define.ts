@@ -133,6 +133,7 @@ export enum ModelLocalBindings {
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
     UBO_UI_LOCAL,
+    UBO_SH,
 
     SAMPLER_JOINTS,
     SAMPLER_MORPH_POSITION,
@@ -143,6 +144,9 @@ export enum ModelLocalBindings {
     SAMPLER_REFLECTION,
 
     STORAGE_REFLECTION,
+
+    SAMPLER_REFLECTION_PROBE_CUBE,
+    SAMPLER_REFLECTION_PROBE_PLANAR,
 
     COUNT,
 }
@@ -568,6 +572,37 @@ localDescriptorSetLayout.layouts[UBOUILocal.NAME] = UBOUILocal.LAYOUT;
 localDescriptorSetLayout.bindings[UBOUILocal.BINDING] = UBOUILocal.DESCRIPTOR;
 
 /**
+ * @en The SH uniform buffer object
+ * @zh 球谐 UBO。
+ */
+export class UBOSH {
+    public static readonly SH_LINEAR_CONST_R_OFFSET = 0;
+    public static readonly SH_LINEAR_CONST_G_OFFSET = UBOSH.SH_LINEAR_CONST_R_OFFSET + 4;
+    public static readonly SH_LINEAR_CONST_B_OFFSET = UBOSH.SH_LINEAR_CONST_G_OFFSET + 4;
+    public static readonly SH_QUADRATIC_R_OFFSET = UBOSH.SH_LINEAR_CONST_B_OFFSET + 4;
+    public static readonly SH_QUADRATIC_G_OFFSET = UBOSH.SH_QUADRATIC_R_OFFSET + 4;
+    public static readonly SH_QUADRATIC_B_OFFSET = UBOSH.SH_QUADRATIC_G_OFFSET + 4;
+    public static readonly SH_QUADRATIC_A_OFFSET = UBOSH.SH_QUADRATIC_B_OFFSET + 4;
+    public static readonly COUNT = UBOSH.SH_QUADRATIC_A_OFFSET + 4;
+    public static readonly SIZE = UBOSH.COUNT * 4;
+
+    public static readonly NAME = 'CCSH';
+    public static readonly BINDING = ModelLocalBindings.UBO_SH;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSH.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.FRAGMENT);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSH.BINDING, UBOSH.NAME, [
+        new Uniform('cc_sh_linear_const_r', Type.FLOAT4, 1),
+        new Uniform('cc_sh_linear_const_g', Type.FLOAT4, 1),
+        new Uniform('cc_sh_linear_const_b', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_r', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_g', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_b', Type.FLOAT4, 1),
+        new Uniform('cc_sh_quadratic_a', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOSH.NAME] = UBOSH.LAYOUT;
+localDescriptorSetLayout.bindings[UBOSH.BINDING] = UBOSH.DESCRIPTOR;
+
+/**
  * @en The sampler for joint texture
  * @zh 骨骼纹理采样器。
  */
@@ -668,6 +703,30 @@ const UNIFORM_REFLECTION_STORAGE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNI
 const UNIFORM_REFLECTION_STORAGE_LAYOUT = new UniformStorageImage(SetIndex.LOCAL, UNIFORM_REFLECTION_STORAGE_BINDING, UNIFORM_REFLECTION_STORAGE_NAME, Type.IMAGE2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_STORAGE_NAME] = UNIFORM_REFLECTION_STORAGE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_STORAGE_BINDING] = UNIFORM_REFLECTION_STORAGE_DESCRIPTOR;
+
+/**
+ * @en The sampler for reflection probe cubemap
+ * @zh 反射探针立方体贴图纹理采样器。
+ */
+const UNIFORM_REFLECTION_PROBE_CUBEMAP_NAME = 'cc_reflectionProbeCubemap';
+export const UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_CUBE;
+const UNIFORM_REFLECTION_PROBE_CUBEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_REFLECTION_PROBE_CUBEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_CUBEMAP_NAME, Type.SAMPLER_CUBE, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_CUBEMAP_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_CUBEMAP_DESCRIPTOR;
+
+/**
+ * @en The sampler for reflection probe planar reflection
+ * @zh 反射探针平面反射贴图纹理采样器。
+ */
+const UNIFORM_REFLECTION_PROBE_TEXTURE_NAME = 'cc_reflectionProbePlanarMap';
+export const UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_PLANAR;
+const UNIFORM_REFLECTION_PROBE_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_REFLECTION_PROBE_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING,
+    UNIFORM_REFLECTION_PROBE_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_TEXTURE_NAME] = UNIFORM_REFLECTION_PROBE_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING] = UNIFORM_REFLECTION_PROBE_TEXTURE_DESCRIPTOR;
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);

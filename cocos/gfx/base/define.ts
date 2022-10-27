@@ -736,6 +736,8 @@ export class DeviceCaps {
         public maxUniformBlockSize: number = 0,
         public maxTextureSize: number = 0,
         public maxCubeMapTextureSize: number = 0,
+        public maxArrayTextureLayers: number = 0,
+        public max3DTextureSize: number = 0,
         public uboOffsetAlignment: number = 1,
         public maxComputeSharedMemorySize: number = 0,
         public maxComputeWorkGroupInvocations: number = 0,
@@ -761,6 +763,8 @@ export class DeviceCaps {
         this.maxUniformBlockSize = info.maxUniformBlockSize;
         this.maxTextureSize = info.maxTextureSize;
         this.maxCubeMapTextureSize = info.maxCubeMapTextureSize;
+        this.maxArrayTextureLayers = info.maxArrayTextureLayers;
+        this.max3DTextureSize = info.max3DTextureSize;
         this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.maxComputeSharedMemorySize = info.maxComputeSharedMemorySize;
         this.maxComputeWorkGroupInvocations = info.maxComputeWorkGroupInvocations;

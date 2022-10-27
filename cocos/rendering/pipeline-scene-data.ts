@@ -31,6 +31,7 @@ import { Light } from '../render-scene/scene/light';
 import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
+import { legacyCC } from '../core/global-exports';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -68,6 +69,7 @@ export class PipelineSceneData {
     public shadows: Shadows = new Shadows();
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
+    public lightProbes = legacyCC.internal.LightProbes ? new legacyCC.internal.LightProbes() : null;
 
     /**
       * @en The list for valid punctual Lights, only available after the scene culling of the current frame.

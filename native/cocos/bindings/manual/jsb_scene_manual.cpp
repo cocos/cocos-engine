@@ -25,6 +25,7 @@
 
 #include "jsb_scene_manual.h"
 #include "bindings/auto/jsb_scene_auto.h"
+#include "bindings/auto/jsb_gfx_auto.h"
 #include "core/Root.h"
 #include "core/event/EventTypesToJS.h"
 #include "core/scene-graph/Node.h"
@@ -716,6 +717,26 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         nativevalue_to_se(subModelIndex, args[0]);
         nativevalue_to_se(descriptorSet, args[1]);
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalDescriptors", static_cast<uint32_t>(args.size()), args.data());
+    });
+
+    cobj->getEventProcessor().on(cc::EventTypesToJS::MODEL_UPDATE_LOCAL_SH_DESCRIPTORS, [=](index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
+        cobj->setCalledFromJS(true);
+        se::AutoHandleScope hs;
+
+        ccstd::array<se::Value, 2> args;
+        nativevalue_to_se(subModelIndex, args[0]);
+        nativevalue_to_se(descriptorSet, args[1]);
+        se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalSHDescriptors", static_cast<uint32_t>(args.size()), args.data());
+    });
+
+    cobj->getEventProcessor().on(cc::EventTypesToJS::MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS, [=](index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
+        cobj->setCalledFromJS(true);
+        se::AutoHandleScope hs;
+
+        ccstd::array<se::Value, 2> args;
+        nativevalue_to_se(subModelIndex, args[0]);
+        nativevalue_to_se(descriptorSet, args[1]);
+        se::ScriptEngine::getInstance()->callFunction(thiz, "_updateWorldBoundDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
     cobj->getEventProcessor().on(cc::EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, [=](const ccstd::vector<cc::gfx::Attribute> &attributes, cc::scene::SubModel *subModel) {

@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,6 +30,8 @@
 #include "core/assets/Material.h"
 #include "core/event/EventTypesToJS.h"
 #include "gfx-base/GFXTexture.h"
+#include "gi/light-probe/LightProbe.h"
+#include "gi/light-probe/SH.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
@@ -40,20 +42,6 @@
 #include "scene/SubModel.h"
 
 namespace {
-
-cc::Float32Array &vec4ToFloat32Array(const cc::Vec4 &v, cc::Float32Array &out, index_t ofs = 0) {
-    out[ofs + 0] = v.x;
-    out[ofs + 1] = v.y;
-    out[ofs + 2] = v.z;
-    out[ofs + 3] = v.w;
-    return out;
-}
-
-cc::Float32Array &mat4ToFloat32Array(const cc::Mat4 &mat, cc::Float32Array &out, index_t ofs = 0) {
-    memcpy(reinterpret_cast<float *>(const_cast<uint8_t *>(out.buffer()->getData())) + ofs, mat.m, 16 * sizeof(float));
-    return out;
-}
-
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
     cc::gfx::Filter::LINEAR,
     cc::gfx::Filter::LINEAR,
@@ -73,6 +61,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 };
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
+const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 } // namespace
 
 namespace cc {
@@ -91,7 +80,6 @@ void Model::initialize() {
     _enabled = true;
     _visFlags = Layers::Enum::NONE;
     _inited = true;
-    _localData.reset(pipeline::UBOLocal::COUNT);
 }
 
 void Model::destroy() {
@@ -101,6 +89,7 @@ void Model::destroy() {
     _subModels.clear();
 
     CC_SAFE_DESTROY_NULL(_localBuffer);
+    CC_SAFE_DESTROY_NULL(_localSHBuffer);
     CC_SAFE_DESTROY_NULL(_worldBoundBuffer);
 
     _worldBounds = nullptr;
@@ -176,6 +165,9 @@ void Model::updateUBOs(uint32_t stamp) {
         subModel->update();
     }
     _updateStamp = stamp;
+
+    updateSHUBOs();
+
     if (!_localDataUpdated) {
         return;
     }
@@ -195,11 +187,14 @@ void Model::updateUBOs(uint32_t stamp) {
 
     if (hasNonInstancingPass && _localBuffer) {
         Mat4 mat4;
-        mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
-        mat4ToFloat32Array(mat4, _localData, pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
-        _localBuffer->update(_localData.buffer()->getData());
+        _localBuffer->write(worldMatrix, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_OFFSET);
+        _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
+        _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
+        _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+
+        _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
         if (enableOcclusionQuery) {
             updateWorldBoundUBOs();
@@ -216,14 +211,13 @@ void Model::updateOctree() {
 
 void Model::updateWorldBoundUBOs() {
     if (_worldBoundBuffer) {
-        ccstd::array<float, pipeline::UBOWorldBound::COUNT> worldBoundBufferView;
         const Vec3 &center = _worldBounds ? _worldBounds->getCenter() : Vec3{0.0F, 0.0F, 0.0F};
         const Vec3 &halfExtents = _worldBounds ? _worldBounds->getHalfExtents() : Vec3{1.0F, 1.0F, 1.0F};
         const Vec4 worldBoundCenter{center.x, center.y, center.z, 0.0F};
         const Vec4 worldBoundHalfExtents{halfExtents.x, halfExtents.y, halfExtents.z, 1.0F};
-        memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_CENTER, &worldBoundCenter.x, sizeof(Vec4));
-        memcpy(worldBoundBufferView.data() + pipeline::UBOWorldBound::WORLD_BOUND_HALF_EXTENTS, &worldBoundHalfExtents.x, sizeof(Vec4));
-        _worldBoundBuffer->update(worldBoundBufferView.data(), pipeline::UBOWorldBound::SIZE);
+        _worldBoundBuffer->write(worldBoundCenter, sizeof(float) * pipeline::UBOWorldBound::WORLD_BOUND_CENTER);
+        _worldBoundBuffer->write(worldBoundHalfExtents, sizeof(float) * pipeline::UBOWorldBound::WORLD_BOUND_HALF_EXTENTS);
+        _worldBoundBuffer->update();
     }
 }
 
@@ -303,7 +297,6 @@ void Model::initLightingmap(Texture2D *texture, const Vec4 &uvParam) {
 }
 
 void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
-    vec4ToFloat32Array(uvParam, _localData, pipeline::UBOLocal::LIGHTINGMAP_UVPARAM); //TODO(xwx): toArray not implemented in Math
     _localDataUpdated = true;
     _lightmap = texture;
     _lightmapUVParam = uvParam;
@@ -325,6 +318,55 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     }
 }
 
+bool Model::isLightProbeAvailable() const {
+    if (!_useLightProbe) {
+        return false;
+    }
+
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
+    if (!lightProbes || lightProbes->empty()) {
+        return false;
+    }
+
+    if (!_worldBounds) {
+        return false;
+    }
+
+    return true;
+}
+
+void Model::updateSHUBOs() {
+    if (!isLightProbeAvailable()) {
+        return;
+    }
+
+    const auto center = _worldBounds->getCenter();
+#if !CC_EDITOR
+    if (center == _lastWorldBoundCenter) {
+        return;
+    }
+#endif
+
+    ccstd::vector<Vec3> coefficients;
+    Vec4 weights(0.0F, 0.0F, 0.0F, 0.0F);
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
+
+    _lastWorldBoundCenter.set(center);
+    _tetrahedronIndex = lightProbes->getData().getInterpolationWeights(center, _tetrahedronIndex, weights);
+    bool result = lightProbes->getData().getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    if (!result) {
+        return;
+    }
+
+    if (!_localSHData.empty() && _localSHBuffer) {
+        gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
+        gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
+        _localSHBuffer->update(_localSHData.buffer()->getData());
+    }
+}
+
 ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
@@ -335,11 +377,20 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
+    ccstd::vector<IMacroPatch> patches;
     if (_receiveShadow) {
-        return SHADOW_MAP_PATCHES;
+        for (const auto &patch : SHADOW_MAP_PATCHES) {
+            patches.push_back(patch);
+        }
     }
 
-    return {};
+    if (_useLightProbe) {
+        for (const auto &patch : LIGHT_PROBE_PATCHES) {
+            patches.push_back(patch);
+        }
+    }
+
+    return patches;
 }
 
 void Model::updateAttributesAndBinding(index_t subModelIndex) {
@@ -347,6 +398,9 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     SubModel *subModel = _subModels[subModelIndex];
     initLocalDescriptors(subModelIndex);
     updateLocalDescriptors(subModelIndex, subModel->getDescriptorSet());
+
+    initLocalSHDescriptors(subModelIndex);
+    updateLocalSHDescriptors(subModelIndex, subModel->getDescriptorSet());
 
     initWorldBoundDescriptors(subModelIndex);
     if (subModel->getWorldBoundDescriptorSet()) {
@@ -357,7 +411,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
     updateInstancedAttributes(shader->getAttributes(), subModel);
 }
 
-void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel* subModel) {
+void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, subModel);
@@ -371,23 +425,42 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
 
 void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
     if (!_localBuffer) {
-        _localBuffer = _device->createBuffer({
+        _localBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                                              gfx::MemoryUsageBit::DEVICE,
+                                              pipeline::UBOLocal::SIZE,
+                                              pipeline::UBOLocal::SIZE,
+                                              gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
+    }
+}
+
+void Model::initLocalSHDescriptors(index_t /*subModelIndex*/) {
+#if !CC_EDITOR
+    if (!_useLightProbe) {
+        return;
+    }
+#endif
+
+    if (_localSHData.empty()) {
+        _localSHData.reset(pipeline::UBOSH::COUNT);
+    }
+
+    if (!_localSHBuffer) {
+        _localSHBuffer = _device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOLocal::SIZE,
-            pipeline::UBOLocal::SIZE,
+            pipeline::UBOSH::SIZE,
+            pipeline::UBOSH::SIZE,
         });
     }
 }
 
 void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
     if (!_worldBoundBuffer) {
-        _worldBoundBuffer = _device->createBuffer({
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::DEVICE,
-            pipeline::UBOLocal::SIZE,
-            pipeline::UBOLocal::SIZE,
-        });
+        _worldBoundBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+                                                   gfx::MemoryUsageBit::DEVICE,
+                                                   pipeline::UBOWorldBound::SIZE,
+                                                   pipeline::UBOWorldBound::SIZE,
+                                                   gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
     }
 }
 
@@ -405,10 +478,24 @@ void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *de
     }
 }
 
+void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
+    if (isModelImplementedInJS()) {
+        if (!_isCalledFromJS) {
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_SH_DESCRIPTORS, subModelIndex, descriptorSet);
+            _isCalledFromJS = false;
+            return;
+        }
+    }
+
+    if (_localSHBuffer) {
+        descriptorSet->bindBuffer(pipeline::UBOSH::BINDING, _localSHBuffer);
+    }
+}
+
 void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS, subModelIndex, descriptorSet);
+            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS, subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
@@ -420,10 +507,6 @@ void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSe
 }
 
 void Model::updateLocalShadowBias() {
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 0] = _shadowBias;
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 1] = _shadowNormalBias;
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2] = 0;
-    _localData[pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 3] = 0;
     _localDataUpdated = true;
 }
 

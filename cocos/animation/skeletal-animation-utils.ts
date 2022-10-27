@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Mat4 } from '../core/math';
+import { Mat4 } from '../core';
 import { Node } from '../scene-graph/node';
 
 const stack: IJointTransform[] = [];

@@ -48,7 +48,7 @@ import { OS } from '../../pal/system-info/enum-type';
 import { macro } from '../core/platform/macro';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
-import { murmurhash2_32_gc } from '../core/algorithm/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../core';
 
 /**
  * @en Render pipeline information descriptor

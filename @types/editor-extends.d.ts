@@ -51,6 +51,8 @@ interface EditorExtendsComponent {
 interface EditorExtendsAsset {
     queryAssetInfo(uuid: string, callback: Function): any;
     getAssetInfoFromUrl(url: string): EditorAssetInfo;
+    saveDataToImage(buffer: Uint8Array | null, width: number, height: number, sceneName: string, fileName: string): any;
+    bakeReflectionProbe(files: string[], isHDR: boolean, sceneName:string, probeID: number, callback: Function): any
 }
 
 interface EditorExtendsUuid {

@@ -160,6 +160,24 @@ export enum NodeEventType {
     TRANSFORM_CHANGED = 'transform-changed',
 
     /**
+     * @en
+     * The event type for position, rotation, scale changed of ancestor nodes including current node.
+     * Use the type parameter as `Node.TransformBit` to check which part is changed
+     *
+     * @zh
+     * 祖先或当前节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 `Node.TransformBit` 中的哪一个来获取
+     */
+    ANCESTOR_TRANSFORM_CHANGED = 'ancestor-transform-changed',
+
+    /**
+     * @en
+     * The event occur when mobility changed.
+     * @zh
+     * 当可移动性改变时触发的事件
+     */
+    MOBILITY_CHANGED = 'mobility-changed',
+
+    /**
      * @en The event type for notifying the host scene has been changed for a persist node.
      * @zh 当场景常驻节点的场景发生改变时触发的事件，一般在切换场景过程中触发。
      */
@@ -267,4 +285,12 @@ export enum NodeEventType {
      * 当节点上移除组件时触发的事件
      */
     COMPONENT_REMOVED = 'component-removed',
+
+    /**
+     * @en
+     * The event occur when light probe changed in light probe group.
+     * @zh
+     * 当光照探针组组件的探针改变时触发的事件
+     */
+    LIGHT_PROBE_CHANGED = 'light-probe-changed',
 }

@@ -5,7 +5,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import legacyCC from '../../../predefine';
 import { Feature } from '../../system-info/enum-type';
 import { InputSourceButton, InputSourceDpad, InputSourceStick } from '../input-source';
-import { fastRemoveAt } from '../../../cocos/core/utils/array';
+import { js } from '../../../cocos/core';
 import { EventGamepad } from '../../../cocos/input/types';
 
 //#region button index alias
@@ -122,7 +122,7 @@ export class GamepadInputDevice {
         if (removeIndex === -1) {
             return;
         }
-        fastRemoveAt(GamepadInputDevice.all, removeIndex);
+        js.array.fastRemoveAt(GamepadInputDevice.all, removeIndex);
     }
     private static _getOrCreateInputDevice (id: number, connected: boolean): GamepadInputDevice {
         let device =  GamepadInputDevice.all.find((device) => device.deviceId === id);
