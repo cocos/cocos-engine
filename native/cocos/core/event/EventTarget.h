@@ -25,10 +25,10 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include "base/Macros.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
-
 
 namespace cc {
 namespace event {
@@ -232,9 +232,9 @@ public:
             newHandler->setMemberFuncAddr(std::forward<Fn>(func), nullptr);
         }
         if (useCapture) {
-            intl::listAppend<TargetEventListenerBase>(&_capturingHandlers, newHandler);
+            intl::listAppend<TargetEventListenerBase>(&_capturingHandlersMap[TgtEvent::TypeID()], newHandler);
         } else {
-            intl::listAppend<TargetEventListenerBase>(&_bubblingHandlers, newHandler);
+            intl::listAppend<TargetEventListenerBase>(&_bubblingHandlersMap[TgtEvent::TypeID()], newHandler);
         }
         return TargetEventID<TgtEvent>(newId);
     }
@@ -259,9 +259,9 @@ public:
             newHandler->setMemberFuncAddr(std::forward<Fn>(func), ctx);
         }
         if (useCapture) {
-            intl::listAppend<TargetEventListenerBase>(&_capturingHandlers, newHandler);
+            intl::listAppend<TargetEventListenerBase>(&_capturingHandlersMap[TgtEvent::TypeID()], newHandler);
         } else {
-            intl::listAppend<TargetEventListenerBase>(&_bubblingHandlers, newHandler);
+            intl::listAppend<TargetEventListenerBase>(&_bubblingHandlersMap[TgtEvent::TypeID()], newHandler);
         }
         return TargetEventID<TgtEvent>(newId);
     }
@@ -274,54 +274,69 @@ public:
     template <typename TgtEvent>
     bool off(TargetEventID<TgtEvent> eventId) {
         CC_ASSERT(!_emittingEvent);
-        EVENT_LIST_LOOP_REV_BEGIN(handle, _bubblingHandlers)
+
+        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
+
+        EVENT_LIST_LOOP_REV_BEGIN(handle, bubblingHandlers)
         if (handle && handle->id == eventId.value()) {
             CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());
-            intl::detachFromList(&_bubblingHandlers, handle);
+            intl::detachFromList(&bubblingHandlers, handle);
             delete handle;
             return true;
         }
-        EVENT_LIST_LOOP_REV_END(handle, _bubblingHandlers)
-        EVENT_LIST_LOOP_REV_BEGIN(handle, _capturingHandlers)
+        EVENT_LIST_LOOP_REV_END(handle, bubblingHandlers)
+        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
+        EVENT_LIST_LOOP_REV_BEGIN(handle, capturingHandlers)
         if (handle && handle->id == eventId.value()) {
             CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());
-            intl::detachFromList(&_capturingHandlers, handle);
+            intl::detachFromList(&capturingHandlers, handle);
             delete handle;
             return true;
         }
-        EVENT_LIST_LOOP_REV_END(handle, _capturingHandlers)
+        EVENT_LIST_LOOP_REV_END(handle, capturingHandlers)
         return false;
     }
 
     void offAll() {
         CC_ASSERT(!_emittingEvent);
-        EVENT_LIST_LOOP_REV_BEGIN(handle, _bubblingHandlers)
-        delete handle;
-        EVENT_LIST_LOOP_REV_END(handle, _bubblingHandlers)
+        for (auto &itr : _bubblingHandlersMap) {
+            TargetEventListenerBase *&handlers = itr.second;
+            EVENT_LIST_LOOP_REV_BEGIN(handle, handlers)
+            delete handle;
+            EVENT_LIST_LOOP_REV_END(handle, handlers)
+        }
 
-        EVENT_LIST_LOOP_REV_BEGIN(handle, _capturingHandlers)
-        delete handle;
-        EVENT_LIST_LOOP_REV_END(handle, _capturingHandlers)
-        _bubblingHandlers = nullptr;
-        _capturingHandlers = nullptr;
+        for (auto &itr : _capturingHandlersMap) {
+            TargetEventListenerBase *&handlers = itr.second;
+            EVENT_LIST_LOOP_REV_BEGIN(handle, handlers)
+            delete handle;
+            EVENT_LIST_LOOP_REV_END(handle, handlers)
+        }
+
+        _bubblingHandlersMap.clear();
+        _capturingHandlersMap.clear();
     }
 
     template <typename TgtEvent>
     void off() {
         static_assert(std::is_base_of_v<TgtEventTraitClass, TgtEvent>, "incorrect template argument");
         CC_ASSERT(!_emittingEvent);
-        EVENT_LIST_LOOP_REV_BEGIN(handle, _bubblingHandlers)
-        if (handle && handle->getEventTypeID() == TgtEvent::TypeID()) {
-            intl::detachFromList(&_bubblingHandlers, handle);
+        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
+
+        EVENT_LIST_LOOP_REV_BEGIN(handle, bubblingHandlers)
+        if (handle) {
+            intl::detachFromList(&bubblingHandlers, handle);
             delete handle;
         }
-        EVENT_LIST_LOOP_REV_END(handle, _bubblingHandlers)
-        EVENT_LIST_LOOP_REV_BEGIN(handle, _capturingHandlers)
-        if (handle && handle->getEventTypeID() == TgtEvent::TypeID()) {
-            intl::detachFromList(&_capturingHandlers, handle);
+        EVENT_LIST_LOOP_REV_END(handle, bubblingHandlers)
+
+        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
+        EVENT_LIST_LOOP_REV_BEGIN(handle, capturingHandlers)
+        if (handle) {
+            intl::detachFromList(&capturingHandlers, handle);
             delete handle;
         }
-        EVENT_LIST_LOOP_REV_END(handle, _capturingHandlers)
+        EVENT_LIST_LOOP_REV_END(handle, capturingHandlers)
     }
 
     template <typename TgtEvent, typename Self, typename... ARGS>
@@ -344,17 +359,19 @@ public:
         static_assert(std::is_same_v<event_type, EvtObj>, "Event type mismatch");
         _emittingEvent++;
         if constexpr (useCapture) {
-            EVENT_LIST_LOOP_BEGIN(handle, _capturingHandlers)
+            TargetEventListenerBase *&handlers = _capturingHandlersMap[TgtEvent::TypeID()];
+            EVENT_LIST_LOOP_BEGIN(handle, handlers)
             if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled()) {
                 static_cast<handler_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
             }
-            EVENT_LIST_LOOP_END(handle, _capturingHandlers);
+            EVENT_LIST_LOOP_END(handle, handlers);
         } else {
-            EVENT_LIST_LOOP_BEGIN(handle, _bubblingHandlers)
+            TargetEventListenerBase *&handlers = _bubblingHandlersMap[TgtEvent::TypeID()];
+            EVENT_LIST_LOOP_BEGIN(handle, handlers)
             if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled()) {
                 static_cast<handler_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
             }
-            EVENT_LIST_LOOP_END(handle, _bubblingHandlers);
+            EVENT_LIST_LOOP_END(handle, handlers);
         }
         _emittingEvent--;
     }
@@ -437,16 +454,18 @@ public:
 
     template <typename TgtEvent>
     bool hasEventHandler() {
-        EVENT_LIST_LOOP_BEGIN(handle, _bubblingHandlers)
-        if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled()) {
+        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
+        EVENT_LIST_LOOP_BEGIN(handle, bubblingHandlers)
+        if (handle && handle->isEnabled()) {
             return true;
         }
-        EVENT_LIST_LOOP_END(handle, _bubblingHandlers);
-        EVENT_LIST_LOOP_BEGIN(handle, _capturingHandlers)
-        if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled()) {
+        EVENT_LIST_LOOP_END(handle, bubblingHandlers);
+        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
+        EVENT_LIST_LOOP_BEGIN(handle, capturingHandlers)
+        if (handle && handle->isEnabled()) {
             return true;
         }
-        EVENT_LIST_LOOP_END(handle, _capturingHandlers);
+        EVENT_LIST_LOOP_END(handle, capturingHandlers);
         return false;
     }
 
@@ -456,26 +475,28 @@ public:
         using handler_type = event::TargetEventListener<TgtEvent>;
         static_assert(std::is_same<typename wrap_type::target_type, C>::value, "member function type mismatch");
 
-        EVENT_LIST_LOOP_BEGIN(handle, _bubblingHandlers)
-        if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled() && handle->getContext() == target) {
+        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
+        EVENT_LIST_LOOP_BEGIN(handle, bubblingHandlers)
+        if (handle && handle->isEnabled() && handle->getContext() == target) {
             auto *ptr = static_cast<handler_type *>(handle);
             return ptr->getMemberFuncAddr() == func;
         }
-        EVENT_LIST_LOOP_END(handle, _bubblingHandlers);
-        EVENT_LIST_LOOP_BEGIN(handle, _capturingHandlers)
-        if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled() && handle->getContext() == target) {
+        EVENT_LIST_LOOP_END(handle, bubblingHandlers);
+        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
+        EVENT_LIST_LOOP_BEGIN(handle, capturingHandlers)
+        if (handle && handle->isEnabled() && handle->getContext() == target) {
             auto *ptr = static_cast<handler_type *>(handle);
             return ptr->getMemberFuncAddr() == func;
         }
-        EVENT_LIST_LOOP_END(handle, _capturingHandlers);
+        EVENT_LIST_LOOP_END(handle, capturingHandlers);
 
         return false;
     }
     virtual ~EventTarget() { offAll(); }
 
 protected:
-    TargetEventListenerBase *_bubblingHandlers{nullptr};
-    TargetEventListenerBase *_capturingHandlers{nullptr};
+    std::unordered_map<size_t, TargetEventListenerBase *> _bubblingHandlersMap;
+    std::unordered_map<size_t, TargetEventListenerBase *> _capturingHandlersMap;
 
     target_event_id_type _handlerId{1};
     int _emittingEvent{0};
