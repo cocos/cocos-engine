@@ -159,7 +159,7 @@
 %import "base/memory/Memory.h"
 %import "base/RefCounted.h"
 
-%import "event/Event.h"
+%import "core/event/Event.h"
 
 %import "renderer/gfx-base/GFXObject.h"
 %import "renderer/gfx-base/GFXDef-common.h"

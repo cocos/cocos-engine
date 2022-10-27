@@ -185,7 +185,7 @@
 %import "base/Ptr.h"
 %import "base/memory/Memory.h"
 
-%import "event/Event.h"
+%import "core/event/Event.h"
 
 %include "core/Types.h"
 
