@@ -617,7 +617,7 @@ export class Model {
         }
 
         const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
-        if (!lightProbes || !lightProbes.available()) {
+        if (!lightProbes || lightProbes.empty()) {
             return false;
         }
 
@@ -647,12 +647,18 @@ export class Model {
         }
 
         const coefficients: Vec3[] = [];
-        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes!;
-        this._tetrahedronIndex = lightProbes.data!.getInterpolationSHCoefficients(center, this._tetrahedronIndex, coefficients);
-        legacyCC.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
+        const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
+        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+
         this._lastWorldBoundCenter.set(center);
+        this._tetrahedronIndex = lightProbes.data!.getInterpolationWeights(center, this._tetrahedronIndex, weights);
+        const result = lightProbes.data!.getInterpolationSHCoefficients(this._tetrahedronIndex, weights, coefficients);
+        if (!result) {
+            return;
+        }
 
         if (this._localSHData && this._localSHBuffer) {
+            legacyCC.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
             legacyCC.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
             this._localSHBuffer.update(this._localSHData);
         }
