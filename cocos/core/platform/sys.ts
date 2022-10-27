@@ -287,7 +287,7 @@ export const sys = {
     /**
      * @internal
      */
-    init () {
+    init (): Promise<void> {
         return Promise.resolve()
             .then(() => systemInfo.init())
             .then(() => {
