@@ -264,7 +264,7 @@ exports.ready = function() {
                     const max = LODs[index - 1] ? LODs[index - 1].value.screenUsagePercentage.value * 100 : 100;
                     // 如果 value > max，设置值为 max，避免影响到其他 lod
                     if (LODs[index].value.screenUsagePercentage.value > max / 100) {
-                        LODs[index].value.screenUsagePercentage.value = mx / 100;
+                        LODs[index].value.screenUsagePercentage.value = max / 100;
                         that.updateDump(LODs[index].value.screenUsagePercentage);
                     }
                     return max;
