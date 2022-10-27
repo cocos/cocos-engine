@@ -29,19 +29,17 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     _node: AudioState = AudioState.READY;
 
     //Note: If support WebAudio, use H5 audio element for streaming play, otherwise for dom play.
-    private _domAudio: HTMLAudioElement = new Audio();
+    // private _domAudio: HTMLAudioElement = new Audio();
 
     // Time relative
     private _cachedCurrentTime = 0;
-    private _volume = 1;
     private _isTranslating = false;
     private _eventTarget = new EventTarget();
     // Start time is used to calculate the current time immediatly and it always update when playbackRate is updated.
-    private _startTime = 0;
+    // private _startTime = 0;
 
     private _sourceNode: SourceNode;
-    private _gainNode: GainNode;
-    private _ctx: AudioContext;
+    // private _ctx: AudioContext;
     private _clip: AudioClip;
 
     constructor (clip: AudioClip, options?: PlayerOptions) {
@@ -59,14 +57,12 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         }
 
         this._clip = clip;
-        this._ctx = defaultContext;
-        this._gainNode = defaultContext.createGain();
-        this._sourceNode.connect(this._gainNode);
-        this._gainNode.connect(defaultContext.destination);
+        // this._ctx = defaultContext;
+
+        this._sourceNode.connect(defaultContext.destination);
         if (options) {
             if (options.volume) {
-                this._volume = options.volume;
-                this._gainNode.gain.value = options.volume;
+                this._sourceNode.volume = options.volume;
             }
             if (options.loop) {
                 this._sourceNode.loop = options.loop;
@@ -76,10 +72,25 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         systemInfo.on('show', this._onShow, this);
     }
     set clip (clip: AudioClip) {
-        throw new Error('Method not implemented.');
+        // throw new Error('Method not implemented.');
+        this._clip = clip;
+        const buffer = audioBufferManager.getCache(clip.nativeUrl);
+        if (buffer) {
+            this._sourceNode.buffer = buffer;
+            audioBufferManager.retainCache(clip.nativeUrl);
+        } else {
+            audioBufferManager.loadBuffer(clip.nativeUrl).then((buffer) => {
+                this._sourceNode.buffer = buffer;
+
+                audioBufferManager.retainCache(clip.nativeUrl);
+            }).catch(() => {
+                throw new Error('load buffer failed');
+            });
+        }
     }
     get clip (): AudioClip {
-        throw new Error('Method not implemented.');
+        // throw new Error('Method not implemented.');
+        return this._clip;
     }
     get state (): AudioState {
         return this._node;
@@ -133,12 +144,10 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         this._sourceNode.loop = val;
     }
     get volume (): number {
-        return this._volume;
+        return this._sourceNode.volume;
     }
     set volume (val: number) {
-        val = clamp01(val);
-        this._volume = val;
-        this._gainNode.gain.value = val;
+        this._sourceNode.volume = val;
     }
     get duration (): number {
         return this._clip.getDuration();

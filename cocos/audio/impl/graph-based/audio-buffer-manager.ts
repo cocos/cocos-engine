@@ -14,7 +14,6 @@ interface AudioBufferDataMap {
 class AudioBufferManager {
     //
     private _audioBufferDataMap: AudioBufferDataMap = {};
-    public webAudioSupport = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
     public addCache (url: string, audioBuffer: AudioBuffer) {
         const audioBufferData = this._audioBufferDataMap[url];
         if (audioBufferData) {
