@@ -29,7 +29,6 @@ import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } fro
 import { Camera } from '../render-scene/scene/camera';
 import { Mat4, Vec3, Vec4, Color, toRadian } from '../core/math';
 import { PipelineRuntime } from './custom/pipeline';
-import { legacyCC } from '../core/global-exports';
 import { CSMLevel, PCFType, Shadows, ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';
 import { DirectionalLight, SpotLight } from '../render-scene/scene';
@@ -37,6 +36,7 @@ import { RenderWindow } from '../render-scene/core/render-window';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
+import { cclegacy } from '../core';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -47,7 +47,7 @@ const _tempVec3 = new Vec3();
 
 export class PipelineUBO {
     public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
-        const director = legacyCC.director;
+        const director = cclegacy.director;
         const root = director.root;
         const fv = bufferView;
 
@@ -90,7 +90,7 @@ export class PipelineUBO {
 
     public static updateCameraUBOView (pipeline: PipelineRuntime, bufferView: Float32Array,
         camera: Camera) {
-        const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
+        const scene = camera.scene ? camera.scene : cclegacy.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
