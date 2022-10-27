@@ -253,9 +253,21 @@ exports.ready = function() {
                 const that = this;
                 const LODs = that.dump.value.LODs.value;
                 if (range === 'min') {
-                    return LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value * 100 : 0;
+                    const min = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value * 100 : 0;
+                    // 如果 value < min，设置值为 min，避免影响到其他 lod
+                    if (LODs[index].value.screenUsagePercentage.value < min / 100) {
+                        LODs[index].value.screenUsagePercentage.value = min / 100;
+                        that.updateDump(LODs[index].value.screenUsagePercentage);
+                    }
+                    return min;
                 } else if (range === 'max') {
-                    return LODs[index - 1] ? LODs[index - 1].value.screenUsagePercentage.value * 100 : 100;
+                    const max = LODs[index - 1] ? LODs[index - 1].value.screenUsagePercentage.value * 100 : 100;
+                    // 如果 value > max，设置值为 max，避免影响到其他 lod
+                    if (LODs[index].value.screenUsagePercentage.value > max / 100) {
+                        LODs[index].value.screenUsagePercentage.value = mx / 100;
+                        that.updateDump(LODs[index].value.screenUsagePercentage);
+                    }
+                    return max;
                 }
                 return null;
             },

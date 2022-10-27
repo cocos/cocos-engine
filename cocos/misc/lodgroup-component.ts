@@ -263,7 +263,11 @@ export class LODGroup extends Component {
      */
     @type([LOD])
     get LODs () : readonly LOD[] {
-        return this._LODs;
+        const tmp: LOD[] = [];
+        for (let i = 0; i < this.lodCount; i++) {
+            tmp[i] = this._LODs[i];
+        }
+        return tmp;
     }
 
     /**
