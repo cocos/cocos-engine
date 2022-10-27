@@ -57,6 +57,13 @@ class Edge {
         this.vertex1 = v1;
     }
 
+    public set (tet: number, i: number, v0: number, v1: number) {
+        this.tetrahedron = tet;
+        this.index = i;
+        this.vertex0 = v0;
+        this.vertex1 = v1;
+    }
+
     public isSame (other: Edge) {
         return ((this.vertex0 === other.vertex0 && this.vertex1 === other.vertex1)
                 || (this.vertex0 === other.vertex1 && this.vertex1 === other.vertex0));
@@ -88,6 +95,18 @@ class Triangle {
         this.vertex1 = v1;
         this.vertex2 = v2;
         this.vertex3 = v3;
+    }
+
+    public set (tet: number, i: number, v0: number, v1: number, v2: number, v3: number) {
+        this.tetrahedron = tet;
+        this.index = i;
+        this.vertex0 = v0;
+        this.vertex1 = v1;
+        this.vertex2 = v2;
+        this.vertex3 = v3;
+
+        this.invalid = false;
+        this.isOuterFace = true;
     }
 
     public isSame (other: Triangle) {
@@ -173,7 +192,7 @@ export class Tetrahedron {
     }
 
     public isInCircumSphere (point: Vec3) {
-        return Vec3.squaredDistance(point, this.sphere.center) < this.sphere.radiusSquared - EPSILON;
+        return Vec3.squaredDistance(point, this.sphere.center) < this.sphere.radiusSquared - 0.01; // EPSILON
     }
 
     public contain (vertexIndex: number) {
@@ -194,30 +213,27 @@ export class Delaunay {
     private _probes: Vertex[] = [];
     private _tetrahedrons: Tetrahedron[] = [];
 
+    private _triangles: Triangle[] = [];
+    private _edges: Edge[] = [];
+
     public getProbes () { return this._probes; }
     public getTetrahedrons () { return this._tetrahedrons; }
 
-    public build (points: Vec3[]) {
+    public build (probes: Vertex[]) {
+        this._probes = probes;
+
         this.reset();
-
-        const pointCount = points.length;
-        if (pointCount < 4) {
-            warnID(17000);
-            return;
-        }
-
-        for (let i = 0; i < points.length; i++) {
-            this._probes.push(new Vertex(points[i]));
-        }
-
         this.tetrahedralize();
         this.computeAdjacency();
         this.computeMatrices();
+
+        return this._tetrahedrons;
     }
 
     private reset () {
-        this._probes.length = 0;
         this._tetrahedrons.length = 0;
+        this._triangles.length = 0;
+        this._edges.length = 0;
     }
 
     /**
@@ -292,40 +308,56 @@ export class Delaunay {
         return center;
     }
 
+    private addTriangle (index: number, tet: number, i: number, v0: number, v1: number, v2: number, v3: number) {
+        if (index < this._triangles.length) {
+            this._triangles[index].set(tet, i, v0, v1, v2, v3);
+        } else {
+            this._triangles.push(new Triangle(tet, i, v0, v1, v2, v3));
+        }
+    }
+
+    private addEdge (index: number, tet: number, i: number, v0: number, v1: number) {
+        if (index < this._edges.length) {
+            this._edges[index].set(tet, i, v0, v1);
+        } else {
+            this._edges.push(new Edge(tet, i, v0, v1));
+        }
+    }
+
     private addProbe (vertexIndex: number) {
-        let triangles: Triangle[] = [];
         const probe = this._probes[vertexIndex];
 
+        let triangleIndex = 0;
         for (let i = 0; i < this._tetrahedrons.length; i++) {
             const tetrahedron = this._tetrahedrons[i];
             if (tetrahedron.isInCircumSphere(probe.position)) {
                 tetrahedron.invalid = true;
 
-                triangles.push(new Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
-                triangles.push(new Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
-                triangles.push(new Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
-                triangles.push(new Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
+                this.addTriangle(triangleIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
+                this.addTriangle(triangleIndex + 1, i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
+                this.addTriangle(triangleIndex + 2, i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
+                this.addTriangle(triangleIndex + 3, i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
+                triangleIndex += 4;
             }
         }
 
-        for (let i = 0; i < triangles.length; i++) {
-            for (let k = i + 1; k < triangles.length; k++) {
-                if (triangles[i].isSame(triangles[k])) {
-                    triangles[i].invalid = true;
-                    triangles[k].invalid = true;
+        for (let i = 0; i < triangleIndex; i++) {
+            for (let k = i + 1; k < triangleIndex; k++) {
+                if (this._triangles[i].isSame(this._triangles[k])) {
+                    this._triangles[i].invalid = true;
+                    this._triangles[k].invalid = true;
                 }
             }
         }
 
-        // remove all duplicated triangles.
-        triangles = triangles.filter((triangle) => !triangle.invalid);
-
         // remove containing tetrahedron
         this._tetrahedrons = this._tetrahedrons.filter((tetrahedron) => !tetrahedron.invalid);
 
-        for (let i = 0; i < triangles.length; i++) {
-            const triangle = triangles[i];
-            this._tetrahedrons.push(new Tetrahedron(this, triangle.vertex0, triangle.vertex1, triangle.vertex2, vertexIndex));
+        for (let i = 0; i < triangleIndex; i++) {
+            const triangle = this._triangles[i];
+            if (!triangle.invalid) {
+                this._tetrahedrons.push(new Tetrahedron(this, triangle.vertex0, triangle.vertex1, triangle.vertex2, vertexIndex));
+            }
         }
     }
 
@@ -335,8 +367,6 @@ export class Delaunay {
     }
 
     private computeAdjacency () {
-        const triangles: Triangle[] = [];
-        const edges: Edge[] = [];
         const normal = new Vec3(0.0, 0.0, 0.0);
         const edge1 = new Vec3(0.0, 0.0, 0.0);
         const edge2 = new Vec3(0.0, 0.0, 0.0);
@@ -344,32 +374,34 @@ export class Delaunay {
 
         const tetrahedronCount = this._tetrahedrons.length;
 
+        let triangleIndex = 0;
         for (let i = 0; i < this._tetrahedrons.length; i++) {
             const tetrahedron = this._tetrahedrons[i];
 
-            triangles.push(new Triangle(i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0));
-            triangles.push(new Triangle(i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1));
-            triangles.push(new Triangle(i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2));
-            triangles.push(new Triangle(i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3));
+            this.addTriangle(triangleIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
+            this.addTriangle(triangleIndex + 1, i, 1, tetrahedron.vertex0, tetrahedron.vertex2, tetrahedron.vertex3, tetrahedron.vertex1);
+            this.addTriangle(triangleIndex + 2, i, 2, tetrahedron.vertex0, tetrahedron.vertex3, tetrahedron.vertex1, tetrahedron.vertex2);
+            this.addTriangle(triangleIndex + 3, i, 3, tetrahedron.vertex0, tetrahedron.vertex1, tetrahedron.vertex2, tetrahedron.vertex3);
+            triangleIndex += 4;
         }
 
-        for (let i = 0; i < triangles.length; i++) {
-            for (let k = i + 1; k < triangles.length; k++) {
-                if (triangles[i].isSame(triangles[k])) {
+        for (let i = 0; i < triangleIndex; i++) {
+            for (let k = i + 1; k < triangleIndex; k++) {
+                if (this._triangles[i].isSame(this._triangles[k])) {
                     // update adjacency between tetrahedrons
-                    this._tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = triangles[k].tetrahedron;
-                    this._tetrahedrons[triangles[k].tetrahedron].neighbours[triangles[k].index] = triangles[i].tetrahedron;
-                    triangles[i].isOuterFace = false;
-                    triangles[k].isOuterFace = false;
+                    this._tetrahedrons[this._triangles[i].tetrahedron].neighbours[this._triangles[i].index] = this._triangles[k].tetrahedron;
+                    this._tetrahedrons[this._triangles[k].tetrahedron].neighbours[this._triangles[k].index] = this._triangles[i].tetrahedron;
+                    this._triangles[i].isOuterFace = false;
+                    this._triangles[k].isOuterFace = false;
                     break;
                 }
             }
 
-            if (triangles[i].isOuterFace) {
-                const probe0 = this._probes[triangles[i].vertex0];
-                const probe1 = this._probes[triangles[i].vertex1];
-                const probe2 = this._probes[triangles[i].vertex2];
-                const probe3 = this._probes[triangles[i].vertex3];
+            if (this._triangles[i].isOuterFace) {
+                const probe0 = this._probes[this._triangles[i].vertex0];
+                const probe1 = this._probes[this._triangles[i].vertex1];
+                const probe2 = this._probes[this._triangles[i].vertex2];
+                const probe3 = this._probes[this._triangles[i].vertex3];
 
                 Vec3.subtract(edge1, probe1.position, probe0.position);
                 Vec3.subtract(edge2, probe2.position, probe0.position);
@@ -387,33 +419,35 @@ export class Delaunay {
                 Vec3.add(probe2.normal, probe2.normal, normal);
 
                 // create an outer cell with normal facing out
-                const v0 = triangles[i].vertex0;
-                const v1 = negative > 0.0 ? triangles[i].vertex2 : triangles[i].vertex1;
-                const v2 = negative > 0.0 ? triangles[i].vertex1 : triangles[i].vertex2;
+                const v0 = this._triangles[i].vertex0;
+                const v1 = negative > 0.0 ? this._triangles[i].vertex2 : this._triangles[i].vertex1;
+                const v2 = negative > 0.0 ? this._triangles[i].vertex1 : this._triangles[i].vertex2;
                 const tetrahedron = new Tetrahedron(this, v0, v1, v2);
 
                 // update adjacency between tetrahedron and outer cell
-                tetrahedron.neighbours[3] = triangles[i].tetrahedron;
-                this._tetrahedrons[triangles[i].tetrahedron].neighbours[triangles[i].index] = this._tetrahedrons.length;
+                tetrahedron.neighbours[3] = this._triangles[i].tetrahedron;
+                this._tetrahedrons[this._triangles[i].tetrahedron].neighbours[this._triangles[i].index] = this._tetrahedrons.length;
                 this._tetrahedrons.push(tetrahedron);
             }
         }
 
         // start from outer cell index
+        let edgeIndex = 0;
         for (let i = tetrahedronCount; i < this._tetrahedrons.length; i++) {
             const tetrahedron = this._tetrahedrons[i];
 
-            edges.push(new Edge(i, 0, tetrahedron.vertex1, tetrahedron.vertex2));
-            edges.push(new Edge(i, 1, tetrahedron.vertex2, tetrahedron.vertex0));
-            edges.push(new Edge(i, 2, tetrahedron.vertex0, tetrahedron.vertex1));
+            this.addEdge(edgeIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex2);
+            this.addEdge(edgeIndex + 1, i, 1, tetrahedron.vertex2, tetrahedron.vertex0);
+            this.addEdge(edgeIndex + 2, i, 2, tetrahedron.vertex0, tetrahedron.vertex1);
+            edgeIndex += 3;
         }
 
-        for (let i = 0; i < edges.length; i++) {
-            for (let k = i + 1; k < edges.length; k++) {
-                if (edges[i].isSame(edges[k])) {
+        for (let i = 0; i < edgeIndex; i++) {
+            for (let k = i + 1; k < edgeIndex; k++) {
+                if (this._edges[i].isSame(this._edges[k])) {
                     // update adjacency between outer cells
-                    this._tetrahedrons[edges[i].tetrahedron].neighbours[edges[i].index] = edges[k].tetrahedron;
-                    this._tetrahedrons[edges[k].tetrahedron].neighbours[edges[k].index] = edges[i].tetrahedron;
+                    this._tetrahedrons[this._edges[i].tetrahedron].neighbours[this._edges[i].index] = this._edges[k].tetrahedron;
+                    this._tetrahedrons[this._edges[k].tetrahedron].neighbours[this._edges[k].index] = this._edges[i].tetrahedron;
                 }
             }
         }

@@ -32,3 +32,4 @@ export { MissingScript } from './missing-script';
 export { PrefabLink } from './prefab-link';
 /** deprecated */
 export * from './deprecated';
+export { LOD, LODGroup } from './lodgroup-component';

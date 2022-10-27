@@ -1215,7 +1215,7 @@ export class LightProbeInfo {
         return true;
     }
 
-    public update () {
+    public update (updateTet = true) {
         if (!legacyCC.internal.LightProbesData) {
             return;
         }
@@ -1227,7 +1227,7 @@ export class LightProbeInfo {
             }
         }
 
-        const probes: Vec3[] = [];
+        const points: Vec3[] = [];
         for (let i = 0; i < this._lightProbeGroups.length; i++) {
             const group = this._lightProbeGroups[i];
             if (!group.node) {
@@ -1240,11 +1240,22 @@ export class LightProbeInfo {
             for (let j = 0; j < count; j++) {
                 const position = new Vec3(0, 0, 0);
                 Vec3.add(position, group.probes[j], worldPosition);
-                probes.push(position);
+                points.push(position);
             }
         }
 
-        this._data!.build(probes);
+        const pointCount = points.length;
+        if (pointCount < 4) {
+            warnID(17000);
+            this._data!.reset();
+            return;
+        }
+
+        this._data!.updateProbes(points);
+
+        if (updateTet) {
+            this._data!.updateTetrahedrons();
+        }
     }
 }
 legacyCC.internal.LightProbeInfo = LightProbeInfo;

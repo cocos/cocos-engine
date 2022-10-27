@@ -191,9 +191,9 @@ export class LightProbeGroup extends Component {
         this.onProbeChanged();
     }
 
-    public onProbeChanged () {
-        if (this._probes.length > 0) {
-            this.node.scene.globals.lightProbeInfo.update();
+    public onProbeChanged (updateTet = true, emitEvent = true) {
+        this.node.scene.globals.lightProbeInfo.update(updateTet);
+        if (emitEvent) {
             this.node.emit(NodeEventType.LIGHT_PROBE_CHANGED);
         }
     }
