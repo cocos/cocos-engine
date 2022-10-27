@@ -27,21 +27,22 @@ THE SOFTWARE.
 
 namespace cc::gfx {
 
-static inline uint32_t align(uint32_t size, uint32_t alignment)
+template <typename T>
+static inline T align(T size, T alignment)
 {
     return ((size + alignment - 1) & (~(alignment - 1)));
 }
 
-Allocator::Allocator(AllocatorInfo info) : _info(info) {
+Allocator::Allocator(const AllocatorInfo &info) : _info(info) {
 }
 
-Allocator::Handle Allocator::allocateFromBlock(uint32_t blockIndex, uint32_t size) {
+Allocator::Handle Allocator::allocateFromBlock(uint32_t blockIndex, uint64_t size) {
     auto &block = _blocks[blockIndex];
     if (block.used + size > _info.blockSize) {
         return INVALID_HANDLE;
     }
 
-    uint32_t index = _allocations.size();
+    auto index = static_cast<uint32_t>(_allocations.size());
     _allocations.emplace_back(Allocation {
         blockIndex, block.used, size
     });
@@ -49,8 +50,8 @@ Allocator::Handle Allocator::allocateFromBlock(uint32_t blockIndex, uint32_t siz
     return index;
 }
 
-Allocator::Handle Allocator::allocate(uint32_t size, uint32_t alignment) {
-    uint32_t alignedSize = align(size, alignment);
+Allocator::Handle Allocator::allocate(uint64_t size, uint64_t alignment) {
+    uint64_t alignedSize = align(size, alignment);
     if (alignedSize > _info.blockSize) {
         return INVALID_HANDLE;
     }
@@ -65,7 +66,7 @@ Allocator::Handle Allocator::allocate(uint32_t size, uint32_t alignment) {
     }
 
     // allocate from blocks
-    uint32_t blockNum = static_cast<uint32_t>(_blocks.size());
+    auto blockNum = static_cast<uint32_t>(_blocks.size());
     for (uint32_t i = 0; i < blockNum; ++i) {
         Handle handle = allocateFromBlock(i, alignedSize);
         if (handle != INVALID_HANDLE) {
@@ -102,7 +103,7 @@ void Allocator::setBlockImpl(IBlock *impl) {
 }
 
 void Allocator::reset() {
-    uint32_t blockSize = static_cast<uint32_t>(_blocks.size());
+    auto blockSize = static_cast<uint32_t>(_blocks.size());
     for (uint32_t i = 0; i < blockSize; ++i) {
         if (_impl != nullptr) {
             _impl->freeBlock(i);
@@ -111,4 +112,4 @@ void Allocator::reset() {
     _blocks.clear();
 }
 
-}
+} // namespace cc::gfx

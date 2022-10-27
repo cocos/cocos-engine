@@ -130,13 +130,15 @@ MTLSizeAndAlign CCMTLBuffer::getSizeAndAlign() const {
     return [mtlDevice heapBufferSizeAndAlignWithLength:_size options:_mtlResourceOptions];
 }
 
-void CCMTLBuffer::initFromHeap(id<MTLHeap> heap, uint32_t alignedSize, uint32_t offset) {
-    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-
-    _gpuBuffer->mtlBuffer = [heap newBufferWithLength:alignedSize
-                                              options:_mtlResourceOptions
-                                               offset:offset];
-
+void CCMTLBuffer::initFromHeap(id<MTLHeap> heap, uint64_t alignedSize, uint64_t offset) {
+    if (@available(ios 13, macos 10.15, *)) {
+        _gpuBuffer->mtlBuffer = [heap newBufferWithLength:alignedSize
+                                                  options:_mtlResourceOptions
+                                                   offset:offset];
+    } else {
+        _gpuBuffer->mtlBuffer = [heap newBufferWithLength:alignedSize
+                                                  options:_mtlResourceOptions];
+    }
 //    auto address = [_gpuBuffer->mtlBuffer gpuAddress];
 }
 

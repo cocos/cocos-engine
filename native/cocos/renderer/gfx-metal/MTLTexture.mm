@@ -209,10 +209,12 @@ bool CCMTLTexture::createMTLTexture() {
     return _mtlTexture != nil;
 }
 
-void CCMTLTexture::initFromHeap(id<MTLHeap> heap, uint32_t offset) {
-    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-
-    _mtlTexture = [heap newTextureWithDescriptor:_descriptor offset:offset];
+void CCMTLTexture::initFromHeap(id<MTLHeap> heap, uint64_t offset) {
+    if (@available(ios 13, macos 10.15, *)) {
+        _mtlTexture = [heap newTextureWithDescriptor:_descriptor offset:offset];
+    } else {
+        _mtlTexture = [heap newTextureWithDescriptor:_descriptor];
+    }
     _mtlTextureView = _mtlTexture;
 }
 

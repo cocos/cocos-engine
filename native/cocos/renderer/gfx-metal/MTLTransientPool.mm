@@ -50,11 +50,14 @@ bool CCMTLTransientPool::allocateBlock() {
 
     MTLHeapDescriptor* heapDescriptor = [[MTLHeapDescriptor alloc] init];
     heapDescriptor.size = _info.blockSize;
-    heapDescriptor.type = MTLHeapTypePlacement;
     heapDescriptor.storageMode = MTLStorageModePrivate;  // no CPU and GPU coherency
     heapDescriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
-    heapDescriptor.hazardTrackingMode = MTLHazardTrackingModeTracked;
-
+    
+    if (@available(ios 13, macos 10.15, *)) {
+        heapDescriptor.type = MTLHeapTypePlacement;
+        heapDescriptor.hazardTrackingMode = MTLHazardTrackingModeTracked;
+    }
+    
     id<MTLHeap> heap = [device newHeapWithDescriptor:heapDescriptor];
     [heapDescriptor release];
 

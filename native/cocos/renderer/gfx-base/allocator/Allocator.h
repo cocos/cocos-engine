@@ -27,16 +27,17 @@ THE SOFTWARE.
 
 #include "base/std/container/vector.h"
 #include "base/std/container/list.h"
+#include <cstdint>
 
 namespace cc::gfx {
 
 struct AllocatorInfo {
-    uint32_t blockSize;
+    uint64_t blockSize;
 };
 
 class Allocator {
 public:
-    Allocator(AllocatorInfo info);
+    explicit Allocator(const AllocatorInfo &info);
     ~Allocator() = default;
 
     using Handle = uint32_t;
@@ -44,8 +45,8 @@ public:
 
     struct Allocation {
         uint32_t blockIndex;
-        uint32_t offset;
-        uint32_t size;
+        uint64_t offset;
+        uint64_t size;
     };
 
     class IBlock {
@@ -58,10 +59,10 @@ public:
     };
 
     struct Block {
-        uint32_t used;
+        uint64_t used;
     };
 
-    Handle allocate(uint32_t size, uint32_t alignment);
+    Handle allocate(uint64_t size, uint64_t alignment);
 
     void free(Handle);
 
@@ -72,7 +73,7 @@ public:
     void reset();
 
 private:
-    Handle allocateFromBlock(uint32_t blockIndex, uint32_t size);
+    Handle allocateFromBlock(uint32_t blockIndex, uint64_t size);
 
     AllocatorInfo _info;
     ccstd::vector<Block> _blocks;

@@ -59,7 +59,7 @@ public:
     inline bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     inline const DrawInfoList &getDrawInfos() const { return _drawInfos; }
 
-    void initFromHeap(id<MTLHeap> heap, uint32_t alignedSize, uint32_t offset);
+    void initFromHeap(id<MTLHeap> heap, uint64_t alignedSize, uint64_t offset);
     MTLSizeAndAlign getSizeAndAlign() const;
 
     void setAllocation(Allocator::Handle handle);

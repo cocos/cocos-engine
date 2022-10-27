@@ -63,7 +63,7 @@ public:
     static CCMTLTexture *getDefaultTexture();
     static void deleteDefaultTexture();
 
-    void initFromHeap(id<MTLHeap> heap, uint32_t offset);
+    void initFromHeap(id<MTLHeap> heap, uint64_t offset);
     MTLSizeAndAlign getSizeAndAlign() const;
 
     void setAllocation(Allocator::Handle handle);
@@ -84,7 +84,7 @@ protected:
 
     Allocator::Handle _allocation = Allocator::INVALID_HANDLE;
     MTLTextureDescriptor *_descriptor = nil;
-    
+
     id<MTLTexture> _mtlTexture = nil;
     id<MTLTexture> _mtlTextureView = nil;
 };
