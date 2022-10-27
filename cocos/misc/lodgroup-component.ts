@@ -538,7 +538,7 @@ export class LODGroup extends Component {
                         }
                     }
                 }
-                this._lodGroup.updateLOD(index, lod.lodData);
+                this._lodGroup.insertLOD(index, lod.lodData);
             });
         }
     }
