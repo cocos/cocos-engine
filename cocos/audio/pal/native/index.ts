@@ -1,5 +1,3 @@
-import { AudioPlayerX } from '../shared/audio-player';
+// import { AudioPlayer } from './audio-player';
 
-export const AudioPlayer = AudioPlayerX;
-export { AudioClip } from '../../audio-clip';
-export * from '../../type';
+export { AudioPlayer } from './audio-player';

@@ -26,13 +26,12 @@
 import { ccclass, serializable, override } from 'cc.decorator';
 import { Asset } from '../asset/assets/asset';
 import { legacyCC } from '../core/global-exports';
-import { AudioPCMHeader } from './type';
 
 export interface AudioMeta {
     // player: AudioPlayer | null,
     url: string;
     duration: number;
-    pcmHeader: AudioPCMHeader;
+
 }
 
 /**
@@ -45,7 +44,10 @@ export interface AudioMeta {
 export class AudioClip extends Asset {
     @serializable
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
-
+    constructor () {
+        super();
+        console.log(`create clip`);
+    }
     protected _meta: AudioMeta | null = null;
 
     public destroy (): boolean {
@@ -57,11 +59,10 @@ export class AudioClip extends Asset {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     set _nativeAsset (meta: AudioMeta | null) {
-        this._meta = meta;
         if (!meta) {
-            this._meta = null;
-            this._duration = 0;
+            return;
         }
+        this._meta = meta;
     }
     get _nativeAsset () : AudioMeta | null {
         return this._meta;

@@ -1,10 +1,3 @@
-enum AudioErrorCode {
-    LOAD_FAILED,
-    LOAD_REJECTED,
-    PLAY_FAILED,
-    PLAY_REJECTED,
-    //etc. TODO(timlyeee): Accomplish error mechanism
-}
 export enum AudioChannelMode{
     MAX,
     CLAMPEDMAX,
@@ -45,25 +38,20 @@ export enum AudioEvent {
 export interface PlayerOptions {
     loop?: boolean;
     volume?: number;
-    isDom?: boolean; //Only for web
+    noWebAudio?: boolean; //Only for web
 }
-export enum AudioContextState {
-    SUSPENDED,
-    RUNNING,
-    CLOSEDvb
+export interface AudioInfo {
+    duration: number;
 }
 
-export interface PCMHeader {
-    totalFrames: number;
-    sampleRate: number;
-    bytesPerFrame: number;
-    audioFormat: AudioFormat;
-    channelCount: number;
+export enum AudioType {
+    DOM_AUDIO,
+    WEB_AUDIO,
+    MINIGAME_AUDIO,
+    NATIVE_AUDIO,
+    UNKNOWN_AUDIO,
 }
-export interface AudioOperationResult {
-    success: boolean,
-    error: AudioErrorCode,
-}
+
 export type AudioBufferView = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 export enum AudioFormat {
     UNKNOWN,

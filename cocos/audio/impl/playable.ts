@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { AudioClip } from '../../audio-clip';
-import { AudioState } from '../../type';
+import { AudioClip } from '../audio-clip';
+import { AudioState } from '../type';
 
 /**
  * Link for action from one to another, for example play to pause, we treat action as AudioAction.PAUSE
@@ -54,14 +54,14 @@ export class TinyOGraph<T, ACTION> {
  * Responsable to state change of AudioPlayer.
  * The dynamic path will update each time a link is added.
  */
-export class DynamicPath<T, ACTION> {
+export abstract class DynamicPath<T, ACTION> {
     get currentNode (): T | null {
         return this._node;
     }
     _node: T | null = null;
     _graph : TinyOGraph<T, ACTION> | null = null;
     _dynamicPath: TinyOLink<T, ACTION>[] = [];
-    _innerOperation:((action: ACTION) => void) | undefined = undefined;
+    abstract _innerOperation(action: ACTION);
 
     _updatePathWithLink (src: T, dst: T, action: ACTION) {
         /**
@@ -125,20 +125,28 @@ export const StateLinks = [
 export const stateGraph = new TinyOGraph<AudioState, AudioAction>(StateLinks);
 
 export interface Playable {
-    set clip(clip: AudioClip);
-    get clip(): AudioClip;
-    set loop(loop: boolean);
-    get loop(): boolean;
-    set currentTime(time: number);
-    get currentTime(): number;
-    set volume(val: number);
-    get volume(): number;
-    set playbackRate(rate: number);
-    get playbackRate(): number;
-    set pan(pan: number);
-    get pan(): number;
-    get state(): AudioState;
+    // set clip(clip: AudioClip);
+    // get clip(): AudioClip;
+    clip: AudioClip;
+    // set loop(loop: boolean);
+    // get loop(): boolean;
+    loop: boolean;
+    // set currentTime(time: number);
+    // get currentTime(): number;
+    currentTime: number;
+    // set volume(val: number);
+    // get volume(): number;
+    volume: number;
+    // set playbackRate(rate: number);
+    // get playbackRate(): number;
+    playbackRate: number;
+    // set pan(pan: number);
+    // get pan(): number;
+    pan: number;
+    // get state(): AudioState;
+    readonly state: AudioState;
     play();
     pause();
     stop();
+    destroy();
 }

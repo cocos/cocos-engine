@@ -1,13 +1,11 @@
 import { clamp } from '../../../core/math';
-import { AudioClip } from '../../audio-clip';
-import { audioBufferManager } from './audio-buffer-manager';
 
 export const AudioContext =  window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
 // export const AudioBuffer = window.AudioBuffer || window.webkitAudioBuffer || window.mozAudioBuffer;
 // export const AudioNode = window.AudioNode || window.webkitAudioNode || window.mozAudioNode;
 // export const AudioDestinationNode = window.AudioDestinationNode || window.webkitAudioDestinationNode || window.mozAudioDestinationNode;
 // export const GainNode = window.GainNode || window.webkitGainNode || window.mozGainNode;
-
+export const defaultContext = new AudioContext();
 /**
  * SourceNode is a node that we eclaspe as a source, it contains absn and stream source node
  * When you hit sourcenode.start, it will automatically start to play with certain node.
@@ -24,18 +22,15 @@ export class SourceNode {
 
     private _cbLists: (() => void)[] = [];
     // private mediaStreamNode: MediaStreamAudioSourceNode;
-    constructor (ctx: AudioContext, url: string) {
+    constructor (ctx: AudioContext, buffer?: AudioBuffer) {
         // TODO(timlyeee): check frame count instead to choose absn or mediastream
         this._ctx = ctx;
         this._absn = ctx.createBufferSource();
         this._absn.addEventListener('ended', this._onEnded);
-
-        audioBufferManager.loadNative(ctx, url).then((buffer) => {
-            this._buffer = buffer;
+        if (buffer) {
             this._absn.buffer = buffer;
-        }).catch((err: Error) => {
-            console.error(err.message);
-        });
+            this._buffer = buffer;
+        }
     }
     // For ABSN implementation, if the buffer is loaded, then the audio is prepared to play.
     get isReady (): boolean { return !!this._buffer; }
@@ -47,6 +42,16 @@ export class SourceNode {
         this._absn.disconnect();
     }
 
+    set buffer (buffer: AudioBuffer) {
+        this._buffer = buffer;
+        this._absn.buffer = buffer;// TODO(timlyeee): For a running node, not quite sure how to reset it.
+    }
+    get buffer (): AudioBuffer {
+        if (!this._buffer) {
+            throw new Error('No buffer avaliable');
+        }
+        return this._buffer;
+    }
     set loop (val: boolean) {
         this._absn.loop = val;
     }

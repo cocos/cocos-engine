@@ -27,13 +27,13 @@
       "./@types/webGL.extras",
       "./@types/webGL2.extras",
       "./@types/url",
-      "./@types/audio",
       "./node_modules/@cocos/cannon/CANNON",
       "./node_modules/@cocos/bullet/bullet",
       "./node_modules/@cocos/physx/PhysX",
       "./node_modules/@types/jest/index",
 
       // pal
+      "./@types/pal/audio",
       "./@types/pal/system-info",
       "./@types/pal/screen-adapter",
       "./@types/pal/minigame",
@@ -46,5 +46,5 @@
       "exports/**/*.ts",
       "typedoc-index.ts",
       "**/pal/**/*.ts"
-  ]
+, "cocos/audio/impl/dom/player-dom.ts", "cocos/audio/impl/dom/audio-dom-manager.ts", "cocos/audio/impl/graph-based/audio-player.ts", "cocos/audio/impl/playable.ts", "cocos/audio/impl/audio-context/audio-player.ts", "cocos/audio/impl/graph-based/audio.ts", "cocos/audio/audio-buffer-manager.ts"  ]
 }

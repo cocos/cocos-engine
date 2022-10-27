@@ -1,24 +1,23 @@
-import { Playable } from '../shared/playable';
+import { Playable } from '../../impl/playable';
 import { AudioClip } from '../../audio-clip';
 import { AudioState, PlayerOptions } from '../../type';
-import { AudioPlayerDom } from './player-dom';
-import { AudioPlayerX } from '../shared/audio-player';
+import { AudioPlayerDom } from '../../impl/dom/audio-player-dom';
+import { AudioPlayerX } from '../../impl/graph-based/audio-player';
+import { CCObject } from '../../../core';
 
 const WebAudioSupport = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
-export abstract class AudioPlayer implements Playable {
-    private _isDom = false;
-    get isDom () {
-        return this._isDom;
-    }
+export class AudioPlayer implements Playable  {
+    public _useWebAudio = true;
+
     // Responsive to this._isDom, if true, use _domAudio to play the audio.
     // private transform () {
     //     //TODO(timlyeee) : transform between DOM and WebAudio.
     // }
     private _innerPlayer : Playable;
     constructor (clip: AudioClip, options?: PlayerOptions) {
-        if (options?.isDom || !WebAudioSupport) {
+        if (options?.noWebAudio || !WebAudioSupport) {
             this._innerPlayer = new AudioPlayerDom(clip, options);
-            this._isDom = true;
+            this._useWebAudio = false;
         } else {
             this._innerPlayer = new AudioPlayerX(clip, options);
         }
@@ -40,4 +39,5 @@ export abstract class AudioPlayer implements Playable {
     play () { this._innerPlayer.play(); }
     pause () { this._innerPlayer.pause(); }
     stop () { this._innerPlayer.stop(); }
+    destroy () { this._innerPlayer.destroy(); }
 }

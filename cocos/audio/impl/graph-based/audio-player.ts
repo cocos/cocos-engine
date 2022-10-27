@@ -1,12 +1,11 @@
 import { systemInfo } from 'pal/system-info';
-import { AudioContext, SourceNode } from './audio';
-import { DynamicPath, Playable, AudioAction } from './playable';
+import { AudioContext, SourceNode, defaultContext } from './audio';
+import { DynamicPath, Playable, AudioAction } from '../playable';
 import { AudioEvent, AudioState, PlayerOptions } from '../../type';
 import { AudioClip } from '../../audio-clip';
 import { EventTarget } from '../../../core/event';
 import { clamp, clamp01 } from '../../../core';
-
-export const defaultContext = new AudioContext();
+import { audioBufferManager } from './audio-buffer-manager';
 /**
  *
  */
@@ -14,9 +13,14 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     _innerOperation = (action: AudioAction) => {
         switch (action) {
         case AudioAction.PLAY:
-
+            this._sourceNode.startAt(this._cachedCurrentTime);
             break;
-
+        case AudioAction.PAUSE:
+            this._sourceNode.pause();
+            break;
+        case AudioAction.STOP:
+            this._sourceNode.stop();
+            break;
         default:
             break;
         }
@@ -42,11 +46,23 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
 
     constructor (clip: AudioClip, options?: PlayerOptions) {
         super();
-        this._sourceNode = new SourceNode(defaultContext, clip._nativeUrl);
+        const buffer = audioBufferManager.getCache(clip.nativeUrl);
+        if (buffer) {
+            this._sourceNode = new SourceNode(defaultContext, buffer);
+        } else {
+            this._sourceNode = new SourceNode(defaultContext);
+            audioBufferManager.loadBuffer(clip.nativeUrl).then((buffer) => {
+                this._sourceNode.buffer = buffer;
+            }).catch(() => {
+                console.error(`buffer load failed with no reason`);
+            });
+        }
+
         this._clip = clip;
         this._ctx = defaultContext;
         this._gainNode = defaultContext.createGain();
-
+        this._sourceNode.connect(this._gainNode);
+        this._gainNode.connect(defaultContext.destination);
         if (options) {
             if (options.volume) {
                 this._volume = options.volume;
@@ -140,7 +156,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
             this._updatePathWithLink(this._node, AudioState.PLAYING, AudioAction.PLAY);
             return;
         }
-        this._isTranslating;
+        this._isTranslating = true;
         this._innerOperation(AudioAction.PLAY);
     }
 
@@ -150,7 +166,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
             this._updatePathWithLink(this._node, AudioState.PAUSED, AudioAction.PAUSE);
             return;
         }
-        this._isTranslating;
+        this._isTranslating = true;
         this._innerOperation(AudioAction.PAUSE);
     }
 
@@ -160,7 +176,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
             this._updatePathWithLink(this._node, AudioState.STOPPED, AudioAction.STOP);
             return;
         }
-        this._isTranslating;
+        this._isTranslating = true;
         this._innerOperation(AudioAction.STOP);
     }
 

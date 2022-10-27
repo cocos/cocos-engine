@@ -1,18 +1,20 @@
+import { defaultContext } from './audio';
+
 interface CachedAudioBufferData {
     usedCount: number,
     audioBuffer: AudioBuffer,
 }
-
 interface AudioBufferDataMap {
-    [url: string]: CachedAudioBufferData;
+    [url: string]: CachedAudioBufferData
 }
 
 /**
- * This is a manager to manage the cache of audio buffer for web audio.
+ * This is a manager to manage the cache of audio buffer for web audio and dom audio.
  */
 class AudioBufferManager {
+    //
     private _audioBufferDataMap: AudioBufferDataMap = {};
-
+    public webAudioSupport = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
     public addCache (url: string, audioBuffer: AudioBuffer) {
         const audioBufferData = this._audioBufferDataMap[url];
         if (audioBufferData) {
@@ -49,11 +51,11 @@ class AudioBufferManager {
             delete this._audioBufferDataMap[url];
         }
     }
-    public loadNative (ctx: AudioContext, url: string): Promise<AudioBuffer> {
+    public loadBuffer (url: string): Promise<AudioBuffer> {
         return new Promise((resolve, reject) => {
-            const cachedAudioBuffer = audioBufferManager.getCache(url);
+            const cachedAudioBuffer = this.getCache(url);
             if (cachedAudioBuffer) {
-                audioBufferManager.retainCache(url);
+                this.retainCache(url);
                 resolve(cachedAudioBuffer);
                 return;
             }
@@ -64,10 +66,16 @@ class AudioBufferManager {
 
             xhr.onload = () => {
                 if (xhr.status === 200 || xhr.status === 0) {
-                    ctx.decodeAudioData(xhr.response).then((decodedAudioBuffer) => {
-                        audioBufferManager.addCache(url, decodedAudioBuffer);
-                        resolve(decodedAudioBuffer);
-                    }).catch((e) => {});
+                    const arrBuf: ArrayBuffer = xhr.response;
+                    defaultContext.decodeAudioData(arrBuf,
+                        null,
+                        () => { console.log('decode failed'); })
+                        .then((decodedAudioBuffer) => {
+                            this.addCache(url, decodedAudioBuffer);
+                            resolve(decodedAudioBuffer);
+                        }).catch((e) => {
+                            console.error(`decode audio data failed, with error data${e.toString()}`);
+                        });
                 } else {
                     reject(new Error(`${errInfo}${xhr.status}(no response)`));
                 }

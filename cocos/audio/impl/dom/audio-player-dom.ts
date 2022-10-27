@@ -23,20 +23,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import { systemInfo } from 'pal/system-info';
-import { DynamicPath, Playable, AudioAction, stateGraph, StateLinks, TinyOGraph, TinyOLink } from '../../inner/playable';
+import { DynamicPath, Playable, AudioAction, stateGraph, StateLinks, TinyOGraph, TinyOLink } from '../playable';
 import { AudioClip } from '../../audio-clip';
 import { EventTarget } from '../../../core/event';
 import { AudioEvent, AudioState, PlayerOptions } from '../../type';
 import { clamp, clamp01 } from '../../../core';
+import { domAudioPool } from './audio-pool-dom';
 
-export function playOneShot (clip: AudioClip, volumeScale: number) {
-
-}
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     return new Promise((resolve) => {
         const promise = domAudio.play();
         if (promise === undefined) {  // Chrome50/Firefox53 below
-            return resolve();
+            resolve();
         }
         promise.then(resolve).catch(() => {
             const onGesture = () => {
@@ -48,6 +46,13 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
             canvas?.addEventListener('mousedown', onGesture, { once: true });
         });
         return null;
+    });
+}
+export function playOneShot (clip: AudioClip, volumeScale: number) {
+    const audio = new Audio(clip.nativeUrl);
+    audio.volume = volumeScale;
+    ensurePlaying(audio).catch(() => {
+        console.log('play failed');
     });
 }
 
@@ -76,17 +81,23 @@ export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> impleme
         }
     }
     private _clip: AudioClip;
+    private _onEnded: () => void;
     constructor (clip: AudioClip, options?: PlayerOptions) {
         super();
         this._clip = clip;
-        // TODO(timlyeee): AudioContext pool for reused audio.
-        this._domAudio = new Audio(clip.nativeUrl);
-        this._domAudio.src = clip.nativeUrl;
+        // clip.nativeUrl is exactly the same as meta data.
+        this._domAudio = domAudioPool.alloc(clip.nativeUrl);
 
         // event
         systemInfo.on('hide', this._onHide, this);
         systemInfo.on('show', this._onShow, this);
-
+        this._onEnded = () => {
+            console.log(`on end`);
+            this.currentTime = 0;
+            this._cleanPath();
+            this._forceSetNode(AudioState.READY);
+            this._eventTarget.emit(AudioEvent.ENDED);
+        };
         this._domAudio.addEventListener('ended', this._onEnded);
     }
     set clip (clip: AudioClip) {
@@ -110,17 +121,11 @@ export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> impleme
     }
 
     destroy () {
+        // console.log(`ondestroy`);
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
         this._domAudio.removeEventListener('ended', this._onEnded);
-        // @ts-expect-error need to release DOM Audio instance
-        this._domAudio = null;
-    }
-    private _onEnded () {
-        this.currentTime = 0;
-        this._cleanPath();
-        this._forceSetNode(AudioState.READY);
-        this._eventTarget.emit(AudioEvent.ENDED);
+        domAudioPool.dealloc(this.clip._nativeUrl, this._domAudio);
     }
     private _onHide () {
         // Hide is a special state that if is playing, all translate to Interrupted state.
@@ -130,7 +135,7 @@ export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> impleme
                 this._updatePathWithLink(this._node, AudioState.INTERRUPTED, AudioAction.PAUSE);
                 return;
             }
-            this._isTranslating;
+            this._isTranslating = true;
             this._innerOperation(AudioAction.PAUSE);
             this._node = AudioState.INTERRUPTED;
         }
@@ -181,7 +186,7 @@ export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> impleme
             this._updatePathWithLink(this._node, AudioState.PLAYING, AudioAction.PLAY);
             return;
         }
-        this._isTranslating;
+        this._isTranslating = true;
         this._innerOperation(AudioAction.PLAY);
     }
 
@@ -191,7 +196,7 @@ export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> impleme
             this._updatePathWithLink(this._node, AudioState.PAUSED, AudioAction.PAUSE);
             return;
         }
-        this._isTranslating;
+        this._isTranslating = true;
         this._innerOperation(AudioAction.PAUSE);
     }
 
@@ -201,7 +206,7 @@ export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> impleme
             this._updatePathWithLink(this._node, AudioState.STOPPED, AudioAction.STOP);
             return;
         }
-        this._isTranslating;
+        this._isTranslating = true;
         this._innerOperation(AudioAction.STOP);
     }
     private _domAudio: HTMLAudioElement;
