@@ -322,9 +322,15 @@ const Elements = {
                 }
 
                 contentRender.__panels__ = Array.from(contentRender.children);
-                for (const $panel of contentRender.__panels__) {
-                    $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
-                    await $panel.update(panel.assetList, panel.metaList);
+                try {
+                    await Promise.all(
+                        contentRender.__panels__.map(($panel) => {
+                            $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
+                            return $panel.update(panel.assetList, panel.metaList);
+                        }),
+                    );
+                } catch (err) {
+                    console.error(err);
                 }
             }
         },
