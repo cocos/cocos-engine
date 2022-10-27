@@ -37,7 +37,6 @@ import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
-import { Tetrahedron, Vertex } from '../gi/light-probe/delaunay';
 import { LightProbeGroup } from '../gi/light-probe/light-probe-group';
 
 const _up = new Vec3(0, 1, 0);
@@ -1217,8 +1216,12 @@ export class LightProbeInfo {
     }
 
     public update () {
+        if (!legacyCC.internal.LightProbesData) {
+            return;
+        }
+
         if (!this._data) {
-            this._data = new LightProbesData();
+            this._data = new legacyCC.internal.LightProbesData();
             if (this._resource) {
                 this._resource.data = this._data;
             }
@@ -1241,10 +1244,10 @@ export class LightProbeInfo {
             }
         }
 
-        this._data.build(probes);
+        this._data!.build(probes);
     }
 }
-//legacyCC.LightProbeInfo = LightProbeInfo;
+legacyCC.internal.LightProbeInfo = LightProbeInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -1306,7 +1309,7 @@ export class SceneGlobals {
      */
     @editable
     @serializable
-    public lightProbeInfo = new LightProbeInfo();
+    public lightProbeInfo = legacyCC.internal.LightProbeInfo ? new legacyCC.internal.LightProbeInfo() : null;
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
@@ -1320,7 +1323,9 @@ export class SceneGlobals {
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
-        this.lightProbeInfo.activate(sceneData.lightProbes);
+        if (this.lightProbeInfo && sceneData.lightProbes) {
+            this.lightProbeInfo.activate(sceneData.lightProbes);
+        }
 
         const root = legacyCC.director.root as Root;
         root.onGlobalPipelineStateChanged();

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Pool } from './core/memop';
+import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
 import { DebugView } from './rendering/debug-view';
 import { Camera, Light, Model } from './render-scene/scene';
@@ -33,16 +33,12 @@ import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene'
 import { DirectionalLight } from './render-scene/scene/directional-light';
 import { SphereLight } from './render-scene/scene/sphere-light';
 import { SpotLight } from './render-scene/scene/spot-light';
-import { legacyCC } from './core/global-exports';
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager } from './gfx';
-import { warnID } from './core/platform/debug';
 import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
-import { settings, Settings } from './core/settings';
 import { localDescriptorSetLayout_ResizeMaxJoints } from './rendering/define';
-import { macro } from './core/platform/macro';
 
 /**
  * @en Initialization information for the Root
@@ -119,7 +115,7 @@ export class Root {
      * 启用自定义渲染管线
      */
     public get usesCustomPipeline (): boolean {
-        return this._usesCustomPipeline && macro.CUSTOM_PIPELINE_NAME !== '';
+        return this._usesCustomPipeline;
     }
 
     /**
@@ -282,7 +278,7 @@ export class Root {
      */
     constructor (device: Device) {
         this._device = device;
-        this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
+        this._dataPoolMgr = cclegacy.internal.DataPoolManager && new cclegacy.internal.DataPoolManager(device) as DataPoolManager;
 
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
@@ -386,8 +382,8 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (this.usesCustomPipeline && legacyCC.rendering) {
-            this._customPipeline = legacyCC.rendering.createCustomPipeline();
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this.usesCustomPipeline) {
+            this._customPipeline = cclegacy.rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {
@@ -412,14 +408,14 @@ export class Root {
         //-----------------------------------------------
         // pipeline initialization completed
         //-----------------------------------------------
-        const scene = legacyCC.director.getScene();
+        const scene = cclegacy.director.getScene();
         if (scene) {
             scene.globals.activate();
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._batcher && legacyCC.internal.Batcher2D) {
-            this._batcher = new legacyCC.internal.Batcher2D(this);
+        if (!this._batcher && cclegacy.internal.Batcher2D) {
+            this._batcher = new cclegacy.internal.Batcher2D(this);
             if (!this._batcher!.initialize()) {
                 this.destroy();
                 return false;
@@ -501,7 +497,7 @@ export class Root {
         if (this._pipeline && cameraList.length > 0) {
             this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
-            const stamp = legacyCC.director.getTotalFrames();
+            const stamp = cclegacy.director.getTotalFrames();
             if (this._batcher) {
                 this._batcher.update();
                 this._batcher.uploadBuffers();
@@ -511,13 +507,13 @@ export class Root {
                 scenes[i].update(stamp);
             }
 
-            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_COMMIT);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {
                 cameraList[i].geometryRenderer?.update();
             }
-            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
+            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_RENDER);
             this._pipeline.render(cameraList);
             this._device.present();
         }
@@ -720,4 +716,4 @@ export class Root {
     }
 }
 
-legacyCC.Root = Root;
+cclegacy.Root = Root;

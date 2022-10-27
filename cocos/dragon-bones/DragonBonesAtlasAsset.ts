@@ -29,7 +29,7 @@ import { ccclass, serializable, type } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { Asset, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 
@@ -121,4 +121,4 @@ export class DragonBonesAtlasAsset extends Asset {
     }
 }
 
-legacyCC.internal.DragonBonesAtlasAsset = DragonBonesAtlasAsset;
+cclegacy.internal.DragonBonesAtlasAsset = DragonBonesAtlasAsset;

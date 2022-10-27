@@ -37,7 +37,7 @@ import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
 import { CannonContactEquation } from './cannon-contact-equation';
 import { CannonConstraint } from './constraints/cannon-constraint';
-import { fastRemoveAt } from '../../core/utils/array';
+import { js } from '../../core';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
@@ -151,7 +151,7 @@ export class CannonSharedBody {
     removeShape (v: CannonShape) {
         const index = this.wrappedShapes.indexOf(v);
         if (index >= 0) {
-            fastRemoveAt(this.wrappedShapes, index);
+            js.array.fastRemoveAt(this.wrappedShapes, index);
             this.body.removeShape(v.impl);
             v.setIndex(-1);
             if (this.body.isSleeping()) this.body.wakeUp();
@@ -171,10 +171,10 @@ export class CannonSharedBody {
     removeJoint (v: CannonConstraint, type: 0 | 1) {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints1, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints1, i);
         } else {
             const i = this.wrappedJoints0.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints0, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints0, i);
         }
     }
 

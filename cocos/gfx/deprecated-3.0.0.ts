@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
-import { legacyCC } from '../core/global-exports';
+import { replaceProperty, removeProperty, cclegacy } from '../core';
 
 // Deprecated CC polyfill
 const polyfills = {
@@ -98,17 +97,17 @@ for (const name in polyfills) {
         newName = name;
     }
     // Deprecation
-    replaceProperty(legacyCC, 'cc', [
+    replaceProperty(cclegacy, 'cc', [
         {
             name,
             newName,
-            target: legacyCC.gfx,
+            target: cclegacy.gfx,
             targetName: 'cc.gfx',
         },
     ]);
 }
 
-removeProperty(legacyCC, 'cc', [
+removeProperty(cclegacy, 'cc', [
     { name: 'GFX_MAX_VERTEX_ATTRIBUTES' },
     { name: 'GFX_MAX_TEXTURE_UNITS' },
     { name: 'GFX_MAX_ATTACHMENTS' },

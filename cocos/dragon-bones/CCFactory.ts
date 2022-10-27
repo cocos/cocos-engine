@@ -25,14 +25,13 @@
 
 import { EDITOR } from 'internal:constants';
 import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
-import { ISchedulable, Scheduler, System } from '../core';
+import { ISchedulable, Scheduler, System, cclegacy } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureAtlasData } from './CCTextureData';
 import { TextureBase } from '../asset/assets/texture-base';
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
-import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph';
 import { director, Game, game } from '../game';
 
@@ -92,7 +91,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
     }
 
     update (dt: number) {
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if (EDITOR && !cclegacy.GAME_VIEW) return;
         this._dragonBones.advanceTime(dt);
     }
 

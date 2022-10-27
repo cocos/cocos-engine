@@ -78,6 +78,14 @@ namespace cc { namespace gfx {
 
 %ignore Device::copyBuffersToTexture;
 %ignore Device::copyTextureToBuffers;
+%ignore Device::createBuffer;
+%ignore Device::createTexture;
+%ignore Device::getInstance;
+%ignore Device::setOptions;
+%ignore Device::getOptions;
+
+%ignore DeviceManager::isDetachDeviceThread;
+%ignore DeviceManager::getGFXName;
 
 %ignore FormatInfo;
 
@@ -175,6 +183,7 @@ namespace cc { namespace gfx {
 %attribute(cc::gfx::InputAssembler, uint32_t, firstIndex, getFirstIndex, setFirstIndex);
 %attribute(cc::gfx::InputAssembler, uint32_t, vertexOffset, getVertexOffset, setVertexOffset);
 %attribute(cc::gfx::InputAssembler, uint32_t, instanceCount, getInstanceCount, setInstanceCount);
+%attribute(cc::gfx::InputAssembler, uint32_t, firstInstance, getFirstInstance, setFirstInstance);
 
 // CommandBuffer
 %attribute(cc::gfx::CommandBuffer, cc::gfx::CommandBufferType, type, getType);

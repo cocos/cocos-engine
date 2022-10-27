@@ -27,8 +27,7 @@ import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, me
 import { EDITOR } from 'internal:constants';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Component } from '../../scene-graph/component';
-import { CCInteger } from '../../core/data/utils/attribute';
-import { Vec3 } from '../../core/math';
+import { Vec3, CCInteger } from '../../core';
 import { AutoPlacement, PlaceMethod } from './auto-placement';
 
 /**

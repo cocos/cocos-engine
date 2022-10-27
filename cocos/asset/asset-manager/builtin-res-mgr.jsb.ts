@@ -29,6 +29,7 @@ import type { ImageSource }  from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
 import { TEST, EDITOR } from 'internal:constants';
+import Bundle from '../asset-manager/bundle';
 import { Settings, settings } from '../../core/settings';
 import releaseManager from '../asset-manager/release-manager';
 
@@ -80,6 +81,27 @@ builtinResMgrProto.init = function (): Promise<void> {
         spriteFrame._uuid = 'default-spriteframe';
         resources[spriteFrame._uuid] = spriteFrame;
     }
+    if (EDITOR) {
+        const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+        const builtinBundle = new Bundle();
+        builtinBundle.init({
+            name: BuiltinBundleName.INTERNAL,
+            uuids: builtinAssets || [],
+            deps: [],
+            importBase: '',
+            nativeBase: '',
+            base: '',
+            paths: {},
+            scenes: {},
+            packs: {},
+            versions: { import: [], native: [] },
+            redirect: [],
+            debug: false,
+            types: [],
+            extensionMap: {},
+        });
+    }
+
 
     this.initBuiltinRes();
 };
