@@ -24,7 +24,7 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, readOnly, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCBoolean, Color, Enum, Vec3 } from '../core';
+import { CCBoolean, CCObject, Color, Enum, Vec3 } from '../core';
 import { BufferTextureCopy } from '../gfx/base/define';
 
 import { deviceManager } from '../gfx';
@@ -131,9 +131,17 @@ export class ReflectionProbe extends Component {
 
         if (this._probeType === ProbeType.CUBE) {
             this.probe.switchProbeType(value);
-        } else if (!this._sourceCamera) {
-            console.error('the reflection camera is invalid, please set the reflection camera');
-        } else {
+            if (EDITOR) {
+                this._objFlags |= CCObject.Flags.IsRotationLocked;
+            }
+        }  else {
+            if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
+                this._objFlags ^= CCObject.Flags.IsRotationLocked;
+            }
+            if (!this._sourceCamera) {
+                console.error('the reflection camera is invalid, please set the reflection camera');
+                return;
+            }
             this.probe.switchProbeType(value, this._sourceCamera.camera);
         }
     }
