@@ -99,7 +99,7 @@ public:
     float getIlluminance() const;
     void setIlluminance(float value);
 
-    inline static const float CSM_TRANSITION_RANGE{ 0.05F };
+    inline static const float CSM_TRANSITION_RANGE{0.05F};
 
 private:
     void activate() const;

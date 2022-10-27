@@ -27,7 +27,7 @@ void main()  {
             #if CC_CASCADED_LAYERS_TRANSITION
               csmLayer = CCGetCSMLevel(transitionArea, ratio, csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
             #else
-              csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.surfaceData.worldPos);
+              csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
             #endif
             bool OutOfRange = csmLayer < 0;
             if (OutOfRange)

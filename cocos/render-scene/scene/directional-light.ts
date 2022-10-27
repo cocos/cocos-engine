@@ -331,7 +331,7 @@ export class DirectionalLight extends Light {
         if (this._shadowEnabled) {
             if (this._shadowFixedArea || !pipeline.pipelineSceneData.csmSupported) {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
-            } else if (this.csmLevel > 1) {
+            } else if (this.csmLevel > 1 && pipeline.pipelineSceneData.csmSupported) {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 2;
                 pipeline.macros.CC_CASCADED_LAYERS_TRANSITION = this._csmLayersTransition;
             } else {
