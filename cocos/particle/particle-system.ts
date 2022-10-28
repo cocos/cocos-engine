@@ -24,12 +24,12 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, boolean } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Renderer } from '../core/components/renderer';
 import { ModelRenderer } from '../core/components/model-renderer';
 import { Material } from '../core/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { Mat4, pseudoRandom, Quat, random, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { scene } from '../core/renderer';
 import ColorOverLifetimeModule from './animator/color-overtime';
@@ -48,14 +48,14 @@ import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
-import { PARTICLE_MODULE_PROPERTY } from './particle';
+import { Particle, PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
-import { CCBoolean, CCFloat } from '../core';
+import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -712,6 +712,254 @@ export class ParticleSystem extends ModelRenderer {
     @tooltip('i18n:particle_system.renderer')
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
+    @type(CCBoolean)
+    public get useSubEmitter () {
+        return this._useSubEmitter;
+    }
+
+    public set useSubEmitter (value) {
+        this._useSubEmitter = value;
+    }
+
+    @serializable
+    private _useSubEmitter = false;
+
+    @type(CCBoolean)
+    public get subBase () {
+        return this._subBase;
+    }
+
+    public set subBase (value) {
+        this._subBase = value;
+    }
+
+    @serializable
+    private _subBase = false;
+
+    @type(CCBoolean)
+    @visible(function (this: ParticleSystem): boolean { return this._subBase; })
+    public get actDie () {
+        return this._actDie;
+    }
+
+    public set actDie (value) {
+        this._actDie = value;
+    }
+
+    @serializable
+    private _actDie = false;
+
+    @type(CCBoolean)
+    @visible(function (this: ParticleSystem): boolean { return this._subBase; })
+    public get inheritColor () {
+        return this._inheritColor;
+    }
+
+    public set inheritColor (value) {
+        this._inheritColor = value;
+    }
+
+    @serializable
+    private _inheritColor = false;
+
+    @type(CCBoolean)
+    @visible(function (this: ParticleSystem): boolean { return this._subBase; })
+    public get inheritVelocity () {
+        return this._inheritVelocity;
+    }
+
+    public set inheritVelocity (value) {
+        this._inheritVelocity = value;
+    }
+
+    @serializable
+    private _inheritVelocity = false;
+
+    @type(CCFloat)
+    @visible(function (this: ParticleSystem): boolean { return this._subBase; })
+    public get subPercent () {
+        return this._subPercent;
+    }
+
+    public set subPercent (value) {
+        this._subPercent = value;
+    }
+
+    @serializable
+    private _subPercent = 1.0;
+
+    private copyEmitter (subSrc: ParticleSystem, i: number) {
+        const subNode = new Node(subSrc.name + i.toString());
+        subNode.setParent(this.node);
+        subNode.addComponent(ParticleSystem);
+        subNode.setRotation(this.node.children[0].rotation);
+        const sub = subNode.components[0] as ParticleSystem;
+        sub._parentEmitter = this;
+
+        sub.loop = subSrc.loop;
+        sub.capacity = subSrc.capacity;
+        sub.playOnAwake = subSrc.playOnAwake;
+        sub.prewarm = subSrc.prewarm;
+        sub.simulationSpace = subSrc.simulationSpace;
+        sub.scaleSpace = subSrc.scaleSpace;
+        sub.actDie = subSrc.actDie;
+        sub.inheritColor = subSrc.inheritColor;
+        sub.inheritVelocity = subSrc.inheritVelocity;
+        Object.assign(sub.startColor, subSrc.startColor);
+        Object.assign(sub.startDelay, subSrc.startDelay);
+        Object.assign(sub.startLifetime, subSrc.startLifetime);
+        Object.assign(sub.rateOverTime, subSrc.rateOverTime);
+        Object.assign(sub.rateOverDistance, subSrc.rateOverDistance);
+        Object.assign(sub.startSpeed, subSrc.startSpeed);
+        Object.assign(sub.startSize3D, subSrc.startSize3D);
+        Object.assign(sub.startSizeX, subSrc.startSizeX);
+        Object.assign(sub.startSizeY, subSrc.startSizeY);
+        Object.assign(sub.startSizeZ, subSrc.startSizeZ);
+        Object.assign(sub.startRotation3D, subSrc.startRotation3D);
+        Object.assign(sub.startRotationX, subSrc.startRotationX);
+        Object.assign(sub.startRotationY, subSrc.startRotationY);
+        Object.assign(sub.startRotationZ, subSrc.startRotationZ);
+
+        if (subSrc._colorOverLifetimeModule) {
+            sub._colorOverLifetimeModule = new ColorOverLifetimeModule();
+            Object.assign(sub._colorOverLifetimeModule, subSrc._colorOverLifetimeModule);
+            sub._colorOverLifetimeModule.bindTarget(sub.processor);
+        }
+        if (subSrc._sizeOvertimeModule) {
+            sub._sizeOvertimeModule = new SizeOvertimeModule();
+            Object.assign(sub._sizeOvertimeModule, subSrc._sizeOvertimeModule);
+            sub._sizeOvertimeModule.bindTarget(sub.processor);
+        }
+        if (subSrc._velocityOvertimeModule) {
+            sub._velocityOvertimeModule = new VelocityOvertimeModule();
+            Object.assign(sub._velocityOvertimeModule, subSrc._velocityOvertimeModule);
+            sub._velocityOvertimeModule.bindTarget(sub.processor);
+        }
+        if (subSrc._forceOvertimeModule) {
+            sub._forceOvertimeModule = new ForceOvertimeModule();
+            Object.assign(sub._forceOvertimeModule, subSrc._forceOvertimeModule);
+            sub._forceOvertimeModule.bindTarget(sub.processor);
+        }
+        if (subSrc._limitVelocityOvertimeModule) {
+            sub._limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
+            Object.assign(sub._limitVelocityOvertimeModule, subSrc._limitVelocityOvertimeModule);
+            sub._limitVelocityOvertimeModule.bindTarget(sub.processor);
+        }
+        if (subSrc._rotationOvertimeModule) {
+            sub._rotationOvertimeModule = new RotationOvertimeModule();
+            Object.assign(sub._rotationOvertimeModule, subSrc._rotationOvertimeModule);
+            sub._rotationOvertimeModule.bindTarget(sub.processor);
+        }
+        if (subSrc._textureAnimationModule) {
+            sub._textureAnimationModule = new TextureAnimationModule();
+            Object.assign(sub._textureAnimationModule, subSrc._textureAnimationModule);
+            sub._textureAnimationModule.bindTarget(sub.processor);
+        }
+
+        for (let b = 0; b < subSrc.bursts.length; ++b) {
+            const subburst = new Burst();
+            subburst.time = subSrc.bursts[b].time;
+            subburst.repeatCount = subSrc.bursts[b].repeatCount;
+            subburst.repeatInterval = subSrc.bursts[b].repeatInterval;
+            Object.assign(subburst.count, subSrc.bursts[b].count);
+            sub.bursts.push(subburst);
+        }
+        if (!sub.shapeModule && subSrc.shapeModule) {
+            sub.shapeModule = new ShapeModule();
+            sub.shapeModule.onInit(sub);
+        }
+        if (sub.shapeModule && !sub.shapeModule?.enable) {
+            if (subSrc.shapeModule) {
+                sub.shapeModule.shapeType = subSrc.shapeModule.shapeType;
+                sub.shapeModule.position = subSrc.shapeModule.position;
+                sub.shapeModule.rotation = subSrc.shapeModule.rotation;
+                sub.shapeModule.scale = subSrc.shapeModule.scale;
+                sub.shapeModule.arc = subSrc.shapeModule.arc;
+                sub.shapeModule.angle = subSrc.shapeModule.angle;
+                sub.shapeModule.emitFrom = subSrc.shapeModule.emitFrom;
+                sub.shapeModule.alignToDirection = subSrc.shapeModule.alignToDirection;
+                sub.shapeModule.randomDirectionAmount = subSrc.shapeModule.randomDirectionAmount;
+                sub.shapeModule.sphericalDirectionAmount = subSrc.shapeModule.sphericalDirectionAmount;
+                sub.shapeModule.randomPositionAmount = subSrc.shapeModule.randomPositionAmount;
+                sub.shapeModule.radius = subSrc.shapeModule.radius;
+                sub.shapeModule.radiusThickness = subSrc.shapeModule.radiusThickness;
+                sub.shapeModule.arcMode = subSrc.shapeModule.arcMode;
+                sub.shapeModule.arcSpread = subSrc.shapeModule.arcSpread;
+                sub.shapeModule.arcSpeed = subSrc.shapeModule.arcSpeed;
+                sub.shapeModule.length = subSrc.shapeModule.length;
+                sub.shapeModule.boxThickness = subSrc.shapeModule.boxThickness;
+            }
+            sub.shapeModule.enable = true;
+        }
+
+        sub.setMaterial(subSrc.getMaterial(1), 1);
+
+        if (subSrc._trailModule) {
+            sub.trailModule = new TrailModule();
+            if (sub._trailModule) {
+                sub._trailModule.onInit(sub);
+                sub._trailModule.updateMaterial();
+                sub._trailModule.enable = subSrc._trailModule.enable;
+                sub._trailModule.onEnable();
+                sub._trailModule.mode = subSrc._trailModule.mode;
+                sub._trailModule.textureMode = subSrc._trailModule.textureMode;
+                sub._trailModule.widthFromParticle = subSrc._trailModule.widthFromParticle;
+                sub._trailModule.colorFromParticle = subSrc._trailModule.colorFromParticle;
+                sub._trailModule.existWithParticles = subSrc._trailModule.existWithParticles;
+                sub._trailModule.minParticleDistance = subSrc._trailModule.minParticleDistance;
+                sub._trailModule.space = subSrc._trailModule.space;
+                Object.assign(sub._trailModule.lifeTime, subSrc._trailModule.lifeTime);
+                Object.assign(sub._trailModule.widthRatio, subSrc._trailModule.widthRatio);
+                Object.assign(sub._trailModule.colorOverTrail, subSrc._trailModule.colorOverTrail);
+                Object.assign(sub._trailModule.colorOvertime, sub._trailModule.colorOvertime);
+            }
+        }
+
+        sub.name = subSrc.name + i.toString();
+        sub.renderer.cpuMaterial = subSrc.renderer.cpuMaterial;
+        sub.renderer.alignSpace = subSrc.renderer.alignSpace;
+        sub.renderer.mesh = subSrc.renderer.mesh;
+        sub.renderer.renderMode = subSrc.renderer.renderMode;
+        sub.stop();
+        this.addSubEmitter(sub);
+        sub.node._objFlags |= CCObject.Flags.HideInHierarchy;
+    }
+
+    private refreshSubemitters () {
+        if (!this._useSubEmitter) {
+            if (this._subEmitters.length > 0) {
+                while (this._subEmitters.length > 0) {
+                    const subRemove = this._subEmitters.pop();
+                    if (subRemove) {
+                        subRemove.node.parent?.removeChild(subRemove.node);
+                        subRemove.destroy();
+                    }
+                }
+                this._baseEmitters = [];
+                if (this.processor) {
+                    this.processor.clearSubemitter();
+                }
+            }
+            return;
+        }
+
+        if (this._subEmitters.length === 0) {
+            for (let sub = 0; sub < this.node.children.length; ++sub) {
+                const subNode = this.node.children[sub];
+                if (subNode.components.length > 0 && subNode.components[0] instanceof ParticleSystem) {
+                    const subSrc: ParticleSystem = subNode.components[0];
+                    if (subSrc.subBase) {
+                        this._baseEmitters.push(subSrc);
+                        const cap = Math.round(this.capacity * subSrc.subPercent);
+                        for (let i = 0; i < cap; ++i) {
+                            this.copyEmitter(subSrc, i);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * @ignore
      */
@@ -737,7 +985,16 @@ export class ParticleSystem extends ModelRenderer {
     private _customData1: Vec2;
     private _customData2: Vec2;
 
-    private _subEmitters: any[]; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+    @serializable
+    private _subEmitters: ParticleSystem[]; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+
+    @serializable
+    private _baseEmitters: ParticleSystem[];
+
+    @serializable
+    private _parentEmitter: ParticleSystem | null;
+
+    private _particle: Particle | null;
 
     private _needAttach: boolean;
 
@@ -785,6 +1042,10 @@ export class ParticleSystem extends ModelRenderer {
         this._customData2 = new Vec2();
 
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+        this._baseEmitters = [];
+        this._parentEmitter = null;
+
+        this._particle = null;
     }
 
     public onFocusInEditor () {
@@ -1067,6 +1328,8 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected update (dt: number) {
+        this.refreshSubemitters();
+
         const scaledDeltaTime = dt * this.simulationSpeed;
 
         if (!this.renderCulling) {
@@ -1248,6 +1511,25 @@ export class ParticleSystem extends ModelRenderer {
             }
             particle.particleSystem = this;
             particle.reset();
+            if (this.useSubEmitter) {
+                if (particle.subemitter.length === 0) {
+                    let offst = 0;
+                    for (let se = 0; se < this._baseEmitters.length; ++se) {
+                        const currCnt = this.capacity * this._baseEmitters[se].subPercent;
+                        particle.subemitter.push(this._subEmitters[offst + (particle.id % currCnt)]);
+                        offst += currCnt;
+                    }
+                }
+                for (let se = 0; se < particle.subemitter.length; ++se) {
+                    particle.subemitter[se]._particle = particle;
+                    particle.subemitter[se].stopEmitting();
+                }
+            } else {
+                for (let se = 0; se < particle.subemitter.length; ++se) {
+                    particle.subemitter[se]._particle = null;
+                }
+                particle.subemitter = [];
+            }
 
             const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
 
@@ -1270,7 +1552,19 @@ export class ParticleSystem extends ModelRenderer {
                 Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
             }
 
+            if (this._particle && this.inheritVelocity) {
+                const veloLen = particle.velocity.length();
+                const pLen = this._particle.ultimateVelocity.length();
+                const scaledLen = pLen * 0.1;
+                const vx = this._particle.ultimateVelocity.x / pLen * scaledLen * random();
+                const vy = this._particle.ultimateVelocity.y / pLen * scaledLen * random();
+                const vz = this._particle.ultimateVelocity.z / pLen * scaledLen * random();
+
+                particle.velocity.set(veloLen * vx, veloLen * vy, veloLen * vz);
+            }
+
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
+
             // apply startRotation.
             if (this.startRotation3D) {
                 // eslint-disable-next-line max-len
@@ -1293,6 +1587,13 @@ export class ParticleSystem extends ModelRenderer {
 
             // apply startColor.
             particle.startColor.set(this.startColor.evaluate(loopDelta, rand));
+
+            if (this._particle && this.inheritColor) {
+                particle.startColor.r = this._particle.color.r;
+                particle.startColor.g = this._particle.color.g;
+                particle.startColor.b = this._particle.color.b;
+            }
+
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
@@ -1374,6 +1675,10 @@ export class ParticleSystem extends ModelRenderer {
 
     private removeSubEmitter (idx) {
         this._subEmitters.splice(this._subEmitters.indexOf(idx), 1);
+    }
+
+    public getSubEmitters (): ParticleSystem[] {
+        return this._subEmitters;
     }
 
     private addBurst (burst) {

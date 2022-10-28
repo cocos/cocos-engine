@@ -59,6 +59,9 @@ export class Particle {
     public emitAccumulator1: number;
     public frameIndex: number;
     public startRow: number;
+    public subemitter: ParticleSystem[];
+    public id;
+    public delay;
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
@@ -89,6 +92,9 @@ export class Particle {
         this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
         this.startRow = 0;
+        this.subemitter = [];
+        this.id = -1;
+        this.delay = 0;
     }
 
     public reset () {
@@ -99,6 +105,7 @@ export class Particle {
         this.deltaQuat.set(0, 0, 0, 1);
         this.deltaMat.identity();
         this.localMat.identity();
+        this.delay = 0;
     }
 }
 

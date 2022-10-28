@@ -27,14 +27,14 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute, FormatInfo, FormatInfos } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random, EPSILON, approx } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random, EPSILON, approx, Mat3 } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { Component } from '../../core';
+import { Component, TransformBit } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
@@ -46,6 +46,13 @@ const _tempWorldTrans = new Mat4();
 const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
 const _node_euler = new Vec3();
+const _lookMat4 = new Mat4();
+const _lookMat3 = new Mat3();
+const _zero = new Vec3(0);
+const _center = new Vec3();
+const _up = new Vec3(0, 1, 0);
+const _tempQuat = new Quat();
+const _tempVelo = new Vec3();
 
 const _anim_module = [
     '_colorOverLifetimeModule',
@@ -159,6 +166,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
+    private _currid = -1;
 
     constructor (info: any) {
         super(info);
@@ -180,6 +188,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             CC_USE_WORLD_SPACE: true,
             // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
+        this._currid = -1;
     }
 
     public onInit (ps: Component) {
@@ -194,6 +203,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateTrailMaterial();
         this.setVertexAttributes();
         this._inited = true;
+        this._currid = -1;
     }
 
     public clear () {
@@ -222,7 +232,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (this._particles!.length >= this._particleSystem.capacity) {
             return null;
         }
-        return this._particles!.add() as Particle;
+        const p = this._particles!.add() as Particle;
+        if (p.id < 0) {
+            this._currid++;
+            p.id = this._currid;
+        }
+        return p;
     }
 
     public getDefaultTrailMaterial (): any {
@@ -348,6 +363,16 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private noise: ParticleNoise = new ParticleNoise();
 
+    public clearSubemitter () {
+        for (let i = this._particles!.length; i >= 0; --i) {
+            const p = this._particles!.data[i];
+            if (p === undefined || p === null) {
+                continue;
+            }
+            p.subemitter = [];
+        }
+    }
+
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
         if (!ps) {
@@ -376,54 +401,118 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         if (ps.node.parent) {
-            ps.node.parent.getWorldMatrix(_tempParentInverse);
-            _tempParentInverse.invert();
+            const r:Quat = ps.node.parent.getWorldRotation();
+            Mat4.fromQuat(_tempParentInverse, r);
+            _tempParentInverse.transpose();
         }
 
-        for (let i = 0; i < this._particles!.length; ++i) {
+        for (let i = this._particles!.length; i >= 0; --i) {
             const p = this._particles!.data[i];
+            if (p === undefined || p === null) {
+                continue;
+            }
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
-            if (p.remainingLifetime < 0.0) {
+            if (p.remainingLifetime >= 0.0) {
+                if (ps.simulationSpace === Space.Local) {
+                    // eslint-disable-next-line max-len
+                    const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                    this._gravity.x = 0.0;
+                    this._gravity.y = gravityFactor;
+                    this._gravity.z = 0.0;
+                    this._gravity.w = 1.0;
+                    if (!approx(gravityFactor, 0.0, EPSILON)) {
+                        if (ps.node.parent) {
+                            this._gravity = this._gravity.transformMat4(_tempParentInverse);
+                        }
+                        this._gravity = this._gravity.transformMat4(this._localMat);
+
+                        p.velocity.x += this._gravity.x;
+                        p.velocity.y += this._gravity.y;
+                        p.velocity.z += this._gravity.z;
+                    }
+                } else {
+                // apply gravity.
+                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                }
+
+                Vec3.copy(p.ultimateVelocity, p.velocity);
+
+                this._runAnimateList.forEach((value) => {
+                    value.animate(p, dt);
+                });
+
+                Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
+
+                if (trailEnable) {
+                    trailModule.animate(p, dt);
+                }
+
+                if (p.subemitter.length > 0) {
+                    Vec3.normalize(_tempVelo, p.velocity);
+                    Vec3.set(_center, _tempVelo.x, _tempVelo.y, _tempVelo.z);
+                    Mat4.lookAt(_lookMat4, _zero, _center, _up);
+                    Mat3.fromMat4(_lookMat3, _lookMat4);
+                    Mat3.transpose(_lookMat3, _lookMat3);
+                    Quat.fromMat3(_tempQuat, _lookMat3);
+                }
+
+                for (let se = 0; se < p.subemitter.length; ++se) {
+                    p.subemitter[se].node.setPosition(p.position.x, p.position.y, p.position.z);
+                    p.subemitter[se].node.setRotation(_tempQuat);
+
+                    p.subemitter[se].node.invalidateChildren(TransformBit.POSITION | TransformBit.ROTATION);
+                    if (p.subemitter[se].isStopped) {
+                        if (!p.subemitter[se].actDie) {
+                            p.subemitter[se].play();
+                        }
+                    }
+                }
+            } else {
                 if (trailEnable) {
                     trailModule.removeParticle(p);
                 }
-                this._particles!.removeAt(i);
-                --i;
-                continue;
-            }
 
-            if (ps.simulationSpace === Space.Local) {
-                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-                this._gravity.x = 0.0;
-                this._gravity.y = gravityFactor;
-                this._gravity.z = 0.0;
-                this._gravity.w = 1.0;
-                if (!approx(gravityFactor, 0.0, EPSILON)) {
-                    if (ps.node.parent) {
-                        this._gravity = this._gravity.transformMat4(_tempParentInverse);
+                let actDie = false;
+                for (let se = 0; se < p.subemitter.length; ++se) {
+                    if (!p.subemitter[se].actDie) {
+                        p.subemitter[se].stopEmitting();
+                    } else {
+                        p.subemitter[se].play();
+                        if (p.subemitter[se]._trailModule && p.subemitter[se]._trailModule.enable) {
+                            p.subemitter[se]._trailModule._detachFromScene();
+                            p.subemitter[se]._needAttach = true;
+                            p.subemitter[se].update(dt);
+                        }
+                        actDie = true;
                     }
-                    this._gravity = this._gravity.transformMat4(this._localMat);
-
-                    p.velocity.x += this._gravity.x;
-                    p.velocity.y += this._gravity.y;
-                    p.velocity.z += this._gravity.z;
                 }
-            } else {
-                // apply gravity.
-                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-            }
+                if (!actDie) {
+                    p.delay = 0;
+                } else if (p.delay <= 0) {
+                    p.delay = 3;
+                }
 
-            Vec3.copy(p.ultimateVelocity, p.velocity);
+                let allSubStop = true;
+                for (let se = 0; se < p.subemitter.length; ++se) {
+                    if (p.subemitter[se].processor._particles.length > 0) {
+                        allSubStop = false;
+                        break;
+                    }
+                }
 
-            this._runAnimateList.forEach((value) => {
-                value.animate(p, dt);
-            });
-
-            Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-            if (trailEnable) {
-                trailModule.animate(p, dt);
+                if (p.subemitter.length > 0 && allSubStop) {
+                    --p.delay;
+                    if (p.delay <= 0) {
+                        p.delay = 0;
+                        this._particles!.removeAt(i);
+                    }
+                } else if (p.subemitter.length > 0 && !allSubStop) {
+                    p.color.a = 0;
+                } else if (p.subemitter.length === 0) {
+                    this._particles!.removeAt(i);
+                }
             }
         }
 
