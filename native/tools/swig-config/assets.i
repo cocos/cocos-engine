@@ -184,6 +184,8 @@
 %import "base/Ptr.h"
 %import "base/memory/Memory.h"
 
+%import "core/event/Event.h"
+
 %include "core/Types.h"
 
 %import "core/ArrayBuffer.h"

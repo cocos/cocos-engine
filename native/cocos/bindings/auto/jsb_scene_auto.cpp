@@ -2287,33 +2287,6 @@ static bool js_cc_Node_getParent(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Node_getParent) 
 
-static bool js_cc_Node_getEventProcessor(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Node *arg1 = (cc::Node *) NULL ;
-    cc::NodeEventProcessor *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::NodeEventProcessor *)((cc::Node const *)arg1)->getEventProcessor();
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Node_getEventProcessor, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Node_getEventProcessor) 
-
 static bool js_cc_Node_getChildByUuid(se::State& s)
 {
     // js_function
@@ -4079,7 +4052,6 @@ bool js_register_cc_Node(se::Object* obj) {
     cls->defineFunction("setSiblingIndex", _SE(js_cc_Node_setSiblingIndex)); 
     cls->defineFunction("isActive", _SE(js_cc_Node_isActive)); 
     cls->defineFunction("getParent", _SE(js_cc_Node_getParent)); 
-    cls->defineFunction("getEventProcessor", _SE(js_cc_Node_getEventProcessor)); 
     cls->defineFunction("getChildByUuid", _SE(js_cc_Node_getChildByUuid)); 
     cls->defineFunction("getChildByName", _SE(js_cc_Node_getChildByName)); 
     cls->defineFunction("getChildByPath", _SE(js_cc_Node_getChildByPath)); 
@@ -5830,33 +5802,6 @@ static bool js_cc_Root_getDebugViewConfig(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Root_getDebugViewConfig) 
 
-static bool js_cc_Root_getEventProcessor(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Root *arg1 = (cc::Root *) NULL ;
-    cc::CallbacksInvoker *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Root>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::CallbacksInvoker *)((cc::Root const *)arg1)->getEventProcessor();
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Root_getEventProcessor, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Root_getEventProcessor) 
-
 static bool js_cc_Root_createRenderWindowFromSystemWindow__SWIG_0(se::State& s)
 {
     // js_overloaded_function
@@ -6397,7 +6342,6 @@ bool js_register_cc_Root(se::Object* obj) {
     cls->defineFunction("getBatcher2D", _SE(js_cc_Root_getBatcher2D)); 
     cls->defineFunction("setDebugViewConfig", _SE(js_cc_Root_setDebugViewConfig)); 
     cls->defineFunction("getDebugViewConfig", _SE(js_cc_Root_getDebugViewConfig)); 
-    cls->defineFunction("getEventProcessor", _SE(js_cc_Root_getEventProcessor)); 
     cls->defineFunction("createRenderWindowFromSystemWindow", _SE(js_cc_Root_createRenderWindowFromSystemWindow)); 
     
     

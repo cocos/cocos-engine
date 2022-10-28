@@ -69,6 +69,9 @@ using namespace cc;
 %ignore cc::scene::Pass::getBlocks;
 %ignore cc::scene::Pass::initPassFromTarget;
 
+%ignore cc::Root::getEventProcessor;
+%ignore cc::Node::getEventProcessor;
+
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
 %ignore cc::scene::Camera::syncCameraEditor;
@@ -515,6 +518,8 @@ using namespace cc;
 %import "math/Mat3.h"
 %import "math/Mat4.h"
 %import "math/Quaternion.h"
+
+%import "core/event/Event.h"
 
 // %import "renderer/gfx-base/GFXDef-common.h"
 %import "core/data/Object.h"

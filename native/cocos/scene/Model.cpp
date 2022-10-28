@@ -28,7 +28,6 @@
 #include "core/Root.h"
 #include "core/TypedArray.h"
 #include "core/assets/Material.h"
-#include "core/event/EventTypesToJS.h"
 #include "gfx-base/GFXTexture.h"
 #include "gi/light-probe/LightProbe.h"
 #include "gi/light-probe/SH.h"
@@ -105,7 +104,7 @@ void Model::updateTransform(uint32_t stamp) {
     CC_PROFILE(ModelUpdateTransform);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_TRANSFORM, stamp);
+            emit<UpdateTransform>(stamp);
             _isCalledFromJS = false;
             return;
         }
@@ -155,7 +154,7 @@ void Model::updateUBOs(uint32_t stamp) {
     CC_PROFILE(ModelUpdateUBOs);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_UBO, stamp);
+            emit<UpdateUBO>(stamp);
             _isCalledFromJS = false;
             return;
         }
@@ -371,7 +370,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             ccstd::vector<IMacroPatch> macroPatches;
-            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &macroPatches);
+            emit<GetMacroPatches>(subModelIndex, &macroPatches);
             _isCalledFromJS = false;
             return macroPatches;
         }
@@ -414,7 +413,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
 void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, subModel);
+            emit<UpdateInstancedAttributes>(attributes, subModel); // FIXME
             _isCalledFromJS = false;
             return;
         }
@@ -467,7 +466,7 @@ void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
 void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS, subModelIndex, descriptorSet);
+            emit<UpdateLocalDescriptors>(subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
@@ -481,7 +480,7 @@ void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *de
 void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_SH_DESCRIPTORS, subModelIndex, descriptorSet);
+            emit<UpdateLocalSHDescriptor>(subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
@@ -495,7 +494,7 @@ void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *
 void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS, subModelIndex, descriptorSet);
+            emit<UpdateWorldBound>(subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }

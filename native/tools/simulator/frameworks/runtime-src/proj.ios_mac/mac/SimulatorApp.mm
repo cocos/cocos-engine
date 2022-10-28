@@ -65,6 +65,8 @@
     //console pipe
     NSPipe *_pipe;
     NSFileHandle *_pipeReadHandle;
+    
+    SimulatorAppEvent::Listener _appListener;
 }
 
 @property (nonatomic, assign) IBOutlet NSMenu* menu;
@@ -532,10 +534,9 @@ std::string getCurAppName(void)
 
     ProjectConfig &project = _project;
 
-    EventDispatcher::CustomEventListener listener = [self, &project, scaleMenuVector](const CustomEvent& event){
-        auto menuEvent = dynamic_cast<const CustomAppEvent&>(event);
+    _appListener.bind([self, &project, scaleMenuVector](const CustomAppEvent& menuEvent){
         rapidjson::Document dArgParse;
-        dArgParse.Parse<0>(menuEvent.getDataString().c_str());
+        dArgParse.Parse<0>(menuEvent.dataString.c_str());
 
         if (dArgParse.HasMember("name"))
         {
@@ -543,7 +544,7 @@ std::string getCurAppName(void)
 
             if (strcmd == "menuClicked")
             {
-                player::PlayerMenuItem *menuItem = static_cast<player::PlayerMenuItem*>(menuEvent.args[0].ptrVal);
+                player::PlayerMenuItem *menuItem = reinterpret_cast<player::PlayerMenuItem*>(menuEvent.menuItem);
                 if (menuItem)
                 {
                     if (menuItem->isChecked())
@@ -609,8 +610,7 @@ std::string getCurAppName(void)
                 }
             }
         }
-    };
-    EventDispatcher::addCustomEventListener(kAppEventName, listener);
+    });
 }
 
 
