@@ -267,6 +267,39 @@ export class LightProbes {
     }
 
     /**
+     * @en GI multiplier
+     * @zh GI乘数
+     */
+    set giScale (val: number) {
+        this._giScale = val;
+    }
+    get giScale (): number {
+        return this._giScale;
+    }
+
+    /**
+      * @en GI sample counts
+      * @zh GI 采样数量
+      */
+    set giSamples (val: number) {
+        this._giSamples = val;
+    }
+    get giSamples (): number {
+        return this._giSamples;
+    }
+
+    /**
+      * @en light bounces
+      * @zh 光照反弹次数
+      */
+    set bounces (val: number) {
+        this._bounces = val;
+    }
+    get bounces (): number {
+        return this._bounces;
+    }
+
+    /**
      * @en Reduce ringing of light probe
      * @zh 减少光照探针的振铃效果
      */
@@ -322,6 +355,9 @@ export class LightProbes {
     }
 
     protected _enabled = false;
+    protected _giScale = 1.0;
+    protected _giSamples = 1024;
+    protected _bounces = 2;
     protected _reduceRinging = 0.0;
     protected _showProbe = true;
     protected _showWireframe = true;
@@ -330,6 +366,9 @@ export class LightProbes {
 
     public initialize (info: LightProbeInfo) {
         this._enabled = info.enabled;
+        this._giScale = info.giScale;
+        this._giSamples = info.giSamples;
+        this._bounces = info.bounces;
         this._reduceRinging = info.reduceRinging;
         this._showProbe = info.showProbe;
         this._showWireframe = info.showWireframe;
