@@ -734,9 +734,9 @@ export class Game extends EventTarget {
                 console.time('6.5'); // 6ms
                 deviceManager.init(this.canvas, bindingMappingInfo);
                 console.timeEnd('6.5');
-                console.time('6.6');
+                // console.time('6.6');
                 assetManager.init();
-                console.timeEnd('6.6');
+                // console.timeEnd('6.6');
                 console.time('6.7'); // 12ms -> 2ms
                 builtinResMgr.init();
                 console.timeEnd('6.7');
@@ -820,9 +820,7 @@ export class Game extends EventTarget {
                 // console.timeEnd('13');
                 console.time('14'); // 32ms
                 console.time('14.1');
-                console.time('querySetting');
                 const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
-                console.timeEnd('querySetting');
                 if (scriptPackages) {
                     return Promise.all(scriptPackages.map((pack) => import(pack)));
                 }
@@ -855,7 +853,7 @@ export class Game extends EventTarget {
             .then(() => {
                 // console.timeEnd('14.5');
                 console.timeEnd('14');
-                console.time('15'); // 1ms
+                // console.time('15'); // 1ms
                 builtinResMgr.compileBuiltinMaterial();
                 if (DEBUG) {
                     console.timeEnd('Init Project');
@@ -865,7 +863,7 @@ export class Game extends EventTarget {
             })
             // #endregion Project
             .then(() => {
-                console.timeEnd('15');
+                // console.timeEnd('15');
                 // console.time('16');
                 this._inited = true;
                 this._safeEmit(Game.EVENT_GAME_INITED);

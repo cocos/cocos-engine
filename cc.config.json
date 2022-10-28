@@ -3,7 +3,6 @@
 
     "features": {
         "base": { "modules": [ "base" ], "dependentAssets": [
-            "bcd64cc6-2dd9-43f6-abbe-66318d332032",
             "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
             "a3cd009f-0ab0-420d-9278-b9fdab939bbc"
         ]},
@@ -12,8 +11,6 @@
         "3d": { 
             "modules": [ "3d" ], 
             "dependentAssets": [
-                "1baf0fc9-befa-459c-8bdd-af1a450a0319",
-                "620b6bf3-0369-4560-837f-2a2c00b73c26"
             ] 
         },
         "animation": { "modules": ["animation"] },
@@ -39,11 +36,7 @@
             "modules": [ "particle" ], 
             "dependentAssets": [ 
                 "d1346436-ac96-4271-b863-1f4fdead95b0", 
-                "17debcc3-0a6b-4b8a-b00b-dc58b885581e", 
-                "711ebe11-f673-4cd9-9a83-63c60ba54c5b",
-                "c0143906-9aed-447e-9436-2ae8512d1b6e",
-                "081cab31-dccd-428e-8652-f2404cc81c47",
-                "78e0584a-4343-4727-8f37-e14e65c2a2db" 
+                "17debcc3-0a6b-4b8a-b00b-dc58b885581e"
             ]
         },
         "particle-2d": { 

@@ -65,8 +65,6 @@ export class Settings {
      * @internal
      */
     init (path = '', overrides: Record<string, any> = {}): Promise<void> {
-        console.time('Settings 0');
-        console.time('Settings 1');
         for (const categoryName in overrides) {
             const category = overrides[categoryName];
             if (category) {
@@ -75,8 +73,6 @@ export class Settings {
                 }
             }
         }
-        console.timeEnd('Settings 1');
-        console.time('Settings 2');
         if (!path) return Promise.resolve();
         return new Promise((resolve, reject) => {
             console.time('Settings 3');
@@ -89,7 +85,6 @@ export class Settings {
                     resolve();
                 }
             } else {
-                console.timeEnd('Settings 2');
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', path);
                 xhr.responseType = 'text';
