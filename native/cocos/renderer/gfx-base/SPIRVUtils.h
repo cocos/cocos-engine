@@ -36,26 +36,31 @@ class SPIRVUtils {
 public:
     static SPIRVUtils *getInstance() { return &instance; }
 
-    // void initialize(int clientVersion, int spvTargetVersion);
     void initialize(gfx::SpirvClientVersion version);
     void destroy();
 
-    ccstd::vector<uint32_t> compileGLSL(ShaderStageFlagBit type, const ccstd::string &source);
+    void compileGLSL(ShaderStageFlagBit type, const ccstd::string &source);
 
-    ccstd::vector<uint32_t> compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source);
-    ccstd::string compileSPIRV2GLSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source);
-    ccstd::string compileSPIRV2MSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source);
-    ccstd::string compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source);
+    void compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source);
+    void compileSPIRV2GLSL();
+    void compileSPIRV2MSL();
+    void compileSPIRV2WGSL();
 
-    ccstd::vector<uint32_t> compressInputLocations(gfx::AttributeList &attributes);
+    void compressInputLocations(gfx::AttributeList &attributes);
 
-    inline uint32_t *getOutputData() {
+    inline uint32_t * getOutputData() {
         _shader.reset();
         _program.reset();
         return _output.data();
     }
 
-    inline ccstd::string getOutputSource(){
+    inline ShaderByteCode getOutput() {
+        _shader.reset();
+        _program.reset();
+        return _output;
+    }
+
+    inline ShaderSourceCode getOutputSource(){
         return _source;
     };
 

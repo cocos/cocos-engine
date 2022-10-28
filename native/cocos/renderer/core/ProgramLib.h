@@ -115,7 +115,7 @@ class ShaderCollection : public RefCounted {
 public:
     explicit ShaderCollection(const IShaderInfo &shaderInfo);
 
-    ~ShaderCollection();
+    ~ShaderCollection() override;
 
     IProgramInfo *getTemplate();
 

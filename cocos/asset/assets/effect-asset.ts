@@ -26,8 +26,10 @@
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
-import { BlendState, DepthStencilState, RasterizerState,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo, ShaderStageFlagBit } from '../../gfx';
+import {
+    BlendState, DepthStencilState, RasterizerState, DynamicStateFlags, PrimitiveMode, ShaderStageFlags,
+    Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo, ShaderStageFlagBit,
+} from '../../gfx';
 import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
@@ -159,7 +161,6 @@ export declare namespace EffectAsset {
         glsl4: string;
         spv: string;
         msl: string;
-        hlsl: string;
     }
 
     export interface IShaderStage {

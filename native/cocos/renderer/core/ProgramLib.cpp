@@ -268,10 +268,7 @@ static void copyDefines(const ccstd::vector<IDefineInfo> &from, ccstd::vector<ID
 void IProgramInfo::copyFrom(const IShaderInfo &o) {
     name = o.name;
     hash = o.hash;
-
-    // copy stages to programInfo
     std::copy(o.stages.cbegin(), o.stages.cend(), std::back_inserter(stages));
-
     builtins = o.builtins;
     copyDefines(o.defines, defines);
     blocks = o.blocks;
@@ -375,8 +372,7 @@ gfx::Shader *ProgramLib::getGFXShader(gfx::Device *device, const ccstd::string &
                                       render::PipelineRuntime *pipeline, ccstd::string *keyOut) {
     auto shaderCollection = _shaderCollections.find(name);
     CC_ASSERT(shaderCollection != _shaderCollections.end());
-    auto shader = shaderCollection->second->getShaderVariant(device, defines, pipeline, keyOut);
-    return shader;
+    return shaderCollection->second->getShaderVariant(device, defines, pipeline, keyOut);
 }
 
 ShaderCollection::ShaderCollection(const IShaderInfo &shaderInfo) {
@@ -576,9 +572,6 @@ ShaderCollection::ShaderCollection(const IShaderInfo &shaderInfo) {
         info.location = attr.location;
     }
     insertBuiltinBindings(_shaderInfo, _templateInfo, pipeline::localDescriptorSetLayout, "locals", nullptr);
-
-    // TODO: yiwenxue : here we need to extract the shader sources from the raw buffer, and store them to the sourceCache, discard the others, the original shader source will still be kept in the shader collection
-
     std::transform(_shaderInfo.stages.begin(), _shaderInfo.stages.end(), std::back_inserter(_templateInfo.shaderInfo.stages), [](const auto &stage) {
         return gfx::ShaderStage{stage.stage};
     });
@@ -594,19 +587,20 @@ ShaderCollection::ShaderCollection(const IShaderInfo &shaderInfo) {
     std::for_each(_defaultMacros.cbegin(), _defaultMacros.cend(), [this](const IMacroInfo &def) {
         _templateMacros[def.name] = def.value;
     });
-
-    // extract the shader source from the raw buffer
+    // TODO (yiwenxue) : pre-backed shader deserialize
 }
 
-ShaderCollection::~ShaderCollection() {
 #if CC_DEBUG
+ShaderCollection::~ShaderCollection() {
     for (const auto &cache : _shaderVariants) {
         if (cache.second->getRefCount() > 1) {
             CC_LOG_WARNING("ShaderCollection cache: %s ref_count is %d and may leak", cache.second->getName().c_str(), cache.second->getRefCount());
         }
     }
-#endif
 }
+#else
+ShaderCollection::~ShaderCollection() = default;
+#endif
 
 IProgramInfo *ShaderCollection::getTemplate() {
     return &_shaderInfo;
@@ -623,7 +617,13 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
         defines[it.first] = it.second;
     }
 
-    auto key = getKey(defines);
+    ccstd::string key;
+    if (!keyOut) {
+        key = getKey(defines);
+    } else {
+        key = *keyOut;
+    }
+
     if (!_templateInfo.pipelineLayout) {
         getDescriptorSetLayout(device); // ensure set layouts have been created
         insertBuiltinBindings(_shaderInfo, _templateInfo, pipeline::globalDescriptorSetLayout, "globals", nullptr);
@@ -642,22 +642,24 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
                 stage.source = "#version 300 es\n" + prefix + sourceCode.glsl1;
 
             case gfx::API::GLES3:
+
                 stage.source = "#version 310 es\n" + prefix + sourceCode.glsl3;
                 break;
 
             case gfx::API::VULKAN:
-                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 460\n" + prefix + sourceCode.glsl4);
+                spirvUtils->compileGLSL2SPIRV(stage.stage, "#version 460\n" + prefix + sourceCode.glsl4);
                 if (stage.stage == gfx::ShaderStageFlagBit::VERTEX) {
-                    spvCode = spirvUtils->compressInputLocations(_templateInfo.shaderInfo.attributes);
+                    spirvUtils->compressInputLocations(_templateInfo.shaderInfo.attributes);
                 }
-                stage.byteCode = spvCode;
+                stage.byteCode = spirvUtils->getOutput();
                 break;
 
 #if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
             case gfx::API::METAL:
-                spvCode = spirvUtils->compileGLSL2SPIRV(stage.stage, prefix + sourceCode.glsl4);
-                srcCode = spirvUtils->compileSPIRV2MSL(stage.stage, spvCode);
-                stage.source = srcCode;
+                // spirvUtils->compileGLSL2SPIRV(stage.stage, prefix + sourceCode.glsl4);
+                // spirvUtils->compileSPIRV2MSL();
+                // stage.source = spirvUtils->getOutputSource();
+                stage.source = "#version 450\n" + prefix + sourceCode.glsl4;
                 break;
 #endif
 
@@ -674,7 +676,7 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
             }
         } else {
 #if CC_SHADER_BAKE_MODE
-            // TODO: yiwenxue : shader bake mode
+            // TODO (yiwenxue) : shader bake mode
             CC_LOG_ERROR("Missing prebake ShaderSource for %s", _shaderInfo.name.c_str());
             return nullptr;
 #else
@@ -685,13 +687,11 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
             }
             auto prefix = pipeline->getConstantMacros() + _shaderInfo.constantMacros + ss.str();
 
-            // Shader preprocessing -- shader precompile and optimize
             ShaderSource source{};
-
             for (uint32_t i = 0; i < _shaderInfo.stages.size(); i++) {
+                // TODO (yiwenxue) : fix clang-tidy
                 auto &stage = _templateInfo.shaderInfo.stages[i];
                 auto &stageSource = source.getStage(stage.stage);
-                // better use different shader source for different gfx backend
                 preCompile(prefix, _shaderInfo.stages[i].source, stage);
                 stageSource = stage;
             }
@@ -716,10 +716,10 @@ gfx::Shader *ShaderCollection::getShaderVariant(gfx::Device *device, const Recor
 
 void ShaderCollection::destroyShaderByDefines(const Record<ccstd::string, MacroValue> &defines) {
     if (defines.empty()) return;
-    ccstd::vector<ccstd::string> defineValues;
-    for (const auto &i : defines) {
-        defineValues.emplace_back(i.first + recordAsString(i.second));
-    }
+    ccstd::vector<ccstd::string> defineValues(defines.size());
+    std::transform(defines.begin(), defines.end(), defineValues.begin(), [](const auto &it) {
+        return it.first + recordAsString(it.second);
+    });
     ccstd::vector<ccstd::string> matchedKeys;
     for (const auto &i : _shaderVariants) {
         bool matched = true;
@@ -741,11 +741,11 @@ void ShaderCollection::destroyShaderByDefines(const Record<ccstd::string, MacroV
 }
 
 ccstd::string ShaderCollection::getKey(const MacroRecord &defines) const {
-    auto &tmpl = _shaderInfo;
-    auto &tmplDefs = tmpl.defines;
+    const auto &tmpl = _shaderInfo;
+    const auto &tmplDefs = tmpl.defines;
     if (tmpl.uber) {
         std::stringstream key;
-        for (auto &tmplDef : tmplDefs) {
+        for (const auto &tmplDef : tmplDefs) {
             auto itDef = defines.find(tmplDef.name);
             if (itDef == defines.end() || !tmplDef.map) {
                 continue;
@@ -760,7 +760,7 @@ ccstd::string ShaderCollection::getKey(const MacroRecord &defines) const {
     }
     uint32_t key = 0;
     std::stringstream ss;
-    for (auto &tmplDef : tmplDefs) {
+    for (const auto &tmplDef : tmplDefs) {
         auto itDef = defines.find(tmplDef.name);
         if (itDef == defines.end() || !tmplDef.map) {
             continue;

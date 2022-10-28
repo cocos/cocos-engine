@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <stdint.h>
 #include <tuple>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
@@ -498,23 +497,7 @@ struct IShaderSource {
     ccstd::string frag; // fragment shader source
 };
 
-/**
- shader code
- 1. source code or optimized code
- 2. glsl versions
- 3. shader stages
-
- stage { source : {glsl1, glsl3, glsl4}, optimized : {spv, msl, hlsl} }
-
- source code:
- 1. glsl1, glsl3, glsl4
-
- optimized code:
- 1. spv, msl, hlsl
- */
-
 using CompressedShaderSource = ccstd::string;
-
 struct IShaderSourceCode { // shader source code
     ccstd::string glsl1;
     ccstd::string glsl3;
@@ -526,7 +509,6 @@ struct IShaderSourceCollection { // compressed shader code
     CompressedShaderSource glsl4;
     CompressedShaderSource spv;
     CompressedShaderSource msl;
-    CompressedShaderSource hlsl;
 };
 struct IShaderStage {
     gfx::ShaderStageFlags stage{gfx::ShaderStageFlagBit::NONE};

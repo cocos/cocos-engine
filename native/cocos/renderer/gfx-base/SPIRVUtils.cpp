@@ -209,7 +209,11 @@ void SPIRVUtils::destroy() {
     _output.clear();
 }
 
-ccstd::vector<uint32_t> SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &source) {
+void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &source) {
+    compileGLSL2SPIRV(type, source);
+}
+
+void SPIRVUtils::compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source) {
     EShLanguage stage = getShaderStage(type);
     const char *string = source.c_str();
 
@@ -251,10 +255,9 @@ ccstd::vector<uint32_t> SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const c
     spvOptions.stripDebugInfo = true;
 #endif
     glslang::GlslangToSpv(*_program->getIntermediate(stage), _output, &logger, &spvOptions);
-    return _output;
 }
 
- ccstd::vector<uint32_t> SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
+void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
     static ccstd::vector<Id> ids;
     static ccstd::vector<uint32_t> activeLocations;
     static ccstd::vector<uint32_t> newLocations;
@@ -346,35 +349,21 @@ ccstd::vector<uint32_t> SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const c
     }
 
     attributes.erase(std::remove_if(attributes.begin(), attributes.end(), [](const auto &attr) {
-                         return attr.location == UINT_MAX;
-                     }),
-                     attributes.end());
-    return _output;
- }
-
-ccstd::vector<uint32_t> SPIRVUtils::compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source) {
-    return compileGLSL(type, source);
+                            return attr.location == UINT_MAX;
+                        }),
+                        attributes.end());
 }
 
-ccstd::string SPIRVUtils::compileSPIRV2GLSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+void SPIRVUtils::compileSPIRV2GLSL() {
     CC_ASSERT(false);
-    return {};
 }
 
-ccstd::string SPIRVUtils::compileSPIRV2MSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+void SPIRVUtils::compileSPIRV2MSL() {
     CC_ASSERT(false);
-    return {};
 }
 
-ccstd::string compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
+void SPIRVUtils::compileSPIRV2WGSL() {
     CC_ASSERT(false);
-    return {};
-}
-
-
-ccstd::string SPIRVUtils::compileSPIRV2WGSL(ShaderStageFlagBit type, const ccstd::vector<uint32_t> &source) {
-    CC_ASSERT(false);
-    return {};
 }
 
 } // namespace gfx

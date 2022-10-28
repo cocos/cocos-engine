@@ -370,14 +370,14 @@ class ShaderCollection {
         return `${key.toString(16)}|${tmpl.hash}`;
     }
 
-    public getShaderVariant (device: Device, macros: MacroRecord, pipeline: PipelineRuntime, keyOut?: string) {
+    public getShaderVariant (device: Device, macros: MacroRecord, pipeline: PipelineRuntime, key?: string) {
         const tmpl = this._shaderInfo!;
         const tmplInfo = this._templateInfo!;
 
         const defines = macros;
         Object.assign(defines, pipeline.macros);
+        if (!key) { key = this.getKey(defines); }
 
-        const key = this.getKey(defines);
         if (!(this._templateInfo!.pipelineLayout)) {
             this.getDescriptorSetLayout(device);
             insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
@@ -404,7 +404,7 @@ class ShaderCollection {
         };
 
         const createShader = (device: Device, shader: Shader) => {
-            const source = this._shaderVariantSources[key];
+            const source = this._shaderVariantSources[key!];
             if (!source) {
                 const macroArray = prepareDefines(defines, tmpl.defines);
                 const prefix = pipeline.constantMacros + tmpl.constantMacros
@@ -418,7 +418,7 @@ class ShaderCollection {
                     preCompile(prefix, stage.source, stageSource);
                     this._templateInfo!.shaderInfo.stages[i] = stageSource;
                 }
-                this._shaderVariantSources[key] = variantSource;
+                this._shaderVariantSources[key!] = variantSource;
             } else {
                 this._templateInfo!.shaderInfo.stages.forEach((stage) => {
                     stage.source = source.getStage(stage.stage)!.source;

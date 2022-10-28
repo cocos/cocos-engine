@@ -1056,21 +1056,24 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
                 shaderStageStr = "Compute Shader";
                 break;
             }
+            case ShaderStageFlagBit::CONTROL: {
+                glShaderStage = GL_TESS_CONTROL_SHADER;
+                shaderStageStr = "Tessellation Control Shader";
+                break;
+            }
+            case ShaderStageFlagBit::EVALUATION: {
+                glShaderStage = GL_TESS_EVALUATION_SHADER;
+                shaderStageStr = "Tessellation Evaluation Shader";
+                break;
+            }
             default: {
                 CC_ASSERT(false);
                 return;
             }
         }
         GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
-        uint32_t version = device->constantRegistry()->glMinorVersion ? 310 : 300;
-        ccstd::string shaderSource;
-        if (gpuStage.source.find("#version") == ccstd::string::npos) {
-            shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
-        } else {
-            shaderSource = gpuStage.source;
-        }
-
-        const char *source = shaderSource.c_str();
+        
+        const char *source = gpuStage.source.c_str();
         GL_CHECK(glShaderSource(gpuStage.glShader, 1, (const GLchar **)&source, nullptr));
         GL_CHECK(glCompileShader(gpuStage.glShader));
 
