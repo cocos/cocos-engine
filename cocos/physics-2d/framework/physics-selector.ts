@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, DEBUG, TEST } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { IBoxShape, ICircleShape, IPolygonShape, IBaseShape } from '../spec/i-physics-shape';
@@ -11,21 +12,21 @@ import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
 export type IPhysicsEngineId = 'builtin' | 'box2d' | string;
 
 interface IPhysicsWrapperObject {
-    PhysicsWorld?: Constructor<IPhysicsWorld>,
-    RigidBody?: Constructor<IRigidBody2D>,
+    PhysicsWorld: any,
+    RigidBody?: any,
 
-    BoxShape?: Constructor<IBoxShape>,
-    CircleShape?: Constructor<ICircleShape>,
-    PolygonShape?: Constructor<IPolygonShape>,
+    BoxShape?: any,
+    CircleShape?: any,
+    PolygonShape?: any,
 
-    DistanceJoint?: Constructor<IDistanceJoint>,
-    FixedJoint?: Constructor<IFixedJoint>,
-    MouseJoint?: Constructor<IMouseJoint>,
-    SpringJoint?: Constructor<ISpringJoint>,
-    RelativeJoint?: Constructor<IRelativeJoint>,
-    SliderJoint?: Constructor<ISliderJoint>,
-    WheelJoint?: Constructor<IWheelJoint>,
-    HingeJoint?: Constructor<IHingeJoint>,
+    DistanceJoint?: any,
+    FixedJoint?: any,
+    MouseJoint?: any,
+    SpringJoint?: any,
+    RelativeJoint?: any,
+    SliderJoint?: any,
+    WheelJoint?: any,
+    HingeJoint?: any,
 }
 
 type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
@@ -152,7 +153,7 @@ export function checkPhysicsModule (obj: any) {
 
 export function createPhysicsWorld (): IPhysicsWorld {
     if (DEBUG && checkPhysicsModule(selector.wrapper.PhysicsWorld)) { return ENTIRE_WORLD; }
-    return new selector.wrapper.PhysicsWorld!();
+    return new selector.wrapper.PhysicsWorld();
 }
 
 const EntireBody: IRigidBody2D = {
@@ -213,7 +214,7 @@ export function createRigidBody (): IRigidBody2D {
         return EntireBody;
     } else {
         if (DEBUG && checkPhysicsModule(selector.wrapper.RigidBody)) { return EntireBody; }
-        return new selector.wrapper.RigidBody!();
+        return new selector.wrapper.RigidBody();
     }
 }
 
@@ -250,17 +251,17 @@ function initColliderProxy () {
 
     CREATE_COLLIDER_PROXY[ECollider2DType.BOX] = function createBoxShape (): IBoxShape {
         if (DEBUG && checkPhysicsModule(selector.wrapper.BoxShape)) { return ENTIRE_SHAPE; }
-        return new selector.wrapper.BoxShape!();
+        return new selector.wrapper.BoxShape();
     };
 
     CREATE_COLLIDER_PROXY[ECollider2DType.CIRCLE] = function createCircleShape (): ICircleShape {
         if (DEBUG && checkPhysicsModule(selector.wrapper.CircleShape)) { return ENTIRE_SHAPE; }
-        return new selector.wrapper.CircleShape!();
+        return new selector.wrapper.CircleShape();
     };
 
     CREATE_COLLIDER_PROXY[ECollider2DType.POLYGON] = function createPolygonShape (): IPolygonShape {
         if (DEBUG && checkPhysicsModule(selector.wrapper.PolygonShape)) { return ENTIRE_SHAPE; }
-        return new selector.wrapper.PolygonShape!();
+        return new selector.wrapper.PolygonShape();
     };
 }
 
@@ -310,7 +311,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.SpringJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.SpringJoint!();
+            return new selector.wrapper.SpringJoint();
         }
     };
 
@@ -319,7 +320,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.DistanceJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.DistanceJoint!();
+            return new selector.wrapper.DistanceJoint();
         }
     };
 
@@ -328,7 +329,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.FixedJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.FixedJoint!();
+            return new selector.wrapper.FixedJoint();
         }
     };
 
@@ -337,7 +338,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.MouseJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.MouseJoint!();
+            return new selector.wrapper.MouseJoint();
         }
     };
 
@@ -346,7 +347,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.RelativeJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.RelativeJoint!();
+            return new selector.wrapper.RelativeJoint();
         }
     };
 
@@ -355,7 +356,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.SliderJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.SliderJoint!();
+            return new selector.wrapper.SliderJoint();
         }
     };
 
@@ -364,7 +365,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.WheelJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.WheelJoint!();
+            return new selector.wrapper.WheelJoint();
         }
     };
 
@@ -373,7 +374,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.HingeJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.HingeJoint!();
+            return new selector.wrapper.HingeJoint();
         }
     };
 }
