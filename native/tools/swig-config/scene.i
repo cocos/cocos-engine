@@ -67,7 +67,8 @@ using namespace cc;
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
-%ignore cc::scene::LODGroup::getVisibleLOD;
+%ignore cc::scene::LODGroup::getVisibleLODLevel;
+%ignore cc::scene::LODGroup::getLockedLODLevels;
 
 %ignore cc::scene::Pass::getBlocks;
 %ignore cc::scene::Pass::initPassFromTarget;
@@ -300,7 +301,7 @@ using namespace cc;
 %attribute(cc::scene::LODGroup, cc::Vec3&, localBoundaryCenter, getLocalBoundaryCenter, setLocalBoundaryCenter);
 %attribute(cc::scene::LODGroup, float, objectSize, getObjectSize, setObjectSize);
 %attribute(cc::scene::LODGroup, cc::Node*, node, getNode, setNode);
-%attribute(cc::scene::LODGroup, ccstd::vector<cc::IntrusivePtr<cc::scene::LODData>>&, LODs, getLODs);
+%attribute(cc::scene::LODGroup, ccstd::vector<cc::IntrusivePtr<cc::scene::LODData>>&, lodDataArray, getLodDataArray);
 %attribute(cc::scene::LODGroup, cc::scene::RenderScene*, scene, getScene);
 
 

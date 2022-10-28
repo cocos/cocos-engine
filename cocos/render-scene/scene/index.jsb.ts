@@ -31,11 +31,7 @@ export const Ambient = jsb.Ambient;
 legacyCC.Ambient = Ambient;
 
 export const LODData = jsb.LODData;
-export type LODData = jsb.LODData;
-legacyCC.LODData = jsb.LODData;
 export const LODGroup = jsb.LODGroup;
-export type LODGroup = jsb.LODGroup;
-legacyCC.LODGroup = jsb.LODGroup;
 
 /**
  * Light related.

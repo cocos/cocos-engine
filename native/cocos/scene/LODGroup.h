@@ -46,7 +46,7 @@ public:
     inline float getScreenUsagePercentage() const { return _screenUsagePercentage; }
     inline void setScreenUsagePercentage(float val) { _screenUsagePercentage = val; }
 
-    inline const ccstd::vector<IntrusivePtr<Model>> &getModels() { return _vecModels; }
+    inline const ccstd::vector<IntrusivePtr<Model>> &getModels() const { return _vecModels; }
 
     inline void addModel(Model *model) { _vecModels.emplace_back(model); }
     inline void clearModels() { _vecModels.clear(); }
@@ -79,11 +79,11 @@ public:
     inline const Vec3 &getLocalBoundaryCenter() const { return _localBoundaryCenter; }
     inline void setLocalBoundaryCenter(const Vec3 &value) { _localBoundaryCenter = value; }
 
-    inline const ccstd::vector<IntrusivePtr<LODData>> &getLODs() const { return _vecLODData; }
+    inline const ccstd::vector<IntrusivePtr<LODData>> &getLodDataArray() const { return _vecLODData; }
 
-    int8_t getVisibleLOD(const Camera *camera) const;
+    int8_t getVisibleLODLevel(const Camera *camera) const;
 
-    inline const ccstd::vector<uint8_t>& getLockLODLevels() const { return _vecLockLevels; }
+    inline const ccstd::vector<uint8_t>& getLockedLODLevels() const { return _vecLockedLevels; }
     void lockLODLevels(ccstd::vector<int> &levels);
 
     inline uint8_t getLodCount() const { return _vecLODData.size(); }
@@ -98,7 +98,7 @@ private:
     float getWorldSpaceSize() const;
 
     ccstd::vector<IntrusivePtr<LODData>> _vecLODData;
-    ccstd::vector<uint8_t> _vecLockLevels;
+    ccstd::vector<uint8_t> _vecLockedLevels;
     IntrusivePtr<Node> _node;
     RenderScene *_scene{nullptr};
     Vec3 _localBoundaryCenter;

@@ -81,7 +81,7 @@ export class LODGroup {
     /**
      *@en The array of LODs
      */
-    protected _LODs: LODData[] = [];
+    protected _lodDataArray: LODData[] = [];
 
     /**
      * For editor only, users maybe operate several LOD's object
@@ -96,7 +96,7 @@ export class LODGroup {
 
     get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
-    get lodCount () { return this._LODs.length; }
+    get lodCount () { return this._lodDataArray.length; }
 
     set objectSize (val: number) {
         this._objectSize = val;
@@ -104,8 +104,7 @@ export class LODGroup {
 
     get objectSize () { return this._objectSize; }
 
-    get LODs () : readonly LODData[] { return this._LODs; }
-
+    get lodDataArray () : readonly LODData[] { return this._lodDataArray; }
     attachToScene (scene: RenderScene) {
         this.scene = scene;
     }
@@ -118,24 +117,24 @@ export class LODGroup {
         this._lockedLODLevelVec  = lockLev;
     }
 
-    getLockLODLevels (): number[] {
+    getLockedLODLevels (): number[] {
         return this._lockedLODLevelVec;
     }
 
     clearLODs () {
-        this._LODs.length = 0;
+        this._lodDataArray.length = 0;
     }
 
     insertLOD (index: number, lod: LODData) {
-        this._LODs.splice(index, 0, lod);
+        this._lodDataArray.splice(index, 0, lod);
     }
 
     updateLOD (index: number, lod: LODData) {
-        this._LODs[index] = lod;
+        this._lodDataArray[index] = lod;
     }
 
     eraseLOD (index: number) {
-        this._LODs.splice(index, 1);
+        this._lodDataArray.splice(index, 1);
     }
 
     /**
@@ -143,12 +142,12 @@ export class LODGroup {
      * @param camera current perspective camera
      * @returns visible LOD index in lodGroup
      */
-    getVisibleLOD (camera: Camera): number {
+    getVisibleLODLevel (camera: Camera): number {
         const screenUsagePercentage = this.getScreenUsagePercentage(camera);
 
         let lodIndex = -1;
         for (let i = 0; i < this.lodCount; ++i) {
-            const lod = this.LODs[i];
+            const lod = this.lodDataArray[i];
             if (screenUsagePercentage >= lod.screenUsagePercentage) {
                 lodIndex = i;
                 break;

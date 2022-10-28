@@ -43,7 +43,7 @@ LODGroup::LODGroup() = default;
 LODGroup::~LODGroup() = default;
 
 
-int8_t LODGroup::getVisibleLOD(const Camera *camera) const {
+int8_t LODGroup::getVisibleLODLevel(const Camera *camera) const {
     float screenUsagePercentage = getScreenUsagePercentage(camera);
 
     int8_t lodIndex = -1;
@@ -89,8 +89,8 @@ float LODGroup::getWorldSpaceSize() const {
 }
 
 void LODGroup::lockLODLevels(ccstd::vector<int> &levels) {
-    _vecLockLevels.clear();
-    _vecLockLevels.insert(_vecLockLevels.begin(), levels.begin(), levels.end());
+    _vecLockedLevels.clear();
+    _vecLockedLevels.insert(_vecLockedLevels.begin(), levels.begin(), levels.end());
 }
 
 void LODGroup::insertLOD(uint8_t index, LODData *data) {

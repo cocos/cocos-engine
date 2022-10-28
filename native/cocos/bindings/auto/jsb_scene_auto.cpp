@@ -323,7 +323,7 @@ using namespace cc;
 #define cc_scene_LODGroup_node_set(self_, val_) self_->setNode(val_)
   
 
-#define cc_scene_LODGroup_LODs_get(self_) self_->getLODs()
+#define cc_scene_LODGroup_lodDataArray_get(self_) self_->getLodDataArray()
   
 
 #define cc_scene_LODGroup_scene_get(self_) self_->getScene()
@@ -7496,33 +7496,6 @@ static bool js_cc_scene_LODGroup_detachFromScene(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_LODGroup_detachFromScene) 
 
-static bool js_cc_scene_LODGroup_getLockLODLevels(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
-    ccstd::vector< uint8_t > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (ccstd::vector< uint8_t > *) &((cc::scene::LODGroup const *)arg1)->getLockLODLevels();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "LODGroup_getLockLODLevels, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_LODGroup_getLockLODLevels) 
-
 static bool js_cc_scene_LODGroup_lockLODLevels(se::State& s)
 {
     // js_function
@@ -7842,7 +7815,7 @@ static bool js_cc_scene_LODGroup_node_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_LODGroup_node_get) 
 
-static bool js_cc_scene_LODGroup_LODs_get(se::State& s)
+static bool js_cc_scene_LODGroup_lodDataArray_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
@@ -7850,16 +7823,16 @@ static bool js_cc_scene_LODGroup_LODs_get(se::State& s)
     
     arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (ccstd::vector< cc::IntrusivePtr< cc::scene::LODData > > *) &cc_scene_LODGroup_LODs_get(arg1);
+    result = (ccstd::vector< cc::IntrusivePtr< cc::scene::LODData > > *) &cc_scene_LODGroup_lodDataArray_get(arg1);
     // %typemap(out) SWIGTYPE&
     ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "LODGroup_LODs_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "LODGroup_lodDataArray_get, Error processing arguments");
     SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_scene_LODGroup_LODs_get) 
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_lodDataArray_get) 
 
 static bool js_cc_scene_LODGroup_scene_get(se::State& s)
 {
@@ -7888,12 +7861,11 @@ bool js_register_cc_scene_LODGroup(se::Object* obj) {
     cls->defineProperty("localBoundaryCenter", _SE(js_cc_scene_LODGroup_localBoundaryCenter_get), _SE(js_cc_scene_LODGroup_localBoundaryCenter_set)); 
     cls->defineProperty("objectSize", _SE(js_cc_scene_LODGroup_objectSize_get), _SE(js_cc_scene_LODGroup_objectSize_set)); 
     cls->defineProperty("node", _SE(js_cc_scene_LODGroup_node_get), _SE(js_cc_scene_LODGroup_node_set)); 
-    cls->defineProperty("LODs", _SE(js_cc_scene_LODGroup_LODs_get), nullptr); 
+    cls->defineProperty("lodDataArray", _SE(js_cc_scene_LODGroup_lodDataArray_get), nullptr); 
     cls->defineProperty("scene", _SE(js_cc_scene_LODGroup_scene_get), nullptr); 
     
     cls->defineFunction("attachToScene", _SE(js_cc_scene_LODGroup_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_LODGroup_detachFromScene)); 
-    cls->defineFunction("getLockLODLevels", _SE(js_cc_scene_LODGroup_getLockLODLevels)); 
     cls->defineFunction("lockLODLevels", _SE(js_cc_scene_LODGroup_lockLODLevels)); 
     cls->defineFunction("clearLODs", _SE(js_cc_scene_LODGroup_clearLODs)); 
     cls->defineFunction("insertLOD", _SE(js_cc_scene_LODGroup_insertLOD)); 
