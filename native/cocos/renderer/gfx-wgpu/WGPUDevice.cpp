@@ -317,7 +317,7 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
                         .origin = WGPUOrigin3D{
                             static_cast<uint32_t>(region.texOffset.x),
                             static_cast<uint32_t>(region.texOffset.y),
-                            static_cast<uint32_t>(d)},
+                            static_cast<uint32_t>(l)},
                         .aspect = WGPUTextureAspect_All,
                     };
 
@@ -338,7 +338,7 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
                             .origin = WGPUOrigin3D{
                                 static_cast<uint32_t>(region.texOffset.x),
                                 static_cast<uint32_t>(h),
-                                static_cast<uint32_t>(d)},
+                                static_cast<uint32_t>(l)},
                             .aspect = WGPUTextureAspect_All,
                         };
 
@@ -351,6 +351,9 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
                         wgpuQueueWriteTexture(_gpuDeviceObj->wgpuQueue, &imageCopyTexture, srcData, bytesPerRow, &texDataLayout, &extent);
                     }
                 }
+            }
+            if (hasFlag(ccTexture->getInfo().flags, TextureFlags::GEN_MIPMAP)) {
+                genMipMap(ccTexture, 1, ccTexture->getInfo().levelCount - 1, l, _cmdBuff);
             }
         }
     }

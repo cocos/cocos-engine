@@ -110,6 +110,7 @@ export class ShadowStage extends RenderStage {
         const descriptorSet = this._globalDS!;
         const cmdBuff = pipeline.commandBuffers[0];
         const level = this._level;
+        const device = pipeline.device;
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
         this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light, level);
@@ -125,8 +126,13 @@ export class ShadowStage extends RenderStage {
                 this._renderArea.width = shadowMapSize.x;
                 this._renderArea.height = shadowMapSize.y;
             } else {
+                const screenSpaceSignY = device.capabilities.screenSpaceSignY;
                 this._renderArea.x = level % 2 * 0.5 * shadowMapSize.x;
-                this._renderArea.y = (1 - Math.floor(level / 2)) * 0.5 * shadowMapSize.y;
+                if (screenSpaceSignY > 0.0) {
+                    this._renderArea.y = (1 - Math.floor(level / 2)) * 0.5 * shadowMapSize.y;
+                } else {
+                    this._renderArea.y = Math.floor(level / 2) * 0.5 * shadowMapSize.y;
+                }
                 this._renderArea.width = 0.5 * shadowMapSize.x;
                 this._renderArea.height = 0.5 * shadowMapSize.y;
             }
@@ -142,7 +148,6 @@ export class ShadowStage extends RenderStage {
         default:
         }
 
-        const device = pipeline.device;
         const renderPass = this._shadowFrameBuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,

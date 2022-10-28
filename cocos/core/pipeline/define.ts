@@ -29,7 +29,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
-    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
+    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format, API,
 } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
@@ -691,7 +691,8 @@ export function supportsR16HalfFloatTexture (device: Device) {
  */
 export function supportsR32FloatTexture (device: Device) {
     return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
-        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
 /* eslint-enable max-len */

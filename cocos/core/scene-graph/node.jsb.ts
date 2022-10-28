@@ -318,6 +318,7 @@ nodeProto.hasEventListener = function (type: string, callback?, target?: unknown
 };
 
 nodeProto.targetOff = function (target: string | unknown) {
+    this._eventProcessor.targetOff(target);
     // Check for event mask reset
     if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
         this._eventMask &= ~TRANSFORM_ON;
