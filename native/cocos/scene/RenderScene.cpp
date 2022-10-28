@@ -61,23 +61,24 @@ bool RenderScene::initialize(const IRenderSceneInfo &info) {
 }
 
 void RenderScene::addLODGroup(LODGroup *group) {
-    _LodGroups.emplace_back(group);
+    _lodGroups.emplace_back(group);
 }
 
 void RenderScene::removeLODGroup(LODGroup *group) {
-    auto iter = std::find(_LodGroups.begin(), _LodGroups.end(), group);
-    if (iter != _LodGroups.end()) {
-        _LodGroups.erase(iter);
+    auto iter = std::find(_lodGroups.begin(), _lodGroups.end(), group);
+    if (iter != _lodGroups.end()) {
+        group->detachFromScene();
+        _lodGroups.erase(iter);
     } else {
         CC_LOG_WARNING("Try to remove invalid LODGroup.");
     }
 }
 
 void RenderScene::removeLODGroups() {
-    for (const auto &group : _LodGroups) {
+    for (const auto &group : _lodGroups) {
         group->detachFromScene();
     }
-    _LodGroups.clear();
+    _lodGroups.clear();
 }
 
 void RenderScene::setMainLight(DirectionalLight *dl) {

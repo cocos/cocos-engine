@@ -30,7 +30,7 @@
 #include "PipelineSceneData.h"
 #include "RenderPipeline.h"
 #include "SceneCulling.h"
-#include "cocos/base/std/container/map.h"
+#include "base/std/container/map.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Intersect.h"

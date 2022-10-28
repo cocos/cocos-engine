@@ -44,18 +44,11 @@ LODGroup::LODGroup() = default;
 
 LODGroup::~LODGroup() = default;
 
-void LODGroup::destroy() {
-    for (auto &iter : _vecLOD) {
-        iter->clearModels();
-    }
-    _vecLOD.clear();
-    _node = nullptr;
-}
 
-int8_t LODGroup::getVisibleLOD(const Camera *camera) {
-    auto screenUsagePercentage = getScreenUsagePercentage(camera);
+int8_t LODGroup::getVisibleLOD(const Camera *camera) const {
+    float screenUsagePercentage = getScreenUsagePercentage(camera);
 
-    auto lodIndex = -1;
+    int8_t lodIndex = -1;
     for (auto i = 0; i < _vecLOD.size(); ++i) {
         auto &lod = _vecLOD[i];
         if (screenUsagePercentage >= lod->getScreenUsagePercentage()) {
@@ -66,7 +59,7 @@ int8_t LODGroup::getVisibleLOD(const Camera *camera) {
     return lodIndex;
 }
 
-float LODGroup::getScreenUsagePercentage(const Camera *camera) {
+float LODGroup::getScreenUsagePercentage(const Camera *camera) const {
     if (!_node.get()) {
         return 0;
     }
@@ -84,13 +77,13 @@ float LODGroup::getScreenUsagePercentage(const Camera *camera) {
 
 float LODGroup::distanceToScreenUsagePercentage(const Camera *camera, float distance, float size) {
     if (camera->getProjectionType() == CameraProjection::PERSPECTIVE) {
-        return (size * camera->getMatProj().m[5]) / (distance * 2.0); // note: matProj.m11 is 1 / tan(fov / 2.0)
-    } else {
-        return size * camera->getMatProj().m[5] * 0.5;
-    }
+        return static_cast<float> ((size * camera->getMatProj().m[5]) / (distance * 2.0)); // note: matProj.m11 is 1 / tan(fov / 2.0)
+    } 
+    return static_cast<float> (size * camera->getMatProj().m[5] * 0.5);
+    
 }
 
-float LODGroup::getWorldSpaceSize() {
+float LODGroup::getWorldSpaceSize() const {
     auto scale = _node->getScale();
     auto maxScale = fmaxf(fabs(scale.x), fabs(scale.y));
     maxScale = fmaxf(maxScale, fabs(scale.z));
@@ -104,7 +97,7 @@ void LODGroup::lockLODLevels(ccstd::vector<int> &levels) {
 
 void LODGroup::insertLOD(uint8_t index, LODData *data) {
     if (index >= _vecLOD.size()) {
-        _vecLOD.push_back(data);
+        _vecLOD.emplace_back(data);
     } else {
         _vecLOD.insert(_vecLOD.begin() + index, data);
     }

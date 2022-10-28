@@ -7496,28 +7496,6 @@ static bool js_cc_scene_LODGroup_detachFromScene(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_LODGroup_detachFromScene) 
 
-static bool js_cc_scene_LODGroup_destroy(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->destroy();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_LODGroup_destroy) 
-
 static bool js_cc_scene_LODGroup_getLockLODLevels(se::State& s)
 {
     // js_function
@@ -7526,7 +7504,7 @@ static bool js_cc_scene_LODGroup_getLockLODLevels(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
-    ccstd::vector< int > *result = 0 ;
+    ccstd::vector< uint8_t > *result = 0 ;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7534,7 +7512,7 @@ static bool js_cc_scene_LODGroup_getLockLODLevels(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (ccstd::vector< int > *) &(arg1)->getLockLODLevels();
+    result = (ccstd::vector< uint8_t > *) &((cc::scene::LODGroup const *)arg1)->getLockLODLevels();
     // %typemap(out) SWIGTYPE&
     ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "LODGroup_getLockLODLevels, Error processing arguments");
@@ -7915,7 +7893,6 @@ bool js_register_cc_scene_LODGroup(se::Object* obj) {
     
     cls->defineFunction("attachToScene", _SE(js_cc_scene_LODGroup_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_LODGroup_detachFromScene)); 
-    cls->defineFunction("destroy", _SE(js_cc_scene_LODGroup_destroy)); 
     cls->defineFunction("getLockLODLevels", _SE(js_cc_scene_LODGroup_getLockLODLevels)); 
     cls->defineFunction("lockLODLevels", _SE(js_cc_scene_LODGroup_lockLODLevels)); 
     cls->defineFunction("clearLODs", _SE(js_cc_scene_LODGroup_clearLODs)); 

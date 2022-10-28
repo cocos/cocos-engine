@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -48,8 +48,8 @@ ccstd::unordered_map<scene::Model *, bool> visibleModelsByAnyLODGroup;
 void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene, const scene::Camera *camera) {
     for (const auto &lodGroup : scene->getLODGroups()) {
         if (lodGroup->isEnabled()) {
-            auto &LODLevels = lodGroup->getLockLODLevels();
-            auto count = LODLevels.size();
+            auto &lodLevels = lodGroup->getLockLODLevels();
+            uint8_t count = lodLevels.size();
             // count == 0 will return to standard LOD processing.
             if (count > 0) {
                 for (auto index = 0; index < lodGroup->getLodCount(); index++) {
@@ -57,7 +57,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
                     for (const auto &model : lod->getModels()) {
                         for (auto i = 0; i < count; i++) {
                             // The LOD level to use.
-                            if (LODLevels[i] == index) {
+                            if (lodLevels[i] == index) {
                                 auto *node = model->getNode();
                                 if (node && node->isActive()) {
                                     visibleModelsByAnyLODGroup[model] = true;
@@ -71,7 +71,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
                 continue;
             }
 
-            auto visIndex = lodGroup->getVisibleLOD(camera);
+            int8_t visIndex = lodGroup->getVisibleLOD(camera);
             for (auto index = 0; index < lodGroup->getLodCount(); index++) {
                 auto &lod = lodGroup->getLODs()[index];
                 for (const auto &model : lod->getModels()) {
