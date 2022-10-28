@@ -310,22 +310,6 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     /**
-     * @en Whether to use light probe which provides indirect light to dynamic objects.
-     * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
-     */
-    @type(CCBoolean)
-    // eslint-disable-next-line func-names
-    @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility === MobilityMode.Movable); })
-    get useLightProbe () {
-        return this._useLightProbe;
-    }
-
-    set useLightProbe (val) {
-        this._useLightProbe = val;
-        this._updateUseLightProbe();
-    }
-
-    /**
      * @en Gets or sets the mesh of the model.
      * Note, when set, all morph targets' weights would be reset to zero.
      * @zh 获取或设置模型的网格数据。
@@ -350,6 +334,22 @@ export class MeshRenderer extends ModelRenderer {
         }
         this._updateCastShadow();
         this._updateReceiveShadow();
+        this._updateUseLightProbe();
+    }
+
+    /**
+     * @en Whether to use light probe which provides indirect light to dynamic objects.
+     * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
+     */
+    @type(CCBoolean)
+    // eslint-disable-next-line func-names
+    @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility === MobilityMode.Movable); })
+    get useLightProbe () {
+        return this._useLightProbe;
+    }
+
+    set useLightProbe (val) {
+        this._useLightProbe = val;
         this._updateUseLightProbe();
     }
 
