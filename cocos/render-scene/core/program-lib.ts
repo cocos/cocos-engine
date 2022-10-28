@@ -210,8 +210,8 @@ class ShaderSource {
 export type MacroValue = string | number | boolean;
 
 class ShaderCollection {
-    protected _shaderInfo : IProgramInfo | null = null;
-    protected _templateInfo : ITemplateInfo | null = null;
+    protected _shaderInfo : IProgramInfo;
+    protected _templateInfo : ITemplateInfo;
     protected _templateMacros : Record<string, MacroValue> = {};
     protected _defaultMacros : IMacroInfo[] = [];
     protected _shaderVariants: Record<string, Shader> = {};
@@ -332,11 +332,11 @@ class ShaderCollection {
     }
 
     public get templateInfo (): ITemplateInfo {
-        return this._templateInfo!;
+        return this._templateInfo;
     }
 
     public get template (): IProgramInfo {
-        return this._shaderInfo!;
+        return this._shaderInfo;
     }
 
     public getKey (defines: MacroRecord) {
@@ -371,14 +371,14 @@ class ShaderCollection {
     }
 
     public getShaderVariant (device: Device, macros: MacroRecord, pipeline: PipelineRuntime, key?: string) {
-        const tmpl = this._shaderInfo!;
-        const tmplInfo = this._templateInfo!;
+        const tmpl = this._shaderInfo;
+        const tmplInfo = this._templateInfo;
 
         const defines = macros;
         Object.assign(defines, pipeline.macros);
         if (!key) { key = this.getKey(defines); }
 
-        if (!(this._templateInfo!.pipelineLayout)) {
+        if (!(this._templateInfo.pipelineLayout)) {
             this.getDescriptorSetLayout(device);
             insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
             tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
@@ -416,16 +416,16 @@ class ShaderCollection {
                     const stageSource = variantSource.getStage(stage.stage);
                     stageSource.stage = stage.stage;
                     preCompile(prefix, stage.source, stageSource);
-                    this._templateInfo!.shaderInfo.stages[i] = stageSource;
+                    this._templateInfo.shaderInfo.stages[i] = stageSource;
                 }
                 this._shaderVariantSources[key!] = variantSource;
             } else {
-                this._templateInfo!.shaderInfo.stages.forEach((stage) => {
+                this._templateInfo.shaderInfo.stages.forEach((stage) => {
                     stage.source = source.getStage(stage.stage)!.source;
                 });
             }
-            this._templateInfo!.shaderInfo.name = getShaderInstanceName(this._shaderInfo!.name, macroArray);
-            shader = device.createShader(this._templateInfo!.shaderInfo);
+            this._templateInfo.shaderInfo.name = getShaderInstanceName(this._shaderInfo.name, macroArray);
+            shader = device.createShader(this._templateInfo.shaderInfo);
             return shader;
         };
 
@@ -438,8 +438,8 @@ class ShaderCollection {
     }
 
     getDescriptorSetLayout (device: Device, isLocal = false) {
-        const tmpl = this._shaderInfo!;
-        const tmplInfo = this._templateInfo!;
+        const tmpl = this._shaderInfo;
+        const tmplInfo = this._templateInfo;
         if (!tmplInfo.setLayouts.length) {
             _dsLayoutInfo.bindings = tmplInfo.bindings;
             tmplInfo.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
@@ -472,9 +472,6 @@ class ShaderCollection {
  * @zh 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
-    protected _templates: Record<string, IProgramInfo> = {}; // per shader
-    protected _cache: Record<string, Shader> = {};
-    protected _templateInfos: Record<number, ITemplateInfo> = {};
     protected _shaderCollection: Record<string, ShaderCollection> = {};
 
     public register (effect: EffectAsset) {

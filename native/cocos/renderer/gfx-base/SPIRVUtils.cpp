@@ -32,10 +32,6 @@
 #include "glslang/StandAlone/ResourceLimits.h"
 #include "spirv/spirv.h"
 
-#if CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
-#include "spirv-cross/spirv_msl.hpp"
-#endif
-
 namespace cc {
 namespace gfx {
 
@@ -354,17 +350,18 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList &attributes) {
                         attributes.end());
 }
 
-void SPIRVUtils::compileSPIRV2GLSL() {
-    CC_ASSERT(false);
-}
+// TODO (yiwenxue): move cross compile functions from backend
+// void SPIRVUtils::compileSPIRV2GLSL() {
+//     CC_ASSERT(false);
+// }
 
-void SPIRVUtils::compileSPIRV2MSL() {
-    CC_ASSERT(false);
-}
+// void SPIRVUtils::compileSPIRV2MSL() {
+//     CC_ASSERT(false);
+// }
 
-void SPIRVUtils::compileSPIRV2WGSL() {
-    CC_ASSERT(false);
-}
+// void SPIRVUtils::compileSPIRV2WGSL() {
+//     CC_ASSERT(false);
+// }
 
 } // namespace gfx
 } // namespace cc

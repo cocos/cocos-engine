@@ -42,9 +42,10 @@ public:
     void compileGLSL(ShaderStageFlagBit type, const ccstd::string &source);
 
     void compileGLSL2SPIRV(ShaderStageFlagBit type, const ccstd::string &source);
-    void compileSPIRV2GLSL();
-    void compileSPIRV2MSL();
-    void compileSPIRV2WGSL();
+    // TODO (yiwenxue): move cross compile functions
+    // void compileSPIRV2GLSL();
+    // void compileSPIRV2MSL();
+    // void compileSPIRV2WGSL();
 
     void compressInputLocations(gfx::AttributeList &attributes);
 
