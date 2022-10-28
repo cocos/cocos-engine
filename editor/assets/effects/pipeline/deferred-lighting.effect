@@ -212,12 +212,14 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
 
     if(depth < 1.0){
       if(albedoMap.r < 0.01&&albedoMap.g < 0.01&&albedoMap.b < 0.01){
-    
+        s.roughness = 0.0;
+        //s.specularIntensity = 1.0;
+        s.metallic = 0.0;
       #if __VERSION__ >= 460
       //vec3 light_points[4] = {vec3(1.995,5.443,3.199),vec3(1.179,10.125,0.022),vec3(1.726,11.071,3.873),vec3(7.3,5.89,-0.865)};
       vec3 origin = s.position;
       vec3 viewDirect = normalize(cc_cameraPos.xyz - s.position);
-      vec3 direction = -reflect(viewDirect,s.normal);
+      vec3 direction = reflect(-viewDirect,s.normal);
       float tMin = 0.01f;
       float tMax = 1000.0f;
 
@@ -277,13 +279,13 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
                 }
           }else{
                 //miss
-              s.albedo.rgb = vec3(0.3);//texture(cc_environment,direction).rgb;
+              s.albedo.rgb = vec3(0.1);//texture(cc_environment,direction).rgb;
               break;
           }
       }
         //if miss
         if(miss)
-            s.albedo.rgb = vec3(0.3);//texture(cc_environment,direction).rgb;
+            s.albedo.rgb = vec3(0.1);//texture(cc_environment,direction).rgb;
       #endif
       }
     }

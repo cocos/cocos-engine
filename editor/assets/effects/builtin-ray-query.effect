@@ -118,7 +118,7 @@ CCProgram ray-query-vs %{
     in vec2 a_texCoord1;
   #endif
 
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     #include <legacy/lightingmap-vs>
   #endif
 
@@ -166,7 +166,7 @@ CCProgram ray-query-vs %{
     CC_TRANSFER_FOG(pos);
     CC_TRANSFER_SHADOW(pos);
 
-    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 
@@ -180,7 +180,7 @@ CCProgram ray-query-fs %{
   #include <shared-ubos>
   #include <legacy/fog-fs>
   #include <legacy/standard-surface-entry>
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     #include <legacy/lightingmap-fs>
   #endif
 
@@ -313,7 +313,7 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
       if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
       s.lightmap = lightColor.xyz * v_luv.z;
       s.lightmap_test = v_luv.z; /*lum*/

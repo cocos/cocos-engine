@@ -106,7 +106,7 @@ CCProgram ray-query-vs %{
     in vec2 a_texCoord1;
   #endif
 
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     #include <legacy/lightingmap-vs>
   #endif
 
@@ -157,7 +157,7 @@ CCProgram ray-query-vs %{
     CC_TRANSFER_FOG(pos);
     CC_TRANSFER_SHADOW(pos);
 
-    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 
@@ -171,7 +171,7 @@ CCProgram ray-query-fs %{
   #include <shared-ubos>
   #include <legacy/fog-fs>
   #include <legacy/standard-surface-entry>
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     #include <legacy/lightingmap-fs>
   #endif
   
@@ -277,7 +277,7 @@ CCProgram ray-query-fs %{
       if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
       s.lightmap = lightColor.xyz * v_luv.z;
       s.lightmap_test = v_luv.z; /*lum*/
@@ -325,7 +325,27 @@ CCProgram ray-query-fs %{
         rayQueryEXT rayQuery;
         rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
 
-        while(rayQueryProceedEXT(rayQuery));
+        while(rayQueryProceedEXT(rayQuery)){
+           if (rayQueryGetIntersectionTypeEXT(rayQuery, false) == gl_RayQueryCandidateIntersectionAABBEXT){
+            bool opaqueHit = false;
+            float t = rayQueryGetIntersectionTEXT(rayQuery, false);
+            vec3 objectOrigin = rayQueryGetIntersectionObjectRayOriginEXT(rayQuery, false);
+            vec3 objectDir = rayQueryGetIntersectionObjectRayDirectionEXT(rayQuery, false);
+            float r = 0.5;
+            vec3 oc = objectOrigin;
+            float b = dot(oc, objectDir);
+            float c = dot(oc, oc) - r * r;
+            float h = b * b - c;
+            if (h >= 0.0) {
+              opaqueHit = true;
+              h = sqrt(h);
+              t = t-b-h;
+            } 
+            if(opaqueHit){
+              rayQueryGenerateIntersectionEXT(rayQuery, t);            
+            }
+           }
+        }
       
         if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
         {
@@ -336,28 +356,31 @@ CCProgram ray-query-fs %{
       shadowFactor/= 4.0;
 
       //ao
-      float seed  = baseHash(uvec2(gl_FragCoord.xy));
+      float seed  = baseHash(uvec2(cc_time.w*gl_FragCoord.xy));
       
       rayQueryEXT rayQuery;
       float tMin = 0.1f;//todo How to choose adaptive tMin according to vertex normal?
-      float tMax = 0.7;
+      float tMax = 0.7f;
       vec3 direction;
 
       float ao = .0;
-      /*
-      for(int i = 0;i<16;++i){
-        seed = hash1(seed);
-        direction = TBN*random_in_unit_hemisphere(seed);
-        rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
-        while(rayQueryProceedEXT(rayQuery));
-        if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
-        {
-          ao += 1.0;
+      const int AO_SAMPLE = 8;
+      const ivec2 tile_offset[4] = {ivec2(0,0),ivec2(0,1),ivec2(1,0),ivec2(1,1)};
+      int frame_id = int(mod(int(cc_time.z),4));
+      if(mod(ivec2(gl_FragCoord.xy+tile_offset[frame_id]),2)==ivec2(0,0)){
+        for(int i = 0;i<AO_SAMPLE;++i){
+          seed = hash1(seed);
+          direction = TBN*random_in_unit_hemisphere(seed);
+          rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
+          while(rayQueryProceedEXT(rayQuery));
+          if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
+          {
+            ao += 1.0;
+          }
         }
       }
-      */
-
-      ao /= 16.0;
+      
+      ao /= float(AO_SAMPLE);
 
       s.albedo *= (1.0 - ao);
       s.albedo *= (1.0 - shadowFactor);
