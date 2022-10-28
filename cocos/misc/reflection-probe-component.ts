@@ -35,41 +35,41 @@ import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
 
-export const ProbeResolution = Enum({
+export enum ProbeResolution {
     /**
      * @zh 分辨率 128 * 128。
      * @en renderTexture resolution 128 * 128.
      * @readonly
      */
-    Low_128x128: 128,
+    Low_128x128= 128,
     /**
      * @zh 分辨率 256 * 256。
      * @en renderTexture resolution 256 * 256.
      * @readonly
      */
-    Low_256x256: 256,
+    Low_256x256= 256,
 
     /**
       * @zh 分辨率 512 * 512。
       * @en renderTexture resolution 512 * 512.
       * @readonly
       */
-    Medium_512x512: 512,
+    Medium_512x512= 512,
 
     /**
       * @zh 分辨率 1024 * 1024。
       * @en renderTexture resolution 1024 * 1024.
       * @readonly
       */
-    High_1024x1024: 1024,
+    High_1024x1024= 1024,
 
     /**
       * @zh 分辨率 2048 * 2048。
       * @en renderTexture resolution 2048 * 2048.
       * @readonly
       */
-    Ultra_2048x2048: 2048,
-});
+    Ultra_2048x2048= 2048,
+};
 @ccclass('cc.ReflectionProbe')
 @menu('Rendering/ReflectionProbe')
 @executeInEditMode
@@ -93,7 +93,7 @@ export class ReflectionProbe extends Component {
     protected _cubemap: TextureCube | null = null;
 
     @serializable
-    protected _size = new Vec3();
+    protected _size = new Vec3(1,1,1);
 
     @serializable
     protected _sourceCamera: Camera | null = null;
@@ -113,6 +113,7 @@ export class ReflectionProbe extends Component {
         this._size = value;
         this.probe.size = this._size;
     }
+    @type(Vec3)
     get size () {
         return this._size;
     }
@@ -121,7 +122,7 @@ export class ReflectionProbe extends Component {
      * @en Environment reflection or plane reflection.
      * @zh 设置探针类型，环境反射或者平面反射
      */
-    @type(ProbeType)
+    @type(Enum(ProbeType))
     set probeType (value: number) {
         this._probeType = value;
         this.probe.probeType = value;
@@ -150,7 +151,7 @@ export class ReflectionProbe extends Component {
      * @en set render texture size
      * @zh 设置渲染纹理大小
      */
-    @type(ProbeResolution)
+    @type(Enum(ProbeResolution))
     set resolution (value: number) {
         this._resolution = value;
         this.probe.resolution = value;
@@ -163,7 +164,7 @@ export class ReflectionProbe extends Component {
      * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
-    @type(ProbeClearFlag)
+    @type(Enum(ProbeClearFlag))
     set clearFlag (value: number) {
         this._clearFlag = value;
         this.probe.clearFlag = this._clearFlag;
