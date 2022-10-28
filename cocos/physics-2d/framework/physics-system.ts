@@ -357,4 +357,3 @@ function initPhysicsSystem () {
 }
 
 director.once(Director.EVENT_INIT, () => { initPhysicsSystem(); });
-director.once(Director.EVENT_BEFORE_SCENE_LAUNCH, () => { selector.switchTo('box2d'); });
