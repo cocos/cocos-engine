@@ -513,7 +513,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name = 'Camera'): void {
+    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
         const sceneData = new SceneData(name, sceneFlags, light);
         sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
@@ -528,7 +528,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         }
         setTextureUBOView(this, camera, this._pipeline);
     }
-    addScene (sceneName: string, sceneFlags: SceneFlags): void {
+    addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
         const sceneData = new SceneData(sceneName, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
@@ -540,7 +540,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             name, '', new RenderData(), false, this._vertID,
         );
     }
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags) {
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags = SceneFlags.NONE) {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, camera),
             'CameraQuad', '', new RenderData(), false, this._vertID,
@@ -554,7 +554,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         }
         setTextureUBOView(this, camera, this._pipeline);
     }
-    clearRenderTarget (name: string, color: Color) {
+    clearRenderTarget (name: string, color: Color = new Color()) {
         this._renderGraph.addVertex<RenderGraphValue.Clear>(
             RenderGraphValue.Clear, [new ClearView(name, ClearFlagBit.COLOR, color)],
             'ClearRenderTarget', '', new RenderData(), false, this._vertID,
@@ -1006,7 +1006,7 @@ export class WebPipeline implements Pipeline {
             );
         }
     }
-    addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -1026,7 +1026,7 @@ export class WebPipeline implements Pipeline {
             new SamplerInfo(),
         );
     }
-    addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -1104,7 +1104,7 @@ export class WebPipeline implements Pipeline {
         this.endFrame();
     }
 
-    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder {
+    addRasterPass (width: number, height: number, layoutName = 'default'): RasterPassBuilder {
         const name = 'Raster';
         const pass = new RasterPass();
         pass.viewport.width = width;
