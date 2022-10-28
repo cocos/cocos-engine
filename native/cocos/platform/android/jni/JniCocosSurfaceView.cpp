@@ -91,7 +91,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_destructNative(JNIEnv
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSizeChangedNative(JNIEnv * /*env*/, jobject /*thiz*/, jint windowId, jint width, jint height) { // NOLINT JNI function name
-    cc::event::broadcast<cc::events::Resize>(width, height, windowId);
+    cc::events::Resize::broadcast(width, height, windowId);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceRedrawNeededNative(JNIEnv * /*env*/, jobject /*thiz*/, jlong handle) { // NOLINT JNI function name
@@ -112,7 +112,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNativ
     sysWindow->setWindowHandle(nativeWindow);
     if (oldNativeWindow) {
         auto func = [sysWindow]() -> void {
-            cc::event::broadcast<cc::events::WindowRecreated>(sysWindow->getWindowId());
+            cc::events::WindowRecreated::broadcast(sysWindow->getWindowId());
         };
         CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
     }
@@ -146,7 +146,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceChangedNativ
             sysWindow->setWindowHandle(newNativeWindow);
 
             auto func = [sysWindow]() -> void {
-                cc::event::broadcast<cc::events::WindowRecreated>(sysWindow->getWindowId());
+                cc::events::WindowRecreated::broadcast(sysWindow->getWindowId());
             };
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
         }
@@ -167,7 +167,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceDestroyedNat
         auto *windowMgr = platform->getInterface<cc::SystemWindowManager>();
         cc::ISystemWindow *window = windowMgr->getWindowFromANativeWindow(nativeWindow);
 
-        cc::event::broadcast<cc::events::WindowDestroy>(window->getWindowId());
+        cc::events::WindowDestroy::broadcast(window->getWindowId());
     };
     CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
 }
@@ -186,7 +186,7 @@ Java_com_cocos_lib_CocosTouchHandler_handleActionDown(JNIEnv *env, // NOLINT JNI
     touchEvent.windowId = windowId;
     touchEvent.type = cc::TouchEvent::Type::BEGAN;
     touchEvent.touches.emplace_back(x, y, id);
-    cc::event::broadcast<cc::events::Touch>(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 
@@ -203,7 +203,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEn
     touchEvent.windowId = windowId;
     touchEvent.type = cc::TouchEvent::Type::ENDED;
     touchEvent.touches.emplace_back(x, y, id);
-    cc::event::broadcast<cc::events::Touch>(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 
@@ -230,7 +230,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNI
         touchEvent.touches.emplace_back(x[i], y[i], id[i]);
     }
 
-    cc::event::broadcast<cc::events::Touch>(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 
@@ -256,7 +256,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(J
     for (int i = 0; i < size; i++) {
         touchEvent.touches.emplace_back(x[i], y[i], id[i]);
     }
-    cc::event::broadcast<cc::events::Touch>(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 }

@@ -55,19 +55,19 @@ void accessCacheArgObj(se::Object *func, se::Value *argObj, const char *cacheKey
 } // namespace
 namespace cc {
 
-cc::event::Listener<events::EnterForeground> EventDispatcher::listenerEnterForeground;
-cc::event::Listener<events::EnterBackground> EventDispatcher::listenerEnterBackground;
-cc::event::Listener<events::WindowChanged> EventDispatcher::listenerWindowChanged;
-cc::event::Listener<events::LowMemory> EventDispatcher::listenerLowMemory;
-cc::event::Listener<events::Touch> EventDispatcher::listenerTouch;
-cc::event::Listener<events::Mouse> EventDispatcher::listenerMouse;
-cc::event::Listener<events::Keyboard> EventDispatcher::listenerKeyboard;
-cc::event::Listener<events::Controller> EventDispatcher::listenerConroller;
-cc::event::Listener<events::Tick> EventDispatcher::listenerTick;
-cc::event::Listener<events::Resize> EventDispatcher::listenerResize;
-cc::event::Listener<events::Orientation> EventDispatcher::listenerOrientation;
-cc::event::Listener<events::RestartVM> EventDispatcher::listenerRestartVM;
-cc::event::Listener<events::Close> EventDispatcher::listenerClose;
+events::EnterForeground::Listener EventDispatcher::listenerEnterForeground;
+events::EnterBackground::Listener EventDispatcher::listenerEnterBackground;
+events::WindowChanged::Listener EventDispatcher::listenerWindowChanged;
+events::LowMemory::Listener EventDispatcher::listenerLowMemory;
+events::Touch::Listener EventDispatcher::listenerTouch;
+events::Mouse::Listener EventDispatcher::listenerMouse;
+events::Keyboard::Listener EventDispatcher::listenerKeyboard;
+events::Controller::Listener EventDispatcher::listenerConroller;
+events::Tick::Listener EventDispatcher::listenerTick;
+events::Resize::Listener EventDispatcher::listenerResize;
+events::Orientation::Listener EventDispatcher::listenerOrientation;
+events::RestartVM::Listener EventDispatcher::listenerRestartVM;
+events::Close::Listener EventDispatcher::listenerClose;
 
 uint32_t EventDispatcher::hashListenerId = 1;
 
@@ -99,7 +99,6 @@ void EventDispatcher::init() {
 }
 
 void EventDispatcher::destroy() {
-
     for (auto *touchObj : jsTouchObjPool) {
         touchObj->unroot();
         touchObj->decRef();
@@ -241,7 +240,6 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
     se::ValueArray args;
     args.emplace_back(se::Value(jsMouseEventObj));
     EventDispatcher::doDispatchJsEvent(jsFunctionName, args);
-    // EventDispatcher::dispatchCustomEvent(eventName, 0);
 }
 
 void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) {

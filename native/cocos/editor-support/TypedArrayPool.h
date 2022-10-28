@@ -76,7 +76,7 @@ private:
     typeMap _pool;
     bool _allowPush = true;
 
-    cc::event::Listener<cc::events::Close> _closeListener;
+    cc::events::Close::Listener _closeListener;
 
 public:
     /**

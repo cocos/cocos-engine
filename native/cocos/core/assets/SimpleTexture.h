@@ -41,8 +41,10 @@ class ImageAsset;
  */
 class SimpleTexture : public TextureBase {
     IMPL_EVENT_TARGET(SimpleTexture)
-    DECLARE_TARGET_EVENT1(TextureUpdated, SimpleTexture, cc::gfx::Texture *)
-    DECLARE_TARGET_EVENT1(AfterAssignImage, SimpleTexture, cc::ImageAsset *)
+    DECLARE_TARGET_EVENT_BEGIN(SimpleTexture)
+    TARGET_EVENT_ARG1(TextureUpdated, cc::gfx::Texture *)
+    TARGET_EVENT_ARG1(AfterAssignImage, cc::ImageAsset *)
+    DECLARE_TARGET_EVENT_END()
 public:
     ~SimpleTexture() override;
 

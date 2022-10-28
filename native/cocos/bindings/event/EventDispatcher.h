@@ -58,19 +58,19 @@ private:
     static void dispatchCloseEvent();
     static uint32_t hashListenerId; // simple increment hash
 
-    static cc::event::Listener<events::EnterForeground> listenerEnterForeground;
-    static cc::event::Listener<events::EnterBackground> listenerEnterBackground;
-    static cc::event::Listener<events::WindowChanged> listenerWindowChanged;
-    static cc::event::Listener<events::LowMemory> listenerLowMemory;
-    static cc::event::Listener<events::Touch> listenerTouch;
-    static cc::event::Listener<events::Mouse> listenerMouse;
-    static cc::event::Listener<events::Keyboard> listenerKeyboard;
-    static cc::event::Listener<events::Controller> listenerConroller;
-    static cc::event::Listener<events::Tick> listenerTick;
-    static cc::event::Listener<events::Resize> listenerResize;
-    static cc::event::Listener<events::Orientation> listenerOrientation;
-    static cc::event::Listener<events::RestartVM> listenerRestartVM;
-    static cc::event::Listener<events::Close> listenerClose;
+    static events::EnterForeground::Listener listenerEnterForeground;
+    static events::EnterBackground::Listener listenerEnterBackground;
+    static events::WindowChanged::Listener listenerWindowChanged;
+    static events::LowMemory::Listener listenerLowMemory;
+    static events::Touch::Listener listenerTouch;
+    static events::Mouse::Listener listenerMouse;
+    static events::Keyboard::Listener listenerKeyboard;
+    static events::Controller::Listener listenerConroller;
+    static events::Tick::Listener listenerTick;
+    static events::Resize::Listener listenerResize;
+    static events::Orientation::Listener listenerOrientation;
+    static events::RestartVM::Listener listenerRestartVM;
+    static events::Close::Listener listenerClose;
 };
 
 } // end of namespace cc

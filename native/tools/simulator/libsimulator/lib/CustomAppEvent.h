@@ -39,7 +39,7 @@
 #include "json/stringbuffer.h"
 #include "json/writer.h"
 
-#include "cocos/core/event/Event.h"
+#include "cocos/core/event/EventBus.h"
 
 enum {
     APP_EVENT_MENU = 1,
@@ -59,6 +59,6 @@ struct CC_LIBSIM_DLL CustomAppEvent final {
 };
 
 DECLARE_EVENT_BUS(Simulator)
-DECLARE_BUS_EVENT1(SimulatorAppEvent, Simulator, const CustomAppEvent &)
+DECLARE_BUS_EVENT_ARG1(SimulatorAppEvent, Simulator, const CustomAppEvent &)
 
 #endif /* defined(__Simulator__AppEvent__) */

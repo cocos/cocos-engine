@@ -27,8 +27,8 @@
 #include <cstdint>
 //#include "3d/skeletal-animation/DataPoolManager.h"
 #include "bindings/event/EventDispatcher.h"
-#include "core/memop/Pool.h"
 #include "core/event/Event.h"
+#include "core/memop/Pool.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
@@ -36,7 +36,6 @@
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
-
 
 namespace cc {
 class IXRInterface;
@@ -67,8 +66,10 @@ class ISystemWindow;
 
 class Root final : public event::EventTarget {
     IMPL_EVENT_TARGET(Root)
-    DECLARE_TARGET_EVENT0(BeforeCommit, Root)
-    DECLARE_TARGET_EVENT0(BeforeRender, Root)
+    DECLARE_TARGET_EVENT_BEGIN(Root)
+    TARGET_EVENT_ARG0(BeforeCommit)
+    TARGET_EVENT_ARG0(BeforeRender)
+    DECLARE_TARGET_EVENT_END()
 public:
     static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
@@ -330,7 +331,6 @@ private:
     IXRInterface *_xr{nullptr};
     cc::event::Listener<events::WindowDestroy> _windowDestroyListener;
     cc::event::Listener<events::WindowRecreated> _windowRecreatedListener;
-
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;

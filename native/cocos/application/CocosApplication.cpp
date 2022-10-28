@@ -49,7 +49,7 @@ CocosApplication::~CocosApplication() {
 
 void CocosApplication::unregisterAllEngineEvents() {
     if (_engine != nullptr) {
-       _engine->off(_engineEvents); 
+        _engine->off(_engineEvents);
     }
 }
 
@@ -61,7 +61,7 @@ int CocosApplication::init() {
 
     _systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
 
-    _engineEvents = _engine->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status){
+    _engineEvents = _engine->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status) {
         switch (status) {
             case BaseEngine::ON_START:
                 this->onStart();
@@ -80,7 +80,6 @@ int CocosApplication::init() {
         }
     });
 
-
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
     jsb_init_file_operation_delegate();
@@ -98,7 +97,7 @@ int CocosApplication::init() {
     IScreen *screen = _engine->getInterface<IScreen>();
     float pixelRatio = screen->getDevicePixelRatio();
     uint32_t windowId = _systemWindow->getWindowId();
-    event::broadcast<events::Resize>(logicSize.x * pixelRatio, logicSize.y * pixelRatio, windowId);
+    events::Resize::broadcast(logicSize.x * pixelRatio, logicSize.y * pixelRatio, windowId);
 #endif
     return 0;
 }

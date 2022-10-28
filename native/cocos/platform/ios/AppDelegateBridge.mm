@@ -61,7 +61,7 @@ cc::IOSPlatform *_platform = nullptr;
 
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
-    cc::event::broadcast<cc::events::LowMemory>();
+    cc::events::LowMemory::broadcast();
 }
 
 - (float)getPixelRatio {
@@ -94,7 +94,7 @@ cc::IOSPlatform *_platform = nullptr;
     cc::DeviceEvent ev;
     cc::BasePlatform *platform = cc::BasePlatform::getPlatform();
     cc::IScreen *screenIntf = platform->getInterface<cc::IScreen>();
-    cc::event::broadcast<cc::events::Orientation>((int)screenIntf->getDeviceOrientation());
+    cc::events::Orientation::broadcast((int)screenIntf->getDeviceOrientation());
 
     float pixelRatio = screenIntf->getDevicePixelRatio();
     cc::WindowEvent resizeEv;
@@ -102,7 +102,7 @@ cc::IOSPlatform *_platform = nullptr;
     resizeEv.type = cc::WindowEvent::Type::RESIZED;
     resizeEv.width = size.width * pixelRatio;
     resizeEv.height = size.height * pixelRatio;
-    cc::event::broadcast<cc::events::WindowEvent>(resizeEv);
+    cc::events::WindowEvent::broadcast(resizeEv);
 }
 
 - (void)dispatchTouchEvent:(cc::TouchEvent::Type)type touches:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -114,7 +114,7 @@ cc::IOSPlatform *_platform = nullptr;
                                       static_cast<float>([touch locationInView:[touch view]].y),
                                       static_cast<int>((intptr_t)touch)});
     }
-    cc::event::broadcast<cc::events::Touch>(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 

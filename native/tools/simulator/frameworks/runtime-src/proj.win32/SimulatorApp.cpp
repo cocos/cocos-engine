@@ -711,8 +711,8 @@ LRESULT CALLBACK SimulatorApp::windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                         << "\"menuClicked\""
                         << "}";
                     event.dataString = buf.str();
-                    event.menuItem = (void *)menuItem;
-                    cc::event::broadcast<SimulatorAppEvent>(event);
+                    event.menuItem = (void*)menuItem;
+                    SimulatorAppEvent::broadcast(event);
                 }
 
                 if (menuId == ID_HELP_ABOUT) {

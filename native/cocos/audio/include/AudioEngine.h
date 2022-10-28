@@ -391,8 +391,8 @@ protected:
 
 private:
     static float sVolumeFactor;
-    static cc::event::Listener<events::EnterBackground> sOnPauseListenerID;
-    static cc::event::Listener<events::EnterForeground> sOnResumeListenerID;
+    static events::EnterBackground::Listener sOnPauseListenerID;
+    static events::EnterForeground::Listener sOnResumeListenerID;
     static ccstd::vector<int> sBreakAudioID;
 
     static void onEnterBackground();

@@ -289,9 +289,9 @@ static ButtonHandler*           btnHandler = nil;
     NSMutableDictionary<NSString*, InputBoxPair*>*      textInputDictionnary;
     InputBoxPair*                                       curView;
 
-    cc::event::Listener<cc::events::Resize>  resizeListener;
-    cc::event::Listener<cc::events::Touch>  touchListener;
-    cc::event::Listener<cc::events::Close>  closeListener;
+    cc::events::Resize::Listener  resizeListener;
+    cc::events::Touch::Listener  touchListener;
+    cc::events::Close::Listener  closeListener;
 }
 static EditboxManager *instance = nil;
 

@@ -89,7 +89,9 @@ struct IMaterialInfo {
 
 class Material : public Asset {
     IMPL_EVENT_TARGET(Material)
-    DECLARE_TARGET_EVENT0(PassesUpdated, Material)
+    DECLARE_TARGET_EVENT_BEGIN(Material)
+    TARGET_EVENT_ARG0(PassesUpdated)
+    DECLARE_TARGET_EVENT_END()
 public:
     using Super = Asset;
     /**

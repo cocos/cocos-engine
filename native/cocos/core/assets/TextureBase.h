@@ -46,7 +46,9 @@ class Texture;
  */
 class TextureBase : public Asset {
     IMPL_EVENT_TARGET(TextureBase)
-    DECLARE_TARGET_EVENT1(SamplerUpdated, TextureBase, cc::gfx::Sampler *)
+    DECLARE_TARGET_EVENT_BEGIN(TextureBase)
+    TARGET_EVENT_ARG1(SamplerUpdated, cc::gfx::Sampler *)
+    DECLARE_TARGET_EVENT_END()
 public:
     using Super = Asset;
 

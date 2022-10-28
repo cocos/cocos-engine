@@ -27,9 +27,9 @@
 
 #include "base/Config.h"
 #include "base/TypeDef.h"
-#include "engine/EngineEvents.h"
+#include "core/event/EventBus.h"
 #include "engine/BaseEngine.h"
-#include "core/event/Event.h"
+#include "engine/EngineEvents.h"
 #include "math/Vec2.h"
 
 #include <map>
@@ -134,8 +134,8 @@ private:
     BuiltinResMgr *_builtinResMgr{nullptr};
     ProgramLib *_programLib{nullptr};
 
-    cc::event::Listener<events::WindowEvent> _windowEvents;
-    
+    events::WindowEvent::Listener _windowEventListener;
+
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
 

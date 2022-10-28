@@ -44,6 +44,6 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrienta
             orientation = (int)cc::Device::Orientation::LANDSCAPE_LEFT;
     }
     // run callbacks in game thread?
-    cc::event::broadcast<cc::events::Orientation>(orientation); 
+    cc::events::Orientation::broadcast(orientation);
 }
 }

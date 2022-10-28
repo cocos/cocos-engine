@@ -27,12 +27,12 @@
 #include "JsbBridge.h"
 #include "JsbBridgeWrapper.h"
 #include "engine/EngineEvents.h"
-#include "core/event/Event.h"
+#include "core/event/EventBus.h"
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;
     NSMutableDictionary<NSString*, NSMutableArray<OnScriptEventListener>*>* cbDictionnary;
-    cc::event::Listener<cc::events::Close> closeListener;
+    cc::events::Close::Listener closeListener;
 }
 
 static JsbBridgeWrapper* instance = nil;

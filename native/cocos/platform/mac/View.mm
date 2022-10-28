@@ -130,7 +130,7 @@
     if (cc::EventDispatcher::initialized()) {
         auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
         auto *window = windowMgr->getWindowFromNSWindow([self window]);
-        cc::event::broadcast<cc::events::Resize>(static_cast<int>(width), static_cast<int>(height), window->getWindowId());
+        cc::events::Resize::broadcast(static_cast<int>(width), static_cast<int>(height), window->getWindowId());
     }
 }
 
@@ -279,7 +279,7 @@
     _mouseEvent.button = button;
     _mouseEvent.x = pos.x;
     _mouseEvent.y = contentRect.size.height - pos.y;
-    cc::event::broadcast<cc::events::Mouse>(_mouseEvent);
+    cc::events::Mouse::broadcast(_mouseEvent);
 }
 
 @end

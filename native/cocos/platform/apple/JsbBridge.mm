@@ -25,7 +25,6 @@
 
 #include "JsbBridge.h"
 #import <Foundation/Foundation.h>
-#include "core/event/Event.h"
 #include "base/std/container/string.h"
 #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 #include "engine/EngineEvents.h"
@@ -40,7 +39,7 @@ bool callPlatformStringMethod(const ccstd::string &arg0, const ccstd::string &ar
 
 @implementation JsbBridge {
     ICallback callback;
-    cc::event::Listener<cc::events::Close> closeListener;
+    cc::events::Close::Listener closeListener;
 }
 
 static JsbBridge *instance = nil;

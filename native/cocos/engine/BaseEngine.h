@@ -29,6 +29,7 @@
 
 #include "base/Scheduler.h"
 #include "base/TypeDef.h"
+#include "core/event/EventTarget.h"
 #include "platform/BasePlatform.h"
 
 namespace cc {
@@ -46,7 +47,10 @@ public:
     using Ptr = std::shared_ptr<BaseEngine>;
 
     IMPL_EVENT_TARGET(BaseEngine)
-    DECLARE_TARGET_EVENT1(EngineStatusChange, BaseEngine, EngineStatus)
+
+    DECLARE_TARGET_EVENT_BEGIN(BaseEngine)
+    TARGET_EVENT_ARG1(EngineStatusChange, EngineStatus)
+    DECLARE_TARGET_EVENT_END()
     /**
      @brief Get operating system interface template.
      */

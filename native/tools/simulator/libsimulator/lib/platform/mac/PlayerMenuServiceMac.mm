@@ -117,7 +117,7 @@ static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
     buf << ",\"name\":" << "\"menuClicked\"" << "}";
     event.dataString = buf.str();
     event.menuItem = (void*)self.macMenuItem;
-    cc::event::broadcast<SimulatorAppEvent>(event);
+    SimulatorAppEvent::broadcast(event);
 }
 
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem

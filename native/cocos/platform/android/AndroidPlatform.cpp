@@ -257,7 +257,7 @@ public:
                 }
             }
 
-            event::broadcast<events::Touch>(touchEvent);
+            events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
             return true;
         }
@@ -273,7 +273,7 @@ public:
             keyboardEvent.action = 0 == keyEvent->action ? cc::KeyboardEvent::Action::PRESS
                                                          : cc::KeyboardEvent::Action::RELEASE;
             keyboardEvent.key = action.actionCode;
-            event::broadcast<events::Keyboard>(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
             return true;
         }
         return false;
@@ -288,11 +288,11 @@ public:
         if (wentUp) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
-            event::broadcast<events::Keyboard>(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
         } else if (wentDown) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
-            event::broadcast<events::Keyboard>(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
         }
     }
 
@@ -342,7 +342,7 @@ public:
                     auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
                     auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
                     window->setWindowHandle(nativeWindow);
-                    event::broadcast<events::WindowRecreated>(ISystemWindow::mainWindowId);
+                    events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
                 }
                 break;
             }
@@ -355,7 +355,7 @@ public:
                     xr->onRenderPause();
                 }
                 // NOLINTNEXTLINE
-                event::broadcast<events::WindowDestroy>(ISystemWindow::mainWindowId);
+                events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
@@ -383,7 +383,7 @@ public:
                 }
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
-                event::broadcast<events::WindowEvent>(ev);
+                events::WindowEvent::broadcast(ev);
                 _androidPlatform->onDestroy();
                 break;
             }
@@ -393,7 +393,7 @@ public:
                 Paddleboat_onStop(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::HIDDEN;
-                event::broadcast<events::WindowEvent>(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_START: {
@@ -402,7 +402,7 @@ public:
                 Paddleboat_onStart(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::SHOW;
-                event::broadcast<events::WindowEvent>(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_WINDOW_RESIZED: {
@@ -411,7 +411,7 @@ public:
                 ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
                 ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
                 ev.height = ANativeWindow_getHeight(_androidPlatform->_app->window);
-                event::broadcast<events::WindowEvent>(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_CONFIG_CHANGED:
@@ -425,7 +425,7 @@ public:
                 // system told us we have low memory. So if we are not visible, let's
                 // cooperate by deallocating all of our graphic resources.
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
-                event::broadcast<events::LowMemory>();
+                events::LowMemory::broadcast();
                 break;
             }
             case APP_CMD_CONTENT_RECT_CHANGED:

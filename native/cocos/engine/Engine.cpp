@@ -30,9 +30,9 @@
 #include <sstream>
 #include "base/DeferredReleasePool.h"
 #include "base/Macros.h"
-#include "engine/EngineEvents.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "core/builtin/BuiltinResMgr.h"
+#include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 #include "renderer/GFXDeviceManager.h"
@@ -79,10 +79,10 @@ bool setCanvasCallback(se::Object * /*global*/) {
     auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
     auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
-    
+
     std::stringstream ss;
     {
-        ss << "window.innerWidth = "  << static_cast<int>(viewSize.x / dpr) << ";";
+        ss << "window.innerWidth = " << static_cast<int>(viewSize.x / dpr) << ";";
         ss << "window.innerHeight = " << static_cast<int>(viewSize.y / dpr) << ";";
         ss << "window.windowHandler = ";
         if (sizeof(handler) == 8) { // use bigint
@@ -104,7 +104,7 @@ namespace cc {
 Engine::Engine() {
     _scriptEngine = ccnew se::ScriptEngine();
 
-    _windowEvents.bind([this] (const cc::WindowEvent &ev){ redirectWindowEvent(ev); });
+    _windowEventListener.bind([this](const cc::WindowEvent &ev) { redirectWindowEvent(ev); });
 }
 
 Engine::~Engine() {
@@ -135,7 +135,6 @@ int32_t Engine::init() {
     BasePlatform *platform = BasePlatform::getPlatform();
 
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
-    // emit(static_cast<int>(ON_START));
     emit<EngineStatusChange>(ON_START);
     _inited = true;
     return 0;
@@ -247,7 +246,6 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
 }
 
-
 void Engine::tick() {
     CC_PROFILER_BEGIN_FRAME;
     {
@@ -280,7 +278,7 @@ void Engine::tick() {
         _scheduler->update(dt);
 
         se::ScriptEngine::getInstance()->handlePromiseExceptions();
-        event::broadcast<events::Tick>(dt);
+        events::Tick::broadcast(dt);
         se::ScriptEngine::getInstance()->mainLoopUpdate();
 
         cc::DeferredReleasePool::clear();
@@ -294,7 +292,7 @@ void Engine::tick() {
 }
 
 void Engine::doRestart() {
-    event::broadcast<events::RestartVM>();
+    events::RestartVM::broadcast();
     destroy();
     CC_CURRENT_APPLICATION()->init();
 }
@@ -307,30 +305,30 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
     bool isHandled = false;
     if (ev.type == WindowEvent::Type::SHOW ||
         ev.type == WindowEvent::Type::RESTORED) {
-        static_cast<BaseEngine*>(this)->emit<EngineStatusChange>(ON_RESUME);
+        emit<EngineStatusChange>(ON_RESUME);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        event::broadcast<events::WindowRecreated>(ev.windowId);
+        events::WindowRecreated::broadcast(ev.windowId);
 #endif
-        event::broadcast<events::EnterForeground>();
+        events::EnterForeground::broadcast();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
-        event::broadcast<events::Resize>(ev.width, ev.height, ev.windowId);
+        events::Resize::broadcast(ev.width, ev.height, ev.windowId);
         auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
         CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {
-        static_cast<BaseEngine*>(this)->emit<EngineStatusChange>(ON_PAUSE);
+        emit<EngineStatusChange>(ON_PAUSE);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        event::broadcast<events::WindowDestroy>(ev.windowId);
+        events::WindowDestroy::broadcast(ev.windowId);
 #endif
-        event::broadcast<events::EnterBackground>();
+        events::EnterBackground::broadcast();
 
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {
-        static_cast<BaseEngine*>(this)->emit<EngineStatusChange>(ON_CLOSE);
+        emit<EngineStatusChange>(ON_CLOSE);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
         // There is no need to process the quit message,
@@ -339,7 +337,5 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
     }
     return isHandled;
 }
-
-
 
 } // namespace cc

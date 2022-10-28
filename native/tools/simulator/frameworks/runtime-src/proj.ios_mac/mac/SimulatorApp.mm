@@ -66,7 +66,7 @@
     NSPipe *_pipe;
     NSFileHandle *_pipeReadHandle;
     
-    cc::event::Listener<SimulatorAppEvent> _appListener;
+    SimulatorAppEvent::Listener _appListener;
 }
 
 @property (nonatomic, assign) IBOutlet NSMenu* menu;

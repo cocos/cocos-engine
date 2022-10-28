@@ -27,7 +27,7 @@
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
-#include "core/event/Event.h"
+#include "core/event/EventBus.h"
 
 namespace cc {
 
@@ -293,24 +293,24 @@ public:
 };
 
 namespace events {
-DECLARE_EVENT_BUS(Engine);
-DECLARE_BUS_EVENT0(EnterForeground, Engine);
-DECLARE_BUS_EVENT0(EnterBackground, Engine);
-DECLARE_BUS_EVENT1(WindowRecreated, Engine, uint32_t /* windowId*/);
-DECLARE_BUS_EVENT1(WindowDestroy, Engine, uint32_t /*windowId*/);
-DECLARE_BUS_EVENT1(WindowEvent, Engine, const cc::WindowEvent &);
-DECLARE_BUS_EVENT1(WindowChanged, Engine, cc::WindowEvent::Type);
-DECLARE_BUS_EVENT0(LowMemory, Engine);
-DECLARE_BUS_EVENT1(Touch, Engine, const cc::TouchEvent &);
-DECLARE_BUS_EVENT1(Mouse, Engine, const cc::MouseEvent &);
-DECLARE_BUS_EVENT1(Keyboard, Engine, const cc::KeyboardEvent &);
-DECLARE_BUS_EVENT1(Controller, Engine, const cc::ControllerEvent &);
-DECLARE_BUS_EVENT1(Tick, Engine, float);
-DECLARE_BUS_EVENT3(Resize, Engine, int, int, uint32_t /* windowId*/);
-DECLARE_BUS_EVENT1(Orientation, Engine, int);
-DECLARE_BUS_EVENT0(RestartVM, Engine);
-DECLARE_BUS_EVENT0(Close, Engine);
-DECLARE_BUS_EVENT0(SceneLoad, Engine);
+DECLARE_EVENT_BUS(Engine)
 
+DECLARE_BUS_EVENT_ARG0(EnterForeground, Engine)
+DECLARE_BUS_EVENT_ARG0(EnterBackground, Engine)
+DECLARE_BUS_EVENT_ARG1(WindowRecreated, Engine, uint32_t /* windowId*/)
+DECLARE_BUS_EVENT_ARG1(WindowDestroy, Engine, uint32_t /*windowId*/)
+DECLARE_BUS_EVENT_ARG1(WindowEvent, Engine, const cc::WindowEvent &)
+DECLARE_BUS_EVENT_ARG1(WindowChanged, Engine, cc::WindowEvent::Type)
+DECLARE_BUS_EVENT_ARG0(LowMemory, Engine)
+DECLARE_BUS_EVENT_ARG1(Touch, Engine, const cc::TouchEvent &)
+DECLARE_BUS_EVENT_ARG1(Mouse, Engine, const cc::MouseEvent &)
+DECLARE_BUS_EVENT_ARG1(Keyboard, Engine, const cc::KeyboardEvent &)
+DECLARE_BUS_EVENT_ARG1(Controller, Engine, const cc::ControllerEvent &)
+DECLARE_BUS_EVENT_ARG1(Tick, Engine, float)
+DECLARE_BUS_EVENT_ARG3(Resize, Engine, int, int, uint32_t /* windowId*/)
+DECLARE_BUS_EVENT_ARG1(Orientation, Engine, int)
+DECLARE_BUS_EVENT_ARG0(RestartVM, Engine)
+DECLARE_BUS_EVENT_ARG0(Close, Engine)
+DECLARE_BUS_EVENT_ARG0(SceneLoad, Engine)
 } // namespace events
 } // namespace cc

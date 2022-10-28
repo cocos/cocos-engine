@@ -505,7 +505,7 @@ protected:
 } // namespace event
 } // namespace cc
 
-#define DECLARE_TARGET_EVENT0(EventType, EmitterType)                                   \
+#define TARGET_EVENT_ARG0(EventType)                                                    \
     class EventType final : public cc::event::TgtEventTrait<EmitterType> {              \
     public:                                                                             \
         using base_type = cc::event::TgtEventTrait<EmitterType>;                        \
@@ -519,7 +519,7 @@ protected:
     };
 
 // NOLINTNEXTLINE
-#define _DECLARE_TARGET_EVENT_INTER(EventType, EmitterType, ...)                        \
+#define _DECLARE_TARGET_EVENT_INTER(EventType, ...)                                     \
     class EventType final : public cc::event::TgtEventTrait<EmitterType, __VA_ARGS__> { \
     public:                                                                             \
         using base_type = cc::event::TgtEventTrait<EmitterType, __VA_ARGS__>;           \
@@ -590,5 +590,10 @@ public:                                                             \
         }                                                           \
     }                                                               \
     _IMPL_EVENT_TARGET_(TargetClass)
+
+#define DECLARE_TARGET_EVENT_BEGIN(TargetClass) \
+    using EmitterType = TargetClass;
+
+#define DECLARE_TARGET_EVENT_END()
 
 #include "intl/EventTargetMacros.h"

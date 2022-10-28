@@ -70,8 +70,8 @@ ccstd::unordered_map<int, AudioEngine::AudioInfo> AudioEngine::sAudioIDInfoMap;
 AudioEngineImpl *AudioEngine::sAudioEngineImpl = nullptr;
 
 float AudioEngine::sVolumeFactor = 1.0F;
-cc::event::Listener<events::EnterBackground> AudioEngine::sOnPauseListenerID;
-cc::event::Listener<events::EnterForeground> AudioEngine::sOnResumeListenerID;
+events::EnterBackground::Listener AudioEngine::sOnPauseListenerID;
+events::EnterForeground::Listener AudioEngine::sOnResumeListenerID;
 
 ccstd::vector<int> AudioEngine::sBreakAudioID;
 
