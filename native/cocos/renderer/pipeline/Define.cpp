@@ -166,7 +166,7 @@ const gfx::DescriptorSetLayoutBinding UBOCSM::DESCRIPTOR = {
     UBOCSM::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
-    gfx::ShaderStageFlagBit::ALL,
+    gfx::ShaderStageFlagBit::FRAGMENT,
     {},
 };
 const gfx::UniformBlock UBOCSM::LAYOUT = {
