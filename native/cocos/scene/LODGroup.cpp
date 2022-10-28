@@ -31,13 +31,8 @@
 namespace cc {
 namespace scene {
 
-void LODData::eraseModel(Model *model) {
-    for (auto iter = _vecModels.begin(); iter != _vecModels.end(); iter++) {
-        if (*iter == model) {
-            _vecModels.erase(iter);
-            break;
-        }
-    }
+void LODData::eraseModel(Model *model) {   
+    remove(_vecModels.begin(), _vecModels.end(), model);
 }
 
 LODGroup::LODGroup() = default;
@@ -49,8 +44,8 @@ int8_t LODGroup::getVisibleLOD(const Camera *camera) const {
     float screenUsagePercentage = getScreenUsagePercentage(camera);
 
     int8_t lodIndex = -1;
-    for (auto i = 0; i < _vecLOD.size(); ++i) {
-        auto &lod = _vecLOD[i];
+    for (auto i = 0; i < _vecLODData.size(); ++i) {
+        auto &lod = _vecLODData[i];
         if (screenUsagePercentage >= lod->getScreenUsagePercentage()) {
             lodIndex = i;
             break;
@@ -96,27 +91,27 @@ void LODGroup::lockLODLevels(ccstd::vector<int> &levels) {
 }
 
 void LODGroup::insertLOD(uint8_t index, LODData *data) {
-    if (index >= _vecLOD.size()) {
-        _vecLOD.emplace_back(data);
+    if (index >= _vecLODData.size()) {
+        _vecLODData.emplace_back(data);
     } else {
-        _vecLOD.insert(_vecLOD.begin() + index, data);
+        _vecLODData.insert(_vecLODData.begin() + index, data);
     }
 }
 
 void LODGroup::updateLOD(uint8_t index, LODData *data) {
-    if (index >= _vecLOD.size()) {
+    if (index >= _vecLODData.size()) {
         CC_LOG_WARNING("LODGroup updateLOD error, index out of range.");
         return;
     }
-    _vecLOD[index] = data;
+    _vecLODData[index] = data;
 }
 
 void LODGroup::eraseLOD(uint8_t index) {
-    if (index >= _vecLOD.size()) {
+    if (index >= _vecLODData.size()) {
         CC_LOG_WARNING("LODGroup eraseLOD error, index out of range.");
         return;
     }
-    _vecLOD.erase(_vecLOD.begin() + index);
+    _vecLODData.erase(_vecLODData.begin() + index);
 }
 
 } // namespace scene
