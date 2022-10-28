@@ -207,7 +207,7 @@ protected:
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
 
-    int32_t _tetrahedronIndex{0};
+    int32_t _tetrahedronIndex{-1};
     Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
     bool _useLightProbe = false;
 

@@ -1312,6 +1312,7 @@ export class LightProbeInfo {
         const pointCount = points.length;
         if (pointCount < 4) {
             warnID(17000);
+            this.resetTetraIndices();
             this._data!.reset();
             return;
         }
@@ -1319,7 +1320,25 @@ export class LightProbeInfo {
         this._data!.updateProbes(points);
 
         if (updateTet) {
+            this.resetTetraIndices();
             this._data!.updateTetrahedrons();
+        }
+    }
+
+    private resetTetraIndices () {
+        const scene = legacyCC.director.getScene();
+        if (!scene) {
+            return;
+        }
+
+        const renderScene = scene.renderScene;
+        if (!renderScene) {
+            return;
+        }
+
+        const models = renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            models[i].tetrahedronIndex = -1;
         }
     }
 }
