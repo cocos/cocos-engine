@@ -431,7 +431,7 @@ export class Model {
      * @en located tetrahedron index
      * @zh 所处的四面体索引
      */
-    private _tetrahedronIndex = 0;
+    private _tetrahedronIndex = -1;
     private _lastWorldBoundCenter = new Vec3(Infinity, Infinity, Infinity);
     private _useLightProbe = false;
 
