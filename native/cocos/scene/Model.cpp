@@ -537,12 +537,12 @@ void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
     }
     if (bindingTexture) {
         gfx::SamplerInfo info{
-            gfx::Filter::POINT,
-            gfx::Filter::POINT,
-            gfx::Filter::NONE,
-            gfx::Address::CLAMP,
-            gfx::Address::CLAMP,
-            gfx::Address::CLAMP,
+            cc::gfx::Filter::LINEAR,
+            cc::gfx::Filter::LINEAR,
+            cc::gfx::Filter::NONE,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
         };
         auto *sampler = _device->getSampler(info);
         for (SubModel *subModel : _subModels) {
