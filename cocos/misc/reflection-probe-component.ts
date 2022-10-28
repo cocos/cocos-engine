@@ -22,21 +22,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, executeInEditMode, menu, playOnFocus, readOnly, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCBoolean, CCObject, Color, Enum, Vec3 } from '../core';
-import { BufferTextureCopy } from '../gfx/base/define';
+import { CCObject, Color, Enum, Vec3 } from '../core';
 
-import { deviceManager } from '../gfx';
-import { Component } from '../scene-graph/component';
-import { CAMERA_DEFAULT_MASK } from '../rendering/define';
-import { RenderTexture, TextureCube } from '../asset/assets';
-import { ReflectionProbeManager } from '../rendering/reflectionProbeManager';
-import { Layers } from '../scene-graph/layers';
-import { legacyCC } from '../core/global-exports';
-import { Camera } from './camera-component';
+import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
+import { CAMERA_DEFAULT_MASK } from '../rendering/define';
+import { ReflectionProbeManager } from '../rendering/reflectionProbeManager';
+import { Component } from '../scene-graph/component';
+import { Layers } from '../scene-graph/layers';
+import { Camera } from './camera-component';
 
 export const ProbeResolution = Enum({
     /**
@@ -271,41 +268,6 @@ export class ReflectionProbe extends Component {
         }
     }
 
-    public async bakeCubemap () {
-        if (this.probeType === ProbeType.CUBE) {
-            await this.captureCube();
-        }
-    }
-
-    /* eslint-disable no-await-in-loop */
-    /**
-     * @en Render the six faces of the Probe and use the tool to generate a cubemap and save it to the asset directory.
-     * @zh 渲染Probe的6个面，并且使用工具生成cubemap保存至asset目录。
-     */
-    public async captureCube () {
-        await this.probe.captureCubemap();
-        //Save rendertexture data to the resource directory
-        const caps = (legacyCC.director.root).device.capabilities;
-        const files: string[] = [];
-        for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
-            const fileName = `capture_${faceIdx}.png`;
-            files.push(fileName);
-            let pixelData = this._readPixels(this.probe.bakedCubeTextures[faceIdx]);
-            if (caps.clipSpaceMinZ === -1) {
-                pixelData = this._flipImage(pixelData, this._resolution, this._resolution);
-            }
-            await EditorExtends.Asset.saveDataToImage(pixelData, this._resolution, this._resolution, this.node.scene.name, fileName);
-        }
-        //use the tool to generate a cubemap and save to asset directory
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
-        await EditorExtends.Asset.bakeReflectionProbe(files, isHDR, this.node.scene.name, this.probe.getProbeId(), (assert: any) => {
-            this.cubemap = assert;
-        });
-        if (this._cubemap) {
-            ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
-        }
-    }
-
     private _createProbe () {
         if (this._probeId < 0 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = this.node.scene.getNewReflectionProbeId();
@@ -324,50 +286,5 @@ export class ReflectionProbe extends Component {
         this._probe.cubemap = this._cubemap!;
     }
 
-    private _readPixels (rt: RenderTexture): Uint8Array | null {
-        const width = rt.width;
-        const height = rt.height;
 
-        const needSize = 4 * width * height;
-        const buffer = new Uint8Array(needSize);
-
-        const gfxTexture = rt.getGFXTexture();
-        if (!gfxTexture) {
-            return null;
-        }
-
-        const gfxDevice = deviceManager.gfxDevice;
-
-        const bufferViews: ArrayBufferView[] = [];
-        const regions: BufferTextureCopy[] = [];
-
-        const region0 = new BufferTextureCopy();
-        region0.texOffset.x = 0;
-        region0.texOffset.y = 0;
-        region0.texExtent.width = rt.width;
-        region0.texExtent.height = rt.height;
-        regions.push(region0);
-
-        bufferViews.push(buffer);
-        gfxDevice?.copyTextureToBuffers(gfxTexture, bufferViews, regions);
-        return buffer;
-    }
-
-    private _flipImage (data: Uint8Array | null, width: number, height: number) {
-        if (!data) {
-            return null;
-        }
-        const newData = new Uint8Array(data.length);
-        for (let i = 0; i < height; i++) {
-            for (let j = 0; j < width; j++) {
-                const index = (width * i + j) * 4;
-                const newIndex = (width * (height - i - 1) + j) * 4;
-                newData[newIndex] = data[index];
-                newData[newIndex + 1] = data[index + 1];
-                newData[newIndex + 2] = data[index + 2];
-                newData[newIndex + 3] = data[index + 3];
-            }
-        }
-        return newData;
-    }
 }
