@@ -44,7 +44,6 @@
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
 #include "application/ApplicationManager.h"
-#include "gfx-base/SPIRVUtils.h"
 #include "platform/java/modules/XRInterface.h"
 #include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
@@ -223,7 +222,6 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
-    SPIRVUtils::getInstance()->initialize(SpirvClientVersion::OPENGL_ES_3_0);
 
     CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());

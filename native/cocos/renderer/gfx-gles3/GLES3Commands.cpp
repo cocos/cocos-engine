@@ -29,7 +29,6 @@
 #include "GLES3Std.h"
 #include "base/StringUtil.h"
 #include "gfx-base/GFXDef-common.h"
-#include "gfx-base/SPIRVUtils.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 #include "gfx-gles3/GLES3GPUObjects.h"
 
@@ -1035,7 +1034,6 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     GLenum glShaderStage = 0;
     ccstd::string shaderStageStr;
     GLint status;
-    auto *spirv = SPIRVUtils::getInstance();
 
     for (size_t i = 0; i < gpuShader->gpuStages.size(); ++i) {
         GLES3GPUShaderStage &gpuStage = gpuShader->gpuStages[i];

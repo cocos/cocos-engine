@@ -44,7 +44,6 @@
 #include "GLES2Swapchain.h"
 #include "GLES2Texture.h"
 #include "base/memory/Memory.h"
-#include "gfx-base/SPIRVUtils.h"
 #include "profiler/Profiler.h"
 #include "states/GLES2Sampler.h"
 
@@ -211,7 +210,6 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
-    SPIRVUtils::getInstance()->initialize(SpirvClientVersion::OPENGL_ES_2_0);
 
     _gpuBlitManager->initialize();
 
