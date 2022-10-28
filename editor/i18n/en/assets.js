@@ -346,6 +346,13 @@ module.exports = {
                     "the single node becomes prefab's root after importing.  <br>" +
                     "Otherwise, each root node of the scene becomes prefab's child node.",
             },
+            generateLightmapUVNode: {
+                name: 'Generate Lightmap UV',
+                title:
+                    'If enabled ,create a lightmap uv in the second UV channel, <br>' +
+                    'If the second uv already exists ,  set will be override .  <br>' +
+                    "Otherwise, use default uvs.",
+            },
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
                 title:
