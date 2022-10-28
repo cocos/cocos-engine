@@ -53,7 +53,7 @@ class PassVisitor implements RenderGraphVisitor {
     protected _isScene (u: number): boolean {
         return !!this.context.renderGraph.tryGetScene(u);
     }
-    protected _isBlit(u: number): boolean {
+    protected _isBlit (u: number): boolean {
         return !!this.context.renderGraph.tryGetBlit(u);
     }
     private _fetchValidPass () {
@@ -166,10 +166,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
     constructor (context: CompilerContext) {
         this._context = context;
     }
-    managedBuffer(value: ManagedBuffer) {
+    managedBuffer (value: ManagedBuffer) {
         // noop
     }
-    managedTexture(value: ManagedTexture) {
+    managedTexture (value: ManagedTexture) {
         // noop
     }
     managed (value: ManagedResource) {
