@@ -13,7 +13,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     _innerOperation = (action: AudioAction) => {
         switch (action) {
         case AudioAction.PLAY:
-            this._sourceNode.startAt(this._cachedCurrentTime);
+            this._sourceNode.start();
             break;
         case AudioAction.PAUSE:
             this._sourceNode.pause();
@@ -24,6 +24,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         default:
             break;
         }
+        this._isTranslating = false;
     }
     // Common members
     _node: AudioState = AudioState.READY;
@@ -32,7 +33,6 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     // private _domAudio: HTMLAudioElement = new Audio();
 
     // Time relative
-    private _cachedCurrentTime = 0;
     private _isTranslating = false;
     private _eventTarget = new EventTarget();
     // Start time is used to calculate the current time immediatly and it always update when playbackRate is updated.
@@ -56,6 +56,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
             });
         }
 
+        this._sourceNode.onEnded = this._onEnded;
         this._clip = clip;
         // this._ctx = defaultContext;
 
@@ -180,13 +181,19 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     }
 
     stop () {
-        this._eventTarget.emit(AudioEvent.PLAYED);
+        this._eventTarget.emit(AudioEvent.STOPPED);
         if (this._dynamicPath.length > 0 || this._isTranslating) {
             this._updatePathWithLink(this._node, AudioState.STOPPED, AudioAction.STOP);
             return;
         }
         this._isTranslating = true;
         this._innerOperation(AudioAction.STOP);
+    }
+    private _onEnded () {
+        this._eventTarget.emit(AudioEvent.ENDED);
+        //
+        this._cleanPath();
+        this._forceSetNode(AudioState.STOPPED);
     }
 
     onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }

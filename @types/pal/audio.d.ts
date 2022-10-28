@@ -1,9 +1,10 @@
 // This module is initially declare the Graph-based audio components.
+type PlayerOptions = import('cocos/audio/type').PlayerOptions;
+type AudioClip = import('cocos/audio/audio-clip').AudioClip;
+type AudioState = import('cocos/audio/type').AudioState;
+type AudioInfo = import('cocos/audio/type').AudioInfo;
 declare module 'pal/audio' {
-    export type PlayerOptions = import('cocos/audio/type').PlayerOptions;
-    export type AudioClip = import('cocos/audio/audio-clip').AudioClip;
-    export type AudioState = import('cocos/audio/type').AudioState;
-    type AudioInfo = import('cocos/audio/type').AudioInfo;
+
     export class AudioPlayer {
         constructor (clip: AudioClip, options?: PlayerOptions);
         get state (): AudioState;

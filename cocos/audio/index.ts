@@ -2,6 +2,7 @@
 // import { AudioClip } from './audio-clip';
 import './audio-downloader';
 
-export { AudioPlayer } from 'pal/audio';
+export { AudioPlayer } from './pal/web/index';
+export { AudioState } from './type';
 export { AudioClip } from './audio-clip';
-export * from './type';
+export type { PlayerOptions } from './type';
