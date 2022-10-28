@@ -32,7 +32,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
-import { LODModesCachedUtils } from '../lod-models-utils';
+import { LODModelsCachedUtils } from '../lod-models-utils';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -111,7 +111,7 @@ export class WebSceneTask implements SceneTask {
         const visibility = camera.visibility;
 
         if (scene) {
-            LODModesCachedUtils.updateCachedLODModels(scene, camera);
+            LODModelsCachedUtils.updateCachedLODModels(scene, camera);
         }
 
         for (let i = 0; i < models.length; i++) {
@@ -119,7 +119,7 @@ export class WebSceneTask implements SceneTask {
 
             // filter model by view visibility
             if (model.enabled) {
-                if (LODModesCachedUtils.isLODModelCulled(model)) {
+                if (LODModelsCachedUtils.isLODModelCulled(model)) {
                     continue;
                 }
 
@@ -139,7 +139,7 @@ export class WebSceneTask implements SceneTask {
                 }
             }
         }
-        LODModesCachedUtils.clearCachedLODModels();
+        LODModelsCachedUtils.clearCachedLODModels();
     }
 
     public start (): void {

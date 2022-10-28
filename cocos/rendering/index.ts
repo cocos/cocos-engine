@@ -54,6 +54,9 @@ export { PipelineStateManager } from './pipeline-state-manager';
 export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 export { DebugView } from './debug-view';
 
+export { ReflectionProbeFlow } from './reflection-probe/reflection-probe-flow';
+export { ReflectionProbeStage } from './reflection-probe/reflection-probe-stage';
+
 export function createDefaultPipeline () {
     const rppl = new ForwardPipeline();
     rppl.initialize({ flows: [] });
