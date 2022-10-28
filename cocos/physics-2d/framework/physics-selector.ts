@@ -11,21 +11,21 @@ import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
 export type IPhysicsEngineId = 'builtin' | 'box2d' | string;
 
 interface IPhysicsWrapperObject {
-    PhysicsWorld: any,
-    RigidBody?: any,
+    PhysicsWorld?: Constructor<IPhysicsWorld>,
+    RigidBody?: Constructor<IRigidBody2D>,
 
-    BoxShape: any,
-    CircleShape: any,
-    PolygonShape?: any,
+    BoxShape?: Constructor<IBoxShape>,
+    CircleShape?: Constructor<ICircleShape>,
+    PolygonShape?: Constructor<IPolygonShape>,
 
-    DistanceJoint: any,
-    FixedJoint: any,
-    MouseJoint: any,
-    SpringJoint: any,
-    RelativeJoint: any,
-    SliderJoint: any,
-    WheelJoint: any,
-    HingeJoint: any,
+    DistanceJoint?: Constructor<IDistanceJoint>,
+    FixedJoint?: Constructor<IFixedJoint>,
+    MouseJoint?: Constructor<IMouseJoint>,
+    SpringJoint?: Constructor<ISpringJoint>,
+    RelativeJoint?: Constructor<IRelativeJoint>,
+    SliderJoint?: Constructor<ISliderJoint>,
+    WheelJoint?: Constructor<IWheelJoint>,
+    HingeJoint?: Constructor<IHingeJoint>,
 }
 
 type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
@@ -152,11 +152,10 @@ export function checkPhysicsModule (obj: any) {
 
 export function createPhysicsWorld (): IPhysicsWorld {
     if (DEBUG && checkPhysicsModule(selector.wrapper.PhysicsWorld)) { return ENTIRE_WORLD; }
-    return new selector.wrapper.PhysicsWorld() as IPhysicsWorld;
+    return new selector.wrapper.PhysicsWorld!();
 }
 
-type IEntireBody = IRigidBody2D
-const EntireBody: IEntireBody = {
+const EntireBody: IRigidBody2D = {
     impl: null as any,
     rigidBody: null as any,
     isAwake: false,
@@ -213,8 +212,8 @@ export function createRigidBody (): IRigidBody2D {
     if (PHYSICS_2D_BUILTIN) {
         return EntireBody;
     } else {
-        if (DEBUG && checkPhysicsModule(selector.wrapper.RigidBody)) { return null as any; }
-        return new selector.wrapper.RigidBody() as IRigidBody2D;
+        if (DEBUG && checkPhysicsModule(selector.wrapper.RigidBody)) { return EntireBody; }
+        return new selector.wrapper.RigidBody!();
     }
 }
 
@@ -251,17 +250,17 @@ function initColliderProxy () {
 
     CREATE_COLLIDER_PROXY[ECollider2DType.BOX] = function createBoxShape (): IBoxShape {
         if (DEBUG && checkPhysicsModule(selector.wrapper.BoxShape)) { return ENTIRE_SHAPE; }
-        return new selector.wrapper.BoxShape() as IBoxShape;
+        return new selector.wrapper.BoxShape!();
     };
 
     CREATE_COLLIDER_PROXY[ECollider2DType.CIRCLE] = function createCircleShape (): ICircleShape {
         if (DEBUG && checkPhysicsModule(selector.wrapper.CircleShape)) { return ENTIRE_SHAPE; }
-        return new selector.wrapper.CircleShape() as ICircleShape;
+        return new selector.wrapper.CircleShape!();
     };
 
     CREATE_COLLIDER_PROXY[ECollider2DType.POLYGON] = function createPolygonShape (): IPolygonShape {
         if (DEBUG && checkPhysicsModule(selector.wrapper.PolygonShape)) { return ENTIRE_SHAPE; }
-        return new selector.wrapper.PolygonShape() as IPolygonShape;
+        return new selector.wrapper.PolygonShape!();
     };
 }
 
@@ -311,7 +310,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.SpringJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.SpringJoint() as ISpringJoint;
+            return new selector.wrapper.SpringJoint!();
         }
     };
 
@@ -320,7 +319,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.DistanceJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.DistanceJoint() as IDistanceJoint;
+            return new selector.wrapper.DistanceJoint!();
         }
     };
 
@@ -329,7 +328,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.FixedJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.FixedJoint() as IFixedJoint;
+            return new selector.wrapper.FixedJoint!();
         }
     };
 
@@ -338,7 +337,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.MouseJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.MouseJoint() as IMouseJoint;
+            return new selector.wrapper.MouseJoint!();
         }
     };
 
@@ -347,7 +346,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.RelativeJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.RelativeJoint() as IRelativeJoint;
+            return new selector.wrapper.RelativeJoint!();
         }
     };
 
@@ -356,7 +355,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.SliderJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.SliderJoint() as ISliderJoint;
+            return new selector.wrapper.SliderJoint!();
         }
     };
 
@@ -365,7 +364,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.WheelJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.WheelJoint() as IWheelJoint;
+            return new selector.wrapper.WheelJoint!();
         }
     };
 
@@ -374,7 +373,7 @@ function initJointProxy () {
             return ENTIRE_JOINT;
         } else {
             if (DEBUG && checkPhysicsModule(selector.wrapper.HingeJoint)) { return ENTIRE_JOINT; }
-            return new selector.wrapper.HingeJoint() as IHingeJoint;
+            return new selector.wrapper.HingeJoint!();
         }
     };
 }

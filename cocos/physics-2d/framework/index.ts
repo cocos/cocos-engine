@@ -34,6 +34,6 @@ export const Physics2DUtils = {
     PolygonSeparator,
 };
 
-legacyCC.physics2d = {
+legacyCC.internal.physics2d = {
     selector,
 };
