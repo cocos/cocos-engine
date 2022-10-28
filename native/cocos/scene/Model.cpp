@@ -529,11 +529,9 @@ void Model::updateReflctionProbeCubemap(TextureCube *texture) {
 void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
     _localDataUpdated = true;
 
-    IntrusivePtr<gfx::Texture> bindingTexture;
-    if (texture == nullptr) {
+    gfx::Texture *bindingTexture = texture;
+    if (!bindingTexture) {
         bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
-    } else {
-        bindingTexture = texture;
     }
     if (bindingTexture) {
         gfx::SamplerInfo info{
