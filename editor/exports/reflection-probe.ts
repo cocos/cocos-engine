@@ -1,0 +1,1 @@
+export { ReflectionProbeManager } from "../../cocos/rendering/reflectionProbeManager";
