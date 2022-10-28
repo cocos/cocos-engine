@@ -4,7 +4,7 @@ import { property, type, ccclass } from '../../../../core/data/class-decorator';
 import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { createJoint } from '../../instance';
+import { createJoint } from '../../physics-selector';
 import { legacyCC } from '../../../../core/global-exports';
 import { Component } from '../../../../scene-graph';
 
