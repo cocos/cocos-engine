@@ -31,8 +31,11 @@
 namespace cc {
 namespace scene {
 
-void LODData::eraseModel(Model *model) {   
-    remove(_vecModels.begin(), _vecModels.end(), model);
+void LODData::eraseModel(Model *model) {
+    auto iter = std::find(_vecModels.begin(), _vecModels.end(), model);
+    if (iter != _vecModels.end()) {
+        _vecModels.erase(iter);
+    }
 }
 
 LODGroup::LODGroup() = default;
@@ -45,7 +48,7 @@ int8_t LODGroup::getVisibleLOD(const Camera *camera) const {
 
     int8_t lodIndex = -1;
     for (auto i = 0; i < _vecLODData.size(); ++i) {
-        auto &lod = _vecLODData[i];
+        const auto &lod = _vecLODData[i];
         if (screenUsagePercentage >= lod->getScreenUsagePercentage()) {
             lodIndex = i;
             break;

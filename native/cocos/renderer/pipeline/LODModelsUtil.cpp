@@ -48,12 +48,12 @@ ccstd::unordered_map<scene::Model *, bool> visibleModelsByAnyLODGroup;
 void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene, const scene::Camera *camera) {
     for (const auto &lodGroup : scene->getLODGroups()) {
         if (lodGroup->isEnabled()) {
-            auto &lodLevels = lodGroup->getLockLODLevels();
+            const auto &lodLevels = lodGroup->getLockLODLevels();
             uint8_t count = lodLevels.size();
             // count == 0 will return to standard LOD processing.
             if (count > 0) {
                 for (auto index = 0; index < lodGroup->getLodCount(); index++) {
-                    auto &lod = lodGroup->getLODs()[index];
+                    const auto &lod = lodGroup->getLODs()[index];
                     for (const auto &model : lod->getModels()) {
                         for (auto i = 0; i < count; i++) {
                             // The LOD level to use.
@@ -73,7 +73,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
 
             int8_t visIndex = lodGroup->getVisibleLOD(camera);
             for (auto index = 0; index < lodGroup->getLodCount(); index++) {
-                auto &lod = lodGroup->getLODs()[index];
+                const auto &lod = lodGroup->getLODs()[index];
                 for (const auto &model : lod->getModels()) {
                     auto *node = model->getNode();
                     if (visIndex == index && node && node->isActive()) {

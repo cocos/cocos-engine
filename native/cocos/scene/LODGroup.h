@@ -105,7 +105,6 @@ private:
     float _objectSize{1.F};
     bool _enabled{true};
 
-private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(LODGroup);
 };
 
