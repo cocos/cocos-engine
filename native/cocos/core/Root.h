@@ -329,8 +329,8 @@ private:
     bool _useDeferredPipeline{false};
     bool _usesCustomPipeline{true};
     IXRInterface *_xr{nullptr};
-    cc::event::Listener<events::WindowDestroy> _windowDestroyListener;
-    cc::event::Listener<events::WindowRecreated> _windowRecreatedListener;
+    events::WindowDestroy::Listener _windowDestroyListener;
+    events::WindowRecreated::Listener _windowRecreatedListener;
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;

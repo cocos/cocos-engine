@@ -28,7 +28,7 @@
 #include <vector>
 #include "MiddlewareMacro.h"
 #include "SeApi.h"
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 
 MIDDLEWARE_BEGIN
 /** 

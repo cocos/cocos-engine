@@ -27,7 +27,6 @@
 #include "JsbBridge.h"
 #include "JsbBridgeWrapper.h"
 #include "engine/EngineEvents.h"
-#include "core/event/EventBus.h"
 
 @implementation JsbBridgeWrapper {
     JsbBridge* jb;

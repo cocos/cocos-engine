@@ -27,7 +27,6 @@
 
 #include "base/Config.h"
 #include "base/TypeDef.h"
-#include "core/event/EventBus.h"
 #include "engine/BaseEngine.h"
 #include "engine/EngineEvents.h"
 #include "math/Vec2.h"
