@@ -285,6 +285,7 @@ export class PhysicsSystem2D extends Eventify(System) {
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-types
     _callAfterStep (target: object, func: Function) {
         if (this._steping) {
             this._delayEvents.push({
@@ -356,3 +357,4 @@ function initPhysicsSystem () {
 }
 
 director.once(Director.EVENT_INIT, () => { initPhysicsSystem(); });
+director.once(Director.EVENT_BEFORE_SCENE_LAUNCH, () => { selector.switchTo('box2d'); });
