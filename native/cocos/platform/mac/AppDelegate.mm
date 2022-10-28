@@ -27,7 +27,7 @@
 #include "base/std/container/string.h"
 //#import "Game.h"
 #import "ViewController.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/mac/MacPlatform.h"
 
 @interface AppDelegate () {
@@ -113,10 +113,6 @@
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication {
     return YES;
-}
-
-- (void)dispatchEvent:(const cc::OSEvent&)ev {
-    _platform->dispatchEvent(ev);
 }
 
 @end

@@ -33,7 +33,7 @@ import { Model } from '../render-scene/scene/model';
 import { Camera } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
 import { reflectionProbeCulling } from './scene-culling';
-import { ReflectionProbeManager } from './reflectionProbeManager';
+import { ReflectionProbeManager } from './reflection-probe-manager';
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const _phaseID = getPhaseID('default');

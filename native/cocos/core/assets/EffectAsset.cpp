@@ -171,8 +171,10 @@ void EffectAsset::onLoaded() {
     if (CC_CURRENT_ENGINE()->isInited()) {
         precompile();
     } else {
-        CC_CURRENT_ENGINE()->on(BaseEngine::ON_START, [this]() {
-            this->precompile();
+        _engineEventId = CC_CURRENT_ENGINE()->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status) {
+            if (status == BaseEngine::EngineStatus::ON_START) {
+                this->precompile();
+            }
         });
     }
 #endif
@@ -180,6 +182,9 @@ void EffectAsset::onLoaded() {
 
 bool EffectAsset::destroy() {
     EffectAsset::remove(this);
+    if (CC_CURRENT_ENGINE()->isInited()) {
+        CC_CURRENT_ENGINE()->off(_engineEventId);
+    }
     return Super::destroy();
 }
 
@@ -189,7 +194,7 @@ void EffectAsset::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     _name = "builtin-unlit";
     _shaders = effect->_shaders;
     _combinations = effect->_combinations;
-    _techniques = effect->_techniques; //NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE
+    _techniques = effect->_techniques; // NOTE: it will copy effect->_techniques to _techniques and _techniques will kept by SE_HOLD_RETURN_VALUE
 }
 
 bool EffectAsset::validate() const {
@@ -251,7 +256,7 @@ const defines = [
                  // ... all the combinations (2x4x3 in this case)
                  ];
  */
-ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter) { //NOLINT(misc-no-recursion)
+ccstd::vector<MacroRecord> EffectAsset::doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter) { // NOLINT(misc-no-recursion)
     if (iter == info.end()) {
         return cur;
     }

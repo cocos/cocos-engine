@@ -36,8 +36,7 @@
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
-#include "bindings/event/CustomEventTypes.h"
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 
 #ifdef ERROR
     #undef ERROR
@@ -392,12 +391,12 @@ protected:
 
 private:
     static float sVolumeFactor;
-    static uint32_t sOnPauseListenerID;
-    static uint32_t sOnResumeListenerID;
+    static events::EnterBackground::Listener sOnPauseListenerID;
+    static events::EnterForeground::Listener sOnResumeListenerID;
     static ccstd::vector<int> sBreakAudioID;
 
-    static void onEnterBackground(const CustomEvent &);
-    static void onEnterForeground(const CustomEvent &);
+    static void onEnterBackground();
+    static void onEnterForeground();
 
     friend class AudioEngineImpl;
 };
