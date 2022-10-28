@@ -576,6 +576,9 @@ struct RenderGraphCullVisitor : boost::dfs_visitor<> {
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
+
+    CC_LOG_INFO(rg.print(scratch).c_str());
+
     FrameGraphDispatcher fgd(
         ppl.resourceGraph, rg,
         ppl.layoutGraph, &ppl.unsyncPool, scratch);

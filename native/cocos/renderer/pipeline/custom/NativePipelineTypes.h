@@ -504,6 +504,7 @@ public:
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
     void executeRenderGraph(const RenderGraph& rg);
+    ccstd::string print(boost::container::pmr::memory_resource* scratch) const;
 private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;
 

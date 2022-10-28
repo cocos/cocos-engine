@@ -279,13 +279,27 @@ CopyPassBuilder *NativePipeline::addCopyPass() {
 
 // NOLINTNEXTLINE
 void NativePipeline::presentAll() {
+    PresentPass present(renderGraph.get_allocator());
+
+    for (const auto &rasterPass : renderGraph.rasterPasses) {
+        for (const auto &[name, view] : rasterPass.rasterViews) {
+            const auto &resourceID = findVertex(name, resourceGraph);
+            const auto &traits = get(ResourceGraph::Traits, resourceGraph, resourceID);
+            if (traits.residency == ResourceResidency::BACKBUFFER) {
+                present.presents.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(name),
+                    std::forward_as_tuple());
+            }
+        }
+    }
     auto passID = addVertex(
         PresentTag{},
         std::forward_as_tuple("Present"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(present)),
         renderGraph);
 }
 

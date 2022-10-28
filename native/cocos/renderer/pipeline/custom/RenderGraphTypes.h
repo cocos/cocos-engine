@@ -832,6 +832,8 @@ struct RenderGraph {
         impl::ValueHandle<ClearTag, vertex_descriptor>,
         impl::ValueHandle<ViewportTag, vertex_descriptor>>;
 
+    ccstd::string print(boost::container::pmr::memory_resource* scratch) const;
+
     // ContinuousContainer
     void reserve(vertices_size_type sz);
 

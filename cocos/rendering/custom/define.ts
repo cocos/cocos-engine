@@ -723,6 +723,28 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
     return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
 }
 
+function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loadOp: LoadOp): ClearFlagBit {
+    switch (attachment) {
+    case AttachmentType.DEPTH_STENCIL:
+        if (loadOp === LoadOp.CLEAR) {
+            if (clearFlag & ClearFlagBit.DEPTH_STENCIL) {
+                return clearFlag;
+            } else {
+                return ClearFlagBit.DEPTH_STENCIL;
+            }
+        } else {
+            return ClearFlagBit.NONE;
+        }
+    case AttachmentType.RENDER_TARGET:
+    default:
+        if (loadOp === LoadOp.CLEAR) {
+            return ClearFlagBit.COLOR;
+        } else {
+            return ClearFlagBit.NONE;
+        }
+    }
+}
+
 export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
@@ -743,30 +765,42 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
     forwardPass.name = `CameraForwardPass${cameraID}`;
     forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
 
-    const passView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.RENDER_TARGET,
-        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET),
-        StoreOp.STORE,
-        camera.clearFlag,
-        new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
-    const passDSView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-        getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
-        StoreOp.STORE,
-        camera.clearFlag,
-        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
-    forwardPass.addRasterView(forwardPassRTName, passView);
-    forwardPass.addRasterView(forwardPassDSName, passDSView);
+    const cameraRenderTargetLoadOp = getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.RENDER_TARGET);
+    const cameraDepthStencilLoadOp = getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL);
+
+    forwardPass.addRasterView(forwardPassRTName,
+        new RasterView('_',
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            cameraRenderTargetLoadOp,
+            StoreOp.STORE,
+            getClearFlags(AttachmentType.RENDER_TARGET, camera.clearFlag, cameraRenderTargetLoadOp),
+            new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w)));
+    forwardPass.addRasterView(forwardPassDSName,
+        new RasterView('_',
+            AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+            cameraDepthStencilLoadOp,
+            StoreOp.STORE,
+            getClearFlags(AttachmentType.DEPTH_STENCIL, camera.clearFlag, cameraDepthStencilLoadOp),
+            new Color(camera.clearDepth, camera.clearStencil, 0, 0)));
+
     forwardPass
         .addQueue(QueueHint.RENDER_OPAQUE)
         .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-             | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+            SceneFlags.OPAQUE_OBJECT
+            | SceneFlags.PLANAR_SHADOW
+            | SceneFlags.CUTOUT_OBJECT
+            | SceneFlags.DEFAULT_LIGHTING
+            | SceneFlags.DRAW_INSTANCING);
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.TRANSPARENT_OBJECT
+            | SceneFlags.GEOMETRY);
     forwardPass
         .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.UI | SceneFlags.PROFILER);
-    return { rtName: forwardPassRTName, dsName: forwardPassDSName };
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.UI
+            | SceneFlags.PROFILER);
+
+    ppl.presentAll();
 }
