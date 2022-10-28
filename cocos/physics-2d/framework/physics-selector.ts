@@ -128,6 +128,19 @@ export const selector: IPhysicsSelector = {
 };
 
 const FUNC = (...v: any) => 0 as any;
+const ENTIRE_WORLD: IPhysicsWorld = {
+    impl: null,
+    debugDrawFlags: 0,
+    setGravity: FUNC,
+    setAllowSleep: FUNC,
+    step: FUNC,
+    syncPhysicsToScene: FUNC,
+    syncSceneToPhysics: FUNC,
+    raycast: FUNC,
+    testPoint: FUNC,
+    testAABB: FUNC,
+    drawDebug: FUNC,
+};
 
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && (!EDITOR || legacyCC.GAME_VIEW) && obj == null) {
@@ -138,7 +151,7 @@ export function checkPhysicsModule (obj: any) {
 }
 
 export function createPhysicsWorld (): IPhysicsWorld {
-    if (DEBUG && checkPhysicsModule(selector.wrapper.PhysicsWorld)) { return null as any; }
+    if (DEBUG && checkPhysicsModule(selector.wrapper.PhysicsWorld)) { return ENTIRE_WORLD; }
     return new selector.wrapper.PhysicsWorld() as IPhysicsWorld;
 }
 

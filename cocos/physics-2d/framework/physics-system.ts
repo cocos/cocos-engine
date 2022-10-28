@@ -231,7 +231,7 @@ export class PhysicsSystem2D extends Eventify(System) {
             }
         }
 
-        const mutableSelector = selector;
+        const mutableSelector = selector as Mutable<IPhysicsSelector>;
         mutableSelector.physicsWorld = createPhysicsWorld();
 
         this.gravity = this._gravity;
