@@ -509,6 +509,48 @@ void Model::updateLocalShadowBias() {
     _localDataUpdated = true;
 }
 
+void Model::updateReflctionProbeCubemap(TextureCube *texture) {
+    _localDataUpdated = true;
+    if (texture == nullptr) {
+        texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
+    }
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
+        auto *sampler = _device->getSampler(texture->getSamplerInfo());
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBECUBEMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBECUBEMAP::BINDING, sampler);
+            descriptorSet->update();
+        }
+    }
+}
+void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
+    _localDataUpdated = true;
+
+    gfx::Texture *bindingTexture = texture;
+    if (!bindingTexture) {
+        bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
+    }
+    if (bindingTexture) {
+        gfx::SamplerInfo info{
+            cc::gfx::Filter::LINEAR,
+            cc::gfx::Filter::LINEAR,
+            cc::gfx::Filter::NONE,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
+        };
+        auto *sampler = _device->getSampler(info);
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEPLANARMAP::BINDING, bindingTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEPLANARMAP::BINDING, sampler);
+            descriptorSet->update();
+        }
+    }
+}
+
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
     for (const auto &subModel : _subModels) {
         subModel->setInstancedAttribute(name, value, byteLength);
