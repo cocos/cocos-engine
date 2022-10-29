@@ -3,7 +3,6 @@
 
     "features": {
         "base": { "modules": [ "base" ], "dependentAssets": [
-            "ff9be190-20a4-4e48-b68c-76e3c7cff085",
             "970b0598-bcb0-4714-91fb-2e81440dccd8",
             "bcd64cc6-2dd9-43f6-abbe-66318d332032",
             "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
@@ -16,10 +15,6 @@
             "modules": [ "3d" ], 
             "dependentAssets": [
                 "1baf0fc9-befa-459c-8bdd-af1a450a0319",
-                "511d2633-09a7-4bdd-ac42-f778032124b3",
-                "5d45aa00-e064-4938-b314-4265f0c2258c",
-                "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
-                "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
                 "620b6bf3-0369-4560-837f-2a2c00b73c26"
             ] 
         },
@@ -88,6 +83,7 @@
 	    "debug-renderer": { 
             "modules": [], 
             "dependentAssets": [
+                "ff9be190-20a4-4e48-b68c-76e3c7cff085",
                 "0835f102-5471-47a3-9a76-01c07ac9cdb2", 
                 "b5475517-23b9-4873-bc1a-968d96616081", 
                 "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", 
