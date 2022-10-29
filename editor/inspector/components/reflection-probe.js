@@ -22,6 +22,7 @@ exports.ready = function() {
 
     $button.addEventListener('confirm', async () => {
         // Call the bakeCubemap function in the Reflection Probe component
+        this.$.bake.dispatch('change-dump');
     });
 };
 

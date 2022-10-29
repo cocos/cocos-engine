@@ -1398,6 +1398,8 @@ cocos_source_files(
                  cocos/scene/Octree.cpp
                  cocos/scene/Shadow.h
                  cocos/scene/Shadow.cpp
+                 cocos/scene/ReflectionProbe.h
+                 cocos/scene/ReflectionProbe.cpp
 )
 
 ##### primitive

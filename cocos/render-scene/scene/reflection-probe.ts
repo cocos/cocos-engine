@@ -61,9 +61,9 @@ enum ProbeFaceIndex {
 export class ReflectionProbe {
     public static probeFaceIndex = ProbeFaceIndex;
 
-    public bakedCubeTextures: RenderTexture[] = [];
+    protected _bakedCubeTextures: RenderTexture[] = [];
 
-    public realtimePlanarTexture: RenderTexture | null = null;
+    protected _realtimePlanarTexture: RenderTexture | null = null;
 
     protected _resolution = 512;
     protected _clearFlag = ProbeClearFlag.SKYBOX;
@@ -127,6 +127,21 @@ export class ReflectionProbe {
      */
     private _up = new Vec3();
 
+    set realtimePlanarTexture (val: RenderTexture) {
+        this._realtimePlanarTexture = val;
+    }
+    get realtimePlanarTexture () {
+        return this._realtimePlanarTexture!;
+    }
+
+    get bakedCubeTextures () {
+        return this._bakedCubeTextures;
+    }
+
+    set bakedCubeTextures (val: RenderTexture[]) {
+        this._bakedCubeTextures = val;
+    }
+
     /**
      * @en Set probe type,cube or planar.
      * @zh 设置探针类型，cube或者planar
@@ -144,7 +159,7 @@ export class ReflectionProbe {
      */
     set resolution (value: number) {
         if (value !== this._resolution) {
-            this.bakedCubeTextures.forEach((rt, idx) => {
+            this._bakedCubeTextures.forEach((rt, idx) => {
                 rt.resize(value, value);
             });
         }
@@ -274,16 +289,6 @@ export class ReflectionProbe {
         this._createCamera();
     }
 
-    public initBakedTextures () {
-        //wait for scene data initialize, so create rendertexture in the start function
-        if (this.bakedCubeTextures.length === 0) {
-            for (let i = 0; i < 6; i++) {
-                const renderTexture = this._createTargetTexture(this._resolution, this._resolution);
-                this.bakedCubeTextures.push(renderTexture);
-            }
-        }
-    }
-
     public async captureCubemap () {
         this._renderObjects = [];
         this._resetCameraParams();
@@ -297,10 +302,6 @@ export class ReflectionProbe {
      */
     public renderPlanarReflection (sourceCamera: Camera) {
         if (!sourceCamera) return;
-        if (!this.realtimePlanarTexture) {
-            const canvasSize = legacyCC.view.getDesignResolutionSize();
-            this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
-        }
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
         this._attachCameraToScene();
@@ -343,7 +344,7 @@ export class ReflectionProbe {
 
     public renderArea (): Vec2 {
         if (this._probeType === ProbeType.PLANAR) {
-            return new Vec2(this.realtimePlanarTexture!.width, this.realtimePlanarTexture!.height);
+            return new Vec2(this.realtimePlanarTexture.width, this.realtimePlanarTexture.height);
         } else {
             return new Vec2(this.resolution, this.resolution);
         }
@@ -362,14 +363,14 @@ export class ReflectionProbe {
             this._camera.destroy();
             this._camera = null;
         }
-        for (let i = 0; i < this.bakedCubeTextures.length; i++) {
-            this.bakedCubeTextures[i].destroy();
+        for (let i = 0; i < this._bakedCubeTextures.length; i++) {
+            this._bakedCubeTextures[i].destroy();
         }
-        this.bakedCubeTextures = [];
+        this._bakedCubeTextures = [];
 
-        if (this.realtimePlanarTexture) {
-            this.realtimePlanarTexture.destroy();
-            this.realtimePlanarTexture = null;
+        if (this._realtimePlanarTexture) {
+            this._realtimePlanarTexture.destroy();
+            this._realtimePlanarTexture = null;
         }
     }
 
@@ -453,12 +454,6 @@ export class ReflectionProbe {
         this.cameraNode.worldPosition = this.node.worldPosition;
         this.cameraNode.worldRotation = this.node.worldRotation;
         this.camera.update(true);
-    }
-
-    private _createTargetTexture (width: number, height: number) {
-        const rt = new RenderTexture();
-        rt.reset({ width, height });
-        return rt;
     }
 
     private _attachCameraToScene () {

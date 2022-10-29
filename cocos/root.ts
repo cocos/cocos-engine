@@ -26,7 +26,7 @@
 import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
 import { DebugView } from './rendering/debug-view';
-import { Camera, Light, Model } from './render-scene/scene';
+import { Camera, Light, Model, ReflectionProbe } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { LightType } from './render-scene/scene/light';
 import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene';
@@ -612,6 +612,16 @@ export class Root {
         const model = p.alloc() as T;
         model.initialize();
         return model;
+    }
+
+    /**
+     * @en Create a reflection probe
+     * @zh 创建反射探针
+     * @param id @en probe id @zh 探针id
+     * @returns The ReflectionProbe created
+     */
+    public createReflectionProbe (id: number): ReflectionProbe {
+        return new ReflectionProbe(id);
     }
 
     /**

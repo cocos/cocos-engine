@@ -24,7 +24,7 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, readOnly, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCBoolean, Color, Enum, Vec3 } from '../core';
+import { CCBoolean, cclegacy, Color, Enum, Vec3 } from '../core';
 import { BufferTextureCopy } from '../gfx/base/define';
 
 import { deviceManager } from '../gfx';
@@ -37,6 +37,7 @@ import { legacyCC } from '../core/global-exports';
 import { Camera } from './camera-component';
 import { scene } from '../render-scene';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
+import { BoxCollider } from '../physics/framework';
 
 export const ProbeResolution = Enum({
     /**
@@ -106,18 +107,37 @@ export class ReflectionProbe extends Component {
 
     protected _probe: scene.ReflectionProbe | null = null;
 
+    @serializable
+    private _bake = false;
+
     /**
      * @en
      * Gets or sets the size of the box
      * @zh
      * 获取或设置包围盒的大小。
      */
+    @type(Vec3)
     set size (value) {
         this._size = value;
         this.probe.size = this._size;
+
+        const box = this.getComponent(BoxCollider);
+        if (box) {
+            box.size = this._size;
+        }
     }
     get size () {
         return this._size;
+    }
+
+    @type(Boolean)
+    set bake (value) {
+        this._bake = value;
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.bakeCubemap();
+    }
+    get bake () {
+        return this._bake;
     }
 
     /**
@@ -229,6 +249,7 @@ export class ReflectionProbe extends Component {
         if (EDITOR || this.probeType === ProbeType.PLANAR) {
             this._createProbe();
         }
+        this.createRenderTexture();
     }
 
     onEnable () {
@@ -243,12 +264,29 @@ export class ReflectionProbe extends Component {
     }
 
     public start () {
-        if (EDITOR) {
-            this.probe.initBakedTextures();
-        }
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
             this.probe.switchProbeType(this.probeType, this.sourceCamera.camera);
         }
+    }
+
+    public createRenderTexture () {
+        if (EDITOR) {
+            //wait for scene data initialize, so create rendertexture in the start function
+            const rts:RenderTexture[] = [];
+            for (let i = 0; i < 6; i++) {
+                const renderTexture = this._createTargetTexture(this._resolution, this._resolution);
+                rts.push(renderTexture);
+            }
+            this.probe.bakedCubeTextures = rts;
+        }
+        const canvasSize = legacyCC.view.getDesignResolutionSize();
+        this.probe.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
+    }
+
+    private _createTargetTexture (width: number, height: number) {
+        const rt = new RenderTexture();
+        rt.reset({ width, height });
+        return rt;
     }
 
     public onDestroy () {
@@ -302,7 +340,10 @@ export class ReflectionProbe extends Component {
         if (this._probeId < 0 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = this.node.scene.getNewReflectionProbeId();
         }
-        this._probe = new scene.ReflectionProbe(this._probeId);
+        this._probe = (cclegacy.director.root).createReflectionProbe(this._probeId);
+        //this._probe = ReflectionProbeManager.probeManager.createProbe(this._probeId);
+        //this._probe = new scene.ReflectionProbe(this._probeId);
+        if (!this._probe) return;
         this._probe.initialize(this.node);
         if (this.enabled) {
             ReflectionProbeManager.probeManager.register(this._probe);

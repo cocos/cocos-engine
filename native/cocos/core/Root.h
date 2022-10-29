@@ -42,6 +42,7 @@ class IXRInterface;
 namespace scene {
 class Camera;
 class DrawBatch2D;
+class ReflectionProbe;
 } // namespace scene
 namespace gfx {
 class SwapChain;
@@ -184,6 +185,8 @@ public:
     void destroyLight(scene::Light *light);
 
     scene::Camera *createCamera() const;
+
+    scene::ReflectionProbe *createReflectionProbe(int32_t id) const;
     /**
      * @zh
      * GFX 设备
