@@ -59,6 +59,13 @@ struct Edge {
     : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1) {
     }
 
+    inline void set(int32_t tet, int32_t i, int32_t v0, int32_t v1) {
+        tetrahedron = tet;
+        index = i;
+        vertex0 = v0;
+        vertex1 = v1;
+    }
+
     inline bool isSame(const Edge &other) const {
         return ((vertex0 == other.vertex0 && vertex1 == other.vertex1) ||
                 (vertex0 == other.vertex1 && vertex1 == other.vertex0));
@@ -78,6 +85,18 @@ struct Triangle {
     Triangle() = default;
     Triangle(int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3)
     : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
+    }
+
+    inline void set(int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3) {
+        tetrahedron = tet;
+        index = i;
+        vertex0 = v0;
+        vertex1 = v1;
+        vertex2 = v2;
+        vertex3 = v3;
+
+        invalid = false;
+        isOuterFace = true;
     }
 
     inline bool isSame(const Triangle &other) const {
@@ -118,7 +137,7 @@ struct Tetrahedron {
     Tetrahedron() = default;
 
     inline bool isInCircumSphere(const Vec3 &point) const {
-        return point.distanceSquared(sphere.center) < sphere.radiusSquared - mathutils::EPSILON;
+        return point.distanceSquared(sphere.center) < sphere.radiusSquared - 0.01F; // mathutils::EPSILON
     }
 
     inline bool contain(int32_t vertexIndex) const {
@@ -143,12 +162,14 @@ public:
     inline const ccstd::vector<Vertex> &getProbes() const { return _probes; }
     inline const ccstd::vector<Tetrahedron> &getTetrahedrons() const { return _tetrahedrons; }
 
-    void build(const ccstd::vector<Vec3> &points);
+    ccstd::vector<Tetrahedron> build(const ccstd::vector<Vertex> &probes);
 
 private:
     void reset();
     void tetrahedralize(); // Bowyer-Watson algorithm
     Vec3 initTetrahedron();
+    void addTriangle(uint32_t index, int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
+    void addEdge(uint32_t index, int32_t tet, int32_t i, int32_t v0, int32_t v1);
     void addProbe(int32_t vertexIndex);
     void reorder(const Vec3 &center);
     void computeAdjacency();
@@ -158,6 +179,9 @@ private:
 
     ccstd::vector<Vertex> _probes;
     ccstd::vector<Tetrahedron> _tetrahedrons;
+
+    ccstd::vector<Triangle> _triangles;
+    ccstd::vector<Edge> _edges;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Delaunay);
 };

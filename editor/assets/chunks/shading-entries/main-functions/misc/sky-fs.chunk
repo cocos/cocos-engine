@@ -26,5 +26,9 @@ void main() {
   #endif
     color.rgb = LinearToSRGB(color.rgb);
 
+    #if CC_USE_RGBE_OUTPUT
+      color = packRGBE(color.rgb);
+    #endif
+
     fragColorX = color;
 }

@@ -110,6 +110,19 @@ export class DirectionalLight extends Light {
     }
 
     /**
+     * @en Turn off the function for directional light.
+     * @zh 方向光关闭该功能。
+     * @engineInternal
+     */
+    @visible(false)
+    set visibility (vis: number) {
+        this._visibility = vis;
+    }
+    get visibility (): number {
+        return this._visibility;
+    }
+
+    /**
      * @en Whether activate real time shadow.
      * @zh 是否启用实时阴影？
      */

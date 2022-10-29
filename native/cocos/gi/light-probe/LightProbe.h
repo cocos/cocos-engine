@@ -49,12 +49,18 @@ public:
     inline void setTetrahedrons(const ccstd::vector<Tetrahedron> &tetrahedrons) { _tetrahedrons = tetrahedrons; }
 
     inline bool empty() const { return _probes.empty() || _tetrahedrons.empty(); }
-    inline bool available() const { return !empty() && !_probes[0].coefficients.empty(); }
-    void build(const ccstd::vector<Vec3> &points);
-    int32_t getInterpolationSHCoefficients(const Vec3 &position, int32_t tetIndex, ccstd::vector<Vec3> &coefficients) const;
+    inline void reset() {
+        _probes.clear();
+        _tetrahedrons.clear();
+    }
+    void updateProbes(ccstd::vector<Vec3> &points);
+    void updateTetrahedrons();
+
+    bool getInterpolationSHCoefficients(int32_t tetIndex, const Vec4 &weights, ccstd::vector<Vec3> &coefficients) const;
+    int32_t getInterpolationWeights(const Vec3 &position, int32_t tetIndex, Vec4 &weights) const;
 
 private:
-    int32_t getInterpolationWeights(const Vec3 &position, int32_t tetIndex, Vec4 &weights) const;
+    inline bool hasCoefficients() const { return !empty() && !_probes[0].coefficients.empty(); }
     static Vec3 getTriangleBarycentricCoord(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &position);
     void getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
     void getTetrahedronBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
@@ -72,12 +78,12 @@ public:
 
     void initialize(LightProbeInfo *info);
 
-    inline bool available() const {
+    inline bool empty() const {
         if (!_enabled) {
-            return false;
+            return true;
         }
 
-        return _data.available();
+        return _data.empty();
     }
 
     inline void setEnabled(bool val) {
@@ -89,6 +95,15 @@ public:
         updatePipeline();
     }
     inline bool isEnabled() const { return _enabled; }
+
+    inline void setGIScale(float val) { _giScale = val; }
+    inline float getGIScale() const { return _giScale; }
+
+    inline void setGISamples(uint32_t val) { _giSamples = val; }
+    inline uint32_t getGISamples() const { return _giSamples; }
+
+    inline void setBounces(uint32_t val) { _bounces = val; }
+    inline uint32_t getBounces() const { return _bounces; }
 
     inline void setReduceRinging(float val) { _reduceRinging = val; }
     inline float getReduceRinging() const { return _reduceRinging; }
@@ -106,6 +121,9 @@ public:
     inline const LightProbesData &getData() const { return _data; }
 
     bool _enabled{true};
+    float _giScale{1.0F};
+    uint32_t _giSamples{1024U};
+    uint32_t _bounces{2U};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};
@@ -134,6 +152,42 @@ public:
         }
     }
     inline bool isEnabled() const { return _enabled; }
+
+    inline void setGIScale(float val) {
+        if (_giScale == val) {
+            return;
+        }
+
+        _giScale = val;
+        if (_resource) {
+            _resource->setGIScale(val);
+        }
+    }
+    inline float getGIScale() const { return _giScale; }
+
+    inline void setGISamples(uint32_t val) {
+        if (_giSamples == val) {
+            return;
+        }
+
+        _giSamples = val;
+        if (_resource) {
+            _resource->setGISamples(val);
+        }
+    }
+    inline uint32_t getGISamples() const { return _giSamples; }
+
+    inline void setBounces(uint32_t val) {
+        if (_bounces == val) {
+            return;
+        }
+
+        _bounces = val;
+        if (_resource) {
+            _resource->setBounces(val);
+        }
+    }
+    inline uint32_t getBounces() const { return _bounces; }
 
     inline void setReduceRinging(float val) {
         if (_reduceRinging == val) {
@@ -196,6 +250,9 @@ public:
 
     //cjh JSB need to bind the property, so need to make it public
     bool _enabled{false};
+    float _giScale{1.0F};
+    uint32_t _giSamples{1024U};
+    uint32_t _bounces{2U};
     float _reduceRinging{0.0F};
     bool _showProbe{true};
     bool _showWireframe{true};

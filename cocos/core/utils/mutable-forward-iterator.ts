@@ -35,6 +35,7 @@
  *     ...
  * }
  * ```
+ * @engineInternal
  */
 export default class MutableForwardIterator<T> {
     public i = 0;

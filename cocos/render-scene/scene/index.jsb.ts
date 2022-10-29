@@ -30,6 +30,9 @@ export type Ambient = jsb.Ambient;
 export const Ambient = jsb.Ambient;
 legacyCC.Ambient = Ambient;
 
+export const LODData = jsb.LODData;
+export const LODGroup = jsb.LODGroup;
+
 /**
  * Light related.
  */

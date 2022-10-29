@@ -24,10 +24,9 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { System, errorID, cclegacy } from '../core';
+import { System, errorID, cclegacy, js } from '../core';
 import { director, Director } from '../game/director';
 import { Node } from '../scene-graph';
-import { MutableForwardIterator } from '../core/utils/array';
 import { LegacyBlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import type { CrossFade } from './cross-fade';
@@ -46,8 +45,8 @@ export class AnimationManager extends System {
     }
 
     public static ID = 'animation';
-    private _anims = new MutableForwardIterator<AnimationState>([]);
-    private _crossFades = new MutableForwardIterator<CrossFade>([]);
+    private _anims = new js.array.MutableForwardIterator<AnimationState>([]);
+    private _crossFades = new js.array.MutableForwardIterator<CrossFade>([]);
     private _delayEvents: {
         fn: (...args: any[]) => void;
         thisArg: any;
