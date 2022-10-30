@@ -490,9 +490,6 @@ export class ReflectionProbe {
         this.cameraNode.worldRotation = this._cameraWorldRotation;
 
         this.camera.update(true);
-
-        console.log(this._cameraWorldPos);
-        console.log(this._cameraWorldRotation);
     }
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
         const n = Vec3.clone(normal);

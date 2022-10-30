@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "ShadowStage.h"
+#include "ReflectionProbeStage.h"
 #include "../Define.h"
 #include "../PipelineSceneData.h"
 #include "../PipelineUBO.h"
@@ -42,17 +42,17 @@
 namespace cc {
 namespace pipeline {
 
-ShadowStage::ShadowStage() = default;
-ShadowStage::~ShadowStage() = default;
+    ReflectionProbeStage::ReflectionProbeStage() = default;
+    ReflectionProbeStage::~ReflectionProbeStage() = default;
 
-RenderStageInfo ShadowStage::initInfo = {
+RenderStageInfo ReflectionProbeStage::initInfo = {
     "ShadowStage",
     static_cast<uint32_t>(ForwardStagePriority::FORWARD),
     static_cast<uint32_t>(RenderFlowTag::SCENE),
     {}};
 const RenderStageInfo &ShadowStage::getInitializeInfo() { return ShadowStage::initInfo; }
 
-bool ShadowStage::initialize(const RenderStageInfo &info) {
+bool ReflectionProbeStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     RenderQueueDesc descriptor = {true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}};
     _renderQueueDescriptors.emplace_back(std::move(descriptor));
@@ -60,13 +60,13 @@ bool ShadowStage::initialize(const RenderStageInfo &info) {
     return true;
 }
 
-void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
+void ReflectionProbeStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     _additiveShadowQueue = ccnew ShadowMapBatchedQueue(pipeline);
 }
 
-void ShadowStage::render(scene::Camera *camera) {
+void ReflectionProbeStage::render(scene::Camera *camera) {
     CC_PROFILE(ShadowStageRender);
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
@@ -141,7 +141,7 @@ void ShadowStage::render(scene::Camera *camera) {
     cmdBuffer->endRenderPass();
 }
 
-void ShadowStage::destroy() {
+void ReflectionProbeStage::destroy() {
     _framebuffer = nullptr;
     _globalDS = nullptr;
     _light = nullptr;
@@ -151,7 +151,7 @@ void ShadowStage::destroy() {
     RenderStage::destroy();
 }
 
-void ShadowStage::clearFramebuffer(const scene::Camera *camera) {
+void ReflectionProbeStage::clearFramebuffer(const scene::Camera *camera) {
     if (!_light || !_framebuffer) {
         return;
     }

@@ -32,10 +32,10 @@ namespace cc {
 namespace pipeline {
 class ForwardPipeline;
 
-class CC_DLL ShadowFlow : public RenderFlow {
+class CC_DLL ReflectionProbeFlow : public RenderFlow {
 public:
-    ShadowFlow();
-    ~ShadowFlow() override;
+    ReflectionProbeFlow();
+    ~ReflectionProbeFlow() override;
 
     static const RenderFlowInfo &getInitializeInfo();
 
@@ -48,24 +48,14 @@ public:
     void destroy() override;
 
 private:
-    void renderStage(gfx::DescriptorSet *globalDS, scene::Camera *camera, const scene::Light *light, gfx::Framebuffer *framebuffer, uint32_t level = 0);
+    void renderStage(scene::Camera *camera, gfx::Framebuffer *framebuffer);
 
-    void lightCollecting();
-
-    void clearShadowMap(scene::Camera *camera);
-
-    void resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *ds);
-
-    void initShadowFrameBuffer(const RenderPipeline *pipeline, const scene::Light *light);
 
     static RenderFlowInfo initInfo;
 
     // weak reference
     gfx::RenderPass *_renderPass{nullptr};
 
-    // weak reference
-    ccstd::vector<const scene::Light *> _validLights;
-    ccstd::vector<IntrusivePtr<gfx::Texture>> _usedTextures;
 
     static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> renderPassHashMap;
 };

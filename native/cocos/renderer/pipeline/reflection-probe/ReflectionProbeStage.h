@@ -31,10 +31,10 @@ namespace pipeline {
 class RenderQueue;
 class ShadowMapBatchedQueue;
 
-class CC_DLL ShadowStage : public RenderStage {
+class CC_DLL ReflectionProbeStage : public RenderStage {
 public:
-    ShadowStage();
-    ~ShadowStage() override;
+    ReflectionProbeStage();
+    ~ReflectionProbeStage() override;
 
     static const RenderStageInfo &getInitializeInfo();
 
@@ -44,11 +44,10 @@ public:
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
     inline void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
-    inline void setUsage(gfx::DescriptorSet *globalDS, const scene::Light *light, gfx::Framebuffer *framebuffer, uint32_t level = 0) {
-        _globalDS = globalDS;
-        _light = light;
+    inline void setUsage(gfx::Framebuffer *framebuffer) {
+
         _framebuffer = framebuffer;
-        _level = level;
+
     }
 
     void clearFramebuffer(const scene::Camera *camera);
