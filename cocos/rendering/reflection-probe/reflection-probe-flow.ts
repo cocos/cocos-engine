@@ -82,7 +82,7 @@ export class ReflectionProbeFlow extends RenderFlow {
             if (probe.probeType === ProbeType.PLANAR) {
                 probe.setTargetTexture(probe.realtimePlanarTexture);
                 ReflectionProbeManager.probeManager.unbindingPlanarMap(probe);
-                probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
+                probeStage.setUsageInfo(probe, probe.realtimePlanarTexture.window!.framebuffer);
                 probeStage.render(probe.camera);
                 ReflectionProbeManager.probeManager.updatePlanarMap(probe);
                 probe.setTargetTexture(null);

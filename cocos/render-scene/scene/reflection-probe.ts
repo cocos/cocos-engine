@@ -476,13 +476,13 @@ export class ReflectionProbe {
         this.cameraNode.worldPosition = this._cameraWorldPos;
 
         Vec3.transformQuat(this._forward, Vec3.FORWARD, sourceCamera.node.worldRotation);
+        this._forward.normalize();
         this._reflect(this._forward, this._forward, Vec3.UP, 0);
         this._forward.normalize();
         this._forward.negative();
 
-        const up = new Vec3();
-        Vec3.transformQuat(up, Vec3.UP, sourceCamera.node.worldRotation);
-        this._reflect(this._up, up, Vec3.UP, 0);
+        Vec3.transformQuat(this._up, Vec3.UP, sourceCamera.node.worldRotation);
+        this._reflect(this._up, this._up, Vec3.UP, 0);
         this._up.normalize();
 
         Quat.fromViewUp(this._cameraWorldRotation, this._forward, this._up);
@@ -490,6 +490,9 @@ export class ReflectionProbe {
         this.cameraNode.worldRotation = this._cameraWorldRotation;
 
         this.camera.update(true);
+
+        console.log(this._cameraWorldPos);
+        console.log(this._cameraWorldRotation);
     }
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
         const n = Vec3.clone(normal);

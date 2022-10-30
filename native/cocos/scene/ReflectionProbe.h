@@ -40,9 +40,7 @@ enum class ProbeType {
 };
 namespace scene {
 
-
 struct RenderObject;
-
 
 class ReflectionProbe final {
 public:
@@ -94,7 +92,7 @@ public:
     inline void setVisibility(int32_t val) {
         _visibility = val;
     }
-    inline int32_t getVisibility()const {
+    inline int32_t getVisibility() const {
         return _visibility;
     }
 
@@ -107,7 +105,7 @@ public:
         const Vec3 pos = _node->getWorldPosition();
         geometry::AABB::set(_boundingBox, pos.x, pos.y, pos.z, _size.x, _size.y, _size.z);
     }
-    inline Vec3 getBoudingSize() const{
+    inline Vec3 getBoudingSize() const {
         return _size;
     }
 
@@ -127,7 +125,7 @@ public:
     * @zh probe需要渲染的物体。
     */
     const ccstd::vector<Model*>& getRenderObjects() const;
-    void addRenderObject(Model *model);
+    void addRenderObject(Model* model);
 
     /**
      * @en The node of the probe.
@@ -136,22 +134,10 @@ public:
     inline Node* getNode() {
         return _node;
     }
-
     inline Camera* getCamera() {
         return _camera;
     }
-
-    /**
-     * @en Refresh the objects that use this probe.
-     * @zh 刷新使用该probe的物体
-     */
-    inline void setNeedRefresh(bool value) {
-        _needRefresh = value;
-    }
-    inline bool getNeedRefresh() const{
-        return _needRefresh;
-    }
-
+  
     inline bool needRender() const {
         return _needRender;
     }
@@ -171,15 +157,14 @@ public:
     inline RenderTexture* getRealtimePlanarTexture() const {
         return _realtimePlanarTexture;
     }
+    void switchProbeType(int32_t type, const Camera* sourceCamera);
+    void setTargetTexture(const RenderTexture* rt);
 
-    void switchProbeType(int32_t type, Camera* sourceCamera);
-    void renderPlanarReflection(Camera* camera);
-    void setTargetTexture(RenderTexture* rt);
     void updateBoundingBox();
-    void syncCameraParams();
-    void transformReflectionCamera();
-
-    
+    void syncCameraParams(const Camera* camera);
+    void transformReflectionCamera(const Camera* sourceCamera);
+    void attachCameraToScene();
+    Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
 
 private:
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
@@ -208,7 +193,6 @@ private:
      */
     int32_t _probeId = 0;
 
-    bool _needRefresh = false;
 
     bool _needRender = false;
 
