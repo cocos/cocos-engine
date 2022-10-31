@@ -1,11 +1,11 @@
 exports.template = /* html */`
-<div class="reflation-probe-footer">
+<div class="reflection-probe-footer">
     <ui-button class="bake blue" >Bake</ui-button>
 </div>
 `;
 
 exports.style = /* css */`
-.reflation-probe-footer {
+.reflection-probe-footer {
     display: flex;
     flex-wrap: wrap;
     margin-top: 6px;
