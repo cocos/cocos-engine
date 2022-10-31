@@ -45,6 +45,10 @@ class Texture;
  * @zh 贴图资源基类。它定义了所有贴图共用的概念。
  */
 class TextureBase : public Asset {
+    IMPL_EVENT_TARGET(TextureBase)
+    DECLARE_TARGET_EVENT_BEGIN(TextureBase)
+    TARGET_EVENT_ARG1(SamplerUpdated, cc::gfx::Sampler *)
+    DECLARE_TARGET_EVENT_END()
 public:
     using Super = Asset;
 

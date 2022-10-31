@@ -34,7 +34,7 @@ namespace cc {
 
 class CC_DLL ISystemWindow : public OSInterface {
 public:
-    static const uint32_t mainWindowId = 1;
+    static constexpr uint32_t mainWindowId = 1;
 
     using Size = cc::Vec2;
     enum WindowFlags {

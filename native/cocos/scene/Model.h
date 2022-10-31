@@ -33,7 +33,7 @@
 #include "core/assets/RenderingSubMesh.h"
 #include "core/assets/Texture2D.h"
 #include "core/builtin/BuiltinResMgr.h"
-#include "core/event/CallbacksInvoker.h"
+#include "core/event/EventTarget.h"
 #include "core/geometry/AABB.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/Node.h"
@@ -57,7 +57,18 @@ class Octree;
 class Pass;
 struct IMacroPatch;
 
-class Model : public RefCounted {
+class Model : public RefCounted, public event::EventTarget {
+    IMPL_EVENT_TARGET(Model)
+
+    DECLARE_TARGET_EVENT_BEGIN(Model)
+    TARGET_EVENT_ARG1(UpdateTransform, uint32_t)
+    TARGET_EVENT_ARG1(UpdateUBO, uint32_t)
+    TARGET_EVENT_ARG2(UpdateLocalSHDescriptor, index_t, gfx::DescriptorSet *)
+    TARGET_EVENT_ARG2(UpdateLocalDescriptors, index_t, gfx::DescriptorSet *)
+    TARGET_EVENT_ARG2(UpdateWorldBound, index_t, gfx::DescriptorSet *)
+    TARGET_EVENT_ARG2(UpdateInstancedAttributes, const std::vector<gfx::Attribute> &, SubModel *)
+    TARGET_EVENT_ARG2(GetMacroPatches, index_t, std::vector<IMacroPatch> *)
+    DECLARE_TARGET_EVENT_END()
 public:
     enum class Type {
         DEFAULT,
@@ -170,7 +181,6 @@ public:
 
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }
-    inline CallbacksInvoker &getEventProcessor() { return _eventProcessor; }
     inline void setLocalDataUpdated(bool v) { _localDataUpdated = v; }
     inline void setWorldBounds(geometry::AABB *bounds) {
         _worldBounds = bounds;
@@ -207,7 +217,7 @@ protected:
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
 
-    int32_t _tetrahedronIndex{0};
+    int32_t _tetrahedronIndex{-1};
     Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
     bool _useLightProbe = false;
 
@@ -225,7 +235,7 @@ protected:
     Vec4 _lightmapUVParam;
 
     // For JS
-    CallbacksInvoker _eventProcessor;
+    // CallbacksInvoker _eventProcessor;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;
 
 private:

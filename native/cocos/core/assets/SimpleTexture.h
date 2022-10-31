@@ -40,6 +40,11 @@ class ImageAsset;
  * 简单贴图允许指定不同的 Mipmap 层级。
  */
 class SimpleTexture : public TextureBase {
+    IMPL_EVENT_TARGET(SimpleTexture)
+    DECLARE_TARGET_EVENT_BEGIN(SimpleTexture)
+    TARGET_EVENT_ARG1(TextureUpdated, cc::gfx::Texture *)
+    TARGET_EVENT_ARG1(AfterAssignImage, cc::ImageAsset *)
+    DECLARE_TARGET_EVENT_END()
 public:
     ~SimpleTexture() override;
 

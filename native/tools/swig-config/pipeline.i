@@ -187,6 +187,8 @@ using namespace cc;
 %import "math/Mat4.h"
 %import "math/Quaternion.h"
 
+%import "core/event/Event.h"
+
 %import "core/assets/Material.h"
 
 %import "renderer/gfx-base/GFXDef-common.h"
