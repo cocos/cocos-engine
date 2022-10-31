@@ -29,7 +29,7 @@ import { ReflectionProbeStage } from './reflection-probe-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderPipeline } from '..';
 import { Camera, CameraType, ProbeType, ReflectionProbe } from '../../render-scene/scene';
-import { ReflectionProbeManager } from '../reflectionProbeManager';
+import { ReflectionProbeManager } from '../reflection-probe-manager';
 
 /**
  * @en reflection probe render flow
