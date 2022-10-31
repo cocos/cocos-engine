@@ -28,7 +28,7 @@ import { Asset } from '../assets/asset';
 import { ImageAsset, ImageSource } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
-import { TextureCube } from '../assets/texture-cube';
+// import { TextureCube } from '../assets/texture-cube';
 import { legacyCC } from '../global-exports';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
@@ -188,19 +188,19 @@ class BuiltinResMgr {
         emptyTexture.image = emptyImgAsset;
         resources[emptyTexture._uuid] = emptyTexture;
 
-        // black cube texture
-        const blackCubeTexture = new TextureCube();
-        blackCubeTexture._uuid = 'black-cube-texture';
-        blackCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
-        blackCubeTexture.image = {
-            front: new ImageAsset(blackMemImageSource),
-            back: new ImageAsset(blackMemImageSource),
-            left: new ImageAsset(blackMemImageSource),
-            right: new ImageAsset(blackMemImageSource),
-            top: new ImageAsset(blackMemImageSource),
-            bottom: new ImageAsset(blackMemImageSource),
-        };
-        resources[blackCubeTexture._uuid] = blackCubeTexture;
+        // // black cube texture
+        // const blackCubeTexture = new TextureCube();
+        // blackCubeTexture._uuid = 'black-cube-texture';
+        // blackCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        // blackCubeTexture.image = {
+        //     front: new ImageAsset(blackMemImageSource),
+        //     back: new ImageAsset(blackMemImageSource),
+        //     left: new ImageAsset(blackMemImageSource),
+        //     right: new ImageAsset(blackMemImageSource),
+        //     top: new ImageAsset(blackMemImageSource),
+        //     bottom: new ImageAsset(blackMemImageSource),
+        // };
+        // resources[blackCubeTexture._uuid] = blackCubeTexture;
 
         // grey texture
         const greyImgAsset = new ImageAsset(greyMemImageSource);
@@ -209,19 +209,19 @@ class BuiltinResMgr {
         greyTexture.image = greyImgAsset;
         resources[greyTexture._uuid] = greyTexture;
 
-        // grey cube texture
-        const greyCubeTexture = new TextureCube();
-        greyCubeTexture._uuid = 'grey-cube-texture';
-        greyCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
-        greyCubeTexture.image = {
-            front: new ImageAsset(greyMemImageSource),
-            back: new ImageAsset(greyMemImageSource),
-            left: new ImageAsset(greyMemImageSource),
-            right: new ImageAsset(greyMemImageSource),
-            top: new ImageAsset(greyMemImageSource),
-            bottom: new ImageAsset(greyMemImageSource),
-        };
-        resources[greyCubeTexture._uuid] = greyCubeTexture;
+        // // grey cube texture
+        // const greyCubeTexture = new TextureCube();
+        // greyCubeTexture._uuid = 'grey-cube-texture';
+        // greyCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        // greyCubeTexture.image = {
+        //     front: new ImageAsset(greyMemImageSource),
+        //     back: new ImageAsset(greyMemImageSource),
+        //     left: new ImageAsset(greyMemImageSource),
+        //     right: new ImageAsset(greyMemImageSource),
+        //     top: new ImageAsset(greyMemImageSource),
+        //     bottom: new ImageAsset(greyMemImageSource),
+        // };
+        // resources[greyCubeTexture._uuid] = greyCubeTexture;
 
         // white texture
         const whiteImgAsset = new ImageAsset(whiteMemImageSource);
@@ -230,19 +230,19 @@ class BuiltinResMgr {
         whiteTexture.image = whiteImgAsset;
         resources[whiteTexture._uuid] = whiteTexture;
 
-        // white cube texture
-        const whiteCubeTexture = new TextureCube();
-        whiteCubeTexture._uuid = 'white-cube-texture';
-        whiteCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
-        whiteCubeTexture.image = {
-            front: new ImageAsset(whiteMemImageSource),
-            back: new ImageAsset(whiteMemImageSource),
-            left: new ImageAsset(whiteMemImageSource),
-            right: new ImageAsset(whiteMemImageSource),
-            top: new ImageAsset(whiteMemImageSource),
-            bottom: new ImageAsset(whiteMemImageSource),
-        };
-        resources[whiteCubeTexture._uuid] = whiteCubeTexture;
+        // // white cube texture
+        // const whiteCubeTexture = new TextureCube();
+        // whiteCubeTexture._uuid = 'white-cube-texture';
+        // whiteCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        // whiteCubeTexture.image = {
+        //     front: new ImageAsset(whiteMemImageSource),
+        //     back: new ImageAsset(whiteMemImageSource),
+        //     left: new ImageAsset(whiteMemImageSource),
+        //     right: new ImageAsset(whiteMemImageSource),
+        //     top: new ImageAsset(whiteMemImageSource),
+        //     bottom: new ImageAsset(whiteMemImageSource),
+        // };
+        // resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
         const normalImgAsset = new ImageAsset(normalMemImageSource);
@@ -258,19 +258,19 @@ class BuiltinResMgr {
         defaultTexture.image = defaultImgAsset;
         resources[defaultTexture._uuid] = defaultTexture;
 
-        // default cube texture
-        const defaultCubeTexture = new TextureCube();
-        defaultCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
-        defaultCubeTexture._uuid = 'default-cube-texture';
-        defaultCubeTexture.image = {
-            front: new ImageAsset(defaultMemImageSource),
-            back: new ImageAsset(defaultMemImageSource),
-            left: new ImageAsset(defaultMemImageSource),
-            right: new ImageAsset(defaultMemImageSource),
-            top: new ImageAsset(defaultMemImageSource),
-            bottom: new ImageAsset(defaultMemImageSource),
-        };
-        resources[defaultCubeTexture._uuid] = defaultCubeTexture;
+        // // default cube texture
+        // const defaultCubeTexture = new TextureCube();
+        // defaultCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
+        // defaultCubeTexture._uuid = 'default-cube-texture';
+        // defaultCubeTexture.image = {
+        //     front: new ImageAsset(defaultMemImageSource),
+        //     back: new ImageAsset(defaultMemImageSource),
+        //     left: new ImageAsset(defaultMemImageSource),
+        //     right: new ImageAsset(defaultMemImageSource),
+        //     top: new ImageAsset(defaultMemImageSource),
+        //     bottom: new ImageAsset(defaultMemImageSource),
+        // };
+        // resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
         if (legacyCC.SpriteFrame) {
             const spriteFrame = new legacyCC.SpriteFrame() as SpriteFrame;
@@ -318,6 +318,7 @@ class BuiltinResMgr {
     public loadBuiltinAssets () {
         const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
         if (TEST || !builtinAssets) return Promise.resolve();
+        console.time('9.3'); // 20ms
         const resources = this._resources;
         return new Promise<void>((resolve, reject) => {
             assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
@@ -325,10 +326,14 @@ class BuiltinResMgr {
                     reject(err);
                     return;
                 }
+                console.timeEnd('9.3');
+                console.time('9.4'); // 20ms
                 assetManager.loadAny(builtinAssets, (err, assets) => {
                     if (err) {
                         reject(err);
                     } else {
+                        console.timeEnd('9.4');
+                        // console.time('9.5'); // 0ms
                         assets.forEach((asset) => {
                             resources[asset.name] = asset;
                             // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
@@ -337,6 +342,8 @@ class BuiltinResMgr {
                                 this._materialsToBeCompiled.push(asset as Material);
                             }
                         });
+                        // console.timeEnd('9.5');
+                        console.timeEnd('9.2');
                         resolve();
                     }
                 });

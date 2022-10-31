@@ -1112,7 +1112,7 @@ export class SceneGlobals {
      */
     public activate () {
         const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
-        this.skybox.activate(sceneData.skybox);
+        // this.skybox.activate(sceneData.skybox);
         this.ambient.activate(sceneData.ambient);
 
         this.shadows.activate(sceneData.shadows);
