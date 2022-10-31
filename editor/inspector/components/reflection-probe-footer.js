@@ -40,7 +40,7 @@ exports.update = async function(dump) {
 exports.ready = function() {
     this.$.bake.addEventListener('confirm', () => {
         const uuids = this.dump.value.uuid.values ?? [this.dump.value.uuid.value];
-        Editor.Message.send('scene', 'reflection-probe:bake-cube-map', uuids);
+        Editor.Message.send('scene', 'reflection-probe-bake-cube-map', uuids);
     })
 };
 
