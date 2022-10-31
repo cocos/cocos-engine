@@ -59,6 +59,8 @@ import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
+const _inv_world_mat = new Mat4();
+const _inv_velo = new Vec3();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
 
@@ -1547,20 +1549,29 @@ export class ParticleSystem extends ModelRenderer {
             const curveStartSpeed = this.startSpeed.evaluate(loopDelta, rand)!;
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
+            if (this._particle && this.inheritVelocity) {
+                const veloLen = particle.velocity.length();
+
+                if (this._particle.particleSystem._simulationSpace === Space.World) {
+                    this._particle.particleSystem.node.getWorldMatrix(_inv_world_mat);
+                    Mat4.invert(_inv_world_mat, _inv_world_mat);
+                    Vec3.transformMat4(_inv_velo, this._particle.velocity, _inv_world_mat);
+                } else {
+                    _inv_velo.set(this._particle.velocity);
+                }
+
+                const pLen = _inv_velo.length();
+                const scaledLen = pLen * 0.1;
+                const vx = _inv_velo.x / pLen * scaledLen * random();
+                const vy = _inv_velo.y / pLen * scaledLen * random();
+                const vz = _inv_velo.z / pLen * scaledLen * random();
+
+                particle.velocity.set(veloLen * vx, veloLen * vy, veloLen * vz);
+            }
+
             if (this._simulationSpace === Space.World) {
                 Vec3.transformMat4(particle.position, particle.position, _world_mat);
                 Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
-            }
-
-            if (this._particle && this.inheritVelocity) {
-                const veloLen = particle.velocity.length();
-                const pLen = this._particle.ultimateVelocity.length();
-                const scaledLen = pLen * 0.1;
-                const vx = this._particle.ultimateVelocity.x / pLen * scaledLen * random();
-                const vy = this._particle.ultimateVelocity.y / pLen * scaledLen * random();
-                const vz = this._particle.ultimateVelocity.z / pLen * scaledLen * random();
-
-                particle.velocity.set(veloLen * vx, veloLen * vy, veloLen * vz);
             }
 
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
