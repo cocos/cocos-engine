@@ -182,7 +182,7 @@ export class TransformArray {
      */
     public set (transformArray: TransformArray, targetOffset?: number) {
         this._data.set(
-            transformArray._data,
+            (transformArray as TransformArray)._data,
             typeof targetOffset === 'number' ? targetOffset * TRANSFORM_STRIDE_IN_FLOATS : undefined,
         );
     }
