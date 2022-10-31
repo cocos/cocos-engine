@@ -56,11 +56,14 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            let animationId;
+            let animationId = undefined;
 
             panel.__assetChanged__ = (uuid) => {
-                if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
+                if (typeof animationId === 'number') {
                     window.cancelAnimationFrame(animationId);
+                    animationId = undefined;
+                }
+                if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
                     animationId = window.requestAnimationFrame(async () => {
                         await panel.reset();
                     });
