@@ -47,14 +47,3 @@ exports.ready = function() {
 exports.close = function() {
 
 };
-
-exports.methods = {
-    /**
-     * 
-     * @param {string} uuid 
-     */
-    bake(uuid){
-        
-    }
-    
-};
