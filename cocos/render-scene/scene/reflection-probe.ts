@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 import { EDITOR } from 'internal:constants';
+import { type } from 'cc.decorator';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
 import { CCObject, Color, Enum, Quat, Rect, toRadian, Vec2, Vec3 } from '../../core';
@@ -32,17 +33,16 @@ import { legacyCC } from '../../core/global-exports';
 import { ClearFlagBit } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
-import { type } from 'cc.decorator';
 
 export enum ProbeClearFlag {
     SKYBOX= SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
     SOLID_COLOR= ClearFlagBit.ALL,
 }
-    
+
 export enum ProbeType {
     CUBE= 0,
     PLANAR= 1,
-};
+}
 const cameraDir: Vec3[] = [
     new Vec3(0, -90, 0),
     new Vec3(0, 90, 0),
@@ -73,7 +73,7 @@ export class ReflectionProbe {
     protected _visibility = CAMERA_DEFAULT_MASK;
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
-    protected _size = new Vec3(1,1,1);
+    protected _size = new Vec3(1, 1, 1);
     /**
      * @en Objects inside bouding box.
      * @zh 包围盒范围内的物体

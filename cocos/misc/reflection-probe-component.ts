@@ -69,7 +69,7 @@ export enum ProbeResolution {
       * @readonly
       */
     Ultra_2048x2048= 2048,
-};
+}
 @ccclass('cc.ReflectionProbe')
 @menu('Rendering/ReflectionProbe')
 @executeInEditMode
@@ -93,7 +93,7 @@ export class ReflectionProbe extends Component {
     protected _cubemap: TextureCube | null = null;
 
     @serializable
-    protected _size = new Vec3(1,1,1);
+    protected _size = new Vec3(1, 1, 1);
 
     @serializable
     protected _sourceCamera: Camera | null = null;
@@ -286,6 +286,4 @@ export class ReflectionProbe extends Component {
         this._probe.size = this._size;
         this._probe.cubemap = this._cubemap!;
     }
-
-
 }

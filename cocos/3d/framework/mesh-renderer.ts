@@ -97,7 +97,7 @@ export enum ReflectionProbeType {
      * @zh 实时平面反射
      */
     PLANAR_REFLECTION = 2,
-};
+}
 
 /**
  * @en Model's light map settings.
