@@ -31,7 +31,7 @@ import { deviceManager } from '../gfx';
 import { Component } from '../scene-graph/component';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { RenderTexture, TextureCube } from '../asset/assets';
-import { ReflectionProbeManager } from '../rendering/reflectionProbeManager';
+import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../core/global-exports';
 import { Camera } from './camera-component';

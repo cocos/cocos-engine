@@ -33,7 +33,7 @@ import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { warnID } from '../core/platform';
-import { ReflectionProbeManager } from './reflectionProbeManager';
+import { ReflectionProbeManager } from './reflection-probe-manager';
 import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();

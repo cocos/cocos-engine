@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include "bindings/event/CustomEventTypes.h"
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 
 #include "gfx-agent/DeviceAgent.h"
 #include "gfx-validator/DeviceValidator.h"

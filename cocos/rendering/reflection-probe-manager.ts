@@ -58,7 +58,6 @@ export class ReflectionProbeManager {
                 break;
             }
         }
-        console.log(`probe length = ${this._probes.length}`);
     }
 
     public exists (probeId: number): boolean {

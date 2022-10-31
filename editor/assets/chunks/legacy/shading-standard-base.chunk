@@ -203,7 +203,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
       #endif
 
 
-      #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != NONE
+      #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != REFLECTION_PROBE_NONE
         vec3 env = unpackRGBE(envmap);
       #else
         vec3 env = SRGBToLinear(envmap.rgb);

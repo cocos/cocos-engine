@@ -29,7 +29,6 @@
 #include "core/Root.h"
 #include "core/assets/EffectAsset.h"
 #include "core/builtin/BuiltinResMgr.h"
-#include "core/event/EventTypesToJS.h"
 #include "core/platform/Debug.h"
 #include "math/Color.h"
 #include "renderer/pipeline/helper/Utils.h"
@@ -94,7 +93,7 @@ void Material::doDestroy() {
         }
     }
     passes.clear();
-    emit(EventTypesToJS::MATERIAL_PASSES_UPDATED);
+    emit<PassesUpdated>();
 }
 
 void Material::recompileShaders(const MacroRecord & /*overrides*/, index_t /*passIdx*/) {
@@ -304,7 +303,7 @@ void Material::update(bool keepProps /* = true*/) {
             }
         }
 
-        emit(EventTypesToJS::MATERIAL_PASSES_UPDATED);
+        emit<PassesUpdated>();
     }
     _hash = Material::getHashForMaterial(this);
 }

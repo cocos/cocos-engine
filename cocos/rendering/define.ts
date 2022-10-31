@@ -315,7 +315,7 @@ export class UBOCSM {
 
     public static readonly NAME = 'CCCSM';
     public static readonly BINDING = PipelineGlobalBindings.UBO_CSM;
-    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCSM.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCSM.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.FRAGMENT);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCSM.BINDING, UBOCSM.NAME, [
         new Uniform('cc_csmViewDir0', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),
         new Uniform('cc_csmViewDir1', Type.FLOAT4, UBOCSM.CSM_LEVEL_COUNT),

@@ -81,6 +81,7 @@
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "core/event/Event.h"
 %import "core/scene-graph/Node.h"
 
 %import "core/geometry/Enums.h"

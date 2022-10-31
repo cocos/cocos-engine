@@ -431,7 +431,7 @@ export class Model {
      * @en located tetrahedron index
      * @zh 所处的四面体索引
      */
-    private _tetrahedronIndex = 0;
+    private _tetrahedronIndex = -1;
     private _lastWorldBoundCenter = new Vec3(Infinity, Infinity, Infinity);
     private _useLightProbe = false;
 
@@ -879,17 +879,14 @@ export class Model {
             Address.CLAMP,
             Address.CLAMP,
         ));
-        let bindingTexture: Texture | null = null;
         if (!texture) {
-            bindingTexture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture();
-        } else {
-            bindingTexture = texture;
+            texture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture()!;
         }
-        if (bindingTexture) {
+        if (texture) {
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const { descriptorSet } = subModels[i];
-                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, bindingTexture);
+                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, texture);
                 descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
             }
