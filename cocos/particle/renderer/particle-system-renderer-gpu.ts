@@ -305,6 +305,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         pass.setUniform(pass.getHandle('scale'), this._node_scale);
     }
 
+    public clearSubemitter (): void {
+
+    }
+
     public updateParticles (dt: number) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;

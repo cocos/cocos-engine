@@ -363,7 +363,12 @@ export default class TrailModule {
         this.minParticleDistance = this._minParticleDistance;
         let burstCount = 0;
         const psTime = ps.startLifetime.getMax();
-        const psRate = ps.rateOverTime.getMax();
+        let psSpeed = 1;
+        if (ps._parentEmitter) {
+            psSpeed = ps._parentEmitter.startSpeed.getMax();
+        }
+        // eslint-disable-next-line max-len
+        const psRate = ps.rateOverTime.getMax() > ps.rateOverDistance.getMax() * psSpeed ? ps.rateOverTime.getMax() : ps.rateOverDistance.getMax() * psSpeed;
         const duration = ps.duration;
         for (let i = 0, len = ps.bursts.length; i < len; i++) {
             const b = ps.bursts[i];
