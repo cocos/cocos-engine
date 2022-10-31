@@ -257,6 +257,53 @@ CCProgram ray-query-fs %{
     float z = cosPhi;
     return vec3(x,y,z);
   }
+
+  float sdfSphereBase(vec3 p, vec3 center,float ra)
+  {
+    float displacement = sin(5.0 * p.x) * sin(5.0 * p.y) * sin(5.0 * p.z) * 0.25;
+    return displacement + length(p-center) - ra;
+  }
+
+  float sdfSphere(vec3 p, vec3 center,float ra)
+  {
+    const float k = 10.0*abs(cos(cc_time.w)); // or some other amount
+    float c = cos(k*p.y);
+    float s = sin(k*p.y);
+    mat2  m = mat2(c,-s,s,c);
+    vec3  q = vec3(m*p.xz,p.y);
+    return sdfSphereBase(q,center,ra);
+  }
+
+  vec3 calculate_normal(vec3 p, vec3 center, float r)
+  {
+    const float h = 1e-6;
+    const vec2 k = vec2(1,-1);
+    return normalize( k.xyy*sdfSphere(p + k.xyy*h,center,r ) + 
+                      k.yyx*sdfSphere(p + k.yyx*h,center,r ) + 
+                      k.yxy*sdfSphere(p + k.yxy*h,center,r ) + 
+                      k.xxx*sdfSphere(p + k.xxx*h,center,r ) );
+  }
+
+  bool raymarchingSphere(vec3 ro, vec3 rd,vec3 center,float r,float tMin,float tMax,out float t,out vec3 normal){
+    t = 0.001;
+    float tmax = 1000.0;
+    const float MIN_HIT_DIST = 1e-5;
+
+    for(int i = 0; i < 64; i++){
+      vec3 cur_pos = ro + t*rd;
+      float dist = sdfSphere(cur_pos, center, r);
+      if(dist < MIN_HIT_DIST){
+        normal = calculate_normal(cur_pos, center, r);
+        return true;
+      }
+      if(t > tmax){
+        return false;
+      }
+      t+= dist;
+    }
+    return false;
+  }
+
   #endif
 
   void surf (out StandardSurface s) {
@@ -314,6 +361,26 @@ CCProgram ray-query-fs %{
 
       float shadowFactor = .0;
       
+      int frame_id = int(mod(int(cc_time.z),4));
+
+      rayQueryEXT rayQuery;
+      rayQueryInitializeEXT(rayQuery, cc_topLevelAS, gl_RayFlagsOpaqueEXT,0xFF,cc_cameraPos.xyz,0.01,normalize(s.position-cc_cameraPos.xyz),1000.0);
+
+      while(rayQueryProceedEXT(rayQuery)){
+        if(rayQueryGetIntersectionTypeEXT(rayQuery,false) == gl_RayQueryCandidateIntersectionAABBEXT){
+          vec3 hitPoint = rayQueryGetIntersectionObjectRayOriginEXT(rayQuery,false);
+          vec3 hitDir = rayQueryGetIntersectionObjectRayDirectionEXT(rayQuery,false);
+          
+          float r = 5.0*abs(sin(cc_time.w));
+          float t;
+          if(raymarchingSphere(hitPoint,hitDir,vec3(0.0,0.0,0.0),r,0.0,100.0,t,s.normal)){
+            s.albedo = vec4(1.0,0.0,0.0,1.0);
+            rayQueryGenerateIntersectionEXT(rayQuery,t);
+            rayQueryTerminateEXT(rayQuery);
+          }
+        }
+      }
+
       for(int i = 0; i < 4; ++i)
       {
         vec3 light_position = light_points[i];
@@ -322,30 +389,10 @@ CCProgram ray-query-fs %{
         float tMin = 0.1f;
         float tMax = length(L);
 
-        rayQueryEXT rayQuery;
+        //rayQueryEXT rayQuery;
         rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
 
-        while(rayQueryProceedEXT(rayQuery)){
-           if (rayQueryGetIntersectionTypeEXT(rayQuery, false) == gl_RayQueryCandidateIntersectionAABBEXT){
-            bool opaqueHit = false;
-            float t = rayQueryGetIntersectionTEXT(rayQuery, false);
-            vec3 objectOrigin = rayQueryGetIntersectionObjectRayOriginEXT(rayQuery, false);
-            vec3 objectDir = rayQueryGetIntersectionObjectRayDirectionEXT(rayQuery, false);
-            float r = 0.5;
-            vec3 oc = objectOrigin;
-            float b = dot(oc, objectDir);
-            float c = dot(oc, oc) - r * r;
-            float h = b * b - c;
-            if (h >= 0.0) {
-              opaqueHit = true;
-              h = sqrt(h);
-              t = t-b-h;
-            } 
-            if(opaqueHit){
-              rayQueryGenerateIntersectionEXT(rayQuery, t);            
-            }
-           }
-        }
+        while(rayQueryProceedEXT(rayQuery));
       
         if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
         {
@@ -358,7 +405,7 @@ CCProgram ray-query-fs %{
       //ao
       float seed  = baseHash(uvec2(cc_time.w*gl_FragCoord.xy));
       
-      rayQueryEXT rayQuery;
+      //rayQueryEXT rayQuery;
       float tMin = 0.1f;//todo How to choose adaptive tMin according to vertex normal?
       float tMax = 0.7f;
       vec3 direction;
@@ -366,7 +413,7 @@ CCProgram ray-query-fs %{
       float ao = .0;
       const int AO_SAMPLE = 8;
       const ivec2 tile_offset[4] = {ivec2(0,0),ivec2(0,1),ivec2(1,0),ivec2(1,1)};
-      int frame_id = int(mod(int(cc_time.z),4));
+      
       if(mod(ivec2(gl_FragCoord.xy+tile_offset[frame_id]),2)==ivec2(0,0)){
         for(int i = 0;i<AO_SAMPLE;++i){
           seed = hash1(seed);
@@ -416,94 +463,3 @@ CCProgram ray-query-fs %{
 
   CC_STANDARD_SURFACE_ENTRY()
 }%
-
-/*
-CCProgram shadow-caster-vs %{
-  precision highp float;
-  #include <legacy/input-standard>
-  #include <legacy/decode-base>
-  #include <legacy/local-batch>
-  #include <shared-ubos>
-  #include <builtin/uniforms/cc-shadow>
-
-  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
-    in vec2 a_texCoord1;
-  #endif
-
-  out vec2 v_uv;
-  #if HAS_SECOND_UV
-    out vec2 v_uv1;
-  #endif
-  out vec4 v_worldPos;
-  out highp vec2 v_clip_depth;
-
-  vec4 vert () {
-    StandardVertInput In;
-    CCVertInput(In);
-
-    mat4 matWorld, matWorldIT;
-    CCGetWorldMatrixFull(matWorld, matWorldIT);
-
-    v_worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * v_worldPos;
-
-    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
-    #if HAS_SECOND_UV
-      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
-    #endif
-
-    v_clip_depth = clipPos.zw;
-
-    return clipPos;
-  }
-}%
-
-CCProgram shadow-caster-fs %{
-  precision highp float;
-  #include <shared-ubos>
-  #include <common/data/packing>
-  #include <legacy/shadow-map-base>
-
-  in vec2 v_uv;
-  #if HAS_SECOND_UV
-    in vec2 v_uv1;
-  #endif
-  in vec4 v_worldPos;
-  in highp vec2 v_clip_depth;
-
-  #if USE_ALBEDO_MAP
-    uniform sampler2D albedoMap;
-    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
-  #endif
-
-  #if USE_ALPHA_TEST
-    #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
-  #endif
-
-  vec4 frag () {
-    vec4 baseColor = albedo;
-
-    #if USE_ALPHA_TEST
-      #if USE_ALBEDO_MAP
-        baseColor *= texture(albedoMap, ALBEDO_UV);
-      #endif
-      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
-    #endif
-
-    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
-    // spot use linear
-    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
-      // enabled linear depth
-      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
-        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
-      #endif
-    }
-
-    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-      return packDepthToRGBA(clipDepth);
-    #else
-      return vec4(clipDepth, 1.0, 1.0, 1.0);
-    #endif
-  }
-}%
-*/

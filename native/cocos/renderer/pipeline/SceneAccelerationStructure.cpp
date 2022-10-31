@@ -40,12 +40,12 @@ namespace cc
             if (pModel->getNode()->getName() == "AABB") {
                 gfx::ASAABB blasGeomAABB{};
                 blasGeomAABB.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
-                blasGeomAABB.minX = -0.5;
-                blasGeomAABB.minY = -0.5;
-                blasGeomAABB.minZ = -0.5;
-                blasGeomAABB.maxX = 0.5;
-                blasGeomAABB.maxY = 0.5;
-                blasGeomAABB.maxZ = 0.5;
+                blasGeomAABB.minX = -5.0;
+                blasGeomAABB.minY = -5.0;
+                blasGeomAABB.minZ = -5.0;
+                blasGeomAABB.maxX = 5.0;
+                blasGeomAABB.maxY = 5.0;
+                blasGeomAABB.maxZ = 5.0;
                 blasInfo.aabbs.push_back(blasGeomAABB);
             } else {
                 for (const auto& pSubModel : pModel->getSubModels()) {
@@ -86,8 +86,9 @@ namespace cc
             auto* device = gfx::Device::getInstance();
 
             for (const auto& pModel : scene->getModels()) {
+                const auto name = pModel->getNode()->getName();
 
-                if (!pModel->getNode()->isValid() || !pModel->getNode()->isActive() || pModel->getNode()->getName() == "Profiler_Root") {
+                if (!pModel->getNode()->isValid() || !pModel->getNode()->isActive() || name == "Profiler_Root") {
                     continue;
                 }
 
@@ -113,7 +114,7 @@ namespace cc
                     gfx::ASInstance tlasGeom{};
 
                     tlasGeom.instanceCustomIdx = 0;
-                    const auto name = pModel->getNode()->getName();
+                    
                     if (name == "Cube-001") {
                         tlasGeom.instanceCustomIdx = 1;
                     } else if (name == "Cube-002") {
