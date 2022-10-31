@@ -253,7 +253,7 @@ export class ReflectionProbe extends Component {
             this.probe.initBakedTextures();
         }
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
-            this.probe.switchProbeType(this.probeType, this.sourceCamera.camera);
+            this.probe.renderPlanarReflection(this.sourceCamera.camera);
         }
     }
 
@@ -263,6 +263,18 @@ export class ReflectionProbe extends Component {
 
     public update (dt: number) {
         if (!EDITOR && this.probeType === ProbeType.CUBE) return;
+        if (EDITOR) {
+            const cameraLst: scene.Camera[]|undefined = this.node.scene.renderScene?.cameras;
+            if (cameraLst !== undefined) {
+                for (let i = 0; i < cameraLst.length; ++i) {
+                    const camera:scene.Camera = cameraLst[i];
+                    if (camera.name === 'Editor Camera') {
+                        this.probe.renderPlanarReflection(camera);
+                        break;
+                    }
+                }
+            }
+        }
         if (this.node.hasChangedFlags) {
             this.probe.updateBoundingBox();
             ReflectionProbeManager.probeManager.updateModes(this.probe);
