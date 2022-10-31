@@ -78,7 +78,7 @@
     },
     "_depth": 1,
     "_stencil": 0,
-    "_clearFlags": 7,
+    "_clearFlags": 14,
     "_rect": {
       "__type__": "cc.Rect",
       "x": 0,
@@ -88,7 +88,7 @@
     },
     "_targetDisplay": 0,
     "_id": "",
-    "_visibility": 1822425087,
+    "_visibility": 1083179008,
     "__prefab": {
       "__id__": 3
     }
