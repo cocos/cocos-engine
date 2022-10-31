@@ -155,17 +155,17 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ},
 
     // 15
-    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE,
+    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE | CARE_PASSTYPE,
      ACCESS_READ | MEM_DEVICE | RES_BUFFER | CMN_ROM,
      AccessFlags::COMPUTE_SHADER_READ_UNIFORM_BUFFER},
 
     // 16
-    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE,
+    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE | CARE_PASSTYPE,
      ACCESS_READ | MEM_DEVICE | RES_TEXTURE | CMN_ROM,
      AccessFlags::COMPUTE_SHADER_READ_TEXTURE},
 
     // 17
-    {CARE_MEMACCESS | CARE_MEMUSAGE,
+    {CARE_MEMACCESS | CARE_MEMUSAGE | CARE_PASSTYPE,
      ACCESS_READ | MEM_DEVICE,
      AccessFlags::COMPUTE_SHADER_READ_OTHER},
 
@@ -190,7 +190,7 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      AccessFlags::VERTEX_SHADER_WRITE},
 
     // 22
-    {IGNORE_RESTYPE & IGNORE_CMNUSAGE,
+    {IGNORE_RESTYPE,
      ACCESS_WRITE | MEM_DEVICE | PASS_RASTER | SHADERSTAGE_FRAG,
      AccessFlags::FRAGMENT_SHADER_WRITE},
 
@@ -205,7 +205,7 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE},
 
     // 25
-    {CARE_MEMACCESS | CARE_MEMUSAGE,
+    {CARE_MEMACCESS | CARE_MEMUSAGE | CARE_PASSTYPE,
      ACCESS_WRITE | MEM_DEVICE,
      AccessFlags::COMPUTE_SHADER_WRITE},
 
@@ -285,7 +285,7 @@ AccessFlags getAccessFlags(TextureUsage usage,
     for (const auto& elem : ACCESS_MAP) {
         auto testFlag = info & elem.mask;
         //hasKey
-        if ((testFlag & elem.key) == elem.key) {
+        if (testFlag == elem.key) {
             flags |= elem.access;
         }
     }
