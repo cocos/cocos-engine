@@ -22,7 +22,6 @@ export class Application {
     }
 
     start () {
-        console.time('game init');
         return cc.game.init({
             debugMode: <%= debugMode %> ? cc.DebugMode.INFO : cc.DebugMode.ERROR,
             settingsPath: this.settingsPath,
@@ -36,7 +35,6 @@ export class Application {
             }
         }).then(
         () => {
-            console.timeEnd('game init');
             cc.game.run()
         }
         );
