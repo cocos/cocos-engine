@@ -30,7 +30,7 @@ import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
-import { ReflectionProbeManager } from '../rendering/reflectionProbeManager';
+import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
