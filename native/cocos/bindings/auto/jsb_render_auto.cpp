@@ -1213,22 +1213,17 @@ se::Class* __jsb_cc_render_RasterQueueBuilder_class = nullptr;
 se::Object* __jsb_cc_render_RasterQueueBuilder_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_RasterQueueBuilder) 
 
-static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     LightInfo arg3 ;
     SceneFlags arg4 ;
     
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
@@ -1249,24 +1244,18 @@ static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addSceneOfCamera) 
 
-static bool js_cc_render_RasterQueueBuilder_addScene(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_addScene__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     ccstd::string *arg2 = 0 ;
     SceneFlags arg3 ;
     ccstd::string temp2 ;
     
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
@@ -1284,24 +1273,18 @@ static bool js_cc_render_RasterQueueBuilder_addScene(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addScene) 
 
-static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     Material *arg2 = (Material *) NULL ;
     uint32_t arg3 ;
     SceneFlags arg4 ;
     
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
@@ -1322,25 +1305,19 @@ static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addFullscreenQuad) 
 
-static bool js_cc_render_RasterQueueBuilder_addCameraQuad(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
     Material *arg3 = (Material *) NULL ;
     uint32_t arg4 ;
     SceneFlags arg5 ;
     
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
@@ -1364,25 +1341,19 @@ static bool js_cc_render_RasterQueueBuilder_addCameraQuad(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addCameraQuad) 
 
-static bool js_cc_render_RasterQueueBuilder_clearRenderTarget(se::State& s)
+static bool js_cc_render_RasterQueueBuilder_clearRenderTarget__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
     ccstd::string *arg2 = 0 ;
     gfx::Color *arg3 = 0 ;
     ccstd::string temp2 ;
     gfx::Color temp3 ;
     
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
@@ -1400,7 +1371,6 @@ static bool js_cc_render_RasterQueueBuilder_clearRenderTarget(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_clearRenderTarget) 
 
 static bool js_cc_render_RasterQueueBuilder_setViewport(se::State& s)
 {
@@ -1431,6 +1401,259 @@ static bool js_cc_render_RasterQueueBuilder_setViewport(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_setViewport) 
 
+static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
+    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
+    LightInfo arg3 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addSceneOfCamera,2,SWIGTYPE_p_cc__scene__Camera"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addSceneOfCamera,3,SWIGTYPE_LightInfo"); 
+    
+    (arg1)->addSceneOfCamera(arg2,arg3);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 3) {
+        ok = js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addSceneOfCamera) 
+
+static bool js_cc_render_RasterQueueBuilder_addScene__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addScene,2,SWIGTYPE_p_ccstd__string");
+    arg2 = &temp2;
+    
+    (arg1)->addScene((ccstd::string const &)*arg2);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterQueueBuilder_addScene(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_render_RasterQueueBuilder_addScene__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_render_RasterQueueBuilder_addScene__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addScene) 
+
+static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
+    Material *arg2 = (Material *) NULL ;
+    uint32_t arg3 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,2,SWIGTYPE_p_Material"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addFullscreenQuad,3,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->addFullscreenQuad(arg2,arg3);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterQueueBuilder_addFullscreenQuad(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 3) {
+        ok = js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_render_RasterQueueBuilder_addFullscreenQuad__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addFullscreenQuad) 
+
+static bool js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
+    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
+    Material *arg3 = (Material *) NULL ;
+    uint32_t arg4 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,2,SWIGTYPE_p_cc__scene__Camera"); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,3,SWIGTYPE_p_Material"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_addCameraQuad,4,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->addCameraQuad(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterQueueBuilder_addCameraQuad(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 4) {
+        ok = js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 3) {
+        ok = js_cc_render_RasterQueueBuilder_addCameraQuad__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addCameraQuad) 
+
+static bool js_cc_render_RasterQueueBuilder_clearRenderTarget__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RasterQueueBuilder_clearRenderTarget,2,SWIGTYPE_p_ccstd__string");
+    arg2 = &temp2;
+    
+    (arg1)->clearRenderTarget((ccstd::string const &)*arg2);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterQueueBuilder_clearRenderTarget(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_render_RasterQueueBuilder_clearRenderTarget__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_render_RasterQueueBuilder_clearRenderTarget__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_clearRenderTarget) 
+
 static bool js_delete_cc_render_RasterQueueBuilder(se::State& s)
 {
     // js_dtoroverride
@@ -1442,12 +1665,12 @@ bool js_register_cc_render_RasterQueueBuilder(se::Object* obj) {
     auto* cls = se::Class::create("RasterQueueBuilder", obj, __jsb_cc_render_Setter_proto, nullptr); 
     
     
+    cls->defineFunction("setViewport", _SE(js_cc_render_RasterQueueBuilder_setViewport)); 
     cls->defineFunction("addSceneOfCamera", _SE(js_cc_render_RasterQueueBuilder_addSceneOfCamera)); 
     cls->defineFunction("addScene", _SE(js_cc_render_RasterQueueBuilder_addScene)); 
     cls->defineFunction("addFullscreenQuad", _SE(js_cc_render_RasterQueueBuilder_addFullscreenQuad)); 
     cls->defineFunction("addCameraQuad", _SE(js_cc_render_RasterQueueBuilder_addCameraQuad)); 
     cls->defineFunction("clearRenderTarget", _SE(js_cc_render_RasterQueueBuilder_clearRenderTarget)); 
-    cls->defineFunction("setViewport", _SE(js_cc_render_RasterQueueBuilder_setViewport)); 
     
     
     
@@ -1541,21 +1764,16 @@ static bool js_cc_render_RasterPassBuilder_addComputeView(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addComputeView) 
 
-static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
+static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
     QueueHint arg2 ;
     cc::render::RasterQueueBuilder *result = 0 ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
@@ -1572,7 +1790,6 @@ static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addQueue) 
 
 static bool js_cc_render_RasterPassBuilder_setViewport(se::State& s)
 {
@@ -1603,6 +1820,52 @@ static bool js_cc_render_RasterPassBuilder_setViewport(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterPassBuilder_setViewport) 
 
+static bool js_cc_render_RasterPassBuilder_addQueue__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::RasterPassBuilder *arg1 = (cc::render::RasterPassBuilder *) NULL ;
+    cc::render::RasterQueueBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::RasterPassBuilder>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::render::RasterQueueBuilder *)(arg1)->addQueue();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RasterPassBuilder_addQueue, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_RasterPassBuilder_addQueue(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_render_RasterPassBuilder_addQueue__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 0) {
+        ok = js_cc_render_RasterPassBuilder_addQueue__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_RasterPassBuilder_addQueue) 
+
 static bool js_delete_cc_render_RasterPassBuilder(se::State& s)
 {
     // js_dtoroverride
@@ -1616,8 +1879,8 @@ bool js_register_cc_render_RasterPassBuilder(se::Object* obj) {
     
     cls->defineFunction("addRasterView", _SE(js_cc_render_RasterPassBuilder_addRasterView)); 
     cls->defineFunction("addComputeView", _SE(js_cc_render_RasterPassBuilder_addComputeView)); 
-    cls->defineFunction("addQueue", _SE(js_cc_render_RasterPassBuilder_addQueue)); 
     cls->defineFunction("setViewport", _SE(js_cc_render_RasterPassBuilder_setViewport)); 
+    cls->defineFunction("addQueue", _SE(js_cc_render_RasterPassBuilder_addQueue)); 
     
     
     
@@ -2816,13 +3079,12 @@ static bool js_cc_render_Pipeline_addRenderTexture(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addRenderTexture) 
 
-static bool js_cc_render_Pipeline_addRenderTarget(se::State& s)
+static bool js_cc_render_Pipeline_addRenderTarget__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
     ccstd::string *arg2 = 0 ;
     gfx::Format arg3 ;
@@ -2832,10 +3094,6 @@ static bool js_cc_render_Pipeline_addRenderTarget(se::State& s)
     ccstd::string temp2 ;
     uint32_t result;
     
-    if(argc != 5) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
@@ -2873,15 +3131,13 @@ static bool js_cc_render_Pipeline_addRenderTarget(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_Pipeline_addRenderTarget) 
 
-static bool js_cc_render_Pipeline_addDepthStencil(se::State& s)
+static bool js_cc_render_Pipeline_addDepthStencil__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
     ccstd::string *arg2 = 0 ;
     gfx::Format arg3 ;
@@ -2891,10 +3147,6 @@ static bool js_cc_render_Pipeline_addDepthStencil(se::State& s)
     ccstd::string temp2 ;
     uint32_t result;
     
-    if(argc != 5) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
@@ -2932,7 +3184,6 @@ static bool js_cc_render_Pipeline_addDepthStencil(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_Pipeline_addDepthStencil) 
 
 static bool js_cc_render_Pipeline_updateRenderWindow(se::State& s)
 {
@@ -3011,13 +3262,12 @@ static bool js_cc_render_Pipeline_endFrame(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_endFrame) 
 
-static bool js_cc_render_Pipeline_addRasterPass(se::State& s)
+static bool js_cc_render_Pipeline_addRasterPass__SWIG_0(se::State& s)
 {
-    // js_function
+    // js_overloaded_function
     
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    size_t argc = args.size();
     cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
     uint32_t arg2 ;
     uint32_t arg3 ;
@@ -3025,10 +3275,6 @@ static bool js_cc_render_Pipeline_addRasterPass(se::State& s)
     ccstd::string temp4 ;
     cc::render::RasterPassBuilder *result = 0 ;
     
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     
@@ -3055,7 +3301,6 @@ static bool js_cc_render_Pipeline_addRasterPass(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_render_Pipeline_addRasterPass) 
 
 static bool js_cc_render_Pipeline_addComputePass(se::State& s)
 {
@@ -3242,6 +3487,208 @@ static bool js_cc_render_Pipeline_getDescriptorSetLayout(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_getDescriptorSetLayout) 
 
+static bool js_cc_render_Pipeline_addRenderTarget__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    gfx::Format arg3 ;
+    uint32_t arg4 ;
+    uint32_t arg5 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addRenderTarget,2,SWIGTYPE_p_ccstd__string");
+    arg2 = &temp2;
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addRenderTarget,3,SWIGTYPE_gfx__Format"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addRenderTarget,4,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addRenderTarget,5,SWIGTYPE_uint32_t"); 
+    
+    result = (arg1)->addRenderTarget((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Pipeline_addRenderTarget, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_addRenderTarget(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 5) {
+        ok = js_cc_render_Pipeline_addRenderTarget__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_addRenderTarget__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addRenderTarget) 
+
+static bool js_cc_render_Pipeline_addDepthStencil__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    gfx::Format arg3 ;
+    uint32_t arg4 ;
+    uint32_t arg5 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addDepthStencil,2,SWIGTYPE_p_ccstd__string");
+    arg2 = &temp2;
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addDepthStencil,3,SWIGTYPE_gfx__Format"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addDepthStencil,4,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addDepthStencil,5,SWIGTYPE_uint32_t"); 
+    
+    result = (arg1)->addDepthStencil((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Pipeline_addDepthStencil, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_addDepthStencil(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 5) {
+        ok = js_cc_render_Pipeline_addDepthStencil__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_addDepthStencil__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addDepthStencil) 
+
+static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    cc::render::RasterPassBuilder *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass,2,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass,3,SWIGTYPE_uint32_t"); 
+    
+    result = (cc::render::RasterPassBuilder *)(arg1)->addRasterPass(arg2,arg3);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Pipeline_addRasterPass, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_addRasterPass(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 3) {
+        ok = js_cc_render_Pipeline_addRasterPass__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_render_Pipeline_addRasterPass__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addRasterPass) 
+
 static bool js_cc_render_Pipeline_layoutGraphBuilder_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3277,18 +3724,18 @@ bool js_register_cc_render_Pipeline(se::Object* obj) {
     cls->defineFunction("endSetup", _SE(js_cc_render_Pipeline_endSetup)); 
     cls->defineFunction("containsResource", _SE(js_cc_render_Pipeline_containsResource)); 
     cls->defineFunction("addRenderTexture", _SE(js_cc_render_Pipeline_addRenderTexture)); 
-    cls->defineFunction("addRenderTarget", _SE(js_cc_render_Pipeline_addRenderTarget)); 
-    cls->defineFunction("addDepthStencil", _SE(js_cc_render_Pipeline_addDepthStencil)); 
     cls->defineFunction("updateRenderWindow", _SE(js_cc_render_Pipeline_updateRenderWindow)); 
     cls->defineFunction("beginFrame", _SE(js_cc_render_Pipeline_beginFrame)); 
     cls->defineFunction("endFrame", _SE(js_cc_render_Pipeline_endFrame)); 
-    cls->defineFunction("addRasterPass", _SE(js_cc_render_Pipeline_addRasterPass)); 
     cls->defineFunction("addComputePass", _SE(js_cc_render_Pipeline_addComputePass)); 
     cls->defineFunction("addMovePass", _SE(js_cc_render_Pipeline_addMovePass)); 
     cls->defineFunction("addCopyPass", _SE(js_cc_render_Pipeline_addCopyPass)); 
     cls->defineFunction("presentAll", _SE(js_cc_render_Pipeline_presentAll)); 
     cls->defineFunction("createSceneTransversal", _SE(js_cc_render_Pipeline_createSceneTransversal)); 
     cls->defineFunction("getDescriptorSetLayout", _SE(js_cc_render_Pipeline_getDescriptorSetLayout)); 
+    cls->defineFunction("addRenderTarget", _SE(js_cc_render_Pipeline_addRenderTarget)); 
+    cls->defineFunction("addDepthStencil", _SE(js_cc_render_Pipeline_addDepthStencil)); 
+    cls->defineFunction("addRasterPass", _SE(js_cc_render_Pipeline_addRasterPass)); 
     
     
     
