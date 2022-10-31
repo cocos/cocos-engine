@@ -28,16 +28,24 @@
 #include <iostream>
 #include <type_traits>
 
+#include "base/std/container/vector.h"
+#include "core/memop/Pool.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
 
 namespace cc {
 namespace event {
+class BusEventListenerBase;
+struct BusEventListenerEntry {
+    BusEventListenerEntry *next{nullptr};
+    BusEventListenerEntry *prev{nullptr};
+    BusEventListenerBase *listener = nullptr;
 
+    static cc::memop::Pool<BusEventListenerEntry> pool;
+};
 class BusEventListenerBase {
 public:
-    BusEventListenerBase *next{nullptr};
-    BusEventListenerBase *prev{nullptr};
+    BusEventListenerEntry *entry{nullptr};
 };
 
 class BusEventListenerContainer {
@@ -51,21 +59,15 @@ public:
     bool broadcast(ARGS &&...args);
 
 private:
-    bool doAddListener(BusEventListenerBase *listener) {
-        return intl::listAppend(&_arr, listener);
-    }
-    bool doRemoveListener(BusEventListenerBase *listener) {
-        return intl::detachFromList(&_arr, listener);
-    }
     bool hasPending() const {
-        return _pendingDel || _pendingNew;
+        return !_pendingDel.empty() || _pendingNew;
     }
     void fixPendings();
 
 protected:
-    BusEventListenerBase *_arr{nullptr};
-    BusEventListenerBase *_pendingNew{nullptr};
-    BusEventListenerBase *_pendingDel{nullptr};
+    BusEventListenerEntry *_arr{nullptr};
+    BusEventListenerEntry *_pendingNew{nullptr};
+    ccstd::vector<BusEventListenerEntry *> _pendingDel;
     int _isBroadcasting = 0;
 };
 
@@ -160,6 +162,9 @@ private:
 
 template <typename EHandler>
 Listener<EHandler>::Listener() {
+    entry = BusEventListenerEntry::pool.alloc();
+    entry->next = entry->prev = nullptr;
+    entry->listener = this;
     BusEventListenerDB<EHandler>::container()->addListener(this);
 }
 
@@ -172,7 +177,9 @@ template <typename EHandler, typename... ARGS>
 bool BusEventBroadcaster<EHandler, ARGS...>::doBroadcast(ARGS &&...args) {
     // broadcast events to all listeners
     EVENT_LIST_LOOP_BEGIN(curr, _arr)
-    static_cast<Listener<EHandler> *>(curr)->invoke(std::forward<ARGS>(args)...);
+    if (curr->listener) {
+        static_cast<Listener<EHandler> *>(curr->listener)->invoke(std::forward<ARGS>(args)...);
+    }
     EVENT_LIST_LOOP_END(curr, _arr)
     return true;
 }

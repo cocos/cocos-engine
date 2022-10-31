@@ -29,33 +29,41 @@
 namespace cc {
 namespace event {
 
-bool BusEventListenerContainer::addListener(BusEventListenerBase *lis) {
+cc::memop::Pool<BusEventListenerEntry> BusEventListenerEntry::pool{
+    []() { return new BusEventListenerEntry; },
+    [](BusEventListenerEntry *ele) { delete ele; },
+    10};
+
+bool BusEventListenerContainer::addListener(BusEventListenerBase *listener) {
     if (_isBroadcasting) {
-        intl::listAppend(&_pendingNew, lis);
+        intl::listAppend(&_pendingNew, listener->entry);
         return true;
     }
-    return doAddListener(lis);
+    return intl::listAppend(&_arr, listener->entry);
 }
 
-bool BusEventListenerContainer::removeListener(BusEventListenerBase *lis) {
+bool BusEventListenerContainer::removeListener(BusEventListenerBase *listener) {
     if (_isBroadcasting) {
-        intl::listAppend(&_pendingDel, lis);
+        _pendingDel.emplace_back(listener->entry);
+        listener->entry->listener = nullptr;
         return true;
     }
-    return doRemoveListener(lis);
+    bool ret = intl::detachFromList(&_arr, listener->entry);
+    BusEventListenerEntry::pool.free(listener->entry);
+    return ret;
 }
 
 void BusEventListenerContainer::fixPendings() {
-    EVENT_LIST_LOOP_REV_BEGIN(curr, _pendingDel)
-    intl::detachFromList(&_pendingDel, curr);
-    doRemoveListener(curr);
-    EVENT_LIST_LOOP_REV_END(curr, _pendingDel)
+    for (auto &entry : _pendingDel) {
+        intl::detachFromList(&_arr, entry);
+        BusEventListenerEntry::pool.free(entry);
+    }
     EVENT_LIST_LOOP_REV_BEGIN(curr, _pendingNew)
     intl::detachFromList(&_pendingNew, curr);
-    doAddListener(curr);
+    intl::listAppend(&_arr, curr);
     EVENT_LIST_LOOP_REV_END(curr, _pendingNew)
-    _pendingDel = nullptr;
     _pendingNew = nullptr;
+    _pendingDel.clear();
 }
 } // namespace event
 } // namespace cc
