@@ -43,26 +43,19 @@ export enum ProbeType {
     CUBE= 0,
     PLANAR= 1,
 }
+// left right up down front back
 const cameraDir: Vec3[] = [
-    new Vec3(0, -90, 0),
     new Vec3(0, 90, 0),
-    new Vec3(90, 0, 0),
-    new Vec3(-90, 0, 0),
-    new Vec3(0, 0, 0),
+    new Vec3(0, -90, 0),
+
+    new Vec3(90, 180, 0),
+    new Vec3(-90, 180, 0),
+
     new Vec3(0, 180, 0),
+    new Vec3(0, 0, 0),
 ];
-enum ProbeFaceIndex {
-    right = 0,
-    left = 1,
-    top = 2,
-    bottom = 3,
-    front = 4,
-    back = 5,
-}
 
 export class ReflectionProbe {
-    public static probeFaceIndex = ProbeFaceIndex;
-
     public bakedCubeTextures: RenderTexture[] = [];
 
     public realtimePlanarTexture: RenderTexture | null = null;
