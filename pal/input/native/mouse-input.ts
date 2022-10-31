@@ -23,7 +23,7 @@ export class MouseInputSource {
         const windowSize = window.getViewSize();
         const dpr = screenAdapter.devicePixelRatio;
         const x = event.x * dpr;
-        const y = windowSize.y - event.y * dpr;
+        const y = windowSize.height - event.y * dpr;
         return new Vec2(x, y);
     }
 

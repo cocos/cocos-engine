@@ -231,7 +231,7 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
     _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, ATTRIBUTES);
 
     const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
-    const auto width = window->getViewSize().x * Device::getDevicePixelRatio();
+    const auto width = window->getViewSize().width * Device::getDevicePixelRatio();
     auto fontSize = static_cast<uint32_t>(width / 800.0F * info.fontSize);
     fontSize = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
 
