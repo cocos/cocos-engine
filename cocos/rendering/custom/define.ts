@@ -756,7 +756,7 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
     const forwardPassRTName = `dsForwardPassColor${cameraName}`;
     const forwardPassDSName = `dsForwardPassDS${cameraName}`;
     if (!ppl.containsResource(forwardPassRTName)) {
-        ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, camera.window);
+        ppl.addRenderTexture(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
 

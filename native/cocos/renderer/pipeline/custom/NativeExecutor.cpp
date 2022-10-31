@@ -106,11 +106,16 @@ uint32_t getRasterPassPreserveCount(const RasterPass& pass) {
 
 PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     RenderGraphVisitorContext& ctx, const RasterPass& pass) {
+    auto& resg = ctx.resourceGraph;
     PersistentRenderPassAndFramebuffer data(pass.get_allocator());
     gfx::RenderPassInfo rpInfo;
     uint32_t numDepthStencil = 0;
     rpInfo.colorAttachments.resize(pass.rasterViews.size());
     data.clearColors.resize(pass.rasterViews.size());
+    gfx::FramebufferInfo fbInfo{
+        data.renderPass,
+    };
+    fbInfo.colorTextures.reserve(pass.rasterViews.size());
 
     if (pass.subpassGraph.subpasses.empty()) {
         auto& subpass = rpInfo.subpasses.emplace_back();
@@ -120,6 +125,8 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         subpass.preserves.resize(getRasterPassPreserveCount(pass));
         auto numTotalAttachments = static_cast<uint32_t>(pass.rasterViews.size());
         uint32_t slot = 0;
+        uint32_t rtvCount = 0;
+        uint32_t dsvCount = 0;
         for (const auto& pair : pass.rasterViews) {
             const auto& name = pair.first;
             const auto& view = pair.second;
@@ -139,10 +146,37 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                     subpass.inputs[inputSlot] = slot;
                 }
                 if (view.accessType != AccessType::READ) { // Output
-                    auto outputSlot = getRasterViewPassOutputSlot(view);
+                    auto outputSlot = rtvCount++;
                     subpass.colors[outputSlot] = slot;
                 }
                 data.clearColors[slot] = view.clearColor;
+
+                auto resID = findVertex(name, resg);
+                visitObject(
+                    resID, resg,
+                    [&](const ManagedResource& res) {
+                        CC_EXPECTS(false);
+                    },
+                    [&](const ManagedBuffer& res) {
+                        CC_EXPECTS(false);
+                    },
+                    [&](const ManagedTexture& tex) {
+                        fbInfo.colorTextures.emplace_back(tex.texture);
+                    },
+                    [&](const IntrusivePtr<gfx::Buffer>& res) {
+                        CC_EXPECTS(false);
+                    },
+                    [&](const IntrusivePtr<gfx::Texture>& tex) {
+                        fbInfo.colorTextures.emplace_back(tex);
+                    },
+                    [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+                        CC_EXPECTS(false);
+                        data.framebuffer = fb;
+                    },
+                    [&](const RenderSwapchain& sc) {
+                        fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
+                    });
+
                 ++slot;
             } else { // DepthStencil
                 ++numDepthStencil;
@@ -162,6 +196,21 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
 
                 data.clearDepth = view.clearColor.x;
                 data.clearStencil = static_cast<uint8_t>(view.clearColor.y);
+
+                auto resID = findVertex(name, resg);
+                visitObject(
+                    resID, resg,
+                    [&](const ManagedTexture& tex) {
+                        CC_EXPECTS(!fbInfo.depthStencilTexture);
+                        fbInfo.depthStencilTexture = tex.texture.get();
+                    },
+                    [&](const IntrusivePtr<gfx::Texture>& tex) {
+                        CC_EXPECTS(!fbInfo.depthStencilTexture);
+                        fbInfo.depthStencilTexture = tex.get();
+                    },
+                    [](const auto&) {
+                        CC_EXPECTS(false);
+                    });
             }
         }
         CC_EXPECTS(numDepthStencil <= 1);
@@ -174,11 +223,10 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         CC_EXPECTS(false);
     }
     data.renderPass = ctx.device->createRenderPass(rpInfo);
-    gfx::FramebufferInfo fbInfo{
-        data.renderPass,
-        // add textures
-    };
-    data.framebuffer = ctx.device->createFramebuffer(fbInfo);
+    if (!data.framebuffer) {
+        fbInfo.renderPass = data.renderPass;
+        data.framebuffer = ctx.device->createFramebuffer(fbInfo);
+    }
     return data;
 }
 
