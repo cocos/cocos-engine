@@ -34,7 +34,8 @@ import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { Component, TransformBit } from '../../core';
+import { Component } from '../../core';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
@@ -433,7 +434,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                         p.velocity.z += this._gravity.z;
                     }
                 } else {
-                // apply gravity.
+                    // apply gravity.
                     p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
                 }
 
@@ -459,8 +460,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 }
 
                 for (let se = 0; se < p.subemitter.length; ++se) {
-                    p.subemitter[se].node.setPosition(p.position.x, p.position.y, p.position.z);
-                    p.subemitter[se].node.setRotation(_tempQuat);
+                    if (ps.simulationSpace === Space.Local) {
+                        p.subemitter[se].node.setPosition(p.position.x, p.position.y, p.position.z);
+                        p.subemitter[se].node.setRotation(_tempQuat);
+                    } else {
+                        p.subemitter[se].node.setWorldPosition(p.position.x, p.position.y, p.position.z);
+                        p.subemitter[se].node.setWorldRotation(_tempQuat);
+                    }
 
                     p.subemitter[se].node.invalidateChildren(TransformBit.POSITION | TransformBit.ROTATION);
                     if (p.subemitter[se].isStopped) {
