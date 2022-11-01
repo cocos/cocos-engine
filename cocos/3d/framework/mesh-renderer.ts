@@ -81,23 +81,23 @@ const ModelShadowReceivingMode = Enum({
  * @en Reflection probe type
  * @zh 反射探针类型。
  */
-export const ReflectionProbeType = Enum({
+export enum ReflectionProbeType {
     /**
      * @en Use the default skybox.
      * @zh 使用默认天空盒
      */
-    NONE: 0,
+    NONE = 0,
     /**
      * @en Cubemap generate by probe
      * @zh Probe烘焙的cubemap
      */
-    BAKED_CUBEMAP: 1,
+    BAKED_CUBEMAP = 1,
     /**
      * @en Realtime planar reflection
      * @zh 实时平面反射
      */
-    PLANAR_REFLECTION: 2,
-});
+    PLANAR_REFLECTION = 2,
+}
 
 /**
  * @en Model's light map settings.
@@ -371,7 +371,7 @@ export class MeshRenderer extends ModelRenderer {
      * @en Used to set whether to use the reflection probe or set probe's type.
      * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
      */
-    @type(ReflectionProbeType)
+    @type(Enum(ReflectionProbeType))
     get reflectionProbe () {
         return this._reflectionProbeType;
     }
