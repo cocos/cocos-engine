@@ -240,13 +240,13 @@ exports.ready = function() {
                     }
                     const preValue = LODs[index].value.screenUsagePercentage.value;
                     const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value : 0;
-                    Editor.Message.request('scene', 'lod:insert-lod', that.dump.value.uuid.value, index + 1, (preValue + nextValue) / 2, null);
+                    Editor.Message.request('scene', 'lod-insert', that.dump.value.uuid.value, index + 1, (preValue + nextValue) / 2, null);
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
-                    Editor.Message.request('scene', 'lod:delete-lod', that.dump.value.uuid.value, index);
+                    Editor.Message.request('scene', 'lod-erase', that.dump.value.uuid.value, index);
                 }
             },
             calculateRange(range, index) {
