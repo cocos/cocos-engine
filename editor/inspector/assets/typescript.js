@@ -14,7 +14,8 @@ exports.style = /* css */`
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 0px; // it is necessary
+    /* it is necessary */
+    height: 0px;
 }
 .asset-typescript > ui-code {
     flex: 1;

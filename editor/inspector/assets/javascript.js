@@ -101,7 +101,8 @@ exports.style = /* css */`
     display: flex;
     flex-direction: column;
     overflow: auto;
-    height: 0px; // it is necessary
+    /* it is necessary */
+    height: 0px;
 }
 .asset-javascript ui-prop[hidden] {
     display: none;
