@@ -1,7 +1,7 @@
 
 #include "core/event/EventTarget.h"
 #include "utils.h"
-
+namespace {
 class TestNode : public cc::event::EventTarget {
     IMPL_EVENT_TARGET(TestNode)
     DECLARE_TARGET_EVENT_BEGIN(TestNode)
@@ -51,7 +51,7 @@ public:
     void onStop() { _stop++; }
     void onDeinit(int, float, const std::string &, std::string &) { _deinit++; }
 
-    TestNodeWithParent* getParent() {
+    TestNodeWithParent *getParent() {
         return parent;
     }
 
@@ -64,25 +64,22 @@ public:
 
     TestNodeWithParent *parent{nullptr};
 };
+} // namespace
 
 TEST(eventTarget, test_basic_event_target) {
-    logLabel = "bind member functions";
     TestNode node;
     auto idInit = node.on<TestNode::Init>(&TestNode::onInit);
     auto idUpdate = node.on<TestNode::Update>(&TestNode::onUpdate);
     auto idStop = node.on<TestNode::Stop>(&TestNode::onStop);
     auto idDeinit = node.on<TestNode::Deinit>(&TestNode::onDeinit);
 
-    logLabel = "bind static functions";
     auto idInitS = node.on<TestNode::Init>(&TestNode::onInitS);
 
-    logLabel = "bind lambda ";
     int TestNode_Init_Lambda = 0;
     auto idInitLambda = node.on<TestNode::Init>([&](TestNode *emitter) {
         TestNode_Init_Lambda++;
     });
 
-    logLabel = "emit events";
     node.emit<TestNode::Init>();
     node.emit<TestNode::Update>(0.1666);
     node.emit<TestNode::Stop>();
@@ -95,7 +92,6 @@ TEST(eventTarget, test_basic_event_target) {
     EXPECT_EQ(TestNode_init, 1);
     EXPECT_EQ(TestNode_Init_Lambda, 1);
 
-    logLabel = "off event";
     node.off(idInit);
     node.emit<TestNode::Init>();
     EXPECT_EQ(node._init, 1); // no change
@@ -110,7 +106,7 @@ TEST(eventTarget, test_basic_event_target) {
     node.off<TestNode::Update>();
     node.emit<TestNode::Update>(0.1666);
     EXPECT_EQ(node._update, 1); // no change
-    logLabel = "off All";
+
     EXPECT_EQ(node._stop, 1);
     EXPECT_EQ(node._deinit, 1);
     node.offAll();
@@ -236,10 +232,12 @@ TEST(eventTarget, emitWithParent) {
     std::vector<int> record;
     l0.on<TestNodeWithParent::Init>([&](TestNodeWithParent *emitter) {
         record.emplace_back(0);
-    }, true);
+    },
+                                    true);
     l1.on<TestNodeWithParent::Init>([&](TestNodeWithParent *emitter) {
         record.emplace_back(2);
-    }, false);
+    },
+                                    false);
     l2.on<TestNodeWithParent::Init>([&](TestNodeWithParent *emitter) {
         record.emplace_back(1);
     });
@@ -254,10 +252,12 @@ TEST(eventTarget, emitWithParent) {
     record.clear();
     l0.on<TestNodeWithParent::Init>([&](TestNodeWithParent::Init::EventType *eventObj) {
         record.emplace_back(0);
-    }, true);
+    },
+                                    true);
     l1.on<TestNodeWithParent::Init>([&](TestNodeWithParent::Init::EventType *eventObj) {
         record.emplace_back(2);
-    }, false);
+    },
+                                    false);
     l2.on<TestNodeWithParent::Init>([&](TestNodeWithParent::Init::EventType *eventObj) {
         record.emplace_back(1);
         eventObj->stopPropagation();

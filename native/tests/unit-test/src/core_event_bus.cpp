@@ -1,6 +1,6 @@
 #include "core/event/EventBus.h"
 #include "utils.h"
-
+namespace {
 DECLARE_EVENT_BUS(Test1)
 DECLARE_BUS_EVENT_ARG0(BusEvent0_Test1, Test1)
 DECLARE_BUS_EVENT_ARG1(BusEvent1_Test1, Test1, int)
@@ -12,7 +12,6 @@ DECLARE_BUS_EVENT_ARG0(BusEvent0_Test2, Test2)
 DECLARE_BUS_EVENT_ARG1(BusEvent1_Test2, Test2, int)
 DECLARE_BUS_EVENT_ARG2(BusEvent2_Test2, Test2, int, const char *)
 DECLARE_BUS_EVENT_ARG3(BusEvent3_Test2, Test2, int, char *, float)
-
 struct Test1_ListenerT {
     static int handleArg2_arg0;
     static const char *handleArg2_arg1;
@@ -42,6 +41,7 @@ static void handleArg2(int arg0, const char *arg1) {
     handleArg2_value2 = arg1;
 }
 
+} // namespace
 TEST(eventBus, test_stack_allocated_listener) {
     BusEvent0_Test1::Listener listener;
     int listenerTriggerTimes = 0;
@@ -159,7 +159,7 @@ TEST(eventBus, create_event_bus_in_listener) {
                 sub1_ListenerStaticTriggerTimes++;
             });
         }
-        //BusEvent1_Test2::broadcast(3); // dead loop
+        // BusEvent1_Test2::broadcast(3); // dead loop
         BusEvent0_Test2::broadcast();
     });
     logLabel = "create sub listeners x2";
