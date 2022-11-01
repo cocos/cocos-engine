@@ -205,4 +205,8 @@ TEST(eventBus, del_event_bus_in_listener) {
     EXPECT_EQ(listener1_cnt, 2);
     EXPECT_EQ(listener2_cnt, 1); // should not run again
     EXPECT_EQ(listener3_cnt, 2);
+
+    delete listener_1;
+    // delete listener_2;
+    delete listener_3;
 }
