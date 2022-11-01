@@ -63,9 +63,9 @@ enum ProbeFaceIndex {
 export class ReflectionProbe {
     public static probeFaceIndex = ProbeFaceIndex;
 
-    protected _bakedCubeTextures: RenderTexture[] = [];
+    public bakedCubeTextures: RenderTexture[] = [];
 
-    protected _realtimePlanarTexture: RenderTexture | null = null;
+    public realtimePlanarTexture: RenderTexture | null = null;
 
     protected _resolution = 512;
     protected _clearFlag:number = ProbeClearFlag.SKYBOX;
@@ -75,21 +75,21 @@ export class ReflectionProbe {
     protected _cubemap: TextureCube | null = null;
     protected _size = new Vec3(1, 1, 1);
     /**
-     * @en Objects inside bouding box.
-     * @zh 包围盒范围内的物体
-     */
+      * @en Objects inside bouding box.
+      * @zh 包围盒范围内的物体
+      */
     private _renderObjects: IRenderObject[] = [];
 
     /**
-     * @en Render cubemap's camera
-     * @zh 渲染cubemap的相机
-     */
+      * @en Render cubemap's camera
+      * @zh 渲染cubemap的相机
+      */
     private _camera: Camera | null = null;
 
     /**
-     * @en Unique id of probe.
-     * @zh probe的唯一id
-     */
+      * @en Unique id of probe.
+      * @zh probe的唯一id
+      */
     private _probeId = 0;
 
     private _needRefresh = false;
@@ -101,53 +101,38 @@ export class ReflectionProbe {
     private _cameraNode: Node | null = null;
 
     /**
-     * @en The AABB bounding box and probe only render the objects inside the bounding box.
-     * @zh AABB包围盒，probe只渲染包围盒内的物体
-     */
+      * @en The AABB bounding box and probe only render the objects inside the bounding box.
+      * @zh AABB包围盒，probe只渲染包围盒内的物体
+      */
     private _boundingBox: AABB | null = null;
 
     /**
-     * @en The position of the camera in world space.
-     * @zh 世界空间相机的位置
-     */
+      * @en The position of the camera in world space.
+      * @zh 世界空间相机的位置
+      */
     private _cameraWorldPos = new Vec3();
 
     /**
-     * @en The rotation of the camera in world space.
-     * @zh 世界空间相机的旋转
-     */
+      * @en The rotation of the camera in world space.
+      * @zh 世界空间相机的旋转
+      */
     private _cameraWorldRotation = new Quat();
 
     /**
-     * @en The forward direction vertor of the camera in world space.
-     * @zh 世界空间相机朝前的方向向量
-     */
+      * @en The forward direction vertor of the camera in world space.
+      * @zh 世界空间相机朝前的方向向量
+      */
     private _forward = new Vec3();
     /**
-     * @en The up direction vertor of the camera in world space.
-     * @zh 世界空间相机朝上的方向向量
-     */
+      * @en The up direction vertor of the camera in world space.
+      * @zh 世界空间相机朝上的方向向量
+      */
     private _up = new Vec3();
 
-    set realtimePlanarTexture (val: RenderTexture) {
-        this._realtimePlanarTexture = val;
-    }
-    get realtimePlanarTexture () {
-        return this._realtimePlanarTexture!;
-    }
-
-    get bakedCubeTextures () {
-        return this._bakedCubeTextures;
-    }
-
-    set bakedCubeTextures (val: RenderTexture[]) {
-        this._bakedCubeTextures = val;
-    }
-
     /**
-     * @en Set probe type,cube or planar.
-     * @zh 设置探针类型，cube或者planar
-     */
+      * @en Set probe type,cube or planar.
+      * @zh 设置探针类型，cube或者planar
+      */
     set probeType (value: number) {
         this._probeType = value;
     }
@@ -156,12 +141,12 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en set render texture size
-     * @zh 设置渲染纹理大小
-     */
+      * @en set render texture size
+      * @zh 设置渲染纹理大小
+      */
     set resolution (value: number) {
         if (value !== this._resolution) {
-            this._bakedCubeTextures.forEach((rt, idx) => {
+            this.bakedCubeTextures.forEach((rt, idx) => {
                 rt.resize(value, value);
             });
         }
@@ -172,9 +157,9 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
-     * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
-     */
+      * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
+      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
+      */
     set clearFlag (value: number) {
         this._clearFlag = value;
         this.camera.clearFlag = this._clearFlag;
@@ -184,9 +169,9 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en Clearing color of the camera.
-     * @zh 相机的颜色缓冲默认值。
-     */
+      * @en Clearing color of the camera.
+      * @zh 相机的颜色缓冲默认值。
+      */
     set backgroundColor (val: Color) {
         this._backgroundColor = val;
         this.camera.clearColor = this._backgroundColor;
@@ -195,9 +180,9 @@ export class ReflectionProbe {
         return this._backgroundColor;
     }
     /**
-     * @en Visibility mask, declaring a set of node layers that will be visible to this camera.
-     * @zh 可见性掩码，声明在当前相机中可见的节点层级集合。
-     */
+      * @en Visibility mask, declaring a set of node layers that will be visible to this camera.
+      * @zh 可见性掩码，声明在当前相机中可见的节点层级集合。
+      */
     get visibility () {
         return this._visibility;
     }
@@ -207,9 +192,9 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en Gets or sets the size of the box, in local space.
-     * @zh 获取或设置盒的大小。
-     */
+      * @en Gets or sets the size of the box, in local space.
+      * @zh 获取或设置盒的大小。
+      */
     set size (value) {
         this._size = value;
 
@@ -229,9 +214,9 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en Object to be render by probe
-     * @zh probe需要渲染的物体。
-     */
+      * @en Object to be render by probe
+      * @zh probe需要渲染的物体。
+      */
     set renderObjects (val) {
         this._renderObjects = val;
     }
@@ -241,9 +226,9 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en The node of the probe.
-     * @zh probe绑定的节点
-     */
+      * @en The node of the probe.
+      * @zh probe绑定的节点
+      */
     get node () {
         return this._node!;
     }
@@ -253,9 +238,9 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en Refresh the objects that use this probe.
-     * @zh 刷新使用该probe的物体
-     */
+      * @en Refresh the objects that use this probe.
+      * @zh 刷新使用该probe的物体
+      */
     set needRefresh (value: boolean) {
         this._needRefresh = value;
     }
@@ -291,6 +276,16 @@ export class ReflectionProbe {
         this._createCamera();
     }
 
+    public initBakedTextures () {
+        //wait for scene data initialize, so create rendertexture in the start function
+        if (this.bakedCubeTextures.length === 0) {
+            for (let i = 0; i < 6; i++) {
+                const renderTexture = this._createTargetTexture(this._resolution, this._resolution);
+                this.bakedCubeTextures.push(renderTexture);
+            }
+        }
+    }
+
     public async captureCubemap () {
         this._renderObjects = [];
         this._resetCameraParams();
@@ -298,12 +293,16 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en Render real-time planar reflection textures
-     * @zh 渲染实时平面反射贴图
-     * @param sourceCamera render planar reflection for this camera
-     */
+      * @en Render real-time planar reflection textures
+      * @zh 渲染实时平面反射贴图
+      * @param sourceCamera render planar reflection for this camera
+      */
     public renderPlanarReflection (sourceCamera: Camera) {
         if (!sourceCamera) return;
+        if (!this.realtimePlanarTexture) {
+            const canvasSize = legacyCC.view.getDesignResolutionSize();
+            this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
+        }
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
         this._attachCameraToScene();
@@ -346,7 +345,7 @@ export class ReflectionProbe {
 
     public renderArea (): Vec2 {
         if (this._probeType === ProbeType.PLANAR) {
-            return new Vec2(this.realtimePlanarTexture.width, this.realtimePlanarTexture.height);
+            return new Vec2(this.realtimePlanarTexture!.width, this.realtimePlanarTexture!.height);
         } else {
             return new Vec2(this.resolution, this.resolution);
         }
@@ -365,14 +364,14 @@ export class ReflectionProbe {
             this._camera.destroy();
             this._camera = null;
         }
-        for (let i = 0; i < this._bakedCubeTextures.length; i++) {
-            this._bakedCubeTextures[i].destroy();
+        for (let i = 0; i < this.bakedCubeTextures.length; i++) {
+            this.bakedCubeTextures[i].destroy();
         }
-        this._bakedCubeTextures = [];
+        this.bakedCubeTextures = [];
 
-        if (this._realtimePlanarTexture) {
-            this._realtimePlanarTexture.destroy();
-            this._realtimePlanarTexture = null;
+        if (this.realtimePlanarTexture) {
+            this.realtimePlanarTexture.destroy();
+            this.realtimePlanarTexture = null;
         }
     }
 
@@ -458,6 +457,12 @@ export class ReflectionProbe {
         this.camera.update(true);
     }
 
+    private _createTargetTexture (width: number, height: number) {
+        const rt = new RenderTexture();
+        rt.reset({ width, height });
+        return rt;
+    }
+
     private _attachCameraToScene () {
         if (!this.node.scene || !this.camera) {
             return;
@@ -478,13 +483,13 @@ export class ReflectionProbe {
         this.cameraNode.worldPosition = this._cameraWorldPos;
 
         Vec3.transformQuat(this._forward, Vec3.FORWARD, sourceCamera.node.worldRotation);
-        this._forward.normalize();
         this._reflect(this._forward, this._forward, Vec3.UP, 0);
         this._forward.normalize();
         this._forward.negative();
 
-        Vec3.transformQuat(this._up, Vec3.UP, sourceCamera.node.worldRotation);
-        this._reflect(this._up, this._up, Vec3.UP, 0);
+        const up = new Vec3();
+        Vec3.transformQuat(up, Vec3.UP, sourceCamera.node.worldRotation);
+        this._reflect(this._up, up, Vec3.UP, 0);
         this._up.normalize();
 
         Quat.fromViewUp(this._cameraWorldRotation, this._forward, this._up);
