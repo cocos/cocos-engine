@@ -127,7 +127,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
       float factor = step(0.0, cc_shadowLPNNInfo.w);
       #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
           shadow = CCCSMFactorBase(position, N, s.shadowBias);

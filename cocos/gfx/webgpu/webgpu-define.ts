@@ -535,7 +535,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
         ///////////////////////////////////////////////////////////
 
-        const wgpuPredefines = `#define WEBGPU_WASM_DAWN 1`;
+        const wgpuPredefines = `#define TEXTURE_SAMPLE_DISABLE_BRANCH 1`;
 
         let firstPrecisionIdx = code.indexOf('precision');
         firstPrecisionIdx = code.indexOf(';', firstPrecisionIdx);

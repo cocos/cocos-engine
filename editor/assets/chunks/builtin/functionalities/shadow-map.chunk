@@ -40,7 +40,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
   #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
   
-  #ifdef WEBGPU_WASM_DAWN
+  #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
   float GetShadowNDCPos(out vec3 shadowNDCPos, vec4 shadowPosWithDepthBias)
   {
   	shadowNDCPos = shadowPosWithDepthBias.xyz / shadowPosWithDepthBias.w * 0.5 + 0.5;
@@ -154,7 +154,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   //////////////////////////////////////////////////////////Directional Light Shadow
   float CCGetDirLightShadowFactorHard (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorHard(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -168,7 +168,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   float CCGetDirLightShadowFactorSoft (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -182,7 +182,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   float CCGetDirLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorSoft3X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -196,7 +196,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   float CCGetDirLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorSoft5X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -212,7 +212,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   //////////////////////////////////////////////////////////Spot Light Shadow
   float CCGetSpotLightShadowFactorHard (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorHard(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -226,7 +226,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   float CCGetSpotLightShadowFactorSoft (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -240,7 +240,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   float CCGetSpotLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorSoft3X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -254,7 +254,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   
   float CCGetSpotLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
-    #ifdef WEBGPU_WASM_DAWN
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
     float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
     float factor = NativePCFShadowFactorSoft5X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
     return clamp(addtion + factor, 0.0, 1.0);
@@ -346,7 +346,7 @@ float CCGetLinearDepth(vec3 worldPos) {
       vec4 shadowProjDepthInfo, shadowProjInfo;
       vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
       int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
-      #ifndef WEBGPU_WASM_DAWN
+      #ifndef TEXTURE_SAMPLE_DISABLE_BRANCH
       if (level < 0) { return 1.0; }
       #endif
       vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
@@ -368,7 +368,7 @@ float CCGetLinearDepth(vec3 worldPos) {
 
       csmNDCPosWithBias = pos;
 
-      #ifdef WEBGPU_WASM_DAWN
+      #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
       if (level < 0) { realtimeShadow = 1.0; }
       #endif
       
