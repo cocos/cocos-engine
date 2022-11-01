@@ -30,9 +30,6 @@ namespace cc {
 namespace event {
 
 void BusEventListenerContainer::addListener(BusEventListenerBase *listener) {
-    CC_ASSERT(!listener->entry);
-    listener->entry = new BusEventListenerEntry;
-    listener->entry->listener = listener;
     if (_isBroadcasting) {
         intl::listAppend(&_listenersToAdd, listener->entry);
         return;
@@ -46,7 +43,7 @@ void BusEventListenerContainer::removeListener(BusEventListenerBase *listener) {
         listener->entry->listener = nullptr;
         return;
     }
-    bool ret = intl::detachFromList(&_listenerList, listener->entry);
+    intl::detachFromList(&_listenerList, listener->entry);
     delete listener->entry;
 }
 

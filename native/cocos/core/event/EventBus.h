@@ -179,6 +179,8 @@ private:
 
 template <typename EHandler>
 Listener<EHandler>::Listener() {
+    entry = new BusEventListenerEntry;
+    entry->listener = this;
     BusEventListenerDB<EHandler>::container()->addListener(this);
 }
 
@@ -220,9 +222,9 @@ void broadcast(ARGS &&...args) {
 // NOLINTNEXTLINE
 #define _DECLARE_BUS_EVENT_VA(BusEventClass, EventBusClass, ...)                                             \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, __VA_ARGS__> { \
-        using BusType = EventBusName_(EventBusClass);                                                       \
+        using BusType = EventBusName_(EventBusClass);                                                        \
         using Listener = cc::event::Listener<BusEventClass>;                                                 \
-        constexpr static const char *BUS_NAME = BusType::BUS_NAME;                      \
+        constexpr static const char *BUS_NAME = BusType::BUS_NAME;                                           \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                          \
         constexpr static size_t TypeID() {                                                                   \
             return cc::event::intl::hash(#BusEventClass);                                                    \
