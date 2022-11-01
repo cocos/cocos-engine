@@ -354,11 +354,19 @@ describe(`Component-wise animation`, () => {
             });
 
             // Register the value to the dummy component so animation system can animate it.
-            Object.defineProperty(component, constructor.name, { value: defaultValue.clone(), writable: true });
+            if (constructor === Vec3) { // Specially handle `Vec3`
+                node.position = (defaultValue as Vec3).clone();
+            } else {
+                Object.defineProperty(component, constructor.name, { value: defaultValue.clone(), writable: true });
+            }
 
             // Create the track and generate some animation values at [0.5, 1.0) for animated keys.
             const track = createTrack();
-            track.path.toComponent(DummyComponent).toProperty(constructor.name);
+            if (constructor === Vec3) {
+                track.path.toProperty('position');
+            } else {
+                track.path.toComponent(DummyComponent).toProperty(constructor.name);
+            }
             const expectedAnimatedProperties: Record<string, number> = {};
             [...animatedKeys].forEach(([propertyKey, channelIndex], keyIndex, keys) => {
                 const propertyAnimationValue = gen(keyIndex, keys.length, 0.5, 1.0);
@@ -388,7 +396,9 @@ describe(`Component-wise animation`, () => {
                 defaultProperties,
                 expectedAnimatedProperties,
             } = expects[specIndex];
-            const object = component[constructor.name];
+            const object = constructor === Vec3
+                ? node.position
+                : component[constructor.name];
             // These properties should keep default.
             for (const [propertyKey] of defaultKeys) {
                 expect(object[propertyKey]).toBe(defaultProperties[propertyKey]);
