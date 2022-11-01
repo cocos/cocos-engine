@@ -37,12 +37,14 @@ import * as misc from './misc';
  */
 import * as path from './path';
 
+import * as jsbUtils from './jsb-utils';
+
 export * from './x-deprecated';
 
 /**
  * @engineInternal
  */
-export * as jsbUtils from './jsb-utils';
+export  { jsbUtils };
 
 export {
     js,
