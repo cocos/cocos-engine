@@ -14,7 +14,7 @@ import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './sta
 import { AnimationMask } from './animation-mask';
 import { EditorExtendable } from '../../core/data/editor-extendable';
 import { move } from '../../core/algorithm/move';
-import { onAfterDeserializedTag } from '../../core/data/deserialize-symbols';
+import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 export { State };

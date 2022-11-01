@@ -24,18 +24,15 @@
 */
 
 import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-import { ValueType } from '../value-types';
-import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '../math';
-import { errorID, getError } from '../platform/debug';
-import * as js from '../utils/js';
+import { cclegacy, ValueType, Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4, errorID, getError, js } from '../core';
 
 import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
-import { Asset } from '../../asset/assets/asset';
+import { Asset } from '../asset/assets/asset';
 
 import type { CCON } from './ccon';
-import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
+
+import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 
 const FORCE_COMPILED = false; // TODO: BUILD;
 
@@ -1063,10 +1060,10 @@ export function deserialize (data: IFileData | string | CCON | any, details: Det
             cacheMasks(data);
         }
 
-        legacyCC.game._isCloning = true;
+        cclegacy.game._isCloning = true;
         const instances = data[File.Instances];
         const rootIndex = parseInstances(data);
-        legacyCC.game._isCloning = false;
+        cclegacy.game._isCloning = false;
 
         if (data[File.Refs]) {
             dereference(data[File.Refs] as IRefs, instances, data[File.SharedStrings]);
@@ -1199,7 +1196,7 @@ if (EDITOR || TEST) {
 }
 
 if (TEST) {
-    legacyCC._Test.deserializeCompiled = {
+    cclegacy._Test.deserializeCompiled = {
         deserialize,
         dereference,
         deserializeCCObject,
@@ -1243,4 +1240,4 @@ if (TEST) {
     };
 }
 
-legacyCC.deserialize = deserialize;
+cclegacy.deserialize = deserialize;
