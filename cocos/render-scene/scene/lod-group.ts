@@ -114,10 +114,10 @@ export class LODGroup {
     }
 
     lockLODLevels (lockLev: number[]) {
-        this._lockedLODLevelVec  = lockLev;
+        this._lockedLODLevelVec = lockLev;
     }
 
-    getLockedLODLevels (): number[] {
+    getLockedLODLevels (): readonly number[] {
         return this._lockedLODLevelVec;
     }
 

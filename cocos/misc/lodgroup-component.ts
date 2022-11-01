@@ -504,6 +504,10 @@ export class LODGroup extends Component {
         }
     }
 
+    start () {
+        this.scheduleOnce(this.recalculateBounds, 0);
+    }
+
     _onRemove (comp: Component) {
         if (comp === this) {
             this.onDisable();
@@ -519,7 +523,6 @@ export class LODGroup extends Component {
 
     onEnable () {
         this._attachToScene();
-        //   this.recalculateBounds(this);
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
