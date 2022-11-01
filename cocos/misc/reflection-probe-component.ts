@@ -99,7 +99,7 @@ export class ReflectionProbe extends Component {
     protected _sourceCamera: Camera | null = null;
 
     @serializable
-    private _probeId = 0;
+    private _probeId = -1;
 
     protected _probe: scene.ReflectionProbe | null = null;
 
@@ -289,8 +289,14 @@ export class ReflectionProbe extends Component {
         }
     }
 
+    public onFocusInEditor () {
+        if (this.probeType === ProbeType.CUBE) {
+            ReflectionProbeManager.probeManager.updateModes(this.probe);
+        }
+    }
+
     private _createProbe () {
-        if (ReflectionProbeManager.probeManager.exists(this._probeId)) {
+        if (this._probeId === -1 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = this.node.scene.getNewReflectionProbeId();
         }
         this._probe = new scene.ReflectionProbe(this._probeId);
