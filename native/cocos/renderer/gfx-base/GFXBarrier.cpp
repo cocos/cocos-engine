@@ -139,15 +139,15 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      ACCESS_READ | MEM_DEVICE | PASS_RASTER | RES_TEXTURE | SHADERSTAGE_FRAG | CMN_VB_OR_DS,
      AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ},
 
-    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE | CARE_PASSTYPE,
+    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE,
      ACCESS_READ | MEM_DEVICE | RES_BUFFER | CMN_ROM,
      AccessFlags::COMPUTE_SHADER_READ_UNIFORM_BUFFER},
 
-    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE | CARE_PASSTYPE,
+    {IGNORE_PASSTYPE & IGNORE_SHADERSTAGE,
      ACCESS_READ | MEM_DEVICE | RES_TEXTURE | CMN_ROM,
      AccessFlags::COMPUTE_SHADER_READ_TEXTURE},
 
-    {CARE_MEMACCESS | CARE_MEMUSAGE | CARE_PASSTYPE,
+    {CARE_MEMACCESS | CARE_MEMUSAGE,
      ACCESS_READ | MEM_DEVICE,
      AccessFlags::COMPUTE_SHADER_READ_OTHER},
 
@@ -167,7 +167,7 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      ACCESS_WRITE | MEM_DEVICE | PASS_RASTER | SHADERSTAGE_VERT,
      AccessFlags::VERTEX_SHADER_WRITE},
 
-    {IGNORE_RESTYPE,
+    {IGNORE_RESTYPE & IGNORE_CMNUSAGE,
      ACCESS_WRITE | MEM_DEVICE | PASS_RASTER | SHADERSTAGE_FRAG,
      AccessFlags::FRAGMENT_SHADER_WRITE},
 
@@ -179,7 +179,7 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      ACCESS_WRITE | MEM_DEVICE | PASS_RASTER | RES_TEXTURE | SHADERSTAGE_FRAG | CMN_VB_OR_DS,
      AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE},
 
-    {CARE_MEMACCESS | CARE_MEMUSAGE | CARE_PASSTYPE,
+    {CARE_MEMACCESS | CARE_MEMUSAGE,
      ACCESS_WRITE | MEM_DEVICE,
      AccessFlags::COMPUTE_SHADER_WRITE},
 
@@ -237,9 +237,9 @@ AccessFlags getAccessFlags(
     PassType passType) noexcept {
     uint32_t info = 0xFFFFFFFF;
     info &= (OPERABLE(access) << 20 | IGNORE_MEMACCESS);
-    info &= MEM_DEVICE | IGNORE_MEMUSAGE;
+    info &= MEM_DEVICE;
     info &= (1 << (OPERABLE(passType) + 12) | IGNORE_PASSTYPE);
-    info &= (1 << (OPERABLE(ResourceType::TEXTURE) + 10) | IGNORE_RESTYPE);
+    info &= (1 << (OPERABLE(ResourceType::BUFFER) + 10) | IGNORE_RESTYPE);
     switch (visibility) {
         case ShaderStageFlags::NONE:
             info &= IGNORE_SHADERSTAGE;
@@ -259,7 +259,7 @@ AccessFlags getAccessFlags(
     for (const auto& elem : ACCESS_MAP) {
         auto testFlag = info & elem.mask;
         // hasKey
-        if (testFlag == elem.key) {
+        if ((testFlag & elem.key) == elem.key) {
             flags |= elem.access;
         }
     }
@@ -292,17 +292,26 @@ constexpr AccessFlags getDeviceAccessFlagsImpl(
     const bool bRead = hasAnyFlags(access, MemoryAccess::READ_ONLY);
 
     if (bWrite) { // single write
-        const auto mask = TextureUsage::TRANSFER_DST |
-                          TextureUsage::STORAGE |
-                          TextureUsage::COLOR_ATTACHMENT |
-                          TextureUsage::DEPTH_STENCIL_ATTACHMENT;
+        const auto writeMask =
+            TextureUsage::TRANSFER_DST |
+            TextureUsage::STORAGE |
+            TextureUsage::COLOR_ATTACHMENT |
+            TextureUsage::DEPTH_STENCIL_ATTACHMENT;
 
-        const auto usage1 = usage & mask;
+        const auto usage1 = usage & writeMask;
         // see https://stackoverflow.com/questions/51094594/how-to-check-if-exactly-one-bit-is-set-in-an-int
         constexpr auto hasOnebit = [](uint32_t bits) -> bool {
             return bits && !(bits & (bits - 1));
         };
         if (!hasOnebit(static_cast<uint32_t>(usage1))) {
+            return INVALID_ACCESS_FLAGS;
+        }
+
+        const auto readMask =
+            TextureUsage::SAMPLED |
+            TextureUsage::TRANSFER_SRC;
+
+        if (hasAnyFlags(usage, readMask)) {
             return INVALID_ACCESS_FLAGS;
         }
     }
@@ -326,9 +335,6 @@ constexpr AccessFlags getDeviceAccessFlagsImpl(
             flags |= AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
         }
         if (bWrite) {
-            if (hasAnyFlags(usage, TextureUsage::SAMPLED | TextureUsage::STORAGE)) {
-                return INVALID_ACCESS_FLAGS;
-            }
             return flags;
         }
     } else if (hasAnyFlags(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
@@ -348,9 +354,6 @@ constexpr AccessFlags getDeviceAccessFlagsImpl(
             flags |= AccessFlags::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT;
         }
         if (bWrite) {
-            if (hasAnyFlags(usage, TextureUsage::SAMPLED | TextureUsage::STORAGE)) {
-                return INVALID_ACCESS_FLAGS;
-            }
             return flags;
         }
     } else if (bWrite) {
