@@ -258,42 +258,58 @@ CCProgram ray-query-fs %{
     return vec3(x,y,z);
   }
 
-  float sdfSphereBase(vec3 p, vec3 center,float ra)
+  float sdfSphere(in vec3 p,vec3 center,float radius)
   {
-    float displacement = sin(5.0 * p.x) * sin(5.0 * p.y) * sin(5.0 * p.z) * 0.25;
-    return displacement + length(p-center) - ra;
+    return length(p-center)-radius;
   }
 
-  float sdfSphere(vec3 p, vec3 center,float ra)
+  float sdfPlane(in vec3 p,vec3 normal,float d)
   {
-    const float k = 10.0*abs(cos(cc_time.w)); // or some other amount
+    return dot(p,normal)+d;
+  }
+
+  float sdfSphereDisplace(vec3 p, vec3 center,float ra)
+  {
+    float displacement = sin(5.0 * p.x) * sin(5.0 * p.y) * sin(5.0 * p.z) * 0.25;
+    return displacement + sdfSphere(p, center, ra);
+  }
+
+  float sdfSphereTwist(vec3 p, vec3 center,float ra)
+  {
+    const float k = 1.0*abs(cos(0.05*cc_time.w)); // or some other amount
     float c = cos(k*p.y);
     float s = sin(k*p.y);
     mat2  m = mat2(c,-s,s,c);
     vec3  q = vec3(m*p.xz,p.y);
-    return sdfSphereBase(q,center,ra);
+    return sdfSphereDisplace(q,center,ra);
+  }
+
+  float sdfSmoothUnion(float d1, float d2, float k)
+  {
+    float h = clamp(0.5+0.5*(d2-d1)/k, 0.0, 1.0);
+    return mix(d2, d1, h) - k*h*(1.0-h);
   }
 
   vec3 calculate_normal(vec3 p, vec3 center, float r)
   {
     const float h = 1e-6;
     const vec2 k = vec2(1,-1);
-    return normalize( k.xyy*sdfSphere(p + k.xyy*h,center,r ) + 
-                      k.yyx*sdfSphere(p + k.yyx*h,center,r ) + 
-                      k.yxy*sdfSphere(p + k.yxy*h,center,r ) + 
-                      k.xxx*sdfSphere(p + k.xxx*h,center,r ) );
+    return normalize( k.xyy*sdfSphereTwist(p + k.xyy*h,center,r ) + 
+                      k.yyx*sdfSphereTwist(p + k.yyx*h,center,r ) + 
+                      k.yxy*sdfSphereTwist(p + k.yxy*h,center,r ) + 
+                      k.xxx*sdfSphereTwist(p + k.xxx*h,center,r ) );
   }
 
   bool raymarchingSphere(vec3 ro, vec3 rd,vec3 center,float r,float tMin,float tMax,out float t,out vec3 normal){
     t = 0.001;
-    float tmax = 1000.0;
+    float tmax = 100.0;
     const float MIN_HIT_DIST = 1e-5;
 
     for(int i = 0; i < 64; i++){
       vec3 cur_pos = ro + t*rd;
-      float dist = sdfSphere(cur_pos, center, r);
+      float dist = sdfSphereTwist(cur_pos,center,r);
       if(dist < MIN_HIT_DIST){
-        normal = calculate_normal(cur_pos, center, r);
+        normal = calculate_normal(cur_pos,center,r);
         return true;
       }
       if(t > tmax){
@@ -356,6 +372,7 @@ CCProgram ray-query-fs %{
 
     #if __VERSION__ >= 460
       vec3 origin = s.position;
+      bool hitaabb = false;
 
       vec3 light_points[4] = {vec3(1.995,5.443,3.199),vec3(1.179,10.125,0.022),vec3(1.726,11.071,3.873),vec3(7.3,5.89,-0.865)};
 
@@ -371,17 +388,21 @@ CCProgram ray-query-fs %{
           vec3 hitPoint = rayQueryGetIntersectionObjectRayOriginEXT(rayQuery,false);
           vec3 hitDir = rayQueryGetIntersectionObjectRayDirectionEXT(rayQuery,false);
           
-          float r = 5.0*abs(sin(cc_time.w));
+          float r = 5.0*abs(sin(0.1*cc_time.w));
+          vec3 ce = vec3(0.0,0.0,0.0);
           float t;
-          if(raymarchingSphere(hitPoint,hitDir,vec3(0.0,0.0,0.0),r,0.0,100.0,t,s.normal)){
-            s.albedo = vec4(1.0,0.0,0.0,1.0);
+          if(raymarchingSphere(hitPoint,hitDir,ce,r,0.0,100.0,t,s.normal)){
+            s.albedo = vec4(0.5,0.5,0.5,1.0);
+            //s.position = hitPoint + t*hitDir;
             rayQueryGenerateIntersectionEXT(rayQuery,t);
             rayQueryTerminateEXT(rayQuery);
+            hitaabb = true;
           }
         }
       }
 
-      for(int i = 0; i < 4; ++i)
+      if(!hitaabb){
+        for(int i = 0; i < 4; ++i)
       {
         vec3 light_position = light_points[i];
         vec3 L = light_position-origin; 
@@ -431,6 +452,7 @@ CCProgram ray-query-fs %{
 
       s.albedo *= (1.0 - ao);
       s.albedo *= (1.0 - shadowFactor);
+      }
 
     #endif
 
