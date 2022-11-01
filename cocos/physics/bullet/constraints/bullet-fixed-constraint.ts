@@ -36,7 +36,7 @@ import { BulletWorld } from '../bullet-world';
 
 export class BulletFixedConstraint extends BulletConstraint implements IFixedConstraint {
     setBreakForce (v: number): void {
-        // bt.TypedConstraint_setMaxImpulseThreshold(this._impl, v);
+        bt.TypedConstraint_setMaxImpulseThreshold(this._impl, v);
     }
 
     setBreakTorque (v: number): void {
