@@ -338,6 +338,7 @@ describe(`Component-wise animation`, () => {
 
         // Generate test data.
         const expects = specs.map(({ constructor, defaultKeys, animatedKeys, range, createTrack }) => {
+            /** Generates a fixed value at [tMin, tMax) according to array index and array length. */
             const gen = (keyIndex: number, keyCount: number, tMin: number, tMax: number) => {
                 const t = tMin + (tMax - tMin) * (keyIndex / keyCount);
                 return range ? lerp(range[0], range[1], t) : t;
@@ -352,7 +353,7 @@ describe(`Component-wise animation`, () => {
                 defaultProperties[propertyKey] = defaultValue[propertyKey]; // Don't use `= propertyValue` here since for example, color matters
             });
 
-            // Setup a property with default value.
+            // Register the value to the dummy component so animation system can animate it.
             Object.defineProperty(component, constructor.name, { value: defaultValue.clone(), writable: true });
 
             // Create the track and generate some animation values at [0.5, 1.0) for animated keys.
