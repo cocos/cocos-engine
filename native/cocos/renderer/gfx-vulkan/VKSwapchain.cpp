@@ -234,7 +234,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
-    checkSwapchainStatus(viewSize.x, viewSize.y);
+    checkSwapchainStatus(viewSize.width, viewSize.height);
 
     // Android Game Frame Pacing:swappy
     #if CC_SWAPPY_ENABLED
@@ -451,7 +451,7 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
-    checkSwapchainStatus(viewSize.x, viewSize.y);
+    checkSwapchainStatus(viewSize.width, viewSize.height);
 #else
     checkSwapchainStatus();
 #endif

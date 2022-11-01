@@ -146,6 +146,21 @@ public:
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
+        addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
+    }
+    void addScene(const ccstd::string &name) {
+        addScene(name, SceneFlags::NONE);
+    }
+    void addFullscreenQuad(Material *material, uint32_t passID) {
+        addFullscreenQuad(material, passID, SceneFlags::NONE);
+    }
+    void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID) {
+        addCameraQuad(camera, material, passID, SceneFlags::NONE);
+    }
+    void clearRenderTarget(const ccstd::string &name) {
+        clearRenderTarget(name, {});
+    }
 };
 
 class RasterPassBuilder : public Setter {
@@ -156,6 +171,9 @@ public:
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    RasterQueueBuilder *addQueue() {
+        return addQueue(QueueHint::NONE);
+    }
 };
 
 class ComputeQueueBuilder : public Setter {
@@ -274,6 +292,15 @@ public:
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
     virtual LayoutGraphBuilder *getLayoutGraphBuilder() = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
+    uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
+        return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
+    }
+    uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
+        return addDepthStencil(name, format, width, height, ResourceResidency::MANAGED);
+    }
+    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height) {
+        return addRasterPass(width, height, "default");
+    }
 };
 
 class PipelineBuilder {

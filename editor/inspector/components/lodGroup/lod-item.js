@@ -119,7 +119,7 @@ exports.methods = {
     },
     applyCameraSize() {
         const that = this;
-        Editor.Message.send('scene', 'lod:apply-current-camera-size', that.lodGroupId, that.index);
+        Editor.Message.send('scene', 'lod-apply-current-camera-size', that.lodGroupId, that.index);
     },
     handleTriangleLabel(meshIndex) {
         const that = this;
