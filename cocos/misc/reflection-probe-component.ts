@@ -76,7 +76,7 @@ export enum ProbeResolution {
 @playOnFocus
 export class ReflectionProbe extends Component {
     @serializable
-    protected _resolution = 512;
+    protected _resolution = 256;
     @serializable
     protected _clearFlag = ProbeClearFlag.SKYBOX;
 
@@ -99,7 +99,7 @@ export class ReflectionProbe extends Component {
     protected _sourceCamera: Camera | null = null;
 
     @serializable
-    private _probeId = -1;
+    private _probeId = 0;
 
     protected _probe: scene.ReflectionProbe | null = null;
 
@@ -262,27 +262,35 @@ export class ReflectionProbe extends Component {
     }
 
     public update (dt: number) {
-        if (!EDITOR && this.probeType === ProbeType.CUBE) return;
-        if (EDITOR) {
-            const cameraLst: scene.Camera[]|undefined = this.node.scene.renderScene?.cameras;
-            if (cameraLst !== undefined) {
-                for (let i = 0; i < cameraLst.length; ++i) {
-                    const camera:scene.Camera = cameraLst[i];
-                    if (camera.name === 'Editor Camera') {
-                        this.probe.renderPlanarReflection(camera);
-                        break;
+        if (this.probeType === ProbeType.CUBE) {
+            if (EDITOR) {
+                if (this.node.hasChangedFlags) {
+                    this.probe.updateBoundingBox();
+                    ReflectionProbeManager.probeManager.updateModes(this.probe);
+                }
+            }
+        } else {
+            if (EDITOR) {
+                const cameraLst: scene.Camera[]|undefined = this.node.scene.renderScene?.cameras;
+                if (cameraLst !== undefined) {
+                    for (let i = 0; i < cameraLst.length; ++i) {
+                        const camera:scene.Camera = cameraLst[i];
+                        if (camera.name === 'Editor Camera') {
+                            this.probe.renderPlanarReflection(camera);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (this.node.hasChangedFlags) {
-            this.probe.updateBoundingBox();
-            ReflectionProbeManager.probeManager.updateModes(this.probe);
+            if (this.node.hasChangedFlags) {
+                this.probe.updateBoundingBox();
+                ReflectionProbeManager.probeManager.updateModes(this.probe);
+            }
         }
     }
 
     private _createProbe () {
-        if (this._probeId < 0 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
+        if (ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = this.node.scene.getNewReflectionProbeId();
         }
         this._probe = new scene.ReflectionProbe(this._probeId);
