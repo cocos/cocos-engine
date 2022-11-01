@@ -211,7 +211,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         CC_EXPECTS(!fbInfo.depthStencilTexture);
                         fbInfo.depthStencilTexture = tex.get();
                     },
-                    [](const auto&) {
+                    [](const auto&/*unused*/) {
                         CC_EXPECTS(false);
                     });
             }
