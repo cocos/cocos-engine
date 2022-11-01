@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,28 +21,43 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
-
-#pragma once
-
-#include "base/Macros.h"
-#include "bindings/event/EventDispatcher.h"
+ ****************************************************************************/
+#include "EventBus.h"
+#include <algorithm>
+#include "intl/List.h"
 
 namespace cc {
-class CC_DLL IEventDispatch {
-public:
-    /**
-     * Destructor of EventDispatchInterface.
-     */
-    virtual ~IEventDispatch() = default;
-    /**
-     * Dispatch event interface.
-     */
-    virtual void dispatchEvent(const OSEvent& ev) = 0;
-    /**
-     * Dispatch touch event interface.
-     */
-    virtual void dispatchTouchEvent(const TouchEvent& ev) = 0;
-};
+namespace event {
 
+void BusEventListenerContainer::addListener(BusEventListenerBase *listener) {
+    if (_isBroadcasting) {
+        intl::listAppend(&_listenersToAdd, listener->entry);
+        return;
+    }
+    intl::listAppend(&_listenerList, listener->entry);
+}
+
+void BusEventListenerContainer::removeListener(BusEventListenerBase *listener) {
+    if (_isBroadcasting) {
+        _listenersToRemove.emplace_back(listener->entry);
+        listener->entry->listener = nullptr;
+        return;
+    }
+    intl::detachFromList(&_listenerList, listener->entry);
+    delete listener->entry;
+}
+
+void BusEventListenerContainer::addOrRemovePendingListeners() {
+    for (auto &entry : _listenersToRemove) {
+        intl::detachFromList(&_listenerList, entry);
+        delete entry;
+    }
+    EVENT_LIST_LOOP_REV_BEGIN(curr, _listenersToAdd)
+    intl::detachFromList(&_listenersToAdd, curr);
+    intl::listAppend(&_listenerList, curr);
+    EVENT_LIST_LOOP_REV_END(curr, _listenersToAdd)
+    _listenersToAdd = nullptr;
+    _listenersToRemove.clear();
+}
+} // namespace event
 } // namespace cc

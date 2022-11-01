@@ -23,6 +23,7 @@ THE SOFTWARE.
 
 #include "base/Ptr.h"
 #include "base/Macros.h"
+#include <atomic>
 
 namespace cc {
 namespace gfx {

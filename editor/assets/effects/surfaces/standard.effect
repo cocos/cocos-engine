@@ -58,6 +58,11 @@ CCEffect %{
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+    - &reflect-map
+      vert: standard-vs
+      frag: reflect-map-fs
+      phase: reflect-map
+      propertyIndex: 0
   - name: transparent
     passes:
     - vert: standard-vs
@@ -362,4 +367,17 @@ CCProgram shadow-caster-fs %{
   #include <shared-ubos>
   #include <surface-fragment>
   #include <shading-entries/main-functions/render-to-shadowmap/fs>
+}%
+
+
+CCProgram reflect-map-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <lighting-models/includes/standard>
+  #include <surfaces/includes/standard-fs>
+  #include <shading-entries/main-functions/render-to-reflectmap/fs>
 }%

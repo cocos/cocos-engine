@@ -27,8 +27,8 @@
 
 #include "base/Config.h"
 #include "base/TypeDef.h"
-#include "bindings/event/EventDispatcher.h"
 #include "engine/BaseEngine.h"
+#include "engine/EngineEvents.h"
 #include "math/Vec2.h"
 
 #include <map>
@@ -97,29 +97,6 @@ public:
      */
     uint getTotalFrames() const override;
     /**
-     @brief Add Event Listening.
-     @param evtype:event type.
-     @param cb:event callback.
-     */
-    void addEventCallback(OSEventType evtype, const EventCb &cb) override;
-    /**
-     @brief Remove Event Listening.
-     @param evtype:event type.
-     */
-    void removeEventCallback(OSEventType evtype) override;
-    /**
-     @brief Event handling callback.
-     @param ev:Abstract event.
-     @return whether it's been handled.
-     */
-    bool handleEvent(const OSEvent &ev);
-    /**
-     @brief Touch event handling callback.
-     @param ev:Touch event.
-     @return whether it's been handled.
-     */
-    bool handleTouchEvent(const TouchEvent &ev);
-    /**
      @brief Get engine scheduler.
      */
     SchedulerPtr getScheduler() const override;
@@ -129,9 +106,7 @@ public:
 private:
     void destroy();
     void tick();
-    bool dispatchWindowEvent(const WindowEvent &ev);
-    bool dispatchDeviceEvent(const DeviceEvent &ev);
-    bool dispatchEventToApp(OSEventType type, const OSEvent &ev);
+    bool redirectWindowEvent(const WindowEvent &ev);
     void doRestart();
 
     bool _close{false};
@@ -158,7 +133,8 @@ private:
     BuiltinResMgr *_builtinResMgr{nullptr};
     ProgramLib *_programLib{nullptr};
 
-    std::map<OSEventType, EventCb> _eventCallbacks;
+    events::WindowEvent::Listener _windowEventListener;
+
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
 };
 

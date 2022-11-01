@@ -204,8 +204,8 @@ void Profiler::doIntervalUpdate() {
     _coreStats.multiThread = gfx::DeviceManager::isDetachDeviceThread();
     _coreStats.occlusionQuery = pipeline->isOcclusionQueryEnabled();
     _coreStats.shadowMap = shadows != nullptr && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP;
-    _coreStats.screenWidth = static_cast<uint32_t>(viewSize.x);
-    _coreStats.screenHeight = static_cast<uint32_t>(viewSize.y);
+    _coreStats.screenWidth = static_cast<uint32_t>(viewSize.width);
+    _coreStats.screenHeight = static_cast<uint32_t>(viewSize.height);
 }
 
 void Profiler::doFrameUpdate() {
@@ -225,7 +225,7 @@ void Profiler::printStats() {
     auto *renderer = CC_DEBUG_RENDERER;
     const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     const auto viewSize = window->getViewSize() * Device::getDevicePixelRatio();
-    const auto width = viewSize.x;
+    const auto width = viewSize.width;
     const auto lineHeight = renderer->getLineHeight();
     const auto columnWidth = width / 12.0F; // divide column numbers
     const auto leftOffset = width * 0.01F;

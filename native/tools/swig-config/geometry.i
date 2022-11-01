@@ -15,6 +15,7 @@
 // Insert code at the beginning of generated source file (.cpp)
 %{
 #include "bindings/auto/jsb_geometry_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 %}
 
 // ----- Ignore Section ------

@@ -86,40 +86,34 @@ export interface Setter extends RenderNode {
 }
 
 export interface RasterQueueBuilder extends Setter {
-    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name: string): void;
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
+    addSceneOfCamera (camera: Camera, light: LightInfo/*, SceneFlags.NONE*/): void;
     addScene (name: string, sceneFlags: SceneFlags): void;
-    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    addScene (name: string/*, SceneFlags.NONE*/): void;
     addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
+    addFullscreenQuad (material: Material, passID: number/*, SceneFlags.NONE*/): void;
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number/*, SceneFlags.NONE*/): void;
     clearRenderTarget (name: string, color: Color): void;
+    clearRenderTarget (name: string/*, new Color()*/): void;
     setViewport (viewport: Viewport): void;
 }
 
 export interface RasterPassBuilder extends Setter {
     addRasterView (name: string, view: RasterView): void;
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (hint: QueueHint, name: string): RasterQueueBuilder;
     addQueue (hint: QueueHint): RasterQueueBuilder;
-    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addQueue (/*QueueHint.NONE*/): RasterQueueBuilder;
     setViewport (viewport: Viewport): void;
 }
 
 export interface ComputeQueueBuilder extends Setter {
-    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
     addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
 export interface ComputePassBuilder extends Setter {
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (name: string): ComputeQueueBuilder;
     addQueue (): ComputeQueueBuilder;
-    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
-    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
 export interface MovePassBuilder extends RenderNode {
@@ -171,16 +165,17 @@ export interface Pipeline extends PipelineRuntime {
     containsResource (name: string): boolean;
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addRenderTarget (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addDepthStencil (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
     beginFrame (): void;
     endFrame (): void;
-    addRasterPass (width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
     addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
-    addComputePass (layoutName: string, name: string): ComputePassBuilder;
+    addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
-    addMovePass (name: string): MovePassBuilder;
-    addCopyPass (name: string): CopyPassBuilder;
+    addMovePass (): MovePassBuilder;
+    addCopyPass (): CopyPassBuilder;
     presentAll (): void;
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
     readonly layoutGraphBuilder: LayoutGraphBuilder;

@@ -1079,6 +1079,65 @@ export class LightProbeInfo {
     }
 
     /**
+     * @en GI multiplier
+     * @zh GI乘数
+     */
+    @editable
+    @range([0.1, 10, 0.1])
+    @type(CCFloat)
+    @tooltip('i18n:light_probe.giScale')
+    @displayName('GIScale')
+    set giScale (val: number) {
+        if (this._giScale === val) return;
+        this._giScale = val;
+        if (this._resource) {
+            this._resource.giScale = val;
+        }
+    }
+    get giScale (): number {
+        return this._giScale;
+    }
+
+    /**
+     * @en GI sample counts
+     * @zh GI 采样数量
+     */
+    @editable
+    @range([64, 4096, 1])
+    @type(CCInteger)
+    @tooltip('i18n:light_probe.giSamples')
+    @displayName('GISamples')
+    set giSamples (val: number) {
+        if (this._giSamples === val) return;
+        this._giSamples = val;
+        if (this._resource) {
+            this._resource.giSamples = val;
+        }
+    }
+    get giSamples (): number {
+        return this._giSamples;
+    }
+
+    /**
+     * @en light bounces
+     * @zh 光照反弹次数
+     */
+    @editable
+    @range([1, 4, 1])
+    @type(CCInteger)
+    @tooltip('i18n:light_probe.bounces')
+    set bounces (val: number) {
+        if (this._bounces === val) return;
+        this._bounces = val;
+        if (this._resource) {
+            this._resource.bounces = val;
+        }
+    }
+    get bounces (): number {
+        return this._bounces;
+    }
+
+    /**
      * @en Reduce ringing of light probe
      * @zh 减少光照探针的振铃效果
      */
@@ -1167,6 +1226,12 @@ export class LightProbeInfo {
     @serializable
     protected _enabled = false;
     @serializable
+    protected _giScale = 1.0;
+    @serializable
+    protected _giSamples = 1024;
+    @serializable
+    protected _bounces = 2;
+    @serializable
     protected _reduceRinging = 0.0;
     @serializable
     protected _showProbe = true;
@@ -1215,7 +1280,7 @@ export class LightProbeInfo {
         return true;
     }
 
-    public update () {
+    public update (updateTet = true) {
         if (!legacyCC.internal.LightProbesData) {
             return;
         }
@@ -1227,7 +1292,7 @@ export class LightProbeInfo {
             }
         }
 
-        const probes: Vec3[] = [];
+        const points: Vec3[] = [];
         for (let i = 0; i < this._lightProbeGroups.length; i++) {
             const group = this._lightProbeGroups[i];
             if (!group.node) {
@@ -1240,11 +1305,41 @@ export class LightProbeInfo {
             for (let j = 0; j < count; j++) {
                 const position = new Vec3(0, 0, 0);
                 Vec3.add(position, group.probes[j], worldPosition);
-                probes.push(position);
+                points.push(position);
             }
         }
 
-        this._data!.build(probes);
+        const pointCount = points.length;
+        if (pointCount < 4) {
+            warnID(17000);
+            this.resetTetraIndices();
+            this._data!.reset();
+            return;
+        }
+
+        this._data!.updateProbes(points);
+
+        if (updateTet) {
+            this.resetTetraIndices();
+            this._data!.updateTetrahedrons();
+        }
+    }
+
+    private resetTetraIndices () {
+        const scene = legacyCC.director.getScene();
+        if (!scene) {
+            return;
+        }
+
+        const renderScene = scene.renderScene;
+        if (!renderScene) {
+            return;
+        }
+
+        const models = renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            models[i].tetrahedronIndex = -1;
+        }
     }
 }
 legacyCC.internal.LightProbeInfo = LightProbeInfo;

@@ -68,7 +68,6 @@ public:
     void syncSceneToPhysics();
     void syncSceneWithCheck();
     void syncPhysicsToScene();
-    void updateCenterOfMass();
     void addShape(const PhysXShape &shape);
     void removeShape(const PhysXShape &shape);
     void addJoint(const PhysXJoint &joint, physx::PxJointActorIndex::Enum index);

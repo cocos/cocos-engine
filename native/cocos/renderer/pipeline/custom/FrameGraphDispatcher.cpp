@@ -156,7 +156,7 @@ gfx::MemoryAccessBit toGfxAccess(AccessType type) {
 
 // AccessStatus.vertID : in resourceNode it's resource ID; in barrierNode it's pass ID.
 AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGraph &rg, const ViewStatus &status);
-gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName);
+gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &resName);
 
 void addAccessStatus(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, const ViewStatus &status);
 void addCopyAccessStatus(RAG &rag, const ResourceGraph &rg, ResourceAccessNode &node, const ViewStatus &status);
@@ -206,8 +206,8 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
         resourceAccessGraph.culledPasses.clear();
     }
 
-    const auto &names = get(RenderGraph::Name, renderGraph);
-    for (size_t i = 1; i <= names.container->size(); ++i) {
+    // const auto &names = get(RenderGraph::Name, renderGraph);
+    for (size_t i = 1; i <= numPasses; ++i) {
         resourceAccessGraph.leafPasses.emplace(i, LeafStatus{false, false});
     }
 
@@ -266,6 +266,21 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
         leafCulling(vertex, rag);
     };
 
+    // no present pass found, add a fake node to gather leaf node(s).
+    if (resourceAccessGraph.presentPassID == 0xFFFFFFFF) {
+        auto ragEndNode = add_vertex(rag, rag.getCurrentID());
+        auto rlgEndNode = add_vertex(relationGraph);
+        // keep sync before pass reorder done.
+        CC_EXPECTS(ragEndNode == rlgEndNode);
+        resourceAccessGraph.presentPassID = ragEndNode;
+        auto iter = resourceAccessGraph.leafPasses.find(ragEndNode);
+        if (iter == resourceAccessGraph.leafPasses.end()) {
+            resourceAccessGraph.leafPasses.emplace(ragEndNode, LeafStatus{true, false});
+        } else {
+            resourceAccessGraph.leafPasses.at(ragEndNode) = LeafStatus{true, false};
+        }
+    }
+
     // make leaf node closed walk for pass reorder
     for (auto pass : resourceAccessGraph.leafPasses) {
         bool isExternal = pass.second.isExternal;
@@ -281,6 +296,10 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
                 branchCulling(pass.first, resourceAccessGraph);
             }
         }
+    }
+    for (auto rit = resourceAccessGraph.culledPasses.rbegin(); rit != resourceAccessGraph.culledPasses.rend(); ++rit) {
+        // remove culled vertices, std::less make this set ascending order, so reverse iterate
+        remove_vertex(*rit, relationGraph);
     }
 }
 
@@ -970,6 +989,7 @@ void evaluateAndTryMerge(const RAG &rag, const ResourceGraph &rescGraph, EmptyGr
         for (size_t i = 1; i < lhsVerts.size(); ++i) {
             auto tryE = edge(lhsVerts[i], lhsVerts[i - 1], relationGraphTc);
             auto tryRE = edge(lhsVerts[i - 1], lhsVerts[i], relationGraphTc);
+            // check if original reachable
             if (!tryE.second && !tryRE.second) {
                 remove_edge(lhsVerts[i - 1], lhsVerts[i], relationGraph);
                 candidateSections.emplace_back(lhsSection);
@@ -1428,28 +1448,25 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
                         rag.leafPasses[curVertID] = LeafStatus{true, access == gfx::MemoryAccessBit::READ_ONLY && passType != PassType::PRESENT};
                     }
                 }
+            } else {
+                trans.currStatus = {curVertID, visibility, trans.currStatus.access | access, passType, Range{}};
             }
         }
     }
     return lastVertID;
 }
 
-gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &slotName) {
-    auto vis = gfx::ShaderStageFlagBit::NONE;
-
-    bool found = false;
-
-    auto compare = [](const PmrString &name, const uint32_t slot) {
-        return boost::lexical_cast<uint32_t>(name) == slot;
-    };
-
-    auto iter = lgd.attributeIndex.find(slotName);
+gfx::ShaderStageFlagBit getVisibilityByDescName(const LGD &lgd, uint32_t passID, const PmrString &resName) {
+    auto iter = lgd.attributeIndex.find(resName);
     if (iter == lgd.attributeIndex.end()) {
-        iter = lgd.constantIndex.find(slotName);
-        CC_EXPECTS(iter != lgd.constantIndex.end());
+        iter = lgd.constantIndex.find(resName);
+        if (iter == lgd.constantIndex.end()) {
+            // input or output attachment
+            return gfx::ShaderStageFlagBit::NONE;
+        }
     }
-    auto nameID = iter->second;
 
+    auto nameID = iter->second;
     auto visIter = lgd.stages[passID].descriptorVisibility.find(nameID);
     CC_EXPECTS(visIter != lgd.stages[passID].descriptorVisibility.end());
     return visIter->second;
@@ -1462,8 +1479,9 @@ bool checkRasterViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, Pa
     for (const auto &pair : rasterViews) {
         const auto &rasterView = pair.second;
         gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(layoutGraphData, passID, pair.first);
+        visibility = visibility == gfx::ShaderStageFlagBit::NONE ? gfx::ShaderStageFlagBit::FRAGMENT : visibility;
         auto access = toGfxAccess(rasterView.accessType);
-        ViewStatus viewStatus{rasterView.slotName, passType, visibility, access};
+        ViewStatus viewStatus{pair.first, passType, visibility, access};
         addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
         auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
         if (lastVertId != INVALID_ID && lastVertId != vertID) {
@@ -1486,9 +1504,10 @@ bool checkComputeViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, P
     for (const auto &pair : computeViews) {
         const auto &values = pair.second;
         for (const auto &computeView : values) {
-            gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(layoutGraphData, passID, computeView.name);
+            gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(layoutGraphData, passID, pair.first);
+            visibility = visibility == gfx::ShaderStageFlagBit::NONE ? gfx::ShaderStageFlagBit::COMPUTE : visibility;
             auto access = toGfxAccess(computeView.accessType);
-            ViewStatus viewStatus{computeView.name, passType, visibility, access};
+            ViewStatus viewStatus{pair.first, passType, visibility, access};
             addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
             auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
             if (lastVertId != INVALID_ID) {
@@ -1642,8 +1661,7 @@ void processPresentPass(const Graphs &graphs, uint32_t passID, const PresentPass
     auto &node = get(RAG::AccessNode, resourceAccessGraph, vertID);
     bool dependent = false;
     for (const auto &pair : pass.presents) {
-        gfx::ShaderStageFlagBit visibility = getVisibilityByDescName(layoutGraphData, passID, pair.first);
-        ViewStatus viewStatus{pair.first, PassType::PRESENT, visibility, gfx::MemoryAccessBit::READ_ONLY};
+        ViewStatus viewStatus{pair.first, PassType::PRESENT, gfx::ShaderStageFlagBit::NONE, gfx::MemoryAccessBit::READ_ONLY};
 
         auto lastVertId = dependencyCheck(resourceAccessGraph, vertID, resourceGraph, viewStatus);
         addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);

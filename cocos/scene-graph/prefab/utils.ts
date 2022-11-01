@@ -25,13 +25,13 @@
 */
 
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
-import { legacyCC } from '../../global-exports';
-import type { Node, Component } from '../../../scene-graph';
-import { errorID, warn } from '../../platform/debug';
-import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
-import { MountedComponentsInfo, TargetInfo } from '.';
-import { editorExtrasTag } from '../../data';
-import { ValueType } from '../../value-types';
+import { cclegacy, errorID, warn, editorExtrasTag } from '../../core';
+import { Node } from '../node';
+import { Component } from '../component';
+import { MountedChildrenInfo, PropertyOverrideInfo, MountedComponentsInfo, TargetInfo } from './prefab-info';
+import { ValueType } from '../../core/value-types';
+
+export * from './prefab-info';
 
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
@@ -68,7 +68,7 @@ export function createNodeWithPrefab (node: Node) {
     const editorExtras = node[editorExtrasTag];
 
     // instantiate prefab
-    legacyCC.game._isCloning = true;
+    cclegacy.game._isCloning = true;
     if (SUPPORT_JIT) {
         // @ts-expect-error: private member access
         prefabInfo.asset._doInstantiate(node);
@@ -80,9 +80,9 @@ export function createNodeWithPrefab (node: Node) {
         prefabRoot._iN$t = node;
 
         // instantiate prefab and apply to node
-        legacyCC.instantiate._clone(prefabRoot, prefabRoot);
+        cclegacy.instantiate._clone(prefabRoot, prefabRoot);
     }
-    legacyCC.game._isCloning = false;
+    cclegacy.game._isCloning = false;
 
     // restore preserved props
     node._objFlags = _objFlags;
@@ -191,7 +191,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
 
                     // @ts-expect-error private member access
                     target._children.push(childNode);
-                    // @ts-expect-error private member access
+                    // @ts-expect-error: private member access
                     childNode._parent = target;
                     if (EDITOR) {
                         if (!childNode[editorExtrasTag]) {
@@ -202,7 +202,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     }
                     // mounted node need to add to the target map
                     generateTargetMap(childNode, curTargetMap, false);
-                    // siblingIndex update is in _onBatchCreated function, and it needs a parent.
+                    // siblingIndex update is in _onBatchCreated function, and it p needs a parent.
                     // @ts-expect-error private member access
                     childNode._siblingIndex = target._children.length - 1;
                     expandPrefabInstanceNode(childNode, true);

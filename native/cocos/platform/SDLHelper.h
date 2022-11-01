@@ -25,15 +25,13 @@
 
 #pragma once
 #include <iostream>
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 
 struct SDL_Window;
-class OSEvent;
 union SDL_Event;
 struct SDL_WindowEvent;
 
 namespace cc {
-class IEventDispatch;
 
 class SDLHelper {
     friend class SystemWindowManager;
@@ -58,7 +56,7 @@ public:
     static void setCursorEnabled(bool value);
 
 private:
-    static void dispatchSDLEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_Event& sdlEvent, bool* quit);
-    static void dispatchWindowEvent(IEventDispatch* delegate, uint32_t windowId, const SDL_WindowEvent& wevent);
+    static void dispatchSDLEvent( uint32_t windowId, const SDL_Event& sdlEvent, bool* quit);
+    static void dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent& wevent);
 };
 } // namespace cc

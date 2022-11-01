@@ -293,6 +293,42 @@ using namespace cc;
 #define cc_scene_Light_scene_get(self_) self_->getScene()
   
 
+#define cc_scene_Light_visibility_get(self_) self_->getVisibility()
+#define cc_scene_Light_visibility_set(self_, val_) self_->setVisibility(val_)
+  
+
+#define cc_scene_LODData_screenUsagePercentage_get(self_) self_->getScreenUsagePercentage()
+#define cc_scene_LODData_screenUsagePercentage_set(self_, val_) self_->setScreenUsagePercentage(val_)
+  
+
+#define cc_scene_LODData_models_get(self_) self_->getModels()
+  
+
+#define cc_scene_LODGroup_lodCount_get(self_) self_->getLodCount()
+  
+
+#define cc_scene_LODGroup_enabled_get(self_) self_->isEnabled()
+#define cc_scene_LODGroup_enabled_set(self_, val_) self_->setEnabled(val_)
+  
+
+#define cc_scene_LODGroup_localBoundaryCenter_get(self_) self_->getLocalBoundaryCenter()
+#define cc_scene_LODGroup_localBoundaryCenter_set(self_, val_) self_->setLocalBoundaryCenter(val_)
+  
+
+#define cc_scene_LODGroup_objectSize_get(self_) self_->getObjectSize()
+#define cc_scene_LODGroup_objectSize_set(self_, val_) self_->setObjectSize(val_)
+  
+
+#define cc_scene_LODGroup_node_get(self_) self_->getNode()
+#define cc_scene_LODGroup_node_set(self_, val_) self_->setNode(val_)
+  
+
+#define cc_scene_LODGroup_lodDataArray_get(self_) self_->getLodDataArray()
+  
+
+#define cc_scene_LODGroup_scene_get(self_) self_->getScene()
+  
+
 #define cc_scene_DirectionalLight_direction_get(self_) self_->getDirection()
 #define cc_scene_DirectionalLight_direction_set(self_, val_) self_->setDirection(val_)
   
@@ -773,6 +809,14 @@ using namespace cc;
 
 #define cc_scene_Model_useLightProbe_get(self_) self_->getUseLightProbe()
 #define cc_scene_Model_useLightProbe_set(self_, val_) self_->setUseLightProbe(val_)
+  
+
+#define cc_scene_Model_bakeToReflectionProbe_get(self_) self_->getBakeToReflectionProbe()
+#define cc_scene_Model_bakeToReflectionProbe_set(self_, val_) self_->setBakeToReflectionProbe(val_)
+  
+
+#define cc_scene_Model_reflectionProbeType_get(self_) self_->getReflectionProbeType()
+#define cc_scene_Model_reflectionProbeType_set(self_, val_) self_->setReflectionProbeType(val_)
   
 
 #define cc_scene_SubModel_passes_get(self_) self_->getPasses()
@@ -2282,33 +2326,6 @@ static bool js_cc_Node_getParent(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_Node_getParent) 
-
-static bool js_cc_Node_getEventProcessor(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Node *arg1 = (cc::Node *) NULL ;
-    cc::NodeEventProcessor *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Node>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::NodeEventProcessor *)((cc::Node const *)arg1)->getEventProcessor();
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Node_getEventProcessor, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Node_getEventProcessor) 
 
 static bool js_cc_Node_getChildByUuid(se::State& s)
 {
@@ -4075,7 +4092,6 @@ bool js_register_cc_Node(se::Object* obj) {
     cls->defineFunction("setSiblingIndex", _SE(js_cc_Node_setSiblingIndex)); 
     cls->defineFunction("isActive", _SE(js_cc_Node_isActive)); 
     cls->defineFunction("getParent", _SE(js_cc_Node_getParent)); 
-    cls->defineFunction("getEventProcessor", _SE(js_cc_Node_getEventProcessor)); 
     cls->defineFunction("getChildByUuid", _SE(js_cc_Node_getChildByUuid)); 
     cls->defineFunction("getChildByName", _SE(js_cc_Node_getChildByName)); 
     cls->defineFunction("getChildByPath", _SE(js_cc_Node_getChildByPath)); 
@@ -5826,33 +5842,6 @@ static bool js_cc_Root_getDebugViewConfig(se::State& s)
 }
 SE_BIND_FUNC(js_cc_Root_getDebugViewConfig) 
 
-static bool js_cc_Root_getEventProcessor(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Root *arg1 = (cc::Root *) NULL ;
-    cc::CallbacksInvoker *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Root>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::CallbacksInvoker *)((cc::Root const *)arg1)->getEventProcessor();
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Root_getEventProcessor, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Root_getEventProcessor) 
-
 static bool js_cc_Root_createRenderWindowFromSystemWindow__SWIG_0(se::State& s)
 {
     // js_overloaded_function
@@ -6393,7 +6382,6 @@ bool js_register_cc_Root(se::Object* obj) {
     cls->defineFunction("getBatcher2D", _SE(js_cc_Root_getBatcher2D)); 
     cls->defineFunction("setDebugViewConfig", _SE(js_cc_Root_setDebugViewConfig)); 
     cls->defineFunction("getDebugViewConfig", _SE(js_cc_Root_getDebugViewConfig)); 
-    cls->defineFunction("getEventProcessor", _SE(js_cc_Root_getEventProcessor)); 
     cls->defineFunction("createRenderWindowFromSystemWindow", _SE(js_cc_Root_createRenderWindowFromSystemWindow)); 
     
     
@@ -7118,6 +7106,48 @@ static bool js_cc_scene_Light_scene_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Light_scene_get) 
 
+static bool js_cc_scene_Light_visibility_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Light *arg1 = (cc::scene::Light *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Light>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Light_visibility_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_scene_Light_visibility_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Light_visibility_set) 
+
+static bool js_cc_scene_Light_visibility_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Light *arg1 = (cc::scene::Light *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Light>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_scene_Light_visibility_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Light_visibility_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Light_visibility_get) 
+
 bool js_register_cc_scene_Light(se::Object* obj) {
     auto* cls = se::Class::create("Light", obj, nullptr, _SE(js_new_cc_scene_Light)); 
     
@@ -7129,6 +7159,7 @@ bool js_register_cc_scene_Light(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_scene_Light_type_get), _SE(js_cc_scene_Light_type_set)); 
     cls->defineProperty("name", _SE(js_cc_scene_Light_name_get), _SE(js_cc_scene_Light_name_set)); 
     cls->defineProperty("scene", _SE(js_cc_scene_Light_scene_get), nullptr); 
+    cls->defineProperty("visibility", _SE(js_cc_scene_Light_visibility_get), _SE(js_cc_scene_Light_visibility_set)); 
     
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Light_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Light_detachFromScene)); 
@@ -7151,6 +7182,659 @@ bool js_register_cc_scene_Light(se::Object* obj) {
     
     __jsb_cc_scene_Light_proto = cls->getProto();
     __jsb_cc_scene_Light_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_scene_LODData_class = nullptr;
+se::Object* __jsb_cc_scene_LODData_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_scene_LODData) 
+
+static bool js_cc_scene_LODData_addModel(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODData *arg1 = (cc::scene::LODData *) NULL ;
+    cc::scene::Model *arg2 = (cc::scene::Model *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODData_addModel,2,SWIGTYPE_p_cc__scene__Model"); 
+    (arg1)->addModel(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODData_addModel) 
+
+static bool js_cc_scene_LODData_clearModels(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODData *arg1 = (cc::scene::LODData *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearModels();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODData_clearModels) 
+
+static bool js_cc_scene_LODData_eraseModel(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODData *arg1 = (cc::scene::LODData *) NULL ;
+    cc::scene::Model *arg2 = (cc::scene::Model *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODData_eraseModel,2,SWIGTYPE_p_cc__scene__Model"); 
+    (arg1)->eraseModel(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODData_eraseModel) 
+
+static bool js_cc_scene_LODData_screenUsagePercentage_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODData *arg1 = (cc::scene::LODData *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "LODData_screenUsagePercentage_set,2,SWIGTYPE_float"); 
+    cc_scene_LODData_screenUsagePercentage_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_LODData_screenUsagePercentage_set) 
+
+static bool js_cc_scene_LODData_screenUsagePercentage_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODData *arg1 = (cc::scene::LODData *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (float)cc_scene_LODData_screenUsagePercentage_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODData_screenUsagePercentage_get) 
+
+static bool js_cc_scene_LODData_models_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODData *arg1 = (cc::scene::LODData *) NULL ;
+    ccstd::vector< cc::IntrusivePtr< cc::scene::Model > > *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::vector< cc::IntrusivePtr< cc::scene::Model > > *) &cc_scene_LODData_models_get(arg1);
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LODData_models_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODData_models_get) 
+
+// js_ctor
+static bool js_new_cc_scene_LODData(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::scene::LODData *result;
+    result = (cc::scene::LODData *)new cc::scene::LODData();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_scene_LODData, __jsb_cc_scene_LODData_class, js_delete_cc_scene_LODData)
+
+static bool js_delete_cc_scene_LODData(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_LODData) 
+
+bool js_register_cc_scene_LODData(se::Object* obj) {
+    auto* cls = se::Class::create("LODData", obj, nullptr, _SE(js_new_cc_scene_LODData)); 
+    
+    cls->defineProperty("screenUsagePercentage", _SE(js_cc_scene_LODData_screenUsagePercentage_get), _SE(js_cc_scene_LODData_screenUsagePercentage_set)); 
+    cls->defineProperty("models", _SE(js_cc_scene_LODData_models_get), nullptr); 
+    
+    cls->defineFunction("addModel", _SE(js_cc_scene_LODData_addModel)); 
+    cls->defineFunction("clearModels", _SE(js_cc_scene_LODData_clearModels)); 
+    cls->defineFunction("eraseModel", _SE(js_cc_scene_LODData_eraseModel)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_scene_LODData));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::scene::LODData>(cls);
+    
+    __jsb_cc_scene_LODData_proto = cls->getProto();
+    __jsb_cc_scene_LODData_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_scene_LODGroup_class = nullptr;
+se::Object* __jsb_cc_scene_LODGroup_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_scene_LODGroup) 
+
+// js_ctor
+static bool js_new_cc_scene_LODGroup(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::scene::LODGroup *result;
+    result = (cc::scene::LODGroup *)new cc::scene::LODGroup();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_scene_LODGroup, __jsb_cc_scene_LODGroup_class, js_delete_cc_scene_LODGroup)
+
+static bool js_delete_cc_scene_LODGroup(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_LODGroup) 
+
+static bool js_cc_scene_LODGroup_attachToScene(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    cc::scene::RenderScene *arg2 = (cc::scene::RenderScene *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_attachToScene,2,SWIGTYPE_p_cc__scene__RenderScene"); 
+    (arg1)->attachToScene(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_attachToScene) 
+
+static bool js_cc_scene_LODGroup_detachFromScene(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->detachFromScene();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_detachFromScene) 
+
+static bool js_cc_scene_LODGroup_lockLODLevels(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    ccstd::vector< int > *arg2 = 0 ;
+    ccstd::vector< int > temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_lockLODLevels,2,SWIGTYPE_p_ccstd__vectorT_int_t");
+    arg2 = &temp2;
+    
+    (arg1)->lockLODLevels(*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_lockLODLevels) 
+
+static bool js_cc_scene_LODGroup_clearLODs(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearLODs();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_clearLODs) 
+
+static bool js_cc_scene_LODGroup_insertLOD(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    uint8_t arg2 ;
+    cc::scene::LODData *arg3 = (cc::scene::LODData *) NULL ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_insertLOD,2,SWIGTYPE_uint8_t"); 
+    
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_insertLOD,3,SWIGTYPE_p_cc__scene__LODData"); 
+    (arg1)->insertLOD(arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_insertLOD) 
+
+static bool js_cc_scene_LODGroup_updateLOD(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    uint8_t arg2 ;
+    cc::scene::LODData *arg3 = (cc::scene::LODData *) NULL ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_updateLOD,2,SWIGTYPE_uint8_t"); 
+    
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_updateLOD,3,SWIGTYPE_p_cc__scene__LODData"); 
+    (arg1)->updateLOD(arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_updateLOD) 
+
+static bool js_cc_scene_LODGroup_eraseLOD(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    uint8_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_eraseLOD,2,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->eraseLOD(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_eraseLOD) 
+
+static bool js_cc_scene_LODGroup_lodCount_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    uint8_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_scene_LODGroup_lodCount_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LODGroup_lodCount_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_lodCount_get) 
+
+static bool js_cc_scene_LODGroup_enabled_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "LODGroup_enabled_set,2,SWIGTYPE_bool"); 
+    cc_scene_LODGroup_enabled_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_LODGroup_enabled_set) 
+
+static bool js_cc_scene_LODGroup_enabled_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)cc_scene_LODGroup_enabled_get(arg1);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_enabled_get) 
+
+static bool js_cc_scene_LODGroup_localBoundaryCenter_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    cc::Vec3 *arg2 = 0 ;
+    cc::Vec3 temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_localBoundaryCenter_set,2,SWIGTYPE_p_cc__Vec3");
+    arg2 = &temp2;
+    
+    cc_scene_LODGroup_localBoundaryCenter_set(arg1,*arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_LODGroup_localBoundaryCenter_set) 
+
+static bool js_cc_scene_LODGroup_localBoundaryCenter_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    cc::Vec3 *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::Vec3 *) &cc_scene_LODGroup_localBoundaryCenter_get(arg1);
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LODGroup_localBoundaryCenter_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_localBoundaryCenter_get) 
+
+static bool js_cc_scene_LODGroup_objectSize_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "LODGroup_objectSize_set,2,SWIGTYPE_float"); 
+    cc_scene_LODGroup_objectSize_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_LODGroup_objectSize_set) 
+
+static bool js_cc_scene_LODGroup_objectSize_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (float)cc_scene_LODGroup_objectSize_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_objectSize_get) 
+
+static bool js_cc_scene_LODGroup_node_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LODGroup_node_set,2,SWIGTYPE_p_cc__Node"); 
+    cc_scene_LODGroup_node_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_LODGroup_node_set) 
+
+static bool js_cc_scene_LODGroup_node_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    cc::Node *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::Node *)cc_scene_LODGroup_node_get(arg1);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LODGroup_node_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_node_get) 
+
+static bool js_cc_scene_LODGroup_lodDataArray_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    ccstd::vector< cc::IntrusivePtr< cc::scene::LODData > > *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::vector< cc::IntrusivePtr< cc::scene::LODData > > *) &cc_scene_LODGroup_lodDataArray_get(arg1);
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LODGroup_lodDataArray_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_lodDataArray_get) 
+
+static bool js_cc_scene_LODGroup_scene_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    cc::scene::RenderScene *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::scene::RenderScene *)cc_scene_LODGroup_scene_get(arg1);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LODGroup_scene_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_LODGroup_scene_get) 
+
+bool js_register_cc_scene_LODGroup(se::Object* obj) {
+    auto* cls = se::Class::create("LODGroup", obj, nullptr, _SE(js_new_cc_scene_LODGroup)); 
+    
+    cls->defineProperty("lodCount", _SE(js_cc_scene_LODGroup_lodCount_get), nullptr); 
+    cls->defineProperty("enabled", _SE(js_cc_scene_LODGroup_enabled_get), _SE(js_cc_scene_LODGroup_enabled_set)); 
+    cls->defineProperty("localBoundaryCenter", _SE(js_cc_scene_LODGroup_localBoundaryCenter_get), _SE(js_cc_scene_LODGroup_localBoundaryCenter_set)); 
+    cls->defineProperty("objectSize", _SE(js_cc_scene_LODGroup_objectSize_get), _SE(js_cc_scene_LODGroup_objectSize_set)); 
+    cls->defineProperty("node", _SE(js_cc_scene_LODGroup_node_get), _SE(js_cc_scene_LODGroup_node_set)); 
+    cls->defineProperty("lodDataArray", _SE(js_cc_scene_LODGroup_lodDataArray_get), nullptr); 
+    cls->defineProperty("scene", _SE(js_cc_scene_LODGroup_scene_get), nullptr); 
+    
+    cls->defineFunction("attachToScene", _SE(js_cc_scene_LODGroup_attachToScene)); 
+    cls->defineFunction("detachFromScene", _SE(js_cc_scene_LODGroup_detachFromScene)); 
+    cls->defineFunction("lockLODLevels", _SE(js_cc_scene_LODGroup_lockLODLevels)); 
+    cls->defineFunction("clearLODs", _SE(js_cc_scene_LODGroup_clearLODs)); 
+    cls->defineFunction("insertLOD", _SE(js_cc_scene_LODGroup_insertLOD)); 
+    cls->defineFunction("updateLOD", _SE(js_cc_scene_LODGroup_updateLOD)); 
+    cls->defineFunction("eraseLOD", _SE(js_cc_scene_LODGroup_eraseLOD)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_scene_LODGroup));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::scene::LODGroup>(cls);
+    
+    __jsb_cc_scene_LODGroup_proto = cls->getProto();
+    __jsb_cc_scene_LODGroup_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -13859,6 +14543,58 @@ static bool js_cc_scene_Model_updateLocalShadowBias(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_updateLocalShadowBias) 
 
+static bool js_cc_scene_Model_updateReflctionProbeCubemap(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::TextureCube *arg2 = (cc::TextureCube *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_updateReflctionProbeCubemap,2,SWIGTYPE_p_cc__TextureCube"); 
+    (arg1)->updateReflctionProbeCubemap(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbeCubemap) 
+
+static bool js_cc_scene_Model_updateReflctionProbePlanarMap(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    cc::gfx::Texture *arg2 = (cc::gfx::Texture *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_updateReflctionProbePlanarMap,2,SWIGTYPE_p_cc__gfx__Texture"); 
+    (arg1)->updateReflctionProbePlanarMap(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbePlanarMap) 
+
 static bool js_cc_scene_Model_attachToScene(se::State& s)
 {
     // js_function
@@ -14993,6 +15729,85 @@ static bool js_cc_scene_Model_useLightProbe_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Model_useLightProbe_get) 
 
+static bool js_cc_scene_Model_bakeToReflectionProbe_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Model_bakeToReflectionProbe_set,2,SWIGTYPE_bool"); 
+    cc_scene_Model_bakeToReflectionProbe_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_bakeToReflectionProbe_set) 
+
+static bool js_cc_scene_Model_bakeToReflectionProbe_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)cc_scene_Model_bakeToReflectionProbe_get(arg1);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_bakeToReflectionProbe_get) 
+
+static bool js_cc_scene_Model_reflectionProbeType_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Model_reflectionProbeType_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_scene_Model_reflectionProbeType_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_reflectionProbeType_set) 
+
+static bool js_cc_scene_Model_reflectionProbeType_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_scene_Model_reflectionProbeType_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Model_reflectionProbeType_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_reflectionProbeType_get) 
+
 bool js_register_cc_scene_Model(se::Object* obj) {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_new_cc_scene_Model)); 
     
@@ -15020,6 +15835,8 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineProperty("isDynamicBatching", _SE(js_cc_scene_Model_isDynamicBatching_get), _SE(js_cc_scene_Model_isDynamicBatching_set)); 
     cls->defineProperty("priority", _SE(js_cc_scene_Model_priority_get), _SE(js_cc_scene_Model_priority_set)); 
     cls->defineProperty("useLightProbe", _SE(js_cc_scene_Model_useLightProbe_get), _SE(js_cc_scene_Model_useLightProbe_set)); 
+    cls->defineProperty("bakeToReflectionProbe", _SE(js_cc_scene_Model_bakeToReflectionProbe_get), _SE(js_cc_scene_Model_bakeToReflectionProbe_set)); 
+    cls->defineProperty("reflectionProbeType", _SE(js_cc_scene_Model_reflectionProbeType_get), _SE(js_cc_scene_Model_reflectionProbeType_set)); 
     
     cls->defineFunction("destroy", _SE(js_cc_scene_Model_destroy)); 
     cls->defineFunction("initSubModel", _SE(js_cc_scene_Model_initSubModel)); 
@@ -15049,6 +15866,8 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateSHUBOs", _SE(js_cc_scene_Model_updateSHUBOs)); 
     cls->defineFunction("updateWorldBoundUBOs", _SE(js_cc_scene_Model_updateWorldBoundUBOs)); 
     cls->defineFunction("updateLocalShadowBias", _SE(js_cc_scene_Model_updateLocalShadowBias)); 
+    cls->defineFunction("updateReflctionProbeCubemap", _SE(js_cc_scene_Model_updateReflctionProbeCubemap)); 
+    cls->defineFunction("updateReflctionProbePlanarMap", _SE(js_cc_scene_Model_updateReflctionProbePlanarMap)); 
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Model_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Model_detachFromScene)); 
     cls->defineFunction("setLocalSHBuffer", _SE(js_cc_scene_Model_setLocalSHBuffer)); 
@@ -18900,6 +19719,58 @@ static bool js_cc_scene_RenderScene_removeCameras(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_RenderScene_removeCameras) 
 
+static bool js_cc_scene_RenderScene_addLODGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    cc::scene::LODGroup *arg2 = (cc::scene::LODGroup *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderScene_addLODGroup,2,SWIGTYPE_p_cc__scene__LODGroup"); 
+    (arg1)->addLODGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_addLODGroup) 
+
+static bool js_cc_scene_RenderScene_removeLODGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    cc::scene::LODGroup *arg2 = (cc::scene::LODGroup *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderScene_removeLODGroup,2,SWIGTYPE_p_cc__scene__LODGroup"); 
+    (arg1)->removeLODGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_removeLODGroup) 
+
 static bool js_cc_scene_RenderScene_unsetMainLight(se::State& s)
 {
     // js_function
@@ -19467,6 +20338,8 @@ bool js_register_cc_scene_RenderScene(se::Object* obj) {
     cls->defineFunction("addCamera", _SE(js_cc_scene_RenderScene_addCamera)); 
     cls->defineFunction("removeCamera", _SE(js_cc_scene_RenderScene_removeCamera)); 
     cls->defineFunction("removeCameras", _SE(js_cc_scene_RenderScene_removeCameras)); 
+    cls->defineFunction("addLODGroup", _SE(js_cc_scene_RenderScene_addLODGroup)); 
+    cls->defineFunction("removeLODGroup", _SE(js_cc_scene_RenderScene_removeLODGroup)); 
     cls->defineFunction("unsetMainLight", _SE(js_cc_scene_RenderScene_unsetMainLight)); 
     cls->defineFunction("addDirectionalLight", _SE(js_cc_scene_RenderScene_addDirectionalLight)); 
     cls->defineFunction("removeDirectionalLight", _SE(js_cc_scene_RenderScene_removeDirectionalLight)); 
@@ -26977,6 +27850,8 @@ bool register_all_scene(se::Object* obj) {
     js_register_cc_Root(ns); 
     js_register_cc_scene_IMacroPatch(ns); 
     js_register_cc_scene_Light(ns); 
+    js_register_cc_scene_LODData(ns); 
+    js_register_cc_scene_LODGroup(ns); 
     js_register_cc_scene_Fog(ns); 
     js_register_cc_scene_FogInfo(ns); 
     js_register_cc_scene_ShadowsInfo(ns); 

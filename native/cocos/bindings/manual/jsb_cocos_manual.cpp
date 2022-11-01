@@ -25,6 +25,7 @@
 
 #include "jsb_cocos_manual.h"
 
+#include "bindings/manual/jsb_global.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -734,10 +735,8 @@ static bool register_engine_Color_manual(se::Object * /*obj*/) { // NOLINT(reada
 
     return true;
 }
-
 static bool js_cc_ISystemWindowManager_getInstance_static(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-
     CC_UNUSED bool ok = true;
     auto *instance = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
     ok &= nativevalue_to_se(instance, s.rval(), s.thisObject());
@@ -754,7 +753,58 @@ static bool register_platform(se::Object * /*obj*/) { // NOLINT(readability-iden
     return result;
 }
 
+template <typename T>
+static bool bindAsExternalBuffer(se::State &s) {  // NOLINT
+    auto *self = SE_THIS_OBJECT<T>(s);
+    if (!self) {
+        return false;
+    }
+    // NOLINTNEXTLINE
+    se::HandleObject buffer(se::Object::createExternalArrayBufferObject(self, sizeof(*self), [](void *, size_t, void *) {}));
+    s.rval().setObject(buffer);
+    return true;
+}
+
+static bool js_cc_Vec2_underlyingData(se::State &s) { // NOLINT
+    return bindAsExternalBuffer<cc::Vec2>(s);
+}
+SE_BIND_FUNC(js_cc_Vec2_underlyingData)
+
+static bool js_cc_Vec3_underlyingData(se::State &s) { // NOLINT
+    return bindAsExternalBuffer<cc::Vec3>(s);
+}
+SE_BIND_FUNC(js_cc_Vec3_underlyingData)
+
+static bool js_cc_Vec4_underlyingData(se::State &s) { // NOLINT
+    return bindAsExternalBuffer<cc::Vec4>(s);
+}
+SE_BIND_FUNC(js_cc_Vec4_underlyingData)
+
+static bool js_cc_Mat3_underlyingData(se::State &s) { // NOLINT
+    return bindAsExternalBuffer<cc::Mat3>(s);
+}
+SE_BIND_FUNC(js_cc_Mat3_underlyingData)
+
+static bool js_cc_Mat4_underlyingData(se::State &s) { // NOLINT
+    return bindAsExternalBuffer<cc::Mat4>(s);
+}
+SE_BIND_FUNC(js_cc_Mat4_underlyingData)
+
+static bool js_cc_Quaternion_underlyingData(se::State &s) { // NOLINT
+    return bindAsExternalBuffer<cc::Quaternion>(s);
+}
+SE_BIND_FUNC(js_cc_Quaternion_underlyingData)
+
+
 bool register_all_cocos_manual(se::Object *obj) { // NOLINT(readability-identifier-naming)
+
+    __jsb_cc_Vec2_proto->defineFunction("underlyingData", _SE(js_cc_Vec2_underlyingData));
+    __jsb_cc_Vec3_proto->defineFunction("underlyingData", _SE(js_cc_Vec3_underlyingData));
+    __jsb_cc_Vec4_proto->defineFunction("underlyingData", _SE(js_cc_Vec4_underlyingData));
+    __jsb_cc_Mat3_proto->defineFunction("underlyingData", _SE(js_cc_Mat3_underlyingData));
+    __jsb_cc_Mat4_proto->defineFunction("underlyingData", _SE(js_cc_Mat4_underlyingData));
+    __jsb_cc_Quaternion_proto->defineFunction("underlyingData", _SE(js_cc_Quaternion_underlyingData));
+
     register_plist_parser(obj);
     register_sys_localStorage(obj);
     register_device(obj);

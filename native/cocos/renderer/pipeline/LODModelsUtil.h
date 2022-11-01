@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,39 +21,24 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-//
-//  CustomAppEvent.cpp
-//  Simulator
-//
-//
+#pragma once
 
-#include "CustomAppEvent.h"
+namespace cc {
+namespace scene {
+class Model;
+class Camera;
+class RenderScene;
+} // namespace scene
 
-CustomAppEvent::CustomAppEvent(const std::string& eventName, int type)
-: CustomEvent()
-, _eventName(eventName)
-{
-    name = eventName;
-    setEventType(type);
-}
+namespace pipeline {
 
-void CustomAppEvent::setEventType(int type)
-{
-    _eventType = type;
-}
-int  CustomAppEvent::getEventType()
-{
-    return _eventType;
-}
-
-void CustomAppEvent::setDataString(std::string data)
-{
-    _dataString = data;
-}
-
-std::string CustomAppEvent::getDataString()
-{
-    return _dataString;
-}
+class LODModelsCachedUtils {
+public:
+    static void updateCachedLODModels(const scene::RenderScene *scene, const scene::Camera *camera);
+    static bool isLODModelCulled(scene::Model *model);
+    static void clearCachedLODModels();
+};
+} // namespace pipeline
+} // namespace cc
