@@ -29,18 +29,10 @@
 namespace cc {
 namespace event {
 
-std::unique_ptr<BusEventListenerEntry::PoolType> BusEventListenerEntry::poolPtr;
-
-BusEventListenerEntry::PoolType *BusEventListenerEntry::pool() {
-    if (!poolPtr) {
-        poolPtr = std::make_unique<PoolType>([]() { return new BusEventListenerEntry; },
-                                             [](BusEventListenerEntry *ele) { delete ele; },
-                                             10);
-    }
-    return poolPtr.get();
-}
-
 bool BusEventListenerContainer::addListener(BusEventListenerBase *listener) {
+    CC_ASSERT(!listener->entry);
+    listener->entry = new BusEventListenerEntry;
+    listener->entry->listener = listener;
     if (_isBroadcasting) {
         intl::listAppend(&_pendingNew, listener->entry);
         return true;
@@ -55,14 +47,14 @@ bool BusEventListenerContainer::removeListener(BusEventListenerBase *listener) {
         return true;
     }
     bool ret = intl::detachFromList(&_arr, listener->entry);
-    BusEventListenerEntry::pool()->free(listener->entry);
+    delete listener->entry;
     return ret;
 }
 
 void BusEventListenerContainer::fixPendings() {
     for (auto &entry : _pendingDel) {
         intl::detachFromList(&_arr, entry);
-        BusEventListenerEntry::pool()->free(entry);
+        delete entry;
     }
     EVENT_LIST_LOOP_REV_BEGIN(curr, _pendingNew)
     intl::detachFromList(&_pendingNew, curr);

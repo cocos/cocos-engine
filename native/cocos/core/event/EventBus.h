@@ -40,11 +40,7 @@ class BusEventListenerBase;
 struct BusEventListenerEntry {
     BusEventListenerEntry *next{nullptr};
     BusEventListenerEntry *prev{nullptr};
-    BusEventListenerBase *listener = nullptr;
-
-    using PoolType = cc::memop::Pool<BusEventListenerEntry>;
-    static PoolType *pool();
-    static std::unique_ptr<PoolType> poolPtr;
+    BusEventListenerBase *listener{nullptr};
 };
 class BusEventListenerBase {
 public:
@@ -165,9 +161,6 @@ private:
 
 template <typename EHandler>
 Listener<EHandler>::Listener() {
-    entry = BusEventListenerEntry::pool()->alloc();
-    entry->next = entry->prev = nullptr;
-    entry->listener = this;
     BusEventListenerDB<EHandler>::container()->addListener(this);
 }
 
