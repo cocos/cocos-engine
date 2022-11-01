@@ -217,8 +217,7 @@ void LightProbeInfo::activate(LightProbes *resource) {
 
 void LightProbeInfo::clearSHCoefficients() {
     auto &probes = _data.getProbes();
-    for (auto i = 0; i < probes.size(); i++) {
-        auto &probe = probes[i];
+    for (auto &probe : probes) {
         probe.coefficients.clear();
     }
 }
