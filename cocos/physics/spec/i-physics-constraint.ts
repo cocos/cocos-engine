@@ -45,4 +45,9 @@ export interface IHingeConstraint extends IBaseConstraint {
     setAxis (v: IVec3Like): void;
 }
 
+export interface IFixedConstraint extends IBaseConstraint {
+    setBreakForce(v: number): void;
+    setBreakTorque(v: number): void;
+}
+
 export type IConeTwistConstraint = IBaseConstraint

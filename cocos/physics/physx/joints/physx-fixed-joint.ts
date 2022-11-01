@@ -23,29 +23,68 @@
  THE SOFTWARE.
  */
 
-import { IVec3Like } from '../../../core';
-import { PointToPointConstraint } from '../../framework';
-import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
-import { PX, _trans } from '../physx-adapter';
+import { IVec3Like, Vec3, Quat, Mat4 } from '../../../core';
+import { FixedConstraint, PhysicsSystem } from '../../framework';
+import { IFixedConstraint } from '../../spec/i-physics-constraint';
+import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';
+import { PxContactPairFlag } from '../physx-enum';
+import { PhysXInstance } from '../physx-instance';
+import { PhysXRigidBody } from '../physx-rigid-body';
 import { PhysXWorld } from '../physx-world';
 import { PhysXJoint } from './physx-joint';
 
-export class PhysXFixedJoint extends PhysXJoint implements IPointToPointConstraint {
-    setPivotA (v: IVec3Like): void {
+export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
+    setBreakForce (v: number): void {
+        this._breakForce = this.constraint.breakForce;
+        this._impl.setBreakForce(this._breakForce, this._breakTorque);
     }
 
-    setPivotB (v: IVec3Like): void {
+    setBreakTorque (v: number): void {
+        this._breakTorque = this.constraint.breakTorque;
+        this._impl.setBreakForce(this._breakForce, this._breakTorque);
     }
 
-    get constraint (): PointToPointConstraint {
-        return this._com as PointToPointConstraint;
+    get constraint (): FixedConstraint {
+        return this._com as FixedConstraint;
     }
+
+    private _breakForce = 0;
+    private _breakTorque = 0;
 
     onComponentSet (): void {
-        if (this._rigidBody) {
-            this._impl = PX.PxFixedJointCreate(PhysXInstance.physics, null, _trans, null, _trans);
-            this.setPivotA(this.constraint.pivotA);
-            this.setPivotB(this.constraint.pivotB);
-        }
+        this._impl = PX.createFixedConstraint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
+        this.setBreakForce(this.constraint.breakForce);
+        this.setBreakTorque(this.constraint.breakTorque);
+        this.updateFrame();
+    }
+
+    updateFrame () {
+        const bodyA = (this._rigidBody.body as PhysXRigidBody).sharedBody;
+        const cb = this.constraint.connectedBody;
+        const bodyB = cb ? (cb.body as PhysXRigidBody).sharedBody : (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(bodyA.node);
+
+        const pos : Vec3 = new Vec3();
+        const rot : Quat = new Quat();
+
+        const trans = new Mat4();
+        Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.position);
+        Mat4.invert(trans, trans);
+        Mat4.getRotation(rot, trans);
+        Mat4.getTranslation(pos, trans);
+        this._impl.setLocalPose(0, getTempTransform(pos, rot));
+
+        Mat4.fromRT(trans, bodyB.node.worldRotation, bodyB.node.position);
+        Mat4.invert(trans, trans);
+        Mat4.getRotation(rot, trans);
+        Mat4.getTranslation(pos, trans);
+        this._impl.setLocalPose(1, getTempTransform(pos, rot));
+    }
+
+    updateScale0 () {
+        this.updateFrame();
+    }
+
+    updateScale1 () {
+        this.updateFrame();
     }
 }

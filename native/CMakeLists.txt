@@ -1786,6 +1786,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXRevolute.cpp
         cocos/physics/physx/joints/PhysXDistance.h
         cocos/physics/physx/joints/PhysXDistance.cpp
+        cocos/physics/physx/joints/PhysXFixedJoint.h
+        cocos/physics/physx/joints/PhysXFixedJoint.cpp
     )
     cocos_source_files(
         NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp

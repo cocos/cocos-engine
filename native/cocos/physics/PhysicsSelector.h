@@ -41,4 +41,5 @@
     #define WrappedCylinderShape PhysXCylinder
     #define WrappedRevoluteJoint PhysXRevolute
     #define WrappedDistanceJoint PhysXDistance
+    #define WrappedFixedJoint    PhysXFixedJoint
 #endif

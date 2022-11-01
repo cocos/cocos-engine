@@ -23,16 +23,52 @@
  THE SOFTWARE.
  */
 
-// import CANNON from '@cocos/cannon';
-// import { CannonConstraint } from './cannon-constraint';
-// import { CannonSharedBody } from '../cannon-shared-body';
+import CANNON from '@cocos/cannon';
+import { IVec3Like, Vec3 } from '../../../core';
+import { FixedConstraint } from '../../framework';
+import { IFixedConstraint } from '../../spec/i-physics-constraint';
+import { CannonConstraint } from './cannon-constraint';
+import { CannonRigidBody } from '../cannon-rigid-body';
 
-// export class CannonDistanceConstraint extends CannonConstraint {
-//     constructor (first: CannonSharedBody, second: CannonSharedBody, distance?: number, options?: any) {
-//         super(new CANNON.DistanceConstraint(
-//             first.body,
-//             second.body,
-//             distance!,
-//             options === undefined ? undefined : options.maxForce));
-//     }
-// }
+export class CannonLockConstraint extends CannonConstraint implements IFixedConstraint {
+    protected _breakForce = 1e9;
+
+    setBreakForce (v: number): void {
+        this._breakForce = v;
+        this.updateFrame();
+    }
+    setBreakTorque (v: number): void {
+        // not supported
+    }
+
+    public get impl () {
+        return this._impl as CANNON.LockConstraint;
+    }
+
+    get constraint (): FixedConstraint {
+        return this._com as FixedConstraint;
+    }
+
+    onComponentSet (): void {
+        this._breakForce = this.constraint.breakForce;
+        this.updateFrame();
+    }
+
+    updateFrame (): void {
+        const bodyA = (this._rigidBody.body as CannonRigidBody).impl;
+        const cb = this.constraint.connectedBody;
+        let bodyB: CANNON.Body = (CANNON.World as any).staticBody;
+        if (cb) {
+            bodyB = (cb.body as CannonRigidBody).impl;
+        }
+        this._impl = new CANNON.LockConstraint(bodyA, bodyB, { maxForce: this._breakForce });
+    }
+
+    updateScale0 (): void {
+        this.updateFrame();
+    }
+
+    updateScale1 (): void {
+        this.updateFrame();
+    }
+}

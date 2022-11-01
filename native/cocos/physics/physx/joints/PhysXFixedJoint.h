@@ -1,3 +1,4 @@
+
 /****************************************************************************
  Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
@@ -25,42 +26,28 @@
 
 #pragma once
 
-#include <cstdint>
-#include "core/scene-graph/Node.h"
-#include "physics/spec/ILifecycle.h"
+#include "physics/physx/joints/PhysXJoint.h"
 
 namespace cc {
 namespace physics {
 
-class IBaseJoint : virtual public ILifecycle {
+class PhysXFixedJoint final : public PhysXJoint, public IFixedJoint {
 public:
-    ~IBaseJoint() override = default;
-    virtual void initialize(Node *node) = 0;
-    virtual void setEnableCollision(bool v) = 0;
-    virtual void setConnectedBody(uint32_t rigidBodyID) = 0;
-    virtual uint32_t getObjectID() const = 0;
-};
+    PhysXFixedJoint() {}
+    ~PhysXFixedJoint() override = default;
 
-class IDistanceJoint : virtual public IBaseJoint {
-public:
-    ~IDistanceJoint() override = default;
-    virtual void setPivotA(float x, float y, float z) = 0;
-    virtual void setPivotB(float x, float y, float z) = 0;
-};
+    void setBreakForce(float force) override;
+    void setBreakTorque(float torque) override;
+    void updateScale0() override;
+    void updateScale1() override;
 
-class IRevoluteJoint : virtual public IBaseJoint {
-public:
-    ~IRevoluteJoint() override = default;
-    virtual void setPivotA(float x, float y, float z) = 0;
-    virtual void setPivotB(float x, float y, float z) = 0;
-    virtual void setAxis(float x, float y, float z) = 0;
-};
-
-class IFixedJoint : virtual public IBaseJoint {
-public:
-    ~IFixedJoint() override = default;
-    virtual void setBreakForce(float force) = 0;
-    virtual void setBreakTorque(float torque) = 0;
+private:
+    void onComponentSet() override;
+    void updatePose();
+    float _breakForce = 0.0F;
+    float _breakTorque = 0.0F;
+    physx::PxTransform _transA;
+    physx::PxTransform _transB;
 };
 
 } // namespace physics

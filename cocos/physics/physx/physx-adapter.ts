@@ -33,7 +33,7 @@
 
 import { PhysX } from './physx.asmjs';
 import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3 } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, Vec4 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
 import { AABB, Ray } from '../../core/geometry';
@@ -115,6 +115,7 @@ function initAdaptWrapper (obj: any) {
     obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
     obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
     obj.createDistanceJoint = (a: any, b: any, c: any, d: any): any => obj.PxDistanceJointCreate(PX.physics, a, b, c, d);
+    obj.createFixedConstraint = (a: any, b: any, c: any, d: any): any => obj.PxFixedJointCreate(PX.physics, a, b, c, d);
 }
 
 const _v3: IVec3Like = { x: 0, y: 0, z: 0 };
