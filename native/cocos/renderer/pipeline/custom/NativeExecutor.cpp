@@ -155,15 +155,18 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                 visitObject(
                     resID, resg,
                     [&](const ManagedResource& res) {
+                        std::ignore = res;
                         CC_EXPECTS(false);
                     },
                     [&](const ManagedBuffer& res) {
+                        std::ignore = res;
                         CC_EXPECTS(false);
                     },
                     [&](const ManagedTexture& tex) {
                         fbInfo.colorTextures.emplace_back(tex.texture);
                     },
                     [&](const IntrusivePtr<gfx::Buffer>& res) {
+                        std::ignore = res;
                         CC_EXPECTS(false);
                     },
                     [&](const IntrusivePtr<gfx::Texture>& tex) {

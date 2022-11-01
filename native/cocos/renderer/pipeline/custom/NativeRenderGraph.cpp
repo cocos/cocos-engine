@@ -714,6 +714,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 indent(space);
             },
             [&](const RaytracePass &pass) {
+                std::ignore = pass;
                 OSS << "RaytracePass \"" << name << "\" {\n";
                 indent(space);
             },
@@ -744,6 +745,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 indent(space);
             },
             [&](const Blit &blit) {
+                std::ignore = blit;
                 OSS << "Blit \"" << name << "\";\n";
             },
             [&](const Dispatch &dispatch) {
@@ -789,34 +791,42 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
         visitObject(
             vertID, gv.mGraph,
             [&](const RasterPass &pass) {
+                std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
             },
             [&](const ComputePass &pass) {
+                std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
             },
             [&](const CopyPass &pass) {
+                std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
             },
             [&](const MovePass &pass) {
+                std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
             },
             [&](const PresentPass &pass) {
+                std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
             },
             [&](const RaytracePass &pass) {
+                std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";
             },
             [&](const RenderQueue &queue) {
+                std::ignore = queue;
                 unindent(space);
                 OSS << "}\n";
             },
             [&](const SceneData &scene) {
+                std::ignore = scene;
                 unindent(space);
                 OSS << "}\n";
             },
@@ -825,6 +835,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
             [&](const Dispatch &dispatch) {
             },
             [&](const ccstd::pmr::vector<ClearView> &clear) {
+                std::ignore = clear;
                 unindent(space);
                 OSS << "}\n";
             },
