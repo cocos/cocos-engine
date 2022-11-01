@@ -343,8 +343,7 @@ class CCObject implements EditorExtendableObject {
      *       _destruct: function () {
      *           for (var key in this) {
      *               if (this.hasOwnProperty(key)) {
-     *                   switch (typeo
-     * f this[key]) {
+     *                   switch (typeof this[key]) {
      *                       case 'string':
      *                           this[key] = '';
      *                           break;
