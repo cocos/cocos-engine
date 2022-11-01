@@ -26,6 +26,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <memory>
 #include <type_traits>
 
 #include "base/std/container/vector.h"
@@ -41,7 +42,9 @@ struct BusEventListenerEntry {
     BusEventListenerEntry *prev{nullptr};
     BusEventListenerBase *listener = nullptr;
 
-    static cc::memop::Pool<BusEventListenerEntry> pool;
+    using PoolType = cc::memop::Pool<BusEventListenerEntry>;
+    static PoolType *pool();
+    static std::unique_ptr<PoolType> poolPtr;
 };
 class BusEventListenerBase {
 public:
@@ -162,7 +165,7 @@ private:
 
 template <typename EHandler>
 Listener<EHandler>::Listener() {
-    entry = BusEventListenerEntry::pool.alloc();
+    entry = BusEventListenerEntry::pool()->alloc();
     entry->next = entry->prev = nullptr;
     entry->listener = this;
     BusEventListenerDB<EHandler>::container()->addListener(this);
