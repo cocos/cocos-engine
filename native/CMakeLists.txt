@@ -390,6 +390,7 @@ cocos_source_files(
     cocos/core/event/EventBus.cpp
     cocos/core/event/EventTarget.h
     cocos/core/event/intl/EventIntl.h
+    cocos/core/event/intl/List.h
     cocos/core/event/intl/EventTargetMacros.h
     cocos/core/event/intl/EventBusMacros.h
 )
