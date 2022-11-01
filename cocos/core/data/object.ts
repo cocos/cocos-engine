@@ -343,7 +343,8 @@ class CCObject implements EditorExtendableObject {
      *       _destruct: function () {
      *           for (var key in this) {
      *               if (this.hasOwnProperty(key)) {
-     *                   switch (typeof this[key]) {
+     *                   switch (typeo
+     * f this[key]) {
      *                       case 'string':
      *                           this[key] = '';
      *                           break;
@@ -636,6 +637,7 @@ declare namespace CCObject {
  * @method isCCObject
  * @param object
  * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
+ * @engineInternal
  */
 export function isCCObject (object: any) {
     return object instanceof CCObject;

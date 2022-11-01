@@ -39,6 +39,11 @@ import * as path from './path';
 
 export * from './x-deprecated';
 
+/**
+ * @engineInternal
+ */
+export * as jsbUtils from './jsb-utils';
+
 export {
     js,
     misc,
