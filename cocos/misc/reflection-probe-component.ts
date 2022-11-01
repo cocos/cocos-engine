@@ -24,7 +24,7 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, Vec3 } from '../core';
+import { cclegacy, CCObject, Color, Enum, Vec3 } from '../core';
 
 import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
@@ -273,17 +273,19 @@ export class ReflectionProbe extends Component {
         if (this._probeId < 0 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = this.node.scene.getNewReflectionProbeId();
         }
-        this._probe = new scene.ReflectionProbe(this._probeId);
-        this._probe.initialize(this.node);
-        if (this.enabled) {
-            ReflectionProbeManager.probeManager.register(this._probe);
+        this._probe = cclegacy.director.root.createReflectionProbe(this._probeId);
+        if (this._probe) {
+            this._probe.initialize(this.node);
+            if (this.enabled) {
+                ReflectionProbeManager.probeManager.register(this._probe);
+            }
+            this._probe.resolution = this._resolution;
+            this._probe.clearFlag = this._clearFlag;
+            this._probe.backgroundColor = this._backgroundColor;
+            this._probe.visibility = this._visibility;
+            this._probe.probeType = this._probeType;
+            this._probe.size = this._size;
+            this._probe.cubemap = this._cubemap!;
         }
-        this._probe.resolution = this._resolution;
-        this._probe.clearFlag = this._clearFlag;
-        this._probe.backgroundColor = this._backgroundColor;
-        this._probe.visibility = this._visibility;
-        this._probe.probeType = this._probeType;
-        this._probe.size = this._size;
-        this._probe.cubemap = this._cubemap!;
     }
 }
