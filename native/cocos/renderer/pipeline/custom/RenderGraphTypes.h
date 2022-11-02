@@ -285,7 +285,7 @@ struct ResourceGraph {
     // UuidGraph
     PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
     // Members
-    uint64_t nextFenceValue{1};
+    uint64_t nextFenceValue{0};
     uint64_t version{0};
 };
 

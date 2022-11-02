@@ -760,6 +760,8 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
 
+    ppl.updateRenderWindow(forwardPassRTName, camera.window);
+
     // Passes
     const forwardPass = ppl.addRasterPass(width, height, 'default');
     forwardPass.name = `CameraForwardPass${cameraID}`;
@@ -801,6 +803,4 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
         .addSceneOfCamera(camera, new LightInfo(),
             SceneFlags.UI
             | SceneFlags.PROFILER);
-
-    ppl.presentAll();
 }

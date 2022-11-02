@@ -197,6 +197,26 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
 }
 
 void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+    visitObject(
+        resID, resourceGraph,
+        [&](IntrusivePtr<gfx::Framebuffer>& fb) {
+            CC_EXPECTS(!renderWindow->getSwapchain());
+            desc.width = renderWindow->getWidth();
+            desc.height = renderWindow->getHeight();
+            fb = renderWindow->getFramebuffer();
+        },
+        [&](RenderSwapchain& sc) {
+            CC_EXPECTS(renderWindow->getSwapchain());
+            desc.width = renderWindow->getSwapchain()->getWidth();
+            desc.height = renderWindow->getSwapchain()->getHeight();
+            sc.swapchain = renderWindow->getSwapchain();
+        },
+        [](const auto&) {});
 }
 
 void NativePipeline::beginFrame() {

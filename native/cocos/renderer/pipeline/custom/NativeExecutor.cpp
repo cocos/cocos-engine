@@ -272,46 +272,56 @@ gfx::BufferBarrierInfo getBufferBarrier(
         offset, size};
 }
 
-gfx::TextureBarrierInfo getTextureBarrier(
+std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
     const ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
     const cc::render::Barrier& barrier) {
-    gfx::TextureUsage usage = gfx::TextureUsage::NONE;
+    gfx::Texture* texture = nullptr;
     visitObject(
         resID, resg,
         [&](const ManagedTexture& res) {
-            usage = res.texture->getInfo().usage;
+            texture = res.texture.get();
         },
         [&](const IntrusivePtr<gfx::Texture>& tex) {
-            usage = tex->getInfo().usage;
+            texture = tex.get();
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
             std::ignore = fb;
             CC_EXPECTS(false);
         },
         [&](const RenderSwapchain& sc) {
-            usage = sc.swapchain->getColorTexture()->getInfo().usage;
+            texture = sc.swapchain->getColorTexture();
         },
         [&](const auto& buffer) {
             std::ignore = buffer;
             CC_EXPECTS(false);
         });
 
+    auto usage = texture->getInfo().usage;
     const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
+    auto beginUsage = usage;
+    if (barrier.beginStatus.passType == gfx::PassType::PRESENT) {
+        beginUsage = gfx::TextureUsage::NONE;
+    }
 
+    auto endUsage = usage;
+    if (barrier.endStatus.passType == gfx::PassType::PRESENT) {
+        endUsage = gfx::TextureUsage::NONE;
+    }
+        
     return {
-        gfx::getAccessFlags(
-            usage,
-            barrier.beginStatus.visibility,
-            barrier.beginStatus.access,
-            barrier.beginStatus.passType),
-        gfx::getAccessFlags(
-            usage,
-            barrier.endStatus.visibility,
-            barrier.endStatus.access,
-            barrier.endStatus.passType),
-        barrier.type,
-        0,
-        desc.mipLevels};
+        gfx::TextureBarrierInfo{
+            gfx::getDeviceAccessFlags(
+                beginUsage,
+                barrier.beginStatus.access,
+                barrier.beginStatus.visibility),
+            gfx::getDeviceAccessFlags(
+                endUsage,
+                barrier.endStatus.access,
+                barrier.endStatus.visibility),
+            barrier.type,
+            0,
+            desc.mipLevels},
+        texture};
 }
 
 struct RenderGraphFilter {
@@ -349,9 +359,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 case ResourceDimension::TEXTURE2D:
                 case ResourceDimension::TEXTURE3D:
                 default: {
-                    gfx::TextureBarrierInfo info = getTextureBarrier(resg, resID, barrier);
+                    auto [info, texture] = getTextureBarrier(resg, resID, barrier);
                     const auto* textureBarrier = ctx.device->getTextureBarrier(info);
-                    textures.emplace_back(nullptr);
+                    textures.emplace_back(texture);
                     textureBarriers.emplace_back(textureBarrier);
                     break;
                 }
@@ -367,15 +377,17 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             textureBarriers.data(), textures.data(), static_cast<uint32_t>(textureBarriers.size()));
     }
     void frontBarriers(RenderGraph::vertex_descriptor vertID) const {
-        const auto& node = ctx.barrierMap.at(vertID + 1);
-        submitBarriers(node.blockBarrier.frontBarriers);
+        auto iter = ctx.barrierMap.find(vertID + 1);
+        if (iter != ctx.barrierMap.end()) {
+            submitBarriers(iter->second.blockBarrier.frontBarriers);
+        }
     }
-
     void rearBarriers(RenderGraph::vertex_descriptor vertID) const {
-        const auto& node = ctx.barrierMap.at(vertID + 1);
-        submitBarriers(node.blockBarrier.rearBarriers);
+        auto iter = ctx.barrierMap.find(vertID + 1);
+        if (iter != ctx.barrierMap.end()) {
+            submitBarriers(iter->second.blockBarrier.rearBarriers);
+        }
     }
-
     void begin(const RasterPass& pass) const {
         // viewport
         auto vp = pass.viewport;
@@ -622,13 +634,67 @@ struct RenderGraphCullVisitor : boost::dfs_visitor<> {
     ccstd::pmr::vector<bool>& validPasses;
 };
 
+struct ResourceCleaner {
+    explicit ResourceCleaner(ResourceGraph& resourceGraphIn) noexcept
+    : resourceGraph(resourceGraphIn),
+      prevFenceValue(resourceGraph.nextFenceValue) {
+        ++resourceGraph.nextFenceValue;
+    }
+    ResourceCleaner(const ResourceCleaner&) = delete;
+    ResourceCleaner& operator=(const ResourceCleaner&) = delete;
+    ~ResourceCleaner() noexcept {
+        resourceGraph.unmount(prevFenceValue);
+    }
+
+    ResourceGraph& resourceGraph;
+    uint64_t prevFenceValue = 0;
+};
+
+struct RenderGraphContextCleaner {
+    explicit RenderGraphContextCleaner(NativeRenderContext& contextIn) noexcept
+    : context(contextIn) {}
+    RenderGraphContextCleaner(const RenderGraphContextCleaner&) = delete;
+    RenderGraphContextCleaner& operator=(const RenderGraphContextCleaner&) = delete;
+    ~RenderGraphContextCleaner() noexcept {
+        for (auto iter = context.renderPasses.begin(); iter != context.renderPasses.end();) {
+            if (--iter->second.refCount == 0) {
+                iter = context.renderPasses.erase(iter);
+            } else {
+                ++iter;
+            }
+        }
+    }
+    NativeRenderContext& context;
+};
+
+struct CommandSubmitter {
+    CommandSubmitter(gfx::Device* deviceIn, const std::vector<gfx::CommandBuffer*>& cmdBuffersIn)
+    : device(deviceIn), cmdBuffers(cmdBuffersIn) {
+        CC_EXPECTS(cmdBuffers.size() == 1);
+        primaryCommandBuffer = cmdBuffers.at(0);
+        primaryCommandBuffer->begin();
+    }
+    CommandSubmitter(const CommandSubmitter&) = delete;
+    CommandSubmitter& operator=(const CommandSubmitter&) = delete;
+    ~CommandSubmitter() noexcept {
+        primaryCommandBuffer->end();
+        device->flushCommands(cmdBuffers);
+        device->getQueue()->submit(cmdBuffers);
+    }
+    gfx::Device* device = nullptr;
+    const std::vector<gfx::CommandBuffer*>& cmdBuffers;
+    gfx::CommandBuffer* primaryCommandBuffer = nullptr;
+};
+
 } // namespace
 
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
+    // CC_LOG_INFO(rg.print(scratch).c_str());
 
-    CC_LOG_INFO(rg.print(scratch).c_str());
+    RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
+    ResourceCleaner cleaner(ppl.resourceGraph);
 
     FrameGraphDispatcher fgd(
         ppl.resourceGraph, rg,
@@ -658,11 +724,12 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>
             fg(graphView, boost::keep_all{}, RenderGraphFilter{&validPasses});
 
+        CommandSubmitter submit(ppl.device, ppl.getCommandBuffers());
         RenderGraphVisitorContext ctx(
             ppl.nativeContext, rg, ppl.resourceGraph,
             fgd, fgd.barrierMap,
             validPasses,
-            ppl.device, ppl.getCommandBuffers()[0],
+            ppl.device, submit.primaryCommandBuffer,
             scratch);
 
         RenderGraphVisitor visitor{{}, ctx};
