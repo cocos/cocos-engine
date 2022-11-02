@@ -88,14 +88,27 @@ export function encodeCCONBinary (ccon: CCON) {
 }
 
 /**
- * ********* hearder ***********
- * COMPRESS_MIPMAP_MAGIC
- * ********* document ***********
+ * CompressedTexture.ccon
+ * ************* hearder ***************
+ * COMPRESS_MIPMAP_MAGIC: 0x50494d43   *
+ * ************* document **************
+ * mipmapLevel: n                      *
+ * mipmapLevelDataSize[0]: xxx         *
+ * ...                                 *
+ * mipmapLevelDataSize[n - 1]: xxx     *
+ * ************* chunks ****************
+ *    ******************************   *
+ *    *                            *   *
+ *    *          chunk[1]          *   *
+ *    *                            *   *
+ *    ******************************   *
  * ...
- * ...
- * ********* chunks ***********
- * ...
- * ...
+ *    ******************************   *
+ *    *                            *   *
+ *    *          chunk[n - 1]      *   *
+ *    *                            *   *
+ *    ******************************   *
+ * *************************************
  * @param ccon
  * @returns
  */
