@@ -693,7 +693,7 @@ export class Sprite extends UIRenderer {
      * @engineInternal
      */
     public _updateBlendFunc () {
-        // override for BYTEDANCE
+        // override for TAOBAO
         if (TAOBAO) {
             // need to fix sprite Premultiplication
             if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && !minigame.isDevTool
