@@ -32,8 +32,8 @@ namespace cc {
 namespace physics {
 
 void PhysXFixedJoint::onComponentSet() {
-    _trans0 = physx::PxTransform{physx::PxIdentity};
-    _trans1 = physx::PxTransform{physx::PxIdentity};
+    _transA = physx::PxTransform{physx::PxIdentity};
+    _transB = physx::PxTransform{physx::PxIdentity};
 
     physx::PxRigidActor *actor0 = _mSharedBody->getImpl().rigidActor;
     physx::PxRigidActor *actor1 = nullptr;
@@ -42,7 +42,7 @@ void PhysXFixedJoint::onComponentSet() {
         auto *actor1 = _mConnectedBody->getImpl().rigidActor;
     }
 
-    _mJoint = PxFixedJointCreate(PxGetPhysics(), actor0, _trans0, actor1, _trans1);
+    _mJoint = PxFixedJointCreate(PxGetPhysics(), actor0, _transA, actor1, _transB);
 
     updatePose();
 }
@@ -66,15 +66,15 @@ void PhysXFixedJoint::updateScale1() {
 }
 
 void PhysXFixedJoint::updatePose() {
-    _trans0 = physx::PxTransform{physx::PxIdentity};
-    _trans1 = physx::PxTransform{physx::PxIdentity};
+    _transA = physx::PxTransform{physx::PxIdentity};
+    _transB = physx::PxTransform{physx::PxIdentity};
 
     Vec3 pos; Quaternion rot;
     auto trans = _mSharedBody->getNode()->getWorldMatrix().getInversed();
     trans.getTranslation(&pos);
     trans.getRotation(&rot);
-    pxSetVec3Ext(_trans0.p, pos);
-    pxSetQuatExt(_trans0.q, rot);
+    pxSetVec3Ext(_transA.p, pos);
+    pxSetQuatExt(_transA.q, rot);
 
     physx::PxRigidActor *actor0 = _mSharedBody->getImpl().rigidActor;
     physx::PxRigidActor *actor1 = nullptr;
@@ -84,11 +84,11 @@ void PhysXFixedJoint::updatePose() {
         trans = _mConnectedBody->getNode()->getWorldMatrix().getInversed();
         trans.getTranslation(&pos);
         trans.getRotation(&rot);
-        pxSetVec3Ext(_trans1.p, pos);
-        pxSetQuatExt(_trans1.q, rot);
+        pxSetVec3Ext(_transB.p, pos);
+        pxSetQuatExt(_transB.q, rot);
     }
-    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, _trans0);
-    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, _trans1);
+    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, _transA);
+    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, _transB);
 }
 
 
