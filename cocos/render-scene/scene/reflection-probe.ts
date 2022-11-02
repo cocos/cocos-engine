@@ -279,10 +279,15 @@ export class ReflectionProbe {
         }
     }
 
-    public async captureCubemap () {
+    public captureCubemap () {
         this._renderObjects = [];
         this._resetCameraParams();
-        await this._renderCubemap();
+        this._attachCameraToScene();
+        this._needRender = true;
+        legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => {
+            this._needRender = false;
+            this._detachCameraFromScene();
+        });
     }
 
     /**
@@ -326,14 +331,6 @@ export class ReflectionProbe {
 
     public getProbeId () {
         return this._probeId;
-    }
-
-    public async waitForNextFrame () {
-        return new Promise<void>((resolve, reject) => {
-            legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => {
-                resolve();
-            });
-        });
     }
 
     public renderArea (): Vec2 {
@@ -390,14 +387,6 @@ export class ReflectionProbe {
             const pos = this.node.getWorldPosition();
             AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         }
-    }
-
-    private async _renderCubemap () {
-        this._attachCameraToScene();
-        this._needRender = true;
-        await this.waitForNextFrame();
-        this._needRender = false;
-        this._detachCameraFromScene();
     }
 
     private _createCamera () {
