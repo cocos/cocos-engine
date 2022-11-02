@@ -862,7 +862,7 @@ auto evaluateHeaviness(const RAG &rag, const ResourceGraph &rescGraph, EmptyVert
 
         switch (desc.dimension) {
             case ResourceDimension::BUFFER:
-                eval = desc.depthOrArraySize;
+                eval = desc.width;
                 break;
             case ResourceDimension::TEXTURE1D:
             case ResourceDimension::TEXTURE2D:
