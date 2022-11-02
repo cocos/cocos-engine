@@ -26,7 +26,7 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
-import { compile } from '../../core/data/instantiate-jit';
+import { compile } from '../../serialization/instantiate-jit';
 import { js, obsolete } from '../../core/utils/js';
 import { Enum } from '../../core/value-types';
 import { Asset } from '../../asset/assets/asset';

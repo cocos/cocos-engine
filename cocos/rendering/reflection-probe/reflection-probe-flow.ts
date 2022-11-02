@@ -64,7 +64,6 @@ export class ReflectionProbeFlow extends RenderFlow {
         }
         const probe = ReflectionProbeManager.probeManager.getProbeByCamera(camera);
         if (probe && probe.needRender) {
-            console.log(`probe id============${probe?.getProbeId()}`);
             if (EDITOR || probe.probeType === ProbeType.PLANAR) {
                 this._renderStage(probe);
             }
@@ -80,7 +79,7 @@ export class ReflectionProbeFlow extends RenderFlow {
             if (probe.probeType === ProbeType.PLANAR) {
                 probe.setTargetTexture(probe.realtimePlanarTexture);
                 ReflectionProbeManager.probeManager.unbindingPlanarMap(probe);
-                probeStage.setUsageInfo(probe, probe.realtimePlanarTexture.window!.framebuffer);
+                probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(probe.camera);
                 ReflectionProbeManager.probeManager.updatePlanarMap(probe);
                 probe.setTargetTexture(null);
