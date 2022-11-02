@@ -63,6 +63,7 @@
 
 #include "bindings/auto/jsb_2d_auto.h"
 #include "bindings/auto/jsb_assets_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/auto/jsb_dragonbones_auto.h"
 
 
