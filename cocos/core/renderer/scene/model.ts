@@ -580,8 +580,8 @@ export class Model {
 
         // This is a temporary solution
         // It should not be written in a fixed way, or modified by the user
-        this._subModels[idx].initPlanarShadowShader();
-        this._subModels[idx].initPlanarShadowInstanceShader();
+        // this._subModels[idx].initPlanarShadowShader();
+        // this._subModels[idx].initPlanarShadowInstanceShader();
 
         this._updateAttributesAndBinding(idx);
     }
