@@ -370,6 +370,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             if (p === undefined || p === null) {
                 continue;
             }
+            for (let se = 0; se < p.subemitter.length; ++se) {
+                p.subemitter[se]._particle = null;
+            }
             p.subemitter = [];
         }
     }
@@ -471,7 +474,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     p.subemitter[se].node.invalidateChildren(TransformBit.POSITION | TransformBit.ROTATION);
                     if (p.subemitter[se].isStopped) {
                         if (!p.subemitter[se].actDie) {
-                            p.subemitter[se].play();
+                            if (!p.subemitter[se]._isPlaying) {
+                                p.subemitter[se].play();
+                            }
                         }
                     }
                 }
@@ -485,11 +490,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     if (!p.subemitter[se].actDie) {
                         p.subemitter[se].stopEmitting();
                     } else {
-                        p.subemitter[se].play();
-                        if (p.subemitter[se]._trailModule && p.subemitter[se]._trailModule.enable) {
-                            p.subemitter[se]._trailModule._detachFromScene();
-                            p.subemitter[se]._needAttach = true;
-                            p.subemitter[se].update(dt);
+                        if (!p.subemitter[se]._isPlaying) {
+                            p.subemitter[se].play();
+                            if (p.subemitter[se]._trailModule && p.subemitter[se]._trailModule.enable) {
+                                p.subemitter[se]._trailModule._detachFromScene();
+                                p.subemitter[se]._needAttach = true;
+                                p.subemitter[se].update(dt);
+                            }
                         }
                         actDie = true;
                     }
@@ -512,11 +519,16 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     --p.delay;
                     if (p.delay <= 0) {
                         p.delay = 0;
+                        for (let se = 0; se < p.subemitter.length; ++se) {
+                            p.subemitter[se].stop();
+                        }
+                        p.active = false;
                         this._particles!.removeAt(i);
                     }
                 } else if (p.subemitter.length > 0 && !allSubStop) {
                     p.color.a = 0;
                 } else if (p.subemitter.length === 0) {
+                    p.active = false;
                     this._particles!.removeAt(i);
                 }
             }

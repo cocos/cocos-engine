@@ -1518,8 +1518,11 @@ export class ParticleSystem extends ModelRenderer {
                     let offst = 0;
                     for (let se = 0; se < this._baseEmitters.length; ++se) {
                         const currCnt = this.capacity * this._baseEmitters[se].subPercent;
-                        particle.subemitter.push(this._subEmitters[offst + (particle.id % currCnt)]);
-                        offst += currCnt;
+                        const emitterToPush = this._subEmitters[offst + (particle.id % currCnt)];
+                        if (!emitterToPush._particle) {
+                            particle.subemitter.push(emitterToPush);
+                            offst += currCnt;
+                        }
                     }
                 }
                 for (let se = 0; se < particle.subemitter.length; ++se) {
@@ -1614,6 +1617,7 @@ export class ParticleSystem extends ModelRenderer {
             particle.randomSeed = randomRangeInt(0, 233280);
             particle.loopCount++;
 
+            particle.active = true;
             this.processor.setNewParticle(particle);
         } // end of particles forLoop.
     }
@@ -1634,6 +1638,10 @@ export class ParticleSystem extends ModelRenderer {
 
     // internal function
     private _emit (dt) {
+        if (this._particle && !this._particle.active) {
+            return;
+        }
+
         // emit particles.
         const startDelay = this.startDelay.evaluate(0, 1)!;
         if (this._time > startDelay) {
