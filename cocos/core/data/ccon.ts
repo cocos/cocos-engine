@@ -7,6 +7,12 @@ const MAGIC = 0x4E4F4343;
 
 const CHUNK_ALIGN_AS = 8;
 
+// Compress mipmap constants
+// https://github.com/cocos/3d-tasks/issues/10876
+const COMPRESS_HEADER_SIZE = 4;
+const COMPRESS_MIPMAP_LEVEL_OFFSET = 4;
+const COMPRESS_MIPMAP_MAGIC = 0x50494d43;
+
 export class CCON {
     constructor (document: unknown, chunks: Uint8Array[]) {
         this._document = document;
@@ -80,6 +86,47 @@ export function encodeCCONBinary (ccon: CCON) {
         view.setUint32(0, value, true);
         return view;
     }
+}
+
+/**
+ * ********* hearder ***********
+ * COMPRESS_MIPMAP_MAGIC
+ * ********* document ***********
+ * ...
+ * ...
+ * ********* chunks ***********
+ * ...
+ * ...
+ * @param ccon
+ * @returns
+ */
+export function mergeAllCompressedTexture (ccon: CCON) {
+    const { chunks } = ccon;
+    const ccobBuilder = new BufferBuilder();
+
+    // Compressed hearder
+    const header = new ArrayBuffer(COMPRESS_HEADER_SIZE);
+    const hearderView = new DataView(header);
+    hearderView.setUint32(0, COMPRESS_MIPMAP_MAGIC, true); // add magic
+    ccobBuilder.append(hearderView);
+
+    // Compressed document
+    const mipmapLevel = chunks.length;
+    const documentLength =  COMPRESS_MIPMAP_LEVEL_OFFSET + mipmapLevel * 4;
+    const document = new ArrayBuffer(documentLength);
+    const documentView = new DataView(document);
+    documentView.setUint32(0, mipmapLevel);    // add mipmap level
+    for (let i = 0; i < mipmapLevel; i++) {
+        hearderView.setUint32(4 + i * 4, chunks[i].byteLength);
+    }
+    ccobBuilder.append(documentView);
+
+    // Compressed chunks
+    for (const chunk of chunks) {
+        ccobBuilder.append(chunk);
+    }
+
+    return ccobBuilder.get();
 }
 
 export function decodeCCONBinary (bytes: Uint8Array) {

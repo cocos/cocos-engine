@@ -39,7 +39,7 @@ import { sys } from '../../core/platform/sys';
  * @zh 内存图像源。
  */
 export interface IMemoryImageSource {
-    _data: ArrayBufferView | null;
+    _data: ArrayBufferView[];
     _compressed: boolean;
     width: number;
     height: number;
@@ -165,7 +165,7 @@ export class ImageAsset extends Asset {
         super();
 
         this._nativeData = {
-            _data: null,
+            _data: [],
             width: 0,
             height: 0,
             format: 0,
