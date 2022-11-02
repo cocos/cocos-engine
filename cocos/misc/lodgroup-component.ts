@@ -491,6 +491,8 @@ export class LODGroup extends Component {
 
     onLoad () {
         this._lodGroup.node = this.node;
+        // objectSize maybe initialized from deserialize
+        this._lodGroup.objectSize = this._objectSize;
         if (!this._eventRegistered) {
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
@@ -502,10 +504,6 @@ export class LODGroup extends Component {
                 this.insertLOD(i, DEFAULT_SCREEN_OCCUPATION[i]);
             }
         }
-    }
-
-    start () {
-        this.scheduleOnce(this.recalculateBounds, 0);
     }
 
     _onRemove (comp: Component) {
