@@ -32,6 +32,7 @@
 #include "audio/apple/AudioPlayer.h"
 #include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
+#include "base/Log.h"
 
 #ifdef VERY_VERY_VERBOSE_LOGGING
     #define ALOGVV ALOGV
@@ -123,6 +124,7 @@ void AudioPlayer::destroy() {
 
     ALOGVV("Before alSourceStop");
     alSourceStop(_alSource);
+    _state = State::STOPPED;
     CHECK_AL_ERROR_DEBUG();
     ALOGVV("Before alSourcei");
     alSourcei(_alSource, AL_BUFFER, 0);
@@ -136,8 +138,35 @@ void AudioPlayer::destroy() {
 
 void AudioPlayer::setCache(AudioCache *cache) {
     _audioCache = cache;
+    if (_state == State::UNSET) {
+        _state = State::READY;
+    }
 }
-
+bool AudioPlayer::pause(){
+    bool ret = true;
+    std::lock_guard<std::mutex> lck(_stateMutex);
+    alSourcePause(_alSource);
+    _state = State::PAUSE;
+    auto error = alGetError();
+    if (error != AL_NO_ERROR) {
+        ret = false;
+        ALOGE("%s: audio id, error = %x", __PRETTY_FUNCTION__, error);
+    }
+    return ret;
+}
+bool AudioPlayer::resume() {
+    bool ret = true;
+    std::lock_guard<std::mutex> lck(_stateMutex);
+    alSourcePlay(_alSource);
+    _bufferDirty = false;
+    _state = State::PLAY;
+    auto error = alGetError();
+    if (error != AL_NO_ERROR) {
+        ret = false;
+        ALOGE("%s: audio id, error = %x", __PRETTY_FUNCTION__, error);
+    }
+    return ret;
+}
 bool AudioPlayer::play2d() {
     _play2dMutex.lock();
     ALOGVV("AudioPlayer::play2d, _alSource: %u", _alSource);
@@ -184,7 +213,7 @@ bool AudioPlayer::play2d() {
             }
             _streamingSource = true;
         }
-
+        _state = State::PLAY;
         {
             std::unique_lock<std::mutex> lk(_sleepMutex);
             if (_isDestroyed)
@@ -201,6 +230,7 @@ bool AudioPlayer::play2d() {
             }
 
             alSourcePlay(_alSource);
+
         }
 
         auto alError = alGetError();
@@ -223,6 +253,7 @@ bool AudioPlayer::play2d() {
 //        CC_ASSERT(state == AL_PLAYING);
         _ready = true;
         ret = true;
+        
     } while (false);
 
     if (!ret) {
@@ -254,24 +285,54 @@ void AudioPlayer::rotateBufferThread(int offsetFrame) {
         ALint sourceState;
         ALint bufferProcessed = 0;
         bool needToExitThread = false;
-
         while (!_isDestroyed) {
-            alGetSourcei(_alSource, AL_SOURCE_STATE, &sourceState);
             /* On IOS, audio state will lie, when the system is not fully foreground,
              * openAl will process the buffer in queue, but our condition cannot make sure that the audio
              * is playing as it's too short. Interesting IOS system.
              * Solution is to load buffer even if it's paused, just make sure that there's no bufferProcessed in 
              */
-            if (sourceState == AL_PLAYING || sourceState == AL_PAUSED) {
+            if (_state == State::PLAY || _state == State::PAUSE) {
                 if (_timeDirty) {
+                    std::lock_guard<std::mutex> lck(_stateMutex);
+                    _timeDirty = false;
                     offsetFrame = _currTime * decoder.getSampleRate();
                     decoder.seek(offsetFrame);
                     alSourceStop(_alSource);
-                }
-                alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
-                while (bufferProcessed > 0) {
-                    bufferProcessed--;
-                    if (!_timeDirty) {
+                    alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
+                    while (bufferProcessed > 0) {
+                        bufferProcessed--;
+                        framesRead = decoder.readFixedFrames(framesToRead, tmpBuffer);
+                        if (framesRead == 0) {
+                            if (_loop) {
+                                decoder.seek(0);
+                                framesRead = decoder.readFixedFrames(framesToRead, tmpBuffer);
+                            } else {
+                                CC_LOG_DEBUG("Decode nothing, end of the music");
+                                memset(tmpBuffer, 0, bufferSize);
+                            }
+                        }
+                        /*
+                         While the source is playing, alSourceUnqueueBuffers can be called to remove buffers which have
+                         already played. Those buffers can then be filled with new data or discarded. New or refilled
+                         buffers can then be attached to the playing source using alSourceQueueBuffers. As long as there is
+                         always a new buffer to play in the queue, the source will continue to play.
+                         */
+                        ALuint bid;
+                        alSourceUnqueueBuffers(_alSource, 1, &bid);
+                        alBufferData(bid, _audioCache->_format, tmpBuffer, framesRead * decoder.getBytesPerFrame(), decoder.getSampleRate());
+                        alSourceQueueBuffers(_alSource, 1, &bid);
+                    }
+                    if(_state == State::PLAY)
+                    {
+                        alSourcePlay(_alSource);
+                    } else {
+                        _bufferDirty = true;
+                    }
+                } else {
+                    alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
+                    while (bufferProcessed > 0) {
+                        if (_bufferDirty) {break;}
+                        bufferProcessed--;
                         _currTime += QUEUEBUFFER_TIME_STEP;
                         if (_currTime > _audioCache->_duration) {
                             if (_loop) {
@@ -280,39 +341,31 @@ void AudioPlayer::rotateBufferThread(int offsetFrame) {
                                 _currTime = _audioCache->_duration;
                             }
                         }
-                    }
-
-                    framesRead = decoder.readFixedFrames(framesToRead, tmpBuffer);
-
-                    if (framesRead == 0) {
-                        if (_loop) {
-                            decoder.seek(0);
-                            framesRead = decoder.readFixedFrames(framesToRead, tmpBuffer);
-                        } else {
-                            needToExitThread = true;
-                            break;
+                        
+                        framesRead = decoder.readFixedFrames(framesToRead, tmpBuffer);
+                        
+                        if (framesRead == 0) {
+                            if (_loop) {
+                                decoder.seek(0);
+                                framesRead = decoder.readFixedFrames(framesToRead, tmpBuffer);
+                            } else {
+                                needToExitThread = true;
+                                break;
+                            }
                         }
-                    }
-                    /*
-                     While the source is playing, alSourceUnqueueBuffers can be called to remove buffers which have
-                     already played. Those buffers can then be filled with new data or discarded. New or refilled
-                     buffers can then be attached to the playing source using alSourceQueueBuffers. As long as there is
-                     always a new buffer to play in the queue, the source will continue to play.
-                     */
-                    ALuint bid;
-                    alSourceUnqueueBuffers(_alSource, 1, &bid);
-                    alBufferData(bid, _audioCache->_format, tmpBuffer, framesRead * decoder.getBytesPerFrame(), decoder.getSampleRate());
-                    alSourceQueueBuffers(_alSource, 1, &bid);
-                }
-                if (_timeDirty) {
-                    _timeDirty = false;
-                    alSourcePlay(_alSource);
-                    if (sourceState == AL_PAUSED) {
-                        alSourcePause(_alSource);
+                        /*
+                         While the source is playing, alSourceUnqueueBuffers can be called to remove buffers which have
+                         already played. Those buffers can then be filled with new data or discarded. New or refilled
+                         buffers can then be attached to the playing source using alSourceQueueBuffers. As long as there is
+                         always a new buffer to play in the queue, the source will continue to play.
+                         */
+                        ALuint bid;
+                        alSourceUnqueueBuffers(_alSource, 1, &bid);
+                        alBufferData(bid, _audioCache->_format, tmpBuffer, framesRead * decoder.getBytesPerFrame(), decoder.getSampleRate());
+                        alSourceQueueBuffers(_alSource, 1, &bid);
                     }
                 }
             }
-
             std::unique_lock<std::mutex> lk(_sleepMutex);
             if (_isDestroyed || needToExitThread) {
                 break;
@@ -326,7 +379,7 @@ void AudioPlayer::rotateBufferThread(int offsetFrame) {
         }
 
     } while (false);
-
+    _state = State::STOPPED;
     ALOGVV("Exit rotate buffer thread ...");
     decoder.close();
     free(tmpBuffer);

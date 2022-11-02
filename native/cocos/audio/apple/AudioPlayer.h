@@ -41,6 +41,13 @@ class AudioEngineImpl;
 
 class AudioPlayer {
 public:
+    enum class State {
+        UNSET,
+        READY,
+        PLAY,
+        PAUSE,
+        STOPPED,
+    };
     AudioPlayer();
     ~AudioPlayer();
 
@@ -50,12 +57,14 @@ public:
     bool setTime(float time);
     float getTime() { return _currTime; }
     bool setLoop(bool loop);
-
 protected:
     void setCache(AudioCache *cache);
     void rotateBufferThread(int offsetFrame);
     bool play2d();
+    bool pause();
+    bool resume();
     void wakeupRotateThread();
+    State _state{State::UNSET};
 
     AudioCache *_audioCache;
 
@@ -80,7 +89,8 @@ protected:
     std::atomic_bool _needWakeupRotateThread;
 
     std::mutex _play2dMutex;
-    std::mutex _threadMutex;
+    std::mutex _stateMutex;
+    bool _bufferDirty{false};
     unsigned int _id;
 
     friend class AudioEngineImpl;

@@ -468,32 +468,17 @@ bool AudioEngineImpl::pause(int audioID) {
     if (!checkAudioIdValid(audioID)) {
         return false;
     }
-    bool ret = true;
-    alSourcePause(_audioPlayers[audioID]->_alSource);
+    
 
-    auto error = alGetError();
-    if (error != AL_NO_ERROR) {
-        ret = false;
-        ALOGE("%s: audio id = %d, error = %x", __PRETTY_FUNCTION__, audioID, error);
-    }
-
-    return ret;
+    return _audioPlayers[audioID]->pause();
 }
 
 bool AudioEngineImpl::resume(int audioID) {
     if (!checkAudioIdValid(audioID)) {
         return false;
     }
-    bool ret = true;
-    alSourcePlay(_audioPlayers[audioID]->_alSource);
 
-    auto error = alGetError();
-    if (error != AL_NO_ERROR) {
-        ret = false;
-        ALOGE("%s: audio id = %d, error = %x", __PRETTY_FUNCTION__, audioID, error);
-    }
-
-    return ret;
+    return _audioPlayers[audioID]->resume();
 }
 
 void AudioEngineImpl::stop(int audioID) {
@@ -606,7 +591,6 @@ void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(in
 }
 
 void AudioEngineImpl::update(float dt) {
-    ALint sourceState;
     int audioID;
     AudioPlayer *player;
     ALuint alSource;
@@ -617,8 +601,6 @@ void AudioEngineImpl::update(float dt) {
         audioID = it->first;
         player = it->second;
         alSource = player->_alSource;
-        alGetSourcei(alSource, AL_SOURCE_STATE, &sourceState);
-
         if (player->_removeByAudioEngine) {
             AudioEngine::remove(audioID);
             _threadMutex.lock();
@@ -626,7 +608,7 @@ void AudioEngineImpl::update(float dt) {
             _threadMutex.unlock();
             delete player;
             _unusedSourcesPool.push_back(alSource);
-        } else if (player->_ready && sourceState == AL_STOPPED) {
+        } else if (player->_ready && player->_state == AudioPlayer::State::STOPPED) {
             ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
