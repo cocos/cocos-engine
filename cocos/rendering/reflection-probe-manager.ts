@@ -61,6 +61,7 @@ export class ReflectionProbeManager {
     }
 
     public exists (probeId: number): boolean {
+        if (this._probes.length === 0) return false;
         for (let i = 0; i < this._probes.length; i++) {
             if (this._probes[i].getProbeId() === probeId) {
                 return true;
@@ -122,13 +123,17 @@ export class ReflectionProbeManager {
      * @param probe update the texture for this probe
      */
     public updateBakedCubemap (probe: ReflectionProbe) {
-        const models = this._getModelsByProbe(probe);
         if (!probe.cubemap) return;
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbeCubemap(probe.cubemap);
+        const scene = probe.node.scene.renderScene;
+        if (!scene) return;
+        for (let i = 0; i < scene.models.length; i++) {
+            const model = scene.models[i];
+            if (model.node && model.worldBounds && intersect.aabbWithAABB(model.worldBounds, probe.boundingBox)) {
+                this._models.set(model, probe);
+                const meshRender = model.node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateProbeCubemap(probe.cubemap);
+                }
             }
         }
         probe.needRefresh = false;

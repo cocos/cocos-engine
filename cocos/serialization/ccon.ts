@@ -1,5 +1,4 @@
-import legacyCC from '../../../predefine';
-import { getError } from '../platform/debug';
+import { getError, cclegacy } from '../core';
 
 const VERSION = 1;
 
@@ -277,6 +276,6 @@ export class BufferBuilder {
     }
 }
 
-legacyCC.internal.parseCCONJson = parseCCONJson;
-legacyCC.internal.decodeCCONBinary = decodeCCONBinary;
-legacyCC.internal.CCON = CCON;
+cclegacy.internal.parseCCONJson = parseCCONJson;
+cclegacy.internal.decodeCCONBinary = decodeCCONBinary;
+cclegacy.internal.CCON = CCON;
