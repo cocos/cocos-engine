@@ -166,7 +166,7 @@ void processComputePass(const Graphs &graphs, uint32_t passID, const ComputePass
 void processCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass);
 void processRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass &pass);
 void processPresentPass(const Graphs &graphs, uint32_t passID, const PresentPass &pass);
-auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess, gfx::ShaderStageFlags visbility, const ResourceGraph &resourceGraph);
+auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visbility, const ResourceGraph &resourceGraph);
 
 // execution order BUT NOT LOGICALLY
 bool isPassExecAdjecent(uint32_t passLID, uint32_t passRID) {
@@ -1303,12 +1303,12 @@ bool isStatusDependent(const AccessStatus &lhs, const AccessStatus &rhs) {
     return res;
 }
 
-auto getResourceStatus(PassType passType, const PmrString &name, const gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visbility, const ResourceGraph &resourceGraph) {
+auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visbility, const ResourceGraph &resourceGraph) {
     ResourceUsage usage;
     gfx::ShaderStageFlags vis;
     vis = visbility;
     auto vertex = resourceGraph.valueIndex.at(name);
-    const auto& desc = get(ResourceGraph::Desc, resourceGraph, vertex);
+    const auto &desc = get(ResourceGraph::Desc, resourceGraph, vertex);
     if (desc.dimension == ResourceDimension::BUFFER) {
         // copy is not included in this logic because copy can be set TRANSFER_xxx directly.
         if (gfx::hasFlag(memAccess, gfx::MemoryAccessBit::WRITE_ONLY)) {

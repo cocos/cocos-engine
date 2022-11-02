@@ -66,11 +66,11 @@ TEST(fgDispatherCulling, test13) {
     const auto& node8 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(8));
     const auto& node9 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(9));
     const auto& node11 = get(ResourceAccessGraph::AccessNode, rag, static_cast<ResourceAccessGraph::vertex_descriptor>(11));
-    ExpectEq(!node5.attachemntStatus.empty() && node5.nextSubpass == nullptr &&
-                 node7.attachemntStatus.empty() && node7.nextSubpass == nullptr &&
-                 !node8.attachemntStatus.empty() && node8.nextSubpass != nullptr &&
-                 node9.attachemntStatus.empty() && node9.nextSubpass == nullptr &&
-                 !node11.attachemntStatus.empty() && node11.nextSubpass == nullptr,
+    ExpectEq(!node5.attachmentStatus.empty() && node5.nextSubpass == nullptr &&
+                 node7.attachmentStatus.empty() && node7.nextSubpass == nullptr &&
+                 !node8.attachmentStatus.empty() && node8.nextSubpass != nullptr &&
+                 node9.attachmentStatus.empty() && node9.nextSubpass == nullptr &&
+                 !node11.attachmentStatus.empty() && node11.nextSubpass == nullptr,
              true);
 
     ExpectEq(in_degree(5, rag) != 0 && out_degree(5, rag) != 0 &&
@@ -87,7 +87,6 @@ TEST(fgDispatherCulling, test13) {
                  rag.culledPasses.find(7) != rag.culledPasses.end() &&
                  rag.culledPasses.find(9) != rag.culledPasses.end(),
              true);
-
 
     // runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);
 }
