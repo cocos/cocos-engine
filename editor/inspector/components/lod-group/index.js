@@ -160,12 +160,9 @@ exports.template = `
             <template v-if="dump.value">
                 <lod-item class="lod-item"
                     v-for="(data, index) in dump.value.LODs.value"
-                    :data="data"
+                    :dump="dump"
                     :index="index"
                     :key="index"
-                    :lod-group-id="dump.value.uuid.value"
-                    :min="calculateRange('min', index)"
-                    :max="calculateRange('max', index)"
                     @update-lods="updateLODs"
                 ></lod-item>
             </template>
@@ -248,28 +245,6 @@ exports.ready = function() {
                     }
                     Editor.Message.request('scene', 'lod-erase', that.dump.value.uuid.value, index);
                 }
-            },
-            calculateRange(range, index) {
-                const that = this;
-                const LODs = that.dump.value.LODs.value;
-                if (range === 'min') {
-                    const min = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value : 0;
-                    // If value < min, set the value to min, avoid affecting other lod
-                    if (LODs[index].value.screenUsagePercentage.value < min) {
-                        LODs[index].value.screenUsagePercentage.value = min;
-                        that.updateDump(LODs[index].value.screenUsagePercentage);
-                    }
-                    return min * 100;
-                } else if (range === 'max') {
-                    const max = LODs[index - 1] ? LODs[index - 1].value.screenUsagePercentage.values : 1;
-                    // If value > max, set the value to max, avoid affecting other lod
-                    if (LODs[index].value.screenUsagePercentage.value > max) {
-                        LODs[index].value.screenUsagePercentage.value = max;
-                        that.updateDump(LODs[index].value.screenUsagePercentage);
-                    }
-                    return max * 100;
-                }
-                return null;
             },
         },
     });
