@@ -80,7 +80,7 @@ protected:
     std::atomic_bool _needWakeupRotateThread;
 
     std::mutex _play2dMutex;
-
+    std::mutex _threadMutex;
     unsigned int _id;
 
     friend class AudioEngineImpl;

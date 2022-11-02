@@ -263,14 +263,15 @@ void AudioPlayer::rotateBufferThread(int offsetFrame) {
              * Solution is to load buffer even if it's paused, just make sure that there's no bufferProcessed in 
              */
             if (sourceState == AL_PLAYING || sourceState == AL_PAUSED) {
+                if (_timeDirty) {
+                    offsetFrame = _currTime * decoder.getSampleRate();
+                    decoder.seek(offsetFrame);
+                    alSourceStop(_alSource);
+                }
                 alGetSourcei(_alSource, AL_BUFFERS_PROCESSED, &bufferProcessed);
                 while (bufferProcessed > 0) {
                     bufferProcessed--;
-                    if (_timeDirty) {
-                        _timeDirty = false;
-                        offsetFrame = _currTime * decoder.getSampleRate();
-                        decoder.seek(offsetFrame);
-                    } else {
+                    if (!_timeDirty) {
                         _currTime += QUEUEBUFFER_TIME_STEP;
                         if (_currTime > _audioCache->_duration) {
                             if (_loop) {
@@ -302,6 +303,13 @@ void AudioPlayer::rotateBufferThread(int offsetFrame) {
                     alSourceUnqueueBuffers(_alSource, 1, &bid);
                     alBufferData(bid, _audioCache->_format, tmpBuffer, framesRead * decoder.getBytesPerFrame(), decoder.getSampleRate());
                     alSourceQueueBuffers(_alSource, 1, &bid);
+                }
+                if (_timeDirty) {
+                    _timeDirty = false;
+                    alSourcePlay(_alSource);
+                    if (sourceState == AL_PAUSED) {
+                        alSourcePause(_alSource);
+                    }
                 }
             }
 
