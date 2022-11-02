@@ -804,3 +804,78 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
             SceneFlags.UI
             | SceneFlags.PROFILER);
 }
+
+export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
+    const cameraID = getCameraUniqueID(camera);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+    if (!ppl.containsResource('Albedo')) {
+        // GBuffers
+        ppl.addRenderTarget('Albedo', Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget('Normal', Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget('Emissive', Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil('DepthStencil', Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        // Lighting
+        ppl.addRenderTexture('Color', Format.RGBA8, width, height, camera.window);
+    }
+    if (!lightingInfo) {
+        lightingInfo = new LightingInfo();
+    }
+    // GeometryPass
+    {
+        const gBufferPass = ppl.addRasterPass(width, height, 'default');
+        gBufferPass.name = 'GeometryPass';
+        gBufferPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
+
+        gBufferPass.addRasterView('Albedo', new RasterView('_',
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            LoadOp.CLEAR, StoreOp.STORE, ClearFlagBit.COLOR));
+        gBufferPass.addRasterView('Normal', new RasterView('_',
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            LoadOp.CLEAR, StoreOp.STORE, ClearFlagBit.COLOR));
+        gBufferPass.addRasterView('Emissive', new RasterView('_',
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            LoadOp.CLEAR, StoreOp.STORE, ClearFlagBit.COLOR));
+        gBufferPass.addRasterView('DepthStencil', new RasterView('_',
+            AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+            LoadOp.CLEAR, StoreOp.STORE,
+            ClearFlagBit.DEPTH_STENCIL,
+            new Color(1, 0, 0, 0)));
+        gBufferPass
+            .addQueue(QueueHint.RENDER_OPAQUE)
+            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
+    }
+    // LightingPass
+    {
+        const lightingPass = ppl.addRasterPass(width, height, 'default');
+        lightingPass.name = 'LightingPass';
+        lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
+
+        const lightingClearColor = new Color(0, 0, 0, 0);
+        if (camera.clearFlag & ClearFlagBit.COLOR) {
+            lightingClearColor.x = camera.clearColor.x;
+            lightingClearColor.y = camera.clearColor.y;
+            lightingClearColor.z = camera.clearColor.z;
+        }
+        lightingClearColor.w = 1;
+        lightingPass.addRasterView('Color', new RasterView('_',
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            LoadOp.CLEAR, StoreOp.STORE,
+            camera.clearFlag,
+            lightingClearColor));
+
+        lightingPass.addComputeView('Albedo', new ComputeView('gbuffer_albedoMap'));
+        lightingPass.addComputeView('Normal', new ComputeView('gbuffer_normalMap'));
+        lightingPass.addComputeView('Emissive', new ComputeView('gbuffer_emissiveMap'));
+        lightingPass.addComputeView('DepthStencil', new ComputeView('depth_stencil'));
+
+        lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+            camera, lightingInfo.deferredLightingMaterial, 0,
+            SceneFlags.VOLUMETRIC_LIGHTING,
+        );
+        lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera,
+            new LightInfo(),
+            SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
+    }
+}
