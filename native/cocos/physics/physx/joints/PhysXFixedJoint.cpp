@@ -66,13 +66,12 @@ void PhysXFixedJoint::updateScale1() {
 }
 
 void PhysXFixedJoint::updatePose() {
-    _transA = physx::PxTransform{physx::PxIdentity};
-    _transB = physx::PxTransform{physx::PxIdentity};
+    _transA = physx::PxTransform{};
+    _transB = physx::PxTransform{};
 
     Vec3 pos; Quaternion rot;
-    auto trans = _mSharedBody->getNode()->getWorldMatrix().getInversed();
-    trans.getTranslation(&pos);
-    trans.getRotation(&rot);
+    pos = _mSharedBody->getNode()->getWorldPosition();
+    rot = _mSharedBody->getNode()->getWorldRotation();
     pxSetVec3Ext(_transA.p, pos);
     pxSetQuatExt(_transA.q, rot);
 
@@ -81,16 +80,14 @@ void PhysXFixedJoint::updatePose() {
 
     if (_mConnectedBody) {
         auto *actor1 = _mConnectedBody->getImpl().rigidActor;
-        trans = _mConnectedBody->getNode()->getWorldMatrix().getInversed();
-        trans.getTranslation(&pos);
-        trans.getRotation(&rot);
+        pos = _mConnectedBody->getNode()->getWorldPosition();
+        rot = _mConnectedBody->getNode()->getWorldRotation();
         pxSetVec3Ext(_transB.p, pos);
         pxSetQuatExt(_transB.q, rot);
     }
-    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, _transA);
-    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, _transB);
+    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, _transA.getInverse());
+    _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, _transB.getInverse());
 }
-
 
 } // namespace physics
 } // namespace cc
