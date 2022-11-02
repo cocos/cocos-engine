@@ -3,3 +3,31 @@
 
 #pragma builtin(global)
 layout(set = 0, binding = 8) uniform accelerationStructureEXT cc_topLevelAS;
+
+#pragma extension([GL_EXT_scalar_block_layout, __VERSION__ >= 460, enable])
+#pragma extension([GL_EXT_buffer_reference2, __VERSION__ >= 460, require])
+
+layout(buffer_reference, scalar) readonly buffer Indices { ivec3 i[]; };
+
+struct GeomDesc{
+    uint64_t indexAddress;
+    uint64_t vertexAddress;
+};
+
+struct MeshDesc
+{
+    uint subMeshGeometryOffset;
+    uint subMeshMaterialOffset;
+};
+
+/*
+#pragma builtin(global)
+layout(set = 0, binding = 9) readonly buffer b_instanceInfo {MeshDesc meshDesc[];};
+*/
+
+/*
+#pragma builtin(global)
+layout(set = 0, binding = 10) readonly buffer _SubMeshGeometry {GeomDesc geomDesc[];};
+*/
+
+

@@ -40,12 +40,8 @@ namespace cc
             if (pModel->getNode()->getName() == "AABB") {
                 gfx::ASAABB blasGeomAABB{};
                 blasGeomAABB.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
-                blasGeomAABB.minX = -5.0;
-                blasGeomAABB.minY = -5.0;
-                blasGeomAABB.minZ = -5.0;
-                blasGeomAABB.maxX = 5.0;
-                blasGeomAABB.maxY = 5.0;
-                blasGeomAABB.maxZ = 5.0;
+                blasGeomAABB.minX = blasGeomAABB.minY = blasGeomAABB.minZ = - 0.5;
+                blasGeomAABB.maxX = blasGeomAABB.maxY = blasGeomAABB.maxZ = 0.5;
                 blasInfo.aabbs.push_back(blasGeomAABB);
             } else {
                 for (const auto& pSubModel : pModel->getSubModels()) {
@@ -112,25 +108,64 @@ namespace cc
                     // Tlas should be recreate and rebuild.
                     needRecreate = needRebuild = true;
                     gfx::ASInstance tlasGeom{};
+                    meshShadingInstanceDescriptor shadingInstanceDescriptor{};
 
-                    tlasGeom.instanceCustomIdx = 0;
-                    
-                    if (name == "Cube-001") {
-                        tlasGeom.instanceCustomIdx = 1;
-                    } else if (name == "Cube-002") {
-                        tlasGeom.instanceCustomIdx = 2;
-                    } else if (name == "Cube-003") {
-                        tlasGeom.instanceCustomIdx = 3;
-                    } else if (name == "Cube-004"){
-                        tlasGeom.instanceCustomIdx = 4;
-                    } else if (name == "stenford_dragon_high") {
-                        tlasGeom.instanceCustomIdx = 5;
-                    } else if (name == "Cube") {
-                        tlasGeom.instanceCustomIdx = 6;
-                    } else if (name == "wall3") {
-                        tlasGeom.instanceCustomIdx = 7;
+                    auto subModels = pModel->getSubModels();
+                    shadingInstanceDescriptor.subMeshCount = subModels.size();
+
+                    auto sameMatID = [](const IntrusivePtr<scene::SubModel>& sm1, const uint64_t ID) -> bool { return false; };//todo
+
+                    bool exist = false;
+                    for (const auto& descriptor: instanceDesc) {
+
+                        bool march = true;
+
+                        if (descriptor.subMeshCount!=shadingInstanceDescriptor.subMeshCount) {
+                            march = false;
+                        }else {
+
+                            for (int i = 0; i < descriptor.subMeshCount; i++) {
+                                if (!sameMatID(subModels[i], materialDesc[descriptor.subMeshMaterialOffset + i])) {
+                                    march = false;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (march) {
+                            exist = true;
+                            shadingInstanceDescriptor.subMeshMaterialOffset = descriptor.subMeshMaterialOffset;
+                            break;
+                        }
                     }
-                    
+
+                    if (!exist) {
+                        shadingInstanceDescriptor.subMeshMaterialOffset = materialDesc.size();
+                        for (const auto & sm : subModels) {
+                            int matId;
+                            materialDesc.emplace_back(matId);
+                        }
+                    }
+
+                    {
+                        if (name == "Cube-001") {
+                            tlasGeom.instanceCustomIdx = 1;
+                        } else if (name == "Cube-002") {
+                            tlasGeom.instanceCustomIdx = 2;
+                        } else if (name == "Cube-003") {
+                            tlasGeom.instanceCustomIdx = 3;
+                        } else if (name == "Cube-004") {
+                            tlasGeom.instanceCustomIdx = 4;
+                        } else if (name == "stenford_dragon_high") {
+                            tlasGeom.instanceCustomIdx = 5;
+                        } else if (name == "Cube") {
+                            tlasGeom.instanceCustomIdx = 6;
+                        } else if (name == "wall3") {
+                            tlasGeom.instanceCustomIdx = 7;
+                        }
+                    }
+
+                    tlasGeom.instanceCustomIdx = -1;
                     tlasGeom.shaderBindingTableRecordOffset = 0;
                     tlasGeom.mask = 0xFF;
                     tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
@@ -140,7 +175,7 @@ namespace cc
                         tlasGeom.flags = gfx::GeometryInstanceFlagBits::FORCE_OPAQUE;
                     }       
 
-                    const auto& subModels = pModel->getSubModels();
+                    //auto subModels = pModel->getSubModels();
                     auto meshUuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
 
                     if (name == "AABB") {
@@ -149,18 +184,43 @@ namespace cc
 
                     auto blasIt = _blasMap.find(meshUuid);
                     if (blasIt != _blasMap.cend()) {
-                        // Blas could be reused.
-                        tlasGeom.accelerationStructureRef = blasIt->second;
+                        // BLAS could be reused.
+                        tlasGeom.accelerationStructureRef = blasIt->second.first;
+                        shadingInstanceDescriptor.subMeshGeometryOffset = blasIt->second.second;
                     } else {
-                        // New Blas should be create and build.
+                        // New BLAS should be create and build.
                         gfx::AccelerationStructureInfo blasInfo{};
                         fillBlasInfo(blasInfo, pModel);
                         gfx::AccelerationStructure* blas = device->createAccelerationStructure(blasInfo);
                         blas->build();
                         blas->compact();
-                        _blasMap.emplace(meshUuid, blas);
+                        
+                        // New subMesh geometry should be added
+                        if (!blasInfo.triangels.empty()) {
+                            shadingInstanceDescriptor.subMeshGeometryOffset = geomDesc.size();
+                            for (const auto& info : blasInfo.triangels) {
+                                subMeshGeomDescriptor descriptor;
+                                descriptor.vertexAddress = 0; // todo
+                                descriptor.indexAddress = 0;
+                                geomDesc.emplace_back(descriptor);
+                            }
+                        }
+
+                        _blasMap.emplace(meshUuid, std::make_pair(blas,shadingInstanceDescriptor.subMeshGeometryOffset));
 
                         tlasGeom.accelerationStructureRef = blas;
+                    }
+                    int index = 0;
+                    for (const auto & desc : instanceDesc) {
+                        if (desc.subMeshGeometryOffset == shadingInstanceDescriptor.subMeshGeometryOffset && desc.subMeshMaterialOffset==desc.subMeshMaterialOffset) {
+                            tlasGeom.instanceCustomIdx = index;
+                            break;
+                        }
+                        index++;
+                    }
+                    if (tlasGeom.instanceCustomIdx == -1) {
+                        tlasGeom.instanceCustomIdx = instanceDesc.size();
+                        instanceDesc.emplace_back(shadingInstanceDescriptor);
                     }
                     _modelMap.emplace(modelUuid, std::pair{true, tlasGeom});
                 }
@@ -181,7 +241,7 @@ namespace cc
             //sweep deactive blas
             auto blasIt = _blasMap.begin();
             while (blasIt != _blasMap.end()) {
-                if (blasIt->second->getRefCount()==0) {
+                if (blasIt->second.first->getRefCount()==0) {
                     blasIt = _blasMap.erase(blasIt);
                     //blasIt->second->destroy();
                 }else {
