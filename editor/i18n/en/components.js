@@ -35,5 +35,11 @@ module.exports = {
         },
 
         missScriptTip: 'Script compilation fails, please check the error message and correct it, the component will be automatically restored after correction.',
+
+        lod: {
+            applyCameraSizeTip: 'Apply current node’s screen size on this LOD level. If it is less than the next level, it will apply the next level’s screen size percentage instead, as it is the minimum value for this level.If it is greater than the previous level, it will apply the previous level’s screen size percentage instead, as it is the maximum value for this level.',
+            applyCameraSizeLessThanMinimum: 'Current Camera size is less than its limit, applying current minimum instead. Please reduce lower LOD levels screen size and try again later.',
+            applyCameraSizeGreaterThanMaximum: 'Current Camera size is greater than its limit, applying current maximum instead. Please Increase higher LOD levels screen size and try again later.',
+        },
     },
 };
