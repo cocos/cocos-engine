@@ -20,5 +20,5 @@ module.exports = {
     'cc.WebView': join(__dirname, './components/webview.js'),
     'cc.Widget': join(__dirname, './components/widget.js'),
     'cc.Class': join(__dirname, './components/class.js'),
-    'cc.LODGroup': join(__dirname, './components/lodGroup/index.js'),
+    'cc.LODGroup': join(__dirname, './components/lod-group/index.js'),
 };
