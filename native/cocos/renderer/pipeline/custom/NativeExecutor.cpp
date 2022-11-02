@@ -211,7 +211,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         CC_EXPECTS(!fbInfo.depthStencilTexture);
                         fbInfo.depthStencilTexture = tex.get();
                     },
-                    [](const auto&/*unused*/) {
+                    [](const auto& /*unused*/) {
                         CC_EXPECTS(false);
                     });
             }
@@ -233,43 +233,28 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
     return data;
 }
 
-gfx::BufferBarrierInfo getBufferBarrier(
-    const ResourceGraph& resg, ResourceGraph::vertex_descriptor resID,
-    const cc::render::Barrier& barrier) {
-    uint32_t offset = 0;
-    uint32_t size = 0;
-    gfx::BufferUsage usage = gfx::BufferUsage::NONE;
-    gfx::MemoryUsage memUsage = gfx::MemoryUsage::NONE;
-    visitObject(
-        resID, resg,
-        [&](const ManagedBuffer& res) {
-            size = res.buffer->getSize();
-            usage = res.buffer->getUsage();
-            memUsage = res.buffer->getMemUsage();
-        },
-        [&](const IntrusivePtr<gfx::Buffer>& buf) {
-            size = buf->getSize();
-            usage = buf->getUsage();
-            memUsage = buf->getMemUsage();
-        },
-        [&](const auto& tex) {
-            std::ignore = tex;
-            CC_EXPECTS(false);
-        });
+gfx::BufferBarrierInfo getBufferBarrier(const cc::render::Barrier& barrier) {
+    gfx::MemoryUsage memUsage = gfx::MemoryUsage::DEVICE;
+
+    const auto& beginUsage = get<gfx::BufferUsage>(barrier.beginStatus.usage);
+    const auto& endUsage = get<gfx::BufferUsage>(barrier.endStatus.usage);
+
+    const auto& bufferRange = get<BufferRange>(barrier.beginStatus.range);
+    CC_EXPECTS(bufferRange.size);
 
     return {
         gfx::getAccessFlags(
-            usage, memUsage,
+            beginUsage, memUsage,
             barrier.beginStatus.visibility,
             barrier.beginStatus.access,
             barrier.beginStatus.passType),
         gfx::getAccessFlags(
-            usage, memUsage,
+            endUsage, memUsage,
             barrier.endStatus.visibility,
             barrier.endStatus.access,
             barrier.endStatus.passType),
         barrier.type,
-        offset, size};
+        bufferRange.offset, bufferRange.size};
 }
 
 std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
@@ -296,31 +281,39 @@ std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
             CC_EXPECTS(false);
         });
 
-    auto usage = texture->getInfo().usage;
     const auto& desc = get(ResourceGraph::DescTag{}, resg, resID);
-    auto beginUsage = usage;
-    if (barrier.beginStatus.passType == gfx::PassType::PRESENT) {
-        beginUsage = gfx::TextureUsage::NONE;
-    }
+    const auto& beginUsage = get<gfx::TextureUsage>(barrier.beginStatus.usage);
+    const auto& endUsage = get<gfx::TextureUsage>(barrier.endStatus.usage);
 
-    auto endUsage = usage;
-    if (barrier.endStatus.passType == gfx::PassType::PRESENT) {
-        endUsage = gfx::TextureUsage::NONE;
-    }
-        
+    auto beginAccesFlags = gfx::getDeviceAccessFlags(
+        beginUsage,
+        barrier.beginStatus.access,
+        barrier.beginStatus.visibility);
+
+    auto endAccessFlags = gfx::getDeviceAccessFlags(
+        endUsage,
+        barrier.endStatus.access,
+        barrier.endStatus.visibility);
+
+    CC_ENSURES(beginAccesFlags != gfx::INVALID_ACCESS_FLAGS);
+    CC_ENSURES(endAccessFlags != gfx::INVALID_ACCESS_FLAGS);
+
+    const auto& textureRange = get<TextureRange>(barrier.beginStatus.range);
+    CC_EXPECTS(textureRange.levelCount);
+    CC_EXPECTS(textureRange.numSlices);
+
     return {
         gfx::TextureBarrierInfo{
-            gfx::getDeviceAccessFlags(
-                beginUsage,
-                barrier.beginStatus.access,
-                barrier.beginStatus.visibility),
-            gfx::getDeviceAccessFlags(
-                endUsage,
-                barrier.endStatus.access,
-                barrier.endStatus.visibility),
+            beginAccesFlags,
+            endAccessFlags,
             barrier.type,
+            textureRange.mipLevel,
+            textureRange.levelCount,
+            textureRange.firstSlice,
+            textureRange.numSlices,
             0,
-            desc.mipLevels},
+            nullptr,
+            nullptr},
         texture};
 }
 
@@ -349,7 +342,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             const auto& resource = get(ResourceGraph::DescTag{}, resg, resID);
             switch (desc.dimension) {
                 case ResourceDimension::BUFFER: {
-                    gfx::BufferBarrierInfo info = getBufferBarrier(resg, resID, barrier);
+                    gfx::BufferBarrierInfo info = getBufferBarrier(barrier);
                     const auto* bufferBarrier = ctx.device->getBufferBarrier(info);
                     buffers.emplace_back(nullptr);
                     bufferBarriers.emplace_back(bufferBarrier);

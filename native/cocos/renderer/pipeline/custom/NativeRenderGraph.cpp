@@ -1,3 +1,5 @@
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/filtered_graph.hpp>
 #include "DebugUtils.h"
 #include "GraphView.h"
 #include "LayoutGraphGraphs.h"
@@ -9,8 +11,6 @@
 #include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/RenderGraphFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
-#include <boost/graph/depth_first_search.hpp>
-#include <boost/graph/filtered_graph.hpp>
 
 namespace cc {
 
@@ -20,7 +20,7 @@ ccstd::string NativeRasterPassBuilder::getName() const {
     return std::string(get(RenderGraph::Name, *renderGraph, passID));
 }
 
-void NativeRasterPassBuilder::setName(const ccstd::string& name) {
+void NativeRasterPassBuilder::setName(const ccstd::string &name) {
     get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
 }
 
@@ -730,7 +730,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 OSS << "Scene \"" << name << "\" {\n";
                 {
                     INDENT();
-                    //OSS << "name: \"" << scene.name << "\";\n";
+                    // OSS << "name: \"" << scene.name << "\";\n";
                     OSS << "scenes: [";
                     int count = 0;
                     for (const auto &sceneName : scene.scenes) {
@@ -740,7 +740,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                         oss << "\"" << sceneName << "\"";
                     }
                     oss << "];\n";
-                    //OSS << "flags: " << getName(scene.flags) << ";\n";
+                    // OSS << "flags: " << getName(scene.flags) << ";\n";
                 }
                 indent(space);
             },
