@@ -491,6 +491,8 @@ export class LODGroup extends Component {
 
     onLoad () {
         this._lodGroup.node = this.node;
+        // objectSize maybe initialized from deserialize
+        this._lodGroup.objectSize = this._objectSize;
         if (!this._eventRegistered) {
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
@@ -519,7 +521,6 @@ export class LODGroup extends Component {
 
     onEnable () {
         this._attachToScene();
-        //   this.recalculateBounds(this);
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {
