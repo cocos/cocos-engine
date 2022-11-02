@@ -31,6 +31,7 @@ import { cclegacy, clamp, warnID, CCBoolean, CCFloat } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
 import { property } from '../../core/data/class-decorator';
+import { settings } from '../../core/settings';
 
 /**
  * @en The directional light component, only one real time directional light is permitted in one scene, it act as the main light of the scene.
@@ -460,6 +461,15 @@ export class DirectionalLight extends Light {
     constructor () {
         super();
         this._lightType = scene.DirectionalLight;
+
+        const highQualityMode = settings.querySettings('rendering', 'highQualityMode');
+
+        if (highQualityMode) {
+            this._shadowPcf = PCFType.SOFT_2X;
+            this._shadowDistance = 200;
+            this.staticSettings.bakeable = true;
+            this.staticSettings.castShadow = true;
+        }
     }
 
     protected _createLight () {

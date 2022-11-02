@@ -41,6 +41,7 @@ import { property } from '../../core/data/class-decorator';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+import { settings } from '../../core/settings';
 
 const USE_REFLECTION_PROBE = 'USE_REFLECTION_PROBE';
 /**
@@ -433,6 +434,13 @@ export class MeshRenderer extends ModelRenderer {
     constructor () {
         super();
         this._modelType = scene.Model;
+
+        const highQualityMode = settings.querySettings('rendering', 'highQualityMode');
+        if (highQualityMode) {
+            this._shadowCastingMode = ModelShadowCastingMode.ON;
+            this.lightmapSettings.castShadow = true;
+            this.lightmapSettings.receiveShadow = true;
+        }
     }
 
     public onLoad () {
