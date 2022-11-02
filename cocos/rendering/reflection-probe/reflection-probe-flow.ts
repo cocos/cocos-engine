@@ -62,13 +62,10 @@ export class ReflectionProbeFlow extends RenderFlow {
         if (camera.cameraType !== CameraType.REFLECTION_PROBE) {
             return;
         }
-        const probes = ReflectionProbeManager.probeManager.getProbes();
-        for (let i = 0; i < probes.length; i++) {
-            const probe = probes[i];
-            if (probe.needRender) {
-                if (EDITOR || probe.probeType === ProbeType.PLANAR) {
-                    this._renderStage(probe);
-                }
+        const probe = ReflectionProbeManager.probeManager.getProbeByCamera(camera);
+        if (probe && probe.needRender) {
+            if (EDITOR || probe.probeType === ProbeType.PLANAR) {
+                this._renderStage(probe);
             }
         }
     }
