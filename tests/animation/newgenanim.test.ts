@@ -3213,7 +3213,7 @@ describe('NewGen Anim', () => {
         describe(`Single layer`, () => {
             test(`Root is masked`, () => {
                 checkMask([
-                    ['', false],
+                    [_1, false],
                     [_1_1, true], // No effect at all
                 ], _1);
             });
