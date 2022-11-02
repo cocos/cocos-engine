@@ -1,7 +1,7 @@
 
 import fs from 'fs-extra';
-import { CCON } from '../../../cocos/core/data/ccon';
-import { deserialize } from '../../../cocos/core/data/deserialize';
+import { CCON } from '../../../cocos/serialization/ccon';
+import { deserialize } from '../../../cocos/serialization/deserialize';
 import { calculatePortSnapshotPath } from './shared/port';
 import type { RunTest } from './shared/utils';
 import { mockEnv } from '../../utils/mock-cc-env';

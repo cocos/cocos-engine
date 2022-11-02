@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { instantiate } from '../core/data';
+import { instantiate } from '../serialization';
 import { CCObject } from '../core/data/object';
 import { Director, director } from '../game/director';
 import { Pool } from '../core/memop';

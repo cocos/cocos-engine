@@ -141,6 +141,8 @@ public:
 
     void activate(LightProbes *resource);
 
+    void clearSHCoefficients();
+
     inline void setEnabled(bool val) {
         if (_enabled == val) {
             return;

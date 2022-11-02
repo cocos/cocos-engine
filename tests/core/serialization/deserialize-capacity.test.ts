@@ -1,7 +1,7 @@
 
 import { ccclass } from '../../../cocos/core/data/decorators';
 import { property } from '../../../cocos/core/data/decorators/property';
-import { deserialize } from '../../../cocos/core/data/deserialize';
+import { deserialize } from '../../../cocos/serialization/deserialize';
 
 @ccclass('Foo')
 class Foo { @property foo!: Foo | null; }

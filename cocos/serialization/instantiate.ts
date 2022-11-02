@@ -25,16 +25,9 @@
 */
 
 import { DEV, JSB } from 'internal:constants';
-import { isDomNode } from '../utils/misc';
-import { ValueType } from '../value-types';
-import { CCObject, isCCObject } from './object';
-import { js } from '../utils/js';
-import { getError, warn } from '../platform/debug';
-import { legacyCC } from '../global-exports';
-import { Prefab } from '../../scene-graph/prefab';
-import { Node } from '../../scene-graph/node';
-import { updateChildrenForDeserialize } from '../utils/jsb-utils';
-import { isCCClassOrFastDefined } from './class';
+import { CCObject, isCCObject, js, ValueType, jsbUtils, isCCClassOrFastDefined, getError, warn, misc, cclegacy } from '../core';
+import { Prefab } from '../scene-graph/prefab';
+import { Node } from '../scene-graph/node';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -92,10 +85,10 @@ export function instantiate (original: any, internalForce?: boolean) {
             if (!original) {
                 throw new TypeError(getError(6901));
             }
-            if (!legacyCC.isValid(original)) {
+            if (!cclegacy.isValid(original)) {
                 throw new TypeError(getError(6901));
             }
-            if (original instanceof legacyCC.Component) {
+            if (original instanceof cclegacy.Component) {
                 warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
             }
         }
@@ -105,24 +98,24 @@ export function instantiate (original: any, internalForce?: boolean) {
 
     if (isCCObject(original)) {
         if (original._instantiate) {
-            legacyCC.game._isCloning = true;
+            cclegacy.game._isCloning = true;
             clone = original._instantiate(null, true);
-            legacyCC.game._isCloning = false;
+            cclegacy.game._isCloning = false;
             if (JSB) {
-                updateChildrenForDeserialize(clone);
+                jsbUtils.updateChildrenForDeserialize(clone);
             }
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return clone;
-        } else if (original instanceof legacyCC.Asset) {
+        } else if (original instanceof cclegacy.Asset) {
             throw new TypeError(getError(6903));
         }
     }
 
-    legacyCC.game._isCloning = true;
+    cclegacy.game._isCloning = true;
     clone = doInstantiate(original);
-    legacyCC.game._isCloning = false;
+    cclegacy.game._isCloning = false;
     if (JSB) {
-        updateChildrenForDeserialize(clone);
+        jsbUtils.updateChildrenForDeserialize(clone);
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return clone;
@@ -145,7 +138,7 @@ function doInstantiate (obj, parent?) {
         if (Array.isArray(obj)) {
             throw new TypeError(getError(6904));
         }
-        if (isDomNode && isDomNode(obj)) {
+        if (misc.isDomNode(obj)) {
             throw new TypeError(getError(6905));
         }
     }
@@ -238,7 +231,7 @@ function instantiateObj (obj, parent) {
     if (obj instanceof ValueType) {
         return obj.clone();
     }
-    if (obj instanceof legacyCC.Asset) {
+    if (obj instanceof cclegacy.Asset) {
         // 所有资源直接引用，不需要拷贝
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return obj;
@@ -280,19 +273,19 @@ function instantiateObj (obj, parent) {
     const ctor = obj.constructor;
     if (isCCClassOrFastDefined(ctor)) {
         if (parent) {
-            if (parent instanceof legacyCC.Component) {
-                if (obj instanceof legacyCC.Node || obj instanceof legacyCC.Component) {
+            if (parent instanceof cclegacy.Component) {
+                if (obj instanceof cclegacy.Node || obj instanceof cclegacy.Component) {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return obj;
                 }
-            } else if (parent instanceof legacyCC.Node) {
-                if (obj instanceof legacyCC.Node) {
+            } else if (parent instanceof cclegacy.Node) {
+                if (obj instanceof cclegacy.Node) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                         return obj;
                     }
-                } else if (obj instanceof legacyCC.Component) {
+                } else if (obj instanceof cclegacy.Component) {
                     if (obj.node && !obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -318,4 +311,4 @@ function instantiateObj (obj, parent) {
 }
 
 instantiate._clone = doInstantiate;
-legacyCC.instantiate = instantiate;
+cclegacy.instantiate = instantiate;
