@@ -2,7 +2,7 @@
 
 #define DECLARE_BUS_EVENT_ARG0(BusEventClass, EventBusClass)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void> { \
-        using bus_type = EventBusName_(EventBusClass);                                          \
+        using BusType = EventBusName_(EventBusClass);                                           \
         using Listener = cc::event::Listener<BusEventClass>;                                    \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;         \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                             \
@@ -16,7 +16,7 @@
 
 #define DECLARE_BUS_EVENT_ARG1(BusEventClass, EventBusClass, ArgType0)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0> { \
-        using bus_type = EventBusName_(EventBusClass);                                                    \
+        using BusType = EventBusName_(EventBusClass);                                                     \
         using Listener = cc::event::Listener<BusEventClass>;                                              \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                   \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                       \
@@ -30,7 +30,7 @@
 
 #define DECLARE_BUS_EVENT_ARG2(BusEventClass, EventBusClass, ArgType0, ArgType1)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1> { \
-        using bus_type = EventBusName_(EventBusClass);                                                              \
+        using BusType = EventBusName_(EventBusClass);                                                               \
         using Listener = cc::event::Listener<BusEventClass>;                                                        \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                             \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                 \
@@ -44,7 +44,7 @@
 
 #define DECLARE_BUS_EVENT_ARG3(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                        \
+        using BusType = EventBusName_(EventBusClass);                                                                         \
         using Listener = cc::event::Listener<BusEventClass>;                                                                  \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                       \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                           \
@@ -58,7 +58,7 @@
 
 #define DECLARE_BUS_EVENT_ARG4(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                  \
+        using BusType = EventBusName_(EventBusClass);                                                                                   \
         using Listener = cc::event::Listener<BusEventClass>;                                                                            \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                 \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                     \
@@ -72,7 +72,7 @@
 
 #define DECLARE_BUS_EVENT_ARG5(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                            \
+        using BusType = EventBusName_(EventBusClass);                                                                                             \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                      \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                           \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                               \
@@ -86,7 +86,7 @@
 
 #define DECLARE_BUS_EVENT_ARG6(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                      \
+        using BusType = EventBusName_(EventBusClass);                                                                                                       \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                     \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                         \
@@ -100,7 +100,7 @@
 
 #define DECLARE_BUS_EVENT_ARG7(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                 \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                          \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                               \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                   \
@@ -114,7 +114,7 @@
 
 #define DECLARE_BUS_EVENT_ARG8(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                          \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                           \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                    \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                         \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                             \
@@ -128,7 +128,7 @@
 
 #define DECLARE_BUS_EVENT_ARG9(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8)                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                    \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                     \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                              \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                   \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                       \
@@ -142,7 +142,7 @@
 
 #define DECLARE_BUS_EVENT_ARG10(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9)                                   \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                              \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                               \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                        \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                             \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                 \
@@ -156,7 +156,7 @@
 
 #define DECLARE_BUS_EVENT_ARG11(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10)                                   \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10> { \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                         \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                          \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                   \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                        \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                            \
@@ -170,7 +170,7 @@
 
 #define DECLARE_BUS_EVENT_ARG12(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11)                                        \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11> {      \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                         \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                          \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                   \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                        \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                            \
@@ -184,7 +184,7 @@
 
 #define DECLARE_BUS_EVENT_ARG13(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12)                                              \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12> {            \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                          \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                           \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                    \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                         \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                             \
@@ -198,7 +198,7 @@
 
 #define DECLARE_BUS_EVENT_ARG14(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13)                                                    \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13> {                  \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                                           \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                                            \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                                     \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                                          \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                                              \
@@ -212,7 +212,7 @@
 
 #define DECLARE_BUS_EVENT_ARG15(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14)                                                          \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14> {                        \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                                                            \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                                                             \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                                                      \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                                                           \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                                                               \
@@ -226,7 +226,7 @@
 
 #define DECLARE_BUS_EVENT_ARG16(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15)                                                                \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15> {                              \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                                                                             \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                                                                              \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                                                                       \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                                                                            \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                                                                                \
@@ -240,7 +240,7 @@
 
 #define DECLARE_BUS_EVENT_ARG17(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16)                                                                      \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16> {                                    \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                              \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                               \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                                                                                        \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                                                                                             \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                                                                                                 \
@@ -254,7 +254,7 @@
 
 #define DECLARE_BUS_EVENT_ARG18(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16, ArgType17)                                                                            \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16, ArgType17> {                                          \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                                               \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                                                \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                                                                                                         \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                                                                                                              \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                                                                                                                  \
@@ -268,7 +268,7 @@
 
 #define DECLARE_BUS_EVENT_ARG19(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16, ArgType17, ArgType18)                                                                                  \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16, ArgType17, ArgType18> {                                                \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                                                                \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                                                                 \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                                                                                                                          \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                                                                                                                               \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                                                                                                                                   \
@@ -282,7 +282,7 @@
 
 #define DECLARE_BUS_EVENT_ARG20(BusEventClass, EventBusClass, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16, ArgType17, ArgType18, ArgType19)                                                                                        \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5, ArgType6, ArgType7, ArgType8, ArgType9, ArgType10, ArgType11, ArgType12, ArgType13, ArgType14, ArgType15, ArgType16, ArgType17, ArgType18, ArgType19> {                                                      \
-        using bus_type = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                                                                                 \
+        using BusType = EventBusName_(EventBusClass);                                                                                                                                                                                                                                                                                                                  \
         using Listener = cc::event::Listener<BusEventClass>;                                                                                                                                                                                                                                                                                                           \
         constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                                                                                                                                                                                                                                                                                \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                                                                                                                                                                                                                                                                                    \

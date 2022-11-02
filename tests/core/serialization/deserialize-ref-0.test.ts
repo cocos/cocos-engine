@@ -1,6 +1,6 @@
 
 import { property } from '../../../cocos/core/data/class-decorator';
-import { deserialize } from '../../../cocos/core/data/deserialize';
+import { deserialize } from '../../../cocos/serialization/deserialize';
 import { js } from '../../../cocos/core/utils/js';
 import { ccclassAutoNamed } from './shared/utils';
 

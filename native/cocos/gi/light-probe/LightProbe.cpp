@@ -215,5 +215,12 @@ void LightProbeInfo::activate(LightProbes *resource) {
     _resource->initialize(this);
 }
 
+void LightProbeInfo::clearSHCoefficients() {
+    auto &probes = _data.getProbes();
+    for (auto &probe : probes) {
+        probe.coefficients.clear();
+    }
+}
+
 } // namespace gi
 } // namespace cc
