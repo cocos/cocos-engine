@@ -842,6 +842,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected _updateReflectionProbeRenderInfo () {
+        if (!this._model) { return; }
         if (this.reflectionProbe !== ReflectionProbeType.NONE) {
             for (let i = 0; i < this._materials.length; i++) {
                 const mat = this.getMaterialInstance(i);
@@ -850,6 +851,7 @@ export class MeshRenderer extends ModelRenderer {
                 }
             }
         }
+        this._model.reflectionProbeType = this._reflectionProbeType;
         this._onUpdateReflectionProbeTexture();
     }
 

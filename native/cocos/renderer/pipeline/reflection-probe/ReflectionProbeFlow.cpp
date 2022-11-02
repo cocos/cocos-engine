@@ -34,11 +34,9 @@
 #include "pipeline/SceneCulling.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
-#include "scene/DirectionalLight.h"
 #include "scene/RenderScene.h"
-#include "scene/Shadow.h"
-#include "scene/SpotLight.h"
-
+#include "pipeline/ReflectionProbeManager.h"
+#include "scene/ReflectionProbe.h"
 namespace cc {
 namespace pipeline {
 ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> ReflectionProbeFlow::renderPassHashMap;
@@ -84,6 +82,26 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, gfx::Framebuffer *f
         auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
         reflectionProbeStage->setUsage(framebuffer);
         reflectionProbeStage->render(camera);
+
+        const scene::ReflectionProbe *const probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
+        const scene::RenderScene *const scene = camera->getScene();
+        for (const auto &model : scene->getModels()) {
+            // filter model by view visibility
+            if (model->isEnabled()) {
+                //model->updateReflctionProbePlanarMap(probe->getRealtimePlanarTexture()->getGFXTexture());
+                //const auto visibility = camera->getVisibility();
+                //const auto *const node = model->getNode();
+
+              /*  if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
+                    (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
+                    const auto *modelWorldBounds = model->getWorldBounds();
+                    if (!modelWorldBounds) {
+                        continue;
+                    }
+                }*/
+            }
+        }
+
     }
 }
 

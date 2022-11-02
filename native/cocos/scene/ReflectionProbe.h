@@ -34,21 +34,16 @@
 #include "renderer/pipeline/Define.h"
 #include "scene/Camera.h"
 namespace cc {
-enum class ProbeType {
-    CUBE = 0,
-    PLANAR = 1,
-};
 namespace scene {
-
 struct RenderObject;
-
 class ReflectionProbe final {
 public:
-    ReflectionProbe(int32_t id) {
-        _probeId = id;
-    }
+    ReflectionProbe(int32_t id);
     ~ReflectionProbe() = default;
-
+    enum class ProbeType {
+        CUBE = 0,
+        PLANAR = 1,
+    };
     /**
      * @en Set probe type,cube or planar.
      * @zh 设置探针类型，cube或者planar
@@ -151,19 +146,17 @@ public:
     }
     void initialize(Node* node);
 
-    inline void setRealtimePlanarTexture(RenderTexture* val) {
-        _realtimePlanarTexture = val;
-    }
+
     inline RenderTexture* getRealtimePlanarTexture() const {
         return _realtimePlanarTexture;
     }
-    void switchProbeType(int32_t type, const Camera* sourceCamera);
     void setTargetTexture(const RenderTexture* rt);
 
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
     void attachCameraToScene();
+    void renderPlanarReflection(const Camera* camera);
     Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
 
 private:

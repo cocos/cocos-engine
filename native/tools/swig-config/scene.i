@@ -516,8 +516,7 @@ using namespace cc;
 
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
-%attribute(cc::scene::ReflectionProbe, cc::ProbeType, probeType, getProbeType, setProbeType);
-%attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture, setRealtimePlanarTexture);
+%attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
 
 
 

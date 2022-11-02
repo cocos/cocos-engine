@@ -1251,6 +1251,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/PipelineUBO.h
                  cocos/renderer/pipeline/PipelineSceneData.cpp
                  cocos/renderer/pipeline/PipelineSceneData.h
+                 cocos/renderer/pipeline/ReflectionProbeManager.cpp
+                 cocos/renderer/pipeline/ReflectionProbeManager.h
                  cocos/renderer/pipeline/forward/ForwardFlow.cpp
                  cocos/renderer/pipeline/forward/ForwardFlow.h
                  cocos/renderer/pipeline/forward/ForwardPipeline.cpp

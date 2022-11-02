@@ -28,7 +28,7 @@
 #include "../PipelineSceneData.h"
 #include "../PipelineUBO.h"
 #include "../RenderPipeline.h"
-#include "../ShadowMapBatchedQueue.h"
+#include "../ReflectionProbeBatchedQueue.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "math/Vec2.h"
@@ -50,7 +50,7 @@ RenderStageInfo ReflectionProbeStage::initInfo = {
     static_cast<uint32_t>(ForwardStagePriority::FORWARD),
     static_cast<uint32_t>(RenderFlowTag::SCENE),
     {}};
-const RenderStageInfo &ShadowStage::getInitializeInfo() { return ShadowStage::initInfo; }
+const RenderStageInfo &ReflectionProbeStage::getInitializeInfo() { return ReflectionProbeStage::initInfo; }
 
 bool ReflectionProbeStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
@@ -63,7 +63,7 @@ bool ReflectionProbeStage::initialize(const RenderStageInfo &info) {
 void ReflectionProbeStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
-    _additiveShadowQueue = ccnew ShadowMapBatchedQueue(pipeline);
+    _additiveShadowQueue = ccnew ReflectionProbeBatchedQueue(pipeline);
 }
 
 void ReflectionProbeStage::render(scene::Camera *camera) {

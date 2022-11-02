@@ -27,9 +27,13 @@
 #include "Define.h"
 #include "core/scene-graph/Scene.h"
 #include "math/Quaternion.h"
-
+#include "renderer/pipeline/ReflectionProbeManager.h"
 namespace cc {
 namespace scene {
+ReflectionProbe::ReflectionProbe(int32_t id) {
+    _probeId = id;
+    pipeline::ReflectionProbeManager::getInstance()->registerProbe(this);
+}
 const ccstd::vector<Model*>& ReflectionProbe::getRenderObjects() const {
     return _renderObjects;
 }
@@ -73,6 +77,15 @@ void ReflectionProbe::initialize(Node* node) {
     _camera->setAperture(CameraAperture::F16_0);
     _camera->setShutter(CameraShutter::D125);
     _camera->setIso(CameraISO::ISO100);
+
+    RenderWindow *win =  Root::getInstance()->getMainWindow();
+    _realtimePlanarTexture = ccnew RenderTexture();
+    IRenderTextureCreateInfo info;
+    info.name = "realtimePlanarTexture";
+    info.height = win->getHeight();
+    info.width = win->getWidth();
+    _realtimePlanarTexture->initialize(info);
+    int a = 1;
 }
 
 void ReflectionProbe::syncCameraParams(const Camera* camera) {
@@ -87,15 +100,13 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setPriority(camera->getPriority() - 1);
 }
 
-void ReflectionProbe::switchProbeType(int32_t type, const Camera* sourceCamera) {
-    if (_probeType == ProbeType::PLANAR) {
-        if (!sourceCamera) return;
-        syncCameraParams(sourceCamera);
-        transformReflectionCamera(sourceCamera);
-        attachCameraToScene();
-        setTargetTexture(_realtimePlanarTexture);
-        _needRender = true;
-    }
+void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera){
+    if (!sourceCamera) return;
+    syncCameraParams(sourceCamera);
+    transformReflectionCamera(sourceCamera);
+    attachCameraToScene();
+    setTargetTexture(_realtimePlanarTexture);
+    _needRender = true;
 }
 
 void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {

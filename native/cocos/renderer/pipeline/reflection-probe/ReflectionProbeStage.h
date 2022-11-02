@@ -29,7 +29,7 @@
 namespace cc {
 namespace pipeline {
 class RenderQueue;
-class ShadowMapBatchedQueue;
+class ReflectionProbeBatchedQueue;
 
 class CC_DLL ReflectionProbeStage : public RenderStage {
 public:
@@ -61,7 +61,7 @@ private:
     gfx::Framebuffer *_framebuffer = nullptr;
     uint32_t _level;
 
-    ShadowMapBatchedQueue *_additiveShadowQueue = nullptr;
+    ReflectionProbeBatchedQueue *_additiveShadowQueue = nullptr;
 };
 
 } // namespace pipeline

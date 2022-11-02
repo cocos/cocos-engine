@@ -24,21 +24,28 @@
 ****************************************************************************/
 
 #pragma once
-#include "scene/ReflectionProbe.h"
+#include "base/Macros.h"
+#include "base/Ptr.h"
+#include "renderer/pipeline/Define.h"
+#include "scene/Camera.h"
 namespace cc {
+namespace scene {
+class ReflectionProbe;
+} // namespace scene
 namespace pipeline {
 
 class ReflectionProbeManager final {
 public:
     static ReflectionProbeManager* getInstance();
-    ReflectionProbeManager() = default;
+    ReflectionProbeManager();
     ~ReflectionProbeManager() = default;
-public:
-    scene::ReflectionProbe *createReflectionProbe() const;
+    void registerProbe(scene::ReflectionProbe* probe);
+    scene::ReflectionProbe* createReflectionProbe(int32_t id);
 
+    const scene::ReflectionProbe* getProbeByCamera(const scene::Camera* camera);
 
 private:
-    
+    ccstd::vector<scene::ReflectionProbe*> _probes;
 };
 
 } // namespace pipeline
