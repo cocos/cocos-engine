@@ -9,7 +9,7 @@ exports.listeners = {};
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 
 exports.template = `
-<ui-section whole class="container">
+<ui-section whole scrollable="false" class="container">
     <header class="header" slot="header">
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
