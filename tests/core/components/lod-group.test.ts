@@ -100,7 +100,6 @@ describe('LodGroup', () => {
         if (lodGroup !== null) {
             const lod = new LOD();
             lodGroup.insertLOD(0, 0.1, lod);
-           // parser.parseImport("../../../editor/assets/default_prefab/3d/Capsule.prefab");
             const json = await fs.readFile("editor/assets/default_prefab/3d/Capsule.prefab", "utf-8");
             let prefab = legacyCC.deserialize(json);
             const node = legacyCC.instantiate(prefab);
@@ -184,13 +183,13 @@ describe('LodGroup', () => {
               mesh.reset({data: data, struct: mesh.struct});
               renderer.mesh = mesh;
             
-            const activator = new NodeActivator();
-            activator.activateNode(node, true);
+              const activator = new NodeActivator();
+              activator.activateNode(node, true);
 
-            lod.insertRenderer(0, renderer);
-            lodGroup.recalculateBounds();
-            
-            expect(lodGroup.objectSize > 0).toBeTruthy();
+              lod.insertRenderer(0, renderer);
+              lodGroup.recalculateBounds();
+              
+              expect(lodGroup.objectSize > 0).toBeTruthy();
         }
         
     });
