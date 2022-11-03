@@ -466,7 +466,8 @@ export class DirectionalLight extends Light {
 
         if (highQualityMode) {
             this._shadowPcf = PCFType.SOFT_2X;
-            this._shadowDistance = 200;
+            this._shadowDistance = 50;
+            this.enableCSM = true;
             this.staticSettings.bakeable = true;
             this.staticSettings.castShadow = true;
         }
