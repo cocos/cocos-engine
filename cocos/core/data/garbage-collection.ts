@@ -80,8 +80,8 @@ class GarbageCollectionManager {
     }
 }
 
-const garbageCollectionManager = new GarbageCollectionManager();
 /**
  * @engineInternal
  */
+const garbageCollectionManager = new GarbageCollectionManager();
 export { garbageCollectionManager };
