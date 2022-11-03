@@ -127,7 +127,7 @@ export class ReflectionProbeManager {
         if (!scene) return;
         for (let i = 0; i < scene.models.length; i++) {
             const model = scene.models[i];
-            if (model.node && model.worldBounds && intersect.aabbWithAABB(model.worldBounds, probe.boundingBox)) {
+            if (model.node && model.worldBounds && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox)) {
                 this._models.set(model, probe);
                 const meshRender = model.node.getComponent(MeshRenderer);
                 if (meshRender) {

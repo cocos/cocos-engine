@@ -328,7 +328,6 @@ export class ReflectionProbe {
 
     public getProbeId () {
         return this._probeId;
-            legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => {
     }
 
     public renderArea (): Vec2 {
