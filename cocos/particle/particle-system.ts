@@ -924,7 +924,7 @@ export class ParticleSystem extends ModelRenderer {
         sub.renderer.renderMode = subSrc.renderer.renderMode;
         sub.stop();
         this.addSubEmitter(sub);
-        sub.node._objFlags |= CCObject.Flags.HideInHierarchy;
+        // sub.node._objFlags |= CCObject.Flags.HideInHierarchy;
     }
 
     private refreshSubemitters () {
