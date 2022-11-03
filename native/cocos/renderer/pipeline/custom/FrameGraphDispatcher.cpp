@@ -106,6 +106,7 @@ using EmptyEdges = std::vector<EmptyEdge>;
 using ScoreMap = std::map<EmptyVert, std::pair<int64_t /*backward*/, int64_t /*forward*/>>;
 using RasterViewsMap = PmrTransparentMap<ccstd::pmr::string, RasterView>;
 using ComputeViewsMap = PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>;
+using ResourceLifeRecordMap = PmrFlatMap<PmrString, ResourceLifeRecord>;
 
 struct Graphs {
     const ResourceGraph &resourceGraph;
@@ -200,6 +201,10 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
     resourceAccessGraph.reserve(static_cast<ResourceAccessGraph::vertices_size_type>(numPasses));
     resourceAccessGraph.resourceNames.reserve(128);
     resourceAccessGraph.resourceIndex.reserve(128);
+
+    resourceAccessGraph.topologicalOrder.reserve(numPasses);
+    resourceAccessGraph.resourceLifeRecord.reserve(resourceGraph)
+
 
     if (!resourceAccessGraph.leafPasses.empty()) {
         resourceAccessGraph.leafPasses.clear();
@@ -311,8 +316,27 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     using Edge = ResourceAccessGraph::edge_descriptor;
     using Graph = ResourceAccessGraph;
 
-    explicit BarrierVisitor(const ResourceGraph &rg, BarrierMap &barriers, ExternalResMap &extMap, ResourceNames &externalNames, const AccessTable &accessRecordIn)
-    : barrierMap(barriers), resourceGraph(rg), externalMap(extMap), externalResNames(externalNames), accessRecord(accessRecordIn) {
+    explicit BarrierVisitor(
+        const ResourceGraph &rg,
+        BarrierMap &barriers,   // what we get
+        ExternalResMap &extMap, // record external res between frames
+        ResourceNames &externalNames, // for external record
+        const AccessTable &accessRecordIn,  // resource last meet
+        ResourceLifeRecordMap& rescLifeRecord // resource lifetime
+        )
+    : barrierMap(barriers), resourceGraph(rg), externalMap(extMap), externalResNames(externalNames), accessRecord(accessRecordIn), resourceLifeRecord(rescLifeRecord) {}
+
+    void updateResourceLifeTime(const ResourceAccessNode& node, ResourceAccessGraph::vertex_descriptor u) {
+        for (auto access : node.attachmentStatus) {
+            auto name = get(ResourceGraph::Name, resourceGraph, access.vertID);
+            if (resourceLifeRecord.find(name) == resourceLifeRecord.end()) {
+                resourceLifeRecord.emplace(name, ResourceLifeRecord{u, u});
+            }
+            else {
+                resourceLifeRecord.at(name).end = u;
+            }
+        }
+
     }
 
     struct AccessNodeInfo {
@@ -656,6 +680,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     const ResourceGraph &resourceGraph;
     ExternalResMap &externalMap;     // last frame to curr frame status transition
     ResourceNames &externalResNames; // first meet in this frame
+    ResourceLifeRecordMap &resourceLifeRecord;
 };
 
 void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
@@ -1183,7 +1208,6 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
         // topological sort
         bool empty = relationGraph._vertices.empty();
         ScoreMap scoreMap;
-        std::queue<EmptyVert> vertQ;
         EmptyVerts candidates;
 
         for (size_t i = 0; i < relationGraph._vertices.size(); ++i) {
@@ -1229,7 +1253,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
 
             const auto vert = candidates.back();
             candidates.pop_back();
-            vertQ.push(vert);
+            rag.topologicalOrder.emplace_back(vert);
             if (!candidateBuffer.empty()) {
                 candidates.insert(candidates.end(), candidateBuffer.begin(), candidateBuffer.end());
                 candidateBuffer.clear();
@@ -1263,11 +1287,9 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
             clear_out_edges(vert, rag);
         }
 
-        auto vert = vertQ.front();
-        vertQ.pop();
-        while (!vertQ.empty()) {
-            auto nextVert = vertQ.front();
-            vertQ.pop();
+        auto vert = rag.topologicalOrder.front();
+        for (size_t i = 1; i < rag.topologicalOrder.size(); ++i) {
+            auto nextVert = rag.topologicalOrder[i];
             add_edge(vert, nextVert, rag);
             vert = nextVert;
         }

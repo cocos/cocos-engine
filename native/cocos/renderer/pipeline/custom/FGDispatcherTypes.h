@@ -50,6 +50,11 @@ namespace render {
 
 struct NullTag {};
 
+struct ResourceLifeRecord {
+    RenderGraph::vertex_descriptor start{0};
+    RenderGraph::vertex_descriptor end{0};
+};
+
 struct LeafStatus {
     bool isExternal{false};
     bool needCulling{false};
@@ -240,6 +245,8 @@ struct ResourceAccessGraph {
     PmrFlatMap<RenderGraph::vertex_descriptor, LeafStatus> leafPasses;
     PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses;
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
+    PmrFlatMap<PmrString, ResourceLifeRecord> resourceLifeRecord;
+    ccstd::pmr::vector<RenderGraph::vertex_descriptor> topologicalOrder;
 };
 
 struct EmptyGraph {
