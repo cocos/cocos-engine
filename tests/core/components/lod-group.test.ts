@@ -1,8 +1,7 @@
 import { LODGroup, LOD } from '../../../cocos/misc';
 import { Node, NodeActivator } from "../../../cocos/scene-graph"
 import { MeshRenderer } from '../../../cocos/3d/framework/mesh-renderer';
-import { Vec3 } from '../../../cocos/core';
-import { legacyCC } from '../../../cocos/core/global-exports';
+import { Vec3, cclegacy  } from '../../../cocos/core';
 const fs = require('fs-extra');
 
 describe('LOD', () => {
@@ -101,8 +100,8 @@ describe('LodGroup', () => {
             const lod = new LOD();
             lodGroup.insertLOD(0, 0.1, lod);
             const json = await fs.readFile("editor/assets/default_prefab/3d/Capsule.prefab", "utf-8");
-            let prefab = legacyCC.deserialize(json);
-            const node = legacyCC.instantiate(prefab);
+            let prefab = cclegacy.deserialize(json);
+            const node = cclegacy.instantiate(prefab);
             const renderer = node.getComponent(MeshRenderer);
 
             const meshJson = [{
@@ -178,7 +177,7 @@ describe('LodGroup', () => {
                 "_hash": 2864929873,
                 "_allowDataAccess": true
               }];
-              let mesh = legacyCC.deserialize(meshJson);
+              let mesh = cclegacy.deserialize(meshJson);
               const data = new ArrayBuffer(20000);
               mesh.reset({data: data, struct: mesh.struct});
               renderer.mesh = mesh;
