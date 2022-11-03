@@ -1,0 +1,73 @@
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+{
+    return FSInput_vertexColor;
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// for base shape without color usage, such as render-to-shadow
+void SurfacesFragmentAlphaClipOnly()
+{
+}
+#endif
+
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+vec3 SurfacesFragmentModifyWorldNormal()
+{
+    return normalize(FSInput_worldNormal);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_TANGENT_AND_BINORMAL
+void SurfacesFragmentModifyWorldTangentAndBinormal(inout vec3 worldTangent, inout vec3 worldBinormal, vec3 worldNormal)
+{
+    vec3 tangent = FSInput_worldTangent;
+
+#if CC_SURFACES_USE_TANGENT_SPACE
+    vec3 binormal = normalize(CalculateBinormal(worldNormal.xyz, tangent, FSInput_mirrorNormal));
+    tangent = normalize(cross(binormal, worldNormal));
+#else
+    vec3 binormal = vec3(0.0, 0.0, 0.0);
+#endif
+
+    worldTangent = tangent;
+    worldBinormal = binormal;
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
+// isRotation=1.0: shape(0~1), rotation(0~2PI), 0.0, 0.0
+// or
+// isRotation=0.0: shape(0~1), anisoDir.xyz(-1~1)
+vec4 SurfacesFragmentModifyAnisotropyParams(out float isRotation)
+{
+    isRotation = 1.0;
+    return vec4(1.0, 0.0, 0.0, 0.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
+vec3 SurfacesFragmentModifyEmissive()
+{
+    return vec3(0.0, 0.0, 0.0);
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+vec4 SurfacesFragmentModifyPBRParams()
+{
+    // ao, roughness, metallic, specularIntensity
+    return vec4(1.0, 0.5, 0.0, 0.5);
+}
+#endif
+
+// some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
+// this function invokes at last
+// should use corresponding shading-model header: #include <surfaces/data-structures/XXX> before function define
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+{
+}
+#endif
