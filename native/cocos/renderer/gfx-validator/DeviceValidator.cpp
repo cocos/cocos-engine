@@ -136,6 +136,7 @@ void DeviceValidator::doDestroy() {
     DeviceResourceTracker<DescriptorSetLayout>::checkEmpty();
     DeviceResourceTracker<PipelineLayout>::checkEmpty();
     DeviceResourceTracker<PipelineState>::checkEmpty();
+    DeviceResourceTracker<TransientPool>::checkEmpty();
 
     _actor->destroy();
 }
@@ -302,6 +303,10 @@ TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &inf
     /////////// execute ///////////
 
     return _actor->getTextureBarrier(info);
+}
+
+BufferBarrier *DeviceValidator::getBufferBarrier(const BufferBarrierInfo &info) {
+    return _actor->getBufferBarrier(info);
 }
 
 void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

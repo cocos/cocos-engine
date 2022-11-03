@@ -83,5 +83,13 @@ void InputAssembler::destroy() {
     _drawInfo = DrawInfo();
 }
 
+void InputAssembler::updateVertexBuffer(uint32_t slot, Buffer *buffer) {
+    if (slot >= _vertexBuffers.size()) {
+        return;
+    }
+    _vertexBuffers[slot] = buffer;
+    doUpdateVertexBuffer(slot, buffer);
+}
+
 } // namespace gfx
 } // namespace cc

@@ -152,7 +152,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         createInfo.usage = usageFlags;
         createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        if (gpuTexture->memoryless) {
+        if (pVmaAllocation == nullptr) {
             VK_CHECK(vkCreateImage(device->gpuDevice()->vkDevice, &createInfo, nullptr, pVkImage));
             return;
         }
@@ -197,7 +197,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         }
         gpuTexture->memoryless = true;
     } else {
-        createFn(&gpuTexture->vkImage, &gpuTexture->vmaAllocation);
+        createFn(&gpuTexture->vkImage, gpuTexture->memoryless ? nullptr : &gpuTexture->vmaAllocation);
     }
 }
 

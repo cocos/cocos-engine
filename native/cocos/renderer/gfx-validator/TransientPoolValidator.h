@@ -34,7 +34,7 @@ namespace gfx {
 class TransientPoolValidator : public Agent<TransientPool> {
 public:
     explicit TransientPoolValidator(TransientPool *actor);
-    ~TransientPoolValidator() override = default;
+    ~TransientPoolValidator() override;
 
 private:
     void doInit(const TransientPoolInfo &info) override;

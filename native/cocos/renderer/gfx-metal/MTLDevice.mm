@@ -181,6 +181,7 @@ void CCMTLDevice::doDestroy() {
 
     CCMTLTexture::deleteDefaultTexture();
     CCMTLSampler::deleteDefaultSampler();
+    SPIRVUtils::getInstance()->destroy();
 
     CC_ASSERT(!_memoryStatus.bufferSize);  // Buffer memory leaked
     CC_ASSERT(!_memoryStatus.textureSize); // Texture memory leaked

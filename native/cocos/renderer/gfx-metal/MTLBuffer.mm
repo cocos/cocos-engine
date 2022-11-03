@@ -54,6 +54,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
     _gpuBuffer->startOffset = _offset;
     _gpuBuffer->stride = _stride;
 
+    _mtlResourceOptions = mu::toMTLResourceOption(_memUsage);
     _isIndirectDrawSupported = CCMTLDevice::getInstance()->isIndirectDrawSupported();
     if (hasFlag(_usage, BufferUsage::INDEX)) {
         switch (_stride) {
@@ -67,6 +68,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
 
     if (hasFlag(_usage, BufferUsageBit::VERTEX) ||
         hasFlag(_usage, BufferUsageBit::UNIFORM) ||
+        hasFlag(_usage, BufferUsageBit::STORAGE) ||
         hasFlag(_usage, BufferUsageBit::INDEX)) {
         createMTLBuffer(_size, _memUsage);
     } else if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
@@ -100,8 +102,6 @@ bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
     if (!size || hasFlag(_flags, BufferFlagBit::TRANSIENT)) {
         return false;
     }
-
-    _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_gpuBuffer->mtlBuffer) {
         id<MTLBuffer> mtlBuffer = _gpuBuffer->mtlBuffer;

@@ -77,6 +77,21 @@ void CCVKInputAssembler::doDestroy() {
     _gpuInputAssembler = nullptr;
 }
 
+void CCVKInputAssembler::doUpdateVertexBuffer(uint32_t slot, Buffer *buffer) {
+    CCVKGPUDevice *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    auto *hub = CCVKDevice::getInstance()->gpuIAHub();
+
+    if (_gpuInputAssembler) {
+        auto *vb = static_cast<CCVKBuffer *>(_vertexBuffers[slot]);
+        hub->disengage(_gpuInputAssembler, _gpuInputAssembler->gpuVertexBuffers[slot].get());
+
+        _gpuInputAssembler->gpuVertexBuffers[slot] = vb->gpuBufferView();
+        _gpuInputAssembler->vertexBuffers[slot] = vb->gpuBufferView()->gpuBuffer->vkBuffer;
+        _gpuInputAssembler->vertexBufferOffsets[slot] = vb->gpuBufferView()->gpuBuffer->getStartOffset(gpuDevice->curBackBufferIndex);
+        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuVertexBuffers[slot].get());
+    }
+}
+
 void CCVKGPUInputAssembler::shutdown() {
     auto *hub = CCVKDevice::getInstance()->gpuIAHub();
     for (auto& vb : gpuVertexBuffers) {

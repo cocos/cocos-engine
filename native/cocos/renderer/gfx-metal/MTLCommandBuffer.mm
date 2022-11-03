@@ -199,11 +199,14 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                         needPartialClear = colorAttachments[i].loadOp == LoadOp::CLEAR;
                     }
                 } else {
-                    mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachments[i].loadOp);
+                    mtlRenderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionLoad;
+                    needPartialClear = colorAttachments[i].loadOp == LoadOp::CLEAR;
                 }
-                _colorAppearedBefore.set(i);
-                mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[i].storeOp) : MTLStoreActionStore;
+            } else {
+                mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachments[i].loadOp);
             }
+            _colorAppearedBefore.set(i);
+            mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[i].storeOp) : MTLStoreActionStore;
         }
     } else {
         // TODO: cache state.
@@ -216,7 +219,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 }
                 if (visited[input])
                     continue;
-                
+
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[input]);
                 ccMtlRenderPass->setColorAttachment(input, ccMtlTexture, 0);
                 mtlRenderPassDescriptor.colorAttachments[input].clearColor = mu::toMTLClearColor(colors[input]);
@@ -338,7 +341,7 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
     const DepthStencilAttachment &dsAttachment = curRenderPass->getDepthStencilAttachment();
     const SubpassInfo &subpass = subpasses[index];
     uint32_t ds = subpass.depthStencil;
-    
+
     if (ds != INVALID_BINDING) {
         auto *ccMTLTexture = static_cast<CCMTLTexture *>(curFBO->getDepthStencilTexture());
         // if ds is provided explicitly in fbo->depthStencil, use it.
@@ -693,27 +696,27 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     auto *mtlTexture = static_cast<CCMTLTexture *>(texture);
     const bool isArrayTexture = mtlTexture->isArray();
     auto textureType = mtlTexture->textureInfo().type;
-    
+
     auto format = texture->getFormat();
     // no rg8b/rgb32f support
     auto convertedFormat = mtlTexture->getConvertedFormat();
     auto blockSize = formatAlignment(convertedFormat);
-    
+
     id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
     id<MTLTexture> dstTexture = mtlTexture->getMTLTexture();
-    
+
     // Macro Pixel: minimum block to descirbe pixels.
     // when a picture has a 4*4 size:
     // ASTC_4x4: MacroPixelWidth:1 MacroPixelHeight:1
     // RGBA_4x4: MacroPixelWidth:4 MacroPixelHeight:4
-    
+
     for (size_t i = 0; i < count; i++) {
         const auto &region = regions[i];
         auto bufferPixelWidth = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
         auto bufferPixelHeight = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
         auto targetWidth = region.texExtent.width;
         auto targetHeight = region.texExtent.height;
-        
+
         const MTLSize targetSize = {
             bufferPixelWidth == 0 ? 0 : utils::alignTo(bufferPixelWidth, blockSize.first),
             bufferPixelHeight == 0 ? 0 : utils::alignTo(bufferPixelHeight, blockSize.second),
@@ -722,24 +725,24 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             region.texOffset.x == 0 ? 0 : utils::alignTo(static_cast<uint>(region.texOffset.x), blockSize.first),
             region.texOffset.y == 0 ? 0 : utils::alignTo(static_cast<uint>(region.texOffset.y), blockSize.second),
             static_cast<uint>(region.texOffset.z)};
-        
+
         auto bytesPerRowForTarget = formatSize(convertedFormat, targetWidth, 1, 1);
         auto bytesPerImageForTarget = formatSize(convertedFormat, static_cast<uint32_t>(targetSize.width), static_cast<uint32_t>(targetSize.height), static_cast<uint32_t>(targetSize.depth));
-        
+
         if(textureType == TextureType::TEX1D || textureType == TextureType::TEX1D_ARRAY || mtlTexture->isPVRTC()) {
             bytesPerRowForTarget = 0;
         }
-        
+
         if(textureType != TextureType::TEX3D || mtlTexture->isPVRTC()) {
             bytesPerImageForTarget = 0;
         }
-    
+
         auto bufferSliceSize = formatSize(convertedFormat, bufferPixelWidth, bufferPixelHeight, 1);
         auto bufferBytesPerRow = formatSize(convertedFormat, bufferPixelWidth, 1, 1);
         auto bufferBytesPerImage = region.texExtent.depth * bufferBytesPerRow;
-        
+
         auto macroPixelHeight = targetHeight / blockSize.second;
-        
+
         bool compactMemory = bufferPixelWidth == region.texExtent.width;
         for(size_t l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; ++l) {
             for(size_t d = targetOffset.z; d < targetSize.depth + targetOffset.z; ++d) {
@@ -747,22 +750,22 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                     const auto *convertedData = mu::convertData(buffers[i] + region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImage
                                                                 + (d - targetOffset.z) * bufferSliceSize,
                                                                 bufferPixelWidth * blockSize.second, format);
-                    
+
                     ccstd::vector<uint8_t> data(bufferSliceSize);
                     memcpy(data.data(), convertedData, bufferSliceSize);
-                    
+
                     MTLRegion mtlRegion = {
                         {targetOffset.x, targetOffset.y, d},
                         {targetSize.width, targetSize.height, 1}
                     };
-                    
+
                     [dstTexture replaceRegion:mtlRegion
                                   mipmapLevel:region.texSubres.mipLevel
                                         slice:l
                                     withBytes:data.data()
                                   bytesPerRow:bytesPerRowForTarget
                                 bytesPerImage:bytesPerImageForTarget];
-                    
+
                     if (format == Format::RGB8 || format == Format::RGB32F) {
                         CC_FREE(convertedData);
                     }
@@ -771,22 +774,22 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                         const auto *convertedData = mu::convertData(buffers[i] + region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImage
                                                                     + (d - targetOffset.z) * bufferSliceSize + h / blockSize.second * bufferBytesPerRow,
                                                                     bufferPixelWidth * blockSize.second, format);
-                        
+
                         ccstd::vector<uint8_t> data(bytesPerRowForTarget);
                         memcpy(data.data(), convertedData, bytesPerRowForTarget );
-                        
+
                         MTLRegion mtlRegion = {
                             {targetOffset.x, targetOffset.y + h, d},
                             {targetSize.width, blockSize.second, 1}
                         };
-                        
+
                         [dstTexture replaceRegion:mtlRegion
                                       mipmapLevel:region.texSubres.mipLevel
                                             slice:l
                                         withBytes:data.data()
                                       bytesPerRow:bytesPerRowForTarget
                                     bytesPerImage:bytesPerImageForTarget];
-                        
+
                         if (format == Format::RGB8 || format == Format::RGB32F) {
                             CC_FREE(convertedData);
                         }
@@ -794,8 +797,8 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
                 }
             }
         }
-        
-        
+
+
     }
 
     if (hasFlag(static_cast<CCMTLTexture *>(texture)->textureInfo().flags, TextureFlags::GEN_MIPMAP) && mu::pixelFormatIsColorRenderable(convertedFormat)) {

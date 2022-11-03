@@ -43,6 +43,16 @@ TransientPoolAgent::TransientPoolAgent(TransientPool *actor) : Agent<TransientPo
     _typedID = generateObjectID<decltype(this)>();
 }
 
+TransientPoolAgent::~TransientPoolAgent() {
+    ENQUEUE_MESSAGE_1(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        BufferDestruct,
+        actor, _actor,
+        {
+            CC_SAFE_DELETE(actor);
+        });
+}
+
 void TransientPoolAgent::doInit(const TransientPoolInfo &info) {
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),

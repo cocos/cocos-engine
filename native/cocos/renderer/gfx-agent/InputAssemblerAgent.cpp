@@ -47,6 +47,19 @@ InputAssemblerAgent::~InputAssemblerAgent() {
         });
 }
 
+void InputAssemblerAgent::doUpdateVertexBuffer(uint32_t slot, Buffer *buffer) {
+    auto *vertexBuffer = static_cast<BufferAgent *>(buffer)->getActor();
+    ENQUEUE_MESSAGE_3(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        InputAssemblerUpdateVertexBuffer,
+        actor, _actor,
+        slot, slot,
+        buffer, vertexBuffer,
+        {
+            actor->updateVertexBuffer(slot, buffer);
+        });
+}
+
 void InputAssemblerAgent::doInit(const InputAssemblerInfo &info) {
     InputAssemblerInfo actorInfo = info;
     for (auto &vertexBuffer : actorInfo.vertexBuffers) {

@@ -82,6 +82,11 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
     _actor->initialize(actorInfo);
 }
 
+void InputAssemblerValidator::doUpdateVertexBuffer(uint32_t slot, Buffer *buffer) {
+    auto *vertexBuffer = static_cast<BufferValidator *>(buffer)->getActor();
+    _actor->updateVertexBuffer(slot, vertexBuffer);
+}
+
 void InputAssemblerValidator::doDestroy() {
     CC_ASSERT(isInited());
     _inited = false;

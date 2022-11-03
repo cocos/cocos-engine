@@ -53,7 +53,7 @@ void CCVKTexture::doInit(const TextureViewInfo &info) {
     createTextureView();
 }
 
-void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, bool initGPUTexture) {
+void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size) {
     _gpuTexture = ccnew CCVKGPUTexture;
     _gpuTexture->width = width;
     _gpuTexture->height = height;
@@ -61,10 +61,10 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
 
     if (_swapchain != nullptr) {
         _gpuTexture->swapchain = static_cast<CCVKSwapchain *>(_swapchain)->gpuSwapchain();
-        _gpuTexture->memoryless = true;
+        _gpuTexture->memoryless = !GFX_FORMAT_INFOS[toNumber(_info.format)].hasDepth;
     }
 
-    _gpuTexture->memoryless = hasFlag(_info.flags, TextureFlagBit::TRANSIENT);
+    _gpuTexture->memoryless |= hasFlag(_info.flags, TextureFlagBit::TRANSIENT);
     _gpuTexture->type = _info.type;
     _gpuTexture->format = _info.format;
     _gpuTexture->usage = _info.usage;
@@ -74,12 +74,10 @@ void CCVKTexture::createTexture(uint32_t width, uint32_t height, uint32_t size, 
     _gpuTexture->samples = _info.samples;
     _gpuTexture->flags = _info.flags;
 
-    if (initGPUTexture) {
-        _gpuTexture->init();
-    }
+    _gpuTexture->init();
 }
 
-void CCVKTexture::createTextureView(bool initGPUTextureView) {
+void CCVKTexture::createTextureView() {
     _gpuTextureView = ccnew CCVKGPUTextureView;
     _gpuTextureView->gpuTexture = _gpuTexture;
     _gpuTextureView->type = _viewInfo.type;
@@ -89,9 +87,7 @@ void CCVKTexture::createTextureView(bool initGPUTextureView) {
     _gpuTextureView->baseLayer = _viewInfo.baseLayer;
     _gpuTextureView->layerCount = _viewInfo.layerCount;
 
-    if (initGPUTextureView) {
-        _gpuTextureView->init();
-    }
+    _gpuTextureView->init();
 }
 
 void CCVKTexture::doDestroy() {
@@ -112,8 +108,8 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
 void CCVKTexture::doInit(const SwapchainTextureInfo & /*info*/) {
-    createTexture(_info.width, _info.height, _size, false);
-    createTextureView(false);
+    createTexture(_info.width, _info.height, _size);
+    createTextureView();
 }
 
 void CCVKGPUTexture::init() {

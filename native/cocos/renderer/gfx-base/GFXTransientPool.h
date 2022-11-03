@@ -62,7 +62,7 @@ protected:
     virtual void doResetBuffer(Buffer *buffer) {}
     virtual void doInitTexture(Texture *texture) {}
     virtual void doResetTexture(Texture *texture) {}
-    
+
     TransientPoolInfo _info;
 };
 

@@ -160,14 +160,14 @@ bool CCMTLTexture::createMTLTexture() {
         case MTLTextureType2DArray:
             // No need to set mipmapped flag since mipmapLevelCount was explicty set via `_levelCount`.
             _descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
-                                                                            width:_info.width
-                                                                           height:_info.height
-                                                                        mipmapped:NO];
+                                                                             width:_info.width
+                                                                            height:_info.height
+                                                                         mipmapped:NO];
             break;
         case MTLTextureTypeCube:
             _descriptor = [MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:mtlFormat
-                                                                               size:_info.width
-                                                                          mipmapped:NO];
+                                                                                size:_info.width
+                                                                           mipmapped:NO];
             break;
         default:
             CC_ASSERT(false);
@@ -187,7 +187,7 @@ bool CCMTLTexture::createMTLTexture() {
 #if MEMLESS_ON
         // mac SDK mem_less unavailable before 11.0
     #if MAC_MEMORY_LESS_TEXTURE_SUPPORT || CC_PLATFORM == CC_PLATFORM_IOS
-        //xcode OS version warning
+        // xcode OS version warning
         if (@available(macOS 11.0, *)) {
             descriptor.storageMode = MTLStorageModeMemoryless;
         } else {
@@ -199,13 +199,15 @@ bool CCMTLTexture::createMTLTexture() {
 #else
         _descriptor.storageMode = MTLStorageModePrivate;
 #endif
-    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT)) {
+    } else {
         _descriptor.storageMode = MTLStorageModePrivate;
     }
 
+    if (hasFlag(_info.flags, TextureFlagBit::TRANSIENT)) {
+        return true;
+    }
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     _mtlTexture = [mtlDevice newTextureWithDescriptor:_descriptor];
-
     return _mtlTexture != nil;
 }
 

@@ -41,6 +41,7 @@ public:
 protected:
     void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;
+    void doUpdateVertexBuffer(uint32_t slot, Buffer *buffer) override;
 
     bool _inited{false};
 };

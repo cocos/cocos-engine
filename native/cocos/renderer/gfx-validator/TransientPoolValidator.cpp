@@ -26,12 +26,18 @@ THE SOFTWARE.
 #include "gfx-validator/TransientPoolValidator.h"
 #include "gfx-validator/BufferValidator.h"
 #include "gfx-validator/TextureValidator.h"
+#include "gfx-validator/ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 TransientPoolValidator::TransientPoolValidator(TransientPool *actor) : Agent<TransientPool>(actor) {
     _typedID = generateObjectID<decltype(this)>();
+}
+
+TransientPoolValidator::~TransientPoolValidator() {
+    DeviceResourceTracker<TransientPool>::erase(this);
+    CC_SAFE_DELETE(_actor);
 }
 
 void TransientPoolValidator::doInit(const TransientPoolInfo &info) {
