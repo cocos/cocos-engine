@@ -113,33 +113,46 @@ export function encodeCCONBinary (ccon: CCON) {
  * @param ccon
  * @returns
  */
-export function mergeAllCompressedTexture (ccon: CCON) {
-    const { chunks } = ccon;
-    const ccobBuilder = new BufferBuilder();
+export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
+    let out = new ArrayBuffer(0);
 
-    // Compressed hearder
-    const header = new ArrayBuffer(COMPRESSED_HEADER_LENGTH);
-    const hearderView = new DataView(header);
-    hearderView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
-    ccobBuilder.append(hearderView);
+    let err: Error | null = null;
+    try {
+        // Create compressed file
+        // file header length
+        const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + files.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
+        let fileLength = 0;
+        for (const file of files) {
+            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+            fileLength += buffer.byteLength;
+        }
+        fileLength += fileHeaderLength;   // add file header length
+        out = new ArrayBuffer(fileLength);
 
-    // Compressed document
-    const mipmapLevel = chunks.length;
-    const documentLength = COMPRESSED_MIPMAP_MAGIC + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + mipmapLevel * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
-    const document = new ArrayBuffer(documentLength);
-    const documentView = new DataView(document);
-    documentView.setUint32(0, mipmapLevel);    // add mipmap level
-    for (let i = 0; i < mipmapLevel; i++) {
-        hearderView.setUint32(COMPRESSED_MIPMAP_MAGIC + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH, chunks[i].byteLength);
+        // Append compresssed header
+        const fileView = new DataView(out);
+        fileView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
+        fileView.setUint32(COMPRESSED_MIPMAP_MAGIC, files.length, true); // add mipmap level number
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+            fileView.setUint32(COMPRESSED_MIPMAP_MAGIC + COMPRESSED_MIPMAP_MAGIC + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+                buffer.byteLength, true);
+        }
+
+        // Append compresssed file
+        let dataOffset = fileHeaderLength;
+        for (const file of files) {
+            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+            const srcIBView = new Uint8Array(buffer);
+            (out as Uint8Array).set(srcIBView, dataOffset);
+            dataOffset += srcIBView.byteLength;
+        }
+    } catch (e) {
+        err = e as Error;
     }
-    ccobBuilder.append(documentView);
 
-    // Compressed chunks
-    for (const chunk of chunks) {
-        ccobBuilder.append(chunk);
-    }
-
-    return ccobBuilder.get();
+    return out;
 }
 
 export function decodeCCONBinary (bytes: Uint8Array) {
