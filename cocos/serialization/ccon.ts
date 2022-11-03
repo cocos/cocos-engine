@@ -89,7 +89,7 @@ export function encodeCCONBinary (ccon: CCON) {
 }
 
 /**
- * CompressedTexture.ccon
+ * CompressedTexture
  * ************* hearder ***************
  * COMPRESSED_MIPMAP_MAGIC: 0x50494d43 *
  * ************* document **************
@@ -110,8 +110,8 @@ export function encodeCCONBinary (ccon: CCON) {
  *    *                            *   *
  *    ******************************   *
  * *************************************
- * @param ccon
- * @returns
+ * @param files @zh 压缩纹理数组
+ * @returns out @zh 合并后的压缩纹理字节数据
  */
 export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
     let out = new ArrayBuffer(0);

@@ -49,10 +49,10 @@ const PVR_MAGIC = 0x03525650; // 0x50565203;
 
 // Compress mipmap constants
 // https://github.com/cocos/3d-tasks/issues/10876
-const COMPRESS_HEADER_MAGIC = 0;
-const COMPRESS_HEADER_LENGTH = 4;
-const COMPRESS_MIPMAP_LEVEL_LENGHT = 4;
-const COMPRESS_MIPMAP_MAGIC = 0x50494d43;
+const COMPRESSED_HEADER_LENGTH = 4;
+const COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH = 4;
+const COMPRESSED_MIPMAP_DATA_SIZE_LENGTH = 4;
+const COMPRESSED_MIPMAP_MAGIC = 0x50494d43;
 
 // Offsets into the header array.
 const PVR_HEADER_MAGIC = 0;
@@ -321,48 +321,51 @@ export class Parser {
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
             // Get a view of the arrayBuffer that represents compress header.
-            const header = new Int32Array(buffer, 0, COMPRESS_HEADER_LENGTH);
+            const magicNumberChunks = new Int32Array(buffer, 0, COMPRESSED_HEADER_LENGTH);
             // Do some sanity checks to make sure this is a valid compress file.
-            if (header[COMPRESS_HEADER_MAGIC] === COMPRESS_MIPMAP_MAGIC) {
+            if (magicNumberChunks[0] === COMPRESSED_MIPMAP_MAGIC) {
                 // Get a view of the arrayBuffer that represents compress document.
-                const mipmapLevel = new Int32Array(buffer, COMPRESS_HEADER_LENGTH, COMPRESS_MIPMAP_LEVEL_LENGHT);
-                const cconHeader = COMPRESS_HEADER_LENGTH;
-                const mipmapLevelCount = mipmapLevel[0];
-                const cconDocument = cconHeader + COMPRESS_MIPMAP_LEVEL_LENGHT + mipmapLevelCount * 4;
+                const mipmapLevelNumberChunks = new Int32Array(buffer, COMPRESSED_HEADER_LENGTH, COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH);
+                const mipmapLevelNumber = mipmapLevelNumberChunks[0];
+                const mipmapLevelDataSizeChunks = new Int32Array(buffer, COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH,
+                    mipmapLevelNumber * COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH);
+                const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
+                + mipmapLevelDataSizeChunks.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
                 // the position of chunk 0 in the index
-                let skipLength = cconHeader + cconDocument;
-                const chunks = new Int32Array(buffer, cconHeader + COMPRESS_MIPMAP_LEVEL_LENGHT, mipmapLevelCount * 4);
+                let beginOffset = fileHeaderLength;
 
                 // Get a view of the arrayBuffer that represents compress chunks.
                 switch (type) {
                 case compressType.PVR:
-                    this._parsePVRTex(file, 0, skipLength, chunks[0], out);
+                    this._parsePVRTex(file, 0, beginOffset, mipmapLevelDataSizeChunks[0], out);
                     break;
                 case compressType.PKM:
-                    this._parsePKMTex(file, 0, skipLength, chunks[0], out);
+                    this._parsePKMTex(file, 0, beginOffset, mipmapLevelDataSizeChunks[0], out);
                     break;
                 case compressType.ASTC:
-                    this._parseASTCTex(file, 0, skipLength, chunks[0], out);
+                    this._parseASTCTex(file, 0, beginOffset, mipmapLevelDataSizeChunks[0], out);
                     break;
                 default:
                     break;
                 }
-                skipLength += chunks[0];
-                for (let i = 1; i < mipmapLevelCount; i++) {
+                beginOffset += mipmapLevelDataSizeChunks[0];
+
+                for (let i = 1; i < mipmapLevelNumber; i++) {
+                    const mipmapLevelDataSize = mipmapLevelDataSizeChunks[i];
                     switch (type) {
                     case compressType.PVR:
-                        this._parsePVRTex(file, i, skipLength, chunks[i], out);
+                        this._parsePVRTex(file, i, beginOffset, mipmapLevelDataSize, out);
                         break;
                     case compressType.PKM:
-                        this._parsePKMTex(file, i, skipLength, chunks[i], out);
+                        this._parsePKMTex(file, i, beginOffset, mipmapLevelDataSize, out);
                         break;
                     case compressType.ASTC:
-                        this._parseASTCTex(file, i, skipLength, chunks[i], out);
+                        this._parseASTCTex(file, i, beginOffset, mipmapLevelDataSize, out);
                         break;
                     default:
                         break;
                     }
-                    skipLength += chunks[i];
+                    beginOffset += mipmapLevelDataSize;
                 }
             } else {
                 switch (type) {
@@ -389,24 +392,24 @@ export class Parser {
      * @zh 解析 PVR 格式的压缩纹理
      * @param file @zh ccon 文件
      * @param levelIndex @zh 当前 mipmap 层级
-     * @param skipLength @zh 需要跳过的字节长度
-     * @param chunkSize @zh 当前块大小
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
      * @param out @zh 压缩纹理输出
      */
     private _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
         let err: Error | null = null;
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
             // Get a view of the arrayBuffer that represents the DDS header.
-            const header = new Int32Array(buffer, skipLength, PVR_HEADER_LENGTH);
+            const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
 
             // Do some sanity checks to make sure this is a valid DDS file.
             if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
                 // Gather other basic metrics and a view of the raw the DXT data.
-                const dataOffset = header[PVR_HEADER_METADATA] + 52 + skipLength;
-                if (chunkSize > 0) {
-                    const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength);
+                const dataOffset = beginOffset + header[PVR_HEADER_METADATA] + 52;
+                if (endOffset > 0) {
+                    const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
                     const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
                     dstIBView.set(out._data as Uint8Array);
                     dstIBView.set(srcIBView, out._data!.byteLength);
@@ -418,9 +421,9 @@ export class Parser {
                 out.width = levelIndex > 0 ? out.width : header[PVR_HEADER_WIDTH];
                 out.height = levelIndex > 0 ? out.height : header[PVR_HEADER_HEIGHT];
             } else if (header[11] === 0x21525650) {
-                const dataOffset = header[0]  + skipLength;
-                if (chunkSize > 0) {
-                    const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength);
+                const dataOffset = header[0]  + beginOffset;
+                if (endOffset > 0) {
+                    const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
                     const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
                     dstIBView.set(out._data as Uint8Array);
                     dstIBView.set(srcIBView, out._data!.byteLength);
@@ -443,24 +446,24 @@ export class Parser {
      * @zh 解析 PKM 格式的压缩纹理
      * @param file @zh ccon 文件
      * @param levelIndex @zh 当前 mipmap 层级
-     * @param skipLength @zh 需要跳过的字节长度
-     * @param chunkSize @zh 当前块大小
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
      * @param out @zh 压缩纹理输出
      */
     private _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
         let err: Error | null = null;
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const header = new Uint8Array(buffer, skipLength, ETC_PKM_HEADER_LENGTH);
+            const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
             const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
             if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
                 throw new Error('Invalid magic number in ETC header');
             }
 
-            const dataOffset = ETC_PKM_HEADER_LENGTH + skipLength;
-            if (chunkSize > 0) {
-                const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - ETC_PKM_HEADER_LENGTH);
+            const dataOffset = beginOffset + ETC_PKM_HEADER_LENGTH;
+            if (endOffset > 0) {
+                const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - ETC_PKM_HEADER_LENGTH);
                 const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
                 dstIBView.set(out._data as Uint8Array);
                 dstIBView.set(srcIBView, out._data!.byteLength);
@@ -480,16 +483,16 @@ export class Parser {
      * @zh 解析 ASTC 格式的压缩纹理
      * @param file @zh ccon 文件
      * @param levelIndex @zh 当前 mipmap 层级
-     * @param skipLength @zh 需要跳过的字节长度
-     * @param chunkSize @zh 当前块大小
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
      * @param out @zh 压缩纹理输出
      */
     private _parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
         let err: Error | null = null;
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const header = new Uint8Array(buffer, skipLength, ASTC_HEADER_LENGTH);
+            const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
             const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
             if (magicval !== ASTC_MAGIC) {
@@ -506,9 +509,9 @@ export class Parser {
             }
 
             const format = getASTCFormat(xdim, ydim);
-            const dataOffset = ASTC_HEADER_LENGTH + skipLength;
-            if (chunkSize > 0) {
-                const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - ASTC_HEADER_LENGTH);
+            const dataOffset = beginOffset + ASTC_HEADER_LENGTH;
+            if (endOffset > 0) {
+                const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - ASTC_HEADER_LENGTH);
                 const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
                 dstIBView.set(out._data as Uint8Array);
                 dstIBView.set(srcIBView, out._data!.byteLength);
