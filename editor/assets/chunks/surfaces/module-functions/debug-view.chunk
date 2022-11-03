@@ -1,0 +1,197 @@
+// make divid-by-zero, non-rational pixel more obvious
+vec4 CCSurfacesDebugDisplayInvalidNumber(vec4 color)
+{
+  float index = mod(cc_time.x * 10.0, 2.0);
+  vec4 error = index < 1.0 ? vec4(1.0, 0.0, 0.2, 1.0) : vec4(0.0, 1.0, 0.2, 1.0);
+
+  return (isnans(color.rgb) || isinfs(color.rgb)) ? error : color;
+}
+
+vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
+{
+  float index = mod(cc_time.x * 10.0, 2.0);
+  vec4 error = index < 1.0 ? vec4(1.0, 0.0, 0.2, 1.0) : vec4(0.0, 1.0, 0.2, 1.0);
+  
+  return (isnans(data) || isinfs(data)) ? error : color;
+}
+
+
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE && !CC_FORWARD_ADD
+  void CCSurfacesDebugViewMeshData(inout vec4 color)
+  {
+    vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    // vertex input
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_VERTEX_COLOR))
+    {
+      #if CC_SURFACES_USE_VERTEX_COLOR
+        color = FSInput_vertexColor;
+      #else
+        color = white;
+      #endif
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_VERTEX_NORMAL))
+        color = vec4(FSInput_worldNormal * 0.5 + vec3(0.5), 1.0);  
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_VERTEX_TANGENT))
+    {
+      #if CC_SURFACES_USE_TANGENT_SPACE
+        color = vec4(FSInput_worldTangent * 0.5 + vec3(0.5), 1.0);
+      #else
+        color = black;
+      #endif
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_VERTEX_MIRROR))
+    {
+      #if CC_SURFACES_USE_TANGENT_SPACE
+        float sign = FSInput_mirrorNormal * 0.5 + 0.5;
+        color = vec4(sign, sign, sign, 1.0);
+      #else
+        color = black;
+      #endif
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FACE_SIDE))
+    {
+        float scalar = clamp(FSInput_faceSideSign, 0.0, 1.0);
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_UV0))
+        color = vec4(FSInput_texcoord.xy, 0.0, 1.0);
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_UV1))
+      color = vec4(FSInput_texcoord1.xy, 0.0, 1.0);
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_UVLIGHTMAP))
+    {
+      #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+        color = vec4(FSInput_lightMapUV.xy, 0.0, 1.0);
+      #else
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+      #endif
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_PROJ_DEPTH))
+    {
+      vec4 clipPos = cc_matProj * cc_matView * vec4(FSInput_worldPos.xyz, 1.0);
+      float depth = clipPos.z / clipPos.w;
+      color = vec4(depth, depth, depth, 1.0);
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_LINEAR_DEPTH))
+    {
+      vec4 viewPos = cc_matView * vec4(FSInput_worldPos.xyz, 1.0);
+      float depth = (-viewPos.z - cc_nearFar.x) / cc_nearFar.y;
+      color = vec4(depth, depth, depth, 1.0);
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_WORLD_POS))
+      color = vec4(FSInput_worldPos.xyz, 1.0);
+  }
+#endif
+
+
+
+  // Lighting related
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
+  bool CCSurfacesDebugViewLightingResult(inout vec4 color, in LightingResult lightingResult)
+  {
+      bool isDebugMatched = false;
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE))
+    {
+        color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR))
+    {
+        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_ALL))
+    {
+        color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_DIFFUSE))
+    {
+        color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_SPECULAR))
+    {
+        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_ALL))
+    {
+        color.rgb = lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_LIGHT_MAP))
+    {
+        color.rgb = lightingResult.lightmapColor;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_EMISSIVE))
+    {
+        color.rgb = lightingResult.emissive;
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_AO))
+    {
+        color.rgb = vec3(lightingResult.ao);
+        isDebugMatched = true;
+    }
+    
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SHADOW))
+    {
+        color.rgb = vec3(lightingResult.shadow);
+        isDebugMatched = true;
+    }
+
+    return isDebugMatched;
+  }
+#endif
+
+
+
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  void CCSurfacesDebugViewCompositeLightingResult(inout LightingResult lightingResult)
+  {
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_DIFFUSE)
+      lightingResult.directDiffuse = vec3(0.0);
+
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_DIRECT_SPECULAR)
+      lightingResult.directSpecular = vec3(0.0);
+
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_ENV_DIFFUSE)
+      lightingResult.environmentDiffuse = vec3(0.0);
+
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_ENV_SPECULAR)
+      lightingResult.environmentSpecular = vec3(0.0);
+
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_EMISSIVE)
+      lightingResult.emissive = vec3(0.0);
+
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_LIGHT_MAP)
+      lightingResult.lightmapColor = vec3(0.0);
+
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW)
+      lightingResult.shadow = 1.0;
+
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_AO)
+      lightingResult.ao = 1.0;
+  }
+#endif

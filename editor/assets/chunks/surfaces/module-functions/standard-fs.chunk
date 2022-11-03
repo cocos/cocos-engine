@@ -1,0 +1,198 @@
+#include <common/lighting/brdf>
+
+// Surface
+void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
+{
+  HIGHP_VALUE_TO_STRUCT_DEFINED(FSInput_worldPos, surfaceData.worldPos);
+
+  surfaceData.baseColor = SurfacesFragmentModifyBaseColorAndTransparency();
+
+  surfaceData.worldNormal = SurfacesFragmentModifyWorldNormal();
+  SurfacesFragmentModifyWorldTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal);
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+  float isRotation;
+  vec4 anisotropyParams = SurfacesFragmentModifyAnisotropyParams(isRotation);
+  surfaceData.anisotropyShape = anisotropyParams.x;
+  if (isRotation > 0.0) {
+    RotateTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal, anisotropyParams.y);
+  } else {
+    vec3 anisoDirTS = anisotropyParams.yzw;
+    vec3 tangentWS = anisoDirTS.x * surfaceData.worldTangent + anisoDirTS.y * surfaceData.worldBinormal + anisoDirTS.z * surfaceData.worldNormal;
+    surfaceData.worldTangent = normalize(tangentWS);
+    surfaceData.worldBinormal = cross(surfaceData.worldNormal, tangentWS);
+  }
+#endif
+
+  surfaceData.emissive = SurfacesFragmentModifyEmissive();
+
+  vec4 pbr = SurfacesFragmentModifyPBRParams();
+  surfaceData.ao = pbr.x;
+  surfaceData.roughness = pbr.y;
+  surfaceData.metallic = pbr.z;
+  surfaceData.specularIntensity = pbr.w;
+
+  SurfacesFragmentModifySharedData(surfaceData);
+
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+  if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_NORMAL_MAP) {
+      surfaceData.worldNormal = FSInput_worldNormal;
+      surfaceData.worldTangent = FSInput_worldTangent;
+  }
+#endif
+
+#if CC_USE_DEBUG_VIEW
+  if (!IS_DEBUG_VIEW_LIGHTING_ENABLE_WITH_ALBEDO)
+      surfaceData.baseColor.rgb = vec3(1.0);
+#endif
+}
+
+// Intrinsic function, make connection of material data and lighting data
+vec3 CCSurfacesGetDiffuseColor(in SurfacesMaterialData surfaceData)
+{
+  return surfaceData.baseColor.rgb * (1.0 - surfaceData.metallic);
+}
+vec3 CCSurfacesGetSpecularColor(in SurfacesMaterialData surfaceData)
+{
+  float F0 = surfaceData.specularIntensity * 0.08;
+  return mix(vec3(F0), surfaceData.baseColor.rgb, surfaceData.metallic);
+}
+
+// Diffuse/Specular Color with BRDF lighting preparation
+void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+{
+  diffuseColorWithLighting = CCSurfacesGetDiffuseColor(surfaceData);
+  // (Intergrated) GF/4Pi use approximate value for both direct lighting and environment lighting
+  // accuracy value can be calculated in LightingCalculateDirect/Environment instead of IntegratedGFApprox
+  specularColorWithLighting = IntegratedGFApprox(CCSurfacesGetSpecularColor(surfaceData).xyz, surfaceData.roughness, lightingData.NoVAbsSat);
+}
+// Update two colors with BRDF which depend on lights (optional)
+void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
+{
+}
+
+// Copy material data to lighting data
+// such as tangent data for anisotropic materials
+void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+{
+  vec3 worldPos;
+  HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
+  CCSurfacesLightingGetIntermediateData_PerPixel(lightingData, surfaceData.worldNormal, worldPos, surfaceData.worldTangent, surfaceData.worldBinormal
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+      , surfaceData.anisotropyShape
+#endif
+  );
+  lightingData.specularParam = surfaceData.roughness;
+}
+void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, vec3 lightDirWithDist)
+{
+  CCSurfacesLightingGetIntermediateData_PerLight(lightingData, lightDirWithDist);
+}
+
+// Copy material data to lighting results
+void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData)
+{
+  lightingResult.ao = surfaceData.ao;
+  lightingResult.emissive = surfaceData.emissive;
+}
+
+
+
+#if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED
+  vec4 CCSurfacesDeferredOutput0(in SurfacesMaterialData surfaceData)
+  {
+    return surfaceData.baseColor;
+  }
+  vec4 CCSurfacesDeferredOutput1(in SurfacesMaterialData surfaceData)
+  {
+    return vec4(float32x3_to_oct(surfaceData.worldNormal), surfaceData.roughness, surfaceData.metallic);
+  }
+  vec4 CCSurfacesDeferredOutput2(in SurfacesMaterialData surfaceData)
+  {
+    return vec4(surfaceData.emissive, surfaceData.ao);
+  }
+#endif
+
+
+// Shading
+vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult lightingResult)
+{
+  vec4 color = vec4(0.0, 0.0, 0.0, surfaceData.baseColor.a);
+#if CC_FORWARD_ADD
+  color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
+  color.xyz += lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+#else
+  color.xyz +=
+    ( lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting
+    + lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting)
+    * lightingResult.shadow;
+
+  color.xyz +=
+    ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
+    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting)
+    * lightingResult.ao;
+
+  color.xyz += lightingResult.emissive;
+#endif
+  
+  return color;
+}
+
+
+// Debug view
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
+void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData surfaceData)
+{
+    vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
+    float scalar;
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_NORMAL))
+        color = vec4(surfaceData.worldNormal * 0.5 + vec3(0.5), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_TANGENT))
+    {
+      #if CC_SURFACES_USE_TANGENT_SPACE
+        color = vec4(surfaceData.worldTangent * 0.5 + vec3(0.5), 1.0);
+      #else
+        color = black;
+      #endif
+    }
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRAGMENT_BINORMAL))
+    {
+      #if CC_SURFACES_USE_TANGENT_SPACE
+        color = vec4(surfaceData.worldBinormal * 0.5 + vec3(0.5), 1.0);
+      #else
+        color = black;
+      #endif
+    }
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSPARENCY)) {
+        scalar = surfaceData.baseColor.a;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_BASE_COLOR))
+        color = vec4(LinearToSRGB(surfaceData.baseColor.rgb), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIFFUSE_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetDiffuseColor(surfaceData)), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_COLOR))
+        color = vec4(LinearToSRGB(CCSurfacesGetSpecularColor(surfaceData)), 1.0);
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ROUGHNESS)) {
+        scalar = surfaceData.roughness;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_METALLIC)) {
+        scalar = surfaceData.metallic;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY)) {
+        scalar = surfaceData.specularIntensity;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+}
+#endif
+
+// lighting flow module-function used by this material
+#include <lighting-models/lighting-flow/common-flow>
