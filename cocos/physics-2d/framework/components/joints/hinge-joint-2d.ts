@@ -81,7 +81,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 可以施加到刚体的最大扭矩。
      */
-    @_roperty
+    @property
     get maxMotorTorque (): number {
         return this._maxMotorTorque;
     }
