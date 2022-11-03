@@ -43,7 +43,7 @@ ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> Reflectio
 
 RenderFlowInfo ReflectionProbeFlow::initInfo = {
     "ReflectionProbeFlow",
-    static_cast<uint32_t>(ForwardFlowPriority::SHADOW),
+    static_cast<uint32_t>(0),
     static_cast<uint32_t>(RenderFlowTag::SCENE),
     {},
 };
@@ -73,22 +73,23 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     if (camera->getCameraType() != scene::CameraType::REFLECTION_PROBE) {
         return;
     }
-    //const probe = ReflectionProbeManager.probeManager.getProbeByCamera(camera);
-    renderStage(camera, nullptr);
+    renderStage(camera);
 }
 
-void ReflectionProbeFlow::renderStage(scene::Camera *camera, gfx::Framebuffer *framebuffer) {
+void ReflectionProbeFlow::renderStage(scene::Camera *camera) {
+    const auto probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
     for (auto &stage : _stages) {
+        auto framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
         auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
         reflectionProbeStage->setUsage(framebuffer);
         reflectionProbeStage->render(camera);
 
-        const scene::ReflectionProbe *const probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
+        
         const scene::RenderScene *const scene = camera->getScene();
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
-            if (model->isEnabled()) {
-                //model->updateReflctionProbePlanarMap(probe->getRealtimePlanarTexture()->getGFXTexture());
+            if (model->isEnabled() && model->getReflectionProbeType() == 2) {
+                model->updateReflctionProbePlanarMap(probe->getRealtimePlanarTexture()->getGFXTexture());
                 //const auto visibility = camera->getVisibility();
                 //const auto *const node = model->getNode();
 

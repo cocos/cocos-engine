@@ -137,7 +137,7 @@ public:
         return _needRender;
     }
 
-    inline geometry::AABB* getBoundingBox() {
+    inline const geometry::AABB* getBoundingBox() {
         return _boundingBox;
     }
 

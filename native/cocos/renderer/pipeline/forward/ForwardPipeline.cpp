@@ -65,9 +65,9 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
 
-        //auto *reflectionProbeFlow = ccnew ReflectionProbeFlow;
-        //reflectionProbeFlow->initialize(ReflectionProbeFlow::getInitializeInfo());
-        //_flows.emplace_back(reflectionProbeFlow);
+        auto *reflectionProbeFlow = ccnew ReflectionProbeFlow();
+        reflectionProbeFlow->initialize(ReflectionProbeFlow::getInitializeInfo());
+        _flows.emplace_back(reflectionProbeFlow);
 
         auto *forwardFlow = ccnew ForwardFlow;
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());

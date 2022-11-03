@@ -45,9 +45,7 @@ public:
 
     inline void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
     inline void setUsage(gfx::Framebuffer *framebuffer) {
-
         _framebuffer = framebuffer;
-
     }
 
     void clearFramebuffer(const scene::Camera *camera);
@@ -56,12 +54,10 @@ private:
     static RenderStageInfo initInfo;
 
     gfx::Rect _renderArea;
-    gfx::DescriptorSet *_globalDS = nullptr;
-    const scene::Light *_light = nullptr;
     gfx::Framebuffer *_framebuffer = nullptr;
-    uint32_t _level;
 
-    ReflectionProbeBatchedQueue *_additiveShadowQueue = nullptr;
+
+    ReflectionProbeBatchedQueue *_reflectionProbeBatchedQueue = nullptr;
 };
 
 } // namespace pipeline

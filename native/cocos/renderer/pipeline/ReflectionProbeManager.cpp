@@ -39,8 +39,7 @@ ReflectionProbeManager* ReflectionProbeManager::getInstance() {
     return instance;
 }
 
-ReflectionProbeManager::ReflectionProbeManager() {
-}
+ReflectionProbeManager::ReflectionProbeManager() = default;
 void ReflectionProbeManager::registerProbe(scene::ReflectionProbe* probe) {
     _probes.push_back(probe);
 }
@@ -48,7 +47,7 @@ scene::ReflectionProbe* ReflectionProbeManager::createReflectionProbe(int32_t id
     return ccnew scene::ReflectionProbe(id);
 }
 
-const scene::ReflectionProbe* ReflectionProbeManager::getProbeByCamera(const scene::Camera* camera) {
+scene::ReflectionProbe* ReflectionProbeManager::getProbeByCamera(const scene::Camera* camera) {
     for (const auto& probe : _probes) {
         if (probe->getCamera() == camera) {
             return probe;

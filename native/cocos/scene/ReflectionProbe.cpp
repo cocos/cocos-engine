@@ -85,7 +85,6 @@ void ReflectionProbe::initialize(Node* node) {
     info.height = win->getHeight();
     info.width = win->getWidth();
     _realtimePlanarTexture->initialize(info);
-    int a = 1;
 }
 
 void ReflectionProbe::syncCameraParams(const Camera* camera) {

@@ -270,6 +270,8 @@ public:
     inline const Record<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
     inline const MacroRecord &getDefines() const { return _defines; }
     inline MacroRecord &getDefines() { return _defines; }
+    inline void setDefine(ccstd::string key, MacroValue value) { _defines[key] = value; }
+    inline void removeDefine(ccstd::string key) { _defines.erase(key); }
     inline index_t getPassIndex() const { return _passIndex; }
     inline index_t getPropertyIndex() const { return _propertyIndex; }
     // data

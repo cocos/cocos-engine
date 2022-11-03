@@ -42,7 +42,7 @@ public:
     void registerProbe(scene::ReflectionProbe* probe);
     scene::ReflectionProbe* createReflectionProbe(int32_t id);
 
-    const scene::ReflectionProbe* getProbeByCamera(const scene::Camera* camera);
+     scene::ReflectionProbe* getProbeByCamera(const scene::Camera* camera);
 
 private:
     ccstd::vector<scene::ReflectionProbe*> _probes;

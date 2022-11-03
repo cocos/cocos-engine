@@ -25,39 +25,55 @@
 
 #pragma once
 
-#include "../RenderFlow.h"
-#include "scene/Define.h"
-
+#include "Define.h"
+#include "cocos/base/Macros.h"
 namespace cc {
+namespace scene {
+class Camera;
+class Pass;
+} // namespace scene
 namespace pipeline {
-class ForwardPipeline;
+struct RenderObject;
+class RenderInstancedQueue;
+class RenderBatchedQueue;
+class RenderPipeline;
 
-class CC_DLL ReflectionProbeFlow : public RenderFlow {
+//const uint32_t phaseID(PassPhase::getPhaseID("shadow-caster"));
+
+class CC_DLL ReflectionProbeBatchedQueue final {
 public:
-    ReflectionProbeFlow();
-    ~ReflectionProbeFlow() override;
+    explicit ReflectionProbeBatchedQueue(RenderPipeline *);
+    ~ReflectionProbeBatchedQueue();
+    void destroy();
 
-    static const RenderFlowInfo &getInitializeInfo();
+    void clear();
+    void gatherRenderObjects(const scene::Camera *, gfx::CommandBuffer *);
+    void add(const scene::Model *);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
-    bool initialize(const RenderFlowInfo &info) override;
+    void resetMacro()const;
 
-    void activate(RenderPipeline *pipeline) override;
-
-    void render(scene::Camera *camera) override;
-
-    void destroy() override;
+    bool isUseReflectMapPass(const scene::SubModel *subModel) const;
 
 private:
-    void renderStage(scene::Camera *camera);
-
-
-    static RenderFlowInfo initInfo;
+    int getDefaultPassIndex(const scene::SubModel *subModel) const;
+    int getReflectMapPassIndex(const scene::SubModel *subModel) const;
 
     // weak reference
-    gfx::RenderPass *_renderPass{nullptr};
-
-
-    static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> renderPassHashMap;
+    RenderPipeline *_pipeline{nullptr};
+    // weak reference
+    ccstd::vector<const scene::SubModel *> _subModels;
+    // weak reference
+    ccstd::vector<scene::Pass *> _passes;
+    // weak reference
+    ccstd::vector<gfx::Shader *> _shaders;
+    // manage memory manually
+    RenderInstancedQueue *_instancedQueue{nullptr};
+    // manage memory manually
+    RenderBatchedQueue *_batchedQueue{nullptr};
+    uint32_t _phaseID = 0;
+    uint32_t _phaseReflectMapID = 0;
 };
+
 } // namespace pipeline
 } // namespace cc

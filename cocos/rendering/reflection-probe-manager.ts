@@ -179,6 +179,7 @@ export class ReflectionProbeManager {
      * @param probe update the object for this probe
      */
     public updateModes (probe: ReflectionProbe) {
+        if (!probe.node || !probe.node.scene) return;
         const scene = probe.node.scene.renderScene;
         if (!scene) return;
         const models = scene.models;
