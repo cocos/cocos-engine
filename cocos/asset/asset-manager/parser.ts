@@ -187,15 +187,15 @@ export class Parser {
     }
 
     public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        this._parseCompressTex(file, options, onComplete, compressType.PVR);
+        this._parseCompressTexs(file, options, onComplete, compressType.PVR);
     }
 
     public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        this._parseCompressTex(file, options, onComplete, compressType.PKM);
+        this._parseCompressTexs(file, options, onComplete, compressType.PKM);
     }
 
     public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        this._parseCompressTex(file, options, onComplete, compressType.ASTC);
+        this._parseCompressTexs(file, options, onComplete, compressType.ASTC);
     }
 
     public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
@@ -306,7 +306,7 @@ export class Parser {
         });
     }
 
-    private _parseCompressTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions,
+    private _parseCompressTexs (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions,
         onComplete: CompleteCallback<IMemoryImageSource>, type: number) {
         const out: IMemoryImageSource = {
             _data: null,
@@ -331,61 +331,49 @@ export class Parser {
                     mipmapLevelNumber * COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH);
                 const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
                 + mipmapLevelDataSizeChunks.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
-                // the position of chunk 0 in the index
-                let beginOffset = fileHeaderLength;
 
                 // Get a view of the arrayBuffer that represents compress chunks.
-                switch (type) {
-                case compressType.PVR:
-                    this._parsePVRTex(file, 0, beginOffset, mipmapLevelDataSizeChunks[0], out);
-                    break;
-                case compressType.PKM:
-                    this._parsePKMTex(file, 0, beginOffset, mipmapLevelDataSizeChunks[0], out);
-                    break;
-                case compressType.ASTC:
-                    this._parseASTCTex(file, 0, beginOffset, mipmapLevelDataSizeChunks[0], out);
-                    break;
-                default:
-                    break;
-                }
-                beginOffset += mipmapLevelDataSizeChunks[0];
+                this._parseCompressTex(file, 0, fileHeaderLength, mipmapLevelDataSizeChunks[0], type, out);
+                let beginOffset = fileHeaderLength + mipmapLevelDataSizeChunks[0];
 
                 for (let i = 1; i < mipmapLevelNumber; i++) {
-                    const mipmapLevelDataSize = mipmapLevelDataSizeChunks[i];
-                    switch (type) {
-                    case compressType.PVR:
-                        this._parsePVRTex(file, i, beginOffset, mipmapLevelDataSize, out);
-                        break;
-                    case compressType.PKM:
-                        this._parsePKMTex(file, i, beginOffset, mipmapLevelDataSize, out);
-                        break;
-                    case compressType.ASTC:
-                        this._parseASTCTex(file, i, beginOffset, mipmapLevelDataSize, out);
-                        break;
-                    default:
-                        break;
-                    }
-                    beginOffset += mipmapLevelDataSize;
+                    const endOffset = mipmapLevelDataSizeChunks[i];
+                    this._parseCompressTex(file, i, beginOffset, endOffset, type, out);
+                    beginOffset += endOffset;
                 }
             } else {
-                switch (type) {
-                case compressType.PVR:
-                    this._parsePVRTex(file, 0, 0, 0, out);
-                    break;
-                case compressType.PKM:
-                    this._parsePKMTex(file, 0, 0, 0, out);
-                    break;
-                case compressType.ASTC:
-                    this._parseASTCTex(file, 0, 0, 0, out);
-                    break;
-                default:
-                    break;
-                }
+                this._parseCompressTex(file, 0, 0, 0, type, out);
             }
         } catch (e) {
             err = e as Error;
         }
         onComplete(err, out);
+    }
+
+    /**
+     * @zh 解析 PVR 格式的压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
+     * @param type @zh 压缩纹理类型
+     * @param out @zh 压缩纹理输出
+     */
+    private _parseCompressTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource) {
+        switch (type) {
+        case compressType.PVR:
+            this._parsePVRTex(file, levelIndex, beginOffset, endOffset, out);
+            break;
+        case compressType.PKM:
+            this._parsePKMTex(file, levelIndex, beginOffset, endOffset, out);
+            break;
+        case compressType.ASTC:
+            this._parseASTCTex(file, levelIndex, beginOffset, endOffset, out);
+            break;
+        default:
+            break;
+        }
     }
 
     /**
