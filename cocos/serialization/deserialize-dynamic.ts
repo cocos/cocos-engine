@@ -25,7 +25,7 @@
 */
 
 import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
-import { cclegacy, js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, error, assertIsTrue, Attr, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
+import { cclegacy, js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, error, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
 import { MissingScript } from '../misc/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../pal/system-info/enum-type';
@@ -76,7 +76,7 @@ export type CompiledDeserializeFn = (
 
 const compileDeserialize = SUPPORT_JIT ? compileDeserializeJIT : compileDeserializeNative;
 
-const DELIMITER = Attr.DELIMETER;
+const DELIMITER = CCClass.Attr.DELIMETER;
 const POSTFIX_TYPE: `${typeof DELIMITER}type` = `${DELIMITER}type`;
 const POSTFIX_EDITOR_ONLY: `${typeof DELIMITER}editorOnly` = `${DELIMITER}editorOnly`;
 const POSTFIX_DEFAULT: `${typeof DELIMITER}default` = `${DELIMITER}default`;
@@ -94,7 +94,7 @@ type AttrResult = {
 };
 
 function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const attrs: AttrResult = Attr.getClassAttrs(klass);
+    const attrs: AttrResult = CCClass.Attr.getClassAttrs(klass);
 
     const props = klass.__values__;
     // self, obj, serializedData, klass
@@ -140,7 +140,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         if (fastMode && (defaultValue !== undefined || userType)) {
             let isPrimitiveType;
             if (defaultValue === undefined) {
-                isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+                isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
             } else {
                 const defaultType = typeof defaultValue;
                 isPrimitiveType = defaultType === 'string'
@@ -198,7 +198,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
         const props: string[] = klass.__values__;
         shouldCopyRawData = props[props.length - 1] === '_$erialized';
 
-        const attrs = Attr.getClassAttrs(klass);
+        const attrs = CCClass.Attr.getClassAttrs(klass);
 
         for (let p = 0; p < props.length; p++) {
             const propName = props[p];
@@ -212,7 +212,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             let isPrimitiveType = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
                 if (defaultValue === undefined) {
-                    isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+                    isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
                 } else {
                     const defaultType = typeof defaultValue;
                     isPrimitiveType = defaultType === 'string'
@@ -782,7 +782,7 @@ class _Deserializer {
             return;
         }
 
-        const attrs = Attr.getClassAttrs(klass);
+        const attrs = CCClass.Attr.getClassAttrs(klass);
         // @ts-expect-error 2339
         const props: string[] = klass.__values__;
         if (DEBUG && !props) {

@@ -24,7 +24,6 @@
 */
 
 import * as _decorator from './class-decorator';
-import * as Attr from './utils/attribute';
 import { legacyCC } from '../global-exports';
 
 legacyCC._decorator = _decorator;
@@ -32,10 +31,6 @@ export { _decorator };
 export { CCClass, ENUM_TAG, BITMASK_TAG, isCCClassOrFastDefined } from './class';
 export { CCObject, isCCObject, isValid } from './object';
 export { CCInteger, CCFloat, CCBoolean, CCString } from './utils/attribute';
-/**
- * @engineInternal
- */
-export { Attr };
 export { CompactValueTypeArray } from './utils/compact-value-type-array';
 export { editorExtrasTag } from './editor-extras-tag';
 export * from './utils/asserts';

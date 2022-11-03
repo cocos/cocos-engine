@@ -61,6 +61,8 @@
 #include "bindings/manual/jsb_global.h"
 
 
+#include "bindings/auto/jsb_geometry_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/auto/jsb_gi_auto.h"
 
 using namespace cc;
@@ -152,6 +154,44 @@ se::Class* __jsb_cc_gi_Vertex_class = nullptr;
 se::Object* __jsb_cc_gi_Vertex_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gi_Vertex) 
 
+static bool js_cc_gi_Vertex_coefficients_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->coefficients, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Vertex_coefficients_set,2,SWIGTYPE_ccstd__vectorT_Vec3_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_Vertex_coefficients_set) 
+
+static bool js_cc_gi_Vertex_coefficients_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->coefficients, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Vertex_coefficients_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->coefficients, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_Vertex_coefficients_get) 
+
 static bool js_cc_gi_Vertex_position_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -227,44 +267,6 @@ static bool js_cc_gi_Vertex_normal_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_Vertex_normal_get) 
-
-static bool js_cc_gi_Vertex_coefficients_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->coefficients, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vertex_coefficients_set,2,SWIGTYPE_ccstd__vectorT_Vec3_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_Vertex_coefficients_set) 
-
-static bool js_cc_gi_Vertex_coefficients_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->coefficients, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vertex_coefficients_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->coefficients, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_Vertex_coefficients_get) 
 
 static bool js_new_cc_gi_Vertex__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -354,6 +356,12 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
     se::Value field;
     bool ok = true;
     
+    json->getProperty("coefficients", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->coefficients), ctx);
+    }
+    
+    
     json->getProperty("position", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->position), ctx);
@@ -366,12 +374,6 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
     }
     
     
-    json->getProperty("coefficients", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->coefficients), ctx);
-    }
-    
-    
     return ok;
 }
 
@@ -379,9 +381,9 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
 bool js_register_cc_gi_Vertex(se::Object* obj) {
     auto* cls = se::Class::create("Vertex", obj, nullptr, _SE(js_new_Vertex)); 
     
+    cls->defineProperty("coefficients", _SE(js_cc_gi_Vertex_coefficients_get), _SE(js_cc_gi_Vertex_coefficients_set)); 
     cls->defineProperty("position", _SE(js_cc_gi_Vertex_position_get), _SE(js_cc_gi_Vertex_position_set)); 
     cls->defineProperty("normal", _SE(js_cc_gi_Vertex_normal_get), _SE(js_cc_gi_Vertex_normal_set)); 
-    cls->defineProperty("coefficients", _SE(js_cc_gi_Vertex_coefficients_get), _SE(js_cc_gi_Vertex_coefficients_set)); 
     
     
     
@@ -2692,6 +2694,28 @@ static bool js_cc_gi_LightProbeInfo_activate(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gi_LightProbeInfo_activate) 
 
+static bool js_cc_gi_LightProbeInfo_clearSHCoefficients(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearSHCoefficients();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_clearSHCoefficients) 
+
 static bool js_cc_gi_LightProbeInfo__enabled_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3379,6 +3403,7 @@ bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     cls->defineProperty("data", _SE(js_cc_gi_LightProbeInfo_data_get), _SE(js_cc_gi_LightProbeInfo_data_set)); 
     
     cls->defineFunction("activate", _SE(js_cc_gi_LightProbeInfo_activate)); 
+    cls->defineFunction("clearSHCoefficients", _SE(js_cc_gi_LightProbeInfo_clearSHCoefficients)); 
     
     
     

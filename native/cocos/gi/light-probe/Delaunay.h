@@ -38,9 +38,9 @@ namespace gi {
 class Delaunay;
 
 struct Vertex {
+    ccstd::vector<Vec3> coefficients;
     Vec3 position;
     Vec3 normal;
-    ccstd::vector<Vec3> coefficients;
 
     Vertex() = default;
     explicit Vertex(const Vec3 &pos)
