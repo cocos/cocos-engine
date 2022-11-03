@@ -20,6 +20,10 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifacts" tooltip="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifactsTip"></ui-label>
         <ui-checkbox slot="content" class="fixAlphaTransparencyArtifacts-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.image.flipGreenChannel" tooltip="i18n:ENGINE.assets.image.flipGreenChannelTip"></ui-label>
+        <ui-checkbox slot="content" class="flipGreenChannel-checkbox"></ui-checkbox>
+    </ui-prop>
     <ui-prop class="isRGBE-prop">
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
@@ -56,6 +60,7 @@ exports.$ = {
     container: '.asset-image',
     typeSelect: '.type-select',
     flipVerticalCheckbox: '.flipVertical-checkbox',
+    flipGreenChannel: '.flipGreenChannel-checkbox',
     fixAlphaTransparencyArtifactsCheckbox: '.fixAlphaTransparencyArtifacts-checkbox',
     fixATAProp: '.fixATAProp',
     isRGBEProp: '.isRGBE-prop',
@@ -206,6 +211,26 @@ const Elements = {
             }
         },
     },
+    flipGreenChannel: {
+        ready() {
+            const panel = this;
+
+            panel.$.flipGreenChannel.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.flipGreenChannel = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.flipGreenChannel.value = panel.meta.userData.flipGreenChannel;
+
+            panel.updateInvalid(panel.$.flipGreenChannel, 'flipGreenChannel');
+            panel.updateReadonly(panel.$.flipGreenChannel);
+        },
+    },
 };
 
 /**
@@ -213,7 +238,7 @@ const Elements = {
  * @param assetList
  * @param metaList
  */
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -232,7 +257,7 @@ exports.update = function(assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
