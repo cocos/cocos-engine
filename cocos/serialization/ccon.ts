@@ -8,9 +8,10 @@ const CHUNK_ALIGN_AS = 8;
 
 // Compress mipmap constants
 // https://github.com/cocos/3d-tasks/issues/10876
-const COMPRESS_HEADER_SIZE = 4;
-const COMPRESS_MIPMAP_LEVEL_OFFSET = 4;
-const COMPRESS_MIPMAP_MAGIC = 0x50494d43;
+const COMPRESSED_HEADER_LENGTH = 4;
+const COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH = 4;
+const COMPRESSED_MIPMAP_DATA_SIZE_LENGTH = 4;
+const COMPRESSED_MIPMAP_MAGIC = 0x50494d43;
 
 export class CCON {
     constructor (document: unknown, chunks: Uint8Array[]) {
@@ -90,7 +91,7 @@ export function encodeCCONBinary (ccon: CCON) {
 /**
  * CompressedTexture.ccon
  * ************* hearder ***************
- * COMPRESS_MIPMAP_MAGIC: 0x50494d43   *
+ * COMPRESSED_MIPMAP_MAGIC: 0x50494d43 *
  * ************* document **************
  * mipmapLevel: n                      *
  * mipmapLevelDataSize[0]: xxx         *
@@ -117,19 +118,19 @@ export function mergeAllCompressedTexture (ccon: CCON) {
     const ccobBuilder = new BufferBuilder();
 
     // Compressed hearder
-    const header = new ArrayBuffer(COMPRESS_HEADER_SIZE);
+    const header = new ArrayBuffer(COMPRESSED_HEADER_LENGTH);
     const hearderView = new DataView(header);
-    hearderView.setUint32(0, COMPRESS_MIPMAP_MAGIC, true); // add magic
+    hearderView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
     ccobBuilder.append(hearderView);
 
     // Compressed document
     const mipmapLevel = chunks.length;
-    const documentLength =  COMPRESS_MIPMAP_LEVEL_OFFSET + mipmapLevel * 4;
+    const documentLength = COMPRESSED_MIPMAP_MAGIC + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + mipmapLevel * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
     const document = new ArrayBuffer(documentLength);
     const documentView = new DataView(document);
     documentView.setUint32(0, mipmapLevel);    // add mipmap level
     for (let i = 0; i < mipmapLevel; i++) {
-        hearderView.setUint32(4 + i * 4, chunks[i].byteLength);
+        hearderView.setUint32(COMPRESSED_MIPMAP_MAGIC + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH, chunks[i].byteLength);
     }
     ccobBuilder.append(documentView);
 

@@ -164,9 +164,9 @@ export class Parser {
         '.tiff': this.parseImage,
         '.webp': this.parseImage,
         '.image': this.parseImage,
-        '.pvr': this.parsePVRTexs,
-        '.pkm': this.parsePKMTexs,
-        '.astc': this.parseASTCTexs,
+        '.pvr': this.parsePVRTex,
+        '.pkm': this.parsePKMTex,
+        '.astc': this.parseASTCTex,
 
         // plist
         '.plist': this.parsePlist,
@@ -188,234 +188,16 @@ export class Parser {
         });
     }
 
-    public parsePVRTexs (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         this._parseCompressTex(file, options, onComplete, compressType.PVR);
     }
 
-    public parsePKMTexs (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         this._parseCompressTex(file, options, onComplete, compressType.PKM);
     }
 
-    public parseASTCTexs (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         this._parseCompressTex(file, options, onComplete, compressType.ASTC);
-    }
-
-    private _parseCompressTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions,
-        onComplete: CompleteCallback<IMemoryImageSource>, type: number) {
-        const out: IMemoryImageSource | null = null;
-        let err: Error | null = null;
-        try {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            // Get a view of the arrayBuffer that represents compress header.
-            const header = new Int32Array(buffer, 0, COMPRESS_HEADER_LENGTH);
-            // Do some sanity checks to make sure this is a valid compress file.
-            if (header[COMPRESS_HEADER_MAGIC] === COMPRESS_MIPMAP_MAGIC) {
-                // Get a view of the arrayBuffer that represents compress document.
-                const mipmapLevel = new Int32Array(buffer, COMPRESS_HEADER_LENGTH, COMPRESS_MIPMAP_LEVEL_LENGHT);
-                const cconHeader = COMPRESS_HEADER_LENGTH;
-                const mipmapLevelCount = mipmapLevel[0];
-                const cconDocument = cconHeader + COMPRESS_MIPMAP_LEVEL_LENGHT + mipmapLevelCount * 4;
-                // the position of chunk 0 in the index
-                let skipLength = cconHeader + cconDocument;
-                const chunks = new Int32Array(buffer, cconHeader + COMPRESS_MIPMAP_LEVEL_LENGHT, mipmapLevelCount * 4);
-
-                // Get a view of the arrayBuffer that represents compress chunks.
-                switch (type) {
-                case compressType.PVR:
-                    this._parsePVRTex(file, 0, skipLength, chunks[0], out);
-                    break;
-                case compressType.PKM:
-                    this._parsePKMTex(file, 0, skipLength, chunks[0], out);
-                    break;
-                case compressType.ASTC:
-                    this._parseASTCTex(file, 0, skipLength, chunks[0], out);
-                    break;
-                default:
-                    break;
-                }
-                skipLength += chunks[0];
-                for (let i = 1; i < mipmapLevelCount; i++) {
-                    switch (type) {
-                    case compressType.PVR:
-                        this._parsePVRTex(file, i, skipLength, chunks[i], out);
-                        break;
-                    case compressType.PKM:
-                        this._parsePKMTex(file, i, skipLength, chunks[i], out);
-                        break;
-                    case compressType.ASTC:
-                        this._parseASTCTex(file, i, skipLength, chunks[i], out);
-                        break;
-                    default:
-                        break;
-                    }
-                    skipLength += chunks[i];
-                }
-            } else {
-                switch (type) {
-                case compressType.PVR:
-                    this._parsePVRTex(file, 0, 0, 0, out);
-                    break;
-                case compressType.PKM:
-                    this._parsePKMTex(file, 0, 0, 0, out);
-                    break;
-                case compressType.ASTC:
-                    this._parseASTCTex(file, 0, 0, 0, out);
-                    break;
-                default:
-                    break;
-                }
-            }
-        } catch (e) {
-            err = e as Error;
-        }
-        onComplete(err, out);
-    }
-
-    /**
-     * @zh 解析 PVR 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param skipLength @zh 需要跳过的字节长度
-     * @param chunkSize @zh 当前块大小
-     * @param out @zh 压缩纹理输出
-     */
-    private _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
-        let err: Error | null = null;
-        try {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            // Get a view of the arrayBuffer that represents the DDS header.
-            const header = new Int32Array(buffer, skipLength, PVR_HEADER_LENGTH);
-
-            // Do some sanity checks to make sure this is a valid DDS file.
-            if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
-                // Gather other basic metrics and a view of the raw the DXT data.
-                _width = levelIndex > 0 ? _width : header[PVR_HEADER_WIDTH];
-                _height = levelIndex > 0 ? _height : header[PVR_HEADER_HEIGHT];
-                const dataOffset = header[PVR_HEADER_METADATA] + 52 + skipLength;
-                const pvrtcData = chunkSize > 0
-                    ? new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength)
-                    : new Uint8Array(buffer, dataOffset);
-                out = {
-                    _data: [],
-                    _compressed: true,
-                    width: _width,
-                    height: _height,
-                    format: 0,
-                };
-                out._data[levelIndex] = pvrtcData;
-            } else if (header[11] === 0x21525650) {
-                const dataOffset = header[0]  + skipLength;
-                _width = levelIndex > 0 ? _width : header[1];
-                _height = levelIndex > 0 ? _height : header[2];
-                const pvrtcData = chunkSize > 0
-                    ? new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength)
-                    : new Uint8Array(buffer, dataOffset);
-                out = {
-                    _data: [],
-                    _compressed: true,
-                    width: _width,
-                    height: _height,
-                    format: 0,
-                };
-                out._data[levelIndex] = pvrtcData;
-            } else {
-                throw new Error('Invalid magic number in PVR header');
-            }
-        } catch (e) {
-            err = e as Error;
-        }
-    }
-
-    /**
-     * @zh 解析 PKM 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param skipLength @zh 需要跳过的字节长度
-     * @param chunkSize @zh 当前块大小
-     * @param out @zh 压缩纹理输出
-     */
-    private _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
-        let err: Error | null = null;
-        try {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const header = new Uint8Array(buffer, skipLength, ETC_PKM_HEADER_LENGTH);
-            const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
-            if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
-                throw new Error('Invalid magic number in ETC header');
-            }
-            const dataOffset = ETC_PKM_HEADER_LENGTH + skipLength;
-            _width = levelIndex > 0 ? _width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
-            _height = levelIndex > 0 ? _height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
-            const etcData = chunkSize > 0
-                ? new Uint8Array(buffer, dataOffset, chunkSize - ETC_PKM_HEADER_LENGTH)
-                : new Uint8Array(buffer, dataOffset);
-            out = {
-                _data: [],
-                _compressed: true,
-                width: _width,
-                height: _height,
-                format: 0,
-            };
-            out._data[levelIndex] = etcData;
-        } catch (e) {
-            err = e as Error;
-        }
-    }
-
-    /**
-     * @zh 解析 ASTC 格式的压缩纹理
-     * @param file @zh ccon 文件
-     * @param levelIndex @zh 当前 mipmap 层级
-     * @param skipLength @zh 需要跳过的字节长度
-     * @param chunkSize @zh 当前块大小
-     * @param out @zh 压缩纹理输出
-     */
-    private _parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
-        let err: Error | null = null;
-        try {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const header = new Uint8Array(buffer, skipLength, ASTC_HEADER_LENGTH);
-
-            const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
-            if (magicval !== ASTC_MAGIC) {
-                throw new Error('Invalid magic number in ASTC header');
-            }
-
-            const xdim = header[ASTC_HEADER_MAGIC];
-            const ydim = header[ASTC_HEADER_MAGIC + 1];
-            const zdim = header[ASTC_HEADER_MAGIC + 2];
-            if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6)
-                && (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12
-                || ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
-                throw new Error('Invalid block number in ASTC header');
-            }
-
-            const format = getASTCFormat(xdim, ydim);
-
-            const dataOffset = ASTC_HEADER_LENGTH + skipLength;
-            _width = levelIndex > 0 ? _width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
-                + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
-            _height = levelIndex > 0 ? _height : header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
-                + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
-
-            const astcData = chunkSize > 0
-                ? new Uint8Array(buffer, dataOffset, chunkSize - ASTC_HEADER_LENGTH)
-                : new Uint8Array(buffer, dataOffset);
-
-            out = {
-                _data: [],
-                _compressed: true,
-                width: _width,
-                height: _height,
-                format,
-            };
-            out._data[levelIndex] = astcData;
-        } catch (e) {
-            err = e as Error;
-        }
     }
 
     public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
@@ -524,6 +306,224 @@ export class Parser {
                 callbacks![i](err, data);
             }
         });
+    }
+
+    private _parseCompressTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions,
+        onComplete: CompleteCallback<IMemoryImageSource>, type: number) {
+        const out: IMemoryImageSource | null = null;
+        let err: Error | null = null;
+        try {
+            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+            // Get a view of the arrayBuffer that represents compress header.
+            const header = new Int32Array(buffer, 0, COMPRESS_HEADER_LENGTH);
+            // Do some sanity checks to make sure this is a valid compress file.
+            if (header[COMPRESS_HEADER_MAGIC] === COMPRESS_MIPMAP_MAGIC) {
+                // Get a view of the arrayBuffer that represents compress document.
+                const mipmapLevel = new Int32Array(buffer, COMPRESS_HEADER_LENGTH, COMPRESS_MIPMAP_LEVEL_LENGHT);
+                const cconHeader = COMPRESS_HEADER_LENGTH;
+                const mipmapLevelCount = mipmapLevel[0];
+                const cconDocument = cconHeader + COMPRESS_MIPMAP_LEVEL_LENGHT + mipmapLevelCount * 4;
+                // the position of chunk 0 in the index
+                let skipLength = cconHeader + cconDocument;
+                const chunks = new Int32Array(buffer, cconHeader + COMPRESS_MIPMAP_LEVEL_LENGHT, mipmapLevelCount * 4);
+
+                // Get a view of the arrayBuffer that represents compress chunks.
+                switch (type) {
+                case compressType.PVR:
+                    this._parsePVRTex(file, 0, skipLength, chunks[0], out);
+                    break;
+                case compressType.PKM:
+                    this._parsePKMTex(file, 0, skipLength, chunks[0], out);
+                    break;
+                case compressType.ASTC:
+                    this._parseASTCTex(file, 0, skipLength, chunks[0], out);
+                    break;
+                default:
+                    break;
+                }
+                skipLength += chunks[0];
+                for (let i = 1; i < mipmapLevelCount; i++) {
+                    switch (type) {
+                    case compressType.PVR:
+                        this._parsePVRTex(file, i, skipLength, chunks[i], out);
+                        break;
+                    case compressType.PKM:
+                        this._parsePKMTex(file, i, skipLength, chunks[i], out);
+                        break;
+                    case compressType.ASTC:
+                        this._parseASTCTex(file, i, skipLength, chunks[i], out);
+                        break;
+                    default:
+                        break;
+                    }
+                    skipLength += chunks[i];
+                }
+            } else {
+                switch (type) {
+                case compressType.PVR:
+                    this._parsePVRTex(file, 0, 0, 0, out);
+                    break;
+                case compressType.PKM:
+                    this._parsePKMTex(file, 0, 0, 0, out);
+                    break;
+                case compressType.ASTC:
+                    this._parseASTCTex(file, 0, 0, 0, out);
+                    break;
+                default:
+                    break;
+                }
+            }
+        } catch (e) {
+            err = e as Error;
+        }
+        onComplete(err, out);
+    }
+
+    /**
+     * @zh 解析 PVR 格式的压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param skipLength @zh 需要跳过的字节长度
+     * @param chunkSize @zh 当前块大小
+     * @param out @zh 压缩纹理输出
+     */
+    private _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
+        let err: Error | null = null;
+        try {
+            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+            // Get a view of the arrayBuffer that represents the DDS header.
+            const header = new Int32Array(buffer, skipLength, PVR_HEADER_LENGTH);
+
+            // Do some sanity checks to make sure this is a valid DDS file.
+            if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
+                // Gather other basic metrics and a view of the raw the DXT data.
+                _width = levelIndex > 0 ? _width : header[PVR_HEADER_WIDTH];
+                _height = levelIndex > 0 ? _height : header[PVR_HEADER_HEIGHT];
+                const dataOffset = header[PVR_HEADER_METADATA] + 52 + skipLength;
+                const pvrtcData = chunkSize > 0
+                    ? new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength)
+                    : new Uint8Array(buffer, dataOffset);
+                out = {
+                    _data: pvrtcData,
+                    _compressed: true,
+                    width: _width,
+                    height: _height,
+                    format: 0,
+                    mipmapLevelDataSize: [],
+                };
+            } else if (header[11] === 0x21525650) {
+                const dataOffset = header[0]  + skipLength;
+                _width = levelIndex > 0 ? _width : header[1];
+                _height = levelIndex > 0 ? _height : header[2];
+                const pvrtcData = chunkSize > 0
+                    ? new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength)
+                    : new Uint8Array(buffer, dataOffset);
+                out = {
+                    _data: pvrtcData,
+                    _compressed: true,
+                    width: _width,
+                    height: _height,
+                    format: 0,
+                    mipmapLevelDataSize: [],
+                };
+            } else {
+                throw new Error('Invalid magic number in PVR header');
+            }
+        } catch (e) {
+            err = e as Error;
+        }
+    }
+
+    /**
+     * @zh 解析 PKM 格式的压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param skipLength @zh 需要跳过的字节长度
+     * @param chunkSize @zh 当前块大小
+     * @param out @zh 压缩纹理输出
+     */
+    private _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
+        let err: Error | null = null;
+        try {
+            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+            const header = new Uint8Array(buffer, skipLength, ETC_PKM_HEADER_LENGTH);
+            const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
+            if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
+                throw new Error('Invalid magic number in ETC header');
+            }
+            const dataOffset = ETC_PKM_HEADER_LENGTH + skipLength;
+            _width = levelIndex > 0 ? _width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
+            _height = levelIndex > 0 ? _height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
+            const etcData = chunkSize > 0
+                ? new Uint8Array(buffer, dataOffset, chunkSize - ETC_PKM_HEADER_LENGTH)
+                : new Uint8Array(buffer, dataOffset);
+            out = {
+                _data: etcData,
+                _compressed: true,
+                width: _width,
+                height: _height,
+                format: 0,
+                mipmapLevelDataSize: [],
+            };
+        } catch (e) {
+            err = e as Error;
+        }
+    }
+
+    /**
+     * @zh 解析 ASTC 格式的压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param skipLength @zh 需要跳过的字节长度
+     * @param chunkSize @zh 当前块大小
+     * @param out @zh 压缩纹理输出
+     */
+    private _parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
+        let err: Error | null = null;
+        try {
+            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+            const header = new Uint8Array(buffer, skipLength, ASTC_HEADER_LENGTH);
+
+            const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
+            if (magicval !== ASTC_MAGIC) {
+                throw new Error('Invalid magic number in ASTC header');
+            }
+
+            const xdim = header[ASTC_HEADER_MAGIC];
+            const ydim = header[ASTC_HEADER_MAGIC + 1];
+            const zdim = header[ASTC_HEADER_MAGIC + 2];
+            if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6)
+                && (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12
+                || ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
+                throw new Error('Invalid block number in ASTC header');
+            }
+
+            const format = getASTCFormat(xdim, ydim);
+
+            const dataOffset = ASTC_HEADER_LENGTH + skipLength;
+            _width = levelIndex > 0 ? _width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
+                + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
+            _height = levelIndex > 0 ? _height : header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
+                + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
+
+            const astcData = chunkSize > 0
+                ? new Uint8Array(buffer, dataOffset, chunkSize - ASTC_HEADER_LENGTH)
+                : new Uint8Array(buffer, dataOffset);
+
+            out = {
+                _data: astcData,
+                _compressed: true,
+                width: _width,
+                height: _height,
+                format,
+                mipmapLevelDataSize: [],
+            };
+        } catch (e) {
+            err = e as Error;
+        }
     }
 }
 

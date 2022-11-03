@@ -39,11 +39,12 @@ import { sys } from '../../core/platform/sys';
  * @zh 内存图像源。
  */
 export interface IMemoryImageSource {
-    _data: ArrayBufferView[];
+    _data: ArrayBufferView | null;
     _compressed: boolean;
     width: number;
     height: number;
     format: number;
+    mipmapLevelDataSize?: number[];
 }
 
 /**
@@ -165,11 +166,12 @@ export class ImageAsset extends Asset {
         super();
 
         this._nativeData = {
-            _data: [],
+            _data: null,
             width: 0,
             height: 0,
             format: 0,
             _compressed: false,
+            mipmapLevelDataSize: [],
         };
 
         if (EDITOR) {
