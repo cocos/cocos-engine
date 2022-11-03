@@ -9,7 +9,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import { terser as rpTerser } from 'rollup-plugin-terser';
 import babelPresetEnv from '@babel/preset-env';
 import type { Options as babelPresetEnvOptions } from '@babel/preset-env';
-import babelPresetCc from '@cocos/babel-preset-cc';
+import { babelPresetCC, helpers } from '@cocos/creator-programming-babel-preset-cc'
 // @ts-expect-error: No typing
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
 import * as rollup from 'rollup';
@@ -30,6 +30,7 @@ import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asse
 import { codeAsset } from './rollup-plugins/code-asset';
 import { ModeType, PlatformType } from './constant-manager';
 import { assetUrl } from './rollup-plugins/asset-url';
+import { fieldDecorators } from './field-decorators';
 
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
@@ -311,6 +312,7 @@ async function doBuild ({
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
+    rpVirtualOptions[helpers.CC_HELPER_MODULE] = helpers.generateHelperModuleSource();
 
     const forceStandaloneModules = ['wait-for-ammo-instantiation', 'decorator'];
 
@@ -392,9 +394,11 @@ async function doBuild ({
         plugins: babelPlugins,
         presets: [
             [babelPresetEnv, presetEnvOptions],
-            [babelPresetCc, {
+            [babelPresetCC, {
                 allowDeclareFields: true,
-            } as babelPresetCc.Options],
+                ccDecoratorHelpers: 'external',
+                fieldDecorators,
+            } as babelPresetCC.Options],
         ],
     };
 
