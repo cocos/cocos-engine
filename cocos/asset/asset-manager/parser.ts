@@ -98,8 +98,6 @@ const ASTC_HEADER_BLOCKDIM = 3;
 const ASTC_HEADER_SIZE_X_BEGIN = 7;
 const ASTC_HEADER_SIZE_Y_BEGIN = 10;
 const ASTC_HEADER_SIZE_Z_BEGIN = 13;
-let _width = 0;
-let _height = 0;
 
 function getASTCFormat (xdim, ydim) {
     if (xdim === 4) {
@@ -310,7 +308,15 @@ export class Parser {
 
     private _parseCompressTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions,
         onComplete: CompleteCallback<IMemoryImageSource>, type: number) {
-        const out: IMemoryImageSource | null = null;
+        const out: IMemoryImageSource = {
+            _data: null,
+            _compressed: true,
+            width: 0,
+            height: 0,
+            format: 0,
+            mipmapLevelDataSize: [],
+        };
+
         let err: Error | null = null;
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
@@ -388,7 +394,7 @@ export class Parser {
      * @param out @zh 压缩纹理输出
      */
     private _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
+        skipLength: number, chunkSize: number, out: IMemoryImageSource) {
         let err: Error | null = null;
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
@@ -398,35 +404,33 @@ export class Parser {
             // Do some sanity checks to make sure this is a valid DDS file.
             if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
                 // Gather other basic metrics and a view of the raw the DXT data.
-                _width = levelIndex > 0 ? _width : header[PVR_HEADER_WIDTH];
-                _height = levelIndex > 0 ? _height : header[PVR_HEADER_HEIGHT];
                 const dataOffset = header[PVR_HEADER_METADATA] + 52 + skipLength;
-                const pvrtcData = chunkSize > 0
-                    ? new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength)
-                    : new Uint8Array(buffer, dataOffset);
-                out = {
-                    _data: pvrtcData,
-                    _compressed: true,
-                    width: _width,
-                    height: _height,
-                    format: 0,
-                    mipmapLevelDataSize: [],
-                };
+                if (chunkSize > 0) {
+                    const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength);
+                    const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
+                    dstIBView.set(out._data as Uint8Array);
+                    dstIBView.set(srcIBView, out._data!.byteLength);
+                    out._data  = dstIBView;
+                    out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+                } else {
+                    out._data = new Uint8Array(buffer, dataOffset);
+                }
+                out.width = levelIndex > 0 ? out.width : header[PVR_HEADER_WIDTH];
+                out.height = levelIndex > 0 ? out.height : header[PVR_HEADER_HEIGHT];
             } else if (header[11] === 0x21525650) {
                 const dataOffset = header[0]  + skipLength;
-                _width = levelIndex > 0 ? _width : header[1];
-                _height = levelIndex > 0 ? _height : header[2];
-                const pvrtcData = chunkSize > 0
-                    ? new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength)
-                    : new Uint8Array(buffer, dataOffset);
-                out = {
-                    _data: pvrtcData,
-                    _compressed: true,
-                    width: _width,
-                    height: _height,
-                    format: 0,
-                    mipmapLevelDataSize: [],
-                };
+                if (chunkSize > 0) {
+                    const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - header.byteLength);
+                    const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
+                    dstIBView.set(out._data as Uint8Array);
+                    dstIBView.set(srcIBView, out._data!.byteLength);
+                    out._data  = dstIBView;
+                    out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+                } else {
+                    out._data  = new Uint8Array(buffer, dataOffset);
+                }
+                out.width = levelIndex > 0 ? out.width : header[1];
+                out.height = levelIndex > 0 ? out.height : header[2];
             } else {
                 throw new Error('Invalid magic number in PVR header');
             }
@@ -444,7 +448,7 @@ export class Parser {
      * @param out @zh 压缩纹理输出
      */
     private _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
+        skipLength: number, chunkSize: number, out: IMemoryImageSource) {
         let err: Error | null = null;
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
@@ -453,20 +457,20 @@ export class Parser {
             if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
                 throw new Error('Invalid magic number in ETC header');
             }
+
             const dataOffset = ETC_PKM_HEADER_LENGTH + skipLength;
-            _width = levelIndex > 0 ? _width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
-            _height = levelIndex > 0 ? _height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
-            const etcData = chunkSize > 0
-                ? new Uint8Array(buffer, dataOffset, chunkSize - ETC_PKM_HEADER_LENGTH)
-                : new Uint8Array(buffer, dataOffset);
-            out = {
-                _data: etcData,
-                _compressed: true,
-                width: _width,
-                height: _height,
-                format: 0,
-                mipmapLevelDataSize: [],
-            };
+            if (chunkSize > 0) {
+                const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - ETC_PKM_HEADER_LENGTH);
+                const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
+                dstIBView.set(out._data as Uint8Array);
+                dstIBView.set(srcIBView, out._data!.byteLength);
+                out._data  = dstIBView;
+                out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+            } else {
+                out._data = new Uint8Array(buffer, dataOffset);
+            }
+            out.width = levelIndex > 0 ? out.width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
+            out.height = levelIndex > 0 ? out.height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
         } catch (e) {
             err = e as Error;
         }
@@ -481,7 +485,7 @@ export class Parser {
      * @param out @zh 压缩纹理输出
      */
     private _parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        skipLength: number, chunkSize: number, out: IMemoryImageSource | null) {
+        skipLength: number, chunkSize: number, out: IMemoryImageSource) {
         let err: Error | null = null;
         try {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
@@ -502,25 +506,22 @@ export class Parser {
             }
 
             const format = getASTCFormat(xdim, ydim);
-
             const dataOffset = ASTC_HEADER_LENGTH + skipLength;
-            _width = levelIndex > 0 ? _width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
+            if (chunkSize > 0) {
+                const srcIBView = new Uint8Array(buffer, dataOffset, chunkSize - ASTC_HEADER_LENGTH);
+                const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
+                dstIBView.set(out._data as Uint8Array);
+                dstIBView.set(srcIBView, out._data!.byteLength);
+                out._data  = dstIBView;
+                out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+            } else {
+                out._data = new Uint8Array(buffer, dataOffset);
+            }
+            out.width = levelIndex > 0 ? out.width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
                 + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
-            _height = levelIndex > 0 ? _height : header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
+            out.height = levelIndex > 0 ? out.height : header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
                 + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
-
-            const astcData = chunkSize > 0
-                ? new Uint8Array(buffer, dataOffset, chunkSize - ASTC_HEADER_LENGTH)
-                : new Uint8Array(buffer, dataOffset);
-
-            out = {
-                _data: astcData,
-                _compressed: true,
-                width: _width,
-                height: _height,
-                format,
-                mipmapLevelDataSize: [],
-            };
+            out.format = format;
         } catch (e) {
             err = e as Error;
         }
