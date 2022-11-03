@@ -59,7 +59,7 @@ import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
-const _inv_world_mat = new Mat4();
+const _inv_world_rol = new Quat();
 const _inv_velo = new Vec3();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
@@ -1556,9 +1556,9 @@ export class ParticleSystem extends ModelRenderer {
                 const veloLen = particle.velocity.length();
 
                 if (this._particle.particleSystem._simulationSpace === Space.World) {
-                    this._particle.particleSystem.node.getWorldMatrix(_inv_world_mat);
-                    Mat4.invert(_inv_world_mat, _inv_world_mat);
-                    Vec3.transformMat4(_inv_velo, this._particle.velocity, _inv_world_mat);
+                    this._particle.particleSystem.node.getWorldRotation(_inv_world_rol);
+                    Quat.invert(_inv_world_rol, _inv_world_rol);
+                    Vec3.transformQuat(_inv_velo, this._particle.velocity, _inv_world_rol);
                 } else {
                     _inv_velo.set(this._particle.velocity);
                 }

@@ -365,7 +365,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private noise: ParticleNoise = new ParticleNoise();
 
     public clearSubemitter () {
-        for (let i = this._particles!.length; i >= 0; --i) {
+        for (let i = this._particles!.data.length; i >= 0; --i) {
             const p = this._particles!.data[i];
             if (p === undefined || p === null) {
                 continue;
