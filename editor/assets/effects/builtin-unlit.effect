@@ -69,8 +69,6 @@ CCProgram unlit-vs %{
   #include <legacy/decode-base>
   #include <legacy/local-batch>
   #include <legacy/input>
-  #include <legacy/fog-vs>
-
   #if USE_VERTEX_COLOR
     in lowp vec4 a_color;
     out lowp vec4 v_color;
@@ -101,7 +99,6 @@ CCProgram unlit-vs %{
       v_color = a_color;
     #endif
 
-    CC_TRANSFER_FOG(matWorld * position);
     return cc_matProj * (cc_matView * matWorld) * position;
   }
 }%
@@ -109,7 +106,6 @@ CCProgram unlit-vs %{
 CCProgram unlit-fs %{
   precision highp float;
   #include <legacy/output-standard>
-  #include <legacy/fog-fs>
 
   #if USE_ALPHA_TEST
     #pragma define-meta ALPHA_TEST_CHANNEL options([a, r, g, b])
@@ -148,7 +144,6 @@ CCProgram unlit-fs %{
       if (o.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
     #endif
 
-    CC_APPLY_FOG(o);
     return CCFragOutput(o);
   }
 }%

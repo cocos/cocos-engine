@@ -1,3 +1,0 @@
-#include <builtin/functionalities/shadow-map>
-
-#pragma define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = cc_matLightViewProj * pos

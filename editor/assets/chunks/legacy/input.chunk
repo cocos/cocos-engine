@@ -2,20 +2,7 @@
 #include <legacy/decode>
 #include <common/data/unpack> //decode32
 
-#if CC_USE_MORPH
-  #include <legacy/morph>
-#endif
-#if CC_USE_SKINNING
-  #include <legacy/skinning>
-#endif
-
 void CCVertInput(inout vec4 In)
 {
   CCDecode(In);
-  #if CC_USE_MORPH
-    applyMorph(In);
-  #endif
-  #if CC_USE_SKINNING
-    CCSkin(In);
-  #endif
 }
