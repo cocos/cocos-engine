@@ -5,6 +5,8 @@ import { Binder, RuntimeBinding, TrackBinding, TrackPath } from '../tracks/track
 
 const SPLIT_METHOD_ENABLED = TEST || EDITOR;
 
+const { ccclass, serializable } = _decorator;
+
 function throwIfSplitMethodIsNotValid (): never {
     // TODO: better handling
     throw new Error(`split() only valid in Editor.`);
@@ -17,7 +19,7 @@ function throwIfSplitMethodIsNotValid (): never {
  * - non-editable;
  * - currently only generated imported from model file.
  */
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticAnimation`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticAnimation`)
 export class ExoticAnimation {
     public createEvaluator (binder: Binder) {
         return new ExoticTrsAnimationEvaluator(this._nodeAnimations, binder);
@@ -52,11 +54,11 @@ export class ExoticAnimation {
         return this._nodeAnimations.map((nodeAnimation) => nodeAnimation.toHashString()).join('\n');
     }
 
-    @_decorator.serializable
+    @serializable
     private _nodeAnimations: ExoticNodeAnimation[] = [];
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticNodeAnimation`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticNodeAnimation`)
 class ExoticNodeAnimation {
     constructor (path: string) {
         this._path = path;
@@ -121,16 +123,16 @@ class ExoticNodeAnimation {
         }${this._rotation?.toHashString() ?? ''}`;
     }
 
-    @_decorator.serializable
+    @serializable
     private _path = '';
 
-    @_decorator.serializable
+    @serializable
     private _position: ExoticVec3Track | null = null;
 
-    @_decorator.serializable
+    @serializable
     private _rotation: ExoticQuatTrack | null = null;
 
-    @_decorator.serializable
+    @serializable
     private _scale: ExoticVec3Track | null = null;
 }
 
@@ -159,7 +161,7 @@ interface ExoticTrackValues<TValue> {
 
 type MayBeQuantized = FloatArray | QuantizedFloatArray;
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVectorLikeTrackValues`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVectorLikeTrackValues`)
 class ExoticVectorLikeTrackValues {
     constructor (values: FloatArray) {
         this._values = values;
@@ -190,14 +192,14 @@ class ExoticVectorLikeTrackValues {
         }`;
     }
 
-    @_decorator.serializable
+    @serializable
     protected _values: MayBeQuantized;
 
-    @_decorator.serializable
+    @serializable
     protected _isQuantized: boolean;
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVec3TrackValues`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVec3TrackValues`)
 class ExoticVec3TrackValues extends ExoticVectorLikeTrackValues implements ExoticTrackValues<Vec3> {
     public static imitate (values: FloatArray, model: ExoticVec3TrackValues) {
         const trackValues = new ExoticVec3TrackValues(values);
@@ -242,7 +244,7 @@ class ExoticVec3TrackValues extends ExoticVectorLikeTrackValues implements Exoti
     }
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticQuatTrackValues`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticQuatTrackValues`)
 class ExoticQuatTrackValues extends ExoticVectorLikeTrackValues implements ExoticTrackValues<Quat> {
     public static imitate (values: FloatArray, model: ExoticQuatTrackValues) {
         const trackValues = new ExoticQuatTrackValues(values);
@@ -287,17 +289,17 @@ class ExoticQuatTrackValues extends ExoticVectorLikeTrackValues implements Exoti
     }
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticTrack`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticTrack`)
 class ExoticTrack<TTrackValues extends { toHashString(): string; }> {
     constructor (times: FloatArray, values: TTrackValues) {
         this.times = times;
         this.values = values;
     }
 
-    @_decorator.serializable
+    @serializable
     public times!: FloatArray;
 
-    @_decorator.serializable
+    @serializable
     public values!: TTrackValues;
 
     /**
@@ -765,18 +767,18 @@ function getFloatArrayConstructorWithPrecision (precision: FloatPrecision) {
     }
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}QuantizedFloatArray`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}QuantizedFloatArray`)
 class QuantizedFloatArray {
-    @_decorator.serializable
+    @serializable
     public originalPrecision: FloatPrecision;
 
-    @_decorator.serializable
+    @serializable
     public min!: number;
 
-    @_decorator.serializable
+    @serializable
     public extent!: number;
 
-    @_decorator.serializable
+    @serializable
     public values!: UintArray;
 
     get quantizationType (): QuantizationType {

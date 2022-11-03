@@ -22,14 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
-    menu, tooltip, serializable, formerlySerializedAs, visible } from 'cc.decorator';
 import { toRadian, cclegacy,  CCBoolean, CCFloat, _decorator } from '../../core';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { Root } from '../../root';
 import { Camera, PCFType, ShadowType } from '../../render-scene/scene';
+
+const { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
+    menu, tooltip, serializable, formerlySerializedAs, visible, property } = _decorator;
 
 /**
  * @en The spot light component, multiple spot lights can be added to one scene.
@@ -198,7 +198,7 @@ export class SpotLight extends Light {
      */
     @tooltip('i18n:lights.shadowEnabled')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
     get shadowEnabled () {
@@ -217,7 +217,7 @@ export class SpotLight extends Light {
      */
     @tooltip('i18n:lights.shadowPcf')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
     @editable
     @type(PCFType)
     get shadowPcf () {
@@ -236,7 +236,7 @@ export class SpotLight extends Light {
      */
     @tooltip('i18n:lights.shadowBias')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @editable
     @type(CCFloat)
     get shadowBias () {
@@ -255,7 +255,7 @@ export class SpotLight extends Light {
      */
     @tooltip('i18n:lights.shadowNormalBias')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
     @editable
     @type(CCFloat)
     get shadowNormalBias () {

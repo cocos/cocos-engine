@@ -28,11 +28,13 @@ import { Texture2D } from '../asset/assets';
 import { Color, Mat4, _decorator } from '../core';
 import { CCTextureData } from './CCTextureData';
 
+const { ccclass } = _decorator;
+
 // @skipLibCheck
 /**
 * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
 */
-@_decorator.ccclass('dragonBones.CCSlot')
+@ccclass('dragonBones.CCSlot')
 export class CCSlot extends Slot {
     static toString () {
         return '[class dragonBones.CCSlot]';

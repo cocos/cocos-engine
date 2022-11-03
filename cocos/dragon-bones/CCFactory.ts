@@ -34,13 +34,15 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { Node } from '../scene-graph';
 import { director, Game, game } from '../game';
 
+const { ccclass } = _decorator;
+
 /**
  * DragonBones factory
  * @class CCFactory
  * @extends BaseFactory
  * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
 */
-@_decorator.ccclass('CCFactory')
+@ccclass('CCFactory')
 export class CCFactory extends BaseFactory implements ISchedulable {
     static _factory: CCFactory | null = null;
 

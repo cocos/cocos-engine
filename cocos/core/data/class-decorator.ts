@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-export { uniquelyReferenced, serializable } from './decorators/serializable';
+export { uniquelyReferenced } from './decorators/serializable';
 export { ccclass } from './decorators/ccclass';
 export { property } from './decorators/property';
 export { requireComponent, executionOrder, disallowMultiple, allowReplicated } from './decorators/component';
@@ -32,6 +32,6 @@ export { executeInEditMode, menu, playOnFocus, inspector, icon, help } from './d
 export { type, integer, float, boolean, string } from './decorators/type';
 
 // engine internal exports
-export { editable, tooltip, visible, displayName, displayOrder, range, rangeStep, slide } from './decorators/editable';
+export { editable, tooltip, visible, displayName, displayOrder, range, rangeStep, slide, disallowAnimation } from './decorators/editable';
 export { override } from './decorators/override';
-export { formerlySerializedAs } from './decorators/serializable';
+export { formerlySerializedAs, serializable } from './decorators/serializable';

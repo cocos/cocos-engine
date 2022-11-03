@@ -6,18 +6,20 @@ import { EJoint2DType } from '../../physics-types';
 import { createJoint } from '../../physics-selector';
 import { Component } from '../../../../scene-graph';
 
-@_decorator.ccclass('cc.Joint2D')
+const { ccclass, type, property } = _decorator;
+
+@ccclass('cc.Joint2D')
 export class Joint2D extends Component {
-    @_decorator.property
+    @property
     anchor = new Vec2();
 
-    @_decorator.property
+    @property
     connectedAnchor = new Vec2();
 
-    @_decorator.property
+    @property
     collideConnected = false;
 
-    @_decorator.type(RigidBody2D)
+    @type(RigidBody2D)
     connectedBody: RigidBody2D | null = null;
 
     _body: RigidBody2D | null = null

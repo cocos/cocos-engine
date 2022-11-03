@@ -191,7 +191,6 @@ export const set = (() => {
  * @param [forceDictMode=false] Apply the delete operator to newly created map object.
  * This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes
  * which are very expensive for objects that are constantly changing shape.
- * @engineInternal
  */
 export function createMap (forceDictMode?: boolean): any {
     const map = Object.create(null);

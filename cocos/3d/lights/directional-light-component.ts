@@ -128,7 +128,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.shadowEnabled')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
     get shadowEnabled () {
@@ -148,7 +148,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.shadowPcf')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 5  } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 5  } })
     @editable
     @type(PCFType)
     get shadowPcf () {
@@ -168,7 +168,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.shadowBias')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 6 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 6 } })
     @editable
     @type(CCFloat)
     get shadowBias () {
@@ -188,7 +188,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.shadowNormalBias')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 7 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 7 } })
     @editable
     @type(CCFloat)
     get shadowNormalBias () {
@@ -208,7 +208,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.shadowSaturation')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 8 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 8 } })
     @editable
     @range([0.0, 1.0, 0.01])
     @slide
@@ -234,7 +234,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === false;
     })
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 9 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 9 } })
     @editable
     @tooltip('shadow visible distance: shadow quality is inversely proportional of the magnitude of this value')
     @range([0.0, 2000.0, 0.1])
@@ -262,7 +262,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === false;
     })
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 10 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 10 } })
     @editable
     @tooltip('if shadow has been culled, increase this value to fix it')
     @range([0.0, 2000.0, 1.0])
@@ -283,7 +283,7 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置阴影层级
      */
     @visible(false)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 11 } })
     @editable
     @tooltip('CSM Level')
     @slide
@@ -309,7 +309,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
             === ShadowType.ShadowMap && this._shadowFixedArea === false;
     })
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 12 } })
     @editable
     @tooltip('enable CSM')
     @slide
@@ -330,7 +330,7 @@ export class DirectionalLight extends Light {
      * @zh 获取或者设置阴影层级系数
      */
     @visible(false)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 13 } })
     @editable
     @tooltip('CSM Level ratio')
     @range([0.0, 1.0, 0.01])
@@ -353,7 +353,7 @@ export class DirectionalLight extends Light {
      * @internal
      */
     @visible(false)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
     @editable
     @tooltip('CSM Performance Optimization Mode')
     @slide
@@ -375,7 +375,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.shadowFixedArea')
     @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
     && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
     @editable
     @type(CCBoolean)
     get shadowFixedArea () {
@@ -398,7 +398,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
     @editable
     @type(CCFloat)
     get shadowNear () {
@@ -421,7 +421,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
     @editable
     @type(CCFloat)
     get shadowFar () {
@@ -444,7 +444,7 @@ export class DirectionalLight extends Light {
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
         === ShadowType.ShadowMap && this._shadowFixedArea === true;
     })
-    @_decorator.property({ group: { name: 'DynamicShadowSettings', displayOrder: 18 } })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 18 } })
     @type(CCFloat)
     get shadowOrthoSize () {
         return this._shadowOrthoSize;

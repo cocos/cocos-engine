@@ -323,6 +323,7 @@ export const multiline: LegacyPropertyDecorator = !DEV
  * Sets the property so that it does not interop with the animation parts in editor.
  * @zh
  * 设置该属性不参与编辑器中动画相关的交互。
+ * @engineInternal
  */
 export const disallowAnimation: LegacyPropertyDecorator = !DEV
     ? emptyDecorator

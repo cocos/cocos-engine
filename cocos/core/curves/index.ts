@@ -26,4 +26,5 @@ export type {
     ObjectCurveKeyframe,
 } from './object-curve';
 
+// engine internal exports
 export { EasingMethod } from './easing-method';

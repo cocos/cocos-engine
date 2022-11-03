@@ -7,13 +7,15 @@ import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
 
+const { ccclass, serializable } = _decorator;
+
 export interface AnimationBlend extends Motion, EditorExtendable {
     [createEval] (_context: MotionEvalContext): MotionEval | null;
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
 export class AnimationBlendItem {
-    @_decorator.serializable
+    @serializable
     public motion: Motion | null = null;
 
     public clone () {
@@ -28,9 +30,9 @@ export class AnimationBlendItem {
     }
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend`)
 export class AnimationBlend extends EditorExtendable implements Motion {
-    @_decorator.serializable
+    @serializable
     name = '';
 
     public copyTo (that: AnimationBlend) {

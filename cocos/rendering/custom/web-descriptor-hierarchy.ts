@@ -32,7 +32,9 @@ import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOCSM, U
 import { DefaultVisitor, edge_descriptor } from './graph';
 import { _decorator } from '../../core';
 
-@_decorator.ccclass('cc.WebDescriptorHierarchy')
+const { ccclass } = _decorator;
+
+@ccclass('cc.WebDescriptorHierarchy')
 export class WebDescriptorHierarchy {
     public uniformBlockIndex: Map<DescriptorBlock, DescriptorBlockIndex>;
     public blockMerged: Map<DescriptorBlock, Map<Type, Descriptor>>;

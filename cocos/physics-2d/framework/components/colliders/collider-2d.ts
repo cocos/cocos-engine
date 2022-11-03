@@ -9,15 +9,17 @@ import { ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { Component } from '../../../../scene-graph';
 
-@_decorator.ccclass('cc.Collider2D')
+const { ccclass, editable, property, type } = _decorator;
+
+@ccclass('cc.Collider2D')
 export class Collider2D extends Eventify(Component) {
-    @_decorator.editable
+    @editable
     editing = false;
     /**
      * @en Tag. If a node has several collider components, you can judge which type of collider is collided according to the tag.
      * @zh 标签。当一个节点上有多个碰撞组件时，在发生碰撞后，可以使用此标签来判断是节点上的哪个碰撞组件被碰撞了。
      */
-    @_decorator.property
+    @property
     tag = 0;
 
     /**
@@ -26,7 +28,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 获取或设置分组。
      */
-    @_decorator.type(PhysicsGroup)
+    @type(PhysicsGroup)
     public get group (): number {
         return this._group;
     }
@@ -41,7 +43,7 @@ export class Collider2D extends Eventify(Component) {
      * @en The density.
      * @zh 密度
      */
-    @_decorator.property
+    @property
     get density () {
         return this._density;
     }
@@ -55,7 +57,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 一个传感器类型的碰撞体会产生碰撞回调，但是不会发生物理碰撞效果。
      */
-    @_decorator.property
+    @property
     get sensor () {
         return this._sensor;
     }
@@ -69,7 +71,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 摩擦系数，取值一般在 [0, 1] 之间
      */
-    @_decorator.property
+    @property
     get friction () {
         return this._friction;
     }
@@ -83,7 +85,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 弹性系数，取值一般在 [0, 1]之间
      */
-    @_decorator.property
+    @property
     get restitution () {
         return this._restitution;
     }
@@ -94,7 +96,7 @@ export class Collider2D extends Eventify(Component) {
      * @en Position offset
      * @zh 位置偏移量
      */
-    @_decorator.property
+    @property
     get offset () {
         return this._offset;
     }
@@ -182,16 +184,16 @@ export class Collider2D extends Eventify(Component) {
     protected _shape: IBaseShape | null = null;
     protected _body: RigidBody2D | null = null;
 
-    @_decorator.property
+    @property
     protected _group = PhysicsGroup.DEFAULT;
-    @_decorator.property
+    @property
     protected _density = 1.0;
-    @_decorator.property
+    @property
     protected _sensor = false;
-    @_decorator.property
+    @property
     protected _friction = 0.2;
-    @_decorator.property
+    @property
     protected _restitution = 0;
-    @_decorator.property
+    @property
     protected _offset = new Vec2();
 }

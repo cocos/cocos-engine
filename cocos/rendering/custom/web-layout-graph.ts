@@ -12,6 +12,8 @@ import { WebLayoutExporter } from './web-layout-exporter';
 import { getUpdateFrequencyName, DescriptorBlockIndex, DescriptorTypeOrder,
     Descriptor, getDescriptorTypeOrderName, DescriptorBlockFlattened, UpdateFrequency } from './types';
 
+const { ccclass } = _decorator;
+
 function getName (type: Type): string {
     switch (type) {
     case Type.UNKNOWN: return 'Unknown';
@@ -187,7 +189,7 @@ class PrintVisitor extends DefaultVisitor {
     oss = '';
 }
 
-@_decorator.ccclass('cc.WebLayoutGraphBuilder')
+@ccclass('cc.WebLayoutGraphBuilder')
 export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
     private _data: LayoutGraphData;
     private _device: Device | null;

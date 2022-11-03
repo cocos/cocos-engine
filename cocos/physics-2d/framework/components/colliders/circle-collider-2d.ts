@@ -3,17 +3,19 @@ import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { ICircleShape } from '../../../spec/i-physics-shape';
 
-@_decorator.ccclass('cc.CircleCollider2D')
-@_decorator.menu('Physics2D/Colliders/CircleCollider2D')
+const { ccclass, menu, property } = _decorator;
+
+@ccclass('cc.CircleCollider2D')
+@menu('Physics2D/Colliders/CircleCollider2D')
 export class CircleCollider2D extends Collider2D {
-    @_decorator.property
+    @property
     private _radius = 1;
 
     /**
      * @en Circle radius
      * @zh 圆形半径
      */
-    @_decorator.property
+    @property
     get radius () {
         return this._radius;
     }

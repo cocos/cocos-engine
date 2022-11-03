@@ -31,6 +31,7 @@ import { getOrCreateSerializationMetadata } from '../serialization-metadata';
 
 /**
  * True if serialization feature is enabled in current environment.
+ * @engineInternal
  */
 const WITH_SERIALIZATION = EDITOR || TEST;
 

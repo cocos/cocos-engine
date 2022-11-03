@@ -6,6 +6,8 @@ import { AnimationGraphEval } from './graph-eval';
 import type { MotionStateStatus, TransitionStatus, ClipStatus } from './graph-eval';
 import { Value } from './variable';
 
+const { ccclass, menu, property } = _decorator;
+
 export type {
     MotionStateStatus,
     ClipStatus,
@@ -22,8 +24,8 @@ export type {
  * 将动画图应用到动画控制器组件所挂载的节点上。
  * 当动画控制器开始运行时，动画图会被实例化。然后便可以设置动画图实例中的变量或者查询动画图的运行状况。
  */
-@_decorator.ccclass('cc.animation.AnimationController')
-@_decorator.menu('Animation/Animation Controller')
+@ccclass('cc.animation.AnimationController')
+@menu('Animation/Animation Controller')
 export class AnimationController extends Component {
     /**
      * @zh
@@ -31,7 +33,7 @@ export class AnimationController extends Component {
      * @en
      * The animation graph associated with the animation controller.
      */
-    @_decorator.property(AnimationGraph)
+    @property(AnimationGraph)
     public graph: AnimationGraphRunTime | null = null;
 
     private _graphEval: AnimationGraphEval | null = null;

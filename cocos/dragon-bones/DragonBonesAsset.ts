@@ -30,13 +30,15 @@ import { Enum, cclegacy, _decorator } from '../core';
 import { CCFactory } from './CCFactory';
 import { Node } from '../scene-graph';
 
+const { ccclass, serializable } = _decorator;
+
 /**
  * @en The skeleton data of dragonBones.
  * @zh dragonBones 的 骨骼数据。
  * @class DragonBonesAsset
  * @extends Asset
  */
-@_decorator.ccclass('dragonBones.DragonBonesAsset')
+@ccclass('dragonBones.DragonBonesAsset')
 export class DragonBonesAsset extends Asset {
     /**
      * @en
@@ -45,7 +47,7 @@ export class DragonBonesAsset extends Asset {
      * 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
      * @property {string} dragonBonesJson
      */
-    @_decorator.serializable
+    @serializable
     protected _dragonBonesJson = '';
 
     get dragonBonesJson () {

@@ -3,8 +3,10 @@ import { _decorator } from '../../../../core';
 import { IHingeJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
 
-@_decorator.ccclass('cc.HingeJoint2D')
-@_decorator.menu('Physics2D/Joints/HingeJoint2D')
+const { ccclass, menu, property } = _decorator;
+
+@ccclass('cc.HingeJoint2D')
+@menu('Physics2D/Joints/HingeJoint2D')
 export class HingeJoint2D extends Joint2D {
     TYPE = EJoint2DType.HINGE;
 
@@ -14,7 +16,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 是否开启关节的限制？
      */
-    @_decorator.property
+    @property
     get enableLimit (): boolean {
         return this._enableLimit;
     }
@@ -28,7 +30,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 角度的最低限制。
      */
-    @_decorator.property
+    @property
     get lowerAngle (): number {
         return this._lowerAngle;
     }
@@ -45,7 +47,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 角度的最高限制。
      */
-    @_decorator.property
+    @property
     get upperAngle (): number {
         return this._upperAngle;
     }
@@ -62,7 +64,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 是否开启关节马达？
      */
-    @_decorator.property
+    @property
     get enableMotor (): boolean {
         return this._enableMotor;
     }
@@ -79,7 +81,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 可以施加到刚体的最大扭矩。
      */
-    @_decorator.property
+    @_roperty
     get maxMotorTorque (): number {
         return this._maxMotorTorque;
     }
@@ -96,7 +98,7 @@ export class HingeJoint2D extends Joint2D {
      * @zh
      * 期望的马达速度。
      */
-    @_decorator.property
+    @property
     get motorSpeed (): number {
         return this._motorSpeed;
     }
@@ -109,16 +111,16 @@ export class HingeJoint2D extends Joint2D {
 
     /// private properties
 
-    @_decorator.property
+    @property
     private _enableLimit = false;
-    @_decorator.property
+    @property
     private _lowerAngle = 0;
-    @_decorator.property
+    @property
     private _upperAngle = 0;
-    @_decorator.property
+    @property
     private _enableMotor = false;
-    @_decorator.property
+    @property
     private _maxMotorTorque = 1000;
-    @_decorator.property
+    @property
     private _motorSpeed = 0;
 }

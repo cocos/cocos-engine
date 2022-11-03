@@ -22,9 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
-    formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
@@ -39,6 +36,9 @@ import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+
+const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
+    formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
 
 const USE_REFLECTION_PROBE = 'USE_REFLECTION_PROBE';
 /**
@@ -243,7 +243,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @_decorator.property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 } })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -261,7 +261,7 @@ export class MeshRenderer extends ModelRenderer {
    */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
-    @_decorator.property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 1 } })
     @disallowAnimation
     get shadowNormalBias () {
         return this._shadowNormalBias;
@@ -279,7 +279,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
-    @_decorator.property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 } })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -296,7 +296,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
-    @_decorator.property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 3 } })
+    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 3 } })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;

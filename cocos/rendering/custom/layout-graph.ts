@@ -39,6 +39,8 @@ import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDe
 // LayoutGraphData Implementation
 import { _decorator } from '../../core';
 
+const { ccclass } = _decorator;
+
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
 }
@@ -764,7 +766,7 @@ interface LayoutGraphDataComponentPropertyMap {
     [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;
 }
 
-@_decorator.ccclass('cc.LayoutGraphData')
+@ccclass('cc.LayoutGraphData')
 export class LayoutGraphData implements impl.BidirectionalGraph
 , impl.AdjacencyGraph
 , impl.VertexListGraph

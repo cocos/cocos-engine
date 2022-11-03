@@ -7,9 +7,11 @@ import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 import { ClipStatus } from './graph-eval';
 import { MotionEvalContext, Motion, MotionEval } from './motion';
 
-@_decorator.ccclass('cc.animation.ClipMotion')
+const { ccclass, type } = _decorator;
+
+@ccclass('cc.animation.ClipMotion')
 export class ClipMotion extends EditorExtendable implements Motion {
-    @_decorator.type(AnimationClip)
+    @type(AnimationClip)
     public clip: AnimationClip | null = null;
 
     public [createEval] (context: MotionEvalContext) {

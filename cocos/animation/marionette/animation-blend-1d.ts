@@ -6,9 +6,11 @@ import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animat
 import { blend1D } from './blend-1d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend1DItem`)
+const { ccclass, serializable } = _decorator;
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend1DItem`)
 class AnimationBlend1DItem extends AnimationBlendItem {
-    @_decorator.serializable
+    @serializable
     public threshold = 0.0;
 
     public clone () {
@@ -24,14 +26,14 @@ class AnimationBlend1DItem extends AnimationBlendItem {
     }
 }
 
-@_decorator.ccclass('cc.animation.AnimationBlend1D')
+@ccclass('cc.animation.AnimationBlend1D')
 export class AnimationBlend1D extends AnimationBlend {
     public static Item = AnimationBlend1DItem;
 
-    @_decorator.serializable
+    @serializable
     private _items: AnimationBlend1DItem[] = [];
 
-    @_decorator.serializable
+    @serializable
     public param = new BindableNumber();
 
     get items (): Iterable<AnimationBlend1DItem> {

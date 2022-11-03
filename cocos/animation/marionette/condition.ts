@@ -23,6 +23,8 @@ export interface ConditionEval {
     eval(): boolean;
 }
 
+const { ccclass, serializable } = _decorator;
+
 enum BinaryOperator {
     EQUAL_TO,
     NOT_EQUAL_TO,
@@ -32,17 +34,17 @@ enum BinaryOperator {
     GREATER_THAN_OR_EQUAL_TO,
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}BinaryCondition`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}BinaryCondition`)
 export class BinaryCondition implements Condition {
     public static readonly Operator = BinaryOperator;
 
-    @_decorator.serializable
+    @serializable
     public operator: BinaryOperator = BinaryOperator.EQUAL_TO;
 
-    @_decorator.serializable
+    @serializable
     public lhs: BindableNumber = new BindableNumber();
 
-    @_decorator.serializable
+    @serializable
     public rhs: BindableNumber = new BindableNumber();
 
     public clone () {
@@ -149,14 +151,14 @@ enum UnaryOperator {
     FALSY,
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}UnaryCondition`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}UnaryCondition`)
 export class UnaryCondition implements Condition {
     public static readonly Operator = UnaryOperator;
 
-    @_decorator.serializable
+    @serializable
     public operator: UnaryOperator = UnaryOperator.TRUTHY;
 
-    @_decorator.serializable
+    @serializable
     public operand = new BindableBoolean();
 
     public clone () {
@@ -226,9 +228,9 @@ class UnaryConditionEval implements ConditionEval {
     }
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}TriggerCondition`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}TriggerCondition`)
 export class TriggerCondition implements Condition {
-    @_decorator.serializable
+    @serializable
     public trigger = '';
 
     public clone () {

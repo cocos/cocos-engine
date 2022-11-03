@@ -4,9 +4,11 @@ import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendDirectItem`)
+const { ccclass, serializable } = _decorator;
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendDirectItem`)
 class AnimationBlendDirectItem extends AnimationBlendItem {
-    @_decorator.serializable
+    @serializable
     public weight = 0.0;
 
     public clone () {
@@ -22,11 +24,11 @@ class AnimationBlendDirectItem extends AnimationBlendItem {
     }
 }
 
-@_decorator.ccclass('cc.animation.AnimationBlendDirect')
+@ccclass('cc.animation.AnimationBlendDirect')
 export class AnimationBlendDirect extends AnimationBlend {
     public static Item = AnimationBlendDirectItem;
 
-    @_decorator.serializable
+    @serializable
     private _items: AnimationBlendDirectItem[] = [];
 
     get items () {

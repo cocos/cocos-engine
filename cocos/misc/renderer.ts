@@ -35,6 +35,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
+const { ccclass, serializable, disallowMultiple, type, displayOrder, displayName } = _decorator;
+
 /**
  * @en Base class for all components which can submit contents for the rendering process.
  * It manages a series of [[renderer.Model]]s and the visibility, the materials and the material instances of the models.
@@ -51,8 +53,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * - 使用 [[getRenderMaterial]] 获取的渲染材质是用于实际渲染流程的材质对象，当存在材质实例的时候，永远使用材质实例。
  * 默认情况下，渲染组件使用共享材质进行渲染，材质实例也不会被创建出来。仅在用户通过 [[material]]，[[materials]] 和 [[getMaterialInstance]] 接口获取材质时才会创建材质实例。
  */
-@_decorator.ccclass('cc.Renderer')
-@_decorator.disallowMultiple
+@ccclass('cc.Renderer')
+@disallowMultiple
 export class Renderer extends Component {
     /**
      * @en Get the default shared material
@@ -66,9 +68,9 @@ export class Renderer extends Component {
      * @en All shared materials of model
      * @zh 模型的所有共享材质
      */
-    @_decorator.type(Material)
-    @_decorator.displayOrder(0)
-    @_decorator.displayName('Materials')
+    @type(Material)
+    @displayOrder(0)
+    @displayName('Materials')
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
         return (EDITOR && this._materials.slice()) || this._materials;
@@ -132,7 +134,7 @@ export class Renderer extends Component {
     }
 
     // _materials should be defined after sharedMaterials for Editor reset component reason
-    @_decorator.type([Material])
+    @type([Material])
     protected _materials: (Material | null)[] = [];
 
     protected _materialInstances: (MaterialInstance | null)[] = [];

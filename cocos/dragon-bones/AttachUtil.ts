@@ -30,6 +30,7 @@ import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 
 const _tempMat4 = new Mat4();
+const { ccclass } = _decorator;
 
 /**
  * @en Attach node tool
@@ -37,7 +38,7 @@ const _tempMat4 = new Mat4();
  * @class dragonBones.AttachUtil
  */
 
-@_decorator.ccclass('dragonBones.AttachUtil')
+@ccclass('dragonBones.AttachUtil')
 export class AttachUtil {
     _inited = false;
     _armature: Armature | null = null;

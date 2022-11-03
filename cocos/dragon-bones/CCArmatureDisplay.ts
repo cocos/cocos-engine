@@ -31,10 +31,12 @@ import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { Node } from '../scene-graph';
 
+const { ccclass } = _decorator;
+
 /**
 * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
 */
-@_decorator.ccclass('dragonBones.CCArmatureDisplay')
+@ccclass('dragonBones.CCArmatureDisplay')
 export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
     get node () { return this; }
 

@@ -28,16 +28,18 @@ import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { cclegacy, _decorator } from '../core';
 
+const { ccclass, serializable, editable } = _decorator;
+
 /**
  * @en Class for 2D particle asset handling.
  * @zh 2D 粒子资产
  * @class ParticleAsset
  * @extends Asset
  */
-@_decorator.ccclass('cc.ParticleAsset')
+@ccclass('cc.ParticleAsset')
 export class ParticleAsset extends Asset {
-    @_decorator.serializable
-    @_decorator.editable
+    @serializable
+    @editable
     public spriteFrame: SpriteFrame | null= null;
 }
 

@@ -24,11 +24,12 @@
  THE SOFTWARE.
 */
 
-import { ccclass, serializable } from 'cc.decorator';
 import { EDITOR, PREVIEW } from 'internal:constants';
 import { _decorator, Eventify, path, debug, getError, CCObject, cclegacy } from '../../core';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Node } from '../../scene-graph';
+
+const { ccclass, serializable, property } = _decorator;
 
 /**
  * @en
@@ -142,7 +143,7 @@ export class Asset extends Eventify(CCObject) {
      * @default null
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    @_decorator.property
+    @property
     get _nativeAsset () {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._file;

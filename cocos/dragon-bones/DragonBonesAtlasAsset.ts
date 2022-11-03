@@ -32,20 +32,22 @@ import { cclegacy, _decorator } from '../core';
 import { Asset, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 
+const { ccclass, serializable, type } = _decorator;
+
 /**
  * @en The skeleton atlas data of dragonBones.
  * @zh dragonBones 的骨骼纹理数据。
  * @class DragonBonesAtlasAsset
  * @extends Asset
  */
-@_decorator.ccclass('dragonBones.DragonBonesAtlasAsset')
+@ccclass('dragonBones.DragonBonesAtlasAsset')
 export class DragonBonesAtlasAsset extends Asset {
     constructor () {
         super();
         this._clear();
     }
 
-    @_decorator.serializable
+    @serializable
     _atlasJson = '';
 
     get atlasJson () {
@@ -56,11 +58,11 @@ export class DragonBonesAtlasAsset extends Asset {
         this._atlasJsonData = JSON.parse(this.atlasJson);
         this._clear();
     }
-    @_decorator.serializable
-    @_decorator.type(Texture2D)
+    @serializable
+    @type(Texture2D)
     _texture: Texture2D | null = null;
 
-    @_decorator.serializable
+    @serializable
     _atlasJsonData: any = {};
 
     _factory: CCFactory| null = null;
@@ -75,7 +77,7 @@ export class DragonBonesAtlasAsset extends Asset {
         this._clear();
     }
 
-    @_decorator.serializable
+    @serializable
     _textureAtlasData: TextureAtlasData | null = null;
 
     createNode (callback: (error: Error | null, node: Node) => void) {

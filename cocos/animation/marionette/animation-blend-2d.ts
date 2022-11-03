@@ -6,6 +6,8 @@ import { BindableNumber, bindOr, VariableType } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
+const { ccclass, serializable } = _decorator;
+
 enum Algorithm {
     SIMPLE_DIRECTIONAL,
     FREEFORM_CARTESIAN,
@@ -14,9 +16,9 @@ enum Algorithm {
 
 ccenum(Algorithm);
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend2DItem`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend2DItem`)
 class AnimationBlend2DItem extends AnimationBlendItem {
-    @_decorator.serializable
+    @serializable
     public threshold = new Vec2();
 
     public clone () {
@@ -32,22 +34,22 @@ class AnimationBlend2DItem extends AnimationBlendItem {
     }
 }
 
-@_decorator.ccclass('cc.animation.AnimationBlend2D')
+@ccclass('cc.animation.AnimationBlend2D')
 export class AnimationBlend2D extends AnimationBlend {
     public static Algorithm = Algorithm;
 
     public static Item = AnimationBlend2DItem;
 
-    @_decorator.serializable
+    @serializable
     public algorithm = Algorithm.SIMPLE_DIRECTIONAL;
 
-    @_decorator.serializable
+    @serializable
     private _items: AnimationBlend2DItem[] = [];
 
-    @_decorator.serializable
+    @serializable
     public paramX = new BindableNumber();
 
-    @_decorator.serializable
+    @serializable
     public paramY = new BindableNumber();
 
     get items (): Iterable<AnimationBlend2DItem> {

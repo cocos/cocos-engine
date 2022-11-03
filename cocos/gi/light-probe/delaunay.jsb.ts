@@ -24,28 +24,30 @@
 */
 import { _decorator } from "../../core";
 
+const { ccclass, serializable } = _decorator;
+
 export const Vertex = jsb.Vertex;
 const VertexProto = Vertex.prototype;
-_decorator.serializable(VertexProto, 'position');
-_decorator.serializable(VertexProto, 'normal');
-_decorator.serializable(VertexProto, 'coefficients');
-_decorator.ccclass('cc.Vertex')(Vertex);
+serializable(VertexProto, 'position');
+serializable(VertexProto, 'normal');
+serializable(VertexProto, 'coefficients');
+ccclass('cc.Vertex')(Vertex);
 
 export const CircumSphere = jsb.CircumSphere;
 const CircumSphereProto = CircumSphere.prototype;
-_decorator.serializable(CircumSphereProto, 'center');
-_decorator.serializable(CircumSphereProto, 'radiusSquared');
-_decorator.ccclass('cc.CircumSphere')(CircumSphere);
+serializable(CircumSphereProto, 'center');
+serializable(CircumSphereProto, 'radiusSquared');
+ccclass('cc.CircumSphere')(CircumSphere);
 
 export const Tetrahedron = jsb.Tetrahedron;
 const TetrahedronProto = Tetrahedron.prototype;
-_decorator.serializable(TetrahedronProto, 'invalid');
-_decorator.serializable(TetrahedronProto, 'vertex0');
-_decorator.serializable(TetrahedronProto, 'vertex1');
-_decorator.serializable(TetrahedronProto, 'vertex2');
-_decorator.serializable(TetrahedronProto, 'vertex3');
-_decorator.serializable(TetrahedronProto, 'neighbours');
-_decorator.serializable(TetrahedronProto, 'matrix');
-_decorator.serializable(TetrahedronProto, 'offset');
-_decorator.serializable(TetrahedronProto, 'sphere');
-_decorator.ccclass('cc.Tetrahedron')(Tetrahedron);
+serializable(TetrahedronProto, 'invalid');
+serializable(TetrahedronProto, 'vertex0');
+serializable(TetrahedronProto, 'vertex1');
+serializable(TetrahedronProto, 'vertex2');
+serializable(TetrahedronProto, 'vertex3');
+serializable(TetrahedronProto, 'neighbours');
+serializable(TetrahedronProto, 'matrix');
+serializable(TetrahedronProto, 'offset');
+serializable(TetrahedronProto, 'sphere');
+ccclass('cc.Tetrahedron')(Tetrahedron);

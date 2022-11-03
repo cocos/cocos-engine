@@ -14,12 +14,14 @@ export interface Bindable<TValue> {
     clone(): Bindable<TValue>;
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableNumber`)
+const { ccclass, serializable } = _decorator;
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableNumber`)
 export class BindableNumber implements Bindable<number> {
-    @_decorator.serializable
+    @serializable
     public variable = '';
 
-    @_decorator.serializable
+    @serializable
     public value = 0.0;
 
     constructor (value = 0.0) {
@@ -34,12 +36,12 @@ export class BindableNumber implements Bindable<number> {
     }
 }
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableBoolean`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableBoolean`)
 export class BindableBoolean implements Bindable<boolean> {
-    @_decorator.serializable
+    @serializable
     public variable = '';
 
-    @_decorator.serializable
+    @serializable
     public value = false;
 
     constructor (value = false) {

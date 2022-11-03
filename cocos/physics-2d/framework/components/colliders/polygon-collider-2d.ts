@@ -3,20 +3,22 @@ import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';
 
-@_decorator.ccclass('cc.PolygonCollider2D')
-@_decorator.menu('Physics2D/Colliders/PolygonCollider2D')
+const { ccclass, menu, property } = _decorator;
+
+@ccclass('cc.PolygonCollider2D')
+@menu('Physics2D/Colliders/PolygonCollider2D')
 export class PolygonCollider2D extends Collider2D {
-    @_decorator.property({ serializable: false, displayOrder: 0 })
+    @property({ serializable: false, displayOrder: 0 })
     threshold = 1;
 
-    @_decorator.property
+    @property
     private _points = [new Vec2(-1, -1), new Vec2(1, -1), new Vec2(1, 1), new Vec2(-1, 1)];
 
     /**
      * @en Polygon points
      * @zh 多边形顶点数组
      */
-    @_decorator.property({ type: Vec2 })
+    @property({ type: Vec2 })
     get points () {
         return this._points;
     }

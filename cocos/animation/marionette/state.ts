@@ -10,11 +10,13 @@ export const outgoingsSymbol = Symbol('[[Outgoing transitions]]');
 
 export const incomingsSymbol = Symbol('[[Incoming transitions]]');
 
-@_decorator.ccclass('cc.animation.State')
+const { ccclass, serializable } = _decorator;
+
+@ccclass('cc.animation.State')
 export class State extends EditorExtendable implements OwnedBy<Layer | StateMachine> {
     declare [ownerSymbol]: StateMachine | undefined;
 
-    @_decorator.serializable
+    @serializable
     public name = '';
 
     public [outgoingsSymbol]: TransitionInternal[] = [];
@@ -33,7 +35,7 @@ export class State extends EditorExtendable implements OwnedBy<Layer | StateMach
 
 type StateMachineComponentConstructor<T extends StateMachineComponent> = Constructor<T>;
 
-@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}InteractiveState`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}InteractiveState`)
 export class InteractiveState extends State {
     get components (): Iterable<StateMachineComponent> {
         return this._components;
@@ -63,6 +65,6 @@ export class InteractiveState extends State {
         that._components = this.instantiateComponents();
     }
 
-    @_decorator.serializable
+    @serializable
     private _components: StateMachineComponent[] = [];
 }

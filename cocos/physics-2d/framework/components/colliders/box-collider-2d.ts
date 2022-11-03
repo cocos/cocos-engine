@@ -3,17 +3,19 @@ import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IBoxShape } from '../../../spec/i-physics-shape';
 
-@_decorator.ccclass('cc.BoxCollider2D')
-@_decorator.menu('Physics2D/Colliders/BoxCollider2D')
+const { ccclass, menu, property } = _decorator;
+
+@ccclass('cc.BoxCollider2D')
+@menu('Physics2D/Colliders/BoxCollider2D')
 export class BoxCollider2D extends Collider2D {
-    @_decorator.property
+    @property
     private _size = new Size(1, 1);
 
     /**
      * @en Box size
      * @zh 包围盒大小
      */
-    @_decorator.property
+    @property
     get size () {
         return this._size;
     }
